@@ -1,89 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbUDIRgM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 13:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUDIRgL
+	id S261474AbUDIRoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 13:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUDIRoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 13:36:11 -0400
-Received: from gizmo11bw.bigpond.com ([144.140.70.21]:7113 "HELO
-	gizmo11bw.bigpond.com") by vger.kernel.org with SMTP
-	id S261468AbUDIReU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 13:34:20 -0400
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: jgrimm2@us.ibm.com
-Subject: Re: io_apic & timer_ack fix
-Date: Sat, 10 Apr 2004 03:37:21 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, phil.el@wanadoo.fr
+	Fri, 9 Apr 2004 13:44:44 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:50437 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261474AbUDIRok
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 13:44:40 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Kitt Tientanopajai <kitt@gear.kku.ac.th>
+Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
+Date: Fri, 9 Apr 2004 19:41:20 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, David Hinds <dhinds@sonic.net>
+References: <200404060227.58325.daniel.ritz@gmx.ch> <200404081717.15794.daniel.ritz@gmx.ch> <20040409093046.51d67994.kitt@gear.kku.ac.th>
+In-Reply-To: <20040409093046.51d67994.kitt@gear.kku.ac.th>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404100337.21730.ross@datscreative.com.au>
+Content-Disposition: inline
+Message-Id: <200404091941.20444.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 09 Apr 2004 at 08:39 +0000, Jon Grimm wrote: 
+On Friday 09 April 2004 04:30, Kitt Tientanopajai wrote:
+> Hi,
+> 
+> > you're welcome. but i now have the feeling that it's wrong. so another question:
+> > my patch also changes the interrupt assignment for the USB controller at 00:1d.1
+> > so the question is: does this one work ok? or is there an interrupt storm as soon
+> > as you use the device? (like with yenta_socket before)
+> 
+> Ah, right, TM361 has two USB ports, one of them has usb mouse attached and seem to be okay.
+> Another one does not work after applying your patch. This is dmesg when I connect Sony Clie to
+> sync data through the USB port, the pilot-xfer cannot sync any data and then exit without any
+> crash/freeze. 
 
-> Hmmm.... 
- > 
- > I see that the following patch got pulled in by Andrew: 
- > http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/io_apic.c@1.85?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/io_apic.c 
- > 
- > The patch had a couple bugs: 
- > http://seclists.org/lists/linux-kernel/2004/Mar/4152.html 
- > 
- > But the patch was pulled out entirely by Linus: 
- > http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/io_apic.c@1.88?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/io_apic.c 
- > 
- > Was it determined that the fix was bogus? damaging? fixable? 
- 
-I thought the patch was OK with typos fixed.
+with my first patch applied, does the mouse work on the second port?
 
-> I ask as I see behavior identical for which this patch seems to have 
- > been originally carved up for (buggy SMM BIOS at fault, but this was a 
- > workaround in the OS). 
- > 
- > http://marc.theaimsgroup.com/?l=linux-kernel&m=101604672921823&w=2 
- > http://www.ussg.iu.edu/hypermail/linux/kernel/0203.2/0698.html 
- > 
- > Its a fair answer to force the BIOS vendor to fix, but in the meantime, 
- > I'm trying to figure out how safe/unsafe the workaround patch is ? 
- > I've ran on it overnight (with the semi-colon's fixed) and it hasn't 
- > exhibited the troubling behavior (where timer interrupts seem stuck or 
- > in some cases just extremely slow.... and the 8259 IMR is mucked up when 
- > Linux isn't even touching anymore). 
+> 
+> usb 1-2: new full speed USB device using address 3
+> drivers/usb/serial/usb-serial.c: USB Serial support registered for Generic
+> usbcore: registered new driver usbserial
+> drivers/usb/serial/usb-serial.c: USB Serial Driver core v2.0
+> drivers/usb/serial/usb-serial.c: USB Serial support registered for Handspring Visor / Palm OS
+> drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony Clie 3.5
+> usb 1-2: palm_os_4_probe - error -32 getting connection info
+> visor 1-2:1.0: Handspring Visor / Palm OS converter detected
+> usb 1-2: Handspring Visor / Palm OS converter now attached to ttyUSB0 (or usb/tts/0 for devfs)
+> usb 1-2: Handspring Visor / Palm OS converter now attached to ttyUSB1 (or usb/tts/1 for devfs)
+> usbcore: registered new driver visor
+> drivers/usb/serial/visor.c: USB HandSpring Visor / Palm OS driver v2.1
+> usb 1-2: USB disconnect, address 3
+> visor 1-2:1.0: device disconnected
+> visor ttyUSB0: visor_write - usb_submit_urb(write bulk) failed with status = -19
+> visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected from ttyUSB0
+> visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected from ttyUSB1
+> 
+> > can you please undo my previous patch and apply the attached one instead.
+> > the socket may be not working, but it prints the relevant registers from
+> > the o2micro chip.
+> 
+> Sure, this is dmesg after patch. 
+> 
+> Linux Kernel Card Services
+>   options:  [pci] [cardbus] [pm]
+> PCI: Enabling device 0000:01:05.0 (0000 -> 0002)
+> PCI: Found IRQ 10 for device 0000:01:05.0
+> PCI: Sharing IRQ 10 with 0000:01:08.0
+> Yenta: CardBus bridge found at 0000:01:05.0 [12a3:ab01]
+> Yenta: Enabling burst memory read transactions
+> Yenta: Using CSCINT to route CSC interrupts to PCI
+> Yenta: Routing CardBus interrupts to PCI
+> Yenta: ISA IRQ mask 0x0000, PCI irq 10
+> Socket status: 30000011
+> PCI: Found IRQ 11 for device 0000:01:09.0
+> PCI: Sharing IRQ 11 with 0000:00:1d.1
+> PCI: Sharing IRQ 11 with 0000:01:09.1
+> Yenta: CardBus bridge found at 0000:01:09.0 [1025:1022]
+> Yenta O2: socket 0000:01:09.0, Mux Ctrk: 0c00200f, Mode D: 00
 
-I read the thread you mention about the IMR muckup along the way to creating
-my nforce2 patches - it was most enlightening as to how bad consumer computers
-can be.
+ok, i made a mistake here. in o2micro.h it should have been
+	mode_d = exca_readb(socket, O2_MODE_D);
+(exca_readb, not config_readb)
 
-Prakash tracked his overheat to a buggy binary nvidia driver
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108059111721363&w=2
-and not Maciej's patch.
+but then the Mux control register already looks ok:
+PCI INTA and INTB are routed to the PCI pins
 
-Thomas was tracking down C1 C2 etc states but I do not know the results of
-his search?
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107972277920929&w=2
-Was it a problem only with one machine?
+so i really don't know why lspci shows pin A routed to irq 11 for both
+functions...the o2micro spec says the interrupt pin register always contains
+pin B for function 1.
 
-I do not recollect any other threads indicating problems with the patch.
+so i CCed dave hinds as he may know the o2micro bridge a bit better.
 
-I remember rediffing my nforce2 io-apic patch using the 2.6.3-mm3 kernel with
-Maciej's patch and having no heat trouble. I am surprised it got pulled out but
-then I only tested it on one type of chipset.
+could you try to replace the function o2micro_override() in drivers/pcmcia/o2micro.h
+with this one?
 
-BTW I just rebooted to my modified 2.6.3-mm3 and got my normal 38C cpu.
-I have to have timer_ack=0 in my io-apic timer routing patch for nforce2 to
-get nmi_debug=1 to work. This was all along the way to trying to stop lockups.
-In fact I have been running no timer_ack kernel mods since December on 4 
-machines and all have been cool and hard lockup free.
+static int o2micro_override(struct yenta_socket *socket)
+{
+        u8 mode_a, mode_b, mode_c, mode_d;
+        u32 mux_ctrl;
 
-Regards
-Ross Dickson
+        mode_a = exca_readb(socket, O2_MODE_A);
+        mode_b = exca_readb(socket, O2_MODE_B);
+        mode_c = exca_readb(socket, O2_MODE_C);
+        mode_d = exca_readb(socket, O2_MODE_D);
+        mux_ctrl = config_readl(socket, O2_MUX_CONTROL);
+
+        printk(KERN_INFO "Yenta O2: socket %s, Mux Ctrl: %08x, Mode A: %02x, B: %02x, C: %02x, D: %02x\n",
+               pci_name(socket->dev), mux_ctrl, mode_a, mode_b, mode_c, mode_d);
+
+        /* enable O2Micro mode */
+        mode_b &= ~O2_MODE_B_IDENT;
+        mode_b |= O2_MODE_B_ID_O2;
+        exca_writeb(socket, O2_MODE_B, mode_d);
+
+        /* XXX: hack: enable PCI only mode */
+        mode_d |= O2_MODE_D_IRQ_PCI;
+        exca_writeb(socket, O2_MODE_D, mode_d);
+
+        return 0;
+}
+
+so we're in PCI only mode. if it's still not working, then it's the interrupt
+routing from the bios i think
+
+-daniel
 
 
- 

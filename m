@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUHDQ3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267347AbUHDQeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267353AbUHDQ3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 12:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUHDQ3y
+	id S267347AbUHDQeu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 12:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUHDQet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 12:29:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43235 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267350AbUHDQ24 (ORCPT
+	Wed, 4 Aug 2004 12:34:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48103 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267347AbUHDQ1x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 12:28:56 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "Sourav Sen" <souravs@india.hp.com>
-Subject: Re: CONFIG_FORCE_MAX_ZONEORDER
-Date: Wed, 4 Aug 2004 09:26:28 -0700
-User-Agent: KMail/1.6.2
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-References: <012401c47a28$70fb62a0$39624c0f@asiapacific.cpqcorp.net>
-In-Reply-To: <012401c47a28$70fb62a0$39624c0f@asiapacific.cpqcorp.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408040926.28467.jbarnes@engr.sgi.com>
+	Wed, 4 Aug 2004 12:27:53 -0400
+Subject: Re: Linux 2.6.8-rc3
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: James Morris <jmorris@redhat.com>,
+       Jari Ruusu <jariruusu@users.sourceforge.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Fruhwirth Clemens <clemens@endorphin.org>
+In-Reply-To: <20040804161046.GD19282@fieldses.org>
+References: <4110FB0E.230CE613@users.sourceforge.net>
+	 <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
+	 <20040804161046.GD19282@fieldses.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LRgjwNc7KcFuN5pfNbQV"
+Organization: Red Hat UK
+Message-Id: <1091636850.2792.19.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 04 Aug 2004 18:27:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, August 4, 2004 6:39 am, Sourav Sen wrote:
-> Hi,
->
-> Is there a way of changing the value of MAX_ORDER
-> using CONFIG_FORCE_MAX_ZOMEORDER? During 'make xconfig'
-> I did not see a way. If I change it by hand in .config
-> and then run make oldconfig, it gets changed back to
-> the old value (== 18). The source version is 2.6.6
->
-> And, if it matters here -- I am on ia64.
 
-If you really want to change it, you'll have to edit arch/ia64/Kconfig and 
-change FORCE_MAX_ZONEORDER.
+--=-LRgjwNc7KcFuN5pfNbQV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Jesse
+
+> relicense under 3-clause BSD under BSD or GPL anyway.  So, unless I'm
+> missing something, the "or GPL" probably doesn't do anything more than
+> make explicit something that was allowed already.
+
+not entirely; in a dual license scheme one has the freedom to ignore one
+of the two licenses and also to place derived work only under the one
+chosen. That and it's outright rude to take someone else's code and
+relicense it.
+
+
+--=-LRgjwNc7KcFuN5pfNbQV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBEQ5yxULwo51rQBIRAsFmAJ4nU4COkwSzwjjvr3+LuPLlDmqqbQCcDkE/
+F8tYiWC273ERTf5Qp9C44Ks=
+=fBXV
+-----END PGP SIGNATURE-----
+
+--=-LRgjwNc7KcFuN5pfNbQV--
+

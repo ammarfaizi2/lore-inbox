@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261918AbRE2VMQ>; Tue, 29 May 2001 17:12:16 -0400
+	id <S261956AbRE2VOQ>; Tue, 29 May 2001 17:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261956AbRE2VMG>; Tue, 29 May 2001 17:12:06 -0400
-Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:24581 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S261918AbRE2VLw>;
-	Tue, 29 May 2001 17:11:52 -0400
-Message-ID: <3B1367DD.A71E8066@mail.utexas.edu>
-Date: Tue, 29 May 2001 15:11:57 +0600
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-athlon i686)
-X-Accept-Language: en,fr,de
+	id <S261960AbRE2VOG>; Tue, 29 May 2001 17:14:06 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:48788 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S261956AbRE2VNz>; Tue, 29 May 2001 17:13:55 -0400
+Date: Tue, 29 May 2001 22:13:52 +0100 (BST)
+From: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
+To: Joseph Carter <knghtbrd@debian.org>
+cc: Holger Lubitz <h.lubitz@internet-factory.de>, linux-kernel@vger.kernel.org
+Subject: {OT?]Re: VIA KT133A Northbridge bug reported
+In-Reply-To: <20010529125720.D20990@debian.org>
+Message-ID: <Pine.SOL.3.96.1010529221056.3161A-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: Mike Frisch <mfrisch@saturn.tlug.org>
-Subject: Re: Status of ALi MAGiK 1 support in 2.4.?
-In-Reply-To: <3B12DCCF.6524A99@mail.utexas.edu> <20010529100713.A3845@saturn.tlug.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Frisch wrote:
+On Tue, 29 May 2001, Joseph Carter wrote:
 
-> On Tue, May 29, 2001 at 05:18:39AM +0600, Bobby D. Bryant wrote:
-> > sailing ever since.  The only problems that I'm are ware of are a
-> > (maybe) DMA problem and a (maybe) SMBus problem, per below.  Right now
->
-> I noticed the Win32 benchmark/test application Sandra mentioned an SMBus
-> problem with the A7A266 as well.  I have yet to try lm_sensors myself,
-> but it looks like I won't get far.
+> On Tue, May 29, 2001 at 03:56:15PM +0200, Holger Lubitz wrote:
+> > Translation: "As Stephan Schwolow from MSI Germany told Chip Online, the
+> > problem with the VIA northbridge can be identified by a warm start from
+> > DOS or a Windows reboot: If the screen stays black, the chip has an
+> > error."
+> > 
+> > As far as I understand it, the problem is only affecting "warm reboots".
+> > And I couldn't care less about warm reboots - my machines usually run
+> > 24/7 :) 
+> 
+> I have seen this problem sometimes.  I don't read German though - does the
+> page mention a fix?
+> 
+In:-
+http://www.theinquirer.net/28050107.htm
 
-My sensors are working and appear to give the correct numbers; I'm just
-getting a regular spew of messages from the SMB resets.
-
-
-
-> > May 22 21:45:07 pollux kernel: ALI15X3: IDE controller on PCI bus 00 dev
-> > 20
-> > May 22 21:45:07 pollux kernel: PCI: No IRQ known for interrupt pin A of
-> > device 00:04.0. Please try using pci=biosirq.
->
-> I get the same message, but it does not appear to dramatically affect
-> my performance.  As I mentioned, I am getting 25MB/s (through hdparm; I
-> have yet to try anything more) with my Quantum Fireball.  My DMA is
-> enabled in the BIOS and detected by the kernel.
-
-That's interesting, in light of the other message I just sent (i.e., DMA
-enabled in BIOS, but *not* detected by the kernel).
-
-What version of the BIOS are you running?  I'm still on the 1003b, because
-I've heard a few horror stories about 1004 that have put me off upgrading.
-
-I'm on kernel 2.4.4, with Athlon optimizations.
+it claims that MSI are offering swaps of their KT7 MBs of those steppings
+with MBs with the latest stepping.
 
 
-> > The routing to IQR 0 sounds funny to me, but this is already way beyond
-> > what I understand.
->
-> Do you have the PnP operating system setting in the BIOS turned off?
-> (ie. telling the BIOS you have non-PnP aware O/S)  I noticed that prior
-> to doing this, all of my PCI cards were listed as IRo 0.
-
-I think I tried it both ways earlier.  At any rate, since I had to reboot to
-check the DMA settings I went ahead and set it back to 'off', and it still
-says the same thing.
-
-Thanks,
-
-Bobby Bryant
-Austin, Texas
 
 

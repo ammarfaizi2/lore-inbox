@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319671AbSIMVY2>; Fri, 13 Sep 2002 17:24:28 -0400
+	id <S319795AbSIMV0I>; Fri, 13 Sep 2002 17:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319794AbSIMVY2>; Fri, 13 Sep 2002 17:24:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:45329 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S319671AbSIMVY1>; Fri, 13 Sep 2002 17:24:27 -0400
-Date: Fri, 13 Sep 2002 23:29:21 +0200
-From: Pavel Machek <pavel@ucw.cz>
+	id <S319796AbSIMV0I>; Fri, 13 Sep 2002 17:26:08 -0400
+Received: from packet.digeo.com ([12.110.80.53]:30696 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319795AbSIMV0H>;
+	Fri, 13 Sep 2002 17:26:07 -0400
+Message-ID: <3D825907.493B4DB3@digeo.com>
+Date: Fri, 13 Sep 2002 14:30:47 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: kernel list <linux-kernel@vger.kernel.org>
+CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: Good way to free as much memory as possible under 2.5.34?
-Message-ID: <20020913212921.GA17627@atrey.karlin.mff.cuni.cz>
 References: <20020913210042.GA25464@elf.ucw.cz> <Pine.LNX.4.44L.0209131808240.1857-100000@imladris.surriel.com>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0209131808240.1857-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2002 21:30:52.0394 (UTC) FILETIME=[D5F42CA0:01C25B6C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
+Rik van Riel wrote:
+> 
+> On Fri, 13 Sep 2002, Pavel Machek wrote:
+> 
 > > /*
 > >  * Try to free as much memory as possible, but do not OOM-kill anyone
 > >  *
@@ -35,7 +38,10 @@ Hi!
 > 
 > Actually, it still worked when -rmap came in, but it stopped working
 > when the LRU lists were made to be per-zone...
-> 
+
+hmm, I missed that.  Yes, the zone balancing in try_to_free_pages() will
+see that all zones are above ->pages_high and will just return.
+
 > > static void free_some_memory(void)
 > > {
 > >         printk("Freeing memory: ");
@@ -46,19 +52,26 @@ Hi!
 > > }
 > 
 > Why don't you just allocate memory ?
-> 
+
+That would work.
+ 
 > To prevent the OOM kill you can just check for a variable
 > in the OOM slow path.  No need to rely on any particular
 > behaviour of the VM.
+> 
 
-Allocating memory is pain because I have to free it afterwards. Yep I
-have such code, but it is ugly. try_to_free_pages() really seems like
-cleaner solution to me... if you only tell me how to fix it :-).
+Sure.
 
-If it is not easy to fix, I can reintroduce memory eating code; but
-I'd hate to special-case SWSUSP in VM. Otoh GFP_FAIL or something like
-that might help me, right?
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I'm not sure why swsusp needs "half of memory to be free"?  What's
+the story there?
+
+I'd recommend that you sit in a loop, allocating pages with an
+allocation mode of
+
+	__GFP_HIGHMEM | __GFP_WAIT
+
+This will give you all the easily-reclaimable pages in the machine,
+without trashing the page reserves (no __GFP_HIGH).
+
+String all the pages together via page->list and when you have "enough",
+free them all again.

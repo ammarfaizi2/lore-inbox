@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275098AbRJJJBA>; Wed, 10 Oct 2001 05:01:00 -0400
+	id <S275110AbRJJJGU>; Wed, 10 Oct 2001 05:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275110AbRJJJAm>; Wed, 10 Oct 2001 05:00:42 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:50828 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275098AbRJJJAf>; Wed, 10 Oct 2001 05:00:35 -0400
-Date: Wed, 10 Oct 2001 14:36:24 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011010143624.A16959@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20011010123603.A17043@in.ibm.com> <3BC3F6E1.4060309@wipro.com>
+	id <S275115AbRJJJGB>; Wed, 10 Oct 2001 05:06:01 -0400
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:36491 "EHLO ookhoi.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S275110AbRJJJF5>;
+	Wed, 10 Oct 2001 05:05:57 -0400
+Date: Wed, 10 Oct 2001 11:06:26 +0200
+From: Ookhoi <ookhoi@dds.nl>
+To: Dave Jones <davej@suse.de>
+Cc: Jose_Jorge@teklynx.fr, linux-kernel@vger.kernel.org
+Subject: Re: kapmidled and AMD K6-2
+Message-ID: <20011010110626.M30428@humilis>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <OFD647EAB7.926A3491-ONC1256AE0.00534E9E@bradycorp.com> <Pine.LNX.4.30.0110091735160.31520-100000@Appserv.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3BC3F6E1.4060309@wipro.com>; from balbir.singh@wipro.com on Wed, Oct 10, 2001 at 12:51:05PM +0530
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.30.0110091735160.31520-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.19i
+X-Uptime: 12:53:32 up 5 days, 16:11,  9 users,  load average: 0.08, 0.02, 0.01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 12:51:05PM +0530, BALBIR SINGH wrote:
-> Dipankar Sarma wrote:
-> >One example of where it is useful is maintenance of route information
-> >in either storage or network. Route information changes infrequently but
-> >needs to be looked up for every I/O and being able to do lockless
-> >lookup here is a good gain.
-> >
-> I have a question, can this kind of locking used in cases where an interrupt
-> context may be involved. For example looking through the list of timers, we
-> disable interrupts and grab a lock using spin_lock_irqsave(&timerlist_lock, flags)
+> I've heard reports from Athlon users who also say HLT doesn't
+> do anything regarding temperature for their systems. I wonder
+> if it also has a similar feature tucked away in an MSR somewhere..
 
-I don't know about this specific case (timer list), but in general,
-yes, you can use lockless traversal with involvement of interrupt
-context as long as you can make sure that you see a consistent list
-if interrupted by the relevant interrupt during any point.
+I think I can confirm this:
 
-> 
-> Should we just use __cli() with the RCU or something similar? or  can RCU
-> be used in such cases?
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1009.015
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2011.95
 
-You can use RCU without blocking the relevant interrupt as long as you
-can make sure that the interrupt cannot find the list in an inconsistent
-state. For example, if you insert an entry by updating a single
-"next" pointer, you should be safe. Any interrupt happening before
-this instruction would see the old copy of data and the ones after
-the instruction would see the new copy.
+tranquil:~# uptime
+ 09:57:59 up  4:42,  2 users,  load average: 0.00, 0.00, 0.00
+tranquil:~# vmstat 1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  0  0      0 601324  55064  57588   0   0     5     4  102    52   0   0 100
+ 0  0  0      0 601324  55064  57588   0   0     0     0  106    66   0   0 100
+ 0  0  0      0 601324  55064  57588   0   0     0     0  104    57   0   0 100
+ 0  0  0      0 601324  55064  57588   0   0     0     0  106    63   0   0 100
+ 0  0  0      0 601324  55064  57588   0   0     0     0  104    57   0   0 100
+ 0  0  0      0 601324  55064  57588   0   0     0     0  104    65   0   0 100
 
-As far as deletion using RCU is concerned, it is safe. If you see
-the old copy of the data in the interrupt handler, that means this 
-CPU was interrupted before the "deletion" was scheduled. If it is 
-the new copy, you don't care.
+tranquil:~# sensors | tail | egrep 'CPU|Mobo'
+CPU fan:  6308 RPM  (min = 3000 RPM, div = 2)                     
+Mobo Temp: +30.0°C  (limit =  +60°C, hysteresis =  +50°C)        
+CPU  Temp:   +49°C  (limit =  +67°C, hysteresis =  +60°C)        (beep)
 
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+With kernel compile it goes to 52 degrees, which makes 3 degrees 
+difference between almost 100% idle and almost 0.0% idle. 
+This is with kernel 2.4.10-ac10 if it matters.
+
+	Ookhoi

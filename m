@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265174AbTBYC0a>; Mon, 24 Feb 2003 21:26:30 -0500
+	id <S265998AbTBYCcD>; Mon, 24 Feb 2003 21:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265177AbTBYC0a>; Mon, 24 Feb 2003 21:26:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49157 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265174AbTBYC01>; Mon, 24 Feb 2003 21:26:27 -0500
+	id <S266020AbTBYCcD>; Mon, 24 Feb 2003 21:32:03 -0500
+Received: from services.cam.org ([198.73.180.252]:51211 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S265998AbTBYCcB>;
+	Mon, 24 Feb 2003 21:32:01 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Horrible L2 cache effects from kernel compile
-Date: Tue, 25 Feb 2003 02:31:49 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b3ekil$1cp$1@penguin.transmeta.com>
-References: <3E5ABBC1.8050203@us.ibm.com>
-X-Trace: palladium.transmeta.com 1046140575 10011 127.0.0.1 (25 Feb 2003 02:36:15 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 25 Feb 2003 02:36:15 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Subject: [OOPS] uart_block_til_ready 2.5.63
+Date: Mon, 24 Feb 2003 21:42:25 -0500
+User-Agent: KMail/1.5.9
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200302242142.26124.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3E5ABBC1.8050203@us.ibm.com>,
-Dave Hansen  <haveblue@us.ibm.com> wrote:
->I was testing Martin Bligh's kernbench (a kernel compile with
->-j(2*NR_CPUS)) and using DCU_MISS_OUTSTANDING as the counter event.
->
->The surprising thing?  d_lookup() accounts for 8% of the time spent
->waiting for an L2 miss.
->
->__copy_to_user_ll should be trashing a lot of cachelines, but d_lookup()
->is strange.
+Found this in my log a couple of hours after booting .63
 
-I wouldn't call it that strange. It _is_ one of the most critical areas
-of the FS code, and hashes (which it uses) are inherently bad for caches. 
+Feb 24 21:14:44 oscar kernel:  printing eip:
+Feb 24 21:14:44 oscar kernel: c01aed4a
+Feb 24 21:14:44 oscar kernel: Oops: 0000
+Feb 24 21:14:44 oscar kernel: CPU:    0
+Feb 24 21:14:44 oscar kernel: EIP:    0060:[uart_block_til_ready+362/428]    Not tainted
+Feb 24 21:14:44 oscar kernel: EFLAGS: 00010246
+Feb 24 21:14:44 oscar kernel: EIP is at uart_block_til_ready+0x16a/0x1ac
+Feb 24 21:14:44 oscar kernel: eax: 00000000   ebx: da504000   ecx: dfd54818   edx: dfd4e3c0
+Feb 24 21:14:44 oscar kernel: esi: da505e68   edi: 00000202   ebp: da505e7c   esp: da505e40
+Feb 24 21:14:44 oscar kernel: ds: 007b   es: 007b   ss: 0068
+Feb 24 21:14:44 oscar kernel: Process bkupsd (pid: 956, threadinfo=da504000 task=da72a700)
+Feb 24 21:14:44 oscar kernel: Stack: c02d4100 00000001 00000000 c032f234 dfd54818 00000000 da72a700 c0113718
+Feb 24 21:14:44 oscar kernel:        00000000 00000000 00000000 da72a700 c0113718 dfd4e410 dfd4e410 da505eb8
+Feb 24 21:14:44 oscar kernel:        c01af0a4 da747320 dfd4e3c0 00000000 00000100 00000000 00000001 dfd4e3c0
+Feb 24 21:14:44 oscar kernel: Call Trace:
+Feb 24 21:14:44 oscar kernel:  [default_wake_function+0/24] default_wake_function+0x0/0x18
+Feb 24 21:14:44 oscar kernel:  [default_wake_function+0/24] default_wake_function+0x0/0x18
+Feb 24 21:14:44 oscar kernel:  [uart_open+544/664] uart_open+0x220/0x298
+Feb 24 21:14:44 oscar kernel:  [tty_open+479/908] tty_open+0x1df/0x38c
+Feb 24 21:14:44 oscar kernel:  [tty_open+525/908] tty_open+0x20d/0x38c
+Feb 24 21:14:44 oscar kernel:  [link_path_walk+1626/2008] link_path_walk+0x65a/0x7d8
+Feb 24 21:14:44 oscar kernel:  [get_chrfops+216/488] get_chrfops+0xd8/0x1e8
+Feb 24 21:14:44 oscar kernel:  [chrdev_open+94/156] chrdev_open+0x5e/0x9c
+Feb 24 21:14:44 oscar kernel:  [dentry_open+252/480] dentry_open+0xfc/0x1e0
+Feb 24 21:14:44 oscar kernel:  [filp_open+64/72] filp_open+0x40/0x48
+Feb 24 21:14:44 oscar kernel:  [sys_open+52/112] sys_open+0x34/0x70
+Feb 24 21:14:44 oscar kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Feb 24 21:14:44 oscar kernel:
+Feb 24 21:14:44 oscar kernel: Code: f6 80 1c 01 00 00 02 75 2d 8b 4d 08 51 e8 10 6e 00 00 85 c0
+Feb 24 21:15:26 oscar kernel:  <6>
 
-The instruction you point to as being the most likely suspect:
-
-	if (unlikely(dentry->d_bucket != head))
-
-is the first instruction that actually looks at the dentry chain
-information, so sure as hell, that's the one you'd expect to show up as
-the cache miss.
-
-There's no question that the dcache is very effective at caching, but I
-also think it's pretty clear that especially since we allow it to grow
-pretty much as big as we have memory, it _is_ going to cause cache misses.
-
-I don't know what to even suggest doing about it - it may be one of
-those things where we just have to live with it.  I don't see any
-alternate good data structures that would be more cache-friendly. 
-Unlike some of our other data structures (the page cache, for example)
-which have been converted to more cache-friendly RB-trees, the name
-lookup is fundamentally not very well-behaved.
-
-(Ie with the page cache there is a lot of locality within one file,
-while with name lookup the indexing is a string, which pretty much
-implies that we have to hash it and thus lose all locality)
-
-			Linus
+Ideas?
+Ed Tomlinson

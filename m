@@ -1,47 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSHGXOl>; Wed, 7 Aug 2002 19:14:41 -0400
+	id <S315690AbSHGXS0>; Wed, 7 Aug 2002 19:18:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315372AbSHGXOk>; Wed, 7 Aug 2002 19:14:40 -0400
-Received: from verein.lst.de ([212.34.181.86]:11278 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S315276AbSHGXOk>;
-	Wed, 7 Aug 2002 19:14:40 -0400
-Date: Thu, 8 Aug 2002 01:18:14 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Kurt Garloff <kurt@garloff.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] conditionally re-enable per-disk stats, convert to seq_file
-Message-ID: <20020808011814.A14850@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Andries Brouwer <aebr@win.tue.nl>, Kurt Garloff <kurt@garloff.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <20020807211856.GB322@win.tue.nl> <Pine.LNX.4.33L2.0208071610150.13813-100000@dragon.pdx.osdl.net>
+	id <S316582AbSHGXS0>; Wed, 7 Aug 2002 19:18:26 -0400
+Received: from ppp-217-133-222-186.dialup.tiscali.it ([217.133.222.186]:58002
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S315690AbSHGXSY>; Wed, 7 Aug 2002 19:18:24 -0400
+Subject: Re: [patch] tls-2.5.30-A1
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0208080050300.7410-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208080050300.7410-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-pOHaf857a+rQkv3iFWOG"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Aug 2002 01:21:48 +0200
+Message-Id: <1028762508.1992.309.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L2.0208071610150.13813-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Wed, Aug 07, 2002 at 04:10:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 04:10:48PM -0700, Randy.Dunlap wrote:
-> | It is really ugly to stuff a lot of garbage into a file just because
-> | it happens to exist already. If you want disk statistics, why not
-> | put it in /proc/diskstatistics?
-> 
-> me too.
-> 
-> I'd like to see the disk stats added, but not in /proc/partitions.
 
-Feel free to implement it.  This is the interface use by all major
-vendors for ages and the -ac kernel series.  It's supported by unpatched
-upstream performace tools.
+--=-pOHaf857a+rQkv3iFWOG
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I'll keept this patch around for the few poort soul complaining that
-they don't get that's anymore after upgrading to the latest kernel.org
-source.
+> your patch looks good to me - as long as we want to keep those 2 TLS
+> entries and nothing more. (which i believe we want.) If even more TLS
+> entries are to be made possible then a cleaner TLS enumeration interface
+> has to be used like Christoph mentioned - although i dont think we really
+> want that, 3 or more entries would be a stretch i think.
+I think that 2 are enough.
+Flat 32-bit programs set ds=es=ss=__USER_DS and cs=__USER_CS so they
+only have fs and gs left.
+16-bit programs and other odd ones can use the LDT support.
 
+As for the interface I would suggest replacing the current one with a
+single interface for LDT and GDT modifications that would provide the
+following parameters:
+
+unsigned table
+- LDT
+- GDTAVAIL: GDT starting from first TLS
+- GDTABS: GDT starting from 0
+- AUTO: starts with the 2 TLS entries and proceeds with LDT
+
+unsigned operation
+- set: copy to kernel space (enlarge table if necessary). If root, don't
+check validity for speed, otherwise check to ensure the user is not e.g.
+putting call gates to CPL 0 code.
+- set1: like set, but passes a single entry directly in the num and ptr
+parameters
+- get: copy from kernel space
+- free: free memory and lower limits. If entry = 0 and num = ~0,
+completely frees table.
+- map: only for LDT and for root, allows to directly point to a user
+memory range 
+- movekern: when support for per-task GDT is implemented, this would
+allow to change the entries used for kernel entries. This would be
+implemented with per-CPU IDTs and maybe dynamically generated code.
+Useful for virtualization programs.
+
+unsigned entry
+- first entry affected. ~0 for first unused entry.
+
+unsigned num
+- number of entries affected
+
+void* ptr
+- pointer to read/write entries from
+
+(table and operations may be merged)
+
+Return value: first entry changed
+
+e.g. libpthread would use table = AUTO, operation = set1, entry = ~0.
+
+For the LDT things would be implemented as usual. For the GDT the
+initial implementation would just modify TLS entries.
+In future, support for dynamically allocated per-task GDTs could be
+added.
+
+I would implement this by adding ops to sys_modify_ldt.
+
+BTW, tls_desc1/tls_desc2 would IMHO be better as gdt_desc[2].
+
+I don't plan to implement this myself.
+
+
+--=-pOHaf857a+rQkv3iFWOG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9UauMdjkty3ft5+cRAi2ZAKCB+BTIw3QSS8dlbff/AV7L1DkG4ACg3XyV
+6YYTVvyOAahEhGrqmAy3+pg=
+=JoAq
+-----END PGP SIGNATURE-----
+
+--=-pOHaf857a+rQkv3iFWOG--

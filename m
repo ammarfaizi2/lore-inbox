@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUCLLsB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 06:48:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbUCLLsB
+	id S262063AbUCLMTv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 07:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUCLMTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 06:48:01 -0500
-Received: from mail.shareable.org ([81.29.64.88]:54666 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261907AbUCLLr7
+	Fri, 12 Mar 2004 07:19:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:27529 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262063AbUCLMTu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 06:47:59 -0500
-Date: Fri, 12 Mar 2004 11:47:55 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-Message-ID: <20040312114755.GA17825@mail.shareable.org>
-References: <404FACF4.3030601@cyberone.com.au> <200403111825.22674@WOLK> <40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org> <pan.2004.03.12.11.08.02.700169@smurf.noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2004.03.12.11.08.02.700169@smurf.noris.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Mar 2004 07:19:50 -0500
+Date: Fri, 12 Mar 2004 07:21:00 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Johns <cbjohns@mn.rr.com>
+cc: Chip Salzenberg <chip@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: (0 == foo), rather than (foo == 0)
+In-Reply-To: <BCE0CC77-73C7-11D8-BAF8-000A958E2366@mn.rr.com>
+Message-ID: <Pine.LNX.4.53.0403120714410.4380@chaos>
+References: <E1B1TIJ-0007Tm-Jn@tytlal> <BCE0CC77-73C7-11D8-BAF8-000A958E2366@mn.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Urlichs wrote:
-> > That effect is to cause the whole world to be swapped out when people
-> > return to their machines in the morning.
-> 
-> The correct solution to this problem is "suspend-to-disk" --
-> if the machine isn't doing anything anyway, TURN IT OFF.
+On Thu, 11 Mar 2004, Chris Johns wrote:
 
-How is that better for people complaining that everything needs to be
-swapped in in the morning?
+> Just to throw a little more gas on this particular fire (or maybe
+> some water, depending on your point of view), when I worked for a while
+> at the Evil Empire, the "const == variable" comparison was mandatory in
+> the group I worked in. Odd to look at initially, I'll admit, but it
+> still caught
+> several potential bugs. One other thing that was mandatory was to
+> set to NULL any pointer to memory area that was freed immediately after
+> freeing it. Again, a good idea, although not a coding style issue.
+>
+> Chris
+>
 
-Suspend-to-disk will cause everything to be paged in too.  Faster I
-suspect (haven't tried it; it doesn't work on my box), but still a
-wait especially when you add in the BIOS boot time.
+Well I'll take it as being proof that forcing a particular style
+doesn't help make bug-free code since it didn't help Microsoft.
 
-Environmentally turning an unused machine off is good.  But I don't
-see how suspend-to-disk will convince people who are annoyed by
-swapping in the morning.
+I'll bet that Microsoft has more bugs per KLOC than any other
+software, ever. It is a formidable challenge to make software
+that will beat it in that area. You really need to try. You
+need to be cunning enough to get it through the compile-stage.
+It's an art.
 
-> One slightly more practical solution from the "you-now-who gets angry
-> mails" POV anyway, would be to tie the reduced-rate scanning to the load
-> average -- if nothing at all happens, swap-out doesn't need to happen
-> either.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-If nothing at all happens, does it matter that pages are written to
-swap?  They're still in RAM as well.
 
--- Jamie

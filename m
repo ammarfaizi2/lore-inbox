@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263285AbTFDMm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 08:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTFDMm0
+	id S261861AbTFDMuO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 08:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTFDMuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 08:42:26 -0400
-Received: from web9602.mail.yahoo.com ([216.136.129.181]:44855 "HELO
-	web9602.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263285AbTFDMmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 08:42:25 -0400
-Message-ID: <20030604125554.95340.qmail@web9602.mail.yahoo.com>
-Date: Wed, 4 Jun 2003 05:55:54 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Swapoff w/regular file causes Oops
-To: daniel.sobe@epost.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200305260630.39443.daniel.sobe@epost.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jun 2003 08:50:13 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:25862 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261861AbTFDMuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 08:50:12 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: system clock speed too high?
+In-Reply-To: <E19NUrl-0002xI-00@gondolin.me.apana.org.au>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-1-686-smp (i686))
+Message-Id: <E19NXuq-0003HM-00@gondolin.me.apana.org.au>
+Date: Wed, 04 Jun 2003 23:02:56 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Well, I had this problem when using RH8, but using kernel
->2.4.20-8 from RH9.
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> 
+> I see exactly the opposite.  The time is ~2.5 times slower with
+> 2.4.21-rc6.
+> 
+> This is actually in a VMware setup on a P4 machine.  The same setup
+> runs 2.4.20, 2.5.69 and 2.5.70 correctly.
 
-OK, I've investigated this further. It seems that all Red
-Hat 2.4.18 kernels are immune to the swapoff problem. All
-2.4.20 kernels (include the brand new one) have this bug. I
-don't think anyone has tried the program I sent since it
-would have caused an Oops and you'd see what I mean. I
-don't think this is a Red Hat problem either, I think this
-is generic to recent kernels.
-
-Looking at the source for 2.4.20 kernel mm/swapfile.c
-sys_swapoff function, the bug goes like this...swapoff
-checks permissions, this is OK, it then gets the nameidata
-entry for the filename, it checks to see if the file is on
-the swap list, but its not (remember mkswap was never
-called). err is set to -EINVAL and it jumps to out_dput
-line 792. The kernel is unlocked and path_release() is
-called (fs/namei.c line 253).
-
-path_release() will unmount the entry and this is where the
-Oops occurs. It was never mounted. It is simply a regular
-file. It seems like there should be some check if err ==
--EINVAL that the file is in fact mounted. Looking at
-__mntput (which is an inline function & maybe that's why
-its not in the Oops call stack), it implicitly trusts that
-the mnt parameter is not NULL & is valid. dput() at least
-checks for NULL and does nothing.
-
-I'm not too familiar with the kernel internals, but maybe
-someone else can take what I've said and figure out the
-right fix.
-
-Best Regards,
--Steve Grubb
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
-http://calendar.yahoo.com
+That was my stupidity by not connecting the RTC.  2.5 just copes with
+it much better so I didn't notice.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

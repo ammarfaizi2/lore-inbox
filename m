@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268716AbUILNX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268721AbUILNi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268716AbUILNX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 09:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUILNX4
+	id S268721AbUILNi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 09:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUILNi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 09:23:56 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:36554 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S268716AbUILNXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 09:23:55 -0400
-Date: Sun, 12 Sep 2004 17:24:22 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Chris Siebenmann <cks@utcc.utoronto.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <41446A26.nailNA1I8439@pluto.uni-freiburg.de>
-References: <04Sep10.164541edt.6571@ugw.utcc.utoronto.ca>
-In-Reply-To: <04Sep10.164541edt.6571@ugw.utcc.utoronto.ca>
-User-Agent: nail 11.7pre 9/10/04
-MIME-Version: 1.0
+	Sun, 12 Sep 2004 09:38:56 -0400
+Received: from ozlabs.org ([203.10.76.45]:26767 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268721AbUILNiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 09:38:46 -0400
+Date: Sun, 12 Sep 2004 23:34:14 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
+       viro@parcelfarce.linux.theplanet.co.uk, wli@holomorphy.com
+Subject: Re: /proc/sys/kernel/pid_max issues
+Message-ID: <20040912133414.GP25741@krispykreme>
+References: <20040912085609.GK32755@krispykreme> <1094991480.2626.0.camel@laptop.fenrus.com> <20040912122959.GN25741@krispykreme> <20040912124420.GA29587@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040912124420.GA29587@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Siebenmann <cks@utcc.utoronto.ca> wrote:
+ 
+> /*
+>  * the semaphore definition
+>  */
+> struct rw_semaphore {
+>         /* XXX this should be able to be an atomic_t  -- paulus */
+>         signed int              count;
+> #define RWSEM_UNLOCKED_VALUE            0x00000000
+> #define RWSEM_ACTIVE_BIAS               0x00000001
+> #define RWSEM_ACTIVE_MASK               0x0000ffff
+> 
+> that counter is split in 2 16 bit entities....
 
->  Note that 'cp' is already not POSIX compliant on most Linux systems,
-> thanks to GNU libc: 'cp foo -X' ought to work under the POSIX rules I've
-> seen, but most Linux systems will have cp helpfully interpret the '-X'
-> as a switch (and because it's a bad switch, explode). Evidently strict
-> POSIX compatability is not very high on people's priority lists.
+Yuck, 64k waiters is asking for trouble. BTW x86-64 mentions it can only
+handle 32k writers, that probably wants looking at.
 
-This issue is currently discussed on the Austin Group list, but in
-contrast to your assumption, there are efforts to get both sides
-closer together here, cf.
-<http://www.opengroup.org/austin/mailarchives/ag/msg07261.html>.
-
->  Thus I would expect that the GNU fileutils people would be reasonably
-> happy to make cp copy additional file streams and the like by default if
-> they actually caught on in Linux.
-
-It is clearly preferred to have such things as extensions that do not
-violate the standard.
-
-	Gunnar
+Anton

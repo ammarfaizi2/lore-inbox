@@ -1,59 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265757AbSKFQGT>; Wed, 6 Nov 2002 11:06:19 -0500
+	id <S265750AbSKFQFw>; Wed, 6 Nov 2002 11:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265758AbSKFQGT>; Wed, 6 Nov 2002 11:06:19 -0500
-Received: from pump3.york.ac.uk ([144.32.128.131]:58012 "EHLO pump3.york.ac.uk")
-	by vger.kernel.org with ESMTP id <S265757AbSKFQGQ>;
-	Wed, 6 Nov 2002 11:06:16 -0500
-Date: Wed, 6 Nov 2002 16:12:34 +0000
-From: Ewan Mac Mahon <ecm103@york.ac.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Christopher Li <chrisl@vmware.com>,
-       "'Linux Kernel '" <linux-kernel@vger.kernel.org>,
-       "'ext2-devel@lists.sourceforge.net '" 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: 2.5.46 ext3 errors
-Message-ID: <20021106161234.GB17138@york.ac.uk>
-References: <3C77B405ABE6D611A93A00065B3FFBBA36A493@PA-EXCH2> <20021106101806.B2663@redhat.com> <20021106130521.GB839@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021106130521.GB839@suse.de>
-User-Agent: Mutt/1.4i
+	id <S265757AbSKFQFv>; Wed, 6 Nov 2002 11:05:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42764 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265750AbSKFQFt>; Wed, 6 Nov 2002 11:05:49 -0500
+Date: Wed, 6 Nov 2002 08:12:30 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Voyager subarchitecture for 2.5.46
+In-Reply-To: <1036599549.9803.49.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211060758440.2545-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 02:05:21PM +0100, Jens Axboe wrote:
-> On Wed, Nov 06 2002, Stephen C. Tweedie wrote:
-> > 
-> > error is just ext3's normal reaction to a fatal error detected in the
-> > filesystem, so that in itself isn't a worry.  The cause of the problem
-> > it spotted is the worry; is this reproducible?
+
+On 6 Nov 2002, Alan Cox wrote:
+>
+> On Wed, 2002-11-06 at 15:45, Linus Torvalds wrote:
+> > It's clearly stupid in the long run to depend on the TSC synchronization.
+> > We should consider different CPU's to be different clock-domains, and just
+> > synchronize them using the primitives we already have (hey, people can use
+> > ntp to synchronize over networks quite well, and that's without the kind
+> > of synchronization primitives that we have within the same box).
 > 
-> I can try. The kernel run had my rbtree deadline patches, however
-> they've been well tested and are likely not the cause of the problem. It
-> cannot be 100% ruled out though, I'm testing for this very thing right
-> now. I will let you know what happens.
+> NTP synchronization assumes the clock runs at approximately the same
+> speed and that you can 'bend' ticklength to avoid backward steps. Thats
+> a really cool idea for the x440 but I wonder how practical it is when we
+> have CPU's that keep changing speeds and not always notifying us about
+> it either.
 
-I think I can rule that out, I've got much the same[1] from a vanilla 
-2.5.46, and the filesystem's recent history has been plain 2.5.XXs as 
-well.
+Note that you have a _lot_ more flexibility than NTP thanks to the strong 
+synchronization that we actually do have between CPU's in the end.
 
-Ewan
+The synchronization just isn't strong enough to allow us to believe that 
+the TSC is exactly the _same_. But it is certainly string enough that we 
+should be able to do a really good job.
 
+Of course, if the TSC changes speed without telling us, we have problems. 
 
-EXT3-fs error (device ide0(3,5)): ext3_new_inode: Free inodes count
-corrupted in group 18
-Aborting journal on device ide0(3,5).
-ext3_abort called.
-EXT3-fs abort (device ide0(3,5)): ext3_journal_start: Detected aborted
-journal
-Remounting filesystem read-only
-EXT3-fs error (device ide0(3,5)) in start_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,5)) in ext3_new_inode: error 28
-EXT3-fs error (device ide0(3,5)) in ext3_create: IO failure
-EXT3-fs error (device ide0(3,5)) in start_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,5)) in start_transaction: Journal has aborted
+But that has nothing to do witht he synchronization protocol itself: we 
+have problems with that even on a single CPU on laptops right now. Does it 
+mean that gettimeofday() gets confused? Sure as hell. But it doesn't get 
+any _worse_ from being done separately on multiple CPU's.
 
-etc. etc.
+(And it _does_ get slightly better. On multiple CPU's with per-CPU time
+structures at least you _can_ handle the case where one CPU runs at a
+different speed, so at least you could handle the case where one CPU is
+slowed down explicitly much better than we can right now).
+
+As an example of something that is simpler in the MP/NUMA world than in 
+NTP: we see the processes migrating, and we can fairly trivially do things 
+like
+
+ - every gettimeofday() will always save the value we return, along with a 
+   sequence number (which is mainly read-only, so it's ok to share among 
+   CPU's)
+
+ - every "settimeofday()" will increase the sequence number
+
+ - when the next gettimeofday happens, we can check the sequence number 
+   and the old gettimeofday, and verify that we get monotonic behaviour in 
+   the absense of explicit date setting. This allows us to handle small 
+   problems gracefully ("return the old time + 1 ns" to make it 
+   monotonic even when we screw up), _and_ it will also act as a big clue
+   for us that we should try to synchronize - so that we basically never 
+   need to worry about "should I check the clocks" (where "basically 
+   never" may be "we check the clocks every minute or so if nothing else 
+   happens")
+
+Basically, I think NTP itself would be _way_ overkill between CPU's, I 
+wasn't really suggesting we use NTP as the main mechanism at that level. I 
+just suspect that a lot of the data structures and info that we already 
+have to have for NTP might be used as help.
+
+		Linus
+

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVCIXFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVCIXFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbVCIXFS (ORCPT <rfc822;willy@w.ods.org>);
+	id S262194AbVCIXFS (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 9 Mar 2005 18:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVCIXDa
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVCIXBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:03:30 -0500
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:59909 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S262076AbVCIW2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:28:15 -0500
-Date: Wed, 9 Mar 2005 16:28:29 -0600
+	Wed, 9 Mar 2005 18:01:49 -0500
+Received: from zmamail05.zma.compaq.com ([161.114.64.105]:60688 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S262448AbVCIWXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:23:31 -0500
+Date: Wed, 9 Mar 2005 16:23:39 -0600
 From: mike.miller@hp.com
 To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 3/3] cciss: per disk queue support
-Message-ID: <20050309222829.GC32723@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net, mike.miller@hp.com
+Subject: [PATCH 1/3] cciss: new controller support
+Message-ID: <20050309222339.GA32723@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,118 +23,80 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds per disk queue functionality. It seems that the 2.6 kernel expects a queue per disk. If you have multiple logical drives on a controller all of the queues actually point back to the same queue. If a drive is deleted it blows us out of the water.
-We hold the lock during any queue operations and have added what we call a
-"fair-enough" algorithm to prevent starving out any drive.
+This patch adds support for 2 new SAS controllers due out this summer.
+It also bumps the version to 2.6.6.
 
 Please consider this for inclusion.
 
 Signed-off-by: Mike Miller <mike.miller@hp.com>
 
- cciss.c |   52 ++++++++++++++++++++++++++++++++++++++++++++++++----
- cciss.h |    5 +++++
- 2 files changed, 53 insertions(+), 4 deletions(-)
-----------------------------------------------------------------------------
-diff -burNp lx2611-p002/drivers/block/cciss.c lx2611-p003/drivers/block/cciss.c
---- lx2611-p002/drivers/block/cciss.c	2005-03-08 16:50:47.149175280 -0600
-+++ lx2611-p003/drivers/block/cciss.c	2005-03-08 17:17:50.148441888 -0600
-@@ -2090,6 +2090,9 @@ static void do_cciss_request(request_que
- 	drive_info_struct *drv;
- 	int i, dir;
+ Documentation/cciss.txt |    2 ++
+ drivers/block/cciss.c   |   14 ++++++++++----
+ include/linux/pci_ids.h |    1 +
+ 3 files changed, 13 insertions(+), 4 deletions(-)
+-------------------------------------------------------------------------------
+diff -burNp lx2611.orig/Documentation/cciss.txt lx2611-266/Documentation/cciss.txt
+--- lx2611.orig/Documentation/cciss.txt	2005-03-03 13:48:36.000000000 -0600
++++ lx2611-266/Documentation/cciss.txt	2005-03-08 16:39:12.097839144 -0600
+@@ -15,6 +15,8 @@ This driver is known to work with the fo
+ 	* SA 6400 U320 Expansion Module
+ 	* SA 6i
+ 	* SA P600
++	* SA P800
++	* SA E400
  
-+	/* We call start_io here in case there is a command waiting on the
-+	 * queue that has not been sent.
-+	*/
- 	if (blk_queue_plugged(q))
- 		goto startio;
+ If nodes are not already created in the /dev/cciss directory, run as root:
  
-@@ -2178,6 +2181,9 @@ queue:
- full:
- 	blk_stop_queue(q);
- startio:
-+	/* We will already have the driver lock here so not need
-+	 * to lock it.
-+	*/
- 	start_io(h);
- }
+diff -burNp lx2611.orig/drivers/block/cciss.c lx2611-266/drivers/block/cciss.c
+--- lx2611.orig/drivers/block/cciss.c	2005-03-03 13:48:46.000000000 -0600
++++ lx2611-266/drivers/block/cciss.c	2005-03-08 16:39:01.650427392 -0600
+@@ -46,14 +46,14 @@
+ #include <linux/completion.h>
  
-@@ -2187,7 +2193,8 @@ static irqreturn_t do_cciss_intr(int irq
- 	CommandList_struct *c;
- 	unsigned long flags;
- 	__u32 a, a1;
--
-+	int j;
-+	int start_queue = h->next_to_run;
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "HP CISS Driver (v 2.6.4)"
+-#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,4)
++#define DRIVER_NAME "HP CISS Driver (v 2.6.6)"
++#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,6)
  
- 	/* Is this interrupt for us? */
- 	if (( h->access.intr_pending(h) == 0) || (h->interrupts_enabled == 0))
-@@ -2234,13 +2241,50 @@ static irqreturn_t do_cciss_intr(int irq
- 		}
- 	}
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+-MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.4");
++MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.6");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
+-			" SA6i P600");
++			" SA6i P600 P800 E400");
+ MODULE_LICENSE("GPL");
  
--	/*
--	 * See if we can queue up some more IO
-+ 	/* check to see if we have maxed out the number of commands that can
-+ 	 * be placed on the queue.  If so then exit.  We do this check here
-+ 	 * in case the interrupt we serviced was from an ioctl and did not
-+ 	 * free any new commands.
- 	 */
--	blk_start_queue(h->queue);
-+ 	if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
-+ 		goto cleanup;
-+ 
-+ 	/* We have room on the queue for more commands.  Now we need to queue
-+ 	 * them up.  We will also keep track of the next queue to run so
-+ 	 * that every queue gets a chance to be started first.
-+ 	*/
-+ 	for (j=0; j < NWD; j++){
-+ 		int curr_queue = (start_queue + j) % NWD;
-+ 		/* make sure the disk has been added and the drive is real
-+ 		 * because this can be called from the middle of init_one.
-+ 		*/
-+ 		if(!(h->gendisk[curr_queue]->queue) || 
-+		 		   !(h->drv[curr_queue].heads))
-+ 			continue;
-+ 		blk_start_queue(h->gendisk[curr_queue]->queue);
-+ 
-+ 		/* check to see if we have maxed out the number of commands 
-+ 		 * that can be placed on the queue.  
-+ 		*/
-+ 		if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
-+ 		{
-+ 			if (curr_queue == start_queue){
-+ 				h->next_to_run = (start_queue + 1) % NWD;
-+ 				goto cleanup;
-+ 			} else {
-+ 				h->next_to_run = curr_queue;
-+ 				goto cleanup;
-+ 	}
-+ 		} else {
-+ 			curr_queue = (curr_queue + 1) % NWD;
-+ 		}
-+ 	}
-+ 
-+cleanup:
- 	spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
- 	return IRQ_HANDLED;
- }
-+
- /* 
-  *  We cannot read the structure directly, for portablity we must use 
-  *   the io functions.
-Files lx2611-p002/drivers/block/.cciss.c.rej.swp and lx2611-p003/drivers/block/.cciss.c.rej.swp differ
-diff -burNp lx2611-p002/drivers/block/cciss.h lx2611-p003/drivers/block/cciss.h
---- lx2611-p002/drivers/block/cciss.h	2005-03-08 16:50:47.150175128 -0600
-+++ lx2611-p003/drivers/block/cciss.h	2005-03-08 17:03:04.279114496 -0600
-@@ -84,6 +84,11 @@ struct ctlr_info 
- 	int			nr_frees; 
- 	int			busy_configuring;
+ #include "cciss_cmd.h"
+@@ -82,6 +82,10 @@ const struct pci_device_id cciss_pci_dev
+ 		0x0E11, 0x4091, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSA,
+ 		0x103C, 0x3225, 0, 0, 0},
++	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSB,
++		0x103c, 0x3223, 0, 0, 0},
++	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSB,
++		0x103c, 0x3231, 0, 0, 0},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
+@@ -103,6 +107,8 @@ static struct board_type products[] = {
+ 	{ 0x409D0E11, "Smart Array 6400 EM", &SA5_access},
+ 	{ 0x40910E11, "Smart Array 6i", &SA5_access},
+ 	{ 0x3225103C, "Smart Array P600", &SA5_access},
++	{ 0x3223103C, "Smart Array P800", &SA5_access},
++	{ 0x3231103C, "Smart Array E400", &SA5_access},
+ };
  
-+	/* This element holds the zero based queue number of the last
-+	 * queue to be started.  It is used for fairness.
-+	*/
-+	int			next_to_run;
-+
- 	// Disk structures we need to pass back
- 	struct gendisk   *gendisk[NWD];
- #ifdef CONFIG_CISS_SCSI_TAPE
+ /* How long to wait (in millesconds) for board to go into simple mode */
+diff -burNp lx2611.orig/include/linux/pci_ids.h lx2611-266/include/linux/pci_ids.h
+--- lx2611.orig/include/linux/pci_ids.h	2005-03-03 13:49:02.000000000 -0600
++++ lx2611-266/include/linux/pci_ids.h	2005-03-08 14:16:59.050059584 -0600
+@@ -696,6 +696,7 @@
+ #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
+ #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
+ #define PCI_DEVICE_ID_HP_CISSA		0x3220
++#define PCI_DEVICE_ID_HP_CISSB		0x3230
+ 
+ #define PCI_VENDOR_ID_PCTECH		0x1042
+ #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000

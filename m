@@ -1,88 +1,542 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267427AbTAQIbs>; Fri, 17 Jan 2003 03:31:48 -0500
+	id <S267432AbTAQIjK>; Fri, 17 Jan 2003 03:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267429AbTAQIbs>; Fri, 17 Jan 2003 03:31:48 -0500
-Received: from holomorphy.com ([66.224.33.161]:14741 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267427AbTAQIbr>;
-	Fri, 17 Jan 2003 03:31:47 -0500
-Date: Fri, 17 Jan 2003 00:40:37 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: remove will_become_orphaned_pgrp()
-Message-ID: <20030117084037.GC940@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	akpm@zip.com.au, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267433AbTAQIjJ>; Fri, 17 Jan 2003 03:39:09 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:39906 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267432AbTAQIiw>;
+	Fri, 17 Jan 2003 03:38:52 -0500
+Date: Fri, 17 Jan 2003 09:47:43 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
+       Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: [patch] sched-2.5.59-A2
+In-Reply-To: <132930000.1042759915@flay>
+Message-ID: <Pine.LNX.4.44.0301170921430.3723-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-will_become_orphaned_pgrp()'s sole use is is_orphaned_pgrp(). Fold its
-body into is_orphaned_pgrp(), rename __will_become_orphaned_pgrp(), and
-adjust callers. Code shrinkage plus some relief from underscore-itis.
 
+Martin, Erich,
 
-$ diffstat ~/patches/orphan-2.5.59 
- exit.c |   15 +++++----------
- 1 files changed, 5 insertions(+), 10 deletions(-)
+could you give the attached patch a go, it implements my
+cleanup/reorganization suggestions ontop of 2.5.59:
 
-===== kernel/exit.c 1.80 vs edited =====
---- 1.80/kernel/exit.c	Mon Jan 13 23:56:41 2003
-+++ edited/kernel/exit.c	Fri Jan 17 00:28:18 2003
-@@ -156,7 +156,7 @@
-  *
-  * "I ask you, have you ever known what it is to be an orphan?"
+ - decouple the 'slow' rebalancer from the 'fast' rebalancer and attach it 
+   to the scheduler tick. Remove rq->nr_balanced.
+
+ - do idle-rebalancing every 1 msec, intra-node rebalancing every 200 
+   msecs and inter-node rebalancing every 400 msecs.
+
+ - move the tick-based rebalancing logic into rebalance_tick(), it looks
+   more organized this way and we have all related code in one spot.
+
+ - clean up the topology.h include file structure. Since generic kernel
+   code uses all the defines already, there's no reason to keep them in
+   asm-generic.h. I've created a linux/topology.h file that includes
+   asm/topology.h and takes care of the default and generic definitions.
+   Moved over a generic topology definition from mmzone.h.
+
+ - renamed rq->prev_nr_running[] to rq->prev_cpu_load[] - this further
+   unifies the SMP and NUMA balancers and is more in line with the
+   prev_node_load name.
+
+If performance drops due to this patch then the benchmarking goal would be
+to tune the following frequencies:
+
+ #define IDLE_REBALANCE_TICK (HZ/1000 ?: 1)
+ #define BUSY_REBALANCE_TICK (HZ/5 ?: 1)
+ #define NODE_REBALANCE_TICK (BUSY_REBALANCE_TICK * 2)
+
+In theory NODE_REBALANCE_TICK could be defined by the NUMA platform,
+although in the past such per-platform scheduler tunings used to end
+'orphaned' after some time. 400 msecs is pretty conservative at the
+moment, it could be made more frequent if benchmark results support it.
+
+the patch compiles and boots on UP and SMP, it compiles on x86-NUMA.
+
+	Ingo
+
+--- linux/drivers/base/cpu.c.orig	2003-01-17 10:02:19.000000000 +0100
++++ linux/drivers/base/cpu.c	2003-01-17 10:02:25.000000000 +0100
+@@ -6,8 +6,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/cpu.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ 
+ static int cpu_add_device(struct device * dev)
+--- linux/drivers/base/node.c.orig	2003-01-17 10:02:50.000000000 +0100
++++ linux/drivers/base/node.c	2003-01-17 10:03:03.000000000 +0100
+@@ -7,8 +7,7 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/node.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ 
+ static int node_add_device(struct device * dev)
+--- linux/drivers/base/memblk.c.orig	2003-01-17 10:02:33.000000000 +0100
++++ linux/drivers/base/memblk.c	2003-01-17 10:02:38.000000000 +0100
+@@ -7,8 +7,7 @@
+ #include <linux/init.h>
+ #include <linux/memblk.h>
+ #include <linux/node.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ 
+ static int memblk_add_device(struct device * dev)
+--- linux/include/asm-generic/topology.h.orig	2003-01-17 09:49:38.000000000 +0100
++++ linux/include/asm-generic/topology.h	2003-01-17 10:02:08.000000000 +0100
+@@ -1,56 +0,0 @@
+-/*
+- * linux/include/asm-generic/topology.h
+- *
+- * Written by: Matthew Dobson, IBM Corporation
+- *
+- * Copyright (C) 2002, IBM Corp.
+- *
+- * All rights reserved.          
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+- * NON INFRINGEMENT.  See the GNU General Public License for more
+- * details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- * Send feedback to <colpatch@us.ibm.com>
+- */
+-#ifndef _ASM_GENERIC_TOPOLOGY_H
+-#define _ASM_GENERIC_TOPOLOGY_H
+-
+-/* Other architectures wishing to use this simple topology API should fill
+-   in the below functions as appropriate in their own <asm/topology.h> file. */
+-#ifndef __cpu_to_node
+-#define __cpu_to_node(cpu)		(0)
+-#endif
+-#ifndef __memblk_to_node
+-#define __memblk_to_node(memblk)	(0)
+-#endif
+-#ifndef __parent_node
+-#define __parent_node(node)		(0)
+-#endif
+-#ifndef __node_to_first_cpu
+-#define __node_to_first_cpu(node)	(0)
+-#endif
+-#ifndef __node_to_cpu_mask
+-#define __node_to_cpu_mask(node)	(cpu_online_map)
+-#endif
+-#ifndef __node_to_memblk
+-#define __node_to_memblk(node)		(0)
+-#endif
+-
+-/* Cross-node load balancing interval. */
+-#ifndef NODE_BALANCE_RATE
+-#define NODE_BALANCE_RATE 10
+-#endif
+-
+-#endif /* _ASM_GENERIC_TOPOLOGY_H */
+--- linux/include/asm-ppc64/topology.h.orig	2003-01-17 09:54:46.000000000 +0100
++++ linux/include/asm-ppc64/topology.h	2003-01-17 09:55:18.000000000 +0100
+@@ -46,18 +46,6 @@
+ 	return mask;
+ }
+ 
+-/* Cross-node load balancing interval. */
+-#define NODE_BALANCE_RATE 10
+-
+-#else /* !CONFIG_NUMA */
+-
+-#define __cpu_to_node(cpu)		(0)
+-#define __memblk_to_node(memblk)	(0)
+-#define __parent_node(nid)		(0)
+-#define __node_to_first_cpu(node)	(0)
+-#define __node_to_cpu_mask(node)	(cpu_online_map)
+-#define __node_to_memblk(node)		(0)
+-
+ #endif /* CONFIG_NUMA */
+ 
+ #endif /* _ASM_PPC64_TOPOLOGY_H */
+--- linux/include/linux/topology.h.orig	2003-01-17 09:57:20.000000000 +0100
++++ linux/include/linux/topology.h	2003-01-17 10:09:38.000000000 +0100
+@@ -0,0 +1,43 @@
++/*
++ * linux/include/linux/topology.h
++ */
++#ifndef _LINUX_TOPOLOGY_H
++#define _LINUX_TOPOLOGY_H
++
++#include <asm/topology.h>
++
++/*
++ * The default (non-NUMA) topology definitions:
++ */
++#ifndef __cpu_to_node
++#define __cpu_to_node(cpu)		(0)
++#endif
++#ifndef __memblk_to_node
++#define __memblk_to_node(memblk)	(0)
++#endif
++#ifndef __parent_node
++#define __parent_node(node)		(0)
++#endif
++#ifndef __node_to_first_cpu
++#define __node_to_first_cpu(node)	(0)
++#endif
++#ifndef __cpu_to_node_mask
++#define __cpu_to_node_mask(cpu)		(cpu_online_map)
++#endif
++#ifndef __node_to_cpu_mask
++#define __node_to_cpu_mask(node)		(cpu_online_map)
++#endif
++#ifndef __node_to_memblk
++#define __node_to_memblk(node)		(0)
++#endif
++
++#ifndef __cpu_to_node_mask
++#define __cpu_to_node_mask(cpu)		__node_to_cpu_mask(__cpu_to_node(cpu))
++#endif
++
++/*
++ * Generic defintions:
++ */
++#define numa_node_id()			(__cpu_to_node(smp_processor_id()))
++
++#endif /* _LINUX_TOPOLOGY_H */
+--- linux/include/linux/mmzone.h.orig	2003-01-17 09:58:20.000000000 +0100
++++ linux/include/linux/mmzone.h	2003-01-17 10:01:17.000000000 +0100
+@@ -255,9 +255,7 @@
+ #define MAX_NR_MEMBLKS	1
+ #endif /* CONFIG_NUMA */
+ 
+-#include <asm/topology.h>
+-/* Returns the number of the current Node. */
+-#define numa_node_id()		(__cpu_to_node(smp_processor_id()))
++#include <linux/topology.h>
+ 
+ #ifndef CONFIG_DISCONTIGMEM
+ extern struct pglist_data contig_page_data;
+--- linux/include/asm-ia64/topology.h.orig	2003-01-17 09:54:33.000000000 +0100
++++ linux/include/asm-ia64/topology.h	2003-01-17 09:54:38.000000000 +0100
+@@ -60,7 +60,4 @@
   */
--static int __will_become_orphaned_pgrp(int pgrp, task_t *ignored_task)
-+static int will_become_orphaned_pgrp(int pgrp, task_t *ignored_task)
- {
- 	struct task_struct *p;
- 	struct list_head *l;
-@@ -177,22 +177,17 @@
- 	return ret;	/* (sighing) "Often!" */
+ #define __node_to_memblk(node) (node)
+ 
+-/* Cross-node load balancing interval. */
+-#define NODE_BALANCE_RATE 10
+-
+ #endif /* _ASM_IA64_TOPOLOGY_H */
+--- linux/include/asm-i386/topology.h.orig	2003-01-17 09:55:28.000000000 +0100
++++ linux/include/asm-i386/topology.h	2003-01-17 09:56:27.000000000 +0100
+@@ -61,17 +61,6 @@
+ /* Returns the number of the first MemBlk on Node 'node' */
+ #define __node_to_memblk(node) (node)
+ 
+-/* Cross-node load balancing interval. */
+-#define NODE_BALANCE_RATE 100
+-
+-#else /* !CONFIG_NUMA */
+-/*
+- * Other i386 platforms should define their own version of the 
+- * above macros here.
+- */
+-
+-#include <asm-generic/topology.h>
+-
+ #endif /* CONFIG_NUMA */
+ 
+ #endif /* _ASM_I386_TOPOLOGY_H */
+--- linux/include/asm-i386/cpu.h.orig	2003-01-17 10:03:22.000000000 +0100
++++ linux/include/asm-i386/cpu.h	2003-01-17 10:03:31.000000000 +0100
+@@ -3,8 +3,8 @@
+ 
+ #include <linux/device.h>
+ #include <linux/cpu.h>
++#include <linux/topology.h>
+ 
+-#include <asm/topology.h>
+ #include <asm/node.h>
+ 
+ struct i386_cpu {
+--- linux/include/asm-i386/node.h.orig	2003-01-17 10:04:02.000000000 +0100
++++ linux/include/asm-i386/node.h	2003-01-17 10:04:08.000000000 +0100
+@@ -4,8 +4,7 @@
+ #include <linux/device.h>
+ #include <linux/mmzone.h>
+ #include <linux/node.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ struct i386_node {
+ 	struct node node;
+--- linux/include/asm-i386/memblk.h.orig	2003-01-17 10:03:51.000000000 +0100
++++ linux/include/asm-i386/memblk.h	2003-01-17 10:03:56.000000000 +0100
+@@ -4,8 +4,8 @@
+ #include <linux/device.h>
+ #include <linux/mmzone.h>
+ #include <linux/memblk.h>
++#include <linux/topology.h>
+ 
+-#include <asm/topology.h>
+ #include <asm/node.h>
+ 
+ struct i386_memblk {
+--- linux/kernel/sched.c.orig	2003-01-17 09:22:24.000000000 +0100
++++ linux/kernel/sched.c	2003-01-17 10:29:53.000000000 +0100
+@@ -153,10 +153,9 @@
+ 			nr_uninterruptible;
+ 	task_t *curr, *idle;
+ 	prio_array_t *active, *expired, arrays[2];
+-	int prev_nr_running[NR_CPUS];
++	int prev_cpu_load[NR_CPUS];
+ #ifdef CONFIG_NUMA
+ 	atomic_t *node_nr_running;
+-	unsigned int nr_balanced;
+ 	int prev_node_load[MAX_NUMNODES];
+ #endif
+ 	task_t *migration_thread;
+@@ -765,29 +764,6 @@
+ 	return node;
  }
  
--static int will_become_orphaned_pgrp(int pgrp, struct task_struct * ignored_task)
-+int is_orphaned_pgrp(int pgrp)
- {
- 	int retval;
- 
- 	read_lock(&tasklist_lock);
--	retval = __will_become_orphaned_pgrp(pgrp, ignored_task);
-+	retval = will_become_orphaned_pgrp(pgrp, NULL);
- 	read_unlock(&tasklist_lock);
- 
- 	return retval;
- }
- 
--int is_orphaned_pgrp(int pgrp)
+-static inline unsigned long cpus_to_balance(int this_cpu, runqueue_t *this_rq)
 -{
--	return will_become_orphaned_pgrp(pgrp, 0);
+-	int this_node = __cpu_to_node(this_cpu);
+-	/*
+-	 * Avoid rebalancing between nodes too often.
+-	 * We rebalance globally once every NODE_BALANCE_RATE load balances.
+-	 */
+-	if (++(this_rq->nr_balanced) == NODE_BALANCE_RATE) {
+-		int node = find_busiest_node(this_node);
+-		this_rq->nr_balanced = 0;
+-		if (node >= 0)
+-			return (__node_to_cpu_mask(node) | (1UL << this_cpu));
+-	}
+-	return __node_to_cpu_mask(this_node);
 -}
 -
- static inline int has_stopped_jobs(int pgrp)
- {
- 	int retval = 0;
-@@ -495,7 +490,7 @@
- 	    (p->session == father->session)) {
- 		int pgrp = p->pgrp;
+-#else /* !CONFIG_NUMA */
+-
+-static inline unsigned long cpus_to_balance(int this_cpu, runqueue_t *this_rq)
+-{
+-	return cpu_online_map;
+-}
+-
+ #endif /* CONFIG_NUMA */
  
--		if (__will_become_orphaned_pgrp(pgrp, 0) && has_stopped_jobs(pgrp)) {
-+		if (will_become_orphaned_pgrp(pgrp, NULL) && has_stopped_jobs(pgrp)) {
- 			__kill_pg_info(SIGHUP, (void *)1, pgrp);
- 			__kill_pg_info(SIGCONT, (void *)1, pgrp);
- 		}
-@@ -579,7 +574,7 @@
- 	
- 	if ((t->pgrp != current->pgrp) &&
- 	    (t->session == current->session) &&
--	    __will_become_orphaned_pgrp(current->pgrp, current) &&
-+	    will_become_orphaned_pgrp(current->pgrp, current) &&
- 	    has_stopped_jobs(current->pgrp)) {
- 		__kill_pg_info(SIGHUP, (void *)1, current->pgrp);
- 		__kill_pg_info(SIGCONT, (void *)1, current->pgrp);
+ #if CONFIG_SMP
+@@ -807,10 +783,10 @@
+ 			spin_lock(&busiest->lock);
+ 			spin_lock(&this_rq->lock);
+ 			/* Need to recalculate nr_running */
+-			if (idle || (this_rq->nr_running > this_rq->prev_nr_running[this_cpu]))
++			if (idle || (this_rq->nr_running > this_rq->prev_cpu_load[this_cpu]))
+ 				nr_running = this_rq->nr_running;
+ 			else
+-				nr_running = this_rq->prev_nr_running[this_cpu];
++				nr_running = this_rq->prev_cpu_load[this_cpu];
+ 		} else
+ 			spin_lock(&busiest->lock);
+ 	}
+@@ -847,10 +823,10 @@
+ 	 * that case we are less picky about moving a task across CPUs and
+ 	 * take what can be taken.
+ 	 */
+-	if (idle || (this_rq->nr_running > this_rq->prev_nr_running[this_cpu]))
++	if (idle || (this_rq->nr_running > this_rq->prev_cpu_load[this_cpu]))
+ 		nr_running = this_rq->nr_running;
+ 	else
+-		nr_running = this_rq->prev_nr_running[this_cpu];
++		nr_running = this_rq->prev_cpu_load[this_cpu];
+ 
+ 	busiest = NULL;
+ 	max_load = 1;
+@@ -859,11 +835,11 @@
+ 			continue;
+ 
+ 		rq_src = cpu_rq(i);
+-		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[i]))
++		if (idle || (rq_src->nr_running < this_rq->prev_cpu_load[i]))
+ 			load = rq_src->nr_running;
+ 		else
+-			load = this_rq->prev_nr_running[i];
+-		this_rq->prev_nr_running[i] = rq_src->nr_running;
++			load = this_rq->prev_cpu_load[i];
++		this_rq->prev_cpu_load[i] = rq_src->nr_running;
+ 
+ 		if ((load > max_load) && (rq_src != this_rq)) {
+ 			busiest = rq_src;
+@@ -922,7 +898,7 @@
+  * We call this with the current runqueue locked,
+  * irqs disabled.
+  */
+-static void load_balance(runqueue_t *this_rq, int idle)
++static void load_balance(runqueue_t *this_rq, int idle, unsigned long cpumask)
+ {
+ 	int imbalance, idx, this_cpu = smp_processor_id();
+ 	runqueue_t *busiest;
+@@ -930,8 +906,7 @@
+ 	struct list_head *head, *curr;
+ 	task_t *tmp;
+ 
+-	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance,
+-					cpus_to_balance(this_cpu, this_rq));
++	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance, cpumask);
+ 	if (!busiest)
+ 		goto out;
+ 
+@@ -1006,21 +981,61 @@
+  * frequency and balancing agressivity depends on whether the CPU is
+  * idle or not.
+  *
+- * busy-rebalance every 250 msecs. idle-rebalance every 1 msec. (or on
++ * busy-rebalance every 200 msecs. idle-rebalance every 1 msec. (or on
+  * systems with HZ=100, every 10 msecs.)
++ *
++ * On NUMA, do a node-rebalance every 400 msecs.
+  */
+-#define BUSY_REBALANCE_TICK (HZ/4 ?: 1)
+ #define IDLE_REBALANCE_TICK (HZ/1000 ?: 1)
++#define BUSY_REBALANCE_TICK (HZ/5 ?: 1)
++#define NODE_REBALANCE_TICK (BUSY_REBALANCE_TICK * 2)
+ 
+-static inline void idle_tick(runqueue_t *rq)
++static void rebalance_tick(runqueue_t *this_rq, int idle)
+ {
+-	if (jiffies % IDLE_REBALANCE_TICK)
++	int this_cpu = smp_processor_id();
++	unsigned long j = jiffies, cpumask, this_cpumask = 1UL << this_cpu;
++
++	if (idle) {
++		if (!(j % IDLE_REBALANCE_TICK)) {
++			spin_lock(&this_rq->lock);
++			load_balance(this_rq, 1, this_cpumask);
++			spin_unlock(&this_rq->lock);
++		}
+ 		return;
+-	spin_lock(&rq->lock);
+-	load_balance(rq, 1);
+-	spin_unlock(&rq->lock);
++	}
++	/*
++	 * First do inter-node rebalancing, then intra-node rebalancing,
++	 * if both events happen in the same tick. The inter-node
++	 * rebalancing does not necessarily have to create a perfect
++	 * balance within the node, since we load-balance the most loaded
++	 * node with the current CPU. (ie. other CPUs in the local node
++	 * are not balanced.)
++	 */
++#if CONFIG_NUMA
++	if (!(j % NODE_REBALANCE_TICK)) {
++		int node = find_busiest_node(__cpu_to_node(this_cpu));
++		if (node >= 0) {
++			cpumask = __node_to_cpu_mask(node) | this_cpumask;
++			spin_lock(&this_rq->lock);
++			load_balance(this_rq, 1, cpumask);
++			spin_unlock(&this_rq->lock);
++		}
++	}
++#endif
++	if (!(j % BUSY_REBALANCE_TICK)) {
++		cpumask = __cpu_to_node_mask(this_cpu);
++		spin_lock(&this_rq->lock);
++		load_balance(this_rq, 1, cpumask);
++		spin_unlock(&this_rq->lock);
++	}
++}
++#else
++/*
++ * on UP we do not need to balance between CPUs:
++ */
++static inline void rebalance_tick(runqueue_t *this_rq, int idle)
++{
+ }
+-
+ #endif
+ 
+ DEFINE_PER_CPU(struct kernel_stat, kstat) = { { 0 } };
+@@ -1063,9 +1078,7 @@
+ 			kstat_cpu(cpu).cpustat.iowait += sys_ticks;
+ 		else
+ 			kstat_cpu(cpu).cpustat.idle += sys_ticks;
+-#if CONFIG_SMP
+-		idle_tick(rq);
+-#endif
++		rebalance_tick(rq, 1);
+ 		return;
+ 	}
+ 	if (TASK_NICE(p) > 0)
+@@ -1121,11 +1134,8 @@
+ 			enqueue_task(p, rq->active);
+ 	}
+ out:
+-#if CONFIG_SMP
+-	if (!(jiffies % BUSY_REBALANCE_TICK))
+-		load_balance(rq, 0);
+-#endif
+ 	spin_unlock(&rq->lock);
++	rebalance_tick(rq, 0);
+ }
+ 
+ void scheduling_functions_start_here(void) { }
+@@ -1184,7 +1194,7 @@
+ pick_next_task:
+ 	if (unlikely(!rq->nr_running)) {
+ #if CONFIG_SMP
+-		load_balance(rq, 1);
++		load_balance(rq, 1, __cpu_to_node_mask(smp_processor_id()));
+ 		if (rq->nr_running)
+ 			goto pick_next_task;
+ #endif
+--- linux/mm/page_alloc.c.orig	2003-01-17 10:01:29.000000000 +0100
++++ linux/mm/page_alloc.c	2003-01-17 10:01:35.000000000 +0100
+@@ -28,8 +28,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/slab.h>
+ #include <linux/notifier.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
+ DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
+--- linux/mm/vmscan.c.orig	2003-01-17 10:01:44.000000000 +0100
++++ linux/mm/vmscan.c	2003-01-17 10:01:52.000000000 +0100
+@@ -27,10 +27,10 @@
+ #include <linux/pagevec.h>
+ #include <linux/backing-dev.h>
+ #include <linux/rmap-locking.h>
++#include <linux/topology.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+-#include <asm/topology.h>
+ #include <asm/div64.h>
+ 
+ #include <linux/swapops.h>
+

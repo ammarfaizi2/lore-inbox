@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293615AbSCEFui>; Tue, 5 Mar 2002 00:50:38 -0500
+	id <S293190AbSCEGIJ>; Tue, 5 Mar 2002 01:08:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293614AbSCEFua>; Tue, 5 Mar 2002 00:50:30 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:64915 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S293615AbSCEFuQ>; Tue, 5 Mar 2002 00:50:16 -0500
-Date: Mon, 04 Mar 2002 21:47:45 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
-        Matt Dobson <colpatch@us.ibm.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre1aa1
-Message-ID: <795229669.1015278464@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.4.33.0203042109060.12307-100000@dbear.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.33.0203042109060.12307-100000@dbear.engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S293614AbSCEGH7>; Tue, 5 Mar 2002 01:07:59 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:20751 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S293190AbSCEGHq>; Tue, 5 Mar 2002 01:07:46 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Robert Love <rml@tech9.net>, Hubertus Franke <frankeh@watson.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fast Userspace Mutexes III. 
+In-Reply-To: Your message of "Mon, 04 Mar 2002 19:55:19 -0800."
+             <Pine.LNX.4.44.0203041953480.1561-100000@blue1.dev.mcafeelabs.com> 
+Date: Tue, 05 Mar 2002 17:11:04 +1100
+Message-Id: <E16i8AD-0007Sb-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> SGI's CpuMemSets is supposed to do that as well. We are now able to bind a
-> process to a set of memories, and soon we will be able to specify how
-> strict the allocation can be. Right now, if a process is allowed to
-> allocate memory from node 0, 2, and 3, it won't look outside of this set.
-> The memory set granularity is smaller though, because it depends on the
-> process, and the cpu (and thus the node) this process is running on.
-> The CpuMemSets have been tested and are available on the Linux Scalability
-> Effort sourceforge page, if you want to give it a try...
+In message <Pine.LNX.4.44.0203041953480.1561-100000@blue1.dev.mcafeelabs.com> y
+ou write:
+> On Tue, 5 Mar 2002, Rusty Russell wrote:
+> 
+> > In message <1015293007.882.87.camel@phantasy> you write:
+> > > On Mon, 2002-03-04 at 17:15, Davide Libenzi wrote:
+> > >
+> > > > That's great. What if the process holding the mutex dies while there're
+> > > > sleeping tasks waiting for it ?
 
-The problem with CpuMemSets is that it's mind-bogglingly
-complex - I think we need something simpler ... at least
-to start with.
+I don't see that.  Your data, your program, your funeral, yes?
 
-M.
+Want to autoclean the lock?  There are many ways to do this in
+userspace.  For most cases, the problem is "and then what"?
 
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

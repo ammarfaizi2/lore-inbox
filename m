@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVCRAI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVCRAMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVCRAI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 19:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCRAI5
+	id S261390AbVCRAMD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 19:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVCRAMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 19:08:57 -0500
-Received: from li-22.members.linode.com ([64.5.53.22]:14996 "EHLO
-	www.cryptography.com") by vger.kernel.org with ESMTP
-	id S261395AbVCRAIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 19:08:52 -0500
-Message-ID: <423A1BED.1010608@root.org>
-Date: Thu, 17 Mar 2005 16:08:13 -0800
-From: Nate Lawson <nate@root.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] IDE failure on ACPI resume
-References: <1110741241.8136.46.camel@tyrosine>  <423518E7.3030300@root.org>	 <1111072221.8136.171.camel@tyrosine>  <4239E9BA.7050105@root.org> <1111104154.8136.179.camel@tyrosine>
-In-Reply-To: <1111104154.8136.179.camel@tyrosine>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Mar 2005 19:12:03 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:25047 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S261390AbVCRAL5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 19:11:57 -0500
+Date: Thu, 17 Mar 2005 16:10:53 -0800
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BKCVS broken ?
+Message-ID: <20050318001053.GA23358@bitmover.com>
+Mail-Followup-To: lm@bitmover.com,
+	Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050317144522.GK22936@hottah.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050317144522.GK22936@hottah.alcove-fr>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On Thu, 2005-03-17 at 12:34 -0800, Nate Lawson wrote:
->>Very interesting.  I was hoping to someday have _GTF et al implemented 
->>but the ATA knowledge required was above my head.  I also strongly 
->>suspected that the info published by _GTF would likely be invalid.  Does 
->>Windows actually use that method or just hardcoded ATA initialization?
-> 
-> I believe that Windows does use the _GTF methods.
+I got swamped, I'll look at this after dinner.  But you might take a look
+at this: http://www.bitkeeper.com/press/2005-03-17.html which is a link
+to a very simple open source BK client.  It doesn't do much except track
+the head of the tree but it does that well.  It's slightly better than
+that, it puts all the checkin comments in BK/ChangeLog so you don't have
+to go over the wire to get those.
 
-You are correct.  A quick scan of my w2k drivers shows atapi.sys uses 
-the _GTF, _GTM, and _STM methods.
+It's intended for someone who just wants the latest and greatest snapshot,
+knows how to do cp -rp and diff -Nur, it's pretty basic.  It's not a
+CVS gateway replacement but it does work for every tree on bkbits.net.
+Just to be clear, we are not dropping the CVS gateway, this is "in
+addition to" not "instead of".
 
+If this turns out to be popular we can look at making a BitTorrent image
+of each tree available so people can get at them without swamping us.
+
+Don't worry about the license, it's a joke.  BSD license OK with everyone?
 -- 
-Nate
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

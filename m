@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbSLOWfz>; Sun, 15 Dec 2002 17:35:55 -0500
+	id <S263204AbSLOWzx>; Sun, 15 Dec 2002 17:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSLOWfz>; Sun, 15 Dec 2002 17:35:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23570 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262924AbSLOWfy>; Sun, 15 Dec 2002 17:35:54 -0500
-Date: Sun, 15 Dec 2002 23:43:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: William Lee Irwin III <wli@holomorphy.com>, Pavel Machek <pavel@ucw.cz>,
-       Mike Hayward <hayward@loup.net>, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021215224348.GA30159@atrey.karlin.mff.cuni.cz>
-References: <200212090830.gB98USW05593@flux.loup.net> <20021213154544.GK9882@holomorphy.com> <20021215215951.GA6347@elf.ucw.cz> <20021215223703.GA2690@holomorphy.com>
+	id <S263215AbSLOWzx>; Sun, 15 Dec 2002 17:55:53 -0500
+Received: from mail.michigannet.com ([208.49.116.30]:45574 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S263204AbSLOWzw>; Sun, 15 Dec 2002 17:55:52 -0500
+Date: Sun, 15 Dec 2002 18:03:44 -0500
+From: Paul <set@pobox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Oops 2.5.51] PnPBIOS: cat /proc/bus/pnp/escd
+Message-ID: <20021215230344.GE1432@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021215223703.GA2690@holomorphy.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+	Hi;
 
-> >> This is the same for me. I'm extremely uninterested in the P-IV for my
-> >> own use because of this.
-> 
-> > Well, then you should fix the kernel so that syscalls are done by
-> > sysenter (or how is it called).
-> > 								Pavel
-> 
-> ABI is immutable. I actually run apps at home.
+	'cat /proc/bus/pnp/escd' consistantly produces this:
 
-Perhaps that one killer app can be recompiled?
+Paul
+set@pobox.com
 
-> sysenter is also unusable for low-level loss-of-state reasons mentioned
-> elsewhere in this thread.
+(need any more info, just ask)
 
-Well, disabling v86 may be well wroth it :-).
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Unable to handle kernel paging request at virtual address ffffd000
+ printing eip:
+00007b74
+*pde = 00001063
+*pte = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0088:[<00007b74>]    Not tainted
+EFLAGS: 00010007
+EIP is at 0x7b74
+eax: 000000a0   ebx: 00a0d07b   ecx: 00000400   edx: 00000000
+esi: 0000d000   edi: 00000000   ebp: c31e7eb0   esp: c31e7e88
+ds: 00a0   es: 0098   ss: 0068
+Process md5sum (pid: 25925, threadinfo=c31e6000 task=c7204640)
+Stack: 00000000 0090d000 00907b89 d049d4eb 00000042 00680068 0246d016 00920098 
+       c31e7efc 0080000b 00000042 00a00098 00000090 00000000 c0217074 00000060 
+       00000082 00000000 00000000 00000068 00000068 00000246 00000042 c31e7efc 
+Call Trace:
+ [<c0217074>] __pnp_bios_read_escd+0xf0/0x14c
+ [<c02170df>] pnp_bios_read_escd+0xf/0x30
+ [<c02180cf>] proc_read_escd+0x5f/0xf0
+ [<c015dab5>] proc_file_read+0xb9/0x174
+ [<c0138d27>] vfs_read+0xab/0x150
+ [<c0138ff4>] sys_read+0x28/0x3c
+ [<c010a7c7>] syscall_call+0x7/0xb
+
+Code:  Bad EIP value.
+ <6>note: cat[25925] exited with preempt_count 1

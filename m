@@ -1,117 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbTH2U4s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 16:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTH2U4s
+	id S262278AbTH2VQh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 17:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTH2VQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:56:48 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:34771 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id S263565AbTH2UzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:55:17 -0400
-Date: Fri, 29 Aug 2003 21:56:59 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 4G/4G preempt on vstack
-Message-ID: <Pine.LNX.4.44.0308292151480.1816-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 29 Aug 2003 17:16:37 -0400
+Received: from codepoet.org ([166.70.99.138]:59020 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S262278AbTH2VQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 17:16:35 -0400
+Date: Fri, 29 Aug 2003 15:14:40 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nick Urbanik <nicku@vtc.edu.hk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Single P4, many IDE PCI cards == trouble??
+Message-ID: <20030829211440.GB3150@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Urbanik <nicku@vtc.edu.hk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3F4EA30C.CEA49F2F@vtc.edu.hk> <1062150643.26753.4.camel@dhcp23.swansea.linux.org.uk> <3F4F5C9A.5BAA1542@vtc.edu.hk> <1062167896.27561.4.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062167896.27561.4.camel@dhcp23.swansea.linux.org.uk>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Repeated -j3 kernel builds, run in tandem on dual PIII, have been
-collapsing recently on -mm with 4G/4G split, SMP and preemption.
-Typically 'make' fails with Error 139 because 'as' or another
-got SIGSEGV; maybe within ten minutes, maybe after ten hours.
+On Fri Aug 29, 2003 at 03:38:17PM +0100, Alan Cox wrote:
+> On Gwe, 2003-08-29 at 15:00, Nick Urbanik wrote:
+> > Is there _anyone_ who is using a number of ATA133 IDE disks (>=6), each on
+> > its own IDE channel, on a number of PCI IDE cards, and doing so
+> 
+> The most I know of is 8, and that was one of the people who found the
+> shared IRQ/IDE race cases that 2.4.21 or so fixed.
 
-This patch seems to fix that (ran successfully overnight on test4-mm1,
-will run over the weekend on test4-mm3-1).  Please cast a critical eye
-over it, I expect Ingo or someone else will find it can be improved.
+I have a ton of drives plugged into some promise IDE cards and my
+motherboard's builtin ICH5 that I use for testing things.
 
-The problem is that a task may be preempted just after it has entered
-kernelspace, while using the transitional "virtual stack" i.e. %esp
-pointing to high per-cpu kmap of the kernel stack.  If the task resumes
-on another cpu, that %esp needs to be repointed into the new cpu's kmap.
+I have not been seeing IRQ problems.  However, when I have both
+the promise and the intel IDE drivers built into the kernel,
+there _is_ some sortof a race condition present, such that
+stat("/", &statbuf) returns the wrong value for statbuf.st_rdev
+about 50% of the time when booting.  Instead of returning the
+major/minor with the correct values (/dev/hda2 on the ICH5), it
+instead returns some value from one of the drives on the promise
+card such as /dev/hdh or some such.  I've tried tracking that
+down, but havn't been able to squash it thus far.  Grrrr.
 
-The corresponding returns to userspace look okay to me: interrupts are
-disabled over the critical points.  And in general no copy is taken of
-%esp while on the virtual stack e.g. setting pointer to pt_regs is and
-must be done after switching to real stack.  But there's one place in
-__SWITCH_KERNELSPACE itself where we need to check and repeat if moved.
+ -Erik
 
-Hugh
-
---- 2.6.0-test4-mm3-1/arch/i386/kernel/entry.S	Fri Aug 29 16:31:30 2003
-+++ linux/arch/i386/kernel/entry.S	Fri Aug 29 20:53:33 2003
-@@ -103,6 +103,20 @@
- 
- #ifdef CONFIG_X86_SWITCH_PAGETABLES
- 
-+#if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP)
-+/*
-+ * If task is preempted in __SWITCH_KERNELSPACE, and moved to another cpu,
-+ * __switch_to repoints %esp to the appropriate virtual stack; but %ebp is
-+ * left stale, so we must check whether to repeat the real stack calculation.
-+ */
-+#define repeat_if_esp_changed				\
-+	xorl %esp, %ebp;				\
-+	testl $0xffffe000, %ebp;			\
-+	jnz 0b
-+#else
-+#define repeat_if_esp_changed
-+#endif
-+
- /* clobbers ebx, edx and ebp */
- 
- #define __SWITCH_KERNELSPACE				\
-@@ -117,12 +131,13 @@
- 	movl $swapper_pg_dir-__PAGE_OFFSET, %edx;	\
- 							\
- 	/* GET_THREAD_INFO(%ebp) intermixed */		\
--							\
-+0:							\
- 	movl %esp, %ebp;				\
- 	movl %esp, %ebx;				\
- 	andl $0xffffe000, %ebp;				\
- 	andl $0x00001fff, %ebx;				\
- 	orl TI_real_stack(%ebp), %ebx;			\
-+	repeat_if_esp_changed;				\
- 							\
- 	movl %edx, %cr3;				\
- 	movl %ebx, %esp;				\
---- 2.6.0-test4-mm3-1/arch/i386/kernel/process.c	Fri Aug 29 16:31:30 2003
-+++ linux/arch/i386/kernel/process.c	Fri Aug 29 20:53:33 2003
-@@ -479,13 +479,27 @@
- 	__kmap_atomic(next->stack_page1, KM_VSTACK1);
- 
- 	/*
--	 * Reload esp0:
--	 */
--	/*
- 	 * NOTE: here we rely on the task being the stack as well
- 	 */
- 	next_p->thread_info->virtual_stack = (void *)__kmap_atomic_vaddr(KM_VSTACK0);
-+
-+#if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP)
-+	/*
-+	 * If next was preempted on entry from userspace to kernel,
-+	 * and now it's on a different cpu, we need to adjust %esp.
-+	 * This assumes that entry.S does not copy %esp while on the
-+	 * virtual stack (with interrupts enabled): which is so,
-+	 * except within __SWITCH_KERNELSPACE itself.
-+	 */
-+	if (unlikely(next->esp >= TASK_SIZE)) {
-+		next->esp &= THREAD_SIZE - 1;
-+		next->esp |= (unsigned long) next_p->thread_info->virtual_stack;
-+	}
-+#endif
- #endif
-+	/*
-+	 * Reload esp0:
-+	 */
- 	load_esp0(tss, virtual_esp0(next_p));
- 
- 	/*
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263327AbTJQHh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 03:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTJQHh5
+	id S263328AbTJQHqo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 03:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263329AbTJQHqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 03:37:57 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:28075 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263327AbTJQHh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 03:37:56 -0400
-Date: Fri, 17 Oct 2003 09:37:42 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
-Message-ID: <20031017073742.GA12489@louise.pinerecords.com>
-References: <200310162344.09021.bzolnier@elka.pw.edu.pl>
+	Fri, 17 Oct 2003 03:46:43 -0400
+Received: from [199.45.143.209] ([199.45.143.209]:53509 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S263328AbTJQHqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 03:46:42 -0400
+Subject: Re: /proc reliability & performance
+From: Zan Lynx <zlynx@acm.org>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1066356438.15931.125.camel@cube>
+References: <1066356438.15931.125.camel@cube>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-H0+WJ062wtYKk7XoNnOM"
+Message-Id: <1066376402.4401.2.camel@titania.zlynx.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310162344.09021.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 17 Oct 2003 01:40:03 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct-16 2003, Thu, 23:44 +0200
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
 
-> I wonder if this patch fixes problems (reported back in 2.4.21 days)
-> with CSB5 IDE and Compaq Proliant machines.  Please test it if you can.
+--=-H0+WJ062wtYKk7XoNnOM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Sure.  What kernel series is the patch against?
+On Thu, 2003-10-16 at 20:07, Albert Cahalan wrote:
+> I created a process with 360 thousand threads,
+> went into the /proc/*/task directory, and did
+> a simple /bin/ls. It took over 9 minutes on a
+> nice fast Opteron.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Did you try using find instead of ls?  ls loads all entries and then
+sorts them, so it can create an alphabetical display.
+
+Try using find.  It will not take quite so long.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-H0+WJ062wtYKk7XoNnOM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/j5zSG8fHaOLTWwgRAoh0AJ929lVaKt4iLVt02FOcMMUHW4hLVQCdHIpG
+8nS4wYtupmy+157EkTAp+Ts=
+=9C2p
+-----END PGP SIGNATURE-----
+
+--=-H0+WJ062wtYKk7XoNnOM--
+

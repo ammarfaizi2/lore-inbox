@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266731AbSLPN2o>; Mon, 16 Dec 2002 08:28:44 -0500
+	id <S266720AbSLPNgN>; Mon, 16 Dec 2002 08:36:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266733AbSLPN2o>; Mon, 16 Dec 2002 08:28:44 -0500
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:54430 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S266731AbSLPN2n>; Mon, 16 Dec 2002 08:28:43 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "Zwane Mwaikambo" <zwane@holomorphy.com>
-Cc: "Robert Love" <rml@tech9.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: re: /proc/cpuinfo and hyperthreading
-Date: Mon, 16 Dec 2002 08:38:05 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJEEKMDLAA.scott@coyotegulch.com>
+	id <S266721AbSLPNgM>; Mon, 16 Dec 2002 08:36:12 -0500
+Received: from smtp-01.inode.at ([62.99.194.3]:8429 "EHLO smtp.inode.at")
+	by vger.kernel.org with ESMTP id <S266720AbSLPNgM> convert rfc822-to-8bit;
+	Mon, 16 Dec 2002 08:36:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Patrick Petermair <black666@inode.at>
+Reply-To: black666@inode.at
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE-CD and VT8235 issue!!!
+Date: Mon, 16 Dec 2002 14:45:34 +0100
+User-Agent: KMail/1.4.3
+References: <3DFB7B21.7040004@tin.it> <200212152256.25266.black666@inode.at> <20021216113458.A31837@ucw.cz>
+In-Reply-To: <20021216113458.A31837@ucw.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.50.0212160133300.12535-100000@montezuma.mastecende.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212161445.34087.black666@inode.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> It's ok.
+Vojtech Pavlik:
 
-I'm not so sure.
+> If you can, please try 2.4.20 with this patch.
 
-To get the most benefit from two logical CPUs, don't I need the kernel to
-operate as a 2-CPU SMP system?
+Wow, that was fast.
 
-Windows XP initializes the system as SMP with two CPUs; when I run an OpenMP
-application under Windows, it reports two CPUs and a maximum of two threads.
-Under Linux,
+The patch works perfect. The kernel boots with no problem, I have dma on 
+all my disk AND I can mount a CD/DVD without any problems.
+Would be cool to see this patch included in the 2.4.21 kernel.
 
-Linux SMP should initialize based on the number of logical CPUS, not the
-physical number of ships; thus, I should be seeing two CPUs in
-/proc/cpuinfo, not one.
+Thanks,
+Patrick
 
-..Scott
+
 

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316965AbSGHPWU>; Mon, 8 Jul 2002 11:22:20 -0400
+	id <S316971AbSGHPW3>; Mon, 8 Jul 2002 11:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316971AbSGHPWU>; Mon, 8 Jul 2002 11:22:20 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56325 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S316965AbSGHPWS>;
-	Mon, 8 Jul 2002 11:22:18 -0400
-Date: Mon, 8 Jul 2002 08:16:25 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Bruno Pujol <pujol@isty-info.uvsq.fr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: system call
-In-Reply-To: <20020708121535.A6642@romuald.isty-info.uvsq.fr>
-Message-ID: <Pine.LNX.4.33L2.0207080808310.7622-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316974AbSGHPW2>; Mon, 8 Jul 2002 11:22:28 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:46035 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S316971AbSGHPW0>; Mon, 8 Jul 2002 11:22:26 -0400
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Bttv errors with onboard video.
+Date: 8 Jul 2002 14:41:16 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrnaij94c.evr.kraxel@bytesex.org>
+References: <sd29642e.098@GroupWise>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1026139276 15356 127.0.0.1 (8 Jul 2002 14:41:16 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jul 2002, Bruno Pujol wrote:
+>  I read a post relating to something similar with the VIA chipset. I
+>  suppose the "bttv0: irq: SCERR risc_count=1764e020" errors isn't the
+>  problem for why mine isn't working but just another normal error. Any
+>  idea on how to put the bttv module into a debug mode?
 
-| Do someone know how to add a system call for the kernel 2.4.8 ?
+bogomips kraxel ~# modinfo bttv | grep debug
+parm:        bttv_debug int, description "debug messages, default is 0 (no)"
+parm:        irq_debug int, description "irq handler debug messages, default is 0 (no)"
 
-There are _many_ examples of adding syscalls on the web.
-Try searching with www.google.com if you haven't already.
+That likely doesn't help you througth.  SCERR is a syncronisation error
+of the DMA engine.  Most likely the bt878 chip has problems to do
+PCI-PCI transfers to the onboard video chipset for some reason.
 
-I expect that the real problem is that a patch that works for
-2.4.8 won't work for 2.4.18 and vice versa, e.g., due to the
-method used for defining the end/size of the syscall table.
-
-| I did know how to do it for an older version (2.0.35) :
-| - add a line in the file : /usr/src/linux/include/asm/unistd.h
-| 	#define __NR_my_systemcall	XXXX (where XXXX is the number
-| for my new system call)
-|
-| - modify the file /usr/src/linux/arch/i386/kernel/entry.S
-| 	- add my system call
-| 		.long SYMBOL_NAME (my_systemcall) at the end of the system callslist
-| 	- modify le last line of the file :
-| 		.space (NR_syscalls-166)*4   <= replace the 166 by 167
-
-That's very close to working.
-Here's how I did it for 2.4.18, but like I said above, it won't
-apply cleanly to 2.4.8.  You'll have to use just a small amount of
-gray matter to fix it:
-  http://www.xenotime.net/linux/syscall_ex/
-contains a howto, kernel patch, and test program.
-
-| After this changes, I only needed to recompile the kernel and reboot
-| with it... and a user's program could use the new system call...
-| But with my new kernel, this manupilation doesn't still work.
-
-You should modify the new syscall number to a value to is not used,
-and modify your userspace program to use that new syscall number.
+  Gerd
 
 -- 
-~Randy
-
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

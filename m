@@ -1,90 +1,158 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288541AbSADIS0>; Fri, 4 Jan 2002 03:18:26 -0500
+	id <S288543AbSADId1>; Fri, 4 Jan 2002 03:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288539AbSADISR>; Fri, 4 Jan 2002 03:18:17 -0500
-Received: from codepoet.org ([166.70.14.212]:33551 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S288538AbSADISB>;
-	Fri, 4 Jan 2002 03:18:01 -0500
-Date: Fri, 4 Jan 2002 01:18:02 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: LSB1.1: /proc/cpuinfo
-Message-ID: <20020104081802.GC5587@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	"Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020103190219.B27938@thyrsus.com> <Pine.GSO.4.21.0201031944320.23693-100000@weyl.math.psu.edu> <20020103195207.A31252@thyrsus.com>
+	id <S288544AbSADIdS>; Fri, 4 Jan 2002 03:33:18 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:41406 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S288543AbSADIdF>; Fri, 4 Jan 2002 03:33:05 -0500
+Date: Fri, 4 Jan 2002 00:33:01 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Patch: linux-2.5.2-pre7/fs/devfs kdev_t fixes
+Message-ID: <20020104003301.A13301@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-In-Reply-To: <20020103195207.A31252@thyrsus.com>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Jan 03, 2002 at 07:52:07PM -0500, Eric S. Raymond wrote:
-> Alexander Viro <viro@math.psu.edu>:
-> > It's more than just a name.
-> > 	a) granularity.  Current "all or nothing" policy in procfs has
-> > a lot of obvious problems.
-> > 	b) tree layout policy (lack thereof, to be precise).
-> > 	c) horribly bad layout of many, many files.  Any file exported by
-> > kernel should be treated as user-visible API.  As it is, common mentality
-> > is "it's a common dump; anything goes here".  Inconsistent across
-> > architectures for no good reason, inconsistent across kernel versions,
-> > just plain stupid, choke-full of buffer overruns...
-> > 
-> > Fixing these problems will _hurt_.  Badly.  We have to do it, but it
-> > won't be fast and it certainly won't happen overnight.
-> 
-> I'm willing to work on this.  Is there anywhere I can go to read up on 
-> current proposals before I start coding?
 
-I once wrote up /dev/ps and /dev/mounts drivers to eliminate proc
-for embedded systems (pointer available if you care).  It was not
-warmly received, but I did form some opinions in the process.
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The main things to think about are
-    1) machine readability
-	Generally speaking the kernel gods have decided that
-	ASCII is good, binary structures and such are bad (think
-	endiannes, nfs exports, and similar oddness).
-    2) typing
-	Right now, if some /proc file prints a number, user space
-	has to go digging about in the kernel sources to find
-	what type that thing is -- int, uint, long, long long, etc.
-	Cant tell without digging in the source.  And what if
-	someone then changes the type next week -- userspace
-	then overflows.
-    3) field length
-	When coping a string from /proc (say /proc/mounts),
-	userspace has to go digging in the kernel source to
-	find the field length.  So if I copy things into a
-	static buffer, I may be fine.  Till someone changes
-	the kernel to print out a bit more stuff.  Then I've
-	either got a buffer overflow (if I can't code) or a
-	truncated string.  Either way, its a problem.
+	The following patch fixes some kdev_t compilation errors in
+linux-2.5.2-pre7/fs/devfs/{base,util}.c.
 
-So what is needed is a kernelfs virtual filesystem that provides
-kernel info to user space.
+	Note that my fs/devfs/base.c lacks the code that, as of the
+last time I checked, prevented compactflash card partitions from
+being used with devfs (and was completely unnecessary, and introduced
+semantic differences with non-devfs systems).  So, I made the diffs
+again my old version, which means that patch will probably make you
+apply at least one of the stanzas by hand.  Also, this means that
+the code that prevents compactflash partitions from being used may
+not have been ported to kdev_t.  However, these changes will at
+least be a start for anyone who wants to port the rest.
 
-It needs a format that provides information as an organized
-directory hierarchy, which each directory and filename
-identifying the nature of the provided information.  Files should
-provide information in ASCII with one value per file (to avoid
-all the tedious parsing), but also provides along with that bit
-of information type and or/length information.  
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-In some cases I guess we may also need more complex classes on
-information.  (lists of key-value stuff for example).
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="devfs.diff"
 
- -Erik
+--- linux-2.5.2-pre7/fs/devfs/util.c	Thu Jan  3 19:52:02 2002
++++ linux/fs/devfs/util.c	Thu Jan  3 23:58:41 2002
+@@ -267,7 +267,7 @@
+ 	if (minor >= 256) continue;
+ 	__set_bit (minor, entry->bits);
+ 	up (semaphore);
+-	return MKDEV (entry->major, minor);
++	return mk_kdev (entry->major, minor);
+     }
+     /*  Need to allocate a new major  */
+     if ( ( entry = kmalloc (sizeof *entry, GFP_KERNEL) ) == NULL )
+@@ -289,7 +289,7 @@
+     else list->last->next = entry;
+     list->last = entry;
+     up (semaphore);
+-    return MKDEV (entry->major, 0);
++    return mk_kdev (entry->major, 0);
+ }   /*  End Function devfs_alloc_devnum  */
+ EXPORT_SYMBOL(devfs_alloc_devnum);
+ 
+@@ -309,7 +309,7 @@
+     struct device_list *list;
+     struct minor_list *entry;
+ 
+-    if (devnum == NODEV) return;
++    if (kdev_none(devnum)) return;
+     if (type == DEVFS_SPECIAL_CHR)
+     {
+ 	semaphore = &char_semaphore;
+--- linux/fs/devfs/base.c	2002/01/04 04:11:36	1.37
++++ linux/fs/devfs/base.c	2002/01/04 08:18:41	1.38
+@@ -911,8 +911,8 @@
+     {
+ 	devfs_dealloc_devnum ( S_ISCHR (de->mode) ? DEVFS_SPECIAL_CHR :
+ 			       DEVFS_SPECIAL_BLK,
+-			       MKDEV (de->u.fcb.u.device.major,
+-				      de->u.fcb.u.device.minor) );
++			       mk_kdev (de->u.fcb.u.device.major,
++					de->u.fcb.u.device.minor) );
+     }
+     WRITE_ENTRY_MAGIC (de, 0);
+ #ifdef CONFIG_DEVFS_DEBUG
+@@ -1397,7 +1397,9 @@
+ 
+ static int is_devfsd_or_child (struct fs_info *fs_info)
+ {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,1)
+     struct task_struct *p;
++#endif
+ 
+     if (current == fs_info->devfsd_task) return (TRUE);
+     if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
+@@ -1568,7 +1570,8 @@
+     if ( ( S_ISCHR (mode) || S_ISBLK (mode) ) &&
+ 	 (flags & DEVFS_FL_AUTO_DEVNUM) )
+     {
+-	if ( ( devnum = devfs_alloc_devnum (devtype) ) == NODEV )
++	devnum = devfs_alloc_devnum (devtype);
++	if ( kdev_none(devnum) )
+ 	{
+ 	    PRINTK ("(%s): exhausted %s device numbers\n",
+ 		    name, S_ISCHR (mode) ? "char" : "block");
+@@ -1580,14 +1583,14 @@
+     if ( ( de = _devfs_prepare_leaf (&dir, name, mode) ) == NULL )
+     {
+ 	PRINTK ("(%s): could not prepare leaf\n", name);
+-	if (devnum != NODEV) devfs_dealloc_devnum (devtype, devnum);
++	if ( !kdev_none(devnum) ) devfs_dealloc_devnum (devtype, devnum);
+ 	return NULL;
+     }
+     if ( S_ISCHR (mode) || S_ISBLK (mode) )
+     {
+ 	de->u.fcb.u.device.major = major;
+ 	de->u.fcb.u.device.minor = minor;
+-	de->u.fcb.autogen = (devnum == NODEV) ? FALSE : TRUE;
++	de->u.fcb.autogen = kdev_none(devnum) ? FALSE : TRUE;
+     }
+     else if ( !S_ISREG (mode) )
+     {
+@@ -1616,7 +1619,7 @@
+     {
+ 	PRINTK ("(%s): could not append to parent, err: %d\n", name, err);
+ 	devfs_put (dir);
+-	if (devnum != NODEV) devfs_dealloc_devnum (devtype, devnum);
++	if ( !kdev_none(devnum) ) devfs_dealloc_devnum (devtype, devnum);
+ 	return NULL;
+     }
+     DPRINTK (DEBUG_REGISTER, "(%s): de: %p dir: %p \"%s\"  pp: %p\n",
+@@ -2527,15 +2530,15 @@
+     inode->i_rdev = NODEV;
+     if ( S_ISCHR (de->mode) )
+     {
+-	inode->i_rdev = MKDEV (de->u.fcb.u.device.major,
+-			       de->u.fcb.u.device.minor);
++	inode->i_rdev = mk_kdev (de->u.fcb.u.device.major,
++				 de->u.fcb.u.device.minor);
+ 	inode->i_cdev = cdget ( kdev_t_to_nr (inode->i_rdev) );
+ 	is_fcb = TRUE;
+     }
+     else if ( S_ISBLK (de->mode) )
+     {
+-	inode->i_rdev = MKDEV (de->u.fcb.u.device.major,
+-			       de->u.fcb.u.device.minor);
++	inode->i_rdev = mk_kdev (de->u.fcb.u.device.major,
++				 de->u.fcb.u.device.minor);
+ 	if (bd_acquire (inode) == 0)
+ 	{
+ 	    if (!inode->i_bdev->bd_op && de->u.fcb.ops)
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+--AqsLC8rIMeq19msA--

@@ -1,76 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292964AbSBVThN>; Fri, 22 Feb 2002 14:37:13 -0500
+	id <S292972AbSBVTn4>; Fri, 22 Feb 2002 14:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292963AbSBVTgy>; Fri, 22 Feb 2002 14:36:54 -0500
-Received: from varenorn.icemark.net ([212.40.16.200]:21654 "EHLO
-	varenorn.internal.icemark.net") by vger.kernel.org with ESMTP
-	id <S292961AbSBVTgs>; Fri, 22 Feb 2002 14:36:48 -0500
-Date: Fri, 22 Feb 2002 20:34:02 +0100 (CET)
-From: Benedikt Heinen <beh@icemark.net>
-X-X-Sender: beh@berenium.icemark.ch
-To: Thomas Hood <jdthood@mail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
-In-Reply-To: <1014400995.1811.30.camel@thanatos>
-Message-ID: <Pine.LNX.4.44.0202222029550.1126-100000@berenium.icemark.ch>
+	id <S292969AbSBVTnr>; Fri, 22 Feb 2002 14:43:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34822 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292974AbSBVTnh>; Fri, 22 Feb 2002 14:43:37 -0500
+Subject: Re: is CONFIG_PACKET_MMAP always a win?
+To: lk@tantalophile.demon.co.uk (Jamie Lokier)
+Date: Fri, 22 Feb 2002 19:57:33 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dank@kegel.com (Dan Kegel),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        zab@zabbo.net (Zach Brown)
+In-Reply-To: <20020222190431.A16926@kushida.apsleyroad.org> from "Jamie Lokier" at Feb 22, 2002 07:04:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16eLoz-0002vD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Trying to suspend my A30P, the screen goes black, and then about a
-> > second later, I have this on the console (and syslog of course):
-> [...]
-> >
-> > EIP:    0010:[<f882a876>]    Tainted: PF
-> What kernel modules do you have loaded when this happens?
+> > You can process them in the ring buffer. If you can't keep up then you
+> > are screwed any way you look at it 8)
+> 
+> That still doesn't avoid copying: af_packet copies the whole packet (if
+> you want the whole packet) from the original skbuff to the ring buffer.
 
-These:
+I'd make a handwaved claim that the first copy of the packet from a DMA
+receiving source is free. Its certainly pretty close to free because the
+overhead of sucking it into L1 cache will dominate and you need to do that
+anyway.
 
-	beh@berenium:~ $ /sbin/lsmod
-	Module                  Size  Used by    Tainted: PF
-	snd-card-intel8x0       8288   0
-	snd-pcm-oss            34944   0 (unused)
-	snd-mixer-oss           8864   0 [snd-pcm-oss]
-	snd-pcm                45760   0 [snd-card-intel8x0 snd-pcm-oss]
-	snd-timer               9760   0 [snd-pcm]
-	snd-ac97-codec         22720   0 [snd-card-intel8x0]
-	snd                    23368   0 [snd-card-intel8x0 snd-pcm-oss snd-mixer-oss snd-pcm snd-timer snd-ac97-codec]
-	soundcore               3268   3 [snd]
-	xsvc                   21864   2 (autoclean)
-	vmnet                  18016   6
-	vmmon                  18228   0 (unused)
-	ds                      6368   2
-	yenta_socket            8384   2
-	pcmcia_core            37568   0 [ds yenta_socket]
-	nfsd                   64768   1 (autoclean)
-	lockd                  46624   1 (autoclean) [nfsd]
-	sunrpc                 57428   1 (autoclean) [nfsd lockd]
-	dummy                    960   0 (unused)
-	e100                   60228   1
-	beh@berenium:~ $ su -
-
-Note:
-	snd-*		-> ALSA 0.9.0beta9
-	e100		-> EtherExpress Pro driver from Intel,
-			   compiled from the debian e100-source package
-	xsvc		-> Summit (Accelerated X) driver
-			   The problem also occurs without it;
-			   Just trying Accelerated X since I can't get
-			   agpgart+XFree86+DRI to run...  agpgart fails
-			   on modprobe... :/
-	vmnet/vmmon	-> VMware 3.0
-	pcmcia stuff	-> pcmcia-cs-3.1.31
-
-
-
-
-Hope this helps...
-
-	Benedikt
-
-  BEAUTY, n.  The power by which a woman charms a lover and terrifies a
-    husband.
-			(Ambrose Bierce, The Devil's Dictionary)
-
+Zero copy is sometimes a false friend.

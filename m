@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSGOOIH>; Mon, 15 Jul 2002 10:08:07 -0400
+	id <S314602AbSGOOW6>; Mon, 15 Jul 2002 10:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317495AbSGOOIG>; Mon, 15 Jul 2002 10:08:06 -0400
-Received: from speech.linux-speakup.org ([129.100.109.30]:59830 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S317463AbSGOOIE>; Mon, 15 Jul 2002 10:08:04 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Advice saught on math functions
-References: <E17T2P5-0003DF-00@the-village.bc.nu>
-	<x7hej5djbj.fsf@speech.braille.uwo.ca>
-	<m1adotpats.fsf@frodo.biederman.org>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 15 Jul 2002 10:10:53 -0400
-In-Reply-To: <m1adotpats.fsf@frodo.biederman.org>
-Message-ID: <x7n0sthyj6.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S317277AbSGOOW5>; Mon, 15 Jul 2002 10:22:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20190 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314602AbSGOOW4>; Mon, 15 Jul 2002 10:22:56 -0400
+Message-ID: <3D32DB43.3040906@us.ibm.com>
+Date: Mon, 15 Jul 2002 07:25:07 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020712
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Serial: updated serial drivers
+References: <20020707010009.C5242@flint.arm.linux.org.uk> <20020715100310.GF23693@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
-
-> The current architecture does allows for all BIOS parameters to be set
-> from Linux so there is an accessibility gain there.
+William Lee Irwin III wrote:
+> On Sun, Jul 07, 2002 at 01:00:09AM +0100, Russell King wrote:
 > 
-> Given the space constraints on the BIOS side, either a very small
-> standalone speach synthsizer needs to be constructed, or more likely
-> a set of tones (that can work like post codes) can be introduced
-> to give a feel where in the boot process the BIOS is.
-
-A small synthesizer is one of the things I am trying to work on.
-After reading all the wonderful suggestions I've seen here on this
-thread I'm not sure just how I'll fit it all together.  Key tones to
-indicate when particular events have taken place with the pc's speaker
-could be very useful.  We use the bell character to indicate the lilo
-boot prompt currently.  It could be expanded to indicate a lot of
-useful events if built-in to the BIOS.
-
-A user space program to give access to the cmos bios settings is
-another feature which would be very useful.  Currently there is no way
-for a blind person to set up his/her own bios under the other O.S but
-it could conceivably be done under Linux.
-
-A few folks have written me suggesting the possibility of using the pc
-speaker as the output for a low quality speech synth.  I am skeptical
-about the feasability of this but it would give everyone blind or
-otherwise useful feedback possibly on systems which are headless.  I
-am not exactly sure yet just how small I can get a useable speech
-synth.  That is the whole reason for this thread in the first place.
-
+>>I've been maintaining a serial driver "off the side" of the ARM port
+>>which cleans up the serial driver mess that we currently have, with
+>>many duplications of serial.c, each with subtle bugs.
 > 
-> After that a nice bootloader based on the Linux kernel with a real
-> user space can be loaded from the hard drive where there is plenty of
-> room.  Everything that possibly could would need to be built as
-> modules to decrease the time to user space, and to allow as many
-> messages to be processed by the speech synthesizer.
+> 
+> global_cli() overhead on my testbox is a significant problem.
+> 
+> Profile info from tbench 1024 with ttyS0 as stdout, taken on a 16 cpu
+> i386 box with 16GB of RAM and irqbalance disabled, (needed to boot):
+> 
+<snip profile>
+ >
+> The disabling of irqbalance should make these profiling results valid.
 
-Is there an organized linuxbios project?  If so, could someone give me
-a pointer please.
+So, is irqbalance the thing that is screwing up our profiles on 2.5? 
+We were getting some strage profiles that made us look at oprofile 
+again.
 
-  Kirk
+oprofile is really cool, but readprofile is dead simple.
 -- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061

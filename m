@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266031AbUAEXkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbUAEXiM
+	id S265287AbUAEXhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266008AbUAEXef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:38:12 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:42248 "EHLO
+	Mon, 5 Jan 2004 18:34:35 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:37640 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266008AbUAEXhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:37:33 -0500
-Date: Mon, 5 Jan 2004 23:37:31 +0000 (GMT)
+	id S266009AbUAEXdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 18:33:19 -0500
+Date: Mon, 5 Jan 2004 23:33:15 +0000 (GMT)
 From: James Simmons <jsimmons@infradead.org>
-To: dan@eglifamily.dnsalias.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 problems
-In-Reply-To: <Pine.LNX.4.44.0312251936200.3243-300000@eglifamily.dnsalias.net>
-Message-ID: <Pine.LNX.4.44.0401052336510.7347-100000@phoenix.infradead.org>
+To: Martin Loschwitz <madkiss@madkiss.org>
+cc: linux-kernel@vger.kernel.org, <acpi-devel@lists.sourceforge.net>
+Subject: Re: ACPI and framebuffer related problems with Linux 2.6.1-rc1
+In-Reply-To: <20040101220615.GA1804@minerva.local.lan>
+Message-ID: <Pine.LNX.4.44.0401052332330.7347-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Also, when I use FrameBuffers and logo support, I get nothing. The kernel 
-> boots, I see the "decompressing" line, then the screen goes black like 
-> it's changing video modes (which it should because my lilo.conf sets the 
-> video mode), and never comes back. The kernel seems to be booting OK, 
-> after a while I can ping the machine, but I am completely unable to see 
-> anything on the screen attached to the 2.6 machine. 
-> 
-> I'm also attaching the .config file I used to build the kernel. I built it 
-> as so:
+> Secondly, there also is a framebuffer related problem. I have VesaFB in kern
+> and pass 'vga=791' to it at boot time. However, at the time when it switched
+> to FB in previous versions of Linux, the screen by now simply stays black. 
+> Is this a known problem and if so is a fix available?
 
-This is a bug in the standard tree. I have patch that fixes that issue.
+First try my new patch.
 
 http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+
+If that doesn't work send me your config file.
 
 

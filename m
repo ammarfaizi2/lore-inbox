@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268411AbUHaPw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268745AbUHaP45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268411AbUHaPw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 11:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268738AbUHaPw0
+	id S268745AbUHaP45 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 11:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbUHaP45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 11:52:26 -0400
-Received: from mail.tmr.com ([216.238.38.203]:6662 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268411AbUHaPwW (ORCPT
+	Tue, 31 Aug 2004 11:56:57 -0400
+Received: from users.linvision.com ([62.58.92.114]:30680 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S268745AbUHaP4y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 11:52:22 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] waitid system call
-Date: Tue, 31 Aug 2004 11:53:12 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ch26fb$8ps$1@gatekeeper.tmr.com>
-References: <20040831062656.GU11465@devserv.devel.redhat.com><12606.1093348262@www48.gmx.net> <20040830234057.2bdec761.akpm@osdl.org>
+	Tue, 31 Aug 2004 11:56:54 -0400
+Date: Tue, 31 Aug 2004 17:56:53 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: Driver retries disk errors.
+Message-ID: <20040831155653.GD17261@harddisk-recovery.com>
+References: <20040830163931.GA4295@bitwizard.nl> <1093952715.32684.12.camel@localhost.localdomain> <20040831135403.GB2854@bitwizard.nl> <1093961570.597.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093967147 9020 192.168.12.100 (31 Aug 2004 15:45:47 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040830234057.2bdec761.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093961570.597.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jakub Jelinek <jakub@redhat.com> wrote:
+On Tue, Aug 31, 2004 at 03:12:52PM +0100, Alan Cox wrote:
+> On Maw, 2004-08-31 at 14:54, Rogier Wolff wrote:
+> > How about we set the num-retries to 1, and increase to 8 for
+> > "weird devices" (floppy, MO), and older drives. 
 > 
->>On Mon, Aug 30, 2004 at 11:04:46PM -0700, Roland McGrath wrote:
->> > +			/*
->> > +			 * For a WNOHANG return, clear out all the fields
->> > +			 * we would set so the user can easily tell the
->> > +			 * difference.
->> > +			 */
->> > +			if (!retval)
->> > +				retval = put_user(0, &infop->si_signo);
->> > +			if (!retval)
->> > +				retval = put_user(0, &infop->si_errno);
->> > +			if (!retval)
->> > +				retval = put_user(0, &infop->si_code);
->> > +			if (!retval)
->> > +				retval = put_user(0, &infop->si_pid);
->> > +			if (!retval)
->> > +				retval = put_user(0, &infop->si_uid);
->> > +			if (!retval)
->> > +				retval = put_user(0, &infop->si_status);
->>
->> Is it really necessary to check the exit code after each put_user?
->> 	if (!retval && access_ok(VERIFY_WRITE, infop, sizeof(*infop)))) {
->> 		retval = __put_user(0, &infop->si_signo);
->> 		retval |= __put_user(0, &infop->si_errno);
->> 		retval |= __put_user(0, &infop->si_code);
->> 		retval |= __put_user(0, &infop->si_pid);
->> 		retval |= __put_user(0, &infop->si_uid);
->> 		retval |= __put_user(0, &infop->si_status);
->> 	}
->> is what kernel usually does when filling multiple structure members.
-> 
-> 
-> I don't think it matters much.  Taking seven trips into the fault handler
-> where one would do seems a bit dumb though.
+> Disagree. I want it robust. If you want to set low retry counts then
+> the user should do so for special cases like forensics.
 
-If all you need is good/bad you could just separate the put_user calls 
-with || and only go through the error handler once.
+The SCSI disk driver has been doing a single retry for quite some time
+and it hasn't really bitten people. Why would the IDE disk driver be
+different? The only case I can imagine a retry would be OK, is when we
+get an UDMA CRC error (caused by bad cables).
+
+(OK, for SCSI drives you have a lot more control about how a drive
+should treat errors, but the kernel will not retry a block when the
+drive reported it's bad.)
+
+
+Erik
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

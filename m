@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbUDGX5T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 19:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264211AbUDGX4X
+	id S261298AbUDGX5p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 19:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264211AbUDGX5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 19:56:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39614 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261351AbUDGXy2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 19:54:28 -0400
-Date: Wed, 7 Apr 2004 16:56:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: mbligh@aracnet.com, colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: NUMA API for Linux
-Message-Id: <20040407165639.2198b215.akpm@osdl.org>
-In-Reply-To: <20040408013522.294f0322.ak@suse.de>
-References: <1081373058.9061.16.camel@arrakis>
-	<20040407145130.4b1bdf3e.akpm@osdl.org>
-	<5840000.1081377504@flay>
-	<20040408003809.01fc979e.ak@suse.de>
-	<20040407155225.14936e8a.akpm@osdl.org>
-	<20040408013522.294f0322.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 Apr 2004 19:57:31 -0400
+Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:30801 "EHLO
+	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261298AbUDGX4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 19:56:13 -0400
+Message-ID: <4074951A.8010900@blueyonder.co.uk>
+Date: Thu, 08 Apr 2004 00:56:10 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_4KSTACKS in mm2?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Apr 2004 23:56:14.0156 (UTC) FILETIME=[E8D070C0:01C41CFB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Wed, 7 Apr 2004 15:52:25 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Andi Kleen <ak@suse.de> wrote:
-> > >
-> > > We can discuss changes when someone shows numbers that additional 
-> > > optimizations are needed. I haven't seen such numbers and I'm not convinced
-> > > sharing is even a good idea from a design standpoint.  For the first version 
-> > > I just aimed to get something working with straight forward code.
-> > > 
-> > > To put it all in perspective: a policy is 12 bytes on a 32bit machine
-> > > (assuming MAX_NUMNODES <= 32) and 16 bytes on a 64bit machine
-> > > (with MAX_NUMNODES <= 64)
-> > 
-> > sizeof(vm_area_struct) is a very sensitive thing on ia32.  If you expect
-> > that anyone is likely to actually use the numa API on 32-bit, sharing
-> > will be important.
-> 
-> I don't really believe that.
+Ralf Hindlebrand wrote:
+* Zwane Mwaikambo <zwane@xxxxxxxxxxxxx>:
 
-You better.  VMA space exhaustion is one of the reasons for introducing
-remap_file_pages().  It's an oracle-killer.  Like everything else ;)
+ > >/ > That's what I did (and it works) -- but it's not really 
+intuitive or/
+ > >/ > even configurable (in the way of menuconfig or something)./
+ >/  >/
+ > >/ Andrew Morton turned it on unconditionally on purpose for wider 
+testing./
 
-> If it was that way someone would have already
-> done all the obvious space optimizations left on the table...
-> (like using rb_next or merging the rb color into flags)
+ > Yep. It doesn't work with Nvidia's nvidia kernel drivers. But what's
+ > new :)
 
-Nope, we're slack.
-
-> NUMA API adds a new pointer, but all sharing in the world couldn't fix that.
-
-> When you set a policy != default you will also pay the 12 or 16 bytes overhead
-> for the object for each "policy region"
-
-OK, that's not so bad.  So if you don't use the feature the overhead is 4
-bytes/vma.
-
-If you _do_ use the feature, what is the overhead?  12 bytes for each and
-every vma?  Or just for the vma's which have a non-default policy?
-
-Your patch takes the CONFIG_NUMA vma from 64 bytes to 68.  It would be nice
-to pull those 4 bytes back somehow.
+What's new is that I forgot to turn it off, I'd been running 2.6.5-cko1, 
+built 2.6.5-mm1, booted up and installed nvidia kernel for it. I ended 
+up with a trashed HD which needed reformatiing and a fresh install. I 
+don't know what symptoms I should have seen, perhaps nvidia failing to 
+work. I suspect it was a combination of 4K_STACKS and some hardware bug 
+for which I am going to change the motherboard, memory and Athlon CPU as 
+I've had odd hangs during boot. A few boots hung, finally I disabled 
+level 2 cache and it came up, so I think I will leave the next bootup 
+till the new stuff is installed. I previously had a hard drive that 
+would not boot fully after starting X with nvidia, though it's mountable 
+as hdc1 and I can get at all the stuff I need.
+Regards
+Sid.
 

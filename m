@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268305AbRHAVWf>; Wed, 1 Aug 2001 17:22:35 -0400
+	id <S268333AbRHAVk2>; Wed, 1 Aug 2001 17:40:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268280AbRHAVWR>; Wed, 1 Aug 2001 17:22:17 -0400
-Received: from ns.caldera.de ([212.34.180.1]:7112 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S268305AbRHAVVI>;
-	Wed, 1 Aug 2001 17:21:08 -0400
-Date: Wed, 1 Aug 2001 23:18:55 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: Andries.Brouwer@cwi.nl
-Cc: alan@lxorguk.ukuu.org.uk, hch@caldera.de, torvalds@transmeta.com,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vxfs fix
-Message-ID: <20010801231855.A16333@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
-	torvalds@transmeta.com, viro@math.psu.edu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200108012103.VAA93890@vlet.cwi.nl>
-Mime-Version: 1.0
+	id <S268347AbRHAVkS>; Wed, 1 Aug 2001 17:40:18 -0400
+Received: from 209-221-203-158.dsl.qnet.com ([209.221.203.158]:13573 "HELO
+	divino.rinspin.com") by vger.kernel.org with SMTP
+	id <S268333AbRHAVkM>; Wed, 1 Aug 2001 17:40:12 -0400
+Message-ID: <3B68771C.615A0C73@rinspin.com>
+Date: Wed, 01 Aug 2001 14:39:40 -0700
+From: Scott Bronson <bronson@rinspin.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: alan@lxorguk.ukuu.org.uk,
+        Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        linux-kernel@vger.kernel.org
+Subject: AMD/VIA: v4l and adi conflict update
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108012103.VAA93890@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Aug 01, 2001 at 09:03:20PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 01, 2001 at 09:03:20PM +0000, Andries.Brouwer@cwi.nl wrote:
-> Dear Linus, Alan, Al, Christoph, all,
-> 
-> If one mounts without specifying a type, mount will try
-> all available types. After having tried vxfs the next type
-> will cause
-> 	set_blocksize: b_count 1 ...
-> since vxfs forgets to free a block.
-> The patch below adds the missing brelse().
-> (In fact there are more resources that are never freed there -
-> maybe the maintainer can have a look some time -
-> I only added a comment.)
+Last week I described the conflict between v4l and the adi module
+I was seeing.  Since then, Oliver Neukum and I have traced it to the
+K7 optimizations--if I optimize the stock 2.4.7 kernel for PII, the
+problem goes away.  This is 100% reproducible.
 
-Yes, I already hit that one time but forgot to fix it.
-I'll update vxfs to free all resources somewhen later this week.
+Can this provide any insight into the ongoing VIA problems?  If
+anyone has anything they'd like me to test (Alan?), please tell me.
 
-Thanks for the catch!
+I'm running a VIA Apollo KX133-based motherboard (700 MHz Athlon on
+an Epox EP-7KXA).  The problem that I am tracking, real briefly, is if
+if I use v4l (either a bttv-based TV tuner or a webcam) before using
+the joystick after I boot the computer, the joystick fails to respond.
+However, if I use the joystick first, then everything works as it should.
 
-> When mount continues to try all types, it may try V7.
-> That always succeeds, there is no test for magic or so,
-> and after garbage has been mounted as a V7 filesystem,
-> the kernel crashes or hangs or fails in other sad ways.
-> Have not tried to debug.
+	- Scott
 
-Maybe some sanity checks should be added?
 
-I'd like to propose:
-
-	s_nfree <= V7_NICFREE
-	s_ninode <= V7_NICINOD
-	s_time != 0
-
-Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
+For completeness:
+In a different converstaion, Oliver Neukum wrote:
+>changing the compiler is unlikely to work, as most K7 optimisations are 
+>assembly.
+>
+>However these problems are probably related to VIA chipsets. Your symptoms 
+>are new. There is a chance that a report to the kernel mailing list and Alan 
+>Cox might be valuable to those developing a workaround.
+>
+>There is a good chance that there's a bug in the DMA handling in the VIA 
+>chipsets. It might be triggered by the picture transfers.
+>Please report this.

@@ -1,44 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263407AbRFNRPR>; Thu, 14 Jun 2001 13:15:17 -0400
+	id <S263405AbRFNRNR>; Thu, 14 Jun 2001 13:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263415AbRFNRPH>; Thu, 14 Jun 2001 13:15:07 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:21258 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S263407AbRFNRPC>; Thu, 14 Jun 2001 13:15:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Avoid !__GFP_IO allocations to eat from memory reservations
-Date: Thu, 14 Jun 2001 19:17:48 +0200
+	id <S263407AbRFNRNI>; Thu, 14 Jun 2001 13:13:08 -0400
+Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:24960 "EHLO
+	Backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S263405AbRFNRMy>; Thu, 14 Jun 2001 13:12:54 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ"
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Netzwerkadministrator WH8/DD
+To: linux-kernel@vger.kernel.org
+Subject: Oops at NFS unmounting
+Date: Thu, 14 Jun 2001 19:12:52 +0200
 X-Mailer: KMail [version 1.2]
-Cc: linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010614143441Z263016-17720+3764@vger.kernel.org>
-In-Reply-To: <20010614143441Z263016-17720+3764@vger.kernel.org>
+X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-Message-Id: <01061419174808.00879@starship>
-Content-Transfer-Encoding: 7BIT
+Message-Id: <01061419125200.01840@backfire>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 June 2001 14:59, Marcelo Tosatti wrote:
-> --- linux/mm/page_alloc.c.orig	Thu Jun 14 11:00:14 2001
-> +++ linux/mm/page_alloc.c	Thu Jun 14 11:32:56 2001
-> @@ -453,6 +453,12 @@
->  				int progress = try_to_free_pages(gfp_mask);
->  				if (progress || gfp_mask & __GFP_IO)
->  					goto try_again;
-> +				/*
-> +				 * Fail in case no progress was made and the
-> +				 * allocation may not be able to block on IO.
-> +				 */
-> +				else
-> +					return NULL;
->  			}
->  		}
->  	}
 
-Nitpick dept: the 'else' is redundant.
+--------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
---
-Daniel
+Hi *!
+
+I got this Oops at unmounting a already renamed NFS source.
+The umount got a SEGFAULT.
+
+I compiled my 2.4.5 with 2.95.4 20010319 (Debian prerelease).
+
+Regards,
+
+-Gregor
+--------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="oops.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops.txt"
+
+a3N5bW9vcHMgMi40LjEgb24gaTY4NiAyLjQuNS4gIE9wdGlvbnMgdXNlZAogICAgIC1WIChkZWZh
+dWx0KQogICAgIC1rIC9wcm9jL2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMg
+KGRlZmF1bHQpCiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuNC41LyAoZGVmYXVsdCkKICAgICAtbSAv
+Ym9vdC9TeXN0ZW0ubWFwLTIuNC41IChkZWZhdWx0KQoKV2FybmluZzogWW91IGRpZCBub3QgdGVs
+bCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbAphc3N1bWUgdGhh
+dCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0aGF0IGFyZSBydW5uaW5n
+CnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Igc3lt
+Ym9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBu
+b3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkgdGVs
+bGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1bGVz
+LCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KCldhcm5pbmcg
+KGNvbXBhcmVfbWFwcyk6IHNuZCBzeW1ib2wgcG1fcmVnaXN0ZXIgbm90IGZvdW5kIGluIC91c3Iv
+bGliL2Fsc2EtbW9kdWxlcy8yLjQuNS8wLjUvc25kLm8uICBJZ25vcmluZyAvdXNyL2xpYi9hbHNh
+LW1vZHVsZXMvMi40LjUvMC41L3NuZC5vIGVudHJ5Cldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IHNu
+ZCBzeW1ib2wgcG1fc2VuZCBub3QgZm91bmQgaW4gL3Vzci9saWIvYWxzYS1tb2R1bGVzLzIuNC41
+LzAuNS9zbmQuby4gIElnbm9yaW5nIC91c3IvbGliL2Fsc2EtbW9kdWxlcy8yLjQuNS8wLjUvc25k
+Lm8gZW50cnkKV2FybmluZyAoY29tcGFyZV9tYXBzKTogc25kIHN5bWJvbCBwbV91bnJlZ2lzdGVy
+IG5vdCBmb3VuZCBpbiAvdXNyL2xpYi9hbHNhLW1vZHVsZXMvMi40LjUvMC41L3NuZC5vLiAgSWdu
+b3JpbmcgL3Vzci9saWIvYWxzYS1tb2R1bGVzLzIuNC41LzAuNS9zbmQubyBlbnRyeQpXQVJOSU5H
+OiBVU0IgTWFzcyBTdG9yYWdlIGRhdGEgaW50ZWdyaXR5IG5vdCBhc3N1cmVkCmtlcm5lbCBCVUcg
+YXQgaW5vZGUuYzo0ODYhCmludmFsaWQgb3BlcmFuZDogMDAwMApDUFU6ICAgIDAKRUlQOiAgICAw
+MDEwOls8YzAxM2Y5YmI+XQpVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkz
+ODYgLWEgaTM4NgpFRkxBR1M6IDAwMDEwMjg2CmVheDogMDAwMDAwMWIgICBlYng6IGRkM2RmODIw
+ICAgZWN4OiBkOTQwNjAwMCAgIGVkeDogZGRkM2U1NjAKZXNpOiBjMDIyZjI4MCAgIGVkaTogYzAy
+MmYyODAgICBlYnA6IDA4MDU0MDA4ICAgZXNwOiBkOTQwN2YwNApkczogMDAxOCAgIGVzOiAwMDE4
+ICAgc3M6IDAwMTgKUHJvY2VzcyB1bW91bnQgKHBpZDogMTU1MSwgc3RhY2twYWdlPWQ5NDA3MDAw
+KQpTdGFjazogYzAxZjc5YWMgYzAxZjdhMGIgMDAwMDAxZTYgZGQzZGY4MjAgYzAxNDAzODcgZGQz
+ZGY4MjAgYzMyNmE3YzAgZGQzZGY4MjAgCiAgICAgICBjMDE1Mzk5YSBkZDNkZjgyMCBjMDEzZGY5
+NiBjMzI2YTdjMCBkZDNkZjgyMCBkZTI2MGMwMCBjMzI2YTdjMCBjMDEzMjI3YyAKICAgICAgIGMz
+MjZhN2MwIGMzMjZhN2MwIGMzMjY0ZTIwIGRlMjYwYzAwIGMwMjJlMDQwIDA4MDU0MDA4IGRlMjYw
+YzM0IGMwMjJmMzBjIApDYWxsIFRyYWNlOiBbPGMwMTQwMzg3Pl0gWzxjMDE1Mzk5YT5dIFs8YzAx
+M2RmOTY+XSBbPGMwMTMyMjdjPl0gWzxjMDEzMTZkND5dIFs8YzAxMzZiYWY+XSBbPGMwMTMyNmE4
+Pl0gCiAgICAgICBbPGMwMTMyNmUwPl0gWzxjMDEwNmE3Yj5dIFs8YzAxMDAwMmI+XSAKQ29kZTog
+MGYgMGIgODMgYzQgMGMgZjYgODMgZjQgMDAgMDAgMDAgMTAgNzUgMTkgNjggZTggMDEgMDAgMDAg
+NjggCgo+PkVJUDsgYzAxM2Y5YmIgPGNsZWFyX2lub2RlKzMzL2Y0PiAgIDw9PT09PQpUcmFjZTsg
+YzAxNDAzODcgPGlwdXQrMTM3LzE0Yz4KVHJhY2U7IGMwMTUzOTlhIDxuZnNfZGVudHJ5X2lwdXQr
+MjIvMjg+ClRyYWNlOyBjMDEzZGY5NiA8ZHB1dCtkNi8xNDQ+ClRyYWNlOyBjMDEzMjI3YyA8a2ls
+bF9zdXBlcis2NC8xMmM+ClRyYWNlOyBjMDEzMTZkNCA8X19tbnRwdXQrM2MvNDQ+ClRyYWNlOyBj
+MDEzNmJhZiA8cGF0aF9yZWxlYXNlKzI3LzJjPgpUcmFjZTsgYzAxMzI2YTggPHN5c191bW91bnQr
+YzAvZWM+ClRyYWNlOyBjMDEzMjZlMCA8c3lzX29sZHVtb3VudCtjLzEwPgpUcmFjZTsgYzAxMDZh
+N2IgPHN5c3RlbV9jYWxsKzMzLzM4PgpUcmFjZTsgYzAxMDAwMmIgPHN0YXJ0dXBfMzIrMmIvYTU+
+CkNvZGU7ICBjMDEzZjliYiA8Y2xlYXJfaW5vZGUrMzMvZjQ+CjAwMDAwMDAwIDxfRUlQPjoKQ29k
+ZTsgIGMwMTNmOWJiIDxjbGVhcl9pbm9kZSszMy9mND4gICA8PT09PT0KICAgMDogICAwZiAwYiAg
+ICAgICAgICAgICAgICAgICAgIHVkMmEgICAgICA8PT09PT0KQ29kZTsgIGMwMTNmOWJkIDxjbGVh
+cl9pbm9kZSszNS9mND4KICAgMjogICA4MyBjNCAwYyAgICAgICAgICAgICAgICAgIGFkZCAgICAk
+MHhjLCVlc3AKQ29kZTsgIGMwMTNmOWMwIDxjbGVhcl9pbm9kZSszOC9mND4KICAgNTogICBmNiA4
+MyBmNCAwMCAwMCAwMCAxMCAgICAgIHRlc3RiICAkMHgxMCwweGY0KCVlYngpCkNvZGU7ICBjMDEz
+ZjljNyA8Y2xlYXJfaW5vZGUrM2YvZjQ+CiAgIGM6ICAgNzUgMTkgICAgICAgICAgICAgICAgICAg
+ICBqbmUgICAgMjcgPF9FSVArMHgyNz4gYzAxM2Y5ZTIgPGNsZWFyX2lub2RlKzVhL2Y0PgpDb2Rl
+OyAgYzAxM2Y5YzkgPGNsZWFyX2lub2RlKzQxL2Y0PgogICBlOiAgIDY4IGU4IDAxIDAwIDAwICAg
+ICAgICAgICAgcHVzaCAgICQweDFlOApDb2RlOyAgYzAxM2Y5Y2UgPGNsZWFyX2lub2RlKzQ2L2Y0
+PgogIDEzOiAgIDY4IDAwIDAwIDAwIDAwICAgICAgICAgICAgcHVzaCAgICQweDAKCgo0IHdhcm5p
+bmdzIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4K
+
+--------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ--

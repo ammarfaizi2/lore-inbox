@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292383AbSBBUu5>; Sat, 2 Feb 2002 15:50:57 -0500
+	id <S292386AbSBBUwJ>; Sat, 2 Feb 2002 15:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292386AbSBBUuq>; Sat, 2 Feb 2002 15:50:46 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:710 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S292383AbSBBUub>;
-	Sat, 2 Feb 2002 15:50:31 -0500
-Date: Sat, 2 Feb 2002 15:50:28 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Stephen Lord <lord@sgi.com>
-Cc: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
-        Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@zip.com.au>,
-        Ricardo Galli <gallir@uib.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT fails in some kernel and FS
-Message-ID: <20020202155028.B26147@havoc.gtf.org>
-In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au> <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org> <234710000.1012674008@tiny> <20020202205438.D3807@athlon.random> <242700000.1012680610@tiny> <3C5C4929.5080403@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C5C4929.5080403@sgi.com>; from lord@sgi.com on Sat, Feb 02, 2002 at 02:16:41PM -0600
+	id <S292384AbSBBUvx>; Sat, 2 Feb 2002 15:51:53 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:22999 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S292385AbSBBUvq>; Sat, 2 Feb 2002 15:51:46 -0500
+Date: Sat, 2 Feb 2002 21:49:17 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Problem building the kernel with CONFIG_AIC7XXX_BUILD_FIRMWARE
+Message-ID: <Pine.NEB.4.44.0202022137300.9676-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 02:16:41PM -0600, Stephen Lord wrote:
-> Can't you fall back to buffered I/O for the tail? OK it complicates the
-> code, probably a lot, but it keeps things sane from the user's point of
-> view.
+Hi,
 
-For O_DIRECT, IMHO you should fail not fallback.  You're simply lying
-to the underlying program otherwise.
+building kernel 2.5.3-dj1 fails with CONFIG_AIC7XXX_BUILD_FIRMWARE enabled
+with the following error (but it seems that this problem also exists in
+the 2.4 kernels):
 
-In the ibu fs I am hacking on, the idea for O_DIRECT is to fail a read
-if the file is small enough to fit in the inode.  If the O_DIRECT
-action is a write, then I will invalidate the data in the inode,
-then follow the standard path (which eventually calls get_block()).
+<--  snip  -->
 
-For file tails (a different case from small-file-in-inode), I
-imagine it would be prudent to support O_DIRECT for all actions
-except reading the file tail.  If you want to be complicated, you
-could provide userspace with a way to say "this is a dense file"
-and/or simply not create a tail at all...
+...
+make[5]: Entering directory
+`/home/bunk/linux/kernel-2.5/linux/drivers/scsi/aic7xxx/aicasm'
+yacc -d aicasm_gram.y
+mv y.tab.c aicasm_gram.c
+lex  -t aicasm_scan.l > aicasm_scan.c
+gcc -I/usr/include -I. -ldb aicasm_gram.c aicasm_scan.c aicasm.c
+aicasm_symbol.c
+ -o aicasm
+aicasm_gram.y:1485: warning: type mismatch with previous implicit declaration
+/usr/share/bison/bison.simple:946: warning: previous implicit declaration
+of `yyerror'
+aicasm_gram.y:1485: warning: `yyerror' was previously implicitly declared
+to return `int'
+In file included from aicasm_symbol.c:47:
+aicdb.h:1: db3/db_185.h: No such file or directory
+make[5]: *** [aicasm] Error 1
 
-	Jeff
+<--  snip  -->
+
+The problem is that the -dj1 patch ships with a
+drivers/scsi/aic7xxx/aicasm/aicdb.h file although this is a generated
+file.
+
+The real problem is that there's a "clean" target in the Makefile in this
+directory that removed this file - unfortunately this "clean" target never
+gets executed because in the Linux kernel the "clean" target in one
+directory doesn't execute call the "clean" target in the Makefiles in the
+subdirectories.
+
+cu
+Adrian
+
 
 
 

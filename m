@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264368AbUFDJKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUFDJL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbUFDJKp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 05:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUFDJKo
+	id S264238AbUFDJL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 05:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUFDJL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 05:10:44 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:2353 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263740AbUFDJKn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 05:10:43 -0400
-Date: Fri, 4 Jun 2004 02:14:50 -0700
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040604021450.2894c6a9.pj@sgi.com>
-In-Reply-To: <20040604081906.GR21007@holomorphy.com>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<20040604081906.GR21007@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jun 2004 05:11:27 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:17057 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264238AbUFDJLV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 05:11:21 -0400
+Date: Fri, 4 Jun 2004 12:11:08 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Con Kolivas <kernel@kolivas.org>, FabF <fabian.frederick@skynet.be>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+In-Reply-To: <40BF3250.9040901@tmr.com>
+Message-ID: <Pine.LNX.4.60.0406041201230.25783@hosting.rdsbv.ro>
+References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net>
+ <1086154721.2275.2.camel@localhost.localdomain> <200406022142.52854.kernel@kolivas.org>
+ <40BF3250.9040901@tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-On Thu, Jun 03, 2004 at 10:10:10AM -0700, Paul Jackson wrote:
-> > +static inline void __cpu_set(int cpu, volatile cpumask_t *dstp)
-> > ...
-> Hungarian notation?
+Hello!
 
-You mean the 'p' for pointer?  Well, loosely speaking, I guess you could
-call it that.  Why do you ask?
+> But swap behaviour kills performance even when memory is more than adequate. 
+> Consider building a DVD image in a 4GB system. The i/o forces all of the 
+> unused programs out, in spite of the fact that an extra 100MB doesn't make a 
+> measurable difference in performance. But when I click Mozilla paging most of 
+> it in from disk make a big difference in performance to the user.
 
-Well ... I am not being straight forward.  I likely know why you ask.  I
-find an occassional 'p' in a variable name to be helpful.  For example,
-in this case, I am flipping between referring to the same datum by
-reference and by value - so it is useful to reflect that distinction in
-the variable names - it's _the_ key distinction.  If you wish to state a
-case to the contrary, you're welcome to do so.
+I think that kernel cannot know that you need some data once or more.
+This is fadvise for.
+With my wrapper (http://kernel.umbrella.ro) for fadvise you can do this:
+NOCA_SIZE=128 NOCA_READ=1 NOCA_WRITE=1 NOCA_RA=1 \
+ 	noca mkisofs -R -o /tmp/1.iso /tmp/data
 
-> #ifdef'ing it anyway?
+This means:
+NOCA_SIZE: Call fadvise only after 128KiB was read/wrote.
+NOCA_RA: call fadvise with POSIX_FADV_SEQUENTIAL
+NOCA_READ: use fadvise(POSIX_FADV_DONTNEED) for reads (because you don't 
+need anymore the source files)
+NOCA_WRITE: use fadvise(POSIX_FADV_DONTNEED) for writes (because it's 
+useless to cache the end of the ISO)
 
-In certain cases, yes.  I had a version of these particular macros that
-used inline logic instead, but this looked easier to read to my eye.  If
-I spoke out against ifdef's carte blanche at some point (which likely I
-did) then I was being incautious in my speaking.  The question is more
-how best to make the code readable, maintainable, robust, fast and small.
+Do this program resolve your problem?
 
-> This is an improvement?
+> The problems with small memory are different in kind, when not even the 
+> programs will fit in memory at the same time, or will leave next to nothing 
+> for i/o, swap is required for performance. But on a large memory system I 
+> believe the gain to pain ratio is way too low with the current VM. The 
+> solution at the moment is to turn off swap, which as you note has other 
+> problems (can't move between zones without swap?) which in theory could 
+> really hang a system.
+>
+> -- 
+>   -bill davidsen (davidsen@tmr.com)
+> "The secret to procrastination is to put things off until the
+> last possible moment - but no longer"  -me
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-... see Keith's reply ...
-
-Thank-you for your review comments.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+---
+Catalin(ux aka Dino) BOIE
+catab at deuroconsult.ro
+http://kernel.umbrella.ro/

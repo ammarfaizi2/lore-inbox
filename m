@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276901AbRJHO2n>; Mon, 8 Oct 2001 10:28:43 -0400
+	id <S276905AbRJHOrx>; Mon, 8 Oct 2001 10:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276905AbRJHO2e>; Mon, 8 Oct 2001 10:28:34 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:12698 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S276901AbRJHO2X>; Mon, 8 Oct 2001 10:28:23 -0400
-Message-ID: <3BC1B831.1060601@wipro.com>
-Date: Mon, 08 Oct 2001 19:59:05 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S276906AbRJHOre>; Mon, 8 Oct 2001 10:47:34 -0400
+Received: from [216.191.240.114] ([216.191.240.114]:31365 "EHLO
+	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S276905AbRJHOrV>;
+	Mon, 8 Oct 2001 10:47:21 -0400
+Date: Mon, 8 Oct 2001 10:45:02 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+cc: Bernd Eckenfels <ecki@lina.inka.de>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <Pine.GSO.4.30.0110081024440.5473-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] I still see people using cli()
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+>Yes, have a look at the work of the Click Modular Router PPL from MIT,
+>having a Polling Router Module Implementatin which outperforms Linux
+>Kernel Routing by far (according to their paper :)
 
-I saw the latest patch for 2.4.10 and saw that people are still blindly
-copying the code in serial.c (au1000), though it uses save_flags() and cli().
-Is somebody looking to replace these with either spinlocks or __cli() where
-applicable, I do not mind spending sometime looking into these issues.
+I have read the click paper; i also just looked at the code and it seems
+the tulip driver they use has the same roots as us (based on Alexey's
+initial HFC driver)
 
-I would request people to look at the global-spin-lock document at lse.sf.net
-before doing any locking. Also please look at kernel-locking.tmpl (using db2pdf
-or db2ps). Please understand how locking works and then use this in your code.
+Several things to note/observe:
+- They use some very specialized piece of hardware (with two PCI buses).
+- Roberts results on a single PCI bus hardware was showing ~360Kpps
+routing vs clicks 435Kpps. This is not "far off" given the differences in
+hardware. What would be really interesting is to have the click folks
+post their latency results. I am curious as to what a purely polling
+scheme they have would achieve (as opposed to NAPI which is a mixture of
+interupts and polls).
+- Linux is already "very modular" as a router with both the traffic
+control framework and netfilter. I like their language specification etc;
+ours is a little more primitive in comparison.
+- Click seems to only run on a system that is designated as a router (as
+you seem to point out).
 
-Imagine a driver using save_flags(); cli(); and essentially serializing an entire
-SMP system. Please do not do this until extremely necessary.
+Linux has a few other perks, but the above were to compare the two.
 
-BTW, that brings me to another issue, once the kernel becomes preemptibel, what
-are the locking issues? how are semaphores and spin-locks affected? Has anybody
-defined or come up with the rules/document yet?
+> You can find the Link to Click somewhere on my Page:
+> http://www.freefire.org/tools/index.en.php3in the Operating System
+> section (i think)
 
-I hope, I have understood these issues  :-D 
+Nice web page and collection, btw. The right web page seems to be:
+http://www.freefire.org/tools/index.en.php3
 
-Comments, flames
-Balbir Singh.
+I looked at the latest click paper on SMP. It would help if they were
+aware of whats happening on Linux (since it seems to be their primary OS).
+softnet does what they are asking for sans the scheduling (which in Linux
+proper is done via the IRQ scheduling). They also have a way for the
+admin to specify the scheduling scheme; which is nice, but i am not sure
+to be very valuable; I'll read the paper again to avoid hasty judgement.
+It would be nice to work with the click people (at least to avoid
+redundant work and maybe to get Linux mentioned in their paper -- they
+even mention ALTQ but forget Linux, which is more advanced ;->).
 
+cheers,
+jamal
 
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--

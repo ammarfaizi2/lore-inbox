@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbRETCT0>; Sat, 19 May 2001 22:19:26 -0400
+	id <S261334AbRETCW1>; Sat, 19 May 2001 22:22:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261374AbRETCTH>; Sat, 19 May 2001 22:19:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32525 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261334AbRETCS6>;
-	Sat, 19 May 2001 22:18:58 -0400
-Date: Sun, 20 May 2001 03:18:07 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Message-ID: <20010520031807.G23718@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <Pine.GSO.4.21.0105190416190.3724-100000@weyl.math.psu.edu> <E1517Jf-0008PV-00@the-village.bc.nu> <200105191851.f4JIpNK00364@mobilix.ras.ucalgary.ca>
-Mime-Version: 1.0
+	id <S261375AbRETCWR>; Sat, 19 May 2001 22:22:17 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:27309 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261334AbRETCWH>;
+	Sat, 19 May 2001 22:22:07 -0400
+Message-ID: <3B072A49.B44B0F2A@mandrakesoft.com>
+Date: Sat, 19 May 2001 22:22:01 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.4-ac11 network drivers cleaning
+In-Reply-To: <12098.990324222@ocs3.ocs-net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105191851.f4JIpNK00364@mobilix.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, May 19, 2001 at 12:51:23PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 12:51:23PM -0600, Richard Gooch wrote:
-> Al, if you really want to kill ioctl(2), then perhaps you should
-> implement a transaction(2) syscall. Something like:
->     int transaction (int fd, void *rbuf, size_t rlen,
-> 		     void *wbuf, size_t wlen);
+Keith Owens wrote:
 > 
-> Of course, there wouldn't be any practical gain, since we already have
-> ioctl(2). Any gain would be aesthetic.
+> On Sat, 19 May 2001 17:58:49 -0400,
+> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> >Finally, I don't know if I mentioned this earlier, but to be complete
+> >and optimal, version strings should be a single variable 'version', such
+> >that it can be passed directly to printk like
+> >
+> >       printk(version);
+> 
+> Nit pick.  That has random side effects if version contains any '%'
+> characters.  Make it
+> 
+>         printk("%s\n", version);
+> 
+> Not quite as optimal but safer.
 
-I can tell you haven't had to write any 32-bit ioctl emulation code for
-a 64-bit kernel recently.
+I disagree.   Don't work around an escape bug in a version string, fix
+it...
 
 -- 
-Revolutions do not require corporate support.
+Jeff Garzik      | "Do you have to make light of everything?!"
+Building 1024    | "I'm extremely serious about nailing your
+MandrakeSoft     |  step-daughter, but other than that, yes."

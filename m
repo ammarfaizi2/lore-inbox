@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVBXXJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVBXXMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVBXXJB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVBXXJB
+	id S262529AbVBXXMY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVBXXMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:09:01 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:3909 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262527AbVBXXIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:08:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ns9p1WdkMJVpclDRpUMrmsDS9weuEBEwgc+U+IF3F89v8RgbsdqsYqP8uORpmaBkGv2d/f/qEeD08zYhB43cSwzs5kSnQGTlqNtqZKYndWQDOB92C/1lHrm3pTZ4rRqIhzPBzQeA4kq3c6F35+YoFEPdc8OKBQnANPCv/AANb+Y=
-Message-ID: <a728f9f905022415084f82f769@mail.gmail.com>
-Date: Thu, 24 Feb 2005 18:08:50 -0500
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Marvell 88W8310 and 88E8050 PCI Express support
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-In-Reply-To: <20050224143509.4fe2a6a8@dxpl.pdx.osdl.net>
-Mime-Version: 1.0
+	Thu, 24 Feb 2005 18:12:24 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:49752 "EHLO
+	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262529AbVBXXKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:10:12 -0500
+Message-ID: <38468.192.168.1.5.1109286369.squirrel@192.168.1.5>
+In-Reply-To: <16103.195.245.190.94.1109251064.squirrel@195.245.190.94>
+References: <40114.195.245.190.93.1109155418.squirrel@195.245.190.93>   
+    <421C8CB4.5060605@tiscali.de>
+    <16103.195.245.190.94.1109251064.squirrel@195.245.190.94>
+Date: Thu, 24 Feb 2005 23:06:09 -0000 (WET)
+Subject: Re: 2.6.11-rc4-RT-V0.7.39-02 kernel BUG
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Rui Nuno Capela" <rncbc@rncbc.org>
+Cc: "Matthias-Christian Ott" <matthias.christian@tiscali.de>,
+       "Ingo Molnar" <mingo@elte.hu>, "LKML" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <a728f9f905022413465b96acd4@mail.gmail.com>
-	 <20050224143509.4fe2a6a8@dxpl.pdx.osdl.net>
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 24 Feb 2005 23:10:11.0487 (UTC) FILETIME=[FD8FDAF0:01C51AC5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Feb 2005 14:35:09 -0800, Stephen Hemminger
-<shemminger@osdl.org> wrote:
-> On Thu, 24 Feb 2005 16:46:34 -0500
-> Alex Deucher <alexdeucher@gmail.com> wrote:
-> 
-> > I've noticed most of the new AMD64 chipsets now include integrated
-> > marvell GigE and wifi chips onboard.  I haven't been able to find much
-> > on the status of linux support for these chips.  Apparently the PCIE
-> > GigE chip only works with sk98lin
-> 
-> You need to use the version from SysKonnect.  If you look at the source
-> for that, you will see why I started on the skge driver.
-> 
-> 
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/0010.html
-> > Does anyone know if support for the chip is being added to skge?
-> 
-> As soon as I get the hardware (on order), or a donation of a new system.
-> Then I will report the interface from sk98lin.
-> 
-> > The
-> > 88W8310 doesn't seem to be supported at all, at least not that I can
-> > see.  Does anyone know the status of the 88W8310?  Are there any
-> > experimental drivers?  Is Marvell friendly to opensource?  Are the
-> > databooks available?
-> 
-> If you find databook for Yukon 2 chipset let me know.  I found the original
-> Yukon and Genesis manuals, but nothing newer.
-> 
+> Matthias-Christian wrote:
+>>
+>> Hi!
+>> The first bug is in the usbb ohci module (report it to
+>> http://buzilla.kernel.org and its Maintainers). The second one is
+>> caused by the first one.
+>>
+>
+> Done.
+>
+> Bugzilla bug #4247:
+>   http://bugzilla.kernel.org/show_bug.cgi?id=4247
+>
 
-Thanks for the info.  If I get a board with a yukon 2, I'd be happy to
-help.  I don't suppose you know anything about the wifi chip
-(88W8310)?  Jeff?
+And this was the response:
 
-Thanks,
+greg@kroah.com changed:
 
-Alex
+           What    |Removed                     |Added
+----------------------------------------------------------------------------
+             Status|NEW                         |REJECTED
+         Resolution|                            |INVALID
+
+------- Additional Comments From greg@kroah.com  2005-02-24 11:11 -------
+As you are using Ingo's patches, please post this to him, in an email, not
+on here.
+
+
+Now what?
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261571AbSJCOw2>; Thu, 3 Oct 2002 10:52:28 -0400
+	id <S261676AbSJCPfT>; Thu, 3 Oct 2002 11:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261575AbSJCOw1>; Thu, 3 Oct 2002 10:52:27 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:63954 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261571AbSJCOw0>;
-	Thu, 3 Oct 2002 10:52:26 -0400
-Date: Thu, 03 Oct 2002 07:50:34 -0700 (PDT)
-Message-Id: <20021003.075034.12648168.davem@redhat.com>
-To: manfred@colorfullife.com
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+	id <S261741AbSJCPfT>; Thu, 3 Oct 2002 11:35:19 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:16369 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261676AbSJCPfS>; Thu, 3 Oct 2002 11:35:18 -0400
 Subject: Re: Linux 2.5.40-ac1
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D9C5827.70703@colorfullife.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: "David S. Miller" <davem@redhat.com>, alan@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D9C5FAE.60008@colorfullife.com>
 References: <3D9C5827.70703@colorfullife.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	<20021003.075034.12648168.davem@redhat.com> 
+	<3D9C5FAE.60008@colorfullife.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 16:48:25 +0100
+Message-Id: <1033660105.28814.11.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Manfred Spraul <manfred@colorfullife.com>
-   Date: Thu, 03 Oct 2002 16:45:59 +0200
+On Thu, 2002-10-03 at 16:18, Manfred Spraul wrote:
+> There should bit nonatomic bit ops for every byte width.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=99167415926343&w=2
+> 
+> I even sent you the patch proposal, but never got a reply.
+> 
+> Patch again attached, but untested.
 
-   On big endian computers, the nic is set into a big-endian mode, and it 
-   did work with set_bit on my power mac. Unfortunately, I don't have 
-   access to it right now.
-   
-How about a 64-bit system where set_bit works on 64-bit longs
-and not 32-bit ones?  That is why the current code there is broken.
+What about reverse endianness ?

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312524AbSDJHNA>; Wed, 10 Apr 2002 03:13:00 -0400
+	id <S312334AbSDJHdj>; Wed, 10 Apr 2002 03:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312525AbSDJHM7>; Wed, 10 Apr 2002 03:12:59 -0400
-Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:16529 "EHLO
-	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
-	id <S312524AbSDJHM6> convert rfc822-to-8bit; Wed, 10 Apr 2002 03:12:58 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: linux-kernel@vger.kernel.org
-Subject: how to write driver for PCI cards
-Date: Wed, 10 Apr 2002 16:11:18 +0900
-X-Mailer: KMail [version 1.4]
+	id <S312344AbSDJHdi>; Wed, 10 Apr 2002 03:33:38 -0400
+Received: from mgw-x2.nokia.com ([131.228.20.22]:9648 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S312334AbSDJHdi>;
+	Wed, 10 Apr 2002 03:33:38 -0400
+Date: Wed, 10 Apr 2002 10:33:31 +0300 (EEST)
+From: Matilainen Panu <panu.matilainen@nokia.com>
+X-X-Sender: pmatilai@es-adsl-soho-30-186.europe.nokia.com
+To: "ext  =?iso-8859-1?Q?Rune_F._V=E6rnes?=" <rune@nailflare.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at slab.c:1099!
+In-Reply-To: <001e01c1e003$2dd7ddd0$3201000a@rom5>
+Message-ID: <Pine.LNX.4.44.0204101025210.10379-100000@es-adsl-soho-30-186.europe.nokia.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200204101611.18777.wom@tateyama.hu>
+X-OriginalArrivalTime: 10 Apr 2002 07:33:35.0791 (UTC) FILETIME=[0629E3F0:01C1E062]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+On Tue, 9 Apr 2002, ext  Rune F. Værnes wrote:
 
-There is a good news (at least for me), my company would like to have a Linux 
-driver for its card. And this great task is mine. So I'm going to write a 
-driver.
-But I don't know where to start. OK, the interface and how the driver should 
-be written is clear(more or less) but I don't have any documents for it. It 
-is a PCI card. I've got the card and the documentation. But I can say I have 
-only the card, the documentation is in Japanese... :-(((
+> 1.] One line summary of the problem:
+> setting up a nokia_c110 pcmcia card. Problem with slab.h/malloc.h
+> 
+> [2.] Full description of the problem/report:
+> Compiled code for the nokia card and loaded the module(nokia_c110)
+> The code uses malloc.h... tried to ues slab.h but no  help.
+> When cardmgr starts up the kernel reports a kernel BUG.
+> 
+> 
+> [3.] Keywords (i.e., modules, networking, kernel):
+> module kernel
+> 
+> [4.] Kernel version (from /proc/version):
+> 2.4.18-6mdk
 
-There is a win driver for it but the source code is not available.
+I'm afraid nobody at linux-kernel can help you here as the nokia_c110
+driver consists of a large binary-only module which "taints" the kernel
+makes it undebuggable. The documentation says the driver has only been
+tested up to (unpatched)  2.4.12 kernel .. your best chance is to 
+a) Make sure you have the latest version of the driver & firmware
+   (some earlier version was known to be broken with 2.4.6 or so upwards) 
+b) Contact Nokia product support and hope they'll fix this in a future 
+   release.
 
-Can anyone give me some online docs about PCI bus? (I found some info about 
-PCI-9050 chip but it doesn't contain what I need.) Or some advice? (no, I 
-don't want to learn Japanese :)
+P.S. Sorry but even though I come from @nokia.com address I can't help you 
+with this as I don't have (and wouldn't be able to get to) the source to 
+the binary part either :(
 
-Thx
-
-	Gabor
-
+	- Panu -
 
 

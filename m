@@ -1,33 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265265AbSJaSXr>; Thu, 31 Oct 2002 13:23:47 -0500
+	id <S262879AbSJaSIf>; Thu, 31 Oct 2002 13:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265260AbSJaSXi>; Thu, 31 Oct 2002 13:23:38 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:31622 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265244AbSJaSXC>; Thu, 31 Oct 2002 13:23:02 -0500
-Subject: Nasty changes in SCSI driver code
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-scsi@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 18:49:34 +0000
-Message-Id: <1036090174.8584.88.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262838AbSJaSH1>; Thu, 31 Oct 2002 13:07:27 -0500
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:5586 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S262859AbSJaSHI>; Thu, 31 Oct 2002 13:07:08 -0500
+Message-ID: <180577A42806D61189D30008C7E632E8793B28@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: "'Tom Bradley'" <tojabr@tojabr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: your mail
+Date: Thu, 31 Oct 2002 13:13:27 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will whoever committed code that simply deleted the error handling from
-ncr53c8xxx, sym53c8xx and inia100 please put it back or at least add a 
+Thanks very much.
 
-#warning "Don't use this driver"
-
-SCSI with no error handling is asking for corruption and not warning
-users about this as we try and stabilize the kernel is a very very bad
-idea. If it warns or doesnt compile then it can get fixed properly. If
-it doesnt warn it may get missed with catastrophic results
+Jack Bloch 
+Siemens ICN
+phone                (561) 923-6550
+e-mail                jack.bloch@icn.siemens.com
 
 
+-----Original Message-----
+From: Tom Bradley [mailto:tojabr@tojabr.com]
+Sent: Thursday, October 31, 2002 1:00 PM
+To: Bloch, Jack
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
 
+
+They are just regular values. The UL tells the compiler to format the
+number as an unsgned long.
+
+
+On Thu, 31 Oct 2002, Bloch, Jack wrote:
+
+> I am looking at some sample driver code which shows the usage of some
+> unsigned integers 1UL, 2UL, 4UL, 16UL, 64UL, 128UL and 256UL.  I need to
+> know what these are defined as. Please excuse my ignorance.
+>
+> Please CC me directly on any responses.
+>
+> Jack Bloch
+> Siemens ICN
+> phone                (561) 923-6550
+> e-mail                jack.bloch@icn.siemens.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,53 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUFTXzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUFUA33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbUFTXzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 19:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265539AbUFTXzd
+	id S261252AbUFUA33 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 20:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbUFUA33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 19:55:33 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:4775 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263032AbUFTXzc (ORCPT
+	Sun, 20 Jun 2004 20:29:29 -0400
+Received: from [195.255.196.126] ([195.255.196.126]:229 "EHLO gw.compusonic.fi")
+	by vger.kernel.org with ESMTP id S261252AbUFUA30 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 19:55:32 -0400
-Date: Mon, 21 Jun 2004 01:55:25 +0200 (MEST)
-Message-Id: <200406202355.i5KNtPdp021261@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: len.brown@intel.com
-Subject: [PATCH] 2.4.27-rc1 i386 and x86_64 ACPI mpparse timer bug
-Cc: Hans-Frieder Vogt <hfvogt@arcor.de>, linux-kernel@vger.kernel.org
+	Sun, 20 Jun 2004 20:29:26 -0400
+Date: Mon, 21 Jun 2004 03:29:24 +0300 (EEST)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Andreas Gruenbacher <agruen@suse.de>, Dev Mazumdar <dev@opensound.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Kai Germaschewski <kai@germaschewski.name>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH 0/2] kbuild updates
+In-Reply-To: <20040620220319.GA10407@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0406210242300.16975@zeus.compusonic.fi>
+References: <20040620211905.GA10189@mars.ravnborg.org>
+ <1087767034.14794.42.camel@nosferatu.lan> <20040620220319.GA10407@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.27-rc1 reintroduced the double-speed timer ACPI bug.
-Both x86-64 and i386 are affected.
+On Mon, 21 Jun 2004, Sam Ravnborg wrote:
 
-The patch below fixes it on my box. It's a backport of a
-patch Hans-Frieder Vogt made for 2.6.7-bk2, extended to
-also handle i386.
+> > Many external modules, libs, etc use
+> > /lib/modules/`uname -r`/build to locate the _source_, and this will
+> > break them all.
+> Examples please. What I have seen so far is modules that was not
+> adapted to use kbuild when being build.
+> If they fail to do so they are inherently broken.
+For example our installation script expects that
+/lib/modules/`uname -r`/build behaves like a symbolic link that points to
+/usr/src/linux-`uname -r`. If /lib/modules/`uname -r`/build doesn't exist
+then /usr/src/linux-`uname -r` will be attempted instead.
 
-/Mikael Pettersson
+"make -C $KERNELDIR SUBDIRS=$MYDIR \
+      CC=what_we_think_is_the_right_gcc_version" modules
 
-diff -ruN linux-2.4.27-rc1/arch/i386/kernel/mpparse.c linux-2.4.27-rc1.mpparse-fix/arch/i386/kernel/mpparse.c
---- linux-2.4.27-rc1/arch/i386/kernel/mpparse.c	2004-06-21 00:39:30.000000000 +0200
-+++ linux-2.4.27-rc1.mpparse-fix/arch/i386/kernel/mpparse.c	2004-06-21 00:50:01.000000000 +0200
-@@ -1211,7 +1211,7 @@
- 
- 		for (idx = 0; idx < mp_irq_entries; idx++)
- 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
--				(mp_irqs[idx].mpc_dstapic == ioapic) &&
-+				(mp_irqs[idx].mpc_dstapic == mp_ioapics[ioapic].mpc_apicid) &&
- 				(mp_irqs[idx].mpc_srcbusirq == i ||
- 				mp_irqs[idx].mpc_dstirq == i))
- 					break;
-diff -ruN linux-2.4.27-rc1/arch/x86_64/kernel/mpparse.c linux-2.4.27-rc1.mpparse-fix/arch/x86_64/kernel/mpparse.c
---- linux-2.4.27-rc1/arch/x86_64/kernel/mpparse.c	2004-06-21 00:39:30.000000000 +0200
-+++ linux-2.4.27-rc1.mpparse-fix/arch/x86_64/kernel/mpparse.c	2004-06-21 00:50:01.000000000 +0200
-@@ -866,7 +866,7 @@
- 
- 		for (idx = 0; idx < mp_irq_entries; idx++)
- 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
--				(mp_irqs[idx].mpc_dstapic == ioapic) &&
-+				(mp_irqs[idx].mpc_dstapic == intsrc.mpc_dstapic) &&
- 				(mp_irqs[idx].mpc_srcbusirq == i ||
- 				mp_irqs[idx].mpc_dstirq == i))
- 					break;
+This approach seems to work with the "stock" kernels as well as with all
+the distribution kernels what we have tried so far (except the latest
+kernel from SuSE that used different directory scheme).
+
+It's relatively easy to use the dual directory scheme provided that the
+object and source directories always have the same naming. However it's
+possible that in the future there will be much more projects that need to
+compile external modules. So it would be easier in general if the
+(possible) dual directory scheme is "hidden" from the external projects.
+
+It should be easy difficult to patch the Makefile in
+/lib/modules/`uname -r`/build to locate the object directory without
+requiring the caller to pass it as a parameter to the "make modules"
+command.
+
+
+There is one special problem that doesn't affect users who have compiled
+their kernel themselves. Many distributions don't include gcc, make and
+related tools in the default installation so large amount of customer
+sites don't have them installed. In addition different gcc version may
+have to be used to compile the kernel than the one that is the default gcc
+command in the system. So before anything can be compiled the installation
+scripts have to check also if the required tools are installed. If they
+are not available then the customer needs to be instructed to install
+them. Because the installation procedure depents on the distribution it's
+very difficult to help the customer in any way. For this reason it would
+be better if the re is some kind of unbrella script for building the
+module. In the vanilla kernels it simply executes the right make command.
+If the distribution vendors see it necessary they can improve the script
+and add features like automatic installation of the required modules or
+whatever else.
+
+Does something like the following sound good?
+
+sh /lib/modules/`uname -r`/build/make_module $MYSUBDIR CC=$CC
+
+$MYSUBDIR is the absolute path to the directory where the module sources
+are located.
+
+$CC is optional parameter that the calling module can use if it thinks it
+knows the right gcc version. If nothing is given then plain gcc is
+assumed. If the script knows the right compiler then it overrides this
+parameter.
+
+In the minimalistic form the script is just
+
+#!/bin/sh
+make -C /lib/modules/`uname -r`/build SUBDIRS="$1" $2 modules
+
+Best regards,
+
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

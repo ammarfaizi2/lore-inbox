@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbTLJB25 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 20:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTLJB25
+	id S263303AbTLJB2m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 20:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLJB2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 20:28:57 -0500
-Received: from ssatchell1.pyramid.net ([208.170.252.115]:21647 "EHLO
-	ssatchell1.pyramid.net") by vger.kernel.org with ESMTP
-	id S263325AbTLJB2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 20:28:53 -0500
-Subject: Re: Swap performance statistics in 2.6 -- which /proc file has it?
-From: Stephen Satchell <list@satchell.net>
-To: Dominik Kubla <dominik@kubla.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3FD62845.8090301@kubla.de>
-References: <BF1FE1855350A0479097B3A0D2A80EE00184D619@hdsmsx402.hd.intel.com>
-	 <1070911748.2408.39.camel@dhcppc4>  <3FD546D5.2000003@nishanet.com>
-	 <1070975964.5966.5.camel@ssatchell1.pyramid.net>
-	 <Pine.LNX.4.53.0312090854080.8425@chaos>
-	 <1070981185.6243.58.camel@ssatchell1.pyramid.net>
-	 <Pine.LNX.4.53.0312091014250.525@chaos>  <3FD62845.8090301@kubla.de>
+	Tue, 9 Dec 2003 20:28:41 -0500
+Received: from email-out2.iomega.com ([147.178.1.83]:60545 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S263303AbTLJB2i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 20:28:38 -0500
+Subject: Re: partially encrypted filesystem
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Matthew Wilcox <willy@debian.org>, Erez Zadok <ezk@cs.sunysb.edu>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20031210000759.GA618@elf.ucw.cz>
+References: <20031205191447.GC29469@parcelfarce.linux.theplanet.co.uk>
+	 <200312051947.hB5Jlupp030878@agora.fsl.cs.sunysb.edu>
+	 <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk>
+	 <3FD127D4.9030007@lougher.demon.co.uk>
+	 <1070883425.31993.80.camel@hades.cambridge.redhat.com>
+	 <20031210000759.GA618@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1071019731.8045.31.camel@ssatchell1.pyramid.net>
+Organization: 
+Message-Id: <1071019703.24032.26.camel@patibmrh9>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Dec 2003 17:28:51 -0800
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Dec 2003 18:28:23 -0700
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Dec 2003 01:28:37.0777 (UTC) FILETIME=[EF7FE010:01C3BEBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-09 at 11:53, Dominik Kubla wrote:
-> Richard B. Johnson wrote:
-> > If you need statistics v.s. time, you need to write an application
-> > that samples things at some fixed interval. In a previous life,
-> > I requested that "nr_free_pages()" be accessible from user-space,
-> > probably via /proc. That's all you need. Maybe that could be
-> > added now?  In any event, samping free pages at some fixed-time
-> > interval should give you all the information you need.
+> > Even if you were going to admit to having a block size of 64KiB to the
+> > layers above you, you just can't _do_ atomic replacement of blocks,
+> > which is required for normal file systems to operate correctly.
 > 
-> vmstat -a
-> sar -B
-> sar -r
-> 
-> O'Reilly's "System Performance Tuning" might make for an interesting read,
-> especially pages 110ff (also its Linux informations are a bit out of date).
+> Are those assumptions needed for something else than [1] recovery after
+> crash/powerdown? [i.e., afaics 64K ext2 should work on flash, but fsck
+> might have some troubles...]
 
-How does sampling free pages give you an accurate measurement of swap
-activity?  If I look at the free-page count at one-minute intervals, the
-system can, and WILL, inhale and exhale pages at a frightening clip, and
-there is no way I can see that sampling free-page count in a
-low-overhead way will do the trick.
+2) Space occupied divided by space usable.  Rounding up file sizes to 64
+KiB can waste much space.
 
-How does vmstat disk-swap activity?  Looking at the source for vmstat in
-procps-2.0.11 I see how they do it for 2.4 kernels, but the part for 2.5
-kernels doesn't seem to try to pick up swap statistics at all -- because
-there are none to get?
+3) Thruput.  Read 64 KiB to overlay one byte to write back as 64 KiB can
+be slow, especially in devices that spin slowly (e.g. 10,000rpm) to
+reach the 64 KiB block again.
 
-(signed) Puzzled.
+4) ... anyone know?
 
-(Why does this whole discussion remind me of the Firesign Theatre album
-_I Think We're All Bozos On This Bus_, and the question that Ah Clem
-asked:  "Why does the porridge-bird lay his eggs in the air?")
+Pat LaVarre
+
 

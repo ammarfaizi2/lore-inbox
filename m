@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUGVEu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266799AbUGVE4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUGVEu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 00:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUGVEu5
+	id S266799AbUGVE4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 00:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266803AbUGVE4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 00:50:57 -0400
-Received: from sev.net.ua ([212.86.233.226]:44549 "EHLO sev.net.ua")
-	by vger.kernel.org with ESMTP id S266692AbUGVEuz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 00:50:55 -0400
-Subject: Re: kernel 2.4.26 oops (maybe solved)
-From: Alex Lyashkov <shadow@psoft.net>
-To: psantoro@att.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40FF33DE.6010307@att.net>
-References: <40FF33DE.6010307@att.net>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
-Organization: PSoft
-Message-Id: <1090471849.7877.3.camel@berloga.shadowland>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 22 Jul 2004 07:50:50 +0300
+	Thu, 22 Jul 2004 00:56:35 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:25946 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266799AbUGVE4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 00:56:33 -0400
+Message-ID: <40FF48F9.1020004@yahoo.com.au>
+Date: Thu, 22 Jul 2004 14:56:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption
+ Patch
+References: <1089677823.10777.64.camel@mindpipe> <20040712174639.38c7cf48.akpm@osdl.org> <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au> <20040721154428.GA24374@elte.hu>
+In-Reply-To: <20040721154428.GA24374@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-В Чтв, 22.07.2004, в 06:26, Peter Santoro пишет:
-> After trying many h/w and s/w configurations, I've apparently isolated 
-> my instability issues to using the following the linux kernel highmem 
-> options: CONFIG_HIGHMEM4G=y, CONFIG_HIGHMEM=y, CONFIG_HIGHMEMIO=y.  I 
-> have 1GB ram, so maybe one of my dimms is bad or maybe there's a highmem 
-> bug in the 2.4.X kernel.
-> 
-> The crashes in my previous emails today were due to using the latest 
-> alsa modules (loaded, but not used by any application) with a HIGHMEM 
-> enabled kernel.  I appear to have no problem using alsa when HIGHMEM is 
-> disabled.  Apparently, I'm not the only one having problems with alsa 
-> and highmem 
-> (http://www.mail-archive.com/alsa-user@lists.sourceforge.net/msg13918.html).
-> 
-> I would be willing to work with a kernel developer to better isolate 
-> this problem and test a patch.
-> 
-> Thank you,
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
 > 
-> Peter Santoro
-> -
-sound like bad work with pte mapping. As possible use pte_*_map without
-pte_unmap or same.
- 
+>>What do you think about deferring softirqs just while in critical
+>>sections?
+>>
+>>I'm not sure how well this works, and it is CONFIG_PREEMPT only but in
+>>theory it should prevent unbounded softirqs while under locks without
+>>taking the performance hit of doing the context switch.
+> 
+> 
+> i dont think this is sufficient. A high-prio RT task might be performing
+> something that is important to it but isnt in any critical section. This
+> includes userspace processing. We dont want to delay it with softirqs.
+> 
 
--- 
-Alex Lyashkov <shadow@psoft.net>
-PSoft
+Given that we're looking for something acceptable for 2.6, how about
+adding
+if (rt_task(current))
+	kick ksoftirqd instead
+
+Otherwise, what is the performance penalty of doing all softirq
+processing from ksoftirqd?

@@ -1,182 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265383AbUFHXHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265407AbUFHXI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265383AbUFHXHo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUFHXHn
+	id S265407AbUFHXI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 19:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUFHXI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:07:43 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:17516 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S265383AbUFHXHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:07:16 -0400
-Subject: Re: 2.4.26 SMP lockup problem
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: norman.r.weathers@conocophillips.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200406081757.28770.norman.r.weathers@conocophillips.com>
-References: <200406081757.28770.norman.r.weathers@conocophillips.com>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1086736002.3346.56.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 08 Jun 2004 16:06:42 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jun 2004 19:08:29 -0400
+Received: from mail.dif.dk ([193.138.115.101]:50080 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S265395AbUFHXID convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 19:08:03 -0400
+Date: Wed, 9 Jun 2004 01:07:18 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
+       "David S. Miller" <davem@redhat.com>,
+       =?ISO-8859-1?Q?Ulisses_Alonso_Camar=F3?= <uaca@alumni.uv.es>
+Subject: Re: [PATCH] Trivial, add missing newline at EOF in
+ Documentation/networking/packet_mmap.txt
+In-Reply-To: <20040606194354.GA10081@elf.ucw.cz>
+Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F8D@difpst1a.dif.dk>
+References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F88@difpst1a.dif.dk>
+ <20040606194354.GA10081@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman,
+On Sun, 6 Jun 2004, Pavel Machek wrote:
 
-A kernel traceback of the lockup would be helpful.
+> Hi!
+>
+> > Missing newlines at the end of files make them less pleasing to work with
+> > for a number of tools that work on a line-by-line basis, and for source files
+> > it will cause gcc to emit a warning. So, I desided to add that missing
+> > newline to the few files in the kernel that are missing it.
+> > This patch makes no functional changes at all to the kernel.
+> > Patch is against 2.6.7-rc2
+> >
+> > Here's the patch adding a newline to
+> > Documentation/networking/packet_mmap.txt
+>
+> Perhaps you should strip headers/lkml signature of packet_mmap.txt?
+> 									Pavel
 
-To do this, add the nmi_watchdog=1 to the kernel command line (lilo or
-pxe boot append option).  This will cause the NMI watchdog handler to
-buzz off when you have your deadlock.
+That makes sense to me, here's an updated patch against 2.6.7-rc3
+(adding David S. Miller and Ulisses Alonso Camaró to the CC list since the
+comment I'm removing at the top involves them (hope I got the right
+persons behind "DaveM" & "Ulisses" there)) :
 
-Run the output through ksymoops and post that to the list.
 
-Thanks
--steve
+--- linux-2.6.7-rc3/Documentation/networking/packet_mmap.txt-orig	2004-06-09 00:58:12.000000000 +0200
++++ linux-2.6.7-rc3/Documentation/networking/packet_mmap.txt	2004-06-09 00:58:30.000000000 +0200
+@@ -1,11 +1,4 @@
 
-On Tue, 2004-06-08 at 15:57, Norman Weathers wrote:
-> Hello All.
-> 
-> During an interesting round of kernel updates, I found a very interesting 
-> problem.  I have several "hundred" nodes in a cluster that I am currently 
-> updating from kernel 2.4.21 to 2.4.26.  These nodes are all running RedHat 
-> 7.3 (old, I know, but this is the OS that are software currently works on).  
-> During this round of updates, I have updated about 150 PIII 800 MHz nodes, 
-> all of which are currently being used and work just fine (1 GB Ram, e100 
-> ethernet driver, IDE drives, fairly generic).  Also, I have a few PIII 1260 
-> nodes (Tyan Motherboard, 2 GB Ram, e100 ethernet driver, again, fairly 
-> generic) that have also been updated and run fine.  I have even started 
-> testing fairly new P4 3060 IBM blades.  They also seem to work just fine.  
-> 
-> Now to the problem.  I have "several hundred" Tyan Thunder Motherboards (older 
-> AMD 760MP chipset).  I have rebooted ~ 200 of these nodes with the new 2.4.26 
-> kernel and about half of these nodes have suffered a hard lockup during 
-> bootup.  The lockup is hard enough that I cannot even isuse sys request keys 
-> over serial or at the local keyboard to cause them to reboot or output a 
-> trace.  These nodes have 2 GB of ram, dual 3Com 100 Mb NICS, and IDE drives.  
-> Again, fairly generic for a cluster.  I had a vanilal + trond patched 2.4.21 
-> kernel running on these boxes just fine.  (The new 2.4.26 kernel also has the 
-> trond patches for 2.4.26).  Has anyone seen this happen to them?
-> 
-> Here is some info on the kernel config for the 2.4.26 kernel:
-> 
-> #
-> # Automatically generated by make menuconfig: don't edit
-> #
-> CONFIG_X86=y
-> # CONFIG_SBUS is not set
-> CONFIG_UID16=y
-> 
-> #
-> # Code maturity level options
-> #
-> CONFIG_EXPERIMENTAL=y
-> 
-> #
-> # Loadable module support
-> #
-> CONFIG_MODULES=y
-> CONFIG_MODVERSIONS=y
-> CONFIG_KMOD=y
-> 
-> #
-> # Processor type and features
-> #
-> # CONFIG_M386 is not set
-> # CONFIG_M486 is not set
-> # CONFIG_M586 is not set
-> # CONFIG_M586TSC is not set
-> # CONFIG_M586MMX is not set
-> # CONFIG_M686 is not set
-> CONFIG_MPENTIUMIII=y
-> # CONFIG_MPENTIUM4 is not set
-> # CONFIG_MK6 is not set
-> # CONFIG_MK7 is not set
-> # CONFIG_MK8 is not set
-> # CONFIG_MELAN is not set
-> # CONFIG_MCRUSOE is not set
-> # CONFIG_MWINCHIPC6 is not set
-> # CONFIG_MWINCHIP2 is not set
-> # CONFIG_MWINCHIP3D is not set
-> # CONFIG_MCYRIXIII is not set
-> # CONFIG_MVIAC3_2 is not set
-> CONFIG_X86_WP_WORKS_OK=y
-> CONFIG_X86_INVLPG=y
-> CONFIG_X86_CMPXCHG=y
-> CONFIG_X86_XADD=y
-> CONFIG_X86_BSWAP=y
-> CONFIG_X86_POPAD_OK=y
-> # CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-> CONFIG_X86_L1_CACHE_SHIFT=5
-> CONFIG_X86_HAS_TSC=y
-> CONFIG_X86_GOOD_APIC=y
-> CONFIG_X86_PGE=y
-> CONFIG_X86_USE_PPRO_CHECKSUM=y
-> CONFIG_X86_F00F_WORKS_OK=y
-> CONFIG_X86_MCE=y
-> # CONFIG_TOSHIBA is not set
-> # CONFIG_I8K is not set
-> CONFIG_MICROCODE=y
-> # CONFIG_X86_MSR is not set
-> # CONFIG_X86_CPUID is not set
-> # CONFIG_EDD is not set
-> # CONFIG_NOHIGHMEM is not set
-> # CONFIG_HIGHMEM4G is not set
-> CONFIG_HIGHMEM64G=y
-> CONFIG_HIGHMEM=y
-> CONFIG_X86_PAE=y
-> CONFIG_HIGHIO=y
-> # CONFIG_MATH_EMULATION is not set
-> CONFIG_MTRR=y
-> CONFIG_SMP=y
-> CONFIG_NR_CPUS=32
-> # CONFIG_X86_NUMA is not set
-> # CONFIG_X86_TSC_DISABLE is not set
-> CONFIG_X86_TSC=y
-> CONFIG_HAVE_DEC_LOCK=y
-> 
-> #
-> # General setup
-> #
-> CONFIG_NET=y
-> CONFIG_X86_IO_APIC=y
-> CONFIG_X86_LOCAL_APIC=y
-> CONFIG_PCI=y
-> # CONFIG_PCI_GOBIOS is not set
-> # CONFIG_PCI_GODIRECT is not set
-> CONFIG_PCI_GOANY=y
-> CONFIG_PCI_BIOS=y
-> CONFIG_PCI_DIRECT=y
-> CONFIG_ISA=y
-> CONFIG_PCI_NAMES=y
-> # CONFIG_EISA is not set
-> # CONFIG_MCA is not set
-> CONFIG_HOTPLUG=y
-> ---- Rest cut -------
-> 
-> I have the noapic option passed on the lilo boot prompt line, otherwise we get 
-> the APIC error after about a month or two in service.
-> 
-> We tried to make the kernel somewhat generic because we want this kernel to 
-> boot on the largest hardware base possible.  Is there something obvious that 
-> I have missed (I have used these options on the 2.4.21 kernel that we used on 
-> all of the nodes with the exception of the 64 GB memory.  
-> 
-> Any help would be appreciated.  Any dumps that need to be made (or try to 
-> make), great as I have about 200 nodes right now that are candidates for 
-> testing.
-> 
-> Please contact me at email listed below as I am not on the list.
-> 
-> 
-> Email:  norman.r.weathers@conocophillips.com
-> 
-> 
-> Thanks in advance.
+-DaveM:
+-
+-If you agree with it I will send two small patches to modify
+-kernel's configure help.
+-
+-	Ulisses
+-
+ --------------------------------------------------------------------------------
+ + ABSTRACT
+ --------------------------------------------------------------------------------
+@@ -405,8 +398,3 @@ then poll for frames.
+
+    Jesse Brandeburg, for fixing my grammathical/spelling errors
+
+->>> EOF
+--
+-To unsubscribe from this list: send the line "unsubscribe linux-net" in
+-the body of a message to majordomo@vger.kernel.org
+-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+\ No newline at end of file
+
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>
 

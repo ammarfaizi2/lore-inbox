@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267494AbSLFB1G>; Thu, 5 Dec 2002 20:27:06 -0500
+	id <S267496AbSLFB2b>; Thu, 5 Dec 2002 20:28:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbSLFB1G>; Thu, 5 Dec 2002 20:27:06 -0500
-Received: from packet.digeo.com ([12.110.80.53]:23206 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267494AbSLFB1F>;
-	Thu, 5 Dec 2002 20:27:05 -0500
-Message-ID: <3DEFFEAA.6B386051@digeo.com>
-Date: Thu, 05 Dec 2002 17:34:34 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
-X-Accept-Language: en
+	id <S267498AbSLFB2b>; Thu, 5 Dec 2002 20:28:31 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:742 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267496AbSLFB2a>;
+	Thu, 5 Dec 2002 20:28:30 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Pavel Machek'" <pavel@ucw.cz>
+Cc: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+Subject: RE: [BK PATCH] ACPI updates
+Date: Thu, 5 Dec 2002 17:36:02 -0800 
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-References: <20021206111326.B7232@turing.une.edu.au> <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Dec 2002 01:34:34.0224 (UTC) FILETIME=[A1879F00:01C29CC7]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> ...
-> He may still suffer other known problems besides
-> the above two critical highmem fixes (for example if
-> lower_zone_reserve_ratio is not applied and there's no other fix around
-> it IMHO, that's generic OS problem not only for linux, and that was my
-> only sensible solution to fix it, the approch in mainline is way too
-> weak to make a real difference)
+> From: Pavel Machek [mailto:pavel@ucw.cz] 
 
-argh.  I hate that one ;)  Giving away 100 megabytes of memory
-hurts.
+I (Andy) said:
+> > Well maybe that's what we should do - use the UnitedLinux 
+> ACPI patch (which
+> > iirc is based on fairly recent ACPI code, and presumably minimizes
+> > ACPI-related breakage) and then proceed incrementally from there?
+> > 
+> > Sound OK? Marcelo? UL folks?
 
-I've never been able to find the workload which makes this
-necessary.  Can you please describe an "exploit" against 
-2.4.20 which demonstrates the need for this?
+> I guess it will be better if you push acpi patch without killing those
+> backup solutions. Extractign blacklist from UL might be worth it,
+> through.
 
-Thanks.
+Well after communicating with Marcelo it sounds like he'd like to hold off
+taking it in 2.4.21 because IDE changes take priority, and two big changes
+at once is too many for a stable kernel revision.
+
+Fair enough. I'm just worried that 2.4.22 is a long ways away.
+
+Maybe one way to address Marcelo's stability concerns and Arjan's "keep
+acpitable.[ch] around" preference is for me to submit a patch that I *know*
+don't affect anything besides ACPI -- i.e. only the changes that have been
+made under drivers/acpi, and then go from there, submitting UL-derived and
+other improvements incrementally after that.
+
+Thoughts?
+
+Regards -- Andy

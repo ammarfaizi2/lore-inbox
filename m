@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266896AbUI1Auk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUI1BFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266896AbUI1Auk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 20:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267445AbUI1Auk
+	id S267445AbUI1BFt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 21:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUI1BFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 20:50:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41705 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266896AbUI1Auj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 20:50:39 -0400
-Date: Mon, 27 Sep 2004 17:48:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>, Lukas Hejtmanek <xhejtman@fi.muni.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm2 pcmcia oops
-Message-ID: <20040928004842.GB10620@kroah.com>
-References: <20040926221614.GB1466@mail.muni.cz> <20040926184327.79e05988.akpm@osdl.org> <20040927070023.A30364@flint.arm.linux.org.uk>
+	Mon, 27 Sep 2004 21:05:49 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:15273 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267445AbUI1BFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 21:05:47 -0400
+Subject: [patch] inotify: silly fix
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org, iggy@gentoo.org
+In-Reply-To: <1096250524.18505.2.camel@vertex>
+References: <1096250524.18505.2.camel@vertex>
+Content-Type: multipart/mixed; boundary="=-TZw8L753wrVfDYIQsCAj"
+Date: Mon, 27 Sep 2004 21:05:51 -0400
+Message-Id: <1096333551.5103.133.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040927070023.A30364@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 07:00:23AM +0100, Russell King wrote:
-> On Sun, Sep 26, 2004 at 06:43:27PM -0700, Andrew Morton wrote:
-> > Well quirk_usb_early_handoff() should be __devinit, not __init.
-> 
-> I thought we got all those?  I guess the recent PCI quirk cleanup
-> reintroduced these bugs.
 
-No, these are new functions added in my trees.  I'll go apply Andrew's
-patch, it is correct.
+--=-TZw8L753wrVfDYIQsCAj
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-thanks,
+On Sun, 2004-09-26 at 22:02 -0400, John McCutchan wrote:
 
-greg k-h
+John,
+
+> Announcing the release of inotify 0.10.0. 
+> Attached is a patch to 2.6.8.1.
+
+John, as Andrew pointed out, we are missing some braces in an
+inopportune location.  I think we need to refactor this code entirely,
+to remove the access_ok() checks and use copy_{to,from}_user(), but we
+can take this in the meantime since the patch is dead without it.
+
+I'll take paper, please.  One brown paper bag right over my head.
+
+	Robert Love
+
+
+--=-TZw8L753wrVfDYIQsCAj
+Content-Disposition: attachment; filename=inotify-rml-typo-1.patch
+Content-Type: text/x-patch; name=inotify-rml-typo-1.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+ARE WE SERIOUS?
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ drivers/char/inotify.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux-inotify/drivers/char/inotify.c	2004-09-25 15:23:10.000000000 -0400
++++ linux/drivers/char/inotify.c	2004-09-27 21:00:48.455011760 -0400
+@@ -970,9 +970,10 @@
+ 	if (_IOC_DIR(cmd) & _IOC_READ)
+ 		err = !access_ok(VERIFY_READ, (void *) arg, _IOC_SIZE(cmd));
+ 
+-	if (err)
++	if (err) {
+ 		err = -EFAULT;
+ 		goto out;
++	}
+ 
+ 	if (_IOC_DIR(cmd) & _IOC_WRITE)
+ 		err = !access_ok(VERIFY_WRITE, (void *)arg, _IOC_SIZE(cmd));
+
+--=-TZw8L753wrVfDYIQsCAj--
+

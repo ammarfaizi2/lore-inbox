@@ -1,172 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263428AbUJ2Pwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263409AbUJ2QON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263428AbUJ2Pwg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbUJ2Ptj
+	id S263409AbUJ2QON (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 12:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbUJ2QLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:49:39 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:24582 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263413AbUJ2PqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:46:19 -0400
-Message-ID: <41826909.7070908@techsource.com>
-Date: Fri, 29 Oct 2004 12:00:09 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <9e4733910410201808c0796c8@mail.gmail.com> <Pine.GSO.4.61.0410222209410.11567@waterleaf.sonytel.be> <417984A9.2070305@techsource.com> <20041024104520.GB12665@hh.idb.hist.no> <417D2027.5000306@techsource.com> <20041028090707.GA13523@hh.idb.hist.no>
-In-Reply-To: <20041028090707.GA13523@hh.idb.hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 29 Oct 2004 12:11:51 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:47533 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S263409AbUJ2QEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 12:04:40 -0400
+Subject: Re: 2.6.10-rc1-mm2
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041029014930.21ed5b9a.akpm@osdl.org>
+References: <20041029014930.21ed5b9a.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1099065862.711.34.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 29 Oct 2004 18:04:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> - More fiddling with the memory reclaim code.  We're making gradual progress
+>   here, so people who have had issues in the past with VM behaviour should
+>   keep an eye out for improvements or regressions.
 
+Hi,
 
-Helge Hafting wrote:
-> On Mon, Oct 25, 2004 at 11:47:51AM -0400, Timothy Miller wrote:
-> 
->>>I can't see how it is "vital", or even makes a difference at all.
->>>Other than upping the price a bit.  The pc doesn't need VGA compatibility
->>>to boot - because you supply a video bios.  The mainboard bios
->>>uses the video bios. (There have been pc's with ibm-incompatible
->>>displays before)
->>>Linux d(and other open os'es) doesn�'t need VGA at all, because 
->>>you supply docs.  You probably won't even have to write the driver
->>>yourself.
->>>Windows doesn't need VGA - if you supply a windows driver.  That
->>>shouldn�'t be hard to do.  
->>
->>
->>We have a number of cards which do not support VGA, and a few years ago, 
->>I experimented with the idea of writing a VGA BIOS which emulated the 
->>VGA text screen in software.
->>
->>What I discovered was that absolutely everything, including the DOS 
->>shell, expects there to be REAL VGA (or CGA or whatever) hardware there, 
-> 
-> 
-> Remember who you're talking to. :-)
-> VGA, (or at least CGA) may indeed be necessary to run dos.
-> (Well, dos 2.11 ran fine on the incomptaible DEC rainbow...)
-> So if you need dos compatibility - sure.  
-> 
-> But this is the linux kernel list - you asked what the
-> open source community want.  We _really_ don't care about dos.
-> And I believe this is true for many others too - dos _is_ dead.
-> Even the microsoft fans use windows exclusively.
-> So don't worry about dos - it is such a niche os today.
+crashes with CONFIG_DEBUG_PAGEALLOC
 
-Forget DOS.  How about the BIOS configuration screen?  How about all 
-those messages that come up before the boot-loader has even been fetched 
-from disk?
+Linux version 2.6.10-rc1-mm2 (alex@boxen) (gcc version 3.3.5 (Debian 1:3.3.5-1)) #4 Fri Oct 29 15:31:26 UTC 2004
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000000f00000 (usable)
+ BIOS-e820: 0000000000f00000 - 0000000001000000 (reserved)
+ BIOS-e820: 0000000001000000 - 000000001fff0000 (usable)
+ BIOS-e820: 000000001fff0000 - 000000001fff3000 (ACPI NVS)
+ BIOS-e820: 000000001fff3000 - 0000000020000000 (ACPI data)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+511MB LOWMEM available.
+DMI 2.3 present.
+Built 1 zonelists
+No local APIC present or hardware disabled
+Initializing CPU#0
+Kernel command line: BOOT_IMAGE=x86_kernel root=/dev/hda9 netconsole=4444@192.168.1.10/eth0,7000@192.168.1.1/ nmi_watchdog=1 profile=1 elevator=cfq
+netconsole: local port 4444
+netconsole: local IP 192.168.1.10
+netconsole: interface eth0
+netconsole: remote port 7000
+netconsole: remote IP 192.168.1.1
+netconsole: remote ethernet address ff:ff:ff:ff:ff:ff
+kernel profiling enabled (shift: 1)
+CPU 0 irqstacks, hard=c0349000 soft=c0348000
+PID hash table entries: 2048 (order: 11, 32768 bytes)
+Detected 1400.232 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 477700k/524224k available (1479k kernel code, 44964k reserved, 457k data, 372k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: AMD Athlon(tm) processor stepping 04
+Enabling fast FPU save and restore... done.
+Checking 'hlt' instruction... OK.
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xfb4e0, last bus=1
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+SCSI subsystem initialized
+PCI: Probing PCI hardware
+PCI: Probing PCI hardware (bus 00)
+Disabling VIA memory write queue (PCI ID 0305, rev 03): [55] 89 & 1f -> 09
+PCI: Using IRQ router VIA [1106/0686] at 0000:00:07.0
+Machine check exception polling timer started.
+Applying VIA southbridge workaround.
+PCI: Disabling Via external APIC routing
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+io scheduler noop registered
+io scheduler cfq registered
+loop: loaded (max 8 devices)
+PCI: Found IRQ 10 for device 0000:00:0b.0
+PCI: Sharing IRQ 10 with 0000:00:07.2
+PCI: Sharing IRQ 10 with 0000:00:07.3
+PCI: Sharing IRQ 10 with 0000:00:0f.1
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+0000:00:0b.0: 3Com PCI 3c905C Tornado at 0xe000. Vers LK1.1.19
+e100: Intel(R) PRO/100 Network Driver, 3.2.3-k2-NAPI
+e100: Copyright(c) 1999-2004 Intel Corporation
+netconsole: device eth0 not up yet, forcing it
+PCI: Found IRQ 10 for device 0000:00:0b.0
+PCI: Sharing IRQ 10 with 0000:00:07.2
+PCI: Sharing IRQ 10 with 0000:00:07.3
+PCI: Sharing IRQ 10 with 0000:00:0f.1
+netconsole: timeout waiting for carrier
+netconsole: network logging started
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:07.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci0000:00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:pio, hdd:pio
+hda: IC35L040AVER07-0, ATA DISK drive
+hdb: SAMSUNG CD-ROM SC-152C, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: max request size: 128KiB
+hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=65535/16/63, UDMA(100)
+ hda: hda1 hda2 hda4 < hda5 hda6 hda7 hda8 hda9 >
+PCI: Found IRQ 11 for device 0000:00:09.0
+PCI: Sharing IRQ 11 with 0000:00:0f.2
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec 2940 Pro Ultra SCSI adapter>
+        aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
 
-> 
-> 
->>so hooking int 10 just did not do the job... it practically never got 
->>called.  What I ended up doing was hooking the timer interrupt and 
->>comparing the text screen against a shadow copy.  That worked very well 
->>for most DOS applications... except for those which tried to do anything 
->>in protected mode.  The instant an OS switched to protected mode, the 
->>interrupt handler got blown away and the display froze.
-> 
-> 
-> Sure - but who's running dos these days?  Is there any market share
-> in _dos_?  And there is freedos, for which the source code is
-> available and free.  So if you really need dos for something,
-> (such as flashing mainboard bioses?) then add the necessary support
-> to freedos. 
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+NET: Registered protocol family 2
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 65536)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 372k freed
+------------[ cut here ]------------
+kernel BUG at arch/i386/mm/pageattr.c:136!
+invalid operand: 0000 [#1]
+PREEMPT DEBUG_PAGEALLOC
+CPU:    0
+EIP:    0060:[<c011263d>]    Not tainted VLI
+EFLAGS: 00010056   (2.6.10-rc1-mm2)
+EIP is at __change_page_attr+0xcd/0x130
+eax: 00000000   ebx: 1fdc9163   ecx: c30a8f40   edx: 003fa000
+esi: c03fa724   edi: 00000163   ebp: dfc15c44   esp: dfc15c30
+ds: 007b   es: 007b   ss: 0068
+Process rcS (pid: 16, threadinfo=dfc15000 task=dfc14aa0)
+Stack: c30a1000 dfdc9000 c349c920 00000000 00000000 dfc15c64 c01126f9 00000292
+       00000163 00000001 00000001 c349c920 00000000 dfc15c70 c01127d6 c02a9fc4
+       dfc15cb4 c013391a 00000001 00000000 00000000 00000000 00000001 00000000
+Call Trace:
+ [<c0104c7a>] show_stack+0x7a/0x90
+ [<c0104df8>] show_registers+0x148/0x1b0
+ [<c0104ff0>] die+0xf0/0x180
+ [<c0105484>] do_invalid_op+0xe4/0xf0
+ [<c01048b1>] error_code+0x2d/0x38
+ [<c01126f9>] change_page_attr+0x59/0x70
+ [<c01127d6>] kernel_map_pages+0x16/0x80
+ [<c013391a>] __alloc_pages+0x22a/0x390
+ [<c012f5a8>] find_or_create_page+0x98/0xb0
+ [<c014d516>] grow_dev_page+0x26/0x120
+ [<c014d69a>] __getblk_slow+0x8a/0x120
+ [<c014da58>] __getblk+0x38/0x40
+ [<c018089b>] ext3_getblk+0x7b/0x230
+ [<c018431a>] ext3_find_entry+0x11a/0x3b0
+ [<c01847b6>] ext3_lookup+0x36/0xa0
+ [<c0157501>] real_lookup+0xb1/0xe0
+ [<c01577d3>] do_lookup+0x73/0x80
+ [<c0157ea7>] link_path_walk+0x6c7/0xd90
+ [<c015880e>] path_lookup+0x7e/0x140
+ [<c0158a1e>] __user_walk+0x2e/0x50
+ [<c0153d20>] vfs_stat+0x20/0x50
+ [<c0154356>] sys_stat64+0x16/0x30
+ [<c0103ea7>] syscall_call+0x7/0xb
+Code: f0 8b 45 f0 81 c1 00 00 00 40 c1 e8 16 81 e1 00 00 c0 ff 8d 04 82 8b 15 48 84 2a c0 80 ca 80 09 d1 8b 55 f0 e8 c5 fe ff ff eb a8 <0f> 0b 88 00 bc e5 27 c0 eb 8e 8b 45 f0 89 fa e8 cf fd ff ff 89
+ <6>note: rcS[16] exited with preempt_count 1
+------------[ cut here ]------------
+kernel BUG at arch/i386/mm/pageattr.c:136!
+invalid operand: 0000 [#2]
+PREEMPT DEBUG_PAGEALLOC
+CPU:    0
+EIP:    0060:[<c011263d>]    Not tainted VLI
+EFLAGS: 00010056   (2.6.10-rc1-mm2)
+EIP is at __change_page_attr+0xcd/0x130
+eax: 00000000   ebx: 1fd6e163   ecx: c30a8f40   edx: 003fa000
+esi: c03fa5b8   edi: 00000163   ebp: c3929e18   esp: c3929e04
+ds: 007b   es: 007b   ss: 0068
+Process rc (pid: 18, threadinfo=c3929000 task=dfeee590)
+Stack: c30a1000 dfd6e000 c349bdc0 00000000 00000000 c3929e38 c01126f9 00000282
+       00000163 00000001 00000001 c349bdc0 00000000 c3929e44 c01127d6 c02a9fc4
+       c3929e88 c013391a 00000001 00000000 00000000 00000001 00000001 00000000
+Call Trace:
+ [<c0104c7a>] show_stack+0x7a/0x90
+ [<c0104df8>] show_registers+0x148/0x1b0
+ [<c0104ff0>] die+0xf0/0x180
+ [<c0105484>] do_invalid_op+0xe4/0xf0
+ [<c01048b1>] error_code+0x2d/0x38
+ [<c01126f9>] change_page_attr+0x59/0x70
+ [<c01127d6>] kernel_map_pages+0x16/0x80
+ [<c013391a>] __alloc_pages+0x22a/0x390
+ [<c013de4e>] do_no_page+0x23e/0x2f0
+ [<c013e0c2>] handle_mm_fault+0xc2/0x160
+ [<c0111ca8>] do_page_fault+0x3c8/0x5f4
+ [<c01048b1>] error_code+0x2d/0x38
+Code: f0 8b 45 f0 81 c1 00 00 00 40 c1 e8 16 81 e1 00 00 c0 ff 8d 04 82 8b 15 48 84 2a c0 80 ca 80 09 d1 8b 55 f0 e8 c5 fe ff ff eb a8 <0f> 0b 88 00 bc e5 27 c0 eb 8e 8b 45 f0 89 fa e8 cf fd ff ff 89
+ <6>note: rc[18] exited with preempt_count 1
+------------[ cut here ]------------
+kernel BUG at arch/i386/mm/pageattr.c:136!
+invalid operand: 0000 [#3]
+PREEMPT DEBUG_PAGEALLOC
+CPU:    0
+EIP:    0060:[<c011263d>]    Not tainted VLI
+EFLAGS: 00010056   (2.6.10-rc1-mm2)
+EIP is at __change_page_attr+0xcd/0x130
+eax: 00000000   ebx: 1fd73163   ecx: c30a8f40   edx: 003fa000
+esi: c03fa5cc   edi: 00000163   ebp: c3859e28   esp: c3859e14
+ds: 007b   es: 007b   ss: 0068
+Process init (pid: 1, threadinfo=c3859000 task=c385aa00)
+Stack: c30a1000 dfd73000 c349be60 00000000 00000000 c3859e48 c01126f9 00000286
+       00000163 00000001 00000001 c349be60 00000000 c3859e54 c01127d6 c02a9fc4
+       c3859e98 c013391a 00000001 00000000 00000000 00000000 00000001 00000000
+Call Trace:
+ [<c0104c7a>] show_stack+0x7a/0x90
+ [<c0104df8>] show_registers+0x148/0x1b0
+ [<c0104ff0>] die+0xf0/0x180
+ [<c0105484>] do_invalid_op+0xe4/0xf0
+ [<c01048b1>] error_code+0x2d/0x38
+ [<c01126f9>] change_page_attr+0x59/0x70
+ [<c01127d6>] kernel_map_pages+0x16/0x80
+ [<c013391a>] __alloc_pages+0x22a/0x390
+ [<c013d09b>] do_wp_page+0x7b/0x340
+ [<c013e130>] handle_mm_fault+0x130/0x160
+ [<c0111ca8>] do_page_fault+0x3c8/0x5f4
+ [<c01048b1>] error_code+0x2d/0x38
+Code: f0 8b 45 f0 81 c1 00 00 00 40 c1 e8 16 81 e1 00 00 c0 ff 8d 04 82 8b 15 48 84 2a c0 80 ca 80 09 d1 8b 55 f0 e8 c5 fe ff ff eb a8 <0f> 0b 88 00 bc e5 27 c0 eb 8e 8b 45 f0 89 fa e8 cf fd ff ff 89
+ <0>Kernel panic - not syncing: Attempted to kill init!
 
-Don't get stuck on DOS.  What it does represents what lots of other 
-things do with regard to the display.  They assume CGA-compatible 
-hardware is there and bang on the hardware directly.
-
-Also, as countless people have said, it would be foolish to shut out 
-Windows users.  Many people would like this card so that they can dual-boot.
-
->  
-> 
->>Then we though we'd put a proper driver into the OS, but the problem is 
->>that in Windows and Solaris, the console driver doesn't kick in until 
->>WAY late in the boot process, so you end up with a useless console for 
->>THE MAJORITY of the boot process.
->>
->>For Windows, there is a requirement for 640x480x4 and some 320x480x?? 
->>mode to be supported by the hardware using the standard VGA IO space 
->>registers.  That is, IF you want a console.  Yes, you can boot without 
->>VGA, but your screen is blank until the driver kicks in, so if there's a 
->>PROBLEM, you're hosed.
-> 
-> 
-> Sure - that could be a problem.  This depends on how much you want to
-> sell to windows users.  We linux users, and other open source users,
-> don't worry that much about windows console deficiencies.  
-> Particularly considering how the common windows user doesn't use his
-> console anyway - ms hides everything behind a pretty "Please wait,
-> windows is starting" screen. And they reinstall if something goes wrong :-/
-
-I see a bit of irony in calling the card "platform agnostic" if it 
-doesn't work right with Windows.
-
-> 
-> You are sure that an "early boot" console driver for windows is impossible?
-> Ms provides no clue about replacing this thing?  Rendering text onto vga
-> must be done somewhere, possibly in a library that could be replaced.
-
-Unfortunately, Microsoft dictates the rules here and they're not going 
-to change for us.
-
-Remember the BIOS config screen.
-
-> 
->>VGA is so "expected" that pretty much everything just assumes it's there 
->>and bangs on the hardware directly.
-> 
-> 
-> So it is a question of what you want to support, and how numerous
-> these VGA users are.  Perhaps you won't have to implement _all_
-> of VGA though - that might save space in your FPGA.  Full VGA have some
-> rarely used oddball modes and features - and backwards compatibility
-> cruft.  Who needs the EGA modes or ability to load textmode
-> fonts for example - when all the user need is to see some
-> boot messages before the real driver takes over.
-
-Exactly.  We need the absolute minimum.  I'm thinking there's got to be 
-some way to do most of it by emulating it in the setup engine.
-
-Big ROMs which contain lots of setup engine code are NOT a problem.
-
-Consider this:  POST configures the PC to see one of the framebuffer 
-apertures as the "screen" for 80x25 text or 640x480 VGA.  The setup 
-engine just sits there and continuously translates from that to graphics 
-for the video controller.
-
-There may be some issues with the "io space" accesses, but we'll just 
-have to design it so that the setup engine can intercept those (kinda 
-like it'll intercept pseudo-registers for 2D emulation).
-
-> If you go for VGA, then I hope the VGA bits will be
-> somewhat optional or possible to disable, so the VGA bits
-> doesn�'t get in the way when trying to use several cards
-> simultaneously.  You may make cards that cooperate nicely with
-> each other - but there may be other card(s) in the machine
-> too that also mess with VGA registers at strange times.
-
-At the very minimum, the host controller will have to have the logic 
-necessary to handle io space accesses.  The thing is, for a non-console, 
-they won't get enabled at POST.  Problem solved.
-
-If necessary, we'll add a jumper to the board.
-
-> 
-> If VGA is implemented entirely in the FPGA then perhaps there
-> will be alternate FPGA firmwares for different purposes. (Surely
-> cheaper than making different boards).  One variant could
-> be VGA-less, the space may then be used for other purposes. An 
-> extra 3D-unit of some sort perhaps. :-)
-
-I want to minimize dedicated logic for VGA.
 

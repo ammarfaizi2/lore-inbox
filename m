@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286264AbRLTOcZ>; Thu, 20 Dec 2001 09:32:25 -0500
+	id <S286263AbRLTOdq>; Thu, 20 Dec 2001 09:33:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286261AbRLTOcF>; Thu, 20 Dec 2001 09:32:05 -0500
-Received: from t2.redhat.com ([199.183.24.243]:35310 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S286260AbRLTObz>; Thu, 20 Dec 2001 09:31:55 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011220145328.C16650@unthought.net> 
-In-Reply-To: <20011220145328.C16650@unthought.net>  <200112100544.fBA5isV223458@saturn.cs.uml.edu> <E16GnIg-0000V5-00@starship.berlin> <20011220110936.A18142@atrey.karlin.mff.cuni.cz> <200112201338.OAA23947@mail48.fg.online.no> 
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-Cc: svein.ove@aas.no,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: File copy system call proposal 
+	id <S286261AbRLTOdg>; Thu, 20 Dec 2001 09:33:36 -0500
+Received: from gateway-2.hyperlink.com ([213.52.152.2]:23824 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S286260AbRLTOdY>; Thu, 20 Dec 2001 09:33:24 -0500
+Subject: Re: asymmetric multiprocessing
+From: "Martin A. Brooks" <martin@jtrix.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112200912480.7795-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.33.0112200912480.7795-100000@coffee.psychology.mcmaster.ca>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-BpgmAwUoebS95qCicxH3"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 20 Dec 2001 14:33:22 +0000
+Message-Id: <1008858802.431.43.camel@unhygienix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 20 Dec 2001 14:31:27 +0000
-Message-ID: <3794.1008858687@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-jakob@unthought.net said:
->  Take a look at Win32, they have it.
+--=-BpgmAwUoebS95qCicxH3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Which is partly why when you want to copy a large file on an SMB-exported
-file system, the client host doesn't have to actually read it all and write 
-it back across the network - it can just issue a copyfile request.
+On Thu, 2001-12-20 at 14:13, Mark Hahn wrote:
+> not supported (and frowned upon by the spec).  the issue is TSC,
+> of course, and it's definitely not clear whether the normal case
+> (correctly configured SMP) should be burdoned by support for=20
+> mixed-clock chips.
 
---
-dwmw2
+I'm no expert on MP, hence I fail to see why differing clock speeds
+between CPUs should be a problem providing the system bus rates are
+constant. As each CPU would be rated differently as far as bogomips are
+concerned, couldn't the scheduler apply load accordingly?
 
+
+--=20
+Martin A. Brooks   Systems Administrator
+Jtrix Ltd          t: +44 7395 4990
+57-59 Neal Street  f: +44 7395 4991
+London, WC2H 9PP   e: martin@jtrix.com
+
+--=-BpgmAwUoebS95qCicxH3
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAjwh9rIACgkQwgE0gTKdDobL4gCggWd+Vfz+PuzonBXX+VyxB7Sj
+Ms8An1QUlRcC1Y4oIyj8m6XacjUFt7Vq
+=rFsD
+-----END PGP SIGNATURE-----
+
+--=-BpgmAwUoebS95qCicxH3--
 

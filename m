@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318756AbSHBIaS>; Fri, 2 Aug 2002 04:30:18 -0400
+	id <S318757AbSHBJFF>; Fri, 2 Aug 2002 05:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318757AbSHBIaS>; Fri, 2 Aug 2002 04:30:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39586 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318756AbSHBIaR>;
-	Fri, 2 Aug 2002 04:30:17 -0400
-Date: Fri, 02 Aug 2002 01:20:40 -0700 (PDT)
-Message-Id: <20020802.012040.105531210.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: gh@us.ibm.com, riel@conectiva.com.br, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, rohit.seth@intel.com,
-       sunil.saxena@intel.com, asit.k.mallick@intel.com
-Subject: Re: large page patch 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15690.9727.831144.67179@napali.hpl.hp.com>
-References: <15690.6005.624237.902152@napali.hpl.hp.com>
-	<20020801.222053.20302294.davem@redhat.com>
-	<15690.9727.831144.67179@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S318758AbSHBJFF>; Fri, 2 Aug 2002 05:05:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36586 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318757AbSHBJFE>;
+	Fri, 2 Aug 2002 05:05:04 -0400
+Date: Fri, 2 Aug 2002 11:08:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.30 does not build cleanly
+Message-ID: <20020802090831.GB1055@suse.de>
+References: <3D4A40C3.AF47AA62@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D4A40C3.AF47AA62@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Thu, 1 Aug 2002 23:26:07 -0700
-   
-   I'm a bit concerned about this, too.  My preference would have been to
-   use the regular mmap() and shmat() syscalls with some
-   augmentation/hint as to what the preferred page size is (Simon
-   Winwood's OLS 2002 paper talks about some options here).  I like this
-   because hints could be useful even with a transparent superpage
-   scheme.
+On Fri, Aug 02 2002, Jean-Luc Coulon wrote:
+> Hi,
+> 
+> I get the following messages :
+> 
+> make[3]: Leaving directory `/usr/src/kernel-source-2.5.30/arch/i386/pci'
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
+> /usr/src/linux/debian/tmp-image -r 2.5.30; fi
+> depmod: *** Unresolved symbols in
+> /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/arch/i386/kernel/apm.o
+> depmod: 	cpu_gdt_table
+> depmod: *** Unresolved symbols in
+> /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/drivers/block/floppy.o
+> depmod: 	elv_queue_empty
+> depmod: *** Unresolved symbols in
+> /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/drivers/block/nbd.o
+> depmod: 	elv_queue_empty
+> depmod: *** Unresolved symbols in
+> /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/drivers/scsi/scsi_mod.o
+> depmod: 	elv_queue_empty
+> make[2]: *** [_modinst_post] Erreur 1
+> make[2]: Leaving directory `/usr/src/kernel-source-2.5.30'
+> make[1]: *** [real_stamp_image] Erreur 2
 
-A "hint" to use superpages?  That's absurd.
+fixes the elv_queue_empty one
 
-Any time you are able to translate N pages instead of 1 page with 1
-TLB entry it's always preferable.
+--- linux/drivers/block/elevator.c~	2002-08-02 11:07:33.000000000 +0200
++++ linux/drivers/block/elevator.c	2002-08-02 11:07:49.000000000 +0200
+@@ -482,5 +482,6 @@
+ EXPORT_SYMBOL(__elv_add_request);
+ EXPORT_SYMBOL(elv_next_request);
+ EXPORT_SYMBOL(elv_remove_request);
++EXPORT_SYMBOL(elv_queue_empty);
+ EXPORT_SYMBOL(elevator_exit);
+ EXPORT_SYMBOL(elevator_init);
 
-I also don't buy the swapping complexity bit.  The fact is, SHM and
-anonymous pages are easy.  Just stay away from the page cache and it
-is pretty simple to just make the normal VM do this.
+-- 
+Jens Axboe
 
-If set_pte sees a large page, you simply undo the large ptes in that
-group and the complexity ends right there.  This means the only maker
-of large pages is the bit that creates the large mappings and has all
-of the ideal conditions up front.  Any time anything happens to that
-pte you undo the large'ness of it so that you get normal PAGE_SIZE
-ptes back.
-
-Using superpages for anonymous+SHM pages is really the only area I
-still think Linux's MM can offer inferior performance compared to what
-the hardware is actually capable of.

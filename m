@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUG2WWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUG2WWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267487AbUG2WWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 18:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUG2WWQ
+	id S265697AbUG2WWr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 18:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267488AbUG2WWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 18:22:16 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:63441 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S265697AbUG2WWO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 18:22:14 -0400
-Date: Thu, 29 Jul 2004 14:28:13 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@www.fnordora.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rogier Wolff <Rogier@wolff.net>,
+	Thu, 29 Jul 2004 18:22:46 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25043 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265697AbUG2WWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 18:22:42 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: arch_init_sched_domains() oops
+Date: Thu, 29 Jul 2004 15:17:21 -0700
+User-Agent: KMail/1.6.2
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OK, anybody have any hints and tips to get an MFM drive working
- again?
-In-Reply-To: <1091135075.1453.5.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0407291427050.30292-100000@www.fnordora.org>
+References: <1091138180.23502.81.camel@nighthawk>
+In-Reply-To: <1091138180.23502.81.camel@nighthawk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_xdXCBd1S60NVK/g"
+Message-Id: <200407291517.21613.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004, Alan Cox wrote:
 
-> On Iau, 2004-07-29 at 21:14, Rogier Wolff wrote:
-> > I THINK we have a couple of those cards that don't have any 
-> > interrupts. Would Linux be able to work with those?
-> 
-> The old hd driver should support this in 2.4 and 2.6. Its fair to
-> say that neither hd.c nor xd.c get much testing nowdays. One of the
-> biggest problems tends to be finding a machine you can use the old MFM
-> cards in because any motherboard disk controller will clash.
+--Boundary-00=_xdXCBd1S60NVK/g
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Not to mention that many MFM boards were not very static resistant and 
-tended to die if handled without proper grounding.  (I lost one that way.)
+On Thursday, July 29, 2004 2:56 pm, Dave Hansen wrote:
+> This happened on a NUMA running 2.6.8-rc2-mm1:
 
+Is this stock 2.6.8-rc2-mm1?  If so, you may need the attached patch.
 
+Jesse
+
+--Boundary-00=_xdXCBd1S60NVK/g
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="sched-merge-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="sched-merge-fix.patch"
+
+diff -Napur -X /home/jbarnes/dontdiff linux-2.6.8-rc2-mm1.orig/kernel/sched.c linux-2.6.8-rc2-mm1/kernel/sched.c
+--- linux-2.6.8-rc2-mm1.orig/kernel/sched.c	2004-07-28 09:36:36.000000000 -0700
++++ linux-2.6.8-rc2-mm1/kernel/sched.c	2004-07-28 09:34:45.000000000 -0700
+@@ -3770,8 +3770,6 @@ __init static void arch_init_sched_domai
+ 		cpumask_t nodemask = node_to_cpumask(cpu_to_node(i));
+ 
+ #ifdef CONFIG_NUMA
+-		if (i != first_cpu(sd->groups->cpumask))
+-			continue;
+ 		sd = &per_cpu(node_domains, i);
+ 		group = cpu_to_node_group(i);
+ 		*sd = SD_NODE_INIT;
+
+--Boundary-00=_xdXCBd1S60NVK/g--

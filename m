@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbSLPAZd>; Sun, 15 Dec 2002 19:25:33 -0500
+	id <S263544AbSLPAeB>; Sun, 15 Dec 2002 19:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbSLPAZd>; Sun, 15 Dec 2002 19:25:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64529 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263491AbSLPAZc>;
-	Sun, 15 Dec 2002 19:25:32 -0500
-Date: Mon, 16 Dec 2002 00:33:27 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Cc: rth@twiddle.net
-Subject: 2 (minor) Alpha probs in 2.5.51
-Message-ID: <20021216003327.GC709@gallifrey>
-Mime-Version: 1.0
+	id <S263837AbSLPAeB>; Sun, 15 Dec 2002 19:34:01 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62844 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S263544AbSLPAeA>; Sun, 15 Dec 2002 19:34:00 -0500
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] kexec for 2.5.51....
+References: <200212141215.49449.tomlins@cam.org>
+	<200212141859.07191.tomlins@cam.org>
+	<m11y4jatbe.fsf@frodo.biederman.org>
+	<200212151641.49062.tomlins@cam.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Dec 2002 17:41:35 -0700
+In-Reply-To: <200212151641.49062.tomlins@cam.org>
+Message-ID: <m1wumaaj7k.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 00:25:20 up  7:52,  2 users,  load average: 0.00, 0.01, 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This is with rth's exception patch to fix the mount problem).
+Ed Tomlinson <tomlins@cam.org> writes:
 
-1) If compiled for the LX164 platform it is missing a number of symbols
-at link time (fine if built generic):
+> On December 15, 2002 04:03 pm, Eric W. Biederman wrote:
+> > Ed Tomlinson <tomlins@cam.org> writes:
+> > > Why not include this info in kexec -h ?  Bet it would prevent a few
+> > > failure reports...
+> >
+> > I will look, at that.
+> >  
+> > > Two more possible additions to the kexec command.  
+> > >
+> > > 1. kexec -q which returns rc=1 and types the pending selection and
+> > >    its command/append string if one exists and returns rc=0 if nothing
+> > >    is pending.  
+> >
+> > This would require effort to little purpose.  If you just call kexec
+> > it loads the kernel and then calls shutdown -r now.  So the loaded kernel
+> > should be a transient entity anyway.
+> 
+> Consider, you are not sure what kexec has been setup to do (maybe 
+> some other admin has something setup to take a crash dump etc).  You 
+> do not want to destroy this setup, so you do kexec -q  
+> 
+> Think being able to query the pending kexec is very usefull.  Also
+> using an rc means that scripts can use it too.
 
-arch/alpha/kernel/built-in.o(.data+0x3030): undefined reference to
-`cia_bwx_inb'
-arch/alpha/kernel/built-in.o(.data+0x3038): undefined reference to
-`cia_bwx_inw'
-.
-.
-.
-(and a handful more)
+I think setting up something like /etc/lilo.conf say /etc/kexec.conf
+is probably practical.  You have already seen how difficult it is to
+bring up the hardware into a sane state from an arbitrary point.  So
+we can cross the crash dump bridge when we come to it.
 
-2) This is a kind of subtle one.  Straight after boot up if I run 'w'
-or 'top' I get the warning:
+If this was simply a case of supporting linux the problem would be
+some easier.  But I also intend to support booting other operating
+systems.
 
-Unknown HZ value! (831) Assume 1024.
+Now I think there is some advantage in setting up a new set of page
+tables and just switching to those at kexec time, it slightly reduces
+the amount of work I need to do at kexec time, enhancing the
+reliability of something like kexec on panic.   And that could
+probably be exported in /proc/<pid>/mem.  So if and when I go this
+route I will keep your request in mind.  
 
-This value creeps up:
+> > > 2. kexec -c which clears any pending kernels.
+> >
+> > This I can and should do.  The kernel side is already implemented.
 
-Unknown HZ value! (958) Assume 1024.
+Oh, and of course I accept patches so you don't have to wait for me to
+implement something.
 
-over a period of a few minutes till the warning goes away.
-
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Eric

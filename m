@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129789AbQLBGNh>; Sat, 2 Dec 2000 01:13:37 -0500
+	id <S129834AbQLBGRs>; Sat, 2 Dec 2000 01:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129834AbQLBGN1>; Sat, 2 Dec 2000 01:13:27 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:686 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129789AbQLBGNR>;
-	Sat, 2 Dec 2000 01:13:17 -0500
-Date: Sat, 2 Dec 2000 00:42:49 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Steven Van Acker <deepstar@ulyssis.org>, linux-kernel@vger.kernel.org,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: ext2 directory size bug (?)
-In-Reply-To: <20001202183021.D412@metastasis.f00f.org>
-Message-ID: <Pine.GSO.4.21.0012020034220.27040-100000@weyl.math.psu.edu>
+	id <S130139AbQLBGRl>; Sat, 2 Dec 2000 01:17:41 -0500
+Received: from smtp.lax.megapath.net ([216.34.237.2]:40715 "EHLO
+	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
+	id <S129834AbQLBGRb>; Sat, 2 Dec 2000 01:17:31 -0500
+Message-ID: <3A288C70.9030504@megapathdsl.net>
+Date: Fri, 01 Dec 2000 21:45:20 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001127
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Can CMS be upgraded? -- Re: Transmeta and Linux-2.4.0-test12-pre3
+In-Reply-To: <200012020409.UAA04058@adam.yggdrasil.com> <909vcs$3oo$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If I buy one of these machines for testing,
+will I be able to upgrade the processor's Code
+Morphing Software with the new version when it's
+ready?  I hear the new CMS code will almost
+double the battery life.
 
-
-On Sat, 2 Dec 2000, Chris Wedgwood wrote:
-
-> On Sat, Dec 02, 2000 at 12:14:34AM -0500, Alexander Viro wrote:
-> 
->     Not really. Anything that modifies directories holds both ->i_sem and
->     ->i_zombie, lookups hold ->i_sem and emptiness checks (i.e. victim in
->     rmdir and overwriting rename) hold ->i_zombie, readdir holds both.
-> 
-> what performance issues does this raise in the cast of a directory
-> with _many_ files in it -- when we are renaming often involving that
-> directory?
-> 
-> I ask this because certain MTAs do just that; and when you have
-> 10,000 to 100,000 messages queued I immagine you might spend much of
-> your time waiting for ->i_sem locks?
-
-And where do you get contending processes? 'Cause it takes at least two
-to get that...
-
-When you have that size of message queues your best bet is to split them into
-many directories, though - all FFS derivatives do linear searches, so locking
-or not, you are going to lose.
-
->     Truncating is a piece of cake. Repacking is not a good idea,
->     though, since you are risking massive corruption in case of dirty
->     shutdown in the wrong moment.
->     
-> ext2 directories seem somewhat susepctable to corruption on badly
-> timed shutdowns anyhow; and I don't think there is any way to do
-> atomic writes to them with most disk hardware is there?
-
-It has to do with the lack of write ordering. Which can be fixed, but not
-if you do many updates in one operation. However, even without the ordering
-repacking increases the window of corruption. Big way.
+Thanks,
+	Miles
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

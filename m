@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284285AbSABVSO>; Wed, 2 Jan 2002 16:18:14 -0500
+	id <S284305AbSABVT5>; Wed, 2 Jan 2002 16:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284258AbSABVSG>; Wed, 2 Jan 2002 16:18:06 -0500
-Received: from svr3.applink.net ([206.50.88.3]:48391 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S284314AbSABVRy>;
-	Wed, 2 Jan 2002 16:17:54 -0500
-Message-Id: <200201022117.g02LHbSr022224@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Keith Owens <kaos@ocs.com.au>, timothy.covell@ashavan.org
-Subject: Re: system.map
-Date: Wed, 2 Jan 2002 15:13:55 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: adrian kok <adriankok2000@yahoo.com.hk>, linux-kernel@vger.kernel.org
-In-Reply-To: <9391.1010004875@ocs3.intra.ocs.com.au>
-In-Reply-To: <9391.1010004875@ocs3.intra.ocs.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S284258AbSABVSR>; Wed, 2 Jan 2002 16:18:17 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:39043
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S284282AbSABVSL>; Wed, 2 Jan 2002 16:18:11 -0500
+Date: Wed, 2 Jan 2002 16:04:49 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020102160449.A16019@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020102154633.A15671@thyrsus.com> <E16Lsn2-0005XV-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16Lsn2-0005XV-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 02, 2002 at 09:19:12PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 14:54, Keith Owens wrote:
-> On Wed, 2 Jan 2002 13:26:29 -0600,
->
-> Timothy Covell <timothy.covell@ashavan.org> wrote:
-> >	Of course, you can copy over the new System.map
-> >file to /boot,  but their is no (easy) way of having more than
-> >one active version via "lilo" or "grub".   And that could be
-> >considered a deficiency of the Linux OS.
->
-> Current versions of ps look for System.map in
->
->       $PS_SYSTEM_MAP
->       /boot/System.map-`uname -r`
->       /boot/System.map
->       /lib/modules/`uname -r`/System.map
->       /usr/src/linux/System.map
->       /System.map
->
-> Copy System.map to /lib/modules/`uname -r`/System.map after make
-> modules_install, remove any old map files from /boot and / and you
-> don't need any symlink or bootloader tricks.
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > the machine and set ISA_CARDS based on the probe.  What's a DMI table and
+> > how can I query it for the presence of ISA slots?
+> 
+> RTFG ;)
 
-I saw that in the man page for "ps".  I think that your idea makes sense.
+Umm...RTF*G*?  Sorry...can't parse. :-)
 
-However, I'm concerned about searching in "/usr/src/linux" for it.
-Linus has taken great pains to point out that we shouldn't be building
-our kernels in /usr/src/linux, it would seem that this is reenforcing a
-mistake.
+> > What I want to do with this is make ISA-card questions invisible on modern
+> > PCI-only motherboards.
+> 
+> For the smart config I assume not in general ?
 
+Right.  I'm well along on an autoconfigurator that can use the CML2 rulebase
+to do things like freezing to N all the symbols for PCI devices not explicitly 
+found by autoprobe.
+ 
+> ftp://ftp.linux.org.uk/pub/linux/alan has a GPL DMI scanning app and library
 
->
-> The 2.5 kernel build asks if you want to install System.map and
-> .config.  If you say yes then the default location for these files in
-> 2.5 is /lib/modules/`uname -r`/{System.map,.config}.
-
-
-I knew that I was trying to download the 2.5.x series for a good reason. ;-)
-My bandwidth hasn't let me get one full download yet, but I've got
-all the 2.4.x patches that I could need.
-
+Which directory is it?  Nothing has "dmi" in the name.
 -- 
-timothy.covell@ashavan.org.
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Everything that is really great and inspiring is created by the
+individual who can labor in freedom.
+	-- Albert Einstein, in H. Eves Return to Mathematical Circles, 
+		Boston: Prindle, Weber and Schmidt, 1988.

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261638AbSJYWsk>; Fri, 25 Oct 2002 18:48:40 -0400
+	id <S261664AbSJYWvh>; Fri, 25 Oct 2002 18:51:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261661AbSJYWsk>; Fri, 25 Oct 2002 18:48:40 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:65531 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S261638AbSJYWsj>;
-	Fri, 25 Oct 2002 18:48:39 -0400
-Date: Fri, 25 Oct 2002 18:54:50 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: VDA@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: ewrk3 cli/sti removal by VDA
-Message-ID: <20021025225450.GA18623@www.kroptech.com>
-References: <20021019021340.GA8388@www.kroptech.com> <3DB49D81.6000607@pobox.com> <20021022020932.GA13818@www.kroptech.com> <3DB9C970.3010305@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB9C970.3010305@pobox.com>
-User-Agent: Mutt/1.3.28i
+	id <S261677AbSJYWvh>; Fri, 25 Oct 2002 18:51:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:529 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261664AbSJYWvg>;
+	Fri, 25 Oct 2002 18:51:36 -0400
+Message-ID: <3DB9CC5D.7000600@pobox.com>
+Date: Fri, 25 Oct 2002 18:57:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: Robert Love <rml@tech9.net>, Daniel Phillips <phillips@arcor.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 06:45:04PM -0400, Jeff Garzik wrote:
-> Adam Kropelin wrote:
-> >
-> >			/* Wait a little while */
-> >			spin_unlock_irqrestore(&lp->hw_lock, flags);
-> >-			ret = delay;
-> >-			__wait_event_interruptible_timeout(wait, 0, ret);
-> >+			set_current_state(TASK_INTERRUPTIBLE);
-> >+			ret = schedule_timeout(HZ>>2);
-> >
-> 
-> close -- if schedule_timeout() returns greater than zero, that number is 
-> the remaining jiffies that schedule_timeout _should_ have slept, but did 
-> not.  Ideally you need to call it in a loop, that decrements a variable 
-> based on schedule_timeout return code.
+Nakajima, Jun wrote:
 
-My assumption was that the only case in which schedule_timeout() would
-return without completing the sleep is if the process was delivered a
-signal. So I break the loop immediately in that case. I presume from
-your explanation that schedule_timeout() may return for some other reason
-(out of curiousity, what?)...and in that case I need to check for a
-pending signal, exit if there is one, otherwise schedule_timeout() for
-the remaining time. Am I getting warmer?
+>The notion of "SMT (Simultaneous Multi-Threaded)" architecture has been
+>there for a while (at least 8 years, as far as I know). You would get tons
+>of info if you search it in Internet. 
+>  
+>
 
---Adam
+
+Certainly.   That however does not imply that Robert's patch should read 
+"number of threads" instead of "number of siblings."  The lone word 
+"thread" does not automatically imply "active thread running on this 
+virtual processor" or anything close to that.
+
+"sibling" makes a lot more sense from an English language perspective.
+
+    Jeff
+
+
+
 

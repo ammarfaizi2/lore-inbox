@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267233AbRHHTAV>; Wed, 8 Aug 2001 15:00:21 -0400
+	id <S268123AbRHHTFV>; Wed, 8 Aug 2001 15:05:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267879AbRHHTAN>; Wed, 8 Aug 2001 15:00:13 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:3593 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267233AbRHHS7z>; Wed, 8 Aug 2001 14:59:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mike Kravetz <mkravetz@sequent.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-Date: Wed, 8 Aug 2001 21:06:01 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Hubertus Franke <frankeh@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108081041260.8047-100000@penguin.transmeta.com> <Pine.LNX.4.33.0108081058420.8103-100000@penguin.transmeta.com> <20010808112800.F1088@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20010808112800.F1088@w-mikek2.des.beaverton.ibm.com>
+	id <S267879AbRHHTFL>; Wed, 8 Aug 2001 15:05:11 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:49132 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S267860AbRHHTE4>; Wed, 8 Aug 2001 15:04:56 -0400
+Date: Wed, 8 Aug 2001 15:19:50 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Per Jessen <per@computer.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Mark H. Wood" <mwood@IUPUI.Edu>
+Subject: Re: how to tell Linux *not* to share IRQs ?
+In-Reply-To: <3B6E44EE000F26DC@mta1n.bluewin.ch> (added by postmaster@bluewin.ch)
+Message-ID: <Pine.LNX.4.31.0108081515300.3853-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-Message-Id: <0108082106010A.00351@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 August 2001 20:28, Mike Kravetz wrote:
-> Yes we have, we'll provide those numbers with the updated patch.
-> One challenge will be maintaining the same level of performance
-> for UP as in the current code.  The current code has #ifdefs to
-> separate some of the UP/SMP code paths and we will try to eliminate
-> these.
+On Wed, 8 Aug 2001, Per Jessen wrote:
 
-Does it help if I clarify what Linus was suggesting?  Instead of:
+> Yeah - I believe the same was possible on the Z80 - though I'd have to
+> go read the manual to be certain.
 
-         #ifdef CONFIG_SMP
-                 .. use nr_running() ..
-         #else
-                 .. use nr_running ..
-         #endif
+It is.  When I was reading the description in the previous e-mail, I was
+thinking, "that sounds a lot like the Z80".
 
-write:
+I missed the beginning of this thead, what did the so old its new mean?
+Is there a new chip supporting vectored interupts?  Or are they just being
+simulated in software?
 
-	inline int nr_running(void)
-	{
-	#ifdef CONFIG_SMP
-		int i = 0, tot=nt_running(REALTIME_RQ);
-		while (i < smp_num_cpus) {
-			tot += nt_running(cpu_logical_map(i++));
-		}
-		return(tot);
-	#else
-		return nr_running;
-	#endif
-	}
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 
-Then see if you can make the #ifdef's go away from that too.  (If that's 
-too hard, well, at least the #ifdef's are now reduced.)
-
---
-Daniel

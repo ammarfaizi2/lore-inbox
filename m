@@ -1,75 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbUJZLRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUJZLSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbUJZLRr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 07:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbUJZLRq
+	id S262238AbUJZLSy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 07:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbUJZLSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 07:17:46 -0400
-Received: from pop.gmx.net ([213.165.64.20]:26318 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262237AbUJZLOi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 07:14:38 -0400
-X-Authenticated: #4399952
-Date: Tue, 26 Oct 2004 13:31:26 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Michael Geithe <warpy@gmx.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.10-rc1-bk4 and kernel/futex.c:542
-Message-ID: <20041026133126.1b44fb38@mango.fruits.de>
-In-Reply-To: <200410261135.51035.warpy@gmx.de>
-References: <200410261135.51035.warpy@gmx.de>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Oct 2004 07:18:54 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:27557 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262229AbUJZLOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 07:14:17 -0400
+Message-ID: <417E317C.2020703@grupopie.com>
+Date: Tue, 26 Oct 2004 12:14:04 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: adaplas@pol.net
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
+       penguinppc-team@lists.penguinppc.org,
+       linuxconsole-dev@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video
+ card BOOT?
+References: <416FB624.31033.1D23BE5@localhost> <416FE8D9.18954.2984F7A@localhost> <200410160841.08441.adaplas@hotpop.com>
+In-Reply-To: <200410160841.08441.adaplas@hotpop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.38; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 11:35:50 +0200
-Michael Geithe <warpy@gmx.de> wrote:
-
-> hi,
-> here are some error messages after reboot in my logs.
+Antonino A. Daplas wrote:
+> On Saturday 16 October 2004 06:12, Kendall Bennett wrote:
 > 
-> Badness in futex_wait at kernel/futex.c:542
-
-Hey Ingo,
-
-this futex.c:542 looks familiar to me (see the BUG logs for RP-V0.2). Dunno
-if it's coincidence though. Just guessing they might be correlated.
-
+>>Helge Hafting <helgehaf@aitel.hist.no> wrote:
+>>
+>>>On Fri, Oct 15, 2004 at 11:36:04AM -0700, Kendall Bennett wrote:
+>>>
+>>>>Helge Hafting <helgehaf@aitel.hist.no> wrote:
+>>>
+>>>That's fine.  What I meant, was please make it independent of the
+>>>VESA framebuffer driver, because one might want to use an
+>>>acellerated driver when one is available.
+>>
+>>Oh, it already is. The VESA driver is not actually done yet so the only
+>>drivers using VideoBoot right now are the accelerated ones ;-)
+>>
 > 
-> Oct 26 03:01:26 h2so4 kernel: ReiserFS: sda1: found reiserfs format "3.6" with 
-> standard journal
-> Oct 26 03:01:27 h2so4 kernel: ReiserFS: sda1: using ordered data mode
-> Oct 26 03:01:27 h2so4 kernel: ReiserFS: sda1: journal params: device sda1, 
-> size 8192, journal first block 18, max trans len 1024, max batch 900, max 
-> commit age 30, max trans age 30
-> Oct 26 03:01:27 h2so4 kernel: ReiserFS: sda1: checking transaction log (sda1)
-> Oct 26 03:01:27 h2so4 kernel: ReiserFS: sda1: Using r5 hash to sort names
-> Oct 26 03:14:18 h2so4 kernel: Badness in futex_wait at kernel/futex.c:542
-> Oct 26 03:14:18 h2so4 kernel:  [<c012b5e1>] futex_wait+0x180/0x18a
-> Oct 26 03:14:18 h2so4 kernel:  [<c0115295>] default_wake_function+0x0/0xc
-> Oct 26 03:14:18 h2so4 kernel:  [<c0115295>] default_wake_function+0x0/0xc
-> Oct 26 03:14:18 h2so4 kernel:  [<c010a323>] convert_fxsr_from_user+0x15/0xd8
-> Oct 26 03:14:18 h2so4 kernel:  [<c012b80f>] do_futex+0x35/0x7f
-> Oct 26 03:14:18 h2so4 kernel:  [<c01dba43>] copy_from_user+0x34/0x61
-> Oct 26 03:14:18 h2so4 kernel:  [<c012b939>] sys_futex+0xe0/0xec
-> Oct 26 03:14:18 h2so4 kernel:  [<c0103da5>] sysenter_past_esp+0x52/0x71
-> Oct 26 03:14:18 h2so4 kernel: Badness in futex_wait at kernel/futex.c:542
-> Oct 26 03:14:18 h2so4 kernel:  [<c012b5e1>] futex_wait+0x180/0x18a
-> Oct 26 03:14:18 h2so4 kernel:  [<c0115295>] default_wake_function+0x0/0xc
-> Oct 26 03:14:18 h2so4 kernel:  [<c0115295>] default_wake_function+0x0/0xc
-> Oct 26 03:14:18 h2so4 kernel:  [<c010a323>] convert_fxsr_from_user+0x15/0xd8
-> Oct 26 03:14:18 h2so4 kernel:  [<c012b80f>] do_futex+0x35/0x7f
-> Oct 26 03:14:18 h2so4 kernel:  [<c01dba43>] copy_from_user+0x34/0x61
-> Oct 26 03:14:18 h2so4 kernel:  [<c012b939>] sys_futex+0xe0/0xec
-> Oct 26 03:14:18 h2so4 kernel:  [<c0103da5>] sysenter_past_esp+0x52/0x71
-> Oct 26 03:14:21 h2so4 init: Switching to runlevel: 0
-> Oct 26 03:14:25 h2so4 rpc.statd[10128]: Caught signal 15, un-registering and 
-> exiting.
-> Oct 26 03:14:26 h2so4 kernel: Kernel logging (proc) stopped.
-> Oct 26 03:14:26 h2so4 kernel: Kernel log daemon terminating.
-> Oct 26 03:14:28 h2so4 exiting on signal 15
-> Oct 26 10:10:17 h2so4 syslogd 1.4.1: restart. 
+> 
+> If these get in (emulator with/without the video boot), I'm willing to
+> modify the vesafb driver.
+
+Well, I played with the emulator last night to see if I could reduce the 
+code size, so that it would be easier to make it to the official kernel.
+
+I only took ops.c and did some transformations, like using a single 
+function to make several operations based on the opcode, instead of a 
+separate function for each opcode, etc.[1]
+
+This is the result. Before:
+
+Size of stripped libx86emu.a: ~74kb
+ops.c source code lines: 11682
+ops.o .text size: 36136
+ops.o .data: 1312
+
+After:
+
+Size of stripped libx86emu.a: ~57kb
+ops.c source code lines: 5908
+ops.o .text size: 19320
+ops.o .data: 1280
+
+If the same treatment is applied to ops2.c and prim_ops.c, I believe it 
+would be possible to have a functional emulator for about 32kb of kernel 
+code size, which seems pretty reasonable to me and could solve a lot of 
+problems.
+
+The decrease in source code size also helps maintenance, since there is 
+not so much repeated code has it was before.
+
+Of course, these changes are optimizing the emulator for code size, and 
+not execution speed. I haven't done any benchmarks to see if there is a 
+noticeable difference in speed.
+
+
+
+
+
+
+[1] The worst offenders were actually constructions like:
+
+FETCH_DECODE_MODRM(mod, rh, rl);
+switch (mod) {
+   case 0:
+       ...<some code>
+       addr = decode_rm00_address(rl);
+       ...<some more code>
+       break;
+   case 1:
+       ...<exactly the same code as above>
+       addr = decode_rm01_address(rl);
+       ...<exactly the same code as above>
+       break;
+   case 2:
+       ...<exactly the same code as above>
+       addr = decode_rm10_address(rl);
+       ...<exactly the same code as above>
+       break;
+    case 3:
+       <diferent code to handle register-register ops>
+       break;
+   }
+
+This could be easily changed to:
+
+FETCH_DECODE_MODRM(mod, rh, rl);
+if (mod < 3) {
+       ...<some code>
+       addr = decode_rmXX_address(mod, rl);
+       ...<some more code>
+   } else {
+       <diferent code to handle register-register ops>
+   }
+
+simply by making a new decode_rmXX_address function that handles the mod 
+parameter. There were more than 20 of these, and some of them were 
+pretty big.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)
+
+

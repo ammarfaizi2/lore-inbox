@@ -1,205 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUEXHAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUEXHEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUEXHAm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUEXHAm
+	id S261184AbUEXHEb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUEXHEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:00:42 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:61128 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S261244AbUEXG7y (ORCPT
+	Mon, 24 May 2004 03:04:31 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:11165 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261184AbUEXHE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 02:59:54 -0400
-Date: Mon, 24 May 2004 16:20:39 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus <torvalds@osdl.org>, linuxppc64-dev@lists.linuxppc.org
-Message-Id: <20040524162039.5f6ca3e0.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 24 May 2004 03:04:29 -0400
+Date: Mon, 24 May 2004 11:05:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: scheduler: IRQs disabled over context switches
+Message-ID: <20040524090538.GA26183@elte.hu>
+References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu> <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__24_May_2004_16_20_39_+1000_bK78V0fPCziix0_u"
-Subject: [PATCH] dynamic addition of virtual disks on PPC64 iSeries
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__24_May_2004_16_20_39_+1000_bK78V0fPCziix0_u
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-Hi Andrew, Linus,
+* Davide Libenzi <davidel@xmailserver.org> wrote:
 
-This patch allows us to dynamically add virtual disks to an iSeries
-partition. It works like this: after you have created the virtual disk
-file on OS/400 and attached it to the Linux partition, you need to read
-/sys/bus/vio/drivers/viodasd/probe.  This will do the probe and list any
-new disks discovered.
+> We used to do it in 2.4. What changed to make it fragile? The
+> threading (TLS) thing?
 
-This was the nicest way I could think of doing this as the interface to
-the hypervisor is polled ...
+it _should_ work, but in the past we only had trouble from such changes
+(at least in the O(1) tree of scheduling - 2.4 scheduler is OK.). We
+could try the patch below. It certainly boots on SMP x86. But it causes
+a 3.5% slowdown in lat_ctx so i'd not do it unless there are some really
+good reasons.
 
-Please apply.
+	Ingo
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.6.6-bk7/drivers/block/viodasd.c 2.6.6-bk7.dyndasd/drivers/block/viodasd.c
---- 2.6.6-bk7/drivers/block/viodasd.c	2004-05-21 16:24:00.000000000 +1000
-+++ 2.6.6-bk7.dyndasd/drivers/block/viodasd.c	2004-05-20 20:36:43.000000000 +1000
-@@ -40,8 +40,12 @@
- #include <linux/string.h>
- #include <linux/dma-mapping.h>
- #include <linux/completion.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
- 
- #include <asm/uaccess.h>
-+#include <asm/vio.h>
-+#include <asm/page.h>		/* for PAGE_SIZE */
- #include <asm/iSeries/HvTypes.h>
- #include <asm/iSeries/HvLpEvent.h>
- #include <asm/iSeries/HvLpConfig.h>
-@@ -456,7 +460,7 @@
-  * Probe a single disk and fill in the viodasd_device structure
-  * for it.
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -247,9 +247,15 @@ static DEFINE_PER_CPU(struct runqueue, r
+  * Default context-switch locking:
   */
--static void probe_disk(struct viodasd_device *d)
-+static int probe_disk(struct viodasd_device *d)
- {
- 	HvLpEvent_Rc hvrc;
- 	struct viodasd_waitevent we;
-@@ -480,14 +484,14 @@
- 			0, 0, 0);
- 	if (hvrc != 0) {
- 		printk(VIOD_KERN_WARNING "bad rc on HV open %d\n", (int)hvrc);
--		return;
-+		return 0;
- 	}
- 
- 	wait_for_completion(&we.com);
- 
- 	if (we.rc != 0) {
- 		if (flags != 0)
--			return;
-+			return 0;
- 		/* try again with read only flag set */
- 		flags = vioblockflags_ro;
- 		goto retry;
-@@ -517,22 +521,15 @@
- 	if (hvrc != 0) {
- 		printk(VIOD_KERN_WARNING
- 		       "bad rc sending event to OS/400 %d\n", (int)hvrc);
--		return;
-+		return 0;
- 	}
--	printk(VIOD_KERN_INFO "disk %d: %lu sectors (%lu MB) "
--			"CHS=%d/%d/%d sector size %d%s\n",
--			dev_no, (unsigned long)(d->size >> 9),
--			(unsigned long)(d->size >> 20),
--			(int)d->cylinders, (int)d->tracks,
--			(int)d->sectors, (int)d->bytes_per_sector,
--			d->read_only ? " (RO)" : "");
- 	/* create the request queue for the disk */
- 	spin_lock_init(&d->q_lock);
- 	q = blk_init_queue(do_viodasd_request, &d->q_lock);
- 	if (q == NULL) {
- 		printk(VIOD_KERN_WARNING "cannot allocate queue for disk %d\n",
- 				dev_no);
--		return;
-+		return 0;
- 	}
- 	g = alloc_disk(1 << PARTITION_SHIFT);
- 	if (g == NULL) {
-@@ -540,7 +537,7 @@
- 				"cannot allocate disk structure for disk %d\n",
- 				dev_no);
- 		blk_cleanup_queue(q);
--		return;
-+		return 0;
- 	}
- 
- 	d->disk = g;
-@@ -563,8 +560,17 @@
- 	g->private_data = d;
- 	set_capacity(g, d->size >> 9);
- 
-+	printk(VIOD_KERN_INFO "disk %d: %lu sectors (%lu MB) "
-+			"CHS=%d/%d/%d sector size %d%s\n",
-+			dev_no, (unsigned long)(d->size >> 9),
-+			(unsigned long)(d->size >> 20),
-+			(int)d->cylinders, (int)d->tracks,
-+			(int)d->sectors, (int)d->bytes_per_sector,
-+			d->read_only ? " (RO)" : "");
-+
- 	/* register us in the global list */
- 	add_disk(g);
-+	return 1;
- }
- 
- /* returns the total number of scatterlist elements converted */
-@@ -725,6 +731,29 @@
- }
+ #ifndef prepare_arch_switch
+-# define prepare_arch_switch(rq, next)	do { } while (0)
+-# define finish_arch_switch(rq, next)	spin_unlock_irq(&(rq)->lock)
+-# define task_running(rq, p)		((rq)->curr == (p))
++# define prepare_arch_switch(rq, next)				\
++		do {						\
++			spin_lock(&(next)->switch_lock);	\
++			spin_unlock(&(rq)->lock);		\
++		} while (0)
++# define finish_arch_switch(rq, prev) \
++		spin_unlock_irq(&(prev)->switch_lock)
++# define task_running(rq, p) \
++		((rq)->curr == (p) || spin_is_locked(&(p)->switch_lock))
+ #endif
  
  /*
-+ * Get the driver to reprobe for more disks.
-+ */
-+static ssize_t probe_disks(struct device_driver *drv, char *buf)
-+{
-+	ssize_t count = 0;
-+	struct viodasd_device *d;
-+
-+	for (d = viodasd_devices; d < &viodasd_devices[MAX_DISKNO]; d++) {
-+		if ((d->disk == NULL) && probe_disk(d)) {
-+			count += scnprintf(&buf[count], PAGE_SIZE - count,
-+					"%s\n", d->disk->disk_name);
-+		}
-+	}
-+	return count;
-+}
-+
-+static DRIVER_ATTR(probe, S_IRUSR, probe_disks, NULL)
-+
-+static struct vio_driver viodasd_driver = {
-+	.name = "viodasd"
-+};
-+
-+/*
-  * Initialize the whole device driver.  Handle module and non-module
-  * versions
-  */
-@@ -767,6 +796,9 @@
- 	for (i = 0; i < MAX_DISKNO; i++)
- 		probe_disk(&viodasd_devices[i]);
- 
-+	vio_register_driver(&viodasd_driver);	/* FIX ME - error checking */
-+	driver_create_file(&viodasd_driver.driver, &driver_attr_probe);
-+
- 	return 0;
- }
- module_init(viodasd_init);
-@@ -776,6 +808,9 @@
- 	int i;
- 	struct viodasd_device *d;
- 
-+	vio_unregister_driver(&viodasd_driver);
-+	driver_remove_file(&viodasd_driver.driver, &driver_attr_probe);
-+
-         for (i = 0; i < MAX_DISKNO; i++) {
- 		d = &viodasd_devices[i];
- 		if (d->disk) {
-
---Signature=_Mon__24_May_2004_16_20_39_+1000_bK78V0fPCziix0_u
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAsZQ3FG47PeJeR58RAiSvAJ0QzR7tI80apUW6gWggE60XHIfUUQCgsw/T
-xlnxWHgkRZbo92BpDBmzaz8=
-=c17A
------END PGP SIGNATURE-----
-
---Signature=_Mon__24_May_2004_16_20_39_+1000_bK78V0fPCziix0_u--

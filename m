@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284254AbRLGRdA>; Fri, 7 Dec 2001 12:33:00 -0500
+	id <S282916AbRLGRgA>; Fri, 7 Dec 2001 12:36:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282916AbRLGRci>; Fri, 7 Dec 2001 12:32:38 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:37517 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S284204AbRLGRcY>;
-	Fri, 7 Dec 2001 12:32:24 -0500
-Date: Fri, 7 Dec 2001 09:35:20 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Cory Bell <cory.bell@usa.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-In-Reply-To: <1007688442.6675.8.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0112070925280.851-100000@segfault.osdlab.org>
+	id <S284258AbRLGRfl>; Fri, 7 Dec 2001 12:35:41 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:22543 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282916AbRLGRfh>; Fri, 7 Dec 2001 12:35:37 -0500
+Message-ID: <3C10FDCF.D8E473A0@zip.com.au>
+Date: Fri, 07 Dec 2001 09:35:11 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Udo A. Steinberg" <reality@delusion.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: release() locking
+In-Reply-To: <3C10D83E.81261D74@delusion.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Udo A. Steinberg" wrote:
+> 
+> Hi Andrew,
+> 
+> According to Linus' 2.5.1-pre changelog, the release locking changes
+> introduced in -pre5 are your work. Those changes, however, seem to
+> break the keyboard driver:
+> 
+> keyboard: Timeout - AT keyboard not present?(f4)
+> 
+> Other people (i.e. Mike Galbraith) have been experiencing the same.
 
-Hey there.
+wasntmeididntdoit
 
-On 6 Dec 2001, Cory Bell wrote:
+> Do you have an updated patch which fixes those issues? -pre6 still
+> contains the same stuff as -pre5 and if it's broken then Linus should
+> probably back it out.
 
-> On Thu, 2001-12-06 at 17:03, Randy.Dunlap wrote:
-> > Hi-
-> >
-> > Did your search for "$PIR" or "RIP$" ?
-> > It is suppsed to be the latter (little-endian).
->
-> Tried both. The flash BIOS update might be reading system specific stuff
-> and then appending it to the new update, though. Maybe they have
-> separate "code" and data areas, and the the data part never gets
-> overwritten.
->
-> Would you happen to have any thoughts or advice WRT the problem we have
-> and the proper method of addressing it? Absent a BIOS fix, of course,
-> which I imagine would be the ultimate solution.
+My patch simply fixed a few things like holding spinlocks across
+sleeping functions, forgetting to release locks when returning
+from functions, etc.
 
-How new is this system?
+Yes, others have suggested that the whole lot should be reverted,
+for several reasons.  However it looks like that won't happen, so we
+need to debug the present code.  But it works for me.
 
-If it's new (3-6 months) PCI IRQ information is probably encoded in ACPI
-AML methods. OEMs are gradually changing from the old way (PIRQ and MP
-tables, APM) to new Grand Unified Way(tm) (ACPI).
+I can review the code, see if anything stands out.  But it'll probably
+require someone who can reproduce it to be able to fix it.
 
-For a while now, BIOSes have shipped with both old tables and ACPI tables,
-and in a lot of cases, one or the other lies. So, you're almost lucky in a
-sense. Unfortunately, it doesn't solve your problem.
-
-For some reason, the people that wrote the spec encoded PCI IRQ
-information in AML (ACPI Machine Language), instead of putting them in a
-flat table. Which means you need the interpretor up and running and you
-need to execute those methods (don't ask, just nod and smile).
-
-The Intel ACPI guys kinda have this working. They are able to extract and
-execute the methods. But, they still have yet to make devices request and
-use that information. Maybe Andy Grover can comment on this..
-
-BTW, The latest ACPI patch is at: http://sourceforge.net/projects/acpi/.
-
-	-pat
-
+-

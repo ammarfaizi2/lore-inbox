@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129113AbQJ3M5h>; Mon, 30 Oct 2000 07:57:37 -0500
+	id <S129044AbQJ3NDI>; Mon, 30 Oct 2000 08:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129161AbQJ3M51>; Mon, 30 Oct 2000 07:57:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20545 "EHLO
+	id <S129050AbQJ3NC6>; Mon, 30 Oct 2000 08:02:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6722 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129144AbQJ3M5P>; Mon, 30 Oct 2000 07:57:15 -0500
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Mon, 30 Oct 2000 12:57:45 +0000 (GMT)
-Cc: mingo@elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org
-In-Reply-To: <20001030025424.A20271@vger.timpanogas.org> from "Jeff V. Merkey" at Oct 30, 2000 02:54:24 AM
+	id <S129044AbQJ3NCu>; Mon, 30 Oct 2000 08:02:50 -0500
+Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17
+To: linux_developer@hotmail.com (Linux Kernel Developer)
+Date: Mon, 30 Oct 2000 13:04:06 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OE58erOc0Ne0PaLI9mK000004a6@hotmail.com> from "Linux Kernel Developer" at Oct 30, 2000 06:09:49 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13qEVX-0006ql-00@the-village.bc.nu>
+Message-Id: <E13qEbg-0006rE-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> one -- I've got extra licensed copies), install it, put a load of 5000
-> connections on it, with 4 adapters.  Dual boot Linux on it, and attempt 
-> the same with SAMBA or MARS-NWE, and watch it oink.  
+> js_dev::new.  My questions are basically this.  If I update these data
+> structure members' names along with the references to them in various C
+> files in the kernel will all be happy in Linuxland.  Can any external
 
-SAMBA and Mars-nwe are running user space thats why. They have flexibility,
-protection and can run unpriviledged. If you want to put mars-nwe in the kernel
-then it will certainly be interesting
+That may well be a problem. Also the use of private.
 
-> back and tell me how TUX is going to solve the File and Print performance
-> issues in Linux.
+> utilities be broken or anything like that.  Or more precisely are there any
+> known external utilities that would be broken by this change?  Thanks to all
+> those whom can give me a hand in this.
 
-There's an http file system around 8)
+You may find that creating your own wrappers for these files that do
+
+extern "C" {
+#define new new_
+#define private private_
+#include <linux/foo.h>
+#undef new
+#undef private
+}
+
+safer, since you won't break anything
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

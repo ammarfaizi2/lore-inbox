@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSKKXrJ>; Mon, 11 Nov 2002 18:47:09 -0500
+	id <S264749AbSKKXwO>; Mon, 11 Nov 2002 18:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbSKKXrI>; Mon, 11 Nov 2002 18:47:08 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49829 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261615AbSKKXrI>; Mon, 11 Nov 2002 18:47:08 -0500
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264752AbSKKXwO>; Mon, 11 Nov 2002 18:52:14 -0500
+Received: from webmail.topspin.com ([12.162.17.3]:15999 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id <S264749AbSKKXwK>; Mon, 11 Nov 2002 18:52:10 -0500
 To: "David S. Miller" <davem@redhat.com>
-Cc: roland@topspin.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021111.153845.69968013.davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
 References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
-	<20021111.151929.31543489.davem@redhat.com> <52r8drn0jk.fsf_-_@topspin.com>
-	 <20021111.153845.69968013.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Nov 2002 00:18:42 +0000
-Message-Id: <1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	<20021111.151929.31543489.davem@redhat.com>
+	<52r8drn0jk.fsf_-_@topspin.com>
+	<20021111.153845.69968013.davem@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 11 Nov 2002 15:58:59 -0800
+In-Reply-To: <20021111.153845.69968013.davem@redhat.com>
+Message-ID: <52n0ofmzek.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Nov 2002 23:58:55.0515 (UTC) FILETIME=[4B141EB0:01C289DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-11 at 23:38, David S. Miller wrote:
-> 
-> So how are apps able to specify such larger hw addresses to configure
-> a driver if IFHWADDRLEN is still 6?
-> 
-> I'm not going to increase MAX_ADDR_LEN if there is no user ABI capable
-> of configuring such larger addresses properly.
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-The kernel just ignores it. We support multiple devices with larger
-address lengths. Its mostly a legacy constant
+    David> So how are apps able to specify such larger hw addresses to
+    David> configure a driver if IFHWADDRLEN is still 6?
 
+In the InfiniBand case, the device's hardware address comes from a
+combination of the port GID (which is set by the InfiniBand subnet
+manager through an IB-specific mechanism) and the queue pair number
+that the driver gets when it initializes.  There definitely still are 
+problems to solve, such as specifying static ARP entries.
+
+    David> I'm not going to increase MAX_ADDR_LEN if there is no user
+    David> ABI capable of configuring such larger addresses properly.
+
+What would you consider a palatable ABI?  (I'm happy to implement it)
+Enlarging sa_data in struct sockaddr doesn't seem feasible.  I guess
+we could add a new socket ioctl() or extend SIOCGIFHWADDR/SIOCSIFHWADDR
+somehow....
+
+Thanks,
+  Roland <roland@topspin.com>

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVALT2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVALTco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVALT2v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVALTZW
+	id S261341AbVALTco (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVALTay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:25:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:9906 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261351AbVALTWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:22:01 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050112004147.GA22156@kroah.com> 
-References: <20050112004147.GA22156@kroah.com>  <20050108055142.GB8571@kroah.com> <20050106123710.GA8125@dominikbrodowski.de> <9726.1105105388@redhat.com> <26980.1105357916@redhat.com> 
-To: Greg KH <greg@kroah.com>, torvalds@osdl.org
-Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Downgrade printk that complains about unsupported PCI PM caps
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 12 Jan 2005 19:21:36 +0000
-Message-ID: <15971.1105557696@redhat.com>
+	Wed, 12 Jan 2005 14:30:54 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:16565 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261347AbVALTSS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:18:18 -0500
+Date: Wed, 12 Jan 2005 11:18:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050112191814.GA11042@kroah.com>
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 12, 2005 at 11:01:42AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 12 Jan 2005, Greg KH wrote:
+> > 
+> > So you would be for a closed list, but there would be no incentive at
+> > all for anyone on the list to keep the contents of what was posted to
+> > the list closed at any time?  That goes against the above stated goal of
+> > complying with RFPolicy.
+> 
+> There's already vendor-sec. I assume they follow RFPolicy already. If it's 
+> just another vendor-sec, why would you put up a new list for it?
 
-The attached patch downgrades to KERN_DEBUG level the printk that issues a
-notification that an unsupported version of the PCI power management registers
-has been encountered by pci_set_power_state().
+I think the issue is that there is no main "security" contact for the
+kernel.  If we want to make vendor-sec that contact, fine, but we better
+warn the vendor-sec people :)
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 pci-pm-printk-2611rc1.diff 
- drivers/pci/pci.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> In other words, if you allow embargoes and vendor politics, what would the 
+> new list buy that isn't already in vendor-sec.
 
-diff -uNrp /warthog/kernels/linux-2.6.11-rc1/drivers/pci/pci.c linux-2.6.11-rc1-frv/drivers/pci/pci.c
---- /warthog/kernels/linux-2.6.11-rc1/drivers/pci/pci.c	2005-01-12 19:08:56.272808059 +0000
-+++ linux-2.6.11-rc1-frv/drivers/pci/pci.c	2005-01-12 19:12:43.944820438 +0000
-@@ -269,7 +269,7 @@ pci_set_power_state(struct pci_dev *dev,
- 
- 	pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
- 	if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
--		printk(KERN_WARNING
-+		printk(KERN_DEBUG
- 		       "PCI: %s has unsupported PM cap regs version (%u)\n",
- 		       dev->slot_name, pmc & PCI_PM_CAP_VER_MASK);
- 		return -EIO;
+vendor-sec handles a lot of other stuff that is not kernel related
+(every package that is in a distro.) This would only be for the kernel.
+
+thanks,
+
+greg k-h

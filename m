@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281055AbRKTMiO>; Tue, 20 Nov 2001 07:38:14 -0500
+	id <S281057AbRKTMle>; Tue, 20 Nov 2001 07:41:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281057AbRKTMiF>; Tue, 20 Nov 2001 07:38:05 -0500
-Received: from [193.252.19.44] ([193.252.19.44]:63711 "EHLO
-	mel-rti19.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S281055AbRKTMh4>; Tue, 20 Nov 2001 07:37:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
-Date: Tue, 20 Nov 2001 13:37:27 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Kilobug <kilobug@freesurf.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <E165lQB-0001DZ-00@baldrick> <1006204883.826.0.camel@phantasy>
-In-Reply-To: <1006204883.826.0.camel@phantasy>
+	id <S281058AbRKTMlY>; Tue, 20 Nov 2001 07:41:24 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:8064 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S281057AbRKTMlO>; Tue, 20 Nov 2001 07:41:14 -0500
+Message-ID: <3BFA4F69.D7560BDE@randomlogic.com>
+Date: Tue, 20 Nov 2001 04:41:13 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E166A9X-0000Co-00@baldrick>
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Dual Athlon: Kernel 2.4.14 IDE problems
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By the way, I find the preemptible kernel patch
-very helpful for debugging SMP problems on a
-uniprocessor machine.
+I just compiled and installed a vanilla 2.4.14 kernel (nope, I haven't
+tweaked this one yet :). Just as a reminder, I have a Tyan Thunder K7
+with 2 1.4GHz Athlons (_NOT_ MP or XP). It has an IBM DTLA-307030
+Ultra100 IDE drive on the Ultra100 IDE interface.
 
-I'm trying to debug the speedtouch kernel module
-crashes with SMP using it: the module oopses
-nicely with preempt too!
+The kernel seems to boot with DMA enabled for this drive which causes
+frequent system lockups. This is the same problem I had with kernels
+through 2.4.9 (including the ac series). Disabling DMA (hdparm -d0
+/dev/hda) solves the problem.
 
-Duncan. 
+Is this a hardware issue with the MP chipset (I have not kept up to date
+on AMD errata due to other projects), or is this drive one of the known
+IDE drives that do not properly support DMA? If a chipset issue, should
+the kernel not detect the problem and disable DMA?
+
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com

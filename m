@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289040AbSAIWA6>; Wed, 9 Jan 2002 17:00:58 -0500
+	id <S289042AbSAIWIl>; Wed, 9 Jan 2002 17:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289038AbSAIWAv>; Wed, 9 Jan 2002 17:00:51 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:43813 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S289043AbSAIWAk> convert rfc822-to-8bit; Wed, 9 Jan 2002 17:00:40 -0500
-Date: Wed, 9 Jan 2002 22:59:35 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Bernard Dautrevaux <Dautrevaux@microprocess.com>
-cc: "'dewar@gnat.com'" <dewar@gnat.com>, <bernd@gams.at>, <gcc@gcc.gnu.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] C undefined behavior fix
-In-Reply-To: <17B78BDF120BD411B70100500422FC6309E410@IIS000>
-Message-ID: <20020109223850.G2914-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S289044AbSAIWId>; Wed, 9 Jan 2002 17:08:33 -0500
+Received: from fysh.org ([212.47.68.126]:25363 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id <S289042AbSAIWIW>;
+	Wed, 9 Jan 2002 17:08:22 -0500
+Date: Wed, 9 Jan 2002 22:08:21 +0000
+From: Athanasius <Athanasius@gurus.tf>
+To: arjan@fenrus.demon.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon XP 1600+ and _mmx_memcpy symbol in modules
+Message-ID: <20020109220821.GJ15688@gurus.tf>
+Mail-Followup-To: Athanasius <Athanasius@gurus.tf>, arjan@fenrus.demon.nl,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020109182224.GI15688@gurus.tf> <m16OO2K-000OVeC@amadeus.home.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m16OO2K-000OVeC@amadeus.home.nl>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 09, 2002 at 07:05:20PM +0000, arjan@fenrus.demon.nl wrote:
+> In article <20020109182224.GI15688@gurus.tf> you wrote:
+> > Hi,
+> >  I've just upraded from my old PII-400 system to an Athlon XP 1600+
+> > based system so changed from "Pentium-Pro/Celeron/Pentium-II"
+> > (CONFIG_M686) to "Athlon/Duron/K7" (CONFIG_MK7).  In doing so I suddenly
+> > saw a LOT of problems with modules and the symbol _mmx_memcpy being
+> > undefined.
+> 
+> >  I finally kludged/fixed this by changing line 121 of
+> > arch/i386/kernel/i386_ksyms.c from:
+> 
+> > EXPORT_SYMBOL(_mmx_memcpy);
+> 
+> you forgot to make mrproper ;) (or at least make clean)
+> yes the makefile for modversions is missing a dependency......
 
-On Wed, 9 Jan 2002, Bernard Dautrevaux wrote:
+   I'll recheck with 'make mrproper' as I do always do a 'make clean'
+(and dep for that matter) after changing configuration at all.
 
-> > -----Original Message-----
-> > From: dewar@gnat.com [mailto:dewar@gnat.com]
-> > Sent: Wednesday, January 09, 2002 11:42 AM
-> > To: bernd@gams.at; gcc@gcc.gnu.org; linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH] C undefined behavior fix
-> >
-> >
-> > <<Especially if there are cases were this optimization yields
-> > a slower =
-> >
-> > access (or even worse indirect bugs).
-> > E.g. if the referenced "volatile short" is a hardware register and the
-> > access is multiplexed over a slow 8 bit bus.  There are
-> > embedded systems
-> > around where this is the case and the (cross-)compiler has no way to
-> > know this (except it can be told by the programmer).
-> > >>
-> >
-> > Well that of course is a situation where the compiler is
-> > being deliberately
-> > misinformed as to the relative costs of various machine
-> > instructions, and
-> > that is definitely a problem. One can even imagine hardware
-> > (not such a hard
-> > feat, one of our customers had such hardware) where a word
-> > access works, but
-> > a byte access fails due to hardware shortcuts,
->
-> Tht's quite often the case with MMIO, and the only portable way to give a
-> hint to the compiler that it should refrain from optimizing is "volatile";
-> that's why I think the compiler should not do this optimization on volatile
-> objects at all.
+thanks,
 
-The C programming language and MMIO are two different things that must not
-be mixed.
-
-'volatile' is not enough a portable a concept to deal with MMIO. You also
-need to tell about what is atomic and what is not atomic regarding
-accesses through the involved BUS, for example. As a result, you may use
-'volatile' to avoid assembly for MMIO, but you want to put the code in
-architecture dependant code.
-
-The atomicity issue also applies to memory-like access obviously, but the
-compiler is expected to know about the architecture capabilities. If this
-may differ for a given architecture family, then some compiler options
-should be made available.
-
-  Gérard.
-
-
+-Ath
+-- 
+- Athanasius = Athanasius(at)gurus.tf / http://www.clan-lovely.org/~athan/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME

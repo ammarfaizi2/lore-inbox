@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265368AbSJRWnC>; Fri, 18 Oct 2002 18:43:02 -0400
+	id <S265327AbSJRWuZ>; Fri, 18 Oct 2002 18:50:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265376AbSJRWnC>; Fri, 18 Oct 2002 18:43:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36616 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265368AbSJRWnC>; Fri, 18 Oct 2002 18:43:02 -0400
-Date: Fri, 18 Oct 2002 15:51:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Hanna Linder <hannal@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>
-Subject: Re: [PATCH] sys_epoll system call interface to /dev/epoll
-In-Reply-To: <Pine.LNX.4.44.0210181538100.1537-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0210181542140.1202-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265334AbSJRWuZ>; Fri, 18 Oct 2002 18:50:25 -0400
+Received: from dhcp80ff23a4.dynamic.uiowa.edu ([128.255.35.164]:20620 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S265327AbSJRWuY>;
+	Fri, 18 Oct 2002 18:50:24 -0400
+Date: Fri, 18 Oct 2002 17:48:35 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: i2c-elektor (2.5.43) non-fatal error: unresolved symbol cli, sti
+Message-ID: <20021018224835.GC31649@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I didn't see this, so I'm reporting it:
+make -f arch/i386/lib/Makefile modules_install
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.43; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.43/kernel/drivers/i2c/i2c-elektor.o
+depmod:         cli
+depmod:         sti
 
-On Fri, 18 Oct 2002, Davide Libenzi wrote:
-> 
-> Linus, yesterday I was sugesting Hanna to use most of the existing code
-> and to make :
-> 
-> int sys_epoll_create(int maxfds);
-> 
-> to actually return an fd. Basically during this function call the code
-> allocates a file*, initialize it, allocates a free fd, maps the file* to
-> the fd, creates the vma* for the shared events area between the kernel and
-> user space, maps allocated kernel pages to the vma*, install the vma* and
-> returns the fd.
+Looks like a problem in the i2c-elektor driver.
 
-But that's what her patch infrastructure seems to do. It's not just
-epoll_create(), it's all the other ioctl's too (unlink, remove etc). One
-queston is whether there is one epoll system call (that multiplexes, like
-in Hanna's patch) or many. I personally don't like multiplexing system
-calls - the system call number _is_ a multiplexor, I don't see the point 
-of having multiple levels.
-
-		Linus
-
+-Joseph
+-- 
+Joseph===============================================trelane@digitasaru.net
+"Alt text doesn't pop up unless you use an ancient browser from the days of
+ yore. The relevant standards clearly indicate that it should not, and I
+ only know about one browser released in the last two years that violates
+ this, and it's still claiming compatibility with Mozilla 4 (which was
+ obsolete quite long ago), so it really can't be considered a modern
+ browser."  --jonadab, in a slashdot.org comment.

@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262936AbSJAXEH>; Tue, 1 Oct 2002 19:04:07 -0400
+	id <S262897AbSJAXPE>; Tue, 1 Oct 2002 19:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262950AbSJAXEH>; Tue, 1 Oct 2002 19:04:07 -0400
-Received: from momus.sc.intel.com ([143.183.152.8]:60898 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S262936AbSJAXEH>; Tue, 1 Oct 2002 19:04:07 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DEEC@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-       "Grover, Andrew" <andrew.grover@intel.com>
-Cc: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, hpa@zytor.com, cpufreq@www.linux.org.uk
-Subject: RE: cpufreq patches for 2.5.39 follow
-Date: Tue, 1 Oct 2002 16:07:56 -0700 
+	id <S262902AbSJAXPE>; Tue, 1 Oct 2002 19:15:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62215 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262897AbSJAXPB>; Tue, 1 Oct 2002 19:15:01 -0400
+Date: Tue, 1 Oct 2002 16:22:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jaroslav Kysela <perex@suse.cz>
+cc: "David S. Miller" <davem@redhat.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ALSA update [10/10] - 2002/08/05
+In-Reply-To: <Pine.LNX.4.33.0209302327500.503-100000@pnote.perex-int.cz>
+Message-ID: <Pine.LNX.4.33.0210011607200.18575-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@suse.cz] 
-> > Mobile Celerons do not support voltage scaling.
-> But they can do frequency changes, right? And frequency is what
-> cpufreq is about, AFAICS. [I do not think k6 supports voltage scaling,
-> either. And ARM machines can't do voltage scaling, too.]
 
-Well, you can throttle them, but AFAIK that's it.
+On Mon, 30 Sep 2002, Jaroslav Kysela wrote:
+> 
+> I need to redo next 7 patches because your update :-(
+> My fault, I should be faster.
 
-Why do you think they are cheaper? They don't got no special sauce!
+You should be _timely_.
 
-:)
+The big patches also means that it is damn painful for me to merge your
+patches. In fact, of _all_ the subsystems in the whole kernel, right now
+the ALSA code is absolutely the worst by a big marging when it comes to
+merging. 
 
--- Andy
+And your changeset names are just dates, for chrissake! 
+
+Please, fix this up. Your CVS tree means that nobody else can comment
+sanely on the changes, it makes _your_ merges harder (not just mine), and
+we've several times lost real work that went into the standard tree
+because of that.
+
+Right now some audio drivers don't compile, apparently because their
+makefiles are broken etc etc. Getting huge drops with totally unrelated 
+changes every two months is _not_ acceptable.
+
+Talk to David about the problems with an external CVS tree, he had many of
+the same problems with his sparc/networking tree a long time ago. David, 
+maybe you can talk about how you solved them.
+
+This is worse than the ACPI stuff, which is saying something. The ACPI
+tree has actually tried to merge in sane chunks lately, and make a clean
+BK tree available (in contrast, your BK patches don't even apply, since
+there are missing chunks etc small "details").
+
+There's a strong hint in the fact that the patches are so big that you 
+can't post them. And that hint says that something is WRONG.
+
+			Linus
+

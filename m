@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSKTRKz>; Wed, 20 Nov 2002 12:10:55 -0500
+	id <S261448AbSKTRWc>; Wed, 20 Nov 2002 12:22:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSKTRKz>; Wed, 20 Nov 2002 12:10:55 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:28129 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261624AbSKTRKy>;
-	Wed, 20 Nov 2002 12:10:54 -0500
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.1.0
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF0A870FDA.DB5EE301-ON85256C77.005EBF18@pok.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Wed, 20 Nov 2002 11:17:45 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/20/2002 12:17:53 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261524AbSKTRWc>; Wed, 20 Nov 2002 12:22:32 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:53934 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261448AbSKTRWb>;
+	Wed, 20 Nov 2002 12:22:31 -0500
+Subject: Re: writing to sysfs appears to hang
+From: Paul Larson <plars@linuxtestproject.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, davej@codemonkey.org.uk
+In-Reply-To: <20021119170205.GC11884@suse.de>
+References: <1037401217.11295.145.camel@plars>
+	<20021116004723.GB3153@beaverton.ibm.com>  <20021119170205.GC11884@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-MWtVgRkHHwCjTCOFmRUU"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 20 Nov 2002 11:24:22 -0600
+Message-Id: <1037813063.24031.32.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.1.0 of JFS was made available today.
 
-Drop 63 on November 20, 2002 (jfs-2.4-1.1.0.tar.gz
-and jfsutils-1.1.0.tar.gz) includes fixes to the file
-system and utilities. Extended attributes and ACLs patches
-have been updated also.
+--=-MWtVgRkHHwCjTCOFmRUU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Utilities changes
+On Tue, 2002-11-19 at 11:02, Jens Axboe wrote:
+> This has been in the deadline-rbtree patches for some time (uses writes
+> to sysfs, too).
+>=20
+> =3D=3D=3D=3D=3D fs/sysfs/inode.c 1.59 vs edited =3D=3D=3D=3D=3D
+> --- 1.59/fs/sysfs/inode.c	Wed Oct 30 21:27:35 2002
+> +++ edited/fs/sysfs/inode.c	Fri Nov  8 14:33:59 2002
+> @@ -243,7 +243,7 @@
+>  	if (kobj && kobj->subsys)
+>  		ops =3D kobj->subsys->sysfs_ops;
+>  	if (!ops || !ops->store)
+> -		return 0;
+> +		return -EINVAL;
+> =20
+>  	page =3D (char *)__get_free_page(GFP_KERNEL);
+>  	if (!page)
 
-- rename jfs utilities as follows:
-    fsck.jfs -> jfs_fsck, is hard linked to fsck.jfs upon install
-    mkfs.jfs -> jfs_mkfs, is hard linked to mkfs.jfs upon install
-    jfs_tune remains the same
-    logdump -> jfs_logdump
-    xchklog, xchkdmp combined -> jfs_fscklog
-    xpeek -> jfs_debugfs
-    logredo removed, function added to jfs_fsck via
-    --replay_journal_only option
-- update man pages appropriately for name changes
-- change jfs_fsck option -o to --omit_journal_replay
-- fix log replay errors
-- fix off-by-one error, minor formatting error in jfs_fsck
-- keep jfs_fsck from complaining during specific tree restructuring
-- fix jfs_debugfs to recognize all inode types
-- code cleanup
+No effect, the behaviour is still the same for me.
 
-File System changes
+-Paul Larson
 
-- Fix off-by-one error when symbolic link length == 256 (bug 1513)
-- jfs_clear_inode should skip bad inodes instead of choking on them
-  (bug 1445)
-- Make txForce actually force the metadata to disk
-- Fix hang on umount after stress test(#21357) ACL problem
-- Fix byte-swapping problem in getting ealist->size (bug 21085) EA
-  problem
+--=-MWtVgRkHHwCjTCOFmRUU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-For more details about JFS, please see the patch instructions or
-readme files.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iEYEABECAAYFAj3bxUYACgkQbkpggQiFDqfRoACfURPk2llxquDXRMj3rnAxYjeY
+QQoAn1aOObkIv600h677cR0Zc5x9Px4u
+=ODc2
+-----END PGP SIGNATURE-----
 
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
-
+--=-MWtVgRkHHwCjTCOFmRUU--
 

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261284AbTCXX3J>; Mon, 24 Mar 2003 18:29:09 -0500
+	id <S261290AbTCXXdF>; Mon, 24 Mar 2003 18:33:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261273AbTCXX3I>; Mon, 24 Mar 2003 18:29:08 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:31198 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261284AbTCXX2o>; Mon, 24 Mar 2003 18:28:44 -0500
-Message-ID: <B9ECACBD6885D5119ADC00508B68C1EA0C13A924@orsmsx107.jf.intel.com>
-From: "Selbak, Rolla N" <rolla.n.selbak@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'posixtest-discuss@lists.sourceforge.net'" 
-	<posixtest-discuss@lists.sourceforge.net>,
-       "'phil-list@redhat.com'" <phil-list@redhat.com>
-Subject: [ANNOUNCE] Open POSIX Test Suite 0.9.0
-Date: Mon, 24 Mar 2003 15:39:45 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261296AbTCXXdE>; Mon, 24 Mar 2003 18:33:04 -0500
+Received: from bitmover.com ([192.132.92.2]:28571 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261290AbTCXXdE>;
+	Mon, 24 Mar 2003 18:33:04 -0500
+Date: Mon, 24 Mar 2003 15:44:10 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Steven Pritchard <steve@silug.org>, linux-kernel@vger.kernel.org
+Subject: Re: 3ware driver errors
+Message-ID: <20030324234410.GB10520@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	Steven Pritchard <steve@silug.org>, linux-kernel@vger.kernel.org
+References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030324180107.A14746@vger.timpanogas.org>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 24, 2003 at 06:01:07PM -0700, Jeff V. Merkey wrote:
+> There is a firmware upgrade you need to obtain from WD if you are using their 
+> drives with a 3Ware controller.  The WD drives were optimized for desktop use
+> and they go into a "powersave" mode of sorts which will cause them to disappear
+> and reappear mysteriously with all sorts of strange errors.  WD is aware of 
+> this problem and so is 3Ware.
 
-Release 0.9.0 of the Open POSIX Test Suite is now available at
-http://posixtest.sourceforge.net.  This third release contains POSIX
-conformance tests for the POSIX functions:
-
-Threads (90% - not including tagged or rwlock-related functions)
-Signals (90% complete)
-Message queues (100% complete)
-Semaphores (100% complete)
-Timers (100% complete - tags TMR and CS)
-
-It also contains bug fixes from 0.2.0.
-
-The release notes that appear on download describe how to compile and run
-these tests.
-
-The README page and the Open POSIX Test Suite website (above) give more
-information on the project goals and progress as well as information on how
-to contribute or contact us if you are interested.
-
-Many thanks to Jim Houston, Jerome Marchand and other members of the POSIX
-testing community
-for their bug fixes, patches, and suggestions on how to improve the 0.2.0
-suite.
-
-The Open POSIX Test Suite is an open source test suite with the goal of
-creating conformance test suites, as well as potentially functional and
-stress test suites, to the functions described in the IEEE Std 1003.1-2001
-System Interfaces specification.  Initial work is focusing on timers,
-threads, semaphores, signals, and message queues.
-
-Feel free to contact posixtest-discuss@lists.sourceforge.net if you would
-like further information.
-
-Rolla
-
-* my views are not necessarily my employer's *
-
-
+Is this for all WD drives or just some?  I've got some wd400 drives that 
+I've been using for a long time behind a 3ware in jbod mode.  I have seen
+some errors but they seem to have settled down.  Is there any way to know?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

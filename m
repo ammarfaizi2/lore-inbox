@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVAIT2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVAIT1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVAIT2I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 14:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVAIT2H
+	id S261751AbVAIT1r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 14:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVAIT1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 14:28:07 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:52441 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261710AbVAITZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 14:25:17 -0500
-Message-ID: <41E18522.7060004@comcast.net>
-Date: Sun, 09 Jan 2005 14:25:22 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+	Sun, 9 Jan 2005 14:27:39 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:11780 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S261740AbVAIT0g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 14:26:36 -0500
+Message-ID: <41E1854A.40201@tuleriit.ee>
+Date: Sun, 09 Jan 2005 21:26:02 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: printf() overhead
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: remove Attach another file remove Attach another file remove
+ Attach another file USB mass storage not always detecting my 1GB PQI intelligent
+ stick
+References: <884a349a050109082516b0740e@mail.gmail.com>	 <41E15F09.70502@tuleriit.ee> <884a349a0501091112300009ac@mail.gmail.com>
+In-Reply-To: <884a349a0501091112300009ac@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Which distro/kernel do you have? Have you looked at your distro's 
+bugzilla/buglist? Have you all latest update packages installed?
 
-using strace to run a program takes aeons.  Redirecting the output to a
-file can be a hundred times faster sometimes.  This raises question.
 
-I understand that output to the screen is I/O.  What exactly causes it
-to be slow, and is there a possible way to accelerate the process?
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Roseline Bonchamp wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+>>Do you have several different USB devices connected in the same time? It
+>>is possible that devices with different USB speed (high/full) cannot
+>>work together. I am not the kernel developer but this is just my
+>>experience with latest Linux distributions. The situation can be
+>>different with current USB developments.
+>>    
+>>
+>
+>I tried to remove every other USB device. What is really strange is
+>that it works when I've just booted Linux, but if I unplug/replug the
+>device it seems to be "detected", but is not listed in
+>/proc/bus/usb/devices
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>.
+>
+>  
+>
 
-iD8DBQFB4YUhhDd4aOud5P8RAonuAJ0ejEn1+oaiZnJIAGp2kFUyd8pgSwCdFaco
-JgKsWYZfEcemGO3mZvL+KZY=
-=vWqA
------END PGP SIGNATURE-----

@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbUKERNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUKERTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbUKERNp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 12:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbUKERNp
+	id S262730AbUKERTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 12:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbUKERTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 12:13:45 -0500
-Received: from mail01.hpce.nec.com ([193.141.139.228]:53144 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S262693AbUKERNc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 12:13:32 -0500
-From: Erich Focht <efocht@hpce.nec.com>
-To: Jack Steiner <steiner@sgi.com>
-Subject: Re: Externalize SLIT table
-Date: Fri, 5 Nov 2004 18:13:24 +0100
-User-Agent: KMail/1.6.2
-Cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, ak@suse.de,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20041103205655.GA5084@sgi.com> <20041104.135721.08317994.t-kochi@bq.jp.nec.com> <20041105160808.GA26719@sgi.com>
-In-Reply-To: <20041105160808.GA26719@sgi.com>
+	Fri, 5 Nov 2004 12:19:33 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:13735 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S262728AbUKERTM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 12:19:12 -0500
+Date: Fri, 5 Nov 2004 17:19:11 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jon Smirl <jonsmirl@gmail.com>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: 2.6.10-rc1-mm3: drm_ati_pcigart_{init,cleanup} multiple definition
+In-Reply-To: <20041105165220.GD1295@stusta.de>
+Message-ID: <Pine.LNX.4.58.0411051716200.15111@skynet>
+References: <20041105001328.3ba97e08.akpm@osdl.org> <20041105165220.GD1295@stusta.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411051813.24231.efocht@hpce.nec.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jack,
 
-the patch looks fine, of course.
-> 	# cat ./node/node0/distance
-> 	10 20 64 42 42 22
-Great!
+> ...
+>   LD      drivers/char/drm/built-in.o
+> drivers/char/drm/radeon.o(.text+0x120): In function `drm_ati_pcigart_init':
+> : multiple definition of `drm_ati_pcigart_init'
+> drivers/char/drm/r128.o(.text+0x120): first defined here
+> drivers/char/drm/radeon.o(.text+0x350): In function `drm_ati_pcigart_cleanup':
+> : multiple definition of `drm_ati_pcigart_cleanup'
+> drivers/char/drm/r128.o(.text+0x350): first defined here
+> make[3]: *** [drivers/char/drm/built-in.o] Error 1
 
-But:
-> 	# cat ./cpu/cpu8/distance
-> 	42 42 64 64 22 22 42 42 10 10 20 20
-...
 
-what exactly do you mean by cpu_to_cpu distance? In analogy with the
-node distance I'd say it is the time (latency) for moving data from
-the register of one CPU into the register of another CPU:
-        cpu*/distance :   cpu -> memory -> cpu
-                         node1   node?    node2
+The latest drm-2.6 tree avoids this I'm working with Jon to see if this
+solution is suitable..
 
-On most architectures this means flushing a cacheline to memory on one
-side and reading it on another side. What you actually implement is
-the latency from memory (one node) to a particular cpu (on some
-node). 
-                       memory ->  cpu
-                       node1     node2
+It is a leftover from the templated tree, building into the kernel wasn't
+noticed until my merge....
 
-That's only half of the story and actually misleading. I don't
-think the complexity hiding is good in this place. Questions coming to
-my mind are: Where is the memory? Is the SLIT matrix really symmetric
-(cpu_to_cpu distance only makes sense for symmetric matrices)? I
-remember talking to IBM people about hardware where the node distance
-matrix was asymmetric.
+Dave.
 
-Why do you want this distance anyway? libnuma offers you _node_ masks
-for allocating memory from a particular node. And when you want to
-arrange a complex MPI process structure you'll have to think about
-latency for moving data from one processes buffer to the other
-processes buffer. The buffers live on nodes, not on cpus.
-
-Regards,
-Erich
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbSK2JOw>; Fri, 29 Nov 2002 04:14:52 -0500
+	id <S266989AbSK2JRX>; Fri, 29 Nov 2002 04:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266986AbSK2JOw>; Fri, 29 Nov 2002 04:14:52 -0500
-Received: from ivoti.terra.com.br ([200.176.3.20]:50113 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP
-	id <S266987AbSK2JOv>; Fri, 29 Nov 2002 04:14:51 -0500
-Message-ID: <3DE714DB.9020609@terra.com.br>
-Date: Fri, 29 Nov 2002 07:18:51 +0000
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S266991AbSK2JRX>; Fri, 29 Nov 2002 04:17:23 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:32421 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266989AbSK2JRW> convert rfc822-to-8bit; Fri, 29 Nov 2002 04:17:22 -0500
+Message-ID: <3DE7324F.B5965432@folkwang-hochschule.de>
+Date: Fri, 29 Nov 2002 10:24:31 +0100
+From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.23-rc2 & an MCE
-References: <20021125202033.A1212@jaquet.dk> <20021126220459.GA229@elf.ucw.cz> <3DE6A0A8.7080501@terra.com.br> <20021129071803.A7602@jaquet.dk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: 8139/mii module problem with 2.5.49/50
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen wrote:
-> I have nothing in my logs but have had three more chrashes since
-> my first report. Two of them I couldn't inspect since I was at
-> work (the machine is at home) and had my girlfriend boot the box,
-> but the last one was identical to the reported one.
-> 
-> I am getting a new processor now and hope that'll do it.
+hi jeff, hi everyone !
 
-	Since the MCE code is reporting a instruction fetch error from the 
-level 1 cache, it could be a bad ram problem...
+i can compile 2.5.50 just fine, except for huge-page-table-support,
+which bails out.
 
-	Could you try and run the memtest86 on your memory card(s) first (maybe 
-in a different machine)?
+but i'm stuck w/o networking, since the 8139too driver can't be loaded.
+it complains about an unresolved symbol, because the mii module fails to
+load due to "unknown module format".
+the same problem occurred in 2.5.49.
 
-	Kind Regards,
+my first thought was to run depmod, but afaik it's obsolete now...?
+other modules (like tdfx or crypto) load fine.
 
-Felipe
+this is a dual p3/600 machine on an asus p2b-ds (bx chipset) with a
+realtek 8139 pci nic.
 
+i'd be happy to try out patches.
+
+sorry if this has been asked before, i'm not subscribed to lkml and
+there's always some lag in the archives.
+i'd appreciate a cc: on replies. thanks.
+
+best,
+
+jörn
+
+
+-- 
+Jörn Nettingsmeier     
+Kurfürstenstr 49, 45138 Essen, Germany      
+http://spunk.dnsalias.org (my server)
+http://www.linuxdj.com/audio/lad/ (Linux Audio Developers)

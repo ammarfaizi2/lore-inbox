@@ -1,126 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262104AbSJJT3a>; Thu, 10 Oct 2002 15:29:30 -0400
+	id <S262115AbSJJTcJ>; Thu, 10 Oct 2002 15:32:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262110AbSJJT3a>; Thu, 10 Oct 2002 15:29:30 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:52233 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262104AbSJJT31>;
-	Thu, 10 Oct 2002 15:29:27 -0400
-Date: Thu, 10 Oct 2002 21:34:40 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: [PATCH] Distributed clean
-Message-ID: <20021010213440.A508@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262118AbSJJTcJ>; Thu, 10 Oct 2002 15:32:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60425 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262115AbSJJTcH>; Thu, 10 Oct 2002 15:32:07 -0400
+Date: Thu, 10 Oct 2002 12:36:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Wright <chris@wirex.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.41 capget fix
+In-Reply-To: <20021009171500.B25393@figure1.int.wirex.com>
+Message-ID: <Pine.LNX.4.44.0210101235290.2750-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a set of patches to implement distributed clean.
-A cleanup of Documentation/DocBook is included as well.
 
-See diffstat and changeset descriptions below.
-Can be pulled from http://linux-sam.bkbits.net/kbuild2
-Regular patches will follow this one.
+On Wed, 9 Oct 2002, Chris Wright wrote:
+> 
+> Daniel Jacobowitz noticed that sys_capget is not behaving properly when
+> called with pid of 0.  It is supposed to return current capabilities,
+> not those of swapper.  Also cleaned up some duplicate code from a merge
+> error.  Patch is tested, please apply.
 
+This is not correct. You drop the tasklist_lock before you actually set 
+read the capabilities, which means that by the time you read them, the 
+task you looked up may not be there any more.
 
-The whole purpose with this is to move out the centralised list
-of files that today is present in the top-level makefile
-to the individual makefile where they originally are created.
-
-During a make clean, all makefile are traversed recursively,
-and for each makfile all files listed with
-clean-files := file file
-are deleted.
-Furthermore all *.oas, .*.tmp .*.d files are deleted in all
-directories looked into.
-
-The list of directories are build upon the normal obj-$(CONFIG_XX)
-rules, with the addition of empty "obj-" and negative "obj-n" directories
-are searched as well.
-
-The first patch implements the infrastructure only, and therefore Rules.make
-is touched.
-The subsequent patches introduce the usage in the kernel tree, and the
-net result is that CLEAN_FILES is down to one line, and MRPROPER_FILES
-is several lines shorter.
-
-The only new behaviour introduced are that firmware files are now deleted
-during make clean, as any other generated files.
-
-Based on a concept originally by Kai Germaschewski.
-
-Please apply,
-
-	Sam
-
- Documentation/DocBook/Makefile           |   52 ++++++++++++-------------------
- Makefile                                 |   40 +----------------------
- drivers/atm/Makefile                     |    6 ++-
- drivers/char/Makefile                    |    3 +
- drivers/net/hamradio/soundmodem/Makefile |    6 +++
- drivers/pci/Makefile                     |    3 +
- drivers/scsi/Makefile                    |    6 ++-
- drivers/scsi/aic7xxx/Makefile            |   14 ++++++--
- drivers/scsi/aic7xxx/aicasm/Makefile     |    2 -
- drivers/video/Makefile                   |    3 +
- drivers/zorro/Makefile                   |    3 +
- init/Makefile                            |   10 ++++-
- sound/oss/Makefile                       |    4 ++
- 13 files changed, 74 insertions(+), 78 deletions(-)
-
-ChangeSet@1.748.1.1, 2002-10-10 20:24:45+02:00, sam@mars.ravnborg.org
-  kbuild: Distributed clean infrastructure
-    
-  Today there is a huge list of files in the top-level Makefile that is
-  deleted during make clean and make mrproper.
-  This patch add infrastructure to get rid of this centralised list.
-  
-  Within a makefile simply use:
-  clean-files := files-to-be-deleted
-  or eventually
-  clean-rule := command to be executed to delete files
-    
-  Files specified by host-progs and EXTRA_TARGETS are deleted during cleaning,
-  and the same is all *.[oas] .*.cmd .*.tmp .*.d in the visited directories.
-    
-  Deleting core files is moved down to mrporper time
-  
-  Patches utilising this and the centralised list will dismiss.
-  
-  Based on a concept originally made by Kai Germaschewski
-
-ChangeSet@1.748.1.2, 2002-10-10 20:44:28+02:00, sam@mars.ravnborg.org
-  scsi+aic7xxx: Utilise distributed clean
-  List files to be deleted during make clean where they are created
-
-ChangeSet@1.748.1.3, 2002-10-10 20:50:19+02:00, sam@mars.ravnborg.org
-  drivers/{atm,char,pci,video,zorro}: ditributed clean
-  Move list of files to be deleted during make clean out where
-  they are made. host-progs files taken care of automagically
-
-ChangeSet@1.748.1.4, 2002-10-10 20:52:41+02:00, sam@mars.ravnborg.org
-  drivers/net/hamradio/soundmodem: distributed clean
-  Move list of files out where it belongs
-
-ChangeSet@1.748.1.5, 2002-10-10 20:57:03+02:00, sam@mars.ravnborg.org
-  kbuild: Distributed clean, misc.
-  o Move sound/oss file list to sound/oss/Makefile
-  o Remove files non-existing in the tree (khttp,net/802/submenu)
-  o scripts/* are handled by scripts makefile
-  o Do not delete .config*, be more explicit
-  o Add MC* - files generated by Menuconfig in toplevel dir
-
-ChangeSet@1.748.1.6, 2002-10-10 21:04:21+02:00, sam@mars.ravnborg.org
-  docbook: Makefile cleanup
-  o Removed special rules for JBD, covered by the general mechanishm
-  o Use $(obj)/ instead of Documentation/DocBook
-  o Introduced usage of Distributed clean
-  o No longer delete *~ files in top-level directory during clean
+		Linus
 

@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSFTRLX>; Thu, 20 Jun 2002 13:11:23 -0400
+	id <S315430AbSFTRKg>; Thu, 20 Jun 2002 13:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSFTRLU>; Thu, 20 Jun 2002 13:11:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:7929 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315431AbSFTRLM>; Thu, 20 Jun 2002 13:11:12 -0400
-Subject: Re: [patch] (resend) credentials for 2.5.23
-From: Robert Love <rml@tech9.net>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020620122858.B4674@redhat.com>
-References: <20020619212909.A3468@redhat.com>
-	<1024540235.917.127.camel@sinai>  <20020620122858.B4674@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 20 Jun 2002 10:11:06 -0700
-Message-Id: <1024593066.922.149.camel@sinai>
+	id <S315431AbSFTRKf>; Thu, 20 Jun 2002 13:10:35 -0400
+Received: from holomorphy.com ([66.224.33.161]:17855 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315430AbSFTRKe>;
+	Thu, 20 Jun 2002 13:10:34 -0400
+Date: Thu, 20 Jun 2002 10:10:06 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Sandy Harris <pashley@storm.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
+Message-ID: <20020620171006.GV22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Sandy Harris <pashley@storm.ca>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020619222444.A26194@work.bitmover.com> <3D11F7B9.27C74922@storm.ca>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D11F7B9.27C74922@storm.ca>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-06-20 at 09:28, Benjamin LaHaise wrote:
+On Thu, Jun 20, 2002 at 11:41:45AM -0400, Sandy Harris wrote:
+> For large multi-processor systems, it isn't clear that those matter
+> much. On single user systems I've tried , ps -ax | wc -l usually
+> gives some number 50 < n < 100. For a multi-user general purpose
+> system, my guess would be something under 50 system processes plus
+> 50 per user. So for a dozen to 20 users on a departmental server,
+> under 1000. A server for a big application, like database or web,
+> would have fewer users and more threads, but still only a few 100
+> or at most, say 2000.
 
-> On Wed, Jun 19, 2002 at 07:30:35PM -0700, Robert Love wrote:
->
-> > Question: what semantics would be broken if CLONE_CRED was implied by
-> > CLONE_THREAD?  Regardless of code that needs this, it would be nice to
-> > just save the memory when using threads.  Hell,  as far as I am
-> > concerned as long as the tasks still share a VM they could share
-> > credentials - but I am sure that breaks something.
-> 
-> Changing semantics like that is dangerous.  We have no way of knowing if 
-> any applications rely on the existing behaviour, and furthermore if 
-> changing it will silently introduce security holes.
+Certain unnameable databases like to have 2K processes at minimum and
+see task counts soar even higher under significant loads.
 
-OK, understood.  I just see an opportunity to save memory and would love
-to take advantage of it.  We should definitely look into giving pthreads
-(maybe via NGPT) the ability to specify CLONE_CRED.  I suspect 90% of
-the cases retain the same credentials anyhow.  Copy-on-write? :) 
+Also, the scholastic departmental servers I've seen in action generally
+host 300+ users with something less than 50/logged in user and something
+more than 50 for the baseline. For the school-wide one I used hosting
+10K+ (40K+?) users generally only between 500 and 2500 (where the non-rare
+maximum was around 1500) are logged in simultaneously, and the task/user
+count was more like 5-10, with a number of them (most?) riding at 2 or 3
+(shell + MUA or shell + 2 tasks for rlogin to elsewhere). The uncertainty
+with respect to number of accounts is due to no userlists being visible.
 
-> > Next, now that all this data no longer belongs solely to current... you
-> > need to be explicit about locking rules.  There is a capability_lock
-> > spinlock but the long semantics are not 100% respected.  I tried to firm
-> > them up in my capability.c cleanup one or two kernels ago... it should
-> > be good enough and not be highly contended.
-> 
-> Noted.  Perhaps the current usage counts of the various limits should 
-> be atomic types, or maybe the spinlock is enough.  If Linus is actually 
-> interested in the patch, this could be easily fixed up.  Also, a few 
-> parts of the kernel were suspiciously different in their use of euid/suid 
-> instead of the plain old uid.  It would be nice if someone could double 
-> check that these places are correct.
+I can try to contact some of the users or administrators if better
+numbers are needed, though it may not work as I've long since graduated.
 
-I am not so much worried about the ref counting (I think it looks right)
-but just the general behavior.  I.e., you do not need to code anything
-but you need to lay out right now what the locking rules need to be or
-it will be a mess.
-
-There is going to be code reading and writing p->cred data now
-simultaneously and that should probably always be done under lock.
-
-Another example: see fs/open.c :: sys_access().  I added that FIXME
-there a couple kernel revisions ago...
-
-> > Oh, and what is with the #if 0 over the set and getaffinity syscalls???
-> > That needs to go!
-> 
-> Whoops, that was a dirty workaround for the breakage of 2.5.23.
-
-Oh, OK - I thought you hated my syscalls :)
-
-There is a patch in Linus's BK for it, or you can define cpu_online_map
-to 1 on UP.
-
-	Robert Love
-
+Cheers,
+Bill

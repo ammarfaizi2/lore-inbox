@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279454AbRKOBAn>; Wed, 14 Nov 2001 20:00:43 -0500
+	id <S279103AbRKOBAn>; Wed, 14 Nov 2001 20:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279548AbRKOBAd>; Wed, 14 Nov 2001 20:00:33 -0500
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:25761 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S279454AbRKOBAZ>;
-	Wed, 14 Nov 2001 20:00:25 -0500
-Message-ID: <3BF31459.BB4BE456@randomlogic.com>
-Date: Wed, 14 Nov 2001 17:03:21 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <20011113.183256.15406047.davem@redhat.com>
-		<Pine.LNX.4.30.0111131910440.9658-100000@anime.net> <20011113.191607.00304518.davem@redhat.com>
+	id <S279454AbRKOBAe>; Wed, 14 Nov 2001 20:00:34 -0500
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:8074 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S279103AbRKOBAX>; Wed, 14 Nov 2001 20:00:23 -0500
+Date: Thu, 15 Nov 2001 01:00:20 +0000
+From: Alex Walker <alex@x3ja.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: huggie@earth.li
+Subject: VFAT problems in 2.4.14
+Message-ID: <20011115010020.B510@x3ja.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    From: Dan Hollis <goemon@anime.net>
->    Date: Tue, 13 Nov 2001 19:11:56 -0800 (PST)
-> 
->    BTW this bug apparently doesnt affect AMD760MP as I am able to use
->    geforce2 with quake and unreal tournament for hours straight without any
->    problems.
-> 
-> What is your quake3 com_maxfps set to?  By default it is 85, and
-> that can hide the bug.  Set it to 130 or something like that.
-> 
-> Just bring down the quake3 console (with ') and type
-> 
-> /com_maxfps 130
-> 
-> Try that for a while.
-> 
-> I'm rather sure the AMD761 problems are motherboard vendor
-> independant, because I have 2 systems so far, using totally different
-> AMD761 based motherboards, which both hang pretty reliably with AGP.
-> 
+[Please CC me in any replies - I am not subscribed to the list]
 
-My dual Tyan runs Q3A, UT, and Tribes 2 at over 100fps at times with no problems UNLESS I enable DMA for the IDE drive. Q3a will go above 130fps (map and game
-dependent), UT will go even higher, and Tribes 2 will hit right around 140fps if I'm in a room (any outdoor areas slow WAY down).
+I was copying some files from a reiserfs partition to a FAT32 partition
+with the simple command `sudo cp -a Docs/mywork My\ Documents\Work`.
+Where "My\ Documents" is a symlink to a directory on my windows
+partition.  I did this as sudo since I had no set up permissions on my
+FAT32 partition for my normal user.  I then rebooted into Windows, only
+to discover that it had gone badly wrong.
 
-I am running 2.4.9ac10 with a few minor tweaks, agpgart slightly tweaked compiled in, and a tweaked Detonator 3 nVidia driver. I plan to upgrade all these soon
-and see what happens.
+The original directory had only 3 subdirectories.  2 of these
+transferred across without any errors.  The final one was created, but
+the contents corrupted.  It originally had 1.4M of data in 6 document
+files.  Instead of these files, files and directories with spurious
+names (lots of symbols I can't type in my editor) were created.
 
-My A7V133 however is crap when it comes to playing games. It's been demoted to straight server duty. :)
+Not only this, but the contents of this directory claimed to total 74G
+(on a 20G disk!).  None of the files were readable in Windows.
 
-PGA
+I rebooted again into linux and investigated some more.
+- The files names were all 12 characters long. 
+- There are 72 of these files.
+- When listing the directories you get "Directory sread (sector
+  0xd12a66d, limit 6136798" "attempt to access beyond end of device"
+  errrors.
+- Again, linux thinks the directory is 72G big (but df disagrees on
+  partition size)
+- Even though the partition is mounted read-only, any attempt to re-copy
+  is met with a "creating `file`: Read-only file system" error
+
+Fortunately it was a copy, not a move!
+
+Hope this is helpful.  Any advice appreciated.
+
+aLeX
+
 -- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
+-----------------------------
+Alex Walker   alex@x3ja.co.uk 
+        x3ja|alex
+-----------------------------

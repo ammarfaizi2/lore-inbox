@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLNSIr>; Thu, 14 Dec 2000 13:08:47 -0500
+	id <S129289AbQLNSL1>; Thu, 14 Dec 2000 13:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbQLNSIh>; Thu, 14 Dec 2000 13:08:37 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:65286 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S129289AbQLNSIZ>;
-	Thu, 14 Dec 2000 13:08:25 -0500
-Date: Thu, 14 Dec 2000 11:38:40 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, orbit-list@gnome.org,
-        korbit-cvs@lists.sourceforge.net
-Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <20001214021044.C6380@work.bitmover.com>
-Message-ID: <Pine.LNX.4.21.0012141137340.26708-100000@www.nondot.org>
+	id <S129383AbQLNSLH>; Thu, 14 Dec 2000 13:11:07 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:17158 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129289AbQLNSLD>;
+	Thu, 14 Dec 2000 13:11:03 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200012141740.UAA02109@ms2.inr.ac.ru>
+Subject: Re: linux ipv6 questions.  bugs?
+To: pete@research.netsol.com (Pete Toscano)
+Date: Thu, 14 Dec 2000 20:40:20 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001213162512.N1139@tesla.admin.cto.netsol.com> from "Pete Toscano" at Dec 13, 0 04:25:12 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-> > > There is a large perception of CORBA being slow, but for the most part it
-> > > is unjustified.  
+> > Though... probably, you forgot to up loopback.
 > 
-> Really?  I have that same perception but I can't claim that I've measured it.
-> On the other hand, I have measured the overhead of straight UDP, TCP, and
-> Sun RPC ping/pong tests and you can find the code for that in any version
-> of lmbench.  It should be a 5 minute task for someone who groks corba to
-> do the same thing using the same framework.  If someone wants to do it,
-> I'll guide them through the lmbench stuff.  It's pretty trivial, start 
+> doesn't look it:
 
-Urm... thanks for the offer... but you misunderstand me if you think that
-I'm claiming that kORBit is the ideal/fast implementation that everyone
-has been looking for.  There is still much to be done.  :)
+Funny, indeed.
 
--Chris
+I have no idea what does happen. I cannot reproduce this.
+Please, describe your setup in more details.
 
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
 
+> that may very well be, but shouldn't the neighbor solisitation packets
+> from the linux box have the source mac address set to its mac address
+> and the destination mac address set to 0:0:0:0:0:0 and not the other way
+> around?
+
+What NS do you talk about, if you even cannot ping even loopback? 8)8)8)
+
+In such state you cannot expect of your system nothing but
+generating some crap. BTW these funny mac addresses are exaclty
+those one, which would be used on loopback, if it required ns. 8)
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

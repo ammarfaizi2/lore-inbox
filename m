@@ -1,88 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265734AbSKAUYp>; Fri, 1 Nov 2002 15:24:45 -0500
+	id <S265753AbSKAU1S>; Fri, 1 Nov 2002 15:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265739AbSKAUYp>; Fri, 1 Nov 2002 15:24:45 -0500
-Received: from user141.3eti.com ([65.220.88.141]:6416 "EHLO mail.aeptec.local")
-	by vger.kernel.org with ESMTP id <S265734AbSKAUYm>;
-	Fri, 1 Nov 2002 15:24:42 -0500
-Message-ID: <EF5625F9F795C94BA28B150706A215480DF84D@MAIL>
-From: "Donepudi, Suneeta" <sdonepudi@3eti.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Matt D. Robinson'" <yakker@aparity.com>
-Subject: RE: Kernel Panic during memcpy_toio to PCI card
-Date: Fri, 1 Nov 2002 15:34:45 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265755AbSKAU1S>; Fri, 1 Nov 2002 15:27:18 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:35458 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265753AbSKAU1Q>;
+	Fri, 1 Nov 2002 15:27:16 -0500
+Date: Fri, 1 Nov 2002 20:31:21 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jos Hulzink <josh@stack.nl>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 build failed with ACPI turned on
+Message-ID: <20021101203121.GB2329@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jos Hulzink <josh@stack.nl>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com> <20021101194711.GB714@suse.de> <200211012221.56346.josh@stack.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211012221.56346.josh@stack.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 01, 2002 at 10:21:56PM +0100, Jos Hulzink wrote:
+ > Other issue: Are ACPI and APM not mutually exclusive ? If so, I would propose 
+ > a selection box: <ACPI> <APM> <none> with related options shown below. Hmzz.. 
+ > there the issue of the fact that ACPI is more than power management shows up 
+ > again.
 
-Matt,
+Whilst they can't both run at the same time, it's perfectly possible
+(and useful) to build a kernel with both included. ACPI will quit
+if APM is already running, so booting with apm=off turns the same
+kernel into 'ACPI mode'
 
-Thanks for the response, I am using a 2.4.18 kernel with
-a busybox. This is an embedded system with the file system
-laid out by an 'initrd.gz'. I am new to Linux. Can LKCD
-still be used in our case ?
+Quite useful for me right now, as currently my Vaio won't boot
+an ACPI kernel if its on mains power for some reason. 8-)
 
+		Dave
 
-Suneeta
-
------Original Message-----
-From: Matt D. Robinson [mailto:yakker@aparity.com]
-Sent: Friday, November 01, 2002 3:26 PM
-To: Donepudi, Suneeta; Matt D. Robinson
-Subject: Re: Kernel Panic during memcpy_toio to PCI card
-
-
-Hey, Suneeta.  Can you try LKCD and see if you can get
-a crash dump with it?  Also, is this 2.4 or 2.5?
-
---Matt
-
-On Fri, 1 Nov 2002, Donepudi, Suneeta wrote:
-|>Hi,
-|>
-|>I would like help in diagnosing a kernel panic while accessing a PCI
-device.
-|>
-|>Everything runs fine for sometime and in about 1/2 hour I get a Kernel
-Panic
-|>message saying :
-|>
-|>"Unable to handle kernel paging request at virtual address 0xc2821000"
-|>
-|>Analysis with Ksymoops shows that it is happening during a memcpy_toio()
-|>with the PCI card. The PCI card uses three Base Address Registers with
-|>virtual addresses mapped as follows (after ioremap has been issued):
-|>
-|>BAR0 = 0xc280f000
-|>BAR1 = 0xc2811000
-|>BAR2 = 0xc2822000
-|>
-|>It seems like the kernel panic is complaining about an address which is a
-|>combination of BAR1 (lower bytes) and BAR2 (upper bytes). It should really
-|>be accessing the BAR1 address at the point the crash occurred.
-|>
-|>I put the following if-statement just before the memcpy_toio():
-|>-----------------------------------------------------------
-|>if (((long int)pci_bar1) == 0xc2821000)
-|>{
-|>	printk (KERN_ERR "Illegal address for BAR1\n");
-|>	return -1;
-|>}
-|>memcpy_toio (pci_bar1, in_ptr, len);
-|>------------------------------------------------------------
-|>
-|>It still caused the crash in the same manner and at the same location.
-|>Could someone help me with pointers to where I should start looking ?
-|>Disabling interrupts around the memcpy_toio() did not make any
-|>difference. Is this a hardware problem with the PCI card ? We are using
-|>a Xilinx core with out FPGA build into it.
-|>Is there a book I could read to learn more about debugging this in the 
-|>Kernel ?
-|>
-|>Thanks a bunch,
-|>Suneeta
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

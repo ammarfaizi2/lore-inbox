@@ -1,61 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269409AbUINPdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269399AbUINPc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269409AbUINPdI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269404AbUINPdI
+	id S269399AbUINPc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269384AbUINPcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:33:08 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:39860 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269416AbUINPcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:32:14 -0400
-Date: Tue, 14 Sep 2004 17:32:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       wli@holomorphy.com, cw@f00f.org, anton@samba.org
-Subject: Re: /proc/sys/kernel/pid_max issues
-Message-ID: <20040914153214.GA15558@elte.hu>
-References: <1095045628.1173.637.camel@cube> <20040913075743.GA15722@elte.hu> <1095083649.1174.1293.camel@cube>
+	Tue, 14 Sep 2004 11:32:55 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:49938 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S269404AbUINPcI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 11:32:08 -0400
+Date: Tue, 14 Sep 2004 16:31:48 +0100
+From: John Levon <levon@movementarian.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: zwane@linuxpower.ca, oprofile-list@lists.sf.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] fix OProfile locking
+Message-ID: <20040914153148.GA86902@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095083649.1174.1293.camel@cube>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1C7FHY-000Eb4-Jr*MOsBeuW2DuQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Albert Cahalan <albert@users.sf.net> wrote:
+Below uses get_task_mm() as discussed. It also fixes up Anton's previous
+patch. Zwane's soaked this patch all night w/o problems.
 
-> > > I'd much prefer LRU allocation. There are
-> > > lots of system calls that take PID values.
-> > > All such calls are hazardous. They're pretty
-> > > much broken by design.
-> > 
-> > this is a pretty sweeping assertion. Would you
-> > care to mention a few examples of such hazards?
-> 
-> kill(12345,9)
-> setpriority(PRIO_PROCESS,12345,-20)
-> sched_setscheduler(12345, SCHED_FIFO, &sp)
-> 
-> Prior to the call being handled, the process may
-> die and be replaced. Some random innocent process,
-> or a not-so-innocent one, will get acted upon by
-> mistake. This is broken and dangerous.
+regards
+john
 
-easy to fix: SIGSTOP the task, check it's really
-the one you want and then do the setpriority / 
-setscheduler call and SIGCONT it. Any privileged
-code that is about to spread some of its privileges
-via asynchronous system-calls need to be careful.
 
-	Ingo
+Index: linux-cvs/kernel/fork.c
+===================================================================
+RCS file: /home/moz/cvs//linux-2.5/kernel/fork.c,v
+retrieving revision 1.212
+diff -u -a -p -r1.212 fork.c
+--- linux-cvs/kernel/fork.c	2 Sep 2004 21:42:48 -0000	1.212
++++ linux-cvs/kernel/fork.c	13 Sep 2004 20:39:03 -0000
+@@ -483,6 +483,7 @@ void mmput(struct mm_struct *mm)
+ 		mmdrop(mm);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(mmput);
+ 
+ /**
+  * get_task_mm - acquire a reference to the task's mm
+@@ -514,6 +515,7 @@ struct mm_struct *get_task_mm(struct tas
+ 	task_unlock(task);
+ 	return mm;
+ }
++EXPORT_SYMBOL_GPL(get_task_mm);
+ 
+ /* Please note the differences between mmput and mm_release.
+  * mmput is called whenever we stop holding onto a mm_struct,
+Index: linux-cvs/drivers/oprofile/buffer_sync.c
+===================================================================
+RCS file: /home/moz/cvs//linux-2.5/drivers/oprofile/buffer_sync.c,v
+retrieving revision 1.24
+diff -u -a -p -r1.24 buffer_sync.c
+--- linux-cvs/drivers/oprofile/buffer_sync.c	27 Aug 2004 17:34:28 -0000	1.24
++++ linux-cvs/drivers/oprofile/buffer_sync.c	13 Sep 2004 20:50:51 -0000
+@@ -133,7 +133,7 @@ static struct notifier_block module_load
+  
+ static void end_sync(void)
+ {
+-	end_cpu_timers();
++	end_cpu_work();
+ 	/* make sure we don't leak task structs */
+ 	process_task_mortuary();
+ 	process_task_mortuary();
+@@ -144,7 +144,7 @@ int sync_start(void)
+ {
+ 	int err;
+ 
+-	start_cpu_timers();
++	start_cpu_work();
+ 
+ 	err = task_handoff_register(&task_free_nb);
+ 	if (err)
+@@ -339,40 +339,25 @@ static void add_sample(struct mm_struct 
+ 	}
+ }
+  
+- 
++
+ static void release_mm(struct mm_struct * mm)
+ {
+-	if (mm)
+-		up_read(&mm->mmap_sem);
++	if (!mm)
++		return;
++	up_read(&mm->mmap_sem);
++	mmput(mm);
+ }
+ 
+ 
+-/* Take the task's mmap_sem to protect ourselves from
+- * races when we do lookup_dcookie().
+- */
+ static struct mm_struct * take_tasks_mm(struct task_struct * task)
+ {
+-	struct mm_struct * mm;
+-       
+-	/* Subtle. We don't need to keep a reference to this task's mm,
+-	 * because, for the mm to be freed on another CPU, that would have
+-	 * to go through the task exit notifier, which ends up sleeping
+-	 * on the buffer_sem we hold, so we end up with mutual exclusion
+-	 * anyway.
+-	 */
+-	task_lock(task);
+-	mm = task->mm;
+-	task_unlock(task);
+- 
+-	if (mm) {
+-		/* needed to walk the task's VMAs */
++	struct mm_struct * mm = get_task_mm(task);
++	if (mm)
+ 		down_read(&mm->mmap_sem);
+-	}
+- 
+ 	return mm;
+ }
+- 
+- 
++
++
+ static inline int is_ctx_switch(unsigned long val)
+ {
+ 	return val == ~0UL;
+Index: linux-cvs/drivers/oprofile/cpu_buffer.c
+===================================================================
+RCS file: /home/moz/cvs//linux-2.5/drivers/oprofile/cpu_buffer.c,v
+retrieving revision 1.15
+diff -u -a -p -r1.15 cpu_buffer.c
+--- linux-cvs/drivers/oprofile/cpu_buffer.c	8 Sep 2004 14:57:38 -0000	1.15
++++ linux-cvs/drivers/oprofile/cpu_buffer.c	13 Sep 2004 20:45:29 -0000
+@@ -30,7 +30,7 @@ struct oprofile_cpu_buffer cpu_buffer[NR
+ static void wq_sync_buffer(void *);
+ 
+ #define DEFAULT_TIMER_EXPIRE (HZ / 10)
+-int timers_enabled;
++int work_enabled;
+ 
+ static void __free_cpu_buffers(int num)
+ {
+@@ -80,11 +80,11 @@ void free_cpu_buffers(void)
+ }
+ 
+ 
+-void start_cpu_timers(void)
++void start_cpu_work(void)
+ {
+ 	int i;
+ 
+-	timers_enabled = 1;
++	work_enabled = 1;
+ 
+ 	for_each_online_cpu(i) {
+ 		struct oprofile_cpu_buffer * b = &cpu_buffer[i];
+@@ -98,11 +98,11 @@ void start_cpu_timers(void)
+ }
+ 
+ 
+-void end_cpu_timers(void)
++void end_cpu_work(void)
+ {
+ 	int i;
+ 
+-	timers_enabled = 0;
++	work_enabled = 0;
+ 
+ 	for_each_online_cpu(i) {
+ 		struct oprofile_cpu_buffer * b = &cpu_buffer[i];
+@@ -220,6 +220,6 @@ static void wq_sync_buffer(void * data)
+ 	sync_buffer(b->cpu);
+ 
+ 	/* don't re-add the work if we're shutting down */
+-	if (timers_enabled)
++	if (work_enabled)
+ 		schedule_delayed_work(&b->work, DEFAULT_TIMER_EXPIRE);
+ }
+Index: linux-cvs/drivers/oprofile/cpu_buffer.h
+===================================================================
+RCS file: /home/moz/cvs//linux-2.5/drivers/oprofile/cpu_buffer.h,v
+retrieving revision 1.7
+diff -u -a -p -r1.7 cpu_buffer.h
+--- linux-cvs/drivers/oprofile/cpu_buffer.h	8 Sep 2004 14:57:38 -0000	1.7
++++ linux-cvs/drivers/oprofile/cpu_buffer.h	13 Sep 2004 20:45:26 -0000
+@@ -20,8 +20,8 @@ struct task_struct;
+ int alloc_cpu_buffers(void);
+ void free_cpu_buffers(void);
+ 
+-void start_cpu_timers(void);
+-void end_cpu_timers(void);
++void start_cpu_work(void);
++void end_cpu_work(void);
+ 
+ /* CPU buffer is composed of such entries (which are
+  * also used for context switch notes)

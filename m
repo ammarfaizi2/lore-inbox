@@ -1,134 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbUDFB5d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 21:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUDFB5d
+	id S263592AbUDFB74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 21:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbUDFB74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 21:57:33 -0400
-Received: from ozlabs.org ([203.10.76.45]:33440 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263591AbUDFB53 (ORCPT
+	Mon, 5 Apr 2004 21:59:56 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:41956 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263592AbUDFB7s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 21:57:29 -0400
+	Mon, 5 Apr 2004 21:59:48 -0400
+Message-ID: <40720274.3000700@sgi.com>
+Date: Mon, 05 Apr 2004 20:05:56 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: Andy Whitcroft <apw@shadowen.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, anton@samba.org,
+       sds@epoc.ncsc.mil, ak@suse.org, lse-tech@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org
+Subject: Re: [Lse-tech] RE: [PATCH] HUGETLB memory commitment
+References: <200404052318.i35NIHF29964@unix-os.sc.intel.com>
+In-Reply-To: <200404052318.i35NIHF29964@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16498.3704.252459.691039@cargo.ozlabs.ibm.com>
-Date: Tue, 6 Apr 2004 11:57:12 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.26-rc2
-In-Reply-To: <20040406004251.GA24918@logos.cnet>
-References: <20040406004251.GA24918@logos.cnet>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Hi Ken,
 
-Any chance of getting this patch in before 2.4.26 final?
+Chen, Kenneth W wrote:
+>>>>>Ray Bryant wrote on Monday, April 05, 2004 11:22 AM
+>>>
+>>>Chen, Kenneth W wrote:
+>>>I actually started coding yesterday.  It doesn't look too bad (I think).
+>>>I will post it once I finished it up later today or tomorrow.
+>>
+>>Hmmm...so did I.  Oh well.  We can pull the good ideas from both. :-)
+> 
+> 
+> I did have a revelation from your original demand-paging patch with per-inode
+> tracking ;-)  I extended it into tracking by struct address_space (so we don't
+> pollute inode structure) and added per-block tracking.  See patch at the end of
+> this post. I admit I had very pessimistic thoughts until I saw your patch.
+> 
 
-This patch is needed for compiling 2.4 with recent versions of gcc,
-such as the gcc 3.3.3 hammer branch or gcc 3.4.  The gcc developers
-changed the name of the attribute that indicates that something is
-actually needed, even though gcc can't see why, from "__unused__" to
-"__used__".  This patch copes with that.
+Cool!
 
-The patch is from Stephen Rothwell.  He discovered the problem on
-ppc64, but in fact it would exist on any architecture.
+Either way works, I think.  I just used the u.generic_ip pointer because it 
+was there and convenient.  It's intended to be a hook in the VFS layer for a 
+particular file system to add info to the inode, as near as I can tell, but 
+neither hugetlbfs nor shmfs use it, so it was free for the taking.
 
-Thanks,
-Paul.
+> 
+> 
+>>>There are still some oddity in lifetime of the huge page reservation,
+>>>but that can be discussed once everyone sees the code.
+> 
+> 
+> I was thinking the lifetime of the huge page reservation should be the life
+> of a mapping, i.e., only persist across mmap/munmap.  That means add a ref
+> count in the per-block tracking.  This seriously complicates the design
+> because now, ref count needs to be updated in munmap and fault_hander in
+> addition to the mmap and truncate.  Not to mention that Andy Whitcroft already
+> pointed out we don't get notification from munmap.  Plus it seriously make
+> tracking logic complicated and have performance down side as well.
+> 
+> I guess everyone is OK with reservation lives until file truncate?
 
-diff -ruN ppc64-linux-2.4/include/linux/compiler.h ppc64-linux-2.4.used/include/linux/compiler.h
---- ppc64-linux-2.4/include/linux/compiler.h	2003-08-22 12:30:56.000000000 +1000
-+++ ppc64-linux-2.4.used/include/linux/compiler.h	2004-03-30 15:15:18.000000000 +1000
-@@ -13,4 +13,18 @@
- #define likely(x)	__builtin_expect((x),1)
- #define unlikely(x)	__builtin_expect((x),0)
+One can certainly argue that the only thing that is required to live until 
+file truncate is the contents of the huge pages in the page cache, since 
+applications expect that the data will be there in the file/segment across 
+program executions until the file is truncated or the segment deleted.
 
-+#if __GNUC__ > 3
-+#define __attribute_used__	__attribute((__used__))
-+#elif __GNUC__ == 3
-+#if  __GNUC_MINOR__ >= 3
-+# define __attribute_used__	__attribute__((__used__))
-+#else
-+# define __attribute_used__	__attribute__((__unused__))
-+#endif /* __GNUC_MINOR__ >= 3 */
-+#elif __GNUC__ == 2
-+#define __attribute_used__	__attribute__((__unused__))
-+#else
-+#define __attribute_used__	/* not implemented */
-+#endif /* __GNUC__ */
-+
- #endif /* __LINUX_COMPILER_H */
-diff -ruN ppc64-linux-2.4/include/linux/init.h ppc64-linux-2.4.used/include/linux/init.h
---- ppc64-linux-2.4/include/linux/init.h	2003-08-22 12:30:56.000000000 +1000
-+++ ppc64-linux-2.4.used/include/linux/init.h	2004-03-30 15:22:50.000000000 +1000
-@@ -2,6 +2,7 @@
- #define _LINUX_INIT_H
+But it certainly makes sense to me that if program A creates an mmap()'d file 
+of 10 huge pages, that if Program B comes along later and re-mmaps() that same 
+file, that Program B will be guaranteed to be able to touch all 10 pages, even 
+if Program A only touched 5.  So that is an argument for having the 
+reservation last until file truncate/segment removal time.
 
- #include <linux/config.h>
-+#include <linux/compiler.h>
+Additionally, recall that we are trying to emulate the behavior of the 
+hugetlb_prefault() implementation. Under that implementation, if Program A 
+would mmap() 10 huge pages, then Program B would be guarenteed not to get a 
+SIGBUS when it mmap()'s and references those 10 pages, provided only that the 
+underlying file/segment was not deleted in between execution of the two programs.
 
- /* These macros are used to mark some functions or
-  * initialized data (doesn't apply to uninitialized data)
-@@ -51,7 +52,7 @@
- extern initcall_t __initcall_start, __initcall_end;
+So, I think we >>have<< to have the reservation last until file 
+truncate/segment deletion time.  Fortunately, that turns out to be easier to 
+implement as well.  :-)
 
- #define __initcall(fn)								\
--	static initcall_t __initcall_##fn __init_call = fn
-+	static initcall_t __initcall_##fn __attribute_used__ __init_call = fn
- #define __exitcall(fn)								\
- 	static exitcall_t __exitcall_##fn __exit_call = fn
+I'll check through your patch and make sure we've both covered the same bases 
+there.  If so, we should be good to go with either version.
 
-@@ -67,7 +68,7 @@
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 
- #define __setup(str, fn)								\
- 	static char __setup_str_##fn[] __initdata = str;				\
--	static struct kernel_param __setup_##fn __attribute__((unused)) __initsetup = { __setup_str_##fn, fn }
-+	static struct kernel_param __setup_##fn __attribute_used__ __initsetup = { __setup_str_##fn, fn }
-
- #endif /* __ASSEMBLY__ */
-
-@@ -76,12 +77,12 @@
-  * or exit time.
-  */
- #define __init		__attribute__ ((__section__ (".text.init")))
--#define __exit		__attribute__ ((unused, __section__(".text.exit")))
-+#define __exit		__attribute_used__ __attribute__ (( __section__(".text.exit")))
- #define __initdata	__attribute__ ((__section__ (".data.init")))
--#define __exitdata	__attribute__ ((unused, __section__ (".data.exit")))
--#define __initsetup	__attribute__ ((unused,__section__ (".setup.init")))
--#define __init_call	__attribute__ ((unused,__section__ (".initcall.init")))
--#define __exit_call	__attribute__ ((unused,__section__ (".exitcall.exit")))
-+#define __exitdata	__attribute_used__ __attribute__ ((__section__ (".data.exit")))
-+#define __initsetup	__attribute_used__ __attribute__ ((__section__ (".setup.init")))
-+#define __init_call	__attribute_used__ __attribute__ ((__section__ (".initcall.init")))
-+#define __exit_call	__attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
-
- /* For assembly routines */
- #define __INIT		.section	".text.init","ax"
-diff -ruN ppc64-linux-2.4/include/linux/module.h ppc64-linux-2.4.used/include/linux/module.h
---- ppc64-linux-2.4/include/linux/module.h	2003-08-22 12:30:56.000000000 +1000
-+++ ppc64-linux-2.4.used/include/linux/module.h	2004-03-30 15:24:25.000000000 +1000
-@@ -254,9 +254,9 @@
-  */
- #define MODULE_GENERIC_TABLE(gtype,name)	\
- static const unsigned long __module_##gtype##_size \
--  __attribute__ ((unused)) = sizeof(struct gtype##_id); \
-+  __attribute_used__ = sizeof(struct gtype##_id); \
- static const struct gtype##_id * __module_##gtype##_table \
--  __attribute__ ((unused)) = name
-+  __attribute_used__ = name
-
- /*
-  * The following license idents are currently accepted as indicating free
-@@ -319,7 +319,7 @@
-  */
- #define MODULE_GENERIC_TABLE(gtype,name) \
- static const struct gtype##_id * __module_##gtype##_table \
--  __attribute__ ((unused, __section__(".data.exit"))) = name
-+  __attribute_used__ __attribute__ ((__section__(".data.exit"))) = name
-
- #ifndef __GENKSYMS__

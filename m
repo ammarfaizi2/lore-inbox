@@ -1,53 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288756AbSANSiw>; Mon, 14 Jan 2002 13:38:52 -0500
+	id <S288759AbSANSkm>; Mon, 14 Jan 2002 13:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288759AbSANSim>; Mon, 14 Jan 2002 13:38:42 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:1540 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288756AbSANSia>;
-	Mon, 14 Jan 2002 13:38:30 -0500
-Date: Mon, 14 Jan 2002 19:38:16 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S288781AbSANSk3>; Mon, 14 Jan 2002 13:40:29 -0500
+Received: from web14908.mail.yahoo.com ([216.136.225.60]:10515 "HELO
+	web14908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S287827AbSANSkL>; Mon, 14 Jan 2002 13:40:11 -0500
+Message-ID: <20020114184010.66277.qmail@web14908.mail.yahoo.com>
+Date: Mon, 14 Jan 2002 13:40:10 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: Re: "dd" collapsed the loop device
+To: Andreas Dilger <adilger@turbolabs.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory problem with bttv driver
-Message-Id: <20020114193816.3fa131f8.skraw@ithnet.com>
-In-Reply-To: <E16QBLq-0002Mu-00@the-village.bc.nu>
-In-Reply-To: <20020114184334.0a1712d4.skraw@ithnet.com>
-	<E16QBLq-0002Mu-00@the-village.bc.nu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020114111843.P26688@lynx.adilger.int>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002 17:56:54 +0000 (GMT)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+That means that I couldn't access /dev/fd0 directly
+when I use it via loopback? Is there any way that I
+can use to avoid this accident erase?
 
-> > > The bt848 drivers are working beautifully
-> > > for me in 2.4.18pre
-> > 
-> > Well, I had a quick look at the code, and it seems that vmalloc is just
-> > failing, the source line is obvious./proc/meminfo before modprobe and
-xawtv:> > 
-> >         total:    used:    free:  shared: buffers:  cached:
-> > Mem:  1054728192 120070144 934658048        0 10420224 65257472
-> > Swap: 1085652992        0 1085652992
-> > 
-> > Can this be highmem-related?
+Michael
+
+
+--- Andreas Dilger <adilger@turbolabs.com> wrote:
+> On Jan 14, 2002  12:54 -0500, Michael Zhu wrote:
+> > Hello,everyone,I have a problem when I used the
+> loop
+> > device. I don't know whether is a loop device bug.
 > 
-> That would make complete sense if so. The bttv uses vmalloc_32(), as the
-> card has 32bit limits, and I am not running bttv (nor I suspect are most
-> people) with highmem enabled
+> User bug.
+> 
+> > I used the following commands to connect the loop
+> device
+> > with the floppy disk device.
+> > 
+> > losetup -e xor /dev/loop0 /dev/fd0
+> > mke2fs /dev/loop0
+> > mount /dev/loop0 /floppy
+> > 
+> > Then I copy something to the floppy and read it
+> back.
+> > Everything is OK. It works perfectly. 
+> 
+> Great.
+> 
+> > The problem was happened when I try to copy
+> something
+> > directly from the /dev/fd0. I use the following
+> > demand.
+> > 
+> > dd if=test.c of=/dev/fd0
+> > 
+> > The output of the upper command is:
+> > 50+1 records in
+> > 50+1 records out
+> > 
+> > Then I used the "ls /floppy". I found nothing
+> copied
+> > to the floppy.
+> 
+> Well, this is wrong for several reasons:
+> 1) don't access /dev/fd0 when you use it via
+> loopback, use /dev/loop0
+> 2) don't use "dd" to copy a file, use "cp"
+> 3) don't write into the device, but the filesystem
+> instead:
+>    cp test.c /floppy
+> 
+> > Then I used "umount /floppy" to umount the floppy
+> disk
+> > device. After that I used the following command to
+> try
+> > to mount the floppy disk again.
+> >
+> > mount /dev/loop0 /floppy
+> > 
+> > It returned an error. Say:
+> > 
+> > mount: wrong fs type. bad option. bad superblock
+> on
+> > /dev/loop0. or too many mounted file systems
+> > 
+> > It seemed that the "dd if=test.c of=/dev/fd0"
+> > corrupted the data on the floppy disk. What is
+> wrong?
+> 
+> Because test.c is not a filesystem, and you have
+> overwritten
+> the filesystem on /dev/fd0 with junk.  This is not a
+> bug
+> in the loop driver.
+> 
+> Cheers, Andreas
+> --
+> Andreas Dilger
+> http://sourceforge.net/projects/ext2resize/
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> 
 
-Ok, we re-checked without highmem: it's still the same problem. I try to find
-out what's so special about 2.4.10-SUSE...
 
-Sorry for this dumb newbie question: is there an easy way (/proc?) to find out
-how much vmalloc space is used/left?
-
-Regards,
-Stephan
-
+______________________________________________________________________ 
+Web-hosting solutions for home and business! http://website.yahoo.ca

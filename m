@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129622AbQKETsb>; Sun, 5 Nov 2000 14:48:31 -0500
+	id <S129210AbQKEUR4>; Sun, 5 Nov 2000 15:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbQKETsU>; Sun, 5 Nov 2000 14:48:20 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22485 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129622AbQKETsG>;
-	Sun, 5 Nov 2000 14:48:06 -0500
-Date: Sun, 5 Nov 2000 14:48:03 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dave Zarzycki <dave@thor.sbay.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: taskfs and kernfs
-In-Reply-To: <Pine.LNX.4.21.0011050934080.1045-100000@vaio.thor.sbay.org>
-Message-ID: <Pine.GSO.4.21.0011051441240.25503-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129692AbQKEURr>; Sun, 5 Nov 2000 15:17:47 -0500
+Received: from femail6.sdc1.sfba.home.com ([24.0.95.86]:4315 "EHLO
+	femail6.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S129210AbQKEURl>; Sun, 5 Nov 2000 15:17:41 -0500
+Date: Sun, 5 Nov 2000 15:17:25 -0500
+From: Ari Pollak <compwiz@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: scd/ide-scsi reporting size incorrectly
+Message-ID: <20001105151725.A27278@darth.ns>
+Mail-Followup-To: Ari Pollak <compwiz>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux darth.ns 2.4.0-test10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey. I'm using an Acer 50X cdrom used with scd & ide-scsi emulation, and
+I just noticed that 'df' is reporting size incorrectly:
+/dev/scd1                85946     85946         0 100% /mnt/cdrom
 
+Even though du clearly shows there is much more than 85 MB used:
+$ du -s /mnt/cdrom
+359397	/mnt/cdrom
 
-On Sun, 5 Nov 2000, Dave Zarzycki wrote:
-
-> On Sun, 5 Nov 2000, Alexander Viro wrote:
-> 
-> > However, kernfs is _not_ procfs \setminus procfs-proper. It's our current
-> > /proc/sys.
-> 
-> Okay. I didn't realize that's what you had in mind when you wrote
-> "kernfs." Mind if I ask why you didn't call it "sysctlfs" or "sysfs?"
-
-Check *BSD.
-
-> In you earlier e-mail, you suggested that sysctl(2) would use path_walk().
-> Would that mean that your kernfs would have to be loaded into the kernel
-> and mounted for sysctl(2) to work? Or am I missing something obvious?
-
-Yes. No. Yes.
-
-It doesn't have to be mounted anywhere - we need only dentry tree and some
-struct vfsmount to use path_walk(). Said vfsmount doesn't have to be anywhere
-near the mount tree.
-
-As for the "loaded in the kernel" - at that point the source of fs-related
-part is ~12Kb and sysctl.c is seriously trimmed (sysctl tree traversal is
-gone). Moreover, it's going to shrink more when we go for pure dcache variant.
-IOW, there is no point in making it modular - no more than doing modular
-CONFIG_SYSCTL in the current setup.
+Is this a known bug?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

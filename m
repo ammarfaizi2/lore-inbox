@@ -1,27 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284967AbRLFECv>; Wed, 5 Dec 2001 23:02:51 -0500
+	id <S284964AbRLFEGW>; Wed, 5 Dec 2001 23:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284966AbRLFECm>; Wed, 5 Dec 2001 23:02:42 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:31363 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S284964AbRLFECa>; Wed, 5 Dec 2001 23:02:30 -0500
-Message-ID: <3C0EEDCE.2060404@optonline.net>
-Date: Wed, 05 Dec 2001 23:02:22 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S284968AbRLFEGC>; Wed, 5 Dec 2001 23:06:02 -0500
+Received: from dsl-213-023-038-088.arcor-ip.net ([213.23.38.88]:15377 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284964AbRLFEFx>;
+	Wed, 5 Dec 2001 23:05:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: Ext2 directory index: ALS paper and benchmarks
+Date: Thu, 6 Dec 2001 05:08:39 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16BpcG-0000mI-00@starship.berlin> <3C0EEC6B.7060009@namesys.com>
+In-Reply-To: <3C0EEC6B.7060009@namesys.com>
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0EB1F2.7050007@optonline.net> <3C0EB46C.4010806@optonline.net> <3C0EBAEF.5090402@redhat.com> <3C0EC219.8010107@redhat!.com> <3C0EE865.1090607@red!
- hat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Bppx-0000mN-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok that works
+On December 6, 2001 04:56 am, Hans Reiser wrote:
+> >On December 6, 2001 04:41 am, you wrote:
+> >
+> >>ReiserFS is an Htree by your definition in your paper, yes?
+> >
+> >You've got a hash-keyed b*tree over there.  The htree is fixed depth.
+> >
+> 
+> B*trees are fixed depth.  B-tree usually means height-balanced.  
 
+I was relying on definitions like this:
+
+  B*-tree
+
+  (data structure)
+
+  Definition: A B-tree in which nodes are kept 2/3 full by redistributing
+  keys to fill two child nodes, then splitting them into three nodes.
+
+To tell the truth, I haven't read your code that closely, sorry, but I got 
+the impression that you're doing rotations for balancing no?  If not then 
+have you really got a b*tree?
+
+--
+Daniel

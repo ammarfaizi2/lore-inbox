@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266653AbUBFHti (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 02:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUBFHti
+	id S266655AbUBFHx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 02:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUBFHxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 02:49:38 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3968 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S266653AbUBFHth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 02:49:37 -0500
-Date: Fri, 6 Feb 2004 07:58:43 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402060758.i167whxX000498@81-2-122-30.bradfords.org.uk>
-To: Eduard Bloch <edi@gmx.de>
-Cc: Martin Schlemmer <azarah@nosferatu.za.org>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       alan@redhat.com
-In-Reply-To: <20040205233113.GA10254@zombie.inka.de>
-References: <200402031602.i13G2NFi002400@81-2-122-30.bradfords.org.uk>
- <yw1xsmhsf882.fsf@kth.se>
- <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk>
- <20040203174606.GG3967@aurora.fi.muni.cz>
- <200402031853.i13Ir1e0003202@81-2-122-30.bradfords.org.uk>
- <yw1xn080m1d2.fsf@kth.se>
- <Pine.LNX.4.53.0402031509100.32547@chaos>
- <20040203224021.GK11683@suse.de>
- <1075849526.11322.9.camel@nosferatu.lan>
- <200402040737.i147bJqq000455@81-2-122-30.bradfords.org.uk>
- <20040205233113.GA10254@zombie.inka.de>
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
+	Fri, 6 Feb 2004 02:53:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:65419 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266655AbUBFHxV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 02:53:21 -0500
+Date: Thu, 5 Feb 2004 23:55:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS locking: f_pos thread-safe ?
+Message-Id: <20040205235517.2bb4c073.akpm@osdl.org>
+In-Reply-To: <20040206041223.A18820@almesberger.net>
+References: <20040206041223.A18820@almesberger.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Of course you get problems if a raw devices changes underneath a
-> > mounted filesystem, I would expect that.  That is _NOT_ what we were
-> > talking about _AT ALL_.  The point is that the device itself caches
-> > the state of the disc over an erase, so even if the device is
-> > unmounted before an erase, when it is re-mounted, the stale data is
-> > read from the device's own cache, which should have been invalidated
-> > by the erase.
-> 
-> Is it realy a hardware issue?
+Werner Almesberger <wa@almesberger.net> wrote:
+>
+> "[...] read( ) [...] shall be atomic with respect to each other
+>   in the effects specified in IEEE Std. 1003.1-200x when they
+>   operate on regular files. If two threads each call one of these
+>   functions, each call shall either see all of the specified
+>   effects of the other call, or none of them."
 
-I originally thought so, but maybe I was wrong.  Jens posted a patch
-to invalidate kernel buffers on an umount - if the problem persists
-with that patch, I still believe it is a hardware fault.
+Whichever thread finishes its read last gets to update f_pos.
 
-> Oh, and it is very simple to shout on anyone "Just eject and reload,
-> there is no issue, everything pointless".
+I'm struggling a bit to understand what they're calling for there.  If
+thread A enters a read and then shortly afterwards thread B enters the
+read, does thread B see an f_pos which starts out at the beginning of A's
+read, or the end of it?
 
-Well, I never suggested that, and I don't think it's an acceptable
-solution, unless the problem is limited to a few broken drives.
+Similar questions apply as the threads exit their read()s.
 
-John.
+Either way, there's no way in which we should serialise concurrent readers.
+That would really suck for sensible apps which are using pread64().
+
+
+

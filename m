@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbRBPQoB>; Fri, 16 Feb 2001 11:44:01 -0500
+	id <S129501AbRBPQol>; Fri, 16 Feb 2001 11:44:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129159AbRBPQnw>; Fri, 16 Feb 2001 11:43:52 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:26894 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129111AbRBPQne>;
-	Fri, 16 Feb 2001 11:43:34 -0500
-Date: Fri, 16 Feb 2001 17:43:16 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        bcrl@redhat.com
-Subject: Re: x86 ptep_get_and_clear question
-Message-ID: <20010216174316.A4500@pcep-jamie.cern.ch>
-In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com> <20010216151839.A3989@pcep-jamie.cern.ch> <3A8D4045.F8F27782@colorfullife.com> <20010216162741.A4284@pcep-jamie.cern.ch> <3A8D4D43.CF589FA0@colorfullife.com> <20010216170029.A4450@pcep-jamie.cern.ch> <3A8D540C.92C66398@colorfullife.com>
-Mime-Version: 1.0
+	id <S129450AbRBPQob>; Fri, 16 Feb 2001 11:44:31 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:10247 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129159AbRBPQo0>; Fri, 16 Feb 2001 11:44:26 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200102161644.RAA13697@green.mif.pg.gda.pl>
+Subject: "make dep" problem
+To: linux-kernel@vger.kernel.org (kernel list)
+Date: Fri, 16 Feb 2001 17:44:27 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A8D540C.92C66398@colorfullife.com>; from manfred@colorfullife.com on Fri, Feb 16, 2001 at 05:23:40PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> The other cpu writes the dirty bit - we just overwrite it ;-)
-> After the ptep_get_and_clear(), before the set_pte().
+Hi,
+   While trying to compile 2.4.1-ac1[34] I noticed that the following error
+message appears sometimes:
 
-Ah, I see.  The other CPU does an atomic *pte |= _PAGE_DIRTY, without
-checking the present bit.  ('scuse me for temporary brain failure).
+make[3]: *** No rule to make target 
+/home29/ankry/kernel/2.4/linux/drivers/pci/devlist.h', needed by `names.o'.
+Stop.
+make[3]: Leaving directory /home29/ankry/kernel/2.4/linux/drivers/pci'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory /home29/ankry/kernel/2.4/linux/drivers/pci'
+make[1]: *** [_subdir_pci] Error 2
+...
 
-How about a pragmatic solution.
+Most ofteen while compiling kernel multiple times using
+      make oldconfig;make dep;make clean; make "MAKE=make -j2" bzImage
+(with different configurations)
 
-Given that Ben's found that "checks pte_present on dirtying" works in
-practice, and it is _much_ simpler to do things that way, perhaps we
-could write a boot time test for this?
+I also noticed that sometimes mode files is incleded in "mkdep" command line
+than usually:
 
-If the boot time test fails, we
+ make[4]: Entering directory /home29/ankry/kernel/2.4/linux/drivers/char'
+-/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- acquirewdt.c adbmouse.c amigamouse.c amikeyb.c amiserial.c applicom.c applicom.h atarimouse.c atixlmouse.c busmouse.c busmouse.h cd1865.h conmakehash.c console.c console_macros.h consolemap.c cyclades.c defkeymap.c digi.h digi1.h digiFep1.h digiPCI.h digi_bios.h digi_fep.h dn_keyb.c ds1620.c dsp56k.c dtlk.c dz.c dz.h efirtc.c epca.c epca.h epcaconfig.h esp.c fep.h generic_serial.c h8.c h8.h hp600_keyb.c i810-tco.c i810-tco.h i810_rng.c ip2.c ip2main.c isicom.c istallion.c keyboard.c logibusmouse.c lp.c mem.c misc.c mixcomwd.c moxa.c msbusmouse.c mxser.c n_hdlc.c n_r3964.c n_tty.c nvram.c nwbutton.c nwbutton.h nwflash.c pc110pad.c pc110pad.h pc_keyb.c pcwd.c pcxx.c pcxx.h ppdev.c pty.c q40_keyb.c qpmouse.c random.c raw.c riscom8.c riscom8.h riscom8_reg.h rocket.c rocket_int.h rsf16fmi.h!
+ rtc.c sbc60xxwdt.c scan_keyb.c scan_keyb.h scc.h selection.c serial.c serial167.c serial_21285.c serial_amba.c sh-sci.c sh-sci.h softdog.c specialix.c specialix_io8.h stallion.c sx.c sx.h sxboards.h sxwindow.h synclink.c sysrq.c toshiba.c tpqic02.c tty_io.c tty_ioctl.c vc_screen.c vino.h vme_scc.c vt.c wd501p.h wdt.c wdt285.c wdt977.c wdt_pci.c > .depend
++/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- acquirewdt.c adbmouse.c amigamouse.c amikeyb.c amiserial.c applicom.c applicom.h atarimouse.c atixlmouse.c busmouse.c busmouse.h cd1865.h conmakehash.c console.c console_macros.h consolemap.c consolemap_deftbl.c cyclades.c defkeymap.c digi.h digi1.h digiFep1.h digiPCI.h digi_bios.h digi_fep.h dn_keyb.c ds1620.c dsp56k.c dtlk.c dz.c dz.h efirtc.c epca.c epca.h epcaconfig.h esp.c fep.h generic_serial.c h8.c h8.h hp600_keyb.c i810-tco.c i810-tco.h i810_rng.c ip2.c ip2main.c isicom.c istallion.c keyboard.c logibusmouse.c lp.c mem.c misc.c mixcomwd.c moxa.c msbusmouse.c mxser.c n_hdlc.c n_r3964.c n_tty.c nvram.c nwbutton.c nwbutton.h nwflash.c pc110pad.c pc110pad.h pc_keyb.c pcwd.c pcxx.c pcxx.h ppdev.c pty.c q40_keyb.c qpmouse.c random.c raw.c riscom8.c riscom8.h riscom8_reg.h rocket.c roc!
+ket_int.h rsf16fmi.h rtc.c sbc60xxwdt.c scan_keyb.c scan_keyb.h scc.h selection.c serial.c serial167.c serial_21285.c serial_amba.c sh-sci.c sh-sci.h softdog.c specialix.c specialix_io8.h stallion.c sx.c sx.h sxboards.h sxwindow.h synclink.c sysrq.c toshiba.c tpqic02.c tty_io.c tty_ioctl.c vc_screen.c vino.h vme_scc.c vt.c wd501p.h wdt.c wdt285.c wdt977.c wdt_pci.c > .depend
 
- (a) printk("Sorry we've never seen a CPU like this, please report");
+ make[4]: Entering directory /home29/ankry/kernel/2.4/linux/drivers/pci'
+-/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- compat.c gen-devlist.c names.c pci.c proc.c quirks.c setup-bus.c setup-irq.c setup-res.c syscall.c > .depend
++/home29/ankry/kernel/2.4/linux/scripts/mkdep -D__KERNEL__ -I/home29/ankry/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586  -- classlist.h compat.c devlist.h gen-devlist.c names.c pci.c proc.c quirks.c setup-bus.c setup-irq.c setup-res.c syscall.c > .depend
+ make[4]: Leaving directory /home29/ankry/kernel/2.4/linux/drivers/pci'
 
- (b) Put this in ptep_get_and_clear:
+(Note  consolemap_deftbl.c     in drivers/char and 
+       classlist.h devlist.h   in drivers/pci )
 
-      if (tlb_dirty_doesnt_sync)
-        flush_tlb_page(page)
+Could any Makefile expert check whether it is not a Makefile problem ?
 
-It should be fast on known CPUs, correct on unknown ones, and much
-simpler than "gather" code which may be completely unnecessary and
-rather difficult to test.
+Is it now necessary to do  "make mrproper"  before each make dep ???
 
-If anyone reports the message, _then_ we think about the problem some more.
-
-Ben, fancy writing a boot-time test?
-
--- Jamie
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

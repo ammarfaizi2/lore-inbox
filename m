@@ -1,141 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130194AbRACDPb>; Tue, 2 Jan 2001 22:15:31 -0500
+	id <S131979AbRACDSU>; Tue, 2 Jan 2001 22:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131169AbRACDPU>; Tue, 2 Jan 2001 22:15:20 -0500
-Received: from mailb.telia.com ([194.22.194.6]:38672 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S130463AbRACDPI>;
-	Tue, 2 Jan 2001 22:15:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roger Larsson <roger.larsson@norran.net>
-To: Mike Galbraith <mikeg@wen-online.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scheduling problem?
-Date: Wed, 3 Jan 2001 03:39:35 +0100
-X-Mailer: KMail [version 1.2]
-Cc: Andrew Morton <andrewm@uow.edu.au>
-In-Reply-To: <Pine.Linu.4.10.10101020857530.1024-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.Linu.4.10.10101020857530.1024-100000@mikeg.weiden.de>
+	id <S131169AbRACDSK>; Tue, 2 Jan 2001 22:18:10 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28934 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132052AbRACDSC>; Tue, 2 Jan 2001 22:18:02 -0500
+Subject: Linux 2.2.19pre5
+To: linux-kernel@vger.kernel.org
+Date: Wed, 3 Jan 2001 02:49:46 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Message-Id: <01010303393503.01851@dox>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E14Ddzo-0003MV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+2.2.19pre5
+o	Fix dumpable stuff				(Wolfgang Walter)
+o	PPA driver update				(Tim Waugh)
+o	ARM updates (Russell - ptrace.c errored please	(Russell King)
+		resolve)
+o	Fix NFS data alignment on ARM			(Russell King)
+o	Fix hang on boot with ALi5451 shared irq midi	(Stephen Usher)
+o	ESS Maestro 3 driver				(Zach 'Fufu' Brown)
+o	Belorussia/Ukraine NLS table (koi8-ru)		(Andy Rysin)
 
-I have played around with this code previously.
-This is my current understanding.
-[yield problem?]
+2.2.19pre4
+o	Fixed duplicate info on the microcode driver	(Daniel Rogers)
+o	Update watchdog structs for nice user export	(Eric Brower)
+o	Update Documentation/devices.txt		(H Peter Anvin)
+o	Tweak sched.h to handle limit in Sparc		(Andrea Arcangeli)
+	'make check_asm'
+o	Move isdn pci definitions into pci.h		(Kai Germaschewski)
+o	Tidy init data/static vars in the isdn code	(Kai Germaschewski)
+o	Fix abuse of int for bitops in isdn		(Kai Germaschewski)
+o	Use named initializers on the AVM B1		(Kai Germaschewski)
+o	Switch capi message length to unsigned		(Kai Germaschewski)
+o	ISDN updates					(Kai Germaschewski)
+o	Update microcode code to check features right	(Tigran Aivazian)
+	in 2.2
+o	E820 handling fixup 				(Andrea Arcangeli)
+o	Fix ne2k-pci driver build bug 			(J.A. Magallon)
+o	DC390 driver updates				(Kurt Garloff)
+o	Handle thinkpad E820 edx overwriting		(Marc Joosen)
+o	Update the osst driver to 0.8.6.1		(Kurt Garloff, 
+							 Willem Riede)
+o	Init the cmpci if compiled in		(Raúl Núñez de Arenas Coronado)
+o	ATP870U SCSI updates to fix disconnect bug	(Wittman Li)
+o	Clean up the usbdevfs backport			(Dan Streetman)
+o	Fix ATI rage makefiles				(Brad Douglas)
 
-On Tuesday 02 January 2001 09:27, Mike Galbraith wrote:
-> Hi,
->
-> I am seeing (what I believe is;) severe process CPU starvation in
-> 2.4.0-prerelease.  At first, I attributed it to semaphore troubles
-> as when I enable semaphore deadlock detection in IKD and set it to
-> 5 seconds, it triggers 100% of the time on nscd when I do sequential
-> I/O (iozone eg).  In the meantime, I've done a slew of tracing, and
-> I think the holder of the semaphore I'm timing out on just flat isn't
-> being scheduled so it can release it.  In the usual case of nscd, I
-> _think_ it's another nscd holding the semaphore.  In no trace can I
-> go back far enough to catch the taker of the semaphore or any user
-> task other than iozone running between __down() time and timeout 5
-> seconds later.  (trace buffer covers ~8 seconds of kernel time)
->
-> I think the snippet below captures the gist of the problem.
->
-> c012f32e  nr_free_pages +<e/4c> (0.16) pid(256)
-> c012f37a  nr_inactive_clean_pages +<e/44> (0.22) pid(256)
-
-wakeup_bdflush (from beginning of __alloc_pages; page_alloc.c:324 ) 
-> c01377f2  wakeup_bdflush +<12/a0> (0.14) pid(256)
-> c011620a  wake_up_process +<e/58> (0.29) pid(256)
-
-> c012eea4  __alloc_pages_limit +<10/b8> (0.28) pid(256)
-> c012eea4  __alloc_pages_limit +<10/b8> (0.30) pid(256)
-Two __alloc_pages_limit
-
-wakeup_kswapd(0) (from page_alloc.c:392 )
-> c012e3fa  wakeup_kswapd +<12/d4> (0.25) pid(256)
-> c0115613  __wake_up +<13/130> (0.41) pid(256)
-
-schedule() (from page_alloc.c:396 )
-> c011527b  schedule +<13/398> (0.66) pid(256->6)
-> c01077db  __switch_to +<13/d0> (0.70) pid(6)
-
-bdflush is running!!!
-> c01893c6  generic_unplug_device +<e/38> (0.25) pid(6)
-
-bdflush is ready. (but how likely is it that it will run
-for long enough to get hit by a tick i.e. current->counter--
-unless it is it will continue to be preferred to kswapd, and
-since only one process is yielded... )
-> c011527b  schedule +<13/398> (0.50) pid(6->256)
-> c01077db  __switch_to +<13/d0> (0.29) pid(256)
-
-back to client, not the additionally runable kswapd...
-Why not - nothing remaining of timeslice.
-Not that the yield only yields one process. Not all
-in runqueue - IMHO. [is this intended?]
-
-3:rd __alloc_pages_limit this time direct_reclaim
-tests are fulfilled
-> c012eea4  __alloc_pages_limit +<10/b8> (0.22) pid(256)
-> c012d267  reclaim_page +<13/408> (0.54) pid(256)
-
-Possible (in -prerelease) untested possibilities.
-
-* Be tougher when yielding.
-
-
- 	wakeup_kswapd(0);
-	if (gfp_mask & __GFP_WAIT) {
-		__set_current_state(TASK_RUNNING);
-		current->policy |= SCHED_YIELD;
-+               current->counter--; /* be faster to let kswapd run */
-or
-+               current->counter = 0; /* too fast? [not tested] */
-		schedule();
-	}
-
-Might be to tough on the client not doing any actual work... think dbench...
-
-* Be tougher on bflushd, decrement its counter now and then... 
-  [naive, not tested]
-
-* Move wakeup of bflushd to kswapd. Somewhere after 'do_try_to_free_pages(..)'
-  has been run. Before going to sleep... 
-  [a variant tested with mixed results - this is likely a better one]
+2.2.19pre3
+o	Merge ADMtek-comet tulip support		(Jim McQuillan)
+o	Update microcode driver				(Tigran Aivazian)
+o	Merge Don Becker's NE2K full duplex support	(Juan Lacarta)
+o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
+	gcc272 also
+o	Fix compile combination problems		(Arjan van de Ven)
+o	Update via-rhine driver to include Don's changes(Urban Widmark)
+	for VT6102
+o	Documentation updates				(Tim Waugh)
+o	Add ISDN PCI defines to pci.h			(Kai Germaschewski)
+o	Fix smb/fat handling for pre 1980 dates		(Igor Zhbanov)
+o	SyncLink updates				(Paul Fulghum)
+o	ICP vortex driver updates 			(Andreas Köpf)
+o	mdacon clean up					(Pavel Rabel)
+o	Fix bugs in es1370/es1371/sonicvibes/solo1/	(Thomas Sailer)
+	dabusb
+o	Speed up x86 irq/fault paths by avoiding xchg	(Mikael Pettersson)
+	locked cycles (from Brian Gerst's 2.4test change)
+o	Tighten up K6 check in bug tests		(Mikael Pettersson)
+o	Backport configure scripts bug fixes		(Mikael Pettersson)
+o	Fix duplicat help entries			(Riley Williams)
+o	Fix small asm bug in constant size uaccess	(David Kutz)
+o	Update ymfpci driver to handle legacy audio	(Daisuke Nagano)
+o	Remove ymfsb driver now no longer needed	(Daisuke Nagano)
+o	Add Empeg support to usb-serial			(Gary Brubaker)
+o	Fix e820 handling				(Andrea Arcangeli)
+o	Fix lanstreamer SMP locking			(George Staikos)
+o	Fix S/390 non SMP build				(Kurt Roeckx)
+o	Fix the PCI syscall on PowerMac		(Benjamin Herrenschmidt)
+o	Fix IPC_RMID behaviour				(Christoph Rohland)
+o	Fix NETCTL_GETFD on sparc64			(Dave Miller)
+o	Tidy unneeded restore_flags/save sequence  (Arnaldo Carvalho de Melo)
+	on the ultrastor
+o	Fix resource clean up on error in 89xo     (Arnaldo Carvalho de Melo)
+	driver
+o	Update wireless headers				(Jean Tourrilhes)
+o	Fix non modular emu10k init			(Mikael Pettersson)
+o	Fix cpuid/msr driver crashes			(Andrew Morton)
+o	Write core files sparse				(Christoph Rohland)
+o	Merge the i810 tco (watchdog) timer		(me)
+	| original by Jeff Garzik
 
 
-		/* 
-		 * We go to sleep if either the free page shortage
-		 * or the inactive page shortage is gone. We do this
-		 * because:
-		 * 1) we need no more free pages   or
-		 * 2) the inactive pages need to be flushed to disk,
-		 *    it wouldn't help to eat CPU time now ...
-		 *
-		 * We go to sleep for one second, but if it's needed
-		 * we'll be woken up earlier...
-		 */
-		if (!free_shortage() || !inactive_shortage()) {
-			/*
-			 * If we are about to get low on free pages and cleaning
-			 * the inactive_dirty pages would fix the situation,
-			 * wake up bdflush.
-			 */
-			if (free_shortage() && nr_inactive_dirty_pages > free_shortage()
-				&& nr_inactive_dirty_pages >= freepages.high)
-					wakeup_bdflush(0);
+2.2.19pre2
+o	Drop the page aging for a moment to merge the
+	Andrea VM
+o	Merge Andrea's VM-global patch			(Andrea Arcangeli)
 
-			interruptible_sleep_on_timeout(&kswapd_wait, HZ);
-		}
+2.2.19pre1
+o	Basic page aging				(Neil Schemenauer)
+	| This is a beginning to trying to get the VM right
+	| Next stage is to go through Andrea's stuff and sort 
+	| it out the way I want it.
+o	E820 memory detect backport from 2.4		(Michael Chen)
+o	Fix cs46xx refusing to run on emachines400	(me)
+o	Fix parport docs				(Tim Waugh)
+o	Fix USB serial name reporting			(me)
+o	Fix else warning in initio scsi			(John Fort)
+o	Fix incorrect timeout (that couldnt occur
+	fortunately) in sched.c				(Andrew Archibald)
+o	Fix A20 fix credits				(Christian Lademann)
+o	Support for OnStream SC-x0 tape drives		(Willem Riede, 
+							 Kurt Garloff)
+o	Intel 815 added to the AGPGART code		(Robert M Love)
+o	3Ware scsi fixes			(Arnaldo Carvalho de Melo)
+o	Clean up scsi_init_malloc no mem case	(Arnaldo Carvalho de Melo)
+o	Fix dead module parameter in ip_masq_user.c	(Keith Owens)
+o	Switch max_files and friends to a struct to	(Tigran Aivazian)
+	be sure they stay together
+o	Update microcode driver				(Tigran Aivazian)
+o	Fix free memory dereference in lance driver	(Eli Carter)
+o	ISOfs fixes 					(Andries Brouwer)
+o	Watchdog driver for Advantech boards		(Marek Michalkiewicz)
+o	ISDN updates					(Karsten Keil)
+o	Docs fix 					(Pavel Rabel)
+o	wake_one semantics for accept()			(Andrew Morton)
+o	Masquerade updates				(Juanjo Ciarlante)
+o	Add support for long serialnums on the Metricom	(Alex Belits)
+o	Onboard ethernet driver for the Intel 'Panther'	(Ard van Breemen,
+	boards						 Andries Brouwer)
+o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
+o	3c527 driver rewrite				(Richard Procter)
+	| This supercedes my driver because
+	| - it works for more people
+	| - he has time to use his MCA box to debug it
+o	Minix subpartition support			(Anand Krishnamurthy 
+							 Rajeev Pillai)
+o	Remove unused() crap from DRM. You will need
+	to hand load agp as well if needed		(me)
+
 
 --
-Home page:
-  http://www.norran.net/nra02596/
+Alan Cox <alan@lxorguk.ukuu.org.uk>
+Red Hat Kernel Hacker
+& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
+http://www.linux.org.uk/diary                 http://www.brainbench.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

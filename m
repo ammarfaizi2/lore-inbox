@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267496AbSKSWdG>; Tue, 19 Nov 2002 17:33:06 -0500
+	id <S267511AbSKSWos>; Tue, 19 Nov 2002 17:44:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267511AbSKSWdG>; Tue, 19 Nov 2002 17:33:06 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:26075 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267496AbSKSWdF>;
-	Tue, 19 Nov 2002 17:33:05 -0500
-Message-ID: <1037745604.3ddabdc4772b4@kolivas.net>
-Date: Wed, 20 Nov 2002 09:40:04 +1100
-From: Con Kolivas <conman@kolivas.net>
-To: Robert Love <rml@tech9.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.48-mm1 with contest
-References: <1037741326.3ddaad0ef119d@kolivas.net> <1037741983.1504.2229.camel@phantasy>
-In-Reply-To: <1037741983.1504.2229.camel@phantasy>
+	id <S267522AbSKSWos>; Tue, 19 Nov 2002 17:44:48 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:11214 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S267511AbSKSWor>; Tue, 19 Nov 2002 17:44:47 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Date: Wed, 20 Nov 2002 09:51:39 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15834.49275.238123.495190@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: Re: rpc.mountd problem in 2.5.48
+In-Reply-To: message from Peter Chubb on Tuesday November 19
+References: <15834.1952.674371.221691@wombat.chubb.wattle.id.au>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Robert Love <rml@tech9.net>:
+On Tuesday November 19, peter@chubb.wattle.id.au wrote:
+> 
+> Hi,
+> 	After installing 2.5.48, I see lots and lots of messages like these:
+> Nov 19 20:17:24 wombat rpc.mountd: authenticated mount request from xterm.chubb.wattle.id.au:916 for /usr/local/xenginenew/fonts/misc (/usr) 
+> Nov 19 20:17:24 wombat rpc.mountd: getfh failed: Operation not permitted 
+> 
+> These weren't there in 2.5.44. What's changed?
 
-> On Tue, 2002-11-19 at 16:28, Con Kolivas wrote:
-> 
-> > xtar_load:
-> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> > 2.5.48 [5]              184.4   41      2       6       2.52
-> > 2.5.48-mm1 [5]          210.7   35      2       6       2.88
-> >
-> > read_load:
-> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> > 2.5.48 [5]              102.9   74      6       4       1.41
-> > 2.5.48-mm1 [5]          256.7   29      11      2       3.51*
-> 
-> What changed, Andrew?
-> 
-> Wall time is up but CPU is down... spending more time on I/O?
-> 
-> Con, mind refreshing me on what the LCPU% and Ratio columns mean?
+Lots of stuff.... but nothing that I can connect this to.
+Also, I cannot reproduce it.
 
- 
-LCPU% is the cpu% as reported by 'time load' - It will overestimate slightly.
-Ratio is the simply kernel compile time over reference (in this case 2.4.18 with
-no load). 
+> xterm uses version 2 NFS; /etc/exports says:
+> ..
+> /usr	*.chubb.wattle.id.au(rw,sync,no_root_squash)
+> ..
+> /usr is ext2:
+> $ mount
+> /dev/sda5 on /usr type ext2 (rw)
+> 
+> 
+> If I add the `insecure' option things work again; but this didn't used
+> to be necessary.  And the log shows it coming in on port 916,
+> anyway.
 
-Con
+I suspec that adding 'insecure' did not fix the problem, but rather it
+was trying again that fixed the problem.
+
+Does /etc/exports have any exports to IP address rather than hostname?
+Which version of nfs-utils are you using?
+
+NeilBrown

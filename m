@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131544AbQKCVMY>; Fri, 3 Nov 2000 16:12:24 -0500
+	id <S131441AbQKCVMY>; Fri, 3 Nov 2000 16:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131405AbQKCVMO>; Fri, 3 Nov 2000 16:12:14 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15634 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131441AbQKCVMH>;
-	Fri, 3 Nov 2000 16:12:07 -0500
-Message-ID: <3A0329DA.38A90824@mandrakesoft.com>
-Date: Fri, 03 Nov 2000 16:10:50 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
+	id <S131544AbQKCVMO>; Fri, 3 Nov 2000 16:12:14 -0500
+Received: from tungsten.btinternet.com ([194.73.73.81]:55695 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S131405AbQKCVMF>; Fri, 3 Nov 2000 16:12:05 -0500
+From: davej@suse.de
+Date: Fri, 3 Nov 2000 21:11:59 +0000 (GMT)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: celeron-class misdetected as 486
+Message-ID: <Pine.LNX.4.21.0011032105470.3365-100000@neo.local>
 MIME-Version: 1.0
-To: David Ford <david@linux.com>
-CC: Alan Cox <alan@redhat.org>, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-In-Reply-To: <E13rj9s-0003c4-00@the-village.bc.nu> <3A032828.6B57611F@linux.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
-> 
-> Alan Cox wrote:
-> 
-> > > 10. To Do But Non Showstopper
-> > >      * PCMCIA/Cardbus hangs (Basically unusable - Hinds pcmcia code is
-> > >        reliable)
-> > >           + PCMCIA crashes on unloading pci_socket
-> >
-> > The pci_socket crash is fixed it seems
-> 
-> Not unless it was fixed in test10 release.  I have a PC LinkSys dual 10/100 and
-> 56K card that will kill the machine if you physically pull it out no matter what
-> cardctl/module steps are taken.
-> 
-> It uses the ne2k and serial drivers.
 
-Part of that might be that serial doesn't support hotplug without
-patching.
+Pavel Machek wrote..
+
+> pavel@bug:~$ cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 4
+                    ^^^
+Since when were there family 4 Celerons ?
+
+> model           : 0
+> model name      : 486 DX-25/33
+> stepping        : 0
+> cache size      : 128 KB
+
+Though a 486 with 128K cache is also unlikely.
+(Although some of the wierd overdrives had such added fun iirc)
+
+>.... that's wrong. Older kernels detect it correctly as:
+>May 10 21:39:04 bug kernel: Pentium-III serial number disabled.
+>May 10 21:39:04 bug kernel: CPU: Intel Celeron (Mendocino) stepping 0a
+
+Which older kernel detected this ?
+
+This is really bizarre, as there are cpuid capable 486s with the
+family/vendor IDs reported above. I do hope we don't have to add
+more cachesize checking. That part of setup.c is ugly enough
+already.
+
+Can you open up and find out if it really is a Celeron in that box
+before such code gets added ?
+
+regards,
+
+Dave.
 
 -- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,127 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290015AbSAKQyn>; Fri, 11 Jan 2002 11:54:43 -0500
+	id <S290012AbSAKQ6N>; Fri, 11 Jan 2002 11:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290018AbSAKQye>; Fri, 11 Jan 2002 11:54:34 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:64265 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S290015AbSAKQyT>; Fri, 11 Jan 2002 11:54:19 -0500
-Date: Fri, 11 Jan 2002 14:54:08 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <linux-mm@kvack.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH *] rmap VM #11b
-Message-ID: <Pine.LNX.4.33L.0201111452570.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290019AbSAKQ56>; Fri, 11 Jan 2002 11:57:58 -0500
+Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:19843 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S290018AbSAKQ5d>; Fri, 11 Jan 2002 11:57:33 -0500
+Date: Fri, 11 Jan 2002 11:56:48 -0500
+From: Chris Mason <mason@suse.com>
+To: Andre Hedrick <andre@linux-ide.org>, Hans Reiser <reiser@namesys.com>,
+        axboe@suse.de
+cc: "W. Wilson Ho" <ho@routefree.com>, "Gryaznova E." <grev@namesys.botik.ru>,
+        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: elevator algorithm in disk controller bad?
+Message-ID: <122730000.1010768208@tiny>
+In-Reply-To: <Pine.LNX.4.10.10201110157240.9366-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10201110157240.9366-100000@master.linux-ide.org>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The second maintenance release of the 11th version of the reverse
-mapping based VM is now available.
-This is an attempt at making a more robust and flexible VM
-subsystem, while cleaning up a lot of code at the same time.
-The patch is available from:
+On Friday, January 11, 2002 02:08:39 AM -0800 Andre Hedrick <andre@linux-ide.org> wrote:
 
-           http://surriel.com/patches/2.4/2.4.17-rmap-11b
-and        http://linuxvm.bkbits.net/
+> Or something more up to date?
+> 
+> ide.2.4.16.12102001.patch:+     flushcache:             NULL,
+> ide.2.4.16.12102001.patch:+static int do_idedisk_flushcache(ide_drive_t
 
+Andre, filesystems don't understand what an ide_drive_t is ;-)
 
-My big TODO items for a next release are:
-  - fix page_launder() so it doesn't submit the whole
-    inactive_dirty list for writeout in one go
+Here's something against 2.4.17 + ide.2.4.16.12102001 that tries to use 
+the flushcache stuff.  It is almost entirely untested, I did make sure 
+the flushcache func is actually called, and returns zero.  But, I didn't 
+make sure driver->flushcache wasn't the default noop func.
 
-rmap 11b:
-  - added low latency reschedule points in vmscan.c       (me)
-  - make i810_dma.c include mm_inline.h too               (William Lee Irwin)
-  - wake up kswapd sleeper tasks on OOM kill so the
-    killed task can continue on its way out               (me)
-  - tune page allocation sleep point a little             (me)
-rmap 11a:
-  - don't let refill_inactive() progress count for OOM    (me)
-  - after an OOM kill, wait 5 seconds for the next kill   (me)
-  - agpgart_be fix for hashed waitqueues                  (William Lee Irwin)
-rmap 11:
-  - fix stupid logic inversion bug in wakeup_kswapd()     (Andrew Morton)
-  - fix it again in the morning                           (me)
-  - add #ifdef BROKEN_PPC_PTE_ALLOC_ONE to rmap.h, it
-    seems PPC calls pte_alloc() before mem_map[] init     (me)
-  - disable the debugging code in rmap.c ... the code
-    is working and people are running benchmarks          (me)
-  - let the slab cache shrink functions return a value
-    to help prevent early OOM killing                     (Ed Tomlinson)
-  - also, don't call the OOM code if we have enough
-    free pages                                            (me)
-  - move the call to lru_cache_del into __free_pages_ok   (Ben LaHaise)
-  - replace the per-page waitqueue with a hashed
-    waitqueue, reduces size of struct page from 64
-    bytes to 52 bytes (48 bytes on non-highmem machines)  (William Lee Irwin)
-rmap 10:
-  - fix the livelock for real (yeah right), turned out
-    to be a stupid bug in page_launder_zone()             (me)
-  - to make sure the VM subsystem doesn't monopolise
-    the CPU, let kswapd and some apps sleep a bit under
-    heavy stress situations                               (me)
-  - let __GFP_HIGH allocations dig a little bit deeper
-    into the free page pool, the SCSI layer seems fragile (me)
-rmap 9:
-  - improve comments all over the place                   (Michael Cohen)
-  - don't panic if page_remove_rmap() cannot find the
-    rmap in question, it's possible that the memory was
-    PG_reserved and belonging to a driver, but the driver
-    exited and cleared the PG_reserved bit                (me)
-  - fix the VM livelock by replacing > by >= in a few
-    critical places in the pageout code                   (me)
-  - treat the reclaiming of an inactive_clean page like
-    allocating a new page, calling try_to_free_pages()
-    and/or fixup_freespace() if required                  (me)
-  - when low on memory, don't make things worse by
-    doing swapin_readahead                                (me)
-rmap 8:
-  - add ANY_ZONE to the balancing functions to improve
-    kswapd's balancing a bit                              (me)
-  - regularize some of the maximum loop bounds in
-    vmscan.c for cosmetic purposes                        (William Lee Irwin)
-  - move page_address() to architecture-independent
-    code, now the removal of page->virtual is portable    (William Lee Irwin)
-  - speed up free_area_init_core() by doing a single
-    pass over the pages and not using atomic ops          (William Lee Irwin)
-  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
-rmap 7:
-  - clean up and document vmscan.c                        (me)
-  - reduce size of page struct, part one                  (William Lee Irwin)
-  - add rmap.h for other archs (untested, not for ARM)    (me)
-rmap 6:
-  - make the active and inactive_dirty list per zone,
-    this is finally possible because we can free pages
-    based on their physical address                       (William Lee Irwin)
-  - cleaned up William's code a bit                       (me)
-  - turn some defines into inlines and move those to
-    mm_inline.h (the includes are a mess ...)             (me)
-  - improve the VM balancing a bit                        (me)
-  - add back inactive_target to /proc/meminfo             (me)
-rmap 5:
-  - fixed recursive buglet, introduced by directly
-    editing the patch for making rmap 4 ;)))              (me)
-rmap 4:
-  - look at the referenced bits in page tables            (me)
-rmap 3:
-  - forgot one FASTCALL definition                        (me)
-rmap 2:
-  - teach try_to_unmap_one() about mremap()               (me)
-  - don't assign swap space to pages with buffers         (me)
-  - make the rmap.c functions FASTCALL / inline           (me)
-rmap 1:
-  - fix the swap leak in rmap 0                           (Dave McCracken)
-rmap 0:
-  - port of reverse mapping VM to 2.4.16                  (me)
+For this to actually be useful, we need a real interface, not some 
+internal reiserfs hack.  But, I wanted to make sure I had the idea 
+right before going any further...patch below.
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+Jens, it shouldn't be hard to adapt this to your write barrier stuff too...
 
-http://www.surriel.com/		http://distro.conectiva.com/
+-chris
+
+Index: linus.17/fs/reiserfs/journal.c
+--- linus.17/fs/reiserfs/journal.c Thu, 13 Dec 2001 11:06:51 -0500 root (linux/b/0_journal.c 1.2.1.1.4.2 644)
++++ linus.17(w)/fs/reiserfs/journal.c Fri, 11 Jan 2002 11:14:27 -0500 root (linux/b/0_journal.c 1.2.1.1.4.2 644)
+@@ -736,9 +736,20 @@
+ 		   atomic_read(&(jl->j_commit_left)));
+   }
+ 
++  /* make sure all the log blocks are on disk before we flush
++  ** the commit
++  */
++  reiserfs_write_barrier(jl->j_commit_bh) ;
++
+   mark_buffer_dirty(jl->j_commit_bh) ;
+   ll_rw_block(WRITE, 1, &(jl->j_commit_bh)) ;
+   wait_on_buffer(jl->j_commit_bh) ;
++
++  /* make sure the commit is on disk before we allow anyone to start
++  ** writing the metadata
++  */
++  reiserfs_write_barrier(jl->j_commit_bh) ;
++
+   if (!buffer_uptodate(jl->j_commit_bh)) {
+     reiserfs_panic(s, "journal-615: buffer write failed\n") ;
+   }
+@@ -820,6 +831,9 @@
+   if (trans_id >= SB_JOURNAL(p_s_sb)->j_last_flush_trans_id) {
+     if (buffer_locked((SB_JOURNAL(p_s_sb)->j_header_bh)))  {
+       wait_on_buffer((SB_JOURNAL(p_s_sb)->j_header_bh)) ;
++      /* no need for write barrier here, whoever locked the header bh
++      ** will do that for us.
++      */
+       if (!buffer_uptodate(SB_JOURNAL(p_s_sb)->j_header_bh)) {
+         reiserfs_panic(p_s_sb, "journal-699: buffer write failed\n") ;
+       }
+@@ -833,6 +847,9 @@
+     set_bit(BH_Dirty, &(SB_JOURNAL(p_s_sb)->j_header_bh->b_state)) ;
+     ll_rw_block(WRITE, 1, &(SB_JOURNAL(p_s_sb)->j_header_bh)) ;
+     wait_on_buffer((SB_JOURNAL(p_s_sb)->j_header_bh)) ; 
++
++    reiserfs_write_barrier((SB_JOURNAL(p_s_sb)->j_header_bh)) ; 
++
+     if (!buffer_uptodate(SB_JOURNAL(p_s_sb)->j_header_bh)) {
+       printk( "reiserfs: journal-837: IO error during journal replay\n" );
+       return -EIO ;
+@@ -1088,6 +1105,11 @@
+   if (flushall) {
+     update_journal_header_block(s, (jl->j_start + jl->j_len + 2) % JOURNAL_BLOCK_COUNT, jl->j_trans_id) ;
+   }
++  /* upddate_journal_header_block takes care of all the write barrier
++  ** requirements.  If writes from older journal lists get reordered before
++  ** the newest list triggers a flush on the journal header block, log replay
++  ** will fix everything for us.
++  */
+   remove_all_from_journal_list(s, jl, 0) ;
+   jl->j_len = 0 ;
+   atomic_set(&(jl->j_nonzerolen), 0) ;
+@@ -1101,6 +1123,10 @@
+ } 
+ 
+ 
++/* kupdate_one_transaction doesn't need to worry about write
++** barriers at all.  That happens during the cleanups triggered by
++** flush_journal_list
++*/
+ static int kupdate_one_transaction(struct super_block *s,
+                                     struct reiserfs_journal_list *jl) 
+ {
+@@ -1747,6 +1773,11 @@
+ 	    CURRENT_TIME - start) ;
+   }
+   if (!is_read_only(p_s_sb->s_dev) && 
++       /* _update_journal_header_block is the only place during replay 
++       ** we trigger write barriers.  That's ok, if we crash before we 
++       ** hit this point, the same transactions will be replayed again, 
++       ** fixing any write ordering problems introduced.
++       */
+        _update_journal_header_block(p_s_sb, SB_JOURNAL(p_s_sb)->j_start, 
+                                    SB_JOURNAL(p_s_sb)->j_last_flush_trans_id))
+   {
+Index: linus.17/fs/reiserfs/Makefile
+--- linus.17/fs/reiserfs/Makefile Tue, 27 Nov 2001 23:33:36 -0500 root (linux/b/1_Makefile 1.3 644)
++++ linus.17(w)/fs/reiserfs/Makefile Fri, 11 Jan 2002 10:32:41 -0500 root (linux/b/1_Makefile 1.3 644)
+@@ -9,7 +9,7 @@
+ 
+ O_TARGET := reiserfs.o
+ obj-y   := bitmap.o do_balan.o namei.o inode.o file.o dir.o fix_node.o super.o prints.o objectid.o \
+-lbalance.o ibalance.o stree.o hashes.o buffer2.o tail_conversion.o journal.o resize.o tail_conversion.o version.o item_ops.o ioctl.o procfs.o
++lbalance.o ibalance.o stree.o hashes.o buffer2.o tail_conversion.o journal.o resize.o tail_conversion.o version.o item_ops.o ioctl.o procfs.o writecache.o
+ 
+ obj-m   := $(O_TARGET)
+ 
+Index: linus.17/include/linux/reiserfs_fs.h
+--- linus.17/include/linux/reiserfs_fs.h Thu, 13 Dec 2001 11:06:51 -0500 root (linux/k/d/7_reiserfs_f 1.2.2.1.2.1 644)
++++ linus.17(w)/include/linux/reiserfs_fs.h Fri, 11 Jan 2002 10:47:55 -0500 root (linux/k/d/7_reiserfs_f 1.2.2.1.2.1 644)
+@@ -1918,6 +1918,9 @@
+  
+ /* ioctl's command */
+ #define REISERFS_IOC_UNPACK		_IOW(0xCD,1,long)
++
++/* from writecache.c */
++int reiserfs_write_barrier(struct buffer_head *bh) ;
+  			         
+ #endif /* _LINUX_REISER_FS_H */
+ 
+Index: linus.17/fs/reiserfs/writecache.c
+--- linus.17/fs/reiserfs/writecache.c Fri, 11 Jan 2002 11:37:11 -0500 root ()
++++ linus.17(w)/fs/reiserfs/writecache.c Fri, 11 Jan 2002 11:26:34 -0500 root (linux/L/d/15_writecache  644)
+@@ -0,0 +1,21 @@
++#include <linux/fs.h>
++#include <linux/ide.h>
++
++/* insert a write barrier on the device for this buffer.  All previous
++** requests will be on disk before the next request is
++*/
++int reiserfs_write_barrier(struct buffer_head *bh) {
++    ide_drive_t *drive ;
++    ide_driver_t *d ;
++
++    /* This won't help on lvm or scsi or software raid */
++    drive = get_info_ptr(bh->b_dev) ;
++    if (drive) {
++	d = drive->driver ;
++        if (d->flushcache && d->flushcache(drive)) {
++	    printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",drive->name);
++	    return -EIO ;
++	} 
++    }
++    return 0 ;
++}
 

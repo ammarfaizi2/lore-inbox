@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272869AbRIMFtD>; Thu, 13 Sep 2001 01:49:03 -0400
+	id <S272873AbRIMFzE>; Thu, 13 Sep 2001 01:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272870AbRIMFsx>; Thu, 13 Sep 2001 01:48:53 -0400
-Received: from [203.35.254.67] ([203.35.254.67]:33545 "EHLO
-	once-ler.syd.bluefishwireless.com") by vger.kernel.org with ESMTP
-	id <S272867AbRIMFsi>; Thu, 13 Sep 2001 01:48:38 -0400
-Date: Thu, 13 Sep 2001 15:48:55 +1000
-From: Matt <matt@bluefishwireless.com>
-To: linux-kernel@vger.kernel.org
-Cc: procps-bugs@redhat.com
-Subject: struct_task->start_time, jiffies or hz_to_std(jiffies)
-Message-ID: <20010913154855.B628@bluefishwireless.com>
-Mime-Version: 1.0
+	id <S272874AbRIMFyz>; Thu, 13 Sep 2001 01:54:55 -0400
+Received: from rainbow.transtec.de ([153.94.51.2]:29459 "EHLO
+	rainbow.transtec.de") by vger.kernel.org with ESMTP
+	id <S272873AbRIMFyq>; Thu, 13 Sep 2001 01:54:46 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-X-OperatingSystem: Linux version 2.4.9-ac10 (root@ham) (gcc version 2.95.4 20010902 (Debian prerelease))
+Content-Transfer-Encoding: 7bit
+Message-ID: <15214.17129.937195.634892@gargle.gargle.HOWL>
+Date: Mon, 6 Aug 2001 09:10:33 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: nosmp kernel parameter problems
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+From: Roland Fehrenbacher <Roland.Fehrenbacher@transtec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-given
 
-2.4.9-ac10 linux/kernel/fork.c:658
-        p->start_time = jiffies;
+    Dick> I'm running kernel 2.4.6 on a dual Pentium system. When I boot the
+    Dick> SMP kernel with the "nosmp" kernel parameter, The SCSI and USB
+    Dick> systems stop working.
 
-is this
+I am having the same problem with 2.4.7 and Adaptec aic7899.
 
-2.4.9-ac10 linux/fs/proc/array.c
-                task->start_time,
+Cheers,
 
-correct? or should it be
-		hz_to_std(task->start_time),
-
-??
-
-i know this will affect libproc, however libproc appears to be broken
-anyway; i changed HZ and CLOCKS_PER_SEC to 1024 in include/asm/param.h
-on x86 and top / ps etc are giving me very whacked out numbers.. the
-machine itself is stable however and appears to be working just fine.
-
-	matt
-
+Roland

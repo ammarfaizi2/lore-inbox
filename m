@@ -1,101 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbULBIed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbULBIlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbULBIed (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 03:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbULBIeZ
+	id S261454AbULBIlK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 03:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbULBIlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 03:34:25 -0500
-Received: from havoc.gtf.org ([69.28.190.101]:45213 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261444AbULBIeK (ORCPT
+	Thu, 2 Dec 2004 03:41:10 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:33984 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261454AbULBIlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 03:34:10 -0500
-Date: Thu, 2 Dec 2004 03:29:30 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: libata-dev queue updated
-Message-ID: <20041202082930.GA7512@havoc.gtf.org>
-Reply-To: linux-ide@vger.kernel.org
+	Thu, 2 Dec 2004 03:41:07 -0500
+Date: Thu, 2 Dec 2004 09:40:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+Message-ID: <20041202084040.GC7585@elte.hu>
+References: <32831.192.168.1.5.1101905229.squirrel@192.168.1.5> <20041201154046.GA15244@elte.hu> <20041201160632.GA3018@elte.hu> <20041201162034.GA8098@elte.hu> <33059.192.168.1.5.1101927565.squirrel@192.168.1.5> <20041201212925.GA23410@elte.hu> <20041201213023.GA23470@elte.hu> <32788.192.168.1.8.1101938057.squirrel@192.168.1.8> <20041201220916.GA24992@elte.hu> <20041201234355.0dac74cf@mango.fruits.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041201234355.0dac74cf@mango.fruits.de>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just updated libata-dev queue in BitKeeper, to the latest upstream kernel.
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-No patch yet, I'll post in a day or two.  You can generate your own
-patch using Documentation/BK-usage/gcapatch script in the kernel tree.
+> On Wed, 1 Dec 2004 23:09:16 +0100
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > but ... this brings up the question, is this a valid scenario? How can
+> > jackd block on clients for so long? Perhaps this means that every audio
+> > buffer has run empty and jackd desperately needed some new audio input,
+> > which it didnt get from the clients, up until after the xrun? In theory
+> > this should only be possible if there's CPU saturation (that's why i
+> > asked about how much CPU% time there was in use).
+> > 
+> > One indication that this might have been the case is that in the full
+> > 3.5 msecs trace there's not a single cycle spent idle. But, lots of time
+> > was spent by e.g. X or gkrellm-4356, which are not RT tasks - so from
+> > the RT task POV i think there were cycles left to be utilized. Could
+> > this be a client bug? That seems a bit unlikely because to let jackd
+> > 'run empty', each and every client would have to starve it, correct?
+> 
+> actually a single client doing nasty (non RT) stuff in its process()
+> callback can "starve" jackd. AFAIK jackd waits until the last client
+> has finished its process callback. So, if some client's process
+> callback decides to use (for example) some blocking system call (big
+> no no) and consequently falls asleep for a relatively long time, then
+> it can cause jackd to miss its deadline. I'm not sure though wether
+> this triggers an xrun in jackd or just a delay exceeded message.
 
-Here's a summary of the stuff sitting in this testing queue:
-* new driver ata_adma (Pacific Digital PATA and SATA)
-* new hardware ULi 5281 supported in sata_uli driver
-* new hardware VT6421 SATA supported in sata_via driver
-* support for PATA ports on Promise SATA cards
-* support for newer Promise PATA cards
-* ATA passthru (read: SMART support)
-* other minor stuff
+since the period size in Rui's test is so small (-p64 is 1.6 msecs?),
+the 2.6 msec timeout in pipe_poll() already generates an xrun.
 
-BK users:
-
-	bk pull bk://gkernel.bkbits.net/libata-dev-2.6
-
-This will update the following files:
-
- Documentation/DocBook/libata.tmpl |  192 ++++++++++
- drivers/scsi/Kconfig              |   18 
- drivers/scsi/Makefile             |    2 
- drivers/scsi/ahci.c               |    5 
- drivers/scsi/ata_adma.c           |  636 ++++++++++++++++++++++++++++++++++
- drivers/scsi/libata-core.c        |   48 ++
- drivers/scsi/libata-scsi.c        |  413 ++++++++++++++++++++++
- drivers/scsi/libata.h             |    2 
- drivers/scsi/pata_pdc2027x.c      |  694 ++++++++++++++++++++++++++++++++++++++
- drivers/scsi/sata_promise.c       |   56 ++-
- drivers/scsi/sata_uli.c           |   51 +-
- drivers/scsi/sata_via.c           |  202 ++++++++---
- include/linux/ata.h               |    1 
- include/linux/libata.h            |    2 
- include/scsi/scsi.h               |    3 
- 15 files changed, 2221 insertions(+), 104 deletions(-)
-
-through these ChangeSets:
-
-<albertcc:tw.ibm.com>:
-  o [libata pdc2027x] fix incorrect pio and mwdma masks
-  o [libata pdc2027x] remove quirks and ROM enable
-  o [libata] add driver for Promise PATA 2027x
-
-<andyw:pobox.com>:
-  o [libata scsi] support 12-byte passthru CDB
-  o [libata scsi] passthru CDB check condition processing
-  o T10/04-262 ATA pass thru - patch
-
-<erikbenada:yahoo.ca>:
-  o [libata sata_promise] support PATA ports on SATA controllers
-
-Brad Campbell:
-  o libata basic detection and errata for PATA->SATA bridges
-
-Jeff Garzik:
-  o [libata docs] add chapter on libata driver API
-  o [libata] add new driver ata_adma
-  o [libata ahci] minor fixes
-  o [libata sata_uli] add 5281 support, fix SATA phy setup for others
-  o [libata sata_via] add support for VT6421 SATA
-  o [libata sata_via] minor cleanups
-  o [libata] fix DocBook bugs
-  o [libata pdc2027x] update for upstream struct device conversion
-  o [libata sata_promise] fix merge bugs
-  o [libata] fix build breakage
-  o [libata] fix SATA->PATA bridge detect compile breakage
-  o [libata] fix printk warning
-
-John W. Linville:
-  o libata: SMART support via ATA pass-thru
-
-Tobias Lorenz:
-  o libata-scsi: get-identity ioctl support
-
+	Ingo

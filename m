@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbVCXSSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbVCXSS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbVCXSSo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 13:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbVCXSSn
+	id S263142AbVCXSS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 13:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbVCXSSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 13:18:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40844 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262645AbVCXSSY (ORCPT
+	Thu, 24 Mar 2005 13:18:55 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57986 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263142AbVCXSSZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 13:18:24 -0500
-Date: Thu, 24 Mar 2005 13:18:06 -0500
-From: Dave Jones <davej@redhat.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: drm bugs hopefully fixed but there might still be one..
-Message-ID: <20050324181806.GA23567@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Dave Airlie <airlied@linux.ie>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	dri-devel@lists.sourceforge.net
-References: <Pine.LNX.4.58.0503241015190.7647@skynet> <200503240902.03808.jbarnes@engr.sgi.com>
+	Thu, 24 Mar 2005 13:18:25 -0500
+Date: Thu, 24 Mar 2005 19:17:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050324181752.GA25412@elte.hu>
+References: <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050324052854.GA1298@us.ibm.com> <20050324053456.GA14494@elte.hu> <Pine.LNX.4.58.0503240310490.18714@localhost.localdomain> <Pine.LNX.4.58.0503240341280.18714@localhost.localdomain> <20050324113912.GA20911@elte.hu> <Pine.LNX.4.58.0503240916210.18714@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503240902.03808.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0503240916210.18714@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 09:02:03AM -0800, Jesse Barnes wrote:
- > On Thursday, March 24, 2005 2:33 am, Dave Airlie wrote:
- > > Hi Andrew, Dave,
- > >
- > > I've put a couple of patches into my drm-2.6 tree that hopefully fix up
- > > the multi-bridge on i915 and the XFree86 4.3 issue.. Andrew can you drop
- > > the two patches in your tree.. the one from Brice and the one I attached
- > > to the bug? you'll get conflicts anyway I'm sure. I had to modify Brices
- > > one as it didn't look safe to me in all cases..
- > >
- > > I think their might be one left, but I think it only seems to be on
- > > non-intel AGP system, as in my system works fine for a combination of
- > > cards and X releases ... anyone with a VIA chipset and Radeon graphics
- > > card or r128 card.. testing the next -mm would help me a lot..
- > 
- > I'm trying to get ahold of one--so hopefully I'll be able to test and fix this 
- > stuff up when I do.
 
-Aparently backing out the changes to via's tlb_flush routine fixed it
-for one VIA user. I've not had a chance to look into it just yet.
-Worse case we can just drop those changes for 2.6.12
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-		Dave
+> On an SMP machine, there may even be a chance of a lower priority 
+> process that gets it. That would be possible if the low priority 
+> process on the other CPU tries to grab the lock just after it was 
+> released but before the just woken up high priorty processes get 
+> scheduled. So there's a window where the lock is open, and the lower 
+> priority process snagged it just before the others got in.
 
+that's always a possibility, on UP too: if a lower priority task manages 
+to acquire a lock 'just before' a highprio thread got interested in it 
+there's no way to undo that.
 
+but for the other reasons the explicit approach looks better.
+
+	Ingo

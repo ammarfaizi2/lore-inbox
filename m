@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266130AbUFJFtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266129AbUFJGDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266130AbUFJFtz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 01:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUFJFtz
+	id S266129AbUFJGDn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUFJGDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 01:49:55 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:6881 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S263204AbUFJFtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 01:49:51 -0400
-Date: Thu, 10 Jun 2004 07:46:24 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Alex Williamson <alex.williamson@hp.com>, clameter@sgi.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Unaligned accesses in net/ipv4/netfilter/arp_tables.c:184
-Message-ID: <20040610054624.GL11490@sunbeam.de.gnumonks.org>
-References: <Pine.LNX.4.58.0406091106210.21291@schroedinger.engr.sgi.com> <1086805676.4288.16.camel@tdi> <20040609130001.37a88da1.davem@redhat.com> <20040610014519.GA3158@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOmey7/79ja+7F5w"
-Content-Disposition: inline
-In-Reply-To: <20040610014519.GA3158@taniwha.stupidest.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Spam-Score: -4.9 (----)
+	Thu, 10 Jun 2004 02:03:43 -0400
+Received: from ip-65-77-168-70-muca.aerosurf.net ([65.77.168.70]:4564 "EHLO
+	bedevere.spamaps.org") by vger.kernel.org with ESMTP
+	id S266129AbUFJGDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 02:03:41 -0400
+Date: Wed, 9 Jun 2004 23:03:38 -0700
+Subject: Re: 2.6 vm/elevator loading down disks where 2.4 does not
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v553)
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+To: Ray Lee <ray-lk@madrabbit.org>
+From: Clint Byrum <cbyrum@spamaps.org>
+In-Reply-To: <1086829384.13085.10.camel@orca.madrabbit.org>
+Message-Id: <EAAE7256-BAA3-11D8-B30D-000A95730E92@spamaps.org>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BOmey7/79ja+7F5w
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wednesday, June 9, 2004, at 06:03 PM, Ray Lee wrote:
 
-On Wed, Jun 09, 2004 at 06:45:19PM -0700, Chris Wedgwood wrote:
-> On Wed, Jun 09, 2004 at 01:00:01PM -0700, David S. Miller wrote:
->=20
-> > How can you legitimately change this structure?  It's an exported
-> > userland interface, if you change it all the applications will stop
-> > working.
->=20
-> Why not split the structure for user-space and kernel-space version
-> and cp/frob at/near the syscall boundary?
+>> Upon investigation, we saw that the 2.6 box was reading from the disk
+>> about 5 times as much as 2.4.
+>
+> I don't think this will account for the entire change in disk activity,
+> but 2.6.7-pre? contains a fix for the read ahead code to prevent it 
+> from
+> reading extra sectors when unneeded.
+>
+> The fix applies to 'seeky database type loads' which...
+>
+>> The data access patterns are generally "search through index files in
+>> a tree-walking type of manner, then seek to data records in data
+>> files."
+>
+> ...sounds like it may apply to you.
+>
+> So, if you and your server have some time, you might try 2.6.7rc3 and
+> see if it changes any of the numbers.
+>
 
-because it would look like an ugly hack in the setsockopt call, plus
-adding another costly/time consuming parse of the table BLOB. =20
+I updated my 2.6 box to 2.6.7-rc3 a few hours ago. While its not really 
+fair to pass judgement during such low-traffic times, things look about 
+the same. Where i see the 2.4 box not even touching the disks for a 
+minute or longer, the 2.6 box will hit it every 10 seconds at least, 
+and hit it with 40 blocks or more. 3 hours should be plenty of time to 
+get the indexes and data files mostly cached.
 
-Also note that the kernel currently has no code that supports the
-generation/modification of rulesets. All it can do is iterate over them.
+It almost seems to me like 2.6 is caching too much with each read, and 
+therefore having to free other pages that really should have been left 
+alone. This might even explain why 2.4 is maintaining a lot more free 
+memory (75-80MB versus 2.6 having only 15-20MB free) and less cache. 
+Oddly enough, I noticed that the blockdev command reports 256 as the 
+readahead in 2.6.x, but 1024 in 2.4.x. I tried mucking with that value 
+but it didn't make a whole lot of difference.
 
->   --cw
+Might it help to have some swap available, if for nothing else but to 
+make the algorithms work better? Really the box should never use it; 
+there are no daemons that go unused for longer than 10 minutes ...  and 
+when I have turned on swap in the past, it uses less than 2MB of it. 
+This machine, for all intents and purposes, should spend most of its 
+time searching an index and database that are already cached.. 90% of 
+the searches are on similar terms.
 
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+That brings up an interesting point... is there a system wide stat that 
+tells me how effective the file cache is? I guess majfaults/s fits that 
+bill to some degree.
 
---BOmey7/79ja+7F5w
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAx/WwXaXGVTD0i/8RAjesAKCZvTwXcJ1JV9yuVzPfa0sTEFy7OgCeJWpM
-2PJ7uaS2rCOHIT1SEuk5EjU=
-=osOF
------END PGP SIGNATURE-----
-
---BOmey7/79ja+7F5w--

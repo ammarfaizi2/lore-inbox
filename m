@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133084AbREHSPj>; Tue, 8 May 2001 14:15:39 -0400
+	id <S133040AbREHSPt>; Tue, 8 May 2001 14:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133062AbREHSPa>; Tue, 8 May 2001 14:15:30 -0400
-Received: from www.topmail.de ([212.255.16.226]:61832 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S133040AbREHSPZ>;
-	Tue, 8 May 2001 14:15:25 -0400
-Message-ID: <003a01c0d7ea$d9969f20$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Keith Owens" <kaos@melbourne.sgi.com>, <kdb@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <23270.989323782@ocs3.ocs-net>
-Subject: Re: kdb wishlist
-Date: Tue, 8 May 2001 18:15:13 -0000
-Organization: eccesys.net Linux development
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+	id <S133062AbREHSPj>; Tue, 8 May 2001 14:15:39 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29198 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S133040AbREHSPd>; Tue, 8 May 2001 14:15:33 -0400
+Date: Tue, 8 May 2001 20:15:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA IDE flash problem found
+Message-ID: <20010508201522.A10738@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678EA9@mail-in.comverse-in.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678EA9@mail-in.comverse-in.com>; from Vassilii.Khachaturov@comverse.com on Tue, May 08, 2001 at 02:05:04PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Change kdb invocation key from ^A to ^X^X^X within 3 seconds.  ^A is
->   used by emacs, bash, minicom etc.
+> Why did not you take care of the request_region() call and just disabled it?
+> The ports will be considered free by the system, and another device might 
+> grab them later on!
 
-Why not Alt-SysRq-D (like Debug) or so?
+Because it was one of changes between 2.4.0 and 2.4.4. Ignore that.
 
-> * Command history.  Handle up/down/left/right/delete keys.  Each
->   kdba_io routine is responsible for recognising the arch specific
->   keys, with a common history and editting routine.
+								Pavel
+> 
+> Vassilii
+> 
+> -----Original Message-----
+> From: Pavel Machek [mailto:pavel@suse.cz]
+> Sent: Tuesday, May 08, 2001 8:14 AM
+> To: kernel list
+> Subject: PCMCIA IDE flash problem found
+> 
+> 
+> Hi!
+> 
+> 2.4.[123] changed name of ide-cs module, which means your pcmcia setup
+> breaks... This is how to undo the damage. Works for me, do *not* apply
+> into anything official.
+> 
+> 								Pavel
+> 
+> --- clean/drivers/ide/ide-cs.c	Sun Apr  1 00:23:29 2001
+> +++ linux/drivers/ide/ide-cs.c	Tue May  8 14:06:09 2001
+> @@ -95,7 +96,7 @@
+>  static int ide_event(event_t event, int priority,
+>  		     event_callback_args_t *args);
+>  
+> -static dev_info_t dev_info = "ide-cs";
+> +static dev_info_t dev_info = "ide_cs";
+>  
+>  static dev_link_t *ide_attach(void);
+>  static void ide_detach(dev_link_t *);
+> @@ -388,9 +389,12 @@
+>  	MOD_DEC_USE_COUNT;
+>      }
+>  
+> +#if 0
+>      request_region(link->io.BasePort1, link->io.NumPorts1,"ide-cs");
+>      if (link->io.NumPorts2)
+>  	request_region(link->io.BasePort2, link->io.NumPorts2,"ide-cs");
+> +#endif
+> +    printk("Should call request_region\n");
+>      
+>      info->ndev = 0;
+>      link->dev = NULL;
 
-yes!
-
-> * Clean up repeating commands.  Pressing enter at the kdb prompt
->   repeats the previous command, no matter what the previous command
->   was.  Some commands it makes no sense to repeat (bp in particular),
->   for other commands you want to repeat the command but without the
->   parameter (md in particular).
-
-Should be configurable. Sometimes I accidentally hit enter or do it
-just to do something...
-
--mirabilos
 -- 
-EA F0 FF 00 F0 #$@%CARRIER LOST
-
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

@@ -1,115 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131099AbQLUSsm>; Thu, 21 Dec 2000 13:48:42 -0500
+	id <S131218AbQLUSuC>; Thu, 21 Dec 2000 13:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131218AbQLUSsc>; Thu, 21 Dec 2000 13:48:32 -0500
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:40862 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S131099AbQLUSsY> convert rfc822-to-8bit; Thu, 21 Dec 2000 13:48:24 -0500
-From: Heiko.Carstens@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Anton Blanchard <anton@linuxcare.com.au>
-cc: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Message-ID: <C12569BC.0048F80B.00@d12mta01.de.ibm.com>
-Date: Thu, 21 Dec 2000 14:16:58 +0100
-Subject: Re: CPU attachent and detachment in a running Linux system
-Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+	id <S131365AbQLUStw>; Thu, 21 Dec 2000 13:49:52 -0500
+Received: from janus.cypress.com ([157.95.1.1]:53944 "EHLO janus.cypress.com")
+	by vger.kernel.org with ESMTP id <S131218AbQLUStf>;
+	Thu, 21 Dec 2000 13:49:35 -0500
+Message-ID: <3A424990.7CDA4A2C@cypress.com>
+Date: Thu, 21 Dec 2000 12:18:56 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor Southeast Design Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 signal.h
+In-Reply-To: <20001215195433.G17781@inspiron.random> <Pine.LNX.4.21.0012151752421.3596-100000@duckman.distro.conectiva> <20001215211404.J17781@inspiron.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
+> 
+> On Fri, Dec 15, 2000 at 05:55:08PM -0200, Rik van Riel wrote:
+> > On Fri, 15 Dec 2000, Andrea Arcangeli wrote:
+> >
+> > > x()
+> > > {
+> > >
+> > >     switch (1) {
+> > >     case 0:
+> > >     case 1:
+> > >     case 2:
+> > >     case 3:
+> > >     ;
+> > >     }
+> > > }
+> > >
+> > > Why am I required to put a `;' only in the last case and not in
+> > > all the previous ones?
+> >
+> > That `;' above is NOT in just the last one. In your above
+> > example, all the labels will execute the same `;' statement.
+> >
+> > In fact, the default behaviour of the switch() operation is
+> > to fall through to the next defined label and you have to put
+> > in an explicit `break;' if you want to prevent `case 0:' from
+> > reaching the `;' below the `case 3:'...
+> 
+> Are you kidding me?
 
+Absolutely NOT.
 
+switch (x) {
+  case 0:
+  case 1:
+      printf ("%d\n", x);
+      break;
+  case 2:
+      printf ("%d\n",x*x);
+  case 3:
+      printf ("%d\n", x*x*x);
+ }
 
+if x==0 or 1, prints x (the 0 or one),
+if x==2 , it prints 4 and 8  since no break statement exits the switch,
+if x==3, it prints only 27,
+any othe value of x, and nothing is printed.
 
-Hi,
+Every C compile I have ever used does this.
+Sun's C and C++, HP's C, Microsoft's VC++, Borland's C, and all versions
+of gcc and g++.
 
->> That's a good point and it would probably work for attachment of cpus,
-but
->> it won't work for detachment because there are some data structures that
->> need to be updated if a cpu gets detached. For example it would be nice
->> [...]
->> So at least for detaching it would make sense to register functions
-which
->> will be called whenever a cpu gets detached.
->I remember someone from SGI had a patch to merge all the per cpu
-structures
->together which would make this easier. It would also save bytes especially
->on machines like the e10k where we must have NR_CPUS = 64.
+Grab any C programming book, and find the switch statement.
 
-Thanks for your comment, but I thought of an additional kernel parameter
-max_dyn_cpus which would limit the maximum number of cpus that are allowed
-to run. This way at least the waste of dynamically allocated memory which
-depends on smp_num_cpus will be limited. This could be done by replacing
-appropriate occurrences of smp_num_cpus with a macro MAX_DYN_CPUS which
-could be defined the following way:
-
-#ifdef CONFIG_DYN_CPU
-extern volatile int smp_num_cpus; /* smp_num_cpus may change */
-extern int max_dyn_cpus;
-#define MAX_DYN_CPUS max_dyn_cpus
-#else
-extern int smp_num_cpus; /* smp_num_cpus won't change */
-#define MAX_DYN_CPUS smp_num_cpus
-#endif
-
-Comming back to the question on how to realize an interface where per cpu
-dependent parts of the kernel could register a function whenever a cpu gets
-detached I think the following approach would work fine:
-
-To register a function the following structure would be used:
-
-typedef struct smp_dyncpu_func_s smp_dyncpu_func_t;
-struct smp_dyncpu_func_s {
-       void (*f)(int);
-       smp_dyncpu_func_t *next;
-};
-
-
-The function which would be called when a function needs to be registered
-would look like this:
-
-smp_dyncpu_func_t *dyncpu_func; /* NULL */
-...
-void smp_register_dyncpu_func(smp_dyncpu_func_t *func)
-{
-       func->next = dyncpu_func;
-       dyncpu_func = func;
-       return;
-}
-
-
-And finally every part of the kernel that needs to register a function
-which would be used to clean up per cpu data structures would have some
-additional code added which would look like this:
-
-static smp_dyncpu_func_t smp_cleanup_func;
-...
-void local_dyncpu_handler(int killed_cpu){...}
-...
-static int __init local_dyncpu_init(void)
-{
-       smp_cleanup_func.f = &local_dyncpu_handler;
-       smp_register_dyncpu_func(&smp_cleanup_func);
-       return 0;
-}
-...
-__initcall(local_dyncpu_init);
-
-Thinking of modules which may have also per cpu structures there could
-be a second function which allows to unregister prior registered
-functions.
-
-So what do you think of this approach? I would appreciate any comments
-on this.
-
-Best regards,
-Heiko
-
-
+	-Thomas
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

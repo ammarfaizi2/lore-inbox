@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBLXUM>; Mon, 12 Feb 2001 18:20:12 -0500
+	id <S129296AbRBLXVc>; Mon, 12 Feb 2001 18:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129185AbRBLXUC>; Mon, 12 Feb 2001 18:20:02 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:35593 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129144AbRBLXTs>; Mon, 12 Feb 2001 18:19:48 -0500
-Message-ID: <3A886F73.759DB067@transmeta.com>
-Date: Mon, 12 Feb 2001 15:19:15 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129367AbRBLXVW>; Mon, 12 Feb 2001 18:21:22 -0500
+Received: from mailgate.bridgetrading.com ([62.49.201.178]:64521 "EHLO 
+	directcommunications.net") by vger.kernel.org with ESMTP
+	id <S129296AbRBLXVQ>; Mon, 12 Feb 2001 18:21:16 -0500
+Date: Mon, 12 Feb 2001 23:22:53 +0000 (GMT)
+From: Chris Funderburg <chris@Funderburg.com>
+To: <scott@spiteful.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: opl3sa not detected anymore
+Message-ID: <Pine.LNX.4.30.0102122311180.1057-100000@pikachu.bti.com>
+X-Unexpected-Header: Hello!!!
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: James Sutherland <jas88@cam.ac.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <E14SRPp-0008J1-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > This is true, but one thing I'd really like to have is controlled buffer
-> > overrun, which TCP *doesn't* have.  I really think an ad hoc UDP protocol
-> > (I've already begun sketching on the details) is more appropriate in this
-> > particular case.
-> 
-> Explain 'controlled buffer overrun'. BTW if you make it UDP please include
-> something like SHA hash or tea hash and shared secret
-> 
 
-I *REALLY* don't know if that is reasonable; it may have to fall into the
-category of "supported but not required".  Requiring an SHA hash in a
-small bootstrap loader may not exactly be a reasonable expectation! 
-However, I think the protocol is inherently going to be asymmetric, with
-as much as possible unloaded.
+After the updates to the opl3sa2 driver (2.4.2-pre3?) my card isn't being
+detected anymore.  Are there further updates to come, or do I need to
+change the settings?  The driver is being loaded as a module with the
+following in /etc/modules.conf:
 
-	-hpa
+alias sound-slot-0 opl3sa2
+options sound dmabuf=1
+alias midi opl3
+options opl3 io=0x388
+options opl3sa2 mss_io=0x530 irq=5 dma=1 dma2=0 mpu_io=0x330 io=0x370
 
+The midi works fine, but 'modprobe sound' reports:
+
+opl3sa2: No cards found
+opl3sa2: 0 PnP card(s) found.
+
+If the settings above look ok, then how can help debug it?
+
+Regards
+CF
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+... Any resemblance between the above views and those of my employer,
+my terminal, or the view out my window are purely coincidental.  Any
+resemblance between the above and my own views is non-deterministic.  The
+question of the existence of views in the absence of anyone to hold them
+is left as an exercise for the reader.  The question of the existence of
+the reader is left as an exercise for the second god coefficient.  (A
+discussion of non-orthogonal, non-integral polytheism is beyond the scope
+of this article.)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263017AbTC1Pir>; Fri, 28 Mar 2003 10:38:47 -0500
+	id <S263018AbTC1PnK>; Fri, 28 Mar 2003 10:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263018AbTC1Pir>; Fri, 28 Mar 2003 10:38:47 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:12046 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263017AbTC1Piq>; Fri, 28 Mar 2003 10:38:46 -0500
-Date: Fri, 28 Mar 2003 16:49:56 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <UTC200303281533.h2SFXPP00799.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0303281641400.5042-100000@serv>
-References: <UTC200303281533.h2SFXPP00799.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263019AbTC1PnK>; Fri, 28 Mar 2003 10:43:10 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:1518 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263018AbTC1PnJ>;
+	Fri, 28 Mar 2003 10:43:09 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 28 Mar 2003 16:49:46 +0100 (MET)
+Message-Id: <UTC200303281549.h2SFnkw05009.aeb@smtp.cwi.nl>
+To: tytso@mit.edu
+Subject: TIOCTTYGSTRUCT
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Ted,
 
-On Fri, 28 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+Would you mind if I removed TIOCTTYGSTRUCT?
 
-> I would prefer if you waited a bit. This little detail,
-> changing the size of dev_t, requires an audit of the
-> kernel source. That takes some time.
-> I would much prefer postponing discussion about device
-> handling until after number handling is in good shape.
+I suppose you don't need it any longer, and otherwise
+could easily add some debugging stuff again when needed.
+This ioctl exports lots of kernel-internal stuff that
+userspace has no business looking at.
+The direct reason I ask is that it also exports a kdev_t,
+and the meaning of that will change.
 
-You already changed the device handling and you don't want to discuss it? 
-My patch does the same without the questionable device handling changes.
+Andries
 
-> Generally it is a bad idea when two people simultaneously
-> change the same code.
+>From Changelog:
+Sat Nov 26 11:59:24 1994  Theodore Y. Ts'o  (tytso@rt-11)
 
-Ignoring other people's comments and questions is generally a bad idea as 
-well.
-
-bye, Roman
-
+        * tty_io.c (tty_ioctl): Add support for the new ioctl
+                TIOCTTYGSTRUCT, which allow a kernel debugging program
+                direct read access to the tty and tty_driver structures.

@@ -1,81 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSJHVuX>; Tue, 8 Oct 2002 17:50:23 -0400
+	id <S261413AbSJHWHn>; Tue, 8 Oct 2002 18:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263423AbSJHVsI>; Tue, 8 Oct 2002 17:48:08 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:15139 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S263279AbSJHVrP>;
-	Tue, 8 Oct 2002 17:47:15 -0400
-From: <Hell.Surfers@cwctv.net>
-To: davem@redhat.com, jw@pegasys.ws, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 22:52:27 +0100
-Subject: RE:Re: The end of embedded Linux?
+	id <S261409AbSJHWHn>; Tue, 8 Oct 2002 18:07:43 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:51619 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261402AbSJHWHf>; Tue, 8 Oct 2002 18:07:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: "John Tyner" <jtyner@cs.ucr.edu>, "Greg KH" <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: Vicam/3com homeconnect usb camera driver
+Date: Tue, 8 Oct 2002 18:30:04 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-usb-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+References: <001c01c26ce4$39b67f80$0a00a8c0@refresco> <m17yUpC-006hzVC@Mail.ZEDAT.FU-Berlin.DE> <001901c26e8d$3f62f850$0a00a8c0@refresco>
+In-Reply-To: <001901c26e8d$3f62f850$0a00a8c0@refresco>
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1034113947114"
-Message-ID: <05c1158502108a2DTVMAIL9@smtp.cwctv.net>
+Content-Transfer-Encoding: 7BIT
+Message-ID: <17z2b8-2CNQquC@fmrl08.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 08 October 2002 07:40, John Tyner wrote:
+> This is a resend of the patch I sent earlier. I worked on the one earlier
+> while away from home and was unable to test it. This one has been fixed,
+> tested, and should be correct. Sorry for the confusion.
+>
+> Patch is against 2.5.41.
+>
+> Thanks,
+> John
 
---1034113947114
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-yep. i prefer pressing enter though. lol.
++	if ( waitqueue_active( &vicam_v4l_priv->no_users ) ) {
++		wake_up( &vicam_v4l_priv->no_users );
 
-Cheers, Dean.
+never ever do this. Always do the wake_up unconditionally.
 
-On 	Tue, 08 Oct 2002 13:00:14 -0700 (PDT) 	"David S. Miller" <davem@redhat.com> wrote:
+ioctl() - VIDIOSYNC: this may hang if you unplug at the wrong moment,
+as there's nobody to up the semaphore in that case.
+You should do the up in the disconnect handler and check for disconnection
+in the ioctl so you can return -ENODEV in that case.
 
---1034113947114
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+in disconnect:
 
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Tue, 8 Oct 2002 22:49:13 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263552AbSJHUEB>; Tue, 8 Oct 2002 16:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263547AbSJHUDO>; Tue, 8 Oct 2002 16:03:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54694 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263533AbSJHUBf>;
-	Tue, 8 Oct 2002 16:01:35 -0400
-Received: from localhost (IDENT:davem@localhost.localdomain [127.0.0.1])
-	by pizda.ninka.net (8.9.3/8.9.3) with ESMTP id NAA11525;
-	Tue, 8 Oct 2002 13:00:14 -0700
-Date: Tue, 08 Oct 2002 13:00:14 -0700 (PDT)
-Message-Id: <20021008.130014.53509656.davem@redhat.com>
-To: Hell.Surfers@cwctv.net
-Cc: jw@pegasys.ws, linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <0372021510908a2DTVMAIL6@smtp.cwctv.net>
-References: <0372021510908a2DTVMAIL6@smtp.cwctv.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
++	/* make sure no one will submit another urb */
++	clear_bit( 0, &vicam_v4l_priv->vicam_present );
 
-   From: <Hell.Surfers@cwctv.net>
-   Date: Tue, 8 Oct 2002 10:51:40 +0100
+But it does not guard against control messages in flight.
+You need a semaphore to do that.
 
-   limitation of mailer.
-   
-I know, it must be really hard to type carriage return
-occaisionally.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1034113947114--
++	usb_unlink_urb( vicam_v4l_priv->urb );
++	down( &vicam_v4l_priv->busy_mutex );
 
+This can hang for two reasons,
+- you might not be the only user of that semaphore
+- usb_unlink_urb may fail due to there being no queued urb,
+  eg. if the completion handler is running - you need to check the return     
+  value
 
++	if ( vdev->users ) {
++		sleep_on( &vicam_v4l_priv->no_users );
++	}
+
+_Very_ bad idea.
+First, never use sleep_on. Use the appropriate macro.
+Second, you have blocked khubd without an upper time limit.
+That you _must_ _not_ in any case do.
+
++	kfree( vicam_v4l_priv );
++	kfree( vicam_usb_priv );
+
+Potentionally deadly if the device is open, you need to defer it to release 
+in that case
+
+Sorry for all that trouble.
+
+	Regards
+		Oliver

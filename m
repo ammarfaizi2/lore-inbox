@@ -1,69 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTJNVOd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJNVOd
+	id S262942AbTJNV31 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTJNV31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:14:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50876 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262120AbTJNVO1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:14:27 -0400
-Date: Tue, 14 Oct 2003 14:13:19 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Karel =?ISO-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+	Tue, 14 Oct 2003 17:29:27 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:10161 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S262942AbTJNV3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 17:29:24 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: len.brown@intel.com
+Subject: [PATCH][2.4] fix "pci=noacpi" boot option
+Date: Tue, 14 Oct 2003 23:28:58 +0200
+User-Agent: KMail/1.5.9
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Vortex full-duplex doesn't work?
-Message-Id: <20031014141319.06885762.rddunlap@osdl.org>
-In-Reply-To: <20031014230923.D2935@beton.cybernet.src>
-References: <20031014223109.A7167@beton.cybernet.src>
-	<20031014140216.21cf33a3.rddunlap@osdl.org>
-	<20031014230923.D2935@beton.cybernet.src>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-03=_bqGj/9JDIm2jPp1";
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200310142328.59083.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003 23:09:23 +0200 Karel Kulhavý <clock@twibright.com> wrote:
 
-| > | Hello
-| > | 
-| > | I have collected from tidbits of information that
-| > | ether=0,0,0x201,0,eth0 should set my 3c900 card to full duplex AUI.
-| > | 
-| > | I have tried this, then ifconfig eth0 up and then
-| > | vortex-diag -vv and it still reports MAC Settings: half-duplex
-| > | 
-| > | When I rewrite all occurences of full_duplex in 3c59x.c for hard-coded
-| > | "1", then I get MAC Settings: full-duplex
-| > | 
-| > | How do I set up this driver to force full-duplex AUI for 3c900 network
-| > | card without using modules and without patching 3c59x.c?
-| > 
-| > BTW, what kernel version ???
-| 
-| 2.4.22
-| 
-| > As I indicated in another reply to you, <quote>
-| > Please try this, although I'm not yet convinced that the 3c59x
-| > driver calls all of the right hooks for this to work.
-| > but good luck, and please report back on it. </quote>
-| 
-| So the only possibility apart from introducing modules is hacking it up in the
-| driver?
+--Boundary-03=_bqGj/9JDIm2jPp1
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_aqGj/N2hMuYpb7z"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yes, I believe so.
+--Boundary-01=_aqGj/N2hMuYpb7z
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-| I tried the 3Com setup DOS diskette and it refuses to set full duplex
-| together with AUI.
+Hi Len,
 
-That makes sense.  Fdx requires 2 copper wire pairs.  AUI is a shared
-wire medium.
+some time ago I sent a patch which fixed problems with the "pci=3Dnoacpi" b=
+oot=20
+option of the 2.5.xx linux-kernel. It got applied to the 2.5 kernel tree bu=
+t=20
+I missed to create a similar fix for the 2.4 tree which seems to have the=20
+same issue.
 
---
-~Randy
+Now I've seen reports of people having problems with the "pci=3Dnoacpi" boo=
+t=20
+option with current 2.4.xx kernel versions, too. So I ported my old patch t=
+o=20
+2.4.22-bk34, tested it and attached it to this mail. You may consider pushi=
+ng=20
+it to Marcelo.
+
+Kind regards,
+  Thomas
+
+--Boundary-01=_aqGj/N2hMuYpb7z
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="fix_pci_noacpi.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename="fix_pci_noacpi.diff"
+
+=2D-- linux-2.4.22-bk34/arch/i386/kernel/acpi.c.orig	Tue Oct 14 20:50:18 20=
+03
++++ linux-2.4.22-bk34/arch/i386/kernel/acpi.c	Tue Oct 14 20:53:45 2003
+@@ -58,6 +58,7 @@
+=20
+ #ifdef CONFIG_ACPI_BOOT
+ extern int acpi_disabled;
++extern int acpi_irq;
+ extern int acpi_ht;
+=20
+ enum acpi_irq_model_id		acpi_irq_model;
+@@ -415,7 +416,7 @@
+ 	 * If MPS is present, it will handle them,
+ 	 * otherwise the system will stay in PIC mode
+ 	 */
+=2D	if (acpi_disabled) {
++	if (acpi_disabled || !acpi_irq) {
+ 		return 1;
+ 	}
+=20
+=2D-- linux-2.4.22-bk34/arch/i386/kernel/setup.c.orig	Tue Oct 14 20:50:25 2=
+003
++++ linux-2.4.22-bk34/arch/i386/kernel/setup.c	Tue Oct 14 20:57:34 2003
+@@ -184,6 +184,7 @@
+ EXPORT_SYMBOL(acpi_disabled);
+=20
+ #ifdef	CONFIG_ACPI_BOOT
++	int acpi_irq __initdata =3D 1; 	/* enable IRQ */
+ 	int acpi_ht __initdata =3D 1; 	/* enable HT */
+ #endif
+=20
+@@ -848,6 +849,11 @@
+ 		else if (!memcmp(from, "acpi=3Dht", 7)) {=20
+ 			acpi_ht =3D 1;=20
+ 			if (!acpi_force) acpi_disabled =3D 1;=20
++		}=20
++
++		/* "pci=3Dnoacpi" disables ACPI interrupt routing */
++		else if (!memcmp(from, "pci=3Dnoacpi", 10)) {=20
++			acpi_irq =3D 0;=20
+ 		}=20
+=20
+                 /* disable IO-APIC */
+
+--Boundary-01=_aqGj/N2hMuYpb7z--
+
+--Boundary-03=_bqGj/9JDIm2jPp1
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/jGqbYAiN+WRIZzQRAmtaAJ9WYGP5cONJPqohR68ms0FzHW3hAQCeJGv6
+H6lLaljQB3dt8f3GNfvWJTk=
+=E4CR
+-----END PGP SIGNATURE-----
+
+--Boundary-03=_bqGj/9JDIm2jPp1--

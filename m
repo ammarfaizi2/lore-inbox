@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTJBRXW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 13:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTJBRXV
+	id S263436AbTJBRj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 13:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTJBRj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 13:23:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58243 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263402AbTJBRXU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 13:23:20 -0400
-Date: Thu, 2 Oct 2003 18:23:19 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test6-mm2
-Message-ID: <20031002172318.GF7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031002022341.797361bc.akpm@osdl.org> <16252.23200.511369.466054@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16252.23200.511369.466054@laputa.namesys.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 2 Oct 2003 13:39:29 -0400
+Received: from cpc3-hitc2-5-0-cust152.lutn.cable.ntl.com ([81.99.82.152]:43400
+	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
+	id S263436AbTJBRj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 13:39:27 -0400
+Message-ID: <3F7C62F2.4040401@reactivated.net>
+Date: Thu, 02 Oct 2003 18:40:02 +0100
+From: Daniel Drake <dan@reactivated.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030905 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] (2.6.0-test6) Trivial: linux-via mailinglist
+Content-Type: multipart/mixed;
+ boundary="------------000609010905050000040301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 02, 2003 at 09:04:32PM +0400, Nikita Danilov wrote:
-> Andrew Morton writes:
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm2/
->  > 
->  > . A large series of VFS patches from Al Viro which replace usage of
->  >   file->f_dentry->d_inode->i_mapping with the new file->f_mapping.
->  > 
->  >   This is mainly so we can get disk hot removal right.
-> 
-> What consequences does this have for (out-of-the-tree) file systems,
-> beyond s/->f_dentry->d_inode->i_mapping/->f_mapping/g ?
+This is a multi-part message in MIME format.
+--------------000609010905050000040301
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-None.  It only matters for block device inodes.  Out-of-tree fs is free to
-do whatever it does with inodes of regular files/directories/etc.  
+Hi,
 
-In quite a few cases you can cut down on dereferencing that way, but that's
-covered by what you've mentioned.
+In the MAINTAINERS file, there is an address for a mailing list under the "VIA 82Cxxx AUDIO DRIVER" heading.
+I tried sending a mail there, and it got bounced back (user unknown).
 
-If you take a look at the patchset you'll see
-	* change of method prototypes in block devices (aka "you don't need
-to start with bdev = inode->i_bdev, you get it from arguments" - check RD1--RD6
-and you'll see)
-	* a lot of places in mm/* that got aforementioned search-and-replace
-treatment
-	* very few changes in fs code, most of them of the same variety (same
-search-and-replace)
-	* couple of helper functions changed their prototypes:
-		generic_write_checks() lost "inode" argument
-		generic_osync_inode(), OTOH, got explicit address_space one.
+I found an archive of this list on MARC, but as you can see it hasn't been active for about a year:
+http://marc.theaimsgroup.com/?l=linux-via&r=1&w=2
 
-That's it.
+Looks like that list is gone. Here's a patch to remove it from MAINTAINERS.
+
+Daniel.
+
+--------------000609010905050000040301
+Content-Type: text/plain;
+ name="trivial-via-list.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="trivial-via-list.patch"
+
+--- linux-2.6.0-test6/MAINTAINERS	2003-09-28 11:34:13.000000000 +0100
++++ linux/MAINTAINERS	2003-10-02 18:33:23.970907088 +0100
+@@ -2201,7 +2201,6 @@
+ 
+ VIA 82Cxxx AUDIO DRIVER
+ P:	Jeff Garzik
+-L:	linux-via@gtf.org
+ S:	Odd fixes
+ 
+ VIA RHINE NETWORK DRIVER
+
+--------------000609010905050000040301--
+

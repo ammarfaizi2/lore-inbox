@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264725AbTFLEPF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 00:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTFLEPE
+	id S264719AbTFLE1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 00:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264729AbTFLE1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 00:15:04 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39179
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264725AbTFLEPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 00:15:01 -0400
-Date: Wed, 11 Jun 2003 21:15:54 -0700 (PDT)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Alan Cox <alan@redhat.com>
-cc: Hugo Mills <hugo-lkml@carfax.org.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: SiI3112 (Adaptec 1210SA): no devices
-In-Reply-To: <200306052013.h55KDcP12104@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.10.10306112115300.30142-100000@master.linux-ide.org>
+	Thu, 12 Jun 2003 00:27:05 -0400
+Received: from ns.suse.de ([213.95.15.193]:61198 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264719AbTFLE1D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 00:27:03 -0400
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Mika =?ISO-8859-1?Q?=20Penttil=E4?= <mika.penttila@kolumbus.fi>,
+       ak@suse.de, vojtech@suse.cz, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] New x86_64 time code for 2.5.70
+References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
+	<3EE79FD1.8060503@kolumbus.fi>
+	<1055366925.17154.95.camel@serpentine.internal.keyresearch.com>
+From: Andreas Jaeger <aj@suse.de>
+Date: Thu, 12 Jun 2003 06:40:46 +0200
+In-Reply-To: <1055366925.17154.95.camel@serpentine.internal.keyresearch.com> (Bryan
+ O'Sullivan's message of "11 Jun 2003 14:28:45 -0700")
+Message-ID: <u8d6hjgb75.fsf@gromit.moeb>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Portable Code, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-It is the SiI3112 or SiI3114 behind and Adaptec munge.
+Bryan O'Sullivan <bos@serpentine.com> writes:
 
+> On Wed, 2003-06-11 at 14:32, Mika Penttil=E4 wrote:
+>
+>> Line below seems to be wrong, given hpet period is in fsecs.
+>
+> I don't believe the HPET code got much testing in 2.4, and my boxes
 
-Andre Hedrick
-LAD Storage Consulting Group
+It got quite some testing on my boxes,
 
-On Thu, 5 Jun 2003, Alan Cox wrote:
+> don't have ACPI table entries for the HPET, so it's troublesome to test
+> it on them.
 
-> >    I've just taken delivery of a shiny new Adaptec 1210SA Serial-ATA
-> > adapter and a 120Gb Seagate Barracuda native SATA drive. Problem is,
-> > the kernel driver doesn't seem to notice this device on boot --
-> 
-> Its not a PCI identifier I've ever seen before
-> 
-> > 00:0b.0 RAID bus controller: CMD Technology Inc: Unknown device 0240 (rev 02) (prog-if 01)
-> 
-> So its some kind of CMD now SIS device, either an SI680 or SI3112 with a 
-> weird PCI ID
-> 
-> 
-> Does it have any option to put it into non raid mode in its bios ?
-> 
+Please tell your board vendor to fix it,
+Andreas
+=2D-=20
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj
 
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA+6AROOJpWPMJyoSYRAsAjAJ9dtwvhHLJaPVLvAJorJG9qcDoZ9ACfdFYx
+2TEqPi1V3DODvzI2TQEafP4=
+=rcHP
+-----END PGP SIGNATURE-----
+--=-=-=--

@@ -1,110 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277228AbRJLFeL>; Fri, 12 Oct 2001 01:34:11 -0400
+	id <S277244AbRJLFoZ>; Fri, 12 Oct 2001 01:44:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277231AbRJLFeD>; Fri, 12 Oct 2001 01:34:03 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:14279 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S277228AbRJLFdw>;
-	Fri, 12 Oct 2001 01:33:52 -0400
-From: "John L. Males" <jlmales@softhome.net>
-Organization: Toronto, Ontario, Canada
-To: Andrea Arcangeli <andrea@suse.de>
-Date: Fri, 12 Oct 2001 01:34:02 -0500
+	id <S277242AbRJLFoO>; Fri, 12 Oct 2001 01:44:14 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:17932 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S277243AbRJLFn4>;
+	Fri, 12 Oct 2001 01:43:56 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with
+To: Paul.McKenney@us.ibm.com (Paul McKenney)
+Date: Fri, 12 Oct 2001 01:43:56 -0400 (EDT)
+Cc: andrea@suse.de (Andrea Arcangeli), frival@zk3.dec.com (Peter Rival),
+        ink@jurassic.park.msu.ru (Ivan Kokshaysky), Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        rth@twiddle.net (Richard Henderson), cardoza@zk3.dec.com,
+        woodward@zk3.dec.com
+In-Reply-To: <OF206EE8AA.7A83A16B-ON88256AE1.005467E3@boulder.ibm.com> from "Paul McKenney" at Oct 10, 2001 08:24:11 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re[06]: [CFT][PATCH] smoother VM for -ac
-Reply-to: jlmales@softhome.net
-CC: jlmales@softhome.net, Rik van Riel <riel@conectiva.com.br>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-ID: <3BC6488A.30655.2D22164@localhost>
-In-Reply-To: <20011012070930.J714@athlon.random>
-In-Reply-To: <1002861682.866.3.camel@phantasy>; from rml@tech9.net on Fri, Oct 12, 2001 at 12:41:19AM -0400
-X-PM-Encryptor: QDPGP, 4
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Paul McKenney writes:
 
-- -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Andrea,
-
-I can do.  I see this is a VM is of keen interest.  Question for you.
- To really compare apples to apples I could spider a web site or two
-just find.  Then the challenge is to replay the "test" on the gui,
-say KDE for example.  Do you know of any good tools that would alow
-me to do a GUI record/playback?  I can then do an A vs B comparison.
-
-Also, remind me, can I find your kernel to test on the SuSE FTP site
-or via kernel.org.  I had tried a few of the SuSE 2.4 kernels a few
-levels back and I recall I was going to the people directory of the
-FTP site and getting them from mantel I seem to recollect.
-
-I will search about on internet to see if I can find a
-record/playback too to get some sort of good A vs B comparison.
-
-
-Regards,
-
-John L. Males
-Willowdale, Ontario
-Canada
-12 October 2001 01:33
-mailto:jlmales@softhome.net
-  
-
-Date sent:      	Fri, 12 Oct 2001 07:09:30 +0200
-From:           	Andrea Arcangeli <andrea@suse.de>
-To:             	Robert Love <rml@tech9.net>
-Copies to:      	jlmales@softhome.net, Rik van Riel
-<riel@conectiva.com.br>,
-       	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject:        	Re: Re[02]: [CFT][PATCH] smoother VM for -ac
-
-> On Fri, Oct 12, 2001 at 12:41:19AM -0400, Robert Love wrote:
-> > On Fri, 2001-10-12 at 01:33, John L. Males wrote:
-> > > I just found out about your desire to have some workstation
-> > > testing done to get feedback on your current VM patch.
-> > > 
-> > > I am currently using Kernel 2.4.9-ac18.  I am still not happy
-> > > about some of the memory management.  I love to try your patch.
-> > >  I would be willing to do so against the 2.4.10-ac11 Kernel if
-> > > a patch is available.  If Alan is going to implement this patch
-> > > in a later 2.4.10-acxx patch I will wait patiently.
-> > 
-> > Said patch and other VM work is in 2.4.10-ac12.  Get that and
-> > report back.
+> In the meantime, Compaq's patent #6,108,737 leads me to believe that
+> others in DEC/Compaq also believe it to be a feature.  The paragraph
+> starting at column 2 line 20 of the body of this patent states:
+>
+>      In a weakly-ordered system, an order is imposed between selected
+>      sets of memory reference operations, while other operations are
+>      considered unordered.  One or more MB instructions are used to
+>      indicate the required order.  In the case of an MB instruction
+>      defined by the Alpha (R) 21264 processor instruction set, the MB
+>      denotes that all memory reference instructions above the MB (i.e.,
+>      pre-MB instructions) are ordered before all reference instructions
+>      after the MB (i.e., post-MB instructions).  However, no order
+>      is required between reference instructions that are not separated
+>      by an MB.
+>
+> (The patent talks about the WMB instruction later on.)
+>
+> In other words, if there is no MB, the CPU is not required to maintain
+> ordering.  Regardless of data dependencies or anything else.
+>
+> There is also an application note at
+>
+>      http://www.openvms.compaq.com/wizard/wiz_2637.html
+>
+> which states:
 > 
-> Later, if you've some time to test, I'd also be very interested in
-> a comparison with 2.4.12aa1.
+>      For instance, your producer must issue a "memory barrier" instruction
+>      after writing the data to shared memory and before inserting it on
+>      the queue; likewise, your consumer must issue a memory barrier
+>      instruction after removing an item from the queue and before reading
+>      from its memory.  Otherwise, you risk seeing stale data, since,
+>      while the Alpha processor does provide coherent memory, it does
+>      not provide implicit ordering of reads and writes.  (That is, the
+>      write of the producer's data might reach memory after the write of
+>      the queue, such that the consumer might read the new item from the
+>      queue but get the previous values from the item's memory.
 > 
-> Andrea
+> Note that they require a memory barrier (rmb()) between the time the
+> item is removed from the queue and the time that the data in the item
+> is referenced, despite the fact that there is a data dependency between
+> the dequeueing and the dereferencing.  So, again, data dependency does
+> -not- substitute for an MB on Alpha.
 
+This looks an awful lot like the PowerPC architecture.
 
-- -----BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use 
-<http://www.pgp.com>
+In an SMP system, one would most likely mark pages as
+requiring coherency. This means that stores to a memory
+location from multiple processors will give sane results.
+Ordering is undefined when multiple memory locations are
+involved.
 
-iQA/AwUBO8aOyOAqzTDdanI2EQLa4ACg8+jxwCGBvKXasN0skSmdwMEiXKsAoODH
-m39x4FgquaNCVx0E8lHjHynA
-=I7rv
-- -----END PGP SIGNATURE-----
+There is a memory barrier instruction called "eieio".
+This is commonly used for IO, but is also useful for RAM.
+Two separate sets of memory operations are simultaneously
+and independently affected by eieio:
 
+-- set one, generally memory-mapped IO space --
+loads to uncached + guarded memory
+stores to uncached + guarded memory
+stores to write-through-required memory
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.2 -- QDPGP 2.61a
-Comment: .
+-- set two, generally RAM on an SMP box --
+stores to cached + write-back + coherent
 
-iQA/AwUBO8aO2eAqzTDdanI2EQLRZQCfSgergtM1o0/4f+RIcD1tCvY3iJUAoL4f
-WoHD5idV3ByDJzR3XWYigHmh
-=dlmp
------END PGP SIGNATURE-----
-
-
-"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000
+"The eieio instruction is intended for use in managing shared data
+structures ... the shared data structure and the lock that protects
+it must be altered only by stores that are in the same set"
+                             -- from the 32-bit ppc arch book

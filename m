@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267194AbUBMWDs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 17:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUBMWDs
+	id S267179AbUBMWLh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 17:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267243AbUBMWLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 17:03:48 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:8823 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267194AbUBMWDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 17:03:47 -0500
-Message-ID: <402D4AE4.5020700@myrealbox.com>
-Date: Fri, 13 Feb 2004 14:08:36 -0800
-From: walt <wa1ter@myrealbox.com>
-User-Agent: Mozilla/5.0 (X11; U; NetBSD i386; en-US; rv:1.6) Gecko/20040210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-References: <fa.i9mtr77.1pja9qf@ifi.uio.no> <fa.de6p9mb.1ikipbl@ifi.uio.no>
-In-Reply-To: <fa.de6p9mb.1ikipbl@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Feb 2004 17:11:37 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:1244 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S267179AbUBMWLc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 17:11:32 -0500
+Date: Fri, 13 Feb 2004 16:09:09 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Sean Neakums <sneakums@zork.net>, Nagy Tibor <nagyt@otpbank.hu>,
+       xela@slit.de, mochel@osdl.org, bmoyle@mvista.com, orc@pell.chi.il.us,
+       linux-kernel@vger.kernel.org
+Subject: Re: HIGHMEM
+Message-ID: <20040213160909.A6102@lists.us.dell.com>
+References: <402CC114.8080100@dell633.otpefo.com> <6uvfmbktrj.fsf@zork.zork.net> <64200000.1076688313@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <64200000.1076688313@[10.10.2.4]>; from mbligh@aracnet.com on Fri, Feb 13, 2004 at 08:05:14AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Fri, Feb 13, 2004 at 08:05:14AM -0800, Martin J. Bligh wrote:
+> >> We have two Dell Poweredge servers, an older one (PowerEdge 6300) and a
+> >> newer one (PowerEdge 6400). Both servers have 4GB RAM, but the Linux
+> >> kernel uses about 500MB less memory in the newer machine.
+> > 
+> > I may be talking through my hat, but I think that in this case you
+> > need to select the option for support of 64G highmem.  If I recall,
+> > "4G highmem" refers not to the total amount to the memory, but to the
+> > highest physical address that can be accessed.
+> 
+> That's exactly correct. Whether the gain of 500MB of RAM is worth the
+> overhead of PAE is another question ... but that's how to do it ;-)
 
->  ...sysfs exports loads of info about every device in your system, not
->    only the major:minor info.  It exports what device this major:minor
->    is assigned to, the topology of the device...
+If the chipset and BIOS can't remap the physical RAM out of the
+address space needed by the PCI devices and into PAE space, then PAE
+doesn't buy you anything.  You need chipset support for RAM remapping,
+which doesn't exist on the servers mentioned.
 
-For the benefit of us schlubs looking in from the outside, could you tell
-us what you mean by 'topology' ?
+Thanks,
+Matt
 
-Thanks, from a gentoo/udev user!
-
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

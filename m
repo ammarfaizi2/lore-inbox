@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbTKCG3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 01:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTKCG3Y
+	id S261928AbTKCGWK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 01:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTKCGWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 01:29:24 -0500
-Received: from gemini.yars.free.net ([193.233.48.66]:42745 "EHLO
-	gemini.netis.ru") by vger.kernel.org with ESMTP id S261929AbTKCG3X
+	Mon, 3 Nov 2003 01:22:10 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:4351 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261928AbTKCGWI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 01:29:23 -0500
-Date: Mon, 3 Nov 2003 09:29:06 +0300
-From: "Alexander V. Lukyanov" <lav@netis.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9: success report
-Message-ID: <20031103062906.GA5396@swing.yars.free.net>
+	Mon, 3 Nov 2003 01:22:08 -0500
+Date: Mon, 3 Nov 2003 08:22:04 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getrlimit for an arbitrary process?
+Message-ID: <20031103062203.GT4640@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+References: <20031102090505.GB9015@niksula.cs.hut.fi> <Pine.LNX.4.44.0311022213140.28000-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311022213140.28000-100000@chimarrao.boston.redhat.com>
 User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact NETIS Telecom for more information (+7 0852 797709)
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.7, required 5,
-	AWL 0.00, BAYES_30 -0.93, USER_AGENT_MUTT -2.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Nov 02, 2003 at 10:14:11PM -0500, you [Rik van Riel] wrote:
+> 
+> Nope, rlimits only work on the current process
+> (and a few of them work on the current UID).
 
-I write to report success of 2.6.0-test9 on a heavy loaded (2m hits a day)
-proxy server running squid.
+Yep.
+ 
+> > Couldn't find it under /proc, at least on 2.4.x.
+> 
+> Good idea for 2.7, though we might as well go
+> all the way and set up more arbitrary resource
+> groups.
+> 
+> Take a look at http://ckrm.sourceforge.net/  ;)
 
-It worked 3 days under load without a glitch.
+Interesting. So is linux-vservers (and a bunch of other projects). I hope
+the common denominator of these can be distilled out and soaked into the
+mainline kernel...
 
-Some notes:
 
-	1. ATA TCQ does not work here, I had to disable it. Turning it on
-	   later leads to instant data corruption.
-	2. Nice value seems to be more significant in 2.6 than in 2.4, but
-	   I think it is good.
+thanks,
 
-My config:
-	P4 1.80GHz, 640MB ram, 2x40MB ibm ide disks (IC35L040AVVN07-0).
-	ext3 filesystems.
+-- v --
 
--- 
-   Alexander.                      | http://www.yars.free.net/~lav/  
+v@iki.fi

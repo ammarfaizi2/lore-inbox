@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUHTNrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHTNsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267352AbUHTNrL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267473AbUHTNrK
+	id S267985AbUHTNsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267943AbUHTNsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:47:10 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:17823 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S267352AbUHTNrD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:47:03 -0400
-Date: Fri, 20 Aug 2004 15:46:15 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [UPDATED PATCH 1/2] export module parameters in sysfs for modules _and_ built-in code
-Message-ID: <20040820134615.GC16660@thundrix.ch>
-References: <20040801165407.GA8667@dominikbrodowski.de> <1091426395.430.13.camel@bach> <20040802214710.GB7772@dominikbrodowski.de> <1092858948.8998.47.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ABTtc+pdwF7KHXCz"
-Content-Disposition: inline
-In-Reply-To: <1092858948.8998.47.camel@nosferatu.lan>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 20 Aug 2004 09:48:20 -0400
+Received: from mail.kamp-dsl.de ([195.62.99.42]:22994 "HELO dsl-mail.kamp.net")
+	by vger.kernel.org with SMTP id S267473AbUHTNrT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 09:47:19 -0400
+Message-ID: <412600FB.6000700@ti.uni-trier.de>
+Date: Fri, 20 Aug 2004 15:47:39 +0200
+From: Jochen Bern <bern@ti.uni-trier.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040413 Debian/1.6-5 Mnenhy/0.6.0.102
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Timer-ing ATKBD Communication?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Could someone please give me a hint (function name, pointer to example 
+code or docs) how to accomplish the following?
 
---ABTtc+pdwF7KHXCz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I'm trying to implement additional communication between kernel and a 
+PS/2 connected AT keyboard. What I have right now (in 2.6.4-52 so far) is:
+-- one additional branch in
+    drivers/input/keyboard/atkbd.c::atkbd_interrupt() that recognizes
+    the keyboard's (different) responses, processes them, and keeps
+    them away from the normal atkbd_interrupt() processing
+-- another additional branch that, if a special key was pressed, uses
+    atkbd_sendbyte() to initiate the communication. (Note that this
+    being hooked into atkbd_interrupt() provides me with direct access
+    to struct atkbd *atkbd to fill the first param of atkbd_sendbyte().)
+The actual communication seems to work (awaiting kernel upgrade and 
+stress testing), but I need part of the communication initiated at 
+regular intervals (about every second or so) instead of keying off other 
+keyboard activity ...
 
-Salut,
-
-On Wed, Aug 18, 2004 at 09:55:49PM +0200, Martin Schlemmer wrote:
-> PS: If needed, I can try to get some time to leave it up not
->     in X ...
-
-Try this in xorg.conf:
-
-Section "Device"
-	Identifier	"Generic VESA interface"
-	Driver		"vesa"
-EndSection
-
-So you can have both X and a debuggable kernel.
-
-			Tonnerre
-
---ABTtc+pdwF7KHXCz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBJgCm/4bL7ovhw40RAqvrAJ9TE0L1Z0puJtYJ9ba0cXuLMYdzYwCdFHTp
-JoUPsV5eosP0m8Da6BLa8OQ=
-=If9B
------END PGP SIGNATURE-----
-
---ABTtc+pdwF7KHXCz--
+TIA,
+								J. Bern

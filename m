@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266038AbUA1VNI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 16:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266091AbUA1VNI
+	id S266158AbUA1U6g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 15:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266160AbUA1U6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 16:13:08 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:15234 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S266038AbUA1VM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 16:12:58 -0500
-Date: Wed, 28 Jan 2004 13:14:05 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: ishii.hironobu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-Message-ID: <20040128211405.GG5722@cup.hp.com>
-References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com> <20040128172004.GB5494@cup.hp.com> <20040128184137.616b6425.ak@suse.de> <20040128190923.GA6333@cup.hp.com> <20040128201701.045670db.ak@suse.de>
+	Wed, 28 Jan 2004 15:58:36 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:14085 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S266158AbUA1U6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 15:58:34 -0500
+Date: Wed, 28 Jan 2004 23:58:15 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, moilanen@austin.ibm.com,
+       johnrose@austin.ibm.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH][2.6] PCI Scan all functions
+Message-ID: <20040128235815.A8539@den.park.msu.ru>
+References: <1075222501.1030.45.camel@magik> <20040127211253.GA27583@kroah.com> <20040127133314.0ddf00cd.akpm@osdl.org> <20040127214444.GA27874@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040128201701.045670db.ak@suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040127214444.GA27874@kroah.com>; from greg@kroah.com on Tue, Jan 27, 2004 at 01:44:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 08:17:01PM +0100, Andi Kleen wrote:
-> This would likely 
-> improve the quality of linux drivers long term and make your
-> job as maintainer of an "anal IO error" platform easier.
+On Tue, Jan 27, 2004 at 01:44:44PM -0800, Greg KH wrote:
+> > -	if (base && base <= limit) {
+> > +	if (base <= limit) {
 
-yup. The key drivers we deal with reached that point last year.
-Drivers could always be better. But those issues have been discussed
-and presented:
-o LinuxTag 2002 keynote by Alan Cox, "Submitting new Kernel drivers"
-	(http://gsyprf11.external.hp.com/porting_zx1/mgp/Code.mgp)
-o OLS 2002 talk by Arjan van de Ven, "How not to write kernel drivers"
-o OLS 2002 talk by Greg K-H, "Documentation/CodingStyle and Beyond"
-o OLS 2002 talk by myself, "Porting Drivers to HP ZX1"
+I think the patch is safe. Architectures that don't accept
+bridge windows (and regular BARs) at bus address 0 already have
+that check elsewhere.
+For example, in arch/i386/pci/i386.c:pcibios_allocate_bus_resources():
+...
+			for (idx = PCI_BRIDGE_RESOURCES; idx < PCI_NUM_RESOURCES; idx++) {
+				r = &dev->resource[idx];
+				if (!r->start)
+				    ^^^^^^^^^
+					continue;
+...
 
-It helps to "enforce" driver quality through "anal IO Error containment"
-but it's too late when it happens on a customer box.
-
-> Just it should not be enabled by default in production kernels.
-> And finding out where it works reliably will be some work.
-
-agreed.
-
-> There is no reason pci_map_single() has to panic on overflow. On x86-64
-> it returns an unmapped address that is guaranteed to cause an bus abort
-> for 128KB.
-
-parisc and ia64 will also bus abort. And then HPMC/MCA respectively.
-We could reserve a "safe page" and then hand that back I guess.
-But that sounds like a very broken error containment strategy to me.
-(ie outbound data will be garbage).
-
-This really isn't an issue for HP ZX1/IA64 since most drivers (64-bit)
-can bypass the IOMMU and directly address memory. parisc-linux still
-isn't commercially interesting.
-
-> And you have an macro to test for it (pci_dma_error()). 
-
-I didn't know about pci_dma_error.
-Google found two references: One is:
-	http://www.x86-64.org/lists/discuss/msg03841.html
-
-> I believe ppc64 has adopted it too. Of course most drivers don't 
-> use it yet.
-
-<search 2.6.2-rc2 source tree>
-grundler <502>find -name '*.[chS]' | xargs fgrep pci_dma_error
-./include/asm-x86_64/pci.h:#define pci_dma_error(x) ((x) ==
-bad_dma_address)
-grundler <503>
-
-That explains why most drivers don't use it yet.
-It's only supported on one arch.
-Maybe propose this to linux-pci mailing list?
-
-grant
+Ivan.

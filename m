@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTE2LKV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 07:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTE2LKV
+	id S262145AbTE2LKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 07:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTE2LKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 07:10:21 -0400
-Received: from oak.sktc.net ([64.71.97.14]:45715 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id S262148AbTE2LKU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 07:10:20 -0400
-Message-ID: <3ED5EDB2.9060506@sktc.net>
-Date: Thu, 29 May 2003 06:23:30 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Lowery <Robert.Lowery@colorbus.com.au>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: mounting VXDOS partitions under linux
-References: <370747DEFD89D2119AFD00C0F017E66126C91D@cbus613-server4.colorbus.com.au>
-In-Reply-To: <370747DEFD89D2119AFD00C0F017E66126C91D@cbus613-server4.colorbus.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 29 May 2003 07:10:16 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:38835 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262145AbTE2LKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 07:10:15 -0400
+Date: Thu, 29 May 2003 04:23:33 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+Message-Id: <20030529042333.3dd62255.akpm@digeo.com>
+In-Reply-To: <20030529012914.2c315dad.akpm@digeo.com>
+References: <20030529012914.2c315dad.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 May 2003 11:23:33.0080 (UTC) FILETIME=[BD019D80:01C325D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One other thing to look out for is that Wind River also has a "long 
-filename" FAT-like file system in which directory entries are longer, 
-and which allows for longer filenames and case-sensitivity.
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm2/
+> 
+> 
+> . A couple more locking mistakes in ext3 have been fixed.
+> 
 
-(Gads, I hate working with VxWorks. Wish I'd know a couple of years ago 
-where Linux was going to be in a few months - I'd've never spec'ed my 
-project to run under VxWorks.)
+But not all of them.  The below is needed on SMP.
 
-But yes, I would love to see a VxFAT module that could read WRS's 
-wonderfully screwed up filesystems.
+diff -puN fs/jbd/transaction.c~x fs/jbd/transaction.c
+--- 25-whoops/fs/jbd/transaction.c~x	2003-05-29 04:21:51.000000000 -0700
++++ 25-whoops-akpm/fs/jbd/transaction.c	2003-05-29 04:22:09.000000000 -0700
+@@ -2077,12 +2077,13 @@ void __journal_refile_buffer(struct jour
+  */
+ void journal_refile_buffer(journal_t *journal, struct journal_head *jh)
+ {
+-	struct buffer_head *bh;
++	struct buffer_head *bh = jh2bh(jh);
+ 
++	jbd_lock_bh_state(bh);
+ 	spin_lock(&journal->j_list_lock);
+-	bh = jh2bh(jh);
+ 
+ 	__journal_refile_buffer(jh);
++	jbd_unlock_bh_state(bh);
+ 	journal_remove_journal_head(bh);
+ 
+ 	spin_unlock(&journal->j_list_lock);
+
+_
 

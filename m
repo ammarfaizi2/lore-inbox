@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTIMSAT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 14:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTIMSAT
+	id S262078AbTIMSH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 14:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbTIMSH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 14:00:19 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:10507
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261903AbTIMSAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 14:00:13 -0400
-Date: Sat, 13 Sep 2003 10:42:33 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: David Schwartz <davids@webmaster.com>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-In-Reply-To: <1063290974.2962.19.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10309131039290.16744-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 Sep 2003 14:07:58 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:60827 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262078AbTIMSH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 14:07:57 -0400
+Subject: Re: st_options.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Somsak RAKTHAI <rsomsak@mor-or.pn.psu.ac.th>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.43.0309131716590.19568-100000@mor-or>
+References: <Pine.GSO.4.43.0309131716590.19568-100000@mor-or>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063476386.8702.37.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Sat, 13 Sep 2003 19:06:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sad, 2003-09-13 at 11:26, Somsak RAKTHAI wrote:
+> Dear sir,
+>   I used Linux RedHat 7.2. My kernel is 2.4.7-10smp.
+> I want to modify file below to make new kernel.
+>     /usr/src/linux/drivers/scsi/st_options.h
 
-On Thu, 11 Sep 2003, Alan Cox wrote:
+Make sure you have kernel-source installed (I'd also strongly advise
+you to update to the errata packages for 7.2 if you can).
 
-> On Iau, 2003-09-11 at 02:35, David Schwartz wrote:
-> > 	The GPL puts no restrictions on use. The GPL_ONLY stuff does.
-> 
-> No it doesn't. It allows people to track whether you get support or not.
-> It prevents nothing.
-
-Then allow the usage and functionality of the SYMBOLS and not "steal" them
-from usage.  If you say thay can be used without support.
-
-PS it is "The Troll" again.
-
-Just execute the reject of the License and have the means to reject
-support.  You are so full of it to say it is for rejecting support when
-anyone knows it removes usage of the SYMBOL == API.
-
-Cheers,
-
-Andre
-
+Alan
 

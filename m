@@ -1,49 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbTFFNsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 09:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbTFFNsa
+	id S261454AbTFFNr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 09:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbTFFNr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 09:48:30 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:9095 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261561AbTFFNs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 09:48:26 -0400
-Date: Fri, 6 Jun 2003 16:01:49 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: [Patch] 2.5.70-bk11 zlib reduce deflate workspace by 128k
-Message-ID: <20030606140149.GA20168@wohnheim.fh-wedel.de>
+	Fri, 6 Jun 2003 09:47:58 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:36736 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S261454AbTFFNrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 09:47:47 -0400
+Subject: [RFC][PATCH 2.5.70] dynamically tuning msgtql
+From: Dhruv Anand <dhruv.anand@wipro.com>
+To: linux-kernel@vger.kernel.org
+Cc: indou.takao@jp.fujitsu.com, akpm@zip.com.au, ahaas@airmail.net,
+       dalecki@evision-ventures.com, ezolt@perf.zko.dec.com,
+       rob.naccarato@sheridanc.on.ca, Dave@imladris.demon.co.uk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 06 Jun 2003 19:30:10 +0530
+Message-Id: <1054908010.18527.7.camel@m2-arvind>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+X-OriginalArrivalTime: 06 Jun 2003 14:00:51.0408 (UTC) FILETIME=[09FE2D00:01C32C34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus!
+Hi,
+Please find below the patch (RFC) that makes msgtql dynamically tunable
+through /proc interface. 
 
-Free lunch time.  There are currently no users in the kernel that use
-a memlevel >8, but we reserve space for 9.  The patch saves 128k at no
-cost.
+1) IPC_NOWAIT flag not handled.
+Handling this will cause overheads (additional queue, wake-ups etc). 
+Please comment.
 
-Jörn
+Or Handling IPC_NOWAIT may require:
+a) An additional global queue for processes when message to be 
+queued is > msgtql && IPC_NOWAIT flag is not set.
+Please comment.
 
--- 
-The cost of changing business rules is much more expensive for software
-than for a secretaty.
--- unknown
+Thanks,
+Dhruv
 
---- linux-2.5.70-bk11/include/linux/zconf.h~zlib_memlevel	2003-06-06 15:56:15.000000000 +0200
-+++ linux-2.5.70-bk11/include/linux/zconf.h	2003-06-06 15:57:28.000000000 +0200
-@@ -23,7 +23,7 @@
+diff -Nur linux-2.5.70/include/linux/msg.h linux-2.5.70msg/include/linux/msg.h
+--- linux-2.5.70/include/linux/msg.h	Tue May 27 06:30:40 2003
++++ linux-2.5.70msg/include/linux/msg.h	Fri Jun  6 14:31:26 2003
+@@ -49,13 +49,13 @@
+ 	unsigned short  msgseg; 
+ };
  
- /* Maximum value for memLevel in deflateInit2 */
- #ifndef MAX_MEM_LEVEL
--#  define MAX_MEM_LEVEL 9
-+#  define MAX_MEM_LEVEL 8
+-#define MSGMNI    16   /* <= IPCMNI */     /* max # of msg queue identifiers */
+-#define MSGMAX  8192   /* <= INT_MAX */   /* max size of message (bytes) */
+-#define MSGMNB 16384   /* <= INT_MAX */   /* default max size of a message queue */
++#define MSGMNI    16      /* <= IPCMNI  */   /* max # of msg queue identifiers */
++#define MSGMAX  8192      /* <= INT_MAX */   /* max size of message (bytes) */
++#define MSGMNB 16384   	  /* <= INT_MAX */   /* default max size of a message queue */
++#define MSGTQL 0x7fffffff /* <= INT_MAX */   /* number of system message */
+ 
+ /* unused */
+ #define MSGPOOL (MSGMNI*MSGMNB/1024)  /* size in kilobytes of message pool */
+-#define MSGTQL  MSGMNB            /* number of system message headers */
+ #define MSGMAP  MSGMNB            /* number of entries in message map */
+ #define MSGSSZ  16                /* message segment size */
+ #define __MSGSEG ((MSGPOOL*1024)/ MSGSSZ) /* max no. of segments */
+diff -Nur linux-2.5.70/include/linux/sysctl.h linux-2.5.70msg/include/linux/sysctl.h
+--- linux-2.5.70/include/linux/sysctl.h	Tue May 27 06:30:40 2003
++++ linux-2.5.70msg/include/linux/sysctl.h	Fri Jun  6 14:00:54 2003
+@@ -130,6 +130,7 @@
+ 	KERN_PIDMAX=55,		/* int: PID # limit */
+   	KERN_CORE_PATTERN=56,	/* string: pattern for core-file names */
+ 	KERN_PANIC_ON_OOPS=57,  /* int: whether we will panic on an oops */
++	KERN_MSGTQL=57,         /* int: Maximum number of messages system wide */
+ };
+ 
+
+diff -Nur linux-2.5.70/ipc/msg.c linux-2.5.70msg/ipc/msg.c
+--- linux-2.5.70/ipc/msg.c	Tue May 27 06:30:20 2003
++++ linux-2.5.70msg/ipc/msg.c	Fri Jun  6 18:43:42 2003
+@@ -32,6 +32,9 @@
+ int msg_ctlmax = MSGMAX;
+ int msg_ctlmnb = MSGMNB;
+ int msg_ctlmni = MSGMNI;
++int msg_ctltql = MSGTQL;
++static int msg_count = 0;               /* counter for MSGTQL */
++static spinlock_t msg_count_lock;       /* spinlock for MSGTQL */
+ 
+ /* one msg_receiver structure for each sleeping receiver */
+ struct msg_receiver {
+@@ -137,6 +140,9 @@
+ 
+ 	seg = msg->next;
+ 	kfree(msg);
++	spin_lock(&msg_count_lock);
++	msg_count--;
++	spin_unlock(&msg_count_lock);
+ 	while(seg != NULL) {
+ 		struct msg_msgseg* tmp = seg->next;
+ 		kfree(seg);
+@@ -154,48 +160,59 @@
+ 	alen = len;
+ 	if(alen > DATALEN_MSG)
+ 		alen = DATALEN_MSG;
+-
+-	msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
+-	if(msg==NULL)
+-		return ERR_PTR(-ENOMEM);
+-
+-	msg->next = NULL;
+-	msg->security = NULL;
+-
+-	if (copy_from_user(msg+1, src, alen)) {
+-		err = -EFAULT;
+-		goto out_err;
+-	}
+-
+-	len -= alen;
+-	src = ((char*)src)+alen;
+-	pseg = &msg->next;
+-	while(len > 0) {
+-		struct msg_msgseg* seg;
+-		alen = len;
+-		if(alen > DATALEN_SEG)
+-			alen = DATALEN_SEG;
+-		seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
+-		if(seg==NULL) {
+-			err=-ENOMEM;
+-			goto out_err;
++	
++	spin_lock(&msg_count_lock);
++	if(msg_count < msg_ctltql){
++		msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
++		if(msg==NULL) {
++			spin_unlock(msg_count_lock);
++			return ERR_PTR(-ENOMEM);
+ 		}
+-		*pseg = seg;
+-		seg->next = NULL;
+-		if(copy_from_user (seg+1, src, alen)) {
++		msg_count++;
++                spin_unlock(msg_count_lock);
++		msg->next = NULL;
++		msg->security = NULL;
++
++		if (copy_from_user(msg+1, src, alen)) {
+ 			err = -EFAULT;
+ 			goto out_err;
+ 		}
+-		pseg = &seg->next;
++
+ 		len -= alen;
+ 		src = ((char*)src)+alen;
+-	}
++		pseg = &msg->next;
++		while(len > 0) {
++			struct msg_msgseg* seg;
++			alen = len;
++			if(alen > DATALEN_SEG)
++			alen = DATALEN_SEG;
++			seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
++			if(seg==NULL) {
++				err=-ENOMEM;
++				goto out_err;
++			}
++			*pseg = seg;
++			seg->next = NULL;
++			if(copy_from_user (seg+1, src, alen)) {
++				err = -EFAULT;
++				goto out_err;
++			}
++			pseg = &seg->next;
++			len -= alen;
++			src = ((char*)src)+alen;
++		}
+ 	
+-	err = security_msg_msg_alloc(msg);
+-	if (err)
+-		goto out_err;
++		err = security_msg_msg_alloc(msg);
++		if (err)
++			goto out_err;
+ 
+-	return msg;
++		return msg;
++	}
++	else {
++		spin_unlock(&msg_count_lock);
++	        err= -EAGAIN;
++	        return ERR_PTR(err);
++	}
+ 
+ out_err:
+ 	free_msg(msg);
+diff -Nur linux-2.5.70/kernel/sysctl.c linux-2.5.70msg/kernel/sysctl.c
+--- linux-2.5.70/kernel/sysctl.c	Tue May 27 06:30:23 2003
++++ linux-2.5.70msg/kernel/sysctl.c	Fri Jun  6 14:35:06 2003
+@@ -61,6 +61,9 @@
+ /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
+ static int maxolduid = 65535;
+ static int minolduid;
++static int zero = 0;
++static int one = 1;
++static int one_hundred = 100;
+ 
+ #ifdef CONFIG_KMOD
+ extern char modprobe_path[];
+@@ -78,6 +81,7 @@
+ extern int msg_ctlmax;
+ extern int msg_ctlmnb;
+ extern int msg_ctlmni;
++extern int msg_ctltql;
+ extern int sem_ctls[];
  #endif
  
- /* Maximum value for windowBits in deflateInit2 and inflateInit2.
+@@ -235,6 +239,8 @@
+ 	 0644, NULL, &proc_dointvec},
+ 	{KERN_MSGMNB, "msgmnb", &msg_ctlmnb, sizeof (int),
+ 	 0644, NULL, &proc_dointvec},
++	{KERN_MSGTQL, "msgtql", &msg_ctltql, sizeof (int),
++         0644, NULL, &proc_dointvec_minmax, NULL, NULL, &zero, NULL},
+ 	{KERN_SEM, "sem", &sem_ctls, 4*sizeof (int),
+ 	 0644, NULL, &proc_dointvec},
+ #endif
+@@ -270,9 +276,6 @@
+ 
+ /* Constants for minimum and maximum testing in vm_table.
+    We use these as one-element integer vectors. */
+-static int zero = 0;
+-static int one = 1;
+-static int one_hundred = 100;
+ 
+
+ static ctl_table vm_table[] = {
+
+

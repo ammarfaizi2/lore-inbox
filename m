@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262269AbRERHyQ>; Fri, 18 May 2001 03:54:16 -0400
+	id <S262270AbRERHzg>; Fri, 18 May 2001 03:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262270AbRERHx5>; Fri, 18 May 2001 03:53:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55306 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262269AbRERHxr>; Fri, 18 May 2001 03:53:47 -0400
-Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
-To: alborchers@steinerpoint.com
-Date: Fri, 18 May 2001 08:50:53 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        macro@ds2.pg.gda.pl, tytso@mit.edu, pberger@brimson.com (Peter Berger)
-In-Reply-To: <3B048518.705AC5F3@steinerpoint.com> from "Al Borchers" at May 17, 2001 09:12:40 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262271AbRERHz0>; Fri, 18 May 2001 03:55:26 -0400
+Received: from 21dyn73.com21.casema.net ([213.17.91.73]:20490 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S262270AbRERHzR>; Fri, 18 May 2001 03:55:17 -0400
+Message-Id: <200105180755.JAA23039@cave.bitwizard.nl>
+Subject: Re: Getting FS access events
+In-Reply-To: <Pine.LNX.4.21.0105142130480.23663-100000@penguin.transmeta.com>
+ from Linus Torvalds at "May 14, 2001 09:43:18 pm"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Fri, 18 May 2001 09:55:14 +0200 (MEST)
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150f2E-0006oP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox wrote:
-> > It has to be changed, the race is basically unfixable any other way. I didn't
-> > lightly make that change
-> 
-> I agree.  The patch seems like the correct solution.  What will it take to
-> get the patch in the 2.4.x kernels?  Do we need someone to go through the serial
-> drivers and fix their open/close routines to work with this patch?  Peter
-> and I can take some time to do that--if that would help.
+Linus Torvalds wrote:
+> I'm really serious about doing "resume from disk". If you want a fast
+> boot, I will bet you a dollar that you cannot do it faster than by loading
+> a contiguous image of several megabytes contiguously into memory. There is
+> NO overhead, you're pretty much guaranteed platter speeds, and there are
+> no issues about trying to order accesses etc. There are also no issues
+> about messing up any run-time data structures.
 
-That would be one big help. Having done that I'd like to go over it all with
-Ted first (if he has time) before I push it to Linus
+Linus, 
 
+The "boot quickly" was an example. "Load netscape quickly" on some
+systems is done by dd-ing the binary to /dev/null. 
+
+Now, you're going to say again that this won't work because of
+buffer-cache/page-cache incoherency.  That is NOT the point. The point
+is that the fun about a cache is that it's just a cache. It speeds
+things up transparently. 
+
+If I need a new "prime-the-cache" program to mmap the files, and
+trigger a page-in in the right order, then that's fine with me.
+
+The fun about doing these tricks is that it works, and keeps on
+working (functionally) even if it stops working (fast).
+
+Yes, there is a way to boot even faster: preloading memory. Fine. But
+this doesn't allow me to load netscape quicker.
+
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281531AbRKUEPq>; Tue, 20 Nov 2001 23:15:46 -0500
+	id <S281544AbRKUEZH>; Tue, 20 Nov 2001 23:25:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281543AbRKUEPg>; Tue, 20 Nov 2001 23:15:36 -0500
-Received: from [200.222.195.165] ([200.222.195.165]:54936 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S281531AbRKUEP3>; Tue, 20 Nov 2001 23:15:29 -0500
-Date: Wed, 21 Nov 2001 02:15:47 -0200
-From: =?unknown-8bit?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: kaboom@gatech.edu
-Subject: Re: [PATCH] Documentation/Changes
-Message-ID: <20011121041547.GS11449@pervalidus>
+	id <S281555AbRKUEY5>; Tue, 20 Nov 2001 23:24:57 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:53753 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281544AbRKUEYs>;
+	Tue, 20 Nov 2001 23:24:48 -0500
+Date: Tue, 20 Nov 2001 21:23:36 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: =?iso-8859-1?Q?H=E5vard_Kv=E5len?= <havardk@netcom.no>
+Cc: Dan Maas <dmaas@dcine.com>, Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+Message-ID: <20011120212336.H1308@lynx.no>
+Mail-Followup-To: =?iso-8859-1?Q?H=E5vard_Kv=E5len?= <havardk@netcom.no>,
+	Dan Maas <dmaas@dcine.com>, Rik van Riel <riel@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0111202019170.4079-100000@imladris.surriel.com> <03bb01c17213$887ccd30$1a01a8c0@allyourbase> <fa.jc73ejv.1s6e80t@ifi.uio.no> <m3wv0knbgs.fsf@athlon.kvaalen.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.23.1i
-X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <m3wv0knbgs.fsf@athlon.kvaalen.no>; from havardk@netcom.no on Wed, Nov 21, 2001 at 02:45:23AM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, so the e-mail address for Chris doesn't work. Remove it
-from the Changes file ? I'm trying the other address.
+On Nov 21, 2001  02:45 +0100, Håvard Kvålen wrote:
+> > (I just tried looking at XMMS and Freeamp - I *think* they are using
+> > read(), but strace seems to do bad things with threaded programs,
+> > argh...)
+> 
+> You are right about XMMS, it uses read().  I'm not sure about Freeamp.
 
-Subject: [postmaster@mail.genetics.utah.edu: Undeliverable Mail]
+When I was hacking on mpg123, it was using mmap by default unless it was
+unable to mmap the file (e.g. stdin) where it uses read.  You could turn
+this off at compile time, so it only uses read.  I found that to work
+better on low memory machines.
 
------ Forwarded message from Postmaster <postmaster@mail.genetics.utah.edu> -----
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-Date:     Tue, 20 Nov 2001 19:21:44 -0700
-From: "Postmaster" <postmaster@mail.genetics.utah.edu>
-To: <0@pervalidus.net>
-Subject:  Undeliverable Mail
-X-Mailer: <SMTP32 v20011003>
-
-Invalid final delivery userid: cricker@genetics.utah.edu
-
-
-Original message follows.
-
-Received: from flagship [155.101.150.11] by mail.genetics.utah.edu
-  (SMTPD32-7.04) id AFB84E00082; Tue, 20 Nov 2001 19:21:44 -0700
-Received: FROM pervalidus.dyndns.org BY flagship ; Tue Nov 20 19:22:57 2001 -0700
-Received: from pervalidus by pervalidus.dyndns.org with local (Exim 3.33 #1)
-	id 166N0L-0007Wu-00; Wed, 21 Nov 2001 00:20:49 -0200
-Date: Wed, 21 Nov 2001 00:20:49 -0200
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Chris Ricker <chris.ricker@genetics.utah.edu>
-Subject: [PATCH] Documentation/Changes
-Message-ID: <20011121022049.GR11449@pervalidus>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uZ3hkaAS1mZxFaxD"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.23.1i
-X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14

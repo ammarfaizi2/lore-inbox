@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVAIT1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVAIThb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbVAIT1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 14:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVAIT1j
+	id S261726AbVAIThb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 14:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVAIThb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 14:27:39 -0500
-Received: from smtp.uninet.ee ([194.204.0.4]:11780 "EHLO smtp.uninet.ee")
-	by vger.kernel.org with ESMTP id S261740AbVAIT0g (ORCPT
+	Sun, 9 Jan 2005 14:37:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60815 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261726AbVAIThZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 14:26:36 -0500
-Message-ID: <41E1854A.40201@tuleriit.ee>
-Date: Sun, 09 Jan 2005 21:26:02 +0200
-From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-Reply-To: indrek.kruusa@tuleriit.ee
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: remove Attach another file remove Attach another file remove
- Attach another file USB mass storage not always detecting my 1GB PQI intelligent
- stick
-References: <884a349a050109082516b0740e@mail.gmail.com>	 <41E15F09.70502@tuleriit.ee> <884a349a0501091112300009ac@mail.gmail.com>
-In-Reply-To: <884a349a0501091112300009ac@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jan 2005 14:37:25 -0500
+Date: Sun, 9 Jan 2005 14:36:43 -0500
+From: Dave Jones <davej@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.x features log
+Message-ID: <20050109193642.GB5528@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <41DEC82C.4040502@osdl.org> <20050109121830.GA25170@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050109121830.GA25170@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which distro/kernel do you have? Have you looked at your distro's 
-bugzilla/buglist? Have you all latest update packages installed?
+On Sun, Jan 09, 2005 at 12:18:30PM +0000, Christoph Hellwig wrote:
+ > On Fri, Jan 07, 2005 at 09:34:36AM -0800, Randy.Dunlap wrote:
+ > > 
+ > > I think that people really like the Dave Jones
+ > > 2.5/2.6 halloween information/update.  It contained a lot
+ > > of useful info in one place, with pointers to more details.
+ > > 
+ > > What I'm seeing (and getting a little concerned about,
+ > > although I dislike PR with a passion) is that the 2.6.x
+ > > continuous development cycle will cause us (the Linux
+ > > community) to miss logging some of these important new
+ > > features (outside of bk).  Has anyone kept a track of new
+ > > features that are being added in 2.6?
+ > > 
+ > > I'll keep a list (or someone else can -- DaveJ ?) if anyone
+ > > is interested in feeding items into it.  Or do distros
+ > > already keep such a running list of new features?
+ > 
+ > Debian actually patches Dave's post_halloween document into
+ > Documentation.  Maybe we should put it there for mainline
+ > aswell and make sure to update it when doing major changes?
 
+I've said "Sure, go for it" to a number of people who
+brought this up, but nothing has ever come of it.
 
-Roseline Bonchamp wrote:
+I'll send it to Linus myself later today. 8)
 
->>Do you have several different USB devices connected in the same time? It
->>is possible that devices with different USB speed (high/full) cannot
->>work together. I am not the kernel developer but this is just my
->>experience with latest Linux distributions. The situation can be
->>different with current USB developments.
->>    
->>
->
->I tried to remove every other USB device. What is really strange is
->that it works when I've just booted Linux, but if I unplug/replug the
->device it seems to be "detected", but is not listed in
->/proc/bus/usb/devices
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->.
->
->  
->
+		Dave
 

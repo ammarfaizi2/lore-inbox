@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUDZQpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263084AbUDZQsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUDZQpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 12:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUDZQpk
+	id S263084AbUDZQsX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 12:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUDZQsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 12:45:40 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:42257 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S263084AbUDZQp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 12:45:28 -0400
-Date: Mon, 26 Apr 2004 12:45:23 -0400
-To: "Petri T. Koistinen" <petri.koistinen@iki.fi>
-Cc: "David S. Miller" <davem@redhat.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net/sunrpc/svcauth_unix.c: unix_domain_find: return NULL if kmalloc fails
-Message-ID: <20040426164523.GA29509@fieldses.org>
-References: <Pine.LNX.4.58.0404261913550.5531@dsl-prvgw1cc4.dial.inet.fi>
+	Mon, 26 Apr 2004 12:48:20 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:34759 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S263040AbUDZQrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 12:47:01 -0400
+Date: Mon, 26 Apr 2004 09:46:41 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rene Rebe <rene@rocklinux-consulting.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       valentin@rocklinux-consulting.de
+Subject: Re: [PATCH] fix compilation of ppc embedded configs
+Message-ID: <20040426164641.GB19246@smtp.west.cox.net>
+References: <20040422.103620.607961025.rene@rocklinux-consulting.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404261913550.5531@dsl-prvgw1cc4.dial.inet.fi>
+In-Reply-To: <20040422.103620.607961025.rene@rocklinux-consulting.de>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 07:17:19PM +0300, Petri T. Koistinen wrote:
-> Is this correct fix? What happens when unix_domain_find return NULL?
+On Thu, Apr 22, 2004 at 10:36:20AM +0200, Rene Rebe wrote:
 
-I just noticed that the other day, and have been testing with the
-identical fix; seems to work fine.  All the callers check for NULL
-returns and appear to do the right thing.  --Bruce Fields
+> Hi,
+> 
+> the attached patch converts some arch/ppc/platforms/*_setup.c files to
+> the new openpic_init argument cleanups and additional fixes the
+> includes of platforms/pplus.c.
+> 
+> prpmc750 config and pplus config tested and booted.
 
-> --- linux-2.5/net/sunrpc/svcauth_unix.c.orig	2004-04-26 18:58:04.000000000 +0300
-> +++ linux-2.5/net/sunrpc/svcauth_unix.c	2004-04-26 18:58:58.000000000 +0300
-> @@ -36,36 +36,38 @@ struct unix_domain {
->  struct auth_domain *unix_domain_find(char *name)
->  {
->  	struct auth_domain *rv, ud;
->  	struct unix_domain *new;
-> 
->  	ud.name = name;
-> 
->  	rv = auth_domain_lookup(&ud, 0);
-> 
->   foundit:
->  	if (rv && rv->flavour != RPC_AUTH_UNIX) {
->  		auth_domain_put(rv);
->  		return NULL;
->  	}
->  	if (rv)
->  		return rv;
-> 
->  	new = kmalloc(sizeof(*new), GFP_KERNEL);
-> +	if (new == NULL)
-> +		return NULL;
->  	cache_init(&new->h.h);
->  	atomic_inc(&new->h.h.refcnt);
->  	new->h.name = strdup(name);
->  	new->h.flavour = RPC_AUTH_UNIX;
->  	new->addr_changes = 0;
->  	new->h.h.expiry_time = NEVER;
->  	new->h.h.flags = 0;
-> 
->  	rv = auth_domain_lookup(&new->h, 2);
->  	if (rv == &new->h) {
->  		if (atomic_dec_and_test(&new->h.h.refcnt)) BUG();
->  	} else {
->  		auth_domain_put(&new->h);
->  		goto foundit;
->  	}
-> 
->  	return rv;
->  }
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'd like to see the hunks that aren't tested dropped as I strongly
+suspect there's more subtle errors in these platforms, if the call to
+openpic_init hasn't been changed.  Also, why is:
+
+> --- linux-2.6.6-rc2/arch/ppc/platforms/pplus.c	2004-04-22 10:27:16.000000000 +0200
+> +++ linux-2.6.5-wip/arch/ppc/platforms/pplus.c	2004-04-18 22:36:08.000000000 +0200
+> @@ -19,6 +19,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/init.h>
+> +#include <linux/initrd.h>
+>  #include <linux/ioport.h>
+>  #include <linux/console.h>
+>  #include <linux/pci.h>
+
+Needed?  Thanks.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

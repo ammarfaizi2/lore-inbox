@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbTBOPgv>; Sat, 15 Feb 2003 10:36:51 -0500
+	id <S262604AbTBOPpb>; Sat, 15 Feb 2003 10:45:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbTBOPgv>; Sat, 15 Feb 2003 10:36:51 -0500
-Received: from mrw.demon.co.uk ([194.222.96.226]:22144 "HELO mrw.demon.co.uk")
-	by vger.kernel.org with SMTP id <S262602AbTBOPgu> convert rfc822-to-8bit;
-	Sat, 15 Feb 2003 10:36:50 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Mark Watts <m.watts@mrw.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.61 and ELSA Passive Isdn cards...
-Date: Sat, 15 Feb 2003 15:46:51 +0000
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200302151546.51952.m.watts@mrw.demon.co.uk>
+	id <S262780AbTBOPpb>; Sat, 15 Feb 2003 10:45:31 -0500
+Received: from imap.gmx.net ([213.165.64.20]:46486 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262604AbTBOPpa>;
+	Sat, 15 Feb 2003 10:45:30 -0500
+Message-Id: <5.1.1.6.2.20030215165024.00c8e178@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Sat, 15 Feb 2003 17:00:03 +0100
+To: Rik van Riel <riel@imladris.surriel.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] CFQ scheduler, #2
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.1.6.2.20030215130207.00ccc338@pop.gmx.net>
+References: <Pine.LNX.4.50L.0302150947570.20371-100000@imladris.surriel.com>
+ <5.1.1.6.2.20030215123533.00cd3e70@pop.gmx.net>
+ <5.1.1.6.2.20030215105330.00c84da8@pop.gmx.net>
+ <5.1.1.6.2.20030215105330.00c84da8@pop.gmx.net>
+ <5.1.1.6.2.20030215123533.00cd3e70@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 01:07 PM 2/15/2003 +0100, Rik van Riel wrote:
+>At 09:49 AM 2/15/2003 -0200, Rik van Riel wrote:
+>>On Sat, 15 Feb 2003, Mike Galbraith wrote:
+>>
+>> > >Judging from your log, it ends up stalling kswapd and
+>> > >dramatically increases the number of times that normal
+>> > >processes need to go into the pageout code.
+>> > >
+>> > >If this provides an anti-thrashing benefit, something's
+>> > >wrong with the VM in 2.5 ;)
+>> >
+>> > Which number are you looking at?
+>>
+>>pgscan             2751953        5328260  <== ? hmm
+>>
+>>kswapd_steal        380282         522126
+>>pageoutrun            1107           1956
+>>allocstall            3472           1238
+>>
+>>- we scan far less pages
+>>- kswapd reclaims less pages
+>>- we go into the pageout code less often
+>>- allocations stall more often for a lack of free memory
+>
+>I would interpret that differently.  I would say we scan less because we 
+>don't need to scan as much, kswapd reclaims less for the same reason, and 
+>ditto for pageout ;-)  The reduction in scans does seem _way_ high though...
+>
+>wrt allocstall, I bet if I do a few runs, I'll see mucho variance there 
+>(could be wrong.. hunch)
 
-Trying to compile 2.5.61 on an Athlon. (with K7 optimisations)
+After 10 consecutive runs, stalls for 2.5.61cfq2 were 11060 vs. 3656 for 
+2.5.61virgin.
 
-make && make modules_install appear to work fine, but the last thing I see 
-before being dumped back to the prompt is this:
+(dang, hunch-o-meter needs calibration;)
 
-WARNING: /lib/modules/2.5.61/kernel/drivers/isdn/hisax/hisax.ko needs unknown 
-symbol kstat__per_cpu
-
-
-FIrst question - has anyone had this card working in 2.5.x ?
-Second, is this a known problem or am I doing something daft?
-
-
-I've grepped the kernel tree and the only references I can find are:
-
-[root@rebecca linux-2.5.61]# grep -R kstat__per_cpu *
-Binary file arch/i386/kernel/irq.o matches
-Binary file arch/i386/kernel/built-in.o matches
-arch/m68knommu/platform/5307/entry.S:   leal    kstat__per_cpu+STAT_IRQ,%a0
-arch/m68knommu/platform/5307/entry.S:   leal    kstat__per_cpu+STAT_IRQ,%a0
-Binary file drivers/isdn/hisax/config.o matches
-Binary file drivers/isdn/hisax/hisax.o matches
-Binary file drivers/isdn/hisax/hisax.ko matches
-Binary file fs/proc/proc_misc.o matches
-Binary file fs/proc/proc.o matches
-Binary file fs/proc/built-in.o matches
-Binary file fs/built-in.o matches
-Binary file kernel/sched.o matches
-Binary file kernel/built-in.o matches
-System.map:c03b2c40 D kstat__per_cpu
-Binary file vmlinux matches
-
-
-I have modutils-2.4.21-14 and module-init-tools-0.9.9 (both from rusty on 
-kernel.org)
-
-Under 2.4.20, the card is reported by lspci -v as:
-
-00:0d.0 Network controller: Elsa AG QuickStep 1000 (rev 02)
-        Subsystem: Elsa AG QuickStep 1000
-        Flags: medium devsel, IRQ 11
-        Memory at eb001000 (32-bit, non-prefetchable) [size=128]
-        I/O ports at e400 [size=128]
-        I/O ports at e800 [size=4]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-
-
-Thanks,
-
-Mark.
+         -Mike
 

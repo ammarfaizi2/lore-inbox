@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbTKGXvp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 18:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTKGWNq
+	id S263954AbTKGXyv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTKGWNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:13:46 -0500
-Received: from pat.uio.no ([129.240.130.16]:59063 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264412AbTKGPdX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:33:23 -0500
-From: Terje Malmedal <terje.malmedal@usit.uio.no>
-To: linux-kernel@vger.kernel.org
-Subject: NFS and dnotify. 
+	Fri, 7 Nov 2003 17:13:39 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:20714 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S264569AbTKGSu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 13:50:26 -0500
+Message-ID: <3FABEAF0.9060000@pacbell.net>
+Date: Fri, 07 Nov 2003 10:56:48 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Message-Id: <E1AI8bu-0004RC-00@aqualene.uio.no>
-Date: Fri, 7 Nov 2003 16:33:18 +0100
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+To: Jens Axboe <axboe@suse.de>
+CC: Alan Stern <stern@rowland.harvard.edu>,
+       Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [Bug 1412] Copy from USB1 CF/SM reader
+ stalls, no actual content is read (only directory structure)
+References: <20031105084002.GX1477@suse.de> <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org> <20031107082439.GB504@suse.de>
+In-Reply-To: <20031107082439.GB504@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> No that looks alright, given you are allocating low memory pages. The
+> devices can probably do full 32-bit dma I bet, though. 
 
-Programs running on an NFS-server won't get dnotify-events when
-NFS-clients change files. This is a problem with filesystems which are
-exported with both NFS and Samba. Typically a Windooze-system running
-IIS and ASP will not pick up changes made via NFS because of this.
+Typically ... most usb host controllers you'll see are on
+PCI (OHCI, UHCI, EHCI) with no restrictions, and only some
+EHCI controllers can do 64-bit DMA.  That's all visible in
+the the dma_mask for each interface in the device with the
+mass storage support, usually still at its "32-bit dma is ok"
+pci controller default.
 
-The following patch fixes the problem for me at least. I'm not
-familiar with the internals so possibly there are better ways of doing
-this, but it seems pretty straightforward.
+But it seems that most current 2.6 DMA API implementations
+have some problems in those areas.  See for example:
 
-Obviously the DN_ACCESS part does not work when the client already has
-cached the file. The important thing is that DN_MODIFY works.
+   http://marc.theaimsgroup.com/?l=linux-kernel&m=106746453218943&w=2
+   http://marc.theaimsgroup.com/?l=linux-usb-devel&m=106789996221347&w=2
 
-The patch is actually against RedHat's 2.4.20-20.9, but the code in
-question is identical in stock 2.4.22.
+That second patch is a partial workaround for the first patch
+presumably not getting applied before 2.6.0-final.  Net result,
+some systems with gobs of memory and no IOMMU may do needless
+buffer copies during USB I/O.
 
-It would be very nice if this or something like it could get into the
-standard kernel.
+Though a quick glance suggested to me that SCSI infrastructure
+is consulting dma_mask directly, instead of using the DMA API
+calls which do that.  I'm not sure I'd trust it to be any
+more correct, given GIGO ...
 
---- fs/nfsd/vfs.c.org	2003-11-07 14:18:33.000000000 +0100
-+++ fs/nfsd/vfs.c	2003-11-07 15:31:12.000000000 +0100
-@@ -42,7 +42,7 @@
- #endif /* CONFIG_NFSD_V3 */
- #include <linux/nfsd/nfsfh.h>
- #include <linux/quotaops.h>
--
-+#include <linux/dnotify.h>
- #include <asm/uaccess.h>
- 
- #define NFSDDBG_FACILITY		NFSDDBG_FILEOP
-@@ -627,6 +627,9 @@
- 	err = file.f_op->read(&file, buf, *count, &file.f_pos);
- 	set_fs(oldfs);
- 
-+	if (*count > 0)
-+	        dnotify_parent(file.f_dentry, DN_ACCESS);
-+
- 	/* Write back readahead params */
- 	if (ra != NULL) {
- 		dprintk("nfsd: raparms %ld %ld %ld %ld %ld\n",
-@@ -711,8 +714,10 @@
- 	/* Write the data. */
- 	oldfs = get_fs(); set_fs(KERNEL_DS);
- 	err = file.f_op->write(&file, buf, cnt, &file.f_pos);
--	if (err >= 0)
-+	if (err >= 0) {
- 		nfsdstats.io_write += cnt;
-+	        dnotify_parent(file.f_dentry, DN_MODIFY);
-+	}
- 	set_fs(oldfs);
- 
- 	/* clear setuid/setgid flag after write */
+- Dave
 
--- 
- - Terje
-malmedal@usit.uio.no

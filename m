@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbRB0Mw6>; Tue, 27 Feb 2001 07:52:58 -0500
+	id <S129191AbRB0NF2>; Tue, 27 Feb 2001 08:05:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129199AbRB0Mwt>; Tue, 27 Feb 2001 07:52:49 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:51214 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129136AbRB0Mwh>; Tue, 27 Feb 2001 07:52:37 -0500
-From: mshiju@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
+	id <S129199AbRB0NFS>; Tue, 27 Feb 2001 08:05:18 -0500
+Received: from janeway.cistron.net ([195.64.65.23]:35844 "EHLO
+	janeway.cistron.net") by vger.kernel.org with ESMTP
+	id <S129191AbRB0NFB>; Tue, 27 Feb 2001 08:05:01 -0500
+Date: Tue, 27 Feb 2001 14:03:33 +0100
+From: Ivo Timmermans <irt@cistron.nl>
 To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A00.0046A52B.00@d73mta05.au.ibm.com>
-Date: Tue, 27 Feb 2001 18:10:55 +0530
-Subject: 2.4.1 compilation error
+Subject: binfmt_script and ^M
+Message-ID: <20010227140333.C20415@cistron.nl>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-     When I compiled 2.4.1 kernel  on a 2.2.14-5.0 installation (redhat
-6.2) ,the following error occurred . But errno.h is there in
-/usr/src/linux2.4.1/include/linux/   directory. Have anyone experienced
-this problem.
+When running a script (perl in this case) that has DOS-style newlines
+(\r\n), Linux 2.4.2 can't find an interpreter because it doesn't
+recognize the \r.  The following patch should fix this (untested).
 
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
-scripts/split-include
-scripts/split-include.c
-In file included from /usr/include/errno.h:36,
-                 from scripts/split-include.c:26:
-/usr/include/bits/errno.h:25: linux/errno.h: No such file or directory
-make: *** [scripts/split-include] Error 1
+Please Cc me on replies, I'm not on this list.  Thanks.
 
 
-Thanks & Regards
-Shiju
+--- binfmt_script.c~	Mon Feb 26 17:42:09 2001
++++ binfmt_script.c	Tue Feb 27 13:39:47 2001
+@@ -36,6 +36,8 @@
+ 	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+ 	if ((cp = strchr(bprm->buf, '\n')) == NULL)
+ 		cp = bprm->buf+BINPRM_BUF_SIZE-1;
++	if (cp - 1 == '\r')
++	  cp--;
+ 	*cp = '\0';
+ 	while (cp > bprm->buf) {
+ 		cp--;
 
-
+-- 
+Ivo Timmermans

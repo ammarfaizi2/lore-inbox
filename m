@@ -1,58 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbUAJRBm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 12:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUAJRBm
+	id S265274AbUAJRGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUAJRGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 12:01:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265256AbUAJRBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 12:01:39 -0500
-Date: Sat, 10 Jan 2004 08:35:11 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Klaus Ripke <paul@malete.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mm/filemap.c: atomic file read(2)/write(2) ?
-In-Reply-To: <200401091308.45802.paul@malete.org>
-Message-ID: <Pine.LNX.4.58.0401092144330.1877@evo.osdl.org>
-References: <200401091308.45802.paul@malete.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jan 2004 12:06:38 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:51087 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S265274AbUAJRGf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:06:35 -0500
+Date: Sat, 10 Jan 2004 18:06:34 +0100
+From: martin f krafft <madduck@madduck.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stability problems with 2.4.24/Software RAID/ext3
+Message-ID: <20040110170634.GA31201@piper.madduck.net>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20040108151225.GA11740@piper.madduck.net> <1073671862.24706.13.camel@tux.rsn.bth.se> <20040109185348.GA24499@piper.madduck.net> <Pine.LNX.4.58L.0401101005470.3641@logos.cnet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0401101005470.3641@logos.cnet>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-diamond i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 9 Jan 2004, Klaus Ripke wrote:
-> 
-> judging from mm/filemap.c it seems like
-> ordinary reads/writes should be atomic to each other
-> (read sees write completely or not at all,
-> not only where it "can be proven to be after the write"),
-> if
+also sprach Marcelo Tosatti <marcelo.tosatti@cyclades.com> [2004.01.10.1306=
+ +0100]:
+> Did you ever try to disable the DMA as suggested?
 
-Nope. There are file descriptors that have atomicity guarantees (pipes(, 
-but regular files do not. In particular, even on UP you'll see nonatomic 
-reads with PREEMPT enabled.
+I am sorry, Marcelo, that it took me so long.
 
-Even without preempt you could see interesting partial updates if you take 
-a page fault. That's true even if your user space only ever reads or 
-writes within a whole page, since what you can get on the read() path is:
+In fact, I tried disabling the DMA and I could *not* get it to crash
+without DMA. It did also not crash with DMA on for the onboard (VIA)
+controller and off for the Promise. But when I turned DMA back on
+for the Promise, it crashed again.
 
- - read one word from the page cache
- - try to write it to user space
- - take a page fault - sleep
+Martin Josefsson has suggested that the Promise controller may be
+defective, and it certainly looks like that. I am now trying
+a different Promise controller (20376 rather than the 20369, but
+same driver), but it also crashes.
 
- - writer now comes in and updates the region
+Thus, it looks like it's a problem with the driver, doesn't it? Or
+either of the two disks. I will run badblocks over them on
+a known-to-be-good controller when I get a chance.
 
- - the reader comes back after the page fault
- - the reader completes the copy_to_user(), but the _first_ word was read 
-   from the old page cache contents and not re-read.
+If it's a problem with the driver, then I would be happy to help,
+but I know nothing about these layers of the computer. I would,
+however, give the controller away to someone eager to debug the
+driver (provided the university will let me)!
 
-(This will depend on which particular version of copy_to_user() you use: a
-"rep movs" will re-read the page cache and give an "atomic" read, while
-all other forms of memory copies will only re-try the destination write
-instruction, with the old value read from the source).
+Cheers,
 
-		Linus
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+a qui sait comprendre, peu de mots suffisent.
+                                                 -- intelligenti pauca
+
+--jRHKVT23PllUwdXP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAADEaIgvIgzMMSnURAgj/AJ9cpnDJZbb0c+FON9hu0asPLgT1SgCfYhWq
+Ote8IWVUkIiTP7Epf8uyGhA=
+=bY41
+-----END PGP SIGNATURE-----
+
+--jRHKVT23PllUwdXP--

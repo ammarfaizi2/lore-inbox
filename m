@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVCJDqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVCJDvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVCJDqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 22:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVCJDpe
+	id S261466AbVCJDvO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVCJDuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 22:45:34 -0500
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:17937 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S262616AbVCJDn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 22:43:58 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-Organization: IBM LTC
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: bk commits and dates
-Date: Thu, 10 Mar 2005 14:44:01 +1100
-User-Agent: KMail/1.7.2
-References: <1110422519.32556.159.camel@gaston>
-In-Reply-To: <1110422519.32556.159.camel@gaston>
-MIME-Version: 1.0
-Message-Id: <200503101444.01651.michael@ellerman.id.au>
-Content-Type: multipart/signed;
-  boundary="nextPart1774990.YyQLdOhLj6";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 22:50:10 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:31974 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261719AbVCJDrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 22:47:40 -0500
+Message-Id: <200503100347.j2A3lRg28975@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
+Date: Wed, 9 Mar 2005 19:47:27 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUlGIrLWr4iFx75TRmara5a3cx0mwABFzVQ
+In-Reply-To: <20050309182550.0291c6fd.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1774990.YyQLdOhLj6
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Andrew Morton wrote Wednesday, March 09, 2005 6:26 PM
+> What does "1/3 of the total benchmark performance regression" mean?  One
+> third of 0.1% isn't very impressive.  You haven't told us anything at all
+> about the magnitude of this regression.
 
-Two's company ...
+2.6.9 kernel is 6% slower compare to distributor's 2.4 kernel (RHEL3).  Roughly
+2% came from storage driver (I'm not allowed to say anything beyond that, there
+is a fix though).
 
-On Thu, 10 Mar 2005 13:41, Benjamin Herrenschmidt wrote:
-> While we are at such requests ...
->
-> When you pull from one of the trees, like netdev, the commit messages
-> are sent to the bk commit list with the original date stamp of the patch
-> in the netdev tree.
->
-> For example, if Jeff commited a patch from somebody in his netdev tree 3
-> weeks ago, and you pull Jeff's tree today, we'll get all the commit
-> messages today, but dated from 3 weeks ago.
->
-> That means that in my mailing list archive, where my mailer sorts them
-> by date, I can't say, for example, everything that is before the 2.6.11
-> tag release was in 2.6.11. It's also difficult to spot "new" stuffs as
-> they can arrive with dates weeks ago, and thus show up in places I will
-> not look for.
->
-> I don't know if I'm the only one to have a problem with that, but it
-> would be nice if it was possible, when you pull a bk tree, to have the
-> commit messages for the csets in that tree be dated from the day you
-> pulled, and not the day when they went in the source tree.
->
-> Ben.
+2% came from DIO.
+
+The rest of 2% is still unaccounted for.  We don't know where.
+
+> How much system time?  User time?  All that stuff.
+20.5% in the kernel, 79.5% in user space.
 
 
+> But the first thing to do is to work out where the cycles are going to.
+You've seen the profile.  That's where all the cycle went.
 
---nextPart1774990.YyQLdOhLj6
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+> Also, I'm rather peeved that we're hearing about this regression now rather
+> than two years ago.  And mystified as to why yours is the only group which
+> has reported it.
 
-iD8DBQBCL8KBdSjSd0sB4dIRAtQXAKCuUlgpPbbQMYEYjeD2bDBJ1Pm3EACbBhC7
-Sc6R91/cQSqNIYC1IAboDiE=
-=OePl
------END PGP SIGNATURE-----
+2.6.X kernel has never been faster than the 2.4 kernel (RHEL3).  At one point
+of time, around 2.6.2, the gap is pretty close, at around 1%, but still slower.
+Around 2.6.5, we found global plug list is causing huge lock contention on
+32-way numa box.  That got fixed in 2.6.7.  Then comes 2.6.8 which took a big
+dip at close to 20% regression.  Then we fixed 17% regression in the scheduler
+(fixed with cache_decay_tick).  2.6.9 is the last one we measured and it is 6%
+slower.  It's a constant moving target, a wild goose to chase.
 
---nextPart1774990.YyQLdOhLj6--
+I don't know why other people have not reported the problem, perhaps they
+haven't got a chance to run transaction processing db workload on 2.6 kernel.
+Perhaps they have not compared, perhaps they are working on the same problem.
+I just don't know.
+
+- Ken
+
+

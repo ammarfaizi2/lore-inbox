@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136088AbREGLbw>; Mon, 7 May 2001 07:31:52 -0400
+	id <S136097AbREGLhn>; Mon, 7 May 2001 07:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136091AbREGLbn>; Mon, 7 May 2001 07:31:43 -0400
-Received: from hertz.ikp.physik.tu-darmstadt.de ([130.83.24.91]:12928 "EHLO
-	hertz.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id <S136088AbREGLbb>; Mon, 7 May 2001 07:31:31 -0400
-From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+	id <S136094AbREGLhc>; Mon, 7 May 2001 07:37:32 -0400
+Received: from wiproecmx2.wipro.com ([164.164.31.6]:34019 "EHLO
+	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S136092AbREGLhV>; Mon, 7 May 2001 07:37:21 -0400
+From: "Chandrashekar Nagaraj" <chandrashekar.nag@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Date: Mon, 7 May 2001 17:08:43 +0530
+Message-ID: <004101c0d6ea$44ec44c0$4433a8c0@wipro.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15094.34704.397675.867882@hertz.ikp.physik.tu-darmstadt.de>
-Date: Mon, 7 May 2001 13:31:28 +0200
-To: linux-kernel@vger.kernel.org
-CC: pochini@denise.shiny.it, alan@lxorguk.ukuu.org.uk
-Subject: [Solved] Re: Problems even with 512 block size MOs
-X-Mailer: VM 6.90 under Emacs 20.7.1
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+hi,
+	i want to know how to read tab without a terminating character,
+ie., if i use getchar() i have to enter '\n' after tab to read tab,
+same is the case with read system call and scanf. 
 
-I am very sorry that I didn't mention that I ran Hubert Mantels modified
-kernels when I had that problem. I now found in Hubert's Changelog:
--------------------------------------------------------------------
-Sat May  5 15:17:10 CEST 2001 - mantel@suse.de
-...
-- fix max-sectors patch (fix horrible SCSI performance)
-...
-
-After compiling and booting the newer kernel,erformance seems fine now.
-
-Bye
--- 
-Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
-
-Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
---------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------
+bye,
+chandra.

@@ -1,27 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbTBPQ61>; Sun, 16 Feb 2003 11:58:27 -0500
+	id <S267237AbTBPRA7>; Sun, 16 Feb 2003 12:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267270AbTBPQ61>; Sun, 16 Feb 2003 11:58:27 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:9844
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267241AbTBPQ60>; Sun, 16 Feb 2003 11:58:26 -0500
-Date: Sun, 16 Feb 2003 12:06:43 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
+	id <S267310AbTBPRA7>; Sun, 16 Feb 2003 12:00:59 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64528 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267237AbTBPRA6>; Sun, 16 Feb 2003 12:00:58 -0500
+Date: Sun, 16 Feb 2003 17:10:50 +0000
+From: Russell King <rmk@arm.linux.org.uk>
 To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.53 not compiling 
-In-Reply-To: <Pine.LNX.4.44.0302162227200.18137-100000@topaz.csa.iisc.ernet.in>
-Message-ID: <Pine.LNX.4.50.0302161205240.578-100000@montezuma.mastecende.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.53 not compiling
+Message-ID: <20030216171050.A12489@flint.arm.linux.org.uk>
+Mail-Followup-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>,
+	linux-kernel@vger.kernel.org
 References: <Pine.LNX.4.44.0302162227200.18137-100000@topaz.csa.iisc.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0302162227200.18137-100000@topaz.csa.iisc.ernet.in>; from rahulv@csa.iisc.ernet.in on Sun, Feb 16, 2003 at 10:32:16PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Feb 2003, Rahul Vaidya wrote:
-
+On Sun, Feb 16, 2003 at 10:32:16PM +0530, Rahul Vaidya wrote:
 > When I tried to "make bzImage" the 2.5.53 it gave me the following error
 > 
 > In file included from include/linux/spinlock.h:13,
@@ -33,12 +35,14 @@ On Sun, 16 Feb 2003, Rahul Vaidya wrote:
 > include/linux/kernel.h:10:20: stdarg.h: No such file or directory
 > 
 > I am using gcc-3.2. And I did make menuconfig with default settings.
-> 
-> Please CC the Reply to my mail-id rahulv@csa.iisc.ernet.in
 
-Could you try updating to 2.5.61, it is available at www.kernel.org with 
-mirrors at www.xx.kernel.org where xx is the country code of the mirror.
+What does:
 
-	Zwane
+	gcc -v -iwithprefix include -E - < /dev/null
+
+tell you?
+
 -- 
-function.linuxpower.ca
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

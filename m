@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266825AbSKOScN>; Fri, 15 Nov 2002 13:32:13 -0500
+	id <S266816AbSKOS1R>; Fri, 15 Nov 2002 13:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266826AbSKOScM>; Fri, 15 Nov 2002 13:32:12 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:65218 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266825AbSKOScL>; Fri, 15 Nov 2002 13:32:11 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200211151837.gAFIbm610839@eng2.beaverton.ibm.com>
-Subject: 2.5.47-mm3 IO rate question
-To: linux-kernel@vger.kernel.org (lkml)
-Date: Fri, 15 Nov 2002 10:37:48 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S266817AbSKOS1R>; Fri, 15 Nov 2002 13:27:17 -0500
+Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:56843
+	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
+	id <S266816AbSKOS1Q>; Fri, 15 Nov 2002 13:27:16 -0500
+Date: Fri, 15 Nov 2002 18:34:07 +0000
+From: Ian Chilton <mailinglist@ichilton.co.uk>
+To: Leopold Gouverneur <lgouv@pi.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Anyone use HPT366 + UDMA in Linux?
+Message-ID: <20021115183407.GA32543@buzz.ichilton.co.uk>
+Reply-To: Ian Chilton <ian@ichilton.co.uk>
+References: <20021115123541.GA1889@buzz.ichilton.co.uk> <20021115162704.GA1059@gouv> <20021115162833.GA3717@buzz.ichilton.co.uk> <20021115173120.GA1152@gouv>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021115173120.GA1152@gouv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-I am using 2.5.47-mm3 and qlogic driver qla2x00src-v6.03.00b8.
-I have 2 qlogic controllers connected to 2 trays (10 disks/tray).
+> I do it in the bios and I have also limited the drive to udma3 to be on
+> the safe side (IBM has an utility for doing it )
 
-I do 256K IO on raw devices using "dd".
+I have just enabled HPT366 in the kernel but have not touched the bios
+or drive. This is what hdparm gives:
 
-dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw1 &
-dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw2 &
-dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw3 &
-...
-dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw20 &
+[root@buzz:~/hdparm-5.2]# ./hdparm -i /dev/hda
 
-IO throughput changes just by adjusting SG_SEGMENTS (from 32 to 64).
-I was wondering why such a significant difference. (20MB/sec).
+/dev/hda:
 
-I used to get 194-198MB/sec with 2.5.37 (with DIO code sending
-(fixed) 64K requests - qlogic max_sector=512, SG_SEGMETS=32).
-
-Any thoughts ?
-
-Thanks,
-Badari
-
-max_sectors = 512
-SG_SEGMENTS = 64
-[root]# vmstat 5
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 0 20  0      0 3642680   8832  42836    0    0 194765    15 1762  2183  0 100  0
- 0 20  0      0 3642680   8836  42836    0    0 194611     3 1761  2122  0 100  0
- 0 20  0      0 3642680   8840  42836    0    0 194509     3 1774  2150 10 81  8
- 0 20  0      0 3642680   8844  42836    0    0 194816     3 1762  2132  2 98  0
- 0 20  0      0 3642680   8848  42836    0    0 194765     3 1764  2177  2 98  0
+ Model=IBM-DTLA-307045, FwRev=TX6OA5AA, SerialNo=YZDYZNM1366
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
+ CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=90069840
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 *udma3 udma4 udma5
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
 
 
-max_sectors = 512
-SG_SEGMENTS = 32
-[root]# vmstat 5
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 0 20  0      0 3652472   7752  34464    0    0 170755    15 2354  3477  2 98  0
- 0 20  0      0 3652472   7756  34464    0    0 172771     3 2363  3512  2 98  0
- 0 20  0      0 3652472   7760  34464    0    0 174031     3 2372  3576  0 100  0
- 0 20  0      0 3652408   7764  34464    0    0 173074     7 2384  3538 10 87  3
- 0 20  0      0 3652408   7768  34464    0    0 172670     3 2364  3502  2 98  0
+Does this mean it's already using udma3?
+
+
+Thanks!
+
+Ian
 

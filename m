@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291102AbSCSTAf>; Tue, 19 Mar 2002 14:00:35 -0500
+	id <S291279AbSCSTHp>; Tue, 19 Mar 2002 14:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291169AbSCSTAZ>; Tue, 19 Mar 2002 14:00:25 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:43758
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S291102AbSCSTAT>; Tue, 19 Mar 2002 14:00:19 -0500
-Date: Tue, 19 Mar 2002 11:01:37 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S291306AbSCSTHf>; Tue, 19 Mar 2002 14:07:35 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:784 "EHLO freeside.toyota.com")
+	by vger.kernel.org with ESMTP id <S291279AbSCSTHV>;
+	Tue, 19 Mar 2002 14:07:21 -0500
+Message-ID: <3C978C61.8060307@lexus.com>
+Date: Tue, 19 Mar 2002 11:07:13 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020318
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre3-ac2
-Message-ID: <20020319190137.GU2254@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.44.0203191938530.3932-100000@mimas.fachschaften.tu-muenchen.de> <E16nOpi-0008SY-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.7 make modules_install error (oss)
+In-Reply-To: <E16nP3n-0008Uv-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 06:59:42PM +0000, Alan Cox wrote:
-> > gcc -D__KERNEL__ -I/home/bunk/linux/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -DKBUILD_BASENAME=shm  -c -o shm.o shm.c
-> > shm.c: In function `sys_shmdt':
-> > shm.c:682: too few arguments to function `do_munmap'
-> 
-> Whoops - stick a ,1 on it
+Alan Cox wrote:
 
-Then this patch should do it then...
+>
+>Not really. Well not unless you wish to volunteer.
+>
+Well, if I feel the pain, the motivation is there...
 
---- ipc/shm.c.orig	Tue Mar 19 10:58:06 2002
-+++ ipc/shm.c	Tue Mar 19 10:59:57 2002
-@@ -679,7 +679,7 @@
- 		shmdnext = shmd->vm_next;
- 		if (shmd->vm_ops == &shm_vm_ops
- 		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
--			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
-+			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start, 1);
- 			retval = 0;
- 		}
- 	}
+If the alsa drivers do not seem a viable choice,
+then I'll certainly volunteer to maintain the oss
+stuff that I find neccessary (mostly a collection
+of sb cards) -
+
+Of course, there is always the possibility that
+alsa will turn out right in the end...
+
+:-)
+
+Joe
+
+

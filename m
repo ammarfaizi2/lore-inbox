@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265802AbRGODmd>; Sat, 14 Jul 2001 23:42:33 -0400
+	id <S265810AbRGODrO>; Sat, 14 Jul 2001 23:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265810AbRGODmX>; Sat, 14 Jul 2001 23:42:23 -0400
-Received: from weta.f00f.org ([203.167.249.89]:42371 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S265802AbRGODmP>;
-	Sat, 14 Jul 2001 23:42:15 -0400
-Date: Sun, 15 Jul 2001 15:42:19 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu, linux-mm@kvack.org
-Subject: Re: RFC: Remove swap file support
-Message-ID: <20010715154219.C7624@weta.f00f.org>
-In-Reply-To: <3B472C06.78A9530C@mandrakesoft.com> <m1elrk3uxh.fsf@frodo.biederman.org> <20010715032528.E6722@weta.f00f.org> <m13d7z4dmv.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S265844AbRGODrE>; Sat, 14 Jul 2001 23:47:04 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:62378 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S265810AbRGODqy>;
+	Sat, 14 Jul 2001 23:46:54 -0400
+Message-ID: <3B511226.B48B22F1@mandrakesoft.com>
+Date: Sat, 14 Jul 2001 23:46:46 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+        Christoph Hellwig <hch@caldera.de>,
+        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
+In-Reply-To: <E15LTIY-0001Ul-00@the-village.bc.nu> <20010715154008.B7624@weta.f00f.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m13d7z4dmv.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 14, 2001 at 11:35:52AM -0600, Eric W. Biederman wrote:
+Chris Wedgwood wrote:
+> /* KERNEL_PRIVATE_BEGIN: blah */
+> 
+> struct internal organs(int foo, char *bar);
+> 
+> /* KERNEL_PRIVATE_END */
 
-    I can't see how any device that doesn't support read or writing
-    just a byte can be a character device.
+1) this is the same fscking thing we have now with ifdef __KERNEL__
 
-For requests smaller than the natural block size, you buffer and throw
-away... this will surely suck for writing do a hd byte-by-byte though
-:)
+2) if you are coming up with a -new- token, realize that kernel-private
+stuff is the common case, and use LIBC_KERNEL_SHARED_{BEGIN,END} instead
 
-
-
-  --cw
+-- 
+Jeff Garzik      | A recent study has shown that too much soup
+Building 1024    | can cause malaise in laboratory mice.
+MandrakeSoft     |

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313630AbSDPIPn>; Tue, 16 Apr 2002 04:15:43 -0400
+	id <S313633AbSDPIac>; Tue, 16 Apr 2002 04:30:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313632AbSDPIPm>; Tue, 16 Apr 2002 04:15:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:57488 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S313630AbSDPIPm>;
-	Tue, 16 Apr 2002 04:15:42 -0400
-Date: Tue, 16 Apr 2002 01:14:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Olaf Fraczyk <olaf@navi.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-Message-ID: <20020416081453.GP21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020416074748.GA16657@venus.local.navi.pl>
+	id <S313634AbSDPIab>; Tue, 16 Apr 2002 04:30:31 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:16512 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313633AbSDPIaa>;
+	Tue, 16 Apr 2002 04:30:30 -0400
+Date: Tue, 16 Apr 2002 10:30:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 36
+Message-ID: <20020416103001.A32435@ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBCD31.4090105@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 09:47:48AM +0200, Olaf Fraczyk wrote:
-> Hi,
-> I would like to know why exactly this value was choosen.
-> Is it safe to change it to eg. 1024? Will it break anything?
-> What else should I change to get it working:
-> CLOCKS_PER_SEC?
-> Please CC me.
-> Regards,
-> Olaf Fraczyk
+On Tue, Apr 16, 2002 at 09:05:21AM +0200, Martin Dalecki wrote:
+> Tue Apr 16 01:02:47 CEST 2002 ide-clean-36
+> 
+> - Consolidate ide_choose_drive() and choose_drive() in to one function.
+> 
+> - Remove sector data byteswpapping support. Byte-swapping the data is supported
+>    on the file-system level where applicable.  Byte-swapped interfaces are
+>    supported on a lower level anyway. And finally it was used inconsistently.
 
-I tried a few times running with HZ == 1024 for some testing (or I guess
-just to see what happened). I didn't see any problems, even without the
-obscure CLOCKS_PER_SEC ELF business.
+Are you sure about this? I think file systems support LE/BE, but not
+byteswapping because of IDE being LE on a BE system.
 
+> - Eliminate taskfile_input_data() and taskfile_output_data(). This allowed us
+>    to split up ideproc and eliminate the ugly action switch as well as the
+>    corresponding defines.
+> 
+> - Remove tons of unnecessary typedefs from ide.h
+> 
+> - Prepate the PIO read write code for soon overhaul.
+> 
+> - Misc small bits here and there :-).
+> 
 
-Cheers,
-Bill
+-- 
+Vojtech Pavlik
+SuSE Labs

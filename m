@@ -1,81 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265393AbUAJU7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 15:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265399AbUAJU7Y
+	id S265338AbUAJU4H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 15:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUAJU4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 15:59:24 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:47608 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265393AbUAJU7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 15:59:21 -0500
-Date: Sat, 10 Jan 2004 15:59:18 -0500
-From: Willem Riede <wrlk@riede.org>
-To: linux-kernel@vger.kernel.org
-Cc: Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [PATCH][2.6] units= parameter for ide-scsi
-Message-ID: <20040110205918.GK4339@linnie.riede.org>
-Reply-To: wrlk@riede.org
-References: <200401101502.i0AF2LOp022413@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 10 Jan 2004 15:56:07 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:19596 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S265338AbUAJU4D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 15:56:03 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: "J. Ryan Earl" <heretic@clanhk.org>
+Subject: Re: Q re /proc/bus/i2c
+Date: Sat, 10 Jan 2004 15:56:01 -0500
+User-Agent: KMail/1.5.1
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200401100117.42252.gene.heskett@verizon.net> <200401100754.47752.gene.heskett@verizon.net> <3FFFE8E4.8080004@clanhk.org>
+In-Reply-To: <3FFFE8E4.8080004@clanhk.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200401101502.i0AF2LOp022413@harpo.it.uu.se> (from mikpe@csd.uu.se on Sat, Jan 10, 2004 at 10:02:21 -0500)
-X-Mailer: Balsa 2.0.15
+Message-Id: <200401101556.01736.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.61.108] at Sat, 10 Jan 2004 14:56:01 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.01.10 10:02, Mikael Pettersson wrote:
-> This is my patch to add a "units=" parameter to ide-scsi.
-> It's useful for people that, like me, have more than one
-> ATAPI device in a machine. Sample usage:
+On Saturday 10 January 2004 06:58, J. Ryan Earl wrote:
+>Gene Heskett wrote:
+>>On Friday 09 January 2004 20:47, J. Ryan Earl wrote:
+>>
+>>
+>>I've also got a bttv card, whose init seems to be done quite early
+>> in the bootup, and that requires I have i2c-dev in the kernel.  So
+>> I might as well put it all in, the current situation.  All in, or
+>> all out, it doesn't work.  A run of sensors right now, returns
+>> this:
+>
+>A couple questions:
+>
+>1) Have you installed the lm-sensors package?
 
-I found that if only the existing hdx=ide-scsi mechanism had been
-strictly enforced, this functionality had already existed:
+By hand, make user_install did not in fact overwrite any of the older 
+sensors stuff, so I did it with mc.
 
---- linux-2.6.1/drivers/scsi/ide-scsi.c	2003-12-17 21:59:05.000000000 -0500
-+++ /tmp/ide-scsi.c	2004-01-10 15:44:35.000000000 -0500
-@@ -54,6 +54,9 @@
- #include "hosts.h"
- #include <scsi/sg.h>
- 
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Scsi emulator for ATAPI Tape and MO devices");
-+
- #define IDESCSI_DEBUG_LOG		0
- 
- typedef struct idescsi_pc_s {
-@@ -954,17 +957,18 @@
- 	static int warned;
- 	int err;
- 
--	if (!warned && drive->media == ide_cdrom) {
--		printk(KERN_WARNING "ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device\n");
--		warned = 1;
--	}
--
--	if (!strstr("ide-scsi", drive->driver_req) ||
-+	if (!drive->driver_req ||
-+	    !strstr(drive->driver_req, "ide-scsi") ||
- 	    !drive->present ||
- 	    drive->media == ide_disk ||
- 	    !(host = scsi_host_alloc(&idescsi_template,sizeof(idescsi_scsi_t))))
- 		return 1;
- 
-+	if (!warned && drive->media == ide_cdrom) {
-+		printk(KERN_WARNING "ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device\n");
-+		warned = 1;
-+	}
-+
- 	host->max_id = 1;
- 	host->max_lun = 1;
- 	drive->driver_data = host;
-@@ -1000,4 +1004,3 @@
- 
- module_init(init_idescsi_module);
- module_exit(exit_idescsi_module);
--MODULE_LICENSE("GPL");
+>2) What kernel version?
 
+2.6.1-mm1
 
-Regards, Willem Riede.
+>Even with 2.6, you need to install the lm-sensors package, but not
+> the i2c package as the kernel already has everything needed in it. 
+> The lm-sensors packages contains drivers for all the sensor chips. 
+> After you get lm-sensors installed on your current kernel, run
+> sensors-detect to get the proper modules loaded for your hardware.
+>
+>-ryan
+
+Reread the README in lm_sensors-2.8.2.  I've followed that, except 
+that a make user_install apparently only goes thru the motions 
+without reporting any errors.
+
+Been there, done that, a dozen times maybe?
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

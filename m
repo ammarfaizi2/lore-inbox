@@ -1,67 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262034AbSJ2S2v>; Tue, 29 Oct 2002 13:28:51 -0500
+	id <S262148AbSJ2SgY>; Tue, 29 Oct 2002 13:36:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262036AbSJ2S2v>; Tue, 29 Oct 2002 13:28:51 -0500
-Received: from stingr.net ([212.193.32.15]:20485 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S262034AbSJ2S2u>;
-	Tue, 29 Oct 2002 13:28:50 -0500
-Date: Tue, 29 Oct 2002 21:35:09 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: lots of scheduling-while-atomic in 2.5.44-mm6
-Message-ID: <20021029183509.GA29935@stingr.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262152AbSJ2SgY>; Tue, 29 Oct 2002 13:36:24 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:33549 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262148AbSJ2SgV>;
+	Tue, 29 Oct 2002 13:36:21 -0500
+Date: Tue, 29 Oct 2002 10:40:10 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: [BK PATCH] PNP driver changes for 2.5.44
+Message-ID: <20021029184010.GA27082@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bad: scheduling while atomic!
-Call Trace:
- [<c011e8cb>] do_schedule+0x40b/0x410
- [<c014c17b>] kswapd+0x12b/0x15e
- [<c0121780>] autoremove_wake_function+0x0/0x50
- [<c011e906>] preempt_schedule+0x36/0x50
- [<c0121780>] autoremove_wake_function+0x0/0x50
- [<c014c050>] kswapd+0x0/0x15e
- [<c01056fd>] kernel_thread_helper+0x5/0x18
+Here's a set of updated PNP driver patches from Adam Belay.
 
-and this
+Please pull from:  bk://linuxusb.bkbits.net/pnp-2.5
 
-Debug: sleeping function called from illegal context at mm/slab.c:1304
-Call Trace:
- [<c0147b34>] kmem_flagcheck+0x64/0x70
- [<c0148457>] kmalloc+0x67/0xc0
- [<c01b579c>] __jbd_kmalloc+0x2c/0x80
- [<c01acb1b>] new_handle+0x2b/0x70
- [<c01ace18>] journal_try_start+0xb8/0x100
- [<c01a074c>] ext3_writepage_trans_blocks+0x1c/0x90
- [<c019e69e>] ext3_writepage+0x2ce/0x360
- [<c0182d27>] mpage_writepages+0x2f7/0x441
- [<c019e3d0>] ext3_writepage+0x0/0x360
- [<c0158ba6>] do_writepages+0x36/0x40
- [<c0158b4f>] generic_vm_writeback+0x3f/0x60
- [<c014adec>] shrink_list+0x3ec/0x650
- [<c014a133>] __pagevec_release+0x23/0x40
- [<c014a6ac>] __pagevec_lru_add_active+0x18c/0x1a0
- [<c014b270>] shrink_cache+0x220/0x4a0
- [<c0238617>] vsnprintf+0x207/0x460
- [<c014bfc2>] balance_pgdat+0xc2/0x150
- [<c014c1a7>] kswapd+0x157/0x15e
- [<c0121780>] autoremove_wake_function+0x0/0x50
- [<c011e906>] preempt_schedule+0x36/0x50
- [<c0121780>] autoremove_wake_function+0x0/0x50
- [<c014c050>] kswapd+0x0/0x15e
- [<c01056fd>] kernel_thread_helper+0x5/0x18
+thanks,
 
-feeling that it eating my fs while emitting these :)
+greg k-h
 
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)
+
+ drivers/pnp/compat.c        |   94 ----------------------------------------
+ drivers/pnp/Config.in       |   16 +++---
+ drivers/pnp/Makefile        |    4 -
+ drivers/pnp/base.h          |    3 -
+ drivers/pnp/core.c          |    5 --
+ drivers/pnp/driver.c        |   19 ++++++--
+ drivers/pnp/isapnp/Makefile |    4 -
+ drivers/pnp/isapnp/compat.c |   94 ++++++++++++++++++++++++++++++++++++++++
+ drivers/pnp/names.c         |    1 
+ drivers/pnp/pnpbios/core.c  |  101 ++++++++++++++++++++++++++++++--------------
+ drivers/pnp/quirks.c        |    1 
+ drivers/pnp/resource.c      |   72 +++++++++++++++++++++++--------
+ include/linux/pnp.h         |   62 ++++++++++++++++-----------
+ sound/oss/ad1848.c          |    5 --
+ sound/oss/cs4232.c          |   88 ++++++++++++++------------------------
+ 15 files changed, 317 insertions(+), 252 deletions(-)
+-----
+
+ChangeSet@1.808.31.1, 2002-10-28 21:30:10-08:00, greg@kroah.com
+  merge
+
+ include/linux/pnp.h |   30 ++++++++++++++++++------------
+ 1 files changed, 18 insertions(+), 12 deletions(-)
+------
+
+ChangeSet@1.808.4.5, 2002-10-24 00:27:01-07:00, ambx1@neo.rr.com
+  [PATCH] update PnP layer to driver model changes - 2.5.44 (4/4)
+  
+  Updates to the driver model changes.  This should fix a potential panic.
+
+ drivers/pnp/driver.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.808.4.4, 2002-10-24 00:26:22-07:00, ambx1@neo.rr.com
+  [PATCH] Convert CS4236B driver - 2.5.44 (3/4)
+  
+  This patch converts the CS4236B sound card driver to the new PnP APIs.  Also it
+  makes pnp_driver_register return the number of matches during the driver add.
+  This should serve as a sample driver, along with the serial and parport_pc.
+
+ drivers/pnp/driver.c |   12 ++++++
+ include/linux/pnp.h  |    1 
+ sound/oss/ad1848.c   |    5 --
+ sound/oss/cs4232.c   |   88 +++++++++++++++++++--------------------------------
+ 4 files changed, 45 insertions(+), 61 deletions(-)
+------
+
+ChangeSet@1.808.4.3, 2002-10-24 00:25:49-07:00, ambx1@neo.rr.com
+  [PATCH] PnPBIOS changes - 2.5.44 (2/4)
+  
+  This patch adds compatible PnP ID support to the PnPBIOS protocol.  None of my
+  test systems take advantage of this feature but it is included in the
+  specifications so it makes sense to support it.  If anyone does get a compatible
+  ID listed for the PnPBIOS I'd be interested to hear about it (if more than 1 id
+  is listed when viewing the driverfs file 'id' within the PnPBIOS protocol).  Also
+  it fixes the dma and mem resource problem.
+
+ drivers/pnp/pnpbios/core.c |  101 +++++++++++++++++++++++++++++++--------------
+ 1 files changed, 70 insertions(+), 31 deletions(-)
+------
+
+ChangeSet@1.808.4.2, 2002-10-24 00:25:27-07:00, ambx1@neo.rr.com
+  [PATCH] PnP cleanups and resource changes - 2.5.44 (1/4)
+  
+  This patch fixes a number of things pointed out by Arne Thomassen.  Also it
+  makes a few changes to the resource checking functions in that they now check to
+  make sure that resources do not conflict within the same device instead of only
+  other devices.  Although it is rare for this to be a factor it's nice to be able
+  to deal with such situations properly.
+
+ drivers/pnp/core.c          |    5 ---
+ drivers/pnp/driver.c        |    3 -
+ drivers/pnp/isapnp/compat.c |    1 
+ drivers/pnp/names.c         |    1 
+ drivers/pnp/quirks.c        |    1 
+ drivers/pnp/resource.c      |   72 +++++++++++++++++++++++++++++++++-----------
+ 6 files changed, 57 insertions(+), 26 deletions(-)
+------
+
+ChangeSet@1.808.4.1, 2002-10-21 11:39:24-07:00, ambx1@neo.rr.com
+  [PATCH] PnP Rewrite Fixes - 2.5.44
+  
+  This patch addresses a few minor issues for the Linux Plug and Play Rewrite.  It
+  is against 2.5.44.
+  
+  They are as follows.
+  
+  1.) fix Config.in file - from Adrian Bunk and Roman Zippel
+  2.) if unable to activate a device the match should fail.  This can be done now
+  that the driver model matching bug has been corrected.
+  3.) move compat.c to isapnp directory and fix everything accordingly - suggested
+  by Stelian Pop.  This fixes a compile error if ISAPNP is disabled.
+  4.) fix a typo in pnp.h - patch from Skip Ford
+  
+  Please Apply,
+  Adam
+
+ drivers/pnp/compat.c        |   94 --------------------------------------------
+ drivers/pnp/Config.in       |   16 ++++---
+ drivers/pnp/Makefile        |    4 -
+ drivers/pnp/base.h          |    3 -
+ drivers/pnp/driver.c        |    2 
+ drivers/pnp/isapnp/Makefile |    4 -
+ drivers/pnp/isapnp/compat.c |   93 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/pnp.h         |   31 ++++++++------
+ 8 files changed, 126 insertions(+), 121 deletions(-)
+------
+

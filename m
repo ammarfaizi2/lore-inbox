@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266765AbSK1WdK>; Thu, 28 Nov 2002 17:33:10 -0500
+	id <S266792AbSK1WhF>; Thu, 28 Nov 2002 17:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266792AbSK1WdK>; Thu, 28 Nov 2002 17:33:10 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22028 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266765AbSK1WdK>; Thu, 28 Nov 2002 17:33:10 -0500
-Date: Thu, 28 Nov 2002 22:40:28 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Georg Nikodym <georgn@somanetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab labels
-Message-ID: <20021128224028.F27234@flint.arm.linux.org.uk>
-Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
-	Georg Nikodym <georgn@somanetworks.com>,
-	linux-kernel@vger.kernel.org
-References: <3DE699EC.9060600@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DE699EC.9060600@colorfullife.com>; from manfred@colorfullife.com on Thu, Nov 28, 2002 at 11:34:20PM +0100
+	id <S266795AbSK1WhF>; Thu, 28 Nov 2002 17:37:05 -0500
+Received: from server.ehost4u.biz ([209.51.155.18]:7330 "EHLO host.ehost4u.biz")
+	by vger.kernel.org with ESMTP id <S266792AbSK1WhF>;
+	Thu, 28 Nov 2002 17:37:05 -0500
+From: "Billy Rose" <billyrose@billyrose.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: billyrose@billyrose.net
+Subject: kgrid
+X-Mailer: NeoMail 1.25
+X-IPAddress: 65.132.64.33
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <E18HXOV-00011Z-00@host.ehost4u.biz>
+Date: Thu, 28 Nov 2002 17:44:27 -0500
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.ehost4u.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
+X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 11:34:20PM +0100, Manfred Spraul wrote:
-> On i386, it's possible to skip set_fs() and use __get_user() - but 
-> that's i386 specific. For example the i386 oops code uses that.
+i have created a project on source forge for the creation of a kernel 
+module called kgrid. it moves the core grid computing functions from a 
+user-space library into the kernel. this project will ultimately 
+produce a module that allows a linux box to become a node on a grid 
+without the need for user-space programs. in essence, it will grid-
+enable the os.
 
-That isn't actually an x86 specific feature - it is a requirement across
-all architectures that get_user() and friends can access kernel areas
-after set_fs(get_ds())
-
-That's how things like sys_execve() can read the binary headers, etc.
-See linux/fs/exec.c:kernel_read() for one such example.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+billy rose

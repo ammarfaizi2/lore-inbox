@@ -1,48 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130315AbQKVSjf>; Wed, 22 Nov 2000 13:39:35 -0500
+        id <S129625AbQKVSjp>; Wed, 22 Nov 2000 13:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129787AbQKVSjP>; Wed, 22 Nov 2000 13:39:15 -0500
-Received: from smtp.alacritech.com ([209.10.208.82]:52997 "EHLO
-        smtp.alacritech.com") by vger.kernel.org with ESMTP
-        id <S129625AbQKVSiU>; Wed, 22 Nov 2000 13:38:20 -0500
-Message-ID: <3A1C0D09.428F5398@alacritech.com>
-Date: Wed, 22 Nov 2000 10:14:33 -0800
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
+        id <S129787AbQKVSjf>; Wed, 22 Nov 2000 13:39:35 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:54535 "HELO ms2.inr.ac.ru")
+        by vger.kernel.org with SMTP id <S129625AbQKVSjR>;
+        Wed, 22 Nov 2000 13:39:17 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011221809.VAA20851@ms2.inr.ac.ru>
+Subject: Re: [BUG] 2.2.1[78] : RTNETLINK lock not properly locking ?
+To: willy.LKml@free.FR (Willy Tarreau)
+Date: Wed, 22 Nov 2000 21:09:03 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <974885943.3a1b9437847da@imp.free.fr> from "Willy Tarreau" at Nov 22, 0 12:45:00 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: 64738 <schwung@rumms.uni-mannheim.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: LKCD from SGI
-In-Reply-To: <974906422.3a1be4369213b@rumms.uni-mannheim.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-64738 wrote:
+Hello!
+
+>    - it will nearly never allow concurrent accesses (seems to be what was
+>      intented when it was written)
+
+Never, to be more exact. Concurrent accesses are allowed only with rtnetlink.
+
+In 2.4 it is always exclusive, because shared access turned out to
+be mostly useless.
+
+
+>    - it will not always prevent concurrent accesses, which is weird because
+>      rtnl_lock() only relies on rtnl_shlock() (and exlock, which is empty) to
+>      protect sensible areas
+
+It is linux-2.2, guy. 8) "threads" are not threaded there.
+
+Semaphores (rtnl_lock, particularly) protects only areas, which
+are going to _schedule_ excplicitly or implicitly.
+
+
+> ok, Dave. But the code in dev_ioctl() actually is :
 > 
-> Hi.
+>   rtnl_lock();
+>   ret = dev_ifsioc(&ifr, cmd);
+>   rtnl_unlock();
 > 
-> I tried to find some information on whether the Linux Kernel Crash Dumps
-> patches are going into 2.4 (or 2.5). Has there been any decision?
+> if only these lock/unlock guarantee this atomicity, then I can't
+> see why my A,B,C case could not work. If this is because the
+> kernel has been locked somewhere else, then why are the locks
+> still needed ?
 
-LKCD won't go into 2.4 (or 2.5) until I finish writing the direct
-disk open/write functions that avoid going through the standard
-IDE and SCSI drivers.  I'm working on it.
+Please, read comments. People used to consider comments as something
+decorative, but they are not. 
 
-As far as work for 2.4 goes, we've got a version on SourceForge that
-works well (for i386 and 95% for ia64).
+The first group of ioctls (no lock!):
 
-As soon as the drivers are done, we'll hopefully get acceptance.
+		/*
+		 *	These ioctl calls:
+		 *	- can be done by all.
+		 *	- atomic and do not require locking.
+		 *	- return a value
+		 */
 
---Matt
 
-P.S.  Any way we can standardize 'make install' in the kernel?  It's
-      disturbing to have different install mechanisms per platform ...
-      I can make the changes for a few platforms.
+The second group of ioctls (locked):
+
+		/*
+		 *	These ioctl calls:
+		 *	- require superuser power.
+		 *	- require strict serialization.
+		 *	- do not return a value
+		 */
+
+Any questions?
+
+
+>	 The author of rtnetlink.h has been very precautious
+> about the atomicity of these locks when CONFIG_RTNETLINK is set.
+
+Sorry...
+
+/* NOTE: these locks are not interrupt safe, are not SMP safe,
+ * they are even not atomic. 8)8)8) ... and it is not a bug.
+etc.
+
+Do you call this "very precautios"? 8)
+
+I would say that I was absolutely careless about their atomicity
+because it is useless before BKL has been removed.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289093AbSAGCxQ>; Sun, 6 Jan 2002 21:53:16 -0500
+	id <S289092AbSAGC70>; Sun, 6 Jan 2002 21:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289092AbSAGCxG>; Sun, 6 Jan 2002 21:53:06 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:28425 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289093AbSAGCwq>;
-	Sun, 6 Jan 2002 21:52:46 -0500
-Date: Sun, 6 Jan 2002 18:50:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Dylan Egan <crack_me@bigpond.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 - hanging due to usb
-Message-ID: <20020107025057.GA4110@kroah.com>
-In-Reply-To: <5.1.0.14.0.20020107121314.00ba4258@mail.bigpond.com> <5.1.0.14.0.20020107121314.00ba4258@mail.bigpond.com> <5.1.0.14.0.20020107132332.00b564a8@mail.bigpond.com>
-Mime-Version: 1.0
+	id <S289094AbSAGC7R>; Sun, 6 Jan 2002 21:59:17 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:12814 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289092AbSAGC7D>; Sun, 6 Jan 2002 21:59:03 -0500
+Message-ID: <3C390DAA.3339768C@zip.com.au>
+Date: Sun, 06 Jan 2002 18:53:30 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] truncate fixes
+In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>,
+		<3C36DEA9.AEA2A402@zip.com.au>; from akpm@zip.com.au on Sat, Jan 05, 2002 at 03:08:25AM -0800 <20020107034654.G1561@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.0.20020107132332.00b564a8@mail.bigpond.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 09 Dec 2001 23:34:30 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 01:25:39PM +1100, Dylan Egan wrote:
+Andrea Arcangeli wrote:
 > 
-> >Which kind of usb-storage device?
-> 
-> ScanLogic USBIDE.... it works in windows :(
+> I prefer my fix that simply recalls the ->truncate callback if -ENOSPC
+> is returned by prepare_write. vmtruncate seems way overkill,
 
-Doesn't mean too much :)
+No opinion on that here.  This is what was in -ac.  Perhaps Al can
+comment?
 
-> >There is no oops message?
-> 
-> Nope
-> 
-> >Has this usb-storage device ever worked on any previous kernel version?
-> 
-> Wouldnt know just got it
+> and after
+> calling ->truncate the __block_prepare_changes above won't be necessary
+> because the leftover will be correctly deallocated (no need to clear
+> them out and to mark them dirty, they will just go away before any
+> readpage can see them).
 
-Can you not load the usb-storage driver, load the usbcore module, and
-the USB host driver that you are using, and point hotplug to somewhere
-else:
-	echo /bin/true > /proc/sys/kernel/hotplug
+No, this code is needed if the write is _inside_ i_size, to an
+uninstantiated block.  truncate won't remove those blocks, and we've
+gone and added them to the file.
 
-Then plug in your device, and send the output of /proc/bus/usb/devices
-to the list (and the linux-usb-devel list, which is a better place for
-this :)
-
-> >Do any other types of USB devices work with Linux on this machine?
-> 
-> Tried a mouse........ the cursor came up but it wouldnt move around
-
-Did you set it up properly?  See the Linux USB Guide at
-http://www.linux-usb.org/ for info on how to do it.
-
-thanks,
-
-greg k-h
+-

@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135849AbRDYM2u>; Wed, 25 Apr 2001 08:28:50 -0400
+	id <S135950AbRDZV4w>; Thu, 26 Apr 2001 17:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135851AbRDYM2m>; Wed, 25 Apr 2001 08:28:42 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6660 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S135849AbRDYM20>;
-	Wed, 25 Apr 2001 08:28:26 -0400
-Message-ID: <20010424120649.A23347@bug.ucw.cz>
-Date: Tue, 24 Apr 2001 12:06:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        John Fremlin <chief@bandits.org>
-Cc: Pavel Machek <pavel@suse.cz>,
+	id <S135952AbRDZV4n>; Thu, 26 Apr 2001 17:56:43 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:7910 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S135950AbRDZV4k>; Thu, 26 Apr 2001 17:56:40 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDD9F@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: "'John Fremlin'" <chief@bandits.org>,
+        "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
         "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        "'Pavel Machek'" <pavel@suse.cz>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu> <m2k84jkm1j.fsf@boreas.yi.org.> <20010420190128.A905@bug.ucw.cz> <m2snj3xhod.fsf@bandits.org> <20010424021756.A931@pcep-jamie.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010424021756.A931@pcep-jamie.cern.ch>; from Jamie Lokier on Tue, Apr 24, 2001 at 02:17:56AM +0200
+Subject: RE: Let init know user wants to shutdown
+Date: Wed, 18 Apr 2001 15:52:52 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > I'm wondering if that veto business is really needed. Why not reject
-> > > > *all* APM rejectable events, and then let the userspace event handler
-> > > > send the system to sleep or turn it off? Anybody au fait with the APM
-> > > > spec?
-> > > 
-> > > My thinkpad actually started blinking with some LED when you pressed
-> > > the button. LED went off when you rejected or when sleep was
-> > > completed.
-> > 
-> > Does the led start blinking when the system sends an apm suspend? In
-> > that case I don't think you'd notice the brief period between the
-> > REJECT and the following suspend from userspace ;-)
+> From: David S. Miller [mailto:davem@redhat.com]
+>  > IMHO an abstracted interface at this point is overengineering.
 > 
-> Are you sure? A suspend takes about 5-10 seconds on my laptop.
+> ACPI is the epitome of overengineering.
 
-Ouch? Really?
+Hi David,
 
-What  I do is killall apmd, then apm -s and it is more or less
-instant. [Are you using suspend-to-disk? AFAICS my toshiba can not do
-suspend to disk, that's why I'm interested].
+I definitely set myself up for that one. ;-) And, you're not wrong. But,
+let's be clear on one thing, there are two interfaces under consideration:
+1) How the kernel interacts with the platform to do power
+management/configuration and 2) How the OS exposes its PM interface to ring
+3.
 
-> (It was noticably faster with  2.3 kernels, btw. Now it spends a second
-> or two apparently not noticing the APM event (though the BIOS is making
-> the speaker beep ), then syncing the disk, then maybe another pause, then
-> maybe some more disk activity, then finally shutting down. 2.3 started
-> t he disk activity immediately and didn't pause. Perhaps 2.4.3 mm
-> problems?)
+#1 is defined by ACPI and it's too late to improve it - it's the standard. I
+think it's a net improvement (by getting rid of several ugly existing
+interfaces like APM, pnpbios, and MPS tables) but also realize that *we have
+stepped up* to implement ACPI support, a not inconsiderable effort. You may
+think this is cleaning up a mess we made ourselves but there are clear,
+large, advantages that ACPI-enabled systems will have over non-ACPI ones.
+Windows 2000 is a great mobile OS in large part due to ACPI.
 
-Take a look what apmd does. I'm killing it before apm -s.
-								Pavel
+#2 was what I was referring to with the overengineering comment. Basically,
+we want to put PM policy in userspace because that's where Unix puts these
+things, right? We have more functionality than other PM options, therefore
+we need the most elaborate PM kernel<-->user interface. My point was that we
+don't even have a functional PM policy daemon at this point, so it's a
+little early to start generalizing the interface, in my opinion, but a
+generalized PM interface is OK, as long as it exposes at least the level of
+functionality ACPI does. A generalized interface is more work, and I see no
+benefit *right now*. We'll see when someone designs one, I guess.
+
+> An abstracted interface would allow simpler systems to avoid all of
+> the bloated garbage ACPI brings with it.  Sorry, Alan hit it right on
+> the head, ACPI is not much more than keeping speedstep proprietary.
+
+This is not correct. ACPI 1.0 existed before SpeedStep was even conceived
+of. The 1.0 spec contains no mention of processor performance states, or
+device performance states. ACPI 2.0 does, but it provides a generic
+interface for the OS to control processor performance, thus commoditizing
+SpeedStep-type functionality in the future.
+
+Clear?
+
+Regards -- Andy
+

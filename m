@@ -1,79 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267646AbTA3V4A>; Thu, 30 Jan 2003 16:56:00 -0500
+	id <S267647AbTA3WEj>; Thu, 30 Jan 2003 17:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267647AbTA3Vz7>; Thu, 30 Jan 2003 16:55:59 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:19865 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267646AbTA3Vz6>;
-	Thu, 30 Jan 2003 16:55:58 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 30 Jan 2003 23:05:16 +0100 (MET)
-Message-Id: <UTC200301302205.h0UM5GW22958.aeb@smtp.cwi.nl>
-To: james@fsm.com.au, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: drivers/scsi/sd.c - Incorrect Reporting of Blocks and Capacity of Large SCSI Disk Arrays
-Cc: marcelo@conectiva.com.br
+	id <S267648AbTA3WEi>; Thu, 30 Jan 2003 17:04:38 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45240 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267647AbTA3WEi>;
+	Thu, 30 Jan 2003 17:04:38 -0500
+Message-ID: <3E39A3A2.7807FF00@digeo.com>
+Date: Thu, 30 Jan 2003 14:13:54 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Report write errors to applications
+References: <20030129060916.GA3186@waste.org> <20030128232929.4f2b69a6.akpm@digeo.com> <20030129162411.GB3186@waste.org> <20030129134205.3e128777.akpm@digeo.com> <20030130211212.GB4357@waste.org> <3E399B93.90B32D12@digeo.com> <20030130220011.GC4357@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jan 2003 22:13:55.0067 (UTC) FILETIME=[E0C40CB0:01C2C8AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: "James Bourne" <james@fsm.com.au>
-|
-| drivers/scsi/sd.c - Incorrect Reporting of Blocks and Capacity of Large 
-| SCSI Disk Arrays
-|
-| This problem exists on both a custom 2.4.20 kernel and on a stock RedHat 
-| 2.4.18-19.8.0smp kernel. This problem report pertains to the latter kernel.
-|
-| For example:
-|
-| SCSI device sdb: -562247552 512-byte hdwr sectors (4294679426 MB)
-|  sdb: sdb1
-| SCSI device sdc: -1997908992 512-byte hdwr sectors (76582 MB)
-|  sdc: sdc1
-|
-| Array Capacity
-|    Total unformatted capacity for Array 1: 1962814MB (1916.81GB, 1.87TB)
-|    Total unformatted capacity for Array 2: 1261809MB (1232.23GB, 1.20TB)
------
+Oliver Xymoron wrote:
+> 
+> The comment suggests that we need to distinguish read errors from
+> write errors and I tend to agree.
 
-Please try the patch below.
-Andries
+OK, well you could call set_buffer_write_io_error/set_buffer_read_io_error()
+in the end_io handlers, and pick that up later on.
 
-----------------------------------------------------------------
->From aeb  Fri Dec 13 00:15:47 2002
-To: anders.henke@sysiphus.de, linux-kernel@vger.kernel.org
-Subject: Re: using 2 TB  in real life
-Cc: marcelo@conectiva.com.br
-Content-Length: 974
+To avoid adding a couple of new clear_bits in submit_bh,
+you could do:
 
-> SCSI device sdb: -320126976 512-byte hdwr sectors (-163904 MB)
-
-Yes, the code in 2.4.20 works up to 30 bits.
-A slight modification works up to 31 bits.
-[This is cosmetic only.]
-
-Andries
-
---- /linux/2.4/linux-2.4.20/linux/drivers/scsi/sd.c	Sat Aug  3 02:39:44 2002
-+++ ./sd.c	Fri Dec 13 00:12:00 2002
-@@ -1001,7 +1001,7 @@
- 			 */
- 			int m;
- 			int hard_sector = sector_size;
--			int sz = rscsi_disks[i].capacity * (hard_sector/256);
-+			unsigned int sz = (rscsi_disks[i].capacity/2) * (hard_sector/256);
- 
- 			/* There are 16 minors allocated for each major device */
- 			for (m = i << 4; m < ((i + 1) << 4); m++) {
-@@ -1009,9 +1009,9 @@
- 			}
- 
- 			printk("SCSI device %s: "
--			       "%d %d-byte hdwr sectors (%d MB)\n",
-+			       "%u %d-byte hdwr sectors (%u MB)\n",
- 			       nbuff, rscsi_disks[i].capacity,
--			       hard_sector, (sz/2 - sz/1250 + 974)/1950);
-+			       hard_sector, (sz - sz/625 + 974)/1950);
- 		}
- 
- 		/* Rescale capacity to 512-byte units */
-
+	if (test_set_buffer_req(bh)) {
+		clear_buffer_write_io_error(bh);
+		clear_buffer_read_io_error(bh);
+	}

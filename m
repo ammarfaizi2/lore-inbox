@@ -1,35 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266389AbUFQGhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUFQGzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266389AbUFQGhi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 02:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266390AbUFQGhi
+	id S266391AbUFQGzp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 02:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266392AbUFQGzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 02:37:38 -0400
-Received: from gprs187-64.eurotel.cz ([160.218.187.64]:42625 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S266389AbUFQGhh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 02:37:37 -0400
-Date: Thu, 17 Jun 2004 08:38:14 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Zinx Verituse <zinx@epicsol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hid-tmff fix again
-Message-ID: <20040617063814.GA2193@ucw.cz>
-References: <20040616215737.GA8253@bliss>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616215737.GA8253@bliss>
-User-Agent: Mutt/1.4.1i
+	Thu, 17 Jun 2004 02:55:45 -0400
+Received: from web02.bigbiz.com ([208.184.28.12]:22614 "EHLO web02.bigbiz.com")
+	by vger.kernel.org with ESMTP id S266391AbUFQGzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 02:55:44 -0400
+Date: Wed, 16 Jun 2004 23:55:41 -0700
+Message-Id: <200406170655.XAA05382@web02.bigbiz.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Mail Authentication
+References: <200406170655.XAA16901@ns3.bigbiz.com>
+In-Reply-To: <200406170655.XAA16901@ns3.bigbiz.com>
+X-Loop: farshad@cmass.com
+From: farshad@cmass.com (Farshad Nayeri (by way of an auto-reply agent))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 04:57:37PM -0500, Zinx Verituse wrote:
-> Posting again.  Still not applied as of 2.6.7.  The hid-tmff driver is
-> useless without this.
 
-Thanks, applied.
+Farshad Nayeri has moved email accounts to avoid spam. You may try: 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+                      farshad @ igencorp . com
+
+to reach him. (Please make sure to strip the spaces from the address above!)

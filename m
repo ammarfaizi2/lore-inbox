@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVAJSf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVAJSja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbVAJSf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVAJSYD
+	id S262422AbVAJSja (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVAJSfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:24:03 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:5304 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262411AbVAJSKW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:10:22 -0500
-Date: Mon, 10 Jan 2005 10:10:16 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [KJ] [announce] 2.6.10-bk13-kj
-Message-ID: <20050110181016.GD3099@us.ibm.com>
-References: <20050110164703.GD14307@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Jan 2005 13:35:39 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:28431 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262286AbVAJSdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 13:33:25 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: John Richard Moser <nigelenki@comcast.net>, Andre Tomt <andre@tomt.net>
+Subject: Re: printf() overhead
+Date: Mon, 10 Jan 2005 20:33:14 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <41E18522.7060004@comcast.net> <41E188FE.7010609@tomt.net> <41E19F21.20001@comcast.net>
+In-Reply-To: <41E19F21.20001@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501102033.14028.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
-> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
+On Sunday 09 January 2005 23:16, John Richard Moser wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Quick patch summary: about 30 new, 30 merged, 30 dropped.
-> Seems like most external trees are merged in -linus, so i'll start
-> (re)sending old patches.
+> 
+> 
+> Andre Tomt wrote:
+> | John Richard Moser wrote:
+> |
+> |> using strace to run a program takes aeons.  Redirecting the output to a
+> |> file can be a hundred times faster sometimes.  This raises question.
+> |>
+> |> I understand that output to the screen is I/O.  What exactly causes it
+> |> to be slow, and is there a possible way to accelerate the process?
+> |
+> |
+> | The terminal is a major factor; gnome-terminal for example can be
+> | *extremely* slow.
+> |
+> 
+> Is there a way to give the data to the terminal and let the program go
+> while that happens?  Or is there an execution path (i.e. terminal says
+> "WTF NO") that can be missed that way?
 
-<snip>
+Buffering is finite. strace output most likely overflow it.
 
-> msleep-drivers_scsi_imm.patch
+Also while strace may finish already, you won't see it in gnome terminal
+until entire strace stdout/stderr is drawn. You will wait anyway. :)
+--
+vda
 
-This patch should be dropped. The msleep() call will ignore waitqueue events
-set up by prepare_to_wait().
-
-Thanks,
-Nish

@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263397AbTDLV5U (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 17:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTDLV5U (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 17:57:20 -0400
-Received: from mail.mplayerhq.hu ([192.190.173.45]:20373 "EHLO
-	mail.mplayerhq.hu") by vger.kernel.org with ESMTP id S263397AbTDLV5T (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 17:57:19 -0400
-Date: Sun, 13 Apr 2003 00:29:58 +0200 (CEST)
-From: Szabolcs Berecz <szabi@mplayerhq.hu>
-To: <alan@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.21-pre5-ac3: swapoff on a not attached swapfile
-Message-ID: <Pine.LNX.4.33.0304130026520.11406-100000@mail.mplayerhq.hu>
+	id S263398AbTDLWPQ (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 18:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTDLWPQ (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 18:15:16 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:15046 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263398AbTDLWPO convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 18:15:14 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBAB47@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'lkml (linux-kernel@vger.kernel.org)'" 
+	<linux-kernel@vger.kernel.org>
+Subject: RE: Simple Kernel-User Event Interface (Was: RE: [ANNOUNCE] udev
+Date: Sat, 12 Apr 2003 15:26:59 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> From: Tim Hockin [mailto:thockin@hockin.org]
+> 
+> > The idea of allowing multiple readers was so you can have other actors
+> > listening for stuff - although the main one would always be the event
+> > daemon (that could even forward the events).
+> 
+> multiple readers complicates things - look at how acpi does
 
-When swapoff is called with a swapfile which is not attached, it calls
-path_release with uninitialized struct nameidata.
+It didn't do too much [unless I grossly missed anything].
 
-Bye,
-Szabi
+> /proc/acpi/events (or at least glance at it).  One reader, pertial-reads
+are
+> OK, Poll is supported.  ACPId opens the file and accepts UNIX domain
 
+Poll is not supported right now because I didn't know how to do
+it and I didn't have time to investigate (this was a quickie 
+hack). Same thing w/ UNIX domain socket - also I wanted to avoid
+sockets because I considered it could be done with simple reads
+(thus, if for whatever reason you don't compile sockets, you
+don't need to make it more complex - this is also the reason
+to force reading whole messages and having the length in the
+header - it's a poor's man rcvmsg()).
 
---- linux-2.4.21-pre5-ac3/mm/swapfile.c.orig	Sat Apr 12 15:03:02 2003
-+++ linux-2.4.21-pre5-ac3/mm/swapfile.c	Sat Apr 12 23:03:47 2003
-@@ -742,7 +742,7 @@
- 	err = -EINVAL;
- 	if (type < 0) {
- 		swap_list_unlock();
--		goto out_dput;
-+		goto out_dput_no_nd;
- 	}
+Partial reads are what really complicates the stuff - I didn't see
+a point in supporting them because events are supposed to be kind
+of limited in size, not a huge thing; I don't think there are too
+many cases where you provide a buffer smaller than say, 256 bytes.
 
- 	if (prev < 0) {
-@@ -798,8 +798,9 @@
- 	err = 0;
+And then, providing small buffers is also kind of underperforming;
+you want to maximize how much events you get in a single shot per
+system call, to minimize the system call overhead - that means a
+bigger buffer; your granularity in time is what will determine it.
 
- out_dput:
--	unlock_kernel();
- 	path_release(&nd);
-+out_dput_no_nd:
-+	unlock_kernel();
- 	filp_close(victim, NULL);
- out:
- 	putname(tmp);
+> Realistically, what you are trying to do has been done for ACPI already.
+> Just devise a more generic event struct, and put it in a generic sysfs
+file,
+> and then convince people to use it.
 
+And the event struct is generic enough. That's why the data[] thing is
+there - you include the message format you want: ascii, binary, name it.
+
+What gets propagate to user space is a four byte size and then
+the stuff you asked to have delivered. How can it be more generic
+on the format realm?
+
+> If there is an FS for this, it's a better way to split subsystemic events
+so
+> the same event file doesn't become very busy (possibly).
+
+This would not be difficult to do - however, I see a little bit
+overkill to have a filesystem for it when the files could be
+plugged into, for example /sysfs [add to my stuff a declare message
+queue, and export it in /sysfs as a file] - Will look into that
+ASAP.
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

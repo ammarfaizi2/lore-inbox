@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268282AbTGIORV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 10:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbTGIORV
+	id S268257AbTGIOVO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 10:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268290AbTGIOVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 10:17:21 -0400
-Received: from CPE00e02915899a-CM.cpe.net.cable.rogers.com ([24.157.227.104]:40591
-	"EHLO mokona.furryterror.org") by vger.kernel.org with ESMTP
-	id S268282AbTGIORT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 10:17:19 -0400
-From: Zygo Blaxell <uixjjji1@umail.furryterror.org>
-Subject: Re: 2.4.21 IDE and IEEE1394+SBP2 regressions, orinoco_pci progress
-Date: Wed, 09 Jul 2003 10:31:53 -0400
-Organization: Furry Cats and Hungry Terrors
-Message-ID: <pan.2003.07.09.10.31.46.883501.10062@umail.hungrycats.org>
-References: <pan.2003.07.08.22.25.12.249185.15455@umail.hungrycats.org> <pan.2003.07.08.22.25.12.249185.15455@umail.hungrycats.org> <1057743274.506.4.camel@gaston>
-User-Agent: Pan/0.11.2 (Unix)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Comment-To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-NNTP-Posting-Host: 10.215.3.77
-X-Header-Mangling: Original "From:" was <zblaxell@umail.hungrycats.org>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 9 Jul 2003 10:21:14 -0400
+Received: from marblerye.cs.uga.edu ([128.192.101.172]:34432 "HELO
+	marblerye.cs.uga.edu") by vger.kernel.org with SMTP id S268257AbTGIOVN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 10:21:13 -0400
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: chas@locutus.cmf.nrl.navy.mil, linux-kernel@vger.kernel.org,
+       davem@redhat.com
+Subject: seq_file and proc_dir_entry data (was Re: [PATCH 5/8] 2.5.74 -
+ seq_file conversion of /proc/net/atm (vc))
+From: Ed L Cashin <ecashin@uga.edu>
+Date: Wed, 09 Jul 2003 10:35:51 -0400
+In-Reply-To: <20030709022946.G11897@electric-eye.fr.zoreil.com> (Francois
+ Romieu's message of "Wed, 9 Jul 2003 02:29:46 +0200")
+Message-ID: <87brw3epiw.fsf_-_@uga.edu>
+User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2
+ (i386-debian-linux-gnu)
+References: <20030709021152.B11897@electric-eye.fr.zoreil.com>
+	<20030709022946.G11897@electric-eye.fr.zoreil.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Jul 2003 05:34:34 -0400, Benjamin Herrenschmidt wrote:
+On creating a proc entry, it's possible to set the data field to an
+arbitrary pointer value.  Later, that pointer value can be used in
+callbacks to do interesting things, like access persistent data
+associated with the proc file.
 
-> Whatever happens, you shouldn't let the machine suspend while ongoing
-> disk IOs are in progress. A lot of bad things could result from that.
+I had to rewrite seq_read so that when it calls the start operation it
+passes a pointer to a struct (not an loff_t) with iterator info and
+also a pointer to the proc_dir_entry data field.
 
-This is unavoidable, without some really draconian measures that will be
-highly visible to user-space (killing or stopping processes, umounting
-filesystems...).  There will always be a risk that something in user-space
-will want to read or write data at the exact moment of suspend.  The apmd
-process itself comes to mind.
+Would it be possible to modify seq_file to give easier access to the
+data field of proc_dir_entry, or is seq_file too general for that to
+be practical?
 
-Bad things haven't happened to me in the 1100+ successful suspend/resume
-cycles on this laptop prior to the installation of 2.4.21.  On 2.4.18-20 I
-have typical laptop uptimes of 60+ days, including about 80 suspend/resume
-cycles.  At conferences I may do 50 suspend/resume cycles within in a
-single week, and continue running without rebooting for two months
-following.  Most of those suspends occur under some kind of I/O load,
-often a quite heavy one.  It is very rare that I can choose the time when
-I have to suspend the machine--generally I have to go
-somewhere--quickly--and the laptop runs most of the /etc/apm/event.d
-scripts from inside its carrying case.  Up to and including 2.4.20, I
-could simply expect this to work.
+-- 
+--Ed L Cashin            |   PGP public key:
+  ecashin@uga.edu        |   http://noserose.net/e/pgp/
 
-Every month I do a full md5sum-based check of the 800,000-or-so files on
-the 48G internal disk and review the files that have changed so that I can
-be absolutely _certain_ bad things are not happening (although the check
-is designed to handle malicious software, not hardware problems, it will
-detect both).
-
-By contrast, 2.4.21 crashes on most resumes.  That's just broken.
-
-> Actually, the proper fix is to implement some working suspend/resume
-> handlers in the IDE layer like we did in 2.5, though the problem here is
-> that 2.4 lacks proper infrastructure for doing that in a properly
-> ordered way.
-
-Um, yes.  That's all very nice, but kernels from 2.4.10 through 2.4.20
-were capable of handling this sort of thing all by themselves.  They did
-so more by cleaning up after the fact rather than by preventing the mess
-from appearing in the first place, but whatever the mechanism was, it did
-work in kernels prior to 2.4.21.
-
-If that robustness is due to a bug, then that bug should be reproduced
-exactly until a proper solution is ready to replace it.

@@ -1,69 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317755AbSHaRKO>; Sat, 31 Aug 2002 13:10:14 -0400
+	id <S317772AbSHaRU3>; Sat, 31 Aug 2002 13:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317772AbSHaRKO>; Sat, 31 Aug 2002 13:10:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43279 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317755AbSHaRKN>; Sat, 31 Aug 2002 13:10:13 -0400
-Date: Sat, 31 Aug 2002 18:14:38 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.32-bug
-Message-ID: <20020831181438.A2047@flint.arm.linux.org.uk>
-References: <E17ktU0-00035E-00@flint.arm.linux.org.uk> <20020831140007.C781@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020831140007.C781@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Sat, Aug 31, 2002 at 02:00:08PM +0200
+	id <S317778AbSHaRU3>; Sat, 31 Aug 2002 13:20:29 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:25154 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S317772AbSHaRU2>; Sat, 31 Aug 2002 13:20:28 -0400
+From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Date: Sat, 31 Aug 2002 19:22:16 +0200
+MIME-Version: 1.0
+Subject: Re: PROBLEM: nfs & "Warning - running *really* short on DMA buffers"
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Message-ID: <3D711768.19281.F874DB@localhost>
+In-reply-to: <3D70E0E4.32286.238238@localhost>
+References: <Pine.LNX.4.44L.0208300916580.1857-100000@imladris.surriel.com>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 31, 2002 at 02:00:08PM +0200, Ingo Oeser wrote:
-> Hi Rusty,
+   Replying to myself, i found out that in kernel 2.4.20-pre5, the 
+section responsible for the warning has a #if  0 #endif around it . 
+This was not the case in 2.4.19 btw. I had rate limited the warning, 
+but it's not needed. 
 
-Grr.
+Thanks to everybody,
+Pedro
 
-> On Fri, Aug 30, 2002 at 10:39:12PM +0100, Russell King wrote:
-> > This patch appears not to be in 2.5.32, but applies cleanly.
-> > 
-> > This patch moves BUG() and PAGE_BUG() from asm/page.h into asm/bug.h.
-> > 
-> > We also fix up linux/dcache.h, which included asm/page.h for the sole
-> > purpose of getting the BUG() definition.
-> > 
-> > Since linux/kernel.h makes use of BUG(), asm/bug.h is included there
-> > as well.
-> > --- orig/include/asm-cris/bug.h	Thu Jan  1 01:00:00 1970
-> > +++ linux/include/asm-cris/bug.h	Sun Jan  6 11:46:09 2002
-> > @@ -0,0 +1,12 @@
-> > +#ifndef _CRIS_BUG_H
-> > +#define _CRIS_BUG_H
-> > +
-> > +#define BUG() do { \
-> > +  printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
-> > +} while (0)
-> > +
-> > +#define PAGE_BUG(page) do { \
-> > +         BUG(); \
-> > +} while (0)
-> > +
-> > +#endif
+On 31 Aug 2002 at 15:29, Pedro M. Rodrigues wrote:
+
+>    It doesn't seem rate limited to me, it floods the console and log
+> files. If i can't tune the vm settings to decrease the likelyhood of
+> this error message, what can i do? Is rate limiting the error message
+> at scsi_merge.c a good idea?
 > 
-> These kind of implementation of BUG() is not very useful. Callers
-> of BUG() and BUG_ON() assume, that the thread is aborted and do
-> nothing to fixup after BUG(). 
+> 
+> Thanks,
+> Pedro
+> 
+> On 30 Aug 2002 at 9:18, Rik van Riel wrote:
+> 
+> > On Fri, 30 Aug 2002, Pedro M. Rodrigues wrote:
+> > 
+> > >    I do wan't to tune the vm settings, these warnings may not be
+> > > fatal but it's not pretty to have hundreds of those in the console
+> > > and log files. Bear with me on this one, but i remember doing
+> > > exactly that in the past, tuning  /proc/sys/vm/freepages. How does
+> > > one acomplish that nowadays? I looked at the kernel source
+> > > documentation and still found references to freepages, but
+> > > vm/freepages doesn't exist anymore. Kernel is 2.4.18-10 from
+> > > Redhat.
+> > 
+> > For fundamental reasons it's always possible for non-sleeping
+> > allocations to fail.  I think this warning just needs to be
+> > rate-limited, if it isn't already ...
+> > 
+> > OTOH, failed allocations could serve as a hint for kswapd to
+> > try to keep more memory free. I should look into that for some
+> > next version.
+> > 
+> > regards,
+> > 
+> > Rik
+> > -- 
+> > Bravely reimplemented by the knights who say "NIH".
+> > 
+> > http://www.surriel.com/		http://distro.conectiva.com/
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Nevertheless, its not up to me to change the implementation that an
-architecture has chosen.  That's for the individual port maintainers
-to fix.
-
-This patch only cleans up the include for the bug stuff so its in a
-less silly place.  There are _zero_ functional code changes.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

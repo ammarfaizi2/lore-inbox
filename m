@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262292AbTDALJH>; Tue, 1 Apr 2003 06:09:07 -0500
+	id <S262302AbTDALQr>; Tue, 1 Apr 2003 06:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262302AbTDALJH>; Tue, 1 Apr 2003 06:09:07 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:61862 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S262292AbTDALJG>; Tue, 1 Apr 2003 06:09:06 -0500
-Subject: 2.5.66-mm2-1 freezes solid after init PCMCIA
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049196020.789.8.camel@teapot>
+	id <S262333AbTDALQr>; Tue, 1 Apr 2003 06:16:47 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:9955 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S262302AbTDALQr>; Tue, 1 Apr 2003 06:16:47 -0500
+Date: Tue, 1 Apr 2003 12:28:00 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
+Message-ID: <20030401112800.GA23027@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andi Kleen <ak@suse.de>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com> <Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com> <1049191863.30759.3.camel@averell>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 01 Apr 2003 13:20:21 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049191863.30759.3.camel@averell>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Apr 01, 2003 at 12:11:00PM +0200, Andi Kleen wrote:
+ > sfence is part of SSE2. That's X86_SSE2
 
-2.5.66-mm2-1 freezes solid after initialising PCMCIA yenta. Next written
-by hand:
+I'm not so sure this is correct. A quick google suggests
+otherwise, and the C3 Nehemiah (which only supports SSE1) seems
+to run sfence instructions just fine.
 
-PCI: Found IRQ 10 for device 00:0c.0
-yenta 00:0c.0: Preassigned resource 3 busy, reconfiguring...
-Yenta IRQ list 08d8, PCI irq10
-Socket status: 30000006
-PCI: Found IRQ 5 for device 00:0c.1
-PCI: Sharing IRQ 5 with 00:09.0
-yenta 00:0c.1: Preassigned resource 2 busy, reconfiguring...
-yenta 00:0c.1: Preassigned resource 3 busy, reconfiguring...
-Yenta IRQ list 08d8, PCI irq5
-Socket status: 30000020
-
-At this point, the machine hangs. This didn't happen with 2.5.66-mm1 or
-2.5.66-mm2 (but it happens with 2.5.66-mm2-1). I'm 99% sure this is
-caused by Dominik or Russell King PCMCIA patches.
-
-________________________________________________________________________
-        Felipe Alfaro Solana
-   Linux Registered User #287198
-http://counter.li.org
+		Dave
 

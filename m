@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbUKHSHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbUKHSHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbUKHSHC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:07:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUKHRFF
+	id S261154AbUKHSHA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbUKHRFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:05:05 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:16330 "EHLO
+	Mon, 8 Nov 2004 12:05:19 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:17098 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261917AbUKHQOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:14:06 -0500
-Subject: Re: Asus P5AD2Premium Intel 925 X Chipset
+	id S261920AbUKHQRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 11:17:00 -0500
+Subject: Re: [BUG] IDE, VIA VT8235, md5sum Input/Output error after CD burn.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mws <mws@twisted-brains.org>
+To: Ali Akcaagac <aliakc@web.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200411081234.50035.mws@twisted-brains.org>
-References: <200411081234.50035.mws@twisted-brains.org>
+In-Reply-To: <1099790667.814.22.camel@localhost>
+References: <1099790667.814.22.camel@localhost>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1099926655.5567.135.camel@localhost.localdomain>
+Message-Id: <1099926842.5630.137.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 08 Nov 2004 15:10:58 +0000
+Date: Mon, 08 Nov 2004 15:14:04 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-11-08 at 11:34, mws wrote:
-> hi,
-> 
-> if someone if coding on a driver for the Silicon Image Sil3114R and Intel ITE 8212F
-> 
-> or the soundchip/codec CMedia CMI 9880 i can provide them with information or testing support
-> 
-> from latest 15.11.2004 on.
+On Sul, 2004-11-07 at 01:24, Ali Akcaagac wrote:
+> anymore. Before that named version or even on 2.4.x it works like a
+> charm. When burning a CDRW you can md5sum the ISO and the device (as in
+> my case /dev/hdc) and you get the values spit out correctly and
+> matching.
 
-The 3114 is already supported (use dmraid for its software raid). The
-ITE 8212 is also supported in current -ac code. 
+Known problem. Use ide-scsi not ide-cd, ide-cd is broken when reading
+near the end sectors of CD-R or CD-RW media
 
-Alan
+(Its been in bugs.kernel.org for a while)
 

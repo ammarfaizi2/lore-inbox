@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293509AbSCKCYZ>; Sun, 10 Mar 2002 21:24:25 -0500
+	id <S293514AbSCKCZz>; Sun, 10 Mar 2002 21:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293505AbSCKCYQ>; Sun, 10 Mar 2002 21:24:16 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:42501 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293498AbSCKCYK>;
-	Sun, 10 Mar 2002 21:24:10 -0500
-Date: Sun, 10 Mar 2002 23:23:47 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <fletch@aracnet.com>, <lse-tech@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 23 second kernel compile (aka which patches help scalibility on
- NUMA)
-In-Reply-To: <20020311031425.N8949@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203102319440.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293513AbSCKCZq>; Sun, 10 Mar 2002 21:25:46 -0500
+Received: from arsenal.visi.net ([206.246.194.60]:52203 "EHLO visi.net")
+	by vger.kernel.org with ESMTP id <S293511AbSCKCZc>;
+	Sun, 10 Mar 2002 21:25:32 -0500
+X-Virus-Scanner: McAfee Virus Engine
+Date: Sun, 10 Mar 2002 21:22:12 -0500
+From: Ben Collins <bcollins@debian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rgooch@ras.ucalgary.ca, laforge@gnumonks.org, skraw@ithnet.com,
+        joe@tmsusa.com, linux-kernel@vger.kernel.org, elsner@zrz.TU-Berlin.DE
+Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
+Message-ID: <20020311022212.GC528@blimpo.internal.net>
+In-Reply-To: <200203110055.g2B0tiP24585@vindaloo.ras.ucalgary.ca> <20020310.170338.83978717.davem@redhat.com> <20020311020452.GB528@blimpo.internal.net> <20020310.181308.88443156.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020310.181308.88443156.davem@redhat.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Andrea Arcangeli wrote:
-> On Fri, Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
-> > Big locks left:
-> >
-> > pagemap_lru_lock
-> > 20.2% 57.1%  5.4us(  86us)  111us(  16ms)(14.7%)   1014988 42.9% 57.1%    0%
->
-> I think this is only due the lru_cache_add executed by the anonymous
-> pagefaults. Pagecache should stay in the lru constantly if you're
-> running in hot pagecache as I guess. For a workload like this one
-> keeping anon pages out of the lru would be an obvious win.
+On Sun, Mar 10, 2002 at 06:13:08PM -0800, David S. Miller wrote:
+>    From: Ben Collins <bcollins@debian.org>
+>    Date: Sun, 10 Mar 2002 21:04:53 -0500
+> 
+>    How does SysKonnect 9Dxx compare?
+> 
+> SysKonnect 9D == Tigon3 and is fully supported by our tg3 driver
+> :-)))))))
 
-... but only if you're really dealing with anonymous pages,
-I suspect that people will use NUMA machines more for workloads
-where most pages belong to mappings, because if a scientific
-calculation can be split out to a cluster you don't need the
-cost of NUMA hardware.
+Ahh...so now I can ditch their driver :) You may want to update the
+description so that's more clear.
 
-Not sure if my guess is right though ;)
+Thanks
 
-> It's a tradeoff. Just like the additional memory/cpu and locking
-> overhead that rmap requires will slowdown page faults even more than
-> what you see now, with the only object to get a nicer pagout behaviour
-> (modulo the ram-binding "migration" stuff where rmap is mandatory to do
-> it instantly and not over time).
-
-Rmap will also make it possible to have the lru lock per
-zone (or per node), which should give rather nice behaviour
-for large SMP and NUMA systems ... even if the workload
-isn't made up of anonymous pages ;)
-
-Btw, what is the "ram binding migration stuff" you are
-talking about and why would rmap not be able to do it in
-a nice way ?
-
-regards,
-
-Rik
 -- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/       Ben Collins    --    Debian GNU/Linux    --    WatchGuard.com      \
+`          bcollins@debian.org   --   Ben.Collins@watchguard.com           '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

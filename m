@@ -1,444 +1,279 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266925AbUHYSAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268161AbUHYSEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266925AbUHYSAk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 14:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268121AbUHYSAk
+	id S268161AbUHYSEd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 14:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUHYSEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 14:00:40 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:27555 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S266925AbUHYSAH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 14:00:07 -0400
-Subject: [2.6.8.1] Oops in unix_stream_sendmsg
-From: Benoit Dejean <benoit.dejean@placenet.org>
-Reply-To: TazForEver@dlfp.org
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 25 Aug 2004 20:00:04 +0200
-Message-Id: <1093456804.8399.15.camel@athlon>
+	Wed, 25 Aug 2004 14:04:33 -0400
+Received: from holomorphy.com ([207.189.100.168]:21134 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268161AbUHYSDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 14:03:46 -0400
+Date: Wed, 25 Aug 2004 11:03:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: [2/2] move user-related stuff to linux/user.h
+Message-ID: <20040825180342.GB2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>
+References: <20040819143907.GA4236@redhat.com> <20040819150632.GP11200@holomorphy.com> <20040825180138.GA2793@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040825180138.GA2793@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last night i got this oops while running XFree4.3
+On Wed, Aug 25, 2004 at 11:01:38AM -0700, William Lee Irwin III wrote:
+> I hereby declare open season on linux/sched.h!
+> In preparation for moving all user-related bits out of sched.h and
+> coopting linux/user.h for this purpose, this patch converts all
+> inclusions of linux/user.h to asm/user.h
+> The #error in linux/user.h is blown away by the successor to this
+> patch, which fills it in with user-related bits split off from sched.h.
+> vs. 2.6.8.1-mm4
 
-I'm sorry, my kernel is tainted (nvidia latest driver), by the way,
-here's the log. Thank you.
-
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
-c024eb83
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-Modules linked in: ipt_ttl ipt_TCPMSS ip_nat_irc ip_nat_ftp ipt_limit
-ipt_state iptable_mangle ipt_LOG ipt_MASQUERADE ipt_TOS ipt_REDIRECT
-iptable_nat ipt_REJECT ip_conntrack_irc ip_conntrack_ftp ip_conntrack
-iptable_filter ip_tables binfmt_misc md5 ipv6 snd_via82xx
-snd_mpu401_uart snd_emu10k1 snd_rawmidi snd_pcm_oss snd_mixer_oss
-snd_pcm snd_timer snd_ac97_codec snd_page_alloc snd_util_mem snd_hwdep
-snd nvidia w83781d i2c_sensor i2c_isa i2c_viapro i2c_core emu10k1
-soundcore ac97_codec usblp uhci_hcd ehci_hcd sd_mod usb_storage usbcore
-scsi_mod rtc
-CPU:    0
-EIP:    0060:[<c024eb83>]    Tainted: P
-EFLAGS: 00013246   (2.6.8.1)
-EIP is at unix_stream_sendmsg+0x203/0x380
-eax: 00000000   ebx: f54e6760   ecx: 00000000   edx: 00000000
-esi: 00000040   edi: c19c2560   ebp: f62ecce0   esp: f7469dd4
-ds: 007b   es: 007b   ss: 0068
-Process XFree86 (pid: 1126, threadinfo=f7469000 task=f7b11750)
-Stack: f7469de8 00000000 f62ecb60 f7469e24 f7469ed8 00000000 00000466
-00000000
-       00000000 00000000 00000000 00000000 c028dc24 0000000f c029e340
-f7469ed8
-       f7469e74 f76d78c4 c01fca5c 00000040 c4256760 c02be800 c028dc24
-00000040
-Call Trace:
- [<c01fca5c>] sock_sendmsg+0x9c/0xd0
- [<c012fca7>] buffered_rmqueue+0xe7/0x1a0
- [<c0130021>] __alloc_pages+0x2c1/0x300
- [<c0104646>] apic_timer_interrupt+0x1a/0x20
- [<c013a10b>] do_anonymous_page+0xfb/0x160
- [<c013a1cf>] do_no_page+0x5f/0x300
- [<c01fceac>] sock_readv_writev+0x6c/0xa0
- [<c01fcf55>] sock_writev+0x35/0x40
- [<c01fcf20>] sock_writev+0x0/0x40
- [<c01468f3>] do_readv_writev+0x1d3/0x220
- [<c010a985>] convert_fxsr_from_user+0x15/0xe0
- [<c010ad5b>] restore_i387+0x8b/0x90
- [<c01469d9>] vfs_writev+0x49/0x60
- [<c0146ab7>] sys_writev+0x47/0x80
- [<c0103cb7>] syscall_call+0x7/0xb
-Code: bf 00 f0 ff ff 21 e7 ff 47 14 8b 45 74 a8 01 75 7d f6 45 1d
+This patch moves all user bits from linux/sched.h to linux/user.h and
+sweeps all files fiddling with users.
 
 
-
-
-Here's my .config
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_BSD_PROCESS_ACCT_V3=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-CONFIG_ACPI_BOOT=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_NAMES=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_MISC=m
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=m
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_SCSI_QLA2XXX=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_IPV6=m
-CONFIG_IPV6_PRIVACY=y
-CONFIG_INET6_AH=m
-CONFIG_INET6_ESP=m
-CONFIG_INET6_IPCOMP=m
-CONFIG_IPV6_TUNNEL=m
-CONFIG_NETFILTER=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-CONFIG_IP_NF_TARGET_NOTRACK=m
-CONFIG_IP_NF_RAW=m
-CONFIG_IP_NF_MATCH_ADDRTYPE=m
-CONFIG_IP_NF_MATCH_REALM=m
-CONFIG_IP6_NF_QUEUE=m
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-CONFIG_IP6_NF_MATCH_RT=m
-CONFIG_IP6_NF_MATCH_OPTS=m
-CONFIG_IP6_NF_MATCH_FRAG=m
-CONFIG_IP6_NF_MATCH_HL=m
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-CONFIG_IP6_NF_MATCH_OWNER=m
-CONFIG_IP6_NF_MATCH_MARK=m
-CONFIG_IP6_NF_MATCH_IPV6HEADER=m
-CONFIG_IP6_NF_MATCH_AHESP=m
-CONFIG_IP6_NF_MATCH_LENGTH=m
-CONFIG_IP6_NF_MATCH_EUI64=m
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-CONFIG_IP6_NF_RAW=m
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=m
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CLK_JIFFIES=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_HFSC=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_SHAPER=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=256
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=y
-CONFIG_HW_RANDOM=m
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ISA=m
-CONFIG_I2C_VIA=m
-CONFIG_I2C_VIAPRO=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_SENSORS_EEPROM=m
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_TIMER=m
-CONFIG_SND_PCM=m
-CONFIG_SND_HWDEP=m
-CONFIG_SND_RAWMIDI=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_MPU401_UART=m
-CONFIG_SND_AC97_CODEC=m
-CONFIG_SND_EMU10K1=m
-CONFIG_SND_VIA82XX=m
-CONFIG_SOUND_PRIME=m
-CONFIG_SOUND_EMU10K1=m
-CONFIG_SOUND_VIA82CXXX=m
-CONFIG_USB=m
-CONFIG_USB_DEBUG=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DEBUG=y
-CONFIG_EXT2_FS=m
-CONFIG_EXT3_FS=m
-CONFIG_JBD=m
-CONFIG_REISERFS_FS=y
-CONFIG_REISERFS_FS_XATTR=y
-CONFIG_REISERFS_FS_POSIX_ACL=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_RAMFS=y
-CONFIG_UFS_FS=m
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_CODA_FS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=m
-CONFIG_NLS_DEFAULT="UTF8"
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=m
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES_586=m
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-CONFIG_CRYPTO_TEA=m
-CONFIG_CRYPTO_ARC4=m
-CONFIG_CRYPTO_KHAZAD=m
-CONFIG_CRYPTO_DEFLATE=m
-CONFIG_CRYPTO_MICHAEL_MIC=m
-CONFIG_CRYPTO_CRC32C=m
-CONFIG_CRYPTO_TEST=m
-CONFIG_CRC_CCITT=m
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=m
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
-
--- 
-Benoît Dejean
-JID: TazForEver@jabber.org
-http://gdesklets.gnomedesktop.org
-http://www.paulla.asso.fr
-
+Index: mm4-2.6.8.1/include/linux/init_task.h
+===================================================================
+--- mm4-2.6.8.1.orig/include/linux/init_task.h	2004-08-23 16:11:19.000000000 -0700
++++ mm4-2.6.8.1/include/linux/init_task.h	2004-08-25 10:04:12.546839624 -0700
+@@ -2,6 +2,7 @@
+ #define _LINUX__INIT_TASK_H
+ 
+ #include <linux/file.h>
++#include <linux/user.h>
+ #include <asm/resource.h>
+ 
+ #define INIT_FILES \
+Index: mm4-2.6.8.1/include/linux/key.h
+===================================================================
+--- mm4-2.6.8.1.orig/include/linux/key.h	2004-08-23 16:11:14.000000000 -0700
++++ mm4-2.6.8.1/include/linux/key.h	2004-08-25 10:04:48.598358960 -0700
+@@ -59,6 +59,7 @@
+ struct key_owner;
+ struct keyring_list;
+ struct keyring_name;
++struct user_struct;
+ 
+ /*****************************************************************************/
+ /*
+Index: mm4-2.6.8.1/include/linux/sched.h
+===================================================================
+--- mm4-2.6.8.1.orig/include/linux/sched.h	2004-08-25 09:54:27.149833496 -0700
++++ mm4-2.6.8.1/include/linux/sched.h	2004-08-25 10:02:20.833822584 -0700
+@@ -334,32 +334,7 @@
+ 
+ #define rt_task(p)		(unlikely((p)->prio < MAX_RT_PRIO))
+ 
+-/*
+- * Some day this will be a full-fledged user tracking system..
+- */
+-struct user_struct {
+-	atomic_t __count;	/* reference count */
+-	atomic_t processes;	/* How many processes does this user have? */
+-	atomic_t files;		/* How many open files does this user have? */
+-	atomic_t sigpending;	/* How many pending signals does this user have? */
+-	/* protected by mq_lock	*/
+-	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
+-	unsigned long locked_shm; /* How many pages of mlocked shm ? */
+-
+-#ifdef CONFIG_KEYS
+-	struct key *uid_keyring;	/* UID specific keyring */
+-	struct key *session_keyring;	/* UID's default session keyring */
+-#endif
+-
+-	/* Hash table maintenance information */
+-	struct list_head uidhash_list;
+-	uid_t uid;
+-};
+-
+-extern struct user_struct *find_user(uid_t);
+-
+-extern struct user_struct root_user;
+-#define INIT_USER (&root_user)
++struct user_struct;
+ 
+ typedef struct prio_array prio_array_t;
+ struct backing_dev_info;
+@@ -698,16 +673,6 @@
+ extern void set_special_pids(pid_t session, pid_t pgrp);
+ extern void __set_special_pids(pid_t session, pid_t pgrp);
+ 
+-/* per-UID process charging. */
+-extern struct user_struct * alloc_uid(uid_t);
+-static inline struct user_struct *get_uid(struct user_struct *u)
+-{
+-	atomic_inc(&u->__count);
+-	return u;
+-}
+-extern void free_uid(struct user_struct *);
+-extern void switch_uid(struct user_struct *);
+-
+ #include <asm/current.h>
+ 
+ extern unsigned long itimer_ticks;
+Index: mm4-2.6.8.1/include/linux/user.h
+===================================================================
+--- mm4-2.6.8.1.orig/include/linux/user.h	2004-08-25 09:54:39.896895648 -0700
++++ mm4-2.6.8.1/include/linux/user.h	2004-08-25 10:07:11.597619768 -0700
+@@ -1 +1,41 @@
+-#error do not include this header
++#ifndef _LINUX_USER_H
++#define _LINUX_USER_H
++
++/*
++ * Some day this will be a full-fledged user tracking system..
++ */
++struct user_struct {
++	atomic_t __count;	/* reference count */
++	atomic_t processes;	/* How many processes does this user have? */
++	atomic_t files;		/* How many open files does this user have? */
++	atomic_t sigpending;	/* How many pending signals does this user have? */
++	/* protected by mq_lock	*/
++	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
++	unsigned long locked_shm; /* How many pages of mlocked shm ? */
++
++#ifdef CONFIG_KEYS
++	struct key *uid_keyring;	/* UID specific keyring */
++	struct key *session_keyring;	/* UID's default session keyring */
++#endif
++
++	/* Hash table maintenance information */
++	struct list_head uidhash_list;
++	uid_t uid;
++};
++
++#define INIT_USER (&root_user)
++extern struct user_struct root_user;
++
++/* per-UID process charging. */
++struct user_struct *find_user(uid_t);
++struct user_struct *alloc_uid(uid_t);
++void free_uid(struct user_struct *);
++void switch_uid(struct user_struct *);
++
++static inline struct user_struct *get_uid(struct user_struct *u)
++{
++	atomic_inc(&u->__count);
++	return u;
++}
++
++#endif /* _LINUX_USER_H */
+Index: mm4-2.6.8.1/ipc/mqueue.c
+===================================================================
+--- mm4-2.6.8.1.orig/ipc/mqueue.c	2004-08-23 16:11:12.000000000 -0700
++++ mm4-2.6.8.1/ipc/mqueue.c	2004-08-25 10:05:14.862366224 -0700
+@@ -22,6 +22,7 @@
+ #include <linux/msg.h>
+ #include <linux/skbuff.h>
+ #include <linux/netlink.h>
++#include <linux/user.h>
+ #include <net/sock.h>
+ #include "util.h"
+ 
+Index: mm4-2.6.8.1/kernel/exit.c
+===================================================================
+--- mm4-2.6.8.1.orig/kernel/exit.c	2004-08-23 16:11:20.000000000 -0700
++++ mm4-2.6.8.1/kernel/exit.c	2004-08-25 10:05:25.034819776 -0700
+@@ -27,6 +27,7 @@
+ #include <linux/cpuset.h>
+ #include <linux/perfctr.h>
+ #include <linux/cpu.h>
++#include <linux/user.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+Index: mm4-2.6.8.1/kernel/fork.c
+===================================================================
+--- mm4-2.6.8.1.orig/kernel/fork.c	2004-08-25 09:54:39.834905072 -0700
++++ mm4-2.6.8.1/kernel/fork.c	2004-08-25 10:05:34.743343856 -0700
+@@ -41,6 +41,7 @@
+ #include <linux/profile.h>
+ #include <linux/rmap.h>
+ #include <linux/hash.h>
++#include <linux/user.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+Index: mm4-2.6.8.1/kernel/signal.c
+===================================================================
+--- mm4-2.6.8.1.orig/kernel/signal.c	2004-08-23 16:11:19.000000000 -0700
++++ mm4-2.6.8.1/kernel/signal.c	2004-08-25 10:05:46.339580960 -0700
+@@ -21,6 +21,7 @@
+ #include <linux/binfmts.h>
+ #include <linux/security.h>
+ #include <linux/ptrace.h>
++#include <linux/user.h>
+ #include <asm/param.h>
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+Index: mm4-2.6.8.1/kernel/sys.c
+===================================================================
+--- mm4-2.6.8.1.orig/kernel/sys.c	2004-08-23 16:11:19.000000000 -0700
++++ mm4-2.6.8.1/kernel/sys.c	2004-08-25 10:05:56.775994384 -0700
+@@ -26,6 +26,7 @@
+ #include <linux/dcookies.h>
+ #include <linux/suspend.h>
+ #include <linux/key.h>
++#include <linux/user.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+Index: mm4-2.6.8.1/kernel/user.c
+===================================================================
+--- mm4-2.6.8.1.orig/kernel/user.c	2004-08-23 16:11:14.000000000 -0700
++++ mm4-2.6.8.1/kernel/user.c	2004-08-25 10:08:24.277570736 -0700
+@@ -13,6 +13,7 @@
+ #include <linux/slab.h>
+ #include <linux/bitops.h>
+ #include <linux/key.h>
++#include <linux/user.h>
+ 
+ /*
+  * UID task count cache, to get fast user lookup in "alloc_uid"
+Index: mm4-2.6.8.1/mm/mlock.c
+===================================================================
+--- mm4-2.6.8.1.orig/mm/mlock.c	2004-08-23 16:11:13.000000000 -0700
++++ mm4-2.6.8.1/mm/mlock.c	2004-08-25 10:06:06.915452952 -0700
+@@ -7,7 +7,7 @@
+ 
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+-
++#include <linux/user.h>
+ 
+ static int mlock_fixup(struct vm_area_struct * vma, 
+ 	unsigned long start, unsigned long end, unsigned int newflags)
+Index: mm4-2.6.8.1/security/keys/key.c
+===================================================================
+--- mm4-2.6.8.1.orig/security/keys/key.c	2004-08-23 16:11:14.000000000 -0700
++++ mm4-2.6.8.1/security/keys/key.c	2004-08-25 10:06:18.519688840 -0700
+@@ -15,6 +15,7 @@
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
+ #include <linux/err.h>
++#include <linux/user.h>
+ #include "internal.h"
+ 
+ static kmem_cache_t	*key_jar;
+Index: mm4-2.6.8.1/security/keys/process_keys.c
+===================================================================
+--- mm4-2.6.8.1.orig/security/keys/process_keys.c	2004-08-23 16:11:14.000000000 -0700
++++ mm4-2.6.8.1/security/keys/process_keys.c	2004-08-25 10:06:30.147921080 -0700
+@@ -16,6 +16,7 @@
+ #include <linux/prctl.h>
+ #include <linux/fs.h>
+ #include <linux/err.h>
++#include <linux/user.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
+ 

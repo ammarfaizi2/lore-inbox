@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVCDM2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbVCDM0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbVCDM2h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbVCDM13
+	id S262882AbVCDM0R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbVCDMVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:27:29 -0500
-Received: from smartmx-02.inode.at ([213.229.60.34]:64177 "EHLO
-	smartmx-02.inode.at") by vger.kernel.org with ESMTP id S262905AbVCDMXq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 07:23:46 -0500
-Message-ID: <42285354.5090900@inode.info>
-Date: Fri, 04 Mar 2005 13:23:48 +0100
-From: Richard Fuchs <richard.fuchs@inode.info>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Fri, 4 Mar 2005 07:21:00 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:18841 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262891AbVCDL6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:58:17 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp: use non-contiguous memory on resume
+Date: Fri, 4 Mar 2005 13:00:20 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       hugang@soulinfo.com
+References: <20050304095934.GA1731@elf.ucw.cz> <20050304032952.4b2e456b.akpm@osdl.org> <20050304115214.GA2168@elf.ucw.cz>
+In-Reply-To: <20050304115214.GA2168@elf.ucw.cz>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: slab corruption in skb allocs
-References: <42283093.7040405@inode.info> <20050304035309.1da7774e.akpm@osdl.org>
-In-Reply-To: <20050304035309.1da7774e.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503041300.20535.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> I guess it could be hardware.  But given that disabling DMA _causes_ the
-> problem, rather than fixes it, it seems unlikely.
+On Friday, 4 of March 2005 12:52, Pavel Machek wrote:
+> Hi!
 > 
-> Could you enable CONFIG_DEBUG_PAGEALLOC in .config and see it that triggers
-> an oops?
+> > > > > Problem is that pagedir is allocated as order-8 allocation on resume
+> > > > >  in -mmX (and linus). Unfortunately, order-8 allocation sometimes
+> > > > >  fails, and for some people (Rafael, seife :-) it fails way too often.
+> > > > > 
+> > > > >  Solution is to change format of pagedir from table to linklist,
+> > > > >  avoiding high-order alocation. Unfortunately that means changes to
+> > > > >  assembly, too, as assembly walks the pagedir.
+> > > > 
+> > > > Ah.
+> > > > 
+> > > > >  (Or maybe Rafael is willing to create -mm version and submit it
+> > > > >  himself?)
+> > > > 
+> > > > No, against -linus, please.  But the chunk in kernel/power/swsusp.c looks
+> > > > like it came from a diff between -mm and -linus.  Or something.
+> > > 
+> > > Yes, I did diff between -mm and -pavel, sorry.
+> > > 
+> > > But I can't easily generate diff against -linus because that one is
+> > > dependend on fixing order-8 allocations during suspend. So I guess
+> > > I'll just wait until that one propagates into -linus?
+> > 
+> > Just generate a patch series?
+> 
+> When #1 of the series is already in -mm? Okay, I guess we can do that.
 
-by now, i could reproduce this on two different machines with quite 
-different hardware, while a third doesn't seem to show those symptoms. 
-on the second machine, i got the corruption errors from the slab 
-debugger mostly from the disk access alone, the network traffic was only 
-minimal (but still present). i was doing write operations on the hdd in 
-this test.
+Can I?
 
-kernel 2.6.7 doesn't show this behavior, while all kernels from 2.6.9 
-and up do. (i didn't test 2.6.8.x).
+Rafael
 
-as for DEBUG_PAGEALLOC... when i enable this option, the errors from 
-DEBUG_SLAB magically disappear. however, my ssh session got disconnected 
-once while doing the disk access with the message:
 
-Received disconnect from 195.58.172.154: 2: Bad packet length 4239103034.
-
-never seen this before and not sure if this has anything to do with it...
-
-cheers
-richard
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

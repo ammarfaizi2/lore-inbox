@@ -1,28 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUCBV0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 16:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbUCBV0L
+	id S261781AbUCBVcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 16:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUCBVcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 16:26:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261822AbUCBV0I (ORCPT
+	Tue, 2 Mar 2004 16:32:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36277 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261781AbUCBVcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 16:26:08 -0500
-Date: Tue, 2 Mar 2004 13:27:51 -0800
+	Tue, 2 Mar 2004 16:32:45 -0500
+Date: Tue, 2 Mar 2004 13:34:29 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: George Anzinger <george@mvista.com>
-Cc: amitkale@emsyssoft.com, ak@suse.de, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, piggy@timesys.com,
-       trini@kernel.crashing.org
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-Id: <20040302132751.255b9807.akpm@osdl.org>
-In-Reply-To: <4044F84D.4030003@mvista.com>
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
-	<200402061914.38826.amitkale@emsyssoft.com>
-	<403FDB37.2020704@mvista.com>
-	<200403011508.23626.amitkale@emsyssoft.com>
-	<4044F84D.4030003@mvista.com>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: alan@lxorguk.ukuu.org.uk, wtogami@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2o subsystem minor bugfixes to work with 2.6.3 kernel
+Message-Id: <20040302133429.40b953b8.akpm@osdl.org>
+In-Reply-To: <40446CCC.5070102@shadowconnect.com>
+References: <40446CCC.5070102@shadowconnect.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,10 +24,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger <george@mvista.com> wrote:
+Markus Lidel <Markus.Lidel@shadowconnect.com> wrote:
 >
->  Often it is not clear just why we are in the stub, given that 
-> we trap such things as kernel page faults, NMI watchdog, BUG macros and such.
+> here is the patch against 2.6.3 kernel to fix the I2O subsystem for the 2.6 
+> kernel.
 
-Yes, that can be confusing.  A little printk on the console prior to
-entering the debugger would be nice.
+Could you please describe the changes you have made?  ie: what the bugs
+are, and how you fixed them?
+
+Thanks.

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289062AbSAGBd0>; Sun, 6 Jan 2002 20:33:26 -0500
+	id <S289068AbSAGBf0>; Sun, 6 Jan 2002 20:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289063AbSAGBdQ>; Sun, 6 Jan 2002 20:33:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39186 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289062AbSAGBdC>; Sun, 6 Jan 2002 20:33:02 -0500
-Message-ID: <3C38FAB0.4000503@zytor.com>
-Date: Sun, 06 Jan 2002 17:32:32 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Matt Dainty <matt@bodgit-n-scarper.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com>	<200201061934.g06JYnZ15633@vindaloo.ras.ucalgary.ca>	<3C38BC6B.7090301@zytor.com>	<200201062108.g06L8lM17189@vindaloo.ras.ucalgary.ca>	<3C38BD32.6000900@zytor.com> <200201070131.g071VrM20956@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289069AbSAGBfR>; Sun, 6 Jan 2002 20:35:17 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:19977 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289068AbSAGBfC>;
+	Sun, 6 Jan 2002 20:35:02 -0500
+Date: Sun, 6 Jan 2002 17:33:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Dylan Egan <crack_me@bigpond.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 - hanging due to usb
+Message-ID: <20020107013311.GA4064@kroah.com>
+In-Reply-To: <5.1.0.14.0.20020107121314.00ba4258@mail.bigpond.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.0.20020107121314.00ba4258@mail.bigpond.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 09 Dec 2001 23:27:55 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-
+On Mon, Jan 07, 2002 at 12:13:55PM +1100, Dylan Egan wrote:
+> Hi,
 > 
-> So you mean something like this:
-> 
-> void devfs_per_cpu_register (const char *leafname, unsigned int flags,
-> 			     unsigned int major, unsigned int minor_start,
-> 			     umode_t mode, void *ops);
-> 
-> void devfs_per_cpu_unregister (const char *leafname);
-> 
-> with code in the per-cpu boot code to create the /dev/cpu/%d
-> directories.
-> 
+> I am currently trying to install my usb-storage device to use with 2.4.17.
 
+Which kind of usb-storage device?
 
-Yes, that sounds like a good way to do it.
+> I have my usb device connected and switched on so when i do insmod usb-uhci 
+> or insmod uhci it automatically picks it up and goes to install it but a 
+> few seconds after its done that, linux just freezes up and i can't do 
+> anything except reboot via the reboot switch (keyboard does not work). My 
+> usb is using a shared irq with onboard sound so i disabled sound in the 
+> BIOS and retried, only to find it failed again. I dont have enough time to 
+> check for any errors so i can't figure out the problem and when i check the 
+> logs there seems to be nothing out of the ordinary.
 
-	-hpa
+There is no oops message?
+Has this usb-storage device ever worked on any previous kernel version?
+Do any other types of USB devices work with Linux on this machine?
 
+thanks,
 
+greg k-h

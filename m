@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268196AbUHXSmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268210AbUHXSwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268196AbUHXSmz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 14:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUHXSmz
+	id S268210AbUHXSwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 14:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUHXSwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 14:42:55 -0400
-Received: from waste.org ([209.173.204.2]:53462 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S268196AbUHXSmx (ORCPT
+	Tue, 24 Aug 2004 14:52:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25274 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268190AbUHXSwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 14:42:53 -0400
-Date: Tue, 24 Aug 2004 13:42:45 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-Message-ID: <20040824184245.GE5414@waste.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+	Tue, 24 Aug 2004 14:52:04 -0400
+Date: Tue, 24 Aug 2004 11:50:46 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: bunk@fs.tum.de, cherry@osdl.org, linux-kernel@vger.kernel.org,
+       jmorris@redhat.com
+Subject: Re: 2.6.9-rc1: selinux/hooks.c: functions returning unassigned
+ variables
+Message-Id: <20040824115046.660ef050.davem@redhat.com>
+In-Reply-To: <1093362104.1800.156.camel@moss-spartans.epoch.ncsc.mil>
+References: <200408241519.i7OFJS6S027910@cherrypit.pdx.osdl.net>
+	<20040824153342.GG7019@fs.tum.de>
+	<1093362104.1800.156.camel@moss-spartans.epoch.ncsc.mil>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 12:49:24AM -0700, Linus Torvalds wrote:
-> Administrative trivia, and one thing I agonized over: should I make the
-> patches relative to 2.6.8 or 2.6.8.1? I decided that since there is
-> nothing that says that a "basic bug-fix" releases for a previous release
-> might not happen _after_ we've done a -rc release for the next version, I
-> can't sanely do patches against a bugfix release.
-> 
-> Thus the 2.6.9-rc1 patch is against plain 2.6.8. If you have 2.6.8.1, you
-> need to undo the .1 patch, and apply the big one. BK users and tar-balls 
-> don't see that particular confusion, of course ;)
+On Tue, 24 Aug 2004 11:41:45 -0400
+Stephen Smalley <sds@epoch.ncsc.mil> wrote:
 
-Phew, I was worried about that. Can I get a ruling on how you intend
-to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
-looking to unbreak. My preference would be for all x.y.z.n patches to
-be relative to x.y.z.
+> On Tue, 2004-08-24 at 11:33, Adrian Bunk wrote:
+> > On Tue, Aug 24, 2004 at 08:19:28AM -0700, John Cherry wrote:
+> > >...
+> > > security/selinux/hooks.c:2825: warning: `ret' might be used uninitialized in this function
+> > > security/selinux/hooks.c:2886: warning: `ret' might be used uninitialized in this function
+> > 
+> > 
+> > This was
+> >   [NET]: Add skb_header_pointer, and use it where possible.
+> > 
+> > 
+> > @Dave:
+> > In both functions ret is returned, but line that assigned a value to ret 
+> > was removed.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Good catch.  Patch applied, thanks Stephen.

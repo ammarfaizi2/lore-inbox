@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265296AbUBPBx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 20:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUBPBx0
+	id S265320AbUBPCMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 21:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUBPCMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 20:53:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27060 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265296AbUBPBxY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 20:53:24 -0500
-Date: Sun, 15 Feb 2004 17:53:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: hch@infradead.org, thornber@redhat.com, mikenc@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: dm-crypt using kthread (was: Oopsing cryptoapi (or loop
- device?) on 2.6.*)
-Message-Id: <20040215175337.5d7a06c9.akpm@osdl.org>
-In-Reply-To: <20040216014433.GA5430@leto.cs.pocnet.net>
-References: <402A4B52.1080800@centrum.cz>
-	<1076866470.20140.13.camel@leto.cs.pocnet.net>
-	<20040215180226.A8426@infradead.org>
-	<1076870572.20140.16.camel@leto.cs.pocnet.net>
-	<20040215185331.A8719@infradead.org>
-	<1076873760.21477.8.camel@leto.cs.pocnet.net>
-	<20040215194633.A8948@infradead.org>
-	<20040216014433.GA5430@leto.cs.pocnet.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 15 Feb 2004 21:12:09 -0500
+Received: from atari.saturn5.com ([209.237.231.200]:42963 "HELO
+	atari.saturn5.com") by vger.kernel.org with SMTP id S265320AbUBPCMD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 21:12:03 -0500
+Date: Sun, 15 Feb 2004 18:12:01 -0800
+From: Steve Simitzis <steve@saturn5.com>
+To: Elikster <elik@webspires.com>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: e1000 problems in 2.6.x
+Message-ID: <20040216021201.GA23254@saturn5.com>
+References: <20040215152057.GA582@xeon2.local.here> <121605967.20040215181417@webspires.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <121605967.20040215181417@webspires.com>
+User-Agent: Mutt/1.3.28i
+X-gestalt: heart, barbed wire
+X-Cat: calico
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout <christophe@saout.de> wrote:
->
-> +	  This device-mapper target allows you to create a device that
->  +	  transparently encrypts the data on it. You'll need to activate
->  +	  the required ciphers in the cryptoapi configuration in order to
->  +	  be able to use it.
+that doesn't explain it for me. i have NAPI enabled in the kernel, and
+i still have problems in 2.6.x, and not in 2.4.22.
 
-Is there more documentation that this?  I'd imagine a lot of crypto-loop
-users wouldn't have a clue how to get started on dm-crypt, especially if
-they have not used device mapper before.
+CONFIG_E1000=m
+CONFIG_E1000_NAPI=y
 
-And how do they migrate existing encrypted filesytems?
+:(
+
+On 02/15/04, Elikster <elik@webspires.com> wrote: 
+
+> Hello Klaus,
+> 
+>    Hmmm..that might explains it, since I don't use NAPI enabled on the E1000 and it works fine without in the 2.4.x series kernels, but under 2.6, it barfs half the time.
+> 
+> Sunday, February 15, 2004, 8:20:57 AM, you wrote:
+> 
+> KD> I have a Tyan-S2665 mobo which has an intergrated
+> KD> e1000 and I never saw such errors with 2.6 kernels. 
+> 
+> KD> I use it with 100-MBit Full-Duplex in a switched 
+> KD> private network.
+> 
+> KD> CONFIG_IP_MULTICAST=y
+> KD> CONFIG_E1000=y
+> KD> CONFIG_E1000_NAPI=y
+> 
+> 
+> 
+> 
+> -- 
+> Best regards,
+>  Elikster                            mailto:elik@webspires.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+
+steve simitzis : /sim' - i - jees/
+          pala : saturn5 productions
+ www.steve.org : 415.282.9979
+  hath the daemon spawn no fire?
+

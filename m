@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318614AbSHLCaI>; Sun, 11 Aug 2002 22:30:08 -0400
+	id <S318607AbSHLCb2>; Sun, 11 Aug 2002 22:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318622AbSHLCaI>; Sun, 11 Aug 2002 22:30:08 -0400
-Received: from h-66-134-202-53.SNVACAID.covad.net ([66.134.202.53]:11663 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S318614AbSHLCaH>; Sun, 11 Aug 2002 22:30:07 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 11 Aug 2002 19:33:44 -0700
-Message-Id: <200208120233.TAA16322@adam.yggdrasil.com>
-To: ryan.flanigan@intel.com
-Subject: Re: 2.5.31: modules don't work at all
-Cc: linux-kernel@vger.kernel.org
+	id <S318608AbSHLCb2>; Sun, 11 Aug 2002 22:31:28 -0400
+Received: from waste.org ([209.173.204.2]:20135 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318607AbSHLCb1>;
+	Sun, 11 Aug 2002 22:31:27 -0400
+Date: Sun, 11 Aug 2002 21:35:05 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unix-domain sockets - abstract addresses 
+In-Reply-To: <9131.1028945953@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0208112132510.25011-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Flanigan writes:
->>>>>> "Andrew" == Andrew Rodland <arodland@noln.com> writes:
+On Sat, 10 Aug 2002, Keith Owens wrote:
+
+> On Fri, 09 Aug 2002 18:41:04 -0700 (PDT),
+> "David S. Miller" <davem@redhat.com> wrote:
+> >   From: Keith Owens <kaos@ocs.com.au>
+> >   Date: Sat, 10 Aug 2002 11:35:04 +1000
+> >
+> >   af_unix.c is linked into unix.o so we have -DKBUILD_MODNAME=unix.  Alas
+> >   we also have -Dunix=1.  __stringify(KBUILD_MODNAME) -> __stringify(unix) ->
+> >   "1" instead of "unix".
+> >
+> >This seems really tacky.  There must be a better way to do this.
+> >Perhaps prepending some constant string prefix to these module
+> >names such that they will not collide with the namespace in
+> >this way.  For example, "kmod_".
 >
->    Andrew> On Sun, 11 Aug 2002 14:41:36 +0200 "Michel Eyckmans (MCE)"
->    Andrew> <mce@pi.be> wrote:
->
->    >> After upgrading from 2.5.30 to 2.5.31, nothing related to
->    >> modules works for me. Insmod, rmmod, you name it. They all
->    >> cause errors along the line of: "QM_SYMBOLS: Bad Address". Any
->    >> suggestions?
->
->    Andrew> Ditto here.  Ryan: Yes, CONFIG_PREEMPT is set.
->
->try "unsetting" it.  (same problem on the 2.5.31 kernels where i had it set)
+> Adding a constant prefix to every label and string will increase the
+> size of the kernel.  I would much rather find a way for cpp to strip
+> quotes from a #define, then -DKBUILD_OBJECT=\"unix\" has no problems.
+> But I don't know any cpp construct to convert KBUILD_OBJECT ("unix") to
+> bare 'unix' without the quotes.  Undefining conflicting names is tacky
+> but it has the least (zero) impact on the kernel size.
 
-	I am also experiencing modules not working with CONFIG_PREEMPT
-set, and deactivating CONFIG_PREEMPT works around the problem for me too.
+Might it be simpler to change the overall module name? unix.o is an
+especially poor choice of names, compiler defines aside.
 
-	Ryan, thanks for suggesting that, as it would have taken me a
-long time to narrow it down that far!
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-	It would help avoid duplication of effort if you could indicate
-how along you are with this problem.  If you or someone else has nailed
-the problem and is preparing a patch, then there is no point in anyone
-else trying to duplicate that debugging effort.  On the other hand,
-if you just noticed CONFIG_PREEMPT was the difference between your
-configuration and that of someone else who was running 2.5.31 successfully
-and are not actively debugging the problem, then I'll try to poke at it
-some more.
-
-	I already know that the error that trips insmod occurs at
-in modules.c, line 831, when qm_symbols gets an error from copy_to_user():
-
-        for (; i < mod->nsyms ; ++i, ++s, vals += 2) {
-                len = strlen(s->name)+1;
-                if (len > bufsize)
-                        goto calc_space_needed;
-
-here------>     if (copy_to_user(strings, s->name, len)
-                    || __put_user(s->value, vals+0)
-                    || __put_user(space, vals+1))
-                        return -EFAULT;
-
-                strings += len;
-                bufsize -= len;
-                space += len;
-        }
-
-	The values of strings and s->name are similar in 2.5.30+preempt
-(works) and 2.5.31+preempt (does not work).  strings is 0x08______, and
-s->name is 0xc0______.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

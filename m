@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVAaXAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVAaXC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVAaXAj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVAaXAi
+	id S261418AbVAaXC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVAaXC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:00:38 -0500
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:28804 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261417AbVAaXAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:00:10 -0500
-Message-ID: <41FEB8BA.7000106@kolivas.org>
-Date: Tue, 01 Feb 2005 10:01:14 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 31 Jan 2005 18:02:56 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:64458 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261418AbVAaXCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:02:32 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.6.10-ac11 announcement?
+Date: Tue, 1 Feb 2005 00:02:49 +0100
+User-Agent: KMail/1.7.1
+Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050129191235.GG14791@charite.de> <1107158722.14787.68.camel@localhost.localdomain>
+In-Reply-To: <1107158722.14787.68.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] sched - Implement priority and fifo support for SCHED_ISO
-References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>	<41FE9582.7090003@kolivas.org> <87651di55a.fsf@sulphur.joq.us>
-In-Reply-To: <87651di55a.fsf@sulphur.joq.us>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502010002.50734.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack O'Quin wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
-> 
-> 
->>Sure enough I found the bug in less than 5 mins, and it would
->>definitely cause this terrible behaviour.
->>
->>A silly bracket transposition error on my part :P
-> 
-> 
-> The corrected version works noticeably better, but still nowhere near
-> as well as SCHED_FIFO.  The first run had a cluster of really bad
-> xruns.  The second and third were much better, but still with numerous
-> small xruns.
-> 
->   http://www.joq.us/jack/benchmarks/sched-iso-fix/
-> 
-> With a compile running in the background it was a complete failure.
-> Some kind of big xrun storm triggered a collapse on every attempt.
-> 
->   http://www.joq.us/jack/benchmarks/sched-iso-fix+compile/
-> 
-> The summary statistics are mixed.  The delay_max is noticeably better
-> than before, but still much worse than SCHED_FIFO.  But, the xruns are
-> really bad news...
+Hi,
 
-Excellent.
+On Monday, 31 of January 2005 09:05, Alan Cox wrote:
+> On Sad, 2005-01-29 at 19:12, Ralf Hildebrandt wrote:
+> > Where is the 2.6.10-ac11 announcement?
+> 
+> Good question
+> 
+> Arjan van de Ven is now building RPMS of the kernel and those can be found
+> in the RPM subdirectory and should be yum-able. Expect the RPMS to lag the
+> diff a little as the RPM builds and tests do take time.
+> 
+> Nothing terribly exciting here security wise but various bugs for problems
+> people have been hitting that are now fixed upstream, and also the ULi
+> tulip variant should now work. If you are running IPv6 you may well want
+> the networking fixes.
 
-Believe it or not these look like good results to me. Your XRUNS are 
-happening when the DSP load is >70% which is the iso_cpu % cutoff. Try 
-setting the iso_cpu to 90%
+Is there a broken-out version of the patch available?  It reboots at startup
+(before it mounts the root fs) on my dual-Opteron box (SuSE 9.2), but -ac10
+works fine, evidently.  I could check which changeset actually caused this to
+happen, but I'd need to separate them.
 
-echo 90 > /proc/sys/kernel/iso_cpu
+Greets,
+Rafael
 
-Cheers,
-Con
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263068AbVCXG7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbVCXG7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263068AbVCXG7P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 01:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbVCXG7P
+	id S263067AbVCXG7p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 01:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbVCXG7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 01:59:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:38822 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263068AbVCXG7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 01:59:09 -0500
-Subject: Re: repeat a function after fixed time period
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux-os@analogic.com
-Cc: sounak chakraborty <sounakrin@yahoo.co.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0503231654260.16973@chaos.analogic.com>
-References: <20050323194308.8459.qmail@web53307.mail.yahoo.com>
-	 <Pine.LNX.4.61.0503231522070.16567@chaos.analogic.com>
-	 <1111610935.6306.97.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0503231551570.16734@chaos.analogic.com>
-	 <1111613230.12808.0.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0503231654260.16973@chaos.analogic.com>
-Content-Type: text/plain
-Date: Thu, 24 Mar 2005 07:59:03 +0100
-Message-Id: <1111647543.6290.1.camel@laptopd505.fenrus.org>
+	Thu, 24 Mar 2005 01:59:45 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:38304 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263067AbVCXG7c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 01:59:32 -0500
+Date: Wed, 23 Mar 2005 22:59:41 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050324065941.GH1298@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050323071604.GA32712@elte.hu> <20050323214645.GA10535@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323214645.GA10535@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 17:00 -0500, linux-os wrote:
-> On Wed, 23 Mar 2005, Arjan van de Ven wrote:
+On Wed, Mar 23, 2005 at 10:46:45PM +0100, Ingo Molnar wrote:
 > 
-> > On Wed, 2005-03-23 at 15:56 -0500, linux-os wrote:
-> >>>> static void start_timer(void)
-> >>>> {
-> >>>>      if(!atomic_read(&info->running))
-> >>>>      {
-> >>>>          atomic_inc(&info->running);
-> >>>
-> >>> same race.
-> >>
-> >> No such race at all.
-> >
-> > here there is one; you use add_timer() which isn't allowed on running
-> > timers, only mod_timer() is. So yes there is a race.
-> >
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Well add_timer() is only executed after the timer has expired
-> or hasn't started yet so the "isn't allowed" is pretty broad.
+> > i think the 'migrate read-count' method is not adequate either, 
+> > because all callbacks queued within an RCU read section must be called 
+> > after the lock has been dropped - while with the migration method 
+> > CPU#1 would be free to process callbacks queued in the RCU read 
+> > section still active on CPU#2.
+> > 
+> > i'm wondering how much of a problem this is though. Can there be stale 
+> > pointers at that point? Yes in theory, because code like:
+> > 
+> > 	rcu_read_lock();
+> > 	call_rcu(&dentry->d_rcu, d_callback);
+> > 	func(dentry->whatever);
+> > 	rcu_read_unlock();
+> 
+> but, this cannot happen, because call_rcu() is used by RCU-write code.
 
-See and the "hasn't started yet" isn't true due to the race. Assume 2
-threads both hit the atomic_read() test at the same time, before they
-each hit the inc. At some later point one of them will start the timer
-and then the other will *again* add_timer on it.
+The code would not look exactly like this, but acquiring the update-side
+lock inside an RCU read-side critical section can be thought of as
+a reader-to-writer lock upgrade.  RCU can do this unconditionally,
+which was one of the walls I was banging my head against when trying
+to think up a realtime-safe RCU implementation.
 
-> sequence. Will mod_timer() actually restart the timer???
+So something like the following would be legitimate RCU code:
 
-yes
+	rcu_read_lock();
+	spin_lock(&dcache_lock);
+	call_rcu(&dentry->d_rcu, d_callback);
+	spin_unlock(&dcache_lock);
+	rcu_read_unlock();
 
+The spin_lock() call upgrades from a read-side to a write-side critical
+section.
 
+> so the important property seems to be that any active RCU-read section 
+> should keep at least one CPU's active_readers count elevated 
+> permanently, for the duration of the RCU-read section.
+
+Yep!
+
+>                                                         It doesnt matter 
+> that the reader migrates between CPUs - because the RCU code itself 
+> guarantees that no callbacks will be executed until _all_ CPUs have been 
+> in quiescent state. I.e. all CPUs have to go through a zero 
+> active_readers value before the callback is done.
+
+Yep again!
+
+						Thanx, Paul

@@ -1,68 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267011AbSLDSZM>; Wed, 4 Dec 2002 13:25:12 -0500
+	id <S267013AbSLDSeD>; Wed, 4 Dec 2002 13:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267016AbSLDSZM>; Wed, 4 Dec 2002 13:25:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65030 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267011AbSLDSZJ>;
-	Wed, 4 Dec 2002 13:25:09 -0500
-Date: Wed, 4 Dec 2002 18:32:35 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: lkml, bugme.osdl.org?
-Message-ID: <20021204183235.GA701@gallifrey>
-References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de> <20021204115819.GB1137@gallifrey> <20021204124227.GB647@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021204124227.GB647@suse.de>
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 18:13:48 up 52 min,  1 user,  load average: 0.06, 0.06, 0.02
+	id <S267015AbSLDSeD>; Wed, 4 Dec 2002 13:34:03 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:28901 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267013AbSLDSeB>;
+	Wed, 4 Dec 2002 13:34:01 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Antonino Daplas <adaplas@pol.net>
+Date: Wed, 4 Dec 2002 19:41:09 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH 1/3: FBDEV: VGA State Save/Restore module
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+X-mailer: Pegasus Mail v3.50
+Message-ID: <962842B4859@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones (davej@codemonkey.org.uk) wrote in reply to my reply:
-> 
-> This was something that was brought up in a discussion at the kernel
-> summit by (I think) Paul Mackerras. The question was how to make
-> sure we get all arch's in sync before doing a release.
-> It should be fairly straightforward thing to do for 2.6.x releases,
-> but during 2.5.x when stuff is changing so rapidly, it doesn't make
-> sense to hold up the majority of users just so the other archs can
-> play catch up.
+On  4 Dec 02 at 22:26, Antonino Daplas wrote:
+> +static void vga_cleanup(struct fb_vgastate *state)
+> +{
+> +   if (state->fbbase)
+> +       iounmap(state->fbbase);
+> +}
 
-True; thats why I only started submitting these now we are feature
-chilled. I reckoned it was important not to get into the misconception
-we didn't have many bugs left because things were starting to chug along
-nicely on x86.
+Nobody is setting state->fbbase to NULL, so 
+"save_vga(SAVE_FONT); restore_vga(); save_vga(0); restore_vga();"
+will badly die. I think that you should change save prototype to
+int fb_save_vga(int whattosave, struct fb_vgastate* state);, and at
+the beginning of save you should do "memset(state, 0, sizeof(*state));"
 
->  > Don't forget that ia64, x86-64 and s390 are all potentially growing
->  > users of Linux.
-> 
-> ia64 and x86-64 maybe, but s390 is way out of the pricerange of most
-> Linux users. Those who can afford it will likely use distro kernels anyway
-> due to the added support they paid for.
+And fbbase should not be in state variable, as this value is valid
+only during duration of save or restore, not outside of them. Pass it
+to function which needs it as an explicit argument.
 
-True; but sometimes people have desires to run the same/similar kernel
-versions on all their systems and/or use some patches without having to
-have versions for all systems.
+It looks easier to me to make fb_vgastate larger structure with
+crt/seq/cmap fields embeded, instead of kmallocing these portions.
+Or at least allocate them together depending on 'whattosave' flag,
+doing four kmalloc() to allocate about 64 bytes is waste of resources.
 
->  > Linux on ARM, MIPS and PPC also has a healthy band of
->  > productive (commercial and home) users.
-> 
-> Russell has done a great job at keeping ARM up to date in 2.5,
-> as have the PPC folks.  For the most part, the archs aren't that
-> out of sync. (Insert comedy remark here about m68k being more
-> up to date than alpha).
+And do not use kmalloc() for > 4KB regions, use vmalloc (in
+fonts save).
 
-Indeed - (Alpha is actually one of the few non-x86 architectures
-that actually built fully for me in a recent 2.5.x - and made a passable
-attempt at booting)
+> +       state->attr = kmalloc(state->num_attr, GFP_KERNEL);
+> +       state->crtc = kmalloc(state->num_crtc, GFP_KERNEL);
+> +       state->gfx = kmalloc(state->num_gfx, GFP_KERNEL);
+> +       state->seq = kmalloc(state->num_seq, GFP_KERNEL);
+...
+> +       state->vga_font0 = kmalloc(8192 * 8, GFP_KERNEL);
+...
+> +       state->vga_font1 = kmalloc(8192 * 8, GFP_KERNEL);
+...
+> +       state->vga_text = kmalloc(8192 * 4, GFP_KERNEL);
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+And if my VGA documentation is correct, you are saving random
+data into vga_text: first 8192 chars interleaved with
+8192 bytes of garbage, plus attributes from chars 8192-16383 interleaved
+with 8192 bytes of garbage. 
+
+When you program hardware to get access to planes (vga 16 color 
+graphics mode), every second byte from plane 0 contains character, 
+and every second byte from plane 1 contains character attribute 
+(it is that way because of bit A0 selects plane, while A15-A1.0 
+selects memory address, so odd in memory addresses are unreachable 
+in vga text mode).
+
+And if you are using standard hardware, then font data live only in
+plane 2, plane 3 is unused on VGA hardware in text mode. I think that
+you should either save whole 256KB of memory, without deeper understanding,
+or you should just save FONT 0 (first 32*256 bytes from plane 2) if you
+want to save memory and you know that console was driven by vgacon in
+text mode.
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

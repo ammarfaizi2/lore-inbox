@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbTL0XSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 18:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbTL0XSJ
+	id S264880AbTL0Xgk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 18:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTL0Xgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 18:18:09 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:34704 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264879AbTL0XSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 18:18:06 -0500
-Subject: Problem with dev_kfree_skb_any() in 2.6.0
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1072567054.4112.14.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 28 Dec 2003 10:17:34 +1100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 27 Dec 2003 18:36:40 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43095 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264880AbTL0Xgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 18:36:38 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
+References: <179fV-1iK-23@gated-at.bofh.it> <179IS-1VD-13@gated-at.bofh.it>
+	<2003Dec27.212103@a0.complang.tuwien.ac.at>
+	<Pine.LNX.4.58.0312271245370.2274@home.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 27 Dec 2003 16:31:22 -0700
+In-Reply-To: <Pine.LNX.4.58.0312271245370.2274@home.osdl.org>
+Message-ID: <m1smj596t1.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting Ooops reports with sungem. The problem is that in the PM
-code (and possibly other exceptional code path), it will clean the rings
-at non interrupt time but with a spinlock_irq held.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-it uses dev_kfree_skb_any() which does:
+> On Sat, 27 Dec 2003, Anton Ertl wrote:
+> > 
+> > And you probably mean "repeatable every time".  Ok, then a random
+> > scheme has, by your definition, no pathological worst case.  I am not
+> > sure that this is a consolation when I happen upon one of its
+> > unpredictable and unrepeatable worst cases.
+> 
+> Those "unpredictable" cases are so exceedingly rare that they aren't worth
+> worrying about.
 
-static inline void dev_kfree_skb_any(struct sk_buff *skb)
-{
-        if (in_irq())
-                dev_kfree_skb_irq(skb);
-        else
-                dev_kfree_skb(skb);
-}
+They show up a lot in benchmarks which makes the something
+to worry about.  Even if real world applications don't show
+the same behavior.  Of course it is stupid to tune machines
+to the benchmarks but...
 
-However, in_irq() seem to only catch real IRQ time, so I end up calling
-dev_kfree_skb(), which triggers the following BUG() in local_bh_enable()
-        WARN_ON(irqs_disabled());
+> Basically: prove me wrong. People have tried before. They have failed. 
+> Maybe you'll succeed. I doubt it, but hey, I'm not stopping you.
 
-We should probably fix dev_kfree_skb_any() ? Still ugly imho though...
+For anyone taking you up on this I'd like to suggest two possible
+directions.
 
--        if (in_irq())
-+        if (in_irq() || irqs_disabled())
+1) Increasing PAGE_SIZE in the kernel.
+2) Creating zones for the different colors.  Zones were not
+   implemented last time, this was tried.
 
+Both of those should be minimal impact to the complexity
+of the current kernel. 
 
-Ben.
+I don't know where we will wind up but the performance variation's
+caused by cache conflicts in today's applications are real, and easily
+measurable.  Giving the growing increase in performance difference
+between CPUs and memory Amdahl's Law shows this will only grow
+so I think this is worth looking at.
 
-
+Eric

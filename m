@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbTJWTZl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 15:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTJWTZl
+	id S261664AbTJWTcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 15:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTJWTcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 15:25:41 -0400
-Received: from september.skynet.be ([195.238.3.57]:51875 "EHLO
-	september.skynet.be") by vger.kernel.org with ESMTP id S261662AbTJWTZk
+	Thu, 23 Oct 2003 15:32:16 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:35082 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261664AbTJWTcP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 15:25:40 -0400
-Message-Id: <200310231925.h9NJPZnU004358@september.skynet.be>
-Date: Thu, 23 Oct 2003 21:25:35 +0200 (CEST)
-From: Helmut Jarausch <jarausch@skynet.be>
-Reply-To: Helmut Jarausch <jarausch@skynet.be>
-Subject: 2.4.23-pre7 doesn't recognize 2nd processor with Intel E7505
-To: linux-kernel@vger.kernel.org
+	Thu, 23 Oct 2003 15:32:15 -0400
+To: Chip <szarlada@freemail.hu>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8 PROBLEM: codepage=850 doesn't work with mount [SOLVED]
+References: <3F97AD01.9030806@freemail.hu>
+	<871xt3su4n.fsf@devron.myhome.or.jp>
+	<20031023112824.7bb6f0d8.rddunlap@osdl.org>
+	<3F98222E.90304@freemail.hu>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 24 Oct 2003 04:31:52 +0900
+In-Reply-To: <3F98222E.90304@freemail.hu>
+Message-ID: <87vfqfrbrr.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (september.skynet.be)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Chip <szarlada@freemail.hu> writes:
 
-2.4.23-pre7 doesn't recognize the second processor on a supermicro
-board with Intel E7505 dual Xeon. (It runs fine on a dual P3 machine)
+> Sorry guys, you've got right. I've compiled cp852 instead of cp850.
+> Execuse me for blaming.
 
-The 2.4.22-AC4 kernel recognizes both (even 4 of hyperthreading is
-enabled)
-
-Since we are still looking for a remedy to a kernel freeze (here on at
-least two different SMP machines) when using a GL-application with and
-WITHOUT the Nvidia video kernel module, we were hoping that the
-recent fix for a race condition in mmap could help.
-
-Any hints are appreciated,
-
-Helmut Jarausch
-
-Lehrstuhl fuer Numerische Mathematik
-RWTH - Aachen University
-D 52056 Aachen, Germany
+No problem. Thanks for telling it.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

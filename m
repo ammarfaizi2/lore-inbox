@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUBVKao (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 05:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUBVKao
+	id S261221AbUBVKfk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 05:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbUBVKfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 05:30:44 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:63239 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261220AbUBVKan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 05:30:43 -0500
-Date: Sun, 22 Feb 2004 10:30:36 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: Manish Lachwani <lachwani@pmc-sierra.com>, Greg KH <greg@kroah.com>
-Subject: Re: i2c-yosemite
-Message-ID: <20040222103036.A29210@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	LM Sensors <sensors@stimpy.netroedge.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Manish Lachwani <lachwani@pmc-sierra.com>, Greg KH <greg@kroah.com>
-References: <20040222104106.714de992.khali@linux-fr.org>
+	Sun, 22 Feb 2004 05:35:39 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:2212 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261221AbUBVKfi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 05:35:38 -0500
+Date: Sun, 22 Feb 2004 11:37:31 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GFS requirements (was: Non-GPL export of invalidate_mmap_range)
+Message-ID: <20040222103731.GA19437@marowsky-bree.de>
+References: <20040216190927.GA2969@us.ibm.com> <200402202216.09908.phillips@arcor.de> <20040221141724.GH6280@marowsky-bree.de> <200402211409.13203.phillips@arcor.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040222104106.714de992.khali@linux-fr.org>; from khali@linux-fr.org on Sun, Feb 22, 2004 at 10:41:06AM +0100
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200402211409.13203.phillips@arcor.de>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 10:41:06AM +0100, Jean Delvare wrote:
-> If everyone reimplements what already exists, the kernel is likely to go
-> bigger with no benefit. Also, you won't be able to use all user-space
-> tools that already exist, and will also have to write specific chip
-> drivers for the chips present on the yosemite bus, although these
-> drivers (Atmel 24C32 EEPROM and MAX 1619) already exist.
-> 
-> Please explain to us why you cannot/don't want to use the existing i2c
-> subsystem.
+On 2004-02-21T14:09:13,
+   Daniel Phillips <phillips@arcor.de> said:
 
-Yupp.  While we're at it what should we do with the i2c reimplementations
-in alsa and dvb?
+> But the one true clustering infrastructure hasn't been developed yet. 
+
+Yes.
+
+> from being able to define that sensibly now.  It's better to implement 
+> exactly what a given DFS needs for the time being.
+
+Right.
+
+> > So, how does OpenGFS/GFS achieve the communication? How does it
+> > interact with the infrastructure (which, I infere from your above
+> > comments, is meant to reside in user-space)?
+> It's done both ways, actually.  No new kernel hooks are used in either
+> case.
+
+That doesn't answer my question how you are doing the user-space /
+kernel communication ;-)
+
+And will the user-space infrastructure to go with GFS be open source
+too? Questions over questions.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

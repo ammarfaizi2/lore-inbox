@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbUCKQfL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 11:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbUCKQfK
+	id S261183AbUCKQhS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 11:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUCKQhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 11:35:10 -0500
-Received: from rtp-iport-2.cisco.com ([64.102.122.149]:59039 "EHLO
-	rtp-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S261496AbUCKQfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 11:35:03 -0500
-X-BrightmailFiltered: true
-To: Jouni Malinen <jkmaline@cc.hut.fi>
-Cc: James Morris <jmorris@redhat.com>, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
-References: <20040311030035.GA3782@jm.kir.nu>
-	<Xine.LNX.4.44.0403102302450.935-100000@thoron.boston.redhat.com>
-	<20040311060818.GA3739@jm.kir.nu>
-From: Clay Haapala <chaapala@cisco.com>
-Organization: Cisco Systems, Inc. SRBU
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
- lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
- do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
- rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
- E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
- V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
- VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
- rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
- wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
- jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
- w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
- yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
- 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
-Date: Thu, 11 Mar 2004 10:34:58 -0600
-In-Reply-To: <20040311060818.GA3739@jm.kir.nu> (Jouni Malinen's message of
- "Wed, 10 Mar 2004 22:08:19 -0800")
-Message-ID: <yqujr7vztk99.fsf@chaapala-lnx2.cisco.com>
-User-Agent: Gnus/5.110001 (No Gnus v0.1) XEmacs/21.5 (celeriac, linux)
+	Thu, 11 Mar 2004 11:37:18 -0500
+Received: from ccs.covici.com ([209.249.181.196]:30630 "EHLO ccs.covici.com")
+	by vger.kernel.org with ESMTP id S261183AbUCKQhM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 11:37:12 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: shuttle an50r Motherboard and Linux
+References: <m3wu5w8aex.fsf@ccs.covici.com>
+	<200403080151.28816.bzolnier@elka.pw.edu.pl>
+	<16460.36222.191866.759421@ccs.covici.com>
+	<200403081633.38437.bzolnier@elka.pw.edu.pl>
+	<16460.37707.806668.409270@ccs.covici.com>
+From: John Covici <covici@ccs.covici.com>
+Date: Thu, 11 Mar 2004 11:37:06 -0500
+In-Reply-To: <16460.37707.806668.409270@ccs.covici.com> (John covici's
+ message of "Mon, 8 Mar 2004 10:37:47 -0500")
+Message-ID: <m3smgf8hn1.fsf@ccs.covici.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Jouni Malinen outgrape:
-> On Wed, Mar 10, 2004 at 11:06:37PM -0500, James Morris wrote:
-> 
->> I can't reproduce it now either (AFAICR, it oopsed in test_hash().
->> 
->> I suspect it may have been caused by loading tcrypt module which
->> was out of sync with the digest setkey change.
-> 
-> That's possible. It didn't fail in my test with an updated version
-> from the BK repository either, so I would assume this issue can be
-> called resolved.
-> 
-> Here's the digest setkey part of the previous combined patch; I'll
-> send a patch for Michael MIC separately.
-> 
-> 
-> 
-> Added support for using keyed digest with an optional dit_setkey
-> handler.  This does not change the behavior of the existing digest
-> algorithms, but allows new ones to add setkey handler that can be
-> used to initialize the algorithm with a key or seed. setkey is to be
-> called after init, but before any of the update call(s).
-> 
-> [ ... patch omitted ... ]
+OK, I have just tried 2.6.2 and although it recognizes the chip, it
+sets all the disks to udma33 whereas I know at least two of them will
+work at 133.
 
-OK, so I should recode CRC32C to be a variation of digest that employs
-a setkey() handler, right?  Should be no problem.
+Any ideas?
 
-Can I get to a reasonable development environment by starting with
-2.6.3, and adding the patch you just sent?  Or, do I need the Michael
-MIC patch, as well?
+on Mon, 8 Mar 2004 10:37:47 -0500 John covici <covici@ccs.covici.com> wrote:
+
+> Sorry, here it is.
+>
+> 00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5) (prog-if 8a [Master SecP PriP])
+> 	Subsystem: Holco Enterprise Co, Ltd/Shuttle Computer: Unknown device a550
+> 	Flags: bus master, 66Mhz, fast devsel, latency 0
+> 	I/O ports at f000 [size=16]
+> 	Capabilities: [44] Power Management version 2
+>
+> on Monday 03/08/2004 Bartlomiej Zolnierkiewicz(B.Zolnierkiewicz@elka.pw.edu.pl) wrote
+>  > On Monday 08 of March 2004 16:13, John covici wrote:
+>  > > OK, here are the relevant parts of the lspci -v -- I have been using
+>  > 
+>  > IDE interface is missed.
+>  > 
+>  > > 2.4.22, but if it will make a difference I will try newer ones.
+>  > 
+>  > 2.4.x needs update of amd74xx.c driver.  2.6.x should be okay.
+>  > 
+>  > Bartlomiej
+>
+> -- 
+>          John Covici
+>          covici@ccs.covici.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
-   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
-  Windows XP 'Reloaded'?  *Reloaded?*  Have they no sense of irony?
+         John Covici
+         covici@ccs.covici.com

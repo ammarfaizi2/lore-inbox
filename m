@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314454AbSEBOIE>; Thu, 2 May 2002 10:08:04 -0400
+	id <S314451AbSEBOHw>; Thu, 2 May 2002 10:07:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314456AbSEBOID>; Thu, 2 May 2002 10:08:03 -0400
-Received: from [62.112.80.99] ([62.112.80.99]:7692 "HELO k2.dsa-ac.de")
-	by vger.kernel.org with SMTP id <S314454AbSEBOIB>;
-	Thu, 2 May 2002 10:08:01 -0400
-Date: Thu, 2 May 2002 16:07:53 +0200 (CEST)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: ARM Linux kernel <linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: airo_cs on ARM 2.4.13 vs. 2.5.6
-Message-ID: <Pine.LNX.4.33.0205021544480.2626-100000@pcgl.dsa-ac.de>
+	id <S314454AbSEBOHv>; Thu, 2 May 2002 10:07:51 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13579 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314451AbSEBOHu>; Thu, 2 May 2002 10:07:50 -0400
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Thu, 2 May 2002 15:26:08 +0100 (BST)
+Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
+In-Reply-To: <3CD135D4.5060506@evision-ventures.com> from "Martin Dalecki" at May 02, 2002 02:49:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173HX6-00041D-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+> > change configs, rebuild without make mrproper).  To do modversions
+> > right needs a new version of modutils as well, there is no chance of
+> > that work being started until kbuild 2.5 is in the kernel.
+> 
+> How many years was it that I was telling that symbol versioning is
+> a silly concept not solving any single problem and the implementation is to say
+> the least ugly?
 
-Brief description of the problem: airo driver (Aironet 350 card) works
-with 2.5.6 and doesn't work with 2.4.13 on a StrongARM (Trizeps) board.
-
-Details: Loading the modules (airo.o and airo_cs.o) works fine, the
-packets get transmitted, ping host&; tcpdump host host shows packets
-transmitted and received, but ping reports all packets lost. Same if I
-ping the board - tcpdump only sees packets received, none are transmitted.
-In /var/log/messages the IO-address, reported by airo looks like a PC
-(ix86) address - 0xf6000000-0xf600003f. With 2.5.6 everything works and
-the address-range is 0xc2872000-0xc287203f. Any ideas?
-
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
-
+Modversions solves a huge number of problems very very well. The fact that
+you don't like it doesn't change the reality of the situation.

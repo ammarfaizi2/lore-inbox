@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbVDAP0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262779AbVDAPbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbVDAP0H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVDAPYv
+	id S262779AbVDAPbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbVDAPbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:24:51 -0500
-Received: from smtp8.poczta.onet.pl ([213.180.130.48]:40851 "EHLO
-	smtp8.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262772AbVDAPY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:24:29 -0500
-Message-ID: <424D6821.4010709@poczta.onet.pl>
-Date: Fri, 01 Apr 2005 17:26:25 +0200
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050329)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files
-References: <fa.ed33rit.1e148rh@ifi.uio.no>	<E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>	<424ACEA9.6070401@poczta.onet.pl>	<yw1xpsxhvzsz.fsf@ford.inprovide.com>	<424AE18B.1080009@poczta.onet.pl>	<yw1xll85vtva.fsf@ford.inprovide.com>	<424B090F.3090508@poczta.onet.pl> <yw1xhdisx3th.fsf@ford.inprovide.com>
-In-Reply-To: <yw1xhdisx3th.fsf@ford.inprovide.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 1 Apr 2005 10:31:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62187 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262779AbVDAPa6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:30:58 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <40f323d0050331115016b707f1@mail.gmail.com> 
+References: <40f323d0050331115016b707f1@mail.gmail.com>  <29204.1111608899@redhat.com> <29760.1111611165@redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: Benoit Boissinot <bboissin@gmail.com>,
+       Michael A Halcrow <mahalcro@us.ibm.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Keys: Fix request_key default keyring handling
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Fri, 01 Apr 2005 16:30:41 +0100
+Message-ID: <9667.1112369441@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> 
-> So you are proposing the addition of a per-file attribute, with
-> restricted access, and potentially dangerous effects if set
-> incorrectly.  This, combined with the fact that is unlikely to receive
-> much testing, all speaks against it.
-> 
 
-Almost every attribute can be dangerous if set incorrectly. Bot it is 
-really no problem - simply let's turn to fat12 as root filesystem, and 
-no attribute will be dangerous any more... See that acl-s also are not 
-used for every file, only for some files, ones of thousands files in the 
-filesystem. They are not set and reset every ten minutes - they are set 
-one time and used, used and used. The same applies to nice attribute. Is 
-it dangerous to not modify attribute all the time? And why restricted 
-access is riskfull and evil? If restriction of sccess makes system more 
-vurnable to attacks, maybe the good solution will be to set 755 
-attributes on enery inode (expecially /etc/shadow) - then everyone will 
-be able to do everything and system as whole will be more secure...
+The attached patch fixes the way request_key handles the default destination
+key when it's the group keyring. It also removes the check for the no-change
+default keyring spec, which shouldn't appear in the task_struct::jit_keyring
+member (it's purely for getting the old value from the keyctl function).
 
-I really don't catch your mind.
+Signed-Off-By: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 /tmp/keys.patch 
+ security/keys/keyctl.c      |    2 +-
+ security/keys/request_key.c |    3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
---
-wixor
-May the Source be with you.
+--- ./security/keys/request_key.c.orig	2005-03-31 21:23:43.000000000 +0200
++++ ./security/keys/request_key.c	2005-03-31 21:41:03.000000000 +0200
+@@ -335,8 +335,7 @@ static void request_key_link(struct key 
+ 			dest_keyring = current->user->uid_keyring;
+ 			break;
+ 
+-		case KEY_REQKEY_DEFL_NO_CHANGE:
+-		case KEY_SPEC_GROUP_KEYRING:
++		case KEY_REQKEY_DEFL_GROUP_KEYRING:
+ 		default:
+ 			BUG();
+ 		}
+--- ./security/keys/keyctl.c.orig	2005-03-31 21:41:35.000000000 +0200
++++ ./security/keys/keyctl.c	2005-03-31 21:42:01.000000000 +0200
+@@ -951,7 +951,7 @@ long keyctl_set_reqkey_keyring(int reqke
+ 	case KEY_REQKEY_DEFL_NO_CHANGE:
+ 		return current->jit_keyring;
+ 
+-	case KEY_SPEC_GROUP_KEYRING:
++	case KEY_REQKEY_DEFL_GROUP_KEYRING:
+ 	default:
+ 		return -EINVAL;
+ 	}

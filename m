@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261706AbTCQCQL>; Sun, 16 Mar 2003 21:16:11 -0500
+	id <S261722AbTCQC0V>; Sun, 16 Mar 2003 21:26:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261707AbTCQCQL>; Sun, 16 Mar 2003 21:16:11 -0500
-Received: from holomorphy.com ([66.224.33.161]:16856 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261706AbTCQCQK>;
-	Sun, 16 Mar 2003 21:16:10 -0500
-Date: Sun, 16 Mar 2003 18:26:46 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Gregory K. Ruiz-Ade" <gregory@castandcrew.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 instability on bigmem systems?
-Message-ID: <20030317022646.GN20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Gregory K. Ruiz-Ade" <gregory@castandcrew.com>,
-	linux-kernel@vger.kernel.org
-References: <200303131627.22572.gregory@castandcrew.com> <200303140931.15541.gregory@castandcrew.com> <20030314200857.GL20188@holomorphy.com> <200303161815.11973.gregory@castandcrew.com>
-Mime-Version: 1.0
+	id <S261723AbTCQC0V>; Sun, 16 Mar 2003 21:26:21 -0500
+Received: from ip-92-118-134-202.rev.dyxnet.com ([202.134.118.92]:64005 "EHLO
+	mail.office") by vger.kernel.org with ESMTP id <S261722AbTCQC0U>;
+	Sun, 16 Mar 2003 21:26:20 -0500
+Message-ID: <3E7535F6.3080307@thizgroup.com>
+Date: Mon, 17 Mar 2003 10:41:58 +0800
+From: =?Big5?B?QWxleCBMYXUgvEKrVL3l?= <alexlau@thizgroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+X-Accept-Language: zh-hk, zh-tw, zh-cn
+MIME-Version: 1.0
+To: "\"Juergen \"George\" \"Sawinski" <george@mpimf-heidelberg.mpg.de>
+CC: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+Subject: Re: Does SX6000 work?
+References: <3E753141.8050807@thizgroup.com> <1047867950.28267.4.camel@volans>
+In-Reply-To: <1047867950.28267.4.camel@volans>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303161815.11973.gregory@castandcrew.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 16, 2003 at 06:15:11PM -0800, Gregory K. Ruiz-Ade wrote:
-> Okay, I tried to load the system a bit and stress out the disk I/O, running 
-> a couple finds across the whole system (find | xargs stat, find | xargs cat 
-> > /dev/null, a couple other things) after sucking up free memory by catting 
-> our database disk files to /dev/null.  I also had a 'make -j5 clean 
-> oldconfig dep bzImage modules' running to try to drive the load up a bit, 
-> too.
-> I've got snapshots of meminfo, slabinfo, and output from 'ps auxfww' at:
-> http://castandcrew.com/~gregory/lkmlstuff/burpr/2.4.20/loadtest/
-> It only really starts getting interesting after 20030316.1725, when I 
-> started the kernel build.  I have a very simple shell script that basically 
-> does nothing other than "make clean oldconfig dep && make -j5 bzImage && 
-> make -j5 modules".  I ran that a couple times in the sources for Red Hat's 
-> 2.4.9-e.12 kernel sources.
-> Surprisingly I wasn't able to grind down the system like I expected.  Not 
-> sure why it's behaving so wonderfully today.
+I have read that :) Thanks... but like what I said and post, I don't
+get any error loading the drive and I can mount and format even read
+write from the Array. Only I get a lot of error..( or warning ) while
+using the array.
+Thanks
 
-If it didn't behave badly then it won't help to look at the stats.
+Alex
+
+Juergen "George" Sawinski wrote:
+
+>Follow the thread:
+>
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=104431067011756&w=2
+>
+>George
+>
 
 
--- wli
+

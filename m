@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbTDDVas (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbTDDVas (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:30:48 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:62298 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S261339AbTDDVaS (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 16:30:18 -0500
-Date: Fri, 4 Apr 2003 22:43:46 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
+	id S261367AbTDDVef (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbTDDVef (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:34:35 -0500
+Received: from mail-2.tiscali.it ([195.130.225.148]:49126 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id S261367AbTDDVed (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 16:34:33 -0500
+Date: Fri, 4 Apr 2003 23:45:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: Andrew Morton <akpm@digeo.com>
-cc: dmccr@us.ibm.com, <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Cc: Hugh Dickins <hugh@veritas.com>, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: objrmap and vmtruncate
+Message-ID: <20030404214547.GB16293@dualathlon.random>
+References: <Pine.LNX.4.44.0304041453160.1708-100000@localhost.localdomain> <20030404105417.3a8c22cc.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20030404105417.3a8c22cc.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0304042223120.2876-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Apr 2003, Andrew Morton wrote:
+On Fri, Apr 04, 2003 at 10:54:17AM -0800, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> >
+> > Truncating a sys_remap_file_pages file?  You're the first to
+> > begin to consider such an absurd possibility: vmtruncate_list
+> > still believes vm_pgoff tells it what needs to be done.
 > 
-> How about we just don't do the SIGBUS thing at all for nonlinear mappings? 
-> Any pages outside i_size which are mapped into a nonlinear mapping become
-> anonymous.
-> 
-> We'd need vm_flags:VM_NONLINEAR.
+> Well I knew mincore() was bust for nonlinear mappings.  Never thought about
+> truncate.
 
-That's an idea, it sounds plausible, but I'll need to think more.
+IMHO sys_remap_file_pages and the nonlinear mapping is an hack and
+should be dropped eventually. I mean it's not too bad but it's a mere
+workaround for:
 
-I'm not convinced there won't be difficulties around the corner
-going that way.  For example, it's difficult to do sensible page
-accounting if the vma is shared writable, but parts of it can go
-private without warning.  It actually introduces a new category
-of page (or perhaps legitimizes what already exists as a rare,
-forgotten category of outlaw page).
+1) lack of 64bit address space that will be fixed
+2) lack of O(log(N)) mmap, that will be fixed too
 
-Also (sob, sob) that's a little inconvenient for anonymous objrmap
-(such pages may be shared outside of the anonmm).  Neither of which
-rules out the idea, but they do hint that it might prove awkward in
-other ways too.
+1) and 2) are the only reason why there's huge interest in such syscall
+right now. So I don't like it too much and I'm not convinced it was
+right to merge it in 2.5 given 2) is a software problem and I've the
+design to fix it with a rbtree extension, and 1) is an hardware problem
+that will be fixed very soon. the API is not too bad but there is a
+reason we have the vma for all other mappings.
 
-> > Various places in rmap.c where !page->mapping is considered a
-> > BUG(), but you've now drawn attention to the fact it may get
-> > vmtruncated at any moment.  Easy to remove those BUG()s.
-> 
-> Well not really.  page_referenced_obj() is racy wrt truncate and will deref
-> null.  We're back to locking the pages in refill_inactive_zone().  There is
-> no other way of stabilising ->mapping.
-> 
-> Probably a trylock in page_referenced_obj() would suit.
+Maybe I'm missing something, I'm curious to hear what you think and what
+other cases needs this syscall even after 1) and 2) are fixed.
 
-I didn't get you at first, but now I see it.  Shame it's taken us
-so long to notice that.  I think there is another way, but it's not
-necessarily preferable: I suggested before that truncate_inode_pages
-should forcibly try_to_unmap if it sees a page_mapped page (either
-from sys_remap_file_pages or racing nopage) - for that it would
-have to take the pte_chain_lock, wouldn't that give the required
-serialization against page_referenced_obj?
-
-> btw,
->         if (PageSwapCache(page))
->                 BUG();
-> 
-> is that safe against your weird tmpfs address_space swizzling?
-
-Yes, it's safe against my weird swizzling, because it's against the
-rules for a tmpfs page to have swap identity while it's mapped into
-an mm - BUG_ON(page_mapped(page)) in shmem_writepage.
-
-But I don't think it's safe against truncation nulling page->mapping,
-then shrink_list doing add_to_swap later.  Probably a SetPageAnon in
-add_to_swap would fix all rmap.c's PageSwapCache BUG()s.
-
-Hugh
-
+Andrea

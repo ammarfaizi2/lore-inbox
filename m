@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbUAOS5i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 13:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUAOS5i
+	id S261950AbUAOTGH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUAOTGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 13:57:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:54146 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261368AbUAOS5g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 13:57:36 -0500
-Date: Thu, 15 Jan 2004 14:00:10 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Tim Cambrant <tim@cambrant.com>
-cc: Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: True story: "gconfig" removed root folder...
-In-Reply-To: <20040115183125.GA5772@cambrant.com>
-Message-ID: <Pine.LNX.4.53.0401151353310.21008@chaos>
-References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv>
- <87ptdl2q7l.fsf@asmodeus.mcnaught.org> <slrnc0dct5.2o5.erik@bender.home.hensema.net>
- <20040115160759.GA5458@cambrant.com> <200401151617.i0FGHW1a005870@turing-police.cc.vt.edu>
- <20040115183125.GA5772@cambrant.com>
+	Thu, 15 Jan 2004 14:06:07 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:22400 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S261950AbUAOTGE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 14:06:04 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: iswraid calling modprobe when scsi statically compiled?
+Date: Thu, 15 Jan 2004 12:05:50 -0700
+Message-ID: <933D2981B35C9B4B8793B56C4AE9E16B593A8F@azsmsx405.ch.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: iswraid calling modprobe when scsi statically compiled?
+Thread-Index: AcPbk2D8qMGzkQQyQWewdYIgYF96IwABjX+Q
+From: "Kannanthanam, Boji T" <boji.t.kannanthanam@intel.com>
+To: "Sergey Vlasov" <vsu@altlinux.ru>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 15 Jan 2004 19:05:50.0806 (UTC) FILETIME=[9766F760:01C3DB9A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is (a) "root folder"?
-The two words don't go together at all. Unix/Linux has "root" and
-directories, but it doesn't have any "folders". Microstuff has
-"folders", but doesn't have "root". Is Gates infecting Linux?
-I heard that "folder" was a swear-word just like the other "f"
-word.
+> 
+> The problem is in the initialization ordering. iswraid must initialize
+> after SCSI, but it is located in the IDE drivers directory, and
+> therefore is initialized before SCSI. So it won't work when built into
+> the kernel.
+> 
+> If you build iswraid as module and load it from initrd (after the SCSI
+> subsystem is initialized and raw drives are detected), it should work.
+> 
+
+As pointed this in an unfortunate side effect of the nature of driver
+dependency: iswraid (in ataraid/IDE subsystem) depending on ata_piix (in
+SCSI). The above solution will solve the issue. 
+
+But can anyone shed some light on resolving this issue other than
+compiling the driver as kernel module ?
+i.e is there a way I can change the order of driver initialization in
+the kernel ? Load SCSI subsystem before IDE ? 
+
+Thanks,
+boji

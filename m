@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUJ0GxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbUJ0IbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUJ0GxR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 02:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbUJ0Guy
+	id S262320AbUJ0IbB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 04:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbUJ0IbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 02:50:54 -0400
-Received: from holomorphy.com ([207.189.100.168]:35820 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262256AbUJ0GtE (ORCPT
+	Wed, 27 Oct 2004 04:31:01 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:63498 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S262320AbUJ0Ia4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 02:49:04 -0400
-Date: Tue, 26 Oct 2004 23:48:51 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
-Message-ID: <20041027064851.GW15367@holomorphy.com>
-References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
+	Wed, 27 Oct 2004 04:30:56 -0400
+To: linux-kernel@vger.kernel.org
+Cc: david@gibson.dropbear.id.au, Andrew Morton <akpm@osdl.org>
+Subject: Re: MAP_SHARED bizarrely slow
+From: James Cloos <cloos@jhcloos.com>
+In-Reply-To: <20041027010659.15ec7e90.akpm@osdl.org> (Andrew Morton's
+ message of "Wed, 27 Oct 2004 01:06:59 -0700")
+References: <20041027064527.GJ1676@zax>
+	<m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us>
+	<20041027010659.15ec7e90.akpm@osdl.org>
+X-Hashcash: 0:041027:linux-kernel@vger.kernel.org:fa444bdbf344a379
+X-Hashcash: 0:041027:david@gibson.dropbear.id.au:9d26422dbb5e3052
+X-Hashcash: 0:041027:akpm@osdl.org:eaf128b3f3c437d0
+Date: Wed, 27 Oct 2004 01:30:10 -0700
+Message-ID: <m3lldsimwd.fsf@lugabout.cloos.reno.nv.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 06:26:42PM -0700, Christoph Lameter wrote:
-> Hugetlb demand paging has been part of SuSE SLES 9 for awhile now and
-> this patchset is intended to help hugetlb demand paging also get into
-> the official Linux kernel. Huge pages are referred to as "compound"
-> pages in terms of "struct page" in the Linux kernel. The term
-"compund page" may be used alternatively to huge page.
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-This may very well explain why SLES9 is triplefaulting when Oracle
-tries to use hugetlb on it on x86-64.
+JimC> Both took about 11 seconds for the private and around 30 seconds
+JimC> for the shared tests.
 
-Since all this is clearly malfunctioning and not done anywhere near
-carefully enough, can I at least get *some* sanction to do any of this
-differently?
+Andrew> I get the exact opposite, on a P4:
 
+Interesting.  I gave it a try on a couple of my UMLs.  One is on a P4
+(possibly xeon; not sure) and the other is on an athlon.  The p4 did
+shared about twice as fast as private and the athlon was 50% faster.
+(p4 uses uml kernel 2.4.27; athlon 2.6.6; no idea what the hosts run.)
 
--- wli
+-JimC

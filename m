@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271882AbRIIEaM>; Sun, 9 Sep 2001 00:30:12 -0400
+	id <S271886AbRIIEcw>; Sun, 9 Sep 2001 00:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271881AbRIIEaD>; Sun, 9 Sep 2001 00:30:03 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4087 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S271884AbRIIE3u>; Sun, 9 Sep 2001 00:29:50 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Sat, 8 Sep 2001 22:29:24 -0600
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S271885AbRIIEcm>; Sun, 9 Sep 2001 00:32:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25360 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271881AbRIIEcZ>; Sun, 9 Sep 2001 00:32:25 -0400
+Date: Sat, 8 Sep 2001 21:28:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
 Subject: Re: linux-2.4.10-pre5
-Message-ID: <20010908222923.H32553@turbolinux.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010909053015.L11329@athlon.random> <Pine.LNX.4.33.0109082051040.1161-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109082051040.1161-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.20i
+In-Reply-To: <20010909061620.O11329@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 08, 2001  20:58 -0700, Linus Torvalds wrote:
-> On Sun, 9 Sep 2001, Andrea Arcangeli wrote:
-> > I wish the cache coherency logic would be simpler but just doing
-> > something unconditionally it's going to break things in one way or
-> > another as far I can tell.
-> 
-> I'd rather fix that, then.
-> 
-> Otherwise we'll just end up carrying broken baggage around forever. Which
-> is not the way to do things.
-> 
-> Anyway, at this point this definitely sounds like a 2.5.x patch. Which I
-> always pretty much assumed it would be anyway.
 
-So basically - when we move block devices to the page cache, get rid of
-buffer cache usage in the filesystems as well?  Ext2 is nearly there at
-least.  One alternative is as Daniel Phillips did in the indexed-ext2-
-directory patch, where he kept the "bread" interface, but backed it
-with the page cache, so it required relatively little change to the
-filesystem.
+On Sun, 9 Sep 2001, Andrea Arcangeli wrote:
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+> On Sat, Sep 08, 2001 at 08:58:26PM -0700, Linus Torvalds wrote:
+> > I'd rather fix that, then.
+>
+> we'd just need to define a new kind of communication API between a ro
+> mounted fs and the blkdev layer to avoid the special cases.
+
+No, notice how the simple code _should_ work for ro-mounted filesystems
+as-is. AND it should work for read-only opens of disks with rw-mounted
+filesystems. The only case it doesn't like is the "rw-open of a device
+that is rw-mounted".
+
+It's only filesystems that have modified buffers without marking them
+dirty (by virtue of having pointers to buffers and delaying the dirtying
+until later) that are broken by the "try to make sure all buffers are
+up-to-date by reading them in" approach.
+
+And as I don't think the concurrent "rw-open + rw-mount" case makes any
+sense, I think the sane solution is simply to disallow it completely.
+
+It shouldn't break any sane uses, and which is really the only way to
+guarantee that you cannot have virtual and physical dirty pages/buffers to
+the same device at the same time.
+
+So if we simply disallow that case, then we do not have any problem:
+either the device was opened read-only (in which case it obviously doesn't
+need to flush anything to disk, or invalidate/revalidate existing disk
+buffers), or the device was opened with write permissions, in which case
+there mustn't be any non-ro mounts to the same device.
+
+Notice? Sane, and doesn't really imply any need to introduce any new
+communication between the filesystem and the block layer (only a very
+thin channel between "mount" and the block layer). Wouldn't you say?
+
+[ start future rambling ]
+
+Now, I actually believe that we would eventually be better off by having a
+real filesystem interface for doing kernel-assisted fsck, backup and
+de-fragmentation (all just three different sides of the same thing:
+filesystem administration), but that's a separate issue, and right now we
+have absolutely no clue about what such an interface would look like. So
+that's a long-term thing (other OS's have such interfaces, but they tend
+to be specialized for only a subset of possible filesystems. Think
+Windows defrag).
+
+That kind of explicit filesystem maintenance interface would make all the
+remaining issues go away completely, and would at least in theory allow
+on-line fixing of already mounted filesystems. Assuming a good interface
+and algorithm for it exists, of course.
+
+[ end future rambling ]
+
+		Linus
 

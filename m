@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265443AbRGLO4K>; Thu, 12 Jul 2001 10:56:10 -0400
+	id <S265452AbRGLPEV>; Thu, 12 Jul 2001 11:04:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265449AbRGLOzu>; Thu, 12 Jul 2001 10:55:50 -0400
-Received: from u-215-21.karlsruhe.ipdial.viaginterkom.de ([62.180.21.215]:38895
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S265443AbRGLOzo>; Thu, 12 Jul 2001 10:55:44 -0400
-Date: Thu, 12 Jul 2001 16:55:03 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: Andreas Dilger <adilger@turbolinux.com>, "C. Slater" <cslater@wcnet.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-Message-ID: <20010712165503.A22592@bacchus.dhis.org>
-In-Reply-To: <200107121223.HAA53012@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
+	id <S265467AbRGLPEL>; Thu, 12 Jul 2001 11:04:11 -0400
+Received: from motgate2.mot.com ([136.182.1.10]:63686 "EHLO motgate2.mot.com")
+	by vger.kernel.org with ESMTP id <S265452AbRGLPD4>;
+	Thu, 12 Jul 2001 11:03:56 -0400
+Message-Id: <3B4DBB46.24EB460F@crm.mot.com>
+Date: Thu, 12 Jul 2001 16:59:18 +0200
+From: Emmanuel Varagnat <varagnat@crm.mot.com>
+Organization: Motorola
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Makefile problem and modules
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107121223.HAA53012@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Thu, Jul 12, 2001 at 07:23:06AM -0500
-X-Accept-Language: de,en,fr
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 12, 2001 at 07:23:06AM -0500, Jesse Pollard wrote:
 
-> That isn't even the same problem.
+I wrote a module for IPv6 but there is a case when it is
+compiled.
+(For the moment my code can only work as a module...)
+When IPv6 is compiled as a module, my module is well compiled.
+But if IPv6 is directly in the kernel, my module is not take
+into account (I've got no object file).
 
-Sure - the original problem is hard to solve so I suggest to cheat a bit :)
+Here is the only line I added to the Makefile (near the end):
 
-> First, processes do not survive the upgrade.
+obj-$(CONFIG_IPV6_MYSTUFF)  += mystuff.o
 
-You care about services to continue or only want an entry for an uptime
-contest?
+Thanks in advance.
 
-  Ralf
+-Manu

@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283441AbRK3ASe>; Thu, 29 Nov 2001 19:18:34 -0500
+	id <S283443AbRK3A2P>; Thu, 29 Nov 2001 19:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283442AbRK3ASZ>; Thu, 29 Nov 2001 19:18:25 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20409 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S283441AbRK3ASR>; Thu, 29 Nov 2001 19:18:17 -0500
-Date: Thu, 29 Nov 2001 17:17:59 -0700
-Message-Id: <200111300017.fAU0Hx704241@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: linux-kernel@vger.kernel.org,
-        Valentin Ziegler <ziegler@informatik.hu-berlin.de>
+	id <S283444AbRK3A2F>; Thu, 29 Nov 2001 19:28:05 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:42361 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S283443AbRK3A17>;
+	Thu, 29 Nov 2001 19:27:59 -0500
+Date: Fri, 30 Nov 2001 01:27:52 +0100
+From: Rene Rebe <rene.rebe@gmx.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org, ziegler@informatik.hu-berlin.de
 Subject: Re: IDE controller detection 2.4 +devfs
+Message-Id: <20011130012752.0fd5380a.rene.rebe@gmx.net>
+In-Reply-To: <200111300017.fAU0Hx704241@vindaloo.ras.ucalgary.ca>
 In-Reply-To: <20011130001138.78ab1242.rene.rebe@gmx.net>
-In-Reply-To: <20011130001138.78ab1242.rene.rebe@gmx.net>
+	<200111300017.fAU0Hx704241@vindaloo.ras.ucalgary.ca>
+Organization: FreeSourceCommunity ;-)
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Rebe writes:
-> I like to rereport that the IDE Controllers get strange device-
-> node-number in Linux-2.4 (currently vanilla 2.4.16) at least using DevFS.
+On Thu, 29 Nov 2001 17:17:59 -0700
+Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+
+> Rene Rebe writes:
+
+[...]
+
+> So what's the problem? It's a similar naming scheme as used for
+> SCSI. It doesn't matter if you have something plugged into a bus, the
+> host numbering doesn't change. This is a Feature[tm].
+
+Aeh? I can not follow. I feel completely comfortable with the names (strings)
+or subdirs, you use. My problem: I have 2 ide-controllers. I would like
+to get them as host0 and host1. Boths with the sub-dirs bus0 and bus1.
+Reading your answer I though you mean it is fixed due to the pci-id's - but
+they do not match ...
+
+And disabling one channel in the bios shouldn't move the controller
+from host0 to host1 ... - I do not see the system-behind that ...
+
+Btw. Thanks for DevFS it really ROCKs!! (Except that USBfs exists
+and I can not maintain / controll it via the devfsd :-(()
+
+> If you want to access your drives according to detection order, use
+> /dev/discs instead.
+
+Yes I know about this.
+
+> 				Regards,
 > 
-> I reported (~a year ago) that when I disable the primary channel of the
-> on-board controller of the Asus-K7M (Irongate based) the second channel
-> will be host1 - no host0 can be found.
-> 
-> My today's issue is our K6-2 based server with an Gigabyte Ali-Aladin5
-> board. The on-board controller is host0 but the additional Promisse
-> TX2 Ultra100 will be host2 ??? no host1 there ... :
-> 
-> server1:~ # l /dev/ide/
-> total 0
-> drwxr-xr-x   1 root     root            0 Jan  1  1970 .
-> drwxr-xr-x   1 root     root            0 Jan  1  1970 ..
-> drwxr-xr-x   1 root     root            0 Jan  1  1970 host0
-> drwxr-xr-x   1 root     root            0 Jan  1  1970 host2
+> 					Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
 
-So what's the problem? It's a similar naming scheme as used for
-SCSI. It doesn't matter if you have something plugged into a bus, the
-host numbering doesn't change. This is a Feature[tm].
 
-If you want to access your drives according to detection order, use
-/dev/discs instead.
+k33p h4ck1n6
+  René
 
-				Regards,
+-- 
+René Rebe (Registered Linux user: #127875 <http://counter.li.org>)
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+eMail:    rene.rebe@gmx.net
+          rene@rocklinux.org
+
+Homepage: http://www.tfh-berlin.de/~s712059/index.html
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

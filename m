@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281856AbRKRGhv>; Sun, 18 Nov 2001 01:37:51 -0500
+	id <S281857AbRKRGsN>; Sun, 18 Nov 2001 01:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281857AbRKRGhk>; Sun, 18 Nov 2001 01:37:40 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:29820 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281856AbRKRGhi>; Sun, 18 Nov 2001 01:37:38 -0500
-Date: Sun, 18 Nov 2001 07:37:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: ehrhardt@mathematik.uni-ulm.de, linux-kernel@vger.kernel.org
-Subject: Re: VM-related Oops: 2.4.15pre1
-Message-ID: <20011118073730.C25232@athlon.random>
-In-Reply-To: <20011118051023.A25232@athlon.random> <Pine.LNX.4.33.0111172220300.1290-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S281858AbRKRGsC>; Sun, 18 Nov 2001 01:48:02 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62049 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S281857AbRKRGru>; Sun, 18 Nov 2001 01:47:50 -0500
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: Michael Peddemors <michael@wizard.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Current Max Swap size? Performance issues
+In-Reply-To: <1005948151.10803.18.camel@mistress>
+	<20011116163346.L1308@lynx.no>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Nov 2001 23:28:50 -0700
+In-Reply-To: <20011116163346.L1308@lynx.no>
+Message-ID: <m1itc88ue5.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.33.0111172220300.1290-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 10:24:44PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 10:24:44PM -0800, Linus Torvalds wrote:
+Andreas Dilger <adilger@turbolabs.com> writes:
+
+> On Nov 16, 2001  14:02 -0800, Michael Peddemors wrote:
+> > With all of the latest VM, again the question is asked...  Best way to
+> > set up swap now..
+> > 
+> > For 2 GIG memory...
+> > Channel 0 is RAID 1 SCSI
+> > Channel 2 is RAID 1+0 SCSI
+> > Hardware Raid
+> > 
+> > Shoudl it be?
+> > 
+> > 2 GIG swap partition (Is this still the limit?)
 > 
-> On Sun, 18 Nov 2001, Andrea Arcangeli wrote:
-> >
-> > I also agree the patch shouldn't matter, but one suspect thing is the
-> > fact add_to_swap_cache goes to clobber in a non atomic manner the page
-> > lock.
-> 
-> .. you mean __add_to_page_cache(), not add_to_swap_cache().
-> 
-> And nope, not really. It does use plain stores to page->flags, and I agree
-> that it is ugly, but if the page was locked before calling it, all the
-> stores will be with the PG_lock bit set - and even plain stores _are_
-> documented to be atomic on x86 (and on all other reasonable architectures
-> too).
+> Yes, still the limit.  It turns out that this is not an on-disk format
+> limit, but rather an in-memory structure limit, in case you cared.  For
+> non-x86 platforms, there is a different limit.
 
-I know all is right if GCC just overwrites the page->flags with data
-that keeps PG_locked set. But GCC doesn't guarantee that.  GCC can as
-well do:
+Where?  The limit should be about 64GB or so on x86.  If it isn't it should
+be just a couple of lines to change it.  Or is the limit the vmalloc
+of the swap_map?
 
-	flags = page->flags;
-	page->flags = 0;
+I skimmed the code a while ago but I haven't had the time to patch mkswap
+and actually try it with something larger.
 
-	change flags here
 
-	page->flags = flags
-
-probably gcc doesn't, but that's still a kernel bug.
-
-Andrea
+Eric

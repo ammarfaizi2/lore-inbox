@@ -1,94 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263824AbTDGXNW (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTDGXMw (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:12:52 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:4231 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263819AbTDGXFl (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 19:05:41 -0400
-Date: Mon, 7 Apr 2003 16:17:00 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: 76306.1226@compuserve.com
-Subject: [PATCH] Wanted: a limit on kernel log buffer size
-Message-Id: <20030407161700.30f45c5c.rddunlap@osdl.org>
-In-Reply-To: <33271.4.64.238.61.1049686559.squirrel@webmail.osdl.org>
-References: <200304062137_MC3-1-3346-A97E@compuserve.com>
-	<33182.4.64.238.61.1049683748.squirrel@webmail.osdl.org>
-	<33271.4.64.238.61.1049686559.squirrel@webmail.osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S263783AbTDGXT0 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTDGXPU (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:15:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26511 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263788AbTDGXCK (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 19:02:10 -0400
+Message-ID: <3E92064C.9080306@pobox.com>
+Date: Mon, 07 Apr 2003 19:14:20 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] xircom_cb release memory on failure
+References: <Pine.LNX.4.50.0304061635500.2268-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0304061635500.2268-100000@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Apr 2003 20:35:59 -0700 (PDT) "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+Zwane Mwaikambo wrote:
+> This patch switches free'ing to pci_free_consistent and fixes a memory 
+> leak plus a few small cleanups.
+> 
+> Index: linux-2.5.66/drivers/net/tulip/xircom_cb.c
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.66/drivers/net/tulip/xircom_cb.c,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 xircom_cb.c
+> --- linux-2.5.66/drivers/net/tulip/xircom_cb.c	24 Mar 2003 23:39:20 -0000	1.1.1.1
+> +++ linux-2.5.66/drivers/net/tulip/xircom_cb.c	6 Apr 2003 20:25:44 -0000
+> @@ -73,6 +73,8 @@ MODULE_LICENSE("GPL");
+>  /* Offsets of the buffers within the descriptor pages, in bytes */
+>  
+>  #define NUMDESCRIPTORS 4
+> +#define RX_BUF_SIZE	8192
+> +#define TX_BUF_SIZE	8192
+>  
+>  static int bufferoffsets[NUMDESCRIPTORS] = {128,2048,4096,6144};
+>  
+> @@ -96,7 +98,7 @@ struct xircom_private {
+>  	int transmit_used;
+>  
+>  	/* Spinlock to serialize register operations.
+> -	   It must be helt while manipulating the following registers:
+> +	   It must be held whilst manipulating the following registers:
+>  	   CSR0, CSR6, CSR7, CSR9, CSR10, CSR15
+>  	 */
+>  	spinlock_t lock;
+> @@ -220,12 +222,13 @@ static int __devinit xircom_probe(struct
+>  	unsigned char chip_rev;
+>  	unsigned long flags;
+>  	unsigned short tmp16;
+> +	int ret = -EIO;
+>  	enter("xircom_probe");
+>  	
+>  	/* First do the PCI initialisation */
+>  
+>  	if (pci_enable_device(pdev))
+> -		return -ENODEV;
+> +		goto out;
 
-| >>  Some people (who will mercifully go unnamed) just will _not_
-| >> read the documentation, and set the kernel log buffer shift
-| >> to 31 on a 256MB machine.  This attempt to allocate 2GB of memory for the
-| >> buffer results in an unbootable kernel.
-| >>
-| >>  Suggestions?
-| >
-| > This is a multi-part answer.  Say, 5 parts.
-| >
-| > a.  If someone won't read the help text, how can we help them?
-| >
-| > b.  If we make a 2 GB log buffer size a compile-time error, will
-| > they read that?
-| >
-| > c.  If we make it a compile-time warning, will they read that?
-| >
-| > d.  What limit(s) do you suggest?  I can try to add some limits.
-| >
-| > e.  This kind of config limiting should be done in the config system IMO.
-| > I've asked Roman for that capability....
-
-
-Here's a [modified] patch that limits kernel log buffer size to 1 MB max
-and 4 KB min.
-
-To me, ideally the config system would allow limits to be specified,
-and then advanced users could edit .config to get around those limits.
-By putting limits checking in kernel source files, there is no way
-around them other than by editing the source files.
-
-I've made this patch because there are some cases where it shouldn't be
-possible to shoot oneself in the foot IMO -- at least not using the
-config system...it's OK to do that when editing .config.
-
---
-~Randy
-
-
-patch_name:	logbuf_limits.patch
-patch_version:	2003-04-07.15:54:36
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	enforce kernel log buffer limits (min and max);
-product:	Linux
-product_versions: 2.5.67
-changelog:	add min and max kernel log buffer limits checking;
-URL:		http://www.osdl.org/archive/rddunlap/patches/logbuf_limits.patch
-diffstat:	=
- kernel/printk.c |    6 ++++++
- 1 files changed, 6 insertions(+)
+regression: no longer calls leave() as intended
 
 
-diff -Naur ./kernel/printk.c%LBLIM ./kernel/printk.c
---- ./kernel/printk.c%LBLIM	Mon Apr  7 11:12:38 2003
-+++ ./kernel/printk.c	Mon Apr  7 14:44:16 2003
-@@ -34,6 +34,12 @@
- 
- #define LOG_BUF_LEN	(1 << CONFIG_LOG_BUF_SHIFT)
- #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
-+#if (LOG_BUF_LEN > (1024 * 1024))
-+#error CONFIG_LOG_BUF_SHIFT is ridiculously large (more than 20 [1 MB]).
-+#endif
-+#if (LOG_BUF_LEN < (4 * 1024))
-+#error CONFIG_LOG_BUF_SHIFT is ridiculously small (less than 12 [4 KB]).
-+#endif
- 
- /* printk's without a loglevel use this.. */
- #define DEFAULT_MESSAGE_LOGLEVEL 4 /* KERN_WARNING */
+>  
+>  	/* disable all powermanagement */
+>  	pci_write_config_dword(pdev, PCI_POWERMGMT, 0x0000);
+> @@ -250,30 +254,27 @@ static int __devinit xircom_probe(struct
+>  	   is available. 
+>  	 */
+>  	private = kmalloc(sizeof(*private),GFP_KERNEL);
+> -	memset(private, 0, sizeof(struct xircom_private));
+> +	if (private == NULL)
+> +		goto out_region;
+> +
+> +	memset(private, 0, sizeof(*private));
+
+see davej's patches -- not needed.  get alloc_etherdev() to allocate and 
+free dev->priv, and eliminate this memset altogether.  That in turn 
+simplifies what you are trying to do here.
+
+	Jeff
+
+
+

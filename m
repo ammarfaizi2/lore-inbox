@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUEFViZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUEFVlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUEFViZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 17:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUEFViZ
+	id S263088AbUEFVlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 17:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUEFVlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 17:38:25 -0400
-Received: from emess.mscd.edu ([147.153.170.17]:5324 "EHLO emess.mscd.edu")
-	by vger.kernel.org with ESMTP id S263085AbUEFViY (ORCPT
+	Thu, 6 May 2004 17:41:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50839 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263088AbUEFVlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 17:38:24 -0400
-From: Steve Beaty <beaty@emess.mscd.edu>
-Message-Id: <200405062137.i46LbnjF017523@emess.mscd.edu>
-Subject: Re: sigaction, fork, malloc, and futex
-To: zlynx@acm.org (Zan Lynx)
-Date: Thu, 6 May 2004 15:37:49 -0600 (MDT)
-Cc: chris@scary.beasts.org,
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1083711395.29189.10.camel@localhost.localdomain> from "Zan Lynx" at May 04, 2004 04:56:36 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 May 2004 17:41:08 -0400
+Date: Thu, 6 May 2004 14:40:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: FabF <Fabian.Frederick@skynet.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.6-rc3-mm2] genhd-unregister warn handling
+Message-Id: <20040506144045.0711b4db.akpm@osdl.org>
+In-Reply-To: <1083866562.5865.6.camel@bluerhyme.real3>
+References: <1083866562.5865.6.camel@bluerhyme.real3>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am not sure it is really a problem though.  I don't think you should
-> be allowed to fork inside a signal handler.  That seems very wrong.
+FabF <Fabian.Frederick@skynet.be> wrote:
+>
+> 	Here's a patch against 2.6.6-rc3-mm2 genhd.c unregister_blkdev
+> 
+>  	-Standardize function for void xxx
+>  	-Split uncorresponding return
+>  	-Add printks
+>  	-Merge kfree to positive case
+> 
+>  	Could you apply ?
 
-	i can't disagree :-)  but fork() is supposed to be reentrant...
+It seems to be a gratuitous change to the modules API.
 
--- 
-Dr. Steve Beaty (B80)                                 Associate Professor
-Metro State College of Denver                        beaty@emess.mscd.edu
-VOX: (303) 556-5321                                 Science Building 134C
-FAX: (303) 556-5381                         http://clem.mscd.edu/~beatys/
+A quick grep shows that a lot of drivers are currently testing the
+unregister_blkdev() return value - your patch breaks them all.
+
+I don't see much point in making changes in this area. 

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266123AbUBDBmL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 20:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUBDBmK
+	id S266241AbUBDBqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 20:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUBDBqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 20:42:10 -0500
-Received: from dp.samba.org ([66.70.73.150]:58512 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266123AbUBDBmI (ORCPT
+	Tue, 3 Feb 2004 20:46:45 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:16397 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266241AbUBDBqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 20:42:08 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: Greg KH <greg@kroah.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: module-init-tools/udev and module auto-loading 
-In-reply-to: Your message of "Tue, 03 Feb 2004 19:48:06 +0200."
-             <1075830486.7473.32.camel@nosferatu.lan> 
-Date: Wed, 04 Feb 2004 12:22:31 +1100
-Message-Id: <20040204014222.46AF02C29B@lists.samba.org>
+	Tue, 3 Feb 2004 20:46:43 -0500
+Date: Wed, 4 Feb 2004 02:46:39 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jean Revertera <marv@altern.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to make "dead key" capslockable with kbd?
+Message-ID: <20040204024639.A1617@pclin040.win.tue.nl>
+References: <40200681.5000209@altern.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40200681.5000209@altern.org>; from marv@altern.org on Tue, Feb 03, 2004 at 09:37:21PM +0100
+X-Spam-DCC: neonova: kweetal.tue.nl 1127; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1075830486.7473.32.camel@nosferatu.lan> you write:
-> > I think it's an excellent idea, although ideally we would have this
-> > mechanism in userspace as much as possible.  Anything from some
-> > special hack to block -ENOENT on directory lookups and notify an fd,
-> > to some exotic overlay filesystem.
-> 
-> Something like attached.  Besides me not knowing if there is a better
-> place for it, it have the following issues:
+On Tue, Feb 03, 2004 at 09:37:21PM +0100, Jean Revertera wrote:
 
-Dude, you're brave.  I mean, really, really brave.
+> I'm currently trying to customize my keymap file, but I have a problem: 
+> I'cant make these damn "dead key" correctly capslockable.
 
-However, it strikes me that the automounter does similar tricks, and
-so a similar setup should be possible for /dev.
+Roughly speaking - what you want is impossible.
+The kernel knows about 13 types of key, and among these are
+KT_LATIN, KT_LETTER, KT_DEAD.
+Something cannot be both KT_LETTER and KT_DEAD.
 
-Al?  Suggestions appreciated?
+Andries
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+[And then, on the other hand, little is really impossible with the
+Linux keyboard driver. You have 256 keymaps to play with, and can
+use capslock to select a new keymap and on that map use any assignments
+you like.]

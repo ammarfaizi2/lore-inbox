@@ -1,76 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264419AbTL3G0o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 01:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTL3G0o
+	id S264488AbTL3GgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 01:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbTL3GgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 01:26:44 -0500
-Received: from bay13-dav8.bay13.hotmail.com ([64.4.31.182]:16902 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264419AbTL3G0j
+	Tue, 30 Dec 2003 01:36:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3735 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264488AbTL3GgF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 01:26:39 -0500
-X-Originating-IP: [67.195.216.52]
-X-Originating-Email: [james_mcmechan@hotmail.com]
-From: "James McMechan" <James_McMechan@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <user-mode-linux-devel-request@lists.sourceforge.net>
-Subject: [PATCH] backport of fix for tmpfs oops from 2.6.0 final to 2.4.23
-Date: Mon, 29 Dec 2003 22:09:03 -0800
+	Tue, 30 Dec 2003 01:36:05 -0500
+Message-ID: <3FF11CC2.7040209@pobox.com>
+Date: Tue, 30 Dec 2003 01:35:46 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_002B_01C3CE58.5E725160"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY13-DAV8Hx5Th42jv0000d5a7@hotmail.com>
-X-OriginalArrivalTime: 30 Dec 2003 06:26:38.0512 (UTC) FILETIME=[E1828300:01C3CE9D]
+To: Brad House <brad_mssw@gentoo.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
+References: <65095.68.105.173.45.1072761027.squirrel@mail.mainstreetsoftworks.com>        <20031230052041.GA7007@gtf.org> <65025.68.105.173.45.1072765590.squirrel@mail.mainstreetsoftworks.com>
+In-Reply-To: <65025.68.105.173.45.1072765590.squirrel@mail.mainstreetsoftworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Brad House wrote:
+> Hmm, I don't think this driver is as complex as others may
+> be to port.  But then again, I'm probably wrong b/c I'm mainly
+> a userland guy, not a kernel guy :/
+> But, nonetheless, I've made some changes:
 
-------=_NextPart_000_002B_01C3CE58.5E725160
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+The only thing that matters is the hardware s/g list capabilities. 
+Driver complexity is irrelevant.
 
 
-------=_NextPart_000_002B_01C3CE58.5E725160
-Content-Type: application/octet-stream;
-	name="oops-2-4-23.fix"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="oops-2-4-23.fix"
+>>> 			/* Calculate Scatter-Gather info */
+>>> 			mbox->m_out.numsgelements = mega_build_sglist(adapter, scb,
+>>>-					(u32 *)&mbox->m_out.xferaddr, (u32 *)&seg);
+>>>+					(dma_addr_t *)&mbox->m_out.xferaddr, (u32 *)&seg);
+>>
+>>Casting just hides a bug.
+> 
+> 
+> Well, the  xferaddr is actually a dma_addr_t now, so that cast really
+> does nothing, the only reason it's there is because they previously
+> casted it as (u32 *).  I removed the cast just so it couldn't obscure
+> warnings, and it didn't.
+> 
+> Also, I use  dma_addr_t even though it may have nothing to do with dma
+> where it's used. I'm more familiar with userland stuff, so I wasn't sure
+> what to use. In userland I'd use  uintptr_t.
+> 
+> 
+>>The real fix is to pass a full 64-bit address
+> 
+> 
+> I did find a few instances where they recast the addresses,
+> which was improper, but it does appear that the original address
+> in the original driver was coming in as 64bit (dma_addr_t as originally
+> written), but were passing it around and casting it as a u32, so I
+> think the interfaces allowed for it to work, they just wrote it
+> unware of 64bit systems.
+> 
+> Also, they tried to stuff the address returned here :
+> ext_inq = pci_alloc_consistent(adapter->dev,
+>                                 sizeof(mraid_ext_inquiry), &dma_handle);
+> (the dma_handle) into a u32 which I just fixed.
+> 
+> 
+>>into the s/g list, if it supports 64-bit addresses.  if it doesn't, you
+>>need to make sure the driver doesn't set highmem_io, make sure the
+>>driver doesn't set a 64-bit DMA mask, and make sure the driver does set
+>>a 32-bit DMA mask.
+> 
+> 
+> The driver already does this it appears, without me needing to do it,
+> Part of which is covered by this:
+>  /* Set the Mode of addressing to 64 bit if we can */
+>                 if((adapter->flag & BOARD_64BIT)&&(sizeof(dma_addr_t) ==
+> 8)) {
+>                         pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
+>                         adapter->has_64bit_addr = 1;
+>                 }
+>                 else  {
+>                         pci_set_dma_mask(pdev, 0xffffffff);
+>                         adapter->has_64bit_addr = 0;
+>                 }
 
-Ok, here is a backport of the patch that went into 2.6.0=0A=
-to fix the problem where the tmpfs/shmfs dcache could be=0A=
-oopsed by any user doing a dirseek to offset 2.=0A=
-This occurs because the when the seek is at the cursor=0A=
-and then the cursor is deleted, the list_add_tail=0A=
-tries to attach to the end of the list and gets the=0A=
-old pointers (poisoned on 2.6) from the list_del.=0A=
-This fix just deletes the cursor before going over the=0A=
-list since it can not be a member of the list and should=0A=
-not be counted, delete it before counting over the list.=0A=
-=0A=
---- linux-2.4.23/fs/readdir.c	2002-08-02 17:39:45.000000000 -0700=0A=
-+++ build-2.4.23-skas/fs/readdir.c	2003-12-23 17:18:37.000000000 -0800=0A=
-@@ -69,6 +69,7 @@=0A=
- 			loff_t n =3D file->f_pos - 2;=0A=
- =0A=
- 			spin_lock(&dcache_lock);=0A=
-+			list_del(&cursor->d_child);=0A=
- 			p =3D file->f_dentry->d_subdirs.next;=0A=
- 			while (n && p !=3D &file->f_dentry->d_subdirs) {=0A=
- 				struct dentry *next;=0A=
-@@ -77,7 +78,6 @@=0A=
- 					n--;=0A=
- 				p =3D p->next;=0A=
- 			}=0A=
--			list_del(&cursor->d_child);=0A=
- 			list_add_tail(&cursor->d_child, p);=0A=
- 			spin_unlock(&dcache_lock);=0A=
- 		}=0A=
+This code is completely bogus and wrong (not your fault, but still). 
+Take a look at tg3.c for the right way to do it.
 
-------=_NextPart_000_002B_01C3CE58.5E725160--
+The driver continues to have obvious 64-bit issues that your patch 
+doesn't address.  Your main test platform should really be a 32-bit 
+system with PAE, and >4GB of RAM.
+
+	Jeff
+
+
+

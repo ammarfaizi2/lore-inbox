@@ -1,95 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263847AbUGYKOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUGYKUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbUGYKOl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 06:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUGYKOl
+	id S263850AbUGYKUX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 06:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUGYKUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 06:14:41 -0400
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:4023 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263847AbUGYKOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 06:14:38 -0400
-Message-ID: <410387FE.30201@kolivas.org>
-Date: Sun, 25 Jul 2004 20:14:22 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][2.6.8-rc1-mm1] ipv6/route.c gcc-341 fix inline
-References: <410381B4.1080302@kolivas.org>
-In-Reply-To: <410381B4.1080302@kolivas.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig864F71F740D9E0AB6C752DD6"
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 25 Jul 2004 06:20:23 -0400
+Received: from mail-out.m-online.net ([212.18.0.9]:57800 "EHLO
+	mail-out.m-online.net") by vger.kernel.org with ESMTP
+	id S263850AbUGYKUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 06:20:17 -0400
+Subject: Tuning (stv0299.ko) with SkyStar2/DVB not working with 2.6.8-rc*
+	anymore
+From: Florian Huber <florian.huber@mnet-online.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1090750814.17579.15.camel@suprafluid.huber.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 25 Jul 2004 12:20:14 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig864F71F740D9E0AB6C752DD6
-Content-Type: multipart/mixed;
- boundary="------------030205030304060202090207"
+Hello ML,
+I had my SkyStar2 dvb-s card working with 2.6.7-bk21, but with the 2.6.8
+release candidate's I cannot tune different channels anymore.
+Explicitly testet on 2.6.8-rc2-bk1 and 2.6.8-rc1-bk4 (preempt)
 
-This is a multi-part message in MIME format.
---------------030205030304060202090207
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+mplayer dvb:// works
+e.g. mplayer dvb://ZDF does not
 
-Con Kolivas wrote:
-> Fixes the inline error when compiling net/ipv6/route.c with gcc-3.4.1
+mplayer hangs at: dvb_tune Freq: 11953000
 
-oops. Missing a hunk.
+strace:
+---
+write(1, "dvb_tune Freq: 11953000\n", 24dvb_tune Freq: 11953000
+) = 24
+ioctl(5, 0x80a86f3d, 0x7fbfffbd40)      = 0
+ioctl(5, 0x6f42, 0x1)                   = 0
+ioctl(5, 0x6f43, 0x1)                   = 0
+nanosleep({0, 15000000}, NULL)          = 0
+ioctl(5, 0x40076f3f, 0x7fbfffbd30)      = 0
+nanosleep({0, 0}, NULL)                 = 0
+nanosleep({0, 15000000}, NULL)          = 0
+ioctl(5, 0x6f41, 0)                     = 0
+nanosleep({0, 15000000}, NULL)          = 0
+ioctl(5, 0x6f42, 0)                     = 0
+nanosleep({0, 100000000}, NULL)         = 0
+ioctl(5, 0x80286f4e, 0x7fbfffbd00)      = -1 EAGAIN (Resource
+temporarily unavai
+lable)
+ioctl(5, 0x40246f4c, 0x7fbfffbdf0)      = 0
+poll([{fd=5, events=POLLPRI, revents=POLLPRI}], 1, 10000) = 1
+ioctl(5, 0x80286f4e, 0x7fbfffbd00)      = 0
+poll([{fd=5, events=POLLPRI, revents=POLLPRI}], 1, 10000) = 1
+ioctl(5, 0x80286f4e, 0x7fbfffbd00)      = 0
+[...last line repeating...]
+---
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
---------------030205030304060202090207
-Content-Type: text/plain;
- name="gcc341-fix-ipv6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="gcc341-fix-ipv6"
+output from dmesg:
+---
+drivers/media/dvb/b2c2/skystar2.c: FlexCopIIB(rev.195) chip found
+drivers/media/dvb/b2c2/skystar2.c: the chip has 38 hardware filters
+DVB: registering new adapter (Technisat SkyStar2 driver).
+probe_tuner: try to attach to Technisat SkyStar2 driver
+drivers/media/dvb/frontends/stv0299.c: setup for tuner Samsung
+TBMU24112IMB
+DVB: registering frontend 0:0 (STV0299/TSA5059/SL1935 based)...
+---
 
-Index: linux-2.6.8-rc1-mm1/net/ipv6/route.c
-===================================================================
---- linux-2.6.8-rc1-mm1.orig/net/ipv6/route.c	2004-07-25 19:51:31.174800809 +1000
-+++ linux-2.6.8-rc1-mm1/net/ipv6/route.c	2004-07-25 20:11:03.881562316 +1000
-@@ -584,7 +584,7 @@
- /* Protected by rt6_lock.  */
- static struct dst_entry *ndisc_dst_gc_list;
- static int ipv6_get_mtu(struct net_device *dev);
--static inline unsigned int ipv6_advmss(unsigned int mtu);
-+static unsigned int ipv6_advmss(unsigned int mtu);
- 
- struct dst_entry *ndisc_dst_alloc(struct net_device *dev, 
- 				  struct neighbour *neigh,
-@@ -692,7 +692,7 @@
- 	return mtu;
- }
- 
--static inline unsigned int ipv6_advmss(unsigned int mtu)
-+static unsigned int ipv6_advmss(unsigned int mtu)
- {
- 	mtu -= sizeof(struct ipv6hdr) + sizeof(struct tcphdr);
- 
-
---------------030205030304060202090207--
-
---------------enig864F71F740D9E0AB6C752DD6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBA4gBZUg7+tp6mRURAp7ZAKCR7KaR5gEFmrT9shNFPCXF2hES4QCeKNrU
-BiLIFQWbHLFeO5I4lG6Up8M=
-=jQHn
------END PGP SIGNATURE-----
-
---------------enig864F71F740D9E0AB6C752DD6--

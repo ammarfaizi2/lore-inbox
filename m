@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311320AbSEMKSp>; Mon, 13 May 2002 06:18:45 -0400
+	id <S311564AbSEMK21>; Mon, 13 May 2002 06:28:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312169AbSEMKSo>; Mon, 13 May 2002 06:18:44 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:47365 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S311320AbSEMKSo>; Mon, 13 May 2002 06:18:44 -0400
-Date: Mon, 13 May 2002 12:17:57 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020513101757.GB4071@louise.pinerecords.com>
-In-Reply-To: <20020512203103.GA9087@gallifrey> <Pine.LNX.4.44.0205121836320.15555-100000@home.transmeta.com> <20020513101228.GA4071@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 15:30)
+	id <S312279AbSEMK20>; Mon, 13 May 2002 06:28:26 -0400
+Received: from web10408.mail.yahoo.com ([216.136.130.110]:45828 "HELO
+	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S311564AbSEMK20>; Mon, 13 May 2002 06:28:26 -0400
+Message-ID: <20020513102825.35359.qmail@web10408.mail.yahoo.com>
+Date: Mon, 13 May 2002 20:28:25 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
+To: kernel <linux-kernel@vger.kernel.org>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua
+In-Reply-To: <200205111737.g4BHbfY02535@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Tomas Szepe <szepe@pinerecords.com>, May-13 2002, Mon, 12:12 +0200]
-> > [Linus Torvalds <torvalds@transmeta.com>, May-12 2002, Sun, 18:56 -0700]
-> >
-> > As an example, if the long version looks like this:
-> > ...
-> > The short version could look like
-> > ...
+> pointer got
+> corrupted and now movzbl stumbles over it.
 > 
-> How's this? (script attached)
+> Bad RAM? Consider memtest86 run overnight.
+> --
 
-hmmm, forgot to remove this one before submitting (not that it hurts)...
+I did use memtest86 and all test is passed, no errors.
+And problem still persists with 2.4.19-pre8-ac2 ; oops
+after exiting X 
 
---- fmtcl.pl~	Mon May 13 12:15:51 2002
-+++ fmtcl.pl	Mon May 13 12:15:56 2002
-@@ -51,7 +51,7 @@
- 	while ($_ = shift @items) {
- 		# Item separator
- 		print "\t--------------------------------------------------------------\n";
--		my $line; foreach $line (@$_) { print "$line"; }
-+		print @$_;
- 	}
- }
+Now I have to use 2.4.16 ; any way all kernel before
+2.4.19-pre2 is normal, I did not test 2.4.19-preX>2
+but 2.4.19-pre7-ac4 and 2.4.19-pre8-ac2
+
+sounds a kernel bug to me :-)
+Hope that it will soon be fixed.
+
+Regards,
+
+> vda 
+
+
+=====
+Steve Kieu
+
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- A great way to communicate long-distance for FREE!

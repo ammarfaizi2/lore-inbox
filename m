@@ -1,221 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbQKCAph>; Thu, 2 Nov 2000 19:45:37 -0500
+	id <S129857AbQKCAz7>; Thu, 2 Nov 2000 19:55:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130036AbQKCAp1>; Thu, 2 Nov 2000 19:45:27 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:65488 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129431AbQKCApO>;
-	Thu, 2 Nov 2000 19:45:14 -0500
-Date: Thu, 2 Nov 2000 19:45:06 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sysctl fixes - part 1
-Message-ID: <Pine.GSO.4.21.0011021932410.13665-100000@weyl.math.psu.edu>
+	id <S130036AbQKCAzu>; Thu, 2 Nov 2000 19:55:50 -0500
+Received: from mercury.eng.emc.com ([168.159.40.77]:27155 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S129857AbQKCAzg>; Thu, 2 Nov 2000 19:55:36 -0500
+Message-ID: <276737EB1EC5D311AB950090273BEFDD979DF8@elway.lss.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'Elizabeth Morris-Baker'" <eamb@liu.fafner.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: scsi init problem in 2.4.0-test10?
+Date: Thu, 2 Nov 2000 19:49:32 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Bunch of sysctl bugs:
-* use of proc_dostring with ->strategy==NULL instead of systcl_string.
-* use of sysctl_intvec with NULL ->extra1 and ->extra2 (harmless, but silly).
-Patch follows. Please, apply.
-							Cheers,
-								Al
-PS: that's the first part of large sequence and I'm not sure that everything
-will go for 2.4, but I'll try to feed that stuff in reasonable order. The
-final goal: kernfs. As in "dcache-based, sysctl(2) done via path_walk(),
-no bloody static initializers, less crap in procfs". I _hope_ that it will
-go in 2.4.<something>, but even if it's 2.5 fodder there are obvious bugs
-that can be fixed without any API changes.
+Hi,
 
-diff -urN rc10/net/core/sysctl_net_core.c rc10-sysctl/net/core/sysctl_net_core.c
---- rc10/net/core/sysctl_net_core.c	Thu Nov  2 22:39:09 2000
-+++ rc10-sysctl/net/core/sysctl_net_core.c	Thu Nov  2 22:45:45 2000
-@@ -82,7 +82,7 @@
- #ifdef CONFIG_NET_DIVERT
- 	{NET_CORE_DIVERT_VERSION, "divert_version",
- 	 (void *)sysctl_divert_version, 32, 0444, NULL,
--	 &proc_dostring},
-+	 &proc_dostring, sysctl_dostring},
- #endif /* CONFIG_NET_DIVERT */
- #endif /* CONFIG_NET */
- 	{ 0 }
-diff -urN rc10/net/decnet/sysctl_net_decnet.c rc10-sysctl/net/decnet/sysctl_net_decnet.c
---- rc10/net/decnet/sysctl_net_decnet.c	Thu Apr 27 22:01:29 2000
-+++ rc10-sysctl/net/decnet/sysctl_net_decnet.c	Thu Nov  2 22:48:55 2000
-@@ -345,8 +345,7 @@
- 	&min_decnet_dst_gc_interval, &max_decnet_dst_gc_interval},
- 	{NET_DECNET_DEBUG_LEVEL, "debug", &decnet_debug_level, 
- 	sizeof(int), 0644, 
--	NULL, &proc_dointvec, &sysctl_intvec, NULL,
--	NULL, NULL},
-+	NULL, &proc_dointvec},
- 	{0}
- };
- 
-diff -urN rc10/net/khttpd/sysctl.c rc10-sysctl/net/khttpd/sysctl.c
---- rc10/net/khttpd/sysctl.c	Sun Sep 12 21:16:55 1999
-+++ rc10-sysctl/net/khttpd/sysctl.c	Thu Nov  2 22:48:03 2000
-@@ -83,9 +83,6 @@
- 		NULL,
- 		proc_dostring,
- 		&sysctl_string,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_STOP,
- 		"stop",
-@@ -94,10 +91,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_START,
- 		"start",
-@@ -106,10 +99,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_UNLOAD,
- 		"unload",
-@@ -118,10 +107,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_THREADS,
- 		"threads",
-@@ -130,10 +115,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_MAXCONNECT,
- 		"maxconnect",
-@@ -142,10 +123,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_SLOPPYMIME,
- 		"sloppymime",
-@@ -154,10 +131,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_CLIENTPORT,
- 		"clientport",
-@@ -166,10 +139,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_PERMREQ,
- 		"perm_required",
-@@ -178,10 +147,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_PERMFORBID,
- 		"perm_forbid",
-@@ -190,10 +155,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_LOGGING,
- 		"logging",
-@@ -202,10 +163,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_SERVERPORT,
- 		"serverport",
-@@ -214,10 +171,6 @@
- 		0644,
- 		NULL,
- 		proc_dointvec,
--		&sysctl_intvec,
--		NULL,
--		NULL,
--		NULL
- 	},
- 	{	NET_KHTTPD_DYNAMICSTRING,
- 		"dynamic",
-@@ -227,21 +180,19 @@
- 		NULL,
- 		proc_dosecurestring,
- 		&sysctl_SecureString,
--		NULL,
--		NULL,
--		NULL
- 	},
--	{0,0,0,0,0,0,0,0,0,0,0}	};
-+	{0}
-+};
- 	
- 	
- static ctl_table khttpd_dir_table[] = {
- 	{NET_KHTTPD, "khttpd", NULL, 0, 0555, khttpd_table,0,0,0,0,0},
--	{0,0,0,0,0,0,0,0,0,0,0}
-+	{0}
- };
- 
- static ctl_table khttpd_root_table[] = {
- 	{CTL_NET, "net", NULL, 0, 0555, khttpd_dir_table,0,0,0,0,0},
--	{0,0,0,0,0,0,0,0,0,0,0}
-+	{0}
- };
- 	
- 
+The problem got solved by replacing the AHA-3944 card to
+AIC-7895, thus switching the order of SCSI discovery.
+It seems that still a SCSI ordering problem.
 
+Thanks any way!
+
+Xiangping
+
+-----Original Message-----
+From: Elizabeth Morris-Baker [mailto:eamb@liu.fafner.com]
+Sent: Thursday, November 02, 2000 4:58 PM
+To: chen_xiangping@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi init problem in 2.4.0-test10?
+
+
+> 
+> Hello,
+
+	Yes, I encountered the same problem, and have a fix, but
+	want to test it. If the author of scsi_scan.c would like
+	to correct it, then that would be fine.
+
+	Basically the problem is in scan_scsis_single.
+	Some scsi devices are notoriously brain dead
+	about answering inquiries without having 
+	recived a TUR and then spinning up.
+	The problem seems to be the disk, not the controller,
+	if this is the same problem.
+
+	The problem appeared in the test kernels because
+	the TUR *used* to be there, now it is not.
+
+	Hope this helps.
+
+	Just curious, what kind of scsi disk do you have??
+	lemme guess... Compaq Atlas?? :>
+
+	cheers, 
+
+	Elizabeth
+
+> 
+> I met a problem when trying to upgrade my Linux kernel to 2.4.0-test10.
+> The machine is Compay AP550, dual processor, mem 512 MB, and 863 MHZ freq.
+> It has two scsi host adaptors. one is AIC-7892 ultra 160/m connected to 
+> internal hard disk, and the other is AHA-3944 ultra scsi connected to 
+> an attached disk. The boot process stops after detection of the first
+> scsi host, error info is:
+> 	scsi: aborting command due to time out: pid0, scsci1, channel 0, 
+> 	id 0, lun 0, Inquiry 00 00 00 ff 00
+> 
+> Previous OS on this machine was RedHat 6.2 kernel version 2.2.14
+> 
+> looking forward to your help!
+> 
+> Xiangping
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

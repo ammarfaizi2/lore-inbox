@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbTKLKE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 05:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTKLKE3
+	id S261873AbTKLK3M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 05:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTKLK3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 05:04:29 -0500
-Received: from safe15.bezeqint.net ([212.179.95.61]:32969 "EHLO
-	safe15.bezeqint.net") by vger.kernel.org with ESMTP id S261812AbTKLKE1
+	Wed, 12 Nov 2003 05:29:12 -0500
+Received: from safe16.bezeqint.net ([212.179.95.62]:25240 "EHLO
+	safe16.bezeqint.net") by vger.kernel.org with ESMTP id S261873AbTKLK3K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 05:04:27 -0500
+	Wed, 12 Nov 2003 05:29:10 -0500
 From: Okrain Genady <mafteah@mafteah.co.il>
 Reply-To: mafteah@mafteah.co.il
 Organization: Mafteah
-To: Vid Strpic <vms@bofhlet.net>
+To: Vid Strpic <vms@bofhlet.net>, Berke Durak <obdk65536@ouvaton.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: ide-scsi: "Sleeping function called from invalid context", 2.6.0-test9
-Date: Wed, 12 Nov 2003 12:06:55 +0200
+Date: Wed, 12 Nov 2003 12:31:38 +0200
 User-Agent: KMail/1.5.4
-References: <20031112080119.GD21265@home.bofhlet.net>
-In-Reply-To: <20031112080119.GD21265@home.bofhlet.net>
-Cc: Berke Durak <obdk65536@ouvaton.org>, linux-kernel@vger.kernel.org
+References: <20031112080119.GD21265@home.bofhlet.net> <200311121206.55323.mafteah@mafteah.co.il> <20031112101910.GB21141@suse.de>
+In-Reply-To: <20031112101910.GB21141@suse.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
   protocol="application/pgp-signature";
   micalg=pgp-sha1;
-  boundary="Boundary-02=_/Ygs/fERvMBH7QP";
-  charset="iso-8859-2"
+  boundary="Boundary-02=_Lwgs/k618rqNqRA";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200311121206.55323.mafteah@mafteah.co.il>
+Message-Id: <200311121231.39011.mafteah@mafteah.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_/Ygs/fERvMBH7QP
+--Boundary-02=_Lwgs/k618rqNqRA
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Content-Description: signed data
 Content-Disposition: inline
 
-Yep, I have that problem too.
+I didn't test w/o scsi-emu.
+I have scsi-emu compiled in the kernel
 
-On Wednesday 12 November 2003 10:01, Vid Strpic wrote:
-> On Tue, Nov 11, 2003 at 04:30:41PM +0100, Berke Durak wrote:
-> > I get a kernel problem while using cdrecord to write audio to a blank
-> > CD-R.
-> > This happens with 2.6.0-test6 and 2.6.0-test9 with kernel
-> > preemptibility enabled.
-> > The distribution is a Debian 3.0r1/testing.
-> > Kernel output, cdrecord output and dmesg follows.
+btw:
+when I use readcd my computer dies.
+
+On Wednesday 12 November 2003 12:19, Jens Axboe wrote:
+> On Wed, Nov 12 2003, Okrain Genady wrote:
+> Content-Description: signed data
 >
-> [...]
+> > Yep, I have that problem too.
 >
-> Oh wonderful.  It has happenned to me, too, test9, Slackware 9.1,
-> cdrecord 2.0a19 (same as yours).  I think there's a problem with DMA -
-> it wasnt' enabled when this happened.  When I enabled it, CD's burned
-> normally.  And this happened only when I built SCSI support (sg, sr_mod)
-> as modules.. when in core, DMA is enabled automatically and _stays_
-> enabled...
+> does burning without ide-scsi not work?
 
 =2D-=20
 |=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -77,17 +71,17 @@ EE
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D|
 
---Boundary-02=_/Ygs/fERvMBH7QP
+--Boundary-02=_Lwgs/k618rqNqRA
 Content-Type: application/pgp-signature
 Content-Description: signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/sgY/H3z3n0CNSu4RAtqzAJwNirx6Zb/OgN7gSqc+LnlF26tA5ACfZPcj
-q9s/xg65BL3L0JBjGLpLWDo=
-=SLpP
+iD8DBQA/sgwKH3z3n0CNSu4RAjVVAJ96JRvU754qSCfkhhN6las51p8cawCfYG/f
+5mF423epYI+RoRejdcX1MaI=
+=OgxK
 -----END PGP SIGNATURE-----
 
---Boundary-02=_/Ygs/fERvMBH7QP--
+--Boundary-02=_Lwgs/k618rqNqRA--
 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287894AbSA0JgL>; Sun, 27 Jan 2002 04:36:11 -0500
+	id <S287919AbSA0KAO>; Sun, 27 Jan 2002 05:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287908AbSA0JgB>; Sun, 27 Jan 2002 04:36:01 -0500
-Received: from mail215.mail.bellsouth.net ([205.152.58.155]:23329 "EHLO
-	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S287894AbSA0Jfw>; Sun, 27 Jan 2002 04:35:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: SI Reasoning <sczjd@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: issues with 2.4.18 kernel and Dell Inspiron 8000
-Date: Sun, 27 Jan 2002 03:35:37 -0600
-X-Mailer: KMail [version 1.3.2]
+	id <S287924AbSA0KAE>; Sun, 27 Jan 2002 05:00:04 -0500
+Received: from zamok.crans.org ([138.231.136.6]:22207 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S287919AbSA0J7p>;
+	Sun, 27 Jan 2002 04:59:45 -0500
+To: "Nix N. Nix" <nix@go-nix.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA KT266 and SBLive! (emu10k1)
+In-Reply-To: <1012086718.11336.91.camel@tux>
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+In-Reply-To: <1012086718.11336.91.camel@tux> ("Nix N. Nix"'s message of "26
+ Jan 2002 18:11:53 -0500")
+Organization: Kabale Inc
+Date: Sun, 27 Jan 2002 10:59:42 +0100
+Message-ID: <m3lmek2jxt.fsf@neo.loria>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
+ i686-pc-linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020127093703.ZSOL27069.imf15bis.bellsouth.net@there>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not subscribed to the list so please CC me your responses.
+OoO En cette nuit nuageuse du dimanche 27 janvier 2002, vers 00:11,
+"Nix N. Nix" <nix@go-nix.ca> disait:
 
-I participate in Mandrake's Cooker development and have been running into 
-some power management issues with the latest kernel. Below is the message I 
-had sent as well as the reply which pointed me in this direction:
+> 00:0e.0 Multimedia audio controller: Creative Labs SB Live! EMU10000
+> (rev 05)
+> 	Subsystem: Creative Labs CT4850 SBLive! Value
+> 	Flags: bus master, medium devsel, latency 32, IRQ 5
+> 	I/O ports at b000 [size=32]
+> 	Capabilities: <available only to root>
 
-On 2002-01-27 at 11:43, SI Reasoning wrote:
-> When halting my Dell Inspiron 8000, I get the power
-> off message but the laptop does not power off while
-> using the 2.4.17-10mdk kernel. Other APM related stuff is
-> a mess with this laptop also. If it suspends or does
-> any power saving features, it can not be brought back
-> up and has to be rebooted. Even worse, if I try to go
-> to bios or check the battery feature, it completely
-> locks up the computer and it has to be forcibly turned
-> off.
-> > Kernel 2.4.16-11mdk was way better. It still had the
-> suspend issue, but I could go to the bios or battery
-> display and other bios related shortcuts without
-> issue. It also powered down without issue.
+You may try /sbin/setpci -v -s 00:0e.0 0D.B=40
 
-2.4.18-pre7 (that 2.4.17-10mdk is based upon) has new APM patch. I
-already have seen other reports about APM related problems in this
-version (ironically this patch fixed problem I had).
+Check http://www.networking.tzo.com/net/software/readme/faqvl019.htm
+and http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.3/0922.html
 
-I suggest you report it on lkml as you may have better chances there.
+The first one is a patch for Windows to correct the problem, it is
+called "VIA latency patch" since it used to only modify latency. It is
+closed source so it is difficult to see if the correction towards the
+sound card is about latency (so my command line is useless).
 
--andrej
+The second one is a post from the author of the corresponding VIA
+latency patch under Linux, you may want to try it (and to tweak it if
+you don't have a KT266A).
 
-
+However, the problem seems not IRQ related, so you may want to try
+another slots for your sound card.
+-- 
+Say what you mean, simply and directly.
+            - The Elements of Programming Style (Kernighan & Plaugher)

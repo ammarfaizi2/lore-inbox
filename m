@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbUJ0Avc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbUJ0Axr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbUJ0Avc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 20:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUJ0Avc
+	id S261555AbUJ0Axr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 20:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbUJ0Axq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 20:51:32 -0400
-Received: from smtp-out-02.utu.fi ([130.232.202.172]:5051 "EHLO
-	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S261553AbUJ0AvS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 20:51:18 -0400
-Date: Wed, 27 Oct 2004 03:51:09 +0300
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: Let's make a small change to the process
-In-reply-to: <4d8e3fd304102613447c0156b2@mail.gmail.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <200410270351.09581.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <200410260644.47307.edt@aei.ca> <20041026203644.GD2307@redhat.com>
- <4d8e3fd304102613447c0156b2@mail.gmail.com>
+	Tue, 26 Oct 2004 20:53:46 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:54251 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261555AbUJ0Axd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 20:53:33 -0400
+Date: Wed, 27 Oct 2004 02:54:25 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+Message-ID: <20041027005425.GO14325@dualathlon.random>
+References: <417DCFDD.50606@yahoo.com.au> <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 23:44, Paolo Ciarrocchi wrote:
+On Tue, Oct 26, 2004 at 08:31:32PM -0400, Rik van Riel wrote:
+> On Tue, 26 Oct 2004, Nick Piggin wrote:
+> 
+> > OK that makes sense... it isn't the length of the name, but the fact
+> > that that naming convention hasn't proliferated thoughout the 2.6 tree;
+> 
+> Speaking about not proliferating...
+> 
+> One thing we need to make sure of is that the lower zone
+> protection stuff doesn't put the allocation threshold
+> higher than kswapd's freeing threshold.
 
-> If the goal of -ac is to only include those fixes, why can't we rename
-> it in something more "intuitive" for the final users ?
-> Do you see what I mean ?
+I agree. I didn't introduce that bug, the very same problem would happen
+with the previous protection code. So this is not a regression, I'm far
+from finished... I'm just trying to post orthogonal patches, since Hugh
+had a much better merging success rate with small patches (though I find
+very hard to produce small patches myself when there's more than one
+thing to fix in the same file).
 
-"Final users" are those like me, who so far are quite satisfied[1] with the
-distribution kernel. Advanced users will be aware of the existence of
-other than kernel.org versions of the kernel, and will hopefully be able
-to pick one suited to their particular fuzzy feelings. 
+the per-classzone kswapd treshold was very well taken care of in 2.4,
+thanks the watermarks embedding the low/min/high and the classzone being
+passed up to the kswapd wakeup function.
 
-During 2.4 development (IIRC) it was somewhat fairly generic knowledge
-amongst those who had progressed marginally beyond booting linux, to
-compiling some kernel from sources, what -ac postfix meant. Why that
-sort of community knowledge osmosis wouldn't be possible or active today
-also, I do not know. Perhaps people are just in general afraid of change.
+> Otherwise on a 1GB system, we'll end up cycling most of
+> userspace allocations through the 128MB highmem zone,
+> instead of falling back to the other zones.
 
-
-[1] As in, the Fedora Core 2 kernel did not immediately give me such awful
-performance that it made me get a kernel.org kernel to get back the magnitude
-or so performance loss of the typical Redhat9 kernel. Benchmarks purely
-subjective of course, sorry. :-/
+that's the side effect of the per-zone lru too (though I'm not going to
+change the lru).

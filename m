@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUHPMOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUHPMRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUHPMOm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267575AbUHPMOm
+	id S267578AbUHPMRU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267575AbUHPMRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:14:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:50659 "EHLO
+	Mon, 16 Aug 2004 08:17:20 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:53731 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265978AbUHPMOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:14:34 -0400
-Subject: Re: your mail
+	id S267578AbUHPMQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:16:47 -0400
+Subject: Re: DRM and 2.4 ...
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>,
+To: arjanv@redhat.com
+Cc: Dave Airlie <airlied@linux.ie>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040816105014.A9367@infradead.org>
-References: <Pine.LNX.4.58.0408151311340.27003@skynet>
-	 <20040815133432.A1750@infradead.org>
-	 <Pine.LNX.4.58.0408160038320.9944@skynet>
-	 <20040816101732.A9150@infradead.org>
-	 <Pine.LNX.4.58.0408161019040.21177@skynet>
-	 <20040816105014.A9367@infradead.org>
+In-Reply-To: <1092640312.2791.6.camel@laptop.fenrus.com>
+References: <Pine.LNX.4.58.0408160652350.9944@skynet>
+	 <1092640312.2791.6.camel@laptop.fenrus.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092654719.20523.18.camel@localhost.localdomain>
+Message-Id: <1092654860.20517.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 Aug 2004 12:12:00 +0100
+Date: Mon, 16 Aug 2004 12:14:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-16 at 10:50, Christoph Hellwig wrote:
-> no, now you're acting like an even more broken driver, preventing a fbdev
-> driver to be loaded afterwards and doing all kinds of funny things.  Please
-> revert to the old method until you have a common pci_driver for fbdev and dri.
+On Llu, 2004-08-16 at 08:11, Arjan van de Ven wrote:
+> I would strongly urge you to no longer update DRM in 2.4 in significant
+> ways. 2.4 is the release for doing strict maintenance; people who want
+> to run newer X will generally run 2.6 kernels as well anyway.
 
-fbdev and DRI are not functional together in the general case. They
-sometimes happen to work by luck. fbdev and X for that matter are
-generally incompatible except unaccelerated.
+Then 2.4 users can't use the new Xorg release fully. That would be
+rather out of keeping with X policy.
+
 
 

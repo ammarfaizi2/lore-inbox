@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbQKNB6s>; Mon, 13 Nov 2000 20:58:48 -0500
+	id <S129245AbQKNB76>; Mon, 13 Nov 2000 20:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129245AbQKNB6i>; Mon, 13 Nov 2000 20:58:38 -0500
-Received: from ha2.rdc2.tx.home.com ([24.14.77.21]:32474 "EHLO
-	mail.rdc2.tx.home.com") by vger.kernel.org with ESMTP
-	id <S129170AbQKNB63>; Mon, 13 Nov 2000 20:58:29 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Problem autonegotiation with tulip driver?
-Reply-To: minyard@acm.org
-From: Corey Minyard <minyard@acm.org>
-Date: 13 Nov 2000 18:28:46 -0600
-Message-ID: <m2em0fwg5d.fsf@c469597-a.grlnd1.tx.home.com>
+	id <S130347AbQKNB7s>; Mon, 13 Nov 2000 20:59:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:9863 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129245AbQKNB7g>;
+	Mon, 13 Nov 2000 20:59:36 -0500
+Date: Mon, 13 Nov 2000 17:14:44 -0800
+Message-Id: <200011140114.RAA14493@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: tleete@mountain.net
+CC: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3A1073B4.CDCA21DF@mountain.net> (message from Tom Leete on Mon,
+	13 Nov 2000 18:05:24 -0500)
+Subject: Re: Hard lockups solved
+In-Reply-To: <3A1073B4.CDCA21DF@mountain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the current version (and may previous versions) of the tulip driver
-in media.c in the function tulip_select_media() with mleaf->type being
-2 or 4, we have the following code:
+   Date: Mon, 13 Nov 2000 18:05:24 -0500
+   From: Tom Leete <tleete@mountain.net>
 
-  if (p[1] & 0x40) {      /* SIA (CSR13-15) setup values are provided. */
-      csr13val = setup[0];
-      csr14val = setup[1];
-      csr15dir = (setup[3]<<16) | setup[2];
-      csr15val = (setup[4]<<16) | setup[2];
-      outl(0, ioaddr + CSR13);
-      outl(csr14val, ioaddr + CSR14);
-      outl(csr15dir, ioaddr + CSR15); /* Direction */
-      outl(csr15val, ioaddr + CSR15); /* Data */
-      outl(csr13val, ioaddr + CSR13);
-  } else {
-      csr13val = 1;
-      csr14val = 0x0003FF7F;
-	         ^^^^^^^^^^
-      csr15dir = (setup[0]<<16) | 0x0008;
-      csr15val = (setup[1]<<16) | 0x0008;
+   Your net/ipv4/tcp.c patch from the NE2000 thread cured them even
+   before I found the hardware fault. Has that patch gone to the
+   queue? I recommend it.
 
-In the value underscored above, autonegotiation of the media is turned
-off if the eeprom doesn't provide the CSR14 value.  This doesn't seem
-right (and doesn't work on our Ramix cards), it seems like you would
-want to leave autonegotiation on here (the value would be 0x0003FFFF).
-Without this, our Ramix cards will not autonegotiate.  With the
-change, they work great.
+The bugs I was "fixing" there were due to problems in wait queue
+exclusivity nesting.  We instead fixed wait queue exclusivity nesting
+so it actually worked in test11-pre3, can you see if by itself that
+kernel does not show your problems too?
 
-Corey
+Thanks.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

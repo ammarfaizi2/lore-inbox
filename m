@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266233AbUA1TxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 14:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266239AbUA1TxP
+	id S266048AbUA1UG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 15:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265923AbUA1UG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 14:53:15 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:40200 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266233AbUA1TxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 14:53:13 -0500
-Subject: Re: 2.6.2-rc2-mm1:Badness in try_to_wake_up at kernel/sched.c:722
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Adam Koszela <lameaim@oxiq.se>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1075312502.2090.28.camel@arrakis>
-References: <1075312502.2090.28.camel@arrakis>
-Content-Type: text/plain
-Message-Id: <1075319562.796.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Wed, 28 Jan 2004 20:52:43 +0100
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jan 2004 15:06:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:958 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266003AbUA1UGX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 15:06:23 -0500
+Date: Wed, 28 Jan 2004 12:06:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: willy@debian.org, ishii.hironobu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
+In-Reply-To: <20040128204049.627e6312.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0401281205250.28145@home.osdl.org>
+References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
+ <Pine.LNX.4.58.0401271847440.10794@home.osdl.org>
+ <20040128182003.GL11844@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0401281129570.28145@home.osdl.org> <20040128204049.627e6312.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-01-28 at 18:55, Adam Koszela wrote:
-> So here's my problem:
-> Performance, especially when switching/launching/killing apps is awful,
-> and dmesg spits out:
+
+
+On Wed, 28 Jan 2004, Andi Kleen wrote:
+>
+> On Wed, 28 Jan 2004 11:33:33 -0800 (PST)
+> Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> Badness in try_to_wake_up at kernel/sched.c:722
-> Call Trace:
->  [<c011aac5>] try_to_wake_up+0x91/0x1c9
+> > For example, if checking for an error involves actually reading a value 
+> > from a bridge register, then that implies some _serious_ amount of 
+> > serialization and external CPU stuff.
+> 
+> Which is _extremly_ hard to do from an MCE handler ...
 
-C'mon people, this has been reported at least four times ;-)
-I'm sure Andrew is looking into it right now.
+So don't do it in the MCE handler.
 
+Just set a flag aka "may need checking", and let the check be done by the 
+actual "read_pcix_error()" code.
+
+		Linus

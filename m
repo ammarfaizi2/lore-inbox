@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263386AbTIBCg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 22:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbTIBCg7
+	id S263388AbTIBCpm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 22:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTIBCpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 22:36:59 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:47338 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263386AbTIBCg6
+	Mon, 1 Sep 2003 22:45:42 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:1413 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S263388AbTIBCpl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 22:36:58 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: dontdiff for 2.6.0-test4
-cc: linux-kernel@vger.kernel.org
-References: <3F53F142.5050909@pobox.com> <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com>
- <20030901163958.A24464@infradead.org>
- <20030901162244.GA1041@mars.ravnborg.org> <3F537CDD.3040809@pobox.com>
- <20030901171806.GB1041@mars.ravnborg.org>
-From: Junio C Hamano <junkio@cox.net>
-Date: Mon, 01 Sep 2003 19:36:56 -0700
-In-Reply-To: <fa.ebr1o03.l4o1q3@ifi.uio.no> (Jeff Garzik's message of "Tue,
- 2: 25:56 GMT")
-Message-ID: <7vk78rykzb.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Mon, 1 Sep 2003 22:45:41 -0400
+Message-ID: <001001c370fa$c47f2e30$6401a8c0@wa1hco>
+From: "jeff millar" <wa1hco@adelphia.net>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test4, psmouse doesn't autoload, CONFIG_SERIO doesn't module
+Date: Mon, 1 Sep 2003 22:34:24 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JG" == Jeff Garzik <jgarzik@pobox.com> writes:
+Some questions
 
-JG> I stand corrected :)  However, I think it's a tangent:
+1. Why doesn't the PS/2 mouse autoload as a module?
+Running 2.6.0-test4, psmouse doesn't autoload as a module.  Oddly, neither
+gpm nor X complains about the missing module, the mouse just doesn't work.
+But if I modprobe psmouse, the cursor starts moving.  I verified that
+/dev/psaux uses char-major-10-1 and that it has an "alias char-major-10-1
+psaux" in modprobe.conf.
 
-JG> dontdiff is a file that's useful precisely because of the form its
-JG> in. So, as something that's proven itself useful to a bunch of people,
-JG> I definitely think it has a home somewhere in Documentation/*  It need
-JG> not be referenced in any way by kbuild; that's not a big deal.  The
-JG> two really serve different purposes.
+2. Why do I have to compile CONFIG_SERIO into the kernel?  If it's set to
+module, then the link step for various modules complains about missing atkbd
+symbols?
 
-I do not think it is a tangent.  While I am not opposed to ship
-dontdiff under Documentation/* separately from the current
-mrproper implementation in the Makefile, if these two should
-name the identical set of paths, coming up with a scheme in
-which humans have to maintain just a single source and derive
-these two different usage from that single source would make
-people's life easier.  Two things that should be identical but
-have to be kept in sync by hand is simply a maintenance
-headache.
+I'd appreciate any hints on what to try.
 
-On the other hand, if there are paths that should be in dontdiff
-that should not be cleaned by mrprper, or vice versa, then
-keeping two separately and maintaining two independently would
-absolutely makes sense.  Are there such cases?
+thanks, jeff
+
+Some more questions to help me understand how this works...
+
+1. What does kmod send to modprobe?  From looking at modprobe.conf
+apparently "char-major-x-y".
+2. Does kmod send any other strings to modprobe?
+3. Documentation/kmod.txt says "passing the name (to modprobe) that was
+requested", couldn't this be more explicit?
+4. Does kmod gets the major-minor number from the device file upon open(),
+or some other way?
 

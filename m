@@ -1,81 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318689AbSG0DUa>; Fri, 26 Jul 2002 23:20:30 -0400
+	id <S318690AbSG0D2V>; Fri, 26 Jul 2002 23:28:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318690AbSG0DUa>; Fri, 26 Jul 2002 23:20:30 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:6407 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S318689AbSG0DU2>;
-	Fri, 26 Jul 2002 23:20:28 -0400
-Date: Fri, 26 Jul 2002 23:23:46 -0400 (EDT)
-Message-Id: <200207270323.g6R3Nkb39182@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Subject: keep code simple
+	id <S318691AbSG0D2V>; Fri, 26 Jul 2002 23:28:21 -0400
+Received: from cpe-24-221-212-80.co.sprintbbd.net ([24.221.212.80]:53493 "EHLO
+	servidor.linux-ha.org") by vger.kernel.org with ESMTP
+	id <S318690AbSG0D2U>; Fri, 26 Jul 2002 23:28:20 -0400
+Message-ID: <3D4213D4.6020705@unix.sh>
+Date: Fri, 26 Jul 2002 21:30:28 -0600
+From: Alan Robertson <alanr@unix.sh>
+Organization: IBM Linux Technology Center
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>,
+       "Linux-Ha (E-mail)" <linux-ha@muc.de>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Handling NMI in a kernel module
+References: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com> 	<3D41C544.9090702@unix.sh> <1027735557.15951.3.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> I've been tracking other lists. The current state is very much that we
+> need the dual notifier. I now have some draft code that allows us to do
+> this even on hardware that doesn't support it, and where the read()
+> function gets told when an event is about to occur
 
-Remember that "optimized" code often runs slower than
-simple code.
+I know what had been requested from the telco crowd was the ability to 
+register a function to get called (in the kernel) when an event was about to 
+occur.
 
-Here's a nice piece of obfuscated C code:
+I'm not sure what it means to say that "the read() function gets told when 
+an event is about to occur".
 
->>> Both there and for user supplied byte offsets/sizes, we just need to check
->>> that user supplied values are not being overflowed on 32-bit sector_t
->>> compiled kernels... something like
->>>
->>>          if (sizeof(sector_t) == 4) {
->>>                  if (value & ~(((u64)1 << 32) - 1))
->>>                          return -E2BIG;
->>>          }
->>>
->>> should compile out nicely for 64-bit sector_t and provide a simple, highly
->>> optimized check for 32-bit sector_t... (If gcc optimizes it well I should
->>> hope it will just do a simple 32-bit compare of the high 32-bits with 
->>> zero...)
+	-- Alan Robertson
+	   alanr@unix.sh
 
-True, gcc will optimize that, but the extra screwing
-around will prevent additional optimizations. Don't
-be trying this either:
-
->> More readable:
->>
->> if( sizeof(sector_t)==4 && (value>>32) ) return -E2BIG;
-
-Really, this is what you want:
-
-if( sizeof(sector_t)==4 && (value>0xffffffff) )
-        return -E2BIG;
-
-I'm not kidding. Besides looking better, it's faster.
-I put the above code in a simple function that would also
-do a printf if not too big. Checking the assembly...
-
-Trying to beat the compiler:
-
-load a zero into r4
-OR that and "value" into r0 to set flags
-conditional branch to .L33
-// useful stuff -- where I put printf
-load the OK return value
-branch to .L35
-.L33
-load the -E2BIG return value
-.L35
-return
-
-The simple way:
-
-compare
-load the -E2BIG return value
-conditional branch to .L42
-// useful stuff -- where I put printf
-load the OK return value
-.L42
-return
-
-This is with "GCC: (GNU) 2.95.4 20011002 (Debian prerelease)",
-on 32-bit ppc, which surely isn't anything special or unusual.
-
-I get pretty much the same result on Red Hat 7 with
-gcc 2.96 20000731 on x86: an extra jump in the assembly.

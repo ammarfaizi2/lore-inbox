@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbUCCBlS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 20:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbUCCBlS
+	id S262319AbUCCBvi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 20:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUCCBvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 20:41:18 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:43675 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S262317AbUCCBlR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 20:41:17 -0500
-Date: Wed, 3 Mar 2004 02:41:15 +0100
-From: David Weinehall <david@southpole.se>
-To: Andrew Ho <andrewho@animezone.org>
-Cc: Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
-       Hans Reiser <reiser@namesys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-Message-ID: <20040303014115.GP19111@khan.acc.umu.se>
-Mail-Followup-To: Andrew Ho <andrewho@animezone.org>,
-	Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
-	Hans Reiser <reiser@namesys.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-	jfs-discussion@www-124.southbury.usf.ibm.com,
-	reiserfs-list@namesys.com, linux-xfs@oss.sgi.com
-References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com> <4044B787.7080301@andrew.cmu.edu> <1078266793.8582.24.camel@mentor.gurulabs.com> <20040302224758.GK19111@khan.acc.umu.se> <40453538.8050103@animezone.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40453538.8050103@animezone.org>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+	Tue, 2 Mar 2004 20:51:38 -0500
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:40862
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262319AbUCCBvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 20:51:36 -0500
+From: John Mock <kd6pag@qsl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
+Message-Id: <E1AyLZM-0001nT-00@penngrove.fdns.net>
+Date: Tue, 02 Mar 2004 17:53:08 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 02, 2004 at 08:30:32PM -0500, Andrew Ho wrote:
-> XFS is the best filesystem.
+    USB UHCI driver could be a fine example of a regression -- it could survive
+    suspend in 2.4 under certain conditions, this is no longer true for 2.6.
 
-Well it'd better be, it's 10 times the size of ext3, 5 times the size of
-ReiserFS and 3.5 times the size of JFS.
+I would agree with you about the UHCI for 2.6.0, but i've seen improvement 
+since then.  At this point (vanilla 2.6.3), the non-module version of the 
+UHCI is not only able to suspend, but it can even resume a digital camera'
+('usb-storage'), which was something that i didn't expect.  I tried to make 
+the module version work under 2.6.1-rc1, but i didn't get very far.  I could
+get it to come up without major complaints, but could not get it to retain 
+any connections.  That may be fine for an HID device, but not much good for 
+a file-oriented device.  It really isn't much better than rmmod'ing just
+before suspending (as the effect is the same).
 
-And people say size doesn't matter.
+Surprisingly enough, under 2.6.3, even the PCMCIA IDE card came back up
+after hibernation, albeit with a few minor complaints.  So in some ways,
+the current version may be better if one doesn't need certain modules to 
+work.
 
+As far as CONFIG_PM_DISK vs. CONFIG_SOFTWARE_SUSPEND, i'm not sure what to
+say, except that 'echo 4b > /proc/acpi/sleep' mostly works for me, while
+'echo -n disk > /sys/power/state' returns without successfully hibernating
+(and has done that for the last several kernel versions i've tried).
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+I have not had much luck with X, as the only thing that manages to survive
+suspend is VESA running 256 colors (and the version under 2.6.3 doesn't end
+up with enough left over to run a web browser effectively).  With a 2.4.22
+kernel and recent software suspend patch (2.0-rc2), the native driver for 
+a Sony R505EL almost works, but again, only if i use 256 colors and switch
+away to suspend (and then i still need to restart 'gpm' after suspending).
+I need to have it suspend when it's running on batteries and i've left the
+room (or otherwise forgotten about things), so this isn't very acceptable.
+
+So software suspend under 2.4 might be better, it doesn't really answer my
+problems.  So i still feel stuck with Windows when i'm not at home.
+
+				-- JM

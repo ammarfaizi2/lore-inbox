@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265954AbUAQCC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 21:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUAQCC6
+	id S265951AbUAQCMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 21:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUAQCMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 21:02:58 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:14049 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S265954AbUAQCCz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 21:02:55 -0500
-Date: Sat, 17 Jan 2004 15:07:35 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Announce: Software Suspend Core Patch 2.0 rc4.
-In-reply-to: <pan.2004.01.16.21.35.02.327622@dungeon.inka.de>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074305254.2016.13.camel@laptop-linux>
+	Fri, 16 Jan 2004 21:12:55 -0500
+Received: from mta16.srv.hcvlny.cv.net ([167.206.5.110]:13868 "EHLO
+	mta16.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S265951AbUAQCMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 21:12:53 -0500
+Date: Fri, 16 Jan 2004 21:12:52 -0500
+From: Brett Gmoser <aftli@optonline.net>
+Subject: Re: [linuxkernel] Re: Raw I/O Problems with inb()
+In-reply-to: <pan.2004.01.16.17.41.22.932043@smurf.noris.de>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20040116211252.6581fb0f.aftli@optonline.net>
 MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-4kLSx8oVUaQ7Ozoj6Ut4";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1074282072.5328.52.camel@laptop-linux>
- <pan.2004.01.16.21.35.02.327622@dungeon.inka.de>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040115215243.39fcb0fd.aftli@optonline.net>
+ <pan.2004.01.16.11.27.43.359172@smurf.noris.de>
+ <6.0.1.1.0.20040116094624.00acea40@optonline.net>
+ <pan.2004.01.16.17.41.22.932043@smurf.noris.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks very much for your insight.  I do appreciate it.
 
---=-4kLSx8oVUaQ7Ozoj6Ut4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I do agree that the next step will be to write a kernel module.  However, I would like to see if it is feasible to do this with inb(), since I see no very easy way around the fact that I do not want the program to work remotely.
 
-Hi.
+Really, the question boils down to this: Is the keyboard status port on AMD systems 0x64, or is it something else?  If so, what is it?
 
-On Sat, 2004-01-17 at 10:35, Andreas Jellinghaus wrote:
-> including urls might be nice.
->=20
-> also the feature comparison webpage
-> does not mention bios at all.
+Thank you!
 
-True. Feel free to produce a column; I don't have any experience with
-BIOS support for suspending, so don't know what it can/can't do and
-whether this varies from computer to computer.
+Brett
 
-> Till now I used SOFTWARE_SUSPEND because
-> it works fine, whereas PM_DISK somehow uses the=20
-> bios, and does not work (dell latitude c600,
-> I don't have that magic partition the dell bios
-> expects).
->=20
-> SWSUSP2 will be like SWSUSP concerning this issue?
+On Fri, 16 Jan 2004 18:41:25 +0100
+Matthias Urlichs <smurf@smurf.noris.de> wrote:
 
-I'm not sure that PM_DISK does use the bios. In fact, I'm pretty sure it
-doesn't. Feel free to prove me wrong.
-
-Regarding the relationship with SOFTWARE_SUSPEND, the answer is yes.
-Software Suspend 2 works in a very similar way to Software Suspend.
-
-Nigel
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-4kLSx8oVUaQ7Ozoj6Ut4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBACJjmVfpQGcyBBWkRAtVfAJ9RtQMLaBoHuuY5PVGj+8+K5aH7PQCfTiz7
-5dIoFgk8slWDHIiMIGqf2Yc=
-=bwTv
------END PGP SIGNATURE-----
-
---=-4kLSx8oVUaQ7Ozoj6Ut4--
-
+> Well, as I said, I would solve the "how" problem with a kernel module
+> which monitors mouse movement or keyboard events. This happens to be a
+> whole lot more reliable, and it will also eat no CPU time when nothing's
+> happening.
+> 
+> Plus, it will work on any mouse or keyboard. People actually _use_ USB
+> critters these days, you know ...
+> 

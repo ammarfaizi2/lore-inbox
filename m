@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132278AbQLHRAw>; Fri, 8 Dec 2000 12:00:52 -0500
+	id <S132357AbQLHRHm>; Fri, 8 Dec 2000 12:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132301AbQLHRAn>; Fri, 8 Dec 2000 12:00:43 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:45574 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S132278AbQLHRAd>; Fri, 8 Dec 2000 12:00:33 -0500
+	id <S132301AbQLHRHd>; Fri, 8 Dec 2000 12:07:33 -0500
+Received: from cm698210-a.denton1.tx.home.com ([24.17.129.59]:7186 "HELO
+	cm698210-a.denton1.tx.home.com") by vger.kernel.org with SMTP
+	id <S132356AbQLHRHP>; Fri, 8 Dec 2000 12:07:15 -0500
+Message-ID: <3A310E18.DD23D416@home.com>
+Date: Fri, 08 Dec 2000 10:36:40 -0600
+From: Matthew Vanecek <linux4us@home.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> <Pine.LNX.3.95.1001207205043.5530A-100000@chaos.analogic.com> <20001207200415.O6567@cadcamlab.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14897.3214.38818.625199@somanetworks.com>
-Date: Fri, 8 Dec 2000 11:30:06 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: georgn@somanetworks.com, linux-kernel@vger.kernel.org,
-        greg@wind.enjellic.com, sct@redhat.com
-Subject: Re: linux-2.4.0-test11 and sysklogd-1.3-31 
-In-Reply-To: <5597.976229508@ocs3.ocs-net>
-In-Reply-To: <14895.51841.431444.405949@somanetworks.com>
-	<5597.976229508@ocs3.ocs-net>
-X-Mailer: VM 6.75 under 21.2  (beta37) "Pan" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "KO" == Keith Owens <kaos@ocs.com.au> writes:
+Peter Samuelson wrote:
+> 
+> [Dick Johnson]
+> > Do:
+> >
+> > char main[]={0xff,0xff,0xff,0xff};
+> 
+> Oh come on, at least pick an *interesting* invalid opcode:
+> 
+>   char main[]={0xf0,0x0f,0xc0,0xc8};    /* try also on NT (: */
+> 
 
- KO> You only removed the module symbol handling.  The problem is that
- KO> the entire klogd oops handling is out of date and broken.  I
- KO> recommend removing all oops processing from klogd, which means
- KO> that klogd does not need any symbols nor System.map.
+me2v@reliant DRFDecoder $ ./op
+Illegal instruction (core dumped)
 
-You're right.  
+Is that the expected behavior?
 
-My goal was to quickly get our build working again.  I had no
-expectation that anybody else on the planet would give a crap about my
-patch...
-
-But since you seem to and while we're doing extreme surgery, why have
-klogd at all?  Every other unix, kernel messages are handled by the
-syslog system.  What problem did klogd solve and does that problem
-still exist today?  Stated differently, aren't you just proposing to
-reduce klogd to:
-
-	cat < /proc/kmsg > /dev/log &
-
-(I know that this won't work on my box, but you get the idea)
-
-Anyway, I'll look into simplifying klogd as you suggest...
+-- 
+Matthew Vanecek
+perl -e 'print
+$i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+********************************************************************************
+For 93 million miles, there is nothing between the sun and my shadow
+except me.
+I'm always getting in the way of something...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289366AbSBXDTz>; Sat, 23 Feb 2002 22:19:55 -0500
+	id <S289621AbSBXEzt>; Sat, 23 Feb 2002 23:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292789AbSBXDTq>; Sat, 23 Feb 2002 22:19:46 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:28534 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S289366AbSBXDTe>; Sat, 23 Feb 2002 22:19:34 -0500
-Date: Sun, 24 Feb 2002 03:19:47 +0000
-From: Adam Huffman <bloch@verdurin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Boot problem with PDC20269
-Message-ID: <20020224031947.A1098@bloch.verdurin.priv>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020223205342.C2603@bloch.verdurin.priv> <Pine.LNX.4.30.0202232200290.13755-100000@mustard.heime.net>
-Mime-Version: 1.0
+	id <S289655AbSBXEzj>; Sat, 23 Feb 2002 23:55:39 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:20229
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S289643AbSBXEzV>; Sat, 23 Feb 2002 23:55:21 -0500
+Date: Sat, 23 Feb 2002 20:42:37 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flash Back -- kernel 2.1.111
+In-Reply-To: <Pine.LNX.4.33.0202230953290.14299-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10202232035190.5715-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.30.0202232200290.13755-100000@mustard.heime.net>; from roy@karlsbakk.net on Sat, Feb 23, 2002 at 22:02:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Feb 2002, Roy Sigurd Karlsbakk wrote:
+On Sat, 23 Feb 2002, Linus Torvalds wrote:
 
-> > > er .. I'm running a PDC20269 with a few drives. Is that supposed to be
-> > > impossible?
-> > >
-> > > roy
-> > >
-> >
-> > May I ask which kernel you are running?
 > 
-> linux-2.4.18pre3 + tux + linuxdiskcert.org's ide_2.4.17 patch
-> --
-> Roy Sigurd Karlsbakk, Datavaktmester
+> On Fri, 22 Feb 2002, Andre Hedrick wrote:
+> > 
+> > Obvious you have a bug up the backside
 > 
+> Yes.
+> 
+> What really bugs me about this is that while normally you're hard to
+> communicate with, this time you have actively _lied_ about the patches on
+> IRC and in email about how they will cause IDE corruption etc due to
+> timing changes.
 
-I've managed to boot successfully now with 2.4.18-rc2-ac2.
+Before I truley reply to this statement above, would you like to recant it?
 
-I get the following messages when I mount the IBM 60GXP:
+> No such timing changes existed, and whenever you were asked about what was
+> actually actively _wrong_ with the patches, you didn't reply.
 
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-PDC202XX: Primary channel reset.
-ide2: reset: success
+Here I question the taking of a patch 12 which altered the behavior of the
+subsystem baseclock to setting up PIO timings for the executing command
+block operations.  I then looked over the patch again and saw you had not
+taken it yet.
 
-but mounting does proceed.  No such problem with the Maxtor.
+In that private email, I clearly stated I made a mistake in reading what
+was accepted into 2.5.5.  The fact is you had not accepted it yet.
+However I expect you will take it.  Given that very few people in the
+world have most of the hardware that was effected by that change, and even
+less have the NDA documents on the rules, please accept the change.
 
-Adam
+> There's a difference between being difficult to work with and being 
+> actively dishonest, and you crossed that line.
+
+If this line has be crossed it is because you have moved and altered that
+which is defined as truth.  You by now are having other people question
+your position on issues, and I will leave it at that ...
+
+Regards,
+
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

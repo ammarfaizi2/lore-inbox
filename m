@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263282AbTJaNuz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 08:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbTJaNuz
+	id S263304AbTJaNxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 08:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTJaNxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 08:50:55 -0500
-Received: from main.gmane.org ([80.91.224.249]:65243 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263282AbTJaNuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 08:50:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6.0-test9 vs sound
-Date: Fri, 31 Oct 2003 14:50:51 +0100
-Message-ID: <yw1x8yn1zfb8.fsf@kth.se>
-References: <200310301008.27871.gene.heskett@verizon.net> <200310302049.45009.gene.heskett@verizon.net>
- <yw1xr80tzs0e.fsf@kth.se> <200310310813.02970.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 31 Oct 2003 08:53:33 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:53493 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263304AbTJaNxb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 08:53:31 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Kenneth Johansson <ken@kenjo.org>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Things that Longhorn seems to be doing right
+Date: Fri, 31 Oct 2003 07:52:49 -0600
+X-Mailer: KMail [version 1.2]
+Cc: Hans Reiser <reiser@namesys.com>, Erik Andersen <andersen@codepoet.org>,
+       linux-kernel@vger.kernel.org
+References: <3F9F7F66.9060008@namesys.com> <20031030174809.GA10209@thunk.org> <1067598091.4434.19.camel@tiger>
+In-Reply-To: <1067598091.4434.19.camel@tiger>
+MIME-Version: 1.0
+Message-Id: <03103107524900.25554@tabby>
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:GKUrVXNcAZgnVEys+dz4Mx97V2E=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> writes:
+On Friday 31 October 2003 05:01, Kenneth Johansson wrote:
+> On Thu, 2003-10-30 at 18:48, Theodore Ts'o wrote:
+> > The bottom line is that if a case can be made that some portion of the
+> > functionality required by WinFS needs to be in the kernel, and in the
+> > filesystem layer specifically, I'm all in favor of it.  But it has to
+>
+> What about some way to quickly detect changes to the filesystem. That
+> would really help any type of indexing function to avoid scanning the
+> entire disk.
+>
+> It would help things like backup and even the locate database.
+>
+> It could be something simple as a modification number that increased
+> with every change combined with a size limited list of what every change
+> was. Then every indexing task could just store what the modification
+> number was last time it did it's work compare that number to the current
+> number and read all the changes from the change log. If the stored
+> modification number had fallen out of the log it has to go over the
+> entire filesystem but that would not have to happen that often with a
+> big enough log.
+>
+> Probably some optimisation have to be done to keep the log small you do
+> not want to store every putc as a separate event.
 
-> Some of the tutorials in those links would seem to indicate that 
-> /etc/modules.conf has been renamed, which I have not, and my modutils 
-> are still the same as I've been using for a few months with 2.4.  I 
-> saw an announcement regarding a new modutils tool set last night, do 
-> I need to install that, and does that then fubar a 2.4.23-pre8 boot?
+Putc isn't the problem - that caches up full blocks of data before giving
+them to the kernel.
 
-You need the new module-init-tools.  If you follow the instructions
-provided with them, things will continue to work with 2.4 kernels.
+The problem would be something like syslog, which you really might like to
+search/index frequently (real time analysis).
 
--- 
-Måns Rullgård
-mru@kth.se
-
+No log would be able to handle all cases, and you will have to figure out
+what to do for the exceptions, and recovery procedures when that fails.

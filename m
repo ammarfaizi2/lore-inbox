@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285394AbRLGDYn>; Thu, 6 Dec 2001 22:24:43 -0500
+	id <S285395AbRLGDbC>; Thu, 6 Dec 2001 22:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285397AbRLGDYa>; Thu, 6 Dec 2001 22:24:30 -0500
-Received: from hall.mail.mindspring.net ([207.69.200.60]:49703 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S285394AbRLGDYS>; Thu, 6 Dec 2001 22:24:18 -0500
-Message-ID: <3C103791.77D6EC01@mindspring.com>
-Date: Thu, 06 Dec 2001 19:29:21 -0800
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Paul Bristow <paul@paulbristow.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x 2.5.x wishlist
-In-Reply-To: <Pine.LNX.4.10.10112061433100.15265-100000@master.linux-ide.org>
+	id <S285393AbRLGDaw>; Thu, 6 Dec 2001 22:30:52 -0500
+Received: from zok.sgi.com ([204.94.215.101]:157 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S285389AbRLGDan>;
+	Thu, 6 Dec 2001 22:30:43 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.4.17-pre5 oops on floppy type 6
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Dec 2001 14:30:30 +1100
+Message-ID: <23771.1007695830@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+IBM Thinkpads i1200/1300 with USB floppy (type 6) oops in
+drivers/block/floppy.c register_devfs_entries().  Off by one bug when
+comparing an index with the array size.
 
-> > Damn.  Lost interrupt is outside my code.  This lives in the ide driver
-> > proper and is probably relative toi the via82cxxx specific controller
-> > code that is deep voodoo from Andre.  I guess Andre/Jens have not found
-> > all the *funnies* in the buggy chipset.
->
-> Paul I have to finish a packet_taskfile_ioctl for seeing if we have to
-> correct data-transport rules in place.  For the longest time it has been a
-> pig in a poke.  The ATAPI diagnostics toolkit will be significantly
-> tougher but still doable.
-
-that's why I am hoping to get it into the wish list for 2.5...
+Index: 17-pre5.1/drivers/block/floppy.c
+--- 17-pre5.1/drivers/block/floppy.c Fri, 07 Dec 2001 09:35:49 +1100 kaos (linux-2.4/c/c/40_floppy.c 1.2.1.1.1.5 644)
++++ 17-pre5.1(w)/drivers/block/floppy.c Fri, 07 Dec 2001 14:27:37 +1100 kaos (linux-2.4/c/c/40_floppy.c 1.2.1.1.1.5 644)
+@@ -3917,7 +3917,7 @@ static void __init register_devfs_entrie
+     {NULL, t360, t1200, t3in+5+8, t3in+5, t3in, t3in};
+ 
+     base_minor = (drive < 4) ? drive : (124 + drive);
+-    if (UDP->cmos <= NUMBER(default_drive_params)) {
++    if (UDP->cmos < NUMBER(default_drive_params)) {
+ 	i = 0;
+ 	do {
+ 	    char name[16];
 

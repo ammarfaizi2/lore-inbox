@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270995AbTHFUx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271751AbTHFUx7
+	id S272464AbTHFU7m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272537AbTHFU7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:53:59 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42762 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270995AbTHFUx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:53:58 -0400
-Date: Wed, 6 Aug 2003 21:53:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adam Belay <ambx1@neo.rr.com>, torvalds@osdl.org, misha@nasledov.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5/2.6 PCMCIA Issues
-Message-ID: <20030806215354.G16116@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Adam Belay <ambx1@neo.rr.com>, torvalds@osdl.org,
-	misha@nasledov.com, linux-kernel@vger.kernel.org
-References: <20030804232204.GA21763@nasledov.com> <20030805144453.A8914@flint.arm.linux.org.uk> <20030806045627.GA1625@nasledov.com> <200308060559.h765xhI05860@mail.osdl.org> <20030806114225.GI13275@neo.rr.com> <20030806133450.31da90e4.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030806133450.31da90e4.akpm@osdl.org>; from akpm@osdl.org on Wed, Aug 06, 2003 at 01:34:50PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Wed, 6 Aug 2003 16:59:42 -0400
+Received: from ns.abs-comptech.com ([66.93.61.117]:43489 "EHLO
+	ns.ABS-CompTech.com") by vger.kernel.org with ESMTP id S272464AbTHFU7c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 16:59:32 -0400
+Message-ID: <3F316C2F.3040708@ABS-CompTech.com>
+Date: Wed, 06 Aug 2003 16:59:27 -0400
+From: "Albert E. Whale, CISSP" <aewhale@ABS-CompTech.com>
+Reply-To: aewhale@No-JunkMail.com
+Organization: ABS Computer Technology, Inc.
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux Kernel Question - from non-subscriber
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SPAM-Checked-by: www.No-JunkMail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 01:34:50PM -0700, Andrew Morton wrote:
-> Adam Belay <ambx1@neo.rr.com> wrote:
-> >
-> > [PCMCIA] Fix PnP Probing in i82365.c
-> >  pnp_x_valid returns 1 if valid.  Therefore we should be using !pnp_port_valid.
-> >  Also cleans up some formatting issues.
-> 
-> This patch fixes the insertion-time hang on the A21P, with CONFIG_I82365=y
+I have been searching for a Howto (which is not outdated or Broken), on
+how to mount a Netware 3.x or 4.x Filesystem on Linux.  I have 2.4.21
+operating on Linux Mandrake 9.1.  I have installed ncpfs-2.2.2 and
+desire to mount this filesystem to recover lost information for a
+Non-Profit Organization.  I will post a HOWTO to the Slueth-kit List for
+future reference.
 
-Ok, I'll merge that now.
+As the Vender list is non-technical (more of a SCO Flamewar) nature
+currently, and I am in need of this procedure to mount the Drive (I have
+a 60 GB Disk on a USB Port with the Ghost Image installed on the drive -
+full Inode replica).
+
+Please reply back to me personally.  I was under the impression that
+NWFS or NCPFS may be in the kernel and may support this functionality
+that I need.
+
+Best Regards.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Albert E. Whale, CISSP
+http://www.abs-comptech.com
+----------------------------------------------------------------------
+ABS Computer Technology, Inc. - ESM, Computer & Networking Specialists
+Sr. Security, Network, and Systems Consultant
+Founding Board of Directors of Pittsburgh FBI - InfraGard
+
+
+
 

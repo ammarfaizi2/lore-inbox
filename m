@@ -1,46 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSGYNJM>; Thu, 25 Jul 2002 09:09:12 -0400
+	id <S313421AbSGYNFg>; Thu, 25 Jul 2002 09:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313416AbSGYNJL>; Thu, 25 Jul 2002 09:09:11 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:15321 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S313305AbSGYNJJ>; Thu, 25 Jul 2002 09:09:09 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Header files and the kernel ABI
-Date: Thu, 25 Jul 2002 23:08:00 +1000
-User-Agent: KMail/1.4.5
-References: <aho5ql$9ja$1@cesium.transmeta.com>
-In-Reply-To: <aho5ql$9ja$1@cesium.transmeta.com>
+	id <S313477AbSGYNFg>; Thu, 25 Jul 2002 09:05:36 -0400
+Received: from smtp3.9tel.net ([213.203.124.146]:27581 "HELO smtp3.9tel.net")
+	by vger.kernel.org with SMTP id <S313421AbSGYNFf>;
+	Thu, 25 Jul 2002 09:05:35 -0400
+Date: Thu, 25 Jul 2002 15:07:23 +0200 (CEST)
+From: Samuel Thibault <samuel.thibault@fnac.net>
+Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz, martin@dalecki.de
+Subject: Re: [PATCH] drivers/ide/qd65xx: no cli/sti (2.4.19-pre3 & 2.5.28)
+In-Reply-To: <Pine.LNX.4.10.10207241643430.4719-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10207251501580.505-100000@bureau.famille.thibault.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200207252308.00656.bhards@bigpond.net.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jul 2002 16:28, H. Peter Anvin wrote:
-> It seems to me that a reasonable solution for how to do this is not
-> for user space to use kernel headers, but for user space and the
-> kernel to share a set of common ABI description files[1].  These files
-> should be highly stylized, and only describe things visible to user
-> space.  Furthermore, if they introduce types, they should use the
-> already-established __kernel_ namespace, and of course __s* and __u*
-> could be used for specific types.
-I like it (having just argued for it), except for the __s* and __u*.
-The ABI definitions aren't for kernel programmers. They are for 
-userspace programmers. So we should use standard types,
-even if they are a bit ugly (and uint16_t isn't really much uglier
-than __u16, and at least it doesn't carry connotations of
-something that is meant to be internal, which is what the standard
-double-underscore convention means). 
 
-Please, let us agree that the ABI definition should use standard
-types wherever possible.
+On Wed, 24 Jul 2002, Andre Hedrick wrote:
 
-Brad
+> You just dropped IO sync with the main loop, it is a dead dog.
 
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Why sync with the main loop ?
+

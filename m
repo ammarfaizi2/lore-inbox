@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266239AbUBQQSk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 11:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUBQQSk
+	id S266247AbUBQQUp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 11:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUBQQUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 11:18:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56033 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266239AbUBQQSj (ORCPT
+	Tue, 17 Feb 2004 11:20:45 -0500
+Received: from mail.tmr.com ([216.238.38.203]:41487 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S266247AbUBQQUn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 11:18:39 -0500
-Subject: Re: Linux 2.6.3-rc4 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1077034894.13696.1.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 17 Feb 2004 08:21:34 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 11:20:43 -0500
+Date: Tue, 17 Feb 2004 11:19:37 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [BENCHMARK] 2.6.3-rc2 v 2.6.3-rc3-mm1 kernbench
+In-Reply-To: <40319720.3090709@cyberone.com.au>
+Message-ID: <Pine.LNX.3.96.1040217110549.8209A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
-
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
+On Tue, 17 Feb 2004, Nick Piggin wrote:
 
 
+> Bill, I have CC'ed your message without modification because Con is
+> not subscribed to the list. Even for people who are subscribed, the
+> convention on lkml is to reply to all.
+> 
+> Anyway, the "no SMT" run is with CONFIG_SCHED_SMT turned off, P4 HT
+> is still on. This was my fault because I didn't specify clearly that
+> I wanted to see a run with hardware HT turned off, although these
+> numbers are still interesting.
+> 
+> Con hasn't tried HT off AFAIK because we couldn't work out how to
+> turn it off at boot time! :(
+
+The curse of the brain-dead BIOS :-(
+
+So does CONFIG_SCHED_SMT turned off mean not using more than one sibling
+per package, or just going back to using them poorly? Yes, I should go
+root through the code.
+
+Clearly it would be good to get one more data point with HT off in BIOS,
+but from this data it looks as if the SMT stuff really helps little when
+the system is very heavily loaded (Nproc>=Nsibs), and does best when the
+load is around Nproc==Ncpu. At least as I read the data. The really
+interesting data would be the -j64 load without HT, using both schedulers.
+
+I just got done looking at a mail server with HT, kept the load avg 40-70
+for a week. Speaks highly for the stability of RHEL-3.0, but I wouldn't
+mind a little more performance for free.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVCTG75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVCTHLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbVCTG75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 01:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVCTG75
+	id S262033AbVCTHLi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 02:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVCTHLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 01:59:57 -0500
-Received: from fire.osdl.org ([65.172.181.4]:54749 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262032AbVCTG7r (ORCPT
+	Sun, 20 Mar 2005 02:11:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47744 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262033AbVCTHLe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 01:59:47 -0500
-Date: Sat, 19 Mar 2005 22:58:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: mort@sgi.com, linux-mm@kvack.org, emery@sgi.com, bron@sgi.com,
-       Simon.Derr@bull.net, pj@sgi.com, linux-kernel@vger.kernel.org
+	Sun, 20 Mar 2005 02:11:34 -0500
+Date: Sat, 19 Mar 2005 23:09:52 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pj@sgi.com, mort@sgi.com, linux-mm@kvack.org, emery@sgi.com, bron@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org
 Subject: Re: [Patch] cpusets policy kill no swap
-Message-Id: <20050319225855.475e4167.akpm@osdl.org>
-In-Reply-To: <20050320014847.16310.53697.sendpatchset@sam.engr.sgi.com>
+Message-Id: <20050319230952.7da7e9e6.pj@engr.sgi.com>
+In-Reply-To: <20050319225855.475e4167.akpm@osdl.org>
 References: <20050320014847.16310.53697.sendpatchset@sam.engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	<20050319225855.475e4167.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> This mechanisms differs from a general purpose out-of-memory
->  killer in various ways, including:
-> 
->   * An oom-killer tries to score the bad buy, to avoid shooting
->     the innocent little task that just happened to ask for one
->     page too many.
->   * The policy_kill_no_swap hook kills the current requester.
->   * It takes severe memory pressure to wake up an oom-killer.
->   * The policy_kill_no_swap hook triggers on the slightest
->     pressure that exceeds readily free memory.
->   * The oom-killer can be useful on a general purpose system.
->   * The policy_kill_no_swap hook is only useful for carefully
->     tuned apps running on dedicated nodes on large systems.
-> 
+Interesting comments, Andrew.  Thanks
 
-There are a lot of reasons why we would wake kswapd apart from starting
-swapout.  Such as to reclaim clean pagecache or some dcache+icache.
+It will likely be a couple of days before
+I respond to them.  I suspect a couple
+of us SGI folks should powwow first.
 
->  In short - simple enough, but quite specialized.
-
-Way too specialised, I suspect.  Is it not possible to have a little
-userspace daemon which monitors the long-running applications's rss and
-whacks it if the rss gets too large?
-
-The patch you have simply kills the process when all the eligible zones
-reach their upper watermark.  Again, we can probably determine that state
-from userspace right now.  If not, it would be simple enough to add the
-required info to /proc somewhere.
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

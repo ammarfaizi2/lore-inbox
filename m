@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263461AbTJLMNc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 08:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTJLMNc
+	id S263478AbTJLMTa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 08:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTJLMTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 08:13:32 -0400
-Received: from smtp0.adl1.internode.on.net ([203.16.214.194]:20996 "EHLO
-	smtp0.adl1.internode.on.net") by vger.kernel.org with ESMTP
-	id S263461AbTJLMNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 08:13:31 -0400
-Date: Sun, 12 Oct 2003 21:43:31 +0930
-From: "Mark Williams (MWP)" <mwp@internode.on.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Promise Ultra133-TX2 (PCD20269).
-Message-ID: <20031012121331.GA665@linux.comp>
+	Sun, 12 Oct 2003 08:19:30 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:38286 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263478AbTJLMT3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 08:19:29 -0400
+Date: Sun, 12 Oct 2003 13:18:44 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: current_is_kswapd is a function
+Message-ID: <20031012121844.GF13427@mail.shareable.org>
+References: <20031012021750.GA772@holomorphy.com> <20031012050223.0d270c8f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20031012050223.0d270c8f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-Sorry if this post to the list is inapropriate, i havnt been on the
-kernel mailing list for long.
+Andrew Morton wrote:
+> It would probably be worthwhile teaching the compiler to generate a warning
+> in this case; I doubt if anyone is likely to want to find out at runtime
+> whether the linker happened to place a particular function at address zero.
+> I shall suggest that.
 
-I am having rather ugly problems with this card using the PDC20269 chip.
-Almost as soon as either of the HDDs on the controller are used, the
-kernel hangs solid with a dump of debugging info.
+I agree it would be a very useful warning.
 
-Ive tried moving cards, diff, ram, cpu, etc everything short of changing
-MB (never been a problem before installing this card), so im sure that
-its this new IDE controller card that is the problem.
-I have also tried changing interrupts via the BIOS to remove possible
-clashes, but it also has not helped.
+Testing the address is useful occasionally, to ask whether the target
+of a weak linkage reference was linked in, so a syntax is needed to
+suppress the warning, such as "&function != 0".
 
-I am getting this problem with both the 2.4.22 and the 2.6.0-test7
-kernels (tried different minimal configs).
-
-Can anyone help me with this problem?
-If any other info is needed, please let me know.
-
-Thanks,
- Mark Williams.
+-- Jamie

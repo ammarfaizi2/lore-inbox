@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUF3S4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUF3TAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUF3S4J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 14:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUF3S4J
+	id S266810AbUF3TAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 15:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266812AbUF3TAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 14:56:09 -0400
-Received: from pier.botik.ru ([193.232.174.1]:46562 "EHLO pier.botik.ru")
-	by vger.kernel.org with ESMTP id S266808AbUF3Szt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 14:55:49 -0400
-Message-ID: <40E30C51.8000105@namesys.com>
-Date: Wed, 30 Jun 2004 22:54:09 +0400
-From: "E. Gryaznova" <grev@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+	Wed, 30 Jun 2004 15:00:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22494 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266810AbUF3TAH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 15:00:07 -0400
+Message-ID: <40E30E50.3040401@austin.ibm.com>
+Date: Wed, 30 Jun 2004 14:02:40 -0500
+From: Olof Johansson <olof@austin.ibm.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [2.6.7-mm4: OOPS] kernel BUG at mm/mmap.c:1793
-References: <40E2E28E.8010709@namesys.com> <20040630114157.59258adf.akpm@osdl.org>
-In-Reply-To: <20040630114157.59258adf.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linas@austin.ibm.com, paulus@au1.ibm.com,
+       Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PPC64: lockfix for rtas error log
+References: <20040629175007.P21634@forte.austin.ibm.com>	 <1088559864.1906.9.camel@gaston>	 <20040630123637.S21634@forte.austin.ibm.com> <1088621248.1920.43.camel@gaston>
+In-Reply-To: <1088621248.1920.43.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Benjamin Herrenschmidt wrote:
+>> So instead, the problem can be easily
+>>avoided by not using a global buffer.  The code below mallocs/frees.
+>>Its not perf-critcal, so I don't mind malloc overhead.  Would this
+>>work for you?  Patch attached below.
+> 
+> 
+> I prefer that, but couldn't we move the kmalloc outside of the spinlock
+> and so use GFP_KERNEL instead ?
 
->"E. Gryaznova" <grev@namesys.com> wrote:
->  
->
->>this is reproducible for me problem:
->> This wilson mmap test (attached) causes the kernel BUG at mm/mmap.c:1793 
->> immediately after running.
->>    
->>
->
->I cannot trigger it here.  Does it happen every time?
->
-Yes
-
->  How much memory does
->that machine have?
->
-# cat /proc/meminfo
-MemTotal:       254396 kB
-MemFree:        195224 kB
-Buffers:         12648 kB
-Cached:          19244 kB
-SwapCached:          0 kB
-Active:          25000 kB
-Inactive:        14668 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       254396 kB
-LowFree:        195224 kB
-SwapTotal:     1052216 kB
-SwapFree:      1052216 kB
-Dirty:              20 kB
-Writeback:           0 kB
-Mapped:          11596 kB
-Slab:            16236 kB
-Committed_AS:    24996 kB
-PageTables:        424 kB
-VmallocTotal:   770040 kB
-VmallocUsed:      6868 kB
-VmallocChunk:   763152 kB
-
-Thanks,
-Lena
+Isn't the global buffer used since it's in BSS, and as such, in low 
+memory, guaranteed to be below 4GB? RTAS has limitations that restricts 
+any passed-in buffers to be addressable as 32-bit real mode pointers, right?
 
 
+-Olof

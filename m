@@ -1,44 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266357AbUI0JAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUI0JCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266357AbUI0JAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 05:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUI0JAY
+	id S266427AbUI0JCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 05:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUI0JCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 05:00:24 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:62226 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266357AbUI0JAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 05:00:21 -0400
-Date: Mon, 27 Sep 2004 10:00:18 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i386 entry.S problems
-Message-ID: <20040927100018.A22468@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org
-References: <s157d11c.077@emea1-mh.id2.novell.com>
+	Mon, 27 Sep 2004 05:02:13 -0400
+Received: from gate.crashing.org ([63.228.1.57]:28811 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266474AbUI0JBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 05:01:47 -0400
+Subject: [PATCH] ppc64: Remote some userland-only stuff from kernel header
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1096275593.1071.32.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <s157d11c.077@emea1-mh.id2.novell.com>; from JBeulich@novell.com on Mon, Sep 27, 2004 at 09:37:10AM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 27 Sep 2004 18:59:54 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 09:37:10AM +0200, Jan Beulich wrote:
-> >>> Christoph Hellwig <hch@infradead.org> 24.09.04 21:12:51 >>>
-> >> +#if !defined(CONFIG_REGPARM) || __GNUC__ < 3
-> >>  	pushl %ebp
-> >> +#endif
-> >
-> >CONFIG_REGPARM n eeds gcc 3.0 or later
-> 
-> Not sure what you try to point out here: the additions account for
-> exactly that.
+Hi !
 
-No, the || __GNUC__ < 3 is superflous.  if CONFIG_REGPARM is defined
-and __GNUC__ < 3 you have problems elsewhere already.
+include/asm-ppc64/systemcfg.h defines a structure that currently gets 
+exposed to userland via /proc, and which I intend to deprecate in the
+near future once I have better alternatives available. In the meantime,
+this patch removes a bunch of stuff from this file that were only defined
+for non-__KERNEL__, like an inline function for getting to that struture
+via /proc, and some CPU & platform type definitions that were duplicates
+of the ones in asm-ppc64/processor.h. These things have nothing to do in
+a kernel header.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+===== include/asm-ppc64/systemcfg.h 1.3 vs edited =====
+--- 1.3/include/asm-ppc64/systemcfg.h	2004-06-27 17:19:24 +10:00
++++ edited/include/asm-ppc64/systemcfg.h	2004-09-27 18:15:45 +10:00
+@@ -59,54 +59,7 @@
+ 
+ #ifdef __KERNEL__
+ extern struct systemcfg *systemcfg;
+-#else
+-
+-/* Processor Version Register (PVR) field extraction */
+-#define PVR_VER(pvr)  (((pvr) >>  16) & 0xFFFF) /* Version field */
+-#define PVR_REV(pvr)  (((pvr) >>   0) & 0xFFFF) /* Revison field */
+-
+-/* Processor Version Numbers */
+-#define PV_NORTHSTAR    0x0033
+-#define PV_PULSAR       0x0034
+-#define PV_POWER4       0x0035
+-#define PV_ICESTAR      0x0036
+-#define PV_SSTAR        0x0037
+-#define PV_POWER4p      0x0038
+-#define PV_GPUL		0x0039
+-#define PV_POWER5	0x003a
+-#define PV_970FX	0x003c
+-#define PV_630          0x0040
+-#define PV_630p         0x0041
+-
+-/* Platforms supported by PPC64 */
+-#define PLATFORM_PSERIES      0x0100
+-#define PLATFORM_PSERIES_LPAR 0x0101
+-#define PLATFORM_ISERIES_LPAR 0x0201
+-#define PLATFORM_POWERMAC     0x0400
+-
+-/* Compatibility with drivers coming from PPC32 world */
+-#define _machine	(systemcfg->platform)
+-#define _MACH_Pmac	PLATFORM_POWERMAC
+-
+-
+-static inline volatile struct systemcfg *systemcfg_init(void)
+-{
+-	int fd = open("/proc/ppc64/systemcfg", O_RDONLY);
+-	volatile struct systemcfg *ret;
+-
+-	if (fd == -1)
+-		return 0;
+-	ret = mmap(0, sizeof(struct systemcfg), PROT_READ, MAP_SHARED, fd, 0);
+-	close(fd);
+-	if (!ret)
+-		return 0;
+-	if (ret->version.major != SYSTEMCFG_MAJOR || ret->version.minor < SYSTEMCFG_MINOR) {
+-		munmap((void *)ret, sizeof(struct systemcfg));
+-		return 0;
+-	}
+-	return ret;
+-}
+-#endif /* __KERNEL__ */
++#endif
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+
+
 

@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291075AbSBLOYY>; Tue, 12 Feb 2002 09:24:24 -0500
+	id <S291078AbSBLOXy>; Tue, 12 Feb 2002 09:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291079AbSBLOYQ>; Tue, 12 Feb 2002 09:24:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59915 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291075AbSBLOYH>; Tue, 12 Feb 2002 09:24:07 -0500
-Subject: Re: File BlockSize
-To: anish@bidorbuyindia.com (Anish Srivastava)
-Date: Tue, 12 Feb 2002 14:37:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> from "Anish Srivastava" at Feb 12, 2002 01:00:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291075AbSBLOXp>; Tue, 12 Feb 2002 09:23:45 -0500
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:49108 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S291079AbSBLOXb>; Tue, 12 Feb 2002 09:23:31 -0500
+Message-ID: <3C6926E7.90F7C781@ntlworld.com>
+Date: Tue, 12 Feb 2002 14:29:59 +0000
+From: SA products <super.aorta@ntlworld.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Write-combining
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16ae3z-0001xO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any way I can have 8K block sizes in ext2, reiserfs or ext3.
+Dear list,
 
-Buy an Alpha 8)
+Sorry this maybe off topic-- I am writing a device driver for a kind of
+framebuffer device.
+This is virtually complete and working, all I wish to add is
+write-combining but I can find
+very little information on how to do this.  Looking at other device
+drivers MTRR crops
+up a few times but I is still not clear to me what I have to do.
 
-> I am trying to install Oracle on Linux with 8K DB_Block_size.
-> But it gives me a Block size mismatch saying that the File BlockSize is only
-> 4K
-> 
-> Maybe, there is a kernel patch available which enables Linux to create 8K
-> file blocks.
+So far-
+I grab the memory region for the framebuffer (1/4Mb) something like so;
+......
 
-With current kernels the maximum block size of a file system you can mount
-is the page size of the architecture. Generally people limit to 4K to avoid
-file systems that only work with some machines.
+memio=ioremap(pci_resource_start(dev,MEMIO)&PCI_BASE_ADDRESS_MEM_MASK,MEMIO_SIZE);
 
-Going to a block size bigger than page size causes all sorts of fun with 
-allocation failures if there are not two pages free adjacent to one another
-when allocating, and isn't really worth the cost.
+......
+then try to mtrr it
+.....
+    err=mtrr_add(memio,MEMIO_SIZE,MTRR_TYPE_WRCOMB,1);
+......
+which fails because memio is not aligned correctly
 
-Alan
+my code generates the following messages
+slm: init: mtrr option enabled- trying region cc960000
+mtrr: base(0xcc960000) is not aligned on a size(0x40000) boundary
+slm: init: mtrr: unable to set write combining for slm memory :(
+
+Before I go any further I would like to ask is this a sensible approach
+or have I missed
+something somewhere?
+
+If this is not the most sensible way please point me towards a sensible
+solution-
+
+If this is the correct way of doing things is there
+> an easy way to discover the mtrr alignment requirements prior to
+mtrr_add?
+> Can I align memio properly (how?) or
+>   do I start by defining a larger mtrr region below memio and then
+masking off the
+    unwanted regions either side of my memory region with
+mtrr(...MTRR_TYPE_WRBACK..)?
+> What happens on none x86 type processors?
+
+any other advice?
+
+
+Thanks SA
+
+

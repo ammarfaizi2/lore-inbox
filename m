@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbTFBHw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 03:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTFBHw6
+	id S261292AbTFBH5f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 03:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTFBH5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 03:52:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:56298 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262016AbTFBHwz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 03:52:55 -0400
-Date: Mon, 2 Jun 2003 10:05:49 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Bill Davidsen <davidsen@tmr.com>, Olivier Galibert <galibert@pobox.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
-In-Reply-To: <5.2.0.9.2.20030529062657.01fcaa50@pop.gmx.net>
-Message-ID: <Pine.LNX.4.44.0306020949520.3375-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Jun 2003 03:57:34 -0400
+Received: from m239.net195-132-57.noos.fr ([195.132.57.239]:33928 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S261292AbTFBH5d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 03:57:33 -0400
+Date: Mon, 2 Jun 2003 10:10:45 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: OUPS 2.5.69-bk19 sonypi irq 11: nobody cared!
+Message-ID: <20030602081045.GC12831@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1053971418.2003.13.camel@nalesnik.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1053971418.2003.13.camel@nalesnik.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 26, 2003 at 06:50:36PM +0100, Grzegorz Jaskiewicz wrote:
 
-On Thu, 29 May 2003, Mike Galbraith wrote:
+> irq 11: nobody cared!
+> 
+> Call Trace:
+[...]
+>  [<c790c8d0>] sonypi_irq+0x0/0x2a0 [sonypi]
+>  [<c790fd00>] +0x0/0x200 [sonypi]
+>  [<c030206f>] pci_find_device+0x2f/0x40
+>  [<c790fd00>] +0x0/0x200 [sonypi]
+>  [<c78fe030>] +0x30/0x3b [sonypi]
+>  [<c013509f>] sys_init_module+0xff/0x210
+>  [<c790fd00>] +0x0/0x200 [sonypi]
+>  [<c010b21b>] syscall_call+0x7/0xb
 
-> [...] What makes more sense to me than the current implementation is to
-> rotate the entire peer queue when a thread expires... ie pull in the
-> head of the expired queue into the tail of the active queue at the same
-> time so you always have a player if one exists.  (you'd have to select
-> queues based on used cpu time to make that work right though)
+I have been away for a while, moving to a new house etc...
 
-we have tried all sorts of more complex yield() schemes before - they
-sucked for one or another workload. So in 2.5 i took the following path:  
-make yield() _simple_ and effective, ie. expire the yielding task (push it
-down the runqueue roughly halfway, statistically) and dont try to be too
-smart doing it. All the real yield() users (mostly in the kernel) want it
-to be an efficient way to avoid livelocks. The old 2.4 yield
-implementation had the problem of enabling a ping-pong between two
-higher-prio yielding processes, until they use up their full timeslice.
+Anyway, the sonypi messages appear because of the new irq infrastructure
+Linus introduced a few weeks ago. Using this infrastructure a driver can
+tell if he really handled the irq or not.
 
-(we could do one more thing that still keeps the thing simple: we could
-re-set the yielding task's timeslice instead of the current 'keep the
-previous timeslice' logic.)
+The problem with the sonypi driver is that it only knows about a 
+limited set of events (button presses, battery events, lid events etc),
+and any event not referenced in the sonypi source will give you the
+backtrace you saw.
 
-OpenOffice used to use yield() as a legacy of 'green thread'
-implementation - where userspace threads needed to do periodic yield()s to
-get any sort of multitasking behavior.
+I intend to force the sonypi driver to return IRQ_HANDLED every time
+he receives an event (because it does anyway print a warning message
+when it happens), but this code has not reached Linus yet.
 
-	Ingo
-
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

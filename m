@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbTDSUno (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 16:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTDSUno
+	id S263460AbTDSUjs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 16:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTDSUjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 16:43:44 -0400
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:53237 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S263466AbTDSUnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 16:43:41 -0400
-Message-ID: <006101c306b6$2a52f480$6b7ba8c0@max>
-From: "Max Linux" <max.linux@ntlworld.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel compile and speakup
-Date: Sat, 19 Apr 2003 21:56:35 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Sat, 19 Apr 2003 16:39:48 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:44300 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263460AbTDSUjr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 16:39:47 -0400
+Date: Sat, 19 Apr 2003 22:43:50 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/net/rcpci45 DMA mapping API conversion
+Message-ID: <20030419224350.B3020@electric-eye.fr.zoreil.com>
+References: <20030105144559.A2835@se1.cogenit.fr> <3EA19CF8.8030109@pobox.com> <20030419215526.A3020@electric-eye.fr.zoreil.com> <3EA1ACDD.4090306@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EA1ACDD.4090306@pobox.com>; from jgarzik@pobox.com on Sat, Apr 19, 2003 at 04:09:01PM -0400
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Jeff Garzik <jgarzik@pobox.com> :
+[...]
+> Francois Romieu wrote:
+[...]
+> > Jeff Garzik <jgarzik@pobox.com> :
+> > [...]
+> > 
+> >>Ok, I finally got around to attacking this one.  Your patch looked ok to 
+> >>me until I noticed one detail:
+> >>
+> >>         pDpa->msgbuf = kmalloc (MSG_BUF_SIZE, GFP_DMA | GFP_KERNEL);
+> >>
+> >>The GFP_DMA tag indicates that we can't just use pci_alloc_consistent in 
+> >>the normal way, as we lose the GFP_DMA designator.
+> > 
+> > 
+> > Does it mean the usual pci_set_dma_mask() cooking or something more
+> > elaborate ?
+> 
+> 
+> Reading dma_alloc_coherent() in arch/i386/kernel/pci-dma.c, it does 
+> appear that would be sufficient...
 
-As a Linux newbie, I have been trying to compile a new Linux kernel to give
-me raid support.
+I'll cook something like that then.
+Anyway, I'm curious to know whether someone[1] can come with a specific mask
+for this device or (even better) say that the GFP_DMA wasn't really needed in
+the first place.
 
-This was easy the first time, but has failed the second time round, for a
-reason I cannot understand.
+[1] driver claims:
+**  Ported to 2.1.x by Alan Cox 1998/12/9.
 
-Using the procedure:
+Any hint Mr Cox ?
 
-bash# make mrproper
-bash# make xconfig
-
-< select all the options I want (including raid support) >
-
-bash# make dep
-bash# make clean
-bash# make bzImage
-
-The make fails, with the following errors:
-
-In file included from console.c:110:
-/usr/src/linux-2.4.18-27.7.x/include/linux/speakup.h:186:25: operator '('
-has no left operand
-make[3]: *** [console.o] Error 1
-make[3]: Leaving directory '/usr/src/linux-2.4.18-27.7.x/drivers/char'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory '/usr/src/linux-2.4.18-27.7.x/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Leaving directory '/usr/src/linux-2.4.18-27.7.x/drivers'
-make: *** [_dir_drivers] Error 2
-
-As far as I can see, there is no reason for speakup.h to be included in the
-make. However, since it is there, there is no reason for this error to
-occur.
-NOTE: The left bracket in the quotes is what is reported, although the
-character in speakup.h is <.
-
-speakup is specifically not requested in xconfig, as the vga console.
-
-Please tell me what I have done wrong. As I said before, the previous
-compilation went fine. Something has since broken.
-
-Thanks in advance.
-
-Max Booker
-max.linux@ntlworld.com
-
+--
+Ueimor

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264429AbTIIUIx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTIIUIx
+	id S264485AbTIIUNG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTIIUNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:08:53 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:23278 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S264429AbTIIUIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:08:52 -0400
-Date: Tue, 9 Sep 2003 14:07:51 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Bernd Schubert <bernd-schubert@web.de>
+	Tue, 9 Sep 2003 16:13:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32671 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264485AbTIIUMc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 16:12:32 -0400
+Date: Tue, 9 Sep 2003 13:06:50 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: inode generation numbers
-Message-ID: <20030909140751.E18851@schatzie.adilger.int>
-Mail-Followup-To: Bernd Schubert <bernd-schubert@web.de>,
-	linux-kernel@vger.kernel.org
-References: <200309092108.37805.bernd-schubert@web.de>
+Subject: Re: 2.6.0-test5: configcheck results
+Message-Id: <20030909130650.0670778d.rddunlap@osdl.org>
+In-Reply-To: <20030909194001.GB3009@mars.ravnborg.org>
+References: <20030909100412.A25143@flint.arm.linux.org.uk>
+	<20030909194001.GB3009@mars.ravnborg.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309092108.37805.bernd-schubert@web.de>; from bernd-schubert@web.de on Tue, Sep 09, 2003 at 09:08:37PM +0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 09, 2003  21:08 +0200, Bernd Schubert wrote:
-> for a user space nfs-daemon it would be helpful to get the inode generation 
-> numbers. However it seems the fstat() from the glibc doesn't support this, 
-> but refering to some google search fstat() from some (not all) other unixes 
-> does.
-> Does anyone know how to read those numbers from userspace with linux?
+On Tue, 9 Sep 2003 21:40:01 +0200 Sam Ravnborg <sam@ravnborg.org> wrote:
 
-For ext2/ext3 filesystems you can use EXT2_GET_VERSION ioctl for this.
-Maybe reiserfs as well.
+| On Tue, Sep 09, 2003 at 10:04:12AM +0100, Russell King wrote:
+| > Hi all,
+| > 
+| > I just ran make configcheck on 2.6.0-test5 and the results are:
+| > 
+| >     832 files need linux/config.h but don't actually include it.
+| >     689 files which include linux/config.h but don't require the header.
+| 
+| Randy, you have looked into related perl scripts. Is the result of
+| checkconfig.pl reliable?
 
-Cheers, Andreas
+They aren't perfect.  I consider them more like 80-90% solutions.
+Usable until there's a better solution IMO, like maybe sparse.
+
+The perl scripts don't look at other #included files to check if they
+supply any of the needed #defines.  I.e., they look only at the one
+file being searched to check if it uses names (CONFIG_*) without
+#include-ing config.h in this case, so it can produce false positives.
+
+I looked quickly at crypto/tcrypt.c (which is listed as needing config.h).
+It #includes linux/init.h, which #includes linux/config.h.
+I expect that there are several...or many like this.
+
 --
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+~Randy

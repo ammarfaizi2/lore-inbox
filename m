@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261818AbTCLRcN>; Wed, 12 Mar 2003 12:32:13 -0500
+	id <S261817AbTCLRcC>; Wed, 12 Mar 2003 12:32:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261819AbTCLRcN>; Wed, 12 Mar 2003 12:32:13 -0500
-Received: from bitmover.com ([192.132.92.2]:2213 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261818AbTCLRcL>;
-	Wed, 12 Mar 2003 12:32:11 -0500
-Date: Wed, 12 Mar 2003 09:42:44 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312174244.GC13792@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	id <S261818AbTCLRcC>; Wed, 12 Mar 2003 12:32:02 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:43446 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261817AbTCLRcB>; Wed, 12 Mar 2003 12:32:01 -0500
+Date: Wed, 12 Mar 2003 17:40:01 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Christopher Meredith <theophile@saintmail.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PowerNow!, cpufreq, and swsusp
+Message-ID: <20030312183954.GA13653@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Christopher Meredith <theophile@saintmail.net>,
 	linux-kernel@vger.kernel.org
+References: <3e6f6919.1546.10699@saintmail.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+In-Reply-To: <3e6f6919.1546.10699@saintmail.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[BK is locking up our data]
-[BitMover has to give us our data in an open format]
-[The BK pill is oh-so-bitter]
-[My tummy hurts and it's Larry's fault]
+On Wed, Mar 12, 2003 at 12:06:33PM -0500, Christopher Meredith wrote:
 
-Boo hoo, cry me a river.
+ > Also, cpufreq doesn't seem to do anything. Should it be
+ > working automatically?
 
-Those of you complaining ought to at least look before you complain.
-You just assumed that we were screwing you and you couldn't be bothered
-to verify it before you complained.  We didn't screw you at all, all
-the data is there.  And BK itself has always had the ability to export
-any data in any format, if you read the man pages you might notice that,
-but that would be too much work, it's easier to complain.
+no.
 
-If you had actually gone and looked at the CVS repository you would have
-seen that there is nothing of value missing, in almost 100% of the files,
-the full revision history is preserved:
+ > Even when the machine sits unattended
+ > for over 8 hours, the fan never turns off and the cpu
+ > temperature is consustently 69-70 degrees C.
 
-	CVS: 110,076 deltas over all files
-	BK:  121,891 deltas over all files
+The kernel doesn't define policy, but exposes the necessary
+interface to userspace.  There are a few folks working on
+tools / scripts to adjust the speed dynamically.
+look through the cpufreq mailing list archives to find them
+(or google)
 
-You guys don't have that much parallelism in your files and the exporter
-is capturing all that it can which is virtually everything.  It's worth
-noting that many deltas in BK are just event recorders, they are just
-empty merge delta noise and in fact many people have asked us to get rid
-of them.  Once again, it's easier to complain than think.  I'm detecting
-a trend.
+ > What must I do here?
 
-The graph traversal managed to capture an amazing amount of information,
-it's bloody awesome, which you might have noticed if you had looked.
-But, nooooo, let's just piss and moan.  What a bunch of friggin' whiners.
+Read Documentation/cpu-freq/user-guide.txt
 
-The next time you open your mouth, the words that come out of it should be
-"thank you".  Nothing else, just that.  If you can't say something nice,
-now is a good time to say nothing at all because we are sick and tired of
-dealing with people who complain far more than they code.  I'm serious,
-we've done way more than anyone could reasonably expect and you react
-with no basis in fact, assume bad things that aren't true, don't bother
-to look to see if there is a real problem, and don't bother to say thanks.
-Aren't you the slightest bit ashamed of your behaviour?  
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+short: mount sysfs, and ..
+
+(root@evo:cpufreq)# cd /sys/class/cpu/cpufreq/cpu0/cpufreq
+(root@evo:cpufreq)# cat /proc/cpuinfo | grep MHz
+cpu MHz		: 1390.536
+(root@evo:cpufreq)# echo powersave >scaling_governor
+(root@evo:cpufreq)# cat /proc/cpuinfo | grep MHz
+cpu MHz		: 529.728
+(root@evo:cpufreq)# echo performance >scaling_governor
+
+		Dave
+

@@ -1,112 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUGCBgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265784AbUGCB6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUGCBgn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 21:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUGCBgn
+	id S265784AbUGCB6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 21:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUGCB6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 21:36:43 -0400
-Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:476 "EHLO
-	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265772AbUGCBgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 21:36:39 -0400
-Date: Sat, 3 Jul 2004 11:35:53 +1000
-From: Andrew Clausen <clausen@gnu.org>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Steffen Winterfeldt <snwint@suse.de>, linux-kernel@vger.kernel.org,
-       Thomas Fehr <fehr@suse.de>, bug-parted@gnu.org
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-Message-ID: <20040703013552.GA630@gnu.org>
-References: <s5gwu1mwpus.fsf@patl=users.sf.net> <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
-X-Accept-Language: en,pt
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 2 Jul 2004 21:58:21 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:31761 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S265784AbUGCB5x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 21:57:53 -0400
+Date: Sat, 3 Jul 2004 03:57:49 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Anton Altaparmakov <aia21@cam.ac.uk>, bug-parted@gnu.org,
+       "K.G." <k_guillaume@libertysurf.fr>,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, clausen@gnu.org, buytenh@gnu.org,
+       msw@redhat.com
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for
+ BIOS / CHS stuff)
+In-Reply-To: <20040703005555.GA20808@apps.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0407030310430.19875-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 06:17:53PM +0200, Szakacsits Szabolcs wrote:
->           [kernel related notes are at the end]
-> Hello,
-> 
-> On 2 Jul 2004, Patrick J. LoPresti wrote:
-> 
-> Parted is looking for (co-)maintainers. Wouldn't you like to be?
-> Guillaume? Somebody from SUSE, Red Hat, Debian, anybody? I think 
-> it's a real challenge in its current state ;)
 
-I am the current Parted maintainer.  I am rather busy, and haven't had
-time to do a good job.  However, I haven't "dropped" it.  I would
-welcome a co-maintainer though :)
+On Sat, 3 Jul 2004, Andries Brouwer wrote:
 
-> > Parted needs a mechanism to let me FORCE the geometry it uses.  Every
-> > other partitioning tool has this, usually via command-line switch.
+> (i) Szaka wrote stuff that I interpreted as stating (a) that parted
+> is seriously broken, and (b) that parted is unmaintained.
 
-Would this solve any problems?  The people who get hit aren't going
-to use the switch, right?
+Right. Parted is definitely looking for (co)maintainers (note, I've never
+written parted is unmaintained, even though I think _practically_ it is).
 
-> Currently they blame the BIOS, LILO, GRUB, NTFS, FAT32, Microsoft,
-> bootloaders, kernel, hardware, firmware, themself(!!), etc. Parted 
-> is so hidden, embedded in tools, installers and behaves so randomly 
-> then I think it was very difficult to realise how broken it is, over
-> the years.
+Unfortunately most discussions were in private with FSF/GNU people after I
+wrote this to the bug-parted mailing list
 
-For the same reasons, I haven't been getting bug reports.  I first found
-out that this was a (non-hypothetical) problem on Slashdot.  I can't
-reproduce the bug.  Nor can Jeremy Katz at Red Hat.  If anyone out there
-can, please get in touch!
+  http://lists.gnu.org/archive/html/bug-parted/2004-03/msg00091.html
 
-> > Having such [geometry] guesswork in Parted itself is a design error,
-> 
-> Yes. Parted must get the geometry from the partition table unless
->
-> 	1) the partition table is empty
-> 
-> 	2) asked to fix the partition table
-> 
-> 	3) asked to use user provided values
+I'm sure Andrew won't be angry if I quote one of his private emails
+(please note he is quite busy with his study, made already heroic efforts
+but clearly couldn't/can't focus on the emerging issues).
 
-You need to add these to the list:
+  Final comment: I think I am inadequate as a maintainer for GNU Parted.
+  However, as there are no other volunteers, I am better than nothing.
+  Some people have started working on Parted, and I make try to give them
+  advice, apply patches, etc.  But, all of these people to date have been
+  too busy to take over long-term Parted maintainence.
+ 
+> Concerning the "seriously broken" part, looking at the various available
+> sources I find that indeed parted has always been seriously broken,
+> but now Andrew has added stuff in an attempt to fix things.
+> His added stuff is broken as well, but clearly work is being done,
 
-	(4) There aren't any partitions that end before cylinder 1024.
-	(5) The partition table is inconsistent.
+He was told many many times since last November how to do it correctly.
+Even you told him but he still couldn't cope with all the tasks.
 
-Parted does inspect the partition table to try to figure out the
-geometry.  I'm not sure why Parted is messing up so much.  (The current
-analyses don't explain it)  I really need more information.
+> so instead of shouting on the kernel list it seems more productive
 
-> 1) and 2) need a way to get a "sane" geometry from the BIOS or kernel.
+Please see subject: "[RFC] Restoring HDIO_GETGEO semantics", it has
+nothing to do with parted maintaince.
 
-Shouldn't we just use LBA?  (i.e. x/255/63)
+Fixing parted won't fix all the tools people currently use still trusting
+the newer kernels. You can't force everybody to replace immediately their
+parted/etc even if they got fixed.
 
-> Nevertheless, fixing Parted and all broken tools, that trust the kernel
-> getting the most-of-the-time-right-geometry, won't fix the problem
-> immediately because nobody can replace all these tools in the wild from
-> one day to the other. Transition would take several years.
+Sorry, I can't explain better. Maybe somebody who gets what I want to say
+could translate it to real, understandable English. I'd really appreciate.
 
-Is there any evidence of this?  I think 6 months.  (Seriously, has
-anyone done any research?)
+> to tell Andrew precisely in what ways his stuff is broken.
+> I would expect that very soon parted is fine.
 
-> Does anybody find the new HDIO_GETGEO semantic useful? Did it help
-> _anything_? 
+Unfortunately things always went to the wrong direction in the last 8
+months. No matter who and how tried to explain.
 
-Remember, back when it was proposed, everyone claimed "everyone uses
-LBA", and hence it was irrelevant.  I thought it was better to keep it
-as it was.
+> (ii) Various people talk about moving disks between machines.
 
-> Because the semantic change did break many people data, installations
-> permanently and keeps doing so every day.
+I've seen only Patrick mentioning this.
 
-I don't understand this sentence.
+> Such people have not understood the main fact here:
+> the geometry is not a property of the disk but of the BIOS.
+> It is futile to hope for a construction that will work across
+> different machines with different BIOSes.
 
-> Please also note, so far nobody stepped forward to fix parted.
+Exactly. This is why e.g. ntfsck, mkntfs, recovery and other tools need to
+get this value reliable from somewhere. But they can't.
 
-You know there is a patch.  The problem is that "how-to-fix" is
-contentious, not that we can't produce a patch.
-
-Cheers,
-Andrew
+	Szaka
 

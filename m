@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263149AbRGNQri>; Sat, 14 Jul 2001 12:47:38 -0400
+	id <S263334AbRGNQrs>; Sat, 14 Jul 2001 12:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263748AbRGNQra>; Sat, 14 Jul 2001 12:47:30 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:16826 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S263149AbRGNQrW>; Sat, 14 Jul 2001 12:47:22 -0400
-Message-ID: <3B5077E6.19965DCC@uow.edu.au>
-Date: Sun, 15 Jul 2001 02:48:38 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Neil Brown <neilb@cse.unsw.edu.au>, Mike Black <mblack@csihq.com>,
-        lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: Re: raid5d, page_launder and scheduling latency
-In-Reply-To: <3B50765F.6ECF7B17@uow.edu.au> from "Andrew Morton" at Jul 15, 2001 02:42:07 AM <E15LSW7-0001QO-00@the-village.bc.nu>
+	id <S263748AbRGNQrj>; Sat, 14 Jul 2001 12:47:39 -0400
+Received: from t2.redhat.com ([199.183.24.243]:54770 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263334AbRGNQr0>; Sat, 14 Jul 2001 12:47:26 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010715031815.D6722@weta.f00f.org> 
+In-Reply-To: <20010715031815.D6722@weta.f00f.org>  <200107141414.f6EEEjQ05792@ns.caldera.de> 
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Christoph Hellwig <hch@caldera.de>,
+        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy) 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 14 Jul 2001 17:47:05 +0100
+Message-ID: <17573.995129225@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > - exit with 1,000 files open
-> > - exit with half a million pages to be zapped
-> >
-> > And "fixing" copy_*_user is outright dumb.  Just fix the four
-> > or five places where it matters.
-> 
-> Depends if you want to use Linux as a Windows 3.1 replacement or a real OS.
-> In the latter case we need to fix the stupid cases too.
 
-umm..  That's what I said :)
+cw@f00f.org said:
+>  Linus, please consider applying the following patch. 
+> 
+> --- linux-2.4.7-pre6/include/linux/malloc.h	Thu Jul 12 03:53:53 2001
+> +++ linux-2.4.7-pre6+mallocRIP/include/linux/malloc.h	Thu Jan  1 12:00:00 1970
+> @@ -1,5 +0,0 @@
+> -#ifndef _LINUX_MALLOC_H
+> -#define _LINUX_MALLOC_H
+> -
+> -#include <linux/slab.h>
+> -#endif /* _LINUX_MALLOC_H */
 
-Hunt them down and fix them, but don't add hundreds of schedules
-all over the tree.  gettimeofday(), for heavens sake.
+
+Doing that in the middle of a supposedly stable series, even if it wasn't a 
+fundamentally stupid thing to do in the first place, isn't really very 
+sensible.
+
+--
+dwmw2
+
+

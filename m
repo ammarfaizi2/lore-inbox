@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316886AbSFBWRM>; Sun, 2 Jun 2002 18:17:12 -0400
+	id <S317018AbSFBWZp>; Sun, 2 Jun 2002 18:25:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSFBWRL>; Sun, 2 Jun 2002 18:17:11 -0400
-Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:57337 "EHLO
-	mg.homelinux.net") by vger.kernel.org with ESMTP id <S316886AbSFBWRI>;
-	Sun, 2 Jun 2002 18:17:08 -0400
-Date: Mon, 3 Jun 2002 00:16:46 +0200
-From: Marius Gedminas <mgedmin@centras.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SMB filesystem
-Message-ID: <20020602221646.GF14126@gintaras>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CFA875D.1050300@linkvest.com> <Pine.LNX.4.44.0206022319290.27283-100000@cola.enlightnet.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dWYAkE0V1FpFQHQ3"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-URL: http://ice.dammit.lt/~mgedmin/
+	id <S317023AbSFBWZo>; Sun, 2 Jun 2002 18:25:44 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:50611 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317018AbSFBWZn>; Sun, 2 Jun 2002 18:25:43 -0400
+Date: Mon, 3 Jun 2002 00:25:17 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FUD or FACTS ?? but a new FLAME!
+Message-ID: <Pine.SOL.4.30.0206030019460.22080-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dWYAkE0V1FpFQHQ3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 2 Jun 2002, Bartlomiej Zolnierkiewicz wrote:
 
-On Sun, Jun 02, 2002 at 11:34:59PM +0200, Urban Widmark wrote:
-> Currently autofs has a problem where it won't show the mountpoints of
-> non-mounted directories, but I think you would run into that problem too.
-> (short version of the problem: how do you prevent 'ls -l' from mounting
->  all filesystems in a directory?)
+> >
+> > I apology for flames Andre, after some thinking I came to
+> > conclusion that if speaking hardware you are generally right.
+> >
+> > I hope we can together resolve transport layer issues in 2.5.
+>
+> Bartlomiej,
+>
+> Thanks, and we worked well in the past togather, and there has never
+> been a communication problem with you.
+>
+> Lets hope so, and please change the maintainer file to your name.
+> As you were in mind in the past to replace me when I burned out.
 
-It would be nice to have this fixed, that is, to allow listing of
-potential mountpoints, and ignore stat() on them instead of trying to
-mount immediately.
+Thanks, but you are doing just fine for 2.4 and Martin for 2.5.
 
-BTW that's the only remaining feature that makes supermount more
-"user-friendly" than autofs for floppies/CD-ROMs.
+--
+Bartlomiej
 
-Marius Gedminas
---=20
-=2E.. there is always a well-known solution to every human problem -- neat,
-plausible, and wrong.
-		-- H. L. Mencken (1880-1956), "Prejudices"
-
---dWYAkE0V1FpFQHQ3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE8+plOkVdEXeem148RAuq8AJ4r/5vdNfpYHSaTxKN2dX+o0AO8UgCeMVi/
-iyXPeGWSFNHT0jqpnzzcPEI=
-=LQdR
------END PGP SIGNATURE-----
-
---dWYAkE0V1FpFQHQ3--

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130021AbRBAJpl>; Thu, 1 Feb 2001 04:45:41 -0500
+	id <S129979AbRBAJmV>; Thu, 1 Feb 2001 04:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130266AbRBAJpb>; Thu, 1 Feb 2001 04:45:31 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:61444 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130021AbRBAJpM>; Thu, 1 Feb 2001 04:45:12 -0500
-Date: Thu, 1 Feb 2001 03:44:41 -0600
-To: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, Andries.Brouwer@cwi.nl,
-        mlord@pobox.com, ole@linpro.no, linux-kernel@vger.kernel.org
-Subject: Re: Problems with Promise IDE controller under 2.4.1
-Message-ID: <20010201034441.A27725@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.10.10101310936280.14252-100000@master.linux-ide.org> <m3u26ffrej.fsf@localhost.localdomain>
+	id <S130168AbRBAJmL>; Thu, 1 Feb 2001 04:42:11 -0500
+Received: from foozle.turbogeek.org ([216.233.172.106]:7685 "EHLO
+	foozle.turbogeek.org") by vger.kernel.org with ESMTP
+	id <S129979AbRBAJmA>; Thu, 1 Feb 2001 04:42:00 -0500
+Date: Thu, 1 Feb 2001 03:42:17 -0600
+From: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+Message-ID: <20010201034217.A550@foozle.turbogeek.org>
+In-Reply-To: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <m3u26ffrej.fsf@localhost.localdomain>; from rupa-list+linux-kernel@rupa.com on Wed, Jan 31, 2001 at 11:33:24AM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com>; from alan@chandlerfamily.org.uk on Thu, Feb 01, 2001 at 12:19:56AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 01 Feb 2001 00:19:56 +0000, Alan Chandler wrote:
+> The thing that struck me most was the spelling of disc with a 'c'.  As
+> an Englishman this is the correct spelling for me most of the time,
+> but I have come to accept "as a technical term" disk (as in American)
+> is the right name for these devices.
 
-[Rupa Schomaker]
-> In my case, I have two identical Maxtor drives, but they reported
-> different geometry.
-[...]
-> I'm doing RAID1 and it is really nice to have the same geometry so
-> that the partition info is the same between the two drives.  Makes
-> life easier.
+Disk is spelled 'disk' except for Compact Disc and Digital Versatile
+Disc. If it wasn't 3:30 in the morning, a patch would be attached.
 
-If that's what you needed, you could have used 'dd' to copy the
-partition table from one drive to the other.  Easier than going in and
-re-cabling just to fool your BIOS.
-
-Peter
+-- 
+Jeremy M. Dolan <jmd@turbogeek.org>
+Gates' Law: Every 18 months, the speed of software halves.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269433AbRGaT0m>; Tue, 31 Jul 2001 15:26:42 -0400
+	id <S269435AbRGaT2m>; Tue, 31 Jul 2001 15:28:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269435AbRGaT0e>; Tue, 31 Jul 2001 15:26:34 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:1555 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269433AbRGaT0P>;
-	Tue, 31 Jul 2001 15:26:15 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107311925.XAA11038@ms2.inr.ac.ru>
-Subject: Re: missing icmp errors for udp packets
-To: cw@f00f.org (Chris Wedgwood)
-Date: Tue, 31 Jul 2001 23:25:50 +0400 (MSK DST)
-Cc: therapy@endorphin.org, pekkas@netcore.fi, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <20010801072347.C8228@weta.f00f.org> from "Chris Wedgwood" at Aug 1, 1 07:23:47 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S269434AbRGaT2e>; Tue, 31 Jul 2001 15:28:34 -0400
+Received: from OL105-132.fibertel.com.ar ([24.232.132.105]:36370 "EHLO
+	burns.luca.2y.net") by vger.kernel.org with ESMTP
+	id <S269436AbRGaT2R>; Tue, 31 Jul 2001 15:28:17 -0400
+Message-Id: <200107312035.QAA26833@burns.luca.2y.net>
+Date: Tue, 31 Jul 2001 16:28:11 -0300 (ART)
+From: Leandro Lucarella <luca@lucarella.com.ar>
+Subject: [patch] Leadtek Winview 601TV bad audios flags fix
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1804289383-996607692=:29241"
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.4 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
+--8323328-1804289383-996607692=:29241
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
 
-> Why do we do this anyhow?
+Hi, I was using my Leadtek WinView 601TV card for a long time with some
+problems with audio... A few days ago I decided to take a look to the
+kernel's source (I never did it before, I was so afraid ;) and I founded
+and fixed the problem. It was a bad flag of the audios structure.
+Here's the patch. It's for drivers/media/video/bttv-cards.c
 
-I have no idea. This is too old facility to be remembered.
+--8323328-1804289383-996607692=:29241
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="bttv-cards.c-patch"
+Content-Disposition: INLINE; FILENAME="bttv-cards.c-patch"
 
-Anyway, it is clear that echos are to be limited differently of errors.
+--- bttv-cards.c-old	Tue Jul 31 16:19:00 2001
++++ bttv-cards.c-fixed	Tue Jul 31 16:18:38 2001
+@@ -1394,7 +1394,8 @@
+ 	int bits_out, loops, vol, data;
+ 
+ 	if (!set) {
+-		v->mode |= VIDEO_AUDIO_VOLUME;
++		/* Fixed by Leandro Lucarella <luca@linuxmendoza.org.ar (07/31/01) */
++		v->flags |= VIDEO_AUDIO_VOLUME;
+ 		return;
+ 	}
+ 	
 
-Alexey
+--8323328-1804289383-996607692=:29241
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+
+
+--
+LUCA - Leandro Lucarella
+------------------------
+luca@lucarella.com.ar
+http://www.luca.2y.net
+LICQ UIN: 2847576
+------------------------
+Usando Debian GNU/Linux
+
+--8323328-1804289383-996607692=:29241--

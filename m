@@ -1,54 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbTESXln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 19:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTESXln
+	id S262165AbTESXqP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 19:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbTESXqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 19:41:43 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:12711 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261906AbTESXlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 19:41:42 -0400
-Date: Mon, 19 May 2003 19:54:41 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200305192354.h4JNsfQ09659@devserv.devel.redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: recursive spinlocks. Shoot.
-In-Reply-To: <mailman.1053352200.24653.linux-kernel2news@redhat.com>
-References: <200305191337.h4JDbf311387@oboe.it.uc3m.es> <mailman.1053352200.24653.linux-kernel2news@redhat.com>
+	Mon, 19 May 2003 19:46:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42593 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262165AbTESXqO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 19:46:14 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <20030519165623.GA983@mars.ravnborg.org>
+	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
+	<babhik$sbd$1@cesium.transmeta.com>
+	<m1d6ie37i8.fsf@frodo.biederman.org> <3EC95B58.7080807@zytor.com>
+	<m18yt235cf.fsf@frodo.biederman.org> <3EC9660D.2000203@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 May 2003 17:55:06 -0600
+In-Reply-To: <3EC9660D.2000203@zytor.com>
+Message-ID: <m14r3q331h.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Let's quote the example from rubini & corbet of the sbull block device
->> driver. The request function ends like so:
+"H. Peter Anvin" <hpa@zytor.com> writes:
+
+> Yes.  And guess what?  Bugs happen.  Sometimes you can't fix them either
+> because the "new" usage has gotten established.  However, that's not the
+> point.
 > 
-> defective locking in a driver is no excuse to pamper over it with
-> recusrive shite.
+> Your message assumes that the ABI remains fixed.  This is totally and
+> utterly and undeniably WRONG. 
 
-Arjan is a little too harsh here, but on the principle I happen
-to agree, because I worked with systems which allow recursive locks.
-They very often cover up for programmer's lack of basic understanding.
-Worse, sometimes even experienced programmers can do poorly.
-I ran into the latter cathegory of code when fixing so-called
-"presto" in Solaris (now replaced by Encore-originated code).
+It is correct by definition, the existing part of an ABI may not change.
 
-Normal spinlocks are not without problems, in particular people
-tend to write:
+> There are rules for how it may evolve,
+> but it very much does evolve.  No amount of handwaving or putting
+> underscores in weird places will change that.
 
-   void urb_rm_priv_locked(struct urb *) {
-     ......
-   }
-   void urb_rm_priv(struct urb *u) {
-     spin_lock_irqsave();
-     urb_rm_prin_locked(u);
-     spin_unlock_irqrestore();
-   }
+Sure you can add new functionality in a defined way.  You can add to
+the ABI.  You may not modify an existing definition.  But that has
+no implications for existing working code.
 
-Which eats a stack frame. We make this tradeoff on purpose,
-as a lesser evil.
+> > But there is no reason not to write documentation today about what the
+> > kernel interfaces are and convert glibc and the kernel later when
+> > it is convenient to their development cycles.  
+> > 
+> > What I do not is see the necessity of using automation to follow the
+> > documentation.
+> > 
+> 
+> Otherwise you have three places to manually make your changes (usually
+> more) -- the documentation, the kernel, and glibc... and really you also
+> have klibc, uclibc, dietlibc, and God knows what else.
 
-BTW, I do not see Linus and his leutenants rebuking the onslaught
-of recursive ingenuity in this thread. Ignoring the hogwash,
-or waiting and watching?
+But since the older interface still remains you don't have to change
+klibc, uclibc, dietlibc, and whatever else does not care.  Making
+it easy to change an existing ABI is simply wrong.
 
--- Pete
+If you were to increment the syscall numbers by one no amount of automation
+in the world would make that a kernel that would be usable on a production
+box.  The only way it could even work is if you were to declare that
+kernel uses a new ABI.
+
+> Automation is the way to maintain these together and in concert, to
+> avoid your "B_ U_ G_ S_."  This isn't just a Good Thing, this is the
+> only sane possibility.
+
+If things must be maintained in concert it is a bug.  
+
+With a fixed ABI people take advantage of new features as they
+care for them.  And in general to use new features requires new code.
+
+If people are adding and changing ioctls/sysctls/prctls left and right,
+and that is what is causing the maintenance problem, then that is the
+problem.  And that is where the problem needs to be reigned in at.
+
+> Does that mean C source code is the only possible format?  It most
+> certainly *doesn't* -- in fact one could argue it's not even a very good
+> format -- as long as C source code is one of the possible productions.
+
+Agreed.
+
+Calling it documentation simply makes it clear what the headers are,
+and suggest that the machine readable for does not need to be C source
+code.
+
+Eric

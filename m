@@ -1,34 +1,167 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132031AbRASSY6>; Fri, 19 Jan 2001 13:24:58 -0500
+	id <S130687AbRASSaT>; Fri, 19 Jan 2001 13:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135473AbRASSYs>; Fri, 19 Jan 2001 13:24:48 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:53512 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S132031AbRASSYj>; Fri, 19 Jan 2001 13:24:39 -0500
-Message-ID: <3A68B126.7C5B6262@mail.infotel.ru>
-Date: Fri, 19 Jan 2001 21:27:02 +0000
-From: Edward <edward@mail.infotel.ru>
-Reply-To: edward@namesys.com
-Organization: Namesys
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S130541AbRASSaK>; Fri, 19 Jan 2001 13:30:10 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:33706 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S129765AbRASS36>;
+	Fri, 19 Jan 2001 13:29:58 -0500
+From: mkloppstech@freenet.de
+Message-Id: <200101191718.SAA02410@john.epistle>
+Subject: matroxfb
+To: linux-kernel@vger.kernel.org
+Date: Fri, 19 Jan 2001 18:18:38 +0100 (CET)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-CC: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Don't mix reiserfs and RAID5 in linux-2.4.1-pre8, severe corruption
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a Matrox G450 and Kernel 2.4.0.
+Vesafb works fine, however not matroxfb.
+First, matroxfb.o does not exist.
+Any other module in the matrox directory doesn't do anything.
+strace fbset -s returns -ENOSYS for /dev/fb0, which exists.
+Loading matroxfb_base.o crashes the computer immediately.
+What's wrong?
 
-Reiserfs in linux-2.4.1-pre8 does not properly with the RAID5 code that
-is in that kernel.  It is easy to get corrupted filesystem on device in
-less than 1 minute. Please, do not use it (reiserfs) on RAID5 devices.
-We are trying to figure out what is wrong.
+Please cc to mkloppstech@freenet.de.
+Mirko Kloppstech
 
-Edward
+My .config:
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_NET_SCHED=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_BLK_DEV_AMD7409=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_PPDEV=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_RTC=m
+CONFIG_AGP=m
+CONFIG_AGP_AMD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_RAMFS=m
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_ISO8859_1=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=m
+CONFIG_FBCON_CFB16=m
+CONFIG_FBCON_CFB24=m
+CONFIG_FBCON_CFB32=m
+CONFIG_FBCON_VGA_PLANES=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_OHCI=m
+CONFIG_USB_SCANNER=m
+CONFIG_MAGIC_SYSRQ=y
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

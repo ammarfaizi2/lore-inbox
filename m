@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266700AbUBQWay (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266691AbUBQW1s
+	id S266648AbUBQWq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 17:46:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266660AbUBQWq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:27:48 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:63754 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266576AbUBQW1O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:27:14 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: UTF-8 and case-insensitivity
-Date: Tue, 17 Feb 2004 23:27:08 +0100
-User-Agent: KMail/1.6.1
-Cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-References: <16433.38038.881005.468116@samba.org> <200402172208.25398.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402171314320.2154@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402171314320.2154@home.osdl.org>
-MIME-Version: 1.0
+	Tue, 17 Feb 2004 17:46:27 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:36307 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S266650AbUBQWqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 17:46:23 -0500
+Date: Tue, 17 Feb 2004 17:46:04 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Miklos Szeredi <mszeredi@inf.bme.hu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] allowing user mounts
+Message-ID: <20040217224604.GD6189@ti19.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Rik van Riel <riel@redhat.com>, Miklos Szeredi <mszeredi@inf.bme.hu>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <200402171000.i1HA00U29578@kempelen.iit.bme.hu> <Pine.LNX.4.44.0402171657070.25294-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402172327.08962.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <Pine.LNX.4.44.0402171657070.25294-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 February 2004 22.17, Linus Torvalds wrote:
-> The fact that _I_ think pathnames are just a nice stream of bytes sadly 
-> doesn't make Windows clients do the same. Some day when I'm King Of The 
-> World, and I can outlaw windows clients, we'll finally get rid of the 
-LPA = Linus' Patriot Act. 
-
-> braindamage, but until then I'm pragmatic enough to say "let's help out 
-> the poor samba people who have to deal with the crap day in and day out".
+On Tue, Feb 17, 2004 at 04:59:25PM -0500, Rik van Riel wrote:
+> You'll notice that /bin/mount already is a suid application,
+> so you could just add your functionality there, or write your
+> own suid mount application.
 > 
-> What's your problem with that?
+> As an added bonus, you'd be able to have a more flexible
+> configuration framework then what would ever be accepted
+> into the kernel, without needing to go through the effort
+> of getting anything merged into the kernel.
+ 
+True, but one  generally wants to avoid suid tools that are visible
+inside of CLONE_NS environment.  Ideally, one uses per-vfsmount
+ro,nodev,nosuid for mounts within such an environment.
 
-Nothing wrong with helping people. 
+How does mount(8) access its configuration information from within the
+namespace?  That requires that part of the private namespace be secured,
+which is a non-trivial limitation, if one wants to, e.g., grant the
+vserver administrator full privileges.
 
-Having to put up with the existence of Windows day in and out is the reason I'm still on
-an eight-bit encoding.  Sorry for not explaining the REAL problem, but only a partial
-problem. I need to support all kinds of clients on Windows with protocols that convey no
-character set info. With samba that's no problem. Having to put up with a Unix world running 
-ISO-8859-1 (or ISO-8859-15) is another. Ofcourse that means Linux machines also add
-to the disturbance by not storing things as unicode. The real obstable is file names, 
-everything else including content of files, I can handle (I think). Maybe I'll find a solution
-for the filenames too, but usually some hot discussions are needed for the brain to kick
-into the right gear. 
+Alternatively, one might run a mount server within the environment.
+That's certainly doable with existing infrastructure.
 
-I want to switch to UTF-8 to work better with the outside world, but as things are people will 
-start to take notice of what OS is running in the shadows when they see the filename problems, and 
-start demanding Windows, and ...  You see; I'm not mean; I don't want to do that to them (or myself),
+Regards,
 
--- robin
+	Bill Rugolsky
+

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129805AbRA2V5O>; Mon, 29 Jan 2001 16:57:14 -0500
+	id <S130509AbRA2V7e>; Mon, 29 Jan 2001 16:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130509AbRA2V5F>; Mon, 29 Jan 2001 16:57:05 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:16240
+	id <S129956AbRA2V7Y>; Mon, 29 Jan 2001 16:59:24 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:16752
 	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129805AbRA2V4r>; Mon, 29 Jan 2001 16:56:47 -0500
-Date: Mon, 29 Jan 2001 22:56:40 +0100
+	id <S129718AbRA2V7P>; Mon, 29 Jan 2001 16:59:15 -0500
+Date: Mon, 29 Jan 2001 22:59:08 +0100
 From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/scsi/dmx3191d.c: small cleanup patch (241p11)
-Message-ID: <20010129225640.L603@jaquet.dk>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] make drivers/scsi/seagate.c use ioremap instead of isa_{read,write} (241p11)
+Message-ID: <20010129225907.M603@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,63 +18,64 @@ User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Forgot l-k. Please cc dafastidio@libero.it on replies to this mail.)
-
------ Forwarded message from Rasmus Andersen <rasmus@jaquet.dk> -----
-
 Hi.
 
-The following patch makes drivers/scsi/dmx3191d.c call
-pci_enable_device before probing resources and replaces
-a check_region+request_region with request_region.
+(I have not been able to find a probable current maintainer for
+this code.)
+
+The following patch makes drivers/scsi/seagate.c use ioremap
+instead of isa_{read, write}.
 
 It applies against ac12 and 241p11.
 
-Comments?
+Please comment, esp. on the size of the remappings.
 
 
-
---- linux-ac12-clean/drivers/scsi/dmx3191d.c	Sun Nov 12 04:01:11 2000
-+++ linux-ac12/drivers/scsi/dmx3191d.c	Sat Jan 27 21:27:44 2001
-@@ -68,18 +68,16 @@
- 	while ((pdev = pci_find_device(PCI_VENDOR_ID_DOMEX,
- 			PCI_DEVICE_ID_DOMEX_DMX3191D, pdev))) {
+--- linux-ac12-clean/drivers/scsi/seagate.c	Sun Nov 12 04:01:11 2000
++++ linux-ac12/drivers/scsi/seagate.c	Sun Jan 28 21:52:39 2001
+@@ -256,10 +256,31 @@
+ MODULE_PARM(irq, "i");
  
--		unsigned long port = pci_resource_start (pdev, 0);
--
- 		if (pci_enable_device(pdev))
- 			continue;
- 
--		if (check_region(port, DMX3191D_REGION)) {
-+		unsigned long port = pci_resource_start (pdev, 0);
+ #define retcode(result) (((result) << 16) | (message << 8) | status)
+-#define STATUS ((u8) isa_readb(st0x_cr_sr))
+-#define DATA ((u8) isa_readb(st0x_dr))
+-#define WRITE_CONTROL(d) { isa_writeb((d), st0x_cr_sr); }
+-#define WRITE_DATA(d) { isa_writeb((d), st0x_dr); }
++#define STATUS ((u8) read_data(st0x_cr_sr))
++#define DATA ((u8) read_data(st0x_dr))
++#define WRITE_CONTROL(d) write_data(d, st0x_cr_sr)
++#define WRITE_DATA(d) write_data(d, st0x_dr)
 +
-+		if (!request_region(port, DMX3191D_REGION, DMX3191D_DRIVER_NAME)) {
- 			dmx3191d_printk("region 0x%lx-0x%lx already reserved\n",
- 				port, port + DMX3191D_REGION);
- 			continue;
- 		}
--
--		request_region(port, DMX3191D_REGION, DMX3191D_DRIVER_NAME);
++static inline u8 read_data(unsigned long offset) {
++	void *ptr = ioremap(offset, sizeof(u8));
++	u8 ret;
++	
++	if (!ptr)
++		return 1;
++	ret = readb(ptr);
++	iounmap(ptr);
++	return ret;
++}
++
++static inline int write_data(int data, unsigned long offset) {
++	void *ptr = ioremap(offset, sizeof(u8));
++	
++	if (!ptr)
++		return 1;
++	writeb(data, ptr);
++	iounmap(ptr);
++	return 0;
++}
  
- 		instance = scsi_register(tmpl, sizeof(struct NCR5380_hostdata));
- 		if(instance == NULL)
+ void st0x_setup (char *str, int *ints)
+ {
 
 -- 
 Regards,
         Rasmus(rasmus@jaquet.dk)
 
-"There are also enough rocks on Earth to kill the world's population several
-times over."
-	-- Lt. General Daniel Graham, DIA, explaining why it's necessary to
-	   have more than enough nukes
-
------ End forwarded message -----
-
--- 
-        Rasmus(rasmus@jaquet.dk)
-
-Even if you're on the right track, you'll get run over if you just sit there. 
-  -- Will Rogers
+I've never had major knee surgery on any other part of my body.
+-Winston Bennett, University of Kentucky basketball forward
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

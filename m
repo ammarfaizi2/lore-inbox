@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275723AbRI0Aqm>; Wed, 26 Sep 2001 20:46:42 -0400
+	id <S275724AbRI0AyM>; Wed, 26 Sep 2001 20:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275724AbRI0Aqd>; Wed, 26 Sep 2001 20:46:33 -0400
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:7847 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S275723AbRI0AqV>; Wed, 26 Sep 2001 20:46:21 -0400
-Date: Wed, 26 Sep 2001 17:45:25 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: Nicholas Berry <nikberry@med.umich.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-In-Reply-To: <sbb02fc8.094@mail-01.med.umich.edu>
-Message-ID: <Pine.LNX.4.33.0109261745070.31663-100000@sol.compendium-tech.com>
+	id <S275725AbRI0AyC>; Wed, 26 Sep 2001 20:54:02 -0400
+Received: from norma.kjist.ac.kr ([203.237.41.18]:10633 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S275724AbRI0Axv>; Wed, 26 Sep 2001 20:53:51 -0400
+Message-ID: <3BB27912.7090303@norma.kjist.ac.kr>
+Date: Thu, 27 Sep 2001 09:55:46 +0900
+From: Maintaniner on duty <hugh@norma.kjist.ac.kr>
+User-Agent: Mozilla/5.0 (X11; U; Linux alpha; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: linux-2.4.10aa1 not umounting the root file system during shut-down
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001, Nicholas Berry wrote:
+I don't know whether this bug is a problem of 2.4.10 or its aa1 or
+the "umount" program under SuSE-7.2 for Intel.
+But things changed between 2.4.10pre5 and 2.4.10aa1.
 
-> All Linux hackers should implement the following:
->
-> ln -sf /dev/null /osama/bin/laden
+During the boot, the root file system is always picked up
+by "fsck" as unmounted cleanly.
 
-A funnier one is:
+Thank you.
 
-rm -rf /bin/laden
+Regards,
+
+Hugh
 
 

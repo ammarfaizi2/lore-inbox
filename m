@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317539AbSGXUPB>; Wed, 24 Jul 2002 16:15:01 -0400
+	id <S317512AbSGXUMQ>; Wed, 24 Jul 2002 16:12:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317560AbSGXUOr>; Wed, 24 Jul 2002 16:14:47 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:13356 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S317539AbSGXUMp>; Wed, 24 Jul 2002 16:12:45 -0400
-Date: Wed, 24 Jul 2002 16:15:50 -0400
-From: Kareem Dana <kareemy@earthlink.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: arodland@noln.com, linux-kernel@vger.kernel.org
-Subject: Re: loop.o device busy after umount
-Message-Id: <20020724161550.6a852f89.kareemy@earthlink.net>
-In-Reply-To: <20020724194130.GB13180@win.tue.nl>
-References: <20020724145919.01c79fce.kareemy@earthlink.net>
-	<20020724151904.3d719dea.arodland@noln.com>
-	<20020724153319.5ebd589b.kareemy@earthlink.net>
-	<20020724194130.GB13180@win.tue.nl>
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S317521AbSGXUMQ>; Wed, 24 Jul 2002 16:12:16 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46725 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317512AbSGXUKu>; Wed, 24 Jul 2002 16:10:50 -0400
+Date: Wed, 24 Jul 2002 16:14:02 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200207242014.g6OKE2K21460@devserv.devel.redhat.com>
+To: "Christoph Baumann" <cb@sorcus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Resolving physical addresses (change in 2.4.x?)
+In-Reply-To: <mailman.1027491420.32334.linux-kernel2news@redhat.com>
+References: <mailman.1027491420.32334.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002 21:41:30 +0200
-Andries Brouwer <aebr@win.tue.nl> wrote:
-
-> On Wed, Jul 24, 2002 at 03:33:19PM -0400, Kareem Dana wrote:
+> Even recognizing these as unmapped and resolving anew, produced a frozen
+> machine once the DMA used these addresses. Was there a change in 2.4.x so
+> that my resolving routine now works incorrect?
 > 
-> > losetup worked like a charm. Thanks. Any reason umount would not do that automatically though?
+> /*resolve virt. addresses to phys.*/
+> unsigned long ch_get_physpage(unsigned long virtaddr)
+> {
+>   /*Stuff for browsing through the memory page tables*/
+>   pgd_t *pgd_t_dir;
+>   pmd_t *pmd_t_dir;
+>   pte_t *pte_t_dir;
 > 
-> Read mount(8), the places where losetup is mentioned.
+>   /*Get physical address*/
+>   pgd_t_dir=pgd_offset(current->mm,virtaddr);
+>   pmd_t_dir=pmd_offset(pgd_t_dir,virtaddr);
+>   pte_t_dir=pte_offset(pmd_t_dir,virtaddr);
+>   return virt_to_bus((void *)pte_page(*pte_t_dir));
+> }
 
-I compiled my system from scratch following the guide of the LFS. LFS recommends that you create a symbolic link from /proc/mounts to /etc/mtab. After reading the mount man page, that seems to be my problem. mtab shouldnt be a symlink. Thanks for the help. I'm going to e-mail the LFS mailing list about their mtab symlink now
+Are you crazy? This routing could NEVER work; pge_page returns
+a pointer to a struct page. I always was suspicious of this
+technique; even if you find out how to use page_address,
+what do you do about the bus address? On some architectures,
+the bus address is only known to the part that manages a
+north bridge; it may even be stored in hardware registers.
+No matter how popular this trick is, it is highly illegal.
+
+To work properly, your driver has to remember virtual and bus
+addresses that were mapped with pci_alloc_sg. They are returned to
+you for this very purpose. In most cases you have to to track I/Os 
+anyway, so just add a field to whatever management structure you use.
+
+-- Pete

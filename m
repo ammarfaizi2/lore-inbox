@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269568AbUJSScK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269668AbUJSScJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269568AbUJSScK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 14:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269654AbUJSS1P
+	id S269668AbUJSScJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 14:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269662AbUJSS1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 14:27:15 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:53736 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S270088AbUJSRzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:55:05 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Richard Smith <rsmith@bitworks.com>
-Date: Tue, 19 Oct 2004 10:54:50 -0700
+	Tue, 19 Oct 2004 14:27:42 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:1711 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S269584AbUJSSQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 14:16:17 -0400
+Message-ID: <417550FB.8020404@drdos.com>
+Date: Tue, 19 Oct 2004 11:38:03 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Message-ID: <4174F27A.8234.1645ECBF@localhost>
-In-reply-to: <4174704B.9050601@bitworks.com>
-References: <41740384.5783.12A07B14@localhost>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Smith <rsmith@bitworks.com> wrote:
+Linus Torvalds wrote:
 
-> Kendall Bennett wrote:
-> 
-> > Actually there is nothing wrong with the x86 BIOS from the perspective of 
-> > functionality and useability (or bloat for that matter). It contains all 
-> > the functionality we need and armed with something like the x86 emulator 
-> > we can use it for what we need on any platform.
-> 
-> > IMHO that is the best solution to the problem because it will be using 
-> > code that has been heavily tested by the vendor. The one thing x86 Video 
-> > BIOS'es can do reliably is POST the graphics card ;-)
-> 
-> I'm just going to take your word on this since you have messed
-> with far more video bioses than I.  I've just got a few too many
-> scars over the years from trying to make the whole BIOS sub-system
-> robust enough for embedded standards. 
+>Ok,
+> despite some naming confusion (expanation: I'm a retard), I did end up
+>doing the 2.6.9 release today. And it wasn't the same as the "-final" test
+>release (see explanation above).
+>
+>Excuses aside, not a lot of changes since -rc4 (which was the last
+>announced test-kernel), mainly some UML updates that don't affect anybody
+>else. And a number of one-liners or compiler fixes. Full list appended.
+>
+>		Linus
+>  
+>
+The memory sickness with disappearing buffers, and the BIO callback 
+problems with the
+SCSI layer previously reported appear to be corrected. This release is 
+very solid and
+withstands 400 MB/S I/O to disk from 3GB/1GB split kernel/user memory 
+configurations
+and does not have the disappearing memory problems I was experiencing 
+with massive
+BIO/skb I/O loading. The memory pressure being exerted is constant and 
+the kernel
+holds steady and stable enough for us to use and ship in our products 
+based on our
+testing of the 2.6.9 release over two days.
 
-Most BIOS'es are relatively good, but there are some terrible ones. We 
-have one a lot of work over the years making our VESA VBE drivers work 
-well with all the BIOS'es out there, working around the issues in the 
-broken ones. I plan to use that same module for the kernel VESA driver 
-when I get around to re-writing it.
+On a side note, the GPL buyout previously offered has been modified. We 
+will be contacting
+individual contributors and negotiating with each copyright holder for 
+the code we wish to
+convert on a case by case basis. The remaining portions of code will 
+remain GPL
+The 50K per copy offer still stands for the whole thing if you guys can 
+ever figure out
+how to set something like this up.
+:-)
 
-> > lot of code bloat. But if you do that, then you would need this code in 
-> > the kernel since now it would be the boot loader as well ;-)
-> 
-> Exactly. Which is why I like your project and I think its a good
-> thing. The only reason I have to carry around the legacy BIOS
-> baggage is for video. 
+Although we do not work with them and are in fact on the the other side 
+of Unixware from a
+competing viewpoint, SCO has contacted us and identifed with precise 
+detail and factual
+documentation the code and intellectual property in Linux they claim was 
+taken from Unix.
+We have reviewed their claims and they appear to create enough 
+uncertianty to warrant
+removal of the infringing portions.
 
-Yep.
+We have identified and removed the infringing portions of Linux for our 
+products that
+SCO claims was stolen from Unix. They are:
 
-> How big is your in-kernel implementation?
+JFS, XFS, All SMP support in Linux, and RCU.
 
-Right now the compiled x86 code is about 100K in size. PowerPC code 
-appears to be about twice that size and x86-64 is about 130K I think. I 
-have no idea how big an Open Firmware interpreter would be for comparison 
-purposes because I have never seen an Open Source implementation of one.
+They make claims of other portions of Linux which were taken, however, 
+these other claims
+do not appear to be supported with factual evidence.
 
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
+Jeff
 

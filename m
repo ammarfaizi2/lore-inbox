@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265274AbSJXSXj>; Thu, 24 Oct 2002 14:23:39 -0400
+	id <S265592AbSJXSdg>; Thu, 24 Oct 2002 14:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265279AbSJXSXj>; Thu, 24 Oct 2002 14:23:39 -0400
-Received: from bozo.vmware.com ([65.113.40.131]:40197 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id <S265274AbSJXSXi>; Thu, 24 Oct 2002 14:23:38 -0400
-Date: Thu, 24 Oct 2002 11:30:24 -0700
-From: chrisl@vmware.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       chrisl@gnuchina.org
-Subject: Re: writepage return value check in vmscan.c
-Message-ID: <20021024183024.GC1398@vmware.com>
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024113106.GE3354@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021024113106.GE3354@dualathlon.random>
-User-Agent: Mutt/1.4i
+	id <S265596AbSJXSdg>; Thu, 24 Oct 2002 14:33:36 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:2296 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S265592AbSJXSdf>;
+	Thu, 24 Oct 2002 14:33:35 -0400
+Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF48@orsmsx102.jf.intel.com>
+From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
+To: "'KOCHI, Takayoshi'" <t-kouchi@mvf.biglobe.ne.jp>, greg@kroah.com
+Cc: "Luck, Tony" <tony.luck@intel.com>, pcihpd-discuss@lists.sourceforge.net,
+       linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
+Subject: RE: PCI Hotplug Drivers for 2.5
+Date: Thu, 24 Oct 2002 11:39:35 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 01:31:06PM +0200, Andrea Arcangeli wrote:
-> On Thu, Oct 24, 2002 at 01:36:43AM -0700, Andrew Morton wrote:
-> 
-> you need to preallocate the file, then to mmap it. If you do, the kernel
-> won't throw the data away. So the fix for vmware is to preallocate the
-> file and later to mmap it. This way you will be notified by -ENOSPC if
-> you run out of disk/shmfs space.  Other than this I'm not so against the
-> MAP_SHARED like Andrew, the reason the API is not so clean is that we
-> cannot have an API at all inside a page fault to notify userspace that
-> the ram modifications cannot be written to disk. the page fault must be
-> transparent, there's no retvalue, so if you run out of disk space during
-> the page fault, the page fault cannot easily tell userspace. As said the
-> fix is very easy and consists in preallocating the space on disk (I
-> understand that on shmfs it may not be extremely desiderable since you
-> may prefer to defer allocation lazily to when you will need the memory
-> but assuming your allocations are worthwhile it won't make difference
-> after a few minutes/hours of usage and this way you will trap the -ENOSPC).
 
-But preallocate the vmware ram file on disk is too expensive. It will slow
-down the guest OS boot up a lot. Many user measure how fast vmware is by
-counting how many seconds it takes to boot a windows guest for example.
-For those virtual machine which have 2G or ram, how long does it take
-to write a file with 2G of data?
+> > We need this driver as it's the only solution for DIG64 
+> compliant IPF
+> > platforms.
+> 
+> No, not for all DIG64 compliant IPF platforms.  NEC TX7 is also
+> a DIG64 compliant IPF platform but doesn't need your driver.
+
+Well, I forgot acpiphp driver was removed in this driver patch :)
+acpiphp is also for DIG64/ACPI and will do for some DIG64/ACPI machines
+while intcphp is feature full driver for IPF platform PHP.
 
 > 
-> As for the task being able to reference a deleted file in memory, that's
-> true for many other scenarios (the user could leak space by keeping the
-> fd open and unlinking the file and at the same time to alloc lots of ram
-> with malloc, the result would be similar), and that's why root will have
-> to kill these malicious tasks in order to reclaim ram and disk space.
+> DIG64(2.1) only states that:
+> 
+>  Firmware Support for PCI Hot-Plug
+>                                : Recommended if PCI Hot-Plug is
+>                                  implemented
+>  ACPI Support for PCI Hot-Plug : Recommended for platforms that
+>                                  implement PCI Hot-Plug without SHPC
+>  Using PCI Hot-Plug Specifications
+>                                : Recommended if PCI Hot-Plug is
+>                                  implemented
 
-vmware is definitely one of those malicious task ;-)
+ACPI IS mandatory for DIG64 PHP resource management by SHPC, while ACPI
+based slot operation is not required.
+The above sentence only could be misleading.
 
-Chris
+> 
+> The spec also states that any PCI Hot-Plug controller must
+> follow one of PCI Hot-Plug spec 1.1, SHPC 1.0 or CompactPCI Hot Swap
+> spec.  It also strongly recommends SHPC 1.0, which is not covered
+> by J.I.'s driver yet.
 
+intcphp is desined with SHPC on plan in terms of ACPI resource management,
+as SHPC spec says
+"DIG64 compliant platforms must use ACPI to describe resource allocation."
+But it is not completely ready for SHPC yet. It's a matter of deployment
+schedules of dependencies such as HPRT, ACPI methods OSHP, HBRB, etc which
+will need to be enabled in Linux kernel ACPI driver/platform firmware.
 
+> 
+> But anyway Itanium2 platform using intel's hot-plug controller
+> will be shipping soon and J.I.'s driver has much better functionality
+> than acpiphp.  This would be a decent reason for having the
+> driver in the mainline.
+> 
+> And this also motivates us to clean up the duplicated code if
+> it were in mainline:)
+
+\o/ second to this :)
+
+> 
+> Thanks,
+> -- 
+> KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
+> 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281194AbRKPCcu>; Thu, 15 Nov 2001 21:32:50 -0500
+	id <S281196AbRKPC44>; Thu, 15 Nov 2001 21:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281196AbRKPCcl>; Thu, 15 Nov 2001 21:32:41 -0500
-Received: from a23096.upc-a.chello.nl ([62.163.23.96]:22150 "EHLO ds9.galaxy")
-	by vger.kernel.org with ESMTP id <S281194AbRKPCcb>;
-	Thu, 15 Nov 2001 21:32:31 -0500
-Date: Fri, 16 Nov 2001 03:32:24 +0100 (CET)
-From: Jos Nouwen <josn@josn.myip.org>
-To: Greg KH <greg@kroah.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: rootfs on USB storage device
-In-Reply-To: <20011114210745.A8285@kroah.com>
-Message-ID: <Pine.LNX.4.31.0111160320110.29875-100000@ds9.galaxy>
+	id <S281197AbRKPC4q>; Thu, 15 Nov 2001 21:56:46 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:14247 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S281196AbRKPC4e>; Thu, 15 Nov 2001 21:56:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: Tuning Linux for high-speed disk subsystems
+Date: Fri, 16 Nov 2001 03:56:19 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011116025639Z281196-17408+14879@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Nov 2001, Greg KH wrote:
+The heroinewarrior.com (Broadcast 2000) guys came to the following with the
+Tyan Thunder K7 (2 x 1.0 GHz Athlon MP) dual channel U160 (Adaptec) and
+RAID 0. http://heroinewarrior.com/athlon.php3
 
-> On Thu, Nov 15, 2001 at 04:22:33AM +0100, Jos Nouwen wrote:
-> >
-> > Does anybody have a clue as to what the USB bus has to do with
-> > /dev/console?
->
-> It's a timing issue, and has nothing to do with /dev/console.  If you
-> sit and spin before you try to mount the root fs, the USB subsystem will
-> have enough time to find the drive.  There's a few patches that do this
-> in the lkml archives.
->
-> thanks,
->
-> greg k-h
+[-]
+ As for performance our experiences are biased because this system is almost 
+exclusively used for video software development not games like most. It needs 
+a reliable operating system like Linux and very fast media storage drives.
 
-It does not seem so. I included several seconds of mdelay() (and lots of
-printk()'s) while I was debugging, and that didnt change a thing. I added
-a.o. 4 seconds of mdelay() right before the open(), and 2 seconds right
-after the open() and the two dup()'s. The storage device was detected at
-the beginning of that last delay. Me thinks this is related to the open().
-I added a total of 10 seconds of mdelay() between do_basic_setup() (where
-the usb is initialized) and the open(). That is much more time than it
-takes to init the USB storage device.
+ The inverse telecine, a grueling memory excercise which takes 3 hours on a 
+dual PIII 933 and 2 hours on a dual Alpha, takes about 2 hours on the dual 
+Athlon. 
 
+Our 100 Gig SCSI raid, consisting of 6 15,000 rpm drives on the motherboard's 
+two SCSI 160 channels gives a full 110MB/sec read and write with RAID 0. With 
+RAID chunks set to 1MB the write accesses go to 160MB/sec and read accesses 
+go to 90MB/sec sustained. This system would make a good motion capture tool. 
+Previous Intel attempts at onboard disk I/O would give 50MB/sec.
+[-]
+
+-Dieter

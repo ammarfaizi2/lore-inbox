@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264810AbTFYRfn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 13:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264813AbTFYRfn
+	id S264768AbTFYRhg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 13:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264844AbTFYRhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 13:35:43 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:19206 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264810AbTFYRfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 13:35:34 -0400
-Date: Wed, 25 Jun 2003 13:48:16 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Lou Langholtz <ldl@aros.net>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC][PATCH] nbd driver for 2.5+: fix locking issues with ioctl
- UI
-In-Reply-To: <3EF94672.3030201@aros.net>
-Message-ID: <Pine.LNX.4.10.10306251251410.11076-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Jun 2003 13:37:35 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:53255 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264768AbTFYRg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 13:36:27 -0400
+Date: Wed, 25 Jun 2003 18:50:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: mocm@mocm.de
+Cc: Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: DVB Include files
+Message-ID: <20030625185036.C29537@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
+	Michael Hunold <hunold@convergence.de>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <20030625160830.A19958@infradead.org> <20030625154223.GB1333@mars.ravnborg.org> <3EF9CB25.4050105@convergence.de> <16121.53934.527440.109966@sheridan.metzler> <20030625175513.A28776@infradead.org> <16121.55366.94360.338786@sheridan.metzler> <20030625181606.A29104@infradead.org> <16121.55873.675690.542574@sheridan.metzler> <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16121.56382.444838.485646@sheridan.metzler>; from mocm@metzlerbros.de on Wed, Jun 25, 2003 at 07:30:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lou,
+On Wed, Jun 25, 2003 at 07:30:38PM +0200, Marcus Metzler wrote:
+> Well, then you are wrong. You need those headers for user space
+> applications and also for the kernel. The define the communication
+> structures. If you put them into /usr/include you always risk having
+> different versions of those structures. 
 
-a few comments on the patch...
-
-
-On Wed, 25 Jun 2003, Lou Langholtz wrote:
-> Please review and comment...
->
-> This is the sixth patch to the NBD driver and it fixes a variety of 
-> outstanding locking issues with the ioctl user interface. This patch 
-
-This patch introduces a locking hierarchy between the lo->tx_lock and
-lo->queue_lock. The existing driver does not have this limitation.
-I would feel a lot better about this patch if you were to recode it
-to avoid this.
-
-Also, I noticed that you've removed the forcible shutdown of the
-socket at the end of NBD_DO_IT. Was there a particular reason for
-that?
-
-
-> ... the new NBD_DO_IT style interface 
-> could be introduced instead as another ioctl completely and these 3 
-> ioctls could be maintained for backward compatibility for a while 
-> longer. 
-
-It would be really nice if the driver remained (as much as
-possible) compatible with the 2.4 version...unless you have
-a really good reason to break things... :)
-
---
-Paul
+If the structures change incompatibly you're fucked anyway.  Better
+have a copy in /usr/include that you can upgrade without updating libc
+also, that way you can at least get the new structures / defines in time.
 

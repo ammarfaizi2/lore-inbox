@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261854AbTANJJi>; Tue, 14 Jan 2003 04:09:38 -0500
+	id <S261868AbTANJNQ>; Tue, 14 Jan 2003 04:13:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbTANJJi>; Tue, 14 Jan 2003 04:09:38 -0500
-Received: from AMarseille-201-1-3-195.abo.wanadoo.fr ([193.253.250.195]:25969
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S261854AbTANJJh>; Tue, 14 Jan 2003 04:09:37 -0500
-Subject: Re: Linux 2.4.21-pre3-ac4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ross Biro <rossb@google.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E23696A.9040006@google.com>
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-	 <1042399796.525.215.camel@zion.wanadoo.fr>
-	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
-	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>
-	 <1042484609.30837.31.camel@zion.wanadoo.fr>  <3E23114E.8070400@google.com>
-	 <1042491409.586.4.camel@zion.wanadoo.fr> <3E233160.3040901@google.com>
-	 <3E23696A.9040006@google.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042535903.586.44.camel@zion.wanadoo.fr>
+	id <S261872AbTANJNQ>; Tue, 14 Jan 2003 04:13:16 -0500
+Received: from m3.net81-67-40.noos.fr ([81.67.40.3]:51091 "EHLO
+	jibboom.dyns.cx") by vger.kernel.org with ESMTP id <S261868AbTANJNP>;
+	Tue, 14 Jan 2003 04:13:15 -0500
+Date: Tue, 14 Jan 2003 10:22:07 +0100
+From: Hugo Haas <hugo@larve.net>
+To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+Cc: Soeren Sonnenburg <kernel@nn7.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug report : i810_audio, compaq evo 410c, 2.4.20
+Message-ID: <20030114092207.GB24242@home.larve.net>
+Mail-Followup-To: Hugo Haas <hugo@larve.net>,
+	Nicolas Turro <Nicolas.Turro@sophia.inria.fr>,
+	Soeren Sonnenburg <kernel@nn7.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1042497413.1223.21.camel@sun> <200301141002.56498.Nicolas.Turro@sophia.inria.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 14 Jan 2003 10:18:23 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301141002.56498.Nicolas.Turro@sophia.inria.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-14 at 02:35, Ross Biro wrote:
-> Ross Biro wrote:
+* Nicolas Turro <Nicolas.Turro@sophia.inria.fr> [2003-01-14 10:02+0100]
+> > I saw that someone said he got it working, see:
+> >  http://larve.net/people/hugo/2002/12/evo410
 > 
-> >>>
-> >>> This is technically a spec violation, but it's probably safe.  I'm 
-> >>> going to send an email to a couple of the drive manufacturers and 
-> >>> see what they think.
-> >>>   
-> >>
-> I just heard back from one ide controller chip vendor and they think we 
-> should disable PCI write posting.  From the tone of the response, I 
-> believe that they may not have thought of this before and it may be a 
-> problem in their non-opensource drivers as well.
+> 
+> I already contacted Hugo, in fact, he didn't manage to make the sound working 
+> either.
+> 
+> > But I could not find out how.
 
-Argh... Well, I don't think that's a solution unfortunately. The
-"posting" can be done at various level down the path to the device and
-we don't always know how to (or want to) tweak it to disable any kind of
-posting. It can be done on P2P bridges, it can be done in the host
-bridge (for which we may have no specs in some cases) and it can be done
-at the CPU level (not couting the IDE chipset itself that might want to
-play tricks).
+I got reports from two people who said that they got it working.
 
-So what can we do at this point ? I beleive the only sane solution is to
-provide that hwif->IOSYNC. Normal PCI-DMA controllers setting it to
-dma_base by default, I know what to do for ide-pmac, others will have to
-find some way to get it right for their platform (legacy x86 IO ports
-might not be a problem as Alan pointed those IOs are fully synchronous).
-Maybe we shall initialize that to some default provided by asm/ide.h (I
-don't like that much though).
+One of them (I haven't updated my page yet) said that the Evo N410c
+was "using a variant of the AD1886 (the AD1886A)" and that 2.4.19's
+ac97_codec.c could be modified to add to ac97_codec_ids:
 
-Ben.
+  { 0x41445363 ,"Analog Devices AD1886A", &null_opts },
 
+and then it works with:
 
+  modprobe i810_audio clocking=41194
+
+Nicolas tried this, as he reported, with 2.4.20 and said that it was
+still crashing. I haven't played with this myself yet.
+
+Regards,
+
+Hugo
+
+-- 
+Hugo Haas - http://larve.net/people/hugo/

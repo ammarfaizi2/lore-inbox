@@ -1,31 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310740AbSCMQWw>; Wed, 13 Mar 2002 11:22:52 -0500
+	id <S310750AbSCMQXx>; Wed, 13 Mar 2002 11:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310742AbSCMQWd>; Wed, 13 Mar 2002 11:22:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15635 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310740AbSCMQWX>; Wed, 13 Mar 2002 11:22:23 -0500
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Wed, 13 Mar 2002 16:37:54 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20020313184028.7fdb8541.rusty@rustcorp.com.au> from "Rusty Russell" at Mar 13, 2002 06:40:28 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310745AbSCMQXp>; Wed, 13 Mar 2002 11:23:45 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:5239 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S310743AbSCMQXi>; Wed, 13 Mar 2002 11:23:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: LISA GmbH
+To: John Schmerge <schmerge@speakeasy.net>
+Subject: Re: Oops/Crash with 2.4.17 and 2.4.18 kernels
+Date: Wed, 13 Mar 2002 17:23:13 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0203121005060.13438-100000@grace.speakeasy.net>
+In-Reply-To: <Pine.LNX.4.44.0203121005060.13438-100000@grace.speakeasy.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lBlC-0006nQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020313162314.6623B843@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And no, it's not worth discontinuing i386 support.  It just isn't
-> > painful enough to maintain. 
-> 
-> How about just dropping 386 + SMP support?
+On Tuesday, 12. March 2002 19:05, John Schmerge wrote:
+> Thanks for the insight... It turns out that you're conjecture seems to be
+> correct. Boy, I feel like a n00b... I had run memtest86 after first
+> noticing these problems and everything seemed ok, but after a good long run
+> last night, I started to see the failures. Sigh. Looks like i have either a
+> bad mobo or a bad processor.
+>
+> Thanks again,
+> John
 
-We dont support SMP 386 boxes anyway. Nothing to drop. We've never supported
-anything earlier than 486 SMP like the early MP1.1 compliant IBM boards, 
-(and briefly the compaq non MP 1.1 compliant stuff  (Thomas Radke - the
-forgotten man in the creation of SMP Linux - did 2/4 way compaq stuff)
+Power supply problems are also very common these days...
+
+Cheers,
+  Hans-Peter
+
+> On Mon, 11 Mar 2002, Andrew Morton wrote:
+> > John Schmerge wrote:
+> > > ...
+> > >   Asus CUV4X-D motherboard
+> > >   2 x Pentium III 1.0 ghz processors
+> > >   1024 Mb ram (4x256mb)
+> > >   IBM Deskstar 40gb ata100 disk
+> > >   Radeon QD AGP card
+> > >   Realtek 8139 pci NIC
+> > >
+> > > ...
+> > > Mar  9 03:46:07 voltaire kernel: Unable to handle kernel paging request
+> > > at virtual address 04000004
+> >
+> > Single-bit error.  Kernel expected either a valid address or a null
+> > pointer, but bit 26 was set.
+> >
+> > You should run memtest86 for 24 hours, and be suspicious of your
+> > shiny new hardware :(
+> >
+> > -
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

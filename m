@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUHFPJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUHFPLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268082AbUHFPJd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUHFPJd
+	id S268090AbUHFPLu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 11:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUHFPLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:09:33 -0400
-Received: from zero.aec.at ([193.170.194.10]:30212 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268082AbUHFPJZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:09:25 -0400
-To: James Morris <jmorris@redhat.com>
-cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Re-implemented i586 asm AES (updated)
-References: <2qbyt-1Op-45@gated-at.bofh.it> <2qemF-3Pj-49@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 06 Aug 2004 17:09:17 +0200
-In-Reply-To: <2qemF-3Pj-49@gated-at.bofh.it> (James Morris's message of
- "Fri, 06 Aug 2004 17:00:21 +0200")
-Message-ID: <m3wu0cgv6q.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Fri, 6 Aug 2004 11:11:50 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:46026 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S268091AbUHFPLZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 11:11:25 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] cputime (3/6): move jiffies stuff to jiffies.h
+Date: Fri, 6 Aug 2004 17:10:28 +0200
+User-Agent: KMail/1.6.2
+Cc: alan@redhat.com, arjanv@redhat.com, chrisw@osdl.org,
+       Jan Glauber1 <jan.glauber@de.ibm.com>, linux-390@vm.marist.edu,
+       linux-kernel@vger.kernel.org, mulix@mulix.org, tim.bird@am.sony.com
+References: <OF45879196.98545410-ON42256EE8.003A9AD5-42256EE8.003B151C@de.ibm.com>
+In-Reply-To: <OF45879196.98545410-ON42256EE8.003A9AD5-42256EE8.003B151C@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_p95EBYa6grPQ2Rs";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408061710.34015.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@redhat.com> writes:
->
->> Does it work on x86 CPUs without MMX?
->
-> Yes, Linus removed the MMX stuff.
 
-You could use .altinstructions to patch a jump in at runtime
-based on CPU capabilities. Assuming MMX is really faster of course.
+--Boundary-02=_p95EBYa6grPQ2Rs
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-See arch/x86_64/lib/copy_page.S for an example.
+On Freitag, 6. August 2004 12:45, Martin Schwidefsky wrote:
+> The times man pages says that the struct tms is defined in sys/times.h.
+> This doesn't make it necessary to have a linux/times.h header file.
+> These are kernel headers and not user space headers. Does anybody think
+> it's important to keep the user/kernel header files names similar ?
 
--Andi
+I suppose the main point is that stuff like klibc it is better to keep
+the existing obvious implementation of sys/times.h instead of changing
+it to a less obvious one. Right now, all non linux specific=20
+klibc/include/sys/foo.h files start with #include <linux/foo.h>, which
+just makes sense.
 
+	Arnd <><
+
+--Boundary-02=_p95EBYa6grPQ2Rs
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBE59p5t5GS2LDRf4RAj9sAJ9Zmxdmy0h7L0l4vaTn5VBVWDZzKwCfdV6d
+pkbCT9f2FdsEu6k/wiIYSaE=
+=IKwH
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_p95EBYa6grPQ2Rs--

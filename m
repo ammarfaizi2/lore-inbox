@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbTLEDtV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 22:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTLEDtV
+	id S263777AbTLEDvn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 22:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbTLEDvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 22:49:21 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:5347 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S263879AbTLEDtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 22:49:20 -0500
-Message-ID: <3FD00034.1000006@backtobasicsmgmt.com>
-Date: Thu, 04 Dec 2003 20:49:08 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Thu, 4 Dec 2003 22:51:43 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:34768 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S263777AbTLEDvl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 22:51:41 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: "Rahsheen Porter Sr." <microrahsheen@comcast.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: HPT366 ate my IDE controllers
+Date: Thu, 4 Dec 2003 22:51:40 -0500
+User-Agent: KMail/1.5.1
+References: <20031204211522.01e89897.microrahsheen@comcast.net>
+In-Reply-To: <20031204211522.01e89897.microrahsheen@comcast.net>
+Organization: None that appears to be detectable by casual observers
 MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
-       =?ISO-8859-1?Q?David_Mart=EDnez_Moreno?= <ender@debian.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: Errors and later panics in 2.6.0-test11.
-References: <200312031417.18462.ender@debian.org> <Pine.LNX.4.58.0312030757120.5258@home.osdl.org> <20031203162045.GA27964@suse.de> <Pine.LNX.4.58.0312030823010.5258@home.osdl.org> <3FCE1C87.2050006@backtobasicsmgmt.com> <20031205032023.GB1693@frodo>
-In-Reply-To: <20031205032023.GB1693@frodo>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312042251.40092.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.10.15] at Thu, 4 Dec 2003 21:51:40 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
+On Thursday 04 December 2003 21:15, Rahsheen Porter Sr. wrote:
+>When I boot 2.6.0test11 on my Abit BP6, it *only* sees the HPT366
+>controllers. The other 2 controllers built in to the mobo don't show
+>up at all. All I see is what's plugged into the 2 HPT366
+> controllers.
+>
+>So my root partition, which resides on /dev/hde1 with 2.4.20,
+> becomes /dev/hda1. And my extra partitions that were on /dev/hdg
+> are on /dev/hdc. This wouldn't be a problem accept that what was on
+> /dev/hda and hdc are now gone.
+>
+>What would cause the kernel to totally ignore the built in
+> controllers?
 
->>The problem I reported was also with RAID-5, and I have also found a 
->>problem similar to Nathan's (probably the same one) by just trying to 
->>run bonnie++ on an XFS filesystem on DM over RAID-5, even after 
->>formatting the XFS filesystem to forcibly align everything to RAID-5 
->>stripes (64K units).
-> 
-> 
-> FWIW, this doesn't align _everything_ (space allocations done
-> through the XFS allocator are influenced, which means "most")
-> -- log IO is still going to be sector aligned, as are any IOs
-> to the four XFS allocation group header metadata structures.
+I'd bet a small amount that there is something in the bios you've set 
+that is making that decision for you.  Probably a boot offboard 
+controllers first or some such.
 
-OK, I thought that "-l sunit=..." being set to a block-size multiple 
-would take care of that as well, but apparently not.
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

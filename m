@@ -1,93 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbUKWCdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbUKWCbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbUKWCdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 21:33:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbUKWCb7
+	id S262526AbUKWCbf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 21:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbUKWC36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:31:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21218 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262528AbUKWCaX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 21:30:23 -0500
-Date: Mon, 22 Nov 2004 18:30:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-Message-Id: <20041122183006.5ef3b41c.akpm@osdl.org>
-In-Reply-To: <87k6sdwbhy.fsf@devron.myhome.or.jp>
-References: <877joexjk5.fsf@devron.myhome.or.jp>
-	<20041122024654.37eb5f3d.akpm@osdl.org>
-	<87ekimw1uj.fsf@devron.myhome.or.jp>
-	<20041122134344.3b2cb489.akpm@osdl.org>
-	<87k6sdwbhy.fsf@devron.myhome.or.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 22 Nov 2004 21:29:58 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:54706 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261175AbUKWC0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 21:26:35 -0500
+Date: Mon, 22 Nov 2004 20:26:08 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
+Cc: "'Robin Holt '" <holt@sgi.com>,
+       "''lilbilchow@yahoo.com' '" <lilbilchow@yahoo.com>,
+       "''ananth@sgi.com' '" <ananth@sgi.com>,
+       "''linux-kernel@vger.kernel.org' '" <linux-kernel@vger.kernel.org>,
+       "''linux-ia64@vger.kernel.org' '" <linux-ia64@vger.kernel.org>
+Subject: Re: smp_call_function/flush_tlb_all hang on large memory system
+Message-ID: <20041123022607.GB28814@sgi.com>
+References: <267988DEACEC5A4D86D5FCD780313FBB2BFBB6@exch-03.noida.hcltech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <267988DEACEC5A4D86D5FCD780313FBB2BFBB6@exch-03.noida.hcltech.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
+On Tue, Nov 23, 2004 at 07:41:07AM +0530, Deepak Kumar Gupta, Noida wrote:
+> Hi Robin 
 > 
-> >> Umm... however, if ->i_size is updated before ->commit_write(),
-> >> doesn't it allow access to those pages, before all write() work is
-> >> successful?
-> >
-> > That's OK.  A thread which is read()ing that page will either
-> >
-> > a) decide that the page is outside i_size, and won't read it anyway or
-> >
-> > b) decide that the page is inside i_size and will read the page's contents.
-> >
-> > Still, I'd be inclined to update i_size after running ->commit_write.  It
-> > looks like we can simply replace the call to __block_commit_write() with a
-> > call to generic_commit_write().
+> The output of CPU is 
 > 
-> If ->prepare_write() failed, I thought we should restore the ->i_size
-> by vmtruncate() before running ->prepare_write().
+> CPU  A: 0x02:   Kernel: CPU busy
+>         0x03:   Kernel: CPU busy
+> CPU  C: 0x03:   Kernel: CPU busy
 
-                  ^^^^^^ I assume you meant "after"
+Looks like cpu 1 is stuck. Can you nmi cpu #1 & send the
+NMI record + the System.map for the OS:
+
+	at kdb
+		ps
+		nmi <hung cpu>
+		(wait 20 sec)
+		pod
+		error
+		error a
+
+<hung cpu> is the cpu number of the cpu that does not show LED values that
+are changing. In the output above, cpu #1 is hung.
+
 
 > 
-> But, it's not required... yes?
-
-yes, it's needed in theory - see generic_file_buffered_write().  I'm trying
-to remember why...
-
-I think the only problem which that is solving is that the filesystem may
-have left some blocks in the file outside i_size.  That's a minor
-consistency issue which a fsck will fix up.  But I guess a subsequent lseek
-may permit unwritten disk blocks to be read.
-
-This problem is present whenever ->prepare_write() is called and we really
-shouldn't be open-coding it everywhere.
-
-> Anyway, fixed patch is the following.
-
-Thanks. Does it pass all your testing?
-
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> well regarding filing the issue.. i haven't yet contactated support
+> persons.. send the mail to just know whether there is already a solution
+> available or not.. 
 > 
+> If you are interested in stack trace.. then it is as follows:-
 > 
+> [0]kdb> bt
+> Stack traceback for pid 7
+> 0xe00000307b818000        7        1  1    0   R  0xe00000307b8185a0 *kswapd
+> 0xe00000000444b120 smp_call_function+0x5e0
+>         args (0xe000000005033698, 0xe000000005033698, 0x1,
+> 0xa000000000008000, 0x1)
+>         kernel .text 0xe000000004400000 0xe00000000444ab40
+> 0xe00000000444b160
+> 0xe00000000444a330 smp_flush_tlb_all+0x30
+>         args (0xe0000000044545a0, 0x288)
+>         kernel .text 0xe000000004400000 0xe00000000444a300
+> 0xe00000000444a360
+> 0xe0000000044545a0 flush_tlb_range+0x40
+>         args (0xe00000307a5b64c8, 0x2000000002128000, 0x200000000212c000,
+> 0xe000000004559880, 0x58e)
+>         kernel .text 0xe000000004400000 0xe000000004454560
+> 0xe000000004454700
+> 0xe000000004559880 try_to_swap_out+0x320
+>         args (0xe00000307a5b64c8, 0xe00000303b910468, 0x27be00,
+> 0xe000003045638250, 0xa0007fffffe20300)
+>         kernel .text 0xe000000004400000 0xe000000004559560
+> 0xe000000004559c60
+> 0xe0000000045564d0 swap_out+0x810
+>         args (0xa0007fffffe20300, 0x1d0, 0xe000003005400000,
+> 0xe000003045638250, 0xe00000307a5b64c8)
+>         kernel .text 0xe000000004400000 0xe000000004555cc0
+> 0xe000000004556680
+> 0xe000000004556b10 shrink_cache+0x490
+>         args (0xe0000030054187f0, 0xc, 0xe000003005400000, 0x1d0,
+> 0xa0007fffff6b9110)
+>         kernel .text 0xe000000004400000 0xe000000004556680
+> 0xe0000000045574a0
+> 0xe000000004557aa0 shrink_caches+0xe0
+>         args (0xe000003005400000, 0x6, 0x1d0, 0x20, 0xe000003005400000)
+>         kernel .text 0xe000000004400000 0xe0000000045579c0
+> 0xe000000004557b60
+> 0xe000000004557bf0 try_to_free_pages_zone+0x90
+>         args (0xe000003005400000, 0x1d0, 0x5, 0xe00000000541c998,
+> 0xe000000005033848)
+>         kernel .text 0xe000000004400000 0xe000000004557b60
+> 0xe000000004557cc0
+> 0xe0000000045590d0 kswapd_balance_pgdat+0x110
+>         args (0xe000003005400000, 0xe000003005400030, 0x0,
+> 0xe000003005400000, 0x0)
+>         kernel .text 0xe000000004400000 0xe000000004558fc0
+> 0xe000000004559140
+> 0xe0000000045591b0 kswapd_balance+0x70
+>         args (0x0, 0xe00000000586eb10, 0xe000000004559510, 0x287)
+>         kernel .text 0xe000000004400000 0xe000000004559140
+> 0xe000000004559220
+> 0xe000000004559510 kswapd+0x170
+>         args (0x0, 0xe000000004f4e250, 0x1, 0xe000000004416b00, 0x30c)
+>         kernel .text 0xe000000004400000 0xe0000000045593a0
+> 0xe000000004559560
+> 0xe000000004416b00 arch_kernel_thread+0x160
+>         args (0xe000000004d0f2b8, 0xe00000000521b660, 0x0, 0x0,
+> 0xe0000000044e4a30)
+>         kernel .text 0xe000000004400000 0xe0000000044169a0
+> 0xe000000004416c20
+> 0xe0000000044e4a30 kernel_thread+0xf0
+>         args (0xe000000004d0f2b0, 0x0, 0xe00, 0x0, 0xe000000004d34990)
+>         kernel .text 0xe000000004400000 0xe0000000044e4940
+> 0xe0000000044e4a60
+> 0xe000000004d34990 kswapd_init+0x70
+>         args (0xe000000004d1d030, 0x285)
+>         kernel .text.init 0xe000000004d1c000 0xe000000004d34920
+> 0xe000000004d34a00
+> 0xe000000004d1d030 do_initcalls+0x50
+>         args (0xe000000004e5b2d8, 0xe00000000521b660, 0xe000000004e5b578,
+> 0xe000000004408e20, 0x20a)
+>         kernel .text.init 0xe000000004d1c000 0xe000000004d1cfe0
+> 0xe000000004d1d080
+> 0xe000000004408e20 init+0xc0
+>         args (0x0, 0xe000003007014830, 0xe000000004416b00, 0x30c)
+>         kernel .text 0xe000000004400000 0xe000000004408d60
+> 0xe0000000044090a0
+> 0xe000000004416b00 arch_kernel_thread+0x160
+>         args (0xe000000004d10f88, 0xe00000000521b660, 0x0,
+> 0xaeeeeeee8badbeef, 0xe0000000044e4a30)
+>         kernel .text 0xe000000004400000 0xe0000000044169a0
+> 0xe000000004416c20
+> 0xe0000000044e4a30 kernel_thread+0xf0
+>         args (0xe000000004d10f80, 0x0, 0xe00, 0x0, 0xe000000004408cd0)
+>         kernel .text 0xe000000004400000 0xe0000000044e4940
+> 0xe0000000044e4a60
+> 0xe000000004408cd0 rest_init+0x50
+>         args (0xe000000004d1cf60, 0x58e)
+>         kernel .text 0xe000000004400000 0xe000000004408c80
+> 0xe000000004408d60
+> 0xe000000004d1cf60 start_kernel+0x480
+>         args (0x307bda9c08, 0xb1f, 0x300467e378, 0x3004875a00, 0x307bd4b7b0)
+>         kernel .text.init 0xe000000004d1c000 0xe000000004d1cae0
+> 0xe000000004d1cfe0
+> 0xe0000000044081c0 start_ap+0x2a0
+>         args (0x307bf77000, 0x3004a3eb50, 0x0, 0x1, 0x307bda9c08)
+>         kernel .text 0xe000000004400000 0xe000000004407f20
+> 0xe0000000044081e0
 > 
->  fs/buffer.c |    3 +--
->  1 files changed, 1 insertion(+), 2 deletions(-)
+> Best Regards
+> Deepak Kumar Gupta.
+>  
 > 
-> diff -puN fs/buffer.c~cont_prepare_write-fix fs/buffer.c
-> --- linux-2.6.10-rc2/fs/buffer.c~cont_prepare_write-fix	2004-11-23 11:10:10.000000000 +0900
-> +++ linux-2.6.10-rc2-hirofumi/fs/buffer.c	2004-11-23 11:10:10.000000000 +0900
-> @@ -2224,8 +2224,7 @@ int cont_prepare_write(struct page *page
->  		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
->  		flush_dcache_page(new_page);
->  		kunmap_atomic(kaddr, KM_USER0);
-> -		__block_commit_write(inode, new_page,
-> -				zerofrom, PAGE_CACHE_SIZE);
-> +		generic_commit_write(NULL, new_page, zerofrom, PAGE_CACHE_SIZE);
->  		unlock_page(new_page);
->  		page_cache_release(new_page);
->  	}
-> _
+> -----Original Message-----
+> From: Robin Holt
+> To: Deepak Kumar Gupta, Noida
+> Cc: 'lilbilchow@yahoo.com'; 'ananth@sgi.com';
+> 'linux-kernel@vger.kernel.org'; 'linux-ia64@vger.kernel.org'
+> Sent: 11/22/04 5:44 PM
+> Subject: Re: smp_call_function/flush_tlb_all hang on large memory system
+> 
+> On Mon, Nov 22, 2004 at 03:15:00PM +0530, Deepak Kumar Gupta, Noida
+> wrote:
+> > Hi William/Rajagopal
+> > 
+> > I saw your posting related to problem on internet. Just curious to ask
+> you
+> > have you got any solution for that or not.. as i am facing same
+> problem on
+> > SGI Propack 3 (based on kernel 2.4.18)on 2 CPU IA64 machine..
+> > 
+> > If you got any solution for this then pls let me know..
+> > 
+> > Any help in this regard is appreciated.
+> > 
+> > posting:
+> http://www.cs.helsinki.fi/linux/linux-kernel/2003-11/1153.html
+> > 
+> 
+> Can you provide the output from an L2 "leds" command?  This will tell us
+> what the cpus are doing and whether they have interrupts enabled.  Have
+> you
+> contacted your support people yet?  I did not see an open case for this,
+> but have no idea how your support person exactly filed it.
+> 
+> Thanks,
+> Robin Holt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+

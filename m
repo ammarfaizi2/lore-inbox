@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262354AbSLURtf>; Sat, 21 Dec 2002 12:49:35 -0500
+	id <S262449AbSLURzB>; Sat, 21 Dec 2002 12:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbSLURtf>; Sat, 21 Dec 2002 12:49:35 -0500
-Received: from cm218-252-15-175.hkcable.com.hk ([218.252.15.175]:9601 "EHLO
-	cm218-252-15-175.hkcable.com.hk") by vger.kernel.org with ESMTP
-	id <S262354AbSLURte>; Sat, 21 Dec 2002 12:49:34 -0500
-From: "Sampson Fung" <sampson.fung@attglobal.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: How to help new comers trying the v2.5x series kernels.
-Date: Sun, 22 Dec 2002 01:57:33 +0800
-Message-ID: <000701c2a91a$707254a0$0100a8c0@noelpc>
+	id <S262812AbSLURzB>; Sat, 21 Dec 2002 12:55:01 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:23712 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262808AbSLURzA>; Sat, 21 Dec 2002 12:55:00 -0500
+Message-ID: <3E04AB96.5030408@BitWagon.com>
+Date: Sat, 21 Dec 2002 09:57:42 -0800
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: AnonimoVeneziano <voloterreno@tin.it>,
+       Patrick Petermair <black666@inode.at>,
+       Roland Quast <rquast@hotshed.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: vt8235 fix, hopefully last variant
+References: <20021219112640.A21164@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From v2.5.49 up, I can only test the compiled kernel, if it compiles at
-all, with modules disabled completely.
-Of course, I have to say that I do not try much before v2.5.49.
+Looking at the important piece:
+-----
+> +	/* Always use 4 address setup clocks on ATAPI devices */
+> +	if (drive->media != ide_disk)
+> +		t.setup = 4;
+-----
+it seems to me that using 4 for t.setup also should be done unless _all_ devices
+on that cable are ide_disk.  In particular, if one device is ide_disk but the
+other is not, then "t.setup = 4;" should be used even when talking to the ide_disk.
+Otherwise the non-ide_disk device might get confused, respond when it should not,
+and garble the transaction.  Or, is such a bad thing prevented in some other way?
 
-I think new comers, myselft included, can make use of standard templates
-of kernel .config file.
-
-First of all, "standard templates" are tested that they will be compiled
-without problem.
-They should be able to boot.
-They should have a working "framework" of "modules", for example, lsmod
-works without any problem.  (And any other "required" modutils as well)
-They shuold supports further kernel compile. (With small incremental
-changes to the base "standard template").
-
-Then I can try to compile my lan card as modules.
-Then try to compile my SCSI card, etc, etc.
-
-Does similar "standard templates" exist already?  
-
-Where can I search for known bugs centrally, so that I can help myself
-as much as possible?
-
-Regards,
-Sampson Fung
-sampson@attglobal.net
-
-
-
+-- 
+John Reiser, jreiser@BitWagon.com
 

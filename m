@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269324AbUIBXsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269388AbUICCpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269324AbUIBXsH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269320AbUIBXph
+	id S269388AbUICCpB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 22:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUICCor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:45:37 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:3993 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269307AbUIBXk6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:40:58 -0400
-Date: Fri, 3 Sep 2004 00:40:21 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Hans Reiser <reiser@namesys.com>
-cc: David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <41356321.4030307@namesys.com>
-Message-ID: <Pine.LNX.4.61.0409030037540.23011@fogarty.jakma.org>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
- <41352279.7020307@slaphack.com> <41356321.4030307@namesys.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 2 Sep 2004 22:44:47 -0400
+Received: from main.gmane.org ([80.91.224.249]:62607 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269388AbUICCnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 22:43:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [Transmeta hardware] Update of the CMS under Linux ?
+Date: Fri, 03 Sep 2004 11:43:36 +0900
+Message-ID: <ch8lop$m3t$1@sea.gmane.org>
+References: <1093165082.11189.20.camel@aphrodite.olympus.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
+X-Accept-Language: bg, en, ja, ru, de
+In-Reply-To: <1093165082.11189.20.camel@aphrodite.olympus.net>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004, Hans Reiser wrote:
+Emmanuel Fleury wrote:
+> Hi,
+> 
+> I would like to know if there is any hope to have a software that allow
+> us to update the Transmeta CMS (Code Morphing Software) from Linux ?
+> 
+> I tried to google around but I never managed to find something valuable.
+> The only valuable link seems to be this one:
+> http://h18007.www1.hp.com/support/files/compaqtabletpc/us/download/18120.html
+> 
+> So, it seems to be possible.
+> 
+> I have a CMS 4.3.2 on my computer (see below) but the 4.4 is now out
+> (see: http://www.theinquirer.net/?article=8071 or
+> http://www.realworldtech.com/page.cfm?ArticleID=RWT010204000000&p=3 ,
+> first sentence) and I think there is a bug in the one I have (see:
+> http://freedesktop.org/bugzilla/show_bug.cgi?id=455).
+> 
+> My version of the CMS is: 
+> CPU: After generic identify, caps: 0080893f 0081813f 00000000 00000000
+> CPU: After vendor identify, caps:  0080893f 0081813f 0000004e 00000000
+> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (32 bytes/line)
+> CPU: L2 Cache: 512K (128 bytes/line)
+> CPU: Processor revision 1.4.1.0, 933 MHz
+> CPU: Code Morphing Software revision 4.3.2-9-343
+> CPU: 20020426 17:54 official release 4.3.2#2
+> CPU: After all inits, caps:        0080893f 0081813f 0000004e 00000000
+> CPU: Transmeta(tm) Crusoe(tm) Processor TM5800 stepping 03
+> 
+> 
+> See also:
+> http://www.leog.net/fujp_forum/topic.asp?ARCHIVE=true&TOPIC_ID=2159
 
-> learning how to turn the hand crank to start your car. Just the look of "tar 
-> -xf" turns them away. Crypto-Geek gobbledy-gook is what it is. Let's value 
-> their time, there are a lot of them.
+Your post got me thinking and searching as I have a Toshiba Libretto here:
 
-These kinds of people would use something like file-roller in GNOME, 
-and they'd care not a jot whether file-rollers used built-in 
-tar support, and/or openat() or via file-as-dir fs support.
+CPU: Processor revision 1.4.1.0, 800 MHz
+CPU: Code Morphing Software revision 4.2.9-8-344
+CPU: 20020222 15:08 official release 4.2.9#1
+CPU: Transmeta(tm) Crusoe(tm) Processor TM5800 stepping 03
 
-All they care about is that they get a window with icons for their 
-files that they can click on. How it's done does not matter - it only 
-matters to those who must write the code.
+I couldn't find any traces to CMS updating (even on Windoze).
 
-> Hans
+Tried Toshiba site, Transmeta site, Google.
 
-regards,
+Is there any way at all to update it (even from Windoze)?
+
+Just send an e-mail inquiry to Transmeta Inc., will post any answer here.
+
+Kalin.
+
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-I haven't lost my mind; I know exactly where I left it.
+ || ~~~~~~~~~~~~~~~~~~~~~~ ||
+(  ) http://ThinRope.net/ (  )
+ || ______________________ ||
+

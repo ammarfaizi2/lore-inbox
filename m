@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131048AbQLMLcF>; Wed, 13 Dec 2000 06:32:05 -0500
+	id <S131159AbQLMLdp>; Wed, 13 Dec 2000 06:33:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131082AbQLMLb4>; Wed, 13 Dec 2000 06:31:56 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:18952 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S131048AbQLMLbh>; Wed, 13 Dec 2000 06:31:37 -0500
-Date: Wed, 13 Dec 2000 11:55:06 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: John Cavan <johncavan@home.com>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        " Paul C. Nendick" <pauly@enteract.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.16 SMP: mtrr errors
-Message-ID: <20001213115506.A3733@pcep-jamie.cern.ch>
-In-Reply-To: <3A3693A8.E0BA83B7@home.com> <E145wtZ-0001pn-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E145wtZ-0001pn-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 12, 2000 at 09:23:30PM +0000
+	id <S131161AbQLMLdf>; Wed, 13 Dec 2000 06:33:35 -0500
+Received: from relay.inway.cz ([212.24.128.3]:15163 "EHLO tac.inway.cz")
+	by vger.kernel.org with ESMTP id <S131159AbQLMLdY> convert rfc822-to-8bit;
+	Wed, 13 Dec 2000 06:33:24 -0500
+Message-ID: <000f01c064f4$157f3570$a49418d4@shredder>
+From: "Petr Sebor" <petr@scssoft.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: Martin Maèok <martin.macok@underground.cz>
+In-Reply-To: <20001213105153.A6624@sarah.kolej.mff.cuni.cz>
+Subject: Re: 2.4.0-test12 randomly hangs up
+Date: Wed, 13 Dec 2000 12:01:46 +0100
+Organization: SCS Software
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > Petr, the Matrox card splits the memory between the two video screens
-> > when running in a multi-head configuration and "pretends" that it is two
-> > distinct cards. Thus, a 32 mb card will register an mtrr for 24mb and
-> > for 8mb seperately when in this mode.
+Same here... this thing started to happen right after upgrading to test12 
+(from test11). I am still being able to work on console for hours but when 
+I start using X the system dies silently. No oops, keyboard inactive 
+(can't do sysrq), and the LED on the monitor is orange, not green. This 
+happens under almost no load at all even after a fresh start. I have plenty
+of free memory, swap file not used at all.
+
+Just a 'me too'
+
+Regards,
+Petr
+
+----- Original Message ----- 
+From: "Martin Macok" <martin.macok@underground.cz>
+Newsgroups: linux.kernel
+Sent: Wednesday, December 13, 2000 10:53 AM
+Subject: 2.4.0-test12 randomly hangs up
+
+
+> Hi,
+> after 1-3 hours with -test12 system hangs up with
+>  - no response from mouse
+>  - no response from keyboard (no sysrq, only sysrq+'b' works ...)
+>  - no response from network (ICMP, TCP)
+>  - nothing on console, nothing in logs (ie. nothing interesting or relevant
+>    to crash).
 > 
-> That is a driver bug. The intel processors only support MTRR's on certain
-> power boundaries/sizes. The fall through is intended. 
+> System was not under load (1 user, X, no swapping ...)
 
-> > in the latest couple of kernels because of all the mtrr work being done,
-> > waiting to see if there was resolution.
-> 
-> The Matrox driver needs to register a single 32Mb MTRR
 
-The kernel VESA framebuffer has exactly the same problem.  Sometimes
-VESA reports 2.5Mb video memory, and vesafb's attempt to register an
-MTRR fails.
-
-But should vesafb know about Intel-specific MTRR limitations, given that
-those limitations may change?
-
--- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131315AbRAQVRY>; Wed, 17 Jan 2001 16:17:24 -0500
+	id <S132130AbRAQVWE>; Wed, 17 Jan 2001 16:22:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132726AbRAQVRO>; Wed, 17 Jan 2001 16:17:14 -0500
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:1188 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S131315AbRAQVQ7>; Wed, 17 Jan 2001 16:16:59 -0500
-Message-ID: <3A660BAF.3926D757@Home.net>
-Date: Wed, 17 Jan 2001 16:16:32 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION]: Applying patches ontop of patches (2.4.1pre7 
- to2.4.1pre8)
-In-Reply-To: <Pine.LNX.4.30.0101172130580.2313-100000@space.comunit.de>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S132726AbRAQVVy>; Wed, 17 Jan 2001 16:21:54 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:26628 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132130AbRAQVVr>;
+	Wed, 17 Jan 2001 16:21:47 -0500
+Date: Wed, 17 Jan 2001 22:21:14 +0100
+From: Andi Kleen <ak@suse.de>
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 + iproute2
+Message-ID: <20010117222114.A6587@gruyere.muc.suse.de>
+In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net> <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl> <14945.28354.209720.579437@pizda.ninka.net> <20010114115215.A22550@gruyere.muc.suse.de> <20010117180433.A4979@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010117180433.A4979@almesberger.net>; from Werner.Almesberger@epfl.ch on Wed, Jan 17, 2001 at 06:04:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to everyone who replied :)
+On Wed, Jan 17, 2001 at 06:04:33PM +0100, Werner Almesberger wrote:
+> (See also ftp://icaftp.epfl.ch/pub/people/almesber/slides/tmp-tc.ps.gz
+> The bitching starts on slide 11, some ideas for fixing the problem on
+> slide 16, but heed the warning on slide 15.)
 
-Sven Koch wrote:
+Thanks for the pointer. 
 
-> On Wed, 17 Jan 2001, Shawn Starr wrote:
->
-> > What is the best way to apply a patch on top of a patch already applied?
-> >
-> > For example, with original sources 2.4.0 i applied 2.4.1pre7 but now
-> > that pre8 is out, how do i apply those new patches without having to
-> > delete the whole linux dir and untar 2.4.0 again just to apply pre8?
->
-> reverse the patch for 2.4.1pre7
->
-> for example: cd /usr/src/linux ; zcat 2.4.1pre7.gz | patch -p1 -R
->
-> after that apply pre8
->
-> c'ya
-> sven
->
-> --
->
-> The Internet treats censorship as a routing problem, and routes around it.
-> (John Gilmore on http://www.cygnus.com/~gnu/)
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> 
+> Besides that, I agree that we have far too many EINVALs in the kernel.
+> Maybe we should just record file name and line number of the EINVAL
+> in *current and add an eh?(2) system call ;-)
 
+In the end you come to text strings, if you like it or not ;) 
+
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

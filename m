@@ -1,1412 +1,1616 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264480AbUAMRaf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 12:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbUAMRae
+	id S264441AbUAMRgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 12:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUAMRgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 12:30:34 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.120]:45954 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S264604AbUAMR2K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 12:28:10 -0500
-Message-ID: <40042A0F.7080401@myrealbox.com>
-Date: Tue, 13 Jan 2004 09:25:35 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5a (20031223)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oleg Drokin <green@linuxhacker.ru>
-CC: luto@myrealbox.com, linux-kernel@vger.kernel.org
-Subject: Re: loopback over reiserfs broken in 2.6.1-mm1
-References: <4002F317.2070102@myrealbox.com> <200401122245.i0CMjYbn015552@car.linuxhacker.ru>
-In-Reply-To: <200401122245.i0CMjYbn015552@car.linuxhacker.ru>
-Content-Type: multipart/mixed;
- boundary="------------090501010206010601050808"
+	Tue, 13 Jan 2004 12:36:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20755 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264441AbUAMReN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 12:34:13 -0500
+Date: Tue, 13 Jan 2004 17:33:52 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, henrique.gobbi@cyclades.com,
+       support@stallion.oz.au, R.E.Wolff@BitWizard.nl, paulus@samba.org,
+       elfert@de.ibm.com, felfert@millenux.com, gerg@snapgear.com,
+       kuba@mareimbrium.org
+Subject: [2/3]
+Message-ID: <20040113173352.D7256@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org, henrique.gobbi@cyclades.com,
+	support@stallion.oz.au, R.E.Wolff@BitWizard.nl, paulus@samba.org,
+	elfert@de.ibm.com, felfert@millenux.com, gerg@snapgear.com,
+	kuba@mareimbrium.org
+References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth> <20040113113650.A2975@flint.arm.linux.org.uk> <20040113114948.B2975@flint.arm.linux.org.uk> <20040113171544.B7256@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040113171544.B7256@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Jan 13, 2004 at 05:15:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090501010206010601050808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-It works in 2.6.1, but is still broken in -mm1.  The only other 
-differences between the kernels was whatever make oldconfig did to 
-switch to 2.6.1 and that I'm running hostap-cvs on -mm1 (although I 
-can't imagine how that would be a problem).
-
-Config for -mm1 is attached.
-
-I'm guessing it's the AIO stuff -- I'll try -mm2 later today.
-
---Andy
-
-Oleg Drokin wrote:
-> Hello!
-> 
-> Andy Lutomirski <luto@myrealbox.com> wrote:
-> 
-> AL> on 2.6.1-mm1, where /var is reiserfs:
-> AL> [root@luto var]# dd if=/dev/zero of=foo count=1024
-> AL> 1024+0 records in
-> AL> 1024+0 records out
-> AL> [root@luto var]# losetup /dev/loop0 foo
-> AL> ioctl: LOOP_SET_FD: Invalid argument
-> 
-> Hm. Works with 2.6.1 for me.
-> Does it work with 2.6.1 for you as well?
-> 
-> Bye,
->     Oleg
-
---------------090501010206010601050808
-Content-Type: text/plain;
- name="config.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="config.txt"
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_BROKEN_ON_SMP=y
-
-#
-# General setup
-#
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-CONFIG_MK7=y
-# CONFIG_MK8 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-# CONFIG_X86_GENERIC is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-# CONFIG_X86_4G is not set
-# CONFIG_X86_SWITCH_PAGETABLES is not set
-# CONFIG_X86_4G_VM_LAYOUT is not set
-# CONFIG_X86_UACCESS_INDIRECT is not set
-# CONFIG_X86_HIGH_ENTRY is not set
-CONFIG_HPET_TIMER=y
-# CONFIG_HPET_EMULATE_RTC is not set
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
-# CONFIG_X86_UP_APIC is not set
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-# CONFIG_EDD is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-# CONFIG_EFI is not set
-CONFIG_HAVE_DEC_LOCK=y
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
-# CONFIG_PM_DISK is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_TOSHIBA is not set
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_RELAXED_AML=y
-CONFIG_X86_PM_TIMER=y
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-# CONFIG_APM is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-# CONFIG_PCMCIA is not set
-CONFIG_PCMCIA_PROBE=y
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_MISC=y
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-# CONFIG_FW_LOADER is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_DEBUG is not set
-
-#
-# Protocols
-#
-# CONFIG_ISAPNP is not set
-# CONFIG_PNPBIOS is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-# CONFIG_BLK_DEV_NBD is not set
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_LBD=y
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_IDE_TASKFILE_IO=y
-
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_BLK_DEV_GENERIC=y
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-CONFIG_BLK_DEV_AMD74XX=y
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_DMA_NONPCI is not set
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-# CONFIG_SCSI_PROC_FS is not set
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-# CONFIG_BLK_DEV_SD is not set
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-# CONFIG_BLK_DEV_SR is not set
-# CONFIG_CHR_DEV_SG is not set
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-# CONFIG_SCSI_REPORT_LUNS is not set
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-
-#
-# Fusion MPT device support
-#
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-# CONFIG_NETLINK_DEV is not set
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-# CONFIG_IP_ROUTE_FWMARK is not set
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-# CONFIG_IP_ROUTE_TOS is not set
-# CONFIG_IP_ROUTE_VERBOSE is not set
-# CONFIG_IP_PNP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_NET_IPGRE_BROADCAST=y
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-
-#
-# IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-# CONFIG_IPV6 is not set
-# CONFIG_DECNET is not set
-CONFIG_BRIDGE=y
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-CONFIG_BRIDGE_NETFILTER=y
-
-#
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_MATCH_PHYSDEV=m
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_IP_NF_NAT_LOCAL=y
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-
-#
-# Bridge: Netfilter Configuration
-#
-CONFIG_BRIDGE_NF_EBTABLES=m
-CONFIG_BRIDGE_EBT_BROUTE=m
-CONFIG_BRIDGE_EBT_T_FILTER=m
-CONFIG_BRIDGE_EBT_T_NAT=m
-CONFIG_BRIDGE_EBT_802_3=m
-CONFIG_BRIDGE_EBT_AMONG=m
-CONFIG_BRIDGE_EBT_ARP=m
-CONFIG_BRIDGE_EBT_IP=m
-CONFIG_BRIDGE_EBT_LIMIT=m
-CONFIG_BRIDGE_EBT_MARK=m
-CONFIG_BRIDGE_EBT_PKTTYPE=m
-CONFIG_BRIDGE_EBT_STP=m
-CONFIG_BRIDGE_EBT_VLAN=m
-CONFIG_BRIDGE_EBT_ARPREPLY=m
-CONFIG_BRIDGE_EBT_DNAT=m
-CONFIG_BRIDGE_EBT_MARK_T=m
-CONFIG_BRIDGE_EBT_REDIRECT=m
-CONFIG_BRIDGE_EBT_SNAT=m
-CONFIG_BRIDGE_EBT_LOG=m
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=m
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IPV6_SCTP__=y
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_CSZ=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-# CONFIG_NET_QOS is not set
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=m
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-CONFIG_TUN=m
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=m
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-
-#
-# Tulip family network device support
-#
-CONFIG_NET_TULIP=y
-# CONFIG_DE2104X is not set
-CONFIG_TULIP=m
-# CONFIG_TULIP_MWI is not set
-CONFIG_TULIP_MMIO=y
-CONFIG_TULIP_NAPI=y
-# CONFIG_TULIP_NAPI_HW_MITIGATION is not set
-# CONFIG_DE4X5 is not set
-# CONFIG_WINBOND_840 is not set
-# CONFIG_DM9102 is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_AMD8111_ETH is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_AC3200 is not set
-# CONFIG_APRICOT is not set
-# CONFIG_B44 is not set
-# CONFIG_FORCEDETH is not set
-# CONFIG_CS89x0 is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_E100 is not set
-# CONFIG_FEALNX is not set
-CONFIG_NATSEMI=m
-# CONFIG_NE2K_PCI is not set
-# CONFIG_8139CP is not set
-# CONFIG_8139TOO is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SIS190 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_IXGB is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-CONFIG_NET_RADIO=y
-
-#
-# Obsolete Wireless cards support (pre-802.11)
-#
-# CONFIG_STRIP is not set
-# CONFIG_ARLAN is not set
-# CONFIG_WAVELAN is not set
-
-#
-# Wireless 802.11b ISA/PCI cards support
-#
-# CONFIG_AIRO is not set
-# CONFIG_HERMES is not set
-CONFIG_NET_WIRELESS=y
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-CONFIG_NETCONSOLE=m
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BT is not set
-CONFIG_KGDBOE=y
-CONFIG_NETPOLL=y
-CONFIG_NETPOLL_RX=y
-CONFIG_NETPOLL_TRAP=y
-CONFIG_NET_POLL_CONTROLLER=y
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN_BOOL is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=m
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-# CONFIG_SERIO_SERPORT is not set
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PCIPS2 is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-# CONFIG_INPUT_UINPUT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-# CONFIG_SERIAL_8250_CONSOLE is not set
-# CONFIG_SERIAL_8250_ACPI is not set
-CONFIG_SERIAL_8250_NR_UARTS=4
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-
-#
-# I2C support
-#
-CONFIG_I2C=m
-# CONFIG_I2C_CHARDEV is not set
-
-#
-# I2C Algorithms
-#
-# CONFIG_I2C_ALGOBIT is not set
-# CONFIG_I2C_ALGOPCF is not set
-
-#
-# I2C Hardware Bus support
-#
-# CONFIG_I2C_ALI1535 is not set
-# CONFIG_I2C_ALI15X3 is not set
-CONFIG_I2C_AMD756=m
-CONFIG_I2C_AMD8111=m
-# CONFIG_I2C_I801 is not set
-# CONFIG_I2C_ISA is not set
-# CONFIG_I2C_NFORCE2 is not set
-CONFIG_I2C_PIIX4=m
-# CONFIG_SCx200_ACB is not set
-# CONFIG_I2C_SIS5595 is not set
-# CONFIG_I2C_SIS630 is not set
-# CONFIG_I2C_SIS96X is not set
-CONFIG_I2C_VIAPRO=m
-
-#
-# I2C Hardware Sensors Chip support
-#
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_ADM1021=m
-# CONFIG_SENSORS_EEPROM is not set
-CONFIG_SENSORS_IT87=m
-CONFIG_SENSORS_LM75=m
-CONFIG_SENSORS_LM78=m
-# CONFIG_SENSORS_LM83 is not set
-CONFIG_SENSORS_LM85=m
-CONFIG_SENSORS_VIA686A=m
-CONFIG_SENSORS_W83781D=m
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-# CONFIG_QIC02_TAPE is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_HW_RANDOM is not set
-CONFIG_NVRAM=m
-# CONFIG_RTC is not set
-CONFIG_GEN_RTC=m
-CONFIG_GEN_RTC_X=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_ATI is not set
-CONFIG_AGP_AMD=y
-# CONFIG_AGP_AMD64 is not set
-CONFIG_AGP_INTEL=y
-# CONFIG_AGP_NVIDIA is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_RADEON is not set
-# CONFIG_DRM_I810 is not set
-CONFIG_DRM_I830=y
-# CONFIG_DRM_MGA is not set
-# CONFIG_DRM_SIS is not set
-# CONFIG_MWAVE is not set
-CONFIG_RAW_DRIVER=m
-CONFIG_MAX_RAW_DEVS=256
-# CONFIG_HANGCHECK_TIMER is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-
-#
-# Graphics support
-#
-# CONFIG_FB is not set
-CONFIG_VIDEO_SELECT=y
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-# CONFIG_SND_SEQ_DUMMY is not set
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-# CONFIG_SND_VERBOSE_PRINTK is not set
-# CONFIG_SND_DEBUG is not set
-
-#
-# Generic devices
-#
-# CONFIG_SND_DUMMY is not set
-# CONFIG_SND_VIRMIDI is not set
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-# CONFIG_SND_MPU401 is not set
-
-#
-# ISA devices
-#
-# CONFIG_SND_AD1848 is not set
-# CONFIG_SND_CS4231 is not set
-# CONFIG_SND_CS4232 is not set
-# CONFIG_SND_CS4236 is not set
-# CONFIG_SND_ES1688 is not set
-# CONFIG_SND_ES18XX is not set
-# CONFIG_SND_GUSCLASSIC is not set
-# CONFIG_SND_GUSEXTREME is not set
-# CONFIG_SND_GUSMAX is not set
-# CONFIG_SND_INTERWAVE is not set
-# CONFIG_SND_INTERWAVE_STB is not set
-# CONFIG_SND_OPTI92X_AD1848 is not set
-# CONFIG_SND_OPTI92X_CS4231 is not set
-# CONFIG_SND_OPTI93X is not set
-# CONFIG_SND_SB8 is not set
-# CONFIG_SND_SB16 is not set
-# CONFIG_SND_SBAWE is not set
-# CONFIG_SND_WAVEFRONT is not set
-# CONFIG_SND_CMI8330 is not set
-# CONFIG_SND_OPL3SA2 is not set
-# CONFIG_SND_SGALAXY is not set
-# CONFIG_SND_SSCAPE is not set
-
-#
-# PCI devices
-#
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_AZT3328 is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_CS4281 is not set
-# CONFIG_SND_EMU10K1 is not set
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_HDSP is not set
-# CONFIG_SND_TRIDENT is not set
-# CONFIG_SND_YMFPCI is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_CMIPCI is not set
-# CONFIG_SND_ENS1370 is not set
-# CONFIG_SND_ENS1371 is not set
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-# CONFIG_SND_MAESTRO3 is not set
-# CONFIG_SND_FM801 is not set
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_ICE1724 is not set
-CONFIG_SND_INTEL8X0=y
-# CONFIG_SND_SONICVIBES is not set
-CONFIG_SND_VIA82XX=m
-# CONFIG_SND_VX222 is not set
-
-#
-# ALSA USB devices
-#
-# CONFIG_SND_USB_AUDIO is not set
-
-#
-# Open Sound System
-#
-# CONFIG_SOUND_PRIME is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=y
-# CONFIG_USB_OHCI_HCD is not set
-CONFIG_USB_UHCI_HCD=y
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-# CONFIG_USB_ACM is not set
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_ISD200 is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_HP8200e is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_XPAD is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_SCANNER is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HPUSBSCSI is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network adaptors
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_TIGL is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_BRLVGER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_TEST is not set
-# CONFIG_USB_GADGET is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT2_FS_SECURITY=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_EXT3_FS_SECURITY=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-CONFIG_REISERFS_PROC_INFO=y
-# CONFIG_JFS_FS is not set
-CONFIG_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-# CONFIG_XFS_RT is not set
-CONFIG_XFS_QUOTA=y
-CONFIG_XFS_POSIX_ACL=y
-# CONFIG_MINIX_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_QUOTA=y
-# CONFIG_QFMT_V1 is not set
-CONFIG_QFMT_V2=y
-CONFIG_QUOTACTL=y
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=y
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-# CONFIG_ZISOFS is not set
-CONFIG_UDF_FS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-# CONFIG_NTFS_FS is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_DEVPTS_FS_SECURITY=y
-CONFIG_TMPFS=y
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-CONFIG_CRAMFS=m
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=m
-# CONFIG_NFS_V3 is not set
-CONFIG_NFS_V4=y
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_RPCSEC_GSS_KRB5=m
-CONFIG_SMB_FS=m
-# CONFIG_SMB_NLS_DEFAULT is not set
-CONFIG_CIFS=m
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-CONFIG_AFS_FS=m
-CONFIG_RXRPC=m
-
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-# CONFIG_ACORN_PARTITION is not set
-# CONFIG_OSF_PARTITION is not set
-# CONFIG_AMIGA_PARTITION is not set
-# CONFIG_ATARI_PARTITION is not set
-# CONFIG_MAC_PARTITION is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_BSD_DISKLABEL is not set
-# CONFIG_MINIX_SUBPARTITION is not set
-# CONFIG_SOLARIS_X86_PARTITION is not set
-# CONFIG_UNIXWARE_DISKLABEL is not set
-# CONFIG_LDM_PARTITION is not set
-# CONFIG_NEC98_PARTITION is not set
-# CONFIG_SGI_PARTITION is not set
-# CONFIG_ULTRIX_PARTITION is not set
-# CONFIG_SUN_PARTITION is not set
-# CONFIG_EFI_PARTITION is not set
-
-#
-# Native Language Support
-#
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_IOVIRT is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-# CONFIG_SPINLINE is not set
-# CONFIG_DEBUG_INFO is not set
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_KGDB=y
-# CONFIG_KGDB_9600BAUD is not set
-# CONFIG_KGDB_19200BAUD is not set
-# CONFIG_KGDB_38400BAUD is not set
-# CONFIG_KGDB_57600BAUD is not set
-CONFIG_KGDB_115200BAUD=y
-CONFIG_KGDB_PORT=0x3f8
-CONFIG_KGDB_IRQ=4
-# CONFIG_KGDB_MORE is not set
-# CONFIG_KGDB_TS is not set
-# CONFIG_STACK_OVERFLOW_TEST is not set
-# CONFIG_KGDB_CONSOLE is not set
-CONFIG_KGDB_SYSRQ=y
-CONFIG_FRAME_POINTER=y
-
-#
-# Security options
-#
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-# CONFIG_CRYPTO_NULL is not set
-# CONFIG_CRYPTO_MD4 is not set
-CONFIG_CRYPTO_MD5=m
-CONFIG_CRYPTO_SHA1=m
-# CONFIG_CRYPTO_SHA256 is not set
-# CONFIG_CRYPTO_SHA512 is not set
-CONFIG_CRYPTO_DES=m
-# CONFIG_CRYPTO_BLOWFISH is not set
-CONFIG_CRYPTO_TWOFISH=m
-# CONFIG_CRYPTO_SERPENT is not set
-CONFIG_CRYPTO_AES=m
-# CONFIG_CRYPTO_CAST5 is not set
-# CONFIG_CRYPTO_CAST6 is not set
-CONFIG_CRYPTO_DEFLATE=m
-# CONFIG_CRYPTO_TEST is not set
-
-#
-# Library routines
-#
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
---------------090501010206010601050808--
+Here are patches to drivers in the 2.6 kernel which have not been tested
+to correct the tiocmset/tiocmget problem.
+
+You can find the full thread at the following URL:
+
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&threadm=1dvnl-5Pr-1%40gated-at.bofh.it&rnum=1&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DISO-8859-1%26q%3DOutstanding%2Bfixups%26btnG%3DGoogle%2BSearch%26meta%3Dgroup%253Dlinux.kernel
+
+===== drivers/char/cyclades.c 1.32 vs edited =====
+--- 1.32/drivers/char/cyclades.c	Tue Sep 30 01:34:28 2003
++++ edited/drivers/char/cyclades.c	Tue Jan 13 14:01:24 2004
+@@ -3632,8 +3632,9 @@
+ }
+ 
+ static int
+-get_modem_info(struct cyclades_port * info, unsigned int *value)
++cy_tiocmget(struct tty_struct *tty, struct file *file)
+ {
++  struct cyclades_port * info = (struct cyclades_port *)tty->driver_data;
+   int card,chip,channel,index;
+   unsigned char *base_addr;
+   unsigned long flags;
+@@ -3645,6 +3646,9 @@
+   struct BOARD_CTRL *board_ctrl;
+   struct CH_CTRL *ch_ctrl;
+ 
++    if (serial_paranoia_check(info, tty->name, __FUNCTION__))
++	return -ENODEV;
++
+     card = info->card;
+     channel = (info->line) - (cy_card[card].first_line);
+     if (!IS_CYC_Z(cy_card[card])) {
+@@ -3700,14 +3704,15 @@
+ 	}
+ 
+     }
+-    return cy_put_user(result, value);
+-} /* get_modem_info */
++    return result;
++} /* cy_tiomget */
+ 
+ 
+ static int
+-set_modem_info(struct cyclades_port * info, unsigned int cmd,
+-                          unsigned int *value)
++cy_tiocmset(struct tty_struct *tty, struct file *file,
++            unsigned int set, unsigned int clear)
+ {
++  struct cyclades_port * info = (struct cyclades_port *)tty->driver_data;
+   int card,chip,channel,index;
+   unsigned char *base_addr;
+   unsigned long flags;
+@@ -3718,6 +3723,9 @@
+   struct CH_CTRL *ch_ctrl;
+   int retval;
+ 
++    if (serial_paranoia_check(info, tty->name, __FUNCTION__))
++	return -ENODEV;
++
+     card = info->card;
+     channel = (info->line) - (cy_card[card].first_line);
+     if (!IS_CYC_Z(cy_card[card])) {
+@@ -3728,66 +3736,7 @@
+ 		       (cy_card[card].base_addr
+ 		       + (cy_chip_offset[chip]<<index));
+ 
+-	switch (cmd) {
+-	case TIOCMBIS:
+-	    if (arg & TIOCM_RTS){
+-		CY_LOCK(info, flags);
+-		cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+-                if (info->rtsdtr_inv) {
+-		    cy_writeb((u_long)base_addr+(CyMSVR2<<index), CyDTR);
+-                } else {
+-		    cy_writeb((u_long)base_addr+(CyMSVR1<<index), CyRTS);
+-                }
+-		CY_UNLOCK(info, flags);
+-	    }
+-	    if (arg & TIOCM_DTR){
+-		CY_LOCK(info, flags);
+-		cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+-                if (info->rtsdtr_inv) {
+-		    cy_writeb((u_long)base_addr+(CyMSVR1<<index), CyRTS);
+-                } else {
+-		    cy_writeb((u_long)base_addr+(CyMSVR2<<index), CyDTR);
+-                }
+-#ifdef CY_DEBUG_DTR
+-		printk("cyc:set_modem_info raising DTR\n");
+-		printk("     status: 0x%x, 0x%x\n",
+-		    cy_readb(base_addr+(CyMSVR1<<index)), 
+-                    cy_readb(base_addr+(CyMSVR2<<index)));
+-#endif
+-		CY_UNLOCK(info, flags);
+-	    }
+-	    break;
+-	case TIOCMBIC:
+-	    if (arg & TIOCM_RTS){
+-		CY_LOCK(info, flags);
+-		cy_writeb((u_long)base_addr+(CyCAR<<index), 
+-                          (u_char)channel);
+-                if (info->rtsdtr_inv) {
+-		    	cy_writeb((u_long)base_addr+(CyMSVR2<<index), ~CyDTR);
+-                } else {
+-		    	cy_writeb((u_long)base_addr+(CyMSVR1<<index), ~CyRTS);
+-                }
+-		CY_UNLOCK(info, flags);
+-	    }
+-	    if (arg & TIOCM_DTR){
+-		CY_LOCK(info, flags);
+-		cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+-                if (info->rtsdtr_inv) {
+-			cy_writeb((u_long)base_addr+(CyMSVR1<<index), ~CyRTS);
+-                } else {
+-			cy_writeb((u_long)base_addr+(CyMSVR2<<index), ~CyDTR);
+-                }
+-#ifdef CY_DEBUG_DTR
+-		printk("cyc:set_modem_info dropping DTR\n");
+-		printk("     status: 0x%x, 0x%x\n",
+-		    cy_readb(base_addr+(CyMSVR1<<index)), 
+-                    cy_readb(base_addr+(CyMSVR2<<index)));
+-#endif
+-		CY_UNLOCK(info, flags);
+-	    }
+-	    break;
+-	case TIOCMSET:
+-	    if (arg & TIOCM_RTS){
++	if (set & TIOCM_RTS){
+ 		CY_LOCK(info, flags);
+ 	        cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+                 if (info->rtsdtr_inv) {
+@@ -3796,7 +3745,8 @@
+ 			cy_writeb((u_long)base_addr+(CyMSVR1<<index), CyRTS);
+                 }
+ 		CY_UNLOCK(info, flags);
+-	    }else{
++	}
++	if (clear & TIOCM_RTS) {
+ 		CY_LOCK(info, flags);
+ 		cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+                 if (info->rtsdtr_inv) {
+@@ -3805,8 +3755,8 @@
+ 			cy_writeb((u_long)base_addr+(CyMSVR1<<index), ~CyRTS);
+                 }
+ 		CY_UNLOCK(info, flags);
+-	    }
+-	    if (arg & TIOCM_DTR){
++	}
++	if (set & TIOCM_DTR){
+ 		CY_LOCK(info, flags);
+ 		cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+                 if (info->rtsdtr_inv) {
+@@ -3821,7 +3771,8 @@
+                     cy_readb(base_addr+(CyMSVR2<<index)));
+ #endif
+ 		CY_UNLOCK(info, flags);
+-	    }else{
++	}
++	if (clear & TIOCM_DTR) {
+ 		CY_LOCK(info, flags);
+ 		cy_writeb((u_long)base_addr+(CyCAR<<index), (u_char)channel);
+                 if (info->rtsdtr_inv) {
+@@ -3837,10 +3788,6 @@
+                     cy_readb(base_addr+(CyMSVR2<<index)));
+ #endif
+ 		CY_UNLOCK(info, flags);
+-	    }
+-	    break;
+-	default:
+-	    return -EINVAL;
+ 	}
+     } else {
+ 	base_addr = (unsigned char*) (cy_card[card].base_addr);
+@@ -3854,54 +3801,19 @@
+ 	    board_ctrl = &zfw_ctrl->board_ctrl;
+ 	    ch_ctrl = zfw_ctrl->ch_ctrl;
+ 
+-	    switch (cmd) {
+-	    case TIOCMBIS:
+-		if (arg & TIOCM_RTS){
+-		    CY_LOCK(info, flags);
+-		    cy_writel(&ch_ctrl[channel].rs_control,
+-                       cy_readl(&ch_ctrl[channel].rs_control) | C_RS_RTS);
+-		    CY_UNLOCK(info, flags);
+-		}
+-		if (arg & TIOCM_DTR){
+-		    CY_LOCK(info, flags);
+-		    cy_writel(&ch_ctrl[channel].rs_control,
+-                       cy_readl(&ch_ctrl[channel].rs_control) | C_RS_DTR);
+-#ifdef CY_DEBUG_DTR
+-		    printk("cyc:set_modem_info raising Z DTR\n");
+-#endif
+-		    CY_UNLOCK(info, flags);
+-		}
+-		break;
+-	    case TIOCMBIC:
+-		if (arg & TIOCM_RTS){
+-		    CY_LOCK(info, flags);
+-		    cy_writel(&ch_ctrl[channel].rs_control,
+-                       cy_readl(&ch_ctrl[channel].rs_control) & ~C_RS_RTS);
+-		    CY_UNLOCK(info, flags);
+-		}
+-		if (arg & TIOCM_DTR){
+-		    CY_LOCK(info, flags);
+-		    cy_writel(&ch_ctrl[channel].rs_control,
+-                       cy_readl(&ch_ctrl[channel].rs_control) & ~C_RS_DTR);
+-#ifdef CY_DEBUG_DTR
+-		    printk("cyc:set_modem_info clearing Z DTR\n");
+-#endif
+-		    CY_UNLOCK(info, flags);
+-		}
+-		break;
+-	    case TIOCMSET:
+-		if (arg & TIOCM_RTS){
++	    if (set & TIOCM_RTS){
+ 		    CY_LOCK(info, flags);
+ 		    cy_writel(&ch_ctrl[channel].rs_control,
+                        cy_readl(&ch_ctrl[channel].rs_control) | C_RS_RTS);
+ 		    CY_UNLOCK(info, flags);
+-		}else{
++	    }
++	    if (clear & TIOCM_RTS) {
+ 		    CY_LOCK(info, flags);
+ 		    cy_writel(&ch_ctrl[channel].rs_control,
+                        cy_readl(&ch_ctrl[channel].rs_control) & ~C_RS_RTS);
+ 		    CY_UNLOCK(info, flags);
+-		}
+-		if (arg & TIOCM_DTR){
++	    }
++	    if (set & TIOCM_DTR){
+ 		    CY_LOCK(info, flags);
+ 		    cy_writel(&ch_ctrl[channel].rs_control,
+                        cy_readl(&ch_ctrl[channel].rs_control) | C_RS_DTR);
+@@ -3909,7 +3821,8 @@
+ 		    printk("cyc:set_modem_info raising Z DTR\n");
+ #endif
+ 		    CY_UNLOCK(info, flags);
+-		}else{
++	    }
++	    if (clear & TIOCM_DTR) {
+ 		    CY_LOCK(info, flags);
+ 		    cy_writel(&ch_ctrl[channel].rs_control,
+                        cy_readl(&ch_ctrl[channel].rs_control) & ~C_RS_DTR);
+@@ -3917,10 +3830,6 @@
+ 		    printk("cyc:set_modem_info clearing Z DTR\n");
+ #endif
+ 		    CY_UNLOCK(info, flags);
+-		}
+-		break;
+-	    default:
+-		return -EINVAL;
+ 	    }
+ 	}else{
+ 	    return -ENODEV;
+@@ -3935,7 +3844,7 @@
+ 	CY_UNLOCK(info, flags);
+     }
+     return 0;
+-} /* set_modem_info */
++} /* cy_tiocmset */
+ 
+ /*
+  * cy_break() --- routine which turns the break handling on or off
+@@ -4242,14 +4151,6 @@
+ 	case CYGETWAIT:
+ 	    ret_val = info->closing_wait / (HZ/100);
+ 	    break;
+-        case TIOCMGET:
+-            ret_val = get_modem_info(info, (unsigned int *) arg);
+-            break;
+-        case TIOCMBIS:
+-        case TIOCMBIC:
+-        case TIOCMSET:
+-            ret_val = set_modem_info(info, cmd, (unsigned int *) arg);
+-            break;
+         case TIOCGSERIAL:
+             ret_val = get_serial_info(info, (struct serial_struct *) arg);
+             break;
+@@ -5429,6 +5330,8 @@
+     .break_ctl = cy_break,
+     .wait_until_sent = cy_wait_until_sent,
+     .read_proc = cyclades_get_proc_info,
++    .tiocmget = cy_tiocmget,
++    .tiocmset = cy_tiocmset,
+ };
+ 
+ static int __init
+===== drivers/char/ip2main.c 1.42 vs edited =====
+--- 1.42/drivers/char/ip2main.c	Tue Sep 30 01:23:52 2003
++++ edited/drivers/char/ip2main.c	Tue Jan 13 16:06:56 2004
+@@ -186,6 +186,9 @@
+ static void ip2_stop(PTTY);
+ static void ip2_start(PTTY);
+ static void ip2_hangup(PTTY);
++static int  ip2_tiocmget(struct tty_struct *tty, struct file *file);
++static int  ip2_tiocmset(struct tty_struct *tty, struct file *file,
++			 unsigned int set, unsigned int clear);
+ 
+ static void set_irq(int, int);
+ static void ip2_interrupt_bh(i2eBordStrPtr pB);
+@@ -466,6 +469,8 @@
+ 	.start           = ip2_start,
+ 	.hangup          = ip2_hangup,
+ 	.read_proc       = ip2_read_proc,
++	.tiocmget	 = ip2_tiocmget,
++	.tiocmset	 = ip2_tiocmset,
+ };
+ 
+ /******************************************************************************/
+@@ -1951,6 +1956,80 @@
+ /* Device Ioctl Section                                                       */
+ /******************************************************************************/
+ 
++static int ip2_tiocmget(struct tty_struct *tty, struct file *file)
++{
++	i2ChanStrPtr pCh = DevTable[tty->index];
++	wait_queue_t wait;
++
++	if (pCh == NULL)
++		return -ENODEV;
++
++/*
++	FIXME - the following code is causing a NULL pointer dereference in
++	2.3.51 in an interrupt handler.  It's suppose to prompt the board
++	to return the DSS signal status immediately.  Why doesn't it do
++	the same thing in 2.2.14?
++*/
++
++/*	This thing is still busted in the 1.2.12 driver on 2.4.x
++	and even hoses the serial console so the oops can be trapped.
++		/\/\|=mhw=|\/\/			*/
++
++#ifdef	ENABLE_DSSNOW
++	i2QueueCommands(PTYPE_BYPASS, pCh, 100, 1, CMD_DSS_NOW);
++
++	init_waitqueue_entry(&wait, current);
++	add_wait_queue(&pCh->dss_now_wait, &wait);
++	set_current_state( TASK_INTERRUPTIBLE );
++
++	serviceOutgoingFifo( pCh->pMyBord );
++
++	schedule();
++
++	set_current_state( TASK_RUNNING );
++	remove_wait_queue(&pCh->dss_now_wait, &wait);
++
++	if (signal_pending(current)) {
++		return -EINTR;
++	}
++#endif
++	return  ((pCh->dataSetOut & I2_RTS) ? TIOCM_RTS : 0)
++	      | ((pCh->dataSetOut & I2_DTR) ? TIOCM_DTR : 0)
++	      | ((pCh->dataSetIn  & I2_DCD) ? TIOCM_CAR : 0)
++	      | ((pCh->dataSetIn  & I2_RI)  ? TIOCM_RNG : 0)
++	      | ((pCh->dataSetIn  & I2_DSR) ? TIOCM_DSR : 0)
++	      | ((pCh->dataSetIn  & I2_CTS) ? TIOCM_CTS : 0);
++}
++
++static int ip2_tiocmset(struct tty_struct *tty, struct file *file,
++			unsigned int set, unsigned int clear)
++{
++	i2ChanStrPtr pCh = DevTable[tty->index];
++
++	if (pCh == NULL)
++		return -ENODEV;
++
++	if (set & TIOCM_RTS) {
++		i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_RTSUP);
++		pCh->dataSetOut |= I2_RTS;
++	}
++	if (set & TIOCM_DTR) {
++		i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_DTRUP);
++		pCh->dataSetOut |= I2_DTR;
++	}
++
++	if (clear & TIOCM_RTS) {
++		i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_RTSDN);
++		pCh->dataSetOut &= ~I2_RTS;
++	}
++	if (clear & TIOCM_DTR) {
++		i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_DTRDN);
++		pCh->dataSetOut &= ~I2_DTR;
++	}
++	serviceOutgoingFifo( pCh->pMyBord );
++	return 0;
++}
++
+ /******************************************************************************/
+ /* Function:   ip2_ioctl()                                                    */
+ /* Parameters: Pointer to tty structure                                       */
+@@ -2078,57 +2157,6 @@
+ 		
+ 		break;
+ 
+-	case TIOCMGET:
+-
+-		ip2trace (CHANN, ITRC_IOCTL, 8, 1, rc );
+-
+-/*
+-	FIXME - the following code is causing a NULL pointer dereference in
+-	2.3.51 in an interrupt handler.  It's suppose to prompt the board
+-	to return the DSS signal status immediately.  Why doesn't it do
+-	the same thing in 2.2.14?
+-*/
+-
+-/*	This thing is still busted in the 1.2.12 driver on 2.4.x
+-	and even hoses the serial console so the oops can be trapped.
+-		/\/\|=mhw=|\/\/			*/
+-
+-#ifdef	ENABLE_DSSNOW
+-		i2QueueCommands(PTYPE_BYPASS, pCh, 100, 1, CMD_DSS_NOW);
+-
+-		init_waitqueue_entry(&wait, current);
+-		add_wait_queue(&pCh->dss_now_wait, &wait);
+-		set_current_state( TASK_INTERRUPTIBLE );
+-
+-		serviceOutgoingFifo( pCh->pMyBord );
+-
+-		schedule();
+-
+-		set_current_state( TASK_RUNNING );
+-		remove_wait_queue(&pCh->dss_now_wait, &wait);
+-
+-		if (signal_pending(current)) {
+-			return -EINTR;
+-		}
+-#endif
+-		rc = put_user(
+-				    ((pCh->dataSetOut & I2_RTS) ? TIOCM_RTS : 0)
+-				  | ((pCh->dataSetOut & I2_DTR) ? TIOCM_DTR : 0)
+-				  | ((pCh->dataSetIn  & I2_DCD) ? TIOCM_CAR : 0)
+-				  | ((pCh->dataSetIn  & I2_RI)  ? TIOCM_RNG : 0)
+-				  | ((pCh->dataSetIn  & I2_DSR) ? TIOCM_DSR : 0)
+-				  | ((pCh->dataSetIn  & I2_CTS) ? TIOCM_CTS : 0),
+-				(unsigned int *) arg);
+-		break;
+-
+-	case TIOCMBIS:
+-	case TIOCMBIC:
+-	case TIOCMSET:
+-		ip2trace (CHANN, ITRC_IOCTL, 9, 0 );
+-
+-		rc = set_modem_info(pCh, cmd, (unsigned int *) arg);
+-		break;
+-
+ 	/*
+ 	 * Wait for any of the 4 modem inputs (DCD,RI,DSR,CTS) to change - mask
+ 	 * passed in arg for lines of interest (use |'ed TIOCM_RNG/DSR/CD/CTS
+@@ -2239,70 +2267,6 @@
+ }
+ 
+ /******************************************************************************/
+-/* Function:   set_modem_info()                                               */
+-/* Parameters: Pointer to channel structure                                   */
+-/*             Specific ioctl command                                         */
+-/*             Pointer to source for new settings                             */
+-/* Returns:    Nothing                                                        */
+-/*                                                                            */
+-/* Description:                                                               */
+-/* This returns the current settings of the dataset signal inputs to the user */
+-/* program.                                                                   */
+-/******************************************************************************/
+-static int
+-set_modem_info(i2ChanStrPtr pCh, unsigned cmd, unsigned int *value)
+-{
+-	int rc;
+-	unsigned int arg;
+-
+-	rc = get_user(arg,value);
+-	if (rc)
+-		return rc;
+-	switch(cmd) {
+-	case TIOCMBIS:
+-		if (arg & TIOCM_RTS) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_RTSUP);
+-			pCh->dataSetOut |= I2_RTS;
+-		}
+-		if (arg & TIOCM_DTR) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_DTRUP);
+-			pCh->dataSetOut |= I2_DTR;
+-		}
+-		break;
+-	case TIOCMBIC:
+-		if (arg & TIOCM_RTS) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_RTSDN);
+-			pCh->dataSetOut &= ~I2_RTS;
+-		}
+-		if (arg & TIOCM_DTR) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_DTRDN);
+-			pCh->dataSetOut &= ~I2_DTR;
+-		}
+-		break;
+-	case TIOCMSET:
+-		if ( (arg & TIOCM_RTS) && !(pCh->dataSetOut & I2_RTS) ) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_RTSUP);
+-			pCh->dataSetOut |= I2_RTS;
+-		} else if ( !(arg & TIOCM_RTS) && (pCh->dataSetOut & I2_RTS) ) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_RTSDN);
+-			pCh->dataSetOut &= ~I2_RTS;
+-		}
+-		if ( (arg & TIOCM_DTR) && !(pCh->dataSetOut & I2_DTR) ) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_DTRUP);
+-			pCh->dataSetOut |= I2_DTR;
+-		} else if ( !(arg & TIOCM_DTR) && (pCh->dataSetOut & I2_DTR) ) {
+-			i2QueueCommands(PTYPE_INLINE, pCh, 100, 1, CMD_DTRDN);
+-			pCh->dataSetOut &= ~I2_DTR;
+-		}
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-	serviceOutgoingFifo( pCh->pMyBord );
+-	return 0;
+-}
+-
+-/******************************************************************************/
+ /* Function:   GetSerialInfo()                                                */
+ /* Parameters: Pointer to channel structure                                   */
+ /*             Pointer to old termios structure                               */
+@@ -2964,7 +2928,7 @@
+ 			rc = put_user(ip2_throttle, pIndex++ );
+ 			rc = put_user(ip2_unthrottle, pIndex++ );
+ 			rc = put_user(ip2_ioctl, pIndex++ );
+-			rc = put_user(set_modem_info, pIndex++ );
++			rc = put_user(0, pIndex++ );
+ 			rc = put_user(get_serial_info, pIndex++ );
+ 			rc = put_user(set_serial_info, pIndex++ );
+ 			rc = put_user(ip2_set_termios, pIndex++ );
+===== drivers/char/istallion.c 1.34 vs edited =====
+--- 1.34/drivers/char/istallion.c	Tue Sep 30 01:34:28 2003
++++ edited/drivers/char/istallion.c	Tue Jan 13 16:12:50 2004
+@@ -1990,6 +1990,61 @@
+ 
+ /*****************************************************************************/
+ 
++static int stli_tiocmget(struct tty_struct *tty, struct file *file)
++{
++	stliport_t *portp = tty->driver_data;
++	stlibrd_t *brdp;
++	int rc;
++
++	if (portp == (stliport_t *) NULL)
++		return(-ENODEV);
++	if ((portp->brdnr < 0) || (portp->brdnr >= stli_nrbrds))
++		return(0);
++	brdp = stli_brds[portp->brdnr];
++	if (brdp == (stlibrd_t *) NULL)
++		return(0);
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return(-EIO);
++
++	if ((rc = stli_cmdwait(brdp, portp, A_GETSIGNALS,
++			       &portp->asig, sizeof(asysigs_t), 1)) < 0)
++		return(rc);
++
++	return stli_mktiocm(portp->asig.sigvalue);
++}
++
++static int stli_tiocmset(struct tty_struct *tty, struct file *file,
++			 unsigned int set, unsigned int clear)
++{
++	stliport_t *portp = tty->driver_data;
++	stlibrd_t *brdp;
++	int rts = -1, dtr = -1;
++
++	if (portp == (stliport_t *) NULL)
++		return(-ENODEV);
++	if ((portp->brdnr < 0) || (portp->brdnr >= stli_nrbrds))
++		return(0);
++	brdp = stli_brds[portp->brdnr];
++	if (brdp == (stlibrd_t *) NULL)
++		return(0);
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return(-EIO);
++
++	if (set & TIOCM_RTS)
++		rts = 1;
++	if (set & TIOCM_DTR)
++		dtr = 1;
++	if (clear & TIOCM_RTS)
++		rts = 0;
++	if (clear & TIOCM_DTR)
++		dtr = 0;
++
++	stli_mkasysigs(&portp->asig, dtr, rts);
++
++	return stli_cmdwait(brdp, portp, A_SETSIGNALS, &portp->asig,
++			    sizeof(asysigs_t), 0);
++}
++
+ static int stli_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	stliport_t	*portp;
+@@ -2033,43 +2088,6 @@
+ 				(tty->termios->c_cflag & ~CLOCAL) |
+ 				(ival ? CLOCAL : 0);
+ 		break;
+-	case TIOCMGET:
+-		if ((rc = verify_area(VERIFY_WRITE, (void *) arg,
+-		    sizeof(unsigned int))) == 0) {
+-			if ((rc = stli_cmdwait(brdp, portp, A_GETSIGNALS,
+-			    &portp->asig, sizeof(asysigs_t), 1)) < 0)
+-				return(rc);
+-			lval = stli_mktiocm(portp->asig.sigvalue);
+-			put_user(lval, (unsigned int *) arg);
+-		}
+-		break;
+-	case TIOCMBIS:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0) {
+-			stli_mkasysigs(&portp->asig,
+-				((ival & TIOCM_DTR) ? 1 : -1),
+-				((ival & TIOCM_RTS) ? 1 : -1));
+-			rc = stli_cmdwait(brdp, portp, A_SETSIGNALS,
+-				&portp->asig, sizeof(asysigs_t), 0);
+-		}
+-		break;
+-	case TIOCMBIC:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0) {
+-			stli_mkasysigs(&portp->asig,
+-				((ival & TIOCM_DTR) ? 0 : -1),
+-				((ival & TIOCM_RTS) ? 0 : -1));
+-			rc = stli_cmdwait(brdp, portp, A_SETSIGNALS,
+-				&portp->asig, sizeof(asysigs_t), 0);
+-		}
+-		break;
+-	case TIOCMSET:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0) {
+-			stli_mkasysigs(&portp->asig,
+-				((ival & TIOCM_DTR) ? 1 : 0),
+-				((ival & TIOCM_RTS) ? 1 : 0));
+-			rc = stli_cmdwait(brdp, portp, A_SETSIGNALS,
+-				&portp->asig, sizeof(asysigs_t), 0);
+-		}
+-		break;
+ 	case TIOCGSERIAL:
+ 		if ((rc = verify_area(VERIFY_WRITE, (void *) arg,
+ 		    sizeof(struct serial_struct))) == 0)
+@@ -5254,6 +5272,8 @@
+ 	.wait_until_sent = stli_waituntilsent,
+ 	.send_xchar = stli_sendxchar,
+ 	.read_proc = stli_readproc,
++	.tiocmget = stli_tiocmget,
++	.tiocmset = stli_tiocmset,
+ };
+ 
+ /*****************************************************************************/
+===== drivers/char/rio/rio_linux.c 1.32 vs edited =====
+--- 1.32/drivers/char/rio/rio_linux.c	Tue Sep 30 01:34:28 2003
++++ edited/drivers/char/rio/rio_linux.c	Tue Jan 13 15:01:40 2004
+@@ -728,6 +728,11 @@
+       rc = gs_setserial(&PortP->gs, (struct serial_struct *) arg);
+     break;
+ #if 0
++  /*
++   * note: these IOCTLs no longer reach here.  Use
++   * tiocmset/tiocmget driver methods instead.  The
++   * #if 0 disablement predates this comment.
++   */
+   case TIOCMGET:
+     if ((rc = verify_area(VERIFY_WRITE, (void *) arg,
+                           sizeof(unsigned int))) == 0) {
+===== drivers/char/rocket.c 1.36 vs edited =====
+--- 1.36/drivers/char/rocket.c	Thu Oct  9 23:13:53 2003
++++ edited/drivers/char/rocket.c	Tue Jan 13 16:28:49 2004
+@@ -1216,59 +1216,6 @@
+ /********************************************************************************************/
+ /*  Here are the routines used by rp_ioctl.  These are all called from exception handlers.  */
+ 
+-static int get_modem_info(struct r_port *info, unsigned int *value)
+-{
+-	unsigned int control, result, ChanStatus;
+-
+-	ChanStatus = sGetChanStatusLo(&info->channel);
+-
+-	control = info->channel.TxControl[3];
+-	result = ((control & SET_RTS) ? TIOCM_RTS : 0) | 
+-		((control & SET_DTR) ?  TIOCM_DTR : 0) |
+-		((ChanStatus & CD_ACT) ? TIOCM_CAR : 0) |
+-		(sGetChanRI(&info->channel) ? TIOCM_RNG : 0) |
+-		((ChanStatus & DSR_ACT) ? TIOCM_DSR : 0) |
+-		((ChanStatus & CTS_ACT) ? TIOCM_CTS : 0);
+-
+-	if (copy_to_user(value, &result, sizeof (int)))
+-		return -EFAULT;
+-	return 0;
+-}
+-
+-static int set_modem_info(struct r_port *info, unsigned int cmd,
+-			  unsigned int *value)
+-{
+-	unsigned int arg;
+-
+-	if (copy_from_user(&arg, value, sizeof (int)))
+-		return -EFAULT;
+-
+-	switch (cmd) {
+-	case TIOCMBIS:
+-		if (arg & TIOCM_RTS)
+-			info->channel.TxControl[3] |= SET_RTS;
+-		if (arg & TIOCM_DTR)
+-			info->channel.TxControl[3] |= SET_DTR;
+-		break;
+-	case TIOCMBIC:
+-		if (arg & TIOCM_RTS)
+-			info->channel.TxControl[3] &= ~SET_RTS;
+-		if (arg & TIOCM_DTR)
+-			info->channel.TxControl[3] &= ~SET_DTR;
+-		break;
+-	case TIOCMSET:
+-		info->channel.TxControl[3] = ((info->channel.TxControl[3] & ~(SET_RTS | SET_DTR)) | 
+-					      ((arg & TIOCM_RTS) ? SET_RTS : 0) | 
+-					      ((arg & TIOCM_DTR) ? SET_DTR : 0));
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-
+-	sOutDW(info->channel.IndexAddr, *(DWord_t *) & (info->channel.TxControl[0]));
+-	return 0;
+-}
+-
+ /*
+  *  Returns the state of the serial modem control lines.  These next 2 functions 
+  *  are the way kernel versions > 2.5 handle modem control lines rather than IOCTLs.
+@@ -1432,12 +1379,6 @@
+ 		return -ENXIO;
+ 
+ 	switch (cmd) {
+-	case TIOCMGET:
+-		return get_modem_info(info, (unsigned int *) arg);
+-	case TIOCMBIS:
+-	case TIOCMBIC:
+-	case TIOCMSET:
+-		return set_modem_info(info, cmd, (unsigned int *) arg);
+ 	case RCKP_GET_STRUCT:
+ 		if (copy_to_user((void *) arg, info, sizeof (struct r_port)))
+ 			return -EFAULT;
+===== drivers/char/sh-sci.c 1.25 vs edited =====
+--- 1.25/drivers/char/sh-sci.c	Wed Jun 11 20:32:39 2003
++++ edited/drivers/char/sh-sci.c	Tue Jan 13 15:17:23 2004
+@@ -859,6 +859,31 @@
+ 	return retval;
+ }
+ 
++static int sci_tiocmget(struct tty_struct *tty, struct file *file)
++{
++	struct sci_port *port = tty->driver_data;
++	return sci_getsignals(port);
++}
++
++static int sci_tiocmset(struct tty_struct *tty, struct file *file,
++			unsigned int set, unsigned int clear)
++{
++	struct sci_port *port = tty->driver_data;
++	int rts = -1, dtr = -1;
++
++	if (set & TIOCM_RTS)
++		rts = 1;
++	if (set & TIOCM_DTR)
++		dtr = 1;
++	if (clear & TIOCM_RTS)
++		rts = 0;
++	if (clear & TIOCM_DTR)
++		dtr = 0;
++
++	sci_setsignals(port, dtr, rts);
++	return 0;
++}
++
+ static int sci_ioctl(struct tty_struct * tty, struct file * filp, 
+                      unsigned int cmd, unsigned long arg)
+ {
+@@ -889,25 +914,6 @@
+ 			rc = gs_setserial(&port->gs,
+ 					  (struct serial_struct *) arg);
+ 		break;
+-	case TIOCMGET:
+-		ival = sci_getsignals(port);
+-		rc = put_user(ival, (unsigned int *) arg);
+-		break;
+-	case TIOCMBIS:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0)
+-			sci_setsignals(port, ((ival & TIOCM_DTR) ? 1 : -1),
+-			                     ((ival & TIOCM_RTS) ? 1 : -1));
+-		break;
+-	case TIOCMBIC:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0)
+-			sci_setsignals(port, ((ival & TIOCM_DTR) ? 0 : -1),
+-			                     ((ival & TIOCM_RTS) ? 0 : -1));
+-		break;
+-	case TIOCMSET:
+-		if ((rc = get_user(ival, (unsigned int *)arg)) == 0)
+-			sci_setsignals(port, ((ival & TIOCM_DTR) ? 1 : 0),
+-			                     ((ival & TIOCM_RTS) ? 1 : 0));
+-		break;
+ 
+ 	default:
+ 		rc = -ENOIOCTLCMD;
+@@ -991,6 +997,8 @@
+ #ifdef CONFIG_PROC_FS
+ 	.read_proc = sci_read_proc,
+ #endif
++	.tiocmget = sci_tiocmget,
++	.tiocmset = sci_tiocmset,
+ };
+ 
+ /* ********************************************************************** *
+===== drivers/char/stallion.c 1.37 vs edited =====
+--- 1.37/drivers/char/stallion.c	Tue Sep 30 01:34:28 2003
++++ edited/drivers/char/stallion.c	Tue Jan 13 15:10:39 2004
+@@ -1514,6 +1514,48 @@
+ 
+ /*****************************************************************************/
+ 
++static int stl_tiocmget(struct tty_struct *tty, struct file *file)
++{
++	stlport_t	*portp;
++
++	if (tty == (struct tty_struct *) NULL)
++		return(-ENODEV);
++	portp = tty->driver_data;
++	if (portp == (stlport_t *) NULL)
++		return(-ENODEV);
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return(-EIO);
++
++	return stl_getsignals(portp);
++}
++
++static int stl_tiocmset(struct tty_struct *tty, struct file *file,
++			unsigned int set, unsigned int clear)
++{
++	stlport_t	*portp;
++	int rts = -1, dtr = -1;
++
++	if (tty == (struct tty_struct *) NULL)
++		return(-ENODEV);
++	portp = tty->driver_data;
++	if (portp == (stlport_t *) NULL)
++		return(-ENODEV);
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return(-EIO);
++
++	if (set & TIOCM_RTS)
++		rts = 1;
++	if (set & TIOCM_DTR)
++		dtr = 1;
++	if (clear & TIOCM_RTS)
++		rts = 0;
++	if (clear & TIOCM_DTR)
++		dtr = 0;
++
++	stl_setsignals(portp, dtr, rts);
++	return 0;
++}
++
+ static int stl_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	stlport_t	*portp;
+@@ -1553,37 +1595,6 @@
+ 				(ival ? CLOCAL : 0);
+ 		}
+ 		break;
+-	case TIOCMGET:
+-		if ((rc = verify_area(VERIFY_WRITE, (void *) arg,
+-		    sizeof(unsigned int))) == 0) {
+-			ival = stl_getsignals(portp);
+-			put_user(ival, (unsigned int *) arg);
+-		}
+-		break;
+-	case TIOCMBIS:
+-		if ((rc = verify_area(VERIFY_READ, (void *) arg,
+-		    sizeof(unsigned int))) == 0) {
+-			get_user(ival, (unsigned int *) arg);
+-			stl_setsignals(portp, ((ival & TIOCM_DTR) ? 1 : -1),
+-				((ival & TIOCM_RTS) ? 1 : -1));
+-		}
+-		break;
+-	case TIOCMBIC:
+-		if ((rc = verify_area(VERIFY_READ, (void *) arg,
+-		    sizeof(unsigned int))) == 0) {
+-			get_user(ival, (unsigned int *) arg);
+-			stl_setsignals(portp, ((ival & TIOCM_DTR) ? 0 : -1),
+-				((ival & TIOCM_RTS) ? 0 : -1));
+-		}
+-		break;
+-	case TIOCMSET:
+-		if ((rc = verify_area(VERIFY_READ, (void *) arg,
+-		    sizeof(unsigned int))) == 0) {
+-			get_user(ival, (unsigned int *) arg);
+-			stl_setsignals(portp, ((ival & TIOCM_DTR) ? 1 : 0),
+-				((ival & TIOCM_RTS) ? 1 : 0));
+-		}
+-		break;
+ 	case TIOCGSERIAL:
+ 		if ((rc = verify_area(VERIFY_WRITE, (void *) arg,
+ 		    sizeof(struct serial_struct))) == 0)
+@@ -3137,6 +3148,8 @@
+ 	.wait_until_sent = stl_waituntilsent,
+ 	.send_xchar = stl_sendxchar,
+ 	.read_proc = stl_readproc,
++	.tiocmget = stl_tiocmget,
++	.tiocmset = stl_tiocmset,
+ };
+ 
+ /*****************************************************************************/
+===== drivers/char/sx.c 1.42 vs edited =====
+--- 1.42/drivers/char/sx.c	Tue Dec 30 08:41:41 2003
++++ edited/drivers/char/sx.c	Tue Jan 13 14:59:30 2004
+@@ -1743,6 +1743,32 @@
+ }
+ 
+ 
++static int sx_tiocmget(struct tty_struct *tty, struct file *file)
++{
++	struct sx_port *port = tty->driver_data;
++	return sx_getsignals(port);
++}
++
++static int sx_tiocmset(struct tty_struct *tty, struct file *file,
++		       unsigned int set, unsigned int clear)
++{
++	struct sx_port *port = tty->driver_data;
++	int rts = -1, cts = -1;
++
++	if (set & TIOCM_RTS)
++		rts = 1;
++	if (set & TIOCM_DTR)
++		dtr = 1;
++	if (clear & TIOCM_RTS)
++		rts = 0;
++	if (clear & TIOCM_DTR)
++		dtr = 0;
++
++	sx_setsignals(port, dtr, rts);
++	sx_reconfigure_port(port);
++	return 0;
++}
++
+ static int sx_ioctl (struct tty_struct * tty, struct file * filp, 
+                      unsigned int cmd, unsigned long arg)
+ {
+@@ -1775,34 +1801,6 @@
+ 		                      sizeof(struct serial_struct))) == 0)
+ 			rc = gs_setserial(&port->gs, (struct serial_struct *) arg);
+ 		break;
+-	case TIOCMGET:
+-		if ((rc = verify_area(VERIFY_WRITE, (void *) arg,
+-		                      sizeof(unsigned int))) == 0) {
+-			ival = sx_getsignals(port);
+-			put_user(ival, (unsigned int *) arg);
+-		}
+-		break;
+-	case TIOCMBIS:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0) {
+-			sx_setsignals(port, ((ival & TIOCM_DTR) ? 1 : -1),
+-			                     ((ival & TIOCM_RTS) ? 1 : -1));
+-			sx_reconfigure_port(port);
+-		}
+-		break;
+-	case TIOCMBIC:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0) {
+-			sx_setsignals(port, ((ival & TIOCM_DTR) ? 0 : -1),
+-			                     ((ival & TIOCM_RTS) ? 0 : -1));
+-			sx_reconfigure_port(port);
+-		}
+-		break;
+-	case TIOCMSET:
+-		if ((rc = get_user(ival, (unsigned int *) arg)) == 0) {
+-			sx_setsignals(port, ((ival & TIOCM_DTR) ? 1 : 0),
+-			                     ((ival & TIOCM_RTS) ? 1 : 0));
+-			sx_reconfigure_port(port);
+-		}
+-		break;
+ 	default:
+ 		rc = -ENOIOCTLCMD;
+ 		break;
+@@ -2217,6 +2215,8 @@
+ 	.stop = gs_stop,
+ 	.start = gs_start,
+ 	.hangup = gs_hangup,
++	.tiocmget = sx_tiocmget,
++	.tiocmset = sx_tiocmset,
+ };
+ 
+ static int sx_init_drivers(void)
+===== drivers/macintosh/macserial.c 1.30 vs edited =====
+--- 1.30/drivers/macintosh/macserial.c	Wed Sep 24 07:15:15 2003
++++ edited/drivers/macintosh/macserial.c	Tue Jan 13 14:55:37 2004
+@@ -1777,47 +1777,65 @@
+ 	return put_user(status,value);
+ }
+ 
+-static int get_modem_info(struct mac_serial *info, unsigned int *value)
++static int rs_tiocmget(struct tty_struct *tty, struct file *file)
+ {
++	struct mac_serial * info = (struct mac_serial *)tty->driver_data;
+ 	unsigned char control, status;
+-	unsigned int result;
+ 	unsigned long flags;
+ 
++#ifdef CONFIG_KGDB
++	if (info->kgdb_channel)
++		return -ENODEV;
++#endif
++	if (serial_paranoia_check(info, tty->name, __FUNCTION__))
++		return -ENODEV;
++
++	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
++	    (cmd != TIOCSERCONFIG) && (cmd != TIOCSERGSTRUCT)) {
++		if (tty->flags & (1 << TTY_IO_ERROR))
++		    return -EIO;
++	}
++
+ 	spin_lock_irqsave(&info->lock, flags);
+ 	control = info->curregs[5];
+ 	status = read_zsreg(info->zs_channel, 0);
+ 	spin_unlock_irqrestore(&info->lock, flags);
+-	result =  ((control & RTS) ? TIOCM_RTS: 0)
++	return    ((control & RTS) ? TIOCM_RTS: 0)
+ 		| ((control & DTR) ? TIOCM_DTR: 0)
+ 		| ((status  & DCD) ? TIOCM_CAR: 0)
+ 		| ((status  & CTS) ? 0: TIOCM_CTS);
+-	return put_user(result,value);
+ }
+ 
+-static int set_modem_info(struct mac_serial *info, unsigned int cmd,
+-			  unsigned int *value)
++static int rs_tiocmset(struct tty_struct *tty, struct file *file,
++		       unsigned int set, unsigned int clear)
+ {
++	struct mac_serial * info = (struct mac_serial *)tty->driver_data;
+ 	unsigned int arg, bits;
+ 	unsigned long flags;
+ 
+-	if (get_user(arg, value))
+-		return -EFAULT;
+-	bits = (arg & TIOCM_RTS? RTS: 0) + (arg & TIOCM_DTR? DTR: 0);
+-	spin_lock_irqsave(&info->lock, flags);
+-	switch (cmd) {
+-	case TIOCMBIS:
+-		info->curregs[5] |= bits;
+-		break;
+-	case TIOCMBIC:
+-		info->curregs[5] &= ~bits;
+-		break;
+-	case TIOCMSET:
+-		info->curregs[5] = (info->curregs[5] & ~(DTR | RTS)) | bits;
+-		break;
+-	default:
+-		spin_unlock_irqrestore(&info->lock, flags);
+-		return -EINVAL;
++#ifdef CONFIG_KGDB
++	if (info->kgdb_channel)
++		return -ENODEV;
++#endif
++	if (serial_paranoia_check(info, tty->name, __FUNCTION__))
++		return -ENODEV;
++
++	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
++	    (cmd != TIOCSERCONFIG) && (cmd != TIOCSERGSTRUCT)) {
++		if (tty->flags & (1 << TTY_IO_ERROR))
++		    return -EIO;
+ 	}
++
++	spin_lock_irqsave(&info->lock, flags);
++	if (set & TIOCM_RTS)
++		info->curregs[5] |= RTS;
++	if (set & TIOCM_DTR)
++		info->curregs[5] |= DTR;
++	if (clear & TIOCM_RTS)
++		info->curregs[5] &= ~RTS;
++	if (clear & TIOCM_DTR)
++		info->curregs[5] &= ~DTR;
++
+ 	info->pendregs[5] = info->curregs[5];
+ 	write_zsreg(info->zs_channel, 5, info->curregs[5]);
+ 	spin_unlock_irqrestore(&info->lock, flags);
+@@ -1863,12 +1881,6 @@
+ 	}
+ 
+ 	switch (cmd) {
+-		case TIOCMGET:
+-			return get_modem_info(info, (unsigned int *) arg);
+-		case TIOCMBIS:
+-		case TIOCMBIC:
+-		case TIOCMSET:
+-			return set_modem_info(info, cmd, (unsigned int *) arg);
+ 		case TIOCGSERIAL:
+ 			return get_serial_info(info,
+ 					(struct serial_struct __user *) arg);
+@@ -2488,6 +2500,8 @@
+ 	.break_ctl = rs_break,
+ 	.wait_until_sent = rs_wait_until_sent,
+ 	.read_proc = macserial_read_proc,
++	.tiocmget = rs_tiocmget,
++	.tiocmset = rs_tiocmset,
+ };
+ 
+ static int macserial_init(void)
+===== drivers/s390/net/ctctty.c 1.20 vs edited =====
+--- 1.20/drivers/s390/net/ctctty.c	Mon Oct  6 11:59:26 2003
++++ edited/drivers/s390/net/ctctty.c	Tue Jan 13 14:51:50 2004
+@@ -655,14 +655,19 @@
+ }
+ 
+ 
+-static int
+-ctc_tty_get_ctc_tty_info(ctc_tty_info * info, uint * value)
++static int ctc_tty_tiocmget(struct tty_struct *tty, struct file *file)
+ {
++	ctc_tty_info *info = (ctc_tty_info *) tty->driver_data;
+ 	u_char control,
+ 	 status;
+ 	uint result;
+ 	ulong flags;
+ 
++	if (ctc_tty_paranoia_check(info, tty->name, "ctc_tty_ioctl"))
++		return -ENODEV;
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return -EIO;
++
+ 	control = info->mcr;
+ 	spin_lock_irqsave(&ctc_tty_lock, flags);
+ 	status = info->msr;
+@@ -673,51 +678,31 @@
+ 	    | ((status & UART_MSR_RI) ? TIOCM_RNG : 0)
+ 	    | ((status & UART_MSR_DSR) ? TIOCM_DSR : 0)
+ 	    | ((status & UART_MSR_CTS) ? TIOCM_CTS : 0);
+-	put_user(result, (uint *) value);
+-	return 0;
++	return result;
+ }
+ 
+ static int
+-ctc_tty_set_ctc_tty_info(ctc_tty_info * info, uint cmd, uint * value)
++ctc_tty_tiocmset(struct tty_struct *tty, struct file *file,
++		 unsigned int set, unsigned int clear)
+ {
+-	uint arg;
+-	int old_mcr = info->mcr & (UART_MCR_RTS | UART_MCR_DTR);
++	ctc_tty_info *info = (ctc_tty_info *) tty->driver_data;
+ 
+-	get_user(arg, (uint *) value);
+-	switch (cmd) {
+-		case TIOCMBIS:
+-#ifdef CTC_DEBUG_MODEM_IOCTL
+-			printk(KERN_DEBUG "%s%d ioctl TIOCMBIS\n", CTC_TTY_NAME,
+-			       info->line);
+-#endif
+-			if (arg & TIOCM_RTS)
+-				info->mcr |= UART_MCR_RTS;
+-			if (arg & TIOCM_DTR)
+-				info->mcr |= UART_MCR_DTR;
+-			break;
+-		case TIOCMBIC:
+-#ifdef CTC_DEBUG_MODEM_IOCTL
+-			printk(KERN_DEBUG "%s%d ioctl TIOCMBIC\n", CTC_TTY_NAME,
+-			       info->line);
+-#endif
+-			if (arg & TIOCM_RTS)
+-				info->mcr &= ~UART_MCR_RTS;
+-			if (arg & TIOCM_DTR)
+-				info->mcr &= ~UART_MCR_DTR;
+-			break;
+-		case TIOCMSET:
+-#ifdef CTC_DEBUG_MODEM_IOCTL
+-			printk(KERN_DEBUG "%s%d ioctl TIOCMSET\n", CTC_TTY_NAME,
+-			       info->line);
+-#endif
+-			info->mcr = ((info->mcr & ~(UART_MCR_RTS | UART_MCR_DTR))
+-				 | ((arg & TIOCM_RTS) ? UART_MCR_RTS : 0)
+-			       | ((arg & TIOCM_DTR) ? UART_MCR_DTR : 0));
+-			break;
+-		default:
+-			return -EINVAL;
+-	}
+-	if ((info->mcr  & (UART_MCR_RTS | UART_MCR_DTR)) != old_mcr)
++	if (ctc_tty_paranoia_check(info, tty->name, "ctc_tty_ioctl"))
++		return -ENODEV;
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return -EIO;
++
++	if (set & TIOCM_RTS)
++		info->mcr |= UART_MCR_RTS;
++	if (set & TIOCM_DTR)
++		info->mcr |= UART_MCR_DTR;
++
++	if (clear & TIOCM_RTS)
++		info->mcr &= ~UART_MCR_RTS;
++	if (clear & TIOCM_DTR)
++		info->mcr &= ~UART_MCR_DTR;
++
++	if ((set | clear) & (TIOCM_RTS|TIOCM_DTR))
+ 		ctc_tty_transmit_status(info);
+ 	return 0;
+ }
+@@ -775,22 +760,6 @@
+ 			    ((tty->termios->c_cflag & ~CLOCAL) |
+ 			     (arg ? CLOCAL : 0));
+ 			return 0;
+-		case TIOCMGET:
+-#ifdef CTC_DEBUG_MODEM_IOCTL
+-			printk(KERN_DEBUG "%s%d ioctl TIOCMGET\n", CTC_TTY_NAME,
+-			       info->line);
+-#endif
+-			error = verify_area(VERIFY_WRITE, (void *) arg, sizeof(uint));
+-			if (error)
+-				return error;
+-			return ctc_tty_get_ctc_tty_info(info, (uint *) arg);
+-		case TIOCMBIS:
+-		case TIOCMBIC:
+-		case TIOCMSET:
+-			error = verify_area(VERIFY_READ, (void *) arg, sizeof(uint));
+-			if (error)
+-				return error;
+-			return ctc_tty_set_ctc_tty_info(info, cmd, (uint *) arg);
+ 		case TIOCSERGETLSR:	/* Get line status register */
+ #ifdef CTC_DEBUG_MODEM_IOCTL
+ 			printk(KERN_DEBUG "%s%d ioctl TIOCSERGETLSR\n", CTC_TTY_NAME,
+@@ -1142,6 +1111,8 @@
+ 	.unthrottle = ctc_tty_unthrottle,
+ 	.set_termios = ctc_tty_set_termios,
+ 	.hangup = ctc_tty_hangup,
++	.tiocmget = ctc_tty_tiocmget,
++	.tiocmset = ctc_tty_tiocmset,
+ };
+ 
+ int
+===== drivers/serial/mcfserial.c 1.17 vs edited =====
+--- 1.17/drivers/serial/mcfserial.c	Thu Jul  3 02:18:07 2003
++++ edited/drivers/serial/mcfserial.c	Tue Jan 13 13:22:09 2004
+@@ -985,6 +985,43 @@
+ 	local_irq_restore(flags);
+ }
+ 
++static int mcfrs_tiocmget(struct tty_struct *tty, struct file *file)
++{
++	struct mcf_serial * info = (struct mcf_serial *)tty->driver_data;
++
++	if (serial_paranoia_check(info, tty->name, "mcfrs_ioctl"))
++		return -ENODEV;
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return -EIO;
++
++	return mcfrs_getsignals(info);
++}
++
++static int mcfrs_tiocmset(struct tty_struct *tty, struct file *file,
++			  unsigned int set, unsigned int clear)
++{
++	struct mcf_serial * info = (struct mcf_serial *)tty->driver_data;
++	int rts = -1, dtr = -1;
++
++	if (serial_paranoia_check(info, tty->name, "mcfrs_ioctl"))
++		return -ENODEV;
++	if (tty->flags & (1 << TTY_IO_ERROR))
++		return -EIO;
++
++	if (set & TIOCM_RTS)
++		rts = 1;
++	if (set & TIOCM_DTR)
++		dtr = 1;
++	if (clear & TIOCM_RTS)
++		rts = 0;
++	if (clear & TIOCM_DTR)
++		dtr = 0;
++
++	mcfrs_setsignals(info, dtr, rts);
++
++	return 0;
++}
++
+ static int mcfrs_ioctl(struct tty_struct *tty, struct file * file,
+ 		    unsigned int cmd, unsigned long arg)
+ {
+@@ -1059,45 +1096,6 @@
+ 				    info, sizeof(struct mcf_serial));
+ 			return 0;
+ 			
+-		case TIOCMGET:
+-			if ((error = verify_area(VERIFY_WRITE, (void *) arg,
+-                            sizeof(unsigned int))))
+-                                return(error);
+-			val = mcfrs_getsignals(info);
+-			put_user(val, (unsigned int *) arg);
+-			break;
+-
+-                case TIOCMBIS:
+-			if ((error = verify_area(VERIFY_WRITE, (void *) arg,
+-                            sizeof(unsigned int))))
+-				return(error);
+-
+-			get_user(val, (unsigned int *) arg);
+-			rts = (val & TIOCM_RTS) ? 1 : -1;
+-			dtr = (val & TIOCM_DTR) ? 1 : -1;
+-			mcfrs_setsignals(info, dtr, rts);
+-			break;
+-
+-                case TIOCMBIC:
+-			if ((error = verify_area(VERIFY_WRITE, (void *) arg,
+-                            sizeof(unsigned int))))
+-				return(error);
+-			get_user(val, (unsigned int *) arg);
+-			rts = (val & TIOCM_RTS) ? 0 : -1;
+-			dtr = (val & TIOCM_DTR) ? 0 : -1;
+-			mcfrs_setsignals(info, dtr, rts);
+-			break;
+-
+-                case TIOCMSET:
+-			if ((error = verify_area(VERIFY_WRITE, (void *) arg,
+-                            sizeof(unsigned int))))
+-				return(error);
+-			get_user(val, (unsigned int *) arg);
+-			rts = (val & TIOCM_RTS) ? 1 : 0;
+-			dtr = (val & TIOCM_DTR) ? 1 : 0;
+-			mcfrs_setsignals(info, dtr, rts);
+-			break;
+-
+ #ifdef TIOCSET422
+ 		case TIOCSET422:
+ 			get_user(val, (unsigned int *) arg);
+@@ -1563,6 +1561,8 @@
+ 	.start = mcfrs_start,
+ 	.hangup = mcfrs_hangup,
+ 	.read_proc = mcfrs_readproc,
++	.tiocmget = mcfrs_tiocmget,
++	.tiocmset = mcfrs_tiocmset,
+ };
+ 
+ /* mcfrs_init inits the driver */
+===== drivers/usb/serial/ftdi_sio.c 1.55 vs edited =====
+--- 1.55/drivers/usb/serial/ftdi_sio.c	Tue Oct 28 13:44:01 2003
++++ edited/drivers/usb/serial/ftdi_sio.c	Tue Jan 13 14:16:51 2004
+@@ -580,6 +580,8 @@
+ static void ftdi_break_ctl		(struct usb_serial_port *port, int break_state );
+ static void ftdi_throttle		(struct usb_serial_port *port);
+ static void ftdi_unthrottle		(struct usb_serial_port *port);
++static int  ftdi_tiocmget		(struct usb_serial_port *port, struct file * file);
++static int  ftdi_tiocmset		(struct usb_serial_port *port, struct file * file, unsigned int set, unsigned int clear);
+ 
+ static unsigned short int ftdi_232am_baud_base_to_divisor (int baud, int base);
+ static unsigned short int ftdi_232am_baud_to_divisor (int baud);
+@@ -608,6 +610,8 @@
+ 	.break_ctl =		ftdi_break_ctl,
+ 	.attach =		ftdi_SIO_startup,
+ 	.shutdown =		ftdi_shutdown,
++	.tiocmget =		ftdi_tiocmget,
++	.tiocmset =		ftdi_tiocmset,
+ };
+ 
+ static struct usb_serial_device_type ftdi_8U232AM_device = {
+@@ -632,6 +636,8 @@
+ 	.break_ctl =		ftdi_break_ctl,
+ 	.attach =		ftdi_8U232AM_startup,
+ 	.shutdown =		ftdi_shutdown,
++	.tiocmget =		ftdi_tiocmget,
++	.tiocmset =		ftdi_tiocmset,
+ };
+ 
+ static struct usb_serial_device_type ftdi_FT232BM_device = {
+@@ -656,6 +662,8 @@
+ 	.break_ctl =		ftdi_break_ctl,
+ 	.attach =		ftdi_FT232BM_startup,
+ 	.shutdown =		ftdi_shutdown,
++	.tiocmget =		ftdi_tiocmget,
++	.tiocmset =		ftdi_tiocmset,
+ };
+ 
+ static struct usb_serial_device_type ftdi_USB_UIRT_device = {
+@@ -680,6 +688,8 @@
+ 	.break_ctl =		ftdi_break_ctl,
+ 	.attach =		ftdi_USB_UIRT_startup,
+ 	.shutdown =		ftdi_shutdown,
++	.tiocmget =		ftdi_tiocmget,
++	.tiocmset =		ftdi_tiocmset,
+ };
+ 
+ /* The TIRA1 is based on a  FT232BM which requires a fixed baud rate of 100000
+@@ -706,6 +716,8 @@
+ 	.break_ctl =		ftdi_break_ctl,
+ 	.attach =		ftdi_HE_TIRA1_startup,
+ 	.shutdown =		ftdi_shutdown,
++	.tiocmget =		ftdi_tiocmget,
++	.tiocmset =		ftdi_tiocmset,
+ };
+ 
+ 
+@@ -1808,119 +1820,94 @@
+ } /* ftdi_termios */
+ 
+ 
+-static int ftdi_ioctl (struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg)
++static int ftdi_tiocmget (struct usb_serial_port *port, struct file * file)
+ {
+ 	struct usb_serial *serial = port->serial;
+ 	struct ftdi_private *priv = usb_get_serial_port_data(port);
+-
+-	__u16 urb_value=0; /* Will hold the new flags */
+ 	char buf[2];
+-	int  ret, mask;
+-	
+-	dbg("%s cmd 0x%04x", __FUNCTION__, cmd);
+-
+-	/* Based on code from acm.c and others */
+-	switch (cmd) {
++	int  ret;
+ 
+-	case TIOCMGET:
+-		dbg("%s TIOCMGET", __FUNCTION__);
+-		switch (priv->chip_type) {
+-		case SIO:
+-			/* Request the status from the device */
+-			if ((ret = usb_control_msg(serial->dev, 
+-						   usb_rcvctrlpipe(serial->dev, 0),
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
+-						   0, 0, 
+-						   buf, 1, WDR_TIMEOUT)) < 0 ) {
+-				err("%s Could not get modem status of device - err: %d", __FUNCTION__,
+-				    ret);
+-				return(ret);
+-			}
+-			break;
+-		case FT8U232AM:
+-		case FT232BM:
+-			/* the 8U232AM returns a two byte value (the sio is a 1 byte value) - in the same
+-			   format as the data returned from the in point */
+-			if ((ret = usb_control_msg(serial->dev, 
+-						   usb_rcvctrlpipe(serial->dev, 0),
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
+-						   0, 0, 
+-						   buf, 2, WDR_TIMEOUT)) < 0 ) {
+-				err("%s Could not get modem status of device - err: %d", __FUNCTION__,
+-				    ret);
+-				return(ret);
+-			}
+-			break;
+-		default:
+-			return -EFAULT;
+-			break;
++	dbg("%s TIOCMGET", __FUNCTION__);
++	switch (priv->chip_type) {
++	case SIO:
++		/* Request the status from the device */
++		if ((ret = usb_control_msg(serial->dev, 
++					   usb_rcvctrlpipe(serial->dev, 0),
++					   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
++					   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
++					   0, 0, 
++					   buf, 1, WDR_TIMEOUT)) < 0 ) {
++			err("%s Could not get modem status of device - err: %d", __FUNCTION__,
++			    ret);
++			return(ret);
+ 		}
+-
+-		return put_user((buf[0] & FTDI_SIO_DSR_MASK ? TIOCM_DSR : 0) |
+-				(buf[0] & FTDI_SIO_CTS_MASK ? TIOCM_CTS : 0) |
+-				(buf[0]  & FTDI_SIO_RI_MASK  ? TIOCM_RI  : 0) |
+-				(buf[0]  & FTDI_SIO_RLSD_MASK ? TIOCM_CD  : 0) |
+-				priv->last_dtr_rts,
+-				(unsigned long *) arg);
+ 		break;
++	case FT8U232AM:
++	case FT232BM:
++		/* the 8U232AM returns a two byte value (the sio is a 1 byte value) - in the same
++		   format as the data returned from the in point */
++		if ((ret = usb_control_msg(serial->dev, 
++					   usb_rcvctrlpipe(serial->dev, 0),
++					   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
++					   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
++					   0, 0, 
++					   buf, 2, WDR_TIMEOUT)) < 0 ) {
++			err("%s Could not get modem status of device - err: %d", __FUNCTION__,
++			    ret);
++			return(ret);
++		}
++		break;
++	default:
++		return -EFAULT;
++		break;
++	}
++
++	return (buf[0] & FTDI_SIO_DSR_MASK ? TIOCM_DSR : 0) |
++	       (buf[0] & FTDI_SIO_CTS_MASK ? TIOCM_CTS : 0) |
++	       (buf[0] & FTDI_SIO_RI_MASK  ? TIOCM_RI  : 0) |
++	       (buf[0] & FTDI_SIO_RLSD_MASK ? TIOCM_CD  : 0) |
++	       priv->last_dtr_rts;
++}
++
++static int ftdi_tiocmset (struct usb_serial_port *port, struct file * file, unsigned int set, unsigned int clear)
++{
++	struct usb_serial *serial = port->serial;
++	struct ftdi_private *priv = usb_get_serial_port_data(port);
++	__u16 urb_value;
++	int  ret;
++
++	dbg("%s TIOCMSET/BIC/BIS", __FUNCTION__);
+ 
+-	case TIOCMSET: /* Turns on and off the lines as specified by the mask */
+-		dbg("%s TIOCMSET", __FUNCTION__);
+-		if (get_user(mask, (unsigned long *) arg))
+-			return -EFAULT;
+-		urb_value = ((mask & TIOCM_DTR) ? HIGH : LOW);
++	if ((set | clear) & TIOCM_DTR) {
++		urb_value = (set & TIOCM_DTR) ? HIGH : LOW;
+ 		if ((ret = set_dtr(port, urb_value)) < 0){
+-			err("Error from DTR set urb (TIOCMSET)");
++			err("Error from DTR set urb (TIOCM)");
+ 			return(ret);
+ 		}
+-		urb_value = ((mask & TIOCM_RTS) ? HIGH : LOW);
++	}
++	if ((set | clear) & TIOCM_RTS) {
++		urb_value = (set & TIOCM_RTS) ? HIGH : LOW;
+ 		if ((ret = set_rts(port, urb_value)) < 0){
+-			err("Error from RTS set urb (TIOCMSET)");
++			err("Error from RTS set urb (TIOCM)");
+ 			return(ret);
+ 		}
+-		return(0);
+-		break;
+-					
+-	case TIOCMBIS: /* turns on (Sets) the lines as specified by the mask */
+-		dbg("%s TIOCMBIS", __FUNCTION__);
+- 	        if (get_user(mask, (unsigned long *) arg))
+-			return -EFAULT;
+-  	        if (mask & TIOCM_DTR){
+-			if ((ret = set_dtr(port, HIGH)) < 0) {
+-				err("Urb to set DTR failed");
+-				return(ret);
+-			}
+-		}
+-		if (mask & TIOCM_RTS) {
+-			if ((ret = set_rts(port, HIGH)) < 0){
+-				err("Urb to set RTS failed");
+-				return(ret);
+-			}
+-		}
+-		return(0);
+-		break;
++	}
++	return(0);
++}
+ 
+-	case TIOCMBIC: /* turns off (Clears) the lines as specified by the mask */
+-		dbg("%s TIOCMBIC", __FUNCTION__);
+- 	        if (get_user(mask, (unsigned long *) arg))
+-			return -EFAULT;
+-  	        if (mask & TIOCM_DTR){
+-			if ((ret = set_dtr(port, LOW)) < 0){
+-				err("Urb to unset DTR failed");
+-				return(ret);
+-			}
+-		}	
+-		if (mask & TIOCM_RTS) {
+-			if ((ret = set_rts(port, LOW)) < 0){
+-				err("Urb to unset RTS failed");
+-				return(ret);
+-			}
+-		}
+-		return(0);
+-		break;
++static int ftdi_ioctl (struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg)
++{
++	struct usb_serial *serial = port->serial;
++	struct ftdi_private *priv = usb_get_serial_port_data(port);
+ 
++	__u16 urb_value=0; /* Will hold the new flags */
++	char buf[2];
++	int  ret, mask;
++	
++	dbg("%s cmd 0x%04x", __FUNCTION__, cmd);
++
++	/* Based on code from acm.c and others */
++	switch (cmd) {
+ 		/*
+ 		 * I had originally implemented TCSET{A,S}{,F,W} and
+ 		 * TCGET{A,S} here separately, however when testing I
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

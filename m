@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316446AbSG3UEA>; Tue, 30 Jul 2002 16:04:00 -0400
+	id <S316465AbSG3UHx>; Tue, 30 Jul 2002 16:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSG3UEA>; Tue, 30 Jul 2002 16:04:00 -0400
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:41672 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S316342AbSG3UD4>; Tue, 30 Jul 2002 16:03:56 -0400
-Date: Tue, 30 Jul 2002 15:07:18 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-In-Reply-To: <200207191332.IAA65963@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.33.0207301447130.28219-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	id <S316532AbSG3UHx>; Tue, 30 Jul 2002 16:07:53 -0400
+Received: from [64.105.35.245] ([64.105.35.245]:25770 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S316465AbSG3UHw>; Tue, 30 Jul 2002 16:07:52 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 30 Jul 2002 13:10:47 -0700
+Message-Id: <200207302010.NAA04198@baldur.yggdrasil.com>
+To: martin@dalecki.de
+Subject: Re: cli/sti removal from linux-2.5.29/drivers/ide?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jul 2002, Jesse Pollard wrote:
-[snip]
-> In even earlier OSs (DEC RSX, TOPS 10) the file index table was actually a file
-> in the filesystem (usually named index.idx (or was it file.idx...).
+Martin Dalecki wrote:
+>Adam J. Richter wrote:
 
-INDEXF.SYS, on TOPS-10.
+>> 	That said, I think all the "lock group" logic in drivers/ide
+>> may be useless, and it would be pretty straightforward to delete all
+>> that code, have ata_channel->lock be a lock rather than a pointer to one,
+>> and have it be initialized before that first call to ch->tuneproc, in
+>> which case we could just have interrupts off and ch->lock held in all
+>> cases when ch->tuneproc is called.  I did not want to do this in my patch,
+>> because I wanted to keep my patch as small as possible, but perhaps it
+>> would be worth doing now just to simplify the rules for calling ch->tuneproc.
 
->                                                                     I don't
-> know what it was called in MULTICs where the UNIX varient would have
-> started.
->
-> Most of these filesystems were based on contigeuous allocation, or allocations
-> of contigeous segments.
+>Not quite. It's not that easy becouse the same lock is used by the BIO
+>layer to synchronize between for example master and slave devices.
 
-"Extents".  "Segments" were contiguous hunks of real memory that the MMU
-knew about, then as now.
+	Master and slave devices share the same channel, so
 
-TOPS-20 used pagemaps.  A file on disk had a pagemap block filled with
-special invalid PTEs which pointed to the data blocks.  To open a file,
-locate its pagemap and page that in, then make references through it and
-the pager will pull in the data for you and update the map page.  (This is
-all separate from mapping a file over *process* virtual memory, but I seem
-to recall that PMAP% borrowed a lot of code from the disk I/O subsystem in
-this case.  It's been 20 years, though....)  TOPS-20 happily scattered
-file blocks all over the volume-set if need be.
+		master->channel		== slave->channel
+		&master->channel->lock	== &slave->channel->lock
 
-[snip]
-> Note - the version number had nothing to do with the file version -
-> it was used to aid file recovery and was only a reuse count of the index
-> node. The index node contents had to have the same version number as the
-> directory entry, or the directory entry was considered invalid. The
-> file name was a rad50, or sixbit (packed) characters, and sometimes was
-> stored in both inode and directory - again, for rebuilding the file system.
+	So their queue->lock pointer would continue to point to
+the same lock: &channel->lock.
 
-No, RAD50 and SIXBIT are different.  You can (de)compose SIXBIT words with
-simple shift-and-mask operations, but RAD50 requires arithmetic.  (Hmmm,
-on TOPS-10 we called it RADIX50, so maybe it's different.)
+>There are other problems with this but right now you can hardly do 
+>something about it.
 
--- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Who just last weekend rediscovered an MF10 core-plane hiding in the filing
-cabinet.
+	I'd be intersted in knowing what one of those other problems
+is.  Otherwise, I don't understand why I can't eliminate the "lock
+group" stuff.
 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

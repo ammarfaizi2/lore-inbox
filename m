@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129147AbQKIAlh>; Wed, 8 Nov 2000 19:41:37 -0500
+	id <S129044AbQKIArH>; Wed, 8 Nov 2000 19:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129205AbQKIAl1>; Wed, 8 Nov 2000 19:41:27 -0500
-Received: from name.viagra-canada.com ([24.108.87.2]:63758 "EHLO
-	name.hypocrite.org") by vger.kernel.org with ESMTP
-	id <S129147AbQKIAlO>; Wed, 8 Nov 2000 19:41:14 -0500
-From: Christopher Thompson <chris@hypocrite.org>
-Date: Wed, 8 Nov 2000 17:40:53 -0700
-X-Mailer: KMail [version 1.1.95.5]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: ISSUE: Locks up on boot with HPT370
-MIME-Version: 1.0
-Message-Id: <00110817405300.00254@hatred>
-Content-Transfer-Encoding: 7BIT
+	id <S129033AbQKIAq5>; Wed, 8 Nov 2000 19:46:57 -0500
+Received: from munch-it.turbolinux.com ([38.170.88.129]:34034 "EHLO
+	mail.us.tlan") by vger.kernel.org with ESMTP id <S129045AbQKIAqn>;
+	Wed, 8 Nov 2000 19:46:43 -0500
+Date: Wed, 8 Nov 2000 16:46:01 -0800
+From: Prasanna P Subash <psubash@turbolinux.com>
+To: Frank Davis <fdavis112@juno.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@orguk.ukuu.org.uk
+Subject: Re: Pentium IV-summary
+Message-ID: <20001108164600.A1943@turbolinux.com>
+In-Reply-To: <379322493.973714466779.JavaMail.root@web346-wra.mail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <379322493.973714466779.JavaMail.root@web346-wra.mail.com>; from Frank Davis on Wed, Nov 08, 2000 at 03:14:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resubmitting this bug as it happens both on -test10 and, I just 
-verified, -test11-pre1.
 
-(using the bug report form. if you wish to contact me, please 
-do so off-list as I am not subscribed.) 
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-1. Locks up on boot with HPT370 
-2. Using kernel 2.4.0-test10, my machine gets to the part of 
-the bootup where it has detected drives and CD-ROM's on hda, 
-hdc, hdd. It then locks up, the floppy light is on and the 
-keyboard is non-responsive. Alt-SysRq-foo does nothing. Have 
-to hard-reset. On 2.2.17 with the IDE backport, the kernel 
-boots up fine, showing that it has found /dev/hde and continuing 
-as usual. Have not tested with anything before test9-pre-foo, 
-just got this motherboard. 
-3. HPT370, Highpoint, HPT366, IDE, boot 
-4. 2.4.0-test10 
-5. No oops shown. Machine just locks up hard. 
-6. Reproducable 100% of the time when booting my machine with 
-2.4.0-test10. Please note that the HPT366 is, of course, 
-compiled in and is not a module. 
-7.1 Debian Potato install with the 2.4.0-test10 kernel from 
-ftp.kernel.org 
-7.2 $ cat /proc/cpuinfo 
-processor : 0 
-vendor_id : AuthenticAMD 
-cpu family : 6 
-model : 4 
-model name : AMD Athlon(tm) Processor 
-stepping : 2 
-cpu MHz : 900.059 
-cache size : 256 KB 
-fdiv_bug : no 
-hlt_bug : no 
-sep_bug : no 
-f00f_bug : no 
-coma_bug : no 
-fpu : yes 
-fpu_exception : yes 
-cpuid level : 1 
-wp : yes 
-flags : fpu vme de pse tsc msr 6 mce cx8 sep mtrr pge 
-14 cmov pat 17 psn mmxext mmx fxsr 3dnowext 3dnow 
-bogomips : 1795.69 
+On Wed, Nov 08, 2000 at 03:14:22PM -0500, Frank Davis wrote:
+> 3. 2.4.x may support processor speeds up to 100GHz, as well as Pentium IV=
+. Linus will have a Pentium IV available soon, but can someone test the ker=
+nel with a Pentium IV sooner?
 
-Note that this is with an Abit KT7-RAID motherboard. The hard 
-drives are NOT in raid mode. 
-7.3 No module information to show as the kernel does not boot. 
-7.4 No SCSI drives installed, nothing compiled in. 
-7.5 Works perfectly fine with kernel 2.2.17, Win98SE, Win2k. 
-X. Have found no workaround. Cannot tell if the problem is in 
-the HPT366/370 support or is caused elsewhere. Please contact 
-me if you have any suggestions or have a patch you wish me to 
-try out. Please note that on Thursday and Friday, I will be 
-away from the Internet. 
-I realise that the highpoint controllers are somewhat 
-problematic but note that this system works fine in 2.2.17. 
+I've gotta Pentium IV 800MHz working on 2.4.0-test10. Just started testing =
+it. It actually seems pretty stable.
+
+--=20
+
+Prasanna P Subash
+psubash@turbolinux.com
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6CfPI5UrYeFg/7bURAlzpAJ4+OjEDp8GP73yBYfIRFTeFD7uNgwCdFvzv
+3zIEfd4kmWoQdExgvWKPW9w=
+=5Rku
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

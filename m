@@ -1,99 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUHENyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUHEN5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267701AbUHENyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267693AbUHENxD
+	id S267696AbUHEN5z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267698AbUHENzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:53:03 -0400
-Received: from colin2.muc.de ([193.149.48.15]:38148 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S267694AbUHENvY (ORCPT
+	Thu, 5 Aug 2004 09:55:19 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:15317 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267694AbUHENx3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:51:24 -0400
-Date: 5 Aug 2004 15:51:12 +0200
-Date: Thu, 5 Aug 2004 15:51:12 +0200
-From: Andi Kleen <ak@muc.de>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: [1/3] kprobes-func-args-268-rc3.patch
-Message-ID: <20040805135112.GA92798@muc.de>
-References: <2pMJz-13N-9@gated-at.bofh.it> <m3acx9yh6t.fsf@averell.firstfloor.org> <20040805122431.GA4411@in.ibm.com> <20040805125423.GA63682@muc.de> <20040805133348.GA4471@in.ibm.com>
+	Thu, 5 Aug 2004 09:53:29 -0400
+Date: Thu, 5 Aug 2004 12:34:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+Message-ID: <20040805103409.GA20171@elte.hu>
+References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040805133348.GA4471@in.ibm.com>
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 07:03:48PM +0530, Suparna Bhattacharya wrote:
-> On Thu, Aug 05, 2004 at 02:54:23PM +0200, Andi Kleen wrote:
-> > On Thu, Aug 05, 2004 at 05:54:31PM +0530, Suparna Bhattacharya wrote:
-> > > > I think you misunderstood Linus' suggestion.  The problem with
-> > > > modifying arguments on the stack frame is always there because the C
-> > > > ABI allows it. One suggested solution was to use a second function
-> > > 
-> > > I did realise that it is the ABI which allows this, but I thought
-> > > that the only situation in which we know gcc to actually clobber
-> > > arguments from the callee in practice is for tailcall optimization. 
-> > 
-> > It just breaks the most common workaround. 
-> 
-> Just curious, do you know if other cases/optimizations where the
-> callee clobbers arguments on stack ?
 
-gcc can do it all the time. tail call is just a special case.
+* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
 
-It happens relatively rarely because often it caches the data
-in registers. But when there is enough register pressure it can
-be written back to the original argument slot.
+> Fusyn aims to provide primitives to solve a bunch of gaps in POSIX
+> compliance related to mutexes, conditional variables and semaphores,
+> POSIX Advanced real-time support as well as adding mutex robustness
+> (to dying owners) and deep deadlock checking.
 
-If you pass a structure by value it happens more often
-(at least in older gccs, 3.5 now loads this into registers too) 
+the sched.c bits look clean enough.
 
-On -O0 code I would also expect it to happen often.
+i like the generic concept - keeping the userspace fast-path for
+lock/unlock, like for futexes, and registering/unregistering a lock via
+the kernel.
 
-> 
-> > 
-> > > I'm not sure if that can be guaranteed and yes saving bytes from
-> > > stack would avoid the problem totally (hence the comment) and make
-> > > it less tied to expected innards of the compiler. The only issue 
-> > > with that is deciding the maximum number of arguments so it is 
-> > > generic enough. 
-> > 
-> > 64bytes, aka 16 arguments seem far enough.
-> 
-> OK, is there is consensus on this ? 
+but, couldnt there be more sharing between futex.c and fusyn.c? In
+particular on the API side, why arent all these ops done as an extension
+to sys_futex()? That would keep the glibc part much simpler (and more
+compatible) as well. You'd still get all the glory of implementing true
+priority inheritance and advanced RT-locking for Linux :-)
 
-I think there is a clear consensus that anybody who uses 16 arguments
-in a kernel function already did something very wrong.
+or are the two interfaces way too different?
 
-Passing structures by value may be reasonable, but not supporting
-that for big structures is a reasonable restriction.
-
-> We'd have to make the code check for stack boundary etc and probably 
-> compare and copy back only if there has been a change.
-
-Why? And what stack boundary?
-
-The probe is not supposed to modify the arguments, isn't it, so I don't
-see why you ever want to copy back.  
-
-I would write the trampoline in assembly btw, doing such things in C is usually
-very fragile.
-
-> > > > >  
-> > > 
-> > > Even with CONFIG_REGPARM, if you have a large 
-> > > number of arguments for example, is spill over into stack 
-> > > a possibility ?
-> > 
-> > Yes. For more than three (Linux uses -mregparm=3) 
-> > Also varargs arguments will be always on the stack I think.
-> 
-> Right, so making the copy dependent on !CONFIG_REGPARM wouldn't
-> make sense would it ?
-
-Yes, it wouldn't.
-
--Andi
+	Ingo

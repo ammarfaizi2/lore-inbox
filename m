@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266713AbUGWJV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUGWJWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266713AbUGWJV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 05:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUGWJV7
+	id S266864AbUGWJWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 05:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUGWJWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 05:21:59 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:58542 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S266713AbUGWJV4
+	Fri, 23 Jul 2004 05:22:10 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:57762 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266864AbUGWJWD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 05:21:56 -0400
-Date: Fri, 23 Jul 2004 11:21:53 +0200
+	Fri, 23 Jul 2004 05:22:03 -0400
+Date: Fri, 23 Jul 2004 11:22:01 +0200
 From: maximilian attems <janitor@sternwelten.at>
 To: linux-kernel@vger.kernel.org
 Cc: greg@kroah.com
-Subject: [patch-kj] use list_for_each() drivers/pci/setup-bus.c
-Message-ID: <20040723092153.GD14000@stro.at>
+Subject: [patch-kj] use list_for_each() i386/pci/common.c
+Message-ID: <20040723092201.GD1795@stro.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -38,24 +38,19 @@ Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.7-bk20-max/drivers/pci/setup-bus.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ linux-2.6.7-bk20-max/arch/i386/pci/common.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/pci/setup-bus.c~list_for_each-pci-setup-bus drivers/pci/setup-bus.c
---- linux-2.6.7-bk20/drivers/pci/setup-bus.c~list_for_each-pci-setup-bus	2004-07-11 14:41:20.000000000 +0200
-+++ linux-2.6.7-bk20-max/drivers/pci/setup-bus.c	2004-07-11 14:41:20.000000000 +0200
-@@ -537,10 +537,11 @@ pci_assign_unassigned_resources(void)
+diff -puN arch/i386/pci/common.c~list_for_each-i386pci-common arch/i386/pci/common.c
+--- linux-2.6.7-bk20/arch/i386/pci/common.c~list_for_each-i386pci-common	2004-07-11 14:41:10.000000000 +0200
++++ linux-2.6.7-bk20-max/arch/i386/pci/common.c	2004-07-11 14:41:10.000000000 +0200
+@@ -70,7 +70,7 @@ static void __devinit pcibios_fixup_ghos
+ 	int i;
  
- 	/* Depth first, calculate sizes and alignments of all
- 	   subordinate buses. */
--	for(ln=pci_root_buses.next; ln != &pci_root_buses; ln=ln->next)
-+	list_for_each(ln, &pci_root_buses) {
- 		pci_bus_size_bridges(pci_bus_b(ln));
-+	}
- 	/* Depth last, allocate resources and update the hardware. */
--	for(ln=pci_root_buses.next; ln != &pci_root_buses; ln=ln->next) {
-+	list_for_each(ln, &pci_root_buses) {
- 		pci_bus_assign_resources(pci_bus_b(ln));
- 		pci_enable_bridges(pci_bus_b(ln));
- 	}
+ 	DBG("PCI: Scanning for ghost devices on bus %d\n", b->number);
+-	for (ln=b->devices.next; ln != &b->devices; ln=ln->next) {
++	list_for_each(ln, &b->devices) {
+ 		d = pci_dev_b(ln);
+ 		if ((d->class >> 8) == PCI_CLASS_BRIDGE_HOST)
+ 			seen_host_bridge++;
 

@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263388AbUJ2PrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263402AbUJ2Pwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263388AbUJ2PrR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263379AbUJ2Ppq
+	id S263402AbUJ2Pwm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbUJ2Pof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:45:46 -0400
-Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:36080
-	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263388AbUJ2Pgh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:36:37 -0400
-From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
-Date: Fri, 29 Oct 2004 11:36:24 -0400
-Message-ID: <NFBBICMEBHKIKEFBPLMCCEEGJGAA.aathan-linux-kernel-1542@cloakmail.com>
+	Fri, 29 Oct 2004 11:44:35 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:51474 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263369AbUJ2Pc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 11:32:26 -0400
+Message-ID: <418265C6.9020308@techsource.com>
+Date: Fri, 29 Oct 2004 11:46:14 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Daniel Phillips <phillips@istop.com>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE:
+ Open-Source-Friendly Graphics Cards -- Viable?]
+References: <417D21C8.30709@techsource.com> <417D6365.3020609@pobox.com> <417D8218.9080700@techsource.com> <200410271423.33380.phillips@istop.com>
+In-Reply-To: <200410271423.33380.phillips@istop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <OMEGLKPBDPDHAGCIBHHJOELLFCAA.aathan-linux-kernel-1542@cloakmail.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-For whatever reason, I have been unable to send the original message below through vger.
 
-I am therefore enclosing some of the important text here:
+Daniel Phillips wrote:
+> On Monday 25 October 2004 18:45, Timothy Miller wrote:
+> 
+>>My intention is to include a bit of logic in the FPGA which can be used
+>>to reprogram the prom.  You would then cycle power to get the FPGA to
+>>load the new code.
+> 
+> 
+> Power cycle the whole machine, or software-reset the card?
 
-==========
+I think you'll have to power-cycle the whole machine.
 
-I have in the past posted emails with the subject "Consistent kernel hang during heavy TCP connection handling load"  I then
-recently saw a linux-kernel thread "PROBLEM: Consistent lock up on >=2.6.8" that seemed to be related to the problem I am
-experiencing, but I am not sure of it (thus the cc:).
+1) You have to get the FPGA's loader logic to reload the bitstream. 
+While there are external signals to get the FPGA to reload, there may be 
+a chicken&egg problem with getting soft logic in the FPGA to tell the 
+FPGA to reload.
 
-I have, however, now managed to formulate a series of steps which reproduce my particular lock up consistently.  When I trigger the
-hang, all virtual consoles become unresponsive, and the application cannot be signaled from the keyboard.  Sysrq seems to work.
+2) When you have reloaded the FPGA, registers are in an unknown state. 
+One important thing that is lost if the PCI config space info.  That 
+would have to be restored by software.
 
-The application in question is called "tt1".  It runs several threads in SCHED_RR and uses select(), sleep() and/or nanosleep()
-extensively.  I suspect there's a good chance the application calls select() with nfds=0 at some point.
 
-Due to the SCHED_RR usage in tt1, before executing the tt1 hang, I have tried to log into a virtual console on the host and run
-"nice -20 bash" as root.  THe nice'd shell is hung just like everything else.
+Is it impossible to soft-reset it?  Maybe not.  But so much is lost and 
+broken in the process that it may be highly impractical.
 
-Did I do it right?  I was trying to make sure this hang is not simply an infinite loop in a SCHED_RR high priority process (tt1).
-
-I initially had a lot of trouble trying to capture sysrq output, but then I checked my netlog host and found (lo and behold) that it
-had captured it!  Of course, that was before I went through the trouble of taking pictures of my monitor! I've included the netlog
-sysrq output from two runs below.  They are at the very bottom of this email, separated by lines of '*'s  These runs are probably
-DIFFERENT than the runs from which I produced the below screenshots.
-
-So, here are those screenshots, I still welcome any comments you might have about easier ways to capture sysrq output than using
-netdump!
-
-I modified /etc/syslog.conf to say kern.* /var/log/kernel, however, output of sysrq-t and sysrq-p while in the locked up state never
-ends up in the file (though, it does, when not locked up).
-
-The sysreq output and screenshots can be found at triple w dot memeplex dot com slash
-
-sysrq[1-2].txt.gz
-lock[1-3].gif mapping to System.map-2.6.8.1.gz
-lock[4-5].gif mapping to System.map-2.6.8-1.521.gz
-
-=======
-
+Nevertheless, if there's a way to do it, and the community wants to 
+develop it, I'm all in favor.
 

@@ -1,60 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312381AbSDLHHe>; Fri, 12 Apr 2002 03:07:34 -0400
+	id <S313326AbSDLHSJ>; Fri, 12 Apr 2002 03:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSDLHHd>; Fri, 12 Apr 2002 03:07:33 -0400
-Received: from spielberg.vip.uk.com ([194.176.218.9]:40138 "EHLO
-	spielberg.vip.uk.com") by vger.kernel.org with ESMTP
-	id <S312381AbSDLHHc>; Fri, 12 Apr 2002 03:07:32 -0400
-From: "Rowan Ingvar Wilson" <rowan.ingvar.wilson@0800dial.com>
-To: "'Timur Tabi'" <timur-linux@tabi.org>,
-        "'Linux Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: I want to help with 2.5
-Date: Fri, 12 Apr 2002 08:07:33 +0100
-Message-ID: <002501c1e1f0$b8c47d10$c82d3c3e@m3v0u8>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
+	id <S313366AbSDLHSI>; Fri, 12 Apr 2002 03:18:08 -0400
+Received: from velli.mail.jippii.net ([195.197.172.114]:27295 "HELO
+	velli.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S313326AbSDLHSH>; Fri, 12 Apr 2002 03:18:07 -0400
+Date: Fri, 12 Apr 2002 10:10:23 +0300
+From: Anssi Saari <as@sci.fi>
+To: Timur Tabi <timur-linux@tabi.org>
+Subject: Re: I want to help with 2.5
+Message-ID: <20020412071022.GA7490@sci.fi>
 In-Reply-To: <3CB599A2.3010908@tabi.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would also like to help with development of the 2.5 kernel, we could
-work on it together?
+On Thu, Apr 11, 2002 at 09:11:46AM -0500, Timur Tabi wrote:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Timur Tabi
-Sent: 11 April 2002 15:12
-To: Linux Mailing List
-Subject: I want to help with 2.5
+> Is there a particular piece 
+> of hardware that needs a device driver that no one is working on?  Is 
+> there some kernel enhancement that no one has gotten around too but 
+> would be a good addition?  Please post or email your suggestion!  Thanks!
 
-Hi,
-
-I would like to make a meaningful contribution to the 2.5 kernel, so I'm
-
-wondering if anyone out there would like my help.  I would prefer to 
-work on a component where I could do the majority of the work, rather 
-than just help out with something massive.  Is there a particular piece 
-of hardware that needs a device driver that no one is working on?  Is 
-there some kernel enhancement that no one has gotten around too but 
-would be a good addition?  Please post or email your suggestion!
-Thanks!
-
-
---
-Timur Tabi
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+Well, referring to my post from a few says ago about my CD writing
+problems (subject was PROMBLEM: CD burning at 16x uses excessive CPU,
+although DMA is enabled), it seems there is great need to have ATAPI/ASPI,
+for anyone with a fast ATAPI CD writer.

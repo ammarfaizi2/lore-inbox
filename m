@@ -1,73 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbTHZFX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 01:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbTHZFX4
+	id S262600AbTHZFQO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 01:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbTHZFQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 01:23:56 -0400
-Received: from moth.netsolus.com ([65.16.30.101]:640 "EHLO moth")
-	by vger.kernel.org with ESMTP id S262618AbTHZFXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 01:23:54 -0400
-Subject: Interesting problem with 450NX based Compaq server
-From: Bryan Ballard <ballard@netsolus.com>
-To: linux-kernel@vger.kernel.org
-Message-Id: <1061875433.24196.15.camel@ant>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Aug 2003 00:23:53 -0500
+	Tue, 26 Aug 2003 01:16:14 -0400
+Received: from magic-mail.adaptec.com ([216.52.22.10]:428 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S262600AbTHZFQE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 01:16:04 -0400
+Date: Mon, 25 Aug 2003 22:44:17 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: nagendra_tomar@adaptec.com
+To: Juergen Quade <quade@hsnr.de>
+cc: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+In-Reply-To: <20030825141133.GA17305@hsnr.de>
+Message-ID: <Pine.LNX.4.44.0308252233480.31393-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I've looked through the kernel list archives and haven't found
-anything that might help. I have a Compaq 5500r 4x500mhz Xeons and
-whenever a heavy load is placed on the box it reboots without any kernel
-panics or oops. It seems to be related primarily to multiple PCI card
-access, i.e. during heavy RAID card / NIC interaction. I've tried to
-isolate it by replacing NICs and RAID cards, but the only thing I can
-come up with is that it is related to the 450NX chipset. 
-Since I am not sure anyone is still working on the 450NX chipset I've
-refrained from cluttering the list with a giant E-mail full of /proc
-data until someone answers back that they would be interested in any
-information that I can provide them.
+Hi Juergen,
+	   Thanx for ur inputs. I think that I am missing something in ur 
+explanation. Can u please elaborate. In the meantime, the approach that I 
+will like is to have another state TASKLET_STATE_KILLED so the code 
+changes that need to be done are
 
-Please CC me since I am not a list subscriber. 
-Thanks in advance.
+void tasklet_kill(struct tasklet_struct *t)
+{
 
-	Bryan Ballard
+     ...
+     ...
+     /*
+      * Mark the tasklet as killed, so the next time around
+      * tasklet_action does not call the handler for this tasklet
+      */
+     set_bit(TASKLET_STATE_KILLED, &t->state);  	<-- ADDED
 
-output of lspci:
+     while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+             current->state = TASK_RUNNING;
+             do
+                     sys_sched_yield();
+             while (test_bit(TASKLET_STATE_SCHED, &t->state));
+     }  
+     ...
+     ...
+ }
 
-00:02.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U (rev
-01)
-00:0c.0 System peripheral: Compaq Computer Corporation Advanced System
-Management Controller
-00:0d.0 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev
-14)
-00:0d.1 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev
-14)
-00:0e.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC
-215IIC [Mach64 GT IIC] (rev 7a)
-00:0f.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:0f.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:0f.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:0f.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:10.0 Host bridge: Intel Corp. 450NX - 82451NX Memory & I/O Controller
-(rev 03)
-00:12.0 Host bridge: Intel Corp. 450NX - 82454NX/84460GX PCI Expander
-Bridge (rev 04)
-00:13.0 Host bridge: Intel Corp. 450NX - 82454NX/84460GX PCI Expander
-Bridge (rev 04)
-04:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 05)
-04:05.0 PCI bridge: IBM IBM27-82351 (rev 01)
-05:00.0 Unknown mass storage controller: Compaq Computer Corporation
-Smart-2/P RAID Controller (rev 02)
+Now inside tasklet_action if the state is killed we will not call the 
+tasklet handler, thus not giving recursive tasklets to again schedule.
+
+static void tasklet_action(struct softirq_action *a)
+{
+     ...
+     ...
+     if (!atomic_read(&t->count)) {
+             if(!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state)) 
+                     BUG();
+	     /*
+	      * If the tasklet_kill has been called for this tasklet,
+	      * don't run it again, else we have a hang
+	      */
+	     if(!test_bit(TASKLET_STATE_KILLED, &t->state))     <-- ADDED
+             	t->func(t->data);
+             tasklet_unlock(t);
+             continue;
+     }
+     ...
+     ...
+ }
 
 
 
 
-   
+Thanx
+tomar
+
+
+
+On Mon, 25 Aug 2003, Juergen Quade wrote:
+
+> > Hi,
+> > 	While going thru the code for tasklet_kill(), I cannot figure
+> out 
+> > how recursive tasklets (tasklets that schedule themselves from within 
+> > their tasklet handler) can be killed by this function. To me it looks
+> that 
+> > tasklet_kill will never complete for such tasklets.
+> 
+> It is realy a sophisticated piece of code! I think it is not
+> the only bug you found. Some weeks ago I pointed out another
+> problem with tasklet_kill but got no answer.
+> 
+> To work our questions out is not done in just 1 minute :-(
+> And I was not able to find the person, who is responsible for the code.
+> 
+> As far as I can see, you missed nothing.
+> The tasklet enters itself to the "task_vec" list, because the
+> SCHED-Bit is always resetted, when "tasklet_schedule" is called.
+> It will always succeed.
+> 
+> Maybe you have a look to another (my) problem:
+> 
+> The function "tasklet_schedule" schedules a tasklet only, if the
+> SCHED-Bit
+> ist _not_ set. So the trick is, to _set_ the SCHED-Bit and
+> to _not_ enter the tasklet in the "task_vec" list (ok, you showed
+> that this trick can fail). But anyway, if you look at the
+> code, tasklet_kill resets the bit in any case!!! It would have to
+> set the bit, not to reset it. Any comments?
+> 
+> void tasklet_kill(struct tasklet_struct *t)
+> {
+> 	...
+> 	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+> 		do
+> 			yield();
+> 		while (test_bit(TASKLET_STATE_SCHED, &t->state));
+> 	}
+> 	tasklet_unlock_wait(t);
+> 	clear_bit(TASKLET_STATE_SCHED, &t->state);
+> }
+> 
+> 
+> > void tasklet_kill(struct tasklet_struct *t)
+> > {
+> > 	...
+> >  	...
+> > 	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+> > 		current->state = TASK_RUNNING;
+> > 		do
+> > 			sys_sched_yield();
+> > 		while (test_bit(TASKLET_STATE_SCHED, &t->state));
+> > 	}
+> > 	...
+> > 	...
+> > }
+> > 
+> > The above while loop will only exit if TASKLET_STATE_SCHED is not set 
+> > (tasklet is not scheduled).
+> > Now if we see tasklet_action
+> > 
+> > static void tasklet_action(struct softirq_action *a)
+> > {
+> > 	...
+> > 	...
+> > 	if (!atomic_read(&t->count)) {
+> > 	--> TASKLET_STATE_SCHED is set here
+> > 		if(!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+> > 			BUG();
+> > 		t->func(t->data);
+> > 	--> if we schedule the tasklet inside its handler, 
+> > 	--> TASKLET_STATE_SCHED will be set here also
+> > 		tasklet_unlock(t);
+> > 		continue;
+> > 	}
+> > 	...
+> > 	...
+> > }
+> > 
+> > The only small window when TASKLET_STATE_SCHED is not set is between
+> the 
+> > time when test_and_clear_bit above clears it and by the time the
+> tasklet 
+> > handler again calls tasklet_schedule(). But since tasklet_kill is
+> called 
+> > from user context the while loop in tasklet_kill checking for 
+> > TASKLET_STATE_SCHED to be cleared  cannot interleave between the above
+> two 
+> > lines in tasklet_action and hence tasklet_kill will never come out of
+> the 
+> > while loop.
+> > This is true only for UP machines.
+> > 
+> > Pleae point me out if I am missing something.
+> > 
+> > Thanx
+> > tomar
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
 

@@ -1,142 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbTL3CUx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 21:20:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTL3CUx
+	id S264325AbTL3COn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 21:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbTL3COn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 21:20:53 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:35012 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264371AbTL3CSf convert rfc822-to-8bit (ORCPT
+	Mon, 29 Dec 2003 21:14:43 -0500
+Received: from smtp2.att.ne.jp ([165.76.15.138]:9215 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S264325AbTL3COl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 21:18:35 -0500
+	Mon, 29 Dec 2003 21:14:41 -0500
+Message-ID: <00d401c3ce7a$a302fd80$98ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Thomas Molina" <tmolina@cablespeed.com>
+Cc: <dan@eglifamily.dnsalias.net>, <linux-kernel@vger.kernel.org>
+References: <007101c3cdbc$046a58d0$2fee4ca5@DIAMONDLX60> <Pine.LNX.4.58.0312291741530.5409@localhost.localdomain>
+Subject: Re: Blank Screen in 2.6.0
+Date: Tue, 30 Dec 2003 11:14:07 +0900
 MIME-Version: 1.0
-To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: lk-changelog.pl 0.210
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Tue_Dec_30_02_18_32_UTC_2003_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20031230021832.A4B31A0A1B@merlin.emma.line.org>
-Date: Tue, 30 Dec 2003 03:18:32 +0100 (CET)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a semi-automatic announcement.
+Thomas Molina wrote:
+> On Mon, 29 Dec 2003, Norman Diamond wrote:
+> > Dan wrote:
+> >
+> > > Upgraded to the lastest module-init-tools, and disabled the
+> > > frame buffer support in the kernel. So the only graphic option enabled is
+> > > text mode selection. But when I boot I still get a blank screen!
+> > > My lilo.conf contains a line: vga=773, which works beautifully under
+> > > RedHat's stock 2.4.20-8.
+> >
+> > In my experience the vga= option worked with every 2.4 kernel in every
+> > distro that I had used, continued working with 2.6 test* and 0 in Red Hat
+> > 7.3, but blanked the screen with 2.6 test* and 0 in SuSE 8.1 and SuSE 8.2.
+> > Haven't tried other configurations with 2.6.
+> >
+> > But now you're getting the same with a Red Hat distro, so it's looking
+> > pretty random.
+> >
+> > The decision to release 2.6.0 with the same broken vga= option that was
+> > reported many times in 2.6.0-test* makes me think that vga= is not intended
+> > to work.
+>
+> Maybe it has something to do with RedHat 7.3.
 
-lk-changelog.pl aka. shortlog version 0.210 has been released.
+Are you serious?  It really is true that vga= isn't supposed to work in
+2.6.0, but there is something to do with RedHat 7.3 which caused vga= to
+continue to work in 2.6.0 with that distro only?  Then why hasn't the vga=
+parameter been removed entirely?
 
-This script is used by Linus and Marcelo to rearrange and reformat BK
-ChangeSet logs into a more human-readable format, and the official
-repository is Parent repository is http://bktools.bkbits.net/bktools
+> I've used RH8, RH9, and  Fedora Core 1 and haven't had a problem with vga=
+> in any of them during the 2.5/2.6 series, right up through the current one.
 
-As the script has grown large, this mail only contains a diff against
-the last released version.
-
-You can always download the full script and GPG signatures from
-http://mandree.home.pages.de/linux/kernel/
-
-My thanks go to Vitezslav Samel who has spent a lot of time on digging
-out the real names for addresses sending in BK ChangeSets.
-
-Note that your mailer must be MIME-capable to save this mail properly,
-because it is in the "quoted-printable" encoding.
-
-= <- if you see just an equality sign, but no "3D", your mailer is fine.
-= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
-= <- into metamail.
-
--- 
-A sh script on behalf of Matthias Andree
--------------------------------------------------------------------------
-Changes since last release:
-
-----------------------------
-revision 0.210
-date: 2003/12/30 02:11:39;  author: emma;  state: Exp;  lines: +8 -1
-4 new addresses.
-----------------------------
-revision 0.209
-date: 2003/12/30 02:07:39;  author: emma;  state: Exp;  lines: +7 -2
-Bugfix, --noobfuscate wasn't complete.
-----------------------------
-revision 0.208
-date: 2003/12/22 01:17:09;  author: emma;  state: Exp;  lines: +9 -4
-Only print ignoremerge warning if ignoremerge is really enabled.
-=============================================================================
-Index: lk-changelog.pl
-===================================================================
-RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
-retrieving revision 0.208
-retrieving revision 0.210
-diff -u -r0.208 -r0.210
---- lk-changelog.pl	22 Dec 2003 01:17:09 -0000	0.208
-+++ lk-changelog.pl	30 Dec 2003 02:11:39 -0000	0.210
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.208 2003/12/22 01:17:09 emma Exp $
-+# $Id: lk-changelog.pl,v 0.210 2003/12/30 02:11:39 emma Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -566,6 +566,7 @@
- 'grigouze:noos.fr' => 'Mickaël Grigouze',
- 'gronkin:nerdvana.com' => 'George Ronkin',
- 'grundler:cup.hp.com' => 'Grant Grundler',
-+'grundler:parisc-linux.org' => 'Grant Grundler', # lbdb
- 'grundym:us.ibm.com' => 'Michael Grundy',
- 'gsromero:alumnos.euitt.upm.es' => 'Guillermo S. Romero',
- 'gtoumi:laposte.net' => 'Ghozlane Toumi',
-@@ -927,6 +928,7 @@
- 'maxk:viper.(none)' => 'Maksim Krasnyanskiy', # from shortlog
- 'maxk:viper.qualcomm.com' => 'Maksim Krasnyanskiy',
- 'mb:ozaba.mine.nu' => 'Magnus Boden',
-+'mbp:samba.org' => 'Martin Pool', # lbdb
- 'mbligh:aracnet.com' => 'Martin J. Bligh',
- 'mcp:linux-systeme.de' => 'Marc-Christian Petersen',
- 'mdharm-scsi:one-eyed-alien.net' => 'Matthew Dharm',
-@@ -943,6 +945,7 @@
- 'mhopf:innominate.com' => 'Mark-André Hopf',
- 'michael:metaparadigm.com' => 'Michael Clark',
- 'michaelw:foldr.org' => 'Michael Weber', # google
-+'michael_e_brown:dell.com' => 'Michael E. Brown', # lbdb
- 'michal:harddata.com' => 'Michal Jaegermann',
- 'michal:logix.cz' => 'Michal Ludvig',
- 'michel:daenzer.net' => 'Michel Dänzer',
-@@ -1096,6 +1099,7 @@
- 'petkan:mastika.' => 'Petko Manolov',
- 'petkan:mastika.dce.bg' => 'Petko Manolov',
- 'petkan:mastika.lnxw.com' => 'Petko Manolov',
-+'petkan:nucleusys.com' => 'Petko Manolov',
- 'petkan:rakia.dce.bg' => 'Petko Manolov',
- 'petkan:rakia.hell.org' => 'Petko Manolov',
- 'petkan:tequila.dce.bg' => 'Petko Manolov',
-@@ -1916,7 +1920,9 @@
- 	}
-       } else { # $havename
- 	# must obfuscate name since it contains an address still
--	$name = obfuscate $name;
-+	if ($opt{obfuscate}) {
-+	    $name = obfuscate $name;
-+	}
- 	$author = '<' . $address . '>';
-       }
-       $first = 1;
-@@ -2157,6 +2163,12 @@
- __END__
- # --------------------------------------------------------------------
- # $Log: lk-changelog.pl,v $
-+# Revision 0.210  2003/12/30 02:11:39  emma
-+# 4 new addresses.
-+#
-+# Revision 0.209  2003/12/30 02:07:39  emma
-+# Bugfix, --noobfuscate wasn't complete.
-+#
- # Revision 0.208  2003/12/22 01:17:09  emma
- # Only print ignoremerge warning if ignoremerge is really enabled.
- #
+I forgot if Dan is using RH8 or RH9.  Whichever, you're getting different
+results than he did, because his failed with one of these and yours works
+with both.  At least my failures with SuSE are consistent.  I'd say the
+overall inconsistency points to a bug in 2.6.0-test* and .0.  Especially
+when no one seems to be reporting similar failures in the 2.4 series.
 

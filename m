@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276255AbRJYUrH>; Thu, 25 Oct 2001 16:47:07 -0400
+	id <S276312AbRJYUsQ>; Thu, 25 Oct 2001 16:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276312AbRJYUq4>; Thu, 25 Oct 2001 16:46:56 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:47243
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S276255AbRJYUqn>; Thu, 25 Oct 2001 16:46:43 -0400
-Date: Thu, 25 Oct 2001 13:46:48 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: richard offer <offer@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] export syscalls
-Message-ID: <20011025134648.F29107@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <100000000.1004038404@changeling.engr.sgi.com> <200110252014.f9PKEpI22226@ns.caldera.de>
-Mime-Version: 1.0
+	id <S276318AbRJYUsG>; Thu, 25 Oct 2001 16:48:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22532 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276312AbRJYUsA>; Thu, 25 Oct 2001 16:48:00 -0400
+Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
+To: gandalf@wlug.westbo.se (Martin Josefsson)
+Date: Thu, 25 Oct 2001 21:54:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Benjamin LaHaise),
+        _deepfire@mail.ru (Samium Gromoff), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0110252234270.27907-100000@tux.rsn.bth.se> from "Martin Josefsson" at Oct 25, 2001 10:40:49 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110252014.f9PKEpI22226@ns.caldera.de>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wrWY-0006EJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 10:14:51PM +0200, Christoph Hellwig wrote:
-> In article <100000000.1004038404@changeling.engr.sgi.com> you wrote:
-> > * frm hch@caldera.de "10/25/2001 05:25:40 PM +0000" | sed '1,$s/^/* /'
-> > *
-> > * Hi Linus,
-> > * 
-> > * the appended patch exports the syscalls (GPL-limited), this is needed
-> > * for the Linux-ABI modules so they can use the syscalls in their
-> > * syscall tables for non-Linux personalities.
-> >
-> >
-> > What is the rationale for marking these as GPL-exclusive symbols ? 
-> >
-> > I thought system calls were a public interface.
+> Then I upgraded that machine to pIII 700 and even that machine slows to a
+> crawl while transmitting with that bloody ISA NE2K. It's the same thing in
+> kernel 2.4 too. These days I simply don't use that card anymore...
 > 
-> That won't change, but the syscalls are exported GPL-only for _inkernel_
-> users.  My first version of the patch didn't do that, but people think
-> that they can cause to much pain when used incorrectly, and that is
-> checkable only with non-binary-only modules.
+> So something seems to have taken a wrong turn between 2.0 and 2.2
+> I don't think this is a problem intruduced in 2.4.
 
-So since some people can't do something we should punish everyone?  If
-binary-only module crashes and burns, other people aren't going to fix it
-anyhow.
+A faster machine will take as long as a slow machine with an ne2000. It
+doesn't matter if its an 8Mb 386 or a dual athlon, it will spend almost all
+of its ne2000 handling time poking bytes across an 8MHz bus.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

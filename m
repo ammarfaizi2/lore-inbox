@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbUKSWCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbUKSWOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbUKSWCw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:02:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbUKSWBB
+	id S261640AbUKSWOo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 17:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUKSWDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 17:01:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4259 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261604AbUKSVx7 (ORCPT
+	Fri, 19 Nov 2004 17:03:08 -0500
+Received: from mail.kroah.org ([69.55.234.183]:24218 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261642AbUKSWB3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:53:59 -0500
-Date: Fri, 19 Nov 2004 13:53:38 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Eric Pouech <pouech-eric@wanadoo.fr>, Roland McGrath <roland@redhat.com>,
-       Mike Hearn <mh@codeweavers.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <20041119212327.GA8121@nevyn.them.org>
-Message-ID: <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
- <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
- <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
- <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Nov 2004 17:01:29 -0500
+Date: Fri, 19 Nov 2004 14:00:48 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH] I2C fixes for 2.6.10-rc2
+Message-ID: <20041119220048.GE15956@kroah.com>
+References: <20041119215935.GA15956@kroah.com> <20041119220001.GB15956@kroah.com> <20041119220015.GC15956@kroah.com> <20041119220030.GD15956@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119220030.GD15956@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.2167, 2004/11/19 09:14:15-08:00, paubert@iram.es
+
+[PATCH] I2C: minor comment fix
+
+It seems so. BTW I hate wrong comments and happened to add one
+in my patch. To fix my blunder, can you apply the appended one
+line removal on top of Jean's patch.
 
 
-On Fri, 19 Nov 2004, Daniel Jacobowitz wrote:
-> 
-> I'm getting the feeling that the question of whether to step into
-> signal handlers is orthogonal to single-stepping; maybe it should be a
-> separate ptrace operation.
+Signed-off-by: Gabriel Paubert <paubert@iram.es>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-I really don't see why. If a controlling process is asking for 
-single-stepping, then it damn well should get it. It it doesn't want to 
-single-step through a signal handler, then it could decide to just put a 
-breakpoint on the return point (possibly by modifying the signal handler 
-save area).
 
-It's not like single-stepping into the signal handler in any way removes 
-any information (while _not_ single-stepping into it clearly does).
+ drivers/i2c/i2c-core.c |    1 -
+ 1 files changed, 1 deletion(-)
 
-With the patch I just posted (assuming it works for people), Wine should 
-at least have the choice. The behaviour now should be:
 
- - if the app sets TF on its own, it will cause a SIGTRAP which it can 
-   catch.
- - if the debugger sets TF with SINGLESTEP, it will single-step into a 
-   signal handler.
- - it the app sets TF _and_ you ptrace it, you the ptracer will see the 
-   debug event and catch it. However, doing a "continue" at that point
-   will remove the TF flag (and always has), the app will normally then
-   never see the trap. You can do a "signal SIGTRAP" to actually force
-   the trap handler to tun, but that one won't actually single-step (it's 
-   a "continue" in all other senses).
-
-It sounds like the third case is what wine wants.
-
-		Linus
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	2004-11-19 11:40:37 -08:00
++++ b/drivers/i2c/i2c-core.c	2004-11-19 11:40:37 -08:00
+@@ -1021,7 +1021,6 @@
+ 	                      I2C_SMBUS_WORD_DATA,&data);
+ }
+ 
+-/* Returns the number of bytes transferred */
+ s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
+ 			       u8 length, u8 *values)
+ {

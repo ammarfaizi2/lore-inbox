@@ -1,463 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264152AbTGBASc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 20:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTGBASc
+	id S264393AbTGBAmX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 20:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTGBAmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 20:18:32 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:42157 "HELO
-	develer.com") by vger.kernel.org with SMTP id S264152AbTGBASW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 20:18:22 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
-Date: Wed, 2 Jul 2003 02:32:20 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org
+	Tue, 1 Jul 2003 20:42:23 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:42846 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264393AbTGBAmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 20:42:21 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: [RFC/PATCH] Touchpads in absolute mode (synaptics) and mousedev
+Date: Tue, 1 Jul 2003 19:57:22 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200307010303.53405.dtor_core@ameritech.net> <200307011329.50551.dtor_core@ameritech.net> <16130.7342.567086.595743@gargle.gargle.HOWL>
+In-Reply-To: <16130.7342.567086.595743@gargle.gargle.HOWL>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200307020232.20726.bernie@develer.com>
+Content-Disposition: inline
+Message-Id: <200307011957.22997.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+On Tuesday 01 July 2003 06:43 pm, Neil Brown wrote:
+> On Tuesday July 1, dtor_core@ameritech.net wrote:
+> > Apologies if you seen this already but it seems the list ate my previous
+> > replies...
+> >
+> > On Tuesday 01 July 2003 04:40 am, Neil Brown wrote:
+> > > On Tuesday July 1, dtor_core@ameritech.net wrote:
+> >
+> > ... skip ...
+> >
+> > > > 1. Modify mousedev so if an input device announces that it generates
+> > > > both relative and absolute events mousedev will discard all absolute
+> > > > axis events and will rely on device supplied relative events.
+> > >
+> > > Nah.  I have an ALPS dualpoint which generates ABSolute events for the
+> > > touchpad part and RElative events for the pointstick part.  I want
+> > > them both.
+> >
+> > So pass relative events as is and do conversion of absolute to relatives.
+> > That's what I gonna do about my track stick as well.
+> >
+> > Remember that mousedev provides _emulation_ of [Ex]PS/2 mouse protocol
+> > for almost any device, it does not do any advanced tricks it's here to
+> > use with old software that does not have advanced drivers yet, you are
+> > not "loosing" your absolute mode packets, you hav /dev/input/eventX to
+> > access them.
+>
+> If I do that, then on the eventX device I will see both 'real'
+> relative events and 'synthesised' (from absoule) relative events and I
+> won't be able to tell the difference.
+>
 
-sorry for coming up with this patch in a short time frame, but
-it needs to be applied in order to fix real do_div() brokenness
-on many architectures.
+I see there are 2 possible solutions. If I understand what Vojtech wrote 
+regarding synaptics driver the track stick (or other pass-through device)
+is best implemented as a separate serio. So you could have your touchpad
+in absolute mode and stick as a separate device in native relative.
 
-If you'd prefer me to fix just the bugs without moving
-stuff around, I'd be glad to provide another patch. I'd push
-this one through a mantainer, but this patch really doesn't
-belong to any specific architecture or subsystem, so...
+Other way is to check (in your userspace driver) whether your motion 
+packets contains absolute packets and if they are present discard any 
+relative events in this batch.
 
----------------------------------------------------------------------
+Hmmm... what if we introduce something like sythrelbit[NBITS(REL__MAX)]
+for passing synthesized relative events and have mousedev use values in 
+following order of precedence:
+- absbit - lowest priority
+- synthrelbit
+- relbit - highest.
 
- - move the 64/32bit do_div() macro to a new asm-generic/div64.h
-   header;
+What you think?
+> > > > 2. Add absolute->relative conversion code to touchpad drivers
+> > > > themselves as drivers should know the best how to do that. If they
+> > > > turn out to be similar across different touchpads then the common
+> > > > module could be made.
+> > > >
+> > > > What you think?
+> > >
+> > > I think that mousedev should be just clever enough to mostly work and
+> > > no cleverer.  Anything more interesting should be done in user-space.
+> >
+> > Right, and if device says that it can generate relative packets mousedev
+> > should not get in its way and do its own absolute->relative conversion.
+>
+> A device should present raw events.  Whatever the user says to the
+> device should come out eventX uninterpreted.
+> mousedev should interpret what it can and present this out
+> /dev/psaux.  As it can do limited interpretation of ABS events, it
+> should.
+>
 
- - kill multiple copies of the generic version in architecture
-   specific subdirs. Most copies were either buggy or subtly
-   different from each other;
+The thing is that the result is not useable with touchpads right now. 
+It just does not work :(
 
- - ensure all surviving instances of do_div() have their parameters
-   correctly parenthesized to avoid funny results;
+> This seems different to your perspective, but seeing there is not
+> standard or other document that we can make reference too, it is not
+> clear that anyone can decide who is *right*.....
+>
+> NeilBrown
 
-Note that the arm26, cris, m68knommu, sh, sparc and v850 architectures
-are silently clipping 64bit dividend to 32bit! This patch doesn't try
-to fix this because I can't test on all architectures.
-
-Patch submitted by Bernardo Innocenti <bernie@develer.com>
-
-Applies to 2.5.73. Backporting to 2.4.21 is trivial.
-
-
-FOOT NOTE: what's the point with do_div()? Isn't gcc's long long
-arithmetic support good enough on all platforms? If not, why
-doesn't that get fixed in libgcc instead of polluting the kernel
-with silly (and sometimes bogus) implementations?
-
-
- asm-alpha/div64.h     |   15 +--------------
- asm-arm26/div64.h     |   15 +--------------
- asm-cris/div64.h      |   17 +----------------
- asm-generic/div64.h   |   13 +++++++++++++
- asm-h8300/div64.h     |   14 +-------------
- asm-ia64/div64.h      |   21 +--------------------
- asm-m68k/div64.h      |    9 ---------
- asm-m68knommu/div64.h |   14 +-------------
- asm-mips64/div64.h    |   20 +-------------------
- asm-parisc/div64.h    |   36 ++++++++++--------------------------
- asm-ppc64/div64.h     |   19 +------------------
- asm-s390/div64.h      |    8 +-------
- asm-sh/div64.h        |   11 +----------
- asm-sparc/div64.h     |   12 +-----------
- asm-sparc64/div64.h   |   15 +--------------
- asm-v850/div64.h      |   12 +-----------
- asm-x86_64/div64.h    |   15 +--------------
- 17 files changed, 37 insertions(+), 229 deletions(-)
-
-diff -Nru linux-2.5.73-uc0/include/asm-generic/div64.h linux-2.5.x/include/asm-generic/div64.h
---- linux-2.5.73-uc0/include/asm-generic/div64.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.x/include/asm-generic/div64.h	2003-06-26 01:26:49.000000000 +0200
-@@ -0,0 +1,13 @@
-+#ifndef _ASM_GENERIC_DIV64_H
-+#define _ASM_GENERIC_DIV64_H
-+
-+/* n = n / base; return rem; */
-+
-+#define do_div(n,base) ({					\
-+	int __res;						\
-+	__res = ((unsigned long)(n)) % (unsigned)(base);	\
-+	(n) = ((unsigned long)(n)) / (unsigned)(base);		\
-+	__res;							\
-+})
-+
-+#endif /* _ASM_GENERIC_DIV64_H */
-diff -Nru linux-2.5.73-uc0/include/asm-alpha/div64.h linux-2.5.x/include/asm-alpha/div64.h
---- linux-2.5.73-uc0/include/asm-alpha/div64.h	2003-06-22 20:33:15.000000000 +0200
-+++ linux-2.5.x/include/asm-alpha/div64.h	2003-06-26 01:21:03.000000000 +0200
-@@ -1,14 +1 @@
--#ifndef __ALPHA_DIV64
--#define __ALPHA_DIV64
--
--/*
-- * Hey, we're already 64-bit, no
-- * need to play games..
-- */
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) (n)) % (unsigned) (base); \
--	(n) = ((unsigned long) (n)) / (unsigned) (base); \
--	__res; })
--
--#endif
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-arm26/div64.h linux-2.5.x/include/asm-arm26/div64.h
---- linux-2.5.73-uc0/include/asm-arm26/div64.h	2003-06-22 20:32:35.000000000 +0200
-+++ linux-2.5.x/include/asm-arm26/div64.h	2003-06-26 01:21:39.000000000 +0200
-@@ -1,14 +1 @@
--#ifndef __ASM_ARM_DIV64
--#define __ASM_ARM_DIV64
--
--/* We're not 64-bit, but... */
--#define do_div(n,base)						\
--({								\
--	int __res;						\
--	__res = ((unsigned long)n) % (unsigned int)base;	\
--	n = ((unsigned long)n) / (unsigned int)base;		\
--	__res;							\
--})
--
--#endif
--
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-cris/div64.h linux-2.5.x/include/asm-cris/div64.h
---- linux-2.5.73-uc0/include/asm-cris/div64.h	2003-06-22 20:32:35.000000000 +0200
-+++ linux-2.5.x/include/asm-cris/div64.h	2003-06-26 01:21:49.000000000 +0200
-@@ -1,16 +1 @@
--#ifndef __ASM_CRIS_DIV64
--#define __ASM_CRIS_DIV64
--
--/* copy from asm-arm */
--
--/* We're not 64-bit, but... */
--#define do_div(n,base)						\
--({								\
--	int __res;						\
--	__res = ((unsigned long)n) % (unsigned int)base;	\
--	n = ((unsigned long)n) / (unsigned int)base;		\
--	__res;							\
--})
--
--#endif
--
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-h8300/div64.h linux-2.5.x/include/asm-h8300/div64.h
---- linux-2.5.73-uc0/include/asm-h8300/div64.h	2003-06-22 20:32:28.000000000 +0200
-+++ linux-2.5.x/include/asm-h8300/div64.h	2003-06-26 01:22:10.000000000 +0200
-@@ -1,13 +1 @@
--#ifndef H8300_DIV64_H
--#define H8300_DIV64_H
--
--/* n = n / base; return rem; */
--
--#define do_div(n,base) ({					\
--	int __res;						\
--	__res = ((unsigned long) n) % (unsigned) base;		\
--	n = ((unsigned long) n) / (unsigned) base;		\
--	__res;							\
--})
--
--#endif /* _H8300_DIV64_H */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-ia64/div64.h linux-2.5.x/include/asm-ia64/div64.h
---- linux-2.5.73-uc0/include/asm-ia64/div64.h	2003-06-22 20:33:36.000000000 +0200
-+++ linux-2.5.x/include/asm-ia64/div64.h	2003-06-26 01:23:05.000000000 +0200
-@@ -1,20 +1 @@
--#ifndef _ASM_IA64_DIV64_H
--#define _ASM_IA64_DIV64_H
--
--/*
-- * Copyright (C) 1999 Hewlett-Packard Co
-- * Copyright (C) 1999 David Mosberger-Tang <davidm@hpl.hp.com>
-- *
-- * vsprintf uses this to divide a 64-bit integer N by a small integer BASE.
-- * This is incredibly hard on IA-64...
-- */
--
--#define do_div(n,base)						\
--({								\
--	int _res;						\
--	_res = ((unsigned long) (n)) % (unsigned) (base);	\
--	(n) = ((unsigned long) (n)) / (unsigned) (base);	\
--	_res;							\
--})
--
--#endif /* _ASM_IA64_DIV64_H */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-m68k/div64.h linux-2.5.x/include/asm-m68k/div64.h
---- linux-2.5.73-uc0/include/asm-m68k/div64.h	2003-06-22 20:33:17.000000000 +0200
-+++ linux-2.5.x/include/asm-m68k/div64.h	2003-06-26 01:23:35.000000000 +0200
-@@ -3,7 +3,6 @@
- 
- /* n = n / base; return rem; */
- 
--#if 1
- #define do_div(n, base) ({					\
- 	union {							\
- 		unsigned long n32[2];				\
-@@ -23,13 +22,5 @@
- 	(n) = __n.n64;						\
- 	__rem;							\
- })
--#else
--#define do_div(n,base) ({					\
--	int __res;						\
--	__res = ((unsigned long) n) % (unsigned) base;		\
--	n = ((unsigned long) n) / (unsigned) base;		\
--	__res;							\
--})
--#endif
- 
- #endif /* _M68K_DIV64_H */
-diff -Nru linux-2.5.73-uc0/include/asm-m68knommu/div64.h linux-2.5.x/include/asm-m68knommu/div64.h
---- linux-2.5.73-uc0/include/asm-m68knommu/div64.h	2003-06-22 20:32:37.000000000 +0200
-+++ linux-2.5.x/include/asm-m68knommu/div64.h	2003-06-26 01:23:54.000000000 +0200
-@@ -1,13 +1 @@
--#ifndef _M68KNOMMU_DIV64_H
--#define _M68KNOMMU_DIV64_H
--
--/* n = n / base; return rem; */
--
--#define do_div(n,base) ({					\
--	int __res;						\
--	__res = ((unsigned long) n) % (unsigned) base;		\
--	n = ((unsigned long) n) / (unsigned) base;		\
--	__res;							\
--})
--
--#endif /* _M68K_DIV64_H */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-mips64/div64.h linux-2.5.x/include/asm-mips64/div64.h
---- linux-2.5.73-uc0/include/asm-mips64/div64.h	2003-06-22 20:32:45.000000000 +0200
-+++ linux-2.5.x/include/asm-mips64/div64.h	2003-06-26 01:24:41.000000000 +0200
-@@ -1,19 +1 @@
--/*
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file "COPYING" in the main directory of this archive
-- * for more details.
-- */
--#ifndef _ASM_DIV64_H
--#define _ASM_DIV64_H
--
--/*
-- * Hey, we're already 64-bit, no
-- * need to play games..
-- */
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) n) % (unsigned) base; \
--	n = ((unsigned long) n) / (unsigned) base; \
--	__res; })
--
--#endif /* _ASM_DIV64_H */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-parisc/div64.h linux-2.5.x/include/asm-parisc/div64.h
---- linux-2.5.73-uc0/include/asm-parisc/div64.h	2003-06-22 20:32:55.000000000 +0200
-+++ linux-2.5.x/include/asm-parisc/div64.h	2003-06-26 01:25:25.000000000 +0200
-@@ -2,23 +2,7 @@
- #define __ASM_PARISC_DIV64
- 
- #ifdef __LP64__
--
--/*
-- * Copyright (C) 1999 Hewlett-Packard Co
-- * Copyright (C) 1999 David Mosberger-Tang <davidm@hpl.hp.com>
-- *
-- * vsprintf uses this to divide a 64-bit integer N by a small integer BASE.
-- * This is incredibly hard on IA-64 and HPPA
-- */
--
--#define do_div(n,base)						\
--({								\
--	int _res;						\
--	_res = ((unsigned long) (n)) % (unsigned) (base);	\
--	(n) = ((unsigned long) (n)) / (unsigned) (base);	\
--	_res;							\
--})
--
-+#include <asm-generic/div64.h>
- #else
- /*
-  * unsigned long long division.  Yuck Yuck!  What is Linux coming to?
-@@ -30,21 +14,21 @@
- 	__low  = (n) & 0xffffffff;					\
- 	__high = (n) >> 32;						\
- 	if (__high) {							\
--		__rem   = __high % (unsigned long)base;			\
--		__high  = __high / (unsigned long)base;			\
-+		__rem   = __high % (unsigned long)(base);		\
-+		__high  = __high / (unsigned long)(base);		\
- 		__low2  = __low >> 16;					\
- 		__low2 += __rem << 16;					\
--		__rem   = __low2 % (unsigned long)base;			\
--		__low2  = __low2 / (unsigned long)base;			\
-+		__rem   = __low2 % (unsigned long)(base);		\
-+		__low2  = __low2 / (unsigned long)(base);		\
- 		__low   = __low & 0xffff;				\
- 		__low  += __rem << 16;					\
--		__rem   = __low  % (unsigned long)base;			\
--		__low   = __low  / (unsigned long)base;			\
--		n = __low  + ((long long)__low2 << 16) +		\
-+		__rem   = __low  % (unsigned long)(base);		\
-+		__low   = __low  / (unsigned long)(base);		\
-+		(n) = __low  + ((long long)__low2 << 16) +		\
- 			((long long) __high << 32);			\
- 	} else {							\
--		__rem = __low % (unsigned long)base;			\
--		n = (__low / (unsigned long)base);			\
-+		__rem = __low % (unsigned long)(base);			\
-+		(n) = (__low / (unsigned long)(base));			\
- 	}								\
- 	__rem;								\
- })
-diff -Nru linux-2.5.73-uc0/include/asm-ppc64/div64.h linux-2.5.x/include/asm-ppc64/div64.h
---- linux-2.5.73-uc0/include/asm-ppc64/div64.h	2003-06-22 20:32:28.000000000 +0200
-+++ linux-2.5.x/include/asm-ppc64/div64.h	2003-06-26 01:27:20.000000000 +0200
-@@ -1,18 +1 @@
--#ifndef __PPC_DIV64
--#define __PPC_DIV64
--
--/* Copyright 2001 PPC64 Team, IBM Corp
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version
-- * 2 of the License, or (at your option) any later version.
-- */
--
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) (n)) % (unsigned) (base); \
--	(n) = ((unsigned long) (n)) / (unsigned) (base); \
--	__res; })
--
--#endif
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-s390/div64.h linux-2.5.x/include/asm-s390/div64.h
---- linux-2.5.73-uc0/include/asm-s390/div64.h	2003-06-22 20:32:57.000000000 +0200
-+++ linux-2.5.x/include/asm-s390/div64.h	2003-06-26 01:27:51.000000000 +0200
-@@ -43,13 +43,7 @@
- })
- 
- #else /* __s390x__ */
--
--#define do_div(n,base) ({ \
--int __res; \
--__res = ((unsigned long) n) % (unsigned) base; \
--n = ((unsigned long) n) / (unsigned) base; \
--__res; })
--
-+#include <asm-generic/div64.h>
- #endif /* __s390x__ */
- 
- #endif
-diff -Nru linux-2.5.73-uc0/include/asm-sh/div64.h linux-2.5.x/include/asm-sh/div64.h
---- linux-2.5.73-uc0/include/asm-sh/div64.h	2003-06-22 20:32:28.000000000 +0200
-+++ linux-2.5.x/include/asm-sh/div64.h	2003-06-26 01:28:08.000000000 +0200
-@@ -1,10 +1 @@
--#ifndef __ASM_SH_DIV64
--#define __ASM_SH_DIV64
--
--#define do_div(n,base) ({ \
--int __res; \
--__res = ((unsigned long) n) % (unsigned) base; \
--n = ((unsigned long) n) / (unsigned) base; \
--__res; })
--
--#endif /* __ASM_SH_DIV64 */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-sparc/div64.h linux-2.5.x/include/asm-sparc/div64.h
---- linux-2.5.73-uc0/include/asm-sparc/div64.h	2003-06-22 20:32:58.000000000 +0200
-+++ linux-2.5.x/include/asm-sparc/div64.h	2003-06-26 01:28:25.000000000 +0200
-@@ -1,11 +1 @@
--#ifndef __SPARC_DIV64
--#define __SPARC_DIV64
--
--/* We're not 64-bit, but... */
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) n) % (unsigned) base; \
--	n = ((unsigned long) n) / (unsigned) base; \
--	__res; })
--
--#endif /* __SPARC_DIV64 */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-sparc64/div64.h linux-2.5.x/include/asm-sparc64/div64.h
---- linux-2.5.73-uc0/include/asm-sparc64/div64.h	2003-06-22 20:32:42.000000000 +0200
-+++ linux-2.5.x/include/asm-sparc64/div64.h	2003-06-26 01:28:47.000000000 +0200
-@@ -1,14 +1 @@
--#ifndef __SPARC64_DIV64
--#define __SPARC64_DIV64
--
--/*
-- * Hey, we're already 64-bit, no
-- * need to play games..
-- */
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) n) % (unsigned) base; \
--	n = ((unsigned long) n) / (unsigned) base; \
--	__res; })
--
--#endif /* __SPARC64_DIV64 */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-v850/div64.h linux-2.5.x/include/asm-v850/div64.h
---- linux-2.5.73-uc0/include/asm-v850/div64.h	2003-06-22 20:33:08.000000000 +0200
-+++ linux-2.5.x/include/asm-v850/div64.h	2003-06-26 01:29:07.000000000 +0200
-@@ -1,11 +1 @@
--#ifndef __V850_DIV64_H__
--#define __V850_DIV64_H__
--
--/* We're not 64-bit, but... */
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) n) % (unsigned) base; \
--	n = ((unsigned long) n) / (unsigned) base; \
--	__res; })
--
--#endif /* __V850_DIV64_H__ */
-+#include <asm-generic/div64.h>
-diff -Nru linux-2.5.73-uc0/include/asm-x86_64/div64.h linux-2.5.x/include/asm-x86_64/div64.h
---- linux-2.5.73-uc0/include/asm-x86_64/div64.h	2003-06-22 20:33:12.000000000 +0200
-+++ linux-2.5.x/include/asm-x86_64/div64.h	2003-06-26 01:29:16.000000000 +0200
-@@ -1,14 +1 @@
--#ifndef __X86_64_DIV64
--#define __X86_64_DIV64
--
--/*
-- * Hey, we're already 64-bit, no
-- * need to play games..
-- */
--#define do_div(n,base) ({ \
--	int __res; \
--	__res = ((unsigned long) (n)) % (unsigned) (base); \
--	(n) = ((unsigned long) (n)) / (unsigned) (base); \
--	__res; })
--
--#endif
-+#include <asm-generic/div64.h>
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
-
+Dmitry

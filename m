@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293380AbSCWPp4>; Sat, 23 Mar 2002 10:45:56 -0500
+	id <S293452AbSCWQHR>; Sat, 23 Mar 2002 11:07:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293400AbSCWPph>; Sat, 23 Mar 2002 10:45:37 -0500
-Received: from pop.gmx.de ([213.165.64.20]:44628 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S293380AbSCWPpf>;
-	Sat, 23 Mar 2002 10:45:35 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Felix Seeger <felix.seeger@gmx.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: System hanging at boot with ms natural pro keyboard in usb port (2.4.18)
-Date: Sat, 23 Mar 2002 16:36:19 +0100
-X-Mailer: KMail [version 1.4]
-In-Reply-To: <200203192204.32846.felix.seeger@gmx.de> <20020319215001.GD463@kroah.com>
+	id <S293515AbSCWQHI>; Sat, 23 Mar 2002 11:07:08 -0500
+Received: from ohiper3-167.apex.net ([209.250.52.182]:56846 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S293452AbSCWQG4>; Sat, 23 Mar 2002 11:06:56 -0500
+Date: Sat, 23 Mar 2002 10:06:47 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: Danijel Schiavuzzi <dschiavu@public.srce.hr>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200203231636.19529.felix.seeger@gmx.de>
+Subject: Re: Screen corruption in 2.4.18
+Message-ID: <20020323160647.GA22958@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Danijel Schiavuzzi <dschiavu@public.srce.hr>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <200203222204.XAA01121@jagor.srce.hr> <20020322232304.GA19579@hapablap.dyn.dhs.org> <200203231526.QAA09302@jagor.srce.hr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Uptime: 09:31:19 up 2 days,  8:28,  0 users,  load average: 0.50, 0.89, 0.95
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Mar 23, 2002 at 04:25:55PM +0100, Danijel Schiavuzzi wrote:
+> > I think you actually do have an 8363, and so some sort of fix is
+> > probably needed.
+> 
+> Don't get it wrong. I *do have* an VT8365. VT8365 (ProSavage KM133) is 
+> somewhat the same as VT8363 (KT133), except that 8365 has an integrated 
+> Savage graphics card (which *I use*).
 
-Am Dienstag, 19. März 2002 22:50 schrieb Greg KH:
-> On Tue, Mar 19, 2002 at 10:04:28PM +0100, Felix Seeger wrote:
-> > Hi
-> > I tried to connect my MS Natural Pro keyboard and than I get this error.
-> > The Logitech mouse works great ;)
-> >
-> > Is this solved in 2.4.19-pre3 ?
-> >
-> > The error:
-> >
-> > hub.c USB new device connect on bus 1/1, assinged device number 2
-> > invalid operand: 0000
-> > CPU:		0
-> > EIP:		0010:[<d98730a0>] Not tainted
-> > EELAGS:	0010046
-> > ... write me if you need more ...
->
-> Yes we need more, after you run the oops through ksymoops too.
->
-> And what USB host controller driver are you using, and is this a SMP
-> kernel?
->
-> thanks,
->
-> greg k-h
+Aha... I see.  And in thinking about it, I realize that my motherboard
+also has this integrated graphics card.  Perhaps this is the difference?
+Unfortunately, it seems they both report the same PCI id, so I don't
+really know of a way to differentiate them.
 
-Sorry I had no time. But I have to say:
+[...]
+> In the KM133 datasheet (find it here: http://www.fae.com.tw/serv02.htm ;) it 
+> is said that the offset 55 is for "Debug (Do Not Program)"... Can you look at 
+> it, maybe it can help.
 
-Linux is the best I've ever seen. It is better than all.
-It does a kernel repair if something goes wrong.
-Why are you all developing on the kernel. I think this is a really big fake.
-Like the simpsons with the trucks ;)
-It works, not Problem.
-The same kernel / system since the aiee
-
-If i get it again, I will report it.
-
-so have fun
-Felix
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8nKDzS0DOrvdnsewRArtvAJ4lTZ4eeUJp6+e+vUzotbGsj2YnDgCfYA5b
-6QbyxoiRWWLpxzztIHanBnY=
-=Fuxx
------END PGP SIGNATURE-----
-
+I looked at that datasheet, and the datasheet for the 8363.  Both said
+not to program offset 55, and both said the bits we are clearing are
+"reserved."  Perhaps we should contact VIA directly, tell them the
+problem we're having with their current fix, tell them our theory, and
+ask if we're right.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?
+			-- Montgomery C. Burns

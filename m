@@ -1,145 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265829AbTIKAdi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 20:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbTIKAdh
+	id S262758AbTIKAP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 20:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbTIKAP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 20:33:37 -0400
-Received: from mail5.intermedia.net ([206.40.48.155]:60421 "EHLO
+	Wed, 10 Sep 2003 20:15:56 -0400
+Received: from mail5.intermedia.net ([206.40.48.155]:8964 "EHLO
 	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id S265829AbTIKAdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 20:33:33 -0400
+	id S262758AbTIKAPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 20:15:48 -0400
 Subject: Re: [OOPS] Linux-2.6.0-test5-bk
 From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <20030911002404.GA7178@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <20030910154608.14ad0ac8.akpm@osdl.org>
 References: <1063232210.4441.14.camel@ranjeet-pc2.zultys.com>
 	 <20030910154608.14ad0ac8.akpm@osdl.org>
-	 <1063239544.1328.22.camel@ranjeet-pc2.zultys.com>
-	 <20030911002404.GA7178@kroah.com>
 Content-Type: text/plain
 Organization: Zultys Technologies Inc.
-Message-Id: <1063240611.1327.37.camel@ranjeet-pc2.zultys.com>
+Message-Id: <1063239544.1328.22.camel@ranjeet-pc2.zultys.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.3 
-Date: 10 Sep 2003 17:36:51 -0700
+Date: 10 Sep 2003 17:19:05 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-10 at 17:24, Greg KH wrote:
-> On Wed, Sep 10, 2003 at 05:19:05PM -0700, Ranjeet Shetye wrote:
-> > 
-> > Your changes fixed the issue. Thanks a lot for your help. I still get
-> > this call trace, but no more OOPS on bootup.
-> > 
-> > kobject_register failed for Ensoniq AudioPCI (-17)
+On Wed, 2003-09-10 at 15:46, Andrew Morton wrote:
+> Ranjeet Shetye <ranjeet.shetye2@zultys.com> wrote:
+> >
+> > Unable to handle kernel paging request at virtual address ffffffef
+> >  printing eip:
+> > c027184c
+> > *pde = 00001067
+> > *pte = 00000000
+> > Oops: 0000 [#1]
+> > CPU:    0
+> > EIP:    0060:[<c027184c>]    Not tainted
+> > EFLAGS: 00010282
+> > EIP is at atomic_dec_and_lock+0x8/0x54
+> > eax: ffffffef   ebx: ffffffef   ecx: ffffffef   edx: cf372254
+> > esi: ffffffef   edi: cf743e20   ebp: c12efea8   esp: c12efea0
+> > ds: 007b   es: 007b   ss: 0068
+> > Process swapper (pid: 1, threadinfo=c12ee000 task=c12ed8c0)
+> > Stack: ffffffef ffffffef c12efec4 c01675e4 ffffffef c05a21b0 ffffffef cf7469b4 
+> >        cf743e20 c12efee4 c018aa52 ffffffef 000041ed c018a998 c05f0f80 00000000 
+> >        c05f0f80 c12eff00 c018aab1 c05f0f80 cf743e20 c05f0f84 00000000 c05f0f80 
 > > Call Trace:
-> >  [<c026f45c>] kobject_register+0x50/0x59
-> >  [<c02f8003>] bus_add_driver+0x4c/0xaf
-> >  [<c02f8453>] driver_register+0x31/0x35
-> >  [<c027c3bf>] pci_populate_driver_dir+0x29/0x2b
-> >  [<c027c491>] pci_register_driver+0x5e/0x83
-> >  [<c06a145f>] alsa_card_ens137x_init+0x15/0x41
-> >  [<c068475a>] do_initcalls+0x2a/0x97
-> >  [<c012e920>] init_workqueues+0x12/0x2a
-> >  [<c01050a3>] init+0x39/0x196
-> >  [<c010506a>] init+0x0/0x196
-> >  [<c0108f31>] kernel_thread_helper+0x5/0xb
+> >  [<c01675e4>] dput+0x24/0x227
+> >  [<c018aa52>] create_dir+0x9e/0xa4
+> >  [<c018a998>] init_dir+0x0/0x1c
+> >  [<c018aab1>] sysfs_create_dir+0x36/0x6c
+> >  [<c026eee0>] create_dir+0x1f/0x49
+> >  [<c026f331>] kobject_add+0x4d/0x124
 > 
-> Odds are that the pci driver is trying to register 2 drivers with the
-> pci core with the same name.  What does /sys/bus/pci/drivers show?
+> Bug in fs/sysfs/dir.c:create_dir() - sysfs_create() returned -EEXIST and we
+> turned that into a pointer and did a dput() on it.  
 > 
-> thanks,
+> Something like this should fix it.  The -EEXIST return may be another bug?
 > 
-> greg k-h
+> 
+> 
+> diff -puN fs/sysfs/dir.c~sysfs-create_dir-oops-fix fs/sysfs/dir.c
+> --- 25/fs/sysfs/dir.c~sysfs-create_dir-oops-fix	Wed Sep 10 15:41:35 2003
+> +++ 25-akpm/fs/sysfs/dir.c	Wed Sep 10 15:44:42 2003
+> @@ -24,10 +24,11 @@ static int init_dir(struct inode * inode
+>  static struct dentry * 
+>  create_dir(struct kobject * k, struct dentry * p, const char * n)
+>  {
+> -	struct dentry * dentry;
+> +	struct dentry *dentry, *ret;
+>  
+>  	down(&p->d_inode->i_sem);
+>  	dentry = sysfs_get_dentry(p,n);
+> +	ret = dentry;
+>  	if (!IS_ERR(dentry)) {
+>  		int error = sysfs_create(dentry,
+>  					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
+> @@ -36,11 +37,11 @@ create_dir(struct kobject * k, struct de
+>  			dentry->d_fsdata = k;
+>  			p->d_inode->i_nlink++;
+>  		} else
+> -			dentry = ERR_PTR(error);
+> +			ret = ERR_PTR(error);
+>  		dput(dentry);
+>  	}
+>  	up(&p->d_inode->i_sem);
+> -	return dentry;
+> +	return ret;
+>  }
+>  
+> 
+> 
+> _
 
-Hi Greg,
+Hi Andrew,
 
-I didn't find a /proc/sys/bus/pci/drivers, but I did find a
-/proc/bus/pci/devices - which is what I am guessing you meant. If you
-did in fact mean '/proc/sys/bus/pci/drivers' then I dont have any such
-file. In fact I dont have a bus sub-directory under /proc/sys/
+Your changes fixed the issue. Thanks a lot for your help. I still get
+this call trace, but no more OOPS on bootup.
 
-Anyways, here's the output:
+kobject_register failed for Ensoniq AudioPCI (-17)
+Call Trace:
+ [<c026f45c>] kobject_register+0x50/0x59
+ [<c02f8003>] bus_add_driver+0x4c/0xaf
+ [<c02f8453>] driver_register+0x31/0x35
+ [<c027c3bf>] pci_populate_driver_dir+0x29/0x2b
+ [<c027c491>] pci_register_driver+0x5e/0x83
+ [<c06a145f>] alsa_card_ens137x_init+0x15/0x41
+ [<c068475a>] do_initcalls+0x2a/0x97
+ [<c012e920>] init_workqueues+0x12/0x2a
+ [<c01050a3>] init+0x39/0x196
+ [<c010506a>] init+0x0/0x196
+ [<c0108f31>] kernel_thread_helper+0x5/0xb
 
-cat /proc/bus/pci/devices
 
-0000    80862560        0       f0000008        00000000       
-00000000        00000000        00000000        00000000       
-00000000        08000000        00000000   00000000       
-00000000        00000000        00000000        00000000       
-agpgart-intel
+Also, I wanted to ask one more thing:
 
-0010    80862562        10      e8000008        ff680000       
-00000000        00000000        00000000        00000000       
-00000000        08000000        00080000   00000000       
-00000000        00000000        00000000        00000000
+In the top level Makefile, I have replaced
 
-00e8    808624c2        10      00000000        00000000       
-00000000        00000000        0000ff81        00000000       
-00000000        00000000        00000000   00000000       
-00000000        00000020        00000000        00000000        uhci-hcd
+EXTRAVERSION = -test5
 
-00e9    808624c4        13      00000000        00000000       
-00000000        00000000        0000ff61        00000000       
-00000000        00000000        00000000   00000000       
-00000000        00000020        00000000        00000000        uhci-hcd
+with 
 
-00ea    808624c7        12      00000000        00000000       
-00000000        00000000        0000ff41        00000000       
-00000000        00000000        00000000   00000000       
-00000000        00000020        00000000        00000000        uhci-hcd
+TESTVERSION = -test5
+BKVERSION = $(shell if [ -d "./BitKeeper" ]; then echo '-bk-`bk changes
+| head -1 | cut -f 2 -d @ | cut -f 1 -d ,`' ; else echo ''; fi)
+EXTRAVERSION = $(TESTVERSION)$(BKVERSION)
 
-00ef    808624cd        17      ffa00800        00000000       
-00000000        00000000        00000000        00000000       
-00000000        00000400        00000000   00000000       
-00000000        00000000        00000000        00000000        ehci_hcd
+As a result 'uname -r' on a bk-based kernel now returns a more useful
+'2.6.0-test5-bk-1.1227.1.49' instead of just '2.6.0-test5'. For non-bk
+based source code trees, the version is still '2.6.0-test5'. This is
+very useful to me because I have 2 seperate 2.6 trees (bk and vanilla),
+and this lets me figure out where I got my kernel from and esp. at what
+bk changeset it was built.
 
-00f0    8086244e        0       00000000        00000000       
-00000000        00000000        00000000        00000000       
-00000000        00000000        00000000   00000000       
-00000000        00000000        00000000        00000000
+I am not very familiar with bk (still stumbling around) and hence I
+couldn't generate a bk diff or do a bk send etc; if you think this
+change is useful, please send it over to be included in the main tree.
 
-00f8    808624c0        0       00000000        00000000       
-00000000        00000000        00000000        00000000       
-00000000        00000000        00000000   00000000       
-00000000        00000000        00000000        00000000
-
-00f9    808624cb        12      00000000        00000000       
-00000000        00000000        0000ffa1        10000000       
-00000000        00000000        00000000   00000000       
-00000000        00000010        00000400        00000000        PIIX IDE
-
-00fb    808624c3        11      00000000        00000000       
-00000000        00000000        0000dc81        00000000       
-00000000        00000000        00000000   00000000       
-00000000        00000020        00000000        00000000
-
-00fd    808624c5        11      0000d801        0000dc41       
-ffa00400        ffa00000        00000000        00000000       
-00000000        00000100        00000040   00000200       
-00000100        00000000        00000000        00000000        Intel
-ICH
-
-0138    16ae1141        10      f80fe008        00000000       
-00000000        00000000        00000000        00000000       
-00000000        00002000        00000000   00000000       
-00000000        00000000        00000000        00000000
-
-0140    10ec8139        11      0000ec01        ff8ffc00       
-00000000        00000000        00000000        00000000       
-00000000        00000100        00000100   00000000       
-00000000        00000000        00000000        00000000        8139too
-
-0160    8086100e        12      ff8c0000        00000000       
-0000e8c1        00000000        00000000        00000000       
-00000000        00020000        00000000   00000040       
-00000000        00000000        00000000        00000000        e1000
-
-thanks,
+thanks again,
+Ranjeet.
 
 -- 
 

@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317355AbSHKJtf>; Sun, 11 Aug 2002 05:49:35 -0400
+	id <S318036AbSHKJ6h>; Sun, 11 Aug 2002 05:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318036AbSHKJtf>; Sun, 11 Aug 2002 05:49:35 -0400
-Received: from ns.suse.de ([213.95.15.193]:62477 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317355AbSHKJtf>;
-	Sun, 11 Aug 2002 05:49:35 -0400
-To: Andrew Morton <akpm@zip.com.au>
+	id <S318173AbSHKJ6h>; Sun, 11 Aug 2002 05:58:37 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:18928 "EHLO
+	pimout3-int.prodigy.net") by vger.kernel.org with ESMTP
+	id <S318036AbSHKJ6h>; Sun, 11 Aug 2002 05:58:37 -0400
+Message-Id: <200208111002.g7BA2Ga64100@pimout3-int.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: "H. Peter Anvin" <hpa@zytor.com>,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: klibc development release
+Date: Sun, 11 Aug 2002 01:02:11 -0400
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-References: <3D56147E.15E7A98@zip.com.au.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 11 Aug 2002 11:53:21 +0200
-In-Reply-To: Andrew Morton's message of "11 Aug 2002 10:02:40 +0200"
-Message-ID: <p73u1m1iuwe.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+References: <200208092016.g79KGVk87834@saturn.cs.uml.edu> <3D542482.2080109@zytor.com>
+In-Reply-To: <3D542482.2080109@zytor.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
+On Friday 09 August 2002 04:22 pm, H. Peter Anvin wrote:
+> Albert D. Cahalan wrote:
+> >>klibc is a tiny C library subset intended to be integrated into the
+> >>kernel source tree and being used for initramfs stuff.  Thus,
+> >>initramfs+rootfs can be used to move things that are currently in
+> >>kernel space, such as ip autoconfiguration or nfsroot (in fact,
+> >>mounting root in general) into user space.
+> >
+> > Could I link 4-clause BSD source against this?
+> > (the GPL is incompatible with the 4-clause BSD license)
+>
+> I'm planning to release this under a BSD-like license, such as 3-clause
+> BSD, MIT or the X license.  I'm still looking at each of those.
 
-> Which needs a working ARCH_HAS_PREFETCH to avoid probable extra code
-> generation on CPUs which don't have prefetch.
+What's wrong with LGPL?  I thought libraries were what it was originally 
+intended for.  (Is 4 clause BSD incompatable with LGPL?)
 
-When you use gcc 3.1+ you can use __builtin_prefetch() and gcc takes care of
-it. See asm-x86_64/prefetch.h of a working example.
+Yeah, I know stallman's decided to hate.  I'm sure he'd be happy to know that 
+stance encourages stuff to be released BSD-ish instead. :)
 
-Of course generic C code should not use the ugly builtins directly, but
-it could be used to define the wrappers.
-
--Andi
+Rob

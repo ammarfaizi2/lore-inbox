@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287403AbRL3Nlw>; Sun, 30 Dec 2001 08:41:52 -0500
+	id <S287409AbRL3Nnd>; Sun, 30 Dec 2001 08:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287399AbRL3Nlm>; Sun, 30 Dec 2001 08:41:42 -0500
-Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:35737 "EHLO
-	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S287403AbRL3Nl0>; Sun, 30 Dec 2001 08:41:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: esr@thyrsus.com
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-Date: Sun, 30 Dec 2001 00:39:43 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011228141211.B15338@thyrsus.com> <20011229212455.GB21928@cpe-24-221-152-185.az.sprintbbd.net> <20011229174354.B8526@thyrsus.com>
-In-Reply-To: <20011229174354.B8526@thyrsus.com>
+	id <S287399AbRL3NnN>; Sun, 30 Dec 2001 08:43:13 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31239 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287414AbRL3NnH>; Sun, 30 Dec 2001 08:43:07 -0500
+Subject: Re: SIS-Driver
+To: TRTracer@web.de (Tobias Reinhard)
+Date: Sun, 30 Dec 2001 13:53:52 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <004801c19133$9bc91210$0dfda8c0@mausi> from "Tobias Reinhard" at Dec 30, 2001 02:12:16 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011230134125.VUHO28486.femail48.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16KgPQ-0001Fb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 December 2001 05:43 pm, Eric S. Raymond wrote:
-> Tom Rini <trini@kernel.crashing.org>:
-> > > unless (ISA or PCI) suppress dependent IDE
-> >
-> > Just a minor point, but what about non-PCI/ISA ide?
->
-> The CML1 rules seem to imply that this set is empty.
+> What am I doing wrong, or is that a bug? I solved it by setting up a Kernel
+> with all SIS-DRM included, compile X and then removed them. ATM I am unable
+> to test if the SIS-DRM really runs with that configuration...
 
-There are, apparently, paralell port IDE devices.
+If X is poking around in the kernel configuration and requires it built in
+then report the problem to the XFree86 people.
 
-I've never seen one, but we've got drivers for them.  See PARIDE and 
-paride_devices.
-
-Rob
+For the SiS DRM you do need SiS framebuffer currently

@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264199AbTDJV6T (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTDJV6T (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 17:58:19 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:50894 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S264188AbTDJV6R (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 17:58:17 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 11 Apr 2003 00:09:51 +0200 (MEST)
-Message-Id: <UTC200304102209.h3AM9pf11795.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       pbadari@us.ibm.com
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
+	id S264225AbTDJWBb (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTDJWBb (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 18:01:31 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:15354 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264225AbTDJWB3 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 18:01:29 -0400
+Date: Thu, 10 Apr 2003 16:06:36 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel support for non-english user messages
+Message-ID: <20030410160636.H26054@schatzie.adilger.int>
+Mail-Followup-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+	'Chuck Ebbert' <76306.1226@compuserve.com>,
+	'linux-kernel' <linux-kernel@vger.kernel.org>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBA7DD@orsmsx116.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBA7DD@orsmsx116.jf.intel.com>; from inaky.perez-gonzalez@intel.com on Thu, Apr 10, 2003 at 02:20:54PM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I noticed that I have been unsubscribed for a day or so,
-so may not have seen earlier mail.]
+On Apr 10, 2003  14:20 -0700, Perez-Gonzalez, Inaky wrote:
+> > From: Chuck Ebbert [mailto:76306.1226@compuserve.com]
+> > >>      How about changing the way printk works, so that instead of
+> > >> combining the format string, it just "prints" its args:
+> > >>
+> > >> printk("%s: name %p is %d\n", name, ptr, val);
+> > >>
+> > >> results in the following in the kernel buffer:
+> > >>
+> > >> "%s: name %p is %d\n", "stringval", 0x4790243, 44
+> > >
+> > > Debugging a non-klogd enabled kernel would be a pain
+> > 
+> > 
+> >  Why?  Shouldn't it be easy to fix dmesg so it unmangles the output?
+> 
+> s/non-klogd enabled/dmesg/
+> 
+> Same thing - what I mean is that if you don't have some automatic
+> means to recompose the messages, reading the direct output of 
+> the console (as sometimes you have to), becomes a mess.
 
-	From: Badari Pulavarty <pbadari@us.ibm.com>
+  From what I've read, it sounds like the solution that will be accepted by
+the kernel developers is that kernel messages will continue to be output
+as-is in english, and can be post-processed with a tool to translate it to
+another language.  The tool will grab the format strings from the kernel
+so that it can separate out the constant and variable parts of the message,
+and the format strings will be translated.
 
-	--- linux-2.5.67/drivers/scsi/sd.c	Wed Apr  9 13:12:38 2003
-	+++ linux-2.5.67.new/drivers/scsi/sd.c	Thu Apr 10 13:23:49 2003
-	@@ -56,7 +56,9 @@
-	  * Remaining dev_t-handling stuff
-	  */
-	 #define SD_MAJORS	16
-	-#define SD_DISKS	(SD_MAJORS << 4)
-	+#define SD_DISKS	((SD_MAJORS - 1) << 4)
-	+#define LAST_MAJOR_DISKS	(1 << (KDEV_MINOR_BITS - 4))
-	+#define TOTAL_SD_DISKS	(SD_DISKS + LAST_MAJOR_DISKS)
-	 
-	-static unsigned long sd_index_bits[SD_DISKS / BITS_PER_LONG];
-	+static unsigned long sd_index_bits[TOTAL_SD_DISKS / BITS_PER_LONG];
+At translation time, _something_ _like_ "sscanf(format_string, ...)" will
+be used to detect the which message is which (probably being speeded up
+with a pattern-matching hash of the constant parts of the message like
+prcs/xdelta does), substituting the english format with the translated
+format, and then substituting the args.
 
-I try to make sure there are no assumptions about the
-size or structure of device numbers anywhere outside kdev_t.h.
-In particular I object to the use of KDEV_MINOR_BITS.
+This has the benefit that it can be used in klogd/dmesg/ksymoops, or even
+as a standalone tool for filtering kernel messages in email or over a
+serial console, and you can also get multiple translations instead of
+just the one that was output to the screen.
 
-Apart from this formal point, there is also the practical point:
-suppose 64 = 32+32 is used, so that KDEV_MINOR_BITS equals 32.
-Then LAST_MAJOR_DISKS is 2^28 and sd_index_bits[] would be 32 MB array.
-Unreasonable.
+Cheers, Andreas
 
-The conclusion is that the easy way out is to define MAX_NR_DISKS.
-A different way out, especially when we use 32+32, is to kill this
-sd_index_bits[] array, and give each disk a new number: replace
-	index = find_first_zero_bit(sd_index_bits, SD_DISKS);
-by
-	index = next_index++;
+PS: 2.4.18 has 51217 printks, 2.5.recent has 59728.  Some of them don't need
+    to be translated, some of them are hidden inside macros.  In any case,
+    there is a lot of actual translation that needs to be done to make this
+    practical regardless of what the details are.
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-Andries

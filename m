@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286311AbSCOIrU>; Fri, 15 Mar 2002 03:47:20 -0500
+	id <S286322AbSCOItK>; Fri, 15 Mar 2002 03:49:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbSCOIrK>; Fri, 15 Mar 2002 03:47:10 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:5640 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S286311AbSCOIq4>; Fri, 15 Mar 2002 03:46:56 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Joel Becker <jlbec@evilplan.org>
-Cc: frankeh@watson.ibm.com, matthew@hairy.beasts.org,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Re: futex and timeouts 
-In-Reply-To: Your message of "Fri, 15 Mar 2002 06:08:29 -0000."
-             <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk> 
-Date: Fri, 15 Mar 2002 19:49:04 +1100
-Message-Id: <E16lnOa-0005dy-00@wagner.rustcorp.com.au>
+	id <S286343AbSCOItB>; Fri, 15 Mar 2002 03:49:01 -0500
+Received: from dsl-213-023-038-002.arcor-ip.net ([213.23.38.2]:42415 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S286322AbSCOIsr>;
+	Fri, 15 Mar 2002 03:48:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, ian@ianduggan.net (Ian Duggan)
+Subject: Re: 2.4.18 Preempt Freezeups
+Date: Fri, 15 Mar 2002 09:43:32 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org (linux kernel)
+In-Reply-To: <E16lhBg-0002Yc-00@the-village.bc.nu>
+In-Reply-To: <E16lhBg-0002Yc-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16lnJE-0000VK-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk> you write:
-> On Fri, Mar 15, 2002 at 04:39:50PM +1100, Rusty Russell wrote:
-> > Yep, sorry, my mistake.  I suggest make it a relative "struct timespec
-> > *" (more futureproof that timeval).  It would make sense to split the
-> > interface into futex_down and futex_up syuscalls, since futex_up
-> > doesn't need a timeout arg, but I haven't for the moment.
+On March 15, 2002 03:11 am, Alan Cox wrote:
+> > Stock 2.4.18+preempt+mki-adapter+win4lin
+> > 	- Very frequent, and also repeatable every time I
+> > 		try to start win4lin.
 > 
-> 	Why waste a syscall?  The user is going to be using a library
-> wrapper.  They don't have to know that futex_up() calls sys_futex(futex,
-> FUTEX_UP, NULL);
+> pre-empt is almost certainly going to break things like win4lin
 
-My bad.  There was a mistake in the patch (ie. I didn't actually do
-this).
+Or rather, a binary thing like win4lin may break pre-empt, putting
+further gentle pressure on the vendor to 'go open'.  You could look
+at that as a good thing.
 
-OTOH, shades of fcntl!  Syscalls are not "wasted": one for every
-fundamental operation makes *sense*.  If I were doing it with timeouts
-from scratch, I'd definitely have done two syscalls.  As it is, the
-"op" arg gives us a chance for more overloading in future.
+I suppose Netraverse will fix it up and life will go on.
 
-Hope that clarifies,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Daniel

@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274573AbRIYJen>; Tue, 25 Sep 2001 05:34:43 -0400
+	id <S274571AbRIYJ0x>; Tue, 25 Sep 2001 05:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274574AbRIYJee>; Tue, 25 Sep 2001 05:34:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38928 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274573AbRIYJeS>; Tue, 25 Sep 2001 05:34:18 -0400
-Subject: Re: Burning a CD image slow down my connection
-To: andy80@pegacity.it ([A]ndy80)
-Date: Tue, 25 Sep 2001 10:39:57 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1001401550.1017.4.camel@piccoli> from "[A]ndy80" at Sep 25, 2001 09:05:49 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274573AbRIYJ0e>; Tue, 25 Sep 2001 05:26:34 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:24808 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S274571AbRIYJ0X>; Tue, 25 Sep 2001 05:26:23 -0400
+Message-ID: <3BB04D8B.15F89500@kegel.com>
+Date: Tue, 25 Sep 2001 02:25:31 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Gordon Oliver <gordo@pincoya.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <20010924225616.D9688@kushida.jlokier.co.uk> <XFMail.20010924150804.davidel@xmailserver.org> <20010924230909.A10253@kushida.jlokier.co.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15loh3-0005PD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If, (for example), I'm downloading a file at 4 k/s and then I start to
-> burn an image, some files or other thing from my HD to a CD-R, the
-> connection speed goes to 0,1 or 1 k/s max.
+Jamie Lokier wrote:
+> > Anyway there's a pretty good patch ( http://www.luban.org/GPL/gpl.html ),
+> > that has been tested here :
+> >
+> > http://www.xmailserver.org/linux-patches/nio-improve.html
+> >
+> > that implement the signal-per-fd mechanism and it achieves a very good
+> > scalability too.
 > 
-> This happen since 2.4.x kernel series.
+> It has the bonus of requiring no userspace changes too.  Lovely!
 
-Make sure you have DMA enabled for your IDE cd-rom or ide unmasking enabled
-for it (see man hdparm)
+Well, not quite *no* userspace changes, but not many.  You have to
+use si_band rather than si_code (and with Luban's version, you also
+need to set a new flag).
+
+It has some locking problems that only show up under very heavy use,
+so caveat emptor.  I put together a stress test 
+(http://www.kegel.com/dkftpbench/ with the -sf option);
+run that against betaftpd, and around 4500 ftp sessions, you might
+see it crash because a signal comes in while the file table is expanding...
+
+(By the way, I finally updated http://www.kegel.com/c10k.html to
+distinguish properly between edge-triggered readiness notification
+methods and level-triggered ones.  Hope that helps dispel some 
+confusion in the future.)
+- Dan

@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263547AbTEMVdB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263548AbTEMVdB
+	id S263540AbTEMVcY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTEMVcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:33:01 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:12282 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263547AbTEMVc6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:32:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The disappearing sys_call_table export.
-Date: Tue, 13 May 2003 16:44:41 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200305131048_MC3-1-38B1-E140@compuserve.com>
-In-Reply-To: <200305131048_MC3-1-38B1-E140@compuserve.com>
+	Tue, 13 May 2003 17:32:24 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:21260 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263540AbTEMVcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:32:23 -0400
+Date: Tue, 13 May 2003 22:45:06 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Framebuffer fix 1
+Message-ID: <Pine.LNX.4.44.0305132242030.12672-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Message-Id: <03051316444102.20373@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 May 2003 09:45, Chuck Ebbert wrote:
-> Jesse Pollard wrote:
-> > No - C2 evaluation has not been done for almost 3 years. That makes it
-> > impossible to get a C2 evaluation.
->
->   The people who used to require that still have lists of approved
-> operating systems.  Linux is not on that list.
 
-Neither is windows, OS2, MAC 5/6/7/8/9/10.. for that matter.
+This removed EDID support for VESA. The EDID code needs more developement
+which can be done on the side. 
 
-> > And
-> > "C2 like capability" Linux does just as well as M$. Are the log files as
-> > pretty as would be desired? No. But they are acceptable for all US usage
-> > where a UNIX system is acceptable.
->
->   "No audit trail" pretty much kills it right from the get-go.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1078  -> 1.1079 
+#	drivers/video/vesafb.c	1.31    -> 1.32   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/12	jsimmons@maxwell.earthlink.net	1.1079
+# [VESA FBDEV] Removed the EDID code. The results where mixed. It worked for some but not for others.
+# --------------------------------------------
+#
+diff -Nru a/drivers/video/vesafb.c b/drivers/video/vesafb.c
+--- a/drivers/video/vesafb.c	Mon May 12 14:26:05 2003
++++ b/drivers/video/vesafb.c	Mon May 12 14:26:05 2003
+@@ -215,7 +215,6 @@
+ int __init vesafb_init(void)
+ {
+ 	int video_cmap_len;
+-	char *edid = 0;
+ 	int i;
+ 
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_VLFB)
+@@ -300,18 +299,10 @@
+ 		ypan = 0;
+ 	}
+ 
+-#ifdef __i386__
+-	edid = get_EDID_from_BIOS(0);
+-	if (edid)
+-		parse_edid(edid, &vesafb_defined);	
+-	else		
+-#endif
+-	{	
+-		/* some dummy values for timing to make fbset happy */
+-		vesafb_defined.pixclock     = 10000000 / vesafb_defined.xres * 1000 / vesafb_defined.yres;
+-		vesafb_defined.left_margin  = (vesafb_defined.xres / 8) & 0xf8;
+-		vesafb_defined.hsync_len    = (vesafb_defined.xres / 8) & 0xf8;
+-	}
++	/* some dummy values for timing to make fbset happy */
++	vesafb_defined.pixclock     = 10000000 / vesafb_defined.xres * 1000 / vesafb_defined.yres;
++	vesafb_defined.left_margin  = (vesafb_defined.xres / 8) & 0xf8;
++	vesafb_defined.hsync_len    = (vesafb_defined.xres / 8) & 0xf8;
+ 	
+ 	if (vesafb_defined.bits_per_pixel > 8) {
+ 		vesafb_defined.red.offset    = screen_info.red_pos;
 
-It does have audit trails... you do have to turn on process accounting. Are
-they pretty... no. But it is equivalent to base Solaris (well, before 2). You
-also have to turn on logs from every service daemon.
-
->   Base Solaris has it.  And I'm pretty sure HP-UX 9 did but that was
-> a while ago...
-
-No current OS has C2 certifications - they have an EAL3 or 4. But not C2.
-
->   And real ACLs are only now getting into Linux... how long till someone
-> certifies that they work is anyone's guess.
-
-Real ACLs were available about 2-3 years ago. They just were not accepted
-for inclusion, and the patch died.
-
-First some organization has to come up with a good bit of $$$. Evaluations
-are not cheap. It would take over a year to get an EAL3, and longer yet to
-get 4.
-
-> > These are also the same people that will not (or should not) accept
-> > laptops in their environement.
->
->   Untrusted users shouldn't be allowed cellphones, PDAs, laptops or
-> similar.
->
->   Next step up is probably full body cavity search to make sure you
-> haven't hidden a Microdrive somehwere...
-
-Remember the body scanner in that Mars based Schwartzenegger movie...

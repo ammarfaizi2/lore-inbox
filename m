@@ -1,68 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314266AbSEMQjK>; Mon, 13 May 2002 12:39:10 -0400
+	id <S314280AbSEMQsX>; Mon, 13 May 2002 12:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314243AbSEMQjJ>; Mon, 13 May 2002 12:39:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:27522 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S314325AbSEMQie>; Mon, 13 May 2002 12:38:34 -0400
-Date: Mon, 13 May 2002 12:40:52 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: rpm <rajendra.mishra@timesys.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: c++ program reboots system.
-In-Reply-To: <200205131540.g4DFcI601617@localhost.localdomain>
-Message-ID: <Pine.LNX.3.95.1020513123900.28859A-100000@chaos.analogic.com>
+	id <S314281AbSEMQsW>; Mon, 13 May 2002 12:48:22 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:12051 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314280AbSEMQsW>; Mon, 13 May 2002 12:48:22 -0400
+Message-ID: <3CDFDF8D.1050204@evision-ventures.com>
+Date: Mon, 13 May 2002 17:45:17 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.15 IDE 62
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CDFAEC0.6050403@evision-ventures.com> <20020513134832.GV1106@suse.de> <3CDFB962.5070600@evision-ventures.com> <20020513153802.GB17509@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 May 2002, rpm wrote:
-
-> > }
-> > Script started on Mon May 13 07:51:12 2002
-> > # gdb xxx
-> > GDB is free software and you are welcome to distribute copies of it
-> >  under certain conditions; type "show copying" to see the conditions.
-> > There is absolutely no warranty for GDB; type "show warranty" for details.
-> > GDB 4.15 (i586-unknown-linux), Copyright 1995 Free Software Foundation,
-> > Inc... (gdb) run
-> > Starting program: /root/xxx
-> >
-> > Program received signal SIGSEGV, Segmentation fault.
-> > ostream::flush (this=0x8c224) at iostream.cc:864
-> > 864	    if (_strbuf->sync())
-> > (gdb) quit
-> > The program is running.  Quit anyway (and kill it)? (y or n) y
-> > # exit
-> > exit
-> > Script done on Mon May 13 07:51:49 2002
-> >
-> > On Linux 2.4.18, the program just seg-faults (as it should).
-> > On the version you are using, you should write a 'C' program
-> > that does lseek() beyond EOF. There could be a bug there, but
-> > otherwise I can't tell from the program presented.
+Uz.ytkownik Jens Axboe napisa?:
+> On Mon, May 13 2002, Martin Dalecki wrote:
 > 
-> I executed the same C++ code on iPAQ , on the 2.4.7 kernel and it works fine !
-> no seg faults no reboots,
-> I also tried the C program you suggested , but that too works fine,  no 
-> reboots no seg faults!   :(
+>>Uz.ytkownik Jens Axboe napisa?:
+>>
+>>>On Mon, May 13 2002, Martin Dalecki wrote:
+>>>
+>>>
+>>>>Mon May 13 12:38:11 CEST 2002 ide-clean-62
+>>>>
+>>>>- Add missing locking around ide_do_request in do_ide_request().
+>>>
+>>>
+>>>This is broken, do_ide_request() is already called with the request lock
+>>>held. tq_disk run -> generic_unplug_device (grab lock) ->
+>>>__generic_unplug_device -> do_ide_request(). You just introduced a
+>>>deadlock.
+>>>
+>>>This code would have caused hangs or massive corruption immediately if
+>>>ide_lock wasn't ready held there. Not to mention instant spin_unlock
+>>>BUG() triggers in queue_command()
+>>>
+>>
+>>Oops. Indeed I see now that the ide_lock is exported to
+>>the upper layers above it in ide-probe.c
+>>
+>>blk_init_queue(q, do_ide_request, &ide_lock);
+>>
+>>But this is problematic in itself, since it means that
+>>we are basically serialiazing between *all* requests
+>>on all channels.
 > 
+> 
+> Correct.
+> 
+> 
+>>So I think we should have per channel locks on this level
+>>right? This is anyway our unit for serialization.
+>>(I'm just surprised that blk_init_queue() doesn't
+>>provide queue specific locking and relies on exported
+>>locks from the drivers...)
+> 
+> 
+> Sure go ahead and fine grain it, I had no time to go that much into
+> detail when ripping out io_request_lock. A drive->lock passed to
+> blk_init_queue would do nicely.
+> 
+> But beware that ide locking is a lot nastier than you think. I saw other
+> irq changes earlier, I just want to make sure that you are _absolutely_
+> certain that these changes are safe??
 
-This is the file I used...
-`cp /dev/zero input.out` ^C after a second.
+Well on the channel level they are safe modulo cmd640 and rz1000.
+We can handle them by serializing them on the global lock
+in do_ide_request. Like:
 
--rw-------   1 root     root     117010432 May 13 07:47 input.out
+if (ch->drive[0].serialized|| ch->drive[1].serialized)
+    then
+    spin_lock(serialize_lock);
 
-It seg-faults every time..
+The other case are shared PCI irq's between two channel,
+but this case I can easly test on my HPT772 controller card.
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+You could have observed the hwgroup_t melting down... step by step.
 

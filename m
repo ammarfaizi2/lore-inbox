@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBJVts>; Sat, 10 Feb 2001 16:49:48 -0500
+	id <S129027AbRBJWEz>; Sat, 10 Feb 2001 17:04:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129322AbRBJVtj>; Sat, 10 Feb 2001 16:49:39 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:30406 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129027AbRBJVt3>; Sat, 10 Feb 2001 16:49:29 -0500
-Date: Sat, 10 Feb 2001 22:49:24 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: linux-kernel@vger.kernel.org
-Subject: imm problems anyone?
-Message-ID: <20010210224924.F16383@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S129041AbRBJWEo>; Sat, 10 Feb 2001 17:04:44 -0500
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:24849 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S129027AbRBJWEg>; Sat, 10 Feb 2001 17:04:36 -0500
+Date: Sat, 10 Feb 2001 14:04:21 -0800 (PST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.LNX.4.21.0102101942550.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.32.0102101401110.27653-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-is anyone using an ZIP+ device over the imm SCSI hostadapter and
-having Problems with 2.4.x?
+	Hello Rik , As an aside to the below conversation .
+	Is there a URL/doc/... that gives basic tuning examples
+	for various types workloads ?   Tia ,  JimL
 
-I recently noticed, it doesn't work as expected (failed with
-status b8).
+On Sat, 10 Feb 2001, Rik van Riel wrote:
+ ...snip...
+> > It's still reluctant to shrink cache.  I'm hitting I/O saturation
+> > at 20 jobs vs 30 with ac5.  (difference seems to be the delta in
+> > space taken by cache.. ~same space shows as additional swap volume).
+>
+> Indeed, to "fix" that we'll need to work at refill_inactive().
+>
+> However, I am very much against tuning the VM for one particular
+> workload. If you can show me that this problem also happens under
+> other workloads we can work at changing it, but I don't think it's
+ ...snip...
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 
-If this is a problem not only I have, I'll dig deeper into this,
-but I just would like to ask first to find similarities.
-
-
-Regards
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

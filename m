@@ -1,73 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280171AbRKFTFS>; Tue, 6 Nov 2001 14:05:18 -0500
+	id <S280110AbRKFTKi>; Tue, 6 Nov 2001 14:10:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278587AbRKFTFE>; Tue, 6 Nov 2001 14:05:04 -0500
-Received: from [209.195.52.30] ([209.195.52.30]:43526 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S280110AbRKFTDc>;
-	Tue, 6 Nov 2001 14:03:32 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: pcg@goof.com
-Cc: linux-kernel@vger.kernel.org
-Date: Tue, 6 Nov 2001 10:39:31 -0800 (PST)
-Subject: Re: ip_conntrack & timing out of connections
-In-Reply-To: <20011106121947.A678@schmorp.de>
-Message-ID: <Pine.LNX.4.40.0111061038160.24952-100000@dlang.diginsite.com>
+	id <S280210AbRKFTKa>; Tue, 6 Nov 2001 14:10:30 -0500
+Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:35289 "EHLO
+	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S280110AbRKFTKT>; Tue, 6 Nov 2001 14:10:19 -0500
+Message-ID: <002001c166f6$f3396f20$0300a8c0@theburbs.com>
+From: "Jamie" <darkshad@home.com>
+To: "EricMarts" <martser@turtle.mine.nu>
+Cc: "Jeff Garzik" <jgarzik@mandrakesoft.com>, <becker@webserv.gsfc.nasa.gov>,
+        <jam@McQuil.com>, <hendriks@lanl.gov>, <jgolds@resilience.com>,
+        <sdegler@degler.net>, <tulip-users@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>,
+        "Anders Hedborg" <ahe@systemkoreograferna.com>
+In-Reply-To: <Pine.LNX.4.33.0111061043240.4321-100000@turtle.mine.nu>
+Subject: Tulip Drivers Problem in 2.4.xx Kernel
+Date: Tue, 6 Nov 2001 14:12:15 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the tcp dimeout is 60 seconds and the ip_conntrack timeout is 120 seconds.
+To get it to work on Slackware 8 I had to go to the website he listed bellow
+and download the drivers and use  the stable drivers from the website he
+listed bellow it was the only way to get it to work.
 
-I ran into this myself a couple days ago and have sent the info to Rusty
-and to the netfilter mailing list (although only to the list this morning
-so I don't know if there is a response there yet)
+Jamie
 
-David Lang
+----- Original Message -----
+From: "EricMarts" <martser@turtle.mine.nu>
+To: "Jamie" <darkshad@home.com>
+Cc: "Jeff Garzik" <jgarzik@mandrakesoft.com>;
+<becker@webserv.gsfc.nasa.gov>; <jam@McQuil.com>; <hendriks@lanl.gov>;
+<jgolds@resilience.com>; <sdegler@degler.net>;
+<tulip-users@lists.sourceforge.net>; <linux-kernel@vger.kernel.org>; "Anders
+Hedborg" <ahe@systemkoreograferna.com>
+Sent: Tuesday, November 06, 2001 11:50 AM
+Subject: Re: Tulip Drivers Problem in 2.4.xx Kernel
 
-On Tue, 6 Nov 2001 pcg@goof.com wrote:
 
-> Date: Tue, 6 Nov 2001 12:19:47 +0100
-> From: pcg@goof.com
-> To: linux-kernel@vger.kernel.org
-> Subject: ip_conntrack & timing out of connections
+All,
+
+Donald Becker had given be some pointers.
+
+I had problems on Windows 95 as well.
+
+Here is what I came up with ... in terms of the system.
+
+The old HP Pavalion uses a Intel motherboard and the
+Intel bios (with HP logo etc..)
+
+The PCI is only 2.0? compliant and the card is meant for
+2.1 systems..
+
+The on board sounnd and graphics was a pain. Not a like I could
+just pull out the graphics or sound PCI card to free up
+resources.
+
+Windows wanted to use PCI Steering -- I couldn't get it turned
+off (IRQ sharing with the onboard video card..)
+
+Long story short....
+
+I was able to through a Netgear ISA card in assign the IRQ iomem
+address via the DOS config tool (writes EEPROM?), and cfdisk, and install
+
+RH 7.0
+
+Does the PCI 2.0 - PCI 2.1 make a difference.
+
+Do I have a chance here to get PCI card up and running?
+
+Thanks,
+
+Eric
+
+
+On Mon, 5 Nov 2001, Jamie wrote:
+
+> Ok Jeff thanks I will definately give that a try I have never tried the
+> dec4x5 drivers I will see if it works
+> for my NIC.
 >
-> linux-2.4.13-ac5 (other versions untested) has this peculiar behaviour: If I
-> "killall -STOP thttpd", I, of course, still get connection requests which
-> usually time out:
+> Thanks,
 >
-> tcp      238      0 217.227.148.85:80       213.76.191.129:3120 CLOSE_WAIT
-> tcp      162      0 217.227.148.85:80       213.76.191.129:3128 CLOSE_WAIT
-> tcp      238      0 217.227.148.85:80       213.76.191.129:3136 CLOSE_WAIT
-> tcp      162      0 217.227.148.85:80       213.76.191.129:3152 CLOSE_WAIT
-> tcp      134      0 217.227.148.85:80       66.42.121.15:3305 CLOSE_WAIT
-> tcp      162      0 217.227.148.85:80       213.76.191.129:3160 CLOSE_WAIT
-> tcp      279      0 217.227.148.85:80       62.83.11.19:2742 CLOSE_WAIT
+> Jamie
 >
-> however, after some time, I get many of these messages:
+> ----- Original Message -----
+> From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
+> To: "Jamie" <darkshad@home.com>
+> Cc: <becker@webserv.gsfc.nasa.gov>; <jam@McQuil.com>; <hendriks@lanl.gov>;
+> <jgolds@resilience.com>; <sdegler@degler.net>;
+> <tulip-users@lists.sourceforge.net>; <linux-kernel@vger.kernel.org>;
+"Anders
+> Hedborg" <ahe@systemkoreograferna.com>
+> Sent: Monday, November 05, 2001 7:07 PM
+> Subject: Re: Tulip Drivers Problem in 2.4.xx Kernel
 >
-> Nov  6 02:39:55 doom kernel: ip_conntrack: table full, dropping packet.
 >
-> /proc/net/ip_conntrack has lots of connections like these:
->
-> tcp      6 430665 ESTABLISHED src=213.76.191.129 dst=217.227.148.85 sport=3881 dport=80 src=217.227.148.85 dst=213.76.191.129 sport=80 dport=388 1 [ASSURED] use=1
->
-> that is, connections to port 80. a grep dport=80 in ip_conntrack gives me
-> 3768 lines, where netstat -t only shows 159 connections, so it seems that
-> conntrack has a problems with time-outs (or something similar).
->
+> Currently there is a bug in 2.4.x-current tulip drivers that prevents
+> 21041 from initializing correctly.  Until then you can use the 'de4x5'
+> driver or download the latest stable version on the tulip web page:
+> http://sourceforge.net/projects/tulip/
 > --
->       -----==-                                             |
->       ----==-- _                                           |
->       ---==---(_)__  __ ____  __       Marc Lehmann      +--
->       --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
->       -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
->     The choice of a GNU generation                       |
->                                                          |
+> Jeff Garzik      | Only so many songs can be sung
+> Building 1024    | with two lips, two lungs, and one tongue.
+> MandrakeSoft     |         - nomeansno
+>
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 >
+> _______________________________________________
+> Tulip-users mailing list
+> Tulip-users@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/tulip-users
+>
+
+
+

@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289769AbSAJXDA>; Thu, 10 Jan 2002 18:03:00 -0500
+	id <S289767AbSAJXGK>; Thu, 10 Jan 2002 18:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289768AbSAJXCk>; Thu, 10 Jan 2002 18:02:40 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:18615 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S289767AbSAJXCf>;
-	Thu, 10 Jan 2002 18:02:35 -0500
-Date: Thu, 10 Jan 2002 14:59:48 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davem@redhat.com, ralf@uni-koblenz.de, linux-kernel@vger.kernel.org
-Subject: Re: memory-mapped i/o barrier
-Message-ID: <20020110145948.A776823@sgi.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, davem@redhat.com,
-	ralf@uni-koblenz.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20020110134859.A729245@sgi.com> <E16OoFt-0005pt-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16OoFt-0005pt-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
+	id <S289770AbSAJXGB>; Thu, 10 Jan 2002 18:06:01 -0500
+Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:16400 "EHLO
+	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S289767AbSAJXFt>; Thu, 10 Jan 2002 18:05:49 -0500
+Date: Fri, 11 Jan 2002 00:05:47 +0100 (CET)
+From: Taco IJsselmuiden <taco@wep.tudelft.nl>
+Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Subject: boot problems pre11 + O(1) H1 & H4 on UP athlon
+Message-ID: <Pine.LNX.4.21.0201102352200.1515-100000@banaan.taco.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 11:05:04PM +0000, Alan Cox wrote:
-> > ia64, and I'm wondering if you guys will accept something similar.  On
-> > mips64, mmiob() could just be implemented as a 'sync', but I'm not
-> > sure how to do it (or if it's even necessary) on other platforms.
-> 
-> Wouldn't it be wise to pass the device to this. Someone somewhere is going
-> to have to read a bus dependant chipset register and need to know which
-> pci_device * is involved ?
+Hi,
 
-David and I went back and forth on that a little.  My hope is that
-most platforms will have a reasonable way (i.e. no pci_device needed)
-to ensure ordering.  I'm only aware of two platforms at the moment
-that have i/o ordering issues: mips64 and ia64/sn.  On the former, a
-simple 'sync' instruction is sufficient to barrier i/o, while on the
-latter, a read from the local numa hub suffices.
+i'm having problems booting 2.5.2-pre11 with O(1) H1 or H4 patch.
+the last few lines are:
 
-If only a few platforms need info about which busses have outstanding
-i/o, it should be possible to build a list of bridge chips or devices
-and loop, reading from each (where presumably the read would act as
-the barrier op).
+<snip>
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xfb470, last bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Unknown bridge resource 0: assuming transparent
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+apm: BIOS version 1.2 Flags 0x07 (Driver version 1.15)
+Starting kswapd
 
-If, OTOH, there are lots of platforms that need a pci_device so they
-can read from a corresponding bridge to ensure ordering, it would be a
-good idea to add an argument to the macro, as David initially
-suggested.
+and then it doesn't respond to anything (like keyboard leds...)
+no oops no nothing ;((
 
-Thoughts?
+pre11 boots fine without the patch.
+even pre10 + G1 boots fine...
 
-Jesse
+
+extra info:
++ gcc --version
+2.95.4
++ make --version
+GNU Make version 3.79.1, by Richard Stallman and Roland McGrath.
++ ld -v
+GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
++ fdformat --version
+fdformat from util-linux-2.11n
++ insmod -V
+insmod version 2.4.12
++ tune2fs
+tune2fs 1.25 (20-Sep-2001)
++ reiserfsck
++ grep reiserfsprogs
+reiserfsprogs 3.x.0j
+
+
+brood:~# cat /proc/cpuinfo l
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 1
+model name      : AMD-K7(tm) Processor
+stepping        : 2
+cpu MHz         : 499.045
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+pat mmx syscall mmxext 3dnowext 3dnow
+bogomips        : 996.14
+
+
+
+any ideas ?
+
+
+Cheers,
+Taco.
+

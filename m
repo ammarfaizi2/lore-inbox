@@ -1,103 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265570AbSJSJb4>; Sat, 19 Oct 2002 05:31:56 -0400
+	id <S265578AbSJSJaS>; Sat, 19 Oct 2002 05:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263016AbSJSJb4>; Sat, 19 Oct 2002 05:31:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1738 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265575AbSJSJbv>; Sat, 19 Oct 2002 05:31:51 -0400
-Date: Sat, 19 Oct 2002 11:37:50 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Maksim Krasnyanskiy <maxk@qualcomm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] fix the compilation of drivers/bluetooth/bt3c_cs.c
-Message-ID: <Pine.NEB.4.44.0210191134170.28761-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S261950AbSJSJaS>; Sat, 19 Oct 2002 05:30:18 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25386 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265580AbSJSJaR>; Sat, 19 Oct 2002 05:30:17 -0400
+To: Werner Almesberger <wa@almesberger.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] kexec syscall for 2.5.43 (linux booting linux)
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<20021018173248.E14894@almesberger.net>
+	<m1bs5rz1d6.fsf@frodo.biederman.org>
+	<20021018231540.C7951@almesberger.net>
+	<20021019025309.A24579@almesberger.net>
+	<m17kgfyltc.fsf@frodo.biederman.org>
+	<20021019040600.D7951@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Oct 2002 03:34:42 -0600
+In-Reply-To: <20021019040600.D7951@almesberger.net>
+Message-ID: <m13cr2zs99.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Maksim,
+Werner Almesberger <wa@almesberger.net> writes:
 
-your bluetooth patches in 2.5.44 caused the following compile error in
-drivers/bluetooth/bt3c_cs.c that is fixed by the patch below:
+I am CC'ing the kernel list so perhaps I don't have to answer these 
+questions too many times.
 
-<--  snip  -->
+> Eric W. Biederman wrote:
+> > This is fixed in the bk2 snapshot of 43, but I guess since 44 is out
+> > I should do build another patch against that.  
+> 
+> Your .43 patch applies flawlessly to .44 - and kexec even works :-)
+> Not surprisingly, it doesn't like rebooting out of X11, though.
 
-...
-  gcc -Wp,-MD,drivers/bluetooth/.bt3c_cs.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
--Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=bt3c_cs   -c -o
-drivers/bluetooth/bt3c_cs.o drivers/bluetooth/bt3c_cs.c
-drivers/bluetooth/bt3c_cs.c: In function `bt3c_receive':
-drivers/bluetooth/bt3c_cs.c:321: `hci_event_hdr' undeclared (first use in
-this function)
-drivers/bluetooth/bt3c_cs.c:321: (Each undeclared identifier is reported
-only once
-drivers/bluetooth/bt3c_cs.c:321: for each function it appears in.)
-drivers/bluetooth/bt3c_cs.c:321: `eh' undeclared (first use in this
-function)
-drivers/bluetooth/bt3c_cs.c:321: warning: statement with no effect
-drivers/bluetooth/bt3c_cs.c:322: `hci_acl_hdr' undeclared (first use in
-this function)
-drivers/bluetooth/bt3c_cs.c:322: `ah' undeclared (first use in this
-function)
-drivers/bluetooth/bt3c_cs.c:322: warning: statement with no effect
-drivers/bluetooth/bt3c_cs.c:323: `hci_sco_hdr' undeclared (first use in
-this function)
-drivers/bluetooth/bt3c_cs.c:323: `sh' undeclared (first use in this
-function)
-drivers/bluetooth/bt3c_cs.c:323: warning: statement with no effect
-drivers/bluetooth/bt3c_cs.c:328: parse error before `)'
-drivers/bluetooth/bt3c_cs.c:334: parse error before `)'
-drivers/bluetooth/bt3c_cs.c:341: parse error before `)'
-drivers/bluetooth/bt3c_cs.c:320: warning: `dlen' might be used
-uninitialized in
-this function
-make[2]: *** [drivers/bluetooth/bt3c_cs.o] Error 1
+Cool.  What fails with X11.  Fixing it might be as simple as calling
+int 0x10 early in the new image.
+ 
+> Shouldn't ELF images work too ?  
 
-<--  snip  -->
+Try kexec_test it is a valid static ELF executable.
+Other valid static elf executables I know of:
+memtest86-3.0.
+etherboot-5.1 (make bin32/*.elf)
 
+> kexec linux/.../bzImage  is okay,
+> but  kexec linux/vmlinux  yields
+> Invalid memory segment 0xc0100000 - 0xc03f3d7c
+> Cannot load linux-2.5.44/vmlinux
 
-cu
-Adrian
+Yep.  vmlinux wants to load where you don't have memory, and I have
+a sanity check in there to prevent that.  If you had > 3GB of ram it
+might have succeeded.  Unfortunately vmlinux on x86 has a number of
+barriers to working correctly.   It specifies incorrect physical
+addresses, and it expects to be passed a whole host of strange values,
+in weird places.  Loading an arbitrary segment without first setting
+the GDT is rude.  And vmlinux has not distinguishing marks other than
+it's name to same it is something special.
 
---- linux-2.5.44-full/drivers/bluetooth/bt3c_cs.c.old	2002-10-19 11:23:35.000000000 +0200
-+++ linux-2.5.44-full/drivers/bluetooth/bt3c_cs.c	2002-10-19 11:24:44.000000000 +0200
-@@ -318,27 +318,27 @@
- 			if (info->rx_count == 0) {
+My mkelfImage code will fix it up vmlinux so it is usable.  And I have
+some old patches that will correct the kernel build but when I was
+submitting them earlier they were not picked up.
 
- 				int dlen;
--				hci_event_hdr *eh;
--				hci_acl_hdr *ah;
--				hci_sco_hdr *sh;
-+				struct hci_event_hdr *eh;
-+				struct hci_acl_hdr *ah;
-+				struct hci_sco_hdr *sh;
+kexec when presented with a static elf executable will:
+-1) TODO: query the ELF note segment to see if there is anything
+    special it needs to do.
+0) Sanity check the elf headers to see if their requests are reasonable.
+1) Load each segment from the program header to the physical
+   address it specifies.
+2) Setup a stack somewhere in ram outside of the image segments in the
+   elf program header.
+3) Jump to the entry point address in the elf program header
 
- 				switch (info->rx_state) {
+This all happens in 32bit protected mode with paging disabled, and
+all of the segments registers set to a flat 32bit segment, with a base
+address of zero.
 
- 				case RECV_WAIT_EVENT_HEADER:
--					eh = (hci_event_hdr *)(info->rx_skb->data);
-+					eh = (struct hci_event_hdr *)(info->rx_skb->data);
- 					info->rx_state = RECV_WAIT_DATA;
- 					info->rx_count = eh->plen;
- 					break;
+For practical purposes the above is the raw interface to sys_kexec but
+presented in a flat file.  
 
- 				case RECV_WAIT_ACL_HEADER:
--					ah = (hci_acl_hdr *)(info->rx_skb->data);
-+					ah = (struct hci_acl_hdr *)(info->rx_skb->data);
- 					dlen = __le16_to_cpu(ah->dlen);
- 					info->rx_state = RECV_WAIT_DATA;
- 					info->rx_count = dlen;
- 					break;
+References:
+memtest86: http://www.memtest86.com/
+etherboot: http://www.etherboot.org
+mkelfImage: ftp://www.lnxi.com/pub/src/mkelfImage/
 
- 				case RECV_WAIT_SCO_HEADER:
--					sh = (hci_sco_hdr *)(info->rx_skb->data);
-+					sh = (struct hci_sco_hdr *)(info->rx_skb->data);
- 					info->rx_state = RECV_WAIT_DATA;
- 					info->rx_count = sh->dlen;
- 					break;
-
+Eric

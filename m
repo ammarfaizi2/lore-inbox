@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281652AbRKUHq6>; Wed, 21 Nov 2001 02:46:58 -0500
+	id <S281656AbRKUHu2>; Wed, 21 Nov 2001 02:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281653AbRKUHqs>; Wed, 21 Nov 2001 02:46:48 -0500
-Received: from law2-oe42.hotmail.com ([216.32.180.39]:48146 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S281652AbRKUHqh>;
-	Wed, 21 Nov 2001 02:46:37 -0500
-X-Originating-IP: [213.82.66.51]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <LAW2-OE70z82buW5RNB000007e5@hotmail.com> <20011119104411.U11826@suse.de>
-Subject: Re: Kernel Panic: too few segs for DMA mapping increase AHC_NSEG
-Date: Wed, 21 Nov 2001 08:46:23 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <LAW2-OE42edZhotjCjW000013a3@hotmail.com>
-X-OriginalArrivalTime: 21 Nov 2001 07:46:31.0563 (UTC) FILETIME=[A2BA4DB0:01C17260]
+	id <S281655AbRKUHuS>; Wed, 21 Nov 2001 02:50:18 -0500
+Received: from [212.3.242.3] ([212.3.242.3]:39695 "HELO mail.i4gate.net")
+	by vger.kernel.org with SMTP id <S281653AbRKUHuG>;
+	Wed, 21 Nov 2001 02:50:06 -0500
+Message-Id: <5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 21 Nov 2001 08:28:58 +0100
+To: Linux kernel <linux-kernel@vger.kernel.org>
+From: DevilKin <devilkin@gmx.net>
+Subject: Linux FSCP (Frequently Submitted Compilation Problems)? (was:
+  Re: Loop.c File !!!!)
+In-Reply-To: <3BFAFD65.9930EE18@lexus.com>
+In-Reply-To: <Pine.LNX.4.21.0111202025290.6299-100000@brick>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-...not good news.
-Same behaviour: without hi mem support all right. With hi mem support
-(4GB) I get this error on console, after a kernel dump:
+Hi all,
 
-SCSI1:0:0:0 attempt to queue an abort message
-SCSI1:0:0:0 command not found
-aic7xxx_abort returns 0x2002
+Just a thought. Don't shoot the messenger/idiot that thought of it.
 
-Then the system freeze completely, so I press the reset button.
-At the startup INIT calls fsck and when the checking is at about 55% it
-displays this message:
+>He's doubtless referring to the deactivate_page()
+>thing that's been talked to death on this list for
+>the past 2 weeks...
+I'm getting rather annoyed with the same problem being reported/asked about 
+over and over again...
 
-SCSI1:A:0:0 locking max tag count at 128
+Is there - or would it be nice it it would be here - a list of recent 
+compilation problems encountered with stock kernels (and what to do about 
+it)? (see the loop.c thingy recently, and other problems with other stock 
+kernels). So we could just point the people to that thing instead of having 
+these 'discussions' over and over again...
 
-then the following startup procedure goes well.
-I want to tell you that with this kernel (hi mem support enabled), all
-is working perfectly (I can compile a new working kernel, for example).
-X Window (4.1) plus kde is working well.
-Only when I mount a vfat filesystem type and then I try to copy a file
-to the root partition I get this error.
-Another point: I usually build only mass storage driver in the kernel
-(Adaptec AHA 39160 bios rev 3.10). I build as modules all other HW (nic,
-sound, USB), however only the SB PCI512 is loaded in this situation. I
-haven't any IDE device just one SCSI HD (IBM DDYS-T18350N firmware rev
-S93E) and one Plextor SCSI cdrom (UltraPlex 40max PX-40TS firmware
-revision 1.04).
+It could be about only the 'full' versions, or maybe the 'pre' kernels too...
 
------ Original Message -----
-From: "Jens Axboe" <axboe@suse.de>
-To: "Marco Berizzi" <pupilla@hotmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, November 19, 2001 10:44 AM
-Subject: Re: Kernel Panic: too few segs for DMA mapping increase
-AHC_NSEG
+Maybe it would even be possible to add keywords to the filtering procs of 
+the lkml, so that those persons would get a sort of -automatic- email on 
+the subject...
 
+Just a thought...
 
-> On Mon, Nov 19 2001, Marco Berizzi wrote:
-> > Hi everybody.
-> >
-> > I have just upgraded my PC from 768MB RAM to 1GB.
-> > I have recompiled the kernel (2.4.14) for hi mem support (4GB).
-> >
-> > Now it's appening a very strange behaviour.
-> > I have several file system on the same disk (vfat file system). I
-have
-> > compiled vfat driver as a module. So before try to mount I must
-issue a
-> > 'modprobe vfat'. I'm using Slackware 8.0. modutils version is 2.4.6
-> >
-> > Then if I try to copy a file from that filesystem to the root
-filesystem
-> > I get this error:
-> >
-> > Kernel panic: too few segs for DMA mappings increase AHC_NSEG
->
-> Aha! Finally someone that can provoke this easily. Could you please
-> apply attached patch and reproduce? Thanks.
->
-> --
-> Jens Axboe
->
->
+DK
+

@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUGXPPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUGXPUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUGXPPX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 11:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268668AbUGXPPX
+	id S268672AbUGXPUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 11:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268670AbUGXPUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 11:15:23 -0400
-Received: from out005pub.verizon.net ([206.46.170.143]:41673 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S264113AbUGXPPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 11:15:19 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: Organization: undetectable
+	Sat, 24 Jul 2004 11:20:48 -0400
+Received: from main.gmane.org ([80.91.224.249]:38831 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268669AbUGXPUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 11:20:44 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: [FC1], 2.6.8-rc2 kernel, new motherboard problems
-Date: Sat, 24 Jul 2004 11:15:17 -0400
-User-Agent: KMail/1.6
-References: <Pine.LNX.4.44.0407211334260.3000-100000@mail.birdvet.org> <200407240520.31906.gene.heskett@verizon.net> <4102530C.8060604@gmx.net>
-In-Reply-To: <4102530C.8060604@gmx.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407241115.17614.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.153.89.27] at Sat, 24 Jul 2004 10:15:18 -0500
+From: Nuno Tavares <nunotavares@hotmail.com>
+Subject: kernel hang, sometimes reboot
+Date: Sat, 24 Jul 2004 16:11:38 +0100
+Message-ID: <pan.2004.07.24.15.11.38.127110@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 217.129.164.13
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 July 2004 08:16, Carl-Daniel Hailfinger wrote:
->Gene Heskett schrieb:
->> On Saturday 24 July 2004 02:06, Lee Revell wrote:
-[...]
->>>>>>I believe you'll need forcedeth.c for this one. It's called
->>>>>>"Reverse Engineered nForce Ethernet support", under Device
->>>>>>Driver -> Networking -> Ethernet 10/100 Mbit.
->
->Right. And it should work perfectly with that driver. However, I
-> recommend to use at least 2.6.8-rc2 because it has some bugfixes
-> you may need.
+Hello all,
 
-Thats the kernel version I'm running already :)
-[...]
->>>>>Maybe some bad press would set them straight.
->>>>>
->>>>>Lee
-[...]
->> I'm under the impression the forcedeth writers did have access to
->> this data.  Is this incorrect? The question is directed at the
->> forcedeth authors.  If you are one, then please clarify.
->
->I am one of the authors. We did not have any information in the
-> first place, but now that our reverse engineered driver works well,
-> NVidia contributed bugfixes and gigabit support to our driver.
+This i very odd, I haven't seen this for years. I have a JPEG/JFIF that
+when opened with Mozilla will lock the whole system, and sometimes will
+reboot the system after a little while.
 
-Which would be nice I guess, if the rest of my system wasn't limited 
-to 100mb/sec.  In my case here at home, thats plenty fast enough.
+My short investigation led me to conclude that this is a bug both in
+kernel (as it reboots) and in Gecko-based browsers - gecko is the
+HTML rendering engine used in Mozilla, Firefox, Epiphany and probably
+others. This last assumption is due that Konqueror will not crash.
 
-In any event thanks for the info.  My biggest squawk is that so far, 
-I've had to assign it the same MAC address as the old D-Link card 
-wore in order to make the firewall pass me.  arp problems I think.  
-Other than that, its working great.
+Unfortunely, the JPEG file has some sensitive information, and this hasn't
+happened with anyother. No error messages, nothing. I'm looking for ways
+to debug this, both firefox and the kernel. How do I do that?
 
->Regards,
->Carl-Daniel
+This is the information for the file:
+snapshot.jpg: JPEG image data, JFIF standard 1.00, resolution (DPI), 
+"LEAD Technologies Inc. V1.01", 200 x 200
+
+Moreover, all mentioned browsers are included in the standard FC2, except
+for firefox (0.8-3, rpm by Dag Wieers[1]).
+Tested with the original FC2 kernel (2.6.5-358) and a with vanilla 2.6.7.
+With 2.6.7 it does not reboot, but with 2.6.5 will reboot always. The
+system hangs completely (forcing reboot) with both.
+
+Despite gecko probably having a bug, what does that have to do with the
+kernel?
+
+[1] http://dag.wieers.com/home-made/apt/
+-- 
+Nuno Tavares
+http://nthq.cjb.net/
 
 -- 
-Cheers Carl-Daniel, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
+Nuno Tavares
+http://nthq.cjb.net/
+
+

@@ -1,91 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292270AbSBOXZp>; Fri, 15 Feb 2002 18:25:45 -0500
+	id <S292272AbSBOX1P>; Fri, 15 Feb 2002 18:27:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292271AbSBOXZh>; Fri, 15 Feb 2002 18:25:37 -0500
-Received: from femail38.sdc1.sfba.home.com ([24.254.60.32]:49623 "EHLO
-	femail38.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S292270AbSBOXZU>; Fri, 15 Feb 2002 18:25:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: esr@thyrsus.com, Dave Jones <davej@suse.de>,
-        Larry McVoy <lm@work.bitmover.com>,
-        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Date: Fri, 15 Feb 2002 18:26:06 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20020215135557.B10961@thyrsus.com> <20020215224916.L27880@suse.de> <20020215170459.A15406@thyrsus.com>
-In-Reply-To: <20020215170459.A15406@thyrsus.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020215232517.FXLQ71.femail38.sdc1.sfba.home.com@there>
+	id <S292273AbSBOX1H>; Fri, 15 Feb 2002 18:27:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:54923 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292272AbSBOX0t>;
+	Fri, 15 Feb 2002 18:26:49 -0500
+Date: Fri, 15 Feb 2002 15:24:55 -0800 (PST)
+Message-Id: <20020215.152455.85412802.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: copy_from_user returns a positive value?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C6C6E0C.6000309@candelatech.com>
+In-Reply-To: <3C6C6E0C.6000309@candelatech.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 February 2002 05:04 pm, Eric S. Raymond wrote:
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Thu, 14 Feb 2002 19:10:20 -0700
 
-> Solutions that involve me doing an arbitrary and increasing amount of
-> hand-hacking on every release are right out.
+   When I make the copy from user call:
+   
+          if ((ret = copy_from_user(&reqconf, arg, sizeof(reqconf)))) {
+             printk("ERROR: copy_from_user returned: %i, sizeof(reqconf): %i\n",
+                    ret, sizeof(reqconf));
+             return ret;
+          }
+   
+   I see this printed out:
+   
+   ERROR: copy_from_user returned: 696, sizeof(reqconf): 696
 
-Um, Eric?  Isn't that what being a maintainer basically means?
+Either:
 
-Okay, Linus's changes killed backwards compatability with 2.4.  (He does 
-that.  That's what 2.5 is for.  It would be nice if less of it happened in 
-the stable series, but... :)
+1) 'arg' is a bogus userland pointer
 
-A maintainer is basically there to serve Linus (the project's undisputed 
-architect), who periodically makes the architectural decision to break 
-backwards compatability on some front.
+or
 
-You wanted to remain 2.4 help file maintainer as well as 2.5, and Linus did 
-not address this concern (for whatever reason: Linus blackholing email as a 
-way of disagreeing with it led to a lot of miscommunications like this one.)  
-Fine.  Water under the bridge.  Linus made an architectural decision, and it 
-has been implemented.  If it means you can't maintain 2.4 anymore, the sane 
-move is to drop 2.4 (which you did) and move on.
+2) 'arg'  is a valid userland pointer, but someone has done a
+   set_fs(KERNEL_DS) so only kernel pointers are valid for user
+   copies.
 
-That is why this is a dead issue, and bringing it up again doesn't serve as 
-much purpose as you think it does.  (If you want to highlight the 
-blackhole-related miscommunication, fine.  But even implying Linus's 
-architectural decision was wrong carries no weight with your audience.)
+A lot of the "32-bit userland on 64-bit kernel" compatability laters
+work by doing #2.  They munge the 32-bit user structures into kernel
+side copies, and do set_fs(KERNEL_DS) and pass in the pointers to the
+kernel copies to the real syscall then finally restore things back to
+USER_DS.
 
-> If you think this problem through, I'm sure you'll come up with a
-> design very similar to what I actually built.  Which, by Linus's
-> choice, got irrecoverably nuked.
+copy_{to,from}_user always return, as you correctly noted, the amount
+of data that could not be copied or "0" for success.  That is why all
+code does something like this:
 
-Tough.
+	err = 0;
+	if (copy_{to,from}_user(...))
+		err = -EFAULT;
 
-Eric, I like you and I still don't agree with you on this one.
-
-First of all, the help files really are largely orthogonal to CML2.  They 
-could be written in gzipped ebcdic.  Make a filter, read them, move on.  You 
-are pointelessly wasting brownie points on a dead side issue.
-
-Secondly, please define the problem space you're going after.  (I think that 
-the main objection people have to this tool, they don't agree with the 
-definition of the problem you're trying to solve.)
-
-If you want CML2 is to be the best configure tool for the 2.5 (and later) 
-kernel series, fine.  Then FOCUS ON THAT PROBLEM.
-
-Overhead to deal with 2.4 is bloat.  Flexibility for projects outside of the 
-kernel itself is a side issue.  Aunt Tillie is NOT the initial target 
-audience.  Usage to configure debian userspace or some such is completely 
-tangential.  All of the above may be fun, but they do not serve to advance 
-the primary objective, and bringing them up does not help make a case for 
-CML2.
-
-Back up a bit.  What would be the most minimal, stripped-down version of CML2 
-you could write?  No eye candy, no complications, no autoconfigurator, no 
-tree view, no frozen symbols.  Just solving the core problem of configuring 
-2.5 in a more flexible and less buggy way than CML1, with the three 
-interfaces (oldconfig, menuconfig, xconfig) we've got now.
-
-Think about that for a while.  Try to get THAT into the kernel.  THEN worry 
-about building on top of that.
-
-Remember: Linus likes small patches.  (CONCEPTUALLY small if possible, not 
-just lines of code...)
-
-Rob
+I don't know where some people get the idea that copy_{to,from}_user
+should return -EFAULT on failure.  Maybe some port is buggy :-)

@@ -1,100 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbULHKpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbULHKuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbULHKpK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 05:45:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbULHKpK
+	id S261179AbULHKuf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 05:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbULHKuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 05:45:10 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:21652 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261182AbULHKon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 05:44:43 -0500
-Date: Wed, 8 Dec 2004 10:44:42 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org
-Subject: Re: [4/6] Xen VMM #4: HAS_ARCH_DEV_MEM
-Message-ID: <20041208104442.GB29779@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-	Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-	Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org
-References: <E1CbwFE-0006PZ-00@mta1.cl.cam.ac.uk> <E1CbwHQ-0006Zf-00@mta1.cl.cam.ac.uk>
+	Wed, 8 Dec 2004 05:50:35 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:12691 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261179AbULHKu1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 05:50:27 -0500
+Date: Wed, 8 Dec 2004 11:49:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Time sliced CFQ io scheduler
+Message-ID: <20041208104918.GO19522@suse.de>
+References: <20041202130457.GC10458@suse.de> <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org> <20041202195232.GA26695@suse.de> <20041208003736.GD16322@dualathlon.random> <1102467253.8095.10.camel@npiggin-nld.site> <20041208013732.GF16322@dualathlon.random> <20041207180033.6699425b.akpm@osdl.org> <20041208065534.GF3035@suse.de> <41B6DCE8.5030304@hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CbwHQ-0006Zf-00@mta1.cl.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <41B6DCE8.5030304@hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 07:30:31AM +0000, Ian Pratt wrote:
+On Wed, Dec 08 2004, Helge Hafting wrote:
+> >>AS needs another iteration of development to fix these things.  Right now
+> >>it's probably the case that we need CFQ or deadline for servers and AS for
+> >>desktops.   That's awkward.
+> >>   
+> >>
+> >
+> >Currently I think the time sliced cfq is the best all around. There's
+> >still a few kinks to be shaken out, but generally I think the concept is
+> >sounder than AS.
+> > 
+> >
+> I wonder, would it make sense to add some limited anticipation
+> to the cfq scheduler?  It seems to me that there is room to
+> get some of the AS benefit without getting too unfair:
 > 
-> This patch adds ARCH_HAS_DEV_MEM, enabling per-architecture
-> implementations of /dev/mem and thus avoids a number of messy
-> #ifdef's. Although the mmap case can be solved easily be simply using
-> io_remap_page_range instead of remap_pfn_range on all architecutres,
-> we need to support read/write of /dev/mem in order for dmidecode etc
-> to work. These changes are more messy, and we believe warrant making
-> /dev/mem arch specific, which also cleans up uncached_access too.
-> 
-> Signed-off-by: ian.pratt@cl.cam.ac.uk
-> 
-> ---
-> 
-> 
-> diff -Nurp pristine-linux-2.6.10-rc3/drivers/char/mem.c tmp-linux-2.6.10-rc3-xen.patch/drivers/char/mem.c
-> --- pristine-linux-2.6.10-rc3/drivers/char/mem.c	2004-12-03 21:53:47.000000000 +0000
-> +++ tmp-linux-2.6.10-rc3-xen.patch/drivers/char/mem.c	2004-12-08 00:52:40.000000000 +0000
-> @@ -143,7 +143,7 @@ static ssize_t do_write_mem(void *p, uns
->  	return written;
->  }
->  
-> -
-> +#ifndef ARCH_HAS_DEV_MEM
->  /*
->   * This funcion reads the *physical* memory. The f_pos points directly to the 
->   * memory location. 
-> @@ -189,8 +189,9 @@ static ssize_t write_mem(struct file * f
->  		return -EFAULT;
->  	return do_write_mem(__va(p), p, buf, count, ppos);
->  }
-> +#endif
->  
-> -static int mmap_mem(struct file * file, struct vm_area_struct * vma)
-> +static int mmap_kmem(struct file * file, struct vm_area_struct * vma)
->  {
->  #ifdef pgprot_noncached
->  	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
-> @@ -567,7 +568,7 @@ static int open_port(struct inode * inod
->  	return capable(CAP_SYS_RAWIO) ? 0 : -EPERM;
->  }
->  
-> -#define mmap_kmem	mmap_mem
-> +#define mmap_mem	mmap_kmem
->  #define zero_lseek	null_lseek
->  #define full_lseek      null_lseek
->  #define write_zero	write_null
-> @@ -575,6 +576,7 @@ static int open_port(struct inode * inod
->  #define open_mem	open_port
->  #define open_kmem	open_mem
->  
-> +#ifndef ARCH_HAS_DEV_MEM
->  static struct file_operations mem_fops = {
->  	.llseek		= memory_lseek,
->  	.read		= read_mem,
-> @@ -582,6 +584,9 @@ static struct file_operations mem_fops =
->  	.mmap		= mmap_mem,
->  	.open		= open_mem,
->  };
-> +#else
-> +extern struct file_operations mem_fops;
-> +#endif
+> AS does a wait that is short compared to a seek, getting some
+> more locality almost for free.  Consider if CFQ did this, with
+> the added limitation that it only let a few extra read requests
+> in this way before doing the next seek anyway.  For example,
+> allowing up to 3 extra anticipated read requests before
+> seeking could quadruple read bandwith in some cases.  This is
+> clearly not as fair, but the extra reads will be almost free
+> because those few reads take little time compared to the seek
+> that follows anyway.  Therefore, the latency for other requests
+> shouldn't change much and we get the best of both AS and CFQ.
+> Or have I made a broken assumption?
 
-Any chance you could put the /dev/mem implementation into a separate
-file, ala drivers/char/devmem.c and avoid the ifdefs?  ARCH_HAS_DEV_MEM
-would have to become a CONFIG option then
+This is basically what time sliced cfq does. For sync requests, cfq
+allows a definable idle period where we give the process a chance to
+submit a new request if it has enough time slice to do so. This
+'anticipation' then is just an artifact of the design of time sliced
+cfq, where we do assign a finite time period where a given process owns
+the disk.
+
+See my initial posting on time sliced cfq. That is why time sliced cfq
+does as well (or better) then AS for the many client cases, while still
+being fair.
+
+-- 
+Jens Axboe
 

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279784AbRJ0G1P>; Sat, 27 Oct 2001 02:27:15 -0400
+	id <S279787AbRJ0GaP>; Sat, 27 Oct 2001 02:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279785AbRJ0G0z>; Sat, 27 Oct 2001 02:26:55 -0400
-Received: from zero.tech9.net ([209.61.188.187]:60426 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279784AbRJ0G0u>;
-	Sat, 27 Oct 2001 02:26:50 -0400
-Subject: [PATCH] 2.4.13-ac2: Appletalk Config Screwed
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <laughing@shared-source.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S279786AbRJ0GaF>; Sat, 27 Oct 2001 02:30:05 -0400
+Received: from mail118.mail.bellsouth.net ([205.152.58.58]:17456 "EHLO
+	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S279785AbRJ0G37>; Sat, 27 Oct 2001 02:29:59 -0400
+Message-ID: <3BDA5492.110358F2@mandrakesoft.com>
+Date: Sat, 27 Oct 2001 02:30:42 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Roskin <proski@gnu.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] More ioctls for VIA sound driver, Flash 5 now fixed
+In-Reply-To: <Pine.LNX.4.33.0110262134440.1121-100000@portland.hansa.lan>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
-Date: 27 Oct 2001 02:27:26 -0400
-Message-Id: <1004164050.3272.7.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Appletalk configure file is butchered, resulting in various
-problems: `make oldconfig' always prompts on CONFIG_ATALK, `make
-[*]config' returns "ERROR - Attempting to write value for unconfigured
-variable (CONFIG_ATALK).", etc etc.
+Pavel Roskin wrote:
+> 
+> Hello!
+> 
+> Flash plugin version 5 refuses to work with the VIA 82Cxxx driver.  It
+> turns out that Flash uses SNDCTL_DSP_NONBLOCK on /dev/dsp, which is not
+> supported by the driver.
+> 
+> I also looked what other ioctls can be implemented easily on VIA 82Cxxx.
+> There is another one - SNDCTL_DSP_GETTRIGGER.  Everything else is not
+> trivial, sorry.
+> 
+> This patch add support for SNDCTL_DSP_NONBLOCK and SNDCTL_DSP_GETTRIGGER.
+> It can be found at http://www.red-bean.com/~proski/linux/via-ioctl.diff
+> 
+> Flash 5 plugin plays just fine after applying the patch (check e.g.
+> http://wcrb.com/sparks.html)
 
-The fix is trivial.  Attached is against 2.4.13-ac2.  Alan, please
-apply.
+Thanks, applied.
 
-diff -u linux-2.4.13-ac2/drivers/net/appletalk/Config.in linux/drivers/net/appletalk/Config.in 
---- linux-2.4.13-ac2/drivers/net/appletalk/Config.in	Fri Oct 26 15:47:50 2001
-+++ linux/drivers/net/appletalk/Config.in	Sat Oct 27 02:18:55 2001
-@@ -1,9 +1,7 @@
- #
- # Appletalk driver configuration
- #
--
--if [ "$CONFIG_ATALK" != "n" ]; then
--   mainmenu_option next_comment
-+mainmenu_option next_comment
-    comment 'Appletalk devices'
-    bool 'Appletalk interfaces support' CONFIG_ATALK
-    if [ "$CONFIG_ATALK" != "n" ]; then
-@@ -19,5 +17,4 @@
- 	 bool '    Appletalk-IP to IP Decapsulation support' CONFIG_IPDDP_DECAP
-       fi
-    fi
--   endmenu
--fi
-+endmenu
+I always thought SNDCTL_DSP_NONBLOCK was stupid and never implemented
+it, since the same can be accomplished via fcntl(2).  But not only this
+but also some soundmodem utilities require this ioctl.  Sigh.  :)
 
-	Robert Love
+	Jeff
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

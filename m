@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265941AbUAEWRh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUAEWRg
+	id S265982AbUAEW2q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbUAEW12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:17:36 -0500
-Received: from imap.gmx.net ([213.165.64.20]:43150 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265941AbUAEWRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:17:31 -0500
-X-Authenticated: #13243522
-Message-ID: <3FF9E282.F1FA6A05@gmx.de>
-Date: Mon, 05 Jan 2004 23:17:38 +0100
-From: Michael Schierl <schierlm@gmx.de>
-X-Mailer: Mozilla 4.75 [de]C-CCK-MCD QXW0324v  (Win95; U)
-X-Accept-Language: de,en
+	Mon, 5 Jan 2004 17:27:28 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:45511 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265958AbUAEWYu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:24:50 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 5 Jan 2004 14:24:17 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ingo Oeser <ioe-lkml@rameria.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+In-Reply-To: <200401052205.12344.ioe-lkml@rameria.de>
+Message-ID: <Pine.LNX.4.44.0401051423120.4154-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Local APIC bug?
-References: <200401052200.i05M0AX0002410@harpo.it.uu.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson schrieb:
+On Mon, 5 Jan 2004, Ingo Oeser wrote:
+
+> On Sunday 04 January 2004 20:20, you wrote:
+> > The problem with poll/select is not the Linux implementation. It is the
+> > API that is flawed when applied to large fd sets. Every call pass to the
+> > system the whole fd set, and this makes the API O(N) by definition. While
+> > poll/select are perfectly ok for small fd sets, epoll LT might enable the
+> > application to migrate from poll/select to epoll pretty quickly (if the
+> > application architecture is fairly sane). For example, it took about 15
+> > minutes to me to make an epoll'd thttpd.
 > 
-> On Sun, 28 Dec 2003 21:07:28 +0100, Michael Schierl wrote:
-> >>> However, I'd appreciate if someone had any idea why the kernel crashes
-> >>> when trying to resume. Deadlocks...?
-> >>
-> >>most bioses on laptops that I have seen don't actually restore the apic
-> >>state on resume (since they don't expect the apic to be used at all)
-> >>which results in entirely horked irq's on resume -> kernel crashes.
+> Yes, I've read your analysis several years ago already and I'm the first
+> one lobbying for epoll, but look at the posting stating, that INN sucks
+> under Linux currently, but doesn't suck that hard under FreeBSD and
+> Solaris.
 > 
-> Our local APIC PM code saves the local APIC state and disables it
-> before suspend, and restores it and reenables the local APIC after
-> resume.
+> There are already enough things you cannot do properly under Linux
+> (which are mostly not Linux' fault, but still), so I don't want to add
+> another one. Especially in the server market, where the M$ lobbyists are
+> growing their market share.
 > 
-> >Thanks. However, my laptop crashes on *suspend* when APIC is on and on
-> >*resume* when APIC is off...
-> >
-> >And on -test3 it did not crash.
-> >
-> >jftr: on 2.4.x it crashed on resume as well. Someone trying to prevent
-> >me to use stable kernels on my laptop? ;-(
 > 
-> Do you use APM? How do you suspend? With "apm --suspend" or by e.g.
-> closing the lid? In the latter case, does your APM BIOS post the
-> suspend event to us before actually suspending?
+> But if there is some minimal funding available (50 EUR?), I would do it
+> myself and push the patches upstream ;-)
 
-I suspend by "apm -s". I disabled Suspending by closing the lid or by
-Fn+F4 because it happens when I don't like it then, which can be fatal
-when resume does not work.
+IIRC INN was not using multiplexing multiple client with a single task. 
+Wasn't it a fork-and-handle kinda server?
 
-My "test scenario" is doing an "apm -s" when booted with
-"init=/bin/bash", having done nothing else than mounted /proc.
 
-tried that with -test4 to -test11, final, and -mm1. All without success.
-I can move the point where it crashes around (when I have yenta support
-in, it crashes before displaying the prompt again, without it crashes
-after displaying it (however, further commands i append by ";" to the
-apm command are not executed or only print their first line of output;
-so it is most likely not the keyboard driver which is broken). With
-local apic it crashes before it suspends. I hoped this would help you to
-track down the bug, but it seems that all this behaviour is normal (with
-apic), except that without apic it should work...
 
-> An APM BIOS that crashes in SMM code before posting the suspend event,
-> or that skips posting the event altogether, probably won't work with
-> an enabled local APIC. Not much we can do about that.
+- Davide
 
-I'd like it if you could make my laptop suspend again *without* local
-apic. (or better, resume). It works on 2.6.0-test3, whatever i do, but i
-don't manage to get it working on later kernels.
 
-And I do *not* like to run beta kernels on production machines, you
-mightt understand that...
-
-Till 2.4.x, i believed that the apm of my notebook cannot be made
-working with linux - but -test1 to -test3 (I did not try any 2.5
-kernels) showed me that it is possible to resume it. Just that it seems
-to be impossible with a "stable" kernel. (is that Murphy?)
-
-Michael

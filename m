@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264722AbUEaSMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264725AbUEaSjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264722AbUEaSMG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 14:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUEaSMG
+	id S264725AbUEaSjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 14:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbUEaSjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 14:12:06 -0400
-Received: from no-access-servers.fe.up.pt ([193.136.33.243]:32210 "EHLO
-	relay2.fe.up.pt") by vger.kernel.org with ESMTP id S264722AbUEaSMC
+	Mon, 31 May 2004 14:39:40 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:14614 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264725AbUEaSjj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 14:12:02 -0400
-Subject: new compile problem on linux-2.4.27-pre4 and his solution
-From: =?ISO-8859-1?Q?S=E9rgio?= "M. Basto" <sergiomb@netcabo.pt>
-Reply-To: sergiomb@netcabo.pt
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1086027120.4097.13.camel@rh10.fe.up.pt>
+	Mon, 31 May 2004 14:39:39 -0400
+Date: Mon, 31 May 2004 20:42:18 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Bjorn Wesen <bjorn.wesen@axis.com>
+Cc: Dan Kegel <dank@kegel.com>, Mikael Starvik <mikael.starvik@axis.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Delete cris architecture?
+Message-ID: <20040531184218.GA2101@mars.ravnborg.org>
+Mail-Followup-To: Bjorn Wesen <bjorn.wesen@axis.com>,
+	Dan Kegel <dank@kegel.com>, Mikael Starvik <mikael.starvik@axis.com>,
+	linux-kernel@vger.kernel.org
+References: <40BB3751.6060200@kegel.com> <Pine.LNX.4.33.0405311807550.14955-100000@godzilla.se.axis.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 31 May 2004 19:12:00 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0405311807550.14955-100000@godzilla.se.axis.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi this happens on pre4 and not happen on pre3
+On Mon, May 31, 2004 at 06:14:02PM +0200, Bjorn Wesen wrote:
+> The CRIS architecture is stable and supported by Axis Communications 
+> officially in 2.4, but the 2.6 port is work-in-progress, thus you could 
+> expect problems building it from the vanilla kernel source. It works 
+> in-house on 2.6, but perhaps all patches have not trickled out to the 
+> official kernel yet (although they should have I think, so it's good that 
+> you mention stuff like this).
 
-tcp_input.c: In function `tcp_rcv_space_adjust':
-tcp_input.c:479: structure has no member named `sk_rcvbuf'
-tcp_input.c:480: structure has no member named `sk_rcvbuf'
-make[3]: *** [tcp_input.o] Error 1
-make bzImage error !
+When grepping the source and even doing cross architecture changes it is
+nice to have a ratehr up-to-date version in the main stream kernel.
 
-find  . -exec grep "sk_rcvbuf" {} \; -print
-results:
-#define sk_rcvbuf rcvbuf
-./include/net/sctp/compat.h
-        newsk->sk_rcvbuf = oldsk->sk_rcvbuf;
-./net/sctp/socket.c
-        if (sk->sk_rcvbuf < SCTP_DEFAULT_MINWINDOW)
-                asoc->rwnd = sk->sk_rcvbuf;
-                     min_t(__u32, (asoc->base.sk->sk_rcvbuf >> 1),
-asoc->pmtu)))
-./net/sctp/associola.c
-                        if (space > sk->sk_rcvbuf)
-                                sk->sk_rcvbuf = space;
-./net/ipv4/tcp_input.c
+It would be nice if Axis could at least drop an update of the tree for
+each kernel release (provided there are any changes).
+This would allow all of us to get a better overview, and in some cases
+we may even introduce new stuff / fix errors.
 
-So #define sk_rcvbuf rcvbuf
-and I feel free to do this and resolve the compile problem.
---- linux-2.4.27-pre4/net/ipv4/tcp_input.c.orig        2004-05-31 18:45:06.000000000 +0100
-+++ linux-2.4.27-pre4/net/ipv4/tcp_input.c     2004-05-31 18:54:11.000000000 +0100
-@@ -476,8 +476,8 @@
-                                  16 + sizeof(struct sk_buff));
-                        space *= rcvmem;
-                        space = min(space, sysctl_tcp_rmem[2]);
--                       if (space > sk->sk_rcvbuf)
--                               sk->sk_rcvbuf = space;
-+                       if (space > sk->rcvbuf)
-+                               sk->rcvbuf = space;
-                }
-        }
+So please start to feed Andrew (or Linus) regularly with updates.
 
-
-thanks,
-Sergio M. B.
-
+	Sam

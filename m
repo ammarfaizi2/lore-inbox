@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274817AbTHNRm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 13:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275409AbTHNRm3
+	id S272566AbTHNRxs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 13:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272574AbTHNRxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 13:42:29 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:4555 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S274817AbTHNRm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 13:42:28 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Thu, 14 Aug 2003 19:42:26 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: green@namesys.com, akpm@osdl.org, andrea@suse.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030814194226.2346dc14.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
-References: <20030814084518.GA5454@namesys.com>
-	<Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 14 Aug 2003 13:53:47 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:56448 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272566AbTHNRx3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 13:53:29 -0400
+Date: Thu, 14 Aug 2003 18:53:09 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Matt Wilson <msw@redhat.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] revert zap_other_threads breakage, disallow CLONE_THREAD without CLONE_DETACHED
+Message-ID: <20030814175309.GC10889@mail.jlokier.co.uk>
+References: <200308120752.h7C7qQT20085@magilla.sf.frob.com> <Pine.LNX.4.44.0308141023480.8148-100000@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308141023480.8148-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Aug 2003 14:26:33 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+Linus Torvalds wrote:
+> I'd really prefer not to keep a bit around that has to mean the same thing 
+> as another bit - that way just lies madness. So I'll document 
+> CLONE_DETACHED as being a no-op, and change the _one_ place that used it 
+> to just use CLONE_THREAD instead.
 
-> 
-> 
-> On Thu, 14 Aug 2003, Oleg Drokin wrote:
-> 
-> > Thank you for all the time and efforts you are putting into finding out
-> > the cause.
-> 
-> Stephan,
-> 
-> How are things going? Is the machine is still alive and well? 
+Don't forget to mention that software that may be run on 2.5 kernels
+needs to set both bits, else won't work as expected.
 
-Hello Marcelo,
-
-the system is up and running, currently:
-
-  7:40pm  up 4 days  2:34,  21 users,  load average: 2.07, 2.10, 2.06
-
-there is still the verification issue, today I added another 50 GB to the data
-stream, and therefore got additional 3 verification  errors. But this seems to
-have no influence on the stability. Box feels ok, reacts completely normal, no
-strange output in any logs.
-
-Regards,
-Stephan
+-- Jamie

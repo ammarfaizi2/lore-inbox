@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbUBXBWn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 20:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUBXBWm
+	id S262180AbUBXBTM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 20:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUBXBRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 20:22:42 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:29203 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262169AbUBXBTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 20:19:50 -0500
-Date: Tue, 24 Feb 2004 01:19:46 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: fbdv/fbcon pending problems
-In-Reply-To: <1077576644.5960.77.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0402240116090.17027-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Feb 2004 20:17:01 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:47802 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262131AbUBXBPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 20:15:01 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Date: Tue, 24 Feb 2004 12:14:58 +1100
+Cc: Ia64 Linux <linux-ia64@vger.kernel.org>
+Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory exceeds 2.5GB (correction)
+Message-ID: <20040224011458.GA18070@cse.unsw.EDU.AU>
+References: <20040224002237.GE8906@cse.unsw.EDU.AU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040224002237.GE8906@cse.unsw.EDU.AU>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Darren
 
-> I would appreciate if you did so ;) Please let me know what you find.
+On Tue, 24 Feb 2004, Darren Williams wrote:
 
-Okay. 
-
-> I have this problem since the very beginning. The very first
-> shift-pageup to display things properly from the back buffer, but to not
-> _erase_ properly, until you do a bit of ping pong (down up down up) so
-> that your screen end up properly refreshed.
-
-:-( 
- 
-> I never use modules for fbdevs
-
-Its a handy way to track down bugs :-)
-
-> It does. Radeonfb did one step in this direction, but that's not
-> enough. _BUT_ we still need to differenciate between a full mode 
-> passed from userland from a mode where we _KNOW_ everything is
-> bogus but width/height... In the later case, we really want to
-> find a mode that is just large enough for the passed in width/height
-> (but not smaller, or just fail if not found) and with the same
-> hfreq if possible as the current mode. That's really a different
-> request than a full blown mode coming from userland (like a 'tuning'
-> tool or whatever...)
 > 
-> The FB_ACTIVATE_FIND is just that. It justs tells the driver to
-> pick up a mode based on width/height only. We know the rest of
-> the var is bogus.
-
-Its still possible that the user sends in bogus data using 
-FB_ACTIVATE_FIND. 
+> On Ia64 Itanium 1 machines with more than 2.5GB of RAM the follwing error is triggered.
+>  
+> slab error in check_poison_obj(): cache `size-16384': object was modified after freeing
+> 
+> The machine that triggered the error above is an
+> 
+> i2000 HP workstation
+> 4gb RAM
+> 1gb SWAP
+> 
+> An identical machine with 3GB ram produces:
+                            ^^^
  
-> Yes, but that's less urgent than the other ones. 
+> slab error in check_poison_obj(): cache `size-2048': object was modified after freeing
+> 
+> if the amount of RAM is reduced to 2.5GB or less then the errors do not appear.
+                                     ^^^^^ 
 
-I agree.
-
-
-> We really need to fix
-> those basic behaviour problems before multihead. Multihead will come
-> later as I will implement dual head support in radeonfb. That leads to
-> a while bunch of problems with the userland API that need to be improed
-> too, 
-
-That is what sysfs is for :-) 
-
-> and that leads to the problem of properly soft booting additional
-> cards. I have various ideas to address those problems, but that's
-> definitely less urgent than the list I wrote down.
-
-We will talk about this later.
-
-
+> Kernel logs and configs can be found at:
+> http://quasar.cse.unsw.edu.au/~dsw/public-files/lemon-debug/
+> 
+> 
+> --------------------------------------------------
+> Darren Williams <dsw AT gelato.unsw.edu.au>
+> Gelato@UNSW <www.gelato.unsw.edu.au>
+> --------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

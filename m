@@ -1,47 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268593AbUIGU3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268193AbUIGU3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268593AbUIGU3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268193AbUIGU2H
+	id S268193AbUIGU3R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 16:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268580AbUIGU1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:28:07 -0400
-Received: from odin.allegientsystems.com ([208.251.178.227]:4370 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S268532AbUIGUXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:23:40 -0400
-Message-ID: <413E18CB.7020305@optonline.net>
-Date: Tue, 07 Sep 2004 16:23:39 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: 2.6.9-rc1-mm4
-References: <20040907020831.62390588.akpm@osdl.org> <200409072201.55025.l_allegrucci@yahoo.it>
-In-Reply-To: <200409072201.55025.l_allegrucci@yahoo.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 16:27:51 -0400
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:58777 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S268193AbUIGUWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 16:22:20 -0400
+Date: Tue, 7 Sep 2004 13:22:18 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update arch/ppc/defconfig
+Message-ID: <20040907202218.GH20951@smtp.west.cox.net>
+References: <20040907200013.GA14330@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040907200013.GA14330@suse.de>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lorenzo Allegrucci wrote:
-> On Tuesday 07 September 2004 11:08, Andrew Morton wrote:
-> 
->>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6
->>.9-rc1-mm4/
-> 
-> 
-> My PS/2 keyboard doesn't work, I tried "pci=routeirq" but it didn't help.
-> 
-> Sep  7 21:39:00 odyssey kernel: i8042: ACPI  [PS2K] at I/O 0x0, 0x0, irq 1
-> Sep  7 21:39:00 odyssey kernel: i8042: ACPI  [PS2M] at irq 12
-> Sep  7 21:39:00 odyssey kernel: i8042.c: Can't read CTR while initializing 
-> i8042.
-> 
+On Tue, Sep 07, 2004 at 10:00:13PM +0200, Olaf Hering wrote:
 
-Try i8042.noacpi on the kernel command line
+> run make oldconfig, and enable a few useful options.
+> 
+> Signed-off-by: Olaf Hering <olh@suse.de>
+[snip]
+> @@ -724,12 +742,12 @@ CONFIG_SERIAL_8250_NR_UARTS=4
+>  # Non-8250 serial port support
+>  #
+>  CONFIG_SERIAL_CORE=y
+> +CONFIG_SERIAL_CORE_CONSOLE=y
+>  CONFIG_SERIAL_PMACZILOG=y
+> -# CONFIG_SERIAL_PMACZILOG_CONSOLE is not set
+> +CONFIG_SERIAL_PMACZILOG_CONSOLE=y
 
-Seems Bjorn's patch needs to be reworked to ignore obviously broken BIOS 
-return values
+Is it all that common for pmacs to be using a serial console?
+
+[snip]
+>  # Graphics support
+>  #
+>  CONFIG_FB=y
+> +CONFIG_FB_MODE_HELPERS=y
+> +# CONFIG_FB_CIRRUS is not set
+
+If that's working again, we should enable it, Mot PRePs have those
+cards.
+
+> @@ -897,9 +929,9 @@ CONFIG_FONT_8x16=y
+>  # Logo configuration
+>  #
+>  CONFIG_LOGO=y
+> -CONFIG_LOGO_LINUX_MONO=y
+> +# CONFIG_LOGO_LINUX_MONO is not set
+>  CONFIG_LOGO_LINUX_VGA16=y
+> -CONFIG_LOGO_LINUX_CLUT224=y
+> +# CONFIG_LOGO_LINUX_CLUT224 is not set
+
+Er, is there a good reason to have only the 16color one?
+
+> @@ -1176,8 +1215,9 @@ CONFIG_EXT2_FS=y
+>  # CD-ROM/DVD Filesystems
+>  #
+>  CONFIG_ISO9660_FS=y
+> -# CONFIG_JOLIET is not set
+> -# CONFIG_ZISOFS is not set
+> +CONFIG_JOLIET=y
+> +CONFIG_ZISOFS=y
+> +CONFIG_ZISOFS_FS=y
+
+Ick, please no.
+
+> @@ -1212,7 +1252,7 @@ CONFIG_HFSPLUS_FS=m
+>  # CONFIG_BEFS_FS is not set
+>  # CONFIG_BFS_FS is not set
+>  # CONFIG_EFS_FS is not set
+> -# CONFIG_CRAMFS is not set
+> +CONFIG_CRAMFS=m
+
+Why?
+
+> +#
+>  # Kernel hacking
+>  #
+> -# CONFIG_DEBUG_KERNEL is not set
+> +CONFIG_DEBUG_KERNEL=y
+
+Why?
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,80 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265636AbUABUJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 15:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUABUJZ
+	id S265632AbUABUMq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 15:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265631AbUABUMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 15:09:25 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:62926 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265636AbUABUJS (ORCPT
+	Fri, 2 Jan 2004 15:12:46 -0500
+Received: from faraday.dhtns.com ([64.246.11.56]:25999 "EHLO faraday.dhtns.com")
+	by vger.kernel.org with ESMTP id S265640AbUABUMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 15:09:18 -0500
-Date: Fri, 2 Jan 2004 21:09:17 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Fri, 2 Jan 2004 15:12:22 -0500
+Date: Fri, 2 Jan 2004 15:12:21 -0500
+From: Elliott Bennett <lkml@dhtns.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Compatibility of Nvidia NVNET driver license with GPL
-Message-ID: <20040102200917.GD14285@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031231073101.A474@beton.cybernet.src> <20031231211101.68ba1362.pj@sgi.com> <20040101174845.GB2022@gtf.org> <20040102170402.GD5731@helium.inexs.com>
+Cc: lkml@dhtns.com
+Subject: Re: JFS resize=0 problem in 2.6.0
+Message-ID: <20040102201221.GA28116@faraday.dhtns.com>
+References: <20031228153028.GB22247@faraday.dhtns.com> <20031229000503.GD1882@matchmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mSxgbZZZvrAyzONB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040102170402.GD5731@helium.inexs.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031229000503.GD1882@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 28, 2003 at 04:05:03PM -0800, Mike Fedyk wrote:
+> On Sun, Dec 28, 2003 at 10:30:28AM -0500, lkml@dhtns.com wrote:
+> > It seems to me that line 264 is attempting to test for the mount 
+> > paramater "resize=0", and when it comes across this, resize to the full
+> > size of the volume.  However, this doesn't work.  I believe it should
+> > test for the char '0'  (*resize=='0'), not against literal zero.  
+> > 
+> > Let me know if I'm way off base here.  But the below patch does allow a
+> > $ mount -o remount,resize=0 /mnt/test    
+> > to resize the jfs filesystem to the full size of the volume.
+> 
+> And it won't without the patch?
+> 
+> What errors do you get if it fails without the patch?
 
---mSxgbZZZvrAyzONB
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It won't without the patch.  
 
-On Fri, 2004-01-02 11:04:02 -0600, Chuck Campbell <campbell@accelinc.com>
-wrote in message <20040102170402.GD5731@helium.inexs.com>:
-> On Thu, Jan 01, 2004 at 12:48:45PM -0500, Jeff Garzik wrote:
-> >=20
-> > For a network driver, nVidia will have a really tough time convincing me
-> > there is useful IP in their NIC driver, or the NIC itself :)  There are
-> > much more advanced NICs out there (with public docs, no less)...
->=20
-> Where might one look to find a list of these, for system planning purpose=
-s?
+No errors...it just doesn't resize.  :)
 
-Personally, I like to buy tulip based cards. One you might easily get is
-the KTI KT-320 (or was it KF-320? Both exist, one is el-cheapo, the good
-one is at about 40..50 EUR or US-$).
+Here's a shell snippit.  I have just resized /dev/vg/lv from 700M to
+900M, and I'm running the ORIGINAL jfs module:
 
-Some time ago, I also used eepro100-based cards. But since Intel has
-started to put these into their chipset (as it seems with some
-additional silicone bugs, which freezes the box with eepro100, but not
-with working-around Intel's e100 driver) I don't use them any longer...
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv       713500       220    713280   1% /mnt
+root@tesla:~# mount
+/dev/mapper/vg-lv on /mnt type jfs (rw)
+root@tesla:~# mount -o remount,resize=0 /mnt
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv       713500       220    713280   1% /mnt
 
-MfG, JBG
+	..the resizing failed.  But, switching to the patched module:
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+root@tesla:~# umount /mnt
+root@tesla:~# rmmod jfs
+root@tesla:~# cp ~/jfs_patch.ko /lib/modules/2.6.0/kernel/fs/jfs/jfs.ko
+root@tesla:~# mount -t jfs /dev/vg/lv /mnt
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv       713500       220    713280   1% /mnt
+root@tesla:~# mount -o remount,resize=0 /mnt
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv       917272       244    917028   1% /mnt
 
---mSxgbZZZvrAyzONB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	resizing works.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+	
+	Oddly, now, an additional lvextend and remount/resize fails:
 
-iD8DBQE/9c/tHb1edYOZ4bsRArRlAJ92Cd4Ps4XAkj5P9UQK75+4Dxpm6wCbBvNa
-PHv1E0TxyO5jHthksWw6do4=
-=1bi9
------END PGP SIGNATURE-----
+root@tesla:~# lvextend /dev/vg/lv -L +200M
+  /dev/hdd: open failed: Read-only file system
+  Extending logical volume lv to 1.07 GB
+  Logical volume lv successfully resized
+root@tesla:~# mount -o remount,resize=0 /mnt
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv       917272       244    917028   1% /mnt
+root@tesla:~# mount
+/dev/mapper/vg-lv on /mnt type jfs (rw,resize=0,resize=0)
 
---mSxgbZZZvrAyzONB--
+	note "resize=0,resize=0" above.
+	...but unmounting it, remounting it, and then resizing it works:
+
+root@tesla:~# umount /mnt
+root@tesla:~# mount -t jfs /dev/vg/lv /mnt
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv       917272       244    917028   1% /mnt
+root@tesla:~# mount -o remount,resize=0 /mnt
+root@tesla:~# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/mapper/vg-lv      1121040       272   1120768   1% /mnt
+root@tesla:~# mount
+/dev/mapper/vg-lv on /mnt type jfs (rw,resize=0)
+
+	It turns out that it's not so much of the fact that this is a
+"second" extention during the same mount as the fact that it was
+extended while mounted.  It seems that nomatter when I lvextend (mounted
+or unmounted), i must unmount (if mounted), then mount, then
+remount/resize for a resize to take effect.  If I don't unmount after
+lvextending, and try to resize, I get:
+jfs_extendfs: volume hasn't grown, returning
+
+
+Soo...I would say that something is awry with the resizing of JFS
+filesystems.  My patch obviously doesn't fix everything, but at least
+makes resizing to fill available space *possible*. :)
+
+The code surrounding my patch change treats the same variable (resize,
+which is a pointer to args[0].from) as a string, so it seems pretty
+obvious to me it should be comparing to '0'.
+
+
+-Elliott Bennett
+

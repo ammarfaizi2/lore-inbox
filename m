@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbTIFXOI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 19:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTIFXOI
+	id S262936AbTIFX2M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 19:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTIFX2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 19:14:08 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:26510 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262983AbTIFXOG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 19:14:06 -0400
-Date: Sun, 7 Sep 2003 00:14:01 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Joshua Weage <weage98@yahoo.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: NFS client problems in 2.4.18 to 2.4.20
-Message-ID: <20030906231401.GB12392@mail.jlokier.co.uk>
-References: <16218.5318.401323.630346@charged.uio.no> <20030906212250.64809.qmail@web40414.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030906212250.64809.qmail@web40414.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 6 Sep 2003 19:28:12 -0400
+Received: from nefty.hu ([195.70.37.175]:50816 "EHLO nefty.hu")
+	by vger.kernel.org with ESMTP id S262936AbTIFX2J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 19:28:09 -0400
+From: "Zoltan NAGY" <nagyz@nefty.hu>
+To: <linux-kernel@vger.kernel.org>, <usagi-users@linux-ipv6.org>
+Subject: sit tunnel/iptunnel bug?
+Date: Sun, 7 Sep 2003 01:28:08 +0200
+Message-ID: <FEEILOIHCEAEMLNJIDEJOELICFAA.nagyz@nefty.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Weage wrote:
-> There aren't any clues in the kernel logs, except that the kernel does
-> report "nfs server not responding" and never comes back with "nfs
-> server OK".  I've enabled kernel debugging on all of the cluster nodes,
-> but the above message is all that I get in the logs.
-> 
-> I'll have to try out tcpdump the next time this happens.
+hi!
 
-Look for lots of retransmits from the client.  This might be the bug
-where it adjusts the retransmit timeout to a ridiculously small
-sub-millisecond value, because of a sequence of fast cached responses
-from the server, then when the server responds slowly due to a disk
-access the client times out within milliseconds.  Repeatedly.
+i've got some really odd behavior.. if i do:
+ip tunnel add t12 mode sit remote 195.70.51.141 local 195.70.37.175 ttl 64
+then ip link set t12 up i got:
+RTNETLINK answers: No such device
+it must be a bug, because i only get this if i have another 12 or more
+tunnels added before this one.. and just with specific ip address, if i
+change it or simply use ip tunnel add t12 mode sit remote 195.70.51.141,
+then it's working..
+this problem exists in 2.4.20, and .22; .21 is not tested..
+is this a real bug? has anyone experienced it before?
 
--- Jamie
+thanks,
+
+--
+Zoltan NAGY,
+Network Administrator,
+Nefty Informatics and Providing Ltd.,
+nagyz@nefty.hu,
++36702269471
+

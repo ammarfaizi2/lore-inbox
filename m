@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbSLBSei>; Mon, 2 Dec 2002 13:34:38 -0500
+	id <S264767AbSLBS21>; Mon, 2 Dec 2002 13:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264822AbSLBSei>; Mon, 2 Dec 2002 13:34:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:62865 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264818AbSLBSed>;
-	Mon, 2 Dec 2002 13:34:33 -0500
-Message-ID: <3DEBA972.DB6AF8F1@digeo.com>
-Date: Mon, 02 Dec 2002 10:41:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50 hang when copying files, handwritten trace included
-References: <3DEB70FE.C422A3EB@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii
+	id <S264799AbSLBS20>; Mon, 2 Dec 2002 13:28:26 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:61457
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S264767AbSLBS2S>; Mon, 2 Dec 2002 13:28:18 -0500
+Subject: Re: a bug in autofs
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: "Andrey R. Urazov" <coola@ngs.ru>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021202175040.GA857@ktulu>
+References: <20021201071612.GA936@ktulu>
+	 <1038799532.15370.301.camel@ixodes.goop.org> <20021202075725.GC1459@ktulu>
+	 <1038818346.3253.17.camel@ixodes.goop.org> <20021202151730.GB885@ktulu>
+	 <1038847726.2560.51.camel@ixodes.goop.org>  <20021202175040.GA857@ktulu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1038854145.2560.79.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 02 Dec 2002 10:35:45 -0800
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Dec 2002 18:41:54.0596 (UTC) FILETIME=[7C66F640:01C29A32]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> 
-> 2.5.50 hung when copying 800M.
-> mke2fs on a 10G partition, then try to copy
-> the entire /home there. Source and destionation
-> was on the same disk. After a while, this happened:
-> 
-> EIP: wake_up_forked_process+0xb8/0x18c
-> EAX: 5a5a5a5a   (suspicious)
-> 
-> trace:
-> do_fork
-> kernel_thread
-> pdflush
-> kernel_thread_helper
-> start_one_pdflush_thread
-> pdflush
-> __pdflush
-> __pdflush
-> background_writeout
-> kernel_thread_helper
-> 
+On Mon, 2002-12-02 at 09:50, Andrey R. Urazov wrote:
+> > > Just tested that the system hangs when the autofs4 module is in use.
+> > > autofs (without 4) module does not cause any problems.
+> > 
+> > Do you mean you're switching from the autofs4 kernel module with autofs4
+> > automount, or are you using the autofs4 kernel module with autofs3
+> > automount?
+> In both cases I use user level tools version 3.1.7.
 
-Yes please - if you could gather sufficient info to enable
-us to determine what eax is pointing at in wake_up_forked_process(),
-that would help.  Presumably it's the new process, which is rather
-bizarre.
+OK. Using v3 tools with the v4 kernel modules isn't well tested.  It is
+supposed to work, but I wouldn't be surprised if there were problems. 
+But I don't think that's your problem.
 
-Also, does disabling preemption make it stop?
+> I misinformed you again :)
+> The message is different from those that was in my memory:
+> 
+> hdc: ATAPI reset complete 
+> hdc: status error: status=0x00 { }
+> ide-scsi: Strange, packet command initiated yet DRQ isn't asserted
+> 
+> then I get an Oops message. I reproduced the bug twice this time and
+> I get two different oops messages. At least the call stacks of the two
+> were different since during second time the call stack was so large that
+> I didn't see anything else.
 
-Thanks.
+Well, if you post the decoded backtrace, I'm sure it will help the IDE
+developers find your problem.  It looks to me like you've got something
+strange going on with IDE and/or ide-scsi.
+
+I'm not sure why you'd be seeing different behaviour between manual
+mounting and autofs, but it may have something to do with timing.
+
+	J
+

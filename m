@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbTINANz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 20:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTINANz
+	id S262269AbTINAZk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 20:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbTINAZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 20:13:55 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:30443 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S262268AbTINANy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 20:13:54 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Date: Sat, 13 Sep 2003 17:10:27 -0700 (PDT)
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-In-Reply-To: <m3y8ws6xnb.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.58.0309131708440.27266@dlang.diginsite.com>
-References: <viay.6qh.11@gated-at.bofh.it> <vli4.2Ml.15@gated-at.bofh.it>
- <vnjR.5Sn.5@gated-at.bofh.it> <vnD7.6jK.1@gated-at.bofh.it>
- <vnMX.6x0.17@gated-at.bofh.it> <vqKS.2NP.29@gated-at.bofh.it>
- <m3y8ws6xnb.fsf@averell.firstfloor.org>
+	Sat, 13 Sep 2003 20:25:40 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:46601 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262269AbTINAZj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 20:25:39 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Pat LaVarre <p.lavarre@ieee.org>, mpm@selenic.com
+Subject: 2.6.0-test5: intermittent crash on chvt to X; was console lost to Ctrl+Alt+F$n in 2.6.0-test5
+Date: Sun, 14 Sep 2003 08:24:24 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <1063378664.5059.19.camel@patehci2> <20030913015747.GC4489@waste.org> <1063460312.2905.13.camel@patehci2>
+In-Reply-To: <1063460312.2905.13.camel@patehci2>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309140824.25612.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Sep 2003, Andi Kleen wrote:
 
-> Adrian Bunk <bunk@fs.tum.de> writes:
-> >
-> > I don't like the current user interface that says "if you want to
-> > support both an Athlon and a Pentium 4 in your kernel use the Pentium III
-> > option. And for better optimization, also check the "generic" option".
->
-> The big issue with your ifdefing of workarounds is that it causes subtle
-> support problems. A lot of settings for specific CPUs boot and work
-> fine on other CPUs (possibly with small performance impact, but they're
-> rarely noticeable without explicit benchmarking). Just when you don't
-> include the workarounds for the bugs on these other CPUs it will boot and
-> even run, but fail mysteriously once a month. And that would be a support
-> nightmare.
->
+> I ended by running the third variant script quoted below. Now my logs
+> comfortingly end with 'switching to X'. I presume I'm catching the
+> crash in the last sleep $wait.
 
-it sounds like a nessasary part of this patch would be to detect the CPU
-type and complain VERY loudly if it's not one supported by the build.
+Makes sense because the crash may (in your case does) happen later 
+in the switching sequence at which time the "new" log already made 
+it to disk - I'll use your variant from now on ;)
 
-This is probably a good idea anyway.
+The qestion now is whether this is kernel or X related.
+Have you had this problem with an earlier 2.6 or 2.4 kernel?
 
-David Lang
+If it is specific to -test5, post (as tar.bz2)
+
+- lspci -v  
+- /var/log/dmesg
+- X version and driver info from /var/log/XFree86.log 
+- .config
+
+Regards
+Michael
+

@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUHKWch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUHKWhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268281AbUHKWch (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUHKWch
+	id S268283AbUHKWhP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUHKWhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:32:37 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57046 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268281AbUHKWce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:32:34 -0400
-Date: Thu, 12 Aug 2004 00:32:25 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, netdev@oss.sgi.com
-Subject: 2.6: rxrpc compile errors with SYSCTL=n
-Message-ID: <20040811223225.GN26174@fs.tum.de>
+	Wed, 11 Aug 2004 18:37:15 -0400
+Received: from holomorphy.com ([207.189.100.168]:62086 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268283AbUHKWhN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:37:13 -0400
+Date: Wed, 11 Aug 2004 15:33:53 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1: legacy_va_layout compile error with SYSCTL=n
+Message-ID: <20040811223353.GT11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org> <20040811221825.GM26174@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040811221825.GM26174@fs.tum.de>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting tons of the following compile errors in 2.6.8-rc4-mm1 (but 
-it doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
+On Tue, Aug 10, 2004 at 12:21:10AM -0700, Andrew Morton wrote:
+>> sysctl-tunable-for-flexmmap.patch
+>>   sysctl tunable for flexmmap
 
-<--  snip  -->
+On Thu, Aug 12, 2004 at 12:18:25AM +0200, Adrian Bunk wrote:
+> This patch breaks compilation with CONFIG_SYSCTL=n:
+> <--  snip  -->
+> ...
+>   LD      .tmp_vmlinux1
+> arch/i386/mm/built-in.o(.text+0x1cd6): In function `arch_pick_mmap_layout':
+> : undefined reference to `sysctl_legacy_va_layout'
+> make: *** [.tmp_vmlinux1] Error 1
+> <--  snip  -->
 
-...
-  LD      .tmp_vmlinux1
-net/built-in.o(.text+0x154127): In function `__rxrpc_call_acks_timeout':
-: undefined reference to `rxrpc_kdebug'
-net/built-in.o(.text+0x154167): In function `__rxrpc_call_rcv_timeout':
-: undefined reference to `rxrpc_kdebug'
-net/built-in.o(.text+0x1541a7): In function `__rxrpc_call_ackr_timeout':
-: undefined reference to `rxrpc_kdebug'
-net/built-in.o(.text+0x15421e): In function `rxrpc_create_call':
-: undefined reference to `rxrpc_ktrace'
-net/built-in.o(.text+0x154242): In function `rxrpc_create_call':
-: undefined reference to `rxrpc_ktrace'
-net/built-in.o(.text+0x154272): In function `rxrpc_create_call':
-: undefined reference to `rxrpc_ktrace'
-...
-make: *** [.tmp_vmlinux1] Error 1
+Does this help?
 
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Index: mm1-2.6.8-rc4/arch/i386/mm/mmap.c
+===================================================================
+--- mm1-2.6.8-rc4.orig/arch/i386/mm/mmap.c	2004-08-10 23:01:03.155047360 -0700
++++ mm1-2.6.8-rc4/arch/i386/mm/mmap.c	2004-08-11 15:22:17.606770256 -0700
+@@ -47,6 +47,10 @@
+ 	return TASK_SIZE - (gap & PAGE_MASK);
+ }
+ 
++#ifndef CONFIG_SYSCTL
++#define sysctl_legacy_va_layout	0
++#endif
++
+ /*
+  * This function, called very early during the creation of a new
+  * process VM image, sets up which VM layout function to use:

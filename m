@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbTEIKzT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 06:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTEIKzT
+	id S262444AbTEILPp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 07:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTEILPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 06:55:19 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61666 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262431AbTEIKzS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 06:55:18 -0400
-Date: Fri, 9 May 2003 13:07:09 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Sanitize hwif/drive addressing (was Re: [PATCH]
- 2.5 ide 48-bit usage)
-In-Reply-To: <20030509082837.GG20941@suse.de>
-Message-ID: <Pine.SOL.4.30.0305091305080.2995-100000@mion.elka.pw.edu.pl>
+	Fri, 9 May 2003 07:15:45 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:27636 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262444AbTEILPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 07:15:44 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16059.37067.925423.998433@gargle.gargle.HOWL>
+Date: Fri, 9 May 2003 13:28:11 +0200
+From: mikpe@csd.uu.se
+To: Andi Kleen <ak@muc.de>
+Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: hammer: MAP_32BIT
+In-Reply-To: <20030509092026.GA11012@averell>
+References: <3EBB5A44.7070704@redhat.com>
+	<20030509092026.GA11012@averell>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen writes:
+ > On Fri, May 09, 2003 at 09:35:32AM +0200, Ulrich Drepper wrote:
+ > > It would be much better if there would also be a MAP_32PREFER flag with
+ > > the appropriate semantics.  The failing mmap() calls seems to be quite
+ > > expensive so programs with many threads are really punished a lot.
+ > 
+ > That's just an inadequate data structure. It does an linear search of the
+ > VMAs and you probably have a lot of them. Before you add kludges like this 
+ > better fix the data structure for fast free space lookup.
+ > 
+ > MAP_32BIT currently limits to the first 2GB only. That's needed because
+ > most programs use it to allocate modules for the small code model and that
+ > only supports 2GB (poster child for that is the X server) But for your 
+ > application 4GB would be better. But adding another MAP_32BIT_4GB or so
+ > would be quite ugly. I considered making the address where mmap starts searching
+ > (TASK_UNMAPPED_BASE) settable using a prctl.
 
-On Fri, 9 May 2003, Jens Axboe wrote:
+I have a potential use for mmap()ing in the low 4GB on x86_64.
+Sounds like your MAP_32BIT really is MAP_31BIT :-( which is too limiting.
+What about a more generic way of indicating which parts of the address
+space one wants? The simplest that would work for me is a single byte
+'nrbits' specifying the target address space as [0 .. 2^nrbits-1].
+This could be specified on a per-mmap() basis or as a settable process attribute.
 
-> On Fri, May 09 2003, Jens Axboe wrote:
-> > On Thu, May 08 2003, Alan Cox wrote:
-> > > On Iau, 2003-05-08 at 17:34, Jens Axboe wrote:
-> > > > Might not be a bad idea, drive->address_mode is a heck of a lot more to
-> > > > the point. I'll do a swipe of this tomorrow, if no one beats me to it.
-> > >
-> > > We don't know if in the future drives will support some random mask of modes.
-> > > Would
-> > >
-> > > 	drive->lba48
-> > > 	drive->lba96
-> > > 	drive->..
-> > >
-> > > be safer ?
-> >
-> > I had the same thought yesterday, that just because a device does lba89
-> > does not need it supports all of the lower modes. How about just using
-
-Actually it does for 48-bit.
-
-> > the drive->address_mode as a supported field of modes?
-> >
-> > if (drive->address_mode & IDE_LBA48)
-> > 	lba48 = 1;
->
-> How about something like the attached? Removes ->addressing from both
-> drive and hwif, and adds:
->
-> drive->addr_mode: capability mask of addressing modes the drive supports
-> hwif->na_addr_mode: negated capability mask
-
-Sounds sane.
---
-Bartlomiej
-
-> Patch isn't tested, so this is just a RFC. If we agree on the concept, I
-> can finalize it.
-
+/Mikael

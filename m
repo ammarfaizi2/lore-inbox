@@ -1,76 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbULOJSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbULOJSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbULOJSX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 04:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbULOJSX
+	id S262302AbULOJSR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 04:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbULOJSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 04:18:23 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:51383 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262303AbULOJRS (ORCPT
+	Wed, 15 Dec 2004 04:18:17 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:59857 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262302AbULOJQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 04:17:18 -0500
-Date: Wed, 15 Dec 2004 10:17:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@Raytheon.com
-Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-Message-ID: <20041215091703.GD13551@elte.hu>
-References: <OF48DAA6CB.4EA3A6BD-ON86256F6A.007B5393@raytheon.com>
+	Wed, 15 Dec 2004 04:16:16 -0500
+Date: Wed, 15 Dec 2004 10:17:02 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] enable meye even when CONFIG_HIGHMEM64G=y
+Message-ID: <20041215091702.GA3863@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF48DAA6CB.4EA3A6BD-ON86256F6A.007B5393@raytheon.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an update to the patch I've send two days ago, which had
+a small error in the interpretation of dma_set_mask() return code.
 
-* Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
+Thanks.
 
-> Based on the number of latency_trace files, -00RT still
-> is far better than -00PK. In particular, I get some extended
-> delays in -00PK from:
->  - network (I have an 2000 usec example!)
->  - rcu_process_callbacks (around 250 usec)
->  - clear_page_range (around 170 usec)
->  - free_pages_and_swap_cache (around 140 usec)
->  - do_no_page (around 170 usec)
->  - ide [IRQ?] (around 200 usec)
->  - journal_remove_journal_head (> 1000 usec)
->  - do_wait / wait_task_zombie (around 200 usec)
-> A fix to the network & journaling latencies would be helpful.
-> The others are certainly less important. I'll send the traces
-> separately.
+===================================================================
 
-the network ones are hard to fix, because it's softirq overhead and that
-with PK is fundamentally non-preemptable. A good number of attempts to
-cut down on the latency paths there resulted in broken networking, so
-i'd not try that again.
+The meye hardware needs to access the main memory for DMA using
+32 bit addresses. The previous version of the meye driver used
+dma_addr_t types to build those addresses and ensured that 
+sizeof(dma_addr_t) = 4 by disabling HIGHMEM64G in Kconfig.
 
-The fix is softirq threading. Perhaps you could try PK+THREAD_SOFTIRQS
-[but keep hardirqs non-threaded] - this would have higher overhead than
-PK but lower overhead than full threading of all IRQs. This wont fix the
-jfs overhead but that one might be fixable, maybe someone from the FS
-land can take a look at the journalling overhead, that is in process
-context and should be thus easier to fix.
+However, this way of doing it also makes meye unavailable on
+some kernel configurations. As Arjan said previously, future Fedora
+kernels may have HIGHMEM64G activated by default (davej says it won't
+happen, at least for now...). Other distributions may do the same and
+this will require meye users to recompile the whole kernel.
 
-> Also, if you get some odd trace results on an SMP system, Ingo already
-> has some fixes applied in response to some buglets I found & reported
-> separately.
+The attached patch makes the meye driver use dma_addr_t addresses 
+internally, but converts them to u32 before giving them to the
+hardware.
 
-yeah - they are in the latest (-33-03) kernel.
+Linus, Andrew, please apply.
 
-	Ingo
+Stelian.
+
+Signed-off-by: Stelian Pop <stelian@popies.net>
+
+===================================================================
+
+ Kconfig |    2 +-
+ meye.c  |   29 +++++++++++++++++------------
+ meye.h  |    4 ++--
+ 3 files changed, 20 insertions(+), 15 deletions(-)
+
+===================================================================
+
+===== drivers/media/video/Kconfig 1.31 vs edited =====
+--- 1.31/drivers/media/video/Kconfig	2004-11-11 09:36:54 +01:00
++++ edited/drivers/media/video/Kconfig	2004-12-10 17:18:10 +01:00
+@@ -220,7 +220,7 @@
+ 
+ config VIDEO_MEYE
+ 	tristate "Sony Vaio Picturebook Motion Eye Video For Linux"
+-	depends on VIDEO_DEV && PCI && SONYPI && !HIGHMEM64G
++	depends on VIDEO_DEV && PCI && SONYPI
+ 	---help---
+ 	  This is the video4linux driver for the Motion Eye camera found
+ 	  in the Vaio Picturebook laptops. Please read the material in
+===== drivers/media/video/meye.h 1.22 vs edited =====
+--- 1.22/drivers/media/video/meye.h	2004-11-19 14:52:58 +01:00
++++ edited/drivers/media/video/meye.h	2004-12-10 17:18:28 +01:00
+@@ -31,7 +31,7 @@
+ #define _MEYE_PRIV_H_
+ 
+ #define MEYE_DRIVER_MAJORVERSION	 1
+-#define MEYE_DRIVER_MINORVERSION	12
++#define MEYE_DRIVER_MINORVERSION	13
+ 
+ #define MEYE_DRIVER_VERSION __stringify(MEYE_DRIVER_MAJORVERSION) "." \
+ 			    __stringify(MEYE_DRIVER_MINORVERSION)
+@@ -294,7 +294,7 @@
+ 	u8 mchip_fnum;			/* current mchip frame number */
+ 	unsigned char __iomem *mchip_mmregs;/* mchip: memory mapped registers */
+ 	u8 *mchip_ptable[MCHIP_NB_PAGES];/* mchip: ptable */
+-	dma_addr_t *mchip_ptable_toc;	/* mchip: ptable toc */
++	void *mchip_ptable_toc;		/* mchip: ptable toc */
+ 	dma_addr_t mchip_dmahandle;	/* mchip: dma handle to ptable toc */
+ 	unsigned char *grab_fbuffer;	/* capture framebuffer */
+ 	unsigned char *grab_temp;	/* temporary buffer */
+===== drivers/media/video/meye.c 1.37 vs edited =====
+--- 1.37/drivers/media/video/meye.c	2004-11-19 08:03:14 +01:00
++++ edited/drivers/media/video/meye.c	2004-12-15 09:58:05 +01:00
+@@ -110,19 +110,20 @@
+ /*
+  * return a page table pointing to N pages of locked memory
+  *
+- * NOTE: The meye device expects dma_addr_t size to be 32 bits
+- * (the toc must be exactly 1024 entries each of them being 4 bytes
+- * in size, the whole result being 4096 bytes). We're using here
+- * dma_addr_t for correctness but the compilation of this driver is
+- * disabled for HIGHMEM64G=y, where sizeof(dma_addr_t) != 4
++ * NOTE: The meye device expects DMA addresses on 32 bits, we build
++ * a table of 1024 entries = 4 bytes * 1024 = 4096 bytes.
+  */
+ static int ptable_alloc(void)
+ {
+-	dma_addr_t *pt;
++	u32 *pt;
+ 	int i;
+ 
+ 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
+ 
++	/* give only 32 bit DMA addresses */
++	if (dma_set_mask(&meye.mchip_dev->dev, 0xffffffff))
++		return -1;
++
+ 	meye.mchip_ptable_toc = dma_alloc_coherent(&meye.mchip_dev->dev,
+ 						   PAGE_SIZE,
+ 						   &meye.mchip_dmahandle,
+@@ -134,17 +135,19 @@
+ 
+ 	pt = meye.mchip_ptable_toc;
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
++		dma_addr_t dma;
+ 		meye.mchip_ptable[i] = dma_alloc_coherent(&meye.mchip_dev->dev,
+ 							  PAGE_SIZE,
+-							  pt,
++							  &dma,
+ 							  GFP_KERNEL);
+ 		if (!meye.mchip_ptable[i]) {
+ 			int j;
+ 			pt = meye.mchip_ptable_toc;
+ 			for (j = 0; j < i; ++j) {
++				dma = (dma_addr_t) *pt;
+ 				dma_free_coherent(&meye.mchip_dev->dev,
+ 						  PAGE_SIZE,
+-						  meye.mchip_ptable[j], *pt);
++						  meye.mchip_ptable[j], dma);
+ 				pt++;
+ 			}
+ 			dma_free_coherent(&meye.mchip_dev->dev,
+@@ -155,6 +158,7 @@
+ 			meye.mchip_dmahandle = 0;
+ 			return -1;
+ 		}
++		*pt = (u32) dma;
+ 		pt++;
+ 	}
+ 	return 0;
+@@ -162,15 +166,16 @@
+ 
+ static void ptable_free(void)
+ {
+-	dma_addr_t *pt;
++	u32 *pt;
+ 	int i;
+ 
+ 	pt = meye.mchip_ptable_toc;
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
++		dma_addr_t dma = (dma_addr_t) *pt;
+ 		if (meye.mchip_ptable[i])
+ 			dma_free_coherent(&meye.mchip_dev->dev,
+ 					  PAGE_SIZE,
+-					  meye.mchip_ptable[i], *pt);
++					  meye.mchip_ptable[i], dma);
+ 		pt++;
+ 	}
+ 
+@@ -520,11 +525,11 @@
+ }
+ 
+ /* sets the DMA parameters into the chip */
+-static void mchip_dma_setup(u32 dma_addr)
++static void mchip_dma_setup(dma_addr_t dma_addr)
+ {
+ 	int i;
+ 
+-	mchip_set(MCHIP_MM_PT_ADDR, dma_addr);
++	mchip_set(MCHIP_MM_PT_ADDR, (u32)dma_addr);
+ 	for (i = 0; i < 4; i++)
+ 		mchip_set(MCHIP_MM_FIR(i), 0);
+ 	meye.mchip_fnum = 0;
+-- 
+Stelian Pop <stelian@popies.net>    

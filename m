@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129438AbRCACDt>; Wed, 28 Feb 2001 21:03:49 -0500
+	id <S129453AbRCACfO>; Wed, 28 Feb 2001 21:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129441AbRCACDj>; Wed, 28 Feb 2001 21:03:39 -0500
-Received: from [63.122.164.11] ([63.122.164.11]:28933 "EHLO
-	dbimail.digitalbiometrics.com") by vger.kernel.org with ESMTP
-	id <S129438AbRCACD2>; Wed, 28 Feb 2001 21:03:28 -0500
-Message-ID: <D0FA767FA2D5D31194990090279877DA57328F@dbimail.digitalbiometrics.com>
-From: Neal Gieselman <Neal.Gieselman@Visionics.com>
-To: linux-kernel@vger.kernel.org
-Subject: ext3 fsck question
-Date: Wed, 28 Feb 2001 20:03:21 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+	id <S129460AbRCACfE>; Wed, 28 Feb 2001 21:35:04 -0500
+Received: from saw.swusa.com ([207.214.125.61]:22686 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S129453AbRCACes>;
+	Wed, 28 Feb 2001 21:34:48 -0500
+Message-ID: <20010228183614.A11834@saw.sw.com.sg>
+Date: Wed, 28 Feb 2001 18:36:14 -0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.2.19pre15
+In-Reply-To: <E14XWue-0002Cs-00@the-village.bc.nu> <200102270525.f1R5Pk531361@moisil.dev.hydraweb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <200102270525.f1R5Pk531361@moisil.dev.hydraweb.com>; from "Ion Badulescu" on Mon, Feb 26, 2001 at 09:25:46PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are running ext3 1.20 on a 2.2 kernel for about a year now on
-a flash disk.  No problems to speak of that we know of yet.
-I just discovered that we do not have the fsck.ext3 nor any of
-the other efs2progs utilities.  
+On Mon, Feb 26, 2001 at 09:25:46PM -0800, Ion Badulescu wrote:
+> On Mon, 26 Feb 2001 23:18:37 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> > 2.2.19pre15
+> [...]
+> > o       EEpro100 posted writes fix                      (Ion Badulescu)
+> 
+> All the credit goes to Andrey Savochkin and Don Becker -- I only applied
+> their 2.4.1 patch to 2.2.x..
 
-I applied the libs and other utilites from e2fsprogs by hand.
-I ran fsck.ext3 on my secondary partition and it ran fine.  The boot fsck
-on / was complaining about something but I could not catch it.
-I then went single user and ran fsck.ext3 on / while mounted.
-Bad move.  It ran and reported many errors which I chose to repair.
-It screwed the partition up to the point where it paniced on boot.
-I could still get it into single user but I found that lots of files were
-missing which happened to be located in lost+found (inittab, rc.local, etc).
+Your contribution is finding a computer with 2.2 kernel and checking that
+this exact change doesn't make matters worse :-)
+Thanks for taking care...
 
-Anyone else have luck with this combination?
-Excuse the stupid question, but with ext3, do I really require the
-fsck.ext3?  
-
+	Andrey

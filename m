@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261923AbSITJEu>; Fri, 20 Sep 2002 05:04:50 -0400
+	id <S261932AbSITJGQ>; Fri, 20 Sep 2002 05:06:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261925AbSITJEt>; Fri, 20 Sep 2002 05:04:49 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:18050 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261923AbSITJEt>; Fri, 20 Sep 2002 05:04:49 -0400
-Message-Id: <200209200909.g8K99qo04297@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: inbox
-To: Padraig Brady <padraig.brady@corvil.com>
-cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: ext3 fs: no userspace writes == no disk writes ? 
-In-Reply-To: Message from Padraig Brady <padraig.brady@corvil.com> 
-   of "Fri, 20 Sep 2002 10:04:53 BST." <3D8AE4B5.2080906@corvil.com> 
-Mime-Version: 1.0
-Content-Type: text/plain
-Date: Fri, 20 Sep 2002 11:09:51 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+	id <S261944AbSITJGQ>; Fri, 20 Sep 2002 05:06:16 -0400
+Received: from web40502.mail.yahoo.com ([66.218.78.119]:45218 "HELO
+	web40502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261932AbSITJGO>; Fri, 20 Sep 2002 05:06:14 -0400
+Message-ID: <20020920091114.46162.qmail@web40502.mail.yahoo.com>
+Date: Fri, 20 Sep 2002 02:11:14 -0700 (PDT)
+From: Seaman Hu <seaman_hu@yahoo.com>
+Subject: Re: What will happen when disk(ext3) is full while i continue to operate files ?
+To: Seaman Hu <seaman_hu@yahoo.com>, ext3-users@redhat.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020920073927.71003.qmail@web40504.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry. I probably didn't make it clear. 
+My system is ok when first msg "EXT3-fs error (device
+sd(8,2)) in ext3_new_inode: error 28" appears.
+However, it will crash after millions of the same msg.
+Is there some kind of buffer full to cause the crash?
 
-Hi Pádraig,
+thanks in advance.
 
-Pádraig Brady wrote:
-> Rob van Nieuwkerk wrote:
-> > Hi Alan,
-> > 
-> >>On Fri, 2002-09-20 at 00:04, Andrew Morton wrote:
-> >>
-> >>>There are frequently written areas of an ext3 filesystem - the
-> >>>journal, the superblock.  Those would wear out pretty quickly.
-> >>
-> >>CF is -supposed- to wear level.
-> > 
-> > Yes I know.
-> > 
-> > But I haven't been able to find any specs from any CF manufacturer
-> > about this mechanism, percentage of spare sectors or number of allowed
-> > write-cycles in general.
+Seaman
+
+
+--- Seaman Hu <seaman_hu@yahoo.com> wrote:
+> I am sorry if you receive it twice. since the
+> mail-list said that i can't send mail to it unless i
+> become one its member.
 > 
-> me either.
+> hi,
+>    My system will crash when the disk(ext3) is full
+> while i continue to launch 50 proceses to operate
+> files(such as create, rm, mv, ...). Does ext3 have
+> such a capability to stop journaling the changes
+> when
+> it finds there is no space left? or which source
+> file
+> of ext3 do i need to check this function?
 > 
-> Why don't you just mount the fs ro ?
+>    My System info:
+>     Redhat 7.3    Linux Kernel: 2.4.18-17
+>     / : ext3 1.6G   /boot : ext3 60M
 > 
-> Pádraig
+>    I am sorry that I will attach the oops next time
+> since i am still restoring my poor system.  :(
+> 
+>    Any opinions will be highly appriciated. Thanks
+> in
+> advance. :)
+> 
+> Seaman
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Finance - Get real-time stock quotes
+> http://finance.yahoo.com
+> 
+> 
+> 
+> _______________________________________________
+> Ext3-users mailing list
+> Ext3-users@redhat.com
+>
+https://listman.redhat.com/mailman/listinfo/ext3-users
 
-Ehm .., because I need to store data on it ..
 
-	greetings,
-	Rob van Nieuwkerk
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

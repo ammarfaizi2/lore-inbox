@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312182AbSCRDE5>; Sun, 17 Mar 2002 22:04:57 -0500
+	id <S312183AbSCRDJ5>; Sun, 17 Mar 2002 22:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312183AbSCRDEq>; Sun, 17 Mar 2002 22:04:46 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:38921 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S312182AbSCRDEe>;
-	Sun, 17 Mar 2002 22:04:34 -0500
-Date: Mon, 18 Mar 2002 00:03:34 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: MrChuoi <MrChuoi@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3-ac1
-In-Reply-To: <20020318030145.GB2254@matchmail.com>
-Message-ID: <Pine.LNX.4.44L.0203180002210.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S312186AbSCRDJq>; Sun, 17 Mar 2002 22:09:46 -0500
+Received: from lsanca1-220-085.lsanca1.dsl.gtei.net ([4.3.220.85]:18950 "EHLO
+	vhost2.connect4less.com") by vger.kernel.org with ESMTP
+	id <S312183AbSCRDJd>; Sun, 17 Mar 2002 22:09:33 -0500
+Message-ID: <3C95417E.B9BFAF68@connect4less.com>
+Date: Sun, 17 Mar 2002 17:23:10 -0800
+From: David Christensen <davidc@connect4less.com>
+Organization: Connect4Less, Inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Possible problem with isofs and CONFIG_NOHIGHMEM]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002, Mike Fedyk wrote:
+Posted this to the fsdevel list, but didn't get any bites!
 
-> Can you reproduce with just rmap12h from http://www.surriel.com/patches/
-> on top of 2.4.18?
 
-He probably can.
+After a search through the FAQ to see if this was a known issue, I
+thought I should report it!
 
-> Rik, can you confirm that OOM kill should work with rmap12 (the rmap VM
-> is in -ac...)?
+Just brought my system up to 1G of ram (1.2GHz Athlon, Abit KT7MB, 1GB
+RAM, Adaptec 29160N, eepro100, SndBlstr Live) and thought I should
+recompile the kernel to allow for "HIGHMEM" (4GB.)  After the compile, I
+noticed I couldn't mount any CD's.  For some reason the ISO9660 driver
+was getting stomped.  
 
-There's a known issue with OOM not knowing about the number of
-freeable pages and killing processes while freeable pages are
-still being written out to disk.  This is something that really
-wants fixing, when I figure out how to do this nicely.
+I have ISO9660 compiled as a module, but it seems to be hosed with the
+HIGHMEM setting in the kernel.  Changed HIGHMEM back to "off" and
+ISO9660 support came back.
 
-regards,
+Any reason why?
 
-Rik
--- 
-<insert bitkeeper endorsement here>
+Thanks for your response,
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+David Christensen

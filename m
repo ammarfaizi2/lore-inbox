@@ -1,49 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVA2Rqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVA2Rtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVA2Rqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 12:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVA2Rqe
+	id S261376AbVA2Rtu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 12:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVA2Rtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 12:46:34 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:29320 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261482AbVA2Rpe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 12:45:34 -0500
-Subject: Re: system calls
-From: Robert Love <rml@novell.com>
-To: Rodrigo Ramos <rodrigo.ramos@triforsec.com.br>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1107006832.2732.35.camel@ZeroOne>
-References: <1107006832.2732.35.camel@ZeroOne>
-Content-Type: text/plain
-Date: Sat, 29 Jan 2005 12:47:38 -0500
-Message-Id: <1107020858.11159.15.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sat, 29 Jan 2005 12:49:49 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:62373 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261529AbVA2RsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 12:48:25 -0500
+Message-ID: <41FBCC91.8010602@comcast.net>
+Date: Sat, 29 Jan 2005 12:49:05 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jakub Jelinek <jakub@redhat.com>
+CC: Rik van Riel <riel@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Patch 4/6  randomize the stack pointer
+References: <20050127101322.GE9760@infradead.org> <41F92721.1030903@comcast.net> <1106848051.5624.110.camel@laptopd505.fenrus.org> <41F92D2B.4090302@comcast.net> <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org> <41F95F79.6080904@comcast.net> <1106862801.5624.145.camel@laptopd505.fenrus.org> <41F96C7D.9000506@comcast.net> <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com> <41FB2DD2.1070405@comcast.net> <20050129173704.GM11199@devserv.devel.redhat.com>
+In-Reply-To: <20050129173704.GM11199@devserv.devel.redhat.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-29 at 10:53 -0300, Rodrigo Ramos wrote:
-
-> I would like to know how many groups of system calls are there at Linux
-> 2.4 and 2.6? Where can I find these informations in the Kernel?
-
-I don't know what you mean by groups (a nonempty set G with binary
-operation * s.t. G is associativity, there exists e in G s.t. e*a=a*e=a,
-and there exists i in G s.t. i*b=b*i=e?).
-
-System calls are implemented per-architecture.  You can see the list at
-the bottom of arch/i386/kernel/entry.S.  There is about 290.
-
-System calls are prefixed by "sys_".  Thus, read(2) is implemented in
-the kernel as sys_read().  It, for example, can be found in
-fs/read_write.c.
-
-Hope this helps.
-
-	Robert Love
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
 
+Jakub Jelinek wrote:
+> On Sat, Jan 29, 2005 at 01:31:46AM -0500, John Richard Moser wrote:
+> 
+>>Finally, although an NX stack is nice, you should probably take into
+>>account IBM's stack smash protector, ProPolice.  Any attack that can
+>>evade SSP reliably can evade an NX stack; but ProPolice protects from
+>>other overflows.  Now I'm sure RH is over there inventing something that
+>>detects buffer overflows at compile time and misses or warns about the
+>>ones it can't identify:
+>>
+>>if (strlen(a) > 4)
+>>  a[5] = '\0';
+>>foo(a);
+>>
+>>void foo(char *a) {
+>>   char b[5];
+>>   strcpy(b,a);
+>>}
+>>
+>>This code is safe, but you can't tell from looking at foo().  You don't
+>>get a look at every other object being compiled against this one that
+>>may call foo() either.  So compile time buffer overflow detection is a
+>>best-effort at best.
+> 
+> 
+> If strlen(a) > 4 above, then -D_FORTIFY_SOURCE={1,2} compiled program
+> will be terminated in the strcpy call.  At compile time it computes
+> that the strcpy call can fill in at most 5 bytes and if it copies more,
+> then it terminates.
 
+And somehow you check every operation like this with less overhead than
+propolice?
+
+> 
+> 
+>>ProPolice protects local variables with 0 overhead; passed arguments
+>>with a few instructions; and the return pointer and stack frame pointer
+>>with a couple instructions.  At runtime.  Want to impress me?  Actually
+>>deploy ProPolice instead of showing up 3 years from now waving around
+>>your own patch that you wrote that half-impliments half of it.  If you
+>>want "something better," it's GPL, so grab it and start hacking.
+> 
+> 
+> __builtin_object_size () checking/-D_FORTIFY_SOURCE=n changes are (partly)
+> orthogonal to ProPolice.  There are exploits prevented by
+> -D_FORTIFY_SOURCE={1,2} checking and not ProPolice and vice versa.
+
+So a belt-and-suspenders approach is better.
+
+> Things that the former protects and the latter does not are e.g.
+> some non-automatic buffer overflows or heap overflows, some format string
+> vulnerabilities and for automatic variables e.g. those that don't
+> overflow into another function's frame, but just overwrite other local
+> variables in the same function.  ProPolice on the other side will detect
+> stack overflows that overflow into another function's frame,
+
+or past the top of any buffer by at most 2 ints (I didn't check with 1
+int or 1 char when I wrote my regression suite), definitely before it
+hits the SFP and return pointer
+
+> even if they
+> aren't done through string operations (<string.h>, s*printf, gets, etc.)
+> or if the compiler can't figure out what certain arguments to these
+> functions points to (and where) at compile time.
+> 
+> The ideas in IBM's ProPolice changes are good and worth
+> implementing, but the current implementation is bad.
+> 
+
+Lies.  I've read the paper on the current implementation, it's
+definitely good.  It only operates on C/C++ code though, but that's the
+scope of it.
+
+> FYI, you can find some details about -D_FORTIFY_SOURCE=n in
+> http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
+> 
+> 	Jakub
+> 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB+8yPhDd4aOud5P8RAsekAJsGklzrgWi7ymrRmfhXpqv2LjB//gCeNBDy
+8sCZBhtzy6l6L/WDjQpMq6A=
+=4/Dz
+-----END PGP SIGNATURE-----

@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263263AbTJUSRb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 14:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTJUSRb
+	id S263291AbTJUSam (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 14:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbTJUSam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 14:17:31 -0400
-Received: from [65.172.181.6] ([65.172.181.6]:48289 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263263AbTJUSR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 14:17:29 -0400
-Date: Tue, 21 Oct 2003 11:15:36 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ian <brooke@jump.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Panic with mounting CD in 2.6.0test8
-Message-Id: <20031021111536.50b0a6cc.rddunlap@osdl.org>
-In-Reply-To: <3F95227C.6080601@jump.net>
-References: <3F95227C.6080601@jump.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Oct 2003 14:30:42 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:27155 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263291AbTJUSal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 14:30:41 -0400
+Message-ID: <3F957DAC.6080901@superbug.demon.co.uk>
+Date: Tue, 21 Oct 2003 19:40:44 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031019 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Finnie <jf1@IMERGE.co.uk>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: VIA IDE performance under 2.6.0-test7/8?
+References: <C0D45ABB3F45D5118BBC00508BC292DB016038F5@imgserv04>
+In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB016038F5@imgserv04>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Oct 2003 07:11:40 -0500 Ian <brooke@jump.net> wrote:
+James Finnie wrote:
+> Hi guys;
+> 
+> Am having trouble getting decent IDE performance from the 2.6.0-test8 kernel
+> (tested with 2.6.0-test7 kernel also, same issue).  The platform is VIA
+> EPIA-ME6000 - with a VIA VT8235 southbridge.  Under 2.4.21 I get around
+> 40Mb/s in hdparm -t and 70Mb/s for hdparm -T.  Under the 2.6.0-test7/8 I
+> only manage 13Mb/s & 52Mb/s respectively!  I've attached my .config, and the
+> output of /proc/ide/via, dmesg, and hdparm info.  I don't think I'm doing
+> anything particularly stupid here, but if I am, hit me with a wet fish
+> please :)
+> 
+> Thanks for all help,
+> 
+> James
+> 
+Can you also send the output from "cat /proc/interrupts".
+It looks like you are not using IO-APIC, but instead using XT-PIC.
+XT-PIC is a lot slower than IO-APIC.
 
-| -----BEGIN PGP SIGNED MESSAGE-----
-| Hash: SHA1
-| 
-| I'm getting a kernel panic in running 2.6.0test8 which I just compiled
-| today.
-| After chatting this up with #Kernelnewbies, erikm told me to post here.
-| 
-| http://www.gastronomicon.org/im003116.jpg
-| 
-| Attempt to mount a particular CD, which I'm thinking is just an ordinary
-| data CD.
-| It could be a VCD, but then I would suspect it would play on my DVD player.
-| Windows sees it as a data disk with one big AVI file on it.
-| Anyway, I was impressed by the magical symbol lookups in the crash dump,
-| but I really just want to mount my CD.
-| 
-| I am not subscribed to this list, so please CC me on any correspondence.
-| I will gladly help debug this.
+Just turn on SMB support in the "make menuconf", and it should enable 
+IO-APIC.
 
-So you can open/explore the CD in Windows?
+If you cannot boot using IO-APIC, you probably have one of the bad VIA 
+motherboards. I have not determined if the IO-APIC issues with VIA 
+VT8235 MBs is hardware or software related. All I know, is some VIA 
+VT8235 MBs work, and some don't. I am still investigating why.
 
-The call stack could have scrolled off of the top of the screen.
-If not, then cdrom_start_read() called cdrom_start_packet_command(),
-but there's not enough info to see what went haywire in
-cdrom_start_packet_command() or whether that latter function
-called cdrom_start_read_continuation() which then erred or if
-it called something which fumbled.  So if you can get more/better
-info (from kernel log or serial console etc.), that would be very
-helpful.
+Cheers
 
---
-~Randy
+James
+

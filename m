@@ -1,150 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTKVOph (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 09:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTKVOph
+	id S262315AbTKVPFU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 10:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTKVPFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 09:45:37 -0500
-Received: from uirapuru.fua.br ([200.129.163.1]:41622 "EHLO uirapuru.fua.br")
-	by vger.kernel.org with ESMTP id S262291AbTKVOpd (ORCPT
+	Sat, 22 Nov 2003 10:05:20 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:63212 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262315AbTKVPFF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 09:45:33 -0500
-Message-ID: <37029.200.212.156.130.1069505102.squirrel@webmail.ufam.edu.br>
-In-Reply-To: <200311220151.51069.gene.heskett@verizon.net>
-References: <3028.200.208.224.8.1069467302.squirrel@webmail.ufam.edu.br>
-    <200311220151.51069.gene.heskett@verizon.net>
-Date: Sat, 22 Nov 2003 10:45:02 -0200 (BRST)
-Subject: Re: [PATCH] detailed physical memory info in fs/proc/task_mmu.c    
-       [2.6.0-test9]
-From: edjard@ufam.edu.br
-To: gene.heskett@verizon.net
-Cc: edjard@ufam.edu.br, linux-kernel@vger.kernel.org, torvalds@osdl.org
-User-Agent: SquirrelMail/1.4.1
+	Sat, 22 Nov 2003 10:05:05 -0500
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20031122104502_59042"
-X-Priority: 3
-Importance: Normal
+To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Sat_Nov_22_15_05_02_UTC_2003_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20031122150502.EEB2E999AA@merlin.emma.line.org>
+Date: Sat, 22 Nov 2003 16:05:02 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20031122104502_59042
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hello Linus,
 
-I think it is this webamail editor. He it goes as attached, sorry about
-that :-(. If it doesn't work I'll send it from a decent terminal.
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-BR,
+BK: Parent repository is bk://kernel.bkbits.net/torvalds/tools/
 
-Edjard
+Well, I cannot reach the parent directory. Is that a matter of the
+ongoing BK troubles^Wcoroning after the break-in or has the tree moved?
+I see kernel.bkbits.net and linux.bkbits.net have distinct addresses and
+don't share their subnet.
 
->>Hi,
->>
->>The piece of code below gives a richer information
->>at /proc/PID/status for a process PID.
->>
->>BR,
->>
->>Edjard
->
-> Your editors line wrapping function ate the patch.
->
-> --
-> Cheers, Gene
-> AMD K6-III@500mhz 320M
-> Athlon1600XP@1400mhz  512M
-> 99.27% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com attornies please note, additions to this message
-> by Gene Heskett are:
-> Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Patch description:
+ChangeSet@1.97, 2003-11-22 16:03:24+01:00, matthias.andree@gmx.de
+  Two more addresses.
 
-------=_20031122104502_59042
-Content-Type: application/octet-stream; name="10LE-PhysicalMem.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="10LE-PhysicalMem.patch"
+Matthias
 
-LS0tIGxpbnV4LTIuNi4wLXRlc3Q5L2ZzL3Byb2MvdGFza19tbXUuYwkyMDAzLTEwLTI1IDE0OjQz
-OjAwLjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgvZnMvcHJvYy90YXNrX21tdS5jCTIwMDMtMTEt
-MjIgMTA6MjY6NTkuMDAwMDAwMDAwIC0wNDAwCkBAIC0zLDQ0ICszLDEwNSBAQAogI2luY2x1ZGUg
-PGxpbnV4L3NlcV9maWxlLmg+CiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KIAorLyoqCisqIEFs
-bGFuIEJlemVycmEgKGFqc2JAZGNjLmZ1YS5icikgJgorKiBNYXVyaWNpbyBMaW4gIChtYXVyaWNp
-b2xpbkBib2wuY29tLmJyKSAmCisqIEVkamFyZCBNb3RhICAgKGVkamFyZEB1ZmFtLmVkdS5icikg
-OiAgIGluY2x1ZGUgYSBwcm9jZXNzIFBJRCBwaHlzaWNhbCBtZW1vcnkgc2l6ZSBhbGxvY2F0aW9u
-CisqICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGluZm8gaW4gdGhlIC9w
-cm9jL1BJRC9zdGF0dXMKKyovCit2b2lkIHBoeXNfc2l6ZV8xMExFKHN0cnVjdCBtbV9zdHJ1Y3Qg
-Km1tLCB1bnNpZ25lZCBsb25nIHN0YXJ0X2FkZHJlc3MsIHVuc2lnbmVkIGxvbmcgZW5kX2FkZHJl
-c3MsIHVuc2lnbmVkIGxvbmcgKnNpemUpIHsKKyAgcGdkX3QgKm15X3BnZDsKKyAgcG1kX3QgKm15
-X3BtZDsKKyAgcHRlX3QgKm15X3B0ZTsKKyAgdW5zaWduZWQgbG9uZyBwYWdlOworCisgIGZvciAo
-cGFnZSA9IHN0YXJ0X2FkZHJlc3M7IHBhZ2UgPCBlbmRfYWRkcmVzczsgcGFnZSArPSBQQUdFX1NJ
-WkUpIHsKKyAgICBteV9wZ2QgPSBwZ2Rfb2Zmc2V0KG1tLCBwYWdlKTsKKyAgICBpZiAocGdkX25v
-bmUoKm15X3BnZCkgfHwgcGdkX2JhZCgqbXlfcGdkKSkgY29udGludWU7CisgICAgbXlfcG1kID0g
-cG1kX29mZnNldChteV9wZ2QsIHBhZ2UpOworICAgIGlmIChwbWRfbm9uZSgqbXlfcG1kKSB8fCBw
-bWRfYmFkKCpteV9wbWQpKSBjb250aW51ZTsKKyAgICBteV9wdGUgPSBwdGVfb2Zmc2V0X21hcCht
-eV9wbWQsIHBhZ2UpOworICAgIGlmIChwdGVfcHJlc2VudCgqbXlfcHRlKSkgeworICAgICAgKnNp
-emUgKz0gUEFHRV9TSVpFOworICAgIH0KKyAgfQorfQorCisvKgordm9pZCBzaGFyZWRfc2l6ZV8x
-MExFKHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hLCB1bnNpZ25lZCBsb25nIGxlbiwgdW5zaWdu
-ZWQgbG9uZyAqc2hhcmVkKSB7CisgICBpZiAoaXNfdm1faHVnZXRsYl9wYWdlKHZtYSkpIHsKKyAg
-ICAgIGlmICghKHZtYS0+dm1fZmxhZ3MgJiBWTV9ET05UQ09QWSkpCisJKnNoYXJlZCArPSBsZW47
-CisgICAgfQorICAgIAorICAgIGlmICh2bWEtPnZtX2ZsYWdzICYgVk1fU0hBUkVEIHx8ICFsaXN0
-X2VtcHR5KCZ2bWEtPnNoYXJlZCkpCisgICAgICAqc2hhcmVkICs9IGxlbjsKK30gCisqLworCiBj
-aGFyICp0YXNrX21lbShzdHJ1Y3QgbW1fc3RydWN0ICptbSwgY2hhciAqYnVmZmVyKQogewotCXVu
-c2lnbmVkIGxvbmcgZGF0YSA9IDAsIHN0YWNrID0gMCwgZXhlYyA9IDAsIGxpYiA9IDA7Ci0Jc3Ry
-dWN0IHZtX2FyZWFfc3RydWN0ICp2bWE7Ci0KLQlkb3duX3JlYWQoJm1tLT5tbWFwX3NlbSk7Ci0J
-Zm9yICh2bWEgPSBtbS0+bW1hcDsgdm1hOyB2bWEgPSB2bWEtPnZtX25leHQpIHsKLQkJdW5zaWdu
-ZWQgbG9uZyBsZW4gPSAodm1hLT52bV9lbmQgLSB2bWEtPnZtX3N0YXJ0KSA+PiAxMDsKLQkJaWYg
-KCF2bWEtPnZtX2ZpbGUpIHsKLQkJCWRhdGEgKz0gbGVuOwotCQkJaWYgKHZtYS0+dm1fZmxhZ3Mg
-JiBWTV9HUk9XU0RPV04pCi0JCQkJc3RhY2sgKz0gbGVuOwotCQkJY29udGludWU7Ci0JCX0KLQkJ
-aWYgKHZtYS0+dm1fZmxhZ3MgJiBWTV9XUklURSkKLQkJCWNvbnRpbnVlOwotCQlpZiAodm1hLT52
-bV9mbGFncyAmIFZNX0VYRUMpIHsKLQkJCWV4ZWMgKz0gbGVuOwotCQkJaWYgKHZtYS0+dm1fZmxh
-Z3MgJiBWTV9FWEVDVVRBQkxFKQotCQkJCWNvbnRpbnVlOwotCQkJbGliICs9IGxlbjsKLQkJfQot
-CX0KLQlidWZmZXIgKz0gc3ByaW50ZihidWZmZXIsCi0JCSJWbVNpemU6XHQlOGx1IGtCXG4iCi0J
-CSJWbUxjazpcdCU4bHUga0JcbiIKLQkJIlZtUlNTOlx0JThsdSBrQlxuIgotCQkiVm1EYXRhOlx0
-JThsdSBrQlxuIgotCQkiVm1TdGs6XHQlOGx1IGtCXG4iCi0JCSJWbUV4ZTpcdCU4bHUga0JcbiIK
-LQkJIlZtTGliOlx0JThsdSBrQlxuIiwKLQkJbW0tPnRvdGFsX3ZtIDw8IChQQUdFX1NISUZULTEw
-KSwKLQkJbW0tPmxvY2tlZF92bSA8PCAoUEFHRV9TSElGVC0xMCksCi0JCW1tLT5yc3MgPDwgKFBB
-R0VfU0hJRlQtMTApLAotCQlkYXRhIC0gc3RhY2ssIHN0YWNrLAotCQlleGVjIC0gbGliLCBsaWIp
-OwotCXVwX3JlYWQoJm1tLT5tbWFwX3NlbSk7Ci0JcmV0dXJuIGJ1ZmZlcjsKKyAgdW5zaWduZWQg
-bG9uZyBkYXRhID0gMCwgc3RhY2sgPSAwLCBleGVjID0gMCwgbGliID0gMDsKKyAgdW5zaWduZWQg
-bG9uZyBwaHlzX2RhdGEgPSAwLCBwaHlzX3N0YWNrID0gMCwgcGh5c19leGVjID0gMCwgcGh5c19s
-aWIgPSAwOworICB1bnNpZ25lZCBsb25nIHBoeXNfYnJrID0gMCwgbXlfcnNzPTA7CisgIHN0cnVj
-dCB2bV9hcmVhX3N0cnVjdCAqdm1hOworICBkb3duX3JlYWQoJm1tLT5tbWFwX3NlbSk7CisgIGZv
-ciAodm1hID0gbW0tPm1tYXA7IHZtYTsgdm1hID0gdm1hLT52bV9uZXh0KSB7CisgICAgdW5zaWdu
-ZWQgbG9uZyBsZW4gPSAodm1hLT52bV9lbmQgLSB2bWEtPnZtX3N0YXJ0KSA+PiAxMDsKKyAgICBw
-aHlzX3NpemVfMTBMRShtbSwgdm1hLT52bV9zdGFydCwgdm1hLT52bV9lbmQsICZteV9yc3MpOwor
-ICAgIGlmICghdm1hLT52bV9maWxlKSB7CisgICAgICBwaHlzX3NpemVfMTBMRShtbSwgdm1hLT52
-bV9zdGFydCwgdm1hLT52bV9lbmQsICZwaHlzX2RhdGEpOworICAgICAgaWYgKHZtYS0+dm1fZmxh
-Z3MgJiBWTV9HUk9XU0RPV04pIHsKKwlzdGFjayArPSBsZW47CisJcGh5c19zaXplXzEwTEUobW0s
-IHZtYS0+dm1fc3RhcnQsIHZtYS0+dm1fZW5kLCAmcGh5c19zdGFjayk7CisgICAgICB9CisgICAg
-ICBlbHNlIHsKKwlkYXRhICs9IGxlbjsKKyAgICAgIH0KKyAgICAgIGNvbnRpbnVlOworICAgIH0K
-KworICAgIGlmICh2bWEtPnZtX2ZsYWdzICYgVk1fV1JJVEUpCisgICAgICBjb250aW51ZTsKKwor
-ICAgIGlmICh2bWEtPnZtX2ZsYWdzICYgVk1fRVhFQykgeworICAgICAgZXhlYyArPSBsZW47Cisg
-ICAgICBwaHlzX3NpemVfMTBMRShtbSwgdm1hLT52bV9zdGFydCwgdm1hLT52bV9lbmQsICZwaHlz
-X2V4ZWMpOworICAgICAgaWYgKHZtYS0+dm1fZmxhZ3MgJiBWTV9FWEVDVVRBQkxFKSB7CisJY29u
-dGludWU7CisgICAgICB9CisgICAgICBsaWIgKz0gbGVuOworICAgICAgcGh5c19zaXplXzEwTEUo
-bW0sIHZtYS0+dm1fc3RhcnQsIHZtYS0+dm1fZW5kLCAmcGh5c19saWIpOworICAgIH0KKyAgfQor
-ICBwaHlzX3NpemVfMTBMRShtbSwgbW0tPnN0YXJ0X2JyaywgbW0tPmJyaywgJnBoeXNfYnJrKTsK
-KyAgYnVmZmVyICs9IHNwcmludGYoYnVmZmVyLAorCQkgICAgIlZtU2l6ZTpcdCU4bHUga0JcbiIK
-KwkJICAgICJWbUxjazpcdCU4bHUga0JcbiIKKwkJICAgICJWbVJTUzpcdCU4bHUga0JcbiIKKwkJ
-ICAgICJWbURhdGE6XHQlOGx1IGtCXG4iCisJCSAgICAiUGh5c2ljYWxEYXRhOlx0JThsdSBrQlxu
-IgorCQkgICAgIlZtU3RrOlx0JThsdSBrQlxuIgorCQkgICAgIlBoeXNpY2FsU3RrOlx0JThsdSBr
-QlxuIgorCQkgICAgIlZtRXhlOlx0JThsdSBrQlxuIgorCQkgICAgIlBoeXNpY2FsRXhlOlx0JThs
-dSBrQlxuIgorCQkgICAgIlZtTGliOlx0JThsdSBrQlxuIgorCQkgICAgIlBoeXNpY2FsTGliOlx0
-JThsdSBrQlxuIgorCQkgICAgIlZtSGVhcDogXHQlOGx1IEtCXG4iCisJCSAgICAiUGh5c2ljYWxI
-ZWFwOiBcdCU4bHUgS0JcbiIKKwkJICAgICJNeVJTUzogXHQlOGx1IEtCXG4iLAkJICAgCisJCSAg
-ICBtbS0+dG90YWxfdm0gPDwgKFBBR0VfU0hJRlQtMTApLAorCQkgICAgbW0tPmxvY2tlZF92bSA8
-PCAoUEFHRV9TSElGVC0xMCksCisJCSAgICBtbS0+cnNzIDw8IChQQUdFX1NISUZULTEwKSwKKwkJ
-ICAgIGRhdGEsIChwaHlzX2RhdGEgLSBwaHlzX3N0YWNrKSA+PiAxMCwKKwkJICAgIHN0YWNrLCBw
-aHlzX3N0YWNrID4+IDEwLAorCQkgICAgZXhlYyAtIGxpYiwgKHBoeXNfZXhlYyAtIHBoeXNfbGli
-KSA+PiAxMCwKKwkJICAgIGxpYiwgcGh5c19saWIgPj4gMTAsCisJCSAgICAobW0tPmJyayAtIG1t
-LT5zdGFydF9icmspID4+IDEwLAorCQkgICAgcGh5c19icmsgPj4gMTAsIG15X3JzcyA+PiAxMAor
-CQkgICAgKTsKKyAgdXBfcmVhZCgmbW0tPm1tYXBfc2VtKTsKKyAgcmV0dXJuIGJ1ZmZlcjsKIH0K
-IAogdW5zaWduZWQgbG9uZyB0YXNrX3ZzaXplKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tKQo=
-------=_20031122104502_59042--
+------------------------------------------------------------------------
+
+##### DIFFSTAT #####
+# shortlog |   15 +++++++++++++--
+# 1 files changed, 13 insertions(+), 2 deletions(-)
+
+##### GNUPATCH #####
+# This is a BitKeeper generated patch for the following project:
+# Project Name: BK kernel tools
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.96    -> 1.97   
+#	            shortlog	1.69    -> 1.70   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/11/22	matthias.andree@gmx.de	1.97
+# Two more addresses.
+# --------------------------------------------
+#
+diff -Nru a/shortlog b/shortlog
+--- a/shortlog	Sat Nov 22 16:05:01 2003
++++ b/shortlog	Sat Nov 22 16:05:02 2003
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.195 2003/11/19 16:08:02 emma Exp $
++# $Id: lk-changelog.pl,v 0.198 2003/11/22 14:59:50 emma Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -416,6 +416,7 @@
+ 'ddstreet:ieee.org' => 'Dan Streetman',
+ 'ddstreet:us.ibm.com' => 'Dan Streetman',
+ 'dean:arctic.org' => 'Dean Gaudet',
++'debian:abeckmann.de' => 'Andreas Beckmann',
+ 'defouwj:purdue.edu' => 'Jeff DeFouw',
+ 'deller:gmx.de' => 'Helge Deller',
+ 'dent:cosy.sbg.ac.at' => "Thomas 'Dent' Mirlacher",
+@@ -786,7 +787,8 @@
+ 'kisza:sch.bme.hu' => 'Andras Kis-Szabo', # google (netfilter-ext HOWTO)
+ 'kkeil:isdn4linux.de' => 'Karsten Keil',
+ 'kkeil:suse.de' => 'Karsten Keil',
+-'klassert:mathematik.ru-chemnitz.de' => 'Steffen Klassert',
++'klassert:mathematik.ru-chemnitz.de' => 'Steffen Klassert', # typo, leave in
++'klassert:mathematik.tu-chemnitz.de' => 'Steffen Klassert',
+ 'kml:patheticgeek.net' => 'Kevin Lahey',
+ 'kmsmith:umich.edu' => 'Kendrick M. Smith',
+ 'knan:mo.himolde.no' => 'Erik Inge Bolsø',
+@@ -2128,6 +2130,15 @@
+ __END__
+ # --------------------------------------------------------------------
+ # $Log: lk-changelog.pl,v $
++# Revision 0.198  2003/11/22 14:59:50  emma
++# Add Andreas Beckmann's address.
++#
++# Revision 0.197  2003/11/21 21:13:59  emma
++# Re-add Steffen Klassert's typoed address, bug report by Vita.
++#
++# Revision 0.196  2003/11/20 23:30:18  emma
++# Fix Steffen Klassert's address.
++#
+ # Revision 0.195  2003/11/19 16:08:02  emma
+ # Add 2nd address of Atul Mukker of LSI Logic.
+ #
+
+##### BKPATCH #####
+This BitKeeper patch contains the following changesets:
+1.97
+## Wrapped with gzip_uu ##
+
+
+M'XL( !Y[OS\  [U4VV[:0!!]9K]B)"+Q$&SV@K&]$E&N;5$J-2)-W]?V !:^
+M(.]"2.6/[P*!)$#4JVJOUEI[?.;,F:-IPH/&2C9R9<PD5=I515(ADB9\*K61
+MC7&^=)/5<5B6]MC1<XV=*58%9IW+6[N<S<$Q99EI8@/OE(DGL,!*RP9SQ>Z-
+M>9JA; QO/CY\OA@2TN_#U4058[Q' _T^,66U4%FBSV=8C.=IX9I*%3I'H]RX
+MS.M=;,TIY?9F7-">%]8\['E>C1P]+^XR%?F!CS$G>_6<;^IX"R,88R'K,=KU
+M:HM' W(-S U]H*+#6(=S8#U)A>3=4\HDI7 <%$X9.)1<PC\NX8K$\/6QA+RL
+M$%1B,VJ-VB6W8+D*<O>B'W%^\R*$*DK.7AA/RASWZ.I)69FL'&_8>BR@?M=G
+M02V8'WKU"$,UBGT:*HJ)BI)WM'F#8O7FG'E4<%%S/Q!B[8)MQ!L3_#6?]PRP
+MQV?7_YZ@+%SWWZ<'_1<_Z[\ A_]/ VS4^P).];A<+6=I[; M[0_<<,T8,#)8
+M[TTX&202LJD3K_E:1'>6M1= 718&L-)MJTY7>J'T*&">*[A9SN"$#+HLL""M
+M!*-4%5)%&$]S5116IQ;TSZ!UL9).:;A\_M!JDVL_"%?I5P].6M-,V3HK(ZW<
+M$[1;.G6KN66#>9&:[SND>X.C$19P^QS?:D-S-67*-F2H%@AI<1S,_!(8&7 F
+M*(2KV8>+5*=E\2S!40W6(MC8BR2!@QKUMGTN:>[C^:_P&' FF;"0.[PA.O9?
+M.."GUZ5BLD5N0S0?0X4S:P*(GN!;:EUWF*WW*AL%+J2@TG9LF^U#NCR6ZA7[
+9W3RW$L93/<_[E-$HBA4C/P#B^L U3 8     
+ 
 

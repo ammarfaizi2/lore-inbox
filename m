@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbTF1Hy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 03:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbTF1HyZ
+	id S265110AbTF1IAV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 04:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbTF1IAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 03:54:25 -0400
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:16310 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S265108AbTF1HyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 03:54:25 -0400
-Date: Sat, 28 Jun 2003 04:08:40 -0400
-From: Scott McDermott <vaxerdec@frontiernet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Larry McVoy <lm@work.bitmover.com>
+	Sat, 28 Jun 2003 04:00:21 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:19637 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265110AbTF1IAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 04:00:19 -0400
+Date: Sat, 28 Jun 2003 10:14:22 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CaT <cat@zip.com.au>, nick@snowman.net, Larry McVoy <lm@bitmover.com>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: bkbits.net is down
-Message-ID: <20030628040840.V9583@newbox.localdomain>
-References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com> <20030627205140.F29149@newbox.localdomain> <20030628031920.GF18676@work.bitmover.com>
+Message-ID: <20030628101422.A17530@ucw.cz>
+References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627221214.GA11252@work.bitmover.com> <20030627221512.GB11252@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030628031920.GF18676@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 27, 2003 at 08:19:20PM -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030627221512.GB11252@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 27, 2003 at 03:15:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy on Fri 27/06 20:19 -0700:
-> > ever hear of tapes?
-> 
-> bkbits is 45GB of data and growing.  Tapes are completely
-> impractical, that's why we have hot spares.
+On Fri, Jun 27, 2003 at 03:15:12PM -0700, Larry McVoy wrote:
 
-You've got to be kidding.  My AIT2 tapes do 50G each,
-uncompressed.  Those are years old technology.  I have a
-Qualstar library only a few thousand dollars that has 20
-tape slots.
+> Not all of them are there, we were part way through the "l"s which is the
+> biggest directory (you guys need to be more imaginative in your naming).
+> All the other letters should be there though, so I want to hear about it
+> if you are a [a-km-z] project and you can't pull your data.  Pushes don't
+> work.
 
-> > how about SCSI?
-> 
-> The raid system that failed is SCSI.
+Will pushes ever work? It'd save me quite some work.
 
-ok, well I stand corrected here, I thought you were using
-IDE.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

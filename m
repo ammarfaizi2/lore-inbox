@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVANG2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVANGfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVANG2K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 01:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVANG2K
+	id S261158AbVANGfu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 01:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVANGft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 01:28:10 -0500
-Received: from mail25.sea5.speakeasy.net ([69.17.117.27]:45254 "EHLO
-	mail27.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S261923AbVANG2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 01:28:06 -0500
-Date: Thu, 13 Jan 2005 22:28:04 -0800 (PST)
-From: vlobanov <vlobanov@speakeasy.net>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix typo in drivers/char/Kconfig
-Message-ID: <Pine.LNX.4.58.0501132225001.6614@shell4.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Jan 2005 01:35:49 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:53519 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261158AbVANGfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 01:35:37 -0500
+Date: Fri, 14 Jan 2005 07:25:26 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: propolice support for linux
+Message-ID: <20050114062526.GK7048@alpha.home.local>
+References: <20050113134620.GA14127@boetes.org> <a36005b5050113131179d932eb@mail.gmail.com> <20050113225244.GH14127@boetes.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113225244.GH14127@boetes.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This small patch fixes a typo in the Toshiba entries in the
-drivers/char/Kconfig file. Quite trivial.
+On Thu, Jan 13, 2005 at 11:52:22PM +0100, Han Boetes wrote:
+> 1) Where an application compiled with PP is working worse or even
+>    failing where it would work right without PP.
 
-Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
+No idea on this one, I never tried PP, although I know how it basically
+works since I worked on a similar concept in 97 of last century (but I
+didn't have the skills to touch the compiler and still don't).
 
-diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
---- a/drivers/char/Kconfig	2005-01-12 00:13:13.000000000 -0800
-+++ b/drivers/char/Kconfig	2005-01-13 22:23:34.000000000 -0800
-@@ -352,7 +352,7 @@
- 	bool "TX3912/PR31700 serial port support"
- 	depends on SERIAL_NONSTANDARD && MIPS && BROKEN_ON_SMP
- 	help
--	  The TX3912 is a Toshiba RISC processor based o the MIPS 3900 core;
-+	  The TX3912 is a Toshiba RISC processor based on the MIPS 3900 core;
- 	  see <http://www.toshiba.com/taec/components/Generic/risc/tx3912.htm>.
- 	  Say Y here to enable kernel support for the on-board serial port.
+> 2) Where a bufferoverflow can be exploited even though the
+>    application is compiled with PP.
 
-@@ -360,7 +360,7 @@
- 	bool "Console on TX3912/PR31700 serial port"
- 	depends on SERIAL_TX3912
- 	help
--	  The TX3912 is a Toshiba RISC processor based o the MIPS 3900 core;
-+	  The TX3912 is a Toshiba RISC processor based on the MIPS 3900 core;
- 	  see <http://www.toshiba.com/taec/components/Generic/risc/tx3912.htm>.
- 	  Say Y here to direct console I/O to the on-board serial port.
+1) any broken function of this kind :
+
+int create_temp_dir(struct task *t, char *dir) {
+   int err;
+   int can_unlink;
+   char dirname[MAXPATHLEN];
+
+   can_unlink = (task->euid == 0);
+   strncpy(dirname, dir, MAXPATHLEN);
+   strcat(dirname, "/tmp");
+   dirname[MAXPATHLEN] = '\0';
+
+   if (err = mkdir(dirname, 0755)) {
+      if (can_unlink) {
+         unlink(dirname);
+         err = mkdir(dirname, 0755);
+      }
+   }
+   return err;
+}
+
+Get it ? Just pass any name of MAXPATHLEN length, and get
+any existing file removed and replace with an empty directory.
+Useful for hosts.deny, /var/log/messages, init scripts, etc...
+
+2) all heap overflows (but not in kernel AFAIK).
+
+I think you have a misconception about what a buffer overflow is. First,
+propolice will be usable only against some *stack* overflows (which I agree
+are the most common in userspace). But regular buffer overflows like above,
+which can be triggered either in the stack on in the data space, are not
+stopped. And heap overflows such as the double free bug in zlib will not
+be prevented by propolice either.
+
+> As an example where PP does work right the test-code provided by
+> the propolice maintainer:
+> 
+>     /* test-propolice.c */
+>     #define OVERFLOW "This is longer than 10 bytes"
+>     #include <string.h>
+>     int main (int argc, char *argv[]) {
+>         char buffer[10];
+>         strcpy(buffer, OVERFLOW);
+>         return 0;
+>     }
+> 
+
+This is kind, but this is also the easiest buggy program to write. The one
+we all use when trying to write shell code. But this is far away from real
+life, there often are other constraints.
+
+Like others, I think that PP is close to useless in the kernel, but since
+the patch is little and does not break anything, why not include it to let
+people try it and return feedback ?
+
+Regards,
+Willy
 

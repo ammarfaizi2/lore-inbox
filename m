@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318112AbSFTEGD>; Thu, 20 Jun 2002 00:06:03 -0400
+	id <S318114AbSFTELJ>; Thu, 20 Jun 2002 00:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318113AbSFTEGC>; Thu, 20 Jun 2002 00:06:02 -0400
-Received: from goose.mail.pas.earthlink.net ([207.217.120.18]:56710 "EHLO
-	goose.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318112AbSFTEGB>; Thu, 20 Jun 2002 00:06:01 -0400
-Date: Thu, 20 Jun 2002 00:07:49 -0400
-To: davej@suse.de
-Cc: linux-kernel@vger.kernel.org, ckulesa@as.arizona.edu,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-Message-ID: <20020620040749.GA32177@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S318115AbSFTELI>; Thu, 20 Jun 2002 00:11:08 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:62130 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318114AbSFTELH>;
+	Thu, 20 Jun 2002 00:11:07 -0400
+Message-ID: <3D115563.4020402@us.ibm.com>
+Date: Wed, 19 Jun 2002 21:09:07 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: mgross@unix-os.sc.intel.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net, richard.a.griffiths@intel.com
+Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as the number of spindles
+ gets large
+References: <200206200022.g5K0MKP27994@unix-os.sc.intel.com> <3D1127D6.F6988C4B@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Absolutely.  Maybe Randy Hron (added to Cc) can find some spare time
-> to benchmark these sometime before the summit too[1]. It'll be very
-> interesting to see where it fits in with the other benchmark results
-> he's collected on varying workloads.
+Andrew Morton wrote:
+> mgross wrote:
+>>Has anyone done any work looking into the I/O scaling of Linux / ext3 per
+>>spindle or per adapter?  We would like to compare notes.
+> 
+> No.  ext3 scalability is very poor, I'm afraid.  The fs really wasn't
+> up and running until kernel 2.4.5 and we just didn't have time to
+> address that issue.
 
-I'd like to start benchmarking 2.5 on the quad xeon.  You fixed the
-aic7xxx driver in 2.5.23-dj1.  It also has a qlogic QLA2200.
-You mentioned the qlogic driver in 2.5 may not have the new error handling yet.
+Ick.  That takes the prize for the highest BKL contention I've ever 
+seen, except for some horribly contrived torture tests of mine.  I've 
+had data like this sent to me a few times to analyze and the only 
+thing I've been able to suggest up to this point is not to use ext3.
 
-I haven't been able to get a <SysRq showTasks> on it yet, 
-but the reproducable scenerio for all the 2.5.x kernels I've tried 
-has been:
+>>I've only just started to look at the ext3 code but it seems to me that replacing the
+>>BKL with a per - ext3 file system lock could remove some of the contention thats
+>>getting measured.  What data are the BKL protecting in these ext3 functions?  Could a
+>>lock per FS approach work?
+> 
+> The vague plan there is to replace lock_kernel with lock_journal
+> where appropriate.  But ext3 scalability work of this nature
+> will be targetted at the 2.5 kernel, most probably.
 
-mke2fs -q /dev/sdc1
-mount -t ext2 -o defaults,noatime /dev/sdc1 /fs1
-mkreiserfs /dev/sdc2
-mount -t reiserfs -o defaults,noatime /dev/sdc2 /fs2
-mke2fs -q -j -J size=400 /dev/sdc3
-mount -t ext3 -o defaults,noatime,data=writeback /dev/sdc3 /fs3
+I really doubt that dropping in lock_journal will help this case very 
+much.  Every single kernel_flag entry in the lockmeter output where 
+Util > 0.00% is caused by ext3.  The schedule entry is probably caused 
+by something in ext3 grabbing BKL, getting scheduled out for some 
+reason, then having it implicitly released in schedule().  The 
+schedule() contention comes from the reacquire_kernel_lock().
 
-for fs in /fs1 /fs2 /fs3
-do	cpio a hundred megabytes of benchmarks into the 3 filesystems.
-	sync;sync;sync
-	umount $fs
-done
-
-In 2.5.x umount(1) hangs in uninteruptable sleep when
-umounting the first or second filesystem.  In 2.5.23, the sync
-was in uninteruptable sleep before umounting /fs2.
-
-The compile error on 2.5.23-dj1 was:
-
-gcc -Wp,-MD,./.qlogicisp.o.d -D__KERNEL__ -I/usr/src/linux-2.5.23-dj1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=qlogicisp   -c -o qlogicisp.o qlogicisp.c
-qlogicisp.c:2005: unknown field `abort' specified in initializer
-qlogicisp.c:2005: warning: initialization from incompatible pointer type
-qlogicisp.c:2005: unknown field `reset' specified in initializer
-qlogicisp.c:2005: warning: initialization from incompatible pointer type
-make[2]: *** [qlogicisp.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.23-dj1/drivers/scsi'
-make[1]: *** [scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.23-dj1/drivers'
-make: *** [drivers] Error 2
-
-Just in case someone with know-how and can do wants to[1].
-
-> [1] I am master of subtle hints.
-
-I'll put 2.5.x on top of the quad Xeon benchmark queue as soon as I can.
+We used to see plenty of ext2 BKL contention, but Al Viro did a good 
+job fixing that early in 2.5 using a per-inode rwlock.  I think that 
+this is the required level of lock granularity, another global lock 
+just won't cut it.
+http://lse.sourceforge.net/lockhier/bkl_rollup.html#getblock
 
 -- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+Dave Hansen
+haveblue@us.ibm.com
 

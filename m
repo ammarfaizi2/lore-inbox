@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbUBVXfu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 18:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUBVXfu
+	id S261244AbUBVXmV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 18:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbUBVXmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 18:35:50 -0500
-Received: from smtp2.att.ne.jp ([165.76.15.138]:27594 "EHLO smtp2.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261230AbUBVXfs (ORCPT
+	Sun, 22 Feb 2004 18:42:21 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:14284 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S261244AbUBVXmT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 18:35:48 -0500
-Message-ID: <008d01c3f99c$9033e3c0$34ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Jamie Lokier" <jamie@shareable.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <18de01c3f93f$dc6d91d0$b5ee4ca5@DIAMONDLX60> <20040222204541.GA26793@mail.shareable.org>
-Subject: Re: UTF-8 filenames
-Date: Mon, 23 Feb 2004 08:35:19 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 22 Feb 2004 18:42:19 -0500
+To: david+challenge-response@blue-labs.org
+Subject: Re: SONY SMO-F551, non-functional for a loong time :)
+X-Newsgroups: chiark.mail.linux-rutgers.kernel
+In-Reply-To: <403939D4.9020804@blue-labs.org>
+Organization: Invalid argument
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1Av3Ek-0000G2-00@sledge.mossbank.org.uk>
+From: Steve McIntyre <steve@einval.com>
+Date: Sun, 22 Feb 2004 23:42:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier replied to me:
-
-> > Consider
-> > converting all your ASCII filenames to UTF-16.  Let everyone share the
-> > short-term pain for the long-term gain.  When you get everyone to agree on
-> > UTF-16, it will be ugly, but it will be equal for everyone.
+David Ford writes:
+>For the last couple of years, this MO drive (I have several) has been 
+>unusable.  It used to lock up the machine if I had a disc inside it when 
+>I booted, but that was late in 2.5, and now with 2.6.3, it no longer 
+>hangs the machine, however, it's still not usable.
 >
-> UTF-8 is the only sane universal encoding in unix.
+>I'd love to get this bugger working, I used to use it a long long time 
+>ago in 2.4 kernels.  Any suggestions?
 
-That's a bit beside the point.  I was replying to the assertion that
-everyone agreed to use UTF-8.  (And particularly, for large character sets.)
+You've got hardware problems, either media or drive:
 
-> UTF-16 is not an option;
+>sda: Unit Not Ready, sense:
+>Current : sense key Hardware Error
+>ASC=40 ASCQ=86
 
-Of course.  Perhaps my use of reductio al absurdum was unclear.  I was
-trying to show that UTF-8, despite its sanity, is not universally agreeable.
-The actual reason is because it came late to the scene (around 20 years ago)
-and it is not backwards compatible.  But to make the point, I compared it
-with UTF-16 which is equally not universally agreeable.
+Key/code/qual 4/40/86 is (IIRC) Read Channel Calibration Failure,
+which means either the drive hardware is failing or (more likely) the
+disk loaded is buggered and the drive can't read it any more. Try
+another disk...
 
-> it's not POSIX compatible,
-
-OK, UTF-8 has one less reason than UTF-16 has, for being not universally
-agreeable.  But the biggest reason still remains, as mentioned above.
-
-> > By the way, another subthread mentioned that stty puts some stuff in the
-> > kernel that could be done in user space.  In Unix systems the same is true
-> > for IMEs, stty options specify the encoding of the output of an IME (e.g.
-> > EUC-JP or SJIS, which then gets forwarded as input to shells, applications,
-> > etc.), and whether a single backspace (or whatever character deletion
-> > character) deletes an entire input character instead of just deleting a
-> > single byte, etc.  I keep forgetting to see if Linux has the same stty
-> > options.  I haven't needed to set them with stty because if I need to use a
-> > different locale then I just open a new terminal emulator window using that
-> > locale.
->
-> Do you have a list or description of the specific stty options that
-> are used?
-
-Well, I thought I described them as I saw them used in Unix.  I no longer
-have access to machines running commercial Unix systems, but some of the
-stty options were the way I did describe.  I have a feeling that System V
-might have implemented them slightly differently from BSD-based systems, but
-regardless, the same functionality was pretty much "universally" needed and
-implemented.
-
-If you're asking whether I noticed similar stty options in Linux, I didn't
-notice because of the reason mentioned (I just opened another terminal
-emulator window using the locale that I temporarily needed).  But I'll try
-to remember to look next weekend.  Sorry, I'm leaving for work in a minute
-and can't look now.
-
+-- 
+Steve McIntyre, Cambridge, UK.                                steve@einval.com
+"I've only once written 'SQL is my bitch' in a comment. But that code 
+ is in use on a military site..." -- Simon Booth

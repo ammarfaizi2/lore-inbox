@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbTEJNwS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 09:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTEJNwS
+	id S264125AbTEJNuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 09:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTEJNuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 09:52:18 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:2718 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S264137AbTEJNwQ (ORCPT
+	Sat, 10 May 2003 09:50:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20634 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264125AbTEJNuY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 09:52:16 -0400
-Date: Sat, 10 May 2003 07:04:55 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel.bkbits.net and BK->CVS gateway
-Message-ID: <20030510140455.GA23475@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
+	Sat, 10 May 2003 09:50:24 -0400
+Date: Sat, 10 May 2003 07:02:34 -0700 (PDT)
+Message-Id: <20030510.070234.21899554.davem@redhat.com>
+To: chas@locutus.cmf.nrl.navy.mil
+Cc: hch@infradead.org, romieu@fr.zoreil.com, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE
+ he_init_one() (and an iphase patch too!) 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>
+References: <20030510062015.A21408@infradead.org>
+	<200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try #2, first one didn't seem make it.
+   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+   Date: Sat, 10 May 2003 09:52:49 -0400
 
------ Forwarded message from Linux Kernel Mailing List <linux-kernel@vger.kernel.org> -----
+   In message <20030510062015.A21408@infradead.org>,Christoph Hellwig writes:
+   >kfree(NULL) if perfectly fine.  Also please untangle all this if
+   >statements to two separate lines.
+   
+   but its ok for usb drivers?
+   
+Bad ugly code in one area of the kernel is not an excuse
+for it in other areas :-)
 
-Date: Fri, 9 May 2003 19:46:13 -0700
-From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: hpa@transmeta.com, davem@redhat.com
-Subject: kernel.bkbits.net and BK->CVS gateway
+Really, putting a statement on the same line as the if
+test controlling it's execution is very unreadable.  Most
+people's eyes expect to see:
 
-We replaced the bad drive and are restoring home directories.
-Once we have the restore done, we'll turn on people's accounts again.
-We are shutting off nightly backups for a few days so that we have 
-the backups to cherry pick any missing config files, etc.
+	if (test)
+		IF_CODE_BLOCK
 
-This bad disk is the cause of the CVS gateway being screwed up, we should
-have that back online tonight or tomorrow.  Sorry about the downtime.
+Whether it be one or more lines.  I cannot count how many locking bugs
+escaped for a long time because of utter shit like this:
 
-Peter, once it's back can you do whatever you did to get the resync stuff
-going (if you put a startup script in /etc/init.d, don't worry about it, 
-I'll restore that and restart).
+	if (test) return 0;
 
-Dave, I put RH 7.3 on there but didn't install any security fixes, you get
-to do that fun job if you care.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-
------ End forwarded message -----
-
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

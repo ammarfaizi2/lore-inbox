@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265396AbSLHL4i>; Sun, 8 Dec 2002 06:56:38 -0500
+	id <S261321AbSLHMSY>; Sun, 8 Dec 2002 07:18:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265409AbSLHL4i>; Sun, 8 Dec 2002 06:56:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:60135 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S265396AbSLHL4g>;
-	Sun, 8 Dec 2002 06:56:36 -0500
-Date: Sun, 8 Dec 2002 14:23:30 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
-       <marcelo@connectiva.com.br.munich.sgi.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-In-Reply-To: <3DEBB4BD.F64B6ADC@digeo.com>
-Message-ID: <Pine.LNX.4.44.0212081406270.2547-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261448AbSLHMSY>; Sun, 8 Dec 2002 07:18:24 -0500
+Received: from max.fiasco.org.il ([192.117.122.39]:9488 "HELO
+	latenight.fiasco.org.il") by vger.kernel.org with SMTP
+	id <S261321AbSLHMSY>; Sun, 8 Dec 2002 07:18:24 -0500
+Subject: Re: Detecting threads vs processes with ps or /proc
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Nick LeRoy <nleroy@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200212060924.02162.nleroy@cs.wisc.edu>
+References: <200212060924.02162.nleroy@cs.wisc.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 08 Dec 2002 14:24:42 +0200
+Message-Id: <1039350288.15058.23.camel@klendathu.telaviv.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-12-06 at 17:24, Nick LeRoy wrote:
 
-On Mon, 2 Dec 2002, Andrew Morton wrote:
-
-> I have observed two problems with the new scheduler, both serious IMO:
 > 
-> 1) Changed sched_yield() semantics.  [...]
+> Our software (Condor) and some related software (Globus) is running on a 
+> number of systems around the world.  Condor attempts to monitor the RAM usage 
+> of it's "user" (maybe "client" is a better word here) processes.  If the 
+> client forks, we need to monitor the client and all of it's children, which 
+> really isn't difficult.  The _problem_ is that if the client creates threads, 
+> it's impossible, from what we can tell, to tell the difference between 
+> separate threads and processes.
+> 
+> So my question, I guess, is this.  How can you tell, from user space, whether 
+> a group of processes are related as threads or through a "normal" child / 
+> parent relationship?  The systems that we're running on currently are 2.2.19 
+> and 2.4.18/19.
 
-we noticed this OpenOffice/StarOffice problem in July, while beta-testing
-RH 8.0. In July Andrea already had another yield implementation in his
-tree, which was addressing an unrelated yield()-related regression. I'd
-like to note here that StarOffice/OpenOffice sucked just as much under
-Andrea's yield() variant as the original (and 2.5) O(1) scheduler variant
-did.
+There is another approach save for the one already discussed here, which
+I have no idea how applicable it is in your case, but will produce 100%
+reliable results without additional kernel support - track the processes
+forks.
 
-So i talked to Andrea, and we agreed in a rough solution that worked
-sufficiently well for OpenOffice and the other regression as well. I
-implemented it and tested it for OpenOffice. You can see (an i suspect
-later incarnation) of that implementation in Andrea's current tree. My
-position back then was that we should not try to move the arguably broken
-2.4 yield() implementation to 2.5.
+There are several ways you can go about it - there's the expensive (in
+terms of CPU cycles) approach of using ptrace(2), the relativly painless
+way of overriding the "default" calls to fork and friends via ld.so(8)
+magical LD_PRELOAD  that nevertheless requires you control the execution
+of the "client" programs and even using a system call tracking module
+such as syscall-tracker (http://syscalltrack.sf.net) which might not be
+quite ready for use on a production system as of yet.
 
-So this is the history of O(1) yield().
+Hope this helps,
+Gilad
 
-fortunately, things have changed since July, since due to NPTL threading
-the architectural need for user-space yield() has decreased significantly
-(NPTL uses futexes, no yielding anywhere), so the only worry is behavioral
-compatibility with LinuxThreads (and other yield() users). I'll forward
-port the new (well, old) yield() semantics to 2.5 as well, which will be
-quite similar to the yield() implementation in Andrea's tree.
-
-there's another (this time unique) bit implemented by Andrea, a variant of
-giving newly forked children priority in a more subtle way - i'm testing
-this change currently, to see whether it has any positive effect on
-compilation workloads.
-
-does this clarify things?
-
-	Ingo
+-- 
+ Gilad Ben-Yossef <gilad@benyossef.com> 
+ http://benyossef.com 
+ "Denial really is a river in Eygept."
 

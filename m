@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUITTBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUITTBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266674AbUITTBY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 15:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUITTBY
+	id S266775AbUITTBs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 15:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUITTBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 15:01:24 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13696 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266674AbUITTBX
+	Mon, 20 Sep 2004 15:01:48 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:60104 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266753AbUITTBl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 15:01:23 -0400
-Date: Mon, 20 Sep 2004 15:00:26 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Stelian Pop <stelian@popies.net>
-cc: Sasha Khapyorsky <sashak@smlink.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-In-Reply-To: <20040920182238.GA2795@crusoe.dsnet>
-Message-ID: <Pine.LNX.4.53.0409201457130.1244@chaos>
-References: <20040917154834.GA3180@crusoe.alcove-fr>
- <Pine.LNX.4.44.0409171708210.3162-100000@localhost.localdomain>
- <20040917205011.GA3049@crusoe.dsnet> <20040917212847.GC15426@dualathlon.random>
- <20040920151425.GA3020@crusoe.alcove-fr> <20040920210134.0b4af72c@sashak.lan>
- <20040920182238.GA2795@crusoe.dsnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Sep 2004 15:01:41 -0400
+Date: Mon, 20 Sep 2004 12:01:28 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: acpi-devel@lists.sourceforge.net,
+       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       LHNS list <lhns-devel@lists.sourceforge.net>,
+       Linux IA64 <linux-ia64@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[1/6]-ACPI core enhancement support
+Message-ID: <20040920120128.A15677@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920093402.C14208@unix-os.sc.intel.com> <200409201326.44946.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200409201326.44946.dtor_core@ameritech.net>; from dtor_core@ameritech.net on Mon, Sep 20, 2004 at 01:26:44PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 20, 2004 at 01:26:44PM -0500, Dmitry Torokhov wrote:
+> On Monday 20 September 2004 11:34 am, Keshavamurthy Anil S wrote:
+> > +void
+> > +acpi_bus_trim(struct acpi_device       *start,
+> > +               int rmdevice)
+> > +{
+> > +       acpi_status             status = AE_OK;
+> > +       struct acpi_device      *parent = NULL;
+> > +       struct acpi_device      *child = NULL;
+> > +       acpi_handle             phandle = 0;
+> > +       acpi_handle             chandle = 0;
+> > +
+> > +       parent  = start;
+> > +       phandle = start->handle;
+> 
+> 
+> Why do all these variables have to be initialized? parent and phandle are
+> set up explicitly couple of lines below, the rest is only used safely
+> as well...
+You are correct, variable initialization can be removed. I will do this.
 
-Why __kfifo_put ?
-    __kfifo_get ?
-    ^^__________  Usually reserved for weak (hidden) references
+> 
+> Also, introducing recursion (depth does not seem to be limited here) is
+> not a good idea IMHO - better convert it into iteration to avoid stack
+> problems down teh road.
+Humm, I guess recursion should be fine and even though the code does not have
+an explicit limit, the ACPI namespace describing the Ejectable device will limit the
+number of recursible devices. And I believe this won;t be more than 3 to 4 level depth.
+Hence recursion is fine here.
 
-in header files.
+If you still strongly believe that recursion is not the right choice here, 
+let me know and I will convert it to iteration.
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Thanks,
+Anil

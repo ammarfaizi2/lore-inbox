@@ -1,54 +1,2166 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265348AbSJRRb6>; Fri, 18 Oct 2002 13:31:58 -0400
+	id <S265242AbSJRRQK>; Fri, 18 Oct 2002 13:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265294AbSJRR1j>; Fri, 18 Oct 2002 13:27:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38925 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265307AbSJRRLg>; Fri, 18 Oct 2002 13:11:36 -0400
-Date: Fri, 18 Oct 2002 10:19:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, Michael Hohnbaum <hbaum@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
-In-Reply-To: <20021018171139.GM23930@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0210181018070.21302-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265335AbSJRRPs>; Fri, 18 Oct 2002 13:15:48 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:35857 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S265242AbSJRQvV>; Fri, 18 Oct 2002 12:51:21 -0400
+Date: Sat, 19 Oct 2002 01:56:27 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCHSET 4/25] add support for PC-9800 architecture (core #1)
+Message-ID: <20021019015627.A1534@precia.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is part 4/26 of patchset for add support NEC PC-9800 architecture,
+against 2.5.43.
 
-On Fri, 18 Oct 2002, Andrea Arcangeli wrote:
+Summary:
+ i386 core modules
+  - IO port address change
+  - IRQ number change
+  - adapted to hardware memory mapping.
+  - CLOCK_TICK_RATE constat to variable.
+     some PC-9800 can change base clock by hardware switch!
 
-> On Fri, Oct 18, 2002 at 09:45:41AM -0700, george anzinger wrote:
-> > Stephen Hemminger wrote:
-> > > current cpu (and maybe current pid) somehow.  And it would be possible
-> > > to avoid  preemption while in a vsyscall text page, some other Unix
-> > > variants do this to implement portions of the thread library in kernel
-> > > provided user text pages.
-> > > 
-> > Now there is an idea!  Lock preemption in user space if and
-> 
-> sounds not good to me, you would miss a wakeup and you would delay the
-> schedule of 1/HZ in the worst (close to the common) case.
+diffstat:
+ arch/i386/Makefile                      |   17 +
+ arch/i386/config.in                     |   19 +
+ arch/i386/kernel/Makefile               |    4 
+ arch/i386/kernel/cpu/proc.c             |    2 
+ arch/i386/kernel/i8259.c                |  100 ++++----
+ arch/i386/kernel/pc9800_debug.c         |  362 ++++++++++++++++++++++++++++++++
+ arch/i386/kernel/reboot.c               |   11 
+ arch/i386/kernel/setup.c                |   93 ++++++++
+ arch/i386/kernel/time.c                 |  128 +++++++++++
+ arch/i386/kernel/timers/timer_pit.c     |   23 +-
+ arch/i386/kernel/timers/timer_tsc.c     |   42 +++
+ arch/i386/kernel/traps.c                |   22 +
+ arch/i386/kernel/vm86.c                 |   21 +
+ arch/i386/mach-generic/io_ports.h       |   20 +
+ arch/i386/mach-pc9800/Makefile          |   15 +
+ arch/i386/mach-pc9800/do_timer.h        |   80 +++++++
+ arch/i386/mach-pc9800/entry_arch.h      |   34 +++
+ arch/i386/mach-pc9800/io_ports.h        |   20 +
+ arch/i386/mach-pc9800/irq_vectors.h     |   85 +++++++
+ arch/i386/mach-pc9800/mach_apic.h       |   46 ++++
+ arch/i386/mach-pc9800/setup.c           |  113 +++++++++
+ arch/i386/mach-pc9800/setup_arch_post.h |   29 ++
+ arch/i386/mach-pc9800/setup_arch_pre.h  |   36 +++
+ arch/i386/mach-pc9800/smpboot_hooks.h   |   33 ++
+ arch/i386/mach-summit/io_ports.h        |   20 +
+ arch/i386/mach-visws/io_ports.h         |   20 +
+ 26 files changed, 1325 insertions(+), 70 deletions(-)
 
-That's not the real problem.
-
-The real problem is that somebody can jump into the middle of a function 
-(or even into the middle of an instruction), causing the function to do 
-something totally different from the intended effect.
-
-In particular, it can cause the function to loop forever.
-
-If you disable preemption of user space, you now killed the machine.
-
-In short - others may do it, but it's a total _DISASTER_ from a security 
-and stability standpoint. Don't go there.
-
-		Linus
-
+patch:
+diff -urN linux/arch/i386/Makefile linux98/arch/i386/Makefile
+--- linux/arch/i386/Makefile	Wed Oct 16 13:20:28 2002
++++ linux98/arch/i386/Makefile	Wed Oct 16 14:20:21 2002
+@@ -46,8 +46,14 @@
+ ifdef CONFIG_VISWS
+ MACHINE	:= mach-visws
+ else
++ifdef CONFIG_PC9800
++MACHINE	:= mach-pc9800
++else
++ifndef MACHINE
+ MACHINE	:= mach-generic
+ endif
++endif
++endif
+ 
+ HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
+ 
+@@ -63,15 +69,25 @@
+ CFLAGS += -Iarch/i386/$(MACHINE)
+ AFLAGS += -Iarch/i386/$(MACHINE)
+ 
++makeboot98 = $(call descend,arch/i386/boot98,$(1))
++ifndef CONFIG_PC9800
+ makeboot = $(call descend,arch/i386/boot,$(1))
++else
++makeboot = $(makeboot98)
++endif
+ 
+ .PHONY: zImage bzImage compressed zlilo bzlilo zdisk bzdisk install \
+ 		clean archclean archmrproper
+ 
+ all: bzImage
+ 
++ifndef CONFIG_PC9800
+ BOOTIMAGE=arch/i386/boot/bzImage
+ zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
++else
++BOOTIMAGE=arch/i386/boot98/bzImage
++zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot98/zImage
++endif
+ 
+ zImage bzImage: vmlinux
+ 	+@$(call makeboot,$(BOOTIMAGE))
+@@ -89,5 +105,6 @@
+ 
+ archclean:
+ 	+@$(call makeboot,clean)
++	+@$(call makeboot98,clean)
+ 
+ archmrproper:
+diff -urN linux/arch/i386/config.in linux98/arch/i386/config.in
+--- linux/arch/i386/config.in	Wed Oct 16 13:20:28 2002
++++ linux98/arch/i386/config.in	Wed Oct 16 14:20:21 2002
+@@ -267,6 +267,7 @@
+ mainmenu_option next_comment
+ comment 'Bus options (PCI, PCMCIA, EISA, MCA, ISA)'
+ 
++bool 'NEC PC-9801/PC-9821 support' CONFIG_PC9800
+ # Visual Workstation support is utterly broken.
+ # If you want to see it working mail an VW540 to hch@infradead.org 8)
+ #bool 'SGI Visual Workstation support' CONFIG_VISWS
+@@ -299,9 +300,13 @@
+ source drivers/pci/Config.in
+ 
+ bool 'ISA support' CONFIG_ISA
++if [ "$CONFIG_PC9800" != "y" ]; then
+ dep_bool 'EISA support' CONFIG_EISA $CONFIG_ISA
++else
++   define_bool CONFIG_EISA n
++fi
+ 
+-if [ "$CONFIG_VISWS" != "y" ]; then
++if [ "$CONFIG_VISWS" != "y" -a  "$CONFIG_PC9800" != "y" ]; then
+    bool 'MCA support' CONFIG_MCA
+ else
+    define_bool CONFIG_MCA n
+@@ -421,11 +426,20 @@
+ if [ "$CONFIG_VT" = "y" ]; then
+    mainmenu_option next_comment
+    comment 'Console drivers'
++ if [ "$CONFIG_PC9800" = "y" ]; then
++   bool 'PC-9800 GDC text console' CONFIG_GDC_CONSOLE
++   dep_bool '   Enable 32-bit access to text video RAM' CONFIG_GDC_32BITACCESS $CONFIG_GDC_CONSOLE
++ else
+    bool 'VGA text console' CONFIG_VGA_CONSOLE
+    bool 'Video mode selection support' CONFIG_VIDEO_SELECT
+    if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+       tristate 'MDA text console (dual-headed) (EXPERIMENTAL)' CONFIG_MDA_CONSOLE
++   fi
++ fi
++   if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
++     if [ "$CONFIG_PC9800" != "y" -o "$CONFIG_GDC_CONSOLE" = "y" ]; then
+       source drivers/video/Config.in
++     fi
+    fi
+    endmenu
+ fi
+@@ -461,6 +475,9 @@
+       bool '  Highmem debugging' CONFIG_DEBUG_HIGHMEM
+    fi
+    bool '  Load all symbols for debugging/kksymoops' CONFIG_KALLSYMS
++   if [ "$CONFIG_PC9800" = "y" ]; then
++      bool '  Save kernel messages into UCG-RAM' CONFIG_PC9800_UCGLOG
++   fi
+ fi
+ 
+ if [ "$CONFIG_X86_LOCAL_APIC" = "y" ]; then
+diff -urN linux/arch/i386/kernel/Makefile linux98/arch/i386/kernel/Makefile
+--- linux/arch/i386/kernel/Makefile	Wed Oct 16 13:20:28 2002
++++ linux98/arch/i386/kernel/Makefile	Wed Oct 16 14:27:17 2002
+@@ -10,6 +10,10 @@
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
+ 		pci-dma.o i386_ksyms.o i387.o bluesmoke.o dmi_scan.o \
+ 		bootflag.o
++ifeq ($(CONFIG_PC9800),y)
++export-objs			+= pc9800_debug.o
++obj-$(CONFIG_PC9800)		+= pc9800_debug.o
++endif
+ 
+ obj-y				+= cpu/
+ obj-y				+= timers/
+diff -urN linux/arch/i386/kernel/cpu/proc.c linux98/arch/i386/kernel/cpu/proc.c
+--- linux/arch/i386/kernel/cpu/proc.c	Mon Jun 17 11:31:35 2002
++++ linux98/arch/i386/kernel/cpu/proc.c	Mon Jun 17 23:49:02 2002
+@@ -76,7 +76,7 @@
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
+-	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
++	fpu_exception = c->hard_math && (ignore_fpu_irq || cpu_has_fpu);
+ 	seq_printf(m, "fdiv_bug\t: %s\n"
+ 			"hlt_bug\t\t: %s\n"
+ 			"f00f_bug\t: %s\n"
+diff -urN linux/arch/i386/kernel/i8259.c linux98/arch/i386/kernel/i8259.c
+--- linux/arch/i386/kernel/i8259.c	Tue Oct  8 03:25:15 2002
++++ linux98/arch/i386/kernel/i8259.c	Thu Oct 10 21:46:44 2002
+@@ -25,6 +25,8 @@
+ 
+ #include <linux/irq.h>
+ 
++#include "io_ports.h"
++
+ /*
+  * This is the 'legacy' 8259A Programmable Interrupt Controller,
+  * present in the majority of PC/AT boxes.
+@@ -74,8 +76,8 @@
+ static unsigned int cached_irq_mask = 0xffff;
+ 
+ #define __byte(x,y) 	(((unsigned char *)&(y))[x])
+-#define cached_21	(__byte(0,cached_irq_mask))
+-#define cached_A1	(__byte(1,cached_irq_mask))
++#define cached_master_mask	(__byte(0,cached_irq_mask))
++#define cached_slave_mask	(__byte(1,cached_irq_mask))
+ 
+ /*
+  * Not all IRQs can be routed through the IO-APIC, eg. on certain (older)
+@@ -96,9 +98,9 @@
+ 	spin_lock_irqsave(&i8259A_lock, flags);
+ 	cached_irq_mask |= mask;
+ 	if (irq & 8)
+-		outb(cached_A1,0xA1);
++		outb(cached_slave_mask, PIC_SLAVE_IMR);
+ 	else
+-		outb(cached_21,0x21);
++		outb(cached_master_mask, PIC_MASTER_IMR);
+ 	spin_unlock_irqrestore(&i8259A_lock, flags);
+ }
+ 
+@@ -110,9 +112,9 @@
+ 	spin_lock_irqsave(&i8259A_lock, flags);
+ 	cached_irq_mask &= mask;
+ 	if (irq & 8)
+-		outb(cached_A1,0xA1);
++		outb(cached_slave_mask, PIC_SLAVE_IMR);
+ 	else
+-		outb(cached_21,0x21);
++		outb(cached_master_mask, PIC_MASTER_IMR);
+ 	spin_unlock_irqrestore(&i8259A_lock, flags);
+ }
+ 
+@@ -124,9 +126,9 @@
+ 
+ 	spin_lock_irqsave(&i8259A_lock, flags);
+ 	if (irq < 8)
+-		ret = inb(0x20) & mask;
++		ret = inb(PIC_MASTER_CMD) & mask;
+ 	else
+-		ret = inb(0xA0) & (mask >> 8);
++		ret = inb(PIC_SLAVE_CMD) & (mask >> 8);
+ 	spin_unlock_irqrestore(&i8259A_lock, flags);
+ 
+ 	return ret;
+@@ -152,14 +154,14 @@
+ 	int irqmask = 1<<irq;
+ 
+ 	if (irq < 8) {
+-		outb(0x0B,0x20);		/* ISR register */
+-		value = inb(0x20) & irqmask;
+-		outb(0x0A,0x20);		/* back to the IRR register */
++		outb(0x0B,PIC_MASTER_CMD);	/* ISR register */
++		value = inb(PIC_MASTER_CMD) & irqmask;
++		outb(0x0A,PIC_MASTER_CMD);	/* back to the IRR register */
+ 		return value;
+ 	}
+-	outb(0x0B,0xA0);		/* ISR register */
+-	value = inb(0xA0) & (irqmask >> 8);
+-	outb(0x0A,0xA0);		/* back to the IRR register */
++	outb(0x0B,PIC_SLAVE_CMD);	/* ISR register */
++	value = inb(PIC_SLAVE_CMD) & (irqmask >> 8);
++	outb(0x0A,PIC_SLAVE_CMD);	/* back to the IRR register */
+ 	return value;
+ }
+ 
+@@ -196,14 +198,14 @@
+ 
+ handle_real_irq:
+ 	if (irq & 8) {
+-		inb(0xA1);		/* DUMMY - (do we need this?) */
+-		outb(cached_A1,0xA1);
+-		outb(0x60+(irq&7),0xA0);/* 'Specific EOI' to slave */
+-		outb(0x62,0x20);	/* 'Specific EOI' to master-IRQ2 */
++		inb(PIC_SLAVE_IMR);	/* DUMMY - (do we need this?) */
++		outb(cached_slave_mask, PIC_SLAVE_IMR);
++		outb(0x60+(irq&7),PIC_SLAVE_CMD);/* 'Specific EOI' to slave */
++		outb(0x60+PIC_CASCADE_IR,PIC_MASTER_CMD); /* 'Specific EOI' to master-IRQ2 */
+ 	} else {
+-		inb(0x21);		/* DUMMY - (do we need this?) */
+-		outb(cached_21,0x21);
+-		outb(0x60+irq,0x20);	/* 'Specific EOI' to master */
++		inb(PIC_MASTER_IMR);	/* DUMMY - (do we need this?) */
++		outb(cached_master_mask, PIC_MASTER_IMR);
++		outb(0x60+irq,PIC_MASTER_CMD);	/* 'Specific EOI to master */
+ 	}
+ 	spin_unlock_irqrestore(&i8259A_lock, flags);
+ 	return;
+@@ -275,26 +277,24 @@
+ 
+ 	spin_lock_irqsave(&i8259A_lock, flags);
+ 
+-	outb(0xff, 0x21);	/* mask all of 8259A-1 */
+-	outb(0xff, 0xA1);	/* mask all of 8259A-2 */
++	outb(0xff, PIC_MASTER_IMR);	/* mask all of 8259A-1 */
++	outb(0xff, PIC_SLAVE_IMR);	/* mask all of 8259A-2 */
+ 
+ 	/*
+ 	 * outb_p - this has to work on a wide range of PC hardware.
+ 	 */
+-	outb_p(0x11, 0x20);	/* ICW1: select 8259A-1 init */
+-	outb_p(0x20 + 0, 0x21);	/* ICW2: 8259A-1 IR0-7 mapped to 0x20-0x27 */
+-	outb_p(0x04, 0x21);	/* 8259A-1 (the master) has a slave on IR2 */
+-	if (auto_eoi)
+-		outb_p(0x03, 0x21);	/* master does Auto EOI */
+-	else
+-		outb_p(0x01, 0x21);	/* master expects normal EOI */
+-
+-	outb_p(0x11, 0xA0);	/* ICW1: select 8259A-2 init */
+-	outb_p(0x20 + 8, 0xA1);	/* ICW2: 8259A-2 IR0-7 mapped to 0x28-0x2f */
+-	outb_p(0x02, 0xA1);	/* 8259A-2 is a slave on master's IR2 */
+-	outb_p(0x01, 0xA1);	/* (slave's support for AEOI in flat mode
+-				    is to be investigated) */
+-
++	outb_p(0x11, PIC_MASTER_CMD);	/* ICW1: select 8259A-1 init */
++	outb_p(0x20 + 0, PIC_MASTER_IMR);	/* ICW2: 8259A-1 IR0-7 mapped to 0x20-0x27 */
++	outb_p(1U << PIC_CASCADE_IR, PIC_MASTER_IMR);	/* 8259A-1 (the master) has a slave on IR2 */
++	if (auto_eoi)	/* master does Auto EOI */
++		outb_p(MASTER_ICW4_DEFAULT | PIC_ICW4_AEOI, PIC_MASTER_IMR);
++	else		/* master expects normal EOI */
++		outb_p(MASTER_ICW4_DEFAULT, PIC_MASTER_IMR);
++
++	outb_p(0x11, PIC_SLAVE_CMD);	/* ICW1: select 8259A-2 init */
++	outb_p(0x20 + 8, PIC_SLAVE_IMR);	/* ICW2: 8259A-2 IR0-7 mapped to 0x28-0x2f */
++	outb_p(PIC_CASCADE_IR, PIC_SLAVE_IMR);	/* 8259A-2 is a slave on master's IR2 */
++	outb_p(SLAVE_ICW4_DEFAULT, PIC_SLAVE_IMR); /* (slave's support for AEOI in flat mode is to be investigated) */
+ 	if (auto_eoi)
+ 		/*
+ 		 * in AEOI mode we just have to mask the interrupt
+@@ -306,8 +306,8 @@
+ 
+ 	udelay(100);		/* wait for 8259A to initialize */
+ 
+-	outb(cached_21, 0x21);	/* restore master IRQ mask */
+-	outb(cached_A1, 0xA1);	/* restore slave IRQ mask */
++	outb(cached_master_mask, PIC_MASTER_IMR); /* restore master IRQ mask */
++	outb(cached_slave_mask, PIC_SLAVE_IMR);	  /* restore slave IRQ mask */
+ 
+ 	spin_unlock_irqrestore(&i8259A_lock, flags);
+ }
+@@ -324,11 +324,17 @@
+  * be shot.
+  */
+  
++/*
++ * =PC9800NOTE= In NEC PC-9800, we use irq8 instead of irq13!
++ */
++
+ static void math_error_irq(int cpl, void *dev_id, struct pt_regs *regs)
+ {
+ 	extern void math_error(void *);
++#ifndef CONFIG_PC9800
+ 	outb(0,0xF0);
+-	if (ignore_irq13 || !boot_cpu_data.hard_math)
++#endif
++	if (ignore_fpu_irq || !boot_cpu_data.hard_math)
+ 		return;
+ 	math_error((void *)regs->eip);
+ }
+@@ -337,7 +343,7 @@
+  * New motherboards sometimes make IRQ 13 be a PCI interrupt,
+  * so allow interrupt sharing.
+  */
+-static struct irqaction irq13 = { math_error_irq, 0, 0, "fpu", NULL, NULL };
++static struct irqaction fpu_irq = { math_error_irq, 0, 0, "fpu", NULL, NULL };
+ 
+ void __init init_ISA_irqs (void)
+ {
+@@ -393,14 +399,18 @@
+ 	 * Set the clock to HZ Hz, we already have a valid
+ 	 * vector now:
+ 	 */
+-	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
+-	outb_p(LATCH & 0xff , 0x40);	/* LSB */
+-	outb(LATCH >> 8 , 0x40);	/* MSB */
++	outb_p(0x34, PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
++	outb_p(LATCH & 0xff, PIT_CH0);	/* LSB */
++	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
+ 
+ 	/*
+ 	 * External FPU? Set up irq13 if so, for
+ 	 * original braindamaged IBM FERR coupling.
+ 	 */
+ 	if (boot_cpu_data.hard_math && !cpu_has_fpu)
+-		setup_irq(13, &irq13);
++#ifndef CONFIG_PC9800
++		setup_irq(13, &fpu_irq);
++#else
++		setup_irq(8, &fpu_irq);
++#endif
+ }
+diff -urN linux/arch/i386/kernel/pc9800_debug.c linux98/arch/i386/kernel/pc9800_debug.c
+--- linux/arch/i386/kernel/pc9800_debug.c	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/kernel/pc9800_debug.c	Wed May  1 16:47:15 2002
+@@ -0,0 +1,362 @@
++/*
++ *  linux/arch/i386/kernel/pc9800_debug.c
++ *
++ *  Copyright (C) 1998 Linux/98 Project
++ *
++ * Revised by TAKAI Kousuke, Nov 1999.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/kdev_t.h>
++#include <linux/console.h>
++#include <linux/init.h>
++
++#include <asm/io.h>
++#include <asm/pc9800_debug.h>
++#include <asm/pc9800.h>
++
++unsigned char __pc9800_beep_flag = 0x7;
++
++/* pc9800_beep_{on|off|toggle} are moved to <asm/pc9800_debug.h>. */
++
++/* Normal CG window begins at physical address 0xA4000,
++   but user-definable characters are on odd address only... */
++#define UCG_WINDOW	(phys_to_virt (0xA4001))
++
++#define	UCG_MAX_SIZE	(UCG_LOG_END - UCG_LOG_START + 1)
++
++#define UCG_CHAR_NR(x)	((x) / 32)
++#define UCG_2ND_BYTE(x)	((UCG_CHAR_NR (x) & 0x1f) + 0x80)
++#define UCG_1ST_BYTE(x)	((UCG_CHAR_NR (x) >> 5) + 0x76 - 0x20 + 0x80)
++#define UCG_LR(x)	(((x) & 16) << 1)
++#define UCG_LR_MASK	(1U << 5)
++#define UCG_OFFSET(x)	((x) % 16)
++
++#ifdef CONFIG_PC9800_UCGLOG
++/*
++ * Notes for PC-9800 UCG-log facility:
++ *
++ *  Official specification of PC-9800 says they can have user-definable
++ *  character-generator (UCG) RAM for 188 characters, but actual
++ *  implementations appear to have 256 characters (`188' seems to come
++ *  from adapting it to 94x94 character set).  Thus there is 2KB-odd of
++ *  unused area in UCG-RAM (one character consists of 16*16 dots, or
++ *  32 bytes).  This area is not touched and its content will be preserved
++ *  around system reset.  This facility uses this area for saving
++ *  kernel messages.
++ *
++ * UCG-RAM layout:
++ *
++ *  Page  Char	Description
++ *  ----  ----	----------------------------------------------------
++ *   76    00	Magic string and character count in first 16 bytes
++ *	   00					(remaining 16 bytes)
++ *	    :	Log messages 1/2
++ *	   1f
++ *	   20	(unused)
++ *	   21
++ *	    :	Officially used for user-definable characters
++ *	   7e
++ *	   7f	(unused)
++ *   77	   00
++ *	    :	Log messages 2/2
++ *	   1f
++ *	   20	(unused)
++ *	   21
++ *	    :	Officially used for user-definable characters
++ *	   7e
++ *	   7f	(unused)
++ *
++ *    + Characters 20--7f on each page seem to be initialized by
++ *	system firmware. 
++ */
++
++
++/* UCG-RAM offsets. */
++#define UCG_LOG_MAGIC	0
++#define UCG_LOG_HEAD	12
++#define UCG_LOG_SIZE	14
++#define UCG_LOG_START	16
++#define UCG_LOG_END	(32 * 32 * 2 - 1)
++
++#define UCG_MAGIC_STRING	"Linux/98"
++
++static unsigned int ucg_log_head = UCG_LOG_START;
++static unsigned int ucg_log_size = 0;
++
++static void
++ucglog_write(struct console *console, const char *buf, unsigned int length)
++{
++	unsigned char *const cg_window = UCG_WINDOW;
++
++	/*
++	 * Note that we are called with interrupt disabled
++	 * (spin_lock_irqsave in kernel/printk.c).
++	 */
++
++	if ((ucg_log_size += length) > UCG_MAX_SIZE)
++		ucg_log_size = UCG_MAX_SIZE;
++
++	outb(0x0b, 0x68);	/* bitmap access mode */
++
++	while (length) {
++		unsigned char *p;
++		unsigned int count;
++		u8 lr;
++
++		outb(UCG_2ND_BYTE (ucg_log_head), 0xa1);
++		outb(UCG_1ST_BYTE (ucg_log_head), 0xa3);
++		lr = UCG_LR(ucg_log_head);
++		do {
++			outb(lr, 0xa5);
++			p = cg_window + UCG_OFFSET(ucg_log_head) * 2;
++			count = 16 - UCG_OFFSET(ucg_log_head);
++			if (count > length)
++				count = length;
++			length -= count;
++			ucg_log_head += count;
++			do {
++				*p = *buf++;
++				p += 2;
++			} while (--count);
++		} while (length && (lr ^= UCG_LR_MASK));
++	}
++
++	if (ucg_log_head > UCG_LOG_END)
++		ucg_log_head = UCG_LOG_START;
++	outb(UCG_2ND_BYTE(UCG_LOG_HEAD), 0xa1);
++	outb(UCG_1ST_BYTE(UCG_LOG_HEAD), 0xa3);
++	outb(UCG_LR(UCG_LOG_HEAD), 0xa5);
++	cg_window[(UCG_OFFSET(UCG_LOG_HEAD)) * 2] = ucg_log_head;
++	cg_window[(UCG_OFFSET(UCG_LOG_HEAD) + 1) * 2] = ucg_log_head >> 8;
++#if UCG_CHAR_NR(UCG_LOG_HEAD) != UCG_CHAR_NR(UCG_LOG_SIZE)
++	outb(UCG_2ND_BYTE(UCG_LOG_SIZE), 0xa1);
++	outb(UCG_1ST_BYTE(UCG_LOG_SIZE), 0xa3);
++#endif
++#if UCG_LR(UCG_LOG_HEAD) != UCG_LR(UCG_LOG_SIZE)
++	outb(UCG_LR(UCG_LOG_SIZE), 0xa5);
++#endif
++	cg_window[(UCG_OFFSET(UCG_LOG_SIZE)) * 2] = ucg_log_size;
++	cg_window[(UCG_OFFSET(UCG_LOG_SIZE) + 1) * 2] = ucg_log_size >> 8;
++
++	outb(0x0a, 0x68);
++}
++
++static struct console ucglog_console = {
++	name:	"ucg",
++	write:	ucglog_write,
++	setup:	NULL,
++	flags:	CON_PRINTBUFFER,
++	index:	-1,
++};
++
++static int __init
++ucglog_init(void)
++{
++	unsigned long flags;
++	const u8 *p;
++	u8 *cg_window;
++	static const union {
++		struct {
++			char magic[12];
++			u16 start;
++			u16 size;
++		} s;
++		u8 bytes[16];
++	} ucg_init_data __initdata = { { UCG_MAGIC_STRING, 0, 0 } };
++
++	if (PC9800_HIGHRESO_P()) {
++		/* Not implemented (yet)... */
++		return 0;
++	}
++
++	save_flags(flags);
++	cli();
++	outb(0x0b, 0x68);	/* bitmap access mode */
++	outb(UCG_2ND_BYTE(UCG_LOG_MAGIC), 0xa1);
++	outb(UCG_1ST_BYTE(UCG_LOG_MAGIC), 0xa3);
++	outb(UCG_LR(UCG_LOG_MAGIC), 0xa5);
++	for (cg_window = UCG_WINDOW, p = ucg_init_data.bytes;
++	     p < (&ucg_init_data + 1)->bytes; cg_window += 2)
++		*cg_window = *p++;
++	outb(0x0a, 0x68);
++	restore_flags(flags);
++
++	register_console(&ucglog_console);
++	printk(KERN_INFO "UCG-RAM console driver installed\n");
++	return 0;
++}
++
++__initcall (ucglog_init);
++
++#endif /* CONFIG_PC9800_UCGLOG */
++
++/*
++#define CONFIG_PC9800_UCGSAVEARGS
++*/
++
++#ifdef CONFIG_PC9800_UCGSAVEARGS
++
++#define UCG_SAVEARGS_START	(1 * 32)
++
++void
++ucg_saveargs(unsigned int n, ...)
++{
++	u8 *cg;
++	unsigned int count;
++	unsigned int addr;
++	unsigned long flags;
++	const u8 *p = (const u8 *) (&n - 1);
++
++	save_flags(flags);
++	cli();
++	outb(0x0b, 0x68);	/* bitmap access mode */
++	outb(UCG_2ND_BYTE(UCG_SAVEARGS_START), 0xa1);
++	outb(UCG_1ST_BYTE(UCG_SAVEARGS_START), 0xa3);
++	outb(UCG_LR(UCG_SAVEARGS_START), 0xa5);
++	for (cg = UCG_WINDOW, count = 0; count < 4; count++)
++		cg[count * 2] = p[count];
++
++	addr = UCG_SAVEARGS_START + 4;
++	for (p += 8; n--; p += 4) {
++		if (UCG_OFFSET(addr) == 0) {
++			outb(UCG_2ND_BYTE(addr), 0xa1);
++			outb(UCG_1ST_BYTE(addr), 0xa3);
++			outb(UCG_LR(addr), 0xa5);
++		}
++		cg[(UCG_OFFSET(addr) + 0) * 2] = p[0];
++		cg[(UCG_OFFSET(addr) + 1) * 2] = p[1];
++		cg[(UCG_OFFSET(addr) + 2) * 2] = p[2];
++		cg[(UCG_OFFSET(addr) + 3) * 2] = p[3];
++		addr += 4;
++	}
++
++	outb(UCG_2ND_BYTE(0), 0xa1);
++	outb(UCG_1ST_BYTE(0), 0xa3);
++	outb(UCG_LR(0), 0xa5);
++
++	outb(0x0a, 0x68);
++	restore_flags(flags);
++}
++#endif
++
++#ifdef CONFIG_PC9800_ASSERT
++void
++__assert_fail(const char *base_file, const char *file, unsigned int line,
++	       const char *function, void *return_address, const char *expr)
++{
++  panic("In function `%s' (called from [<%p>])\n" KERN_EMERG
++	 "%s%s%s%s:%u: Assertion `%s' failed.",
++	 function, return_address, file,
++	 base_file == file ? "" : " (",
++	 base_file == file ? "" : base_file,
++	 base_file == file ? "" : ")",
++	 line, expr);
++}
++
++void
++__invalid_kernel_pointer(const char *base_file, const char *file,
++			  unsigned int line, const char *function,
++			  void *return_address,
++			  const char *expr, void *val)
++{
++  panic("In function `%s' (called from [<%p>])\n" KERN_EMERG
++	 "%s%s%s%s:%u: Invalid kernel pointer `%s' (%p).",
++	 function, return_address, file,
++	 base_file == file ? "" : " (",
++	 base_file == file ? "" : base_file,
++	 base_file == file ? "" : ")",
++	 line, expr, val);
++}
++
++#endif /* CONFIG_PC9800_ASSERT */
++
++unsigned char pc9800_saveregs_enabled;
++
++__asm__ (".text\n"
++	 "	.global	__pc9800_saveregs\n"
++	 "__pc9800_saveregs:\n"
++#if 1
++	 "	pushfl\n"
++	 "	cmpb	$0,pc9800_saveregs_enabled\n"
++	 "	je	1f\n"
++	 "	pushl	%edi\n"			/* reverse order of PUSHA */
++	 "	pushl	%esi\n"
++	 "	pushl	%ebp\n"
++	 "	leal	20(%esp),%esi\n"	/* original ESP */
++	 "	pushl	%esi\n"
++	 "	pushl	%ebx\n"
++	 "	pushl	%edx\n"
++	 "	pushl	%ecx\n"
++	 "	pushl	%eax\n"
++	 "	movl	$0xc0000780,%edi\n"	/* save few words on stack */
++	 "	movl	$20, %ecx\n"
++	 "	cld; rep; ss; movsl\n"		/* EDI becomes 0xC00007D0 */
++	 "	subl	$(20+1+1+8)*4,%esi\n"	/* ESI points EAX on stack */
++	 "	movl	$8,%ecx\n"
++	 "	rep; ss; movsl\n"		/* save GP registers */
++	 "	ss; lodsl\n"			/* EFLAGS */
++	 "	ss; movsl\n"			/* save EIP */
++	 "	stosl\n"			/* save EFLAGS */
++	 "	movl	%cr3,%eax\n"		/* save control registers */
++	 "	stosl\n"
++	 "	movl	%cr0,%eax\n"
++	 "	stosl\n"
++	 "	popl	%eax\n"
++	 "	popl	%ecx\n"
++	 "	addl	$4*4,%esp\n"		/* discard EDX/EBX/ESP/EBP */
++	 "	popl	%esi\n"
++	 "	popl	%edi\n"
++	 "1:	popfl\n"
++#else
++	 "	cmpb	$0,pc9800_saveregs_enabled\n"
++	 "	je	1f\n"
++	 "	pushl	%eax\n"
++	 "	movl	%eax,0xc00007d0\n"
++	 "	movl	%ecx,0xc00007d4\n"
++	 "	movl	%edx,0xc00007d8\n"
++	 "	movl	%ebx,0xc00007dc\n"
++	 "	leal	8(%esp),%eax\n"		/* original ESP */
++	 "	movl	%eax,0xc00007e0\n"
++	 "	movl	%ebp,0xc00007e4\n"
++	 "	movl	%esi,0xc00007e8\n"
++	 "	movl	%edi,0xc00007ec\n"
++	 "	movl	4(%esp),%eax\n"		/* EIP as return address */
++	 "	movl	%eax,0xc00007f0\n"
++	 "	pushfl\n"
++	 "	popl	%eax\n"
++	 "	movl	%eax,0xc00007f4\n"
++	 "	movl	%cr3,%eax\n"
++	 "	movl	%eax,0xc00007f8\n"
++	 "	movl	%cr0,%eax\n"
++	 "	movl	%eax,0xc00007fc\n"
++	 "	pushl	%ecx\n"
++	 "	pushl	%esi\n"
++	 "	pushl	%edi\n"
++	 "	leal	20(%esp),%esi\n"
++	 "	movl	$0xc0000780,%edi\n"
++	 "	movl	$16,%ecx\n"
++	 "	cld; rep; ss; movsl\n"
++	 "	popl	%edi\n"
++	 "	popl	%esi\n"
++	 "	popl	%ecx\n"
++	 "	popl	%eax\n"
++	 "1:\n"
++#endif
++	 "	ret");
++
++__asm__ (".weak mcount; mcount = __pc9800_saveregs");
++
++#if 0
++int
++test_mcount(void)
++{
++	printk("Calling mcount...\n");
++	pc9800_saveregs_enabled = 1;
++	mcount();
++}
++
++__initcall (test_mcount);
++#endif
+diff -urN linux/arch/i386/kernel/reboot.c linux98/arch/i386/kernel/reboot.c
+--- linux/arch/i386/kernel/reboot.c	Sat Oct 12 13:21:36 2002
++++ linux98/arch/i386/kernel/reboot.c	Sat Oct 12 14:18:52 2002
+@@ -125,6 +125,7 @@
+ 	0xea, 0x00, 0x00, 0xff, 0xff		/*    ljmp  $0xffff,$0x0000  */
+ };
+ 
++#ifndef CONFIG_PC9800
+ static inline void kb_wait(void)
+ {
+ 	int i;
+@@ -133,6 +134,7 @@
+ 		if ((inb_p(0x64) & 0x02) == 0)
+ 			break;
+ }
++#endif /* !CONFIG_PC9800 */
+ 
+ /*
+  * Switch to real mode and then execute the code
+@@ -141,7 +143,9 @@
+  */
+ void machine_real_restart(unsigned char *code, int length)
+ {
++#ifndef CONFIG_PC9800
+ 	unsigned long flags;
++#endif
+ 
+ 	local_irq_disable();
+ 
+@@ -155,9 +159,11 @@
+ 	   safe side.  (Yes, CMOS_WRITE does outb_p's. -  Paul G.)
+ 	 */
+ 
++#ifndef CONFIG_PC9800
+ 	spin_lock_irqsave(&rtc_lock, flags);
+ 	CMOS_WRITE(0x00, 0x8f);
+ 	spin_unlock_irqrestore(&rtc_lock, flags);
++#endif
+ 
+ 	/* Remap the kernel at virtual address zero, as well as offset zero
+ 	   from the kernel segment.  This assumes the kernel segment starts at
+@@ -264,6 +270,7 @@
+ 		/* rebooting needs to touch the page at absolute addr 0 */
+ 		*((unsigned short *)__va(0x472)) = reboot_mode;
+ 		for (;;) {
++#ifndef CONFIG_PC9800
+ 			int i;
+ 			for (i=0; i<100; i++) {
+ 				kb_wait();
+@@ -271,6 +278,10 @@
+ 				outb(0xfe,0x64);         /* pulse reset low */
+ 				udelay(50);
+ 			}
++#else /* CONFIG_PC9800 */
++			outb(0, 0xf0);		/* signal CPU reset */
++			mdelay(1);
++#endif /* !CONFIG_PC9800 */
+ 			/* That didn't work - force a triple fault.. */
+ 			__asm__ __volatile__("lidt %0": :"m" (no_idt));
+ 			__asm__ __volatile__("int3");
+diff -urN linux/arch/i386/kernel/setup.c linux98/arch/i386/kernel/setup.c
+--- linux/arch/i386/kernel/setup.c	Sat Sep 21 00:20:26 2002
++++ linux98/arch/i386/kernel/setup.c	Sun Sep 22 10:24:43 2002
+@@ -20,6 +20,7 @@
+  * This file handles the architecture-dependent parts of initialization
+  */
+ 
++#include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include <linux/tty.h>
+@@ -46,7 +47,7 @@
+  * Machine setup..
+  */
+ 
+-char ignore_irq13;		/* set if exception 16 works */
++char ignore_fpu_irq;		/* set if exception 16 works */
+ struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
+ 
+ unsigned long mmu_cr4_features;
+@@ -98,6 +99,7 @@
+        char saved_command_line[COMMAND_LINE_SIZE];
+ 
+ struct resource standard_io_resources[] = {
++#ifndef CONFIG_PC9800
+ 	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
+ 	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
+ 	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
+@@ -106,6 +108,31 @@
+ 	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
+ 	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+ 	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
++#else
++	{ "pic1", 0x00, 0x02, IORESOURCE_BUSY | IORESOURCE98_SPARSE},
++	{ "dma", 0x01, 0x2d, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "pic2", 0x08, 0x0a, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "calender clock", 0x20, 0x22, IORESOURCE98_SPARSE },
++/*	{ "32bit dma", 0x2b, 0x2d, IORESOURCE_BUSY | IORESOURCE98_SPARSE },*/
++	{ "system", 0x31, 0x37, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "nmi control", 0x50, 0x52, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "time stamp", 0x5c, 0x5f, IORESOURCE_BUSY },
++	{ "kanji rom", 0xa1, 0xa9, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "keyboard", 0x41, 0x43, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "text gdc", 0x60, 0x6e, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "crtc", 0x70, 0x7a, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "timer", 0x71, 0x77, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "graphic gdc", 0xa0, 0xa6, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	{ "cpu", 0xf0, 0xf7, IORESOURCE_BUSY },
++	{ "fpu", 0xf8, 0xff, IORESOURCE_BUSY },
++	{ "dma ex. bank", 0x0e05, 0x0e0b, IORESOURCE98_SPARSE },
++	{ "beep freq.", 0x3fd9, 0x3fdf, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
++	/* All PC-9800 have (exactly) one mouse interface.  */
++	{ "mouse pio", 0x7fd9, 0x7fdf, IORESOURCE98_SPARSE },
++	{ "mouse timer", 0xbfdb, 0xbfdb, 0 },
++	/* Some PC-9800 (mainly PC-9801) does not have this.
++	   { "mouse irq", 0x98d7, 0x98d7, 0 }, */
++#endif
+ };
+ #ifdef CONFIG_MELAN
+ standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
+@@ -116,13 +143,23 @@
+ 
+ static struct resource code_resource = { "Kernel code", 0x100000, 0 };
+ static struct resource data_resource = { "Kernel data", 0, 0 };
++#ifndef CONFIG_PC9800
+ static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
++#else
++static struct resource tvram_resource = { "Text VRAM/CG window", 0xa0000, 0xa4fff, IORESOURCE_BUSY };
++static struct resource gvram_brg_resource = { "Graphic VRAM (B/R/G)", 0xa8000, 0xbffff, IORESOURCE_BUSY };
++static struct resource gvram_e_resource = { "Graphic VRAM (E)", 0xe0000, 0xe7fff, IORESOURCE_BUSY };
++#endif
+ 
+ /* System ROM resources */
+ #define MAXROMS 6
+ static struct resource rom_resources[MAXROMS] = {
++#ifndef CONFIG_PC9800
+ 	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
+ 	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
++#else
++	{ "System ROM", 0xe8000, 0xfffff, IORESOURCE_BUSY }
++#endif
+ };
+ 
+ #define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
+@@ -130,11 +167,17 @@
+ static void __init probe_roms(void)
+ {
+ 	int roms = 1;
++#ifndef CONFIG_PC9800
+ 	unsigned long base;
+ 	unsigned char *romstart;
++#else
++	int i;
++	__u8 *xrom_id;
++#endif
+ 
+ 	request_resource(&iomem_resource, rom_resources+0);
+ 
++#ifndef CONFIG_PC9800
+ 	/* Video ROM is standard at C000:0000 - C7FF:0000, check signature */
+ 	for (base = 0xC0000; base < 0xE0000; base += 2048) {
+ 		romstart = isa_bus_to_virt(base);
+@@ -188,6 +231,27 @@
+ 
+ 		request_resource(&iomem_resource, rom_resources + roms);
+ 	}
++#else /* CONFIG_PC9800 */
++	xrom_id = (__u8 *) isa_bus_to_virt(PC9800SCA_XROM_ID + 0x10);
++
++	for (i = 0; i < 16; i++) {
++		if (xrom_id[i] & 0x80) {
++			int j;
++
++			for (j = i + 1; j < 16 && (xrom_id[j] & 0x80); j++)
++				;
++			rom_resources[roms].start = 0x0d0000 + i * 0x001000;
++			rom_resources[roms].end = 0x0d0000 + j * 0x001000 - 1;
++			rom_resources[roms].name = "Extension ROM";
++			rom_resources[roms].flags = IORESOURCE_BUSY;
++
++			request_resource(&iomem_resource,
++					  rom_resources + roms);
++			if (++roms >= MAXROMS)
++				return;
++		}
++	}
++#endif /* !CONFIG_PC9800 */
+ }
+ 
+ static void __init limit_regions (unsigned long long size)
+@@ -250,6 +314,7 @@
+ 	}
+ }
+ 
++#ifndef CONFIG_PC9800
+ /*
+  * Sanitize the BIOS e820 map.
+  *
+@@ -465,6 +530,7 @@
+ 	} while (biosmap++,--nr_map);
+ 	return 0;
+ }
++#endif /* !CONFIG_PC9800 */
+ 
+ /*
+  * Do NOT EVER look at the BIOS memory size location.
+@@ -803,12 +869,35 @@
+ 			request_resource(res, &data_resource);
+ 		}
+ 	}
++#ifndef CONFIG_PC9800
+ 	request_resource(&iomem_resource, &vram_resource);
++#else
++	if (PC9800_HIGHRESO_P()) {
++		tvram_resource.start = 0xe0000;
++		tvram_resource.end   = 0xe4fff;
++		gvram_brg_resource.name  = "Graphic VRAM";
++		gvram_brg_resource.start = 0xc0000;
++		gvram_brg_resource.end   = 0xdffff;
++	}
++
++	request_resource(&iomem_resource, &tvram_resource);
++	request_resource(&iomem_resource, &gvram_brg_resource);
++	if (!PC9800_HIGHRESO_P())
++		request_resource(&iomem_resource, &gvram_e_resource);
++#endif
+ 
+ 	/* request I/O space for devices used on all i[345]86 PCs */
+ 	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
+ 		request_resource(&ioport_resource, standard_io_resources+i);
+ 
++#ifdef CONFIG_PC9800
++	if (PC9800_HIGHRESO_P() || PC9800_9821_P()) {
++		static struct resource graphics_resource
++			= { "graphics", 0x9a0, 0x9ae, IORESOURCE98_SPARSE };
++
++		request_resource(&ioport_resource, &graphics_resource);
++	}
++#endif
+ 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
+ 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
+ 	if (low_mem_size > pci_mem_start)
+@@ -886,6 +975,8 @@
+ #ifdef CONFIG_VT
+ #if defined(CONFIG_VGA_CONSOLE)
+ 	conswitchp = &vga_con;
++#elif defined(CONFIG_GDC_CONSOLE)
++	conswitchp = &gdc_con;
+ #elif defined(CONFIG_DUMMY_CONSOLE)
+ 	conswitchp = &dummy_con;
+ #endif
+diff -urN linux/arch/i386/kernel/time.c linux98/arch/i386/kernel/time.c
+--- linux/arch/i386/kernel/time.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/time.c	Wed Oct 16 14:20:22 2002
+@@ -30,6 +30,7 @@
+  *	serialize accesses to xtime/lost_ticks).
+  */
+ 
++#include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+ #include <linux/kernel.h>
+@@ -54,12 +55,17 @@
+ #include <asm/processor.h>
+ #include <asm/timer.h>
+ 
++#ifndef CONFIG_PC9800
+ #include <linux/mc146818rtc.h>
++#else
++#include <linux/upd4990a.h>
++#endif
+ #include <linux/timex.h>
+-#include <linux/config.h>
+ 
+ #include <asm/arch_hooks.h>
+ 
++#include "io_ports.h"
++
+ extern spinlock_t i8259A_lock;
+ 
+ #include "do_timer.h"
+@@ -147,10 +153,15 @@
+ {
+ 	int retval = 0;
+ 	int real_seconds, real_minutes, cmos_minutes;
++#ifndef CONFIG_PC9800
+ 	unsigned char save_control, save_freq_select;
++#else
++	struct upd4990a_raw_data data;
++#endif
+ 
+ 	/* gets recalled with irq locally disabled */
+ 	spin_lock(&rtc_lock);
++#ifndef CONFIG_PC9800
+ 	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
+ 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
+ 
+@@ -160,6 +171,10 @@
+ 	cmos_minutes = CMOS_READ(RTC_MINUTES);
+ 	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+ 		BCD_TO_BIN(cmos_minutes);
++#else
++	upd4990a_get_time(&data, 1);
++	cmos_minutes = (data.min >> 4) * 10 + (data.min & 0xf);
++#endif
+ 
+ 	/*
+ 	 * since we're only adjusting minutes and seconds,
+@@ -174,12 +189,23 @@
+ 	real_minutes %= 60;
+ 
+ 	if (abs(real_minutes - cmos_minutes) < 30) {
++#ifndef CONFIG_PC9800
+ 		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 			BIN_TO_BCD(real_seconds);
+ 			BIN_TO_BCD(real_minutes);
+ 		}
+ 		CMOS_WRITE(real_seconds,RTC_SECONDS);
+ 		CMOS_WRITE(real_minutes,RTC_MINUTES);
++#else
++		u8 temp_seconds = (real_seconds / 10) * 16 + real_seconds % 10;
++		u8 temp_minutes = (real_minutes / 10) * 16 + real_minutes % 10;
++
++		if (data.sec != temp_seconds || data.min != temp_minutes) {
++			data.sec = temp_seconds;
++			data.min = temp_minutes;
++			upd4990a_set_time(&data, 1);
++		}
++#endif
+ 	} else {
+ 		printk(KERN_WARNING
+ 		       "set_rtc_mmss: can't update from %d to %d\n",
+@@ -187,6 +213,7 @@
+ 		retval = -1;
+ 	}
+ 
++#ifndef CONFIG_PC9800
+ 	/* The following flags have to be released exactly in this order,
+ 	 * otherwise the DS12887 (popular MC146818A clone with integrated
+ 	 * battery and quartz) will not reset the oscillator and will not
+@@ -196,6 +223,14 @@
+ 	 */
+ 	CMOS_WRITE(save_control, RTC_CONTROL);
+ 	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++#else
++	/* uPD4990A users' manual says we should issue Register Hold
++	 * command after reading time, or future Time Read command
++	 * may not work.  When we have set the time, this also starts
++	 * the clock.
++	 */
++	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++#endif
+ 	spin_unlock(&rtc_lock);
+ 
+ 	return retval;
+@@ -221,9 +256,9 @@
+ 		 * on an 82489DX-based system.
+ 		 */
+ 		spin_lock(&i8259A_lock);
+-		outb(0x0c, 0x20);
++		outb(0x0c, PIC_MASTER_OCW3);
+ 		/* Ack the IRQ; AEOI will end it automatically. */
+-		inb(0x20);
++		inb(PIC_MASTER_POLL);
+ 		spin_unlock(&i8259A_lock);
+ 	}
+ #endif
+@@ -235,6 +270,7 @@
+ 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
+ 	 * called as close as possible to 500 ms before the new second starts.
+ 	 */
++#ifndef CONFIG_PC9800
+ 	if ((time_status & STA_UNSYNC) == 0 &&
+ 	    xtime.tv_sec > last_rtc_update + 660 &&
+ 	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
+@@ -244,6 +280,25 @@
+ 		else
+ 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
+ 	}
++#else  /* CONFIG_PC9800 */
++	/*
++	 * Because PC-9800's RTC (NEC uPD4990A) does not allow setting
++	 * time partially, we always have to read-modify-write the
++	 * entire time (including year) so that set_rtc_mmss() will
++	 * take quite much time to execute.  You may want to relax
++	 * RTC resetting interval (currently ~11 minuts)...
++	 */
++	if ((time_status & STA_UNSYNC) == 0 &&
++	    xtime.tv_sec > last_rtc_update + 660 &&
++	    (xtime.tv_nsec / 1000) >= 1000000 - ((unsigned) TICK_SIZE) / 2 &&
++	    (xtime.tv_nsec / 1000) <= ((unsigned) TICK_SIZE) / 2) {
++		if (set_rtc_mmss(xtime.tv_sec) == 0)
++			last_rtc_update = xtime.tv_sec;
++		else
++			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
++	}
++#endif /* CONFIG_PC9800 */
++
+ 	    
+ #ifdef CONFIG_MCA
+ 	if( MCA_bus ) {
+@@ -289,6 +344,8 @@
+ /* not static: needed by APM */
+ unsigned long get_cmos_time(void)
+ {
++#ifndef CONFIG_PC9800
++
+ 	unsigned int year, mon, day, hour, min, sec;
+ 	int i;
+ 
+@@ -326,6 +383,71 @@
+ 	if ((year += 1900) < 1970)
+ 		year += 100;
+ 	return mktime(year, mon, day, hour, min, sec);
++
++#else /* CONFIG_PC9800 */
++
++#define RTC_SANITY_CHECK
++
++	int i;
++	u8 prev, cur;
++	unsigned int year;
++#ifdef RTC_SANITY_CHECK
++	int retry_count;
++#endif
++
++	struct upd4990a_raw_data data;
++
++#ifdef RTC_SANITY_CHECK
++	retry_count = 0;
++ retry:
++#endif
++	/* Connect uPD4990A's DATA OUT pin to its 1Hz reference clock. */
++	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++
++	/* Catch rising edge of reference clock.  */
++	prev = ~UPD4990A_READ_DATA();
++	for (i = 0; i < 1800000; i++) { /* may take up to 1 second... */
++		__asm__ ("outb %%al,%0" : : "N" (0x5F)); /* 0.6usec delay */
++		cur = UPD4990A_READ_DATA();
++		if (!(prev & cur & 1))
++			break;
++		prev = ~cur;
++	}
++
++	upd4990a_get_time(&data, 0);
++
++#ifdef RTC_SANITY_CHECK
++# define BCD_VALID_P(x, hi)	(((x) & 0x0F) <= 9 && (x) <= 0x ## hi)
++# define DATA			((const unsigned char *) &data)
++
++	if (!BCD_VALID_P(data.sec, 59) ||
++	    !BCD_VALID_P(data.min, 59) ||
++	    !BCD_VALID_P(data.hour, 23) ||
++	    data.mday == 0 || !BCD_VALID_P(data.mday, 31) ||
++	    data.wday > 6 ||
++	    data.mon < 1 || 12 < data.mon ||
++	    !BCD_VALID_P(data.year, 99)) {
++		printk(KERN_ERR "RTC clock data is invalid! "
++			"(%02X %02X %02X %02X %02X %02X) - ",
++			DATA[0], DATA[1], DATA[2], DATA[3], DATA[4], DATA[5]);
++		if (++retry_count < 3) {
++			printk("retrying (%d)\n", retry_count);
++			goto retry;
++		}
++		printk("giving up, continuing\n");
++	}
++
++# undef BCD_VALID_P
++# undef DATA
++#endif /* RTC_SANITY_CHECK */
++
++#define CVT(x)	(((x) & 0xF) + ((x) >> 4) * 10)
++	if ((year = CVT(data.year) + 1900) < 1995)
++		year += 100;
++	return mktime(year, data.mon, CVT(data.mday),
++		       CVT(data.hour), CVT(data.min), CVT(data.sec));
++#undef CVT
++#endif /* !CONFIG_PC9800 */
+ }
+ 
+ /* XXX this driverfs stuff should probably go elsewhere later -john */
+diff -urN linux/arch/i386/kernel/timers/timer_pit.c linux98/arch/i386/kernel/timers/timer_pit.c
+--- linux/arch/i386/kernel/timers/timer_pit.c	Sat Oct 12 13:22:18 2002
++++ linux98/arch/i386/kernel/timers/timer_pit.c	Wed Oct 16 16:51:29 2002
+@@ -3,6 +3,7 @@
+  * See comments there for proper credits.
+  */
+ 
++#include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/module.h>
+ #include <linux/device.h>
+@@ -13,6 +14,7 @@
+ extern spinlock_t i8259A_lock;
+ extern spinlock_t i8253_lock;
+ #include "do_timer.h"
++#include "io_ports.h"
+ 
+ static int init_pit(void)
+ {
+@@ -61,7 +63,8 @@
+ {
+ 	int count;
+ 
+-	static int count_p = LATCH;    /* for the first call after boot */
++	static int count_p;
++	static int is_1st_boot = 1;    /* for the first call after boot */
+ 	static unsigned long jiffies_p = 0;
+ 
+ 	/*
+@@ -69,12 +72,18 @@
+ 	 */
+ 	unsigned long jiffies_t;
+ 
++	/* on NEC PC-9801, LATCH in not constant */
++	if (is_1st_boot) {
++		is_1st_boot = 0;
++		count_p = LATCH;
++	}
++
+ 	/* gets recalled with irq locally disabled */
+ 	spin_lock(&i8253_lock);
+ 	/* timer count may underflow right here */
+-	outb_p(0x00, 0x43);	/* latch the count ASAP */
++	outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
+ 
+-	count = inb_p(0x40);	/* read the latched count */
++	count = inb_p(PIT_CH0);	/* read the latched count */
+ 
+ 	/*
+ 	 * We do this guaranteed double memory access instead of a _p 
+@@ -82,13 +91,13 @@
+ 	 */
+  	jiffies_t = jiffies;
+ 
+-	count |= inb_p(0x40) << 8;
++	count |= inb_p(PIT_CH0) << 8;
+ 	
+         /* VIA686a test code... reset the latch if count > max + 1 */
+         if (count > LATCH) {
+-                outb_p(0x34, 0x43);
+-                outb_p(LATCH & 0xff, 0x40);
+-                outb(LATCH >> 8, 0x40);
++                outb_p(0x34, PIT_MODE);
++                outb_p(LATCH & 0xff, PIT_CH0);
++                outb(LATCH >> 8, PIT_CH0);
+                 count = LATCH - 1;
+         }
+ 	
+diff -urN linux/arch/i386/kernel/timers/timer_tsc.c linux98/arch/i386/kernel/timers/timer_tsc.c
+--- linux/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 16 14:20:22 2002
+@@ -3,6 +3,7 @@
+  * See comments there for proper credits.
+  */
+ 
++#include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/init.h>
+ #include <linux/timex.h>
+@@ -12,6 +13,8 @@
+ #include <asm/timer.h>
+ #include <asm/io.h>
+ 
++#include "io_ports.h"
++
+ extern int x86_udelay_tsc;
+ extern spinlock_t i8253_lock;
+ 
+@@ -77,10 +80,10 @@
+ 	rdtscl(last_tsc_low);
+ 
+ 	spin_lock(&i8253_lock);
+-	outb_p(0x00, 0x43);     /* latch the count ASAP */
++	outb_p(0x00, PIT_MODE);     /* latch the count ASAP */
+ 
+-	count = inb_p(0x40);    /* read the latched count */
+-	count |= inb(0x40) << 8;
++	count = inb_p(PIT_CH0);    /* read the latched count */
++	count |= inb(PIT_CH0) << 8;
+ 	spin_unlock(&i8253_lock);
+ 
+ 	count = ((LATCH-1) - count) * TICK_SIZE;
+@@ -97,11 +100,16 @@
+  * device.
+  */
+ 
++#ifndef CONFIG_PC9800
+ #define CALIBRATE_LATCH	(5 * LATCH)
++#else
++#define CALIBRATE_LATCH	(5 * 307200/HZ) /* 0.050sec * 307200Hz = 15360 */
++#endif
+ #define CALIBRATE_TIME	(5 * 1000020/HZ)
+ 
+ static unsigned long __init calibrate_tsc(void)
+ {
++#ifndef CONFIG_PC9800
+        /* Set the Gate high, disable speaker */
+ 	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
+ 
+@@ -112,27 +120,49 @@
+ 	 * (interrupt on terminal count mode), binary count,
+ 	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
+ 	 */
+-	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
+-	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
+-	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
++	outb(0xb0, PIT_MODE);			/* binary, mode 0, LSB/MSB, Ch 2 */
++	outb(CALIBRATE_LATCH & 0xff, PIT_CH2);	/* LSB of count */
++	outb(CALIBRATE_LATCH >> 8, PIT_CH2);	/* MSB of count */
++#endif
+ 
+ 	{
+ 		unsigned long startlow, starthigh;
+ 		unsigned long endlow, endhigh;
++#ifndef CONFIG_PC9800
+ 		unsigned long count;
+ 
++#else
++		/*
++		 * PC-9800:
++		 *  CTC cannot be used because some models (especially
++		 *  note-machines) may disable clock to speaker channel (#1)
++		 *  unless speaker is enabled.  We use ARTIC instead.
++		 */
++		unsigned short count;
++
++		for (count = inw(0x5c); inw(0x5c) == count; )
++			;
++#endif
+ 		rdtsc(startlow,starthigh);
++#ifndef CONFIG_PC9800
+ 		count = 0;
+ 		do {
+ 			count++;
+ 		} while ((inb(0x61) & 0x20) == 0);
++#else
++		count = inw(0x5c);
++		while ((unsigned short)(inw(0x5c) - count) < CALIBRATE_LATCH)
++			;
++#endif
+ 		rdtsc(endlow,endhigh);
+ 
+ 		last_tsc_low = endlow;
+ 
++#ifndef CONFIG_PC9800
+ 		/* Error: ECTCNEVERSET */
+ 		if (count <= 1)
+ 			goto bad_ctc;
++#endif
+ 
+ 		/* 64-bit subtract - gcc just messes up with long longs */
+ 		__asm__("subl %2,%0\n\t"
+diff -urN linux/arch/i386/kernel/traps.c linux98/arch/i386/kernel/traps.c
+--- linux/arch/i386/kernel/traps.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/traps.c	Wed Oct 16 14:37:37 2002
+@@ -448,11 +448,14 @@
+ 	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+ 	printk("You probably have a hardware problem with your RAM chips\n");
+ 
++#ifndef CONFIG_PC9800
+ 	/* Clear and disable the memory parity error line. */
+ 	reason = (reason & 0xf) | 4;
+ 	outb(reason, 0x61);
++#endif
+ }
+ 
++#ifndef CONFIG_PC9800
+ static void io_check_error(unsigned char reason, struct pt_regs * regs)
+ {
+ 	unsigned long i;
+@@ -468,6 +471,7 @@
+ 	reason &= ~8;
+ 	outb(reason, 0x61);
+ }
++#endif	/* CONFIG_PC9800 */
+ 
+ static void unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
+ {
+@@ -487,7 +491,11 @@
+ 
+ static void default_do_nmi(struct pt_regs * regs)
+ {
++#ifndef CONFIG_PC9800
+ 	unsigned char reason = inb(0x61);
++#else
++	unsigned char reason = inb(0x33) << 5;
++#endif
+  
+ 	if (!(reason & 0xc0)) {
+ #if CONFIG_X86_LOCAL_APIC
+@@ -506,6 +514,7 @@
+ 	if (reason & 0x80)
+ 		mem_parity_error(reason, regs);
+ 	if (reason & 0x40)
++#ifndef CONFIG_PC9800
+ 		io_check_error(reason, regs);
+ 	/*
+ 	 * Reassert NMI in case it became active meanwhile
+@@ -515,6 +524,15 @@
+ 	inb(0x71);		/* dummy */
+ 	outb(0x0f, 0x70);
+ 	inb(0x71);		/* dummy */
++#else
++		mem_parity_error(reason, regs);
++
++	/* clear memory error flags */
++	outb(0x08, 0x37);
++	outb(0x09, 0x37);
++	outb(0x09, 0x50);	/* disable NMI once */
++	outb(0x09, 0x52);	/* re-enable it */
++#endif
+ }
+ 
+ static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
+@@ -697,7 +715,7 @@
+ 
+ asmlinkage void do_coprocessor_error(struct pt_regs * regs, long error_code)
+ {
+-	ignore_irq13 = 1;
++	ignore_fpu_irq = 1;
+ 	math_error((void *)regs->eip);
+ }
+ 
+@@ -754,7 +772,7 @@
+ {
+ 	if (cpu_has_xmm) {
+ 		/* Handle SIMD FPU exceptions on PIII+ processors. */
+-		ignore_irq13 = 1;
++		ignore_fpu_irq = 1;
+ 		simd_math_error((void *)regs->eip);
+ 	} else {
+ 		/*
+diff -urN linux/arch/i386/kernel/vm86.c linux98/arch/i386/kernel/vm86.c
+--- linux/arch/i386/kernel/vm86.c	Sat Oct 12 13:21:31 2002
++++ linux98/arch/i386/kernel/vm86.c	Sat Oct 12 16:09:20 2002
+@@ -30,6 +30,7 @@
+  *
+  */
+ 
++#include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+ #include <linux/kernel.h>
+@@ -732,10 +733,22 @@
+ 		free_vm86_irq(i);
+ }
+ 
++#ifndef CONFIG_PC9800
++# define ILLEGAL_IRQ(irq) ((irq) < 3 || (irq) > 15)
++# define FIRST_VM86_IRQ	3
++#else
++/*
++ * On PC-9800, slave PIC is wired master PIC's IR7,
++ * so that we don't allow vm86 to grab IRQ7.
++ */
++# define ILLEGAL_IRQ(irq) ((irq) < 2 || (irq) == 7 || (irq) > 15)
++# define FIRST_VM86_IRQ	2
++#endif
++
+ static inline void handle_irq_zombies(void)
+ {
+ 	int i;
+-	for (i=3; i<16; i++) {
++	for (i=FIRST_VM86_IRQ; i<16; i++) {
+ 		if (vm86_irqs[i].tsk) {
+ 			if (task_valid(vm86_irqs[i].tsk)) continue;
+ 			free_vm86_irq(i);
+@@ -748,7 +761,7 @@
+ 	int bit;
+ 	unsigned long flags;
+ 	
+-	if ( (irqnumber<3) || (irqnumber>15) ) return 0;
++	if (ILLEGAL_IRQ(irqnumber)) return 0;
+ 	if (vm86_irqs[irqnumber].tsk != current) return 0;
+ 	spin_lock_irqsave(&irqbits_lock, flags);	
+ 	bit = irqbits & (1 << irqnumber);
+@@ -774,7 +787,7 @@
+ 			handle_irq_zombies();
+ 			if (!capable(CAP_SYS_ADMIN)) return -EPERM;
+ 			if (!((1 << sig) & ALLOWED_SIGS)) return -EPERM;
+-			if ( (irq<3) || (irq>15) ) return -EPERM;
++			if (ILLEGAL_IRQ(irq)) return -EPERM;
+ 			if (vm86_irqs[irq].tsk) return -EPERM;
+ 			ret = request_irq(irq, &irq_handler, 0, VM86_IRQNAME, 0);
+ 			if (ret) return ret;
+@@ -784,7 +797,7 @@
+ 		}
+ 		case  VM86_FREE_IRQ: {
+ 			handle_irq_zombies();
+-			if ( (irqnumber<3) || (irqnumber>15) ) return -EPERM;
++			if (ILLEGAL_IRQ(irqnumber)) return -EPERM;
+ 			if (!vm86_irqs[irqnumber].tsk) return 0;
+ 			if (vm86_irqs[irqnumber].tsk != current) return -EPERM;
+ 			free_vm86_irq(irqnumber);
+diff -urN linux/arch/i386/mach-generic/io_ports.h linux98/arch/i386/mach-generic/io_ports.h
+--- linux/arch/i386/mach-generic/io_ports.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-generic/io_ports.h	Thu Oct 10 17:11:01 2002
+@@ -0,0 +1,20 @@
++/* i8253A PIT registers */
++#define PIT_MODE		0x43
++#define PIT_CH0			0x40
++#define PIT_CH2			0x42
++
++/* i8259A PIC registers */
++#define PIC_MASTER_CMD		0x20
++#define PIC_MASTER_IMR		0x21
++#define PIC_MASTER_ISR		PIC_MASTER_CMD
++#define PIC_MASTER_POLL		PIC_MASTER_ISR
++#define PIC_MASTER_OCW3		PIC_MASTER_ISR
++#define PIC_SLAVE_CMD		0xa0
++#define PIC_SLAVE_IMR		0xa1
++
++/* i8259A PIC related value */
++#define PIC_CASCADE_IR		2
++#define MASTER_ICW4_DEFAULT	0x01
++#define SLAVE_ICW4_DEFAULT	0x01
++#define PIC_ICW4_AEOI		2
++
+diff -urN linux/arch/i386/mach-pc9800/Makefile linux98/arch/i386/mach-pc9800/Makefile
+--- linux/arch/i386/mach-pc9800/Makefile	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/Makefile	Sat Sep 21 00:20:21 2002
+@@ -0,0 +1,15 @@
++#
++# Makefile for the linux kernel.
++#
++# Note! Dependencies are done automagically by 'make dep', which also
++# removes any old dependencies. DON'T put your own dependencies here
++# unless it's something special (ie not a .c file).
++#
++# Note 2! The CFLAGS definitions are now in the main makefile...
++
++EXTRA_CFLAGS	+= -I../kernel
++export-objs     := 
++
++obj-y				:= setup.o
++
++include $(TOPDIR)/Rules.make
+diff -urN linux/arch/i386/mach-pc9800/do_timer.h linux98/arch/i386/mach-pc9800/do_timer.h
+--- linux/arch/i386/mach-pc9800/do_timer.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/do_timer.h	Wed Oct 16 13:20:29 2002
+@@ -0,0 +1,80 @@
++/* defines for inline arch setup functions */
++
++/**
++ * do_timer_interrupt_hook - hook into timer tick
++ * @regs:	standard registers from interrupt
++ *
++ * Description:
++ *	This hook is called immediately after the timer interrupt is ack'd.
++ *	It's primary purpose is to allow architectures that don't possess
++ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
++ *	timer interrupt as a means of triggering reschedules etc.
++ **/
++
++static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++{
++	do_timer(regs);
++/*
++ * In the SMP case we use the local APIC timer interrupt to do the
++ * profiling, except when we simulate SMP mode on a uniprocessor
++ * system, in that case we have to call the local interrupt handler.
++ */
++#ifndef CONFIG_X86_LOCAL_APIC
++	x86_do_profile(regs);
++#else
++	if (!using_apic_timer)
++		smp_local_timer_interrupt(regs);
++#endif
++}
++
++
++/* you can safely undefine this if you don't have the Neptune chipset */
++
++#define BUGGY_NEPTUN_TIMER
++
++/**
++ * do_timer_overflow - process a detected timer overflow condition
++ * @count:	hardware timer interrupt count on overflow
++ *
++ * Description:
++ *	This call is invoked when the jiffies count has not incremented but
++ *	the hardware timer interrupt has.  It means that a timer tick interrupt
++ *	came along while the previous one was pending, thus a tick was missed
++ **/
++static inline int do_timer_overflow(int count)
++{
++	int i;
++
++	spin_lock(&i8259A_lock);
++	/*
++	 * This is tricky when I/O APICs are used;
++	 * see do_timer_interrupt().
++	 */
++	i = inb(0x00);
++	spin_unlock(&i8259A_lock);
++	
++	/* assumption about timer being IRQ0 */
++	if (i & 0x01) {
++		/*
++		 * We cannot detect lost timer interrupts ... 
++		 * well, that's why we call them lost, don't we? :)
++		 * [hmm, on the Pentium and Alpha we can ... sort of]
++		 */
++		count -= LATCH;
++	} else {
++#ifdef BUGGY_NEPTUN_TIMER
++		/*
++		 * for the Neptun bug we know that the 'latch'
++		 * command doesnt latch the high and low value
++		 * of the counter atomically. Thus we have to 
++		 * substract 256 from the counter 
++		 * ... funny, isnt it? :)
++		 */
++		
++		count -= 256;
++#else
++		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
++#endif
++	}
++	return count;
++}
+diff -urN linux/arch/i386/mach-pc9800/entry_arch.h linux98/arch/i386/mach-pc9800/entry_arch.h
+--- linux/arch/i386/mach-pc9800/entry_arch.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/entry_arch.h	Sat Sep 21 00:20:13 2002
+@@ -0,0 +1,34 @@
++/*
++ * This file is designed to contain the BUILD_INTERRUPT specifications for
++ * all of the extra named interrupt vectors used by the architecture.
++ * Usually this is the Inter Process Interrupts (IPIs)
++ */
++
++/*
++ * The following vectors are part of the Linux architecture, there
++ * is no hardware IRQ pin equivalent for them, they are triggered
++ * through the ICC by us (IPIs)
++ */
++#ifdef CONFIG_X86_SMP
++BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
++BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
++BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
++#endif
++
++/*
++ * every pentium local APIC has two 'local interrupts', with a
++ * soft-definable vector attached to both interrupts, one of
++ * which is a timer interrupt, the other one is error counter
++ * overflow. Linux uses the local APIC timer interrupt to get
++ * a much simpler SMP time architecture:
++ */
++#ifdef CONFIG_X86_LOCAL_APIC
++BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
++BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
++BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
++
++#ifdef CONFIG_X86_MCE_P4THERMAL
++BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
++#endif
++
++#endif
+diff -urN linux/arch/i386/mach-pc9800/io_ports.h linux98/arch/i386/mach-pc9800/io_ports.h
+--- linux/arch/i386/mach-pc9800/io_ports.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/io_ports.h	Thu Oct 10 17:16:18 2002
+@@ -0,0 +1,20 @@
++/* i8253A PIT registers */
++#define PIT_MODE		0x77
++#define PIT_CH0			0x71
++#define PIT_CH2			0x75
++
++/* i8259A PIC registers */
++#define PIC_MASTER_CMD		0x00
++#define PIC_MASTER_IMR		0x02
++#define PIC_MASTER_ISR		PIC_MASTER_CMD
++#define PIC_MASTER_POLL		PIC_MASTER_ISR
++#define PIC_MASTER_OCW3		PIC_MASTER_ISR
++#define PIC_SLAVE_CMD		0x08
++#define PIC_SLAVE_IMR		0x0a
++
++/* i8259A PIC related values */
++#define PIC_CASCADE_IR		7
++#define MASTER_ICW4_DEFAULT	0x1d
++#define SLAVE_ICW4_DEFAULT	0x09
++#define PIC_ICW4_AEOI		0x02
++
+diff -urN linux/arch/i386/mach-pc9800/irq_vectors.h linux98/arch/i386/mach-pc9800/irq_vectors.h
+--- linux/arch/i386/mach-pc9800/irq_vectors.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/irq_vectors.h	Sat Sep 21 00:20:20 2002
+@@ -0,0 +1,85 @@
++/*
++ * This file should contain #defines for all of the interrupt vector
++ * numbers used by this architecture.
++ *
++ * In addition, there are some standard defines:
++ *
++ *	FIRST_EXTERNAL_VECTOR:
++ *		The first free place for external interrupts
++ *
++ *	SYSCALL_VECTOR:
++ *		The IRQ vector a syscall makes the user to kernel transition
++ *		under.
++ *
++ *	TIMER_IRQ:
++ *		The IRQ number the timer interrupt comes in at.
++ *
++ *	NR_IRQS:
++ *		The total number of interrupt vectors (including all the
++ *		architecture specific interrupts) needed.
++ *
++ */			
++#ifndef _ASM_IRQ_VECTORS_H
++#define _ASM_IRQ_VECTORS_H
++
++/*
++ * IDT vectors usable for external interrupt sources start
++ * at 0x20:
++ */
++#define FIRST_EXTERNAL_VECTOR	0x20
++
++#define SYSCALL_VECTOR		0x80
++
++/*
++ * Vectors 0x20-0x2f are used for ISA interrupts.
++ */
++
++/*
++ * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
++ *
++ *  some of the following vectors are 'rare', they are merged
++ *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
++ *  TLB, reschedule and local APIC vectors are performance-critical.
++ *
++ *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
++ */
++#define SPURIOUS_APIC_VECTOR	0xff
++#define ERROR_APIC_VECTOR	0xfe
++#define INVALIDATE_TLB_VECTOR	0xfd
++#define RESCHEDULE_VECTOR	0xfc
++#define CALL_FUNCTION_VECTOR	0xfb
++
++#define THERMAL_APIC_VECTOR	0xf0
++/*
++ * Local APIC timer IRQ vector is on a different priority level,
++ * to work around the 'lost local interrupt if more than 2 IRQ
++ * sources per level' errata.
++ */
++#define LOCAL_TIMER_VECTOR	0xef
++
++/*
++ * First APIC vector available to drivers: (vectors 0x30-0xee)
++ * we start at 0x31 to spread out vectors evenly between priority
++ * levels. (0x80 is the syscall vector)
++ */
++#define FIRST_DEVICE_VECTOR	0x31
++#define FIRST_SYSTEM_VECTOR	0xef
++
++#define TIMER_IRQ 0
++
++/*
++ * 16 8259A IRQ's, 208 potential APIC interrupt sources.
++ * Right now the APIC is mostly only used for SMP.
++ * 256 vectors is an architectural limit. (we can have
++ * more than 256 devices theoretically, but they will
++ * have to use shared interrupts)
++ * Since vectors 0x00-0x1f are used/reserved for the CPU,
++ * the usable vector space is 0x20-0xff (224 vectors)
++ */
++#ifdef CONFIG_X86_IO_APIC
++#define NR_IRQS 224
++#else
++#define NR_IRQS 16
++#endif
++
++#endif /* _ASM_IRQ_VECTORS_H */
+diff -urN linux/arch/i386/mach-pc9800/mach_apic.h linux98/arch/i386/mach-pc9800/mach_apic.h
+--- linux/arch/i386/mach-pc9800/mach_apic.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/mach_apic.h	Wed Oct 16 13:20:29 2002
+@@ -0,0 +1,46 @@
++#ifndef __ASM_MACH_APIC_H
++#define __ASM_MACH_APIC_H
++
++static inline unsigned long calculate_ldr(unsigned long old)
++{
++	unsigned long id;
++
++	id = 1UL << smp_processor_id();
++	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
++}
++
++#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
++
++#ifdef CONFIG_SMP
++ #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
++#else
++ #define TARGET_CPUS 0x01
++#endif
++
++#define APIC_BROADCAST_ID      0x0F
++#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
++
++static inline void summit_check(char *oem, char *productid) 
++{
++}
++
++static inline void clustered_apic_check(void)
++{
++	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
++		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
++}
++
++static inline int cpu_present_to_apicid(int mps_cpu)
++{
++	if (clustered_apic_mode)
++		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
++	else
++		return mps_cpu;
++}
++
++static inline unsigned long apicid_to_cpu_present(int apicid)
++{
++	return (1ul << apicid);
++}
++
++#endif /* __ASM_MACH_APIC_H */
+diff -urN linux/arch/i386/mach-pc9800/setup.c linux98/arch/i386/mach-pc9800/setup.c
+--- linux/arch/i386/mach-pc9800/setup.c	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/setup.c	Sun Sep 22 10:40:39 2002
+@@ -0,0 +1,113 @@
++/*
++ *	Machine specific setup for generic
++ */
++
++#include <linux/config.h>
++#include <linux/mm.h>
++#include <linux/smp.h>
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <asm/setup.h>
++#include <asm/arch_hooks.h>
++
++struct sys_desc_table_struct {
++	unsigned short length;
++	unsigned char table[0];
++};
++
++/**
++ * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
++ *
++ * Description:
++ *	Perform any necessary interrupt initialisation prior to setting up
++ *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
++ *	interrupts should be initialised here if the machine emulates a PC
++ *	in any way.
++ **/
++void __init pre_intr_init_hook(void)
++{
++	init_ISA_irqs();
++}
++
++/*
++ * IRQ7 is cascade interrupt to second interrupt controller
++ */
++static struct irqaction irq7 = { no_action, 0, 0, "cascade", NULL, NULL};
++
++/**
++ * intr_init_hook - post gate setup interrupt initialisation
++ *
++ * Description:
++ *	Fill in any interrupts that may have been left out by the general
++ *	init_IRQ() routine.  interrupts having to do with the machine rather
++ *	than the devices on the I/O bus (like APIC interrupts in intel MP
++ *	systems) are started here.
++ **/
++void __init intr_init_hook(void)
++{
++#ifdef CONFIG_X86_LOCAL_APIC
++	apic_intr_init();
++#endif
++
++	setup_irq(7, &irq7);
++}
++
++/**
++ * pre_setup_arch_hook - hook called prior to any setup_arch() execution
++ *
++ * Description:
++ *	generally used to activate any machine specific identification
++ *	routines that may be needed before setup_arch() runs.  On VISWS
++ *	this is used to get the board revision and type.
++ **/
++void __init pre_setup_arch_hook(void)
++{
++	SYS_DESC_TABLE.length = 0;
++	MCA_bus = 0;
++}
++
++/**
++ * trap_init_hook - initialise system specific traps
++ *
++ * Description:
++ *	Called as the final act of trap_init().  Used in VISWS to initialise
++ *	the various board specific APIC traps.
++ **/
++void __init trap_init_hook(void)
++{
++}
++
++static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
++
++/**
++ * time_init_hook - do any specific initialisations for the system timer.
++ *
++ * Description:
++ *	Must plug the system timer interrupt source at HZ into the IRQ listed
++ *	in irq_vectors.h:TIMER_IRQ
++ **/
++void __init time_init_hook(void)
++{
++	setup_irq(0, &irq0);
++}
++
++#ifdef CONFIG_MCA
++/**
++ * mca_nmi_hook - hook into MCA specific NMI chain
++ *
++ * Description:
++ *	The MCA (Microchannel Arcitecture) has an NMI chain for NMI sources
++ *	along the MCA bus.  Use this to hook into that chain if you will need
++ *	it.
++ **/
++void __init mca_nmi_hook(void)
++{
++	/* If I recall correctly, there's a whole bunch of other things that
++	 * we can do to check for NMI problems, but that's all I know about
++	 * at the moment.
++	 */
++
++	printk("NMI generated from unknown source!\n");
++}
++#endif
+diff -urN linux/arch/i386/mach-pc9800/setup_arch_post.h linux98/arch/i386/mach-pc9800/setup_arch_post.h
+--- linux/arch/i386/mach-pc9800/setup_arch_post.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/setup_arch_post.h	Sat Sep 21 23:00:26 2002
+@@ -0,0 +1,29 @@
++/**
++ * machine_specific_memory_setup - Hook for machine specific memory setup.
++ *
++ * Description:
++ *	This is included late in kernel/setup.c so that it can make
++ *	use of all of the static functions.
++ **/
++
++static inline char * __init machine_specific_memory_setup(void)
++{
++	char *who;
++	unsigned long low_mem_size, lower_high, higher_high;
++
++
++	who = "BIOS (common area)";
++
++	low_mem_size = ((*(unsigned char *)__va(PC9800SCA_BIOS_FLAG) & 7) + 1) << 17;
++	add_memory_region(0, low_mem_size, 1);
++	lower_high = (__u32) *(__u8 *) bus_to_virt(PC9800SCA_EXPMMSZ) << 17;
++	higher_high = (__u32) *(__u16 *) bus_to_virt(PC9800SCA_MMSZ16M) << 20;
++	if (lower_high != 0x00f00000UL) {
++		add_memory_region(HIGH_MEMORY, lower_high, 1);
++		add_memory_region(0x01000000UL, higher_high, 1);
++	}
++	else
++		add_memory_region(HIGH_MEMORY, lower_high + higher_high, 1);
++
++	return who;
++}
+diff -urN linux/arch/i386/mach-pc9800/setup_arch_pre.h linux98/arch/i386/mach-pc9800/setup_arch_pre.h
+--- linux/arch/i386/mach-pc9800/setup_arch_pre.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/setup_arch_pre.h	Sun Sep 22 07:58:29 2002
+@@ -0,0 +1,36 @@
++/* Hook to call BIOS initialisation function */
++
++/* no action for generic */
++
++#define ARCH_SETUP arch_setup_pc9800();
++
++#include <linux/timex.h>
++#include <asm/io.h>
++#include <asm/pc9800.h>
++#include <asm/pc9800_sca.h>
++
++int CLOCK_TICK_RATE;
++unsigned long tick_usec;	/* ACTHZ          period (usec) */
++unsigned long tick_nsec;	/* USER_HZ period (nsec) */
++unsigned char pc9800_misc_flags;
++/* (bit 0) 1:High Address Video ram exists 0:otherwise */
++
++#ifdef CONFIG_SMP
++#define MPC_TABLE_SIZE 512
++#define MPC_TABLE ((char *) (PARAM+0x400))
++char mpc_table[MPC_TABLE_SIZE];
++#endif
++
++static  inline void arch_setup_pc9800(void)
++{
++	CLOCK_TICK_RATE = PC9800_8MHz_P() ? 1996800 : 2457600;
++	printk(KERN_DEBUG "CLOCK_TICK_RATE = %d\n", CLOCK_TICK_RATE);
++	tick_usec = TICK_USEC; 		/* ACTHZ          period (usec) */
++	tick_nsec = TICK_NSEC(TICK_USEC);	/* USER_HZ period (nsec) */
++
++	pc9800_misc_flags = PC9800_MISC_FLAGS;
++#ifdef CONFIG_SMP
++	if ((*(u32 *)(MPC_TABLE)) == 0x504d4350)
++		memcpy(mpc_table, MPC_TABLE, *(u16 *)(MPC_TABLE + 4));
++#endif /* CONFIG_SMP */
++}
+diff -urN linux/arch/i386/mach-pc9800/smpboot_hooks.h linux98/arch/i386/mach-pc9800/smpboot_hooks.h
+--- linux/arch/i386/mach-pc9800/smpboot_hooks.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-pc9800/smpboot_hooks.h	Sun Sep 22 06:56:46 2002
+@@ -0,0 +1,33 @@
++/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
++ * which needs to alter them. */
++
++static inline void smpboot_clear_io_apic_irqs(void)
++{
++	io_apic_irqs = 0;
++}
++
++static inline void smpboot_setup_warm_reset_vector(void)
++{
++	/*
++	 * Install writable page 0 entry to set BIOS data area.
++	 */
++	local_flush_tlb();
++
++	/*
++	 * Paranoid:  Set warm reset code and vector here back
++	 * to default values.
++	 */
++	outb(0x0f, 0x37);	/* SHUT0 = 1 */
++
++	*((volatile long *) phys_to_virt(0x404)) = 0;
++}
++
++static inline void smpboot_setup_io_apic(void)
++{
++	/*
++	 * Here we can be sure that there is an IO-APIC in the system. Let's
++	 * go and set it up:
++	 */
++	if (!skip_ioapic_setup && nr_ioapics)
++		setup_IO_APIC();
++}
+diff -urN linux/arch/i386/mach-summit/io_ports.h linux98/arch/i386/mach-summit/io_ports.h
+--- linux/arch/i386/mach-summit/io_ports.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-summit/io_ports.h	Thu Oct 10 17:11:01 2002
+@@ -0,0 +1,20 @@
++/* i8253A PIT registers */
++#define PIT_MODE		0x43
++#define PIT_CH0			0x40
++#define PIT_CH2			0x42
++
++/* i8259A PIC registers */
++#define PIC_MASTER_CMD		0x20
++#define PIC_MASTER_IMR		0x21
++#define PIC_MASTER_ISR		PIC_MASTER_CMD
++#define PIC_MASTER_POLL		PIC_MASTER_ISR
++#define PIC_MASTER_OCW3		PIC_MASTER_ISR
++#define PIC_SLAVE_CMD		0xa0
++#define PIC_SLAVE_IMR		0xa1
++
++/* i8259A PIC related value */
++#define PIC_CASCADE_IR		2
++#define MASTER_ICW4_DEFAULT	0x01
++#define SLAVE_ICW4_DEFAULT	0x01
++#define PIC_ICW4_AEOI		2
++
+diff -urN linux/arch/i386/mach-visws/io_ports.h linux98/arch/i386/mach-visws/io_ports.h
+--- linux/arch/i386/mach-visws/io_ports.h	Thu Jan  1 09:00:00 1970
++++ linux98/arch/i386/mach-visws/io_ports.h	Thu Oct 10 17:11:01 2002
+@@ -0,0 +1,20 @@
++/* i8253A PIT registers */
++#define PIT_MODE		0x43
++#define PIT_CH0			0x40
++#define PIT_CH2			0x42
++
++/* i8259A PIC registers */
++#define PIC_MASTER_CMD		0x20
++#define PIC_MASTER_IMR		0x21
++#define PIC_MASTER_ISR		PIC_MASTER_CMD
++#define PIC_MASTER_POLL		PIC_MASTER_ISR
++#define PIC_MASTER_OCW3		PIC_MASTER_ISR
++#define PIC_SLAVE_CMD		0xa0
++#define PIC_SLAVE_IMR		0xa1
++
++/* i8259A PIC related value */
++#define PIC_CASCADE_IR		2
++#define MASTER_ICW4_DEFAULT	0x01
++#define SLAVE_ICW4_DEFAULT	0x01
++#define PIC_ICW4_AEOI		2
++

@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVCRKj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVCRKtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVCRKj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 05:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVCRKj2
+	id S261573AbVCRKtk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 05:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVCRKtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 05:39:28 -0500
-Received: from [24.24.2.55] ([24.24.2.55]:50616 "EHLO ms-smtp-01.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S261566AbVCRKjT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 05:39:19 -0500
-Date: Fri, 18 Mar 2005 05:38:52 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove lame schedule in journal inverted_lock (was: Re:
- [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks)
-In-Reply-To: <20050318013251.330e4d78.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503180531580.21994@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
- <20050315120053.GA4686@elte.hu> <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
- <20050315133540.GB4686@elte.hu> <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
- <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org>
- <20050316095155.GA15080@elte.hu> <20050316020408.434cc620.akpm@osdl.org>
- <20050316101906.GA17328@elte.hu> <20050316024022.6d5c4706.akpm@osdl.org>
- <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
- <20050316031909.08e6cab7.akpm@osdl.org> <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
- <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
- <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
- <20050316131521.48b1354e.akpm@osdl.org> <Pine.LNX.4.58.0503170406500.17019@localhost.localdomain>
- <Pine.LNX.4.58.0503180415370.21994@localhost.localdomain>
- <20050318013251.330e4d78.akpm@osdl.org>
+	Fri, 18 Mar 2005 05:49:40 -0500
+Received: from web53309.mail.yahoo.com ([206.190.39.238]:33976 "HELO
+	web53309.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261573AbVCRKth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 05:49:37 -0500
+Message-ID: <20050318104937.67083.qmail@web53309.mail.yahoo.com>
+Date: Fri, 18 Mar 2005 10:49:37 +0000 (GMT)
+From: sounak chakraborty <sounakrin@yahoo.co.in>
+Subject: problem with process and threads
+To: linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 18 Mar 2005, Andrew Morton wrote:
-> Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> >
-> > Andrew,
-> >
-> > Since I haven't gotten a response from you,
->
-> It sometimes takes me half a day to get onto looking at patches.  And if I
-> take them I usually don't reply (sorry).  But I don't drop stuff, so if you
-> don't hear, please assume the patch stuck.  If others raise objections
-> to the patch I'll usually duck it as well, but it's pretty obvious when that
-> happens.
-
-Sorry, I didn't mean to be pushy. I understand that you have a lot on your
-plate, and I'm sure you don't drop stuff. I just wasn't sure that you
-noticed that that was a patch and not just a reply on this thread, since I
-didn't flag it as such in the subject. I just didn't want it to slip under
-the radar.
+  
+dear sir
+    The number of processes that are being created in
+fork.c() in function do_fork are less than the  number
+of processes are being terminated in exit.c in
+function do_exit().
+    I am placing a printk() in both the above
+functions do_fork() and do_exit() and thus after
+compiling and then restarting i am getting exit
+messages of many process ids that have not yet been
+formed.
 
 
->
-> I really should knock up a script to send out an email when I add a patch
-> to -mm.
->
+    Another question is that while we are using an AND
+operation to distinguish between a process and a
+thread (
+    if(p->flags & CLONE_VM)
+ in fork.c in function do_fork() in linux kernel 2.6.8
+).
 
-I thought you might have had something like that already, which was
-another reason I thought you might have skipped this.
+    But if i use the above check in do_exit() , will
+it be able to distinguish between a thread and a
+process in the same manner as do_fork().
+    If this is not the case , then plz tell where i am
+wrong and rectify my mistake.
+
+    One more problem is while p->active_mm is equal to
+NULL in case of kernel threads and not NULL in case of
+user level threads ; through this check we can
+identify kernel and user level threads in fork.c but
+in exit.c the same p->active_mm value is not NULL for
+kernel and user level threads.
+   Hence i want to know how can i make a distinction
+between kernel and user threads . Is there any other
+way?
+
+ Eagerly waiting for a reply,
+ Thanks in advance,
+ Sounak    
 
 
-> > I'd figure that you may have
-> > missed this, since the subject didn't change.  So I changed the subject to
-> > get your attention, and I've resent this. Here's the patch to get rid of
-> > the the lame schedule that was in fs/jbd/commit.c.   Let me know if this
-> > patch is appropriate.
->
-> I'm rather aghast at all the ifdeffery and complexity in this one.  But I
-> haven't looked at it closely yet.
->
-
-I wanted to keep the wait logic out when it wasn't a problem. Basically,
-the problem only occurs when bit_spin_trylock is defined as an actual
-trylock. So I put in a define there to enable the wait queues.  I didn't
-want to waste cycles checking the wait queue in jbd_unlock_bh_state when
-there would never be anything on it.  Heck, I figured why even have the
-wait queue wasting memory if it wasn't needed.  So that added the
-ifdeffery complexity.
-
-Thanks,
-
--- Steve
-
+________________________________________________________________________
+Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265541AbUFXUhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265544AbUFXUiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265541AbUFXUhr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 16:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265537AbUFXUhr
+	id S265544AbUFXUiK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 16:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265537AbUFXUiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 16:37:47 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:46305 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265541AbUFXUgE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 16:36:04 -0400
-Date: Thu, 24 Jun 2004 13:35:28 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.7-mm2 build failure
-Message-ID: <31650000.1088109328@flay>
-In-Reply-To: <200406241908.i5OJ8rY20620@unix-os.sc.intel.com>
-References: <200406241908.i5OJ8rY20620@unix-os.sc.intel.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 24 Jun 2004 16:38:04 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:38927 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265544AbUFXUgx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 16:36:53 -0400
+Date: Thu, 24 Jun 2004 22:49:52 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Testing for kernel features in external modules
+Message-ID: <20040624204952.GA4700@mars.ravnborg.org>
+Mail-Followup-To: Patrick McFarland <diablod3@gmail.com>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <20040624203043.GA4557@mars.ravnborg.org> <d577e569040624132413451e20@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <d577e569040624132413451e20@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> drivers/base/node.c: In function `node_read_meminfo':
->> drivers/base/node.c:56: warning: implicit declaration of function
->> `hugetlb_report_node_meminfo'
->> drivers/built-in.o(.text+0x1f615): In function `node_read_meminfo':
->> : undefined reference to `hugetlb_report_node_meminfo'
->> make: *** [.tmp_vmlinux1] Error 1
->> 
->> Hmmm. I wonder if anyone tested that patch ;-)
->> 
+On Thu, Jun 24, 2004 at 04:24:01PM -0400, Patrick McFarland wrote:
+> On Thu, 24 Jun 2004 22:30:43 +0200, Sam Ravnborg <sam@ravnborg.org> wrote:
+> > 
+> > The last couple of kbuild patches has put attention to testing for
+> > features in the kernel so an external modules can stay compatible
+> > with a broad range of kernels.
+> > Since vendors backport patches then testing for the kernel version is not
+> > an option, so other means are reqired.
+> > 
+> > Two approaches are in widespread use:
+> > a) grep kernel headers
+> > b) Try to compile a small .c file (nvidia is a good example)
 > 
-> Sorry, missing a #include.  Tested with/without hugetlb config'ed.  Previous
-> patch was tested with hugetlb page configured.
-> 
-> 
-> diff -Nur linux-2.6.7.orig/drivers/base/node.c linux-2.6.7/drivers/base/node.c
-> --- linux-2.6.7.orig/drivers/base/node.c	2004-06-15 22:18:59.000000000 -0700
-> +++ linux-2.6.7/drivers/base/node.c	2004-06-24 12:01:48.000000000 -0700
-> @@ -7,6 +7,7 @@
->  #include <linux/init.h>
->  #include <linux/mm.h>
->  #include <linux/node.h>
-> +#include <linux/hugetlb.h>
->  #include <linux/cpumask.h>
->  #include <linux/topology.h>
+> Why can't you check the .config file to see if features are enabled?
 
-Thanks, that fixed it ...
+Features in a broad sense so API changes with respect to types
+and function calls
 
-M.
-
+	Sam

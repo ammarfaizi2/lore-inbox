@@ -1,55 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129914AbQK1MA3>; Tue, 28 Nov 2000 07:00:29 -0500
+        id <S130172AbQK1MHK>; Tue, 28 Nov 2000 07:07:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130172AbQK1MAV>; Tue, 28 Nov 2000 07:00:21 -0500
-Received: from styx.suse.cz ([195.70.145.226]:62961 "EHLO kerberos.suse.cz")
-        by vger.kernel.org with ESMTP id <S129914AbQK1MAC>;
-        Tue, 28 Nov 2000 07:00:02 -0500
-Date: Tue, 28 Nov 2000 09:59:24 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Rusty Russell <rusty@linuxcare.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-Message-ID: <20001128095924.C356@suse.cz>
-In-Reply-To: <20001124224018.A5173@suse.cz> <20001128031933.52DB981F5@halfway.linuxcare.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001128031933.52DB981F5@halfway.linuxcare.com.au>; from rusty@linuxcare.com.au on Tue, Nov 28, 2000 at 02:19:23PM +1100
+        id <S130559AbQK1MGu>; Tue, 28 Nov 2000 07:06:50 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19072 "EHLO pizda.ninka.net")
+        by vger.kernel.org with ESMTP id <S130172AbQK1MGn>;
+        Tue, 28 Nov 2000 07:06:43 -0500
+Date: Tue, 28 Nov 2000 03:21:01 -0800
+Message-Id: <200011281121.DAA01404@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: bsg@uniyar.ac.ru
+CC: linux-kernel@vger.kernel.org, andy@lysaker.kvaerner.no
+In-Reply-To: <Pine.GSO.3.96.SK.1001124163030.25896C-100000@univ.uniyar.ac.ru>
+        (bsg@uniyar.ac.ru)
+Subject: Re: Kernel Oops on locking sockets via fcntl()
+In-Reply-To: <Pine.GSO.3.96.SK.1001124163030.25896C-100000@univ.uniyar.ac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2000 at 02:19:23PM +1100, Rusty Russell wrote:
-> In message <20001124224018.A5173@suse.cz> you write:
-> > On Thu, Nov 23, 2000 at 10:01:53PM +1100, Rusty Russell wrote:
-> > > What irritates about these monkey-see-monkey-do patches is that if I
-> > > initialize a variable to NULL, it's because my code actually relies on
-> > > it; I don't want that information eliminated.
-> > 
-> > Yes, but if it generates a bigger (== worse) binary?
-> 
-> We're talking about a few bytes, here.  If you're prepared to make my
-> code less clear to save bytes, you can do much better than that...
 
-Perhaps in your case you had just an
+This should fix the bug, there were some cases outside
+of file locking (bonus points to anyone who can craft
+an exploit for the ELF interpreter case :-):
 
-int a = 0;
-
-then it's really just a few bytes, but many sources have for example
-
-int a[1024] = { 0, 0, /* .... */ };
-
-Which in turn is a big wastage.
-
-On the other hand, if you save "just" a few bytes in every driver, in a
-way that is safe and simple (and commenting out the = 0 is a safe way),
-you get a lot of space saved in the sum.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+--- ./fs/binfmt_elf.c.~1~	Mon Oct 30 11:34:25 2000
++++ ./fs/binfmt_elf.c	Tue Nov 28 03:03:43 2000
+@@ -247,7 +247,7 @@
+ 		goto out;
+ 	if (!elf_check_arch(interp_elf_ex))
+ 		goto out;
+-	if (!interpreter->f_op->mmap)
++	if (!interpreter->f_op || !interpreter->f_op->mmap)
+ 		goto out;
+ 
+ 	/*
+@@ -364,7 +364,7 @@
+ 
+ 	do_brk(0, text_data);
+ 	retval = -ENOEXEC;
+-	if (!interpreter->f_op->read)
++	if (!interpreter->f_op || !interpreter->f_op->read)
+ 		goto out;
+ 	retval = interpreter->f_op->read(interpreter, addr, text_data, &offset);
+ 	if (retval < 0)
+@@ -789,7 +789,7 @@
+ 
+ 	/* First of all, some simple consistency checks */
+ 	if (elf_ex.e_type != ET_EXEC || elf_ex.e_phnum > 2 ||
+-	   !elf_check_arch(&elf_ex) || !file->f_op->mmap)
++	   !elf_check_arch(&elf_ex) || !file->f_op || !file->f_op->mmap)
+ 		goto out;
+ 
+ 	/* Now read in all of the header information */
+--- ./fs/dquot.c.~1~	Fri Nov 17 17:24:03 2000
++++ ./fs/dquot.c	Tue Nov 28 03:05:43 2000
+@@ -1474,7 +1474,7 @@
+ 	if (IS_ERR(f))
+ 		goto out_lock;
+ 	error = -EIO;
+-	if (!f->f_op->read && !f->f_op->write)
++	if (!f->f_op || (!f->f_op->read && !f->f_op->write))
+ 		goto out_f;
+ 	inode = f->f_dentry->d_inode;
+ 	error = -EACCES;
+--- ./fs/exec.c.~1~	Thu Nov  9 20:44:59 2000
++++ ./fs/exec.c	Tue Nov 28 03:15:42 2000
+@@ -604,6 +604,8 @@
+ 	/* Huh? We had already checked for MAY_EXEC, WTF do we check this? */
+ 	if (!(mode & 0111))	/* with at least _one_ execute bit set */
+ 		return -EACCES;
++	if (bprm->file->f_op == NULL)
++		return -EACCES;
+ 
+ 	bprm->e_uid = current->euid;
+ 	bprm->e_gid = current->egid;
+--- ./fs/locks.c.~1~	Tue Nov  7 21:04:51 2000
++++ ./fs/locks.c	Tue Nov 28 03:13:34 2000
+@@ -511,7 +511,8 @@
+ 	struct file_lock *fl = *thisfl_p;
+ 	int (*lock)(struct file *, int, struct file_lock *);
+ 
+-	if ((lock = fl->fl_file->f_op->lock) != NULL) {
++	if (fl->fl_file->f_op &&
++	    (lock = fl->fl_file->f_op->lock) != NULL) {
+ 		fl->fl_type = F_UNLCK;
+ 		lock(fl->fl_file, F_SETLK, fl);
+ 	}
+@@ -1355,7 +1356,7 @@
+ 	if (!flock_to_posix_lock(filp, &file_lock, &flock))
+ 		goto out_putf;
+ 
+-	if (filp->f_op->lock) {
++	if (filp->f_op && filp->f_op->lock) {
+ 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
+ 		if (error < 0)
+ 			goto out_putf;
+@@ -1479,7 +1480,7 @@
+ 		goto out_putf;
+ 	}
+ 
+-	if (filp->f_op->lock != NULL) {
++	if (filp->f_op && filp->f_op->lock != NULL) {
+ 		error = filp->f_op->lock(filp, cmd, file_lock);
+ 		if (error < 0)
+ 			goto out_putf;
+@@ -1520,7 +1521,7 @@
+ 	if (!flock64_to_posix_lock(filp, &file_lock, &flock))
+ 		goto out_putf;
+ 
+-	if (filp->f_op->lock) {
++	if (filp->f_op && filp->f_op->lock) {
+ 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
+ 		if (error < 0)
+ 			goto out_putf;
+@@ -1617,7 +1618,7 @@
+ 		goto out_putf;
+ 	}
+ 
+-	if (filp->f_op->lock != NULL) {
++	if (filp->f_op && filp->f_op->lock != NULL) {
+ 		error = filp->f_op->lock(filp, cmd, file_lock);
+ 		if (error < 0)
+ 			goto out_putf;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

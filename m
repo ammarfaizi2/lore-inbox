@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313122AbSDYNYD>; Thu, 25 Apr 2002 09:24:03 -0400
+	id <S313128AbSDYNeP>; Thu, 25 Apr 2002 09:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313126AbSDYNYD>; Thu, 25 Apr 2002 09:24:03 -0400
-Received: from ns.suse.de ([213.95.15.193]:65036 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313122AbSDYNYC>;
-	Thu, 25 Apr 2002 09:24:02 -0400
-To: rajendra.mishra@timesys.com
-Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, Nikita@Namesys.COM,
-        Andrey Ulanov <drey@rt.mipt.ru>, linux-kernel@vger.kernel.org
-Subject: Re: FPU, i386
-In-Reply-To: <200204171440.JAA76065@tomcat.admin.navo.hpc.mil>
-	<200204251310.g3PD9dI00738@localhost.localdomain>
-X-Yow: Now I'm being INVOLUNTARILY shuffled closer to the CLAM DIP
- with the BROKEN PLASTIC FORKS in it!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Thu, 25 Apr 2002 15:22:54 +0200
-Message-ID: <je8z7bzzdd.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S313130AbSDYNeO>; Thu, 25 Apr 2002 09:34:14 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:45564 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S313128AbSDYNeO>; Thu, 25 Apr 2002 09:34:14 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020425045120.6b63334e.spyro@armlinux.org> 
+To: spyro@armlinux.org
+Cc: Rik van Riel <riel@conectiva.com.br>, pavel@suse.cz,
+        phillips@bonn-fries.net, lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre... 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 25 Apr 2002 14:33:31 +0100
+Message-ID: <26143.1019741611@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rpm <rajendra.mishra@timesys.com> writes:
 
-|>    I understand that in case of inrrational number it will not give a exact 
-|> value ......but division like 1/.2 is not irrational ! and it should always 
-|> come to 5 !
+spyro@armlinux.org said:
+> Why SHOULD I download ten different architectures when I only want two
+> (ARM and X86).? Why SHOULD I download SCSI when I dont use anything
+> but IDE? (cost reasons) Why SHOULD I download bluetooth stuff when I
+> will probably wont own a bluetooth device in the near future?
 
-It is not about irrational number (of course, the result of dividing two
-rational number is always a rational number), but about finite precision.
-You simply cannot represent 0.2 finitely in base 2.
+> Why dont you try to provide a satisfactory answer to those questions
+> instead of avoiding them and turning them around? 
 
-Andreas.
+Linus has categorically stated that he will not split up the kernel sources.
+The GPL gives you the freedom to fork the kernel and do so if you wish.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Please do not continue this pointless debate here. You will not achieve 
+anything which was not achieved in all the other numerous times some troll 
+has brought it up.
+
+Do, or do not. There is no troll.
+
+--
+dwmw2
+
+

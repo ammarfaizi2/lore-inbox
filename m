@@ -1,148 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262335AbSJ0KLs>; Sun, 27 Oct 2002 05:11:48 -0500
+	id <S262334AbSJ0KLf>; Sun, 27 Oct 2002 05:11:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262344AbSJ0KLs>; Sun, 27 Oct 2002 05:11:48 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:39601 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262335AbSJ0KLo>; Sun, 27 Oct 2002 05:11:44 -0500
-Message-Id: <4.3.2.7.2.20021027111715.00b4b8e0@mail.dns-host.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sun, 27 Oct 2002 11:17:59 +0100
-To: linux-kernel@vger.kernel.org
-From: Margit Schubert-While <margit@margit.com>
-Subject: Build fail 2.5.44-ac4 modules
+	id <S262335AbSJ0KLf>; Sun, 27 Oct 2002 05:11:35 -0500
+Received: from users.linvision.com ([62.58.92.114]:31639 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S262334AbSJ0KLe>; Sun, 27 Oct 2002 05:11:34 -0500
+Date: Sun, 27 Oct 2002 11:17:51 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: One for the Security Guru's
+Message-ID: <20021027111751.B27535@bitwizard.nl>
+References: <1035453664.1035.11.camel@syntax.dstl.gov.uk> <ap97nr$h6e$1@forge.intermeta.de> <1035479086.9935.6.camel@gby.benyossef.com> <1035539042.23977.24.camel@forge> <apcaub$ov5$1@cesium.transmeta.com> <apdrkh$h8n$1@forge.intermeta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <apdrkh$h8n$1@forge.intermeta.de>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   gcc -Wp,-MD,drivers/isdn/i4l/.isdn_ppp.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic 
--fomit-frame-pointer -nostdinc -iwithprefix include 
--DMODULE   -DKBUILD_BASENAME=isdn_ppp   -c -o drivers/isdn/i4l/isdn_ppp.o 
-drivers/isdn/i4l/isdn_ppp.c
-drivers/isdn/i4l/isdn_ppp.c: In function `ipppd_ioctl':
-drivers/isdn/i4l/isdn_ppp.c:361: warning: int format, long unsigned int arg 
-(arg 4)
-drivers/isdn/i4l/isdn_ppp.c:362: warning: implicit declaration of function 
-`isdn_ppp_bundle'
-drivers/isdn/i4l/isdn_ppp.c: At top level:
-drivers/isdn/i4l/isdn_ppp.c:597: warning: `isdn_ppp_bundle' was declared 
-implicitly `extern' and later `static'
-drivers/isdn/i4l/isdn_ppp.c:362: warning: previous declaration of 
-`isdn_ppp_bundle'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_bind':
-drivers/isdn/i4l/isdn_ppp.c:766: `lp' undeclared (first use in this function)
-drivers/isdn/i4l/isdn_ppp.c:766: (Each undeclared identifier is reported 
-only once
-drivers/isdn/i4l/isdn_ppp.c:766: for each function it appears in.)
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_disconnected':
-drivers/isdn/i4l/isdn_ppp.c:818: `lp' undeclared (first use in this function)
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_receive':
-drivers/isdn/i4l/isdn_ppp.c:941: structure has no member named `compflags'
-drivers/isdn/i4l/isdn_ppp.c:941: `SC_LINK_DECOMP_ON' undeclared (first use 
-in this function)
-drivers/isdn/i4l/isdn_ppp.c:942: warning: implicit declaration of function 
-`isdn_ppp_decompress'
-drivers/isdn/i4l/isdn_ppp.c:942: warning: assignment makes pointer from 
-integer without a cast
-drivers/isdn/i4l/isdn_ppp.c:947: structure has no member named `mpppcfg'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_start_xmit':
-drivers/isdn/i4l/isdn_ppp.c:1184: `ipt' undeclared (first use in this function)
-drivers/isdn/i4l/isdn_ppp.c:1186: `ipts' undeclared (first use in this 
-function)
-drivers/isdn/i4l/isdn_ppp.c:1189: warning: implicit declaration of function 
-`isdn_ppp_skb_push'
-drivers/isdn/i4l/isdn_ppp.c:1189: warning: initialization makes pointer 
-from integer without a cast
-drivers/isdn/i4l/isdn_ppp.c:1197: warning: initialization makes pointer 
-from integer without a cast
-drivers/isdn/i4l/isdn_ppp.c:1191: label `unlock' used but not defined
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_mp_init':
-drivers/isdn/i4l/isdn_ppp.c:1284: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1287: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1289: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1293: `ippp_table' undeclared (first use in 
-this function)
-drivers/isdn/i4l/isdn_ppp.c:1293: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1295: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1296: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1297: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1299: structure has no member named `mp_seqno'
-drivers/isdn/i4l/isdn_ppp.c:1300: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1303: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1304: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1305: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1307: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1309: structure has no member named `pppseq'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_mp_receive':
-drivers/isdn/i4l/isdn_ppp.c:1325: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1335: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1336: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1338: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1347: `ippp_table' undeclared (first use in 
-this function)
-drivers/isdn/i4l/isdn_ppp.c:1354: structure has no member named `mpppcfg'
-drivers/isdn/i4l/isdn_ppp.c:1355: structure has no member named `pppseq'
-drivers/isdn/i4l/isdn_ppp.c:1373: structure has no member named `pppseq'
-drivers/isdn/i4l/isdn_ppp.c:1375: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1472: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_mp_cleanup':
-drivers/isdn/i4l/isdn_ppp.c:1544: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1548: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1551: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_mp_reassembly':
-drivers/isdn/i4l/isdn_ppp.c:1603: structure has no member named `netdev'
-drivers/isdn/i4l/isdn_ppp.c:1609: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1609: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1611: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1615: `ippp_table' undeclared (first use in 
-this function)
-drivers/isdn/i4l/isdn_ppp.c:1615: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1628: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c: At top level:
-drivers/isdn/i4l/isdn_ppp.c:1668: warning: `isdn_ppp_bundle' was declared 
-implicitly `extern' and later `static'
-drivers/isdn/i4l/isdn_ppp.c:362: warning: previous declaration of 
-`isdn_ppp_bundle'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_bundle':
-drivers/isdn/i4l/isdn_ppp.c:1676: warning: implicit declaration of function 
-`isdn_net_findif'
-drivers/isdn/i4l/isdn_ppp.c:1676: warning: assignment makes pointer from 
-integer without a cast
-drivers/isdn/i4l/isdn_ppp.c:1686: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1686: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1687: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1687: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1689: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1689: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1690: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1690: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1695: warning: implicit declaration of function 
-`isdn_net_add_to_bundle'
-drivers/isdn/i4l/isdn_ppp.c:1697: `ippp_table' undeclared (first use in 
-this function)
-drivers/isdn/i4l/isdn_ppp.c:1697: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1697: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1700: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1700: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1702: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c:1702: structure has no member named `ppp_slot'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_dial_slave':
-drivers/isdn/i4l/isdn_ppp.c:1821: warning: assignment makes pointer from 
-integer without a cast
-drivers/isdn/i4l/isdn_ppp.c:1825: warning: implicit declaration of function 
-`isdn_net_bound'
-drivers/isdn/i4l/isdn_ppp.c:1828: structure has no member named `slave'
-drivers/isdn/i4l/isdn_ppp.c:1832: structure has no member named `slave'
-drivers/isdn/i4l/isdn_ppp.c: In function `isdn_ppp_hangup_slave':
-drivers/isdn/i4l/isdn_ppp.c:1850: warning: assignment makes pointer from 
-integer without a cast
-drivers/isdn/i4l/isdn_ppp.c:1857: structure has no member named `slave'
-make[3]: *** [drivers/isdn/i4l/isdn_ppp.o] Error 1
-make[2]: *** [drivers/isdn/i4l] Error 2
-make[1]: *** [drivers/isdn] Error 2
-make: *** [drivers] Error 2
+On Sat, Oct 26, 2002 at 10:43:29AM +0000, Henning P. Schmiedehausen wrote:
+> But my point is, that these beasts normally don't run a general
+> purpose operating system and that they're much less prone to buffer
+> overflow or similar attacks, simply because they don't use popular
+> software with known bugs (e.g.  OpenSSL) or these functions (like
+> doing crypto) are in hardware.
 
+The script kiddies simply haven't bothered to attack these boxes yet. 
+When they are done with the bugs in the common oses, they will move on
+to other targets...
+
+And you say that a "root shell" on the box doesn't give you root on
+the application server? It might be too hard for a "worm" but it will
+be easy for a human. 
+
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************

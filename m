@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbUBEPkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 10:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUBEPkb
+	id S265210AbUBEPjM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 10:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUBEPjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 10:40:31 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:36834 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265311AbUBEPk1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 10:40:27 -0500
-Message-ID: <402263E7.6010903@cyberone.com.au>
-Date: Fri, 06 Feb 2004 02:40:23 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Thu, 5 Feb 2004 10:39:12 -0500
+Received: from jik.kamens.brookline.ma.us ([66.92.77.120]:44673 "EHLO
+	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
+	id S265210AbUBEPjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 10:39:10 -0500
+From: Jonathan Kamens <jik@kamens.brookline.ma.us>
 MIME-Version: 1.0
-To: Mattias Wadenstein <maswan@acc.umu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Performance issue with 2.6 md raid0
-References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
-In-Reply-To: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16418.25494.327896.561787@jik.kamens.brookline.ma.us>
+Date: Thu, 5 Feb 2004 10:39:02 -0500
+To: Joost Witteveen <joostje@foko.komputilo.org>
+Cc: sschu@informatik.uni-bremen.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DMA BadCRC, cables exchanged, problem resists, any idea?
+In-Reply-To: <slrnc24ne6.1nu.joostje@foko.komputilo.org>
+References: <20040204211338.GA31768@x20.informatik.uni-bremen.de>
+	<slrnc24ne6.1nu.joostje@foko.komputilo.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-Bogosity: No, tests=bogofilter
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joost Witteveen writes:
+ > > hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+ > > hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ > 
+ > Looks like the problem mentioned in
+ > 
+ > http://www.ussg.iu.edu/hypermail/linux/kernel/0401.2/0111.html
 
+No, that's a different problem.
 
-Mattias Wadenstein wrote:
+I had to replace my IDE controller to make the BadCRC errors I was
+getting go away (the jury's still out on why my machine is hanging
+pretty frequently with the new controller; I've made some progress at
+figuring that out, and I'll post more to the list when I've got
+something definite).
 
->Greetings.
->
->While testing a file server to store a couple of TB in resonably large
->files (>1G), I noticed an odd performance behaviour with the md raid0 in a
->pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
->
->When striping two md raid5:s, instead of going from about 160-200MB/s for
->a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
->135M/s in single stream read performance.
->
->
-
-Can you try booting with elevator=deadline please?
-
+  jik

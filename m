@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284240AbRL2QWa>; Sat, 29 Dec 2001 11:22:30 -0500
+	id <S284601AbRL2Q3K>; Sat, 29 Dec 2001 11:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284244AbRL2QWV>; Sat, 29 Dec 2001 11:22:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32017 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284240AbRL2QWO>; Sat, 29 Dec 2001 11:22:14 -0500
-Subject: Re: [RFC,PATCH] x86 DMI scan and UP_APIC fixes
-To: mikpe@csd.uu.se (Mikael Pettersson)
-Date: Sat, 29 Dec 2001 16:32:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200112291616.RAA10507@harpo.it.uu.se> from "Mikael Pettersson" at Dec 29, 2001 05:16:13 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284876AbRL2Q3B>; Sat, 29 Dec 2001 11:29:01 -0500
+Received: from bitmover.com ([192.132.92.2]:2471 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284601AbRL2Q2m>;
+	Sat, 29 Dec 2001 11:28:42 -0500
+Date: Sat, 29 Dec 2001 08:28:38 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+        Keith Owens <kaos@ocs.com.au>, "Eric S. Raymond" <esr@thyrsus.com>,
+        Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system
+Message-ID: <20011229082838.A16667@work.bitmover.com>
+Mail-Followup-To: Anton Blanchard <anton@samba.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	Keith Owens <kaos@ocs.com.au>, "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011227180148.A3727@work.bitmover.com> <E16JxmP-0000Yo-00@the-village.bc.nu> <20011228094318.B3727@work.bitmover.com> <20011229092437.GA1295@krispykreme>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16KMPo-0004sb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011229092437.GA1295@krispykreme>; from anton@samba.org on Sat, Dec 29, 2001 at 08:24:37PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The x86 UP_APIC code breaks on some machines due to BIOS bugs,
-> in particular on all recent Dell Inspiron and Latitude laptops.
-> This is something the DMI scan could fix, but unfortunately
-> the boot order is such that the DMI scan occurs long after much
-> of the core hardware has been detected and initialised.
+On Sat, Dec 29, 2001 at 08:24:37PM +1100, Anton Blanchard wrote:
+> How large is your core db stuff? The thing I like about tdb is that it
+> is very simple, only recently growing over 1024 lines.
 
-Agreed. Also it would help for some of the intel 440GX junk where we need
-to force the UP APIC on to get the irq delivery working.
+   1404    4736   32921 mdbm.c
 
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

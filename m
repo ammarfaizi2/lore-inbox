@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263698AbVBFEGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263330AbVBFELL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbVBFEGb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 23:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265416AbVBFEGb
+	id S263330AbVBFELL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 23:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbVBFELL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 23:06:31 -0500
-Received: from chello062179026180.chello.pl ([62.179.26.180]:42658 "EHLO
-	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
-	id S271990AbVBFEGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 23:06:12 -0500
-Date: Sun, 6 Feb 2005 05:06:41 +0100 (CET)
-From: Tomasz Rola <rtomek@ceti.pl>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Otto Wyss <otto.wyss@orpatec.ch>, Marko Macek <Marko.Macek@gmx.net>,
-       linux-kernel@vger.kernel.org, Tomasz Rola <rtomek@ceti.pl>
-Subject: Re: [OT] Re: Why is debugging under Linux such a pain
-In-Reply-To: <DE2864CA-77D9-11D9-BD1C-000393ACC76E@mac.com>
-Message-ID: <Pine.LNX.3.96.1050206041937.16513B-100000@pioneer.space.nemesis.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 5 Feb 2005 23:11:11 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:16051
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S263330AbVBFEKu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 23:10:50 -0500
+Date: Sat, 5 Feb 2005 20:02:42 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: yoshfuji@linux-ipv6.org
+Cc: herbert@gondor.apana.org.au, mirko.parthey@informatik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+Message-Id: <20050205200242.2b629de7.davem@davemloft.net>
+In-Reply-To: <20050205.195039.05988480.yoshfuji@linux-ipv6.org>
+References: <20050205061110.GA18275@gondor.apana.org.au>
+	<20050204221344.247548cb.davem@davemloft.net>
+	<20050205064643.GA29758@gondor.apana.org.au>
+	<20050205.195039.05988480.yoshfuji@linux-ipv6.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 05 Feb 2005 19:50:39 +0900 (JST)
+YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> wrote:
 
-On Sat, 5 Feb 2005, Kyle Moffett wrote:
+> In article <20050205064643.GA29758@gondor.apana.org.au> (at Sat, 5 Feb 2005 17:46:43 +1100), Herbert Xu <herbert@gondor.apana.org.au> says:
+> 
+> > If we wanted to preserve the split device semantics, then we
+> > can create a local GC list in IPv6 so that it can search based
+> > on rt6i_idev as well as the other keys.  Alternatively we can
+> > remove the dst->dev == dev check in dst_dev_event and dst_ifdown
+> > and move that test down to the individual ifdown functions.
+> 
+> Yes, IPv6 needs "split device" semantics
+> (for per-device statistics such as Ip6InDelivers etc),
+> and I like later solution.
 
-> You could also try Xnest, which runs a second X-server within a window 
-> of
-> the primary X-server,
-
-Yes, this is a good idea...
-
-> except without most of the extra overhead of VNC 
-
-...but I'm not sure if this overhead is noticeable in normal case. I have
-just tried to watch film on xvncviewer (same computer, i.e. no network
-except localhost) and it was watchable in full screen (800x550 emulated in
-window) and even more so when I switched mplayer to window mode. Quake2
-also was running quite nicely in 640x400.
-
-BTW, I am using TightVNC and my cpu is Athlon underclocked down to 900
-MHz (well, I've decided full 1.8 GHz scared me a lot and besides,
-who needs it to run so fast? and why they don't make 7.14 MHz computers
-anymore?).
-
-Of course, in terms of cpu cycles, mplayer and Xvnc together took about
-35% of CPU in top, while mplayer on real X took only about 3-5% due to the
-gfx card doing all the work (seemingly). So the overhead is indeed quite
-big.
-
-For a "simple app with few menus", the choice probably doesn't matter
-anyway.
-
-> Cheers,
-> Kyle Moffett
-
-Regards,
-Tomasz Rola
-
-- --
-** A C programmer asked whether computer had Buddha's nature.      **
-** As the answer, master did "rm -rif" on the programmer's home    **
-** directory. And then the C programmer became enlightened...      **
-**                                                                 **
-** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 5.0i for non-commercial use
-Charset: noconv
-
-iQA/AwUBQgWX2RETUsyL9vbiEQKLVACgsZeOt11+VUICCITjMBQX9ZTrCQQAoPHa
-58IkuL68hTKtZTrQdi70DYV9
-=FIkn
------END PGP SIGNATURE-----
-
-
+Ok.  I never read whether ipv6, like ipv4, is specified to support
+a model of host based ownership of addresses.  Does anyone know?

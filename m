@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267831AbUHERlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267834AbUHERob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267831AbUHERlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 13:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267826AbUHERlU
+	id S267834AbUHERob (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 13:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267832AbUHERob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 13:41:20 -0400
-Received: from main.gmane.org ([80.91.224.249]:18335 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267798AbUHERkt (ORCPT
+	Thu, 5 Aug 2004 13:44:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47555 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267834AbUHERoT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 13:40:49 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: Program-invoking Symbolic Links?
-Date: Thu, 05 Aug 2004 19:34:42 +0200
-Message-ID: <yw1xbrhph4jx.fsf@kth.se>
-References: <200408051504.26203.jmc@xisl.com> <20040805164522.GA12308@parcelfarce.linux.theplanet.co.uk>
+	Thu, 5 Aug 2004 13:44:19 -0400
+Date: Thu, 5 Aug 2004 10:42:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: colpatch@us.ibm.com, wli@holomorphy.com, pj@sgi.com, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
+Message-Id: <20040805104236.6b2750b6.akpm@osdl.org>
+In-Reply-To: <871xiljzqo.fsf@devron.myhome.or.jp>
+References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com>
+	<20040731232126.1901760b.pj@sgi.com>
+	<Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
+	<20040801124053.GS2334@holomorphy.com>
+	<20040801060529.4bc51b98.pj@sgi.com>
+	<20040801131004.GT2334@holomorphy.com>
+	<20040801063632.66c49e61.pj@sgi.com>
+	<20040801134112.GU2334@holomorphy.com>
+	<1091484032.4415.55.camel@arrakis>
+	<871xiljzqo.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:cHD7KXnB8Juyhl8bAxVqxHyiXUI=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk writes:
-
-> On Thu, Aug 05, 2004 at 03:04:26PM +0100, John M Collins wrote:
->> (Please CC any reply to jmc AT xisl.com as I'm not subbed - thanks).
->> 
->> I wondered if anyone had ever thought of implementing an
->> alternative form of symbolic link which was in fact an invocation
->> of a program?
->> 
->> Such a symbolic link would "do all the necessary" to fork off a new
->> process running the specified program with input or output from or
->> to a pipe depending on whether the link was opened for writing or
->> reading respectively. RW access would probably have to be banned
->> and the link would usually be read-only or write-only.
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 >
-> ~luser/foo => "cp /bin/sh /tmp/...; chmod 4777 /tmp/...; cat ~luser/foo.real"
->
-> Any questions?
+>  >  #define next_node(n, src) __next_node((n), &(src), MAX_NUMNODES)
+>  >  static inline int __next_node(int n, const nodemask_t *srcp, int nbits)
+>  >  {
+>  > -	return find_next_bit(srcp->bits, nbits, n+1);
+>  > +	return min_t(int, nbits, find_next_bit(srcp->bits, nbits, n+1));
+>  >  }
+> 
+>  Shouldn't these use simply min()?  I worry min_t() may hide the real bug...
 
-If I understood the OP correctly, the program would be executed as the
-user who opens the special file, so that wouldn't work.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+The problem is that on some architectures, find_next_bit() returns an
+unsigned long, on others it returns an int and I think some even return a
+long.

@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282823AbRLGJqU>; Fri, 7 Dec 2001 04:46:20 -0500
+	id <S282829AbRLGJqL>; Fri, 7 Dec 2001 04:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282824AbRLGJqL>; Fri, 7 Dec 2001 04:46:11 -0500
-Received: from 217-79-103-50.adsl.griffin.net.uk ([217.79.103.50]:43163 "EHLO
-	beast.ez-dsp.com") by vger.kernel.org with ESMTP id <S282823AbRLGJqD>;
-	Fri, 7 Dec 2001 04:46:03 -0500
-Message-ID: <016501c17f04$3f5730c0$0cfea8c0@ezdsp.com>
-Reply-To: "James Stevenson" <mistral@stev.org>
-From: "James Stevenson" <mistral@stev.org>
-To: "Andrew Morton" <akpm@zip.com.au>
-Cc: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0112061458360.15516-100000@mustard.heime.net> <3C0FD78D.F567ECBD@zip.com.au> <00e601c17eb0$25e20d80$0801a8c0@Stev.org> <3C1006C3.895EEE9F@zip.com.au>
-Subject: Re: temporarily system freeze with high I/O write to ext2 fs
-Date: Fri, 7 Dec 2001 09:47:54 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S282824AbRLGJqB>; Fri, 7 Dec 2001 04:46:01 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:27289 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S282823AbRLGJpn>; Fri, 7 Dec 2001 04:45:43 -0500
+Message-Id: <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 07 Dec 2001 09:45:17 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: kernel: ldt allocation failed
+Cc: vkire@pixar.com (Kiril Vidimce), dmaas@dcine.com (Dan Maas),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <E16CH6i-00059b-00@the-village.bc.nu>
+In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> >
-> > > > why is it that Linux 'hangs' while doing heavy I/O operations (such
-as
-> > dd)
-> > > > to (and perhaps from?) ext2 file systems? I can't see the same
-behaivour
-> > > > when using other file systems, such as ReiserFS
-> > > >
-> > >
-> > > A partial fix for this went into 2.4.17-pre2.  What kernel are you
-> > > using?
-> >
-> > i have always had with problem normally during disk writes.
-> > currently on 2.4.x-14 + 2.4.16
+At 09:15 07/12/01, Alan Cox wrote:
+> > I don't see how one can magically tell that this is an NVIDIA problem.
 >
-> Please try 2.4.17-pre2 or later.
->
+>We don't know. But since we don't have their source and they have our
+>source only they can tell you.
 
-ok i should have some time to try that at the weekend.
+Not doing any debugging is fine.
 
-> > its not that it hangs but it gets extremely laggy eg 2/3 seconds pause
-> > for keyboard input to appear on a console.
->
-> Your app got paged out, and the enormous read latencies in 2.4.16
-> caused it to remain there.
+However, looking at 2.4.16/arch/i386/kernel/process.c::copy_segments() 
+which generates this message it seems odd: It returns void, yet it can fail 
+because it is doing a vmalloc().
 
-why would it have been paged out there was loads of free
-ram. there is 192MB in the machine and no X windows or
-anything and the app was bash and there are not many other processes.
+When the vmalloc() fails, the new_mm->context.segments is set to NULL and 
+the function returns.
 
-    James
+That seems wrong, no? Shouldn't there be a panic() when the allocation 
+fails at least? Or even better the function should perhaps return an error 
+code?
+
+Considering there is only one caller (kernel/fork.c::copy_mm()) it would be 
+easy to modify copy_mm() to handle a returned error code gracefully and 
+goto fail_nomem, which would in turn result in kernel/fork.c::do_fork(), 
+the only caller of copy_mm(), cleaning up properly and returning an error code.
+
+Or have I missed something and the situation where the ldt is missing can 
+be recovered from? - I would think (without looking into this in the kernel 
+code) that loosing the local descriptor table would be rather detrimental 
+on the first context switch to the new process created by fork... And 
+considering all kinds of errors are being handled in this code path, except 
+for the vmalloc() failure, it seems like a good idea to add the appropriate 
+fail mechanism.
+
+If nvidia is causing this to get triggered they will likely run into 
+problems elsewhere anyway and we don't care but we should get the kernel 
+working. As it is AFAICS we have a potential DOS, just get the box close to 
+OOM and start calling man 2 fork and/or man 3 clone and you could trigger 
+this with a finite probability.
+
+Best regards,
+
+         Anton
 
 
-
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

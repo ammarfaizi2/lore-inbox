@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264012AbTEWKmE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 06:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTEWKmE
+	id S264016AbTEWLAn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 07:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264018AbTEWLAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 06:42:04 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:11933 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264012AbTEWKmD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 06:42:03 -0400
-Date: Fri, 23 May 2003 12:55:03 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: davem@caip.rutgers.edu
-Cc: Eric.Schenk@dna.lth.se, linux-kernel@vger.kernel.org
-Subject: [PATCH] make icmp.c be more verbose on broadcast icmp errors
-Message-ID: <Pine.LNX.4.51.0305231222450.8169@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 May 2003 07:00:43 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43023 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264016AbTEWLAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 07:00:42 -0400
+Date: Fri, 23 May 2003 12:13:45 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Lothar Wassmann <LW@KARO-electronics.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at least))
+Message-ID: <20030523121345.A32110@flint.arm.linux.org.uk>
+Mail-Followup-To: Lothar Wassmann <LW@KARO-electronics.de>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <16076.50160.67366.435042@ipc1.karo> <20030522151156.C12171@flint.arm.linux.org.uk> <16077.55787.797668.329213@ipc1.karo> <20030523022454.61a180dd.akpm@digeo.com> <16077.61981.684846.221686@ipc1.karo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16077.61981.684846.221686@ipc1.karo>; from LW@KARO-electronics.de on Fri, May 23, 2003 at 12:04:13PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, May 23, 2003 at 12:04:13PM +0200, Lothar Wassmann wrote:
+> Is 2.5.68 current enough? The problem was even better reproducible
+> with this kernel than with the old one. So I made all my tests with
+> 2.5.68.
 
-I noticed today in my logs something like:
-1.2.3.4 sent an invalid ICMP error to a broadcast address.
+Can you attach the test program which reproduces your problem, and
+include a description of what you think is going wrong?
 
-And i though that it would be nice to make it report what code/type was
-it. So here goes:
+AFAICS, you have only pointed out that a call to flush_page_to_ram()
+without further information.
 
-2.5 version:
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-diff -Nru linux-2.5.69.bak/net/ipv4/icmp.c linux-2.5.68/net/ipv4/icmp.c
---- linux-2.5.69.bak/net/ipv4/icmp.c	2003-05-17 14:56:11.000000000 +0200
-+++ linux-2.5.69/net/ipv4/icmp.c	2003-05-23 12:15:45.000000000 +0200
-@@ -663,8 +659,10 @@
- 	    inet_addr_type(iph->daddr) == RTN_BROADCAST) {
- 		if (net_ratelimit())
- 			printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP "
-+					    "type %u, code %u "
- 					    "error to a broadcast.\n",
--			       NIPQUAD(skb->nh.iph->saddr));
-+			       NIPQUAD(skb->nh.iph->saddr),
-+			       icmph->type, icmph->code);
- 		goto out;
- 	}
-
-
-2.4 Version:
-diff -Nru linux.bak/net/ipv4/icmp.c linux/net/ipv4/icmp.c
---- linux.bak/net/ipv4/icmp.c	2003-04-30 15:57:40.000000000 +0200
-+++ linux/net/ipv4/icmp.c	2003-05-23 12:20:46.000000000 +0200
-@@ -625,8 +595,9 @@
- 		if (inet_addr_type(iph->daddr) == RTN_BROADCAST)
- 		{
- 			if (net_ratelimit())
--				printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP error to a broadcast.\n",
--			       	NIPQUAD(skb->nh.iph->saddr));
-+				printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP type %u, code %u error to a broadcast.\n",
-+			       	NIPQUAD(skb->nh.iph->saddr),
-+			       	icmph->type, icmph->code);
- 			goto out;
- 		}
- 	}

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265975AbTGILub (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 07:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265980AbTGILub
+	id S265624AbTGIMAd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 08:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbTGIMAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 07:50:31 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27568
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265975AbTGILu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 07:50:29 -0400
-Subject: Re: [2.4][TRIVIAL] Use of uninitialized vars in
-	arch/i386/kernel/process.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Disconnect <lkml@sigkill.net>
-Cc: Riley@Williams.Name, davej@suse.de, hpa@zytor.com, trivial@rustcorp.com.au,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1057593701.4081.87.camel@slappy>
-References: <1057593701.4081.87.camel@slappy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057752144.6255.46.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 9 Jul 2003 08:00:33 -0400
+Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:18560 "EHLO
+	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S265624AbTGIMAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 08:00:32 -0400
+From: jlnance@unity.ncsu.edu
+Date: Wed, 9 Jul 2003 08:15:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Linux makes me a hero
+Message-ID: <20030709121510.GA2177@ncsu.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Jul 2003 13:02:24 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-07 at 17:01, Disconnect wrote:
-> If you don't pass reboot=, reboot_mode and reboot_thru_bios are used
-> uninitialized and (in the case of reboot_mode) written directly to
-> memory for the bios.
+Hi All,
+    Thought you might appreciate this story.  I got my Linux Journal
+yesterday.  It has a picture from the Incredable Hulk on the front
+because the movie was rendered on Linux machines.  I showed it to
+my wife and told her that I had helped write the OS that rendered
+the movie (I wrote the original Rules.make a long time ago).  She
+suggested that I tell my daughter.  I thought that was a good idea
+so I did and you should have seen the look on her face (no one can
+get excited like an 8 yo can).  She is quite proud of me.  And I
+am proud of Linux.
 
-reboot_mode is static so defaults to zero.
+Thanks,
 
-
+Jim

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSICPtA>; Tue, 3 Sep 2002 11:49:00 -0400
+	id <S316677AbSICPv6>; Tue, 3 Sep 2002 11:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSICPtA>; Tue, 3 Sep 2002 11:49:00 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:2041 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S317181AbSICPs7>; Tue, 3 Sep 2002 11:48:59 -0400
-Date: Tue, 3 Sep 2002 17:53:39 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] mount flag "direct"
-In-Reply-To: <Pine.LNX.4.44L.0209031211400.1519-100000@duckman.distro.conectiva>
-Message-ID: <Pine.GSO.3.96.1020903174246.20090C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S317068AbSICPv5>; Tue, 3 Sep 2002 11:51:57 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44294 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316677AbSICPv5>; Tue, 3 Sep 2002 11:51:57 -0400
+Date: Tue, 3 Sep 2002 09:04:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@suse.cz>,
+       Peter Chubb <peter@chubb.wattle.id.au>, <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: Large block device patch, part 1 of 9
+In-Reply-To: <15732.34929.657481.777572@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, Rik van Riel wrote:
 
-> > Rationale:
-> > No caching means that each kernel doesn't go off with its own idea of
-> > what is on the disk in a file, at least. Dunno about directories and
-> > metadata.
+On Tue, 3 Sep 2002, Neil Brown wrote:
 > 
-> And what if they both allocate the same disk block to another
-> file, simultaneously ?
+> Effectively, this is a type-safe cast.  You still get the warning, but
+> it looks more like the C that we are used to.
 
- You need a mutex then.  For SCSI devices a reservation is the way to go
--- the RESERVE/RELEASE commands are mandatory for direct-access devices,
-so thy should work universally for disks.
+I wonder if the right answer isn't to just make things like "__u64" be
+"long long" even on 64-bit architectures (at least those on which it is 64
+bit, of course. I _think_ that's true of all of them). And then just use 
+"llu" for it all.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Of course, the really _best_ option would be to have gcc's printf string 
+format be extensible and dynamic.
+
+Davem, is sparc64 "long long" 64-bit?
+
+		Linus
 

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266183AbSKUAi5>; Wed, 20 Nov 2002 19:38:57 -0500
+	id <S266191AbSKUAea>; Wed, 20 Nov 2002 19:34:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbSKUAi5>; Wed, 20 Nov 2002 19:38:57 -0500
-Received: from [155.223.251.1] ([155.223.251.1]:48035 "HELO gatekeeper")
-	by vger.kernel.org with SMTP id <S266183AbSKUAi4>;
-	Wed, 20 Nov 2002 19:38:56 -0500
-From: "Halil Demirezen" <nitrium@bilmuh.ege.edu.tr>
-To: "Rusty Lynch" <rusty@linux.co.intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Coding style question] XXX_register or register_XXX
-Date: Thu, 21 Nov 2002 03:02:06 +0800
-Message-Id: <20021121030206.M48633@bilmuh.ege.edu.tr>
-In-Reply-To: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com>
-References: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com>
-X-Mailer: Open WebMail 1.64 20020415
-X-OriginatingIP: 217.131.251.13 (nitrium)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-9
+	id <S266233AbSKUAea>; Wed, 20 Nov 2002 19:34:30 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:54916 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266191AbSKUAe3>; Wed, 20 Nov 2002 19:34:29 -0500
+Subject: Re: RFC - new raid superblock layout for md driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Dake <sdake@mvista.com>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+In-Reply-To: <3DDC2A6F.2030307@mvista.com>
+References: <20021120234743.GF29881@marowsky-bree.de> 
+	<3DDC2A6F.2030307@mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Nov 2002 01:10:07 +0000
+Message-Id: <1037841007.5821.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there an accepted standard on naming for registration functions?  
-> If have a foo object that other things can register and unregister 
-> with, should the function names be:
-> int foo_register(&something);
-> int foo_unregister(&something);
+On Thu, 2002-11-21 at 00:35, Steven Dake wrote:
+> Since GFS isn't GPL at this point and OpenGFS needs alot of work, I've 
+> not spent the time looking at it.
 
-really, that would make the entire kernel code a little 
-simplier to understand.
-On the same way, we can say why there is not an accepted standard on
-naming lock functions, such as
- 
-   spinlock, rwlock and so on..
+OCFS is probably the right place to be looking in terms of development
+in this area right now
 
-That would be more efficient to understand the code...
-However, where is flexibility?
-
-
--hd

@@ -1,87 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266123AbTLaFVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 00:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbTLaFVz
+	id S266122AbTLaFU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 00:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266123AbTLaFU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 00:21:55 -0500
-Received: from mail2.megatrends.com ([155.229.80.16]:22792 "EHLO
-	atl-ms1.megatrends.com") by vger.kernel.org with ESMTP
-	id S266123AbTLaFVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 00:21:40 -0500
-Message-ID: <8CCBDD5583C50E4196F012E79439B45C0568D7F6@atl-ms1.megatrends.com>
-From: Srikumar Subramanian <SrikumarS@ami.com>
-To: "'Andrew Morton'" <akpm@osdl.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: Boopathi Veerappan <BoopathiV@ami.com>,
-       Srikumar Subramanian <SrikumarS@ami.com>
-Subject: RE: memory leak in call_usermodehelper()
-Date: Wed, 31 Dec 2003 00:22:50 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 31 Dec 2003 00:20:57 -0500
+Received: from dp.samba.org ([66.70.73.150]:64434 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266122AbTLaFUy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 00:20:54 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] kthread_create 
+In-reply-to: Your message of "Tue, 30 Dec 2003 20:49:10 -0800."
+             <20031230204910.0e767b50.akpm@osdl.org> 
+Date: Wed, 31 Dec 2003 16:18:10 +1100
+Message-Id: <20031231052051.C575D2C0DC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20031230204910.0e767b50.akpm@osdl.org> you write:
+> It would be nice to be able to see all the hotplug CPU patches in one
+> place, to get a feel for their shape and size.  That way, we can decide
+> whether we need to look at this patch ;)
 
-This is my sample syscall implementation
+Um, I've had this on kernel.org for a few years now.  It's even at the
+top of the page:
 
----
-asmlinkage int sys_mysyscall (int arg1, char * arg2)
-{
-	char * argv[2], * envp[3];
-	
-	argv[0] = "/usr/test";  //this program does nothing, simply returns
-0
-	argv[1] = 0;
-	
-	envp[0] = "HOME=/";
-	envp[1] = "PATH=/bin:/sbin/:/usr/bin:/usr/sbin";
-	envp[2] = 0;
+	http:://www.kernel.org/pub/linux/kernel/people/rusty
 
-	call_usermodehelper (argv[0], argv, envp);  //calling this way leads
-to memory leak in kernel.
+> > +static struct kt_message ktm_receive(void)
+> > +{
+> > +	struct kt_message m;
+> > +
+> > +	for (;;) {
+> > +		spin_lock(&ktm_lock);
+> > +		if (ktm.to == current)
+> > +			break;
+> > +		current->state = TASK_INTERRUPTIBLE;
+> > +		spin_unlock(&ktm_lock);
+> > +		schedule();
+> > +	}
+> 
+> If the calling task has a signal pending, this could become a tight loop?
 
-	return 1;
-}
----
+Possibly, but there's not much we can do.  We never wait long, and
+we're keventd or a child here, so we're only talking about SIGCHLD.
 
-Is there any alternative to call_usermodehelper in kernel 2.4.20?
+> > +	strcpy(current->comm, k.name);
+> > +
+> > +	/* Block and flush all signals. */
+> > +	sigfillset(&blocked);
+> > +	sigprocmask(SIG_BLOCK, &blocked, NULL);
+> > +	flush_signals(current);
+> > +
+> 
+> deamonize() was not suitable here?
 
-Any suggestion of patch will be greatly appreciated.
+No. (1) By design, we're always a purebred kernel thread descended
+directly from the init thread and have never had an mm anywhere.  (2)
+daemonize is an abhorrent abortion: it's dangerous and presumptive to
+try to "clean up" a random thread into a kernel thread.
 
-Thanks & regards,
-Srikumar
+> > +		/* If it fails, just wait until kthread_destroy. */
+> > +		if (k.corefn && (ret = k.corefn(k.data)) < 0)
+> > +			k.corefn = NULL;
+> > +
+> > +		if (time_to_die(&m))
+> > +			break;
+> > +
+> > +		schedule();
+> > +	}
+> 
+> In what state is this schedule() called?  If it's TASK_RUNNING (or
+> TASK_INTERRUPTIBLE with signal_pending()) and this task has rt priority
+> higher than the thing it is waiting for we could have a problem?
 
------Original Message-----
-From: Srikumar Subramanian 
-Sent: Tuesday, December 30, 2003 12:14 PM
-To: 'Andrew Morton'
-Cc: linux-kernel@vger.kernel.org; Srikumar Subramanian; Boopathi Veerappan
-Subject: RE: memory leak in call_usermodehelper()
+Yep, that's by design.  (1) signal_pending() is not possible, we've
+blocked all signals above.  (2) the corefn() MUST set the task state,
+as per normal semantics:
 
-Hi,
-I am using 2.4.20-8 Redhat 9 kernel.
+       1) set current->state to TASK_INTERRUPTIBLE
+       2) check condition
+       3) return (so core can schedule)
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org]
-Sent: Tuesday, December 30, 2003 6:20 AM
-To: Srikumar Subramanian
-Cc: linux-kernel@vger.kernel.org; SrikumarS@ami.com; BoopathiV@ami.com
-Subject: Re: memory leak in call_usermodehelper()
+> > +struct kthread_create
+> > +{
+> > +	struct task_struct *result;
+> > +	struct kthread k;
+> > +	struct completion done;
+> > +};
+> > +
+> 
+> `kthread_create' sounds like the name of a function to me, not a structure.
 
-Srikumar Subramanian <SrikumarS@ami.com> wrote:
->
-> Hi All,
->
-> >From my customized system call, I merely call call_usermodehelper() to
-spawn
-> a process. When I call my_system_call around 1000 times in order to spawn
-> 'hello world' program, I noticed in 'top' program that system has lost 200
-> KB of free memory.
-> I just increased the iteration to 700000, I lost the entire 128 MB free
-> memory from my system and eventually the system is freezed.
->
+OK, I've changed it to kthread_creation.  It's private to kthread.c
+anyway.
 
-What version of the kernel were you using?
+> It would be nice to kerneldocify kthread_create(), kthread_start() and
+> kthread_destroy() sometime.
+
+Sure, if you want.  Does anyone actually read that?  I prefer the
+comments on how to use functions belong in the headers, not above the
+definitions as seems to be the kerneldoc way.
+
+> > +static void wait_for_death(struct task_struct *k)
+> > +{
+> > +	while (!(k->state & TASK_ZOMBIE) && !(k->state & TASK_DEAD))
+> > +		yield();
+> > +}
+> > +
+> 
+> If the calling task has higher rt priority than *k, could this not become a
+> busy loop?  It would be preferable to use a real sleep/wait primitive here.
+
+Hmm, if it's an RT task, it'll screw up, yes, because yield() won't
+yield().
+
+Fixing this well would require a way of notifying someone who is not
+the parent when a task dies, OR taking over the parenthood of the
+task.  Both of these required non-trivial changes to exit.c and I
+shied away.
+
+All things are possible, however...
+
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

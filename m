@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSJTUtC>; Sun, 20 Oct 2002 16:49:02 -0400
+	id <S261366AbSJTU67>; Sun, 20 Oct 2002 16:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261291AbSJTUtB>; Sun, 20 Oct 2002 16:49:01 -0400
-Received: from AMarseille-201-1-4-158.abo.wanadoo.fr ([217.128.74.158]:24688
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S261286AbSJTUtA>; Sun, 20 Oct 2002 16:49:00 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Andre Hedrick" <andre@linux-ide.org>,
-       "Brian Gerst" <bgerst@didntduck.org>
-Cc: "Christian Borntraeger" <linux@borntraeger.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-Date: Mon, 21 Oct 2002 00:54:30 +0200
-Message-Id: <20021020225430.11019@192.168.4.1>
-In-Reply-To: <Pine.LNX.4.10.10210191627090.24031-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10210191627090.24031-100000@master.linux-ide.org>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+	id <S261407AbSJTU67>; Sun, 20 Oct 2002 16:58:59 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:42762 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261366AbSJTU66>;
+	Sun, 20 Oct 2002 16:58:58 -0400
+Message-ID: <3DB31A8E.7060103@mvista.com>
+Date: Sun, 20 Oct 2002 16:05:18 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPMI driver for Linux, version 7
+References: <Pine.NEB.4.44.0210191249240.28761-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Asking me to make it so you or anyone else can bypass
->copy-content-protection is out of the question.  If you do not ask the
->device to do bad things, then it will not do bad things back at you.
+Adrian Bunk wrote:
 
-Andre, your argument is pointless, the right answer is indeed
-what you wrote below, that is don't buy those ;) Though still,
-I agree we shouldn't oops.
-
-Also one problem here is that machines like all new macs can only
-_play_ CDs by reading their audio datas via ATAPI and sending those
-to the sound chip, they have no analog output on the drive and
-if they had, Apple didn't wire it to the sound chip.
-So on these configs, there is nothing wrong even in the US wanting
-to _play_ a CD you have legally purchased...
-
-Trying to do that shouldn't result into a kernel oops :)
-
-So the point is that even if the drive fucks up, it should
-be possible to not crash, detect the fuckup, error the read
-request (at least), and eventually reset the drive if it
-needs that to be put back in a sane state.
-
-I don't know what exactly is going on at the transport level
-with those so-called "copy protected" CDs though, I'm afraid
-only you knows exactly what's up there ;) I could investigate,
-but I have no intend spending money on a copy-protected CD :)
-
->If your memory is short, recall I was the only person to stand up and take
->issue about having CPRM stuffed into your harddrives by default.
+>On Tue, 15 Oct 2002, Corey Minyard wrote:
 >
->Make a note, DON"T BUY SONY CDRW Products. 
+>  
 >
->Now if you are serious about want to fix the issue and not rant about
->issues that have no meaning because they are your opinion on how the world
->should work as it relates to hardware, then we can move on.
+>>In the continuing saga of IPMI driver updates, here's another installment.
+>>
+>>More cleanups and bug fixes, some from Arjan van de Ven, and others from
+>>myself. This fixes some problems with blocking operations while holding
+>>a lock. It has an unfortunate interface change (but better now than
+>>later), the lun field is removed from the IPMI message, and one is added
+>>to the system interface address. It's a minor change, but it really
+>>needed to be done to make things consistent. It's only released as a
+>>patch to the v6 version and it applies cleanly to all kernel versions.
+>> As usual, you can download the driver from my home page at
+>>http://home.attbi.com/~minyard.
+>>
+>>-Corey
+>>
+>>PS - In case you don't know, IPMI is a standard for system management,
+>>it provides ways to detect the managed devices in the system and sensors
+>>attached to them.  You can get more information at
+>>http://www.intel.com/design/servers/ipmi/spec.htm
+>>    
+>>
+>
+><--  snip  -->
+>
+>...
+>Adopters Agreement:
+>
+>Before implementing the IPMI, IPMB or ICMB specifications, a royalty-free
+>reciprocal patent license must be signed. Please follow the steps below to
+>sign the IPMI Adopters Agreement:
+>...
+>·  Adopter hereby grants to the Promoters and to Fellow Adopters, and the
+>   Promoters hereby grant to Adopter, a nonexclusive, royalty-free,
+>   nontransferable, nonsublicenseable, worldwide license under its
+>   Necessary Claims to make, have made, use, import, offer to sell and
+>   sell products which comply with the Specification; provided that such
+>   license shall not extend to features of a product which are not
+>   required to comply with the Specification or for which there exists a
+>   feasible, noninfringing alternative.
+>...
+>
+><--  snip  -->
+>
+>
+>Am I right that this makes it impossible to include an IPMI driver into
+>the kernel (this isn't GPL-compatible)?
+>
+I do not read it so, but perhaps you are right.  I will ask.  I'm sure I 
+will receive a resounding "maybe" as the answer.  I was working with 
+people at Intel on this, and they had another driver they wanted to use 
+for IPMI, and wanted to push it into the kernel, but it had some 
+problems so I wrote this as a replacement.  So I don't think Intel sees 
+it this way (at least those at Intel I was working with).
 
+-Corey
 

@@ -1,106 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSDYHof>; Thu, 25 Apr 2002 03:44:35 -0400
+	id <S312980AbSDYH4N>; Thu, 25 Apr 2002 03:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312980AbSDYHoe>; Thu, 25 Apr 2002 03:44:34 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:31638 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S312973AbSDYHod>;
-	Thu, 25 Apr 2002 03:44:33 -0400
-Date: Thu, 25 Apr 2002 09:44:26 +0200
-From: Luca Amigoni <alnet@tin.it>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] emu10k1 driver BUG()
-Message-Id: <20020425094426.01239ae5.alnet@tin.it>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Operating-System: Debian GNU/Linux
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Thu__25_Apr_2002_09:44:26_+0200_082ce638"
+	id <S312983AbSDYH4M>; Thu, 25 Apr 2002 03:56:12 -0400
+Received: from WARSL401PIP2.highway.telekom.at ([195.3.96.74]:23902 "HELO
+	email04.aon.at") by vger.kernel.org with SMTP id <S312980AbSDYH4M>;
+	Thu, 25 Apr 2002 03:56:12 -0400
+Message-ID: <004601c1ec2e$a59e4bb0$fe78a8c0@robert>
+From: "Robert Schelander" <rschelander@aon.at>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0204242313480.8788-100000@dragon.pdx.osdl.net>
+Subject: swap_free: Bad swap offset entry
+Date: Thu, 25 Apr 2002 09:35:18 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+I run a 2.4.17 system with high filesystem load and experience the
+following problem:
 
---Multipart_Thu__25_Apr_2002_09:44:26_+0200_082ce638
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+after running some hours with ext2 I got a lot of these messages:
+Apr 24 22:19:00 linux kernel: swap_free: Bad swap offset entry 04000000
 
-I'm trying to use rawrec with a SB Live, but I get a kernel BUG():
+if I do a swapoff (swap is at /dev/hda6) they turn to:
+Apr 24 22:20:29 linux kernel: swap_free: Unused swap file entry 04000000
 
-al@mater:~$ rawrec file.raw
- kernel BUG at audio.c:1474!
- invalid operand: 0000
- CPU:    0
- EIP:    0010:[<e289a343>]    Not tainted
- EFLAGS: 00010082
- eax: 00000029   ebx: df979d08   ecx: c0332958   edx: de718000
- esi: 0000e000   edi: 00005555   ebp: 00003556   esp: de719ecc
- ds: 0018   es: 0018   ss: 0018
- Process rawrec (pid: 558, stackpage=de719000)
- Stack: e28a29a0 0000e000 00005555 00000202 df979cc0 00000000 bffff038 0000ffff
-        00018000 0001c000 00010000 00014000 e289962e df979cc0 c0045004 ffffffe7
-        bffff038 dfb9c0c0 c168d340 e28a49c0 dfb9c0c0 00000000 df979cc0 00000000
- Call Trace: [<e28a29a0>] [<e289962e>] [<e28a49c0>] [<c0135d42>] [<c0142ee9>]
-    [<c01086e3>]
-
- Code: 0f 0b c5 05 80 29 8a e2 83 c4 0c 89 f6 5b 5e 5f 5d 83 c4 14
- Segmentation fault
+..and get back to "Bad swap offset entry" if I do the swapon again
 
 
-In line 1474 I see
+Before that I run the machine with ext3 where even worse things happened.
+I got a lot of these messages before the machine hangs some hours later:
 
-if (buffer->size % buffer->fragment_size)
-	BUG();
+Apr 22 04:01:04 linux kernel: Unable to handle kernel paging request at
+virtual address e71d6478
+Apr 22 04:01:04 linux kernel:  printing eip:
+Apr 22 04:01:04 linux kernel: c013ede8
+Apr 22 04:01:04 linux kernel: *pde = 00000000
+Apr 22 04:01:04 linux kernel: Oops: 0002
+Apr 22 04:01:04 linux kernel: CPU:    0
+Apr 22 04:01:04 linux kernel: EIP:    0010:[prune_dcache+24/296]    Not
+tainted
+Apr 22 04:01:04 linux kernel: EFLAGS: 00210212
+Apr 22 04:01:04 linux kernel: eax: c027c93c   ebx: c71d63f8   ecx: c71d6040
+edx: e71d6478
+Apr 22 04:01:04 linux kernel: esi: c71d62e0   edi: 00000000   ebp: 00007e35
+esp: c3771e04
+Apr 22 04:01:04 linux kernel: ds: 0018   es: 0018   ss: 0018
+Apr 22 04:01:04 linux kernel: Process mogrify (pid: 913, stackpage=c3771000)
+Apr 22 04:01:04 linux kernel: Stack: 00000004 000001d2 00000020 00000006
+c013f14b 0000a4d0 c01290e0 00000006
+Apr 22 04:01:05 linux kernel:        000001d2 00000006 000001d2 c027bc48
+c027bc48 c027bc48 c012913c 00000020
+Apr 22 04:01:05 linux kernel:        c3770000 00000100 00000000 c0129942
+c027bdc4 00000100 00000010 00000000
+Apr 22 04:01:05 linux kernel: Call Trace: [shrink_dcache_memory+27/52]
+[shrink_caches+108/140] [try_to_free_pages+60/92] [balance_classzone+78/360]
+[__alloc_pages+262/356]
+Apr 22 04:01:05 linux kernel:    [_alloc_pages+22/24]
+[do_anonymous_page+52/228] [do_no_page+51/400] [handle_mm_fault+82/176]
+[do_page_fault+352/1176] [do_page_fault+0/1176]
+Apr 22 04:01:05 linux kernel:    [update_wall_time+11/52] [timer_bh+36/604]
+[do_timer+63/108] [timer_interrupt+95/264] [bh_action+26/64]
+[tasklet_hi_action+68/100]
+Apr 22 04:01:05 linux kernel:    [do_softirq+90/164] [error_code+52/60]
+Apr 22 04:01:05 linux kernel:
+Apr 22 04:01:05 linux kernel: Code: 89 02 89 1b 89 5b 04 8d 73 e8 8b 46 54
+a8 08 74 27 24 f7 89
 
-I've added a printk just before the BUG() call and I got this:
 
-buffer->size = 57344; buffer->fragment_size = 21845
+Any ideas/help??
 
-Kernel version is 2.4.19-pre7-ac2, same with 2.4.19-pre3-ac6 + preempt patch.
-I've not tried with earlier versions, nor 2.5.x tree.
-Attached file is an 'lspci -vv' output relative to the sound card.
-
-Loaded modules are:
-
-al@mater:~$ /sbin/lsmod 
-Module                  Size  Used by    Tainted: PF 
-smbfs                  33216   2 (autoclean)
-mousedev                3968   1
-usb-storage            21116   0 (unused)
-hid                    12992   0 (unused)
-input                   3456   0 [mousedev hid]
-usb-uhci               22404   0 (unused)
-usbcore                37600   0 [usb-storage hid usb-uhci]
-emu10k1                59328   0
-ac97_codec              9696   0 [emu10k1]
-sound                  55276   0 [emu10k1]
-8139too                14272   1
-mii                     1136   0 [8139too]
+Thanks in advance
+Robert
 
 
-
-Regards,
-
-  Luca
-
---Multipart_Thu__25_Apr_2002_09:44:26_+0200_082ce638
-Content-Type: text/plain;
- name="lspci.out"
-Content-Disposition: attachment;
- filename="lspci.out"
-Content-Transfer-Encoding: base64
-
-MDA6MGIuMCBNdWx0aW1lZGlhIGF1ZGlvIGNvbnRyb2xsZXI6IENyZWF0aXZlIExhYnMgU0IgTGl2
-ZSEgRU1VMTBrMSAocmV2IDA0KQogICAgICAgIFN1YnN5c3RlbTogQ3JlYXRpdmUgTGFicyBDVDQ2
-MjAgU0JMaXZlIQogICAgICAgIENvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNs
-ZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCiAg
-ICAgICAgU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1l
-ZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCiAgICAgICAgTGF0
-ZW5jeTogMzIgKDUwMG5zIG1pbiwgNTAwMG5zIG1heCkKICAgICAgICBJbnRlcnJ1cHQ6IHBpbiBB
-IHJvdXRlZCB0byBJUlEgMTIKICAgICAgICBSZWdpb24gMDogSS9PIHBvcnRzIGF0IGQwMDAgW3Np
-emU9MzJdCiAgICAgICAgQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAxCiAgICAgICAgICAgICAgICBGbGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3VycmVu
-dD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQogICAgICAgICAgICAgICAgU3Rh
-dHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQo=
-
---Multipart_Thu__25_Apr_2002_09:44:26_+0200_082ce638--

@@ -1,91 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVCJK7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVCJLcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVCJK7K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 05:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVCJK7J
+	id S262518AbVCJLcV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 06:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVCJLcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 05:59:09 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:38650 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262514AbVCJK6f convert rfc822-to-8bit
+	Thu, 10 Mar 2005 06:32:21 -0500
+Received: from 62-177-247-250.dyn.bbeyond.nl ([62.177.247.250]:40975 "EHLO
+	www.ithos.nl") by vger.kernel.org with ESMTP id S262518AbVCJLcO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 05:58:35 -0500
-Date: Thu, 10 Mar 2005 11:56:10 +0100 (CET)
-To: rbultje@ronald.bitfreak.net
-Subject: Re: [PATCH 2.6] Fix i2c messsage flags in video drivers
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <6TEha2ac.1110452170.7309170.khali@localhost>
-In-Reply-To: <Pine.LNX.4.56.0503092336240.16415@www.ithos.nl>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Chris Wright" <chrisw@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       "Daniel Staaf" <dst@bostream.nu>, "LKML" <linux-kernel@vger.kernel.org>,
-       "Andrei Mikhailovsky" <andrei@arhont.com>,
-       "Ian Campbell" <icampbell@arcom.com>, "Gerd Knorr" <kraxel@bytesex.org>,
+	Thu, 10 Mar 2005 06:32:14 -0500
+Date: Thu, 10 Mar 2005 01:47:37 +0100 (CET)
+From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
+X-X-Sender: rbultje@www.ithos.nl
+To: Jean Delvare <khali@linux-fr.org>
+cc: Chris Wright <chrisw@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Daniel Staaf <dst@bostream.nu>, LKML <linux-kernel@vger.kernel.org>,
+       Andrei Mikhailovsky <andrei@arhont.com>,
+       Ian Campbell <icampbell@arcom.com>, Gerd Knorr <kraxel@bytesex.org>,
        stable@kernel.org
+Subject: Re: [PATCH 2.6] Fix i2c messsage flags in video drivers
+In-Reply-To: <6TEha2ac.1110452170.7309170.khali@localhost>
+Message-ID: <Pine.LNX.4.56.0503100141390.22284@www.ithos.nl>
+References: <6TEha2ac.1110452170.7309170.khali@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jean,
 
-Hi Ronald,
+thanks for the reply.
 
-[Jean Delvare]
-> It is possible that people are able to get their board to still work
-> without my patch, if the chips were properly configured in the first
-> place and they don't attempt to reconfigure them (like norm change). I
-> don't know the chips well enough to tell how probable this is.
+On Thu, 10 Mar 2005, Jean Delvare wrote:
+> I'm glad to learn you are testing things. Still the oops in saa7110 went
+> unnoticed for the past 3 months, so I guess that either you don't have
+> a DC10(+) in your test panel, or you did not test mm/rc kernels.
 
-[Ronald S. Bultje]
-> I'm pretty sure the patch is correct, I trust you a lot more on that than
-> myself (I still need to test it, though; but that's a detail). However,
-> this statement is not correct. I test this driver daily, I still own a
-> whole bunch of such cards. Even after hard reboots, they still just work.
-> Norm changes, input changes, everything works. I test (and use) all of
-> this. I would've noticed if it was really as broken as you're describing
-> above.
+I indeed don't test RC/MM kernels. I'm fairly happy with the current
+driver status, so I'm not doing any active new development on it. I run
+standard Fedora kernels with CVS of the driver (which is the same as
+what's in 2.6.10).
 
-I'm glad to learn you are testing things. Still the oops in saa7110 went
-unnoticed for the past 3 months, so I guess that either you don't have
-a DC10(+) in your test panel, or you did not test mm/rc kernels.
+> BUZ:
+> Input (saa7111): works
+> Output (saa7185): no init, cannot set norm
 
-I've gone through the code again, and here is what I think is broken in
-2.6.11 on the various Zoran-based boards. Then everyone will be free to
-pick any patch chunk he/she wants and apply it to any tree he/she likes.
+I have this card, but it's no in my computer (not enough PCI slots). Last
+test is from a few months back. Other people (co-developers) test this for
+me whenever I make small driver changes. They report that it works,
+whatever that means. ;). I know they regularly use it for capture, so at
+least MJPEG capture and overlay display has to work to some degree. Output
+may be untested.
 
-BUZ:
-Input (saa7111): works
-Output (saa7185): no init, cannot set norm
+> DC10:
+> Input (saa7110): oops
+> Output (adv7175): no init, cannot set norm
+>
+> DC30:
+> Input (vpx3220): works
+> Output (adv7175): no init, cannot set norm
 
-DC10:
-Input (saa7110): oops
-Output (adv7175): no init, cannot set norm
+I have those two. Both work fine. I test raw capture, MJPEG capture and
+overlay display at least once a week. I don't get an oops on the DC10. I
+haven't tested output lately. I basically only test output when I make
+changes to the relevant modules, and I haven't done that lately. Last time
+I tested it (which must be around the time the driver was integrated into
+the kernel, so before 2.6.0...), it worked for me.
 
-DC30:
-Input (vpx3220): works
-Output (adv7175): no init, cannot set norm
+> LM33:
+> Input (bt819): no init
+> Output (bt856): works
+>
+> LM33R10:
+> Input (saa7114): no init, cannot set norm
+> Output (adv7170): no init, cannot set norm
 
-LM33:
-Input (bt819): no init
-Output (bt856): works
+See Buz.
 
-LM33R10:
-Input (saa7114): no init, cannot set norm
-Output (adv7170): no init, cannot set norm
+> As you can see, all boards are affected at some level but every user
+> might not be equally affected, depends whether you use input or output
+> or both. Note that "no init" might not affect everyone either, depends
+> on the chip init defaults and the user needs. Ronald, can you tell us
+> what exactly in the above you are testing?
 
-As you can see, all boards are affected at some level but every user
-might not be equally affected, depends whether you use input or output
-or both. Note that "no init" might not affect everyone either, depends
-on the chip init defaults and the user needs. Ronald, can you tell us
-what exactly in the above you are testing?
+My experience is not the same as yours, it seems... I cannot explain why,
+unfortunately. Again, I'm sure your patch is correct, I'm just reporting
+that I'm not seeing the same thing that you're seeing.
 
-Personally I have only been able to test input on a DC10+ board (saa7110
-driver). I lack hardware to test the output.
-
-Hope that clarifies things,
---
-Jean Delvare
+Ronald

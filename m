@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTJNXtr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 19:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTJNXtr
+	id S262064AbTJNX7w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 19:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTJNX7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 19:49:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25253 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261872AbTJNXtq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 19:49:46 -0400
-Date: Tue, 14 Oct 2003 16:49:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Karel =?ISO-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Vortex 3c900 passing driver parameters
-Message-Id: <20031014164954.20ac88f6.akpm@osdl.org>
-In-Reply-To: <20031014183226.A188@beton.cybernet.src>
-References: <20031014183226.A188@beton.cybernet.src>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 14 Oct 2003 19:59:52 -0400
+Received: from mail.kroah.org ([65.200.24.183]:14484 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262064AbTJNX7u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 19:59:50 -0400
+Date: Tue, 14 Oct 2003 16:54:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 patch] add USB gadget Configure help entries
+Message-ID: <20031014235436.GC18311@kroah.com>
+References: <20031011120508.GU24300@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031011120508.GU24300@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavý <clock@twibright.com> wrote:
->
-> Hello
+On Sat, Oct 11, 2003 at 02:05:08PM +0200, Adrian Bunk wrote:
+> In 2.4.23-pre7 USB gadget support was added but no Configure.help 
+> entries were added.
 > 
-> How do I do a ether=... (kernel boot-time) equivalent of
-> insmod 3c59x.o options=0x201 full_duplex=1 ?
-> 
+> The patch below adds these missing entries. the help texts were copied 
+> from 2.6, please check whether they are correct for 2.4, too.
 
-Unfortunately you cannot.  `ether=' is broken for all drivers which use the
-new(ish) alloc_etherdev() API.
+Applied, thanks.
 
-It is due to ordering problems: the name of the interface is not known at
-the time of parsing the setup info and nobody has got down and worked out
-how to fix it.  
+greg k-h

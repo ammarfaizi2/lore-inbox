@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbULaLD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbULaLRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbULaLD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 06:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbULaLDz
+	id S261849AbULaLRb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 06:17:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbULaLRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 06:03:55 -0500
-Received: from smtp.MYNET.JP ([43.244.0.72]:63499 "EHLO SMTP.MyNET.JP")
-	by vger.kernel.org with ESMTP id S261850AbULaLDw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 06:03:52 -0500
-Message-ID: <20041231200350.eme@v003.vaio.ne.jp>
-Date: Fri, 31 Dec 2004 20:03:50 +0900
-From: eme@v003.vaio.ne.jp
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: QUESTION: What's the difference between MCYRIXIII and MVIAC3_2
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Client-IP: 218.221.50.205
-X-Originating-Email: eme@v003.vaio.ne.jp
-X-Mailer: UbiqMail Ver 3.0.0
+	Fri, 31 Dec 2004 06:17:31 -0500
+Received: from livid.absolutedigital.net ([66.92.46.173]:47751 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S261849AbULaLR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 06:17:26 -0500
+Date: Fri, 31 Dec 2004 06:17:26 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Ikke <ikke.lkml@gmail.com>
+cc: Michael Berger <mikeb1@t-online.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Compile error in kernel 2.6.10-bk3 in file slhc.c
+In-Reply-To: <297f4e0104123102571bb1759f@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0412310614320.6599@lancer.cnet.absolutedigital.net>
+References: <3hbOM-43L-21@gated-at.bofh.it> <41D5009E.4090100@t-online.de>
+ <297f4e0104123102571bb1759f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, 31 Dec 2004, Ikke wrote:
 
-I have a question to ask.
-When compiling the kernel, there's a option to select
-the Processor type and features.
+> Could you point me to the patch please?
 
-In kernel 2.6.7, I see two options for C3 Processors.
-I could see that MCYRIXIII is for C3 processors that's not Nehemiah core.
-And MVIAC3_2 is for C3 processors that is Nehemiah core.
+at:
 
-In the help it says that MCYRIXIII kernel doesn't work with
-Nehemiah core, and MVIAC3_2 kernel doesn't work with C3 processor,
-not Nehemiah core.
-But my PC(Nehemiah core) has been working fine with MCYRIXIII,
-which in the help says, it's not gonna work with Nehemiah.
-I compiled another kernel with MVIAC3_2, which also works fine.
-Now I'm thinking that there must not be major difference between
-two, but is there?
+http://linux.bkbits.net:8080/linux-2.5/cset@1.2082?nav=index.html|ChangeSet@-1d
 
-If there's someone that knows the difference, please tell me.
+and below.
 
-# I found out that MVIAC3_2 uses CMOV function, where MCYRIXIII
-# doesn't.But I really dont know what kind of problem that CMOV
-# brings...
+-- Cal
 
-Thanks in advance.
-
-===============================
-Hideaki Nemoto
-E-mail: eme@v003.vaio.ne.jp
-
-Thanks all, for your kind help
-===============================
-
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/30 15:21:16-08:00 acme@conectiva.com.br 
+#   [PATCH] Fix net/core/sock.o build failure
+#   
+#   This fixes a build failure that happens when you don't select IPV6.
+#   
+#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+# 
+# include/linux/ipv6.h
+#   2004/12/29 14:22:45-08:00 acme@conectiva.com.br +1 -1
+#   Fix net/core/sock.o build failure
+# 
+diff -Nru a/include/linux/ipv6.h b/include/linux/ipv6.h
+--- a/include/linux/ipv6.h	2004-12-31 03:15:16 -08:00
++++ b/include/linux/ipv6.h	2004-12-31 03:15:16 -08:00
+@@ -273,6 +273,7 @@
+ 	struct ipv6_pinfo inet6;
+ };
+ 
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+ static inline struct ipv6_pinfo * inet6_sk(const struct sock *__sk)
+ {
+ 	return inet_sk(__sk)->pinet6;
+@@ -283,7 +284,6 @@
+ 	return &((struct raw6_sock *)__sk)->raw6;
+ }
+ 
+-#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+ #define __ipv6_only_sock(sk)	(inet6_sk(sk)->ipv6only)
+ #define ipv6_only_sock(sk)	((sk)->sk_family == PF_INET6 && __ipv6_only_sock(sk))
+ #else

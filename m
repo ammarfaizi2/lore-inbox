@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUIIS4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUIISZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266391AbUIIS4O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 14:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUIISwv
+	id S266616AbUIISZR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 14:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUIISXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 14:52:51 -0400
-Received: from holomorphy.com ([207.189.100.168]:29362 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266391AbUIIStl (ORCPT
+	Thu, 9 Sep 2004 14:23:00 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:36557 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S266391AbUIISCa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 14:49:41 -0400
-Date: Thu, 9 Sep 2004 11:49:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
+	Thu, 9 Sep 2004 14:02:30 -0400
+Date: Thu, 9 Sep 2004 19:53:42 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>
 Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040909184933.GG3106@holomorphy.com>
+Message-ID: <20040909175342.GA27518@k3.hellgate.ch>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Roger Luethi <rl@hellgate.ch>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
-	Paul Jackson <pj@sgi.com>
-References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com> <20040909184300.GA28278@k3.hellgate.ch>
+	Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>
+References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040909184300.GA28278@k3.hellgate.ch>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040909172200.GX3106@holomorphy.com>
+X-Operating-System: Linux 2.6.9-rc1-bk13 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Sep 2004 17:35:29 -0700, William Lee Irwin III wrote:
->> Any chance you could convert these to use the new vm statistics
->> accounting?
+On Thu, 09 Sep 2004 10:22:00 -0700, William Lee Irwin III wrote:
+> On Thu, Sep 09, 2004 at 07:53:31AM -0400, Stephen Smalley wrote:
+> > They aren't world readable when using a security module like SELinux;
+> > they are then typically only accessible by processes in the same
+> > security domain, aside from processes in privileged domains. 
+> > security_task_to_inode() hook sets the security attributes on the
+> > /proc/pid inodes based on their security context, and then
+> > security_inode_permission() hook controls access to them.  So you need
+> > at least comparable controls.
+> 
+> Can you make a more specific suggestion regarding the controls to use?
+> It's a bit awkward for those highly unfamiliar with the subsystem to
 
-On Thu, Sep 09, 2004 at 08:43:01PM +0200, Roger Luethi wrote:
-> Mea culpa. I copied the routines wholesale from 2.6.7 when I started
-> work on nproc. They still seemed to work with 2.6.9-rc1-bk13, I hadn't
-> noticed the work that had gone into field computation already. So for
-> CONFIG_MMU, values in both __task_mem and __task_mem_cheap are cheap
-> now. The routines can be merged.
-> !CONFIG_MMU is a different story. Presumably, it needs a change in the
-> fields that are offered (cp. task_mem in fs/proc/task_nommu.c).
-> FWIW, my prefered solution would be to have only one routine task_mem
-> to fill the respective struct for nproc and /proc.
+For the same reason, I'm not comfortable with implementing SELinux type
+access controls myself. How about:
 
-I'll follow up shortly with a task_mem()/task_mem_cheap() consolidation
-patch atop the others I sent.
+config NPROC
+	depends on !SECURITY_SELINUX
 
+Adding access control later won't be a problem for anyone who groks
+SELinux.
 
-On Thu, Sep 09, 2004 at 08:43:01PM +0200, Roger Luethi wrote:
-> There seems to be a discrepancy between current task_mem in
-> fs/proc/task_nommu.c and the __task_mem{,_cheap} routines you wrote
-> for the nproc !CONFIG_MMU case. Can you explain?
-
-I'm not aware of a discrepancy with the fs/proc/task_nommu.c code; I
-did, however, have to mangle the things via guesswork to avoid adding
-the new fields, which I really wanted you to arrange for or comment on
-as they are a matter of interface. Also, could you be more specific
-about these discrepancies?
-
-
--- wli
+Roger

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315235AbSEVVzL>; Wed, 22 May 2002 17:55:11 -0400
+	id <S315192AbSEVWOI>; Wed, 22 May 2002 18:14:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315162AbSEVVzK>; Wed, 22 May 2002 17:55:10 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:55952 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S314835AbSEVVzJ>;
-	Wed, 22 May 2002 17:55:09 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@zip.com.au>
-Subject: 2.5.17 & ext3 & sard patches
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Wed, 22 May 2002 23:55:04 +0200
-In-Reply-To: <3CE93FAF.642F3E60@zip.com.au> (Andrew Morton's message of
- "Mon, 20 May 2002 11:25:51 -0700")
-Message-ID: <87vg9f4zlz.fsf_-_@atlas.iskon.hr>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S315282AbSEVWOH>; Wed, 22 May 2002 18:14:07 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:45320 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S315192AbSEVWOG>; Wed, 22 May 2002 18:14:06 -0400
+Message-ID: <3CEC1828.5050209@lexus.com>
+Date: Wed, 22 May 2002 15:14:00 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020519
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Have the 2.4 kernel memory management problems on large machines
+In-Reply-To: <E17AakK-0002UE-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
+Alan Cox wrote:
+
+>>Huh? RH 7.3 kernel has the O(1) scheduler merged?
+>>
+>>If the RH kernel is anything like the 2.4.19-pre8-ac5
+>>I'm currently running, that is  sweet indeed.
+>>    
+>>
 >
-> I'll do a bit more ext3 testing than I have been - I run
-> ext3 on my test box as a "stable base" while I develop stuff
-> against ext2 on test partitions, and I haven't observed any
-> problems.  So I guess I need to spend more time testing
-> ext3 this week.
+>rpm -q --changelog |grep "O(1)"
 >
+>  
+>
+Yes, I was being lazy - but now that finals
+are done with for now, I'll grab that kernel
+source rpm and have a proper look at it.
 
-Thank you Andrew! 2.5.17 runs great at least in writeback and journal
-modes of ext3. I did lots of testing and I can't break it.
+Thanks,
 
-BTW, for interesting parties, there is a fresh sard patch for 2.5.17
-at the standard place: http://linux.inet.hr/
+Joe
 
-Enjoy and don't push your disks close to 100% busy, they need some
-rest, too. :)
--- 
-Zlatko

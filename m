@@ -1,103 +1,113 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316783AbSFDVOd>; Tue, 4 Jun 2002 17:14:33 -0400
+	id <S316786AbSFDVPU>; Tue, 4 Jun 2002 17:15:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316786AbSFDVOc>; Tue, 4 Jun 2002 17:14:32 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:39047 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316783AbSFDVOb>;
-	Tue, 4 Jun 2002 17:14:31 -0400
-Date: Tue, 4 Jun 2002 14:10:27 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: <anton@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.19] Oops during PCI scan on Alpha
-In-Reply-To: <20020604.124241.78709149.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0206041403010.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316796AbSFDVPT>; Tue, 4 Jun 2002 17:15:19 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63983 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S316786AbSFDVPM>; Tue, 4 Jun 2002 17:15:12 -0400
+Subject: [PATCH] remove suser()
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Jun 2002 14:15:10 -0700
+Message-Id: <1023225311.3904.142.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-> It says "this has to be initialized, but after core initcalls because
-> it expects core to be setup."  That's what "postcore" means. :-)
+Attached patch replaces the lone remaining suser() call with capable()
+and then removes suser() itself in a triumphant celebration of the glory
+of capable().  Or something. ;-)
 
-Oh right; silly me. 
+Small cleanup of capable() and some comments, too.
 
->    The initcall levels are not a means to bypass true dependency resolution. 
->    They're an alternative means to solving some of the dependency problems 
->    without having a ton of #ifdefs and hardcoded, explicit calls to 
->    initialization routines. 
->    
-> I added no ifdefs, what are you talking about.
+Patch is against 2.5.20, please apply.
 
-I was referring to the original motivation of the patch: what 
-init/main.c::do_basic_setup() and arch/i386/kernel/pci-pc.c used to look 
-like. 
+	Robert Love
 
-> How much more meaning do you want than "this requires core to be
-> setup"  That describes a lot to me.
-
-Because it describes every initcall. But, whatever. Let me ask this 
-instead: is there a better way to specify dependencies between components? 
-
-> You people are blowing this shit WAY out of proportion.  Just fix the
-> bug now and reinplement the initcall hierarchy in a seperate changeset
-> so people can actually get work done in the 2.5.x tree while you do
-> that ok?
-
-Fine. Use Ivan's; it's appended below, and will be in BK soon. 
-
-	-pat
-
---- linux/drivers/base/sys.c~	Mon Jun  3 05:44:37 2002
-+++ linux/drivers/base/sys.c	Tue Jun  4 16:09:16 2002
-@@ -44,6 +44,6 @@ static int sys_bus_init(void)
-        return device_register(&system_bus);
+diff -urN linux-2.5.20/drivers/net/wan/pc300_drv.c linux/drivers/net/wan/pc300_drv.c
+--- linux-2.5.20/drivers/net/wan/pc300_drv.c	Sun Jun  2 18:44:53 2002
++++ linux/drivers/net/wan/pc300_drv.c	Tue Jun  4 13:56:54 2002
+@@ -2564,7 +2564,7 @@
+ 				return -EINVAL;
+ 			return 0;
+ 		case SIOCSPC300CONF:
+-			if (!suser())
++			if (!capable(CAP_NET_ADMIN))
+ 				return -EPERM;
+ 			if (!arg || 
+ 				copy_from_user(&conf_aux.conf, arg, sizeof(pc300chconf_t)))
+diff -urN linux-2.5.20/include/linux/compatmac.h linux/include/linux/compatmac.h
+--- linux-2.5.20/include/linux/compatmac.h	Sun Jun  2 18:44:41 2002
++++ linux/include/linux/compatmac.h	Tue Jun  4 13:57:33 2002
+@@ -102,8 +102,6 @@
+ 
+ #define my_iounmap(x, b)             (((long)x<0x100000)?0:vfree ((void*)x))
+ 
+-#define capable(x)                   suser()
+-
+ #define tty_flip_buffer_push(tty)    queue_task(&tty->flip.tqueue, &tq_timer)
+ #define signal_pending(current)      (current->signal & ~current->blocked)
+ #define schedule_timeout(to)         do {current->timeout = jiffies + (to);schedule ();} while (0)
+diff -urN linux-2.5.20/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.20/include/linux/sched.h	Sun Jun  2 18:44:41 2002
++++ linux/include/linux/sched.h	Tue Jun  4 14:03:35 2002
+@@ -588,24 +588,10 @@
+  * This has now become a routine instead of a macro, it sets a flag if
+  * it returns true (to do BSD-style accounting where the process is flagged
+  * if it uses root privs). The implication of this is that you should do
+- * normal permissions checks first, and check suser() last.
++ * normal permissions checks first, and check fsuser() last.
+  *
+- * [Dec 1997 -- Chris Evans]
+- * For correctness, the above considerations need to be extended to
+- * fsuser(). This is done, along with moving fsuser() checks to be
+- * last.
+- *
+- * These will be removed, but in the mean time, when the SECURE_NOROOT 
+- * flag is set, uids don't grant privilege.
++ * suser() is gone, fsuser() should go soon too...
+  */
+-static inline int suser(void)
+-{
+-	if (!issecure(SECURE_NOROOT) && current->euid == 0) { 
+-		current->flags |= PF_SUPERPRIV;
+-		return 1;
+-	}
+-	return 0;
+-}
+ 
+ static inline int fsuser(void)
+ {
+@@ -617,19 +603,12 @@
  }
  
--subsys_initcall(sys_bus_init);
-+core_initcall(sys_bus_init);
- EXPORT_SYMBOL(register_sys_device);
- EXPORT_SYMBOL(unregister_sys_device);
---- linux/drivers/base/Makefile~	Mon Jun  3 05:44:45 2002
-+++ linux/drivers/base/Makefile	Tue Jun  4 16:14:36 2002
-@@ -1,6 +1,6 @@
- # Makefile for the Linux device tree
- 
--obj-y		:= core.o sys.o interface.o fs.o power.o bus.o \
-+obj-y		:= core.o interface.o fs.o power.o bus.o sys.o \
- 			driver.o 
- 
- export-objs	:= core.o fs.o power.o sys.o bus.o driver.o
---- linux/drivers/pci/pci-driver.c~	Tue Jun  4 15:35:54 2002
-+++ linux/drivers/pci/pci-driver.c	Tue Jun  4 16:23:10 2002
-@@ -199,13 +199,6 @@ struct bus_type pci_bus_type = {
- 	bind:	pci_bus_bind,
- };
- 
--static int __init pci_driver_init(void)
--{
--	return bus_register(&pci_bus_type);
--}
+ /*
+- * capable() checks for a particular capability.  
+- * New privilege checks should use this interface, rather than suser() or
+- * fsuser(). See include/linux/capability.h for defined capabilities.
++ * capable() checks for a particular capability.
++ * See include/linux/capability.h for defined capabilities.
+  */
 -
--subsys_initcall(pci_driver_init);
--
- EXPORT_SYMBOL(pci_match_device);
- EXPORT_SYMBOL(pci_register_driver);
- EXPORT_SYMBOL(pci_unregister_driver);
---- linux/drivers/pci/probe.c~	Mon Jun  3 05:44:42 2002
-+++ linux/drivers/pci/probe.c	Tue Jun  4 16:24:55 2002
-@@ -563,6 +563,9 @@ struct pci_bus * __devinit pci_alloc_pri
- 		return NULL;
+ static inline int capable(int cap)
+ {
+-#if 1 /* ok now */
+-	if (cap_raised(current->cap_effective, cap))
+-#else
+-	if (cap_is_fs_cap(cap) ? current->fsuid == 0 : current->euid == 0)
+-#endif
+-	{
++	if (cap_raised(current->cap_effective, cap)) {
+ 		current->flags |= PF_SUPERPRIV;
+ 		return 1;
  	}
- 
-+	if (!atomic_read(&pci_bus_type.refcount))
-+		bus_register(&pci_bus_type);
-+
- 	b = pci_alloc_bus();
- 	if (!b)
- 		return NULL;
+
 
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVCaXY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVCaXZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbVCaXY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 18:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVCaXYp
+	id S262041AbVCaXZv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 18:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVCaXZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:24:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19936 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261924AbVCaXYA convert rfc822-to-8bit
+	Thu, 31 Mar 2005 18:25:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:20192 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262041AbVCaXYA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 31 Mar 2005 18:24:00 -0500
-Cc: grant_nospam@dodo.com.au
-Subject: [PATCH] I2C: Drop useless w83781d RT feature
-In-Reply-To: <11123113952409@kroah.com>
+Cc: ebrower@gmail.com
+Subject: [PATCH] I2C: lost arbitration detection for PCF8584
+In-Reply-To: <11123113933537@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:16 -0800
-Message-Id: <1112311396681@kroah.com>
+Date: Thu, 31 Mar 2005 15:23:14 -0800
+Message-Id: <1112311394943@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,159 +24,130 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2350, 2005/03/31 14:32:55-08:00, grant_nospam@dodo.com.au
+ChangeSet 1.2342, 2005/03/31 14:30:24-08:00, ebrower@gmail.com
 
-[PATCH] I2C: Drop useless w83781d RT feature
+[PATCH] I2C: lost arbitration detection for PCF8584
 
-This patch removes useless RT feature from w83781d driver.
+[PATCH] lost arbitration detection for PCF8584 algo driver
 
-Patch applies after the recent "I2C: Fix a common race condition
-in hardware monitoring" series.
+Patch against a slightly-dated linux-2.6 BK tree
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+This patch provides lost arbitration detection for the PCF8584
+I2C algorithm driver.  The PCF8584 LAB bit is set whenever lost
+arbitration is detected, so we check the bit in the wait_for_pin
+function and if LAB is detected we return -EINTR.  The -EINTR
+value bubbles-up all the way to the master_xfer API call so
+callers may detect this condition explicitly.  LAB could be checked
+more often, at the expense of code readability/maintainability.
+
+Signed-off-by: Eric Brower <ebrower@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/chips/w83781d.c |  100 --------------------------------------------
- 1 files changed, 100 deletions(-)
+ drivers/i2c/algos/i2c-algo-pcf.c |   44 ++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 41 insertions(+), 3 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c	2005-03-31 15:15:56 -08:00
-+++ b/drivers/i2c/chips/w83781d.c	2005-03-31 15:15:56 -08:00
-@@ -46,9 +46,6 @@
- #include <asm/io.h>
- #include "lm75.h"
+diff -Nru a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
+--- a/drivers/i2c/algos/i2c-algo-pcf.c	2005-03-31 15:16:56 -08:00
++++ b/drivers/i2c/algos/i2c-algo-pcf.c	2005-03-31 15:16:56 -08:00
+@@ -78,7 +78,6 @@
+ 	set_pcf(adap, 1, I2C_PCF_STOP);
+ }
  
--/* RT Table support #defined so we can take it out if it gets bothersome */
--#define W83781D_RT			1
 -
- /* Addresses to scan */
- static unsigned short normal_i2c[] = { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
- 					0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
-@@ -258,9 +255,6 @@
- 				   3000-5000 = thermistor beta.
- 				   Default = 3435. 
- 				   Other Betas unimplemented */
--#ifdef W83781D_RT
--	u8 rt[3][32];		/* Register value */
--#endif
- 	u8 vrm;
- };
+ static int wait_for_bb(struct i2c_algo_pcf_data *adap) {
  
-@@ -834,66 +828,6 @@
- device_create_file(&client->dev, &dev_attr_temp##offset##_type); \
- } while (0)
- 
--#ifdef W83781D_RT
--static ssize_t
--show_rt_reg(struct device *dev, char *buf, int nr)
--{
--	struct w83781d_data *data = w83781d_update_device(dev);
--	int i, j = 0;
--
--	for (i = 0; i < 32; i++) {
--		if (i > 0)
--			j += sprintf(buf, " %ld", (long) data->rt[nr - 1][i]);
--		else
--			j += sprintf(buf, "%ld", (long) data->rt[nr - 1][i]);
--	}
--	j += sprintf(buf, "\n");
--
--	return j;
--}
--
--static ssize_t
--store_rt_reg(struct device *dev, const char *buf, size_t count, int nr)
--{
--	struct i2c_client *client = to_i2c_client(dev);
--	struct w83781d_data *data = i2c_get_clientdata(client);
--	u32 val, i;
--
--	for (i = 0; i < count; i++) {
--		val = simple_strtoul(buf + count, NULL, 10);
--
--		/* fixme: no bounds checking 0-255 */
--		data->rt[nr - 1][i] = val & 0xff;
--		w83781d_write_value(client, W83781D_REG_RT_IDX, i);
--		w83781d_write_value(client, W83781D_REG_RT_VAL,
--				    data->rt[nr - 1][i]);
--	}
--
--	return count;
--}
--
--#define sysfs_rt(offset) \
--static ssize_t show_regs_rt_##offset (struct device *dev, char *buf) \
--{ \
--	return show_rt_reg(dev, buf, offset); \
--} \
--static ssize_t store_regs_rt_##offset (struct device *dev, const char *buf, size_t count) \
--{ \
--    return store_rt_reg(dev, buf, count, offset); \
--} \
--static DEVICE_ATTR(rt##offset, S_IRUGO | S_IWUSR, show_regs_rt_##offset, store_regs_rt_##offset);
--
--sysfs_rt(1);
--sysfs_rt(2);
--sysfs_rt(3);
--
--#define device_create_file_rt(client, offset) \
--do { \
--device_create_file(&client->dev, &dev_attr_rt##offset); \
--} while (0)
--
--#endif				/* ifdef W83781D_RT */
--
- /* This function is called when:
-      * w83781d_driver is inserted (when this module is loaded), for each
-        available adapter
-@@ -1304,13 +1238,6 @@
- 		if (kind != w83783s && kind != w83697hf)
- 			device_create_file_sensor(new_client, 3);
+ 	int timeout = DEF_TIMEOUT;
+@@ -109,6 +108,26 @@
+ 		adap->waitforpin();
+ 		*status = get_pcf(adap, 1);
  	}
--#ifdef W83781D_RT
--	if (kind == w83781d) {
--		device_create_file_rt(new_client, 1);
--		device_create_file_rt(new_client, 2);
--		device_create_file_rt(new_client, 3);
--	}
--#endif
- 
- 	return 0;
- 
-@@ -1535,33 +1462,6 @@
- 				break;
++	if (*status & I2C_PCF_LAB) {
++		DEB2(printk(KERN_INFO 
++			"i2c-algo-pcf.o: lost arbitration (CSR 0x%02x)\n",
++			 *status));
++		/* Cleanup from LAB-- reset and enable ESO.
++		 * This resets the PCF8584; since we've lost the bus, no
++		 * further attempts should be made by callers to clean up 
++		 * (no i2c_stop() etc.)
++		 */
++		set_pcf(adap, 1, I2C_PCF_PIN);
++		set_pcf(adap, 1, I2C_PCF_ESO);
++		/* TODO: we should pause for a time period sufficient for any
++		 * running I2C transaction to complete-- the arbitration
++		 * logic won't work properly until the next START is seen.
++		 */
++		DEB2(printk(KERN_INFO 
++			"i2c-algo-pcf.o: reset LAB condition (CSR 0x%02x)\n", 
++			get_pcf(adap,1)));
++		return(-EINTR);
++	}
+ #endif
+ 	if (timeout <= 0)
+ 		return(-1);
+@@ -188,16 +207,22 @@
+ 		       unsigned char addr, int retries)
+ {
+ 	int i, status, ret = -1;
++	int wfp;
+ 	for (i=0;i<retries;i++) {
+ 		i2c_outb(adap, addr);
+ 		i2c_start(adap);
+ 		status = get_pcf(adap, 1);
+-		if (wait_for_pin(adap, &status) >= 0) {
++		if ((wfp = wait_for_pin(adap, &status)) >= 0) {
+ 			if ((status & I2C_PCF_LRB) == 0) { 
+ 				i2c_stop(adap);
+ 				break;	/* success! */
+ 			}
  		}
++		if (wfp == -EINTR) {
++			/* arbitration lost */
++			udelay(adap->udelay);
++			return -EINTR;
++		}
+ 		i2c_stop(adap);
+ 		udelay(adap->udelay);
  	}
--#ifdef W83781D_RT
--/*
--   Fill up the RT Tables.
--   We assume that they are 32 bytes long, in order for temp 1-3.
--   Data sheet documentation is sparse.
--   We also assume that it is only for the 781D although I suspect
--   that the others support it as well....
--*/
--
--	if (init && type == w83781d) {
--		u16 k = 0;
--/*
--    Auto-indexing doesn't seem to work...
--    w83781d_write_value(client,W83781D_REG_RT_IDX,0);
--*/
--		for (i = 0; i < 3; i++) {
--			int j;
--			for (j = 0; j < 32; j++) {
--				w83781d_write_value(client,
--						    W83781D_REG_RT_IDX, k++);
--				data->rt[i][j] =
--				    w83781d_read_value(client,
--						       W83781D_REG_RT_VAL);
--			}
--		}
--	}
--#endif				/* W83781D_RT */
+@@ -219,6 +244,10 @@
+ 		i2c_outb(adap, buf[wrcount]);
+ 		timeout = wait_for_pin(adap, &status);
+ 		if (timeout) {
++			if (timeout == -EINTR) {
++				/* arbitration lost */
++				return -EINTR;
++			}
+ 			i2c_stop(adap);
+ 			dev_err(&i2c_adap->dev, "i2c_write: error - timeout.\n");
+ 			return -EREMOTEIO; /* got a better one ?? */
+@@ -247,11 +276,16 @@
+ {
+ 	int i, status;
+ 	struct i2c_algo_pcf_data *adap = i2c_adap->algo_data;
++	int wfp;
  
- 	if (init && type != as99127f) {
- 		/* Enable temp2 */
+ 	/* increment number of bytes to read by one -- read dummy byte */
+ 	for (i = 0; i <= count; i++) {
+ 
+-		if (wait_for_pin(adap, &status)) {
++		if ((wfp = wait_for_pin(adap, &status))) {
++			if (wfp == -EINTR) {
++				/* arbitration lost */
++				return -EINTR;
++			}
+ 			i2c_stop(adap);
+ 			dev_err(&i2c_adap->dev, "pcf_readbytes timed out.\n");
+ 			return (-1);
+@@ -366,6 +400,10 @@
+ 		/* Wait for PIN (pending interrupt NOT) */
+ 		timeout = wait_for_pin(adap, &status);
+ 		if (timeout) {
++			if (timeout == -EINTR) {
++				/* arbitration lost */
++				return (-EINTR);
++			}
+ 			i2c_stop(adap);
+ 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: Timeout waiting "
+ 				    "for PIN(1) in pcf_xfer\n");)
 

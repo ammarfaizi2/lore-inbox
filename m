@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136783AbRECMkl>; Thu, 3 May 2001 08:40:41 -0400
+	id <S136788AbRECMpM>; Thu, 3 May 2001 08:45:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136788AbRECMkc>; Thu, 3 May 2001 08:40:32 -0400
-Received: from www.topmail.de ([212.255.16.226]:59039 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S136783AbRECMkV>;
-	Thu, 3 May 2001 08:40:21 -0400
-Message-ID: <014a01c0d3ce$3619d440$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Torrey Hoffman" <torrey.hoffman@myrio.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1BA2@mail0.myrio.com>
-Subject: Re: [OT] automated remote install of Linux from WinNT4
-Date: Thu, 3 May 2001 12:35:27 -0000
-Organization: eccesys.net Linux development
+	id <S136794AbRECMpC>; Thu, 3 May 2001 08:45:02 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33798 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136788AbRECMom>; Thu, 3 May 2001 08:44:42 -0400
+Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
+To: vonbrand@inf.utfsm.cl (Horst von Brand)
+Date: Thu, 3 May 2001 13:47:25 +0100 (BST)
+Cc: stoffel@casc.com (John Stoffel), esr@thyrsus.com, cate@dplanet.ch,
+        linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200105031232.f43CW7aA009990@pincoya.inf.utfsm.cl> from "Horst von Brand" at May 03, 2001 08:32:07 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Message-Id: <E14vIW2-0005US-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd rather create a minimal partition with no (but != &h80) type,
-write kind of lilo+kernel+initrd into it and execute that by let
-it being called from either the MBR or NTLDR, where you can take
-the images' bootsector as a file.
-I start lilo from NTLDR 5 by using kind of chaining, which moves
-its own code and then loads the MBR of the linux boot partition.
-It's so simple that I wrote it in debug. You might wish to use it
-when the install's finished.
--mirabilos
--- 
-EA F0 FF 00 F0 #$@%CARRIER LOST
+> > No, we're just asking you to make the CML2 parser more tolerant of old
+> > and possibly broken configs.
+> 
+> It is _much_ easier on everybody involved to just bail out and ask the user
+> (once!) to rebuild the configuration from scratch starting from the defaults.
+
+No. Every new kernel changes the constraints so every new kernel you have
+to reconfigure from scratch. That also makes it very hard to be sure you got
+the results right.
+
+oldconfig has a simple algorithm that works well for current cases
+
+Start at the top of the symbols in file order. If a symbol is new ask the
+user. If a symbol is now violating a constraint it gets set according to 
+existing constraints if not it gets set to its old value.
+
+Alan
 

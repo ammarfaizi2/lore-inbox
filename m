@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbTEPAHf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 20:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTEPAHf
+	id S264094AbTEPAQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 20:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTEPAQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 20:07:35 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:43601 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S264322AbTEPAHc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 20:07:32 -0400
-Subject: Re: Test Patch: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       johannes@erdfelt.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <1053034205.2025.3.camel@diemos>
-References: <Pine.LNX.4.44L0.0305151709120.1125-100000@ida.rowland.org>
-	 <1053034205.2025.3.camel@diemos>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053026258.1548.7.camel@doobie>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 May 2003 14:17:38 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 15 May 2003 20:16:25 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:4543 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S264094AbTEPAQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 20:16:24 -0400
+Date: Thu, 15 May 2003 17:29:08 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 2 potential out-of-bound user-pointer errors in
+ fs/readdir.c
+In-Reply-To: <20030515150344.1b2686f2.akpm@digeo.com>
+Message-ID: <Pine.GSO.4.44.0305151727560.18402-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-15 at 16:30, Paul Fulghum wrote:
-> On Thu, 2003-05-15 at 16:13, Alan Stern wrote:
-> > My intention was to avoid resuming if the resume-detect bit is set only 
-> > on ports in an over-current condition, since that is the case mentioned in 
-> > the erratum.  Of course, this isn't as failsafe as your suggestion.  Which 
-> > do you think would work better?
-> 
-> This should be caught on the suspend side so
-> that you can still service the ports that do not
-> have the over current condition.
-> 
-> A single port in OC makes resume unreliable,
-> so the only thing to do is not suspend.
 
-Alan:
+Thanks for the clarifications! so these are not real security bugs, but
+redundant checks.
 
-I think I misread your message. Is there a per port resume
-indication? (I'm at home and don't have the specs in front
-of me) I was thinking of the global USBSTS_RD bit.
+-Junfeng
 
-If you can qualify the global USBSTS_RD bit with a per
-port resume indication on a non OC port, then it might
-make sense to do this on the wakeup side.
+On Thu, 15 May 2003, Andrew Morton wrote:
 
-Pro: you could suspend the controller when appropriate
-without interference from the OC ports
-
-Con: you would be generating a lot of spurious interrupts
-as the global USBSTS_RD is set (incorrectly) by the OC ports.
-Even though you would not actually do the wake, you still
-burn cycles servicing the false interrupts.
-
-So my inclination is still to nab this on the suspend side.
-
-Paul Fulghum
-paulkf@microgate.com
-
-
+> Junfeng Yang <yjf@stanford.edu> wrote:
+> >
+> >
+> > Hi,
+> >
+> > Enclosed are two warnings found in fs/readdir.c, where user provided
+> > pointers are accessed out of 'verified' bounds.
+> >
+> > The warnings are found by: first, whenenver we see calls to verify_area,
+> > access_ok and all the no-underscore versions of *_user functions, we
+> > remember the verified bounds. when a user-pointer is accessed thru
+> > __*_user functions, we check if the verified bound is big enough.
+> >
+> > Please confirm or clarify. Thanks!
+>
+> The code as-is appears to be OK.  Note how sys_getdents64() will run
+> access_ok() against the entire user buffer up-front.  Then the start/len of
+> that verified area is copied into the getdents_callback64 and that is
+> propagated down to filldir64().
+>
+> And filldir64() looks like it correctly remains within the bounds of the
+> start/len.
+>
+> I guess that copy_to_user() should be __copy_to_user().
+>
+>
 

@@ -1,52 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbTCUXK1>; Fri, 21 Mar 2003 18:10:27 -0500
+	id <S262118AbTCUXUV>; Fri, 21 Mar 2003 18:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261782AbTCUXK1>; Fri, 21 Mar 2003 18:10:27 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:32264 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261353AbTCUXK0>;
-	Fri, 21 Mar 2003 18:10:26 -0500
-Date: Fri, 21 Mar 2003 15:21:31 -0800
-From: Greg KH <greg@kroah.com>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: small devfs patch for 2.5.65, plan to replace /sbin/hotplug
-Message-ID: <20030321232131.GA18010@kroah.com>
-References: <20030321014048.A19537@baldur.yggdrasil.com> <3E7B79D5.3060903@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E7B79D5.3060903@cox.net>
-User-Agent: Mutt/1.4i
+	id <S264097AbTCUXUV>; Fri, 21 Mar 2003 18:20:21 -0500
+Received: from rizzo.jerky.net ([204.57.55.99]:64014 "EHLO rizzo.jerky.net")
+	by vger.kernel.org with ESMTP id <S262118AbTCUXUT>;
+	Fri, 21 Mar 2003 18:20:19 -0500
+To: linux-kernel@vger.kernel.org
+From: Alon <alon@gamebox.net>
+Date: Sat, 22 Mar 2003 00:20:09 +0100
+Subject: VIA Rhine timeouts
+Message-Id: <20030321232047.D7D771800D2@smtp-2.hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 01:45:09PM -0700, Kevin P. Fleming wrote:
-> Adam J. Richter wrote:
-> >	I believe that the only change in this version of devfs is
-> >moving the code to invoke the user level devfs_helper program to a
-> >separate file, fs/devfs/notify.c.  This change will simplify a future
-> >code shrink inspired by David Brownell's suggesting that I think about
-> >unifying hotplug with devfs.  In the future I would like to lift
-> >fs/devfs/notify.c out of devfs so that the code that currently invokes
-> >user level helpers for hot plug events can be replaced with two calls
-> >to a renamed devfs_event() on
-> >/sys/bus/<bustype>/devices/<bus#>/<whatever>, one for insertion and
-> >one for removal.
+Hi,
 
-Adam, right now we get /sbin/hotplug events for every device insertion
-and removal in the kernel.  Do you want more than this?
+I am suffering from what a quick Google search has shown
+to be the infamous netdev watchdog lock in Rhine NICs,a
+although in a somwhat different way from most cases I've
+seen reported. Instead of failing under heavy load, my card
+(in fact, an onboard chip in the ECS L7VTA-L motherboard)
+completely refuses to make a connection under 2.4.x kernels.
+I tried all releases between 2.4.18 and current 2.4.21-pre5
+to no avail. The driver provided by VIA at their site
+fared no better.
 
-> Are you still considering smalldevfs for 2.6 inclusion? If not, then I'd 
-> like to discuss with you (and Greg KH) the possibility of just eliminating 
-> devfs entirely, and moving to a userspace version that is driven entirely 
-> by /sbin/hotplug.
+I include below a snippet of the syslog (debug=7)when trying
+to connect to a DHCP server. I also have a TCP dump of the
+dialog, if it's of any use (the messages about promiscuous
+mode are caused by tcpdump, I believe).
 
-You mean with something like this:
-	http://www.linuxsymposium.org/2003/view_abstract.php?talk=94
-:)
+..(lots of snipped stuff)...
+Mar 21 23:45:52 taragui kernel: via-rhine.c:v1.10-LK1.1.16  February-15-2003  
+Written by Donald Becker
+Mar 21 23:45:52 taragui kernel:   http://www.scyld.com/network/via-rhine.html
+Mar 21 23:45:52 taragui kernel: via-rhine: Reset succeeded.
+Mar 21 23:45:52 taragui kernel: eth0: VIA VT6102 Rhine-II at 0xe400, 
+00:0a:e6:31:e8:7b, IRQ 16.
+Mar 21 23:45:52 taragui kernel: eth0: MII PHY found at address 1, status 0x786d 
+advertising 01e1 Link 0021.
+Mar 21 23:46:37 taragui dhclient: Internet Software Consortium DHCP Client 
+V3.0.1rc9
+Mar 21 23:46:37 taragui dhclient: Copyright 1995-2001 Internet Software 
+Consortium.
+Mar 21 23:46:37 taragui dhclient: All rights reserved.
+Mar 21 23:46:37 taragui dhclient: For info, please visit 
+http://www.isc.org/products/DHCP
+Mar 21 23:46:37 taragui dhclient: 
+Mar 21 23:46:37 taragui kernel: eth0: via_rhine_open() irq 16.
+Mar 21 23:46:37 taragui kernel: eth0: Reset succeeded.
+Mar 21 23:46:37 taragui kernel: eth0: Done via_rhine_open(), status 081a MII 
+status: 786d.
+Mar 21 23:46:37 taragui kernel: eth0: VIA Rhine monitor tick, status 0000.
+Mar 21 23:46:38 taragui dhclient: Listening on LPF/eth0/00:0a:e6:31:e8:7b
+Mar 21 23:46:38 taragui dhclient: Sending on   LPF/eth0/00:0a:e6:31:e8:7b
+Mar 21 23:46:38 taragui dhclient: Sending on   Socket/fallback
+Mar 21 23:46:39 taragui kernel: eth0: Promiscuous mode enabled.
+Mar 21 23:46:39 taragui kernel: device eth0 entered promiscuous mode
+Mar 21 23:46:40 taragui dhclient: DHCPREQUEST on eth0 to 255.255.255.255 port 
+67
+Mar 21 23:46:40 taragui kernel: eth0: Transmit frame #0 queued in slot 0.
+Mar 21 23:46:47 taragui dhclient: DHCPREQUEST on eth0 to 255.255.255.255 port 
+67
+Mar 21 23:46:47 taragui kernel: eth0: Transmit frame #1 queued in slot 1.
+Mar 21 23:46:47 taragui kernel: eth0: VIA Rhine monitor tick, status 1003.
+Mar 21 23:46:57 taragui dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 
+67 interval 8
+Mar 21 23:46:57 taragui kernel: eth0: Transmit frame #2 queued in slot 2.
+Mar 21 23:46:57 taragui kernel: eth0: VIA Rhine monitor tick, status 1003.
+Mar 21 23:47:05 taragui dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 port 
+67 interval 14
+(same as above for frames #3 to #9)
+Mar 21 23:47:58 taragui dhclient: No DHCPOFFERS received.
+Mar 21 23:47:58 taragui dhclient: Trying recorded lease 212.183.239.144
+Mar 21 23:48:01 taragui kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Mar 21 23:48:01 taragui kernel: eth0: Transmit timed out, status 1003, PHY 
+status 786d, resetting...
+Mar 21 23:48:01 taragui kernel: eth0: Reset did not complete in 5 us. Trying 
+harder.
+Mar 21 23:48:01 taragui kernel: eth0: Reset succeeded.
+Mar 21 23:48:08 taragui dhclient: No working leases in persistent database - 
+sleeping.
 
-thanks,
+The weird thing is, it seems to work perfectly with
+Debian Woody's stock 2.2.20 idepci kernel. I'd be glad
+to stick to it for the time being, but I can't get
+support for most of the mobo's functionality (it sports
+a KT400/VT8235 combo) under any kernel earlier than
+2.4.20.
 
-greg k-h
+TIA,
+
+Alon
+
+
+

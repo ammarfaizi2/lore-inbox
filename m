@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130804AbQLHGhS>; Fri, 8 Dec 2000 01:37:18 -0500
+	id <S130998AbQLHGrw>; Fri, 8 Dec 2000 01:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130998AbQLHGhJ>; Fri, 8 Dec 2000 01:37:09 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:53509 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130804AbQLHGgy>; Fri, 8 Dec 2000 01:36:54 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S131880AbQLHGrn>; Fri, 8 Dec 2000 01:47:43 -0500
+Received: from mail.blackdown.de ([62.159.133.162]:55556 "EHLO
+	zaphod.blackdown.de") by vger.kernel.org with ESMTP
+	id <S130998AbQLHGrb>; Fri, 8 Dec 2000 01:47:31 -0500
+To: Frank de Lange <frank@unternet.org>
+Cc: drepper@redhat.com, java-linux@java.blackdown.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: java (and possibly other threaded apps) hanging in rt_sigsuspend
+In-Reply-To: <20001207164251.A3239@unternet.org>
+From: Juergen Kreileder <jk@blackdown.de>
+Date: 08 Dec 2000 07:16:06 +0100
+In-Reply-To: Frank de Lange's message of "Thu, 7 Dec 2000 16:42:51 +0100"
+Message-ID: <878zpr1lqx.fsf@zaphod.blackdown.de>
+Organization: "Blackdown Java-Linux Team"
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14896.31327.179696.632616@wire.cadcamlab.org>
-Date: Fri, 8 Dec 2000 00:06:23 -0600 (CST)
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NTFS repair tools
-In-Reply-To: <3A30552D.A6BE248C@timpanogas.org>
-	<20001207221347.R6567@cadcamlab.org>
-	<3A3066EC.3B657570@timpanogas.org>
-	<20001208005337.A26577@alcove.wittsend.com>
-	<20001207230407.S6567@cadcamlab.org>
-	<3A306CE4.47B366B0@timpanogas.org>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Frank" == Frank de Lange <frank@unternet.org> writes:
 
-[Jeff Merkey]
-> Please consider the attached patch to make it a little bit harder for
-> folks to enable NTFS Write Support under Linux until it can get fixed
-> properly.
+    Frank> I saw your remarks on the kernel mailing list
+    Frank> wrt. 'threaded processes get stuck in
+    Frank> rt_sigsuspend/fillonedir/exit_notify' dd. 20000911-12, and
+    Frank> thought you might be interested in the fact that something
+    Frank> quite like this also happens on 2.4.0-test11 with glibc-2.2
+    Frank> (release), BUT NOT ALWAYS...
 
-Hey!  It was a joke!  A better way would be just to comment out the
-CONFIG_NTFS_RW line entirely.  Actually, I think that *would* be a good
-idea.  Anyone who has any business messing with NTFS_RW is more than
-capable of editing Config.in.
+    Frank> I can reliably hang java (Blackdown port jdk1.3, FCS) using
+    Frank> the -Xmx parameter (which specifies a maximum heap size),
+    Frank> the weird thing is that it does NOT hang which this
+    Frank> parameter is either not specified OR specified but larger
+    Frank> than a certain value. When it hangs, it always is stuck in
+    Frank> a rt_sigsuspend call just after a clone() call. An example:
 
-Peter
+    Frank>  [frank@behemoth frank]$ java
+    Frank>         (java starts and spits out some info, then exits as
+    Frank>         it should)
+
+    Frank>  [frank@behemoth frank]$ java -Xmx32m
+    Frank>         (java ALWAYS gets stuck:
+
+    Frank> 	pipe([6, 7])                            = 0
+    Frank> 	clone()                                 = 14732
+    Frank> 	[pid 14679] write(7, "\0\0\0\0\5\0\0\0~\266\2@ $T@\0 T@\0 T@\300\265\2@\0\0\0"..., 148) = 148
+    Frank> 	[pid 14679] rt_sigprocmask(SIG_SETMASK, NULL, [RT_0], 8) = 0
+    Frank> 	[pid 14679] write(7, "`S\3@\0\0\0\0\20\321\377\277pD\37@\30&\5\10\0\0\0\200\0"..., 148) = 148
+    Frank> 	[pid 14679] rt_sigprocmask(SIG_SETMASK, NULL, [RT_0], 8) = 0
+    Frank> 	[pid 14679] rt_sigsuspend([]
+    Frank> 	)
+
+Can you reproduce this without strace?
+
+I only see this problem when I run with 'strace -f' and java wants to
+exit (apart from that java works correctly).  I don't see the dependency
+on the heap size here.
+
+
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://www.blackdown.org/java-linux.html
+JVM'01: http://www.usenix.org/events/jvm01/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

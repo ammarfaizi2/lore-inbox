@@ -1,70 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265895AbUATX30 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:29:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUATX0O
+	id S265897AbUATX1K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUATX0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:26:14 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:61066 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265892AbUATXZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:25:49 -0500
-Message-ID: <400DB781.4229A084@us.ibm.com>
-Date: Tue, 20 Jan 2004 15:19:29 -0800
-From: Jim Keniston <jkenisto@us.ibm.com>
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Tue, 20 Jan 2004 18:26:32 -0500
+Received: from gprs214-112.eurotel.cz ([160.218.214.112]:9088 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265897AbUATX0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 18:26:17 -0500
+Date: Wed, 21 Jan 2004 00:25:15 +0100
+From: Pavel Machek <pavel@suse.cz>
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com,
-       scott.feldman@intel.com, kessler@us.ibm.com
-Subject: Re: [PATCH 2.6.1] Net device error logging
-References: <400C3D3E.BFCC25CE@us.ibm.com> <20040119184630.5d066735.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: More cleanups for swsusp
+Message-ID: <20040120232515.GD1234@elf.ucw.cz>
+References: <20040120225219.GA19190@elf.ucw.cz> <20040120151358.09608fc3.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040120151358.09608fc3.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
-> Jim Keniston <jkenisto@us.ibm.com> wrote:
-> >
-> > The enclosed patch implements the netdev_* error-logging macros for
-> >  network drivers.
->
-> Looks OK to me.
->
-> But it does make one wonder whether we'll soon see standalone patches for
-> scsi_printk(), pci_bridge_printk(), random_other_subsystem_printk(), ...?
+Hi!
 
-Well, there is indeed sdev_printk for the SCSI mid-layer and low-level
-drivers.  Dan Stekloff posted an updated patch for this on linux-scsi
-yesterday.
+> > +	BUG_ON (sizeof(struct link) != PAGE_SIZE);
+> 
+> Looking at the code, this hardly seems worth checking.  But the compiler
+> should just rub this code out anwyay, so whatever.
+> 
+> hmm, one could do:
+> 
+> #define compile_time_assert(expr)					\
+> 	do {								\
+> 		if (!(expr))						\
+> 			compile_time_assert_failed();	/* undefined */	\
+> 	} while (0)
 
-When Alan Cox suggested dev_printk, it was with the idea that other
-subsystems might have similar macros.  Although I don't know of other
-such macros in the works, I wouldn't rule them out.
+Well, if you provide such macro, I'll be happy to use it ;-). It
+should be something like 
 
->
-> Or is it intended that the backend logging code will be implemented mainly
-> in terms of the `struct device'?  So netdev_printk() will be a bit of
-> netdev-specific boilerplate which then calls into a more generic
-> device_printk()?
+compile_time_assert(expr, "message")
 
-I think dev_printk will work just fine for drivers where [driver name +
-bus ID] is the appropriate message tag.  Where that's not the case, other
-macros emerge.  (For example, for net devices you want the interface
-name, and for SCSI devices the SCSI bus ID is more interesting than the
-PCI bus ID.)
+because with more of these are in the code, it would be nightmare to
+find out which one is wrong.
 
-Another thing to consider is whether, for the subsystem in question,
-some other struct pointer (e.g., struct net_device* or struct
-scsi_device*) might prove more useful in the future than the struct
-device pointer.  I.e., such pointers could be used to get at the struct
-device AND other subsystem-specific info.
+Perhaps better name, too?
 
-Also, there are also situations where there is no underlying struct
-device (e.g., some upper-level network drivers) or the driver is not yet
-defined (e.g., during a SCSI scan).
+pavel@elonex:/tmp$ cat delme.c
 
-Jim Keniston
+#define COMPILE_ERR_ON(expr, message) \
+        do { if (!(expr)) compile_time_assert_failed_##message(); } while (0)
+
+void main(void)
+{
+        COMPILE_ERR_ON(0==8, cpu_broke_zeros_neck);
+        COMPILE_ERR_ON(0==0, compiler_went_crazy);
+}
+pavel@elonex:/tmp$ gcc delme.c -o delme
+delme.c: In function `main':
+delme.c:6: warning: return type of `main' is not `int'
+/tmp/ccAx2alr.o(.text+0x11): In function `main':
+: undefined reference to `compile_time_assert_failed_cpu_broke_zeros_neck'
+collect2: ld returned 1 exit status
+pavel@elonex:/tmp$
+
+
+
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVCUV1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVCUV2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVCUV1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 16:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVCUVYL
+	id S261989AbVCUV2A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 16:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVCUV1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 16:24:11 -0500
-Received: from fire.osdl.org ([65.172.181.4]:26792 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262013AbVCUVVz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 16:21:55 -0500
-Date: Mon, 21 Mar 2005 13:21:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Norbert Preining <preining@logic.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: S2R gone with 2.6.12-rc1-mm1
-Message-Id: <20050321132106.3cb48d38.akpm@osdl.org>
-In-Reply-To: <20050321210411.GB29072@gamma.logic.tuwien.ac.at>
-References: <20050321210411.GB29072@gamma.logic.tuwien.ac.at>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 21 Mar 2005 16:27:48 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:5841 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261903AbVCUV0z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 16:26:55 -0500
+Date: Mon, 21 Mar 2005 22:26:54 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: PCMCIA bugs in buglist [Was: Re: 2.6.12-rc1-mm1]
+Message-ID: <20050321212654.GA16368@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Andrew Morton <akpm@osdl.org>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20050321025159.1cabd62e.akpm@osdl.org> <20050321202022.B16069@flint.arm.linux.org.uk> <20050321124159.0fbf1bef.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321124159.0fbf1bef.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert Preining <preining@logic.at> wrote:
->
-> Hi Andrew!
-> 
-> Sorry to bother you again, but I found that S2R does not work anymore
-> with 2.6.12-rc1-mm1, while it works with the exact same software setup
-> with 2.6.11-mm4.
+> From: Sebastian =?iso-8859-1?q?K=FCgler?= <lists@vizZzion.org>
+> Subject: PCMCIA breaks suspend-to-(disk|ram) with 2.6.11
 
-Oh.  suspend-to-RAM.
+Fixed by upgrading the userspace script used by him to include
 
-Would this be an ACPI regression?
+	"cardctl eject && sleep 1"
 
-> I unload the whole usb stuff (otherwise 2.6.11-mm4 won't work) and do
-> exactely the same.
-> 
-> The differences in the kernel config files are trivial:
-> 
-> new stuff I answered with yes:
-> +CONFIG_ACPI_HOTKEY=y
-> +CONFIG_PCMCIA_IOCTL=y
-> +CONFIG_AOE_PARTITIONS=16
-> 
-> stuff that has automatically changed (changed Kconfig I suppose)
-> -CONFIG_FW_LOADER=m
-> +CONFIG_FW_LOADER=y
-> 
-> and some modules I compiled but not use/load.
-> 
-> With 2.6.12-rc1-mm1 the system starts, then nothing, black screen, no
-> CapsLock light, no Sysrq, no sync hard disk led activity, just plane
-> frozen.
-> 
-> Best wishes
-> 
-> Norbert
-> 
-> -------------------------------------------------------------------------------
-> Norbert Preining <preining AT logic DOT at>                 Università di Siena
-> sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-> gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
-> -------------------------------------------------------------------------------
-> WINKLEY (n.)
-> A lost object which turns up immediately you've gone and bought a
-> replacement for it.
-> 			--- Douglas Adams, The Meaning of Liff
+before killing cardmgr, as killing cardmgr no longer auto-detaches PCMCIA
+devices and this was what he needs: while suspend/resume does work with 
+PCMCIA in general AFAIK, certain device drivers are faulty.
+
+> From: Ron Gage <ron@rongage.org>
+> Subject: Major problem with PCMCIA/Yenta system
+...
+> From: Jonas Oreland <jonas.oreland@mysql.com>
+> Subject: Re: Major problem with PCMCIA/Yenta system
+
+This is no regresssion[*], a fix is being evaluated.
+
+
+Thanks,
+	Dominik
+
+[*] It may work on 2.4., though...

@@ -1,45 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUCaSAd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 13:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUCaSAc
+	id S262269AbUCaSGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 13:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCaSGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 13:00:32 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:52231 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261852AbUCaSAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 13:00:31 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
+	Wed, 31 Mar 2004 13:06:07 -0500
+Received: from userbb201.dsl.pipex.com ([62.190.241.201]:50337 "EHLO
+	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
+	id S262269AbUCaSFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 13:05:46 -0500
+Date: Wed, 31 Mar 2004 19:05:44 +0100
+From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc3-mm2
-Date: Wed, 31 Mar 2004 20:00:19 +0200
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
-References: <20040331014351.1ec6f861.akpm@osdl.org> <200403311937.41510@WOLK>
-In-Reply-To: <200403311937.41510@WOLK>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
+Subject: 2.4.26-rc1, Dell Poweredge 750, IDE DMA and patch for piix
+Message-ID: <20040331180544.GA10161@axis.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403312000.19963@WOLK>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 March 2004 19:37, Marc-Christian Petersen wrote:
+We recently got a new Dell Poweredge 750 which has SATA disks in.
+2.4.26-rc1 doesn't enable me to turn on DMA...
 
-Hi again,
+00:1f.2 IDE interface: Intel Corp.: Unknown device 25a3 (rev 02) (prog-if 8a [Master SecP PriP])
+        Subsystem: Dell Computer Corporation: Unknown device 0165
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 0
+        Region 0: I/O ports at <unassigned>
+        Region 1: I/O ports at <unassigned>
+        Region 2: I/O ports at <unassigned>
+        Region 3: I/O ports at <unassigned>
+        Region 4: I/O ports at fea0 [size=16]
 
-> > cfq-4.patch
-> >   CFQ io scheduler
-> >   CFQ fixes
-> is there any reason why I see /sys/block/hda/queue/iosched/ beeing empty? I
-> thought every I/O scheduler would put in there some tunables or at least
-> some info's what defaults are used. Or did I miss something completely and
-> now I am totally wrong?
+Here is a diff against 2.4.26-rc1 which enables piix to recognise the
+chip.  It works and is tested but was developed by cut and paste
+rather than reading the technical manuals so may not be correct!
 
-maybe it's not clear enough: I talk about CFQ as quoted above.
+Here is it working...
 
-ciao, Marc
+ide: late registration of driver.
+ICH5: IDE controller at PCI slot 00:1f.2
+ICH5: chipset revision 2
+ICH5: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xfea0-0xfea7, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xfea8-0xfeaf, BIOS settings: hdc:DMA, hdd:DMA
+hda: TEAC CD-ROM CD-224E, ATAPI CD/DVD-ROM drive
+hdc: ST3120026AS, ATA DISK drive
+hdd: ST3120026AS, ATA DISK drive
+
+--- piix.c.2.4.26-rc1	2004-03-31 13:06:51.000000000 +0100
++++ piix.c	2004-03-31 15:37:57.000000000 +0100
+@@ -155,6 +155,7 @@
+ 			case PCI_DEVICE_ID_INTEL_82801E_11:
+ 			case PCI_DEVICE_ID_INTEL_ESB_2:
+ 			case PCI_DEVICE_ID_INTEL_ICH6_2:
++			case PCI_DEVICE_ID_INTEL_ESB_3:
+ 				p += sprintf(p, "PIIX4 Ultra 100 ");
+ 				break;
+ 			case PCI_DEVICE_ID_INTEL_82372FB_1:
+@@ -294,6 +295,7 @@
+ 		case PCI_DEVICE_ID_INTEL_82801EB_11:
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_2:
++		case PCI_DEVICE_ID_INTEL_ESB_3:
+ 			mode = 3;
+ 			break;
+ 		/* UDMA 66 capable */
+@@ -686,6 +688,7 @@
+ 		case PCI_DEVICE_ID_INTEL_82801E_11:
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_2:
++		case PCI_DEVICE_ID_INTEL_ESB_3:
+ 		{
+ 			unsigned int extra = 0;
+ 			pci_read_config_dword(dev, 0x54, &extra);
+@@ -883,6 +886,7 @@
+  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18},
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 19},
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_3, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 21},
+ 	{ 0, },
+ };
+ 
+--- piix.h.2.4.26-rc1	2004-03-31 13:06:51.000000000 +0100
++++ piix.h	2004-03-31 15:37:40.000000000 +0100
+@@ -333,6 +333,20 @@
+ 		.enablebits	= {{0x41,0x80,0x80}, {0x43,0x80,0x80}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
++	},{	/* 21 */
++		.vendor		= PCI_VENDOR_ID_INTEL,
++		.device		= PCI_DEVICE_ID_INTEL_ESB_3,
++		.name		= "ICH5",
++		.init_setup	= init_setup_piix,
++		.init_chipset	= init_chipset_piix,
++		.init_iops	= NULL,
++		.init_hwif	= init_hwif_piix,
++		.init_dma	= init_dma_piix,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x41,0x80,0x80}, {0x43,0x80,0x80}},
++		.bootable	= ON_BOARD,
++		.extra		= 0,
+ 	},{
+ 		.vendor		= 0,
+ 		.device		= 0,
+
+
+-- 
+Nick Craig-Wood
+ncw1@axis.demon.co.uk

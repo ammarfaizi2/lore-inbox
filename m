@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263942AbUFSPMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUFSPMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbUFSPMe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 11:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUFSPMe
+	id S263943AbUFSPMv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 11:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUFSPMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 11:12:34 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:12423 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S263942AbUFSPMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 11:12:33 -0400
-Date: Sat, 19 Jun 2004 16:11:53 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Cc: david-b@pacbell.net, James.Bottomley@SteelEye.com, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-Subject: DMA API issues... summary
-Message-Id: <20040619161153.3be26806.spyro@f2s.com>
-In-Reply-To: <1087603453.2135.224.camel@mulgrave>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com>
-	<40D34078.5060909@pacbell.net>
-	<20040618204438.35278560.spyro@f2s.com>
-	<1087588627.2134.155.camel@mulgrave>
-	<20040619002522.0c0d8e51.spyro@f2s.com>
-	<1087601363.2078.208.camel@mulgrave>
-	<20040619005106.15b8c393.spyro@f2s.com>
-	<1087603453.2135.224.camel@mulgrave>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+	Sat, 19 Jun 2004 11:12:51 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:46530 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263943AbUFSPMs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 11:12:48 -0400
+Date: Sat, 19 Jun 2004 17:08:38 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Brian Lazara <blazara@nvidia.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Andrew de Quincey <adq@lidskialf.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new device support for forcedeth.c second try
+Message-ID: <20040619170838.A2300@electric-eye.fr.zoreil.com>
+References: <40D43DC3.9000909@gmx.net> <20040619155551.A1517@electric-eye.fr.zoreil.com> <200406191615.48903.bzolnier@elka.pw.edu.pl> <40D44F1D.6090701@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40D44F1D.6090701@gmx.net>; from c-d.hailfinger.kernel.2004@gmx.net on Sat, Jun 19, 2004 at 04:35:09PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, heres a summary of the problems we have (feel free to add any more problems).
+Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net> :
+[...]
+>         //must wait till reset is deasserted
+>         while (miicontrol & BMCR_RESET) {
+>                 udelay(NV_MIIBUSY_DELAY);
+>                 miicontrol = mii_rw(dev, np->phyaddr, MII_BMCR, MII_READ);
+>                 /* FIXME: 1000 tries seem excessive */
+>                 if (tries++ > 1000)
+>                         return -1;
+>         }
+>         return 0;
+> }
+> 
+> 
+> Better?
 
-We have two types of "device": single function devices and 'system on chip' devices which have multiple functions.
+Fine: at least the FIXME clearly says that it must be fixed :o)
 
-Single chip devices may be able to either access system memory directly, or may only be able to access their internal SRAM pool. in the case of the latter the system can either directly access the SRAM or not, depending on the device/bus setup. Its possible the devices may have more than one non-continuous SRAM mapping.
+NV_MIIBUSY_DELAY is only 50us but it still means a pair of cycles on
+nowadays CPU. If memory serves me right, the reset can take quite some
+time per 802.3. So I would simply schedule_timeout() if going through
+the while() loop is required at all.
 
-The same goes for SOC devices, however they could come in two 'classes'. In one type, we would essentially have multiple independant devices in a single chip. In another case (which appears to be fairly common) we can have multiple devices sharing a common SRAM pool. its also possible to have some devices sharing the pool and some having their own in the same chip.
-
-Can anyone describe another type of chip we need to accomodate?
-
-
-
+--
+Ueimor

@@ -1,82 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVAEV7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVAEWCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbVAEV7b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 16:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVAEV7b
+	id S262571AbVAEWCf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 17:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVAEWCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 16:59:31 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:9231 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S262608AbVAEV5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 16:57:44 -0500
-Message-ID: <41DC62DE.6000907@aknet.ru>
-Date: Thu, 06 Jan 2005 00:57:50 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Alexander Kern <alex.kern@gmx.de>
-Subject: [patch] fix cdrom autoclose
-Content-Type: multipart/mixed;
- boundary="------------070501070403030900060201"
+	Wed, 5 Jan 2005 17:02:35 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:33510 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262580AbVAEWBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 17:01:55 -0500
+Subject: Re: Swsusp hanging the second time
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200501052204.34646.oliver@neukum.org>
+References: <200501041154.19030.oliver@neukum.org>
+	 <20050104110839.GF18777@elf.ucw.cz>  <200501052204.34646.oliver@neukum.org>
+Content-Type: text/plain
+Message-Id: <1104962577.3127.22.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 06 Jan 2005 09:02:58 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070501070403030900060201
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi.
 
-Hi Andrew.
+That makes perfect sense: If you get a hang the second time, it's
+generally because something loaded during the first resume didn't handle
+the suspend properly, and is in a 'bad' state now. USB and DRI are the
+main sources of those issues at the moment. The solution would be to
+stop usb and unload the drivers prior to suspending, and reload/restart
+afterwards. I do this with my USB mouse (having switched to a text
+console) with no ill effects. YMMV.
 
-The attached patch fixes the CD-ROM
-autoclose. It is broken in recent
-kernels for CD-ROMs that do not properly
-report that the tray is opened.
-Now on such a drives the kernel will do
-one close attempt and check for the disc
-again. This is how it used to work in the
-past.
+Regards,
 
-Can this please be applied?
+Nigel
 
-Acked-by: Alexander Kern <alex.kern@gmx.de>
-Signed-off-by: Stas Sergeev <stsp@aknet.ru>
+On Thu, 2005-01-06 at 08:04, Oliver Neukum wrote:
+> Am Dienstag, 4. Januar 2005 12:08 schrieb Pavel Machek:
+> > Hi!
+> > 
+> > > there's a second, more serious problem with this laptop. It hangs the
+> > > in the second swsusp cycle on suspension.
+> > > As before 2.6.10, i386/UP/no highmem.
+> > > On the screen I get the two messages "radeonfb resumed!" and
+> > > "setting latency" superimposed and it hangs forever. This is a regression
+> > > the previous user commented: "It worked under 2.6.6"
+> > 
+> > Unless it was on the same hardware/config, I'd not call it regression.
+> > 
+> > Anyway two suspends in the row seem to work here on 2.6.10+my
+> > patches. I suspect you have problems with some more obscure driver.
+> > 
+> > Can you try going with minimal driver config to see if it is
+> > reproducible? If it is broken even with minimal drivers, I'll try
+> > harder to reproduce it here (but I believe it will just go away).
+> 
+> The culprit seems to be EHCI, possibly together with UHCI only.
+> 
+> 0000:00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 03) (prog-if 00 [UHCI])
+>         Subsystem: Toshiba America Info Systems: Unknown device ff10
+>         Flags: bus master, medium devsel, latency 0, IRQ 11
+>         I/O ports at 1200 [size=32]
+> 
+> 0000:00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 03) (prog-if 00 [UHCI])
+>         Subsystem: Toshiba America Info Systems: Unknown device ff10
+>         Flags: bus master, medium devsel, latency 0, IRQ 11
+>         I/O ports at 1220 [size=32]
+> 
+> 0000:00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 03) (prog-if 00 [UHCI])
+>         Subsystem: Toshiba America Info Systems: Unknown device ff10
+>         Flags: bus master, medium devsel, latency 0, IRQ 11
+>         I/O ports at 1240 [size=32]
+> 
+> 0000:00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 03) (prog-if 20 [EHCI])
+>         Subsystem: Toshiba America Info Systems: Unknown device ff10
+>         Flags: bus master, medium devsel, latency 0
+>         Memory at f4000000 (32-bit, non-prefetchable)
+>         Capabilities: <available only to root>
+> 
+> 	Regards
+> 		Oliver
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
 
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
 
---------------070501070403030900060201
-Content-Type: text/x-patch;
- name="cd_clo1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cd_clo1.diff"
-
---- linux/drivers/cdrom/cdrom.c	2004-12-28 14:49:56.000000000 +0300
-+++ linux/drivers/cdrom/cdrom.c	2004-12-28 14:55:09.228038640 +0300
-@@ -1076,6 +1076,8 @@
- 			}
- 			cdinfo(CD_OPEN, "the tray is now closed.\n"); 
- 		}
-+		/* the door should be closed now, check for the disc */
-+		ret = cdo->drive_status(cdi, CDSL_CURRENT);
- 		if (ret!=CDS_DISC_OK) {
- 			ret = -ENOMEDIUM;
- 			goto clean_up_and_return;
---- linux/drivers/ide/ide-cd.c	2004-12-28 09:15:40.000000000 +0300
-+++ linux/drivers/ide/ide-cd.c	2004-12-28 14:46:44.119826760 +0300
-@@ -2744,9 +2744,9 @@
- 	 */
- 	if (sense.sense_key == NOT_READY) {
- 		if (sense.asc == 0x3a) {
--			if (sense.ascq == 0 || sense.ascq == 1)
-+			if (sense.ascq == 1)
- 				return CDS_NO_DISC;
--			else if (sense.ascq == 2)
-+			else if (sense.ascq == 0 || sense.ascq == 2)
- 				return CDS_TRAY_OPEN;
- 		}
- 	}
-
---------------070501070403030900060201--

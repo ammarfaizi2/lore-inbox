@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269438AbRHCQLU>; Fri, 3 Aug 2001 12:11:20 -0400
+	id <S269437AbRHCQNk>; Fri, 3 Aug 2001 12:13:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269437AbRHCQLK>; Fri, 3 Aug 2001 12:11:10 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:27141 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S269438AbRHCQLD> convert rfc822-to-8bit; Fri, 3 Aug 2001 12:11:03 -0400
-Date: Fri, 3 Aug 2001 18:11:12 +0200
-From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
+	id <S269452AbRHCQNa>; Fri, 3 Aug 2001 12:13:30 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:47627 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S269437AbRHCQNT>; Fri, 3 Aug 2001 12:13:19 -0400
+Date: Fri, 3 Aug 2001 12:13:28 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
 To: linux-kernel@vger.kernel.org
 Subject: Re: fake loop
-Message-ID: <20010803181112.F25738@sarah.kolej.mff.cuni.cz>
+Message-ID: <20010803121328.A14741@mueller.datastacks.com>
 Mail-Followup-To: linux-kernel@vger.kernel.org
 In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
 User-Agent: Mutt/1.2.5i
 In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>; from ailinykh@usa.net on Fri, Aug 03, 2001 at 09:57:34AM -0600
-X-Echelon: GRU NSA GCHQ KGB CIA nuclear conspiration war weapon spy agent
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 09:57:34AM -0600, Andrey Ilinykh wrote:
+++ 03/08/01 09:57 -0600 - Andrey Ilinykh:
+> Hi!
+> Very often I see in kernel such code as
+> do {
+>   dosomthing();
+> } while(0);
+
+This is a fake function. Macros often use this to give themselves an environment
+to allocate stack variables in. Example:
+
+ #define swap(A, B) \
+ { \
+	int C; \
+	C = (A); (A) = (B); (B) = C; \
+ } while(0)
+
+swap will now act almost exactly like a function. Please note that this macro
+does NOT have a semicolon on the end, as that would cause bad things if I did:
+
+ if (test)
+	swap(a,b);
+ else
+	do_something();
+
+> or even
 > #define prepare_to_switch()     do { } while(0)
-> 
-> Who can explain me a reason for these fake loops?
 
-http://kernelnewbies.org/faq/index.php3#dowhile.xml
-
-There are a couple of reasons:
-
-    * (from Dave Miller) Empty statements give a warning from the compiler so
-        this is why you see #define FOO do { } while(0). 
-    * (from Dave Miller) It gives
-        you a basic block in which to declare local variables.
-    * (from Ben Collins) It allows you to use more complex macros in
-        conditional code. Imagine a macro of several lines of code like:
-
-#define FOO(x) \
-        printf("arg is %s\n", x); \
-        do_something_useful(x);
-
-      Now imagine using it like:
-
-if (blah == 2)
-                FOO(blah);
-
-      This interprets to:
-
-if (blah == 2)
-                printf("arg is %s\n", blah);
-                do_something_useful(blah);;
-
-      As you can see, the if then only encompasses the printf(), and the
-do_something_useful() call is unconditional (not within the scope of the if),
-like you wanted it. So, by using a block like do{...}while(0), you would get
-this:
-
-if (blah == 2)
-                do {
-                        printf("arg is %s\n", blah);
-                        do_something_useful(blah);
-                } while (0);
-
-      Which is exactly what you want.
-
-Have a nice day
+This is most often found in situations where a code block becomes trivial when
+a config option is turned off. The spinlock functions mostly become this when
+SMP is not turned on, so they get optimized out of the code.
 
 -- 
-   Martin Maèok
-  underground.cz
-    openbsd.cz
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

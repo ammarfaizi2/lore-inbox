@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUIOF12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUIOF1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267526AbUIOF12 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 01:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUIOF12
+	id S267588AbUIOF1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 01:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUIOF1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 01:27:28 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:43022 "EHLO
-	bne.snapgear.com") by vger.kernel.org with ESMTP id S267526AbUIOF1Z
+	Wed, 15 Sep 2004 01:27:47 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:47328 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267588AbUIOF1o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 01:27:25 -0400
-Message-ID: <4147D243.5000401@snapgear.com>
-Date: Wed, 15 Sep 2004 15:25:23 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 01:27:44 -0400
+Date: Tue, 14 Sep 2004 22:27:13 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Andreas Dilger <adilger@clusterfs.com>
+cc: Anton Blanchard <anton@samba.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: Re: offtopic: how to break huge patch into smaller independent patches?
+Message-ID: <773640000.1095226032@[10.10.2.4]>
+In-Reply-To: <4147C6D6.30508@nortelnetworks.com>
+References: <41474B15.8040302@nortelnetworks.com> <20040915002023.GD5615@krispykreme> <119340000.1095209242@flay> <414799D1.7050609@nortelnetworks.com> <20040915014711.GA30607@schnapps.adilger.int> <4147C6D6.30508@nortelnetworks.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.8.1-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+>> Consider using a source-control tool next time ;-/.  
+> 
+> We used a source control tool.  Its just not very useful when people do a port from one kernel version to the next and submit it as one giant patch against the new kernel rather than new versions of the original individual patches.
+> 
+> I'm the one planning how to avoid this problem in our next development cycle.
 
-An update of the uClinux (MMU-less) fixups against 2.6.8.1.
-I know this is a little late (hey, I have been on vacation :-)
+Having maintained my own tree for a while, what I'd suggest is to keep a
+sequence of flat patches, then apply and port then ONE AT A TIME to each
+new kernel version. Once you get a system down, it really doesn't take
+long to do. 
 
-A few new things in this. I have done a bunch of work to
-support the new Freescale (was Motorola) 5270/5271 CPU's.
-And the usual few small fixes too.
+Personally I find source control tools utterly useless for exactly this 
+reason. Akpm uses his own set of tools which someone packaged up as
+"quilt" I think. I have a similar set that works by patch number, his
+are controlled by a series file. Suggest you look at his tools - if he
+can manage a release every few days with several hundred patches in, they
+must work pretty well ;-)
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.8.1-uc0.patch.gz
-
-Change log:
-
-. import of linux-2.6.8.1                            <gerg@snapgear.com>
-. added support for the Freescale 5270/5271 family   <gerg@snapgear.com>
-. make 5282 support generic (528x) to include 5280   <gerg@snapgear.com>
-. synced system call table with m68k                 <gerg@snapgear.com>
-. merged latest armnommu support                 <hyok.choi@samsung.com>
-. code to apply relocation adds on module load
-                                       <christian.magnusson@runaware.com>
-. auto-size memory on the M5206eC3 board
-                                       <christian.magnusson@runaware.com>
-. fix timeout duration for breaks in ColdFire serial
-                                       <christian.magnusson@runaware.com>
-
-
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+M.
 

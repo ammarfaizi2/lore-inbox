@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbTJHXqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 19:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTJHXp3
+	id S261836AbTJHXwo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 19:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTJHXwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 19:45:29 -0400
-Received: from dialup-188.153.220.203.acc01-ball-lis.comindico.com.au ([203.220.153.188]:57348
-	"EHLO mummy.lan.sky.net.au") by vger.kernel.org with ESMTP
-	id S261820AbTJHXpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 19:45:05 -0400
-Message-ID: <007701c38df5$7639a8a0$1400a8c0@lan.sky.net.au>
-Reply-To: "Jai" <jai@linknet.com.au>
-From: "Jai" <jai@linknet.com.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: matroxfb problem
-Date: Thu, 9 Oct 2003 09:39:48 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 8 Oct 2003 19:52:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44727 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261836AbTJHXwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 19:52:43 -0400
+Date: Wed, 8 Oct 2003 16:52:22 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test7-osdl1
+Message-Id: <20031008165222.7866a3de.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.5claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hi all,
+http://developer.osdl.org/~shemminger/patches/2.6/2.6.0-test7/
 
-I'm running kernel-2.4.20, I have enabled frame buffer support for matrox
-G550 in the kernel, but get these messages on boot:
+Mostly same as 2.6.0-test6, just small changes to keep up with
+underlying kernel changes.  One small new piece is scheduler stats.
 
-matroxset: Matrox G550 detected
-matroxset: MTRR's turned on
-matroxfb: cannot set required perameters
-
-and of course /dev/fb0 and fb1 are not available.
-
-I have also tried it with kernel-2.4.22, I believe I have seen this working
-before but I can't seem remember what it is i havn't done.
-Has anyone got any light to shed on this.
-
-Thanks for your time. Please CC me with any replies.
-
-Kind Regards,
-Jai.
+o Ext3 extents				(Alex Tomas)
+o ExecShield				(Ingo Molnar)
+o Performance Counters (2.6.1)		(Mikael Pettersson)
+o Linux Kernel Crash Dump		(Matt Robinson, et al)
+o Kexec 				(Eric Biederman)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler statistics			(Rick Lindsley)
 

@@ -1,72 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVCVVzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVCVV4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVCVVzW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVCVVyx
+	id S262099AbVCVV4V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVCVV4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:54:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54741 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262072AbVCVVxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:53:34 -0500
-Message-ID: <424093C8.400@pobox.com>
-Date: Tue, 22 Mar 2005 16:53:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Pawe__ Sikora <pluto@pld-linux.org>, linux-kernel@vger.kernel.org,
-       Richard Henderson <rth@twiddle.net>, Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH][alpha] "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko]
- undefined!
-References: <200503152335.48995.pluto@pld-linux.org> <20050322130657.7502418d.akpm@osdl.org>
-In-Reply-To: <20050322130657.7502418d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 16:56:09 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:57824 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262011AbVCVVvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:51:37 -0500
+Date: Tue, 22 Mar 2005 13:51:32 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2.4.30-pre3] x86_64: pci_alloc_consistent() match 2.6 implementation
+Message-ID: <20050322135132.A18592@unix-os.sc.intel.com>
+References: <20050318212344.GC26112@lists.us.dell.com> <20050319192645.GA3937@wotan.suse.de> <20050319221751.GA27863@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050319221751.GA27863@lists.us.dell.com>; from Matt_Domsch@dell.com on Sat, Mar 19, 2005 at 04:17:51PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Pawe__ Sikora <pluto@pld-linux.org> wrote:
+On Sat, Mar 19, 2005 at 04:17:51PM -0600, Matt Domsch wrote:
+> OK, then how's this for review?  Compiles clean, can't test it myself
+> for a few days.
 > 
->>Fix for modpost warning:
->> "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko] undefined!
->>
->> --- linux-2.6.11.3/arch/alpha/kernel/alpha_ksyms.c.orig	2005-03-13 07:44:05.000000000 +0100
->> +++ linux-2.6.11.3/arch/alpha/kernel/alpha_ksyms.c	2005-03-15 23:20:00.405832368 +0100
->> @@ -67,6 +67,9 @@
->>  EXPORT_SYMBOL(alpha_using_srm);
->>  #endif /* CONFIG_ALPHA_GENERIC */
->>  
->> +#include <linux/pm.h>
->> +EXPORT_SYMBOL(pm_power_off);
->> +
->>  /* platform dependent support */
->>  EXPORT_SYMBOL(strcat);
->>  EXPORT_SYMBOL(strcmp);
->> --- linux-2.6.11.3/arch/alpha/kernel/process.c.orig	2005-03-13 07:44:40.000000000 +0100
->> +++ linux-2.6.11.3/arch/alpha/kernel/process.c	2005-03-15 23:28:15.687538104 +0100
->> @@ -183,6 +183,8 @@
->>  
->>  EXPORT_SYMBOL(machine_power_off);
->>  
->> +void (*pm_power_off)(void) = machine_power_off;
->> +
->>  /* Used by sysrq-p, among others.  I don't believe r9-r15 are ever
->>     saved in the context it's used.  */
-> 
-> 
-> There doesn't seem to be a lot of point in defining it and not using it.
-> 
-> Perhaps IPMI is making untoward assumptions about the architecture's power
-> management?  Should we instead be disabling CONFIG_IPMI_POWEROFF on alpha
-> (and others?)
+> -		int high = 0, mmu;
+> -		if (((unsigned long)virt_to_bus(memory) + size) > 0xffffffffUL)
+> -			high = 1;
+> -		mmu = high;
+> +		int high = (((unsigned long)virt_to_bus(memory) + size) & ~dma_mask) != 0;
+> +		int mmu = high;
 
-Although I suppose its possible that some alpha machines have SMI 
-hardware, I don't think I've ever seen ACPI or IPMI on any alpha.
+Documentation/DMA-mapping.txt says consistent DMA mapping interface will always 
+return SAC addressable DMA address. Your patch breaks this behavior.
+(Though I don't know the reason why this behavior is expected!)
 
-	Jeff
+Appended is a simple 2.4 patch which will sync the behavior with 2.6
+
+thanks,
+suresh
+--
+
+Sync 2.4 pci_alloc_consistent behavior with 2.6
+
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
 
-
+diff -Nru linux-2.4.29/arch/ia64/lib/swiotlb.c linux-2.4.29-swiotlb/arch/ia64/lib/swiotlb.c
+--- linux-2.4.29/arch/ia64/lib/swiotlb.c	2003-08-25 04:44:39.000000000 -0700
++++ linux-2.4.29-swiotlb/arch/ia64/lib/swiotlb.c	2005-03-22 10:51:21.968565920 -0800
+@@ -50,13 +50,13 @@
+  * Used to do a quick range check in swiotlb_unmap_single and swiotlb_sync_single, to see
+  * if the memory was in fact allocated by this API.
+  */
+-static char *io_tlb_start, *io_tlb_end;
++char *io_tlb_start, *io_tlb_end;
+ 
+ /*
+  * The number of IO TLB blocks (in groups of 64) betweeen io_tlb_start and io_tlb_end.
+  * This is command line adjustable via setup_io_tlb_npages.
+  */
+-static unsigned long io_tlb_nslabs = 1024;
++static unsigned long io_tlb_nslabs = 32768;
+ 
+ /*
+  * This is a free list describing the number of free entries available from each index
+diff -Nru linux-2.4.29/arch/x86_64/kernel/pci-gart.c linux-2.4.29-swiotlb/arch/x86_64/kernel/pci-gart.c
+--- linux-2.4.29/arch/x86_64/kernel/pci-gart.c	2004-08-07 16:26:04.000000000 -0700
++++ linux-2.4.29-swiotlb/arch/x86_64/kernel/pci-gart.c	2005-03-22 10:38:45.211610464 -0800
+@@ -155,7 +155,7 @@
+ 	int i;
+ 	unsigned long iommu_page;
+ 
+-	if (hwdev == NULL || hwdev->dma_mask < 0xffffffff || no_iommu)
++	if (hwdev == NULL || hwdev->dma_mask < 0xffffffff || (no_iommu && !swiotlb))
+ 		gfp |= GFP_DMA;
+ 
+ 	/* 
+@@ -174,6 +174,22 @@
+ 		if (force_mmu && !(gfp & GFP_DMA)) 
+ 			mmu = 1;
+ 		if (no_iommu) { 
++#ifdef CONFIG_SWIOTLB
++			if (swiotlb && high && hwdev) {
++				unsigned long dma_mask = 0;
++				if (hwdev->dma_mask == ~0UL) {
++					hwdev->dma_mask = 0xffffffff;
++					dma_mask = ~0UL;
++				}
++				*dma_handle = swiotlb_map_single(hwdev, memory, size,
++						   		 PCI_DMA_FROMDEVICE);
++				if (dma_mask)
++					hwdev->dma_mask = dma_mask;
++				memset(phys_to_virt(*dma_handle), 0, size); 
++				free_pages((unsigned long)memory, get_order(size));
++				return phys_to_virt(*dma_handle);
++			}
++#endif
+ 			if (high) goto error;
+ 			mmu = 0; 
+ 		} 	
+@@ -218,8 +234,16 @@
+ 			 void *vaddr, dma_addr_t bus)
+ {
+ 	unsigned long iommu_page;
+-
++ 	extern  char *io_tlb_start, *io_tlb_end;
++ 
+ 	size = round_up(size, PAGE_SIZE); 
++#ifdef CONFIG_SWIOTLB
++ 	if (swiotlb && vaddr >= (void *)io_tlb_start &&
++ 	    vaddr < (void *)io_tlb_end) {
++ 		swiotlb_unmap_single (hwdev, bus, size, PCI_DMA_TODEVICE);
++ 		return;
++ 	}
++#endif
+ 	if (bus >= iommu_bus_base && bus < iommu_bus_base + iommu_size) { 
+ 		unsigned pages = size >> PAGE_SHIFT;
+ 		iommu_page = (bus - iommu_bus_base) >> PAGE_SHIFT;

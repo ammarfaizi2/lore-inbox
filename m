@@ -1,169 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276988AbRKMRAn>; Tue, 13 Nov 2001 12:00:43 -0500
+	id <S276982AbRKMRFd>; Tue, 13 Nov 2001 12:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276982AbRKMRAY>; Tue, 13 Nov 2001 12:00:24 -0500
-Received: from ns2.cih.com ([204.69.206.3]:2433 "HELO cih.com")
-	by vger.kernel.org with SMTP id <S276956AbRKMRAP>;
-	Tue, 13 Nov 2001 12:00:15 -0500
-Date: Tue, 13 Nov 2001 09:59:16 -0800 (PST)
-From: "Craig I. Hagan" <hagan@cih.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: <linux-kernel@vger.kernel.org>, <lars.nakkerud@compaq.com>
-Subject: Re: Tuning Linux for high-speed disk subsystems
-In-Reply-To: <Pine.LNX.4.30.0111131519440.933-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33.0111130939030.1083-200000@svr.cih.com>
+	id <S276956AbRKMRFX>; Tue, 13 Nov 2001 12:05:23 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:34570 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S277068AbRKMRFJ>;
+	Tue, 13 Nov 2001 12:05:09 -0500
+Message-ID: <3BF1527F.2042E0E1@osdl.org>
+Date: Tue, 13 Nov 2001 09:03:59 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1171030222-841085925-1005674337=:1083"
-Content-ID: <Pine.LNX.4.33.0111130959040.1083@svr.cih.com>
+To: Tim Waugh <twaugh@redhat.com>
+CC: Lee Howard <faxguy@deanox.com>, linux-kernel@vger.kernel.org
+Subject: Re: lp oops with kernel 2.4.15-pre2
+In-Reply-To: <3.0.6.32.20011112165757.00e404b0@server.deanox.com> <20011113113029.N25718@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Tim Waugh wrote:
+> 
+> On Mon, Nov 12, 2001 at 04:57:57PM -0700, Lee Howard wrote:
+> 
+> > Nov 12 12:02:44 zelda kernel: EIP:    0010:[kmem_cache_alloc+100/176]
+> [...]
+> > Nov 12 12:02:44 zelda kernel: Call Trace: [d_alloc+23/368] [sprintf+18/32]
+> > [sock_map_fd+153/352] [unix_create+92/112] [sock_create+214/256]
+> > Nov 12 12:02:44 zelda kernel:    [dentry_open+346/384] [sys_socket+41/80]
+> > [sys_socketcall+96/464] [do_page_fault+0/1200] [error_code+52/60]
+> > [system_call+51/56]
+> 
+> This doesn't seem to be lp- or parport-related.  What else was the
+> machine doing at the time?
 
---1171030222-841085925-1005674337=:1083
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0111130959041.1083@svr.cih.com>
+Running the oops thru ksymoops would be helpful also.
+See linux/REPORTING-BUGS file.
 
-> After some testing at Compaq's lab in Oslo, I've come to the conclusion
-> that Linux cannot scale higher than about 30-40MB/sec in or out of a
-> hardware or software RAID-0 set with several stripe/chunk sizes tried out.
-> The set is based on 5 18GB 10k disks running SCSI-3 (160MBps) alone on a
-> 32bit/33MHz PCI bus.
-
-this isn't quite true. use either the RH kernel, the -ac series, or the
-attached patch (for 2.4.15-pre4). Then set /proc/sys/vm/max-readahead to 511 or
-1023 (power of 2 minus 1)
-
-this should allow you to generate large enough io's for streaming reads to do
-what you are looking for.
-	
--- craig
-
-
--------------------------------------------------------------------------------
-Craig I. Hagan     "It's a small world, but I wouldn't want to back it up"
-hagan(at)cih.com        "True hackers don't die, their ttl expires"
-  	"It takes a village to raise an idiot, but an idiot can raze a village"
-
-	Stop the spread of spam, use a sendmail condom!
-	     http://www.cih.com/~hagan/smtpd-hacks
-
-                       In Bandwidth we trust
-
---1171030222-841085925-1005674337=:1083
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="dynreadahead-2.4.15-pre4"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0111130958570.1083@svr.cih.com>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="dynreadahead-2.4.15-pre4"
-
-ZGlmZiAtdXIgbGludXgtb3JpZy9kcml2ZXJzL21kL21kLmMgbGludXgvZHJp
-dmVycy9tZC9tZC5jDQotLS0gbGludXgtb3JpZy9kcml2ZXJzL21kL21kLmMJ
-TW9uIE5vdiAxMiAyMzozNDo1MiAyMDAxDQorKysgbGludXgvZHJpdmVycy9t
-ZC9tZC5jCU1vbiBOb3YgMTIgMjM6MzE6MTcgMjAwMQ0KQEAgLTMzOTgsNyAr
-MzM5OCw3IEBADQogCS8qDQogCSAqIFR1bmUgcmVjb25zdHJ1Y3Rpb246DQog
-CSAqLw0KLQl3aW5kb3cgPSBNQVhfUkVBREFIRUFEKihQQUdFX1NJWkUvNTEy
-KTsNCisJd2luZG93ID0gdm1fbWF4X3JlYWRhaGVhZCooUEFHRV9TSVpFLzUx
-Mik7DQogCXByaW50ayhLRVJOX0lORk8gIm1kOiB1c2luZyAlZGsgd2luZG93
-LCBvdmVyIGEgdG90YWwgb2YgJWQgYmxvY2tzLlxuIiwNCiAJICAgICAgIHdp
-bmRvdy8yLG1heF9zZWN0b3JzLzIpOw0KIA0KZGlmZiAtdXIgbGludXgtb3Jp
-Zy9pbmNsdWRlL2xpbnV4L2Jsa2Rldi5oIGxpbnV4L2luY2x1ZGUvbGludXgv
-YmxrZGV2LmgNCi0tLSBsaW51eC1vcmlnL2luY2x1ZGUvbGludXgvYmxrZGV2
-LmgJTW9uIE5vdiAxMiAyMzozMzoyMCAyMDAxDQorKysgbGludXgvaW5jbHVk
-ZS9saW51eC9ibGtkZXYuaAlNb24gTm92IDEyIDIzOjMxOjE3IDIwMDENCkBA
-IC0xODAsMTAgKzE4MCw2IEBADQogDQogI2RlZmluZSBQYWdlQWxpZ25TaXpl
-KHNpemUpICgoKHNpemUpICsgUEFHRV9TSVpFIC0xKSAmIFBBR0VfTUFTSykN
-CiANCi0vKiByZWFkLWFoZWFkIGluIHBhZ2VzLi4gKi8NCi0jZGVmaW5lIE1B
-WF9SRUFEQUhFQUQJMzENCi0jZGVmaW5lIE1JTl9SRUFEQUhFQUQJMw0KLQ0K
-ICNkZWZpbmUgYmxrZGV2X2VudHJ5X3RvX3JlcXVlc3QoZW50cnkpIGxpc3Rf
-ZW50cnkoKGVudHJ5KSwgc3RydWN0IHJlcXVlc3QsIHF1ZXVlKQ0KICNkZWZp
-bmUgYmxrZGV2X2VudHJ5X25leHRfcmVxdWVzdChlbnRyeSkgYmxrZGV2X2Vu
-dHJ5X3RvX3JlcXVlc3QoKGVudHJ5KS0+bmV4dCkNCiAjZGVmaW5lIGJsa2Rl
-dl9lbnRyeV9wcmV2X3JlcXVlc3QoZW50cnkpIGJsa2Rldl9lbnRyeV90b19y
-ZXF1ZXN0KChlbnRyeSktPnByZXYpDQpkaWZmIC11ciBsaW51eC1vcmlnL2lu
-Y2x1ZGUvbGludXgvbW0uaCBsaW51eC9pbmNsdWRlL2xpbnV4L21tLmgNCi0t
-LSBsaW51eC1vcmlnL2luY2x1ZGUvbGludXgvbW0uaAlNb24gTm92IDEyIDIz
-OjMzOjM4IDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L21tLmgJTW9u
-IE5vdiAxMiAyMzozMToxNyAyMDAxDQpAQCAtMTExLDYgKzExMSwxMCBAQA0K
-ICNkZWZpbmUgVk1fU2VxdWVudGlhbFJlYWRIaW50KHYpCSgodiktPnZtX2Zs
-YWdzICYgVk1fU0VRX1JFQUQpDQogI2RlZmluZSBWTV9SYW5kb21SZWFkSGlu
-dCh2KQkJKCh2KS0+dm1fZmxhZ3MgJiBWTV9SQU5EX1JFQUQpDQogDQorLyog
-cmVhZCBhaGVhZCBsaW1pdHMgKi8NCitleHRlcm4gaW50IHZtX21pbl9yZWFk
-YWhlYWQ7DQorZXh0ZXJuIGludCB2bV9tYXhfcmVhZGFoZWFkOw0KKw0KIC8q
-DQogICogbWFwcGluZyBmcm9tIHRoZSBjdXJyZW50bHkgYWN0aXZlIHZtX2Zs
-YWdzIHByb3RlY3Rpb24gYml0cyAodGhlDQogICogbG93IGZvdXIgYml0cykg
-dG8gYSBwYWdlIHByb3RlY3Rpb24gbWFzay4uDQpkaWZmIC11ciBsaW51eC1v
-cmlnL2luY2x1ZGUvbGludXgvcmFpZC9tZF9rLmggbGludXgvaW5jbHVkZS9s
-aW51eC9yYWlkL21kX2suaA0KLS0tIGxpbnV4LW9yaWcvaW5jbHVkZS9saW51
-eC9yYWlkL21kX2suaAlNb24gTm92IDEyIDIzOjMzOjAyIDIwMDENCisrKyBs
-aW51eC9pbmNsdWRlL2xpbnV4L3JhaWQvbWRfay5oCU1vbiBOb3YgMTIgMjM6
-MzE6MTcgMjAwMQ0KQEAgLTkxLDcgKzkxLDcgQEANCiAvKg0KICAqIGRlZmF1
-bHQgcmVhZGFoZWFkDQogICovDQotI2RlZmluZSBNRF9SRUFEQUhFQUQJTUFY
-X1JFQURBSEVBRA0KKyNkZWZpbmUgTURfUkVBREFIRUFECXZtX21heF9yZWFk
-YWhlYWQNCiANCiBzdGF0aWMgaW5saW5lIGludCBkaXNrX2ZhdWx0eShtZHBf
-ZGlza190ICogZCkNCiB7DQpkaWZmIC11ciBsaW51eC1vcmlnL2luY2x1ZGUv
-bGludXgvc3lzY3RsLmggbGludXgvaW5jbHVkZS9saW51eC9zeXNjdGwuaA0K
-LS0tIGxpbnV4LW9yaWcvaW5jbHVkZS9saW51eC9zeXNjdGwuaAlNb24gTm92
-IDEyIDIzOjM0OjM2IDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L3N5
-c2N0bC5oCU1vbiBOb3YgMTIgMjM6MzE6MjEgMjAwMQ0KQEAgLTEzOSw3ICsx
-MzksOSBAQA0KIAlWTV9QQUdFQ0FDSEU9NywJCS8qIHN0cnVjdDogU2V0IGNh
-Y2hlIG1lbW9yeSB0aHJlc2hvbGRzICovDQogCVZNX1BBR0VSREFFTU9OPTgs
-CS8qIHN0cnVjdDogQ29udHJvbCBrc3dhcGQgYmVoYXZpb3VyICovDQogCVZN
-X1BHVF9DQUNIRT05LAkJLyogc3RydWN0OiBTZXQgcGFnZSB0YWJsZSBjYWNo
-ZSBwYXJhbWV0ZXJzICovDQotCVZNX1BBR0VfQ0xVU1RFUj0xMAkvKiBpbnQ6
-IHNldCBudW1iZXIgb2YgcGFnZXMgdG8gc3dhcCB0b2dldGhlciAqLw0KKwlW
-TV9QQUdFX0NMVVNURVI9MTAsCS8qIGludDogc2V0IG51bWJlciBvZiBwYWdl
-cyB0byBzd2FwIHRvZ2V0aGVyICovDQorICAgICAgICBWTV9NSU5fUkVBREFI
-RUFEPTEyLCAgICAvKiBNaW4gZmlsZSByZWFkYWhlYWQgKi8NCisgICAgICAg
-IFZNX01BWF9SRUFEQUhFQUQ9MTMgICAgIC8qIE1heCBmaWxlIHJlYWRhaGVh
-ZCAqLw0KIH07DQogDQogDQpkaWZmIC11ciBsaW51eC1vcmlnL2tlcm5lbC9z
-eXNjdGwuYyBsaW51eC9rZXJuZWwvc3lzY3RsLmMNCi0tLSBsaW51eC1vcmln
-L2tlcm5lbC9zeXNjdGwuYwlNb24gTm92IDEyIDIzOjMyOjI4IDIwMDENCisr
-KyBsaW51eC9rZXJuZWwvc3lzY3RsLmMJTW9uIE5vdiAxMiAyMzozMToxNyAy
-MDAxDQpAQCAtMjcwLDYgKzI3MCwxMCBAQA0KIAkgJnBndF9jYWNoZV93YXRl
-ciwgMipzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9
-LA0KIAl7Vk1fUEFHRV9DTFVTVEVSLCAicGFnZS1jbHVzdGVyIiwgDQogCSAm
-cGFnZV9jbHVzdGVyLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2Nf
-ZG9pbnR2ZWN9LA0KKwl7Vk1fTUlOX1JFQURBSEVBRCwgIm1pbi1yZWFkYWhl
-YWQiLA0KKwkmdm1fbWluX3JlYWRhaGVhZCxzaXplb2YoaW50KSwgMDY0NCwg
-TlVMTCwgJnByb2NfZG9pbnR2ZWN9LA0KKwl7Vk1fTUFYX1JFQURBSEVBRCwg
-Im1heC1yZWFkYWhlYWQiLA0KKwkmdm1fbWF4X3JlYWRhaGVhZCxzaXplb2Yo
-aW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LA0KIAl7MH0NCiB9
-Ow0KIA0KZGlmZiAtdXIgbGludXgtb3JpZy9tbS9maWxlbWFwLmMgbGludXgv
-bW0vZmlsZW1hcC5jDQotLS0gbGludXgtb3JpZy9tbS9maWxlbWFwLmMJTW9u
-IE5vdiAxMiAyMzozMjo0NCAyMDAxDQorKysgbGludXgvbW0vZmlsZW1hcC5j
-CU1vbiBOb3YgMTIgMjM6MzE6MjEgMjAwMQ0KQEAgLTQ3LDYgKzQ3LDEyIEBA
-DQogdW5zaWduZWQgaW50IHBhZ2VfaGFzaF9iaXRzOw0KIHN0cnVjdCBwYWdl
-ICoqcGFnZV9oYXNoX3RhYmxlOw0KIA0KK2ludCB2bV9tYXhfcmVhZGFoZWFk
-ID0gMzE7DQoraW50IHZtX21pbl9yZWFkYWhlYWQgPSAzOw0KK0VYUE9SVF9T
-WU1CT0wodm1fbWF4X3JlYWRhaGVhZCk7DQorRVhQT1JUX1NZTUJPTCh2bV9t
-aW5fcmVhZGFoZWFkKTsNCisNCisNCiBzcGlubG9ja190IHBhZ2VjYWNoZV9s
-b2NrIF9fX19jYWNoZWxpbmVfYWxpZ25lZF9pbl9zbXAgPSBTUElOX0xPQ0tf
-VU5MT0NLRUQ7DQogLyoNCiAgKiBOT1RFOiB0byBhdm9pZCBkZWFkbG9ja2lu
-ZyB5b3UgbXVzdCBuZXZlciBhY3F1aXJlIHRoZSBwYWdlbWFwX2xydV9sb2Nr
-IA0KQEAgLTExMjksNyArMTEzNSw3IEBADQogc3RhdGljIGlubGluZSBpbnQg
-Z2V0X21heF9yZWFkYWhlYWQoc3RydWN0IGlub2RlICogaW5vZGUpDQogew0K
-IAlpZiAoIWlub2RlLT5pX2RldiB8fCAhbWF4X3JlYWRhaGVhZFtNQUpPUihp
-bm9kZS0+aV9kZXYpXSkNCi0JCXJldHVybiBNQVhfUkVBREFIRUFEOw0KKwkJ
-cmV0dXJuIHZtX21heF9yZWFkYWhlYWQ7DQogCXJldHVybiBtYXhfcmVhZGFo
-ZWFkW01BSk9SKGlub2RlLT5pX2RldildW01JTk9SKGlub2RlLT5pX2Rldild
-Ow0KIH0NCiANCkBAIC0xMzEyLDggKzEzMTgsOCBAQA0KIAkJaWYgKGZpbHAt
-PmZfcmFtYXggPCBuZWVkZWQpDQogCQkJZmlscC0+Zl9yYW1heCA9IG5lZWRl
-ZDsNCiANCi0JCWlmIChyZWFkYV9vayAmJiBmaWxwLT5mX3JhbWF4IDwgTUlO
-X1JFQURBSEVBRCkNCi0JCQkJZmlscC0+Zl9yYW1heCA9IE1JTl9SRUFEQUhF
-QUQ7DQorCQlpZiAocmVhZGFfb2sgJiYgZmlscC0+Zl9yYW1heCA8IHZtX21p
-bl9yZWFkYWhlYWQpDQorCQkJCWZpbHAtPmZfcmFtYXggPSB2bV9taW5fcmVh
-ZGFoZWFkOw0KIAkJaWYgKGZpbHAtPmZfcmFtYXggPiBtYXhfcmVhZGFoZWFk
-KQ0KIAkJCWZpbHAtPmZfcmFtYXggPSBtYXhfcmVhZGFoZWFkOw0KIAl9DQot
-LS0gbGludXgtb3JpZy9kcml2ZXJzL2lkZS9pZGUtcHJvYmUuYwlNb24gTm92
-IDEyIDIzOjQ5OjM4IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL2lkZS9pZGUt
-cHJvYmUuYwlNb24gTm92IDEyIDIzOjUwOjE4IDIwMDENCkBAIC03NzksNyAr
-Nzc5LDcgQEANCiAJCS8qIElERSBjYW4gZG8gdXAgdG8gMTI4SyBwZXIgcmVx
-dWVzdC4gKi8NCiAJCSptYXhfc2VjdCsrID0gMjU1Ow0KICNlbmRpZg0KLQkJ
-Km1heF9yYSsrID0gTUFYX1JFQURBSEVBRDsNCisJCSptYXhfcmErKyA9IHZt
-X21heF9yZWFkYWhlYWQ7DQogCX0NCiANCiAJZm9yICh1bml0ID0gMDsgdW5p
-dCA8IHVuaXRzOyArK3VuaXQpDQo=
---1171030222-841085925-1005674337=:1083--
+~Randy

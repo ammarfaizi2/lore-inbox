@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131049AbRAXOGs>; Wed, 24 Jan 2001 09:06:48 -0500
+	id <S132025AbRAXOSj>; Wed, 24 Jan 2001 09:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131239AbRAXOGj>; Wed, 24 Jan 2001 09:06:39 -0500
-Received: from mailhost1.dircon.co.uk ([194.112.32.65]:41234 "EHLO
-	mailhost1.dircon.co.uk") by vger.kernel.org with ESMTP
-	id <S131049AbRAXOG2>; Wed, 24 Jan 2001 09:06:28 -0500
-From: Mark Longair <list-reader@ideaworks3d.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: [2.2.18] outgoing connections getting stuck in SYN_SENT
-In-Reply-To: <14942.18985.174437.785751@starfruit.iwks.multi.local>
-Date: 24 Jan 2001 14:01:14 +0000
-In-Reply-To: Mark Longair's message of "Fri, 12 Jan 2001 00:04:57 +0000 (GMT)"
-Message-ID: <871ytt1239.fsf@starfruit.iwks.multi.local>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Capitol Reef"
+	id <S132343AbRAXOSa>; Wed, 24 Jan 2001 09:18:30 -0500
+Received: from smtp6.mail.yahoo.com ([128.11.69.103]:51973 "HELO
+	smtp6.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S132025AbRAXOSS>; Wed, 24 Jan 2001 09:18:18 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A6ED972.6636E169@yahoo.com>
+Date: Wed, 24 Jan 2001 08:32:35 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.1-pre8 i486)
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: David Luyer <david_luyer@pacific.net.au>, alan@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH: "Pass module parameters" to built-in drivers
+In-Reply-To: <27169.980053744@ocs3.ocs-net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Longair <list-reader@ideaworks3d.com> writes:
-[..]
-> I'm having a problem where twice a day or so, any new tcp connection
-> it gets stuck in SYN_SENT.  Eventually this situation rights itself,
-> but obviously in the meantime many services (e.g. squid, X) are
-> broken.  The machine does IP masquerdading with ipchains, and
-> masqueraded connections through it seem to be unaffected.  The
-> kernel version is 2.2.18, although the same happened with 2.2.17.
-[..]
+Keith Owens wrote:
 
-It turned out that this was caused by using autofw to forward a range
-of ports (2300-2400 in this case.)  It seems that these ports aren't
-reserved in any way, so eventually the server tries to use one as a
-local port on an outgoing connection.
+> Inconsistent methods for setting the same parameter are bad.  I can and
+> will do this cleanly in 2.5.  Parameters will be always be keyed by the
+> module name, even if they are compiled in.  Adding an inconsistent
 
-There was a previous reference to this on the list: 
+I'm curious as to what boot argument equivalent you envision for e.g.
 
-  http://kernelnotes.org/lnxlists/linux-kernel/lk_9908_01/msg00573.html
+options ne io=0x280,0x300 irq=10,12 bad=0,1
 
-I'm looking at finding fix for that.  Would this be an issue with the
-new networking code in 2.4?
+> method to 2.4 then changing to a correct method in 2.5 is a bad idea,
+> wait until we can do it right.
 
-Thanks for the suggestions...
+As a related issue, this will allow me (or whoever) to kill off the
+ether=x,y,z,ethN boot argument for compiled in ethernet drivers at
+the same time.  It made sense back in 1.0/1.2 days when distro kernels 
+were shipped with everything compiled in and ISA cards were the norm.  
+Now it is hardly used and generally a PITA to support.
+
+Paul.
+
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

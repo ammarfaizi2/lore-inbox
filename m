@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUGIJ4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUGIKRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbUGIJ4r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 05:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUGIJ4o
+	id S264833AbUGIKRc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 06:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUGIKRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 05:56:44 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:52415 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S264795AbUGIJyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 05:54:16 -0400
-X-Sasl-enc: tvX45QLDjwRAEp+dQn1kYQ 1089366854
-Message-ID: <000401c4659a$b52b76b0$e6afc742@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Chris Mason" <mason@suse.com>
-Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
-Date: Fri, 9 Jul 2004 02:52:49 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2149
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2149
+	Fri, 9 Jul 2004 06:17:32 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:18386 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264833AbUGIKRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 06:17:31 -0400
+Date: Fri, 9 Jul 2004 12:17:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Likelihood of rt_tasks
+Message-ID: <20040709101733.GA19011@elte.hu>
+References: <40EE6CC2.8070001@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40EE6CC2.8070001@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As an update, this machine eventually ended up dieing pretty horribly. When 
-we found it, there were 100's of procs stuck in D state, and our automated 
-"ping" script was reporting all sorts of problems. Anyway we killed off as 
-many processes as possible, and did a sysreq-t before trying to reboot. The 
-soft reboot failed, and a hard reboot was required.
 
-The newly gathered sysreq output has been placed in the files 
-sysreqdmesg3.txt and sysreqmsglog3.txt here:
+* Con Kolivas <kernel@kolivas.org> wrote:
 
-http://robm.fastmail.fm/kernel/t1/
+> While rt tasks are normally unlikely, what happens in the case when
+> you are scheduling one or many running rt_tasks and the majority of
+> your scheduling is rt? Would it be such a good idea in this setting
+> that it is always hitting the slow path of branching all the time?
 
-Rob
+it's really not that big of an issue to hit the 'slow' path. And if it
+is that common then the BTB of the CPU ought to cover it just fine.
 
+	Ingo

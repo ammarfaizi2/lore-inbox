@@ -1,27 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263090AbSJGP0z>; Mon, 7 Oct 2002 11:26:55 -0400
+	id <S263098AbSJGPcu>; Mon, 7 Oct 2002 11:32:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263095AbSJGP0z>; Mon, 7 Oct 2002 11:26:55 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:63983 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263090AbSJGP0z>; Mon, 7 Oct 2002 11:26:55 -0400
-Subject: RE: cs4281 driver fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Woller, Thomas" <tom.woller@cirrus.com>
-Cc: "'Siddha, Suresh B'" <suresh.b.siddha@intel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <973C11FE0E3ED41183B200508BC7774C05233FD0@csexchange.crystal.cirrus.com>
-References: <973C11FE0E3ED41183B200508BC7774C05233FD0@csexchange.crystal.cirrus.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 16:42:13 +0100
-Message-Id: <1034005333.25063.27.camel@irongate.swansea.linux.org.uk>
+	id <S263105AbSJGPct>; Mon, 7 Oct 2002 11:32:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59143 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263098AbSJGPcs>;
+	Mon, 7 Oct 2002 11:32:48 -0400
+Date: Mon, 7 Oct 2002 16:38:27 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Christoph Hellwig <hch@infradead.org>, Matthew Wilcox <willy@debian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: remove bcopy()
+Message-ID: <20021007163827.L18545@parcelfarce.linux.theplanet.co.uk>
+References: <20021007152510.K18545@parcelfarce.linux.theplanet.co.uk> <20021007162227.A15313@infradead.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021007162227.A15313@infradead.org>; from hch@infradead.org on Mon, Oct 07, 2002 at 04:22:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For 2.5 Linus is the best person, but if you cc me I can collect it up
-too
+On Mon, Oct 07, 2002 at 04:22:27PM +0100, Christoph Hellwig wrote:
+> Please do.  But please let the defines in XFS in place - this
+> way the source stais compatible to the IRIX version.
 
+agreed, there's a good reason to keep it there, and in the SCSI drivers
+ported from BSD.  i doubt there's a good reason to keep it in rio though.
+
+-- 
+Revolutions do not require corporate support.

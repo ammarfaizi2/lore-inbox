@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTFPX5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 19:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTFPX5Y
+	id S264449AbTFPXyO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 19:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTFPXyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 19:57:24 -0400
-Received: from host151.spe.iit.edu ([198.37.27.151]:36755 "EHLO
-	found.lostlogicx.com") by vger.kernel.org with ESMTP
-	id S264465AbTFPX5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 19:57:23 -0400
-Date: Mon, 16 Jun 2003 19:11:14 -0500
-From: Brandon Low <lostlogic@gentoo.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: presario laptop and 2.5.71
-Message-ID: <20030617001114.GC25761@lostlogicx.com>
-References: <Pine.LNX.4.44.0306151511290.1056-100000@lap.molina> <m2llw2lh7l.fsf@telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2llw2lh7l.fsf@telia.com>
-X-Operating-System: Linux found.lostlogicx.com 2.4.20-pfeifer-r1_pre7
-User-Agent: Mutt/1.5.4i
+	Mon, 16 Jun 2003 19:54:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:49826 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264449AbTFPXyM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 19:54:12 -0400
+Message-ID: <3EEE5BA8.8000601@us.ibm.com>
+Date: Mon, 16 Jun 2003 17:07:04 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: girouard@us.ibm.com, stekloff@us.ibm.com, janiceg@us.ibm.com,
+       jgarzik@pobox.com, lkessler@us.ibm.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: patch for common networking error messages
+References: <OFF1F6B3DC.30C0E5DE-ON85256D47.007AEFAF@us.ibm.com>	<20030616.152745.124055059.davem@redhat.com>	<3EEE4880.3080505@us.ibm.com> <20030616.155251.25131382.davem@redhat.com>
+In-Reply-To: <20030616.155251.25131382.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nope, not a build problem (AFAICS) under 2.5.70-mm9, I was able to use
-the new synaptics driver pretty well (seems to have some sync problems)
-whatever changed in that department before 2.5.71/(-mm1) broke it, now
-the driver loads, correct detects my touchpad, but never binds it to the
-event interface (I did not modularize the event interface, and touchpad
-stuff because under 2.5.70 there WAS a buildproblem wherein the psmouse
-module couldn't be built as a module).
+David S. Miller wrote:
 
-Hope this additional info either helps someone solve the problem or at
-least clears up that there IS a problem...
+> There would be absolutely ZERO disruption if you guys would use you
+> brains and implement what you're actually trying to achieve, a system
+> event logging mechanism.
 
---Brandon Low
-Gentoo Developer
+> We have a message queueing mechanism using sockets, called netlink,
+> and you can make whatever actions in the kernel you think should be
+> monitored go and stuff messages into this system event netlink socket.
 
-On Mon, 06/16/03 at 07:33:18 +0200, Peter Osterlund wrote:
-> Thomas Molina <tmolina@cox.net> writes:
+I should clarify here that I was speaking strictly for my lonesome sorry
+self :), and have no knowledge of what the state of the various
+RAS projects currently are, and the approaches they are trying..
+For all I know, they may be currently trying precisely that..
+
+Janice's patch is the first I've seen in this area (Luckily,
+most of the time they keep me in a cave :) :)), and I do
+appreciate *something* being done in this area, it seemed a
+good start and really, I dont care how its implemented, I'll
+leave that to the folks who have spent longer than the
+8 mins I currently have on it..
+
+> Then, you don't have to standardize a bunch of absolutely silly
+> strings (I mean, the concept is so incredibly stupid), you get events
+> that are in a precisely defined format going over this netlink socket.
+
+Well, right now, thats all we have, right? Silly strings? But
+thats not really my position, which is more like:
+Whatever! Whatever! Somebody! Make it so! :) :).
+
+> Then whoever in userspace reads out the messages can interpret them
+> however the fuck it wants to.  It is then trivial to parse the
+> messages and filter them.  Furthermore, you could even transmit such
+> messages over a network connection to a remote logging server as-is.
 > 
-> > I have two problems with 2.5.71 and my Presario 12XL325 laptop.  
-> > 
-> > Problem one is that my synaptics mousepad does not work.  Previously, it 
-> > was recognized as a PS/2 device.  With this kernel I get nothing.  I am 
-> > including my configuration.  I've tried with the synaptics-specific driver 
-> > loaded as well as simply just using the generic ps/2 support which has 
-> > worked in the past.
-> > 
-> I think this is some kind of build problem. The messages you quote
-> should not even be compiled into the kernel if you disable
-> CONFIG_MOUSE_PS2_SYNAPTICS in the kernel configuration.
-> 
-> Also note that this driver needs user space support, see:
-> 
->         http://w1.894.telia.com/~u89404340/touchpad/index.html
-> 
-> Also make sure the evdev module is loaded.
+> And hey, look, for network links going up and down we have the hooks
+> already.  Funny that...
+
+OK, that is a good idea.. :)
+
+thanks,
+Nivedita
+
+
+

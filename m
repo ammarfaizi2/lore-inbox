@@ -1,126 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbUKDXtC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbUKDXub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262501AbUKDXtC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:49:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUKDXtC
+	id S262502AbUKDXub (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUKDXub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 18:49:02 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15748 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262501AbUKDXsq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 18:48:46 -0500
-Message-ID: <418ABFB2.6050800@engr.sgi.com>
-Date: Thu, 04 Nov 2004 15:48:02 -0800
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net
-Subject: Re: [Lse-tech] [PATCH 2.6.9 1/2] enhanced accounting data collection
-References: <41785FE3.806@engr.sgi.com>	<41786344.9070504@engr.sgi.com> <20041021191608.06b74417.akpm@osdl.org>
-In-Reply-To: <20041021191608.06b74417.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 18:50:31 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:15313 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262504AbUKDXuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 18:50:10 -0500
+Date: Fri, 5 Nov 2004 00:50:01 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Patrick McHardy <kaber@trash.net>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, linux-net@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps
+Message-ID: <20041104235001.GB30029@merlin.emma.line.org>
+Mail-Followup-To: Patrick McHardy <kaber@trash.net>,
+	"David S. Miller" <davem@davemloft.net>,
+	Herbert Xu <herbert@gondor.apana.org.au>, linux-net@vger.kernel.org,
+	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <418A7B0B.7040803@trash.net> <E1CPoUT-0000sk-00@gondolin.me.apana.org.au> <20041104130028.099fc130.davem@davemloft.net> <418AA4C7.2030909@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <418AA4C7.2030909@trash.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jay Lan <jlan@engr.sgi.com> wrote:
-> 
->>1/2: acct_io
->>
->>Enahanced I/O accounting data collection.
->>
-> 
-> 
-> It's nice to use `diff -p' so people can see what functions you're hitting.
+On Thu, 04 Nov 2004, Patrick McHardy wrote:
 
-Will be done that way next time.
+> -	data = amp;
+> -	data_limit = amp + skb->len - dataoff;
+> +	skb_copy_bits(skb, dataoff, amanda_buffer, skb->len - dataoff);
+> +	data = amanda_buffer;
+> +	data_limit = amanda_buffer + skb->len - dataoff;
 
-> 
-> 
->>+			current->syscr++;
-> 
-> 
-> Should these metrics be per-thread or per-heavyweight process?
+Does this mean the whole buffer is still copied?
 
-Our customers found it useful per process.
+If so: Making a local copy of the packet just to be able to stuff NUL
+bytes to suit or "optimize" strstr functions is plain nonsense - amanda
+pipes several GByte through the kernel at each run, and copying
+gazillions of bits around, wasting millions of CPU cycles, just because
+someone is too lazy to spell a more decent search function, is
+bad design.
 
-> 
-> 
->>+	if (ret > 0) {
->>+		current->rchar += ret;
->>+	}
-> 
-> 
-> It's conventional to omit the braces if there is only one statement in the
-> block.
+Same consideration applies to FTP connection tracking.
 
-Fixed. Also a few other places in the same siutation.
+I wrote a memstr function for bogofilter (GPL v2) that we could use
+inside the kernel, as a length-limited strstr replacement, as in "search
+the first buffer_size bytes starting with buffer_base for the first
+occurrence of const char *needle". That avoids all buffer modifications
+in ip_conntrack_amanda.c AFAICS. It's also slow because it does a linear
+search and not an optimized search as the sophisticated KMP and other
+search algorithms would be able to do, but then again the generic strstr
+inside the kernel is linear, too.
 
-> 
-> 
->>===================================================================
->>--- linux.orig/include/linux/sched.h	2004-10-01 17:01:21.412848229 -0700
->>+++ linux/include/linux/sched.h	2004-10-01 17:09:42.723482260 -0700
->>@@ -591,6 +591,9 @@
->> 	struct rw_semaphore pagg_sem;
-> 
-> 
-> There is no `pagg_sem' in the kernel, so this will spit a reject.
-
-Fixed. That was from pagg, but i should not assume that.
-
-> 
-> 
->> #endif
->> 
->>+/* i/o counters(bytes read/written, #syscalls */
->>+	unsigned long rchar, wchar, syscr, syscw;
->>+
-> 
-> 
-> These will overflow super-quick.  Shouldn't they be 64-bit?
-
-You are correct. Thanks!
-
-> 
-> 
->>--- linux.orig/kernel/fork.c	2004-10-01 17:01:21.432379595 -0700
->>+++ linux/kernel/fork.c	2004-10-01 17:09:42.732271376 -0700
->>@@ -995,6 +995,7 @@
->> 	p->real_timer.data = (unsigned long) p;
->> 
->> 	p->utime = p->stime = 0;
->>+	p->rchar = p->wchar = p->syscr = p->syscw = 0;
-> 
-> 
-> We generally prefer
-> 
-> 	p->rchar = 0;
-> 	p->wchar = 0;
-> 	etc.
-> 
-> yes, the code which is there has already sinned - feel free to clean it up
-> while you're there ;)
-
-Will be corrected.
-
-Thanks,
-  - jay
-
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
-> Use IT products in your business? Tell us what you think of them. Give us
-> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
-> http://productguide.itmanagersjournal.com/guidepromo.tmpl
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
-
+-- 
+Matthias Andree

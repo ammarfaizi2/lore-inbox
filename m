@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136738AbREJPfF>; Thu, 10 May 2001 11:35:05 -0400
+	id <S136829AbREJQIl>; Thu, 10 May 2001 12:08:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136740AbREJPez>; Thu, 10 May 2001 11:34:55 -0400
-Received: from smtp-rt-13.wanadoo.fr ([193.252.19.223]:9872 "EHLO
-	oxera.wanadoo.fr") by vger.kernel.org with ESMTP id <S136738AbREJPes>;
-	Thu, 10 May 2001 11:34:48 -0400
-Message-ID: <3AFAAFE1.DEA0DA6D@wanadoo.fr>
-Date: Thu, 10 May 2001 17:12:33 +0200
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20pre2 i586)
-X-Accept-Language: fr-FR, en
+	id <S136831AbREJQIb>; Thu, 10 May 2001 12:08:31 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61871 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S136829AbREJQIP>;
+	Thu, 10 May 2001 12:08:15 -0400
+Message-ID: <3AFABCE8.8D0BF42A@mandrakesoft.com>
+Date: Thu, 10 May 2001 12:08:08 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: twaugh@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.xx ? messages related to parport printer ?
+To: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock/crash with Quad tulip card in 2.4
+In-Reply-To: <989507596.18286.0.camel@olive>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim,
+Yann Dupont wrote:
+> Hello. I'm having problem with Quad eth100 tulip (digital 21140) cards.
 
->> May  9 13:14:59 debian-f5ibh kernel: parport0: Unspecified, EPSON
-Styl
+Unfortuantely a recent merge of the latest Becker code fixed these chips
+(and 2104[01]), and promptly broke support for other, more popular
+chips.  :(
 
->Huh.  Does it do the same thing every time you load parport_probe?
->Does it always get truncated in the same place?
+I'm working on fixing this right now; until then, the "de4x5" driver
+should work for you.
 
-Yes ! :-/
-
-[jean-luc@debian-f5ibh] ~ # modprobe parport_probe
-parport0: PC-style at 0x378 (0x778), irq 7 [SPP,ECP,ECPEPP,ECPPS2]
-parport0: Unspecified, EPSON Styl
-
->> With 2.4.4-ac6 and 2.4.xx, I get :
->> ----------------------------------
->> May  9 14:19:44 debian-f5ibh kernel: parport0: Printer, EPSON Stylus
->> COLOR 500
-
->Well, at least it seems to work in 2.4.x.
-
->I wonder what deviceid makes of it:
-
-><URL:ftp://people.redhat.com/twaugh/parport/deviceid-0.3.tar.gz>
-
-[jean-luc@debian-f5ibh] ~ # deviceid --base 0x378
-MFG:EPSON;CMD:ESCPL2-00;MDL:Stylus COLOR 500;CLS:PRINTER;
-
-There is an other strange thing : escputil expect "Stylus Color" and
-my printer send "Stylus COLOR" (uppercase)...
----------
-Regards
-                Jean-Luc
-
-
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

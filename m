@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130094AbRB1HaE>; Wed, 28 Feb 2001 02:30:04 -0500
+	id <S130119AbRB1Hvm>; Wed, 28 Feb 2001 02:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130082AbRB1H3z>; Wed, 28 Feb 2001 02:29:55 -0500
-Received: from ferret.phonewave.net ([208.138.51.183]:56070 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S130081AbRB1H3g>; Wed, 28 Feb 2001 02:29:36 -0500
-Date: Tue, 27 Feb 2001 23:29:09 -0800
-To: Thorsten Glaser Geuer <eccesys@topmail.de>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-        Mack Stevenson <mackstevenson@hotmail.com>
-Subject: Re: ISO-8859-1 completeness of kernel fonts?
-Message-ID: <20010227232909.A2599@ferret.phonewave.net>
-In-Reply-To: <F281raFC8XymNMDdckH00012e6f@hotmail.com> <000001c0a0ed$1ea188d0$742c9c3e@tp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <000001c0a0ed$1ea188d0$742c9c3e@tp.net>; from eccesys@topmail.de on Tue, Feb 27, 2001 at 04:26:21PM -0000
-From: idalton@ferret.phonewave.net
+	id <S130105AbRB1Hve>; Wed, 28 Feb 2001 02:51:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:664 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130111AbRB1HvT>;
+	Wed, 28 Feb 2001 02:51:19 -0500
+Date: Wed, 28 Feb 2001 02:51:17 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+In-Reply-To: <200102280703.f1S73ft487578@saturn.cs.uml.edu>
+Message-ID: <Pine.GSO.4.21.0102280218500.4827-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello all..
 
-I'm interested in making a 16x32 console font, so I can run my 21"
-display at 100x37 text. I've asked on the framebuffer list already, but
-have heard no reply, and the list seems to be defunct.
+On Wed, 28 Feb 2001, Albert D. Cahalan wrote:
 
-Since it's a fixed-frequency display, I want to have the framebuffer and
-basic font in-kernel and loaded at boot time. I'm not sure where to find
-the necessary tools/documentation to do all the steps, though. Could
-someone point me in the right direction?
+> Alexander Viro writes:
+> 
+> > 	* CLONE_NEWNS is made root-only (CAP_SYS_ADMIN, actually)
+> 
+> Would an unprivileged version that killed setuid be OK to have?
+> 
+> Evil idea of the day: non-directory (even non-existant) mount points and
+> non-directory mounts. So then "mount --bind /etc/foo /dev/bar" works.
 
--- Ferret
+BTW, out of curiosity: what's that evil about non-directory mounts?
+You obviously shouldn't mix directories with non-directories in that
+context (userland will not take that lightly, same as with rename(),
+etc.), but binding a non-directory over non-directory... Why not?
+Me, I'm playing with
+% mount -t devloop /tmp/image /dev/loop0 -o offset=4096
+Yes, in that order. /dev/loop0 is the mountpoint here. ioctls? We don't
+need on stinkin' ioctls. Now, _that_ I would call evil... Pretty simple,
+actually - filesystem with ->read_super() making ->s_root not a directory
+but a block device. And setting it up (lo_set_fd() with small modifications).
+Still alpha, requires namespace patch (or at least s_lock one), but seems
+to be working. Simpler than loop.c in official tree, BTW - no ioctls, no
+handling pending requests since we unset device only upon umount, when
+we have nobody keeping it open. losetup? What losetup? Shell script, if
+somebody would bother to write it (going through losetup options and turning
+them into mount ones).
+

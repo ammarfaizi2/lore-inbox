@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132282AbQLHUnJ>; Fri, 8 Dec 2000 15:43:09 -0500
+	id <S132257AbQLHUnJ>; Fri, 8 Dec 2000 15:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132685AbQLHUm7>; Fri, 8 Dec 2000 15:42:59 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:48749
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S132282AbQLHUmv>; Fri, 8 Dec 2000 15:42:51 -0500
-Date: Fri, 8 Dec 2000 21:12:17 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Elmer.Joandi@ut.ee
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove warning from drivers/net/arlan.c
-Message-ID: <20001208211217.A599@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S132282AbQLHUnA>; Fri, 8 Dec 2000 15:43:00 -0500
+Received: from web1106.mail.yahoo.com ([128.11.23.126]:41222 "HELO
+	web1106.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S132257AbQLHUmq>; Fri, 8 Dec 2000 15:42:46 -0500
+Message-ID: <20001208201218.5388.qmail@web1106.mail.yahoo.com>
+Date: Fri, 8 Dec 2000 21:12:17 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.2.18pre25
+To: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>,
+        Willy Tarreau <wtarreau@free.fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Miquel van Smoorenburg <miquels@cistron.nl>,
+        linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> "I'm sure" meaning "I didn't test it" ?
 
-The following patch eliminates an 'defined but not used' warning when
-compiling drivers/net/arlan.c without module support (240t12p3). It 
-also fixes a typo.
+absolutely, I believed that the driver was *exactly*
+the same as the previous release which didn't boot and
+needed the fix, but another fix has been applied and
+corrected it. Now I think it will work with a clean
+2.2.18pre25. Anyway, I left a kernel compile behind me
+this evening, so I'll confirm this on monday as soon
+as
+I can reboot the server on a pre25.
 
-It should apply cleanly.
+Cheers,
+Willy
 
 
---- linux-240-t12-pre3-clean/drivers/net/arlan.c	Wed Nov 22 22:41:40 2000
-+++ linux/drivers/net/arlan.c	Sun Dec  3 13:05:53 2000
-@@ -8,7 +8,7 @@
- #include <linux/config.h>
- #include "arlan.h"
- 
--static const char *arlan_version = "C.Jennigs 97 & Elmer.Joandi@ut.ee  Oct'98, http://www.ylenurme.ee/~elmer/655/";
-+static const char *arlan_version = "C.Jennings 97 & Elmer.Joandi@ut.ee  Oct'98, http://www.ylenurme.ee/~elmer/655/";
- 
- struct net_device *arlan_device[MAX_ARLANS];
- int last_arlan;
-@@ -19,7 +19,6 @@
- static char *siteName = siteNameUNKNOWN;
- static int mem = memUNKNOWN;
- int arlan_debug = debugUNKNOWN;
--static int probe = probeUNKNOWN;
- static int numDevices = numDevicesUNKNOWN;
- static int spreadingCode = spreadingCodeUNKNOWN;
- static int channelNumber = channelNumberUNKNOWN;
-@@ -1986,6 +1985,8 @@
- }
- 
- #ifdef  MODULE
-+
-+static int probe = probeUNKNOWN;
- 
- int init_module(void)
- {
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-If a man says something in a forest and there are no women around to 
-hear him, is he still wrong? -- Anonymous
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290390AbSAPJ2s>; Wed, 16 Jan 2002 04:28:48 -0500
+	id <S290396AbSAPJai>; Wed, 16 Jan 2002 04:30:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290395AbSAPJ2i>; Wed, 16 Jan 2002 04:28:38 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:58632 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S290390AbSAPJ2S>; Wed, 16 Jan 2002 04:28:18 -0500
-From: Norbert Preining <preining@logic.at>
-Date: Wed, 16 Jan 2002 10:27:38 +0100
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
-Subject: Re: [BUG] 2.4.18.3, ide-patch, read_dev_sector hangs in read_cache_page
-Message-ID: <20020116102738.A21977@alpha.logic.tuwien.ac.at>
-In-Reply-To: <E16QU3F-0005g6-00@libra.cus.cam.ac.uk> <20020115160315.A2515@alpha.logic.tuwien.ac.at> <20020116094935.A20738@alpha.logic.tuwien.ac.at>
+	id <S290393AbSAPJa2>; Wed, 16 Jan 2002 04:30:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48644 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S290395AbSAPJaN>;
+	Wed, 16 Jan 2002 04:30:13 -0500
+Date: Wed, 16 Jan 2002 10:29:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Craig Christophel <merlin@transgeek.com>, linux-kernel@vger.kernel.org
+Subject: Re: likely/unlikely
+Message-ID: <20020116102936.K3805@suse.de>
+In-Reply-To: <20020116032300.AAA27749@shell.webmaster.com@whenever> <3C450C4A.8A8382A6@mandrakesoft.com> <20020116113143.C99F8B581@smtp.transgeek.com> <3C454491.CA18D4AE@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020116094935.A20738@alpha.logic.tuwien.ac.at>
+In-Reply-To: <3C454491.CA18D4AE@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton!
+On Wed, Jan 16 2002, Jeff Garzik wrote:
+> Craig Christophel wrote:
+> > 
+> > > likely/unlikely set the branch prediction values to 99% or 1%
+> > 
+> >         So all of the BUG() routines in the kernel would benifit greatly from this.
+> 
+> 
+> It's likely :)  I would put one unlikely() in the definition of BUG_ON,
+> rather rather touching all the code that calls BUG(), though.
 
-On Mit, 16 Jan 2002, preining wrote:
-> I have tried to follow the trace of the kernel but it looks to me as
-> read_cache_page is never called or printk in it are not executed. I filled
+BUG_ON has had unlikely since the very beginning :-)
 
-Stupid me, somehow KERN_DEBUG was not shown.
+-- 
+Jens Axboe
 
-I traced it down from
-read_cache_page -> lock_page -> __lock_page -> schedule
-
-There it hangs and I was not able with my stupid methods or printk-ing
-to find the place where it hangs in sched.c (Maybe because of recursive
-calls to sched by printk).
-
-One more thing: Taking off hdf from the ide controller and everything
-works.
-Another: same with 2.4.18-pre4
-
-Best wishes
-
-Norbert
-
------------------------------------------------------------------------
-Norbert Preining <preining@logic.at> 
-University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
------------------------------------------------------------------------
-WORMELOW TUMP (n.)
-
-Any seventeen-year-old who doesn't know about anything at all in the
-world other than bicycle gears.
-
-			--- Douglas Adams, The Meaning of Liff 

@@ -1,134 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261946AbSJQRiG>; Thu, 17 Oct 2002 13:38:06 -0400
+	id <S261545AbSJQRjK>; Thu, 17 Oct 2002 13:39:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261955AbSJQRiG>; Thu, 17 Oct 2002 13:38:06 -0400
-Received: from c3po.netscape.com ([205.217.237.46]:4348 "EHLO netscape.com")
-	by vger.kernel.org with ESMTP id <S261946AbSJQRiE>;
-	Thu, 17 Oct 2002 13:38:04 -0400
-Message-ID: <3DAEF6DC.9000708@netscape.com>
-Date: Thu, 17 Oct 2002 10:43:56 -0700
-From: jgmyers@netscape.com (John Myers)
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a) Gecko/20020910
+	id <S261683AbSJQRjK>; Thu, 17 Oct 2002 13:39:10 -0400
+Received: from mithra.wirex.com ([65.102.14.2]:45068 "EHLO mail.wirex.com")
+	by vger.kernel.org with ESMTP id <S261545AbSJQRjI>;
+	Thu, 17 Oct 2002 13:39:08 -0400
+Message-ID: <3DAEF703.20009@wirex.com>
+Date: Thu, 17 Oct 2002 10:44:35 -0700
+From: Crispin Cowan <crispin@wirex.com>
+Organization: WireX Communications, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: Davide Libenzi <davidel@xmailserver.org>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: epoll (was Re: [PATCH] async poll for 2.5)
-References: <Pine.LNX.4.44.0210151403370.1554-100000@blue1.dev.mcafeelabs.com> <3DAC9035.2010208@netscape.com> <3DADC5F8.60708@kegel.com>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms040805000202060900000908"
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org,
+       Linux Security Module <linux-security-module@wirex.com>
+Subject: Re: [PATCH] make LSM register functions GPLonly exports
+References: <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-md5;
+ protocol="application/pgp-signature";
+ boundary="------------enigBD4AF37B1CDD6D6701167A1D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
-
---------------ms040805000202060900000908
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBD4AF37B1CDD6D6701167A1D
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Dan Kegel wrote:
+Linus Torvalds wrote:
 
-> As long as we agree that the kernel may provide spurious readiness
-> notifications on occasion, I agree.
-
-Great!  We agree!  Progress!
-
->>>     while (read() == EAGAIN)
->>>         wait(POLLIN);
->>>
->> Assuming registration of interest is inside wait(), this has a race.  
->> If the file becomes readable between the time that read() returns and 
->> the time that wait() can register interest, the connection will hang.
+>Note that if this fight ends up being a major issue, I'm just going to 
+>remove LSM and let the security vendors do their own thing.
 >
+If it comes to that, go ahead and apply the patch. I would far rather 
+have an LSM that requires GPL'd modules than no LSM at all.
+
+> So far
 >
-> Shouldn't the should be rearmed inside read() when it returns EAGAIN?
+> - I have not seen a lot of actual usage of the hooks
+>
+There are half a dozen modules here http://lsm.immunix.org/lsm_modules.html
 
-The key phrase is "assuming registration of interest is inside wait()." 
- The code fragment didn't cover when registration of interest occurs. 
- If registration of interest occurs before the read() or if registration 
-of interest while the fd is ready generates an event, there is no race. 
- If registration of interest occurs after the read() and registration of 
-interest while the fd is ready does not generate an event, there is a race.
+I suspect there is a lot more use of LSM pending, and it will appear 
+when the LSM interface stops changing, and when Linux 2.6 (or 3.0, 
+whatever) appears. See for example the cover story in the September 2002 
+Linux Journal: an LSM module being built by Ericsson Research for telco 
+purposes.
+
+>I will re-iterate my stance on the GPL and kernel modules:
+>
+>  There is NOTHING in the kernel license that allows modules to be 
+>  non-GPL'd. 
+>
+>  The _only_ thing that allows for non-GPL modules is copyright law, and 
+>  in particular the "derived work" issue. A vendor who distributes non-GPL 
+>  modules is _not_ protected by the module interface per se, and should 
+>  feel very confident that they can show in a court of law that the code 
+>  is not derived.
+>
+Thanks for the clarification, but that still leaves questions. In 
+particular, it is unclear whether a work is "derived" if it includes 
+kernel header files, which is more or less required if you hope to make 
+a module fit the interface.
+
+Note that if we decide that #include of a kernel header file means that 
+a work is derived, then we cause another problem: most Linux 
+applications come under the GPL.  glibc #includes some kernel header 
+files, and most Linux applications #include glibc headers, so most 
+applications are #including kernel header files. If #include is the 
+basis for declaring a module to be a derived work of the kernel, then 
+there is some bad news coming for people who like to use Oracle and DB2 
+on Linux ...
+
+Thanks,
+    Crispin
+
+-- 
+Crispin Cowan, Ph.D.
+Chief Scientist, WireX                      http://wirex.com/~crispin/
+Security Hardened Linux Distribution:       http://immunix.org
+Available for purchase: http://wirex.com/Products/Immunix/purchase.html
 
 
---------------ms040805000202060900000908
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+--------------enigBD4AF37B1CDD6D6701167A1D
+Content-Type: application/pgp-signature
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
-A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
-CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
-IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
-dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
-MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
-AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
-VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
-FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
-3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
-bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
-BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
-aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
-Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
-NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
-MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
-leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
-ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
-W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
-BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
-ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
-b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
-MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
-MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
-cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
-oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
-f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
-AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
-AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
-Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
-VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
-BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
-BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
-sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
-2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
-9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
-VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
-MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
-dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
-aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
-hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
-/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
-eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
-BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
-Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
-MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
-bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
-VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
-MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
-MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
-AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
-XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
-e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
-mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
-MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
-ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
-AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
-MDE3MTc0MzU2WjAjBgkqhkiG9w0BCQQxFgQUxzfKHCxUsdVqGyT3CV4lu/LNHvowUgYJKoZI
-hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
-BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
-VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
-EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
-AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
-gIWXEkyPpyhUV/Jdx0n2Gdpb2WMHm4zgJtr94K4DvOx+WtXEzv95tCS0FwPsEUTpvacxNGpr
-30gr+2NC/RS6ozuXk/qS5wPJl69HLEViiGgjSk/ha6FJ0OFMmnWT86deSzFKQI14Eh0xaTIT
-sYrG/HLSd9BMXhJRIHAoCvmay9vKAAAAAAAA
---------------ms040805000202060900000908--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE9rvcD5ZkfjX2CNDARAVquAJ9555OeCDEhfpc6AhYTE8s22YTdugCZAcCJ
+0A+RAWa2OKVdhtX2LmP4O5s=
+=Cq26
+-----END PGP SIGNATURE-----
+
+--------------enigBD4AF37B1CDD6D6701167A1D--
 

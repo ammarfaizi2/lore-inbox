@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUL2W7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbUL2XDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUL2W7q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 17:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbUL2W7q
+	id S261436AbUL2XDg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 18:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbUL2XDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 17:59:46 -0500
-Received: from mail.dif.dk ([193.138.115.101]:52408 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261436AbUL2W72 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 17:59:28 -0500
-Date: Thu, 30 Dec 2004 00:10:31 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Micha <micha-1@fantasymail.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide problem...
-In-Reply-To: <200412292213.34517.micha-1@fantasymail.de>
-Message-ID: <Pine.LNX.4.61.0412300004090.3495@dragon.hygekrogen.localhost>
-References: <200412292213.34517.micha-1@fantasymail.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Dec 2004 18:03:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1699 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261436AbUL2XDf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 18:03:35 -0500
+Date: Wed, 29 Dec 2004 23:03:34 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Norbert Tretkowski <tretkowski@inittab.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: 2.6.10 - CMSPAR in mxser.c undeclared
+Message-ID: <20041229230334.GO26051@parcelfarce.linux.theplanet.co.uk>
+References: <20041229081957.GA31981@rollcage.inittab.de> <1104331638.30080.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104331638.30080.14.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Dec 2004, Micha wrote:
-
-> I got an error reading a dvd with 2.6.9 and ide interface. Switching to 
-> ide-scsi for the dvd-rom made the dvd work. Is this an ide-error? I think 
-> libdvdread should not know wether it's reading a scsi or a ide device...
+On Wed, Dec 29, 2004 at 07:56:45PM +0000, Alan Cox wrote:
+> On Mer, 2004-12-29 at 08:19, Norbert Tretkowski wrote:
+> > {standard input}: Assembler messages:
+> > {standard input}:5: Warning: setting incorrect section attributes for .got
+> > drivers/char/mxser.c: In function `mxser_ioctl_special':
+> > drivers/char/mxser.c:1564: error: `CMSPAR' undeclared (first use in this function)
+> > drivers/char/mxser.c:1564: error: (Each undeclared identifier is reported only once
+> > drivers/char/mxser.c:1564: error: for each function it appears in.)
 > 
-You are not telling us what the error message is.
-You are not telling us what hardware you have.
-You are not telling us anything about how your kernel is configured.
-Basically you are not telling us anything.
+> What environment/architecture are you building this on (having built it
+> myself just fine ?)
 
-How on earth do you expect anyone to be able to answer your question?
-
-
-I'd strongly suggest you read 
-http://www.kernel.org/pub/linux/docs/lkml/reporting-bugs.html (as well as 
-the documents that document refers you to), then after you've read that 
-use the suggested bugreporting form at the end and submit a new mail.
-And while you are at it, take a look at http://www.tux.org/lkml/ as well.
-
-
-Kind regards,
-  Jesper Juhl
-
-
+alpha or ppc, for example.

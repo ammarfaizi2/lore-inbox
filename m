@@ -1,72 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263358AbTDCMHI>; Thu, 3 Apr 2003 07:07:08 -0500
+	id <S263362AbTDCMHG>; Thu, 3 Apr 2003 07:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263363AbTDCMHI>; Thu, 3 Apr 2003 07:07:08 -0500
-Received: from griffon.mipsys.com ([217.167.51.129]:52184 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S263358AbTDCMHF>;
-	Thu, 3 Apr 2003 07:07:05 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, adaplas@pol.net
-In-Reply-To: <4A83DF6367@vcnet.vc.cvut.cz>
-References: <4A83DF6367@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049372424.796.21.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 03 Apr 2003 14:20:24 +0200
+	id <S263359AbTDCMHG>; Thu, 3 Apr 2003 07:07:06 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:9463 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S263362AbTDCMHC>; Thu, 3 Apr 2003 07:07:02 -0500
+Date: Thu, 3 Apr 2003 13:20:26 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>,
+       Paolo Zeppegno <zeppegno.paolo@seat.it>, Andi Kleen <ak@muc.de>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [rfc][patch] Memory Binding Take 2 (1/1)
+In-Reply-To: <3E8BCD21.2050307@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0304031317290.1718-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 Apr 2003, Matthew Dobson wrote:
++/*
++ * membind -  Bind a range of a process' VM space to a set of memory blocks according to
 
-> No. With matroxfb, you have two framebuffer devices, /dev/fb0 & /dev/fb1,
-> which can be connected to any of three outputs: analog primary, analog
-> secondary and DVI. Analog primary & DVI share same pair of DDC cables,
-> and analog secondary has its own... And user can interconnect fb* with
-> outputs in almost any way he wants, as long as hardware supports it.
->                                                         Petr Vandrovec
+membind or mbind?  Me, I like mbind (modulo remarks below), but you may
+find Linus does not (he was rather caustic when I suggested that fremap
+should be mseek, and it ended up as remap_file_pages instead).
 
-It's +/- similar on radeon's and r128's...
++ *            a predefined policy.
++ * @start:    beginning address of memory region to bind
++ * @len:      length of memory region to bind
 
-I think at this point, we really need to add a structure defining
-an "output" along with a few calls so the driver can tell us about
-the "default" output/head mapping and can be changed from userland.
+Oh really? len is unused in the code below.  If you were to use it,
+you'd need to loop over vmas, splitting where necessary.
 
-That way, the "struct fb_connection" would then be the parameter
-passed to those EDID routines...
++ * @mask_ptr: pointer to bitmask of cpus
++ * @mask_len: length of the bitmask
++ * @policy:   flag specifying the policy to use for the segment
 
-The driver would setup a default policy at boot based on what
-have been probed. But userland would be able to
+I think you already remarked that policy is currently unused,
+fair enough.
 
- - Request connection info from all outputs. Note that these contains
-more than just EDID. Some drivers can "probe" for the presence of
-something in the VGA or S-Video connectors by sensing the load on
-the signals, even if that "thing" cannot provide an EDID. So we need
-a bit more than just the EDID, something like
++ */
++asmlinkage unsigned long sys_mbind(unsigned long start, unsigned long len, 
++		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
++{
++	DECLARE_BITMAP(cpu_mask, NR_CPUS);
++	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
++	struct vm_area_struct *vma = NULL;
++	struct address_space *mapping;
++	int copy_len, error = 0;
++
++	/* Deal with getting cpu_mask from userspace & translating to node_mask */
++	copy_len = min(mask_len, (unsigned int)NR_CPUS);
++	CLEAR_BITMAP(cpu_mask, NR_CPUS);
++	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
++	if (copy_from_user(cpu_mask, mask_ptr, (copy_len+7)/8)) {
++		error = -EFAULT;
++		goto out;
++	}
 
-  struct fb_connection_info {
-	int	index;	/* Absolute index of output on this card */
-	int	type;	/* FB_VGA, FB_DVI, FB_ADC, FB_LVDS, ... */
- 	int	flags;	/* FB_CONN_PRESENCE, FB_VALID_EDID, ... */
-	u8	edid[128];
-  }
+Shouldn't there be some capability restriction?  Is it right that
+anyone who can mmap a file for reading can determine its binding
+(until the next does it differently)?
 
- - Ask/Set output<->head mapping. Possibly by an ioctl to the head
-that sets the connection index. Of course, the driver may fail if
-the combo isn't supported. Also, the policy isn't defined on what
-happens to the head's current mode. I beleive the head should try to
-keep it's current mode unless it's not suitable to whatever have been
-detected on that connection.
++	cpumask_to_nodemask(cpu_mask, node_mask);
++
++	vma = find_vma(current->mm, start);
 
-What do you think ?
+You must not scan the vma list without at least
+down_read(&current->mm->mmap_sem).
 
-Ben.
++	if (!(vma && vma->vm_file && vma->vm_ops && 
++		vma->vm_ops->nopage == shmem_nopage)) {
++		/* This isn't a shm segment.  For now, we bail. */
+
+So you're allowing this on any file on tmpfs,
+but on no file on any other filesystem: curious.
+
++		error = -EINVAL;
++		goto out;
++	}
++
++	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
++	mapping->binding = alloc_binding(node_mask);
+
+Your NUMA machines clearly have more memory than is good for you:
+nowhere is there an equivalent free_binding: which in particular
+would need to be called first here if binding is already set (or
+else old structure reused), and when inode is freed.
+
+So... mapping->binding conditions every page_cache_alloc for that
+inode.  Hmm, what on earth does this have to do with mbind or membind?
+It looks to me like fbind, except that you've dressed up the interface
+to use an address in the caller's address space: presumably because you
+couldn't get a file handle on SysV shared memory, and that's what you
+were really wanting to bind, hence the shmem_nopage test?
+
+I think this interface is confused (but it probably thinks I am).
+
++	if (!mapping->binding)
++		error = -EFAULT;
++
++out:
++	return error;
++}
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/mm/swap_state.c linux-2.5.66-membind/mm/swap_state.c
+--- linux-2.5.66-pre_membind/mm/swap_state.c	Mon Mar 24 14:00:21 2003
++++ linux-2.5.66-membind/mm/swap_state.c	Tue Apr  1 17:12:00 2003
+@@ -47,6 +47,9 @@
+ 	.i_shared_sem	= __MUTEX_INITIALIZER(swapper_space.i_shared_sem),
+ 	.private_lock	= SPIN_LOCK_UNLOCKED,
+ 	.private_list	= LIST_HEAD_INIT(swapper_space.private_list),
++#ifdef CONFIG_NUMA
++	.binding	= NULL,
++#endif
+ };
+ 
+ #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
+
+Please leave swap_state.c out of it: this patch does nothing but add
+an ugly #ifdef to initialize something to 0 which would be 0 anyway.
+
+Hugh
 

@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVDEWHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVDEUel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVDEWHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 18:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVDEWFc
+	id S262001AbVDEUel (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 16:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVDEUd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 18:05:32 -0400
-Received: from orb.pobox.com ([207.8.226.5]:40428 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262045AbVDEWDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 18:03:30 -0400
-Date: Tue, 5 Apr 2005 15:03:21 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405220321.GA5166@ip68-4-98-123.oc.oc.cox.net>
-References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.5.6i
+	Tue, 5 Apr 2005 16:33:26 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:36791 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261928AbVDEURd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 16:17:33 -0400
+Message-ID: <4252F23B.6080402@didntduck.org>
+Date: Tue, 05 Apr 2005 16:16:59 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Josselin Mouette <joss@debian.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ 	copyright notice.
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com> <1112723637.4878.14.camel@mirchusko.localnet> <4252E6C1.5010701@pobox.com>
+In-Reply-To: <4252E6C1.5010701@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 07:14:45AM -0700, Barry K. Nathan wrote:
-> 2.6.11-bk9 works (actually it takes under 2 seconds, not 5-10).
-> 2.6.11-bk10 has the weird slowdown.
+Jeff Garzik wrote:
+> Josselin Mouette wrote:
 > 
-> I'll see if I can isolate it any further.
+>> Finally, you shouldn't forget that, technically speaking, using hotplug
+>> for uploading the firmware is much more flexible and elegant than
+>> including it in the kernel. Upgrading the firmware and the module should
+>> be two independent operations. People who are advocating the current
+>> situation are refusing technical improvements just because they are
+>> brought by people they find convenient to call "zealots".
+> 
+> 
+> This is highly amusing, coming from someone who does not maintain a 
+> driver with a firmware.
+> 
+> The current firmware infrastructure is too primitive.  Compiling the 
+> firmware into the driver is much easier on the driver maintainers and 
+> users, presently.
+> 
+> Repeating myself,
+> 
+> * Most firmwares are a -collection- of images and data.  The firmware 
+> infrastructure should load an -archive- of firmwares and associated data 
+> values.
 
-2.6.11-mm2 works, but 2.6.11-mm3 has the ridiculously slow resumes.
+The firmware interface should only be concerned with getting the blob of 
+data into kernel space.  Once it is in kernel space the driver can parse 
+out whatever archive format it is in.  Take for example the ihex code 
+that was posted recently.  Similar code could be written to parse out a 
+tarball, cpio archive, etc.
 
-Later today I'll see if I can narrow things down any further (e.g. to a
-specific patch in 2.6.11-mm3 or whatever).
-
--Barry K. Nathan <barryn@pobox.com>
-
+--
+				Brian Gerst

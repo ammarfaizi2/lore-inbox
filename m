@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264221AbRFHQyA>; Fri, 8 Jun 2001 12:54:00 -0400
+	id <S264240AbRFHRE2>; Fri, 8 Jun 2001 13:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264244AbRFHQxt>; Fri, 8 Jun 2001 12:53:49 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:46989 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S264240AbRFHQxh>;
-	Fri, 8 Jun 2001 12:53:37 -0400
-Date: Fri, 8 Jun 2001 18:08:46 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
+	id <S264244AbRFHRES>; Fri, 8 Jun 2001 13:04:18 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:33289 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S264240AbRFHREC>;
+	Fri, 8 Jun 2001 13:04:02 -0400
+Date: Fri, 8 Jun 2001 10:06:11 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: jlnance@intrex.net
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] Re: Linux 2.4.5-ac6
-In-Reply-To: <20010608181612.A561@jurassic.park.msu.ru>
-Message-ID: <Pine.GSO.3.96.1010608172843.18837A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+In-Reply-To: <20010608061806.A858@bessie.localdomain>
+Message-ID: <Pine.LNX.4.10.10106081005030.12751-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jun 2001, Ivan Kokshaysky wrote:
+On Fri, 8 Jun 2001 jlnance@intrex.net wrote:
 
-> No. I've changed in load_aout_binary() set_personality(PER_LINUX) to
-> set_personality(PER_LINUX_32BIT), and now I have another error.
-> You will laugh, but...
+> On Thu, Jun 07, 2001 at 08:31:46PM +0200, Maciej W. Rozycki wrote:
+> > On Thu, 7 Jun 2001, Ivan Kokshaysky wrote:
 > 
-> $ netscape
-> 665:/usr/lib/netscape/netscape-communicator: : Fatal Error: mmap available address is not larger than requested
+> > > Exactly. However, there are situations when you have only two options:
+> > > rewrite from scratch or use -taso. Netscape vs. mozilla is a good example. :-)
+> > 
+> >  Why can't mozilla be fixed?  With the -taso option there is actually less
+> > encouragement to do so.
 > 
-> This happens after
-> mmap(0x7fdc8000, 40960, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40018000
-> 
-> And note, this is the message from loader, not from netscape itself.
+> Mozilla is fine.  Its netscape 4.X that probably needs -taso.
 
- Oh well, so they cheat -- they claim in their docs the kernel may choose
-whatever address it considers appropriate and then rely on particular
-behaviour.  What for, I wonder...  I guess they weren't able to resolve
-signedness issues...
+And only the old netscape 4.x releases at that afik the newer releases are
+all compiled ELF.
 
-> So I think my second patch is an easiest solution for now.
-> Look, compared with the code in Linus' tree:
-> - it doesn't add any overhead in general case (addr == 0);
-> - if the specified address is too high and we can't find a free
->   area above it, we just continue search from TASK_UNMAPPED_BASE
->   as usual; 
-> - if address is too low, extra cost is only compare and taken branch.
+	Gerhard
 
- That's all fine, but...
 
-> I think it's clean enough.
+--
+Gerhard Mack
 
- Still it has two loops...  I'm not sure how to eliminate one of them at
-the moment, though.  I think we might also consider moving the
-compatibility crap into arch/alpha/kernel. 
+gmack@innerfire.net
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+<>< As a computer I find your faith in technology amusing.
 

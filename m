@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267194AbTAKLzr>; Sat, 11 Jan 2003 06:55:47 -0500
+	id <S267199AbTAKMCI>; Sat, 11 Jan 2003 07:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267195AbTAKLzr>; Sat, 11 Jan 2003 06:55:47 -0500
-Received: from cust.7.144.adsl.cistron.nl ([62.216.7.144]:6668 "EHLO sawmill")
-	by vger.kernel.org with ESMTP id <S267194AbTAKLzr>;
-	Sat, 11 Jan 2003 06:55:47 -0500
-Date: Sat, 11 Jan 2003 13:04:32 +0100
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] (revised) fix net/irda warnings for 2.4.21-pre3
-Message-ID: <20030111120432.GA28023@sawmill>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Tony <kernel@mail.vroon.org>
+	id <S267200AbTAKMCI>; Sat, 11 Jan 2003 07:02:08 -0500
+Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:18048 "EHLO
+	ringstrom.mine.nu") by vger.kernel.org with ESMTP
+	id <S267199AbTAKMCH>; Sat, 11 Jan 2003 07:02:07 -0500
+Date: Sat, 11 Jan 2003 13:10:47 +0100 (CET)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: tori@boris.prodako.se
+To: Pavel Machek <pavel@ucw.cz>
+cc: Marc Giger <gigerstyle@gmx.ch>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Grover, Andrew" <andrew.grover@intel.com>
+Subject: ACPI power off requires swsusp (was: Re: Power off a SMP Box)
+In-Reply-To: <20030106230058.GA372@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0301111301430.12267-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch download location:
-http://www.chainsaw.cistron.nl/compile-fixes-irda.patch.gz
+On Tue, 7 Jan 2003, Pavel Machek wrote:
 
-The patch I announced several hours ago had issues. I have replaced the 
-file on the website with a correct version. If anyone had already 
-downloaded the fix, please do so again.
-This fixes the numerous "Concatenation of string literals with 
-__FUNCTION__ is depricated" errors in net/irda. This should apply 
-cleanly to both a 2.4.21-pre3 and a 2.4.21-pre3-ac3 tree.
+> > > You could try ACPI in (very) recent kernels.
+> > 
+> > You mean a 2.5.x kernel? Any Kernel with the newest ACPI patches has never powered off any of my machines:-(
+> > Perhaps I don't know something...
+> > I will try it now again...
+> 
+> You can also get new ACPI for 2.4.X (at acpi.sf.net) and even ACPI in
+> marcelo's kernel should be good enough for poweroff.
 
-GCC 3+ users, please inform me if this patch works for you, so it can be 
-submitted.
+I just disovered that in 2.5.56 (at least), ACPI power-off needs
+CONFIG_ACPI_SLEEP which depends on CONFIG_SOFTWARE_SUSPEND.  This means
+that without selecting software suspend, your machine cannot power off
+using ACPI.  Why is it so?
 
-Thanks,
-Tony Vroon.
+/Tobias
+

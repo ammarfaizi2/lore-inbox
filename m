@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262236AbRERCiN>; Thu, 17 May 2001 22:38:13 -0400
+	id <S262238AbRERC4g>; Thu, 17 May 2001 22:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262238AbRERCiD>; Thu, 17 May 2001 22:38:03 -0400
-Received: from corb.mc.mpls.visi.com ([208.42.156.1]:214 "HELO
-	corb.mc.mpls.visi.com") by vger.kernel.org with SMTP
-	id <S262236AbRERChy>; Thu, 17 May 2001 22:37:54 -0400
-Message-ID: <3B048518.705AC5F3@steinerpoint.com>
-Date: Thu, 17 May 2001 21:12:40 -0500
-From: Al Borchers <alborchers@steinerpoint.com>
-Reply-To: alborchers@steinerpoint.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S262240AbRERC40>; Thu, 17 May 2001 22:56:26 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:38162 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262238AbRERC4Z>; Thu, 17 May 2001 22:56:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Dan Kegel <dank@kegel.com>, ttel5535@ss1000.ms.mff.cuni.cz
+Subject: Re: [QUESTION] "No 100Hz timer" thread - any LKML archive?
+Date: Fri, 18 May 2001 04:38:27 +0200
+X-Mailer: KMail [version 1.2]
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B044B7B.A75C4C24@kegel.com>
+In-Reply-To: <3B044B7B.A75C4C24@kegel.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl, tytso@mit.edu,
-        Peter Berger <pberger@brimson.com>
-Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
-In-Reply-To: <E150VEu-0006AM-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01051804382705.03520@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> It has to be changed, the race is basically unfixable any other way. I didn't
-> lightly make that change
+On Friday 18 May 2001 00:06, Dan Kegel wrote:
+> Tomas Telensky (ttel5535@ss1000.ms.mff.cuni.cz) wrote:
+> > does anybody know about any archive/digest service for this mailing
+> > list? Majordomo at vger doesn't support this. Or does anybody of
+> > you archive all e-mails?
+> > [...]
+> See http://marc.theaimsgroup.com/?l=linux-kernel for a good search
+> tool. Dunno about raw archives...
 
-I agree.  The patch seems like the correct solution.  What will it take to
-get the patch in the 2.4.x kernels?  Do we need someone to go through the serial
-drivers and fix their open/close routines to work with this patch?  Peter
-and I can take some time to do that--if that would help.
+It has a "download raw" that's quite unique among web archives in
+that it lets you get hold of the unmangled patch.  Though I wish the
+headers were included...
 
--- Al
+--
+Daniel

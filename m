@@ -1,119 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263021AbUCVVBD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 16:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUCVVBD
+	id S262101AbUCVVHl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 16:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUCVVHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 16:01:03 -0500
-Received: from bay15-f28.bay15.hotmail.com ([65.54.185.28]:17 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263021AbUCVVA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 16:00:56 -0500
-X-Originating-IP: [132.177.117.88]
-X-Originating-Email: [mk_26@hotmail.com]
-From: "m k" <mk_26@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux TCP implementation
-Date: Mon, 22 Mar 2004 20:58:46 +0000
+	Mon, 22 Mar 2004 16:07:40 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:28369 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S262101AbUCVVHj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 16:07:39 -0500
+Date: Mon, 22 Mar 2004 16:02:52 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PnPBIOS: Unknown tag '0x82'
+Message-ID: <20040322160252.GA6414@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Meelis Roos <mroos@linux.ee>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.44.0403221937330.18189-100000@math.ut.ee>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY15-F28psNhnM7kl300089ffe@hotmail.com>
-X-OriginalArrivalTime: 22 Mar 2004 20:58:46.0367 (UTC) FILETIME=[77A0C6F0:01C41050]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0403221937330.18189-100000@math.ut.ee>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+On Mon, Mar 22, 2004 at 07:47:21PM +0200, Meelis Roos wrote:
+> Since the beginning of its existence, the pnpbios driver talks about
+> unknown tag '0x82' on one of my computers. The computer has Intel
+> D815EEA2 mainboard, BIOS has been updated quite recently. I added the
+> tag dump to printout and here it is:
+> 
+> PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20
+> 
+> This 0x82 0x12 0x00 and then 'Intel Firmware'.
+> 
+> Anything to worry about? Are the next tags still correctly parsed? The
+> full dmesg is now
+> 
+> PnPBIOS: Scanning system for PnP BIOS support...
+> PnPBIOS: Found PnP BIOS installation structure at 0xc00f2480
+> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x1d2a, dseg 0xf0000
+> pnp: 00:09: ioport range 0x4d0-0x4d1 has been reserved
+> pnp: 00:09: ioport range 0xcf8-0xcff could not be reserved
+> PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20 .
+> pnp: 00:0b: ioport range 0x800-0x87f has been reserved
+> PnPBIOS: 20 nodes reported by PnP BIOS; 20 recorded by driver
+> 
+> -- 
+> Meelis Roos (mroos@linux.ee)
 
-      I am working with 2.4.21 kernel for iSCSI performance study. I have a 
-question
-regarding the congestion avoidance algorithm used in the linux TCP 
-implementation.
-After dumping the value of the snd_cwnd, snd_ssthresh and snd_cwnd_clamp 
-when
-the tcp_cong_avoid function is called, I observed that the value of 
-snd_ssthresh
-was always set to a value of 2147483647 and the value of snd_cwnd_clamp was 
-set to 65535.
-If the snd_cwnd is not be more than the snd_cwnd_clamp, the else part of the
-function is never executed, as snd_cwnd is never going to be more than 
-snd_ssthresh.
-	Also, if the snd_cwnd is maintained in terms of packets and snd_ssthresh 
-and
-snd_cwnd_clamp is maintained in terms of bytes, how come the comparison 
-between them.
-
-
-static __inline__ void tcp_cong_avoid(struct tcp_opt *tp)
-{
-         if (tp->snd_cwnd <= tp->snd_ssthresh) {
-                 /* In "safe" area, increase. */
-                 if (tp->snd_cwnd < tp->snd_cwnd_clamp)
-                         tp->snd_cwnd++;
-         } else {
-                 /* In dangerous area, increase slowly.
-                  * In theory this is tp->snd_cwnd += 1 / tp->snd_cwnd
-                  */
-                 if (tp->snd_cwnd_cnt >= tp->snd_cwnd) {
-                         if (tp->snd_cwnd < tp->snd_cwnd_clamp)
-                                 tp->snd_cwnd++;
-                         tp->snd_cwnd_cnt=0;
-                 } else
-                         tp->snd_cwnd_cnt++;
-         }
-         tp->snd_cwnd_stamp = tcp_time_stamp;
-}
-
-var/log/messages:
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 2, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 3, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 4, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 5, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 6, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 7, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 8, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 9, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 10, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 11, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 12, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 13, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 14, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 15, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 16, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 17, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 18, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 19, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 20, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 21, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-Mar 22 15:08:20 jupiter kernel: snd_cwnd: 22, snd_ssthresh: 2147483647, 
-snd_cwnd_clamp: 65535
-
-
-Any insight on this topic would be appreciated.
+In this case it should be harmless.  Typically when one tag is
+corrupted (or incorrectly interpreted) it will also complain
+about the following tag because of size checks.  Where did the
+unknown tag occur?  Perhaps in pnpbios_parse_resource_option_data?
 
 Thanks,
-k
-
-_________________________________________________________________
-Get rid of annoying pop-up ads with the new MSN Toolbar – FREE! 
-http://clk.atdmt.com/AVE/go/onm00200414ave/direct/01/
-
+Adam
+ 

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbTEFPpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTEFPpc
+	id S263892AbTEFPqa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTEFPqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:45:32 -0400
-Received: from mail.hometree.net ([212.34.181.120]:63363 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S263850AbTEFPpa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:45:30 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Date: Tue, 6 May 2003 15:58:02 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b98m2a$bih$1@tangens.hometree.net>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030428115740.3a6c2a97.skraw@ithnet.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1052236682 11857 212.34.181.4 (6 May 2003 15:58:02 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 6 May 2003 15:58:02 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Tue, 6 May 2003 11:46:30 -0400
+Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:15751 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S263892AbTEFPq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:46:29 -0400
+Message-ID: <3EB7DBC0.40907@comcast.net>
+Date: Tue, 06 May 2003 08:58:56 -0700
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030504
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tmb@iki.fi, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+X-Enigmail-Version: 0.74.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw@ithnet.com> writes:
+> There is a problem with this, ...
+> If we calculate the exact memory like this, there wont be any
+> memory remapped to do double/tripple buffering...
+> So the question is: shoud one take the formula and add ' * 2' to
+> atleast get the double buffering supported...
+> (in the patch I made for mdk, I kept a modified override part so that
+> the user can change this, if he needs it....)
 
->copy-protected I cannot do that _legally_, because breaking the protection is
->against DMCA. Now you just created the case where _buying_ something does not
+Hello.  I realize that there won't be enough memory for double/triple
+buffering using my patch. I even thought of doing the *2 thing, but
+decided against it. The idea I had is that more and more video cards are
+coming out with 128+ MB Ram, and that machines with >=1GB Ram are also
+becoming common, especially for gamers etc...  Those users, I believe,
+are less likely to use vesafb for anything other than graphics boot
+splash and this just removes one little out-of-the-box problem many have
+been having. I thought it to be a safer default than attempting to
+ioremap the entire framebuffer. Just my thoughts,
 
-You live in which country? So why do you care about archaic law in
-foreign countries? The DMCA doesn't apply (yet) to the E.U. It might
-be illegal in the UK to drive on the motorway on the right side. This
-doesn't stop me from doing so over here in Germany.
+-Walt Holman
 
-Copying a CD for private use is perfectly legal here in Germany. 
-Copy protecting a CD is also perfectly legal over here in Germany.
 
-	Regards
-		Henning
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbTDOL4V (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTDOLzs 
+	id S261294AbTDOMEZ (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbTDOMEZ 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 07:55:48 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16574
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261293AbTDOLyu (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 07:54:50 -0400
-Subject: RE: kernel support for non-English user messages
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert White <rwhite@casabyte.com>
-Cc: Riley Williams <Riley@Williams.Name>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGKEIFCHAA.rwhite@casabyte.com>
-References: <PEEPIDHAKMCGHDBJLHKGKEIFCHAA.rwhite@casabyte.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050404902.27744.10.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 15 Apr 2003 08:04:25 -0400
+Received: from arnold.dormnet.his.se ([193.10.185.236]:61702 "HELO
+	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S261294AbTDOMEY 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 08:04:24 -0400
+Date: Tue, 15 Apr 2003 14:15:18 +0200
+From: Andreas Henriksson <andreas@fjortis.info>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Writing modules for 2.5
+Message-ID: <20030415121517.GA23894@foo>
+References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel> <p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Apr 2003 12:08:31 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xllyc7yoz.fsf@zaphod.guide>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-15 at 04:44, Robert White wrote:
-> Message codes would be *VERY BAD* anyway.  As soon as you start that, then
-> you need a numbering authority and all that nonsense.
+On Tue, Apr 15, 2003 at 02:05:48PM +0200, Måns Rullgård wrote:
+> Next question:  what is the correct replacement for MOD_INC_USE_COUNT?
 
-In the embedded world that isnt a problem. Ripping all the strings out
-and replacing them with numbers is a useful process even if "Error
-134117" is only constant in your product line.
+"SET_MODULE_OWNER(dev);" or simply "dev->owner=THIS_MODULE;" and the
+counting should then be done automatically AFAIK.
 
+> -- 
+> Måns Rullgård
+> mru@users.sf.net
+
+Regards,
+Andreas Henriksson

@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbUKSVpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUKSVsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbUKSVpz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUKSVpy
+	id S261598AbUKSVsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbUKSVsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:45:54 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21236 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261596AbUKSVnf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:43:35 -0500
-Message-ID: <419E6900.5070001@mvista.com>
-Date: Fri, 19 Nov 2004 14:43:28 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: akpm <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>, linuxppc-embedded@ozlabs.org
-Subject: [PATCH][PPC32] Marvell host bridge support (mv64x60)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 19 Nov 2004 16:48:20 -0500
+Received: from gw.goop.org ([64.81.55.164]:29585 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S261598AbUKSVqc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:46:32 -0500
+Subject: Re: 2.6.10-rc2-mm2: spinlock problem in arch/i386/kernel/time.c on
+	resume
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041119025357.4b6ca9f7.akpm@osdl.org>
+References: <1100855456.22588.9.camel@outer-dhcp-100.goop.org>
+	 <20041119025357.4b6ca9f7.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 19 Nov 2004 13:14:31 -0800
+Message-Id: <1100898871.5056.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-0.mozer.2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds core support for a line of host bridges from Marvell 
-(formerly Galileo).  This code has been tested with a GT64260a, 
-GT64260b, MV64360, and MV64460.  Patches for platforms that use these 
-bridges will be sent separately.
+On Fri, 2004-11-19 at 02:53 -0800, Andrew Morton wrote:
+> I can't imagine how that could happen.  I wonder if the spinlock debugging
+> could be making a mistake.
 
-The patch is rather large so a link is provided.
+When I disabled DEBUG_SPINLOCK, it works fine.  Does DEBUG_SPINLOCK have
+any side effects?  I would have thought it wouldn't do anything on a UP,
+non-PREEMPT system.
 
-Signed-off-by: Mark A. Greer <mgreer@mvista.com>
---
+There is the comment in arch/i386/kernel/time.c saying that APM needs
+get_cmos_time(), which is the site of the second message.  The code is
+very simple, so its hard to see how this could be going wrong.  I'm
+guessing, though, that this is a relatively untested path, since people
+don't tend to use APM+SMP.
 
-ftp://source.mvista.com/pub/mgreer/mv64x60.patch
+> > .config & lspci attached
+> 
+> I have but a lowly A21P.  With my .config it APM resumes happily.  With
+> yours it refuses to even suspend.  And:
+> 
+> 
+> 
+> hdc: DMA disabled
+> e100: Intel(R) PRO/100 Network Driver, 3.2.3-k2-NAPI
+> e100: Copyright(c) 1999-2004 Intel Corporation
+
+I've been using the eepro100 driver lately, which doesn't seem to have
+this problem at all.
+
+	J
 

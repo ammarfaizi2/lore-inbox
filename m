@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129834AbQLBGRs>; Sat, 2 Dec 2000 01:17:48 -0500
+	id <S129855AbQLBGyx>; Sat, 2 Dec 2000 01:54:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbQLBGRl>; Sat, 2 Dec 2000 01:17:41 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:40715 "EHLO
-	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-	id <S129834AbQLBGRb>; Sat, 2 Dec 2000 01:17:31 -0500
-Message-ID: <3A288C70.9030504@megapathdsl.net>
-Date: Fri, 01 Dec 2000 21:45:20 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001127
-X-Accept-Language: en
+	id <S129913AbQLBGyn>; Sat, 2 Dec 2000 01:54:43 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29930 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129855AbQLBGyZ>;
+	Sat, 2 Dec 2000 01:54:25 -0500
+Date: Sat, 2 Dec 2000 01:23:56 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+cc: "'jbglaw@lug-owl.de'" <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: RE: usbdevfs mount 2x, umount 1x
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDDB0@orsmsx31.jf.intel.com>
+Message-ID: <Pine.GSO.4.21.0012020113430.27040-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Can CMS be upgraded? -- Re: Transmeta and Linux-2.4.0-test12-pre3
-In-Reply-To: <200012020409.UAA04058@adam.yggdrasil.com> <909vcs$3oo$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I buy one of these machines for testing,
-will I be able to upgrade the processor's Code
-Morphing Software with the new version when it's
-ready?  I hear the new CMS code will almost
-double the battery life.
 
-Thanks,
-	Miles
+
+On Thu, 30 Nov 2000, Dunlap, Randy wrote:
+
+> Yes, that's how it looks to me also, so maybe it's not a kernel
+> problem.  Thanks for the tip.
+> 
+> Here's more info, including the strace that Al Viro asked for.
+> I also made sure that I'm using mount & umount version 2.10o.
+> Please let me know if you need anything else.
+
+Bug in umount(8) - it (a) is overagressive in pruning the stuff from
+/etc/mtab and (b) doesn't even look into /proc/mounts. I bet that
+the second time it didn't even call umount(2) - kernel is of no help
+here, after all it's not psychic...
+
+The final test: try to do the first umount with -n. If that helps (i.e if
+the second umount does the right thing in that case) - that's it,
+kernel side is OK. -n tells umount(8) to leave /etc/mtab untouched.
+Note: it's _not_ a workaround. umount(8) is doing the wrong thing when
+it purges all entries and that needs to be fixed. However, if
+umount -n <mountpoint2>;umount <mountpoint1> works we have a proof that
+the kernel side is OK and fixing umount(8) will solve the whole problem.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

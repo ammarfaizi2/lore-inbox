@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263607AbRFFRAU>; Wed, 6 Jun 2001 13:00:20 -0400
+	id <S263633AbRFFRCa>; Wed, 6 Jun 2001 13:02:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263632AbRFFRAK>; Wed, 6 Jun 2001 13:00:10 -0400
-Received: from tomts14.bellnexxia.net ([209.226.175.35]:64163 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S263607AbRFFRAB>; Wed, 6 Jun 2001 13:00:01 -0400
-To: Peter Svensson <petersv@psv.nu>
-Cc: Chris Boot <bootc@worldnet.fr>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David N. Welton" <davidw@apache.org>, Pavel Machek <pavel@suse.cz>
-Subject: Re: temperature standard - global config option?
-In-Reply-To: <Pine.LNX.4.33.0106061814470.1655-100000@cheetah.psv.nu>
-From: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: 06 Jun 2001 12:58:03 -0400
-In-Reply-To: Peter Svensson's message of "Wed, 6 Jun 2001 18:16:08 +0200 (CEST)"
-Message-ID: <m2iti9v944.fsf@sympatico.ca>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
-MIME-Version: 1.0
+	id <S263634AbRFFRCU>; Wed, 6 Jun 2001 13:02:20 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:7553 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S263633AbRFFRCL>;
+	Wed, 6 Jun 2001 13:02:11 -0400
+Date: Wed, 6 Jun 2001 19:01:58 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
+Subject: Re: [driver] New life for Serial mice
+Message-ID: <20010606190158.A2010@suse.cz>
+In-Reply-To: <20010606125556.A1766@suse.cz> <3B1E5AE0.9202DD00@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B1E5AE0.9202DD00@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Jun 06, 2001 at 12:31:28PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Peter" == Peter Svensson <petersv@psv.nu> writes:
+On Wed, Jun 06, 2001 at 12:31:28PM -0400, Jeff Garzik wrote:
 
- Peter> Kelvin (decikelvin?) is probably a good unit to use in the
- Peter> kernel. If you want something else you convert it in the
- Peter> programs you use to interact with the kernel. This is a
- Peter> usespace issue, I think.
+> hmmm.  I just looked over this, and drivers/char/joystick/ser*.[ch].
+> 
+> Bad trend.
+> 
+> Serial needs to be treated just like parport: the basic hardware code,
+> then on top of that, a selection of drivers, all peers:  dumb serial
+> port, serial mouse, joystick, etc.
 
-How about BogoDegrees?  Sorry, I will go and shoot myself.
+Agreed. Completely.
 
+And proposed a couple times before.
+
+But not in my power.
+
+So I used a N_MOUSE line discipline instead
+ - the best tap into the serial/tty stack I found.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311403AbSDIUZv>; Tue, 9 Apr 2002 16:25:51 -0400
+	id <S311424AbSDIU3q>; Tue, 9 Apr 2002 16:29:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311424AbSDIUZu>; Tue, 9 Apr 2002 16:25:50 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48835 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S311403AbSDIUZu>; Tue, 9 Apr 2002 16:25:50 -0400
-Date: Tue, 9 Apr 2002 16:25:10 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: viro@math.psu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch for a leak of anonymous devices
-Message-ID: <20020409162510.A21361@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S311454AbSDIU3p>; Tue, 9 Apr 2002 16:29:45 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35850
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311424AbSDIU3o>; Tue, 9 Apr 2002 16:29:44 -0400
+Date: Tue, 9 Apr 2002 13:27:48 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Roger Larsson <roger.larsson@norran.net>
+cc: Anssi Saari <as@sci.fi>, linux-kernel@vger.kernel.org,
+        Mark Mielke <mark@mark.mielke.cc>
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is
+ enabled
+In-Reply-To: <200204092206.02376.roger.larsson@norran.net>
+Message-ID: <Pine.LNX.4.10.10204091320450.25275-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Al:
+On Tue, 9 Apr 2002, Roger Larsson wrote:
 
-Arjan used your fix from 2.5 which simply moves the allocation
-of the device. Are you going to change in in 2.4 too?
-Here's what I did for 2.4.18-pre6 temporarily:
+> On tisdagen den 9 april 2002 12.01, Anssi Saari wrote:
+> > On Mon, Apr 08, 2002 at 06:02:55PM -0400, Mark Hahn wrote:
+> > > I think someone else already pointed out that doing
+> > > a kernel profile would be good.  strace would also
+> > > be quite useful, even just the -c form.
+> >
+> > Here it is:
+> >
+> > With unmaskirq=1 first:
+> >
+> >
+> >     49 handle_IRQ_event                           0.5104
+> >    239 file_read_actor                            2.4896
+> >   3324 default_idle                              69.2500
+> >  20097 ide_output_data                          104.6719
+> 
+> Hey, what is this?
+> 
+> Comment of the function is:
+> "This is used for most PIO data transfers *to* the IDE interface"
+> (see /drivers/ide/ide.c:426)
+> Has it reverted to PIO mode?
 
---- linux-2.4.18-pre6/fs/super.c	Tue Apr  9 11:58:25 2002
-+++ linux-2.4.18-pre6-p3/fs/super.c	Tue Apr  9 11:53:43 2002
-@@ -632,6 +632,9 @@
- 			continue;
- 		if (!grab_super(old))
- 			goto retry;
-+		spin_lock(&unnamed_dev_lock);
-+		clear_bit(dev, unnamed_dev_in_use);
-+		spin_unlock(&unnamed_dev_lock);
- 		destroy_super(s);
- 		return old;
- 	}
+This is because there are not a proper and correct state diagram data
+handler set for ATAPI, period.  Initially the driver evolved out of PIO
+calls to the PACKET_COMMAND opcode for the ATA command set.  Since there
+has been zero updates/attempts to create a proper ATAPI/ASPI by anyone,
+you can expect PIO transactions.
 
-Another question: your code allows to allocate device (0,0).
-I assume you found it safe; everything works. However, why
-is it safe? Do we have no functions that return zero as a
-device number to indicate a failure?
+Who knows once I finally have taskfile completed and the kernel fixed to
+not violate the basics of hardware atomic for storage devices, I may fix
+all of the atapi/aspi transport.  It is a real mess to grunt through all
+the docs.  However, I suspect I could get some help (co-author a
+standard's proposal) with the original author to outline and create a 500+
+page techincal referrence guide.  So if there are any companies want to
+fund such an adventure, please let me know off-line.
 
-My moremounts patch simple pre-sets the first bit of the
-unnamed_dev_in_use bitmap to avoid this. But perhaps I am
-paranoid here.
+Understand that only in PIO can you be sure of how much data you could get
+from a device, argh it still s a pig in a poke.
 
--- Pete
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSFNWSo>; Fri, 14 Jun 2002 18:18:44 -0400
+	id <S314551AbSFNWaC>; Fri, 14 Jun 2002 18:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314551AbSFNWSn>; Fri, 14 Jun 2002 18:18:43 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:50133 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314548AbSFNWSn>;
-	Fri, 14 Jun 2002 18:18:43 -0400
-Subject: Re: [Patch] tsc-disable_A5
-From: john stultz <johnstul@us.ibm.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: davej@suse.de, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        lkml <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br
-In-Reply-To: <200206142153.XAA03026@harpo.it.uu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 Jun 2002 15:11:37 -0700
-Message-Id: <1024092697.29929.195.camel@cog>
-Mime-Version: 1.0
+	id <S314584AbSFNWaB>; Fri, 14 Jun 2002 18:30:01 -0400
+Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:36364 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S314551AbSFNWaB>;
+	Fri, 14 Jun 2002 18:30:01 -0400
+Date: Fri, 14 Jun 2002 17:30:01 -0500 (CDT)
+From: Brent Cook <busterb@mail.utexas.edu>
+X-X-Sender: busterb@abbey.hauschen
+To: Dave Jones <davej@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: File permission problem with NFSv3 and 2.5.20-dj4
+In-Reply-To: <Pine.LNX.4.33.0202072243560.26015-100000@Appserv.suse.de>
+Message-ID: <20020614171820.A13031-100000@abbey.hauschen>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-06-14 at 14:53, Mikael Pettersson wrote:
-> Unless my memory is failing me, I believe the simplest approach
-> is to (1) don't set CONFIG_X86_TSC, and (2) pass "notsc" as a
-> kernel boot parameter.
+Hi,
 
-Correct, and this patch basically does both of the above. 
+  Looks like there is a problem with NFSv3 and file permissions in the DJ
+kernels.
 
-The problem is that CONFIG_X86_TSC is enabled on PPro and above cpus.
-The machines which are having this problem are multi-node P3 or P4
-systems. Each cpu has a working TSC, its just that because they are not
-synced they should not be used. 
+A file that is marked as executable will lose its executable flag whenever
+it is written to. I suspect the proble lies in the changes to the NFS file
+info cacheing in the DJ kernels at least since 2.5.20-dj1 (I was unable
+to find where this change occured in the changelog).
 
-So the patch adds a CONFIG_DISABLE_TSC which is then checked where
-earlier just CONFIG_X86_TSC was used. Additionally, if
-CONFIG_DISABLE_TSC is set, the flag set by "notsc" is also set.
+Here is one example:
 
-The usage of CONFIG_X86_TSC took me a bit to get my head around
-initially, so your clarification is helpful.
+ Enter NFS mount (in this case, the NFS server is a FreeBSD 4.6 machine)
+ Compile a simple program; gcc hello.c -o hello
+ Result: hello has the following permissions: -rw-r--r--
+ Modify the permissions manually; chmod 755 hello
+ Result: hello has the following permissions: -rwxr-xr-x
 
-Thanks
--john
+Here is another:
 
+ Enter NFS mount
+ Compile a simple program; gcc hello.c -o hello
+ Result: hello has the following permissions: -rw-r--r--
+ Unmount the NFS mount; umount /home
+ Remount the NFS mount; mount server:/home /home
+ Result: hello has the following permissions: -rwxr-xr-x
 
+Here is the final one:
 
+ Enter NFS mount, find a file with executable permissions;
+ Edit a file; vi whahoo.sh
+ Save and close the file
+ Results: file has the following permissions: -rw-r--r--
+
+So, in the process of writing a file, its executable bits are lost. Can
+someone help? The problem is not present with vanilla Linux-2.5.20.
+
+Regards,
+ - Brent Cook
 

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbRGFVLa>; Fri, 6 Jul 2001 17:11:30 -0400
+	id <S266808AbRGFVPK>; Fri, 6 Jul 2001 17:15:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266381AbRGFVLU>; Fri, 6 Jul 2001 17:11:20 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:32165 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S263089AbRGFVLJ>; Fri, 6 Jul 2001 17:11:09 -0400
-Date: Fri, 6 Jul 2001 14:08:47 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: Tim McDaniel <tim.mcdaniel@tuxia.com>
-cc: <linux-ppc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Trouble Booting Linux PPC On Mac G4 2000
-In-Reply-To: <A16915712C18BD4EBD97897F82DA08CD409EEE@exchange1.win.agb.tuxia>
-Message-ID: <Pine.LNX.4.33.0107061407500.22870-100000@heat.gghcwest.com>
+	id <S266852AbRGFVPA>; Fri, 6 Jul 2001 17:15:00 -0400
+Received: from kitkat.hotpop.com ([204.57.55.30]:15372 "HELO kitkat.hotpop.com")
+	by vger.kernel.org with SMTP id <S266808AbRGFVOo>;
+	Fri, 6 Jul 2001 17:14:44 -0400
+Message-ID: <004701c10660$f64923a0$43020180@linfpaulo>
+From: "Paulo" <pmateiro@hotpop.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B4624C9.18290280@centtech.com>
+Subject: NCR 35XXXX MCA bus and SMP
+Date: Fri, 6 Jul 2001 18:16:43 -0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Friends, my name is Paulo.
+And i have a NCR 3525 with MCA bus and 8 processors and 512MB RAM
+, i tried Suse 6.4 and Red Hat 7.1 , but nome detected
+my MCA bus , the 8 processors and more than 64MB ... i tried kernel
+parameter
+mem=512m , but no results... only 64MB .... i recompiled the kernel (2.4.2)
+with MCA=y and SMP =y ... and no results...
+somebody can help me ?
 
+Paulo Mateiro.
 
-On Fri, 6 Jul 2001, Tim McDaniel wrote:
-
->
-> We are having a great degree of difficulty getting Linux PPC20000
-> running on a Mac G4 466 tower with 128MB of memory, One 30MB HD and one
-> CR RW. This is not a NuBus based system. To the best of our knowledge we
-> have followed the user manual to the tee, and even tried forcing video
-> settings at the Xboot screen.
->
->
-> But still, when we encounter the screen where you must chose between
-> MacOS and Linux and we chose linux, the screen goes black and for all
-> practical purposes the box appears to be locked.   We've also tried
-> editing yaboot.conf but can't seem to save the new file.
->
-> Any help would be greatly appreatiated.
-
-add "video=ofonly" to your boot command line.  That is, at the yaboot
-"boot: " prompt, type "linux video=ofonly"
-
-If that doesn't work, try something else :)
-
--jwb
 

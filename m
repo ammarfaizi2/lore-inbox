@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbTEEAyw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 20:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTEEAyw
+	id S261666AbTEEBnW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 21:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTEEBnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 20:54:52 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:43953 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261868AbTEEAyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 20:54:51 -0400
-Subject: Re: will be able to load new kernel without restarting?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Gabe Foobar <foobar.gabe@freemail.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <freemail.20030403212422.18231@fm9.freemail.hu>
-References: <freemail.20030403212422.18231@fm9.freemail.hu>
-Content-Type: text/plain
-Message-Id: <1052096831.1699.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
-Date: 05 May 2003 03:07:11 +0200
+	Sun, 4 May 2003 21:43:22 -0400
+Received: from mail.echo-on.net ([205.189.151.1]:56266 "EHLO mail.eol.ca")
+	by vger.kernel.org with ESMTP id S261666AbTEEBnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 21:43:21 -0400
+Message-ID: <3EB5C4AB.8000208@brad-x.com>
+Date: Sun, 04 May 2003 21:55:55 -0400
+From: Brad Laue <brad@brad-x.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brian Dushaw <dushaw@apl.washington.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Albatron KM18G PRO/RedHat 9.0 - disk errors and system seizures...
+References: <Pine.LNX.4.44.0305041543440.8546-100000@munk.apl.washington.edu>
+In-Reply-To: <Pine.LNX.4.44.0305041543440.8546-100000@munk.apl.washington.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-03 at 21:24, Gabe Foobar wrote:
-> Hi!
-> 
-> Just a simple question. When I will be able to load new
-> kernel without restarting the system? Working anybody on
-> this problem?
+Brian Dushaw wrote:
+>     I've installed RedHat 9.0 three times now - going on the fourth.  Most
+> recently I upgraded the kernel with the RedHat update, to similar effect.  The
+> problem seems to be two fold:  system lockups and disk errors. 
 
-There's an experimental Linux kernel patch called "kexec" that allows
-you to load another kernel (not only a Linux kernel) witout rebooting in
-the sense of what this term really means: e.g. you can load another
-Linux kernel without doing a full POST using the BIOS.
+The RedHat kernel is massively modified, especially in version 9.0 of 
+the distribution. Try a vanilla kernel and see if the system continues 
+to misbehave.
+
+Brad
+
 -- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
+// -- http://www.BRAD-X.com/ -- //
 

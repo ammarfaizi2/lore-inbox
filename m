@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261460AbSKRPUt>; Mon, 18 Nov 2002 10:20:49 -0500
+	id <S261418AbSKRPTY>; Mon, 18 Nov 2002 10:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbSKRPUt>; Mon, 18 Nov 2002 10:20:49 -0500
-Received: from cs6625132-47.austin.rr.com ([66.25.132.47]:47028 "EHLO
-	dragon.taral.net") by vger.kernel.org with ESMTP id <S261460AbSKRPUr>;
-	Mon, 18 Nov 2002 10:20:47 -0500
-Date: Mon, 18 Nov 2002 09:27:48 -0600
-From: Taral <taral@taral.net>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Oops when removing snd-timer
-Message-ID: <20021118152748.GA8143@hatchling.taral.net>
-References: <20021118080208.GA4945@hatchling.taral.net> <Pine.LNX.4.44.0211180347320.1538-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211180347320.1538-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.4i
+	id <S261460AbSKRPTY>; Mon, 18 Nov 2002 10:19:24 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:19876 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261418AbSKRPTX>;
+	Mon, 18 Nov 2002 10:19:23 -0500
+Date: Mon, 18 Nov 2002 17:42:58 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Luca Barbieri <ldb@ldb.ods.org>, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+In-Reply-To: <1037625619.7547.6.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211181742350.12751-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 18 Nov 2002, Alan Cox wrote:
 
-On Mon, Nov 18, 2002 at 04:07:17AM -0500, Zwane Mwaikambo wrote:
-> Looks like you loaded ens137x.c and then that driver got unloaded leaving=
-=20
-> the callback still valid, then the core timer code decided to walk off a=
-=20
-> cliff using that pointer.
+> What is the behaviour of someone setting VM_DONTCOPY on memory that was
+> copy on write between a large number of processes (say an executable
+> image) ?  Don't copy - but don't copy from what, from the original
+> mapping or from the COW mapping of the original mapping ?
 
-I don't have ens137x.c compiled, much less loaded. What makes you think
-this?
+it would result in a VM 'hole' - completely unmapped virtual memory with
+no vma backing it.
 
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Pretty please with dollars on top?" -- Me
+	Ingo
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE92Qb0oQQF8xCPwJQRAk8dAJ9kiIfMU9TrKOXgTMncVha0myWXBQCZAZQq
-eR2VZ+5vMWIMgzH+82FkGEw=
-=57Dt
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--

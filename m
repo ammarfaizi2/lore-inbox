@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbTA1Tiu>; Tue, 28 Jan 2003 14:38:50 -0500
+	id <S267652AbTA1Tqt>; Tue, 28 Jan 2003 14:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267652AbTA1Tiu>; Tue, 28 Jan 2003 14:38:50 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:31112 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265099AbTA1Tiu>;
-	Tue, 28 Jan 2003 14:38:50 -0500
-Date: Tue, 28 Jan 2003 11:42:05 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-In-Reply-To: <20030122080322.GB3466@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267671AbTA1Tqt>; Tue, 28 Jan 2003 14:46:49 -0500
+Received: from arnold.dormnet.his.se ([193.10.185.236]:44297 "HELO
+	smtp.dormnet.his.se") by vger.kernel.org with SMTP
+	id <S267652AbTA1Tqt>; Tue, 28 Jan 2003 14:46:49 -0500
+Date: Tue, 28 Jan 2003 20:52:26 +0100
+From: Andreas Henriksson <andreas@fjortis.info>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOPS in read_cd... what to do?
+Message-ID: <20030128195226.GA27417@foo>
+References: <Pine.GSO.4.33.0301270937370.18209-100000@Amps.coe.neu.edu> <3E355D1F.1080007@didntduck.org> <20030128125119.GA31590@foo> <1043779710.24849.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1043779710.24849.8.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Jan 2003, Jamie Lokier wrote:
+Hi..
 
-| ps.  sys_* system-call functions should never return "int".  They
-| should always return "long" or a pointer - even if the user-space
-| equivalent returns "int".  Take a look at sys_open() for an example.
-| Technical requirement of the system call return path on 64-bit targets.
+It didn't help. :(
 
-Is this a blanket truism?  For all architectures?
+Though I had to change it some to get it to compile... hopefully I
+didn't screw up. (I did this to avoid "invalid operators to binary +")
 
-Should current (older/all) syscalls be modified, or should only new ones
-(like epoll) be corrected?
+#define virt_addr(addr) *(volatile unsigned char *) __io_virt(addr)
+and changed the isa_...(foo+bar); to isa_...(virt_addr(foo+bar));
 
-Thanks,
--- 
-~Randy
+The oops looks about the same.. so I guess the patch didn't do any
+difference (even if it might be needed in the long run)...
 
+Any more ideas? ;)
+
+ -- Andreas Henriksson

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbTACFGl>; Fri, 3 Jan 2003 00:06:41 -0500
+	id <S267411AbTACFLU>; Fri, 3 Jan 2003 00:11:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267394AbTACFGl>; Fri, 3 Jan 2003 00:06:41 -0500
-Received: from holomorphy.com ([66.224.33.161]:63943 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267392AbTACFGj>;
-	Fri, 3 Jan 2003 00:06:39 -0500
-Date: Thu, 2 Jan 2003 21:14:50 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL and Nvidia
-Message-ID: <20030103051450.GY9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10301021315170.421-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10301021315170.421-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267412AbTACFLU>; Fri, 3 Jan 2003 00:11:20 -0500
+Received: from dp.samba.org ([66.70.73.150]:15782 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267411AbTACFLT>;
+	Fri, 3 Jan 2003 00:11:19 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] Module licence and EXPORT_SYMBOL_GPL 
+In-reply-to: Your message of "Thu, 02 Jan 2003 20:28:31 -0800."
+             <Pine.LNX.4.44.0301022025200.1700-100000@home.transmeta.com> 
+Date: Fri, 03 Jan 2003 16:19:13 +1100
+Message-Id: <20030103051949.2D7FB2C052@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 01:26:24PM -0800, Andre Hedrick wrote:
-> AH!  A man of reason here!
-> It would be nice if "LI" got in the business of issuing license
-> subscriptions for binary only modules.  Where the binary vendor must
-> register and pay a royality fee.  This fee would be used to support "LI"
-> and defend Linux in a court case if needed.
-> I personally would gladly pay a reasonable (usual and customary) fee for
-> the service and right to sell binary models with out having to pay a
-> lawyer to write a "position" and be prepared to sue every snot nose brat
-> in the world.
-> Otherwise, one has to deal with unreasonable people.
-> There are people who do not work for distros or have found that other
-> companies want to control their contributions to GPL, but need a means to
-> support themselves with there other works related to emerging
-> technologies.
-> Obviously I am being way to sensible about the issue, and should go use
-> NetBSD instead and give them the license money.
+In message <Pine.LNX.4.44.0301022025200.1700-100000@home.transmeta.com> you wri
+te:
+> 
+> On Fri, 3 Jan 2003, Rusty Russell wrote:
+> > 
+> > Linus, your options:
+> > 1) Drop the patch and leave well enough alone.
+> > 2) Just keep the module licence taint check.
+> > 3) Say OK to the whole thing (once I've tested it against latest bk).
+> 
+> Hmm.. Can you make the "module_is_gpl()" thing a load-time check, and 
+> instead of carrying the license string along at run-time, you just carry 
+> the "I'm GPL-ok'd" bit along. 
 
-I don't give two hoots about the money or the open/closed stuff in the
-context of "Is it the right thing to do?" or "What should nvidia do?"
-nvidia's drivers have developed a bad reputation, at least in my mind,
-and I don't want their bugreports (even though RH was hurt worst here),
-and I don't want my betatesters adding that unknown into the equation.
+Just call it ".init.license" instead of ".license" and you're done:
+it's never used at runtime (well, setting the mod->license field to
+NULL after init to make sure noone abuses it might make sense).
 
-Supposedly they've improved lately, not that I care. One only need be
-bitten once.
-
-Maybe having no way to prove a bug's fixed is a downside of binary modules.
-
-
-Bill
+I'll test it now...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

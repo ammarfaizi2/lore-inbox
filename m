@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVCYVBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVCYVBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbVCYVBE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 16:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVCYVBE
+	id S261806AbVCYVBz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 16:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVCYVBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 16:01:04 -0500
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:1432 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261797AbVCYVA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 16:00:58 -0500
-Message-ID: <42447C02.1010308@austin.rr.com>
-Date: Fri, 25 Mar 2005 15:00:50 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][0/5] cifs: cifsfs.c cleanup
-References: <Pine.LNX.4.62.0503251816530.2498@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0503251816530.2498@dragon.hyggekrogen.localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Mar 2005 16:01:55 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:42904 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261800AbVCYVBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 16:01:42 -0500
+Date: Fri, 25 Mar 2005 22:01:32 +0100
+From: Luca <kronos@kronoz.cjb.net>
+To: David Woodhouse <dwmw2@infradead.org>,
+       Linux Serial <linux-serial@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Garbage on serial console after serial driver loads
+Message-ID: <20050325210132.GA11201@dreamland.darkstar.lan>
+References: <20050325202414.GA9929@dreamland.darkstar.lan> <20050325203853.C12715@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050325203853.C12715@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+Il Fri, Mar 25, 2005 at 08:38:53PM +0000, Russell King ha scritto: 
+> On Fri, Mar 25, 2005 at 09:24:15PM +0100, Luca wrote:
+> > I attached a null modem cable to my notebook and I'm seeing garbage as
+> > soon as the serial driver is loaded. I tried booting with init=/bin/bash
+> > to be sure that it's not some rc script doing strange things to the
+> > serial port, but this didn't solve the problem.
+> 
+> I'm uncertain how this problem can occur, unless you have one of:
+> 
+> * serial debugging enabled (which isn't compatible with serial console)
 
->Hi Steve,
->
->Here are the cleanups for fs/cifs/cifsfs.c
->
->More or less the same drill as with the previous round of patches. I'll 
->submit the patches inline, but once again they are available for you 
->online if needed (I've included the notes about the specific patch in 
->those files this time) : 
->
->http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_cifsfs-whitespace-function-defs.patch
->http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_cifsfs-whitespace-spaces.patch
->http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_cifsfs-whitespace-comments.patch
->http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_cifsfs-nesting.patch
->http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_cifsfs-casts.patch
->
->(listed in the order they apply)
->  
->
-Today I applied the cifsfs_casts patch (and similary I applied the 
-similar patch to readdir.c and the kfree patch to readdir.c).
-The changes were mostly minor due to the patches reminding of places 
-where I had to clarify comments.
+Do you mean #define DEBUG in serial_core.c? No.
 
-I didn't have time to review the rest.
+> * a NS16550A, in which case dwmw2 needs to rework his autodetect code to
+>   adjust the baud rate appropriately.
 
-Thanks.
+Well, serial_core seems to think so:
 
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a NS16550A
+ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
 
+Luca
+-- 
+Home: http://kronoz.cjb.net
+La mia opinione puo` essere cambiata, ma non il fatto che ho ragione.

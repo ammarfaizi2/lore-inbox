@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317911AbSG2EFC>; Mon, 29 Jul 2002 00:05:02 -0400
+	id <S317935AbSG2ENS>; Mon, 29 Jul 2002 00:13:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317924AbSG2EFC>; Mon, 29 Jul 2002 00:05:02 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:25989 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317911AbSG2EFB>;
-	Mon, 29 Jul 2002 00:05:01 -0400
-Date: Mon, 29 Jul 2002 14:08:24 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-Subject: Serial core problems on embedded PPC
-Message-ID: <20020729040824.GA2351@zax>
-Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
-	linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-Mime-Version: 1.0
+	id <S318007AbSG2ENS>; Mon, 29 Jul 2002 00:13:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15109 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317935AbSG2ENR>;
+	Mon, 29 Jul 2002 00:13:17 -0400
+Message-ID: <3D44C3A9.982C0205@zip.com.au>
+Date: Sun, 28 Jul 2002 21:25:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
+References: <Pine.LNX.4.44.0207282048230.913-100000@home.transmeta.com> <20020728.204302.44950225.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying to get the new serial core stuff working on a PPC 4xx
-machine (an EP405 board, specifically).  This is proving more
-difficult than I expected.
+"David S. Miller" wrote:
+> 
+>    From: Linus Torvalds <torvalds@transmeta.com>
+>    Date: Sun, 28 Jul 2002 20:51:13 -0700 (PDT)
+> 
+>    On Sun, 28 Jul 2002, David S. Miller wrote:
+>    > They must never run from HW irqs, in fact there is a BUG()
+>    > check there against this.
+> 
+>    From a page cache standpoint softirq's are 100% equivalent to
+>    hardware irq's, so that doesn't much help here.
+> 
+> Wait are we trying to make the final freeing of (potentially)
+> LRU/page-cache pages from any non-base context illegal?
 
-In 8250.c, it appears that in order for a port to be used for the
-serial console it must be defined "old style" with SERIAL_PORT_DFNS,
-rather than being registered with register_serial() (because
-serial8250_console_setup() indexs into the serial8250_ports array)).
-This presents a small problem for 4xx, since it's serial ports are
-memory mapped and the new old_serial_port structure can't represent
-these.  I added support for these into 8250.c, but ran into further
-troubles.
+It already is.  The combination of circumstances is pretty
+remote, and indeed may never happen.  But the final put_page()
+against an LRU page will go BUG() because the page is on the LRU.
+And a page_cache_reelase() in IRQ context could deadlock over
+pagemap_lru_lock() (it'll go BUG in -aa kernels).
 
-The kernel now gets into an infinite loop when trying to open
-/dev/console in init().  The loop is occuring in tty_open() - the open
-fails and it loops back to the retry_open: label.  This seems to be
-happening because the uart_port structure is ending up with the type
-field set to PORT_UNKNOWN.  However, I'm getting confused attempting
-to work out where this field ought to be set, and why it isn't.
+> If that really becomes an issue we can do something which moves
+> this back to user context when the result of doing it in irq
+> context would be problematic.
 
-The current plethora of similar-but-not-the-same structures describing
-serial ports (serial_state, serial_struct, uart_port, old_serial_port)
-is also rather confusing.  I'm guessing some of these are deprecated
-and remain only as an aid to transition, but I'm not sure which.
+I don't think it can happen in 2.4.  In the truncate case,
+the page is taken off the LRU by hand.  If do_flushpage()
+failed then the buffers still have a ref on the page, which
+is undone in shrink_cache(), inside pagemap_lru_lock.
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+So, probably safe, but way too subtle.
+
+-

@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbTDYN2S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 09:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263139AbTDYN2S
+	id S263139AbTDYNg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 09:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTDYNg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 09:28:18 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:9995 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263075AbTDYN2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 09:28:17 -0400
-Date: Fri, 25 Apr 2003 14:40:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aha1740 update, take #2
-Message-ID: <20030425144026.A747@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marc Zyngier <mzyngier@freesurf.fr>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <wrpk7dkt84r.fsf@hina.wild-wind.fr.eu.org> <20030424133641.A29770@infradead.org> <wrp1xzqsoas.fsf_-_@hina.wild-wind.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <wrp1xzqsoas.fsf_-_@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Fri, Apr 25, 2003 at 03:24:11PM +0200
+	Fri, 25 Apr 2003 09:36:29 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:46601 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263139AbTDYNg2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 09:36:28 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: cciss patches for 2.4.21-rc1, 4 of 4
+Date: Fri, 25 Apr 2003 08:48:33 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF1040528C8@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cciss patches for 2.4.21-rc1, 4 of 4
+Thread-Index: AcMKrq/vdIfU+okZS8+vWzl/aVqVbQAfjuFAAAEVzjA=
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Cameron, Steve" <Steve.Cameron@hp.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Apr 2003 13:48:33.0393 (UTC) FILETIME=[5CC08610:01C30B31]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2003 at 03:24:11PM +0200, Marc Zyngier wrote:
-> Alan, Christoph,
-> 
-> Here is the updated aha1740 driver. All remarks have been taken into
-> account (patch is quite huge because of the re-indentation).
-> 
-> I removed the the scsi_to_dma_dir part, and sent it over to James (you
-> still need it though, see my previous mail to LKML for the patch).
+I haven't seen any issues (yet) on ia64. I'm running with 5GB RAM.
 
-Btw, scsi driver updates usually go to linux-scsi@vger, James then picks
-them up into the scsi BK tree that Linus pulls from time to time.
+mikem
 
-And well, the indentation is Alan-stule not Linux-style but the driver
-looks fine.
+-----Original Message-----
+From: Cameron, Steve 
+Sent: Friday, April 25, 2003 8:25 AM
+Cc: linux-kernel@vger.kernel.org; Miller, Mike (OS Dev)
+Subject: RE: cciss patches for 2.4.21-rc1, 4 of 4
 
+
+
+Mike Miller wrote:
+
+> Changes:
+>	1. Sets the DMA mask to 64 bits. Removes RH's code for the DMA mask.
+
+In order for this to work, it depends on pci_alloc_consistent always
+returning memory with physical addresses that fit in 32 bits, 
+regardless of the DMA mask, since the cciss device's command register 
+is 32 bits, and the command buffer addresses must fit in there.  If 
+that's the case, this is fine.  Otherwise, this may fail if pci_alloc_consistent
+returns memory above 4GB.  (on x86, I think this is not a problem, not
+sure of other archs, e.g. alpha, ia64)
+
+Note the cciss devices *are* capable of 64 bit addressing for DMA, provided
+you can find a way to tell it a 64 bit address.  For data, it's no problem.
+Only for command buffers is it a problem.
+
+-- steve

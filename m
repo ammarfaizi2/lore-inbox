@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129306AbRBVMnd>; Thu, 22 Feb 2001 07:43:33 -0500
+	id <S129071AbRBVMy5>; Thu, 22 Feb 2001 07:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129374AbRBVMnX>; Thu, 22 Feb 2001 07:43:23 -0500
-Received: from mail.isis.co.za ([196.15.218.226]:11022 "EHLO mail.isis.co.za")
-	by vger.kernel.org with ESMTP id <S129306AbRBVMnN>;
-	Thu, 22 Feb 2001 07:43:13 -0500
-Message-Id: <4.3.2.7.0.20010222142631.00ba3cb0@192.168.0.18>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 22 Feb 2001 14:42:44 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Pat Verner <pat@isis.co.za>
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear
-  (Lite-On)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14VtCQ-0003t2-00@the-village.bc.nu>
-In-Reply-To: <4.3.2.7.0.20010222095007.00b9e260@192.168.0.18>
+	id <S129134AbRBVMyr>; Thu, 22 Feb 2001 07:54:47 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:24587 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S129071AbRBVMym>;
+	Thu, 22 Feb 2001 07:54:42 -0500
+Date: Thu, 22 Feb 2001 13:54:40 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 vs 2.2 performance under load comparison
+Message-ID: <20010222135440.M1320@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rebuilt the kernel using using 2.4.1 + patch-2.4.1-ac20 :
+Good morning,
 
-Initial state is good, and now ping works.  However, if I run IPTRAF, then 
-the card grinds to a halt after receiving about 2.6 Mbytes on try 1, then 
-11 Mbytes on try 2, after which it will neither receive or transmit :-(
+I did a comparison between 2.4 and 2.2.18 (+ Andrea's patches), using the
+respective latest SuSE kernels, but the results should apply to the versions
+in general.
 
-After this the card is in a state such that it requires a reboot to be able 
-to do anything further.
+Situation: SAP R/3 + SAP DB + benchmark driver running on a single node 4 CPU
+SMP machine, tuned down to 1GB of RAM.
 
-=Pat
+Running the SAP benchmark with 75 users on 2.2 yields for the first benchmark
+run:
 
-At 10:42 AM 22/02/2001 +0000, Alan Cox wrote:
-> > three Netgear NICs and am experiencing considerable trouble with the=20
-> > combination:
-> >
-> > Kernel 2.4.[01]:        ifconfig shows that the card see's traffic on t=
-> > he=20
-> > network, but does not transmit anything (no response to ping).
->
->Use a current 2.4.*-ac. Jeff and co fixed this we think.
->
->Alan
+- 7018ms average response time
+- 2967s CPU time in 1136s elapsed time
+- ~500MB swap allocated
+- ~1500 pages paged in/s, 268 pages/out/s on average
 
---
-Pat Verner				E-Mail:  pat@isis.co.za
-           Isis Information Systems (Pty) Ltd
-           PO Box 281, Irene, 0062, South Africa
-Phone: +27-12-667-1411	      	Fax: +27-12-667-3800
+Running the same benchmark on 2.4:
+
+- ~700ms average response time
+- 1884s CPU time in 669s elapsed time
+- ~500MB swap allocated
+- ~50 pages paged in, ~212 pages paged out per second on average
+
+Running the same benchmark the second time on both machines to get them warmed
+up, 2.2 stays in approximately the same range, while 2.4 gets even _better_,
+dropping down to ~350ms response time and ~20 pages in/out.
+
+This is a rather amazing improvement in swapping performance.
+
+Rik, it's time for you to break it again *g*
+
+Sincerely,
+    Lars Marowsky-Brée <lars.marowsky-bree@sap.com>
+    SuSE Linux AG at the SAP LinuxLab - lmb@suse.de
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
 

@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUE3Lxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUE3MCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUE3Lxk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 07:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUE3Lxk
+	id S263174AbUE3MCy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 08:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUE3MCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 07:53:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55561 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263166AbUE3Lxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 07:53:39 -0400
-Date: Sun, 30 May 2004 12:53:30 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sun, 30 May 2004 08:02:54 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:2441 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S263174AbUE3MCv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 08:02:51 -0400
+From: Oliver Neukum <oliver@neukum.org>
 To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
 Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040530125330.A25212@flint.arm.linux.org.uk>
-Mail-Followup-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
-	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sun, 30 May 2004 14:01:20 +0200
+User-Agent: KMail/1.6.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Giuseppe Bilotta <bilotta78@hotpop.com>,
+       linux-kernel@vger.kernel.org, Tuukka Toivonen <tuukkat@ee.oulu.fi>
+References: <MPG.1b2111558bc2d299896a2@news.gmane.org> <20040530101914.GA1226@ucw.cz> <xb765aeb1i3.fsf@savona.informatik.uni-freiburg.de>
+In-Reply-To: <xb765aeb1i3.fsf@savona.informatik.uni-freiburg.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>; from danlee@informatik.uni-freiburg.de on Sun, May 30, 2004 at 01:40:03PM +0200
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405301401.20196.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 30, 2004 at 01:40:03PM +0200, Sau Dan Lee wrote:
-> Now, what prevents people from  connecting terminals to a computer via
-> the PS/2 mouse port?
+Am Sonntag, 30. Mai 2004 13:25 schrieb Sau Dan Lee:
+> >>>>> "Vojtech" == Vojtech Pavlik <vojtech@suse.cz> writes:
+> 
+>     >> >> What I hate is only the part where mouse/keyboard drivers
+>     >> >> are now in kernel space.  The translation of raw byte
+>     >> >> streams into input events should be better done in userland.
+>     >> >> One important argument is: userland program may be swapped
+>     >> >> out.  Kernel modules can't.
+>     >> 
+> 
+>     Vojtech> Well, keyboard support was always in the kernel
+> 
+> Once in kernel space, forever in kernel space?  What's the logic?
+> 
+> Where  it is  now possible  to  move it  out of  kernel space  WITHOUT
+> performance problems, why not move it out?
 
-Apart from electrically blowing the PS/2 port, the data format of PS/2
-is well defined and fixed, whereas a UART (8250-based) port is more
-flexible.  PS/2 also has the idea of acknowledgement from the peripheral
-device for each byte transferred, and is synchronous, whereas UARTs
-have no acknowledgement and are asyncrhonous.
+Two reasons: security and robustness.
 
-So, any thought that the two ports are similar compatible with each other,
-either from the electrical or protocol points of view is just a dead loss.
+1. sysreq must work, always work. Ideally you even do the dump
+in hard irq. USB has been modified to support this.
 
-How do these mice work on both ports then?  They can detect which port
-they're connected to and the electronics inside automatically configures
-itself depending on which port they're connected to.
+2. A true SAK key must be processed in kernel space
 
-> Your  approach   in  the  input  system  completely   rules  out  this
-> possibility.
+There are additional reasons that make it nice to have a kernel driver,
+but these reasons make it necessary.
 
-As from above, its more than just the input system - its the protocol
-and electrical characteristics which completely rules out the
-possibility - which in turn makes it nonsensible to support such an
-idea in software.
+>     Vojtech>  - you need it there, because you need the keyboard
+>     Vojtech> always to work
+> 
+> Then, why make 'i8042' and  'atkbd' modules?  I still remember reading
+> web pages  that early  pioneers who migrated  from 2.4  to 2.6.0-test*
+> encountered a problem: they didn't compile-in these modules, and hence
+> the system boot  up without a responding keyboard.   Despite that, the
+> system does work and daemons are running!
+> 
+> So, why is a the keyboard need to always work?
+> 
+> 
+> I've  been  testing  'i8042'  module  and my  atkbd  driver  (and  the
+> SERIO_USERDEV  patch) through  the  network.  I've  been doing  'rmmod
+> i8042' many many times.  The system DOES work without that module (and
+> keyboard  functionality).   Why are  you  saying  that  "you need  the
+> keyboard  always  to  work"?   Again,   is  that  the  limit  of  your
+> imagination?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+It does not support all features it is supposed to without that module.
+There's nothing preventing you from using uinput if you want to. But full
+function needs a kernel driver, either statically compiled or as a loaded
+module.
+
+	Regards
+		Oliver

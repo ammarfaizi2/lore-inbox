@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262144AbSJJWs6>; Thu, 10 Oct 2002 18:48:58 -0400
+	id <S262324AbSJJWpL>; Thu, 10 Oct 2002 18:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262335AbSJJWs6>; Thu, 10 Oct 2002 18:48:58 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:46501 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262144AbSJJWs5>;
-	Thu, 10 Oct 2002 18:48:57 -0400
-Message-Id: <200210102254.g9AMsgH08119@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.41 - kernel NULL pointer
+	id <S262325AbSJJWpL>; Thu, 10 Oct 2002 18:45:11 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11539
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S262324AbSJJWpK>; Thu, 10 Oct 2002 18:45:10 -0400
+Date: Thu, 10 Oct 2002 15:50:50 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+       Mark Mielke <mark@mark.mielke.cc>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>, andersen@codepoet.org
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Message-ID: <20021010225050.GC2673@matchmail.com>
+Mail-Followup-To: Giuliano Pochini <pochini@shiny.it>,
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+	Mark Mielke <mark@mark.mielke.cc>,
+	Jamie Lokier <lk@tantalophile.demon.co.uk>, andersen@codepoet.org
+References: <1034221067.794.505.camel@phantasy> <XFMail.20021010153919.pochini@shiny.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 10 Oct 2002 15:54:42 -0700
-From: Cliff White <cliffw@osdl.org>
+Content-Disposition: inline
+In-Reply-To: <XFMail.20021010153919.pochini@shiny.it>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 10, 2002 at 03:39:19PM +0200, Giuliano Pochini wrote:
+> 
+> > Look, the pagecache is already smart.  New stuff will replace unusued
+> > old stuff.  On VM pressure, the pagecache will be pruned.  Streaming I/O
+> > is a fundamentally different problem in that the data is so large it
+> > _continually_ thrashes the pagecache.  Such I/O is sequential and
+> > use-once.  You end up with a permanent waste of memory (the cached
+> > I/O).
+> 
+> When a process opens a file with O_STREAMING, it tells the kernel
+> it will use the data only once, but it tells nothing about other
+> tasks. If that process reads something which is already cached,
+> then it must not drop it because someone other used it recently
+> and IMHO pagecache only should be allowed to drop it.
+>
 
-System is 2-CPU PIII 
-Attempting to start the SAP DB. Get this msg:
-SAP cannot open the sys devspace (which is on filesystem)
-DB setup does include one raw partition.
-Further details upon request
-cliffw
+You are missing the point.  If the app thinks that might happen, it
+shouldn't use O_STREAMING.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000
-
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted
-EFLAGS: 00010246
-eax: c04b71e0   ebx: 00000000   ecx: 00000000   edx: 00000001
-esi: cf26cba8   edi: c1bc4764   ebp: c26c7f54   esp: c26c7ee0
-ds: 0068   es: 0068   ss: 0068
-Process dbmsrv (pid: 1422, threadinfo=c26c6000 task=c4c4e760)
-Stack: c01711a9 00000000 c1bc4764 c26c7f54 00004000 00000000 00000001 c1bc4764
-       c26c7f54 00004000 00000000 c01e92b2 00000000 c1bc4764 c26c7f54 00004000
-       00000000 00000001 cee2c314 c1bc4764 00002000 c1bc4764 c1bc4784 c01e92f9
-Call Trace:
- [<c01711a9>] generic_file_direct_IO+0x59/0x73
- [<c01e92b2>] rw_raw_dev+0xd2/0xf0
- [<c01e92f9>] raw_read+0x29/0x30
- [<c014c756>] vfs_read+0xb6/0x180
- [<c014c3c0>] default_llseek+0x0/0x150
- [<c014c63d>] sys_llseek+0x8d/0xf0
- [<c014c9ca>] sys_read+0x2a/0x40
- [<c010788f>] syscall_call+0x7/0xb
-
-Code:  Bad EIP value.
-
-
+Though, how do you get around some binary app using O_STREAMING when it
+shouldn't?

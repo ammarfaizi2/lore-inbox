@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbTJOUGa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 16:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTJOUGa
+	id S264248AbTJOTz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTJOTz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 16:06:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54698 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264256AbTJOUG3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 16:06:29 -0400
-Subject: Re: IA32 (2.6.0-test7 - 2003-10-09.18.30) - 1 New warnings (gcc
-	3.2.2)
-From: John Cherry <cherry@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1066247805.5145.1.camel@cherrytest.pdx.osdl.net>
-References: <200310100645.h9A6joFZ008847@cherrypit.pdx.osdl.net>
-	 <Pine.LNX.4.53.0310101249380.15705@montezuma.fsmlabs.com>
-	 <1066247805.5145.1.camel@cherrytest.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1066248385.5145.11.camel@cherrytest.pdx.osdl.net>
+	Wed, 15 Oct 2003 15:55:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55430 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264248AbTJOTzz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 15:55:55 -0400
+Date: Wed, 15 Oct 2003 20:55:53 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs 2/7 LTP S_ISGID dir
+Message-ID: <20031015195553.GU7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031015193404.GT7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310152046250.6969-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 Oct 2003 13:06:25 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310152046250.6969-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did I mention that this comment preceded the commented out code?
-
-/* fixme: enable this again, if the dvb-c w/ analog module work properly
-
-The change went in on 10/09 as part of patchset 1.1329 (hunold).
-
-John
-
-On Wed, 2003-10-15 at 12:56, John Cherry wrote:
-> This is not bogus.  In linus' bk tree, line 374 is commented out!
-> 
-> /*
->         vbi_workaround(dev);
-> */
-> 
-> John
-> 
-> On Fri, 2003-10-10 at 09:50, Zwane Mwaikambo wrote:
-> > On Thu, 9 Oct 2003, John Cherry wrote:
+On Wed, Oct 15, 2003 at 08:48:59PM +0100, Hugh Dickins wrote:
+> On Wed, 15 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > On Wed, Oct 15, 2003 at 07:19:46PM +0100, Hugh Dickins wrote:
+> > > LTP tests the filesystem on /tmp: many failures when tmpfs because
+> > > it missed the way giddy directories hand down their gid.  Also fix
+> > > ramfs and hugetlbfs.
 > > 
-> > > drivers/media/common/saa7146_vbi.c:6: warning: `vbi_workaround' defined but not used
-> > 
-> > That appears bogus, it's used in vbi_open on line 374
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+> > *the* way?  I can think of at least two...
+> 
+> You mean, the way they do directories and the way they do non-directories?
+> Or, the way they do it if they do it, and the way they do it if they don't?
+> Or something else?  Please, share your thought!
 
+"We always inherit parents gid, sgid is ignored" and "we do that only
+if parent is sgid and children that happen to be directories inherit
+sgid from parent".  Yes, ramfs et.al. follow neither of those, but which
+way to change that is an interesting question...

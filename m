@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269294AbUIHSMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269276AbUIHSMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269294AbUIHSMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 14:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269285AbUIHSMa
+	id S269276AbUIHSMq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 14:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269272AbUIHSMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 14:12:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:43489 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269324AbUIHSMD (ORCPT
+	Wed, 8 Sep 2004 14:12:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46553 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269276AbUIHSMO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 14:12:03 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: george anzinger <george@mvista.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
-       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <41390622.2010602@mvista.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>
-	 <41381C2D.7080207@mvista.com>
-	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>
-	 <4138EBE5.2080205@mvista.com>
-	 <1094254342.29408.64.camel@cog.beaverton.ibm.com>
-	 <41390622.2010602@mvista.com>
-Content-Type: text/plain
-Message-Id: <1094666844.29408.67.camel@cog.beaverton.ibm.com>
+	Wed, 8 Sep 2004 14:12:14 -0400
+Date: Wed, 8 Sep 2004 11:12:04 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: blaisorblade_spam@yahoo.it
+Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 1/1] uml:fix ubd deadlock on SMP
+Message-ID: <20040908111204.I1973@build.pdx.osdl.net>
+References: <20040908172503.384144933@zion.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 08 Sep 2004 11:07:25 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040908172503.384144933@zion.localdomain>; from blaisorblade_spam@yahoo.it on Wed, Sep 08, 2004 at 07:25:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-03 at 17:02, George Anzinger wrote:
-> > Again, monotonic_clock() and friends are NTP adjusted, so drift caused
-> > by inaccurate calibration shouldn't be a problem the interval timer code
-> > should need to worry about (outside of maybe adjusting its interval time
-> > if its always arriving late/early). If possible the timesource
-> > calibration code should be improved, but that's icing on the cake and
-> > isn't critical.
-> > 
-> Are you providing a way to predict what clock count provide a given time offset 
-> INCLUDING ntp?  If so, cool.  If not we need to get this conversion right.  We 
-> will go into this more on your return.
+* blaisorblade_spam@yahoo.it (blaisorblade_spam@yahoo.it) wrote:
+> 
+> Trivial: don't lock the queue spinlock when called from the request function.
+> Since the faulty function must use spinlock in another case, double-case it.
+> And since we will never use both functions together, let no object code be
+> shared between them.
 
-Sorry, I'm not sure what you mean. Mind expanding on the idea while my
-brain warms back up?
+Why not add a helper which locks around the core function.  Then either
+call helper or core function directly depending on locking needs?
 
-thanks
--john
+Smth. along the lines of below.
 
-
+===== arch/um/drivers/ubd_kern.c 1.36 vs edited =====
+--- 1.36/arch/um/drivers/ubd_kern.c	2004-08-24 02:08:18 -07:00
++++ edited/arch/um/drivers/ubd_kern.c	2004-09-08 11:06:54 -07:00
+@@ -396,14 +396,20 @@
+  */
+ int intr_count = 0;
+ 
+-static void ubd_finish(struct request *req, int error)
++static inline void ubd_finish(struct request *req, int error)
++{
++ 	spin_lock(&ubd_io_lock);
++	__ubd_finish(req, error);
++	spin_unlock(&ubd_io_lock);
++}
++
++/* call ubd_finish if you need to serialize */
++static void __ubd_finish(struct request *req, int error)
+ {
+ 	int nsect;
+ 
+ 	if(error){
+- 		spin_lock(&ubd_io_lock);
+ 		end_request(req, 0);
+- 		spin_unlock(&ubd_io_lock);
+ 		return;
+ 	}
+ 	nsect = req->current_nr_sectors;
+@@ -412,9 +418,7 @@
+ 	req->errors = 0;
+ 	req->nr_sectors -= nsect;
+ 	req->current_nr_sectors = 0;
+-	spin_lock(&ubd_io_lock);
+ 	end_request(req, 1);
+-	spin_unlock(&ubd_io_lock);
+ }
+ 
+ static void ubd_handler(void)
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

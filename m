@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVAGDSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVAGDY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVAGDSE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 22:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVAGDSE
+	id S261159AbVAGDY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 22:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVAGDY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 22:18:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7149 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261286AbVAGDRz (ORCPT
+	Thu, 6 Jan 2005 22:24:29 -0500
+Received: from havoc.gtf.org ([63.115.148.101]:15494 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261159AbVAGDYZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 22:17:55 -0500
-Date: Thu, 6 Jan 2005 19:17:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: hch@infradead.org, viro@parcelfarce.linux.theplanet.co.uk,
-       paulmck@us.ibm.com, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       jtk@us.ibm.com, wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, torvalds@osdl.org
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-Id: <20050106191735.0421cdca.akpm@osdl.org>
-In-Reply-To: <1105055333.17166.304.camel@localhost.localdomain>
-References: <20050106190538.GB1618@us.ibm.com>
-	<1105039259.4468.9.camel@laptopd505.fenrus.org>
-	<20050106201531.GJ1292@us.ibm.com>
-	<20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
-	<20050106210408.GM1292@us.ibm.com>
-	<20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-	<20050106152621.395f935e.akpm@osdl.org>
-	<20050106234123.GA27869@infradead.org>
-	<20050106162928.650e9d71.akpm@osdl.org>
-	<1105055333.17166.304.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 6 Jan 2005 22:24:25 -0500
+Date: Thu, 6 Jan 2005 22:24:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] fix sx8 blk driver device naming
+Message-ID: <20050107032424.GA9482@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Gwe, 2005-01-07 at 00:29, Andrew Morton wrote:
->  > Christoph Hellwig <hch@infradead.org> wrote:
->  > Fine.  Completely agree.  Sometimes people do need to be forced to make
->  > such changes - I don't think anyone would disagree with that.
->  > 
->  > What's under discussion here is "how to do it".  Do we just remove things
->  > when we notice them, or do we give (say) 12 months notice?
-> 
->  Why should we keep junk around for 12 months
 
-To give people a reasonable amount of time to stop using these things, of
-course.
+[sx8 is one of the few SATA boards that's not scsi nor purely ATA;
+it's more like I2O]
 
-> that nobody has a legal reason to be using ?
+Please do a
 
-The symbols were exported to non-gpl modules.  People used them.  Maybe
-they shouldn't have.  Maybe they were asked not to do so, and maybe or
-maybe not they noticed.  Certainly we shouldn't have exported these things
-in the first place.
+	bk pull bk://gkernel.bkbits.net/misc-2.6
 
-We should find a way of repairing things while minimising the amount of
-screwing people around.
+This will update the following files:
+
+ drivers/block/sx8.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+through these ChangeSets:
+
+<katzj@redhat.com> (05/01/06 1.2229.2.1)
+   [PATCH] Fix sx8 device naming in sysfs
+   
+   Attached fixes sysfs naming of sx8 block devs to follow LANANA naming.
+   
+   You then get /sys/block/sx8!0, etc instead of /sys/block/sx80_0 (device
+   names should be /dev/sx8/0 instead of /dev/sx80_0)
+   
+   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+diff -Nru a/drivers/block/sx8.c b/drivers/block/sx8.c
+--- a/drivers/block/sx8.c	2005-01-06 22:23:13 -05:00
++++ b/drivers/block/sx8.c	2005-01-06 22:23:13 -05:00
+@@ -1503,7 +1503,7 @@
+ 		}
+ 
+ 		port->disk = disk;
+-		sprintf(disk->disk_name, DRV_NAME "%u_%u", host->id, i);
++		sprintf(disk->disk_name, DRV_NAME "/%u", (host->id * CARM_MAX_PORTS) + i);
+ 		sprintf(disk->devfs_name, DRV_NAME "/%u_%u", host->id, i);
+ 		disk->major = host->major;
+ 		disk->first_minor = i * CARM_MINORS_PER_MAJOR;

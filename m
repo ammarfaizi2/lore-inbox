@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbRBFSXH>; Tue, 6 Feb 2001 13:23:07 -0500
+	id <S129207AbRBFSXr>; Tue, 6 Feb 2001 13:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129833AbRBFSW6>; Tue, 6 Feb 2001 13:22:58 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:42002 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129942AbRBFSWt>;
-	Tue, 6 Feb 2001 13:22:49 -0500
-Message-ID: <3A80408C.E854B37A@innominate.de>
-Date: Tue, 06 Feb 2001 19:21:00 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: sync & asyck i/o
-In-Reply-To: <200102061424.PAA32284@hell.wii.ericsson.net> <E14Q9U2-0005gX-00@the-village.bc.nu> <20010206173437.A19836@redhat.com>
+	id <S129961AbRBFSXH>; Tue, 6 Feb 2001 13:23:07 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:17681 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129944AbRBFSW5>; Tue, 6 Feb 2001 13:22:57 -0500
+Date: Tue, 6 Feb 2001 18:17:50 +0000
+To: Dale Farnsworth <dale@farnsworth.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA silent disk corruption - patch
+Message-ID: <20010206181750.A389@colonel-panic.com>
+Mail-Followup-To: pdh, Dale Farnsworth <dale@farnsworth.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010206085223.A28894@zenos.local.farnsworth.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010206085223.A28894@zenos.local.farnsworth.org>; from dale@farnsworth.org on Tue, Feb 06, 2001 at 08:52:23AM -0700
+From: Peter Horton <pdh@colonel-panic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
+On Tue, Feb 06, 2001 at 08:52:23AM -0700, Dale Farnsworth wrote:
 > 
-> Hi,
+> In article <20010205190527.A314@colonel-panic.com>,
+> Peter Horton <pdh@colonel-panic.com> wrote:
+> > +      *  VIA VT8363 host bridge has broken feature 'PCI Master Read
+> > +      *  Caching'. It caches more than is good for it, sometimes
+> > +      *  serving the bus master with stale data. Some BIOSes enable
+> > +      *  it by default, so we disable it.
 > 
-> On Tue, Feb 06, 2001 at 02:52:40PM +0000, Alan Cox wrote:
-> > > According to the man page for fsync it copies in-core data to disk
-> > > prior to its return. Does that take async i/o to the media in account?
-> > > I.e. does it wait for completion of the async i/o to the disk?
-> >
-> > Undefined.
+> Another data point:
 > 
-> > In practice some IDE disks do write merging and small amounts of write
-> > caching in the drive firmware so you cannot trust it 100%.
+> I have an ASUS A7V motherboard with via vt82c686a and Promise pdc20265
+> IDE controllers.  I noticed disk data corruption when I enabled DMA.     
+> The corrupted data was 4K bytes long on 4K byte boundaries and occurred
+> about once for every couple of gigabytes copied via cpio.
+> I saw this corruption when the disks were connected to the pdc20265
+> as well as to the 686a.    
 > 
-> It's worth noting that it *is* defined unambiguously in the standards:
-> fsync waits until all the data is hard on disk.  Linux will obey that
-> if it possibly can: only in cases where the hardware is actively lying
-> about when the data has hit disk will the guarantee break down.
+> I also noticed that turning off read caching eliminated the corruption.
+> 
+> However, if I enable the BIOS parameter "I/O Recovery Time", I can still
+> enable read caching without seeing any data corruption.
+> The lastest BIOS revision (1005C) enables "I/O Recovery Time" by default
+> where the previous revision I had (1004D) did not.
+> 
 
-Sometimes I want to know that the write is safely on disk and sometimes
-I only need to know that the io has gone over the bus and is on its way
-to disk.  In the latter case the buffer/page can be unlocked a lot
-sooner.  Please correct me if I'm wrong, but I don't think the current
-API can make that distinction for IDE, much less provide a uniform way
-of controlling this behaviour across all types of block devices.  We
-need that, or else we have to choose between the following: 1) slow 2)
-risky.
+I still get corruption with "I/O Recovery Time" enabled :-(
 
-I'd like to be able to set a bit in the buffer_head that says 'get back
-to me when it's on disk' vs 'get back to me when it's hit the bus'.
-	
---
-Daniel
+I don't get corruption with the BIOS "normal" settings (1004D).
+
+I might update my BIOS to the latest BIOS in case it changes any other
+settings.
+
+P.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

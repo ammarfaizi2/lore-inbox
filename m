@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129449AbQKPLyu>; Thu, 16 Nov 2000 06:54:50 -0500
+	id <S129245AbQKPMEC>; Thu, 16 Nov 2000 07:04:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129886AbQKPLyk>; Thu, 16 Nov 2000 06:54:40 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:7059 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129449AbQKPLyU>;
-	Thu, 16 Nov 2000 06:54:20 -0500
-Date: Thu, 16 Nov 2000 03:07:30 -0800
-Message-Id: <200011161107.DAA10681@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: adam@yggdrasil.com
-CC: linux-kernel@vger.kernel.org, willy@meta-x.org, wtarreau@yahoo.fr
-In-Reply-To: <200011161110.DAA13775@baldur.yggdrasil.com> (adam@yggdrasil.com)
-Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
-In-Reply-To: <200011161110.DAA13775@baldur.yggdrasil.com>
+	id <S129875AbQKPMDl>; Thu, 16 Nov 2000 07:03:41 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:31454 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129245AbQKPMDe>;
+	Thu, 16 Nov 2000 07:03:34 -0500
+Date: Thu, 16 Nov 2000 12:32:45 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200011161132.MAA26011@harpo.it.uu.se>
+To: mikpe@csd.uu.se, viro@math.psu.edu
+Subject: Re: 2.4.0-test10 truncate() change broke `dd'
+Cc: aeb@veritas.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Adam J. Richter" <adam@yggdrasil.com>
-   Date: Thu, 16 Nov 2000 03:10:14 -0800
+On Thu, 16 Nov 2000, Alexander Viro wrote:
 
-   >Sorry, I don't like this change.
+> And what kind of meaning would you assign to truncate on floppy?
 
-	   Can you at least add the MODULE_DEVICE_TABLE declaration
-   and the pci_device_id table that it refers to, even if the code
-   does not directly reference it?  (You can make it as __initdata
-   rather than __devinitdata, since it can safely be thrown away.)
-   That was automatic PCI ID recognition will work.
+On a block or char device, truncate == lseek seems reasonable.
 
-Feel free to send me a patch which does this.  No problem.
+My guess is that dd uses ftruncate because that's correct for
+regular files and has happened to also work (as an alias for
+lseek) for devices.
 
-Later,
-David S. Miller
-davem@redhat.com
+> Use conv=notrunc.
+
+I didn't know about notrunc. Yet another GNU invention?
+
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310331AbSCBHFP>; Sat, 2 Mar 2002 02:05:15 -0500
+	id <S310330AbSCBHBe>; Sat, 2 Mar 2002 02:01:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310332AbSCBHEz>; Sat, 2 Mar 2002 02:04:55 -0500
-Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:21819 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S310331AbSCBHEq>; Sat, 2 Mar 2002 02:04:46 -0500
-Date: Fri, 01 Mar 2002 22:38:51 -0800 (PST)
-From: Daniel Bertrand <d.bertrand@ieee.org>
-Subject: 64bit dma_addr_t (was: Emu10k1 SPDIF ...)
-In-Reply-To: <20020228.170317.70477069.davem@redhat.com>
-X-X-Sender: d_bertra@kilrogg
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.44.0203012156540.5276-100000@kilrogg>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S310331AbSCBHBO>; Sat, 2 Mar 2002 02:01:14 -0500
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:28423 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S310330AbSCBHBF>; Sat, 2 Mar 2002 02:01:05 -0500
+Message-ID: <20020302070104.45754.qmail@web10406.mail.yahoo.com>
+Date: Sat, 2 Mar 2002 18:01:04 +1100 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Athlon video problem with 2.4.18
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-Sorry to beat a dead horse, but wouldn't it be better if sizes didn't
-change within the same CPU arch? I don't see how binary-only modules can
-ever work reliably if the size of types change depending on people's
-.config file. (not that I use any binary-only modules :-).
+I compiled kernel 2.4.18 for my friend running athlon
+KM133 via686a audio and he told me that he got some
+problem with X, it sounds to me that he got video
+problem. I am not sure if this problem fixed in
+2.4.19preX or I should do something to work around it.
+For now he has to use 2.4.17. 
 
-Is this a common thing done in the kernel? For dma_addr_t, why not just
-have it always be 64bit?
+Please CC me as I am not subscribed.
 
-
-On Thu, 28 Feb 2002, David S. Miller wrote:
-
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: Fri, 1 Mar 2002 01:07:27 +0000 (GMT)
->    
->    The cast befor ethe cpu_to_ is safe if its 32bit I/O only. Maybe we should
->    have cpu_to_le_dma_addr_t 8)
-> 
-> Actually, the cast to 32-bit is safe if you've set your DMA mask
-> properly :-)
-> 
-
--- 
-Daniel Bertrand
+Thanks,
 
 
+
+=====
+S.KIEU
+
+http://movies.yahoo.com.au - Yahoo! Movies
+- Vote for your nominees in our online Oscars pool.

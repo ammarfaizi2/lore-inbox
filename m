@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289809AbSBOO35>; Fri, 15 Feb 2002 09:29:57 -0500
+	id <S289811AbSBOOcH>; Fri, 15 Feb 2002 09:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289811AbSBOO3r>; Fri, 15 Feb 2002 09:29:47 -0500
-Received: from c19177.thoms1.vic.optusnet.com.au ([203.164.210.75]:3086 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S289809AbSBOO3o>;
-	Fri, 15 Feb 2002 09:29:44 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-Reply-To: conman@kolivas.net
-To: linux-kernel@vger.kernel.org
-Subject: Wrong priority reporting with new 0(1) scheduler;  USB changes to 2.4.18 pre/rc1 breaks HPOJ
-Date: Sat, 16 Feb 2002 01:29:41 +1100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020215142941.79B12942@pc.kolivas.net>
+	id <S289815AbSBOObr>; Fri, 15 Feb 2002 09:31:47 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:32782
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289811AbSBOObq>; Fri, 15 Feb 2002 09:31:46 -0500
+Date: Fri, 15 Feb 2002 09:06:24 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Olivier Galibert <galibert@pobox.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: CML2-2.3.0 is available
+Message-ID: <20020215090624.B3047@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Olivier Galibert <galibert@pobox.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020214193329.A23463@thyrsus.com> <20020215042631.A23535@zalem.nrockv01.md.comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215042631.A23535@zalem.nrockv01.md.comcast.net>; from galibert@pobox.com on Fri, Feb 15, 2002 at 04:26:31AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Priority reporting issue:
+Olivier Galibert <galibert@pobox.com>:
+> So now you can compile a menu as a module?  What makes the difference
+> between a config symbol and anything else?
 
-I've applied the 0(1) scheduler patch in conjunction with the preemptible 
-patch to 2.4.18 pre (sched-O1-2.4.18-pre8-K3.patch and 
-preempt-kernel-rml-2.4.18-rc1-ingo-K3-1.patch)
-
-I found that top and other process managers (like kpm) report the priority as 
-9 instead of 0 for nice level 0 applications with the preemptible patch, and 
-15 with both preemptible and 0(1). Nice'd applications can have their 
-priority reported as high as 39. It seems to read it as 15-20 higher than 
-the nice value. The kernel appears to work flawlessly otherwise.
-
-
-USB issue:
-
-The USB changes after 2.4.17 up to and including 2.4.18 rc1 cause the hp 
-officejet drivers to fail on my machine. While the usb mouse continues to 
-work, the hp ptal-init probe cannot find the device when scanning 
-/dev/usb/lp0. The device is still reported correctly in 
-/proc/bus/usb/devices. This is with both the usb-uhci and the uhci drivers.
-
-Hardware configuration:
-Soltek 65KV apollo pro via motherboard with PIII 933. HP Officejet G55.
-
-Regards,
-Con Kolivas
-
-(Please cc: me if any correspondence is appropriate as I am not subscribed to 
-lkml)
+Symbol type is inferred from use in a menu.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

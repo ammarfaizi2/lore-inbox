@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCaEQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVCaEUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVCaEQu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 23:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVCaEQu
+	id S261948AbVCaEUb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 23:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVCaEUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 23:16:50 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:43394 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261947AbVCaEQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 23:16:40 -0500
-Date: Wed, 30 Mar 2005 23:16:38 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [PATCH] embarassing typo
-In-reply-to: <20050330233820.GA29221@oasissystems.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: John Pearson <jpearson@oasissystems.com.au>
-Message-id: <200503302316.38887.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
+	Wed, 30 Mar 2005 23:20:30 -0500
+Received: from mta8.srv.hcvlny.cv.net ([167.206.4.203]:29253 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261948AbVCaERT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 23:17:19 -0500
+Date: Wed, 30 Mar 2005 23:16:46 -0500
+From: Nick Orlov <bugfixer@list.ru>
+Subject: Re: 2.6.12-rc1-mm3: class_simple API
+In-reply-to: <200503310319.j2V3JhXJ009858@turing-police.cc.vt.edu>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Mail-followup-to: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Message-id: <20050331041646.GA24665@nikolas.hn.org>
 MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+Content-type: text/plain; charset=koi8-r
+Content-transfer-encoding: 7BIT
 Content-disposition: inline
-References: <200503300053.28553.gene.heskett@verizon.net>
- <20050330233820.GA29221@oasissystems.com.au>
-User-Agent: KMail/1.7
+User-Agent: Mutt/1.5.8i
+References: <20050327180431.GA4327@nikolas.hn.org>
+ <200503310319.j2V3JhXJ009858@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 March 2005 18:38, John Pearson wrote:
->On Wed, Mar 30, 2005 at 12:53:28AM -0500, Gene Heskett wrote
->
->> On Tuesday 29 March 2005 20:40, Dmitry Torokhov wrote:
->> >On Tuesday 29 March 2005 16:58, Michael Tokarev wrote:
->> >> Well, it's a matter of readability mostly. ?For now at least,
->> >> when char is always 8 bytes...
->> >
->> >Wow, that's one huge char you have there ;)
->>
->> Yeah, I was gonna ask what language is so complex as to need an 8
->> byte char?
->>
->> Certainly not an earthly one I'd think ;)
->
->Might come in handy for Perl 7 Regular Expression syntax...
+On Wed, Mar 30, 2005 at 10:19:42PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 27 Mar 2005 13:04:31 EST, Nick Orlov said:
+> 
+> > Problem is that the latest bk-driver-core patch included in the 2.6.12-rc1-mm3
+> > removes class_simple API without providing EXPORT_SYMBOL'ed (as opposed to
+> > EXPORT_SYMBOL_GPL) alternative.
+> > 
+> > As the result I don't see a way how out-of-the-kernel non-GPL drivers
+> > (nvidia in my case) could be fixed.
+> 
+> Umm.. try running the latest drivers?
+> 
+> [~]2 uname -a
+> Linux turing-police.cc.vt.edu 2.6.12-rc1-mm3 #1 PREEMPT Sat Mar 26 22:07:50 EST 2005 i686 i686 i386 GNU/Linux
+> [~]2 lsmod | grep nvidia
+> nvidia               3912636  14 
+> agpgart                25672  2 nvidia,intel_agp
+> [~]2 grep -i nvidia /var/log/kernmsg
+> Mar 30 21:58:19 turing-police kernel: [4294721.402000] nvidia: module license 'NVIDIA' taints kernel.
+> Mar 30 21:58:19 turing-police kernel: [4294721.434000] NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7167  Fri Feb 25 09:08:22 PST 2005
+> 
 
-Humm, yes, perl.  I'd forgotten that.  Would an 8 byte char be enough 
-in that case?
+I _am_ using the latest NVIDIA driver:
 
->John.
+nick@nikolas:~$ dmesg | grep NVIDIA
+nvidia: module license 'NVIDIA' taints kernel.
+NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7167  Fri Feb
+25 09:08:22 PST 2005
+
+nick@nikolas:~$ ll /lib/modules/`uname -r`/nvidia
+total 4315
+-rw-r--r--  1 root root 4399395 2005-03-27 12:29 nvidia.ko
+
+If you are not relying on udev being able to create nvidia device nodes
+you are not affected.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+With best wishes,
+	Nick Orlov.
+

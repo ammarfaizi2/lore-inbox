@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264792AbSJVRk1>; Tue, 22 Oct 2002 13:40:27 -0400
+	id <S264809AbSJVRlJ>; Tue, 22 Oct 2002 13:41:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264784AbSJVRi6>; Tue, 22 Oct 2002 13:38:58 -0400
-Received: from pheriche.sun.com ([192.18.98.34]:57030 "EHLO pheriche.sun.com")
-	by vger.kernel.org with ESMTP id <S261641AbSJVRik>;
-	Tue, 22 Oct 2002 13:38:40 -0400
-Message-ID: <3DB58E90.4020008@sun.com>
-Date: Tue, 22 Oct 2002 10:44:48 -0700
-From: Tim Hockin <thockin@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Aaron Lehmann <aaronl@vitelus.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
-References: <200210220036.g9M0aP831358@scl2.sfbay.sun.com> <20021022013928.GH25042@vitelus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264790AbSJVRkg>; Tue, 22 Oct 2002 13:40:36 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:39927 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S264780AbSJVRiy>; Tue, 22 Oct 2002 13:38:54 -0400
+Date: Tue, 22 Oct 2002 13:45:01 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+Message-ID: <20021022134501.C20957@redhat.com>
+References: <2629464880.1035240956@[10.10.2.3]> <Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva> <20021022131930.A20957@redhat.com> <396790000.1035308200@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <396790000.1035308200@flay>; from mbligh@aracnet.com on Tue, Oct 22, 2002 at 10:36:40AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Lehmann wrote:
-> On Mon, Oct 21, 2002 at 05:36:25PM -0700, Timothy Hockin wrote:
-> 
->>+ * 3. All advertising materials mentioning features or use of this software
->>+ *    must display the following acknowledgement:
->>+ *	This product includes software developed by the University of
->>+ *	California, Berkeley and its contributors.
-> 
-> 
-> Ahem.
-> 
-> Since the copyright holder appears to be the Regents of the University
-> of California, you have permission to remove this
-> (ftp://ftp.cs.berkeley.edu/pub/4bsd/README.Impt.License.Change).
+On Tue, Oct 22, 2002 at 10:36:40AM -0700, Martin J. Bligh wrote:
+> Bear in mind that large pages are neither swap backed or file backed
+> (vetoed by Linus), for starters. There are other large app problem scenarios 
+> apart from Oracle ;-)
 
-Done, in BK at the same URL.  Thanks for the reference.
+I think the fact that large page support doesn't support mmap for users 
+that need it is utterly appauling; there are numerous places where it is 
+needed.  The requirement for root-only access makes it useless for most 
+people, especially in HPC environments where it is most needed as such 
+machines are usually shared and accounts are non-priveledged.
 
-
+		-ben
 -- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Linux Kernel Engineering
-thockin@sun.com
-
+"Do you seek knowledge in time travel?"

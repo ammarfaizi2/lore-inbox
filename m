@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318519AbSHPQTb>; Fri, 16 Aug 2002 12:19:31 -0400
+	id <S318529AbSHPQTa>; Fri, 16 Aug 2002 12:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318536AbSHPQTb>; Fri, 16 Aug 2002 12:19:31 -0400
-Received: from ppp71-3-70.miem.edu.ru ([194.226.32.70]:11904 "EHLO null.ru")
-	by vger.kernel.org with ESMTP id <S318519AbSHPQTa>;
-	Fri, 16 Aug 2002 12:19:30 -0400
-Message-ID: <3D5D261E.7070103@yahoo.com>
-Date: Fri, 16 Aug 2002 20:19:42 +0400
-From: Stas Sergeev <stssppnn@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: ru, en
+	id <S318536AbSHPQTa>; Fri, 16 Aug 2002 12:19:30 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:41121 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318529AbSHPQT3>; Fri, 16 Aug 2002 12:19:29 -0400
+Message-ID: <3D5D26DE.7140941B@wanadoo.fr>
+Date: Fri, 16 Aug 2002 18:22:54 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i586)
+X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: Tomas Szepe <szepe@pinerecords.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre2-ac3 stops responding
+References: <3D5CFE83.136D81FC@wanadoo.fr> <20020816152641.GE11155@louise.pinerecords.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Tomas Szepe wrote:
+> 
+> > with 2.4.20-pre2 : 30s
+> > with 2.4.30-pre2-ac3 : 55s
+> 
+> Do you get DMA on your IDE disks at all?
+> 
+> hdparm -iv /dev/hdX
+> 
+> T.
 
-Albert D. Cahalan wrote:
->> as it's opened it starts generating some horrible clicks and a
->> high-pitched whine.
->> Do I blame my motherboard (actually, a laptop)? Is there any way to 
->> fix this, or at least improve it?
-> Adding a capacitor is supposed to help a PC speaker
-> sound driver.
-Ah, of course, that's what Denis Vlasenko was talking
-about, now I see.
-Clicks are caused by disabled ints, but whine is another
-problem.
-Recalling my old 386 board where I tried similar driver
-under DOS and it also produced high pitched tone so I
-ended up adding a capacitor, which solved the problem.
-Now I think that the better solution is to add an option
-to use higher modulation rates.
-I have added an option to use 36KHz instead of 18.5KHz.
-I beleive that this is far above the frequency range of
-any motherboard and can solve the problem.
+Seems to have a problem with DMA
 
-Andrew Rodland, could you please test the new patch from
-my page and see if enabling the high freq modulation fixes
-your problem, at least whine, not clicks?
+[root@debian-f5ibh] ~ # hdparm -iv /dev/hda2
 
+/dev/hda2:
+multcount    =  1 (on)
+IO_support   =  1 (32-bit)
+unmaskirq    =  0 (off)
+using_dma    =  0 (off)
+keepsettings =  0 (off)
+readonly     =  0 (off)
+readahead    =  8 (on)
+geometry     = 3649/255/63, sectors = 29302560, start = 9767520
+HDIO_GET_IDENTITY failed: Invalid argument
+
+[root@debian-f5ibh] ~ # hdparm -d1 /dev/hda2
+
+/dev/hda2:
+setting using_dma to 1 (on)
+HDIO_SET_DMA failed: Invalid argument
+using_dma    =  0 (off)

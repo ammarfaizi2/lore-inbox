@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129233AbRBOPjV>; Thu, 15 Feb 2001 10:39:21 -0500
+	id <S129159AbRBOPiv>; Thu, 15 Feb 2001 10:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129596AbRBOPjO>; Thu, 15 Feb 2001 10:39:14 -0500
-Received: from ldhb041.lss.emc.com ([168.159.59.41]:7684 "EHLO
-	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
-	id <S129233AbRBOPi7>; Thu, 15 Feb 2001 10:38:59 -0500
-Date: Thu, 15 Feb 2001 08:20:42 +1100
-Message-Id: <200102142120.f1ELKgd00416@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: David Ford <david@linux.com>
-Cc: "Michael J. Dikkema" <mjd@moot.ca>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-In-Reply-To: <3A79F812.D52B17B1@linux.com>
-In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca>
-	<3A79F812.D52B17B1@linux.com>
+	id <S129233AbRBOPim>; Thu, 15 Feb 2001 10:38:42 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:51897 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129159AbRBOPib>; Thu, 15 Feb 2001 10:38:31 -0500
+Message-ID: <3A8BF697.D594237F@sympatico.ca>
+Date: Thu, 15 Feb 2001 10:32:39 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is this the ultimate stack-smash fix?
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> <m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca> <m1hf1w8qea.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford writes:
-> "Michael J. Dikkema" wrote:
-> 
-> > I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> > filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> > thinking there might have been a change with regards to the devfs
-> > tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
-> 
-> This symlink doesn't exist/isn't usable for boot.  Use the qualified
-> pathname.
+"Eric W. Biederman" wrote:
 
-Actually, the /dev/ide/hd/... name is available for the root device.
+> Jeremy Jackson <jeremy.jackson@sympatico.ca> writes:
+>
+> > "Eric W. Biederman" wrote
 
-Also, the kernel has special init code to parse /dev/hda1 and similar
-names, so they should work too (as long as you don't have "devfs=only"
-on your boot line). That's actually very old code (predates devfs).
+> No.  I'm not talking about stack-guard patches.  I'm talking about bounds checking.
 
-				Regards,
+Sorry, I was quite incoherent.  Many others have pointed out that there exist
+patches for non-executatble stack, and the problems with it. That's what I meant to
+comment on.  But I'm glad to find out about bounds checking as an option.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> But the gcc bounds checking work is the ultimate buffer overflow fix.
+> You can recompile all of your trusted applications, and libraries with
+> it and be safe from one source of bugs.
+
+That's why I was wondering of limiting privileged addresses security at a more
+fundamental level... as you say above,
+this fixes *ONE* source of bugs(security threats)... but itn't it inevitable that
+there will be others?  But if services are each put
+in a separate box, that doesn't have a door leading to the inner sanctum, things would
+be more secure in spite of "bugs".
+
+Well I thank everyone for their responses in this thread, I think It's been beaten
+into the ground (my original idea),
+and I'm left with some food for thought.
+
+

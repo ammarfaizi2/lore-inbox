@@ -1,51 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbTI2WBp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 18:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbTI2WBp
+	id S262974AbTI2WFm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 18:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTI2WFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 18:01:45 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54289 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262980AbTI2WBo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 18:01:44 -0400
+	Mon, 29 Sep 2003 18:05:42 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:18436 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S262974AbTI2WFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 18:05:32 -0400
+From: Matt Gibson <gothick@gothick.org.uk>
+Organization: The Wardrobe Happy Cow Emporium
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: PROBLEM: kernel 2.6-test5 rmmod: kernel NULL pointer dereference
-Date: 29 Sep 2003 21:52:16 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bla9ig$483$1@gatekeeper.tmr.com>
-References: <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>
-X-Trace: gatekeeper.tmr.com 1064872336 4355 192.168.12.62 (29 Sep 2003 21:52:16 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Subject: Re: Complaint: Wacom driver in 2.6
+Date: Mon, 29 Sep 2003 19:56:27 +0100
+User-Agent: KMail/1.5.4
+References: <200309291421.45692.simon@ulsnes.dk>
+In-Reply-To: <200309291421.45692.simon@ulsnes.dk>
+Cc: Simon Ask Ulsnes <simon@ulsnes.dk>
+X-Pointless-MIME-Header: yes
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309291956.27688.gothick@gothick.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>,
-detach <detach@hackaholic.org> wrote:
-| Hello,
-| 
-| I hope I'm using the right method to reporting this problem, I'll send it
-| to the mailing list as this problem seems to be an overall kernel problem.
-| No flames please :).
-| Here's what happened,
-| I wrote a CD so I did a modprobe ide-scsi .. then wrote the CD, now I
-| wanted to check the contents of the CD, so i did rmmod ide-scsi first so
-| that i could load ide-cd. Well, rmmod hung, and I checked /proc/kern.log
-| on debian woody (with custom compiled linux 2.6-test5).Here's the output in /proc/kern.log:
+On Monday 29 Sep 2003 13:21, Simon Ask Ulsnes wrote:
+> Hello there!
+> I am the lucky owner of a Wacom Graphire 2 tablet, which works great with
+> the latest 2.4-kernels. However, the 2.6-drive is unusually and utterly
+> broken. Frankly, it doesn't work at all.
 
-Do you find there is any difference between the ide-cd operation and the
-ide-scsi behaviour mounting /dev/scd0 (or sr0 depending on
-distribution)? Redhat just uses the SCSI version, and I use SCSI on
-Slackware as well most of the time (ie. when I have a burner).
+If it's any hope for you, I'm using the Wacom driver with an original 
+Graphire, and it's working OK for me.  I'm currently on 2.6.0-test5, and I'm 
+pretty sure I'm using the vanilla wacom.c (it's version 1.30 according to 
+the comments.)
 
-It's good that you have reported a bug, but you may not need to go
-through that path at all. As noted, supposedly fixed, although I haven't
-built test6 yet.
+If you want any info about how I've got things configured, feel free to give 
+me a shout.  In particular, I've got these relevant entries in my 
+XF86Config:
+
+# Our ordinary PS/2 and Wacom mice; they're both multiplexed into
+# /dev/mice by the kernel input event handling.
+Section "InputDevice"
+  Driver       "mouse"
+  Identifier   "Mouse[1]"
+  Option       "ButtonNumber" "5"
+  Option       "Device" "/dev/input/mice"
+  Option       "Name" "Autodetection"
+  Option       "Protocol" "imps/2"
+  Option       "Vendor" "Random"
+  Option       "ZAxisMapping" "4 5"
+EndSection
+
+Goodness knows if I need half those options set up; it's a 
+much-hacked-about-with old file that was originally set up by the SuSE SaX2 
+configuration tool, about three years ago!  But I tend to live by "if it 
+ain't broke, don't fix it."  I guess the important thing I did to get it 
+working under 2.6.0 was just to drop all the event interface crap and just 
+run it off /dev/input/mice, which is where the kernel happily feeds all the 
+wacom input through into.
+
+Section "ServerLayout"
+	... other stuff deleted ...
+  InputDevice  "Mouse[1]" "CorePointer"
+EndSection
+
+That's all I needed to get the mouse and pen working.  Of course, to go the 
+whole hog and get the pressure sensitive stuff and the pointer vs. eraser 
+functionality etc. you'd need to use the X11 wacom driver, but I've never 
+actually felt the need.
+
+Cheers,
+
+Matt
+
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+"It's the small gaps between the rain that count,
+ and learning how to live amongst them."
+	      -- Jeff Noon

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132392AbRCZKDM>; Mon, 26 Mar 2001 05:03:12 -0500
+	id <S132027AbRCZKCW>; Mon, 26 Mar 2001 05:02:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132397AbRCZKDC>; Mon, 26 Mar 2001 05:03:02 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:14862 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132392AbRCZKCw>;
-	Mon, 26 Mar 2001 05:02:52 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.4 is available 
-Date: Mon, 26 Mar 2001 20:02:06 +1000
-Message-ID: <27242.985600926@ocs3.ocs-net>
+	id <S132401AbRCZKCM>; Mon, 26 Mar 2001 05:02:12 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:37786 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S132397AbRCZKCK>; Mon, 26 Mar 2001 05:02:10 -0500
+Message-Id: <l03130329b6e4c32df9a7@[192.168.239.101]>
+In-Reply-To: <200103260440.f2Q4eGD26052@sleipnir.valparaiso.cl>
+In-Reply-To: Message from Jonathan Morton <chromi@cyberspace.org>    of
+ "Sun, 25 Mar 2001 19:35:38 +0100."
+ <l03130325b6e3e9bdf18e@[192.168.239.101]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 26 Mar 2001 11:01:07 +0100
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>> I'm currently investigating the old non-overcommit patch, which (apart from
+>> needing manual applying to recent kernels) appears to be rather broken in a
+>> trivial way.  It prevents allocation if total reserved memory is greater
+>> than the total unallocated memory.  Let me say that again, a different way
+>> - it prevents memory usage from exceeding 50%...
+>
+>Think fork(2).
 
-Content-Type: text/plain; charset=us-ascii
+fork() is allowed to return a failure value, and it already does so if
+there isn't enough memory (at least with the limited tests I've come up
+with).  Guess again.
 
-Another small collection of bug fixes.  No new facilities.
+I have, however, found a bug in the non-overcommit patch - it seems to be
+capable of double-freeing (and then some) - starting 4 Java VMs and then
+closing them causes VMReserved to go negative on my system.
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-modutils-2.4.4.tar.gz           Source tarball, includes RPM spec file
-modutils-2.4.4-1.src.rpm        As above, in SRPM format
-modutils-2.4.4-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
-modutils-2.4.4-1.sparc64.rpm    Combined sparc 32/64.
-modutils-2.4.4-1.ia64.rpm       Compiled with gcc 2.96-ia64-000717 snap 001117,
-				libc-2.2.1.
-patch-modutils-2.4.4.gz         Patch from modutils 2.4.3 to 2.4.4.
+The key to knowledge is not to rely on people to teach you it.
 
-Related kernel patches.
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-patch-2.4.2-persistent.gz       Adds persistent data and generic string
-				support to kernel 2.4.2.  Optional.
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
-Changelog extract
-
-	* Do not generate filenames when reading nested config files.
-	* depmod ignored user prune commands, reported by Kristofer T. Karas.
-	* Change error message for short ELF header.
-	* Missing commas in alias list.  Urs Thuermann.
-	* Print an error message when genksyms detects a bad kernel version.
-	  Mark McLoughlin
-	* modinfo default changed to filename, description, author, parameters.
-	  Mark McLoughlin
-
-I will not be supporting modutils, ksymoops or kdb for the next 4
-weeks; time for a holiday, probably without net access.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.3 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE6vxOdi4UHNye0ZOoRAvw+AKCK7IKCyxMEW8CqjXS4HLnKIQn2zgCguVIs
-8Eu5DSDyqb4LfumqQ9ATTFQ=
-=vg9V
------END PGP SIGNATURE-----
 

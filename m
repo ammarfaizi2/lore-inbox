@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319320AbSHNUse>; Wed, 14 Aug 2002 16:48:34 -0400
+	id <S319332AbSHNV1T>; Wed, 14 Aug 2002 17:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319299AbSHNUrk>; Wed, 14 Aug 2002 16:47:40 -0400
-Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:12247 "EHLO
-	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319282AbSHNUqS>; Wed, 14 Aug 2002 16:46:18 -0400
-Date: Wed, 14 Aug 2002 16:50:09 -0400 (EDT)
-From: "Kendrick M. Smith" <kmsmith@umich.edu>
-X-X-Sender: kmsmith@vanguard.gpcc.itd.umich.edu
-To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: REPOST patch 28/38: SERVER: allow resfh==fhp in fh_compose()
-Message-ID: <Pine.SOL.4.44.0208141649400.1834-100000@vanguard.gpcc.itd.umich.edu>
+	id <S319374AbSHNV0R>; Wed, 14 Aug 2002 17:26:17 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:34755 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S319367AbSHNVZp>; Wed, 14 Aug 2002 17:25:45 -0400
+Message-ID: <004601c243d9$a1c63180$0209a8c0@tekener>
+From: =?iso-8859-1?Q?J=F6rg_Spilker?= <js@jetsys.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?iso-8859-1?Q?Onboard_Raid_PDC20265_=28MSI_KT266=29_doesn=B4t_work_with_?=
+	=?iso-8859-1?Q?2.4.19?=
+Date: Wed, 14 Aug 2002 23:29:10 +0200
+Organization: JetSys
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.0.7
+	 at daolin has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Change fh_compose() so that it will do the right thing if fhp==res_fh.
-(This is convenient in the NFSv4 LOOKUP operation, which _replaces_
-CURRENT_FH with the filehandle obtained by lookup.)
+i can´t boot kernel 2.4.19 because it stills stops further booting after
+recognizing the Onboard PDC20265 of my MSI KT266 Mainboard. The last message
+i could see on console is something like "ide2: Skipping PDC...".
 
---- old/fs/nfsd/nfsfh.c	Sun Aug 11 22:55:51 2002
-+++ new/fs/nfsd/nfsfh.c	Sun Aug 11 23:03:57 2002
-@@ -316,7 +316,8 @@ fh_compose(struct svc_fh *fhp, struct sv
- 	 * Then create a 32byte filehandle using nfs_fhbase_old
- 	 *
- 	 */
--
-+	u8 ref_fh_version = 1;
-+	u8 ref_fh_fsid_type = 1;
- 	struct inode * inode = dentry->d_inode;
- 	struct dentry *parent = dentry->d_parent;
- 	__u32 *datap;
-@@ -326,6 +327,13 @@ fh_compose(struct svc_fh *fhp, struct sv
- 		parent->d_name.name, dentry->d_name.name,
- 		(inode ? inode->i_ino : 0));
+Kernel 2.4.18 boots fine.
 
-+	if (ref_fh) {
-+		ref_fh_version = ref_fh->fh_handle.fh_version;
-+		ref_fh_fsid_type = ref_fh->fh_handle.fh_fsid_type;
-+		if (ref_fh == fhp)
-+			fh_put(ref_fh);
-+	}
-+
- 	if (fhp->fh_locked || fhp->fh_dentry) {
- 		printk(KERN_ERR "fh_compose: fh %s/%s not initialized!\n",
- 			parent->d_name.name, dentry->d_name.name);
-@@ -337,8 +345,7 @@ fh_compose(struct svc_fh *fhp, struct sv
- 	fhp->fh_dentry = dentry; /* our internal copy */
- 	fhp->fh_export = exp;
-
--	if (ref_fh &&
--	    ref_fh->fh_handle.fh_version == 0xca) {
-+	if (ref_fh_version == 0xca) {
- 		/* old style filehandle please */
- 		memset(&fhp->fh_handle.fh_base, 0, NFS_FHSIZE);
- 		fhp->fh_handle.fh_size = NFS_FHSIZE;
-@@ -354,7 +361,7 @@ fh_compose(struct svc_fh *fhp, struct sv
- 		fhp->fh_handle.fh_auth_type = 0;
- 		datap = fhp->fh_handle.fh_auth+0;
- 		if ((exp->ex_flags & NFSEXP_FSID) &&
--		    (!ref_fh || ref_fh->fh_handle.fh_fsid_type == 1)) {
-+		    (ref_fh_fsid_type == 1)) {
- 			fhp->fh_handle.fh_fsid_type = 1;
- 			/* fsid_type 1 == 4 bytes filesystem id */
- 			*datap++ = exp->ex_fsid;
+Greetings, Joerg
 

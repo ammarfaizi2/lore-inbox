@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267997AbRHSDgO>; Sat, 18 Aug 2001 23:36:14 -0400
+	id <S267009AbRHSDeY>; Sat, 18 Aug 2001 23:34:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRHSDgE>; Sat, 18 Aug 2001 23:36:04 -0400
-Received: from waste.org ([209.173.204.2]:14166 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S267997AbRHSDfq>;
-	Sat, 18 Aug 2001 23:35:46 -0400
-Date: Sat, 18 Aug 2001 22:36:00 -0500 (CDT)
+	id <S267997AbRHSDeF>; Sat, 18 Aug 2001 23:34:05 -0400
+Received: from waste.org ([209.173.204.2]:30293 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S267009AbRHSDdz>;
+	Sat, 18 Aug 2001 23:33:55 -0400
+Date: Sat, 18 Aug 2001 22:33:54 -0500 (CDT)
 From: Oliver Xymoron <oxymoron@waste.org>
-To: Robert Love <rml@tech9.net>
-cc: <linux-kernel@vger.kernel.org>, <riel@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-In-Reply-To: <998190772.8307.8.camel@phantasy>
-Message-ID: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.33L.0108182137250.5646-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.30.0108182231030.31188-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Aug 2001, Robert Love wrote:
+On Sat, 18 Aug 2001, Rik van Riel wrote:
 
-> On 18 Aug 2001 18:41:30 -0500, Oliver Xymoron wrote:
-> > Why don't those who aren't worried about whether they _really_ have enough
-> > entropy simply use /dev/urandom?
+> On Sat, 18 Aug 2001, Oliver Xymoron wrote:
+> > On 18 Aug 2001, Robert Love wrote:
+> >
+> > > obviously some people fear NICs feeding entropy provides a hazard.  for
+> > > those who dont, or are increadibly low on entropy, enable the
+> > > configuration option.
+> >
+> > Why don't those who aren't worried about whether they _really_ have
+> > enough entropy simply use /dev/urandom?
 >
-> because there still is no entropy.
+> So how are you going to feed /dev/urandom on your firewall ??
+> (which has no keyboard, program or disk activity)
 
-But your claim is there _is_ entropy. If you think there is, go ahead and
-use it. Via /dev/urandom. Yes, I know it's theoretically not secure, but
-then neither is what you're proposing.
+The network is still feeding data to the pool, yes? It's merely
+underestimating the value of that data. If you think you're getting enough
+entropy for your application, use /dev/urandom, don't weaken /dev/random.
+
+Practically speaking, /dev/urandom is pretty damn strong anyway.
 
 --
  "Love the dolphins," she advised him. "Write by W.A.S.T.E.."

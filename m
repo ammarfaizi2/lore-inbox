@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbUKJBag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbUKJBbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbUKJBag (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 20:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUKJBag
+	id S261822AbUKJBbD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 20:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbUKJBbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 20:30:36 -0500
-Received: from mproxy.gmail.com ([216.239.56.243]:55312 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261821AbUKJBaa (ORCPT
+	Tue, 9 Nov 2004 20:31:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26776 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261822AbUKJBax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 20:30:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rr3EcEFWzhW4oc5b3b+9/RHyb/kR5zjeEckCU5790z70KFcgLkqA1LDz6OIbKeQztD4PrzeBcMy565Gic09oCq0walXrQQC26NWRjqU/9YY4lolcEs29SbUiBKkdgNd/Rcch4OYdIdsbKzmwcJWp/9II0s1zyPS9vQ4Jn2jQKHA=
-Message-ID: <21d7e997041109173053cd0605@mail.gmail.com>
-Date: Wed, 10 Nov 2004 12:30:29 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Subject: Re: 2.6.10-rc1-mm4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e997041109151833ef1d90@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Nov 2004 20:30:53 -0500
+Message-ID: <41916ECB.4070102@engr.sgi.com>
+Date: Tue, 09 Nov 2004 17:28:43 -0800
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lse-tech <lse-tech@lists.sourceforge.net>
+CC: guillaume.thouvenin@bull.net, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [Lse-tech] Re: [PATCH 2.6.9 0/2] new enhanced accounting data
+ collection
+References: <418FC082.8090706@engr.sgi.com> <1100007698.18813.12.camel@frecb000711.frec.bull.fr>
+In-Reply-To: <1100007698.18813.12.camel@frecb000711.frec.bull.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20041109074909.3f287966.akpm@osdl.org>
-	 <200411091802.16386.s.rivoir@gts.it>
-	 <21d7e997041109151833ef1d90@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >
-> > A glxgears causes Xorg to get immediately out; nothing very notable in the
-> > logs, except for
-> >
-> > Nov  9 17:57:09 nbsteu kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init
-> > called without lock held
-> > Nov  9 17:57:09 nbsteu kernel: [drm:drm_unlock] *ERROR* Process 4999 using
-> > kernel context 0
-> >
-> > in the syslog.
-> >
-> > Note that everything works fine with 2.6.10-rc1-bk18.
-> > Attached, lspci and .config.
+I looked at the latest 2.6.10-rc1-mm4, and found the eop handler
+acct_process(code) used to be invoked per process from do_exit()
+has been hijacked :) to become a per group thing. I would still like
+to have a per process eop handling. How about BSD and ELSA?
+
+Thanks,
+  - jay
+
+
+Guillaume Thouvenin wrote:
+> On Mon, 2004-11-08 at 19:52, Jay Lan wrote:
 > 
+>>In earlier round of discussion, all partipants favored  a common
+>>layer of accounting data collection.
+>>
+>>This is intended to offer common data collection method for various
+>>accounting packages including BSD accounting, ELSA, CSA, and any other
+>>acct packages that use a common layer of data collection.
+> 
+> 
+> I found this great. Now I think, as you already pointed, we need to
+> modify the end-of-process handling. Currently I use the BSD structure
+> but this part of ELSA can be changed very easily.
+> 
+> Regards, 
+> Guillaume 
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by:
+> Sybase ASE Linux Express Edition - download now for FREE
+> LinuxWorld Reader's Choice Award Winner for best database on Linux.
+> http://ads.osdn.com/?ad_id=5588&alloc_id=12065&op=click
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
 
-I've tracked it down to the Kconfig for the new DRM, I'm not sure what
-to do with it, if AGP is a module then DRM needs to be a module now
-not a yes.... but this probably isn't a hard dependency, i.e. it is
-still legal to build DRM as a y but AGP won't be used as it is not in
-the kernel.... I'm unsure how to do any sort of weak dependency in the
-kernel configuration structure if it is at all possible..
-
-Dave.

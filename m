@@ -1,46 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129932AbQKJLLN>; Fri, 10 Nov 2000 06:11:13 -0500
+	id <S129222AbQKJLWH>; Fri, 10 Nov 2000 06:22:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129722AbQKJLLD>; Fri, 10 Nov 2000 06:11:03 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:6413 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129932AbQKJLKp>; Fri, 10 Nov 2000 06:10:45 -0500
-Date: Fri, 10 Nov 2000 06:10:40 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test11-pre2
-In-Reply-To: <3A0B5C0F.D7C23116@timpanogas.org>
-Message-ID: <Pine.LNX.4.21.0011100609310.677-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+	id <S129339AbQKJLV6>; Fri, 10 Nov 2000 06:21:58 -0500
+Received: from web1103.mail.yahoo.com ([128.11.23.123]:11270 "HELO
+	web1103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129222AbQKJLVs>; Fri, 10 Nov 2000 06:21:48 -0500
+Message-ID: <20001110112146.12035.qmail@web1103.mail.yahoo.com>
+Date: Fri, 10 Nov 2000 12:21:46 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.2.18pre21
+To: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Constantine Gavrilov <const-g@xpert.com>
+Cc: willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2000, Jeff V. Merkey wrote:
+> I don't like to call it BONDING.
+> "Bonding" is something where two (or more) channels
+> carry data in between two participating systems.
+> Like Multilink-PPP, and ISDN Channel Bonding.  Often
+> indeed data goes out somehow inter-leaved on the
+> physical links.  (Like ISDN Channel Bonding supplies
+> a transparent 128 kbps link instead of two 64
+> kbps links to the upper layers.)
 
->>     - David Miller: sparc64 updates, make sparc32 boot again
->>     - Davdi Millner: spel "synchronous" correctly
->Spell "David Miller" correctly.  8).
+this is *EXACTLY* what the old bonding driver does,
+and what the new one does by default.
 
-I believe that was a taste of Linus's good sense of humor there
-Jeff.  ;o)  I got a good kick out of it anyway.  ;o)
+> EtherChannel does select the link (out of the group)
+> by forming XOR of source and destination MAC
+> addresses (their lowest bytes),
+.../...
+> This gives improved throughput on congested links
+> in between two switches, or major server and core
+> switches, while preserving data order over the
+links.
+
+OK, I've read about it because Thomas Davis asked me
+if I would implement it. I didn't find it usefull for
+the case of a Linux server directly connected to a
+router or a level X switch (x>2) because in this case
+only one link is getting used. Perhaps I'm wrong, but
+I think this is the major use of the current Linux
+bonding driver. However, the new driver is now ready
+for such an implementation.
+
+> Blind bonding-type "throw packets on links 0 and 1"
+> MAY end up sending ethernet frames out of sequence,
+> which for a few LAN based protocols is a great
+source
+> of upset.
+probably, but do you have examples in mind ? if so, I
+would add XOR to a next release, but I don't want to
+add too much at a time. I consider this release
+primarily as a bugfix (smp, security, oopses...), and
+as an improvement which now supports link fail-over,
+which is also a primary concern when implementing
+multilinks.
+
+> Beowulf systems have "bonding" in use for parallel
+> Ethernet links in between two machines, however THAT
+> is not EtherChannel compatible thing!
+
+yes it is compatible ! compatible doesn't mean it does
+not work the same way, but it works with. Both the
+cisco and linux drivers agree to receive on each of
+their trunk ports, so the difference only resides in
+link optimization when sending frames.
+
+> /Matti Aarnio
+
+Willy
 
 
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-
-Are you an open source developer?  Need web space?  Your own project mailing
-lists?  Bug tracking software?  CVS Repository?  Build environments?
-Head over to http://sourceforge.net for all of that, and more, for free!
-
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268706AbUIHEPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268756AbUIHEQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268706AbUIHEPd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268807AbUIHEPd
+	id S268756AbUIHEQg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268849AbUIHEQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:15:33 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34500
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268706AbUIHEP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:15:28 -0400
-Date: Tue, 7 Sep 2004 21:12:22 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: willy@debian.org, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+	Wed, 8 Sep 2004 00:16:36 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:3266 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268756AbUIHEPu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:15:50 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
 Subject: Re: multi-domain PCI and sysfs
-Message-Id: <20040907211222.6184f14b.davem@davemloft.net>
-In-Reply-To: <9e473391040907203941e4af81@mail.gmail.com>
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-	<200409041527.50136.jbarnes@engr.sgi.com>
-	<9e47339104090415451c1f454f@mail.gmail.com>
-	<200409041603.56324.jbarnes@engr.sgi.com>
-	<20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
-	<9e473391040905165048798741@mail.gmail.com>
-	<20040906014058.GV642@parcelfarce.linux.theplanet.co.uk>
-	<9e47339104090715585fa4f8af@mail.gmail.com>
-	<20040907161140.29fbfccc.davem@davemloft.net>
-	<9e473391040907203941e4af81@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 7 Sep 2004 21:15:09 -0700
+User-Agent: KMail/1.7
+Cc: Jon Smirl <jonsmirl@gmail.com>, willy@debian.org,
+       linux-kernel@vger.kernel.org
+References: <9e4733910409041300139dabe0@mail.gmail.com> <9e47339104090715585fa4f8af@mail.gmail.com> <20040907161140.29fbfccc.davem@davemloft.net>
+In-Reply-To: <20040907161140.29fbfccc.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409072115.09856.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Sep 2004 23:39:49 -0400
-Jon Smirl <jonsmirl@gmail.com> wrote:
+On Tuesday, September 7, 2004 4:11 pm, David S. Miller wrote:
+> This is a real touchy area btw, because if there is no
+> VGA card, such I/O port accesses are going to trap and
+> we need to have a common way to handle that somehow.
 
-> On Tue, 7 Sep 2004 16:11:40 -0700, David S. Miller <davem@davemloft.net> wrote:
-> > On Tue, 7 Sep 2004 18:58:53 -0400
-> > Jon Smirl <jonsmirl@gmail.com> wrote:
-> > > How many active VGA devices can I have in this system 1 or 4? If the
-> > > answer is 4, how do I independently address each VGA card? If the
-> > > answer is one, you can see why I want a pci0000 node to hold the
-> > > attribute for turning it off and on.
-> > 
-> > I don't know about the above but for a multi-domain system the
-> > way it works is that the I/O ports are accessed using a different
-> > base address for each domain.
-> 
-> How does this work for IO ports in port space instead of memory mapped IO?
+So I take it your platform won't soft fail the accesses and return all 1s?  On 
+ia64, I've got a patch to add some machine check code to deal with it, but it 
+requires pre-registration of the regions that are to be used for legacy I/O 
+(i.e. I have to record the memory range and pid at /proc/bus/pci mmap time so 
+that the machine check handler can send a SIGBUS).  A potentially cleaner 
+option which Ben and I would prefer is to use the vga device Jon is creating 
+to do legacy I/O with explicit read/write or ioctl calls.
 
-Those are IO ports in port space.  IO ports and PCI memory space just
-live in different physical memory windows, no special instructions
-for IO port space access as on x86.
+Jesse

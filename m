@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261814AbSIXVFT>; Tue, 24 Sep 2002 17:05:19 -0400
+	id <S261793AbSIXUu1>; Tue, 24 Sep 2002 16:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261815AbSIXVFS>; Tue, 24 Sep 2002 17:05:18 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:46045 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S261814AbSIXVFP>; Tue, 24 Sep 2002 17:05:15 -0400
-Message-ID: <3D90D4B9.9080802@nortelnetworks.com>
-Date: Tue, 24 Sep 2002 17:10:17 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S261798AbSIXUu0>; Tue, 24 Sep 2002 16:50:26 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:24546 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id <S261793AbSIXUuX>; Tue, 24 Sep 2002 16:50:23 -0400
+Message-ID: <3D90D0FB.1070805@sun.com>
+Date: Tue, 24 Sep 2002 13:54:19 -0700
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-Cc: pwaechtler@mac.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-References: <20020924201908.AAA16336@shell.webmaster.com@whenever>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       cgl_discussion mailing list <cgl_discussion@osdl.org>,
+       evlog mailing list <evlog-developers@lists.sourceforge.net>,
+       "ipslinux (Keith Mitchell)" <ipslinux@us.ibm.com>,
+       Linus Torvalds <torvalds@home.transmeta.com>,
+       Hien Nguyen <hien@us.ibm.com>, James Keniston <kenistoj@us.ibm.com>,
+       Mike Sullivan <sullivam@us.ibm.com>
+Subject: Re: alternate event logging proposal
+References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C183.5020806@pobox.com> <3D90C3B0.8090507@nortelnetworks.com> <3D90C4FE.3070909@pobox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+Jeff Garzik wrote:
+> In existing drivers that call netif_carrier_{on,off}, it is perhaps even 
+> possible to have them send netlink messages with no driver-specific code 
+> changes at all.
 
-> 	The main reason I write multithreaded apps for single CPU systems is to 
-> protect against ambush. Consider, for example, a web server. Someone sends it 
-> an obscure request that triggers some code that's never run before and has to 
-> fault in. If my application were single-threaded, no work could be done until 
-> that page faulted in from disk.
+This is something that I have been asked to look at, here.  Jeff, how 
+(or is?) any of the netlink info pushed up to userspace?  The idea that 
+someone came to me with was to have something in (driverfs? netdevfs?) 
+that was poll()able and read()able.  read() giving current state, and 
+poll() waking on changes.  Or maybe two different files, but something. 
+  Of course it'd be greate to be generic.  I just assumed it would come 
+from netif_* for netdevices.
 
-This is interesting--I hadn't considered this as most of my work for the 
-past while has been on embedded systems with everything pinned in ram.
+Is this something planned?  wanted?  something I should bang out into 
+2.5.x before end of next month?
 
-Have you benchmarked this?  I was under the impression that the very 
-fastest webservers were still single-threaded using non-blocking io.
+We could have a generic device-events file (akin to acpi events) that a 
+daemon dispatches events into user-land, or we could have a kernel->user 
+callback a la /sbin/hotplug, or we could have many device/subsys 
+specific files.
 
-Chris
+Anyone have a preference?
+
+Tim
+
+
+
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
 

@@ -1,89 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVBAJW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVBAJX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVBAJW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 04:22:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVBAJW1
+	id S261895AbVBAJX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 04:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVBAJX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 04:22:27 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:40293 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261716AbVBAJRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 04:17:40 -0500
-Message-ID: <41FF492D.8000700@yahoo.com.au>
-Date: Tue, 01 Feb 2005 20:17:33 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
-Subject: Re: 2.6.11-rc2-mm2
-References: <20050129131134.75dacb41.akpm@osdl.org>
-In-Reply-To: <20050129131134.75dacb41.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Feb 2005 04:23:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33209 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261895AbVBAJXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 04:23:39 -0500
+Date: Tue, 1 Feb 2005 09:23:35 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Pat Gefre <pfg@sgi.com>
+Cc: linux-kernel@vger.kernel.org, matthew@wil.cx,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] Altix : ioc4 serial driver support
+Message-ID: <20050201092335.GB28575@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+	matthew@wil.cx, B.Zolnierkiewicz@elka.pw.edu.pl
+References: <20050103140938.GA20070@infradead.org> <Pine.SGI.3.96.1050131164059.62785B-100000@fsgi900.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SGI.3.96.1050131164059.62785B-100000@fsgi900.americas.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, Jan 31, 2005 at 04:45:05PM -0600, Pat Gefre wrote:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm2/
-> 
-> 
-> 
-> 
-> Changes since 2.6.11-rc2-mm1:
-> 
+> I've updated this patch with suggestions from the reviews. And moved it
+> up the latest 2.6 (since it has been awhile...). I'm also adding
+> Bartlomiej as a CC since there are IDE mods involved.
 
-Just a couple of things:
+This looks much better, thanks.
 
-> +task_size-is-variable.patch
-> +use-mm_vm_size-in-exit_mmap.patch
-> 
+Please kill ioc4_ide_init as it's completely unused and make ioc4_serial_init
+a normal module_init() handler in ioc4_serial, there's no need to call
+them from the generic driver.
 
-I didn't hear back about my comments on this patch. I don't see
-why MM_VM_SIZE should round up to the next PGDIR? This means
-architecture implementations need to do the same thing, yes?
+Also yo should need to implement ioc4_remove_one (yet) as the ide driver
+can't be removed yet.  It might make sense to keep it and
+ioc4_serial_remove_one around #if 0'ed as that might be implemented soon.
 
-If MM_VM_SIZE means "the total address span of all top level page
-tables an mm can contain", then OK. Otherwise it should probably
-be left in the caller.
+Do you need to use ide_pci_register_driver?  IOC4 doesn't have the legacy
+IDE problems, and it's never used together with such devices in a system,
+so a plain pci_register_driver should do it.
 
->  Fixes for recent TASK_SIZE changes (these are still in flux)
-> 
-                                               ^^^
-Oh, I see :P
+In ioc4_ide_attach_one you can kill the if and return pci_init_sgiioc4(..)
+directly.
 
-> 
-> -sched-isochronous-class-for-unprivileged-soft-rt-scheduling.patch
-> -sched-account-rt_tasks-as-iso_ticks.patch
-> +rlimit_rt_cpu.patch
-> +rlimit_rt_cpu-fix.patch
-> +rlimit_rt_cpu-sparc64-fix.patch
-> 
->  Drop SCHED_ISO, add the rlimit which allows non-privileged users to gain
->  limited RT scheduling policy.
-> 
+In ioc4.c please include <asm/sn/ioc4_common.h> after <linux/ide.h>.
 
-At the risk of sounding like a luddite who doesn't want to see a
-complex new userspace API introduced that we're forced to support
-for the next 10 years... I have some valid concerns with the rt
-limit patches.
+Also ioc4_common.h should probably move to include/linux as ioc4 is more
+or less just a pci device and not that SN-specific.
 
-A simple rlimit of RT priorities (a very well definied quantity,
-in contrast the vague "CPU usage"), is easy, a patch exists, it
-doesn't touch a single fastpath or add complexity, it immediately
-addresses the concerns of the RT audio guys who started all this,
-and can be used meaningfully by userspace systems that want to
-control and limit *real* RT scheduling, and without breaking
-defined userspace RT scheduling APIs, IMO would be a better place
-to start.
+The ioc4_serial driver looks more or less good to me, but you seem to
+miss __iomem annotation and there's a few things that it'd have cought,
+like casting the return value from ioremap (it's a void __iomem * so it
+can be assigned to any pointer directly  (or any __iomem pointer in sparse).
 
-If someone later comes along and wants the extra features and
-quirks that these patches provide, then I'd be all for further work
-and discussion.
+ioc4_soft.is_intr_type[].is_intr_ents_free should be an unsigned long
+so test_and_clear_bit can operate on it directly.  But I fail to see where
+we set bits in at all (?)
 
-And this isn't meant to be an attack on anyone - I'm aware that
-the -mm tree is for testing and discussion and further progression
-of patches.
+ioc4_serial_attach_one has various resource leaks when parts of the
+initialization fail.  Try to follow the goto-based cleanup model most pci
+drivers use instead of returning directly on failures.
 

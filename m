@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268663AbUJKD04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268664AbUJKDjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268663AbUJKD04 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 23:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268664AbUJKD0z
+	id S268664AbUJKDjo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 23:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUJKDjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 23:26:55 -0400
-Received: from dev.tequila.jp ([128.121.50.153]:28422 "EHLO dev.tequila.jp")
-	by vger.kernel.org with ESMTP id S268663AbUJKD0J (ORCPT
+	Sun, 10 Oct 2004 23:39:44 -0400
+Received: from [61.48.52.223] ([61.48.52.223]:48629 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S268664AbUJKDjm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 23:26:09 -0400
-Message-ID: <4169FD44.60101@tequila.co.jp>
-Date: Mon, 11 Oct 2004 12:25:56 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.9-rcX: user still can't rip cds, burn cds, etc
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Oct 2004 23:39:42 -0400
+Date: Sun, 10 Oct 2004 19:29:31 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200410110229.i9B2TVG07270@adam.yggdrasil.com>
+To: axboe@suse.de
+Subject: Re: [PATCH?] make __bio_add_page check q->max_hw_sectors
+Cc: dm-crypt@saout.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 10 Oct 2004 10:14:16 +0200, Jens Axboe wrote:
+>On Sun, Oct 10 2004, Adam J. Richter wrote:
+[...]
+>> 	I do not understand the intended difference between
+>> the new max_hw_sectors field and max_sectors, so it is unclear
+>> to me if it is a bug that my dm-crypt request_queue has
+>> q->max_hw_sectors < q->max_sectors.  If q->max_hw_sectors
+>> is supposed to be guaranteed to be greater than or equal
+>> to q->max_sectors, then the real bug is elsewhere and my
+>> patch is unnecessary.
 
-Hi,
+>That's exactly correct, ->max_sectors must never be bigger than
+>max_hw_sectors, that is the real bug.
 
-on my lapto (debian/unsable) I run a 2.6.9-rc2-mm2 kernel (because with
-2.6.8.1 I have oopses on shutdown if an USB device is attached).
+	OK.  Please disregard my previous patch.  Thanks for
+your clarification.
 
-anyway, I still can't burn cds as a user, or rip a cd from an IEEE (==
-scsi layer) device. I can rip from my internal CD-ROM (atapi).
+	The problem I saw was due to my mistake in merging the
+2.6.9-rc3 change that added request_queue->max_sectors with one
+of my local changes (replacing some fields in struct request_queue
+with struct io_restrictions, a patch which I should repost one of
+these days).
 
-Seriously, this is annyoing. Is this something I shall report to the
-cdparanoia guys? Or is this still an issue with the new "rights" in the
-kernel itself.
-
-lg, clemens
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBaf1DjBz/yQjBxz8RAt4GAJ9D6viCr4IOyrSnRl988xPEb9epPgCeP/y2
-YgsxRC7ViTEMQxPpTVVrqr0=
-=TW+P
------END PGP SIGNATURE-----
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

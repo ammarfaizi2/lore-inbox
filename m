@@ -1,80 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262464AbSJPMPe>; Wed, 16 Oct 2002 08:15:34 -0400
+	id <S262404AbSJPMKF>; Wed, 16 Oct 2002 08:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262465AbSJPMOq>; Wed, 16 Oct 2002 08:14:46 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:44942 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S262464AbSJPMNW> convert rfc822-to-8bit;
-	Wed, 16 Oct 2002 08:13:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4: variable HZ (not broken. My fault)
-Date: Wed, 16 Oct 2002 14:23:45 +0200
-User-Agent: KMail/1.4.1
-Cc: high-res-timers-discourse@lists.sourceforge.net
-References: <1034661791.10843.9.camel@phantasy> <1034664656.718.8.camel@phantasy> <200210161414.55690.roy@karlsbakk.net>
-In-Reply-To: <200210161414.55690.roy@karlsbakk.net>
+	id <S262425AbSJPMKF>; Wed, 16 Oct 2002 08:10:05 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65402 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262404AbSJPMKD>; Wed, 16 Oct 2002 08:10:03 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org, mochel@osdl.org,
+       rmk@arm.linux.org.uk
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+References: <200210151952.MAA04189@adam.yggdrasil.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Oct 2002 06:13:22 -0600
+In-Reply-To: <200210151952.MAA04189@adam.yggdrasil.com>
+Message-ID: <m1ptua37kt.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210161423.45169.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry
-this was my fault
-was playing around with version numbers
+"Adam J. Richter" <adam@yggdrasil.com> writes:
 
-On Wednesday 16 October 2002 14:14, Roy Sigurd Karlsbakk wrote:
-> On Tuesday 15 October 2002 08:50, Robert Love wrote:
-> > On Tue, 2002-10-15 at 02:03, Robert Love wrote:
-> > > It works fine, and I have successfully used HZ=1000 on my machines.
-> >
-> > Except processor usage output was screwy.
->
-> and except that it somehow breaks compiling serial.c?
->
-> gcc -D__KERNEL__ -I/usr/src/prontux-0.1.9/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
-> -pipe -mpreferred-stack-boundary=2 -march=i586   -nostdinc -iwithprefix
-> include -DKBUILD_BASENAME=serial  -c -o serial.o serial.c
-> serial.c:231:27: serial_compat.h: No such file or directory
-> serial.c: In function `receive_chars':
-> serial.c:677: warning: implicit declaration of function
-> `queue_task_irq_off' serial.c: At top level:
-> serial.c:1591: warning: static declaration for `tty_get_baud_rate' follows
-> non-static
-> serial.c: In function `rs_write':
-> serial.c:1879: warning: implicit declaration of function `copy_from_user'
-> serial.c: In function `get_serial_info':
-> serial.c:2077: warning: implicit declaration of function `copy_to_user'
-> serial.c: In function `send_break':
-> serial.c:2391: structure has no member named `timeout'
-> serial.c:3843:32: linux/symtab_begin.h: No such file or directory
-> serial.c:3846:30: linux/symtab_end.h: No such file or directory
-> serial.c: At top level:
-> serial.c:3842: variable `serial_syms' has initializer but incomplete type
-> serial.c:3844: warning: implicit declaration of function `X'
-> serial.c:3844: warning: excess elements in struct initializer
-> serial.c:3844: warning: (near initialization for `serial_syms')
-> serial.c:3845: warning: excess elements in struct initializer
-> serial.c:3845: warning: (near initialization for `serial_syms')
-> serial.c:3331: warning: `rs_read_proc' defined but not used
-> serial.c:3842: warning: `serial_syms' defined but not used
-> make[3]: *** [serial.o] Error 1
-> make[3]: Leaving directory `/usr/src/prontux-0.1.9/drivers/char'
-> make[2]: *** [first_rule] Error 2
-> make[2]: Leaving directory `/usr/src/prontux-0.1.9/drivers/char'
-> make[1]: *** [_subdir_char] Error 2
-> make[1]: Leaving directory `/usr/src/prontux-0.1.9/drivers'
-> make: *** [_dir_drivers] Error 2
+[snip details on a lot of hot plug code]
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+No major comment except that I know for compact pci you can just
+walk up and unplug it.  As we have several compact pci boards here
+at work.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+But thank you for the clarification that a only on badly designed
+hardware a newly plugged in device will
 
+> 	Besides, you have not identified a safe way that a combined
+> ->remove() function can detect such situations more reliably than
+> separate ->quiet() and ->removed(), which at least have the benefit of
+> knowing what the kernel currently thinks the situation is.  So, you
+> really have no basis for saying "Splitting ->remove() into quiet() and
+> ->removed() will be racy."
+
+O.k. Let me attempt a clarification, of what I was thinking.
+Currently pseudo code for remove does:
+
+remove() {
+	if (device_present()) {
+		device_be_quiet()
+	}
+	device_free(device_strucutres);
+}
+
+The way I imagined the split up:
+if (device->present()) {
+        device->be_quiet();
+}
+device->free_resources();
+
+Doing device_be_quiet() without the device_present() check is racy,
+because devices can be physically removed at arbitrary times.  It
+is unreasonable for the generic code to make the strong assumption
+about being able to tell a device driver if the device is still
+present.  So any splitting of the device_present() check and the
+device_be_quiet() code would have to be done, very carefully, and
+would require bus specific code.  And it would be complexity without a
+real payoff.
+
+So if things are split it can at most be:
+device->be_quiet(); /* With the possibility the device has been removed */
+device->free_resources();
+
+I cannot imagine freeing data structures will noticeably slow a reboot
+down, so unless we actually need to tell a device to be quiet for
+other reasons besides driver removal, and machine reboot I do not see
+a point in adding complexity by changing the interface.  There may be
+a valid argument in the suspend to swap case, but I will cross that
+bridge when i come to it. 
+
+For my thinking on how this should be handled:
+
+Except in some very select special instances, I do not know
+of a single device where it is safe to assume the hardware is in a
+sane state at any random given moment when we decide to reboot.  And
+in no common case I know of does linux immediately trigger a machine
+level reset which would render this issue moot.  Therefore asking all
+of the device drivers to be quiet on a reboot sounds very reasonable.
+
+Further the only way I know to make solid code is to put all of your
+eggs in one basket, and just make certain it is a good basket.
+Meaning the more often a function is run with the same requirements
+the more likely it is to be correct.  So running the device ->remove()
+method on reboot and module remove will greatly enhance the chance the
+method is both fast and correct, because it is run often enough that
+people will complain if it is not.
+
+As for the semantic change in ->remove() from 2.4 it feels to me like
+more of a clarification than a real change, in particular ->remove() is
+the opposite of ->probe(), and ->probe() does both allocation and
+device state initialization, and  any code that works correctly with
+the 2.5 clarification should also work in 2.4.   Having to check to
+see if the device is already present has to be done for correctness,
+and that was the only thing that felt to me like the ->remove()
+routine was being really overloaded.
+
+For 2.5 calling remove on reboot may not fix any issues, but it is
+certainly a correct thing to do.  And even if it does not fix issues
+today, it allows bugs to be fixed, as the come up.  And it allows
+the code to be tested by just doing a modular build and inserting
+and removing the module.
+
+Eric

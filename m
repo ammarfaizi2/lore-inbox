@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315738AbSECW7N>; Fri, 3 May 2002 18:59:13 -0400
+	id <S315740AbSECXGk>; Fri, 3 May 2002 19:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315739AbSECW7N>; Fri, 3 May 2002 18:59:13 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:22918 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315738AbSECW7M>; Fri, 3 May 2002 18:59:12 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, bruce.holzrichter@monster.com
-Subject: Re: my slab cache broken on sparc64
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A781780F2@nocmail101.ma.tmpw.net> <20020503.140507.89264790.davem@redhat.com>
-From: Andi Kleen <ak@muc.de>
-Date: 04 May 2002 00:58:55 +0200
-Message-ID: <m38z70kfdc.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+	id <S315741AbSECXGj>; Fri, 3 May 2002 19:06:39 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:46557 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S315740AbSECXGj>; Fri, 3 May 2002 19:06:39 -0400
+Message-ID: <3CD316C8.5040006@oracle.com>
+Date: Sat, 04 May 2002 01:01:28 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020326
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andries.Brouwer@cwi.nl
+CC: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE
+In-Reply-To: <UTC200205032240.g43Meuf15031.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+Andries.Brouwer@cwi.nl wrote:
+> < Recap >
 > 
-> It would work if the access was surrounded by:
+> == I have had problems with 2.5.10 (first few blocks of the root
+> == filesystem overwritten) and then went back to 2.5.8 that I had
+> == used for a while already, but then also noticed corruption there.
+> == Back at 2.4.17 today..
 > 
-> 	old_fs = get_fs();
-> 	set_fs(KERNEL_DS);
-> 	... get_user(kernel_pointer) ...
-> 	set_fs (old_fs);
+> < Optimistic reply >
 > 
-> But it is not.
+> = It could very well be that the recent changes could have cured this.
+> 
+> < Reality of today >
+> 
+> Booted a vanilla 2.5.12. It did not succeed in mounting the root
+> filesystem, but instead wrote zeros over the superblock.
+> 
+> 	hdb: task_out_intr: error=0x04 { DriveStatusError }
+> 
+> Will try 2.5.13 later.
 
-It was supposed to be. I think we discussed it some time ago, but for 
-some reason it was never changed. Will submit a patch in a jiffie.
+Managed to boot all versions (though some ext3 journal replay
+  showed up even after clean shutdowns), seems to be okay and
+  mashed my disk with installing of Portal today - no issue,
+  only a positive note for the 2.5.13 VM which allowed me to
+  finish in 48' what 2.4.19-pre7 couldn't finish in over 2h.
 
--Andi (to blame for that code) 
+Dell laptop with a PIIX4 chipset, btw.
+
+--alessandro
+
+  "the hands that build / can also pull down
+    even the hands of love"
+                             (U2, "Exit")
 

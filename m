@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129414AbQLAKAg>; Fri, 1 Dec 2000 05:00:36 -0500
+	id <S129406AbQLAKP2>; Fri, 1 Dec 2000 05:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbQLAKA0>; Fri, 1 Dec 2000 05:00:26 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:54006 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129414AbQLAKAL>;
-	Fri, 1 Dec 2000 05:00:11 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20001130203703Z129437-440+118@vger.kernel.org> 
-In-Reply-To: <20001130203703Z129437-440+118@vger.kernel.org>  <200011301803.eAUI3Pu16137@webber.adilger.net> 
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Pls add this driver to the kernel tree !! 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Dec 2000 09:26:29 +0000
-Message-ID: <24827.975662789@redhat.com>
+	id <S129434AbQLAKPR>; Fri, 1 Dec 2000 05:15:17 -0500
+Received: from mx1.eskimo.com ([204.122.16.48]:4870 "EHLO mx1.eskimo.com")
+	by vger.kernel.org with ESMTP id <S129406AbQLAKPA>;
+	Fri, 1 Dec 2000 05:15:00 -0500
+Date: Fri, 1 Dec 2000 01:44:31 -0800 (PST)
+From: Clayton Weaver <cgweav@eskimo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: tulip log (additional detail: single-threaded httpd)
+Message-ID: <Pine.SUN.3.96.1001201012905.16065A-100000@eskimo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Note: if anyone else is wondering what may be deadlocking 2.2.17+
+in the context of http connects over ethernet (assuming that it is not the
+ethernet driver itself): it is also not the httpd server's use of linux
+kernel threads (wn is single threaded). And there isn't much going
+on in the background when this is tested. A bunch of daemons are
+running, but only the k*d (kupdated, kflushd, kpiod, kswapd, klogd)
+and utmpd besides the httpd server itself ever run during the test.
 
-ttabi@interactivesi.com said:
->  Not necessarily - it all depends on what your driver does.  In many
-> cases, supporting 2.2 and 2.4 is easy, and all you need are a few
-> #if's.  It's certainly much better to have a dozen or so #if's
-> sprinkled throughout the code than to have two separate source trees,
-> and have to make the same change to multiple files.
+Tests were conducted both with inetd handling the http connect and with
+wnsd listening on the http port directly, no difference.
 
-It's even better to do it without the ugly preprocessor magic - see 
-include/linux/compatmac.h
+Unless one of those k*d daemons uses kernel threads, kernel threads
+exported to user space are not possibly the source of the deadlock.
 
-There are a few things missing from there - include/linux/mtd/compatmac.h 
-has more. One day we'll get round to removing the latter and merging it 
-into the main one, hopefully. 
+(Might have looked that way due to the stack corruption in the httpd
+parent that strace seems to see a few connects before the kernel
+deadlock.)
 
---
-dwmw2
+Regards,
+
+Clayton Weaver
+<mailto:cgweav@eskimo.com>
+(Seattle)
+
+"Everybody's ignorant, just in different subjects."  Will Rogers
+
 
 
 -

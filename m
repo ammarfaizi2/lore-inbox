@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129100AbRBBMtm>; Fri, 2 Feb 2001 07:49:42 -0500
+	id <S129040AbRBBNIQ>; Fri, 2 Feb 2001 08:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129040AbRBBMtc>; Fri, 2 Feb 2001 07:49:32 -0500
-Received: from firewall.spacetec.no ([192.51.5.5]:56045 "EHLO
-	pallas.spacetec.no") by vger.kernel.org with ESMTP
-	id <S129100AbRBBMtL>; Fri, 2 Feb 2001 07:49:11 -0500
-Date: Fri, 2 Feb 2001 13:49:08 +0100
-Message-Id: <200102021249.NAA27803@pallas.spacetec.no>
+	id <S129107AbRBBNIG>; Fri, 2 Feb 2001 08:08:06 -0500
+Received: from expanse.dds.nl ([194.109.10.118]:6931 "EHLO expanse.dds.nl")
+	by vger.kernel.org with ESMTP id <S129040AbRBBNIB>;
+	Fri, 2 Feb 2001 08:08:01 -0500
+Date: Fri, 2 Feb 2001 14:07:31 +0100
+From: Ookhoi <ookhoi@dds.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vaio doesn't boot with 2.4.1-ac1, stops at PCI: Probing PCI hardware
+Message-ID: <20010202140731.E3922@ookhoi.dds.nl>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <20010202122756.B3922@ookhoi.dds.nl> <E14OfM4-0006PO-00@the-village.bc.nu>
 Mime-Version: 1.0
-In-Reply-To: <fa.gvan6kv.3664g1@ifi.uio.no> <fa.i0lgugv.dhmm08@ifi.uio.no>
-In-Reply-To: <fa.i0lgugv.dhmm08@ifi.uio.no>
-From: tor@spacetec.no (Tor Arntsen)
-Subject: Re: spelling of disc (disk) in /devfs
-To: linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.14i
+In-Reply-To: <E14OfM4-0006PO-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 02, 2001 at 12:30:19PM +0000
+X-Uptime: 12:00pm  up 3 days, 23:04, 22 users,  load average: 0.72, 0.18, 0.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Harrold <mharrold@cas.org> writes:
->My understanding (going back to the 80s) is that the correct term is
->disc. "disk" is short for diskette. (discette would be pronounced as
->"dissect" (think miscellaneous), so "diskette" was used instead.
+Hi Alan,
 
-No, this isn't right.  "Disk" was used for hard disks.  "Diskette" is
-a word that came later (pretty obvious too, as it's a diminutive variant
-of "disk").  Ditto for "floppy disk".
+> > > Firstly however does 2.4.1 (Linus) boot ?
+> > 
+> > It does boot. :-)  Is there something I can do now? 
+> 
+> Ok that means its something in my patches. 
+> 
+> Time to do some patch searching. I see two probable candidates - the
+> local apic code and the pci changes.
+> 
+> Does 2.4.1 with the following patch applied still boot
 
->So, when referring to a 3.5" or 5.25" floppy, "disk" would be correct
->since they are diskettes. However, a "hard drive" is very much a disc
->(or nowadays a group of discs). A "hard disc" would refer to one of
->the constituents of a "hard drive".
+No, it doesn't boot anymore (hangs at probing pci hardware again).
+I hope this helps. :-)
 
-I don't want to sound too harsh, but the speculation in that paragraph
-is really picked out of thin air.
-
-In short, "disk" is a term that simply means a computer hard disk, as
-opposed to other kind of discs.  This is the only issue in non-English 
-native speaking countries, most of us didn't even know that the difference
-originated in UK/US spelling issues. That never entered the discussion,
-particularly here in Europe. We were thought the UK spelling for discs
-(the generic term), and we quickly grabbed the "disk" term for computer 
-disks as a nice way of referring to that special kind of disc.
-
-CDs are called 'discs' simply because they were not originally part of
-the computer industry.  They were for recording music.
-
--Tor
+		Ookhoi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRBQRvk>; Sat, 17 Feb 2001 12:51:40 -0500
+	id <S129191AbRBQSMi>; Sat, 17 Feb 2001 13:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129191AbRBQRv3>; Sat, 17 Feb 2001 12:51:29 -0500
-Received: from [199.239.160.155] ([199.239.160.155]:41356 "EHLO
-	tenchi.datarithm.net") by vger.kernel.org with ESMTP
-	id <S129156AbRBQRvQ>; Sat, 17 Feb 2001 12:51:16 -0500
-Date: Sat, 17 Feb 2001 09:51:15 -0800
-From: Robert Read <rread@datarithm.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-Message-ID: <20010217095115.B5120@tenchi.datarithm.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>, <Pine.LNX.4.33.0102161800310.2548-100000@asdf.capslock.lan> <96lril$ddc$1@forge.intermeta.de>
+	id <S129423AbRBQSMS>; Sat, 17 Feb 2001 13:12:18 -0500
+Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:20974 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S129191AbRBQSMH>; Sat, 17 Feb 2001 13:12:07 -0500
+From: brian@worldcontrol.com
+Date: Sat, 17 Feb 2001 10:12:38 -0800
+To: David Relson <relson@osagesoftware.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XOR  [ was: Linux stifles innovation... ]
+Message-ID: <20010217101238.A12056@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	David Relson <relson@osagesoftware.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010216194121.B26627@alcove.wittsend.com> <Pine.LNX.4.30.0102161748370.14013-100000@anime.net> <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <96lril$ddc$1@forge.intermeta.de>; from hps@tanstaafl.de on Sat, Feb 17, 2001 at 12:41:57PM +0000
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>; from relson@osagesoftware.com on Fri, Feb 16, 2001 at 09:20:34PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 17, 2001 at 12:41:57PM +0000, Henning P. Schmiedehausen wrote:
-> ....
-> If HP would spent only 5% of their driver writing
-> buget for Windows into Linux driver development, that I would call "a
-> move". 
+>  > On Fri, 16 Feb 2001, Michael H. Warfield wrote:
+>  > > > You know XOR is patented (yes, the logical bit operation XOR).
+>  > > 	But wasn't that Xerox that had that?
 
-Have you seen this: http://hp.sourceforge.net/ 
+>  > US Patent #4,197,590 held by NuGraphics, Inc.
 
-I certainly don't know what the percentage is (or care), but I'd call
-that "a move."
+On Fri, Feb 16, 2001 at 09:20:34PM -0500, David Relson wrote:
+> The patent was for using the technique of using XOR for dragging/moving 
+> parts of a graphics image without erasing other parts.  Also, since the 
+> patent was granted in 1980, the inventors have had their 17 years of patent 
+> protection, and we're all free to use the technique - legally!
 
-robert
+In 1984 I received a demand letter for $10,000 from the above
+referenced company as a unlimited license for use of a that
+patent and another patent.
+
+At the time I ran a company that made graphics cards for IBM PCs.
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

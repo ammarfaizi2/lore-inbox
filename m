@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbUKIGqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUKIFyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbUKIGqs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 01:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbUKIGqm
+	id S261426AbUKIFyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 00:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbUKIFxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 01:46:42 -0500
-Received: from smtp.persistent.co.in ([202.54.11.65]:31674 "EHLO
-	smtp.pspl.co.in") by vger.kernel.org with ESMTP id S261392AbUKIGoN
+	Tue, 9 Nov 2004 00:53:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6303 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261394AbUKIFZD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 01:44:13 -0500
-Message-ID: <4190675A.70606@persistent.co.in>
-Date: Tue, 09 Nov 2004 12:14:42 +0530
-From: Sumesh <sumesh_kumar@persistent.co.in>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ych43 <ych43@student.canterbury.ac.nz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: select( ) function with socket
-References: <418CC3ED@webmail>
-In-Reply-To: <418CC3ED@webmail>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAQ=
-X-White-List-Member: TRUE
+	Tue, 9 Nov 2004 00:25:03 -0500
+Subject: Re: [PATCH] I2C update for 2.6.10-rc1
+In-Reply-To: <10999778552805@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 8 Nov 2004 21:24:15 -0800
+Message-Id: <10999778551027@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-       On success, select returns the number  of  descriptors  contained 
-in the descriptor sets, which may be zero if the timeout expires before 
-anything happens. Hence its possible that maybe your timeout os set to zero.
+ChangeSet 1.2014.1.6, 2004/11/05 13:41:16-08:00, johnpol@2ka.mipt.ru
 
-Regards,
-Sumesh
+[PATCH] w1/w1_int: replace schedule_timeout() with msleep_interruptible()
+
+Description: Use msleep_interruptible() instead of schedule_timeout() to
+guarantee the task delays as expected.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
+ drivers/w1/w1_int.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
-ych43 wrote:
 
->Hi,
-> I use select( ) function of socket programming on linux. After this function, 
->I try to print the return value of select( ) function out. But there is no 
->return value coming out, even no any error out. So I do not know what's wrong 
->with this function. If I incorrectly used this function, some errors would 
->come out. But no any error comes out. Can anybody help me.
-> Thank in advance!
-> king regards
->  
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+diff -Nru a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
+--- a/drivers/w1/w1_int.c	2004-11-08 18:55:59 -08:00
++++ b/drivers/w1/w1_int.c	2004-11-08 18:55:59 -08:00
+@@ -184,10 +184,8 @@
+ 	while (atomic_read(&dev->refcnt)) {
+ 		printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
+ 				dev->name, atomic_read(&dev->refcnt));
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule_timeout(HZ);
+ 
+-		if (signal_pending(current))
++		if (msleep_interruptible(1000))
+ 			flush_signals(current);
+ 	}
+ 
+

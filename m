@@ -1,79 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVCaTtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVCaTv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVCaTtr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 14:49:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVCaTtr
+	id S261675AbVCaTv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 14:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVCaTv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 14:49:47 -0500
-Received: from ida.rowland.org ([192.131.102.52]:21252 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261677AbVCaTtl (ORCPT
+	Thu, 31 Mar 2005 14:51:29 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:42064 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261675AbVCaTuh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 14:49:41 -0500
-Date: Thu, 31 Mar 2005 14:49:40 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Patrick Mochel <mochel@digitalimplant.org>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: klists and struct device semaphores
-In-Reply-To: <Pine.LNX.4.50.0503311000510.7249-100000@monsoon.he.net>
-Message-ID: <Pine.LNX.4.44L0.0503311431390.1927-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Mar 2005 14:50:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=mkSqEBoJ6QAvPs3sXlzIXpLaplKW8b0mAN1Qlx7apJ6qQ7upadTLYOm8JpYA6ZMESGbUZ3uJqEOac8bDZE3zJE0OXT1WpWo3mssCoAHDkNxDE9l5iK2dkxVoFRRfeGgjlUS4C6oweZES5/9sivKmF+rwulqRS18dH4RinrNnX5k=
+Message-ID: <40f323d0050331115016b707f1@mail.gmail.com>
+Date: Thu, 31 Mar 2005 14:50:37 -0500
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 3/3] Keys: Make request-key create an authorisation key
+Cc: torvalds@osdl.org, akpm@osdl.org, Michael A Halcrow <mahalcro@us.ibm.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <29760.1111611165@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1719_11416062.1112298637013"
+References: <29204.1111608899@redhat.com> <29760.1111611165@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005, Patrick Mochel wrote:
+------=_Part_1719_11416062.1112298637013
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > > > 	Whenever usb_register() in the USB core calls driver_register()
-> > > > 	and the call filters down to driver_attach(), that routine
-> > > > 	should lock dev->parent->sem before calling driver_probe_device()
-> > > > 	(and unlock it afterward, of course).
-
-> > > Why can't you just lock it in ->probe() and ->remove() yourself?
-> >
-> > Aha!  There you go...  This explains why you need explicit locking rules.
-> >
-> > When probe() and remove() are called, the driver-model core already owns
-> > the device's lock.  If the driver then tried to lock the parent, it would
-> > mean acquiring locks in the wrong order.  This could easily lead to
-> > deadlock.
+On Wed, 23 Mar 2005 20:52:45 +0000, David Howells <dhowells@redhat.com> wrote:
 > 
-> I should have been more clear. From what I understand, when some devices
-> are probed they also want to probe and add their children. It *seems* like
-> this is essentially true with USB devices and interfaces, though I could
-> be wrong.
+> The attached patch makes the following changes:
+> 
+>  (6) One of the process keyrings can be nominated as the default to which
+>      request_key() should attach new keys if not otherwise specified. This is
+>      done with KEYCTL_SET_REQKEY_KEYRING and one of the KEY_REQKEY_DEFL_*
+>      constants. The current setting can also be read using this call.
+> 
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
+> @@ -903,6 +922,44 @@ long keyctl_negate_key(key_serial_t id,
+> 
+>  /*****************************************************************************/
+>  /*
+> + * set the default keyring in which request_key() will cache keys
+> + * - return the old setting
+> + */
+> +long keyctl_set_reqkey_keyring(int reqkey_defl)
+> +{
+> +       int ret;
+> +
+> +       switch (reqkey_defl) {
+> +       case KEY_REQKEY_DEFL_THREAD_KEYRING:
+> +               ret = install_thread_keyring(current);
+> +               if (ret < 0)
+> +                       return ret;
+> +               goto set;
+> +
+> +       case KEY_REQKEY_DEFL_PROCESS_KEYRING:
+> +               ret = install_process_keyring(current);
+> +               if (ret < 0)
+> +                       return ret;
+> +
+> +       case KEY_REQKEY_DEFL_DEFAULT:
+> +       case KEY_REQKEY_DEFL_SESSION_KEYRING:
+> +       case KEY_REQKEY_DEFL_USER_KEYRING:
+> +       case KEY_REQKEY_DEFL_USER_SESSION_KEYRING:
+> +       set:
+> +               current->jit_keyring = reqkey_defl;
+> +
+> +       case KEY_REQKEY_DEFL_NO_CHANGE:
+> +               return current->jit_keyring;
+> +
+> +       case KEY_SPEC_GROUP_KEYRING:
 
-For USB devices and their interfaces that's generally wrong.  But it is 
-right for lots of other devices (including USB host controllers).
+KEY_REQKEY_DEFL__GROUP_KEYRING
 
-> What I meant was that when the parent device's ->probe() method is called,
-> the parent's semaphore could be taken before the children are discovered
-> and added. This would keep the parent locked while all the fiddling is
-> going on with the children. Right?
+> +       default:
+> +               return -EINVAL;
+> +       }
+> +
+> +} /* end keyctl_set_reqkey_keyring() */
+> +
 
-The parent's semaphore _would_ be taken before its probe() method is
-called and the children are discovered, since the semaphore is held during
-every driver callback.  However that's not what I was getting at above.
+> @@ -267,21 +294,84 @@ static struct key *request_key_construct
+> 
+>  /*****************************************************************************/
+>  /*
+> + * link a freshly minted key to an appropriate destination keyring
+> + */
+> +static void request_key_link(struct key *key, struct key *dest_keyring)
+> +{
+> +       struct task_struct *tsk = current;
+> +       struct key *drop = NULL;
+> +
+> +       kenter("{%d},%p", key->serial, dest_keyring);
+> +
+> +       /* find the appropriate keyring */
+> +       if (!dest_keyring) {
+> +               switch (tsk->jit_keyring) {
+> +               case KEY_REQKEY_DEFL_DEFAULT:
+> +               case KEY_REQKEY_DEFL_THREAD_KEYRING:
+> +                       dest_keyring = tsk->thread_keyring;
+> +                       if (dest_keyring)
+> +                               break;
+> +
+> +               case KEY_REQKEY_DEFL_PROCESS_KEYRING:
+> +                       dest_keyring = tsk->signal->process_keyring;
+> +                       if (dest_keyring)
+> +                               break;
+> +
+> +               case KEY_REQKEY_DEFL_SESSION_KEYRING:
+> +                       rcu_read_lock();
+> +                       dest_keyring = key_get(
+> +                               rcu_dereference(tsk->signal->session_keyring));
+> +                       rcu_read_unlock();
+> +                       drop = dest_keyring;
+> +
+> +                       if (dest_keyring)
+> +                               break;
+> +
+> +               case KEY_REQKEY_DEFL_USER_SESSION_KEYRING:
+> +                       dest_keyring = current->user->session_keyring;
+> +                       break;
+> +
+> +               case KEY_REQKEY_DEFL_USER_KEYRING:
+> +                       dest_keyring = current->user->uid_keyring;
+> +                       break;
+> +
+> +               case KEY_REQKEY_DEFL_NO_CHANGE:
 
-The problem with USB comes in at the level of drivers for interfaces.  
-Occasionally these drivers need to do something during their probe() that
-affects the entire USB device (as opposed to just their interface), such
-as resetting the device.  For this to work safely it requires that the
-driver own the lock for the entire device, not just the lock for the
-interface.
+gcc-4 warns about this (warning: case label value is less than minimum
+value for type) and it shouldn't be in jit_keyring anyway.
 
-Often this works out okay because the driver's probe() is called when the
-interface is registered by the USB core.  At that time the core already
-owns the device lock, so driver->probe() inherits the lock.
+> +               case KEY_SPEC_GROUP_KEYRING:
 
-The problem arises when driver->probe() is called because the driver was
-just insmod'ed.  At such times the USB core does not own any locks on any
-USB devices.  The only way for driver->probe() to inherit the device lock
-is for the driver-model core to acquire it beforehand -- it's not possible
-for the USB core or the driver to lock the device.  That's why I asked for
-driver_attach() to lock dev->parent->sem around the call to
-driver_probe_device().
+KEY_REQKEY_DEFL_GROUP_KEYRING
+> +               default:
+> +                       BUG();
+> +               }
+> +       }
+> +
+> +       /* and attach the key to it */
+> +       key_link(dest_keyring, key);
 
-Alan Stern
+patch attached.
 
+regards,
+
+Benoit
+
+------=_Part_1719_11416062.1112298637013
+Content-Type: application/octet-stream; name="keys.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="keys.patch"
+
+U2lnbmVkLU9mZi1CeTogQmVub2l0IEJvaXNzaW5vdCA8YmVub2l0LmJvaXNzaW5vdEBlbnMtbHlv
+bi5vcmc+CgotLS0gLi9zZWN1cml0eS9rZXlzL3JlcXVlc3Rfa2V5LmMub3JpZwkyMDA1LTAzLTMx
+IDIxOjIzOjQzLjAwMDAwMDAwMCArMDIwMAorKysgLi9zZWN1cml0eS9rZXlzL3JlcXVlc3Rfa2V5
+LmMJMjAwNS0wMy0zMSAyMTo0MTowMy4wMDAwMDAwMDAgKzAyMDAKQEAgLTMzNSw4ICszMzUsNyBA
+QCBzdGF0aWMgdm9pZCByZXF1ZXN0X2tleV9saW5rKHN0cnVjdCBrZXkgCiAJCQlkZXN0X2tleXJp
+bmcgPSBjdXJyZW50LT51c2VyLT51aWRfa2V5cmluZzsKIAkJCWJyZWFrOwogCi0JCWNhc2UgS0VZ
+X1JFUUtFWV9ERUZMX05PX0NIQU5HRToKLQkJY2FzZSBLRVlfU1BFQ19HUk9VUF9LRVlSSU5HOgor
+CQljYXNlIEtFWV9SRVFLRVlfREVGTF9HUk9VUF9LRVlSSU5HOgogCQlkZWZhdWx0OgogCQkJQlVH
+KCk7CiAJCX0KLS0tIC4vc2VjdXJpdHkva2V5cy9rZXljdGwuYy5vcmlnCTIwMDUtMDMtMzEgMjE6
+NDE6MzUuMDAwMDAwMDAwICswMjAwCisrKyAuL3NlY3VyaXR5L2tleXMva2V5Y3RsLmMJMjAwNS0w
+My0zMSAyMTo0MjowMS4wMDAwMDAwMDAgKzAyMDAKQEAgLTk1MSw3ICs5NTEsNyBAQCBsb25nIGtl
+eWN0bF9zZXRfcmVxa2V5X2tleXJpbmcoaW50IHJlcWtlCiAJY2FzZSBLRVlfUkVRS0VZX0RFRkxf
+Tk9fQ0hBTkdFOgogCQlyZXR1cm4gY3VycmVudC0+aml0X2tleXJpbmc7CiAKLQljYXNlIEtFWV9T
+UEVDX0dST1VQX0tFWVJJTkc6CisJY2FzZSBLRVlfUkVRS0VZX0RFRkxfR1JPVVBfS0VZUklORzoK
+IAlkZWZhdWx0OgogCQlyZXR1cm4gLUVJTlZBTDsKIAl9Cg==
+------=_Part_1719_11416062.1112298637013--

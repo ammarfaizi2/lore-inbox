@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264990AbTFLUbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 16:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFLUbU
+	id S264988AbTFLUjH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 16:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFLUjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 16:31:20 -0400
-Received: from mbox2.netikka.net ([213.250.81.203]:61342 "EHLO
-	mbox2.netikka.net") by vger.kernel.org with ESMTP id S264990AbTFLUaL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 16:30:11 -0400
-From: Thomas Backlund <tmb@iki.fi>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] 2.4.21-rc8 vesafb memory remapping...
-Date: Thu, 12 Jun 2003 23:43:49 +0300
-User-Agent: KMail/1.5.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jun 2003 16:39:07 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:63633 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264988AbTFLUjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 16:39:04 -0400
+Date: Thu, 12 Jun 2003 15:52:43 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SBP2 hotplug doesn't update /proc/partitions
+Message-ID: <20030612195243.GV4695@phunnypharm.org>
+References: <1054770509.1198.79.camel@torrey.et.myrio.com> <3EDE870C.1EFA566C@digeo.com> <1054838369.1737.11.camel@torrey.et.myrio.com> <20030605175412.GF625@phunnypharm.org> <1054858724.3519.19.camel@torrey.et.myrio.com> <20030606025721.GJ625@phunnypharm.org> <1055446080.3480.291.camel@torrey.et.myrio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306122343.49563.tmb@iki.fi>
+In-Reply-To: <1055446080.3480.291.camel@torrey.et.myrio.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that the vesafb still remaps memory according to a calculation 
-done in bits, even if should be done in bytes...
-This will remap more memory than old cards actually have...
+On Thu, Jun 12, 2003 at 12:28:00PM -0700, Torrey Hoffman wrote:
+> I am now running 2.5.70-bk15, and with slab debugging turned off SBP2
+> mostly works.  However, I just had an interesting glitch show up.
+> 
+> I plugged in a 120 GB drive which had two VFAT partitions, mounted them,
+> copied some data to them, unmounted them, and unplugged the drive.  
+> That worked perfectly. (This was the first use of SBP2 after booting.)
+> 
+> Then I plugged in a 250 GB drive with a single reiserfs partition.  The
+> SBP2 driver detected the drive correctly, but the kernel's idea of what
+> partitions are available was not updated.  
+> 
+> /proc/partitions still has the old, stale data from the 120 GB drive and
+> looks like this: (skipping my hda partitions)
 
-An example:
-My laptop has 8192 KB of videoram
-I use it with videomode 1024x768x16
-
-With current vesafb that will translate to 12288 KB remapping
-
-So here is my suggestion,
-either grab the complete "fix" from rc7-ac1 (wich calculates in bytes),
-or If you dont like that, my second suggestion is to use the
-old vesafb code to take care of old cards like this:
-
------ cut -----
-#diff -u rc8/drivers/video/vesafb.c rc8/drivers/video/vesafb.c.new
---- rc8/drivers/video/vesafb.c  2003-06-12 23:13:29.000000000 +0300
-+++ rc8/drivers/video/vesafb.c.new      2003-06-12 23:18:03.000000000 +0300
-@@ -521,6 +521,11 @@
-        video_height        = screen_info.lfb_height;
-        video_linelength    = screen_info.lfb_linelength;
-        video_size          = screen_info.lfb_width *   
-screen_info.lfb_height * video_bpp;
-+
-+       /* check that we don't remap more memory than old cards have */
-+       if (video_size > screen_info.lfb_size * 65536)
-+               video_size = screen_info.lfb_size * 65536;
-+
-        video_visual = (video_bpp == 8) ?
-                FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
-
------ cut -----
-
-Like this we would keep both old and new systems happy AFAIK...
+Sounds like the scsi layer is keeping stale info. I'd say this is
+suspiciously similar to what's causing your oops in your later email.
+Track down where the stale info comes from, and I think you'll find the
+cause of both your problems.
 
 
 -- 
-Regards
-
-Thomas Backlund
-
-http://www.iki.fi/tmb/
-tmb@iki.fi
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

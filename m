@@ -1,70 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291957AbSBTQV4>; Wed, 20 Feb 2002 11:21:56 -0500
+	id <S291963AbSBTQ2F>; Wed, 20 Feb 2002 11:28:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291962AbSBTQVq>; Wed, 20 Feb 2002 11:21:46 -0500
-Received: from [213.171.51.190] ([213.171.51.190]:4737 "EHLO ns.yauza.ru")
-	by vger.kernel.org with ESMTP id <S291957AbSBTQV1>;
-	Wed, 20 Feb 2002 11:21:27 -0500
-Date: Wed, 20 Feb 2002 19:21:23 +0300
-From: Nikita Gergel <fc@yauza.ru>
-To: lee johnson <lee@imyourhandiman.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: opengl-nvidia not compiling
-Message-Id: <20020220192123.25786b72.fc@yauza.ru>
-In-Reply-To: <1014218667.22795.1.camel@imyourhandiman>
-In-Reply-To: <20020220015358.A26765@suse.de>
-	<1014182978.21280.14.camel@imyourhandiman>
-	<20020220170454.5e700732.fc@yauza.ru>
-	<1014218667.22795.1.camel@imyourhandiman>
-Organization: YAUZA-Telecom
-X-Mailer: Sylpheed version 0.7.1 (GTK+ 1.2.10; i586-alt-linux)
-X-Face: /kH/`k:.@|9\`-o$p/YBn<xFr)I]mglEQW0$I${i4Q;J|JXWbc}de_p8c1;:W~5{WV,.l%B S|A4'A1hnId[
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg=pgp-sha1; boundary="=.ifQL0y8LJ.UX5X"
+	id <S291967AbSBTQ1z>; Wed, 20 Feb 2002 11:27:55 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:35495 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S291963AbSBTQ1j>; Wed, 20 Feb 2002 11:27:39 -0500
+Date: Wed, 20 Feb 2002 11:27:34 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Hugh Dickins <hugh@veritas.com>
+cc: Stelian Pop <stelian.pop@fr.alcove.com>,
+        Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.4.21.0202201539410.1232-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0202201126400.22285-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.ifQL0y8LJ.UX5X
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On 20 Feb 2002 07:24:26 -0800
-lee johnson <lee@imyourhandiman.com> wrote:
+page = vmalloc_to_page(virt); is the right interface and you can find it
+in the 2.5.5 kernel, along with the other highpte changes.
 
-> 
-> > 
-> > change all 'MINOR' to 'minor' and 'MAJOR' to 'major'
-> > 
-> > -- 
-> > Nikita Gergel					System Administrator
-> > Moscow, Russia					YAUZA-Telecom
-> 
-> before I go altering code that could adversely affect my card/system I'd
-> like to know how you are assured this will work ( without causing damage
-> etc.etc.)
-> 
-> please accept my thx in case i'm just being paranoid and this is fine
-> :))
-
-1. It's obvious. Try to understand meanings of MINOR in 2.4 and minor in 2.5 =)
-2. I've compiled my NVIDIA kernel modules bringed in these fixes. I've no troubles.
-
--- 
-Nikita Gergel					System Administrator
-Moscow, Russia					YAUZA-Telecom
-
---=.ifQL0y8LJ.UX5X
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8c80FFP8BYTTFfXkRAqUDAKDxkQbdPEdWgScgq5w+xnGWbIszhQCg5zw2
-ZToiytsE7l06XlayT0w3gvM=
-=TX5E
------END PGP SIGNATURE-----
-
---=.ifQL0y8LJ.UX5X--
+	Ingo
 

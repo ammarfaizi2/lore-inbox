@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbUEFPLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbUEFPKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbUEFPLf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 11:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUEFPLf
+	id S262441AbUEFPKp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 11:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUEFPKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 11:11:35 -0400
-Received: from smtp-out3.xs4all.nl ([194.109.24.13]:15621 "EHLO
-	smtp-out3.xs4all.nl") by vger.kernel.org with ESMTP id S262488AbUEFPLb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 11:11:31 -0400
-Date: Thu, 6 May 2004 17:11:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv.local
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: akpm@osdl.org, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] report size of printk buffer
-In-Reply-To: <20040506133639.GB14714@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0405061708170.765-100000@serv.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 May 2004 11:10:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26076 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262441AbUEFPKm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 11:10:42 -0400
+Date: Thu, 6 May 2004 08:10:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: pazke@donpac.ru, linux-kernel@vger.kernel.org,
+       Dave Airlie <airlied@linux.ie>
+Subject: Re: [RFC] DMI cleanup patches
+Message-Id: <20040506081012.6cb4ab2f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405060738430.3271@ppc970.osdl.org>
+References: <20040506102904.GA3295@pazke>
+	<Pine.LNX.4.58.0405060738430.3271@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Thu, 6 May 2004, Andrey Panin wrote:
+> > 
+> > currently arch/i386/kernel/dmi_scan.c file looks like complete
+> > mess. Interfacing with other kernel subsystem made using
+> > ad-hoc ways, mostly with ugly global variables, additionaly
+> > coding style is ... not good. So these patches appear:
+> 
+> The patches look good by me, but I'd rather leave them to after 2.6.6, 
+> since they seem to be cleanups rather than serious bug-fixes.
+> 
 
-On Thu, 6 May 2004, Andries Brouwer wrote:
+There is a significant amount of work pending in the DRM development tree
+at http://drm.bkbits.net/drm-2.6 (which is included in -mm).  Andrey's
+zeroeth patch alone tosses three rejects against it.
 
-> If one asks for count bytes, one gets the last count bytes of output,
-> not the first.
+David, now would be a good time to start getting that code ready for a
+merge.
 
-That doesn't answer the question, why don't you just clear the data that
-was read?
+Andrey, you should rebase your patches on top of the DRM tree, or -mm, and
+copy David on the emails.
 
-bye, Roman
-
+Thanks.

@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBUXoA>; Wed, 21 Feb 2001 18:44:00 -0500
+	id <S129381AbRBUXpu>; Wed, 21 Feb 2001 18:45:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbRBUXnv>; Wed, 21 Feb 2001 18:43:51 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:11027 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129181AbRBUXnn>;
-	Wed, 21 Feb 2001 18:43:43 -0500
-Message-ID: <3A945272.F13610AB@innominate.de>
-Date: Thu, 22 Feb 2001 00:42:42 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org,
-        Martin Mares <mj@suse.cz>, Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz> <3A94470C.2E54EB58@transmeta.com> <20010222000755.A29061@atrey.karlin.mff.cuni.cz> <3A944C05.FC2B623A@transmeta.com>
+	id <S129669AbRBUXpk>; Wed, 21 Feb 2001 18:45:40 -0500
+Received: from [209.53.18.145] ([209.53.18.145]:7810 "EHLO continuum.cm.nu")
+	by vger.kernel.org with ESMTP id <S129381AbRBUXpc>;
+	Wed, 21 Feb 2001 18:45:32 -0500
+Date: Wed, 21 Feb 2001 15:45:21 -0800
+From: Shane Wegner <shane@cm.nu>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] VIA 4.2x driver for 2.2 kernels
+Message-ID: <20010221154521.A2936@cm.nu>
+In-Reply-To: <20010220134028.A5762@suse.cz> <20010220155927.A1543@cm.nu> <20010221080919.A469@suse.cz> <20010220231502.A4618@cm.nu> <20010221082348.A908@suse.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010221082348.A908@suse.cz>; from vojtech@suse.cz on Wed, Feb 21, 2001 at 08:23:48AM +0100
+Organization: Continuum Systems, Vancouver, Canada
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
-> 
-> Martin Mares wrote:
-> >
-> > > True.  Note too, though, that on a filesystem (which we are, after all,
-> > > talking about), if you assume a large linear space you have to create a
-> > > file, which means you need to multiply the cost of all random-access
-> > > operations with O(log n).
-> >
-> > One could avoid this, but it would mean designing the whole filesystem in a
-> > completely different way -- merge all directories to a single gigantic
-> > hash table and use (directory ID,file name) as a key, but we were originally
-> > talking about extending ext2, so such massive changes are out of question
-> > and your log n access argument is right.
-> 
-> It would still be tricky since you have to have actual files in the
-> filesystem as well.
+On Wed, Feb 21, 2001 at 08:23:48AM +0100, Vojtech Pavlik wrote:
+> On Tue, Feb 20, 2001 at 11:15:02PM -0800, Shane Wegner wrote:
+> > On Wed, Feb 21, 2001 at 08:09:19AM +0100, Vojtech Pavlik wrote:
+> > > 
+> > > > > You wanted my VIA driver for 2.2. Here is a patch that brings the very
+> > > > > latest 4.2 driver to the 2.2 kernel. The patch is against the
+> > > > > 2.2.19-pre13 kernel plus yours 1221 ide patch.
+> > > > 
+> > > > This drivers breaks with my HP 8110 CD-R drive.  It's
+> > > > sitting on primary slave of a Via 686B controler.  When I
+> > > > try to do a hdparm -d1 -u1 -k1 /dev/hdb, the kernel locks
+> > > > up hard.  Not even an oops.  Reverting to the old driver
+> > > > works fine.
+> > > 
+> > > Don't do that. Use the kernel option to enable DMA instead.
 
-Have you looked at the structure and algorithms I'm using?  I would not
-call this a hash table, nor is it a btree.  It's a 'hash-keyed
-uniform-depth tree'.  It never needs to be rehashed (though it might be
-worthwhile compacting it at some point).  It also never needs to be
-rebalanced - it's only two levels deep for up to 50 million files.
+Hi,
 
-This thing deserves a name of its own.  I call it an 'htree'.  The
-performance should speak for itself - 150 usec/create across 90,000
-files and still a few optmizations to go.
+I have investigated this problem further.  The hdparm
+triggers the error but is not the cause.  hdparm accesses
+/dev/hdb which is my cd-r drive.  This triggers the loading
+of the cdrom and ide-cd modules.  Manually loading cdrom
+succeeds, after which, manually loading ide-cd crashes the
+system.  No need to even open() the device.  This works
+fine with the VIA driver from 2.2.19pre14+ide-2.2.18-1221.
 
-Random access runs at similar speeds too, it's not just taking advantage
-of a long sequence of insertions into the same directory.
+Regards,
+Shane
 
-BTW, the discussion in this thread has been very interesting, it just
-isn't entirely relevant to my patch :-)
-
---
-Daniel
+-- 
+Shane Wegner: shane@cm.nu
+              http://www.cm.nu/~shane/
+PGP:          1024D/FFE3035D
+              A0ED DAC4 77EC D674 5487
+              5B5C 4F89 9A4E FFE3 035D

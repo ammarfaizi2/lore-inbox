@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285286AbRLSNlP>; Wed, 19 Dec 2001 08:41:15 -0500
+	id <S285288AbRLSNt4>; Wed, 19 Dec 2001 08:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285287AbRLSNlF>; Wed, 19 Dec 2001 08:41:05 -0500
-Received: from mel.alcatel.fr ([212.208.74.132]:13292 "EHLO mel.alcatel.fr")
-	by vger.kernel.org with ESMTP id <S285286AbRLSNku>;
-	Wed, 19 Dec 2001 08:40:50 -0500
-Message-ID: <3C2098D7.4228B2A5@sxb.bsf.alcatel.fr>
-Date: Wed, 19 Dec 2001 14:40:39 +0100
-From: Denis RICHARD <dri@sxb.bsf.alcatel.fr>
-X-Mailer: Mozilla 4.75 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S285291AbRLSNth>; Wed, 19 Dec 2001 08:49:37 -0500
+Received: from sushi.toad.net ([162.33.130.105]:4740 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S285288AbRLSNtQ>;
+	Wed, 19 Dec 2001 08:49:16 -0500
+Subject: Re: APM driver patch summary
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-CC: Pierre PEIFFER <Pierre.Peiffer@sxb.bsf.alcatel.fr>,
-        Denis RICHARD <Denis.Richard@sxb.bsf.alcatel.fr>,
-        Yves LUDWIG <Yves.Ludwig@sxb.bsf.alcatel.fr>
-Subject: New version of e2compr for 2.4.16 kernel.
-Content-Type: text/plain; charset=us-ascii
+Cc: Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <1008737165.1155.0.camel@thanatos>
+In-Reply-To: <1008737165.1155.0.camel@thanatos>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 19 Dec 2001 08:49:20 -0500
+Message-Id: <1008769762.1156.18.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Well, I'm not having any problems with the latest "notify
+listeners before drivers" patch, and it does fix the problems
+I was having.
 
-  We have developped a new version of the e2compr package for the 2.4.16 kernel.
-It is based on the e2compr-0.4.39 patch provided by Peter Moulder
-for 2.2.18 kernel (http://cvs.bofh.asn.au/e2compr/).
-  It is full compatible with previous version.
+I'm not sure that this is an appropriate change for 2.4,
+but the decision about whether to put it in is up to Stephen.
+In the meantime I will try to keep the patch up to date as
+2.4 kernels are released.  Definitely it should go into 2.5
+though. (The idle fixes, on the other hand, should go into
+2.4.)
 
-  We have introduced the structure of "cluster of pages", as there was the structure
-of "cluster of blocks" in preceding version. The compression unit is the cluster of
-pages.
-
-  The implementation is similar with the 2.2 version. If the page needed is not present
-in memory, the cluster of pages including this one is decompressed.
-  But in the 2.4 kernel the pages and the blocks have common area for the data.
-If a block is read from the device, the corresponding page is also modified.
-Then to decompress a cluster we should not read the blocks in the already used pages (decompressed)
-of the cluster. These pages can have been modified or can be used by another process (mapping).
-If a page is UPTODATE, a new one is allocated to decompress the cluster, and is freed after that.
-
-  It has only been tested on i386 architecture, so be careful if you want to try it
-on other architecture, and especially if pages are large and can belong to two different
-clusters.
-
-  For more informations, see the README files in Documentation/filesystems directory.
-
-  If someone is interested by the patch, we will mail it.
-
-  Feel free to contat us if you have some questions.
-
-  Have fun.
-
- Pierre PEIFFER, Denis RICHARD .
-
-PS : We have also adjusted the e2fsprogs patch for the last version (1.25).
+I've just spent a couple of hours auditing the code and I
+haven't found any other problems ( ... not that that proves
+anything).  One little worry: apm_event_handler() seems to
+assume that it is called once per second, and that it will
+therefore set APM_STATE_BUSY once every four seconds, as the
+spec says it should.  In fact it gets called a lot more often
+than that, as this bit of syslog shows:
+------------------------------------------------------
+Dec 18 18:00:20 thanatos apmd[266]: apmd_call_proxy: executing:
+'/etc/apm/apmd_proxy' 'suspend'
+Dec 18 18:00:20 thanatos kernel: apm: setting state busy
+Dec 18 18:00:21 thanatos last message repeated 7 times
+------------------------------------------------------
+However, the APM spec does not put a ceiling on how often
+the state is set to BUSY, so it should be okay.
 
 --
------------------------------\--------------------------\
-Denis RICHARD                 \ ALCATEL Business Systems \
-mailto:dri@sxb.bsf.alcatel.fr / Tel: +33(0)3 90 67 69 36 /
------------------------------/--------------------------/
-
-
+Thomas
 

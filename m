@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316195AbSEKCcy>; Fri, 10 May 2002 22:32:54 -0400
+	id <S316196AbSEKCs7>; Fri, 10 May 2002 22:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316196AbSEKCcx>; Fri, 10 May 2002 22:32:53 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:38541 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316195AbSEKCcw>; Fri, 10 May 2002 22:32:52 -0400
-Date: Fri, 10 May 2002 21:32:44 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Hugh Dickins <hugh@veritas.com>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG() disassembly tweak 
-In-Reply-To: <Pine.LNX.4.21.0205110255410.2235-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0205102125590.11642-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316197AbSEKCs5>; Fri, 10 May 2002 22:48:57 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:43782 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316196AbSEKCs5>;
+	Fri, 10 May 2002 22:48:57 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iget-locked [2/6] 
+In-Reply-To: Your message of "Fri, 10 May 2002 21:21:16 EST."
+             <Pine.LNX.4.44.0205102120210.11642-100000@chaos.physics.uiowa.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 11 May 2002 12:48:46 +1000
+Message-ID: <3950.1021085326@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002, Hugh Dickins wrote:
+On Fri, 10 May 2002 21:21:16 -0500 (CDT), 
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
+>On Sat, 11 May 2002, Keith Owens wrote:
+>
+>> Build time is the least of your worries here.  All objects that export
+>> symbols must have unique basenames, all the modversion crud goes in
+>> include/linux/modules under the object's basename.
+>
+>This is not true anymore in 2.5, this limitation was removed when ALSA 
+>went in.
 
-> Is there some escaped syntax whereby we can (usefully) put
-> KBUILD_BASENAME into the BUG() macro in place of __FILE__?
+True, but if the iget change goes into 2.5 it will probably be
+backported to 2.4 later, 2.4 still has the restriction.
 
-It doesn't help. When compiling, KBUILD_BASENAME is the name of the main
-source file, i.e. the one given on the command line (basically the same
-thing as __BASEFILE__ or whatever that gcc preprocessor variable is
-called).
-
-You don't want to get "BUG at foo:23", when the BUG instruction is
-actually at filesystem.h:23. Only the compiler knows which source file it
-is currently dealing with.
-
---Kai
-
-
+As for modversions on 2.5, well you know my opinion ;).
 

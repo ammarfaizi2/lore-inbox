@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTF0QUc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 12:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTF0QUc
+	id S264496AbTF0QW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 12:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTF0QW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 12:20:32 -0400
-Received: from ck408323-a.dokku1.fr.home.nl ([217.122.140.78]:16569 "EHLO
-	ck408323-a.dokku1.fr.home.nl") by vger.kernel.org with ESMTP
-	id S264472AbTF0QUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 12:20:32 -0400
-Subject: Re: Serverworks OSB4 issues
-From: Jan de Groot <admin@jgc.homeip.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056728859.3174.50.camel@dhcp22.swansea.linux.org.uk>
-References: <1256.212.187.32.129.1056725249.squirrel@jgc.homeip.net>
-	 <1056728859.3174.50.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1056731685.56652.2.camel@host12.localnet>
+	Fri, 27 Jun 2003 12:22:59 -0400
+Received: from snoopy.pacific.net.au ([61.8.0.36]:31663 "EHLO
+	snoopy.pacific.net.au") by vger.kernel.org with ESMTP
+	id S264496AbTF0QW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 12:22:58 -0400
+Date: Sat, 28 Jun 2003 02:37:20 +1000
+From: CaT <cat@zip.com.au>
+To: nick@snowman.net
+Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Message-ID: <20030627163720.GF357@zip.com.au>
+References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 27 Jun 2003 18:34:45 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-27 at 17:47, Alan Cox wrote:
-> What disk  and other hardware is this ? Also what gcc
-> 
+On Fri, Jun 27, 2003 at 12:28:50PM -0400, nick@snowman.net wrote:
+> I've always had very good luck with 3ware hardware.  As I understand it
+> Serverworks officially says only to use their IDE for CDRom drives &
+> similar.
 
-Maxtor D540X 40GB (the model number should be in the logs I quoted)
+Aye. From what I read when researching them a few years ago, they have
+truly excellent motherboards except for one thing: IDE support. There
+they suck the bigone. If you're gonna use a serverworks mb, use SCSI
+with it. It's what they were designed for.
 
-It's slave to a TEAC IDE CD-ROM, which isn't used (I don't dare to put
-in any CD there anymore ;))
-
-The mainboard is an OEM Asus CUR-DLS, which came in a HP Netserver E800.
-The IDE disk was bought a year or two ago with much datastorage for low
-price in mind (yes, we make backups every night ;))
-
+-- 
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://www.toledoblade.com/apps/pbcs.dll/artikkel?SearchID=73139162287496&Avis=TO&Dato=20030624&Kategori=NEWS28&Lopenr=106240111&Ref=AR

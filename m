@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261391AbSJ1R2S>; Mon, 28 Oct 2002 12:28:18 -0500
+	id <S261400AbSJ1RfA>; Mon, 28 Oct 2002 12:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261429AbSJ1R2S>; Mon, 28 Oct 2002 12:28:18 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:59919 "EHLO
+	id <S261432AbSJ1ReI>; Mon, 28 Oct 2002 12:34:08 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:61199 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261391AbSJ1RXo>; Mon, 28 Oct 2002 12:23:44 -0500
-Date: Tue, 29 Oct 2002 02:30:04 +0900
+	id <S261400AbSJ1RXs>; Mon, 28 Oct 2002 12:23:48 -0500
+Date: Tue, 29 Oct 2002 02:30:08 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 5/23] add support for PC-9800 architecture (core #2)
-Message-ID: <20021029023004.A2247@precia.cinet.co.jp>
+Subject: [PATCHSET 10/23] add support for PC-9800 architecture (input)
+Message-ID: <20021029023008.A2277@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,653 +19,965 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 5/23 of patchset for add support NEC PC-9800 architecture,
+This is a part 10/23 of patchset for add support NEC PC-9800 architecture,
 against 2.5.44.
 
 Summary:
- core modules (continued)
+ input modules
+  - add new driver for PC-9800 standard keyboard and mouse.
+  - add few changes for PC-9800 hardware spec.
 
 diffstat:
- include/asm-i386/bugs.h         |    2 
- include/asm-i386/dma.h          |    7 +
- include/asm-i386/io.h           |    6 +
- include/asm-i386/irq.h          |    4 
- include/asm-i386/pc9800.h       |   27 ++++
- include/asm-i386/pc9800_debug.h |  152 +++++++++++++++++++++++++
- include/asm-i386/pc9800_dma.h   |  238 ++++++++++++++++++++++++++++++++++++++++
- include/asm-i386/pc9800_sca.h   |   25 ++++
- include/asm-i386/pgtable.h      |    4 
- include/asm-i386/processor.h    |    2 
- include/asm-i386/scatterlist.h  |    6 +
- include/asm-i386/setup.h        |    1 
- include/asm-i386/timex.h        |    4 
- 13 files changed, 477 insertions(+), 1 deletion(-)
+ drivers/char/keyboard.c          |    4 
+ drivers/input/keyboard/98kbd.c   |  356 +++++++++++++++++++++++++++++++++++++++
+ drivers/input/keyboard/Config.in |    4 
+ drivers/input/keyboard/Makefile  |    1 
+ drivers/input/misc/pcspkr.c      |   24 ++
+ drivers/input/mouse/98busmouse.c |  201 ++++++++++++++++++++++
+ drivers/input/mouse/Config.in    |    3 
+ drivers/input/mouse/Makefile     |    1 
+ drivers/input/serio/98kbd-io.c   |  181 +++++++++++++++++++
+ drivers/input/serio/Config.in    |    3 
+ drivers/input/serio/Makefile     |    1 
+ include/linux/kbd_kern.h         |    5 
+ include/linux/keyboard.h         |    1 
+ include/linux/serio.h            |    1 
+ 14 files changed, 784 insertions(+), 2 deletions(-)
 
 patch:
-diff -urN linux/include/asm-i386/bugs.h linux98/include/asm-i386/bugs.h
---- linux/include/asm-i386/bugs.h	Sun Jun  9 14:27:38 2002
-+++ linux98/include/asm-i386/bugs.h	Mon Jun 10 20:49:15 2002
-@@ -34,6 +34,7 @@
+diff -urN linux/drivers/input/keyboard/Config.in linux98/drivers/input/keyboard/Config.in
+--- linux/drivers/input/keyboard/Config.in	Sat Oct 12 13:22:45 2002
++++ linux98/drivers/input/keyboard/Config.in	Sun Oct 13 11:29:55 2002
+@@ -9,6 +9,10 @@
+ dep_tristate '  XT Keyboard support' CONFIG_KEYBOARD_XTKBD $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_SERIO
+ dep_tristate '  Newton keyboard' CONFIG_KEYBOARD_NEWTON $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_SERIO
  
- __setup("no-hlt", no_halt);
- 
-+#ifndef CONFIG_PC9800
- static int __init mca_pentium(char *s)
- {
- 	mca_pentium_flag = 1;
-@@ -41,6 +42,7 @@
- }
- 
- __setup("mca-pentium", mca_pentium);
-+#endif
- 
- static int __init no_387(char *s)
- {
-diff -urN linux/include/asm-i386/dma.h linux98/include/asm-i386/dma.h
---- linux/include/asm-i386/dma.h	Sat Jul 21 04:52:59 2001
-+++ linux98/include/asm-i386/dma.h	Fri Aug 17 22:15:06 2001
-@@ -10,6 +10,9 @@
- 
- #include <linux/config.h>
- #include <linux/spinlock.h>	/* And spinlocks */
-+#ifdef CONFIG_PC9800
-+#include <asm/pc9800_dma.h>
-+#else /* !CONFIG_PC9800 */
- #include <asm/io.h>		/* need byte IO */
- #include <linux/delay.h>
- 
-@@ -72,8 +75,10 @@
- 
- #define MAX_DMA_CHANNELS	8
- 
-+#ifndef CONFIG_PC9800
- /* The maximum address that we can perform a DMA transfer to on this platform */
- #define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
-+#endif
- 
- /* 8237 DMA controllers */
- #define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
-@@ -295,4 +300,6 @@
- #define isa_dma_bridge_buggy 	(0)
- #endif
- 
-+#endif /* CONFIG_PC9800 */
++if [ "$CONFIG_PC9800" = "y" ]; then
++   dep_tristate '  NEC PC-9801 keyboard support' CONFIG_KEYBOARD_98KBD $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_SERIO
++fi
 +
- #endif /* _ASM_DMA_H */
-diff -urN linux/include/asm-i386/io.h linux98/include/asm-i386/io.h
---- linux/include/asm-i386/io.h	Sat Oct 12 13:22:45 2002
-+++ linux98/include/asm-i386/io.h	Sat Oct 12 19:25:19 2002
-@@ -27,6 +27,8 @@
-  *		Linus
+ if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
+    dep_tristate '  Maple bus keyboard support' CONFIG_KEYBOARD_MAPLE $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_MAPLE
+ fi
+diff -urN linux/drivers/input/keyboard/Makefile linux98/drivers/input/keyboard/Makefile
+--- linux/drivers/input/keyboard/Makefile	Sat Oct 12 13:21:42 2002
++++ linux98/drivers/input/keyboard/Makefile	Sun Oct 13 11:27:15 2002
+@@ -10,6 +10,7 @@
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+ obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
++obj-$(CONFIG_KEYBOARD_98KBD)		+= 98kbd.o
+ 
+ # The global Rules.make.
+ 
+diff -urN linux/drivers/input/keyboard/98kbd.c linux98/drivers/input/keyboard/98kbd.c
+--- linux/drivers/input/keyboard/98kbd.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/input/keyboard/98kbd.c	Sun Oct 27 07:45:43 2002
+@@ -0,0 +1,356 @@
++/*
++ *  drivers/input/keyboard/98kbd.c
++ *
++ *  PC-9801 keyboard driver for Linux
++ *
++ *    Based on atkbd.c and xtkbd.c written by Vojtech Pavlik
++ *
++ *  Copyright (c) 2002 Osamu Tomita
++ *  Copyright (c) 1999-2001 Vojtech Pavlik
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or 
++ * (at your option) any later version.
++ * 
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ * 
++ */
++
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/init.h>
++#include <linux/serio.h>
++
++#include <asm/io.h>
++#include <asm/pc9800.h>
++
++MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
++MODULE_DESCRIPTION("PC-9801 keyboard driver");
++MODULE_LICENSE("GPL");
++
++#define KBD98_KEY	0x7f
++#define KBD98_RELEASE	0x80
++
++static unsigned char kbd98_keycode[256] = {	 
++	  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 43, 14, 15,
++	 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 41, 26, 28, 30, 31, 32,
++	 33, 34, 35, 36, 37, 38, 39, 40, 27, 44, 45, 46, 47, 48, 49, 50,
++	 51, 52, 53, 12, 57,184,109,104,110,111,103,105,106,108,102,107,
++	 74, 98, 71, 72, 73, 55, 75, 76, 77, 78, 79, 80, 81,117, 82,124,
++	 83,185, 87, 88, 85, 89, 90,  0,  0,  0,  0,  0,  0,  0,102,  0,
++	 99,133, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,  0,  0,  0,  0,
++	 54, 58, 42, 56, 29
++};
++
++struct jis_kbd_conv {
++	unsigned char scancode;
++	struct {
++		unsigned char shift;
++		unsigned char keycode;
++	} emul[2];
++};
++
++static struct jis_kbd_conv kbd98_jis[] = {
++	{0x02, {{0,   3}, {1,  40}}},
++	{0x06, {{0,   7}, {1,   8}}},
++	{0x07, {{0,   8}, {0,  40}}},
++	{0x08, {{0,   9}, {1,  10}}},
++	{0x09, {{0,  10}, {1,  11}}},
++	{0x0a, {{0,  11}, {1, 255}}},
++	{0x0b, {{0,  12}, {0,  13}}},
++	{0x0c, {{1,   7}, {0,  41}}},
++	{0x1a, {{1,   3}, {1,  41}}},
++	{0x26, {{0,  39}, {1,  13}}},
++	{0x27, {{1,  39}, {1,   9}}},
++	{0x33, {{0, 255}, {1,  12}}},
++	{0xff, {{0, 255}, {1, 255}}}	/* terminater */
++};
++
++#define KBD98_CMD_SETEXKEY	0x1095	/* Enable/Disable Windows, Appli key */
++#define KBD98_CMD_SETRATE	0x109c	/* Set typematic rate */
++#define KBD98_CMD_SETLEDS	0x109d	/* Set keyboard leds */
++#define KBD98_CMD_GETLEDS	0x119d	/* Get keyboard leds */
++#define KBD98_CMD_GETID		0x019f
++
++#define KBD98_RET_ACK		0xfa
++#define KBD98_RET_NAK		0xfc	/* Command NACK, send the cmd again */
++
++#define KBD98_KEY_JIS_EMUL	254
++#define KBD98_KEY_NULL		255
++
++static char *kbd98_name = "PC-9801 Keyboard";
++
++struct kbd98 {
++	unsigned char keycode[256];
++	struct input_dev dev;
++	struct serio *serio;
++	char phys[32];
++	unsigned char cmdbuf[4];
++	unsigned char cmdcnt;
++	signed char ack;
++	unsigned char shift;
++	struct jis_kbd_conv jis[16];
++};
++
++void kbd98_interrupt(struct serio *serio, unsigned char data, unsigned int flags)
++{
++	struct kbd98 *kbd98 = serio->private;
++	unsigned char scancode, keycode;
++	int press, i;
++
++	switch (data) {
++		case KBD98_RET_ACK:
++			kbd98->ack = 1;
++			return;
++		case KBD98_RET_NAK:
++			kbd98->ack = -1;
++			return;
++	}
++
++	if (kbd98->cmdcnt) {
++		kbd98->cmdbuf[--kbd98->cmdcnt] = data;
++		return;
++	}
++
++	scancode = data & KBD98_KEY;
++	keycode = kbd98->keycode[scancode];
++	press = !(data & KBD98_RELEASE);
++	if (keycode == KEY_RIGHTSHIFT)
++		kbd98->shift = press;
++
++	switch (keycode) {
++		case KEY_2:
++		case KEY_6:
++		case KEY_7:
++		case KEY_8:
++		case KEY_9:
++		case KEY_0:
++		case KEY_MINUS:
++		case KEY_EQUAL:
++		case KEY_GRAVE:
++		case KEY_SEMICOLON:
++		case KEY_APOSTROPHE:
++			/* emulation: JIS keyboard to US101 keyboard */
++			i = 0;
++			while (kbd98->jis[i].scancode != 0xff) {
++				if (scancode == kbd98->jis[i].scancode)
++					break;
++				i ++;
++			}
++
++			keycode = kbd98->jis[i].emul[kbd98->shift].keycode;
++			if (keycode == KBD98_KEY_NULL)
++				return;
++
++			if (kbd98->jis[i].emul[kbd98->shift].shift != kbd98->shift && press) {
++				input_report_key(&kbd98->dev, KEY_RIGHTSHIFT, !(kbd98->shift));
++			}
++
++			input_report_key(&kbd98->dev, keycode, press);
++			if (kbd98->jis[i].emul[kbd98->shift].shift != kbd98->shift && !press) {
++				input_report_key(&kbd98->dev, KEY_RIGHTSHIFT, kbd98->shift);
++			}
++
++			input_sync(&kbd98->dev);
++			return;
++
++		case KBD98_KEY_NULL:
++			return;
++
++		case 0:
++			printk(KERN_WARNING "kbd98.c: Unknown key (scancode %#x) %s.\n",
++				data & KBD98_KEY, data & KBD98_RELEASE ? "released" : "pressed");
++			return;
++
++		default:
++			input_report_key(&kbd98->dev, keycode, press);
++			input_sync(&kbd98->dev);
++		}
++}
++
++/*
++ * kbd98_sendbyte() sends a byte to the keyboard, and waits for
++ * acknowledge. It doesn't handle resends according to the keyboard
++ * protocol specs, because if these are needed, the keyboard needs
++ * replacement anyway, and they only make a mess in the protocol.
++ */
++
++static int kbd98_sendbyte(struct kbd98 *kbd98, unsigned char byte)
++{
++	int timeout = 10000; /* 100 msec */
++	kbd98->ack = 0;
++
++	if (serio_write(kbd98->serio, byte))
++		return -1;
++
++	while (!kbd98->ack && timeout--) udelay(10);
++
++	return -(kbd98->ack <= 0);
++}
++
++/*
++ * kbd98_command() sends a command, and its parameters to the keyboard,
++ * then waits for the response and puts it in the param array.
++ */
++
++static int kbd98_command(struct kbd98 *kbd98, unsigned char *param, int command)
++{
++	int timeout = 50000; /* 500 msec */
++	int send = (command >> 12) & 0xf;
++	int receive = (command >> 8) & 0xf;
++	int i;
++
++	kbd98->cmdcnt = receive;
++	
++	if (command & 0xff)
++		if (kbd98_sendbyte(kbd98, command & 0xff))
++			return (kbd98->cmdcnt = 0) - 1;
++
++	for (i = 0; i < send; i++)
++		if (kbd98_sendbyte(kbd98, param[i]))
++			return (kbd98->cmdcnt = 0) - 1;
++
++	while (kbd98->cmdcnt && timeout--) udelay(10);
++
++	if (param)
++		for (i = 0; i < receive; i++)
++			param[i] = kbd98->cmdbuf[(receive - 1) - i];
++
++	if (kbd98->cmdcnt) 
++		return (kbd98->cmdcnt = 0) - 1;
++
++	return 0;
++}
++
++/*
++ * Event callback from the input module. Events that change the state of
++ * the hardware are processed here.
++ */
++
++static int kbd98_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
++{
++	struct kbd98 *kbd98 = dev->private;
++	char param[2];
++
++	switch (type) {
++
++		case EV_LED:
++
++			if (__PC9800SCA_TEST_BIT(0x481, 3)) {
++				/* 98note with Num Lock key */
++				/* keep Num Lock status     */
++				*param = 0x60;
++				if (kbd98_command(kbd98, param,
++							KBD98_CMD_GETLEDS))
++					printk(KERN_DEBUG
++						"kbd98: Get keyboard LED"
++						" status Error\n");
++
++				*param &= 1;
++			} else {
++				/* desktop PC-9801 */
++				*param = 1;	/* Allways set Num Lock */
++			}
++
++			*param |= 0x70
++			       | (test_bit(LED_CAPSL,   dev->led) ? 4 : 0)
++			       | (test_bit(LED_KANA,    dev->led) ? 8 : 0);
++		        kbd98_command(kbd98, param, KBD98_CMD_SETLEDS);
++
++			return 0;
++	}
++
++	return -1;
++}
++
++void kbd98_connect(struct serio *serio, struct serio_dev *dev)
++{
++	struct kbd98 *kbd98;
++	int i;
++
++	if ((serio->type & SERIO_TYPE) != SERIO_PC9800)
++		return;
++
++	if (!(kbd98 = kmalloc(sizeof(struct kbd98), GFP_KERNEL)))
++		return;
++
++	memset(kbd98, 0, sizeof(struct kbd98));
++	
++	kbd98->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_REP);
++	kbd98->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_KANA);
++
++	kbd98->serio = serio;
++
++	init_input_dev(&kbd98->dev);
++	kbd98->dev.keycode = kbd98->keycode;
++	kbd98->dev.keycodesize = sizeof(unsigned char);
++	kbd98->dev.keycodemax = ARRAY_SIZE(kbd98_keycode);
++	kbd98->dev.event = kbd98_event;
++	kbd98->dev.private = kbd98;
++
++	serio->private = kbd98;
++
++	if (serio_open(serio, dev)) {
++		kfree(kbd98);
++		return;
++	}
++
++	memcpy(kbd98->jis, kbd98_jis, sizeof(kbd98_jis));
++	memcpy(kbd98->keycode, kbd98_keycode, sizeof(kbd98->keycode));
++	for (i = 0; i < 255; i++)
++		set_bit(kbd98->keycode[i], kbd98->dev.keybit);
++	clear_bit(0, kbd98->dev.keybit);
++
++	sprintf(kbd98->phys, "%s/input0", serio->phys);
++
++	kbd98->dev.name = kbd98_name;
++	kbd98->dev.phys = kbd98->phys;
++	kbd98->dev.id.bustype = BUS_XTKBD;
++	kbd98->dev.id.vendor = 0x0002;
++	kbd98->dev.id.product = 0x0001;
++	kbd98->dev.id.version = 0x0100;
++
++	input_register_device(&kbd98->dev);
++
++	printk(KERN_INFO "input: %s on %s\n", kbd98_name, serio->phys);
++}
++
++void kbd98_disconnect(struct serio *serio)
++{
++	struct kbd98 *kbd98 = serio->private;
++	input_unregister_device(&kbd98->dev);
++	serio_close(serio);
++	kfree(kbd98);
++}
++
++struct serio_dev kbd98_dev = {
++	.interrupt =	kbd98_interrupt,
++	.connect =	kbd98_connect,
++	.disconnect =	kbd98_disconnect
++};
++
++int __init kbd98_init(void)
++{
++	serio_register_device(&kbd98_dev);
++	return 0;
++}
++
++void __exit kbd98_exit(void)
++{
++	serio_unregister_device(&kbd98_dev);
++}
++
++module_init(kbd98_init);
++module_exit(kbd98_exit);
+diff -urN linux/drivers/input/misc/pcspkr.c linux98/drivers/input/misc/pcspkr.c
+--- linux/drivers/input/misc/pcspkr.c	Mon Sep 16 11:18:31 2002
++++ linux98/drivers/input/misc/pcspkr.c	Mon Sep 16 16:04:05 2002
+@@ -12,6 +12,7 @@
+  * the Free Software Foundation
   */
  
 +#include <linux/config.h>
-+
-  /*
-   *  Bit simplified and optimized by Jan Hubicka
-   *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999.
-@@ -288,7 +290,11 @@
- #ifdef SLOW_IO_BY_JUMPING
- #define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
- #else
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+@@ -23,7 +24,11 @@
+ MODULE_LICENSE("GPL");
+ 
+ static char pcspkr_name[] = "PC Speaker";
 +#ifndef CONFIG_PC9800
- #define __SLOW_DOWN_IO "outb %%al,$0x80;"
+ static char pcspkr_phys[] = "isa0061/input0";
 +#else
-+#define __SLOW_DOWN_IO "outb %%al,$0x5f;"
++static char pcspkr_phys[] = "isa3fdb/input0";
 +#endif
- #endif
+ static struct input_dev pcspkr_dev;
  
- static inline void slow_down_io(void) {
-diff -urN linux/include/asm-i386/irq.h linux98/include/asm-i386/irq.h
---- linux/include/asm-i386/irq.h	Sat Sep 21 00:20:16 2002
-+++ linux98/include/asm-i386/irq.h	Sat Sep 21 07:17:56 2002
-@@ -17,7 +17,11 @@
+ spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
+@@ -43,11 +48,16 @@
+ 	} 
  
- static __inline__ int irq_cannonicalize(int irq)
- {
+ 	if (value > 20 && value < 32767)
 +#ifndef CONFIG_PC9800
- 	return ((irq == 2) ? 9 : irq);
+ 		count = 1193182 / value;
 +#else
-+	return ((irq == 7) ? 11 : irq);
++		count = CLOCK_TICK_RATE / value;
 +#endif
- }
+ 	
+ 	spin_lock_irqsave(&i8253_beep_lock, flags);
  
- extern void disable_irq(unsigned int);
-diff -urN linux/include/asm-i386/pc9800.h linux98/include/asm-i386/pc9800.h
---- linux/include/asm-i386/pc9800.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800.h	Fri Aug 17 21:50:18 2001
-@@ -0,0 +1,27 @@
-+/*
-+ *  PC-9800 machine types.
-+ *
-+ *  Copyright (C) 1999	TAKAI Kosuke <tak@kmc.kyoto-u.ac.jp>
-+ *			(Linux/98 Project)
-+ */
-+
-+#ifndef _ASM_PC9800_H_
-+#define _ASM_PC9800_H_
-+
-+#include <asm/pc9800_sca.h>
-+#include <asm/types.h>
-+
-+#define __PC9800SCA(type, pa)	(*(type *) phys_to_virt(pa))
-+#define __PC9800SCA_TEST_BIT(pa, n)	\
-+	((__PC9800SCA(u8, pa) & (1U << (n))) != 0)
-+
-+#define PC9800_HIGHRESO_P()	__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 3)
-+#define PC9800_8MHz_P()		__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 7)
-+
-+				/* 0x2198 is 98 21 on memory... */
-+#define PC9800_9821_P()		(__PC9800SCA(u16, PC9821SCA_ROM_ID) == 0x2198)
-+
-+/* Note PC9821_...() are valid only when PC9800_9821_P() was true. */
-+#define PC9821_IDEIF_DOUBLE_P()	__PC9800SCA_TEST_BIT(PC9821SCA_ROM_FLAG4, 4)
-+
+ 	if (count) {
++#ifndef CONFIG_PC9800
+ 		/* enable counter 2 */
+ 		outb_p(inb_p(0x61) | 3, 0x61);
+ 		/* set command for counter 2, 2 byte write */
+@@ -55,9 +65,23 @@
+ 		/* select desired HZ */
+ 		outb_p(count & 0xff, 0x42);
+ 		outb((count >> 8) & 0xff, 0x42);
++#else /* CONFIG_PC9800 */
++		outb(0x76, 0x3fdf);
++		outb(0, 0x5f);
++		outb(count & 0xff, 0x3fdb);
++		outb(0, 0x5f);
++		outb((count >> 8) & 0xff, 0x3fdb);
++		/* beep on */
++		outb(6, 0x37);
++#endif /* !CONFIG_PC9800 */
+ 	} else {
+ 		/* disable counter 2 */
++#ifndef CONFIG_PC9800
+ 		outb(inb_p(0x61) & 0xFC, 0x61);
++#else
++		/* beep off */
++		outb(7, 0x37);
 +#endif
-diff -urN linux/include/asm-i386/pc9800_debug.h linux98/include/asm-i386/pc9800_debug.h
---- linux/include/asm-i386/pc9800_debug.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800_debug.h	Fri Aug 17 22:20:21 2001
-@@ -0,0 +1,152 @@
+ 	}
+ 
+ 	spin_unlock_irqrestore(&i8253_beep_lock, flags);
+diff -urN linux/drivers/input/mouse/98busmouse.c linux98/drivers/input/mouse/98busmouse.c
+--- linux/drivers/input/mouse/98busmouse.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/input/mouse/98busmouse.c	Sat Oct 26 18:36:15 2002
+@@ -0,0 +1,201 @@
 +/*
-+ * linux/include/asm-i386/pc9800_debug.h: Defines for debug routines
 + *
-+ * Written by Linux/98 Project, 1998.
++ *  Copyright (c) 2002 Osamu Tomita
 + *
-+ * Revised by TAKAI Kousuke, Nov 1999.
++ *  Based on the work of:
++ *	James Banks		Matthew Dillon
++ *	David Giller		Nathan Laredo
++ *	Linus Torvalds		Johan Myreen
++ *	Cliff Matthews		Philip Blundell
++ *	Russell King		Vojtech Pavlik
 + */
-+
-+#ifndef _ASM_PC9800_DEBUG_H
-+#define _ASM_PC9800_DEBUG_H
-+
-+extern unsigned char __pc9800_beep_flag;
-+
-+/* Don't depend on <asm/io.h> ... */
-+static __inline__ void pc9800_beep_on(void)
-+{
-+	__asm__ ("out%B0 %0,%1" : : "a"((char) 0x6), "N"(0x37));
-+	__pc9800_beep_flag = 0x6;
-+}
-+
-+static __inline__ void pc9800_beep_off(void)
-+{
-+	__asm__ ("out%B0 %0,%1" : : "a"((char) 0x7), "N"(0x37));
-+	__pc9800_beep_flag = 0x7;
-+}
-+
-+static __inline__ void pc9800_beep_toggle(void)
-+{
-+	__pc9800_beep_flag ^= 1;
-+	__asm__ ("out%B0 %0,%1" : : "a"(__pc9800_beep_flag), "N"(0x37));
-+}
-+
-+static __inline__ void pc9800_udelay(unsigned int __usec)
-+{
-+	if ((__usec = __usec * 10 / 6) > 0)
-+		do
-+			__asm__ ("out%B0 %%al,%0" : : "N"(0x5F));
-+		while (--__usec);
-+}
-+
-+# define assertk(expr)	({						\
-+	if (!(expr)) {							\
-+		__pc9800_saveregs();					\
-+		__assert_fail(__BASE_FILE__, __FILE__, __LINE__,	\
-+			       __PRETTY_FUNCTION__,			\
-+			       __builtin_return_address (0), #expr);	\
-+	}								\
-+})
-+# define check_kernel_pointer(expr)	({				\
-+	void *__p = (expr);						\
-+	if ((unsigned long) __p < PAGE_OFFSET) {			\
-+		__pc9800_saveregs();					\
-+		__invalid_kernel_pointer				\
-+			(__BASE_FILE__, __FILE__, __LINE__,		\
-+			 __PRETTY_FUNCTION__,				\
-+			 __builtin_return_address(0), #expr, __p);	\
-+	}								\
-+})
-+
-+extern void __assert_fail(const char *, const char *, unsigned int,
-+			   const char *, void *, const char *)
-+     __attribute__ ((__noreturn__));
-+extern void __invalid_kernel_pointer(const char *, const char *, unsigned int,
-+				      const char *, void *,
-+				      const char *, void *)
-+     __attribute__ ((__noreturn__));
-+extern void __pc9800_saveregs(void);
-+
-+extern void ucg_saveargs(unsigned int, ...);
-+
-+#ifdef NEED_UNMAP_PHYSPAGE
-+
-+#include <linux/mm.h>
-+#include <asm/pgtable.h>
-+#include <asm/pgalloc.h>
 +
 +/*
-+ * unmap_physpage (addr)
++ * NEC PC-9801 Bus Mouse Driver for Linux
 + */
-+static __inline__ void
-+unmap_physpage(unsigned long addr)
-+{
-+	pgd_t *pgd = pgd_offset_k(addr);
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	if (pgd_none(*pgd))
-+		panic("%s: No pgd?!?", __BASE_FILE__);
-+	pmd = pmd_offset(pgd, addr);
-+	if (pmd_none(*pmd))
-+		panic("%s: No pmd?!?", __BASE_FILE__);
-+	if (pmd_val(*pmd) & _PAGE_PSE) {
-+		int i;
-+		unsigned long paddr = pmd_val(*pmd) & PAGE_MASK;
-+
-+		pte = (pte_t *) __get_free_page(GFP_KERNEL);
-+		set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte)));
-+		for (i = 0; i < PTRS_PER_PTE; pte++, i++)
-+			*pte = mk_pte_phys(paddr + i * PAGE_SIZE,
-+					    PAGE_KERNEL);
-+	}
-+	pte = pte_offset(pmd, addr);
-+
-+	set_pte(pte, pte_modify(*pte, PAGE_NONE));
-+	__flush_tlb_one(addr);
-+}
-+#endif /* NEED_UNMAP_PHYSPAGE */
-+
-+#ifdef NEED_KERNEL_POINTER_CHECKER
-+# /* no dep */ include <asm/uaccess.h>
 +
 +/*
-+ *  KERNEL_POINTER_VALIDP(PTR) validates kernel pointer PTR.
-+ *  If PTR points vaild memory address for kernel internal use,
-+ *  return nonzero; otherwise return zero.
-+ *
-+ *  Note PTR is invalid if PTR points user area.
-+ */
-+#define KERNEL_POINTER_VALIDP(PTR)	({	\
-+	const int *_ptr = (const int *) (PTR);	\
-+	int _dummy;				\
-+	(unsigned long) _ptr >= PAGE_OFFSET	\
-+		&& !__get_user(_dummy, _ptr);	\
-+})
-+
-+/*
-+ *  Similar, but validates for a trivial string in kernel.
-+ *  Here `trivial' means that the string has no non-ASCII characters
-+ *  and is shorter than 80 characters.
-+ *
-+ *  Note this is intended for checking various `name' (I/O
-+ *  resources and so on).
-+ */
-+#define KERNEL_POINTER_TRIVIAL_STRING_P(PTR)	({			\
-+	const char *_ptr = (const char *) (PTR);			\
-+	char _dummy;							\
-+	(unsigned long) _ptr >= PAGE_OFFSET				\
-+		&& ({ int _result;					\
-+		      while (!(_result = __get_user(_dummy, _ptr))	\
-+			     && _dummy)					\
-+			      _ptr++;					\
-+		      !_result; }); })
-+
-+#endif /* NEED_VALIDATE_KERNEL_POINTER */
-+
-+#endif /* _ASM_PC9800_DEBUG_H */
-+
-+/*
-+ * Local variables:
-+ * c-file-style: "linux"
-+ * End:
-+ */
-diff -urN linux/include/asm-i386/pc9800_dma.h linux98/include/asm-i386/pc9800_dma.h
---- linux/include/asm-i386/pc9800_dma.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800_dma.h	Fri Aug 17 22:15:01 2001
-@@ -0,0 +1,238 @@
-+/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-+ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-+ * Written by Hennus Bergman, 1992.
-+ * High DMA channel support & info by Hannu Savolainen
-+ * and John Boyd, Nov. 1992.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or 
++ * (at your option) any later version.
++ * 
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ * 
 + */
 +
-+#ifndef _ASM_PC9800_DMA_H
-+#define _ASM_PC9800_DMA_H
++#include <asm/io.h>
++#include <asm/irq.h>
 +
 +#include <linux/config.h>
-+#include <asm/io.h>		/* need byte IO */
++#include <linux/module.h>
 +#include <linux/delay.h>
++#include <linux/ioport.h>
++#include <linux/init.h>
++#include <linux/input.h>
 +
++MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
++MODULE_DESCRIPTION("PC-9801 busmouse driver");
++MODULE_LICENSE("GPL");
 +
-+#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
-+#define dma_outb	outb_p
-+#else
-+#define dma_outb	outb
++#define	PC98BM_BASE		0x7fd9
++#define	PC98BM_DATA_PORT	PC98BM_BASE + 0
++/*	PC98BM_SIGNATURE_PORT	does not exist */
++#define	PC98BM_CONTROL_PORT	PC98BM_BASE + 4
++/*	PC98BM_INTERRUPT_PORT	does not exist */
++#define	PC98BM_CONFIG_PORT	PC98BM_BASE + 6
++
++#define	PC98BM_ENABLE_IRQ	0x00
++#define	PC98BM_DISABLE_IRQ	0x10
++#define	PC98BM_READ_X_LOW	0x80
++#define	PC98BM_READ_X_HIGH	0xa0
++#define	PC98BM_READ_Y_LOW	0xc0
++#define	PC98BM_READ_Y_HIGH	0xe0
++
++#define PC98BM_DEFAULT_MODE	0x93
++/*	PC98BM_CONFIG_BYTE	is not used */
++/*	PC98BM_SIGNATURE_BYTE	is not used */
++
++#define PC98BM_TIMER_PORT	0xbfdb
++#define PC98BM_DEFAULT_TIMER_VAL	0x00
++
++#define PC98BM_IRQ		13
++
++MODULE_PARM(pc98bm_irq, "i");
++
++static int pc98bm_irq = PC98BM_IRQ;
++static int pc98bm_used = 0;
++
++static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++
++static int pc98bm_open(struct input_dev *dev)
++{
++	if (pc98bm_used++)
++		return 0;
++	if (request_irq(pc98bm_irq, pc98bm_interrupt, 0, "98busmouse", NULL)) {
++		pc98bm_used--;
++		printk(KERN_ERR "98busmouse.c: Can't allocate irq %d\n", pc98bm_irq);
++		return -EBUSY;
++	}
++	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
++	return 0;
++}
++
++static void pc98bm_close(struct input_dev *dev)
++{
++	if (--pc98bm_used)
++		return;
++	outb(PC98BM_DISABLE_IRQ, PC98BM_CONTROL_PORT);
++	free_irq(pc98bm_irq, NULL);
++}
++
++static struct input_dev pc98bm_dev = {
++	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
++	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
++	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
++	.open	= pc98bm_open,
++	.close	= pc98bm_close,
++	.name	= "PC-9801 bus mouse",
++	.phys	= "isa7fd9/input0",
++	.id	= {
++		.bustype = BUS_ISA,
++		.vendor  = 0x0004,
++		.product = 0x0001,
++		.version = 0x0100,
++	},
++};
++
++static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	char dx, dy;
++	unsigned char buttons;
++
++	outb(PC98BM_READ_X_LOW, PC98BM_CONTROL_PORT);
++	dx = (inb(PC98BM_DATA_PORT) & 0xf);
++	outb(PC98BM_READ_X_HIGH, PC98BM_CONTROL_PORT);
++	dx |= (inb(PC98BM_DATA_PORT) & 0xf) << 4;
++	outb(PC98BM_READ_Y_LOW, PC98BM_CONTROL_PORT);
++	dy = (inb(PC98BM_DATA_PORT) & 0xf);
++	outb(PC98BM_READ_Y_HIGH, PC98BM_CONTROL_PORT);
++	buttons = inb(PC98BM_DATA_PORT);
++	dy |= (buttons & 0xf) << 4;
++	buttons = ~buttons >> 5;
++
++	input_report_rel(&pc98bm_dev, REL_X, dx);
++	input_report_rel(&pc98bm_dev, REL_Y, dy);
++	input_report_key(&pc98bm_dev, BTN_RIGHT,  buttons & 1);
++	input_report_key(&pc98bm_dev, BTN_MIDDLE, buttons & 2);
++	input_report_key(&pc98bm_dev, BTN_LEFT,   buttons & 4);
++	input_sync(&pc98bm_dev);
++
++	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
++}
++
++#ifndef MODULE
++static int __init pc98bm_setup(char *str)
++{
++        int ints[4];
++        str = get_options(str, ARRAY_SIZE(ints), ints);
++        if (ints[0] > 0) pc98bm_irq = ints[1];
++        return 1;
++}
++__setup("pc98bm_irq=", pc98bm_setup);
 +#endif
 +
-+#define dma_inb		inb
++static int __init pc98bm_init(void)
++{
++	int i;
 +
++	for (i = 0; i <= 6; i += 2) {
++		if (!request_region(PC98BM_BASE + i, 1, "98busmouse")) {
++			printk(KERN_ERR "98busmouse.c: Can't allocate ports at %#x\n", PC98BM_BASE + i);
++			while (i > 0) {
++				i -= 2;
++				release_region(PC98BM_BASE + i, 1);
++			}
++
++			return -EBUSY;
++		}
++
++	}
++
++	if (!request_region(PC98BM_TIMER_PORT, 1, "98busmouse")) {
++		printk(KERN_ERR "98busmouse.c: Can't allocate ports at %#x\n", PC98BM_TIMER_PORT);
++		for (i = 0; i <= 6; i += 2)
++			release_region(PC98BM_BASE + i, 1);
++
++		return -EBUSY;
++	}
++
++	outb(PC98BM_DEFAULT_MODE, PC98BM_CONFIG_PORT);
++	outb(PC98BM_DISABLE_IRQ, PC98BM_CONTROL_PORT);
++
++	outb(PC98BM_DEFAULT_TIMER_VAL, PC98BM_TIMER_PORT);
++
++	input_register_device(&pc98bm_dev);
++	
++	printk(KERN_INFO "input: PC-9801 bus mouse at %#x irq %d\n", PC98BM_BASE, pc98bm_irq);
++
++	return 0;
++}
++
++static void __exit pc98bm_exit(void)
++{
++	int i;
++
++	input_unregister_device(&pc98bm_dev);
++	for (i = 0; i <= 6; i += 2)
++		release_region(PC98BM_BASE + i, 1);
++
++	release_region(PC98BM_TIMER_PORT, 1);
++}
++
++module_init(pc98bm_init);
++module_exit(pc98bm_exit);
+diff -urN linux/drivers/input/mouse/Config.in linux98/drivers/input/mouse/Config.in
+--- linux/drivers/input/mouse/Config.in	Sat Oct 19 13:02:28 2002
++++ linux98/drivers/input/mouse/Config.in	Thu Oct 24 16:59:32 2002
+@@ -22,3 +22,6 @@
+ if [ "$CONFIG_ARCH_ACORN" = "y" ]; then
+    dep_tristate '  Acorn RiscPC mouse' CONFIG_MOUSE_ACORN $CONFIG_INPUT $CONFIG_INPUT_MOUSE
+ fi
++if [ "$CONFIG_PC9800" = "y" ]; then
++   dep_tristate '  NEC PC-9801 busmouse' CONFIG_BUSMOUSE_PC9800 $CONFIG_INPUT $CONFIG_INPUT_MOUSE $CONFIG_ISA
++fi
+diff -urN linux/drivers/input/mouse/Makefile linux98/drivers/input/mouse/Makefile
+--- linux/drivers/input/mouse/Makefile	Sat Oct 19 13:01:17 2002
++++ linux98/drivers/input/mouse/Makefile	Thu Oct 24 17:00:51 2002
+@@ -12,6 +12,7 @@
+ obj-$(CONFIG_MOUSE_PC110PAD)	+= pc110pad.o
+ obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
+ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
++obj-$(CONFIG_BUSMOUSE_PC9800)	+= 98busmouse.o
+ 
+ # The global Rules.make.
+ 
+diff -urN linux/drivers/input/serio/Config.in linux98/drivers/input/serio/Config.in
+--- linux/drivers/input/serio/Config.in	Sat Oct 12 13:22:11 2002
++++ linux98/drivers/input/serio/Config.in	Sun Oct 13 12:59:05 2002
+@@ -21,3 +21,6 @@
+ if [ "$CONFIG_SA1111" = "y" ]; then
+    dep_tristate '  Intel SA1111 keyboard controller' CONFIG_SERIO_SA1111 $CONFIG_SERIO
+ fi
++if [ "$CONFIG_PC9800" = "y" ]; then
++   dep_tristate '  NEC PC-9801 keyboard controller' CONFIG_SERIO_98KBD $CONFIG_SERIO
++fi
+diff -urN linux/drivers/input/serio/Makefile linux98/drivers/input/serio/Makefile
+--- linux/drivers/input/serio/Makefile	Sat Oct 19 13:01:09 2002
++++ linux98/drivers/input/serio/Makefile	Thu Oct 24 15:50:55 2002
+@@ -17,6 +17,7 @@
+ obj-$(CONFIG_SERIO_SA1111)	+= sa1111ps2.o
+ obj-$(CONFIG_SERIO_AMBAKMI)	+= ambakmi.o
+ obj-$(CONFIG_SERIO_Q40KBD)	+= q40kbd.o
++obj-$(CONFIG_SERIO_98KBD)	+= 98kbd-io.o
+ 
+ # The global Rules.make.
+ 
+diff -urN linux/drivers/input/serio/98kbd-io.c linux98/drivers/input/serio/98kbd-io.c
+--- linux/drivers/input/serio/98kbd-io.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/input/serio/98kbd-io.c	Thu Oct 24 16:29:57 2002
+@@ -0,0 +1,181 @@
 +/*
-+ * NOTES about DMA transfers:
++ *  NEC PC-9801 keyboard controller driver for Linux
 + *
-+ *  controller 1: channels 0-3, byte operations, ports 00-1F
-+ *  controller 2: channels 4-7, word operations, ports C0-DF
-+ *
-+ *  - ALL registers are 8 bits only, regardless of transfer size
-+ *  - channel 4 is not used - cascades 1 into 2.
-+ *  - channels 0-3 are byte - addresses/counts are for physical bytes
-+ *  - channels 5-7 are word - addresses/counts are for physical words
-+ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
-+ *  - transfer count loaded to registers is 1 less than actual count
-+ *  - controller 2 offsets are all even (2x offsets for controller 1)
-+ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
-+ *  - page registers for 0-3 use bit 0, represent 64K pages
-+ *
-+ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
-+ * Note that addresses loaded into registers must be _physical_ addresses,
-+ * not logical addresses (which may differ if paging is active).
-+ *
-+ *  Address mapping for channels 0-3:
-+ *
-+ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *   P7  ...  P0  A7 ... A0  A7 ... A0   
-+ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
-+ *
-+ *  Address mapping for channels 5-7:
-+ *
-+ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
-+ *    |  ...  |   \   \   ... \  \  \  ... \  \
-+ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
-+ *    |  ...  |     \   \   ... \  \  \  ... \
-+ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
-+ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
-+ *
-+ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
-+ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
-+ * the hardware level, so odd-byte transfers aren't possible).
-+ *
-+ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-+ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
-+ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
-+ *
++ *  Copyright (c) 1999-2002 Osamu Tomita <tomita@cinet.co.jp>
++ *    Based on i8042.c written by Vojtech Pavlik
 + */
 +
-+#define MAX_DMA_CHANNELS	4
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
 +
-+/* The maximum address that we can perform a DMA transfer to on this platform */
-+#define MAX_DMA_ADDRESS      (~0UL)
++#include <asm/io.h>
 +
-+/* 8237 DMA controllers */
-+#define IO_DMA_BASE		0x01
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/ioport.h>
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/serio.h>
++#include <linux/sched.h>
 +
-+/* DMA controller registers */
-+#define DMA_CMD_REG			((IO_DMA_BASE)+0x10) /* command register (w) */
-+#define DMA_STAT_REG		((IO_DMA_BASE)+0x10) /* status register (r) */
-+#define DMA_REQ_REG			((IO_DMA_BASE)+0x12) /* request register (w) */
-+#define DMA_MASK_REG		((IO_DMA_BASE)+0x14) /* single-channel mask (w) */
-+#define DMA_MODE_REG		((IO_DMA_BASE)+0x16) /* mode register (w) */
-+#define DMA_CLEAR_FF_REG	((IO_DMA_BASE)+0x18) /* clear pointer flip-flop (w) */
-+#define DMA_TEMP_REG		((IO_DMA_BASE)+0x1A) /* Temporary Register (r) */
-+#define DMA_RESET_REG		((IO_DMA_BASE)+0x1A) /* Master Clear (w) */
-+#define DMA_CLR_MASK_REG	((IO_DMA_BASE)+0x1C) /* Clear Mask */
-+#define DMA_MASK_ALL_REG	((IO_DMA_BASE)+0x1E) /* all-channels mask (w) */
++MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
++MODULE_DESCRIPTION("NEC PC-9801 keyboard controller driver");
++MODULE_LICENSE("GPL");
 +
-+#define DMA_PAGE_0			0x27	/* DMA page registers */
-+#define DMA_PAGE_1			0x21
-+#define DMA_PAGE_2			0x23
-+#define DMA_PAGE_3			0x25
++/*
++ * Names.
++ */
 +
-+#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
-+#define DMA_Ex_PAGE_1		0xe07
-+#define DMA_Ex_PAGE_2		0xe09
-+#define DMA_Ex_PAGE_3		0xe0b
++#define KBD98_PHYS_DESC "isa0041/serio0"
 +
-+#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
-+#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
-+#define DMA_AUTOINIT	0x10
++/*
++ * IRQs.
++ */
 +
-+extern spinlock_t  dma_spin_lock;
++#define KBD98_IRQ	1
 +
-+static __inline__ unsigned long claim_dma_lock(void)
++/*
++ * Register numbers.
++ */
++
++#define KBD98_COMMAND_REG	0x43	
++#define KBD98_STATUS_REG	0x43	
++#define KBD98_DATA_REG		0x41
++
++spinlock_t kbd98io_lock = SPIN_LOCK_UNLOCKED;
++
++static struct serio kbd98_port;
++extern struct pt_regs *kbd_pt_regs;
++
++static void kbd98io_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++
++/*
++ * kbd98_flush() flushes all data that may be in the keyboard buffers
++ */
++
++static int kbd98_flush(void)
 +{
 +	unsigned long flags;
-+	spin_lock_irqsave(&dma_spin_lock, flags);
-+	return flags;
++
++	spin_lock_irqsave(&kbd98io_lock, flags);
++
++	while (inb(KBD98_STATUS_REG) & 0x02) /* RxRDY */
++		inb(KBD98_DATA_REG);
++
++	if (inb(KBD98_STATUS_REG) & 0x38)
++		printk("98kbd-io: Keyboard error!\n");
++
++	spin_unlock_irqrestore(&kbd98io_lock, flags);
++
++	return 0;
 +}
 +
-+static __inline__ void release_dma_lock(unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&dma_spin_lock, flags);
-+}
-+
-+/* enable/disable a specific DMA channel */
-+static __inline__ void enable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr,  DMA_MASK_REG);
-+}
-+
-+static __inline__ void disable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr | 4,  DMA_MASK_REG);
-+}
-+
-+/* Clear the 'DMA Pointer Flip Flop'.
-+ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-+ * Use this once to initialize the FF to a known state.
-+ * After that, keep track of it. :-)
-+ * --- In order to do that, the DMA routines below should ---
-+ * --- only be used while holding the DMA lock ! ---
-+ */
-+static __inline__ void clear_dma_ff(unsigned int dmanr)
-+{
-+	dma_outb(0,  DMA_CLEAR_FF_REG);
-+}
-+
-+/* set mode (above) for a specific DMA channel */
-+static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
-+{
-+	dma_outb(mode | dmanr,  DMA_MODE_REG);
-+}
-+
-+/* Set only the page register bits of the transfer address.
-+ * This is used for successive transfers when we know the contents of
-+ * the lower 16 bits of the DMA current address register, but a 64k boundary
-+ * may have been crossed.
-+ */
-+static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
-+{
-+	unsigned char low=pagenr&0xff;
-+	unsigned char hi=pagenr>>8;
-+
-+	switch(dmanr) {
-+		case 0:
-+			dma_outb(low, DMA_PAGE_0);
-+			dma_outb(hi, DMA_Ex_PAGE_0);
-+			break;
-+		case 1:
-+			dma_outb(low, DMA_PAGE_1);
-+			dma_outb(hi, DMA_Ex_PAGE_1);
-+			break;
-+		case 2:
-+			dma_outb(low, DMA_PAGE_2);
-+			dma_outb(hi, DMA_Ex_PAGE_2);
-+			break;
-+		case 3:
-+			dma_outb(low, DMA_PAGE_3);
-+			dma_outb(hi, DMA_Ex_PAGE_3);
-+			break;
-+	}
-+}
-+
-+/* Set transfer address & page bits for specific DMA channel.
-+ * Assumes dma flipflop is clear.
-+ */
-+static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
-+{
-+	set_dma_page(dmanr, a>>16);
-+	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+}
-+
-+
-+/* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
-+ * a specific DMA channel.
-+ * You must ensure the parameters are valid.
-+ * NOTE: from a manual: "the number of transfers is one more
-+ * than the initial word count"! This is taken into account.
-+ * Assumes dma flip-flop is clear.
-+ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-+ */
-+static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
-+{
-+	count--;
-+	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+}
-+
-+
-+/* Get DMA residue count. After a DMA transfer, this
-+ * should return zero. Reading this while a DMA transfer is
-+ * still in progress will return unpredictable results.
-+ * If called before the channel has been used, it may return 1.
-+ * Otherwise, it returns the number of _bytes_ left to transfer.
-+ *
-+ * Assumes DMA flip-flop is clear.
-+ */
-+static __inline__ int get_dma_residue(unsigned int dmanr)
-+{
-+	/* using short to get 16-bit wrap around */
-+	unsigned short count;
-+
-+	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE);
-+	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE) << 8;
-+	
-+	return count;
-+}
-+
-+
-+/* These are in kernel/dma.c: */
-+extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
-+extern void free_dma(unsigned int dmanr);	/* release it again */
-+
-+/* From PCI */
-+
-+#ifdef CONFIG_PCI
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy 	(0)
-+#endif
-+
-+#endif /* _ASM_PC9800_DMA_H */
-diff -urN linux/include/asm-i386/pc9800_sca.h linux98/include/asm-i386/pc9800_sca.h
---- linux/include/asm-i386/pc9800_sca.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800_sca.h	Fri Aug 17 21:50:18 2001
-@@ -0,0 +1,25 @@
 +/*
-+ *  System-common area definitions for NEC PC-9800 series
-+ *
-+ *  Copyright (C) 1999	TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>,
-+ *			Kyoto University Microcomputer Club.
++ * kbd98_write() sends a byte out through the keyboard interface.
 + */
 +
-+#ifndef _ASM_I386_PC9800SCA_H_
-+#define _ASM_I386_PC9800SCA_H_
++static int kbd98_write(struct serio *port, unsigned char c)
++{
++	unsigned long flags;
 +
-+#define PC9800SCA_EXPMMSZ		(0x0401)	/* B */
-+#define PC9800SCA_SCSI_PARAMS		(0x0460)	/* 8 * 4B */
-+#define PC9800SCA_DISK_EQUIPS		(0x0482)	/* B */
-+#define PC9800SCA_XROM_ID		(0x04C0)	/* 52B */
-+#define PC9800SCA_BIOS_FLAG		(0x0501)	/* B */
-+#define PC9800SCA_MMSZ16M		(0x0594)	/* W */
++	spin_lock_irqsave(&kbd98io_lock, flags);
 +
-+/* PC-9821 have additional system common area in their BIOS-ROM segment. */
++	outb(0, 0x5f);			/* wait */
++	outb(0x17, KBD98_COMMAND_REG);	/* enable send command */
++	outb(0, 0x5f);			/* wait */
++	outb(c, KBD98_DATA_REG);
++	outb(0, 0x5f);			/* wait */
++	outb(0x16, KBD98_COMMAND_REG);	/* disable send command */
++	outb(0, 0x5f);			/* wait */
 +
-+#define PC9821SCA__BASE			(0xF8E8 << 4)
-+#define PC9821SCA_ROM_ID		(PC9821SCA__BASE + 0x00)
-+#define PC9821SCA_ROM_FLAG4		(PC9821SCA__BASE + 0x05)
-+#define PC9821SCA_RSFLAGS		(PC9821SCA__BASE + 0x11)	/* B */
++	spin_unlock_irqrestore(&kbd98io_lock, flags);
 +
-+#endif /* !_ASM_I386_PC9800SCA_H_ */
-diff -urN linux/include/asm-i386/pgtable.h linux98/include/asm-i386/pgtable.h
---- linux/include/asm-i386/pgtable.h	Mon Apr 15 04:18:55 2002
-+++ linux98/include/asm-i386/pgtable.h	Wed Apr 17 10:37:22 2002
++	return 0;
++}
++
++/*
++ * kbd98_open() is called when a port is open by the higher layer.
++ * It allocates the interrupt and enables in in the chip.
++ */
++
++static int kbd98_open(struct serio *port)
++{
++	kbd98_flush();
++
++	if (request_irq(KBD98_IRQ, kbd98io_interrupt, 0, "kbd98", NULL)) {
++		printk(KERN_ERR "98kbd-io.c: Can't get irq %d for %s, unregistering the port.\n", KBD98_IRQ, "KBD");
++		serio_unregister_port(port);
++		return -1;
++	}
++
++	return 0;
++}
++
++static void kbd98_close(struct serio *port)
++{
++	free_irq(KBD98_IRQ, NULL);
++
++	kbd98_flush();
++}
++
++/*
++ * Structures for registering the devices in the serio.c module.
++ */
++
++static struct serio kbd98_port =
++{
++	.type =		SERIO_PC9800,
++	.write =	kbd98_write,
++	.open =		kbd98_open,
++	.close =	kbd98_close,
++	.driver =	NULL,
++	.name =		"PC-9801 Kbd Port",
++	.phys =		KBD98_PHYS_DESC,
++};
++
++/*
++ * kbd98io_interrupt() is the most important function in this driver -
++ * it handles the interrupts from keyboard, and sends incoming bytes
++ * to the upper layers.
++ */
++
++static void kbd98io_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	unsigned long flags;
++	unsigned char data;
++
++#ifdef CONFIG_VT
++	kbd_pt_regs = regs;
++#endif
++
++	spin_lock_irqsave(&kbd98io_lock, flags);
++
++	data = inb(KBD98_DATA_REG);
++	spin_unlock_irqrestore(&kbd98io_lock, flags);
++	serio_interrupt(&kbd98_port, data, 0);
++
++}
++
++int __init kbd98io_init(void)
++{
++	serio_register_port(&kbd98_port);
++
++	printk(KERN_INFO "serio: PC-9801 %s port at %#lx,%#lx irq %d\n",
++	       "KBD",
++	       (unsigned long) KBD98_DATA_REG,
++	       (unsigned long) KBD98_COMMAND_REG,
++	       KBD98_IRQ);
++
++	return 0;
++}
++
++void __exit kbd98io_exit(void)
++{
++	serio_unregister_port(&kbd98_port);
++}
++
++module_init(kbd98io_init);
++module_exit(kbd98io_exit);
+diff -urN linux/drivers/char/keyboard.c linux98/drivers/char/keyboard.c
+--- linux/drivers/char/keyboard.c	Sat Oct 19 13:01:49 2002
++++ linux98/drivers/char/keyboard.c	Sun Oct 27 09:12:29 2002
 @@ -58,7 +58,11 @@
- #endif
- #endif
- 
+  * Some laptops take the 789uiojklm,. keys as number pad when NumLock is on.
+  * This seems a good reason to start with NumLock off.
+  */
 +#ifndef CONFIG_PC9800
- #define __beep() asm("movb $0x3,%al; outb %al,$0x61")
+ #define KBD_DEFLEDS 0
 +#else
-+#define __beep() asm("movb $0x6,%al; outb %al,$0x37")
++#define KBD_DEFLEDS (1 << VC_NUMLOCK)
 +#endif
- 
- #define PMD_SIZE	(1UL << PMD_SHIFT)
- #define PMD_MASK	(~(PMD_SIZE-1))
-diff -urN linux/include/asm-i386/processor.h linux98/include/asm-i386/processor.h
---- linux/include/asm-i386/processor.h	Sat Sep 21 00:20:15 2002
-+++ linux98/include/asm-i386/processor.h	Sun Sep 22 09:16:38 2002
-@@ -87,7 +87,7 @@
- #define current_cpu_data boot_cpu_data
  #endif
  
--extern char ignore_irq13;
-+extern char ignore_fpu_irq;
+ #ifndef KBD_DEFLOCK
+diff -urN linux/include/linux/kbd_kern.h linux98/include/linux/kbd_kern.h
+--- linux/include/linux/kbd_kern.h	Sat Oct 19 13:02:28 2002
++++ linux98/include/linux/kbd_kern.h	Sun Oct 27 10:23:23 2002
+@@ -43,11 +43,12 @@
+ #define LED_SHOW_IOCTL 1        /* only change leds upon ioctl */
+ #define LED_SHOW_MEM 2          /* `heartbeat': peek into memory */
  
- extern void identify_cpu(struct cpuinfo_x86 *);
- extern void print_cpu_info(struct cpuinfo_x86 *);
-diff -urN linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
---- linux/include/asm-i386/scatterlist.h	Mon Apr 15 04:18:52 2002
-+++ linux98/include/asm-i386/scatterlist.h	Wed Apr 17 10:37:22 2002
-@@ -1,6 +1,8 @@
- #ifndef _I386_SCATTERLIST_H
- #define _I386_SCATTERLIST_H
+-	unsigned char ledflagstate:3;	/* flags, not lights */
+-	unsigned char default_ledflagstate:3;
++	unsigned char ledflagstate:4;	/* flags, not lights */
++	unsigned char default_ledflagstate:4;
+ #define VC_SCROLLOCK	0	/* scroll-lock mode */
+ #define VC_NUMLOCK	1	/* numeric lock mode */
+ #define VC_CAPSLOCK	2	/* capslock mode */
++#define VC_KANALOCK	3	/* kanalock mode */
  
-+#include <linux/config.h>
-+
- struct scatterlist {
-     struct page		*page;
-     unsigned int	offset;
-@@ -8,6 +10,10 @@
-     unsigned int	length;
- };
+ 	unsigned char kbdmode:2;	/* one 2-bit value */
+ #define VC_XLATE	0	/* translate keycodes using keymap */
+diff -urN linux/include/linux/keyboard.h linux98/include/linux/keyboard.h
+--- linux/include/linux/keyboard.h	Sat Oct 19 13:01:13 2002
++++ linux98/include/linux/keyboard.h	Mon Oct 21 15:59:48 2002
+@@ -9,6 +9,7 @@
+ #define KG_ALT		3
+ #define KG_ALTGR	1
+ #define KG_SHIFTL	4
++#define KG_KANASHIFT	4
+ #define KG_SHIFTR	5
+ #define KG_CTRLL	6
+ #define KG_CTRLR	7
+diff -urN linux/include/linux/serio.h linux98/include/linux/serio.h
+--- linux/include/linux/serio.h	Sat Oct 19 13:01:58 2002
++++ linux98/include/linux/serio.h	Thu Oct 24 09:39:09 2002
+@@ -97,6 +97,7 @@
+ #define SERIO_8042	0x01000000UL
+ #define SERIO_RS232	0x02000000UL
+ #define SERIO_HIL_MLC	0x03000000UL
++#define SERIO_PC9800	0x04000000UL
  
-+#ifdef CONFIG_PC9800
-+#define ISA_DMA_THRESHOLD (0xffffffff)
-+#else
- #define ISA_DMA_THRESHOLD (0x00ffffff)
-+#endif
- 
- #endif /* !(_I386_SCATTERLIST_H) */
-diff -urN linux/include/asm-i386/setup.h linux98/include/asm-i386/setup.h
---- linux/include/asm-i386/setup.h	Sat Oct 19 13:02:01 2002
-+++ linux98/include/asm-i386/setup.h	Mon Oct 21 15:32:08 2002
-@@ -28,6 +28,7 @@
- #define APM_BIOS_INFO (*(struct apm_bios_info *) (PARAM+0x40))
- #define DRIVE_INFO (*(struct drive_info_struct *) (PARAM+0x80))
- #define SYS_DESC_TABLE (*(struct sys_desc_table_struct*)(PARAM+0xa0))
-+#define PC9800_MISC_FLAGS (*(unsigned char *)(PARAM+0x1AF))
- #define MOUNT_ROOT_RDONLY (*(unsigned short *) (PARAM+0x1F2))
- #define RAMDISK_FLAGS (*(unsigned short *) (PARAM+0x1F8))
- #define VIDEO_MODE (*(unsigned short *) (PARAM+0x1FA))
-diff -urN linux/include/asm-i386/timex.h linux98/include/asm-i386/timex.h
---- linux/include/asm-i386/timex.h	Thu Feb 14 18:09:15 2002
-+++ linux98/include/asm-i386/timex.h	Thu Feb 14 23:58:57 2002
-@@ -9,11 +9,15 @@
- #include <linux/config.h>
- #include <asm/msr.h>
- 
-+#ifdef CONFIG_PC9800
-+   extern int CLOCK_TICK_RATE;
-+#else
- #ifdef CONFIG_MELAN
- #  define CLOCK_TICK_RATE 1189200 /* AMD Elan has different frequency! */
- #else
- #  define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
- #endif
-+#endif
- 
- #define CLOCK_TICK_FACTOR	20	/* Factor of both 1000000 and CLOCK_TICK_RATE */
- #define FINETUNE ((((((long)LATCH * HZ - CLOCK_TICK_RATE) << SHIFT_HZ) * \
+ #define SERIO_PROTO	0xFFUL
+ #define SERIO_MSC	0x01

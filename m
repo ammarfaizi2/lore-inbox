@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUI0O3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUI0ObW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbUI0O3P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 10:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUI0O3P
+	id S266271AbUI0ObW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 10:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUI0ObW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 10:29:15 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:6338 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S264991AbUI0O3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 10:29:13 -0400
-Date: Mon, 27 Sep 2004 10:23:52 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: linux@horizon.com
-Cc: jlcooke@certainkey.com, cryptoapi@lists.logix.cz, jmorris@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040927142352.GA15589@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, linux@horizon.com,
-	jlcooke@certainkey.com, cryptoapi@lists.logix.cz,
-	jmorris@redhat.com, linux-kernel@vger.kernel.org
-References: <20040926052308.GB8314@thunk.org> <20040927005033.14622.qmail@science.horizon.com>
+	Mon, 27 Sep 2004 10:31:22 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:25256 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S266271AbUI0ObU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 10:31:20 -0400
+Date: Mon, 27 Sep 2004 16:29:46 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Stefan Seyfried <seife@suse.de>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: mlock(1)
+Message-ID: <20040927142946.GG28865@dualathlon.random>
+References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net> <1096071873.3591.54.camel@desktop.cunninghams> <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de> <1096281162.6485.19.camel@laptop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040927005033.14622.qmail@science.horizon.com>
-User-Agent: Mutt/1.5.6+20040818i
+In-Reply-To: <1096281162.6485.19.camel@laptop.cunninghams>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 12:50:33AM -0000, linux@horizon.com wrote:
-> > And the ring-buffer system which delays the expensive mixing stages untill a
-> > a sort interrupt does a great job (current and my fortuna-patch).  Difference
-> > being, fortuna-patch appears to be 2x faster.
-> 
-> Ooh, cool!  Must play with to steal the speed benefits.  Thank you!
+On Mon, Sep 27, 2004 at 08:32:43PM +1000, Nigel Cunningham wrote:
+> I loved Andrea's compare-the-checksum idea, but don't see why the
+> passphrase is needed both times either. Then again I have zero
+> experience with encryption. In fact, I care so much about security that
+> I don't have a root password and have sudo without a password :>
 
-The speed benefits come from the fact that /dev/random is currently
-using a large pool to store entropy, and so we end up taking cache
-line misses as we access the memory.  Worse yet, the cache lines are
-scattered across the memory (due to the how the LFSR works), and we're
-using/updating information from the pool 32 bits at a time.  In
-contrast, in JLC's patch, each pool only has enough space for 256 bits
-of entropy (assuming the use of SHA-256), and said 256 bits are stored
-packed next to each other, so it can fetch the entire pool in one or
-two cache lines.
+I also have sudo without password of course, the issue here is only
+about somebody stoling your harddisk. I'm fine about having zero local
+security and blocking everything with the firewall as far as it's me
+owning the machine ;).
 
-This is somewhat fundamental to the philosophical question of whether
-you store a large amount of entropy, taking advantage of the fact that
-the kernel has easy access to hardware-generated entropy, or use tiny
-pools and put a greater faith in crypto primitives.
+I have encrypted data in my harddisk, and I simply cannot use suspend
+that would dump into the swap partition the cleartext password making my
+encryption void (plus it increases the probability to dump credit card
+numbers or kwallet entries into the swap, but that's a separate problem
+not really related to suspend).
 
-So the bottom line is that while Fortuna's input mixing uses more CPU
-(ALU) resources, /dev/random is slower because of memory latency
-issue.  On processors with Hyperthreading / SMT enabled (which seems
-to be the trend across all architectures --- PowerPC, AMD64, Intel,
-etc.), the memory latency usage may be less important, since other
-tasks will be able to use the other (virtual) half of the CPU while
-the entropy mixing is waiting on the memory access to complete.  On
-the other hand, it does mean that we're chewing up a slightly greater
-amount of memory bandwidth during the entropy mixing process.  Whether
-or not any of this is actually measurable during real-life mixing is
-an interesting and non-obvious question.
+Basically to avoid to type the password during suspend, we'd need an
+algorihtm that encrypts with a public key stored on the harddisk and
+restore with the private key that sits only on a human brain.  The
+public key would be stored on the harddisk and it would be used by
+suspend to write to the swap partition. the resume password would be
+asked to the user and used to decrypt the data. I think it should work
+fine in theory.
 
-						- Ted
+However AFIK those public/private key algorithms only works securely with tons of
+bits (a lot more than with a symmetic encryption), so I don't see how
+can an human could possibly remeber such a long private key by memory. I
+guess to make it work you'd need an USB pen to store it and unplug it
+(then you'd have to be careful not to lose the USB pen). So I think it's
+much simpler to use symmetric crypto (like cryptoloop) and to ask the
+password during suspend too.

@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271388AbTGQLp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271387AbTGQLp3
+	id S271437AbTGQLwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271438AbTGQLwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:45:29 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:41135 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271264AbTGQLpU
+	Thu, 17 Jul 2003 07:52:39 -0400
+Received: from frink.nuigalway.ie ([140.203.56.30]:5046 "EHLO
+	frink.nuigalway.ie") by vger.kernel.org with ESMTP id S271437AbTGQLwh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:45:20 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 17 Jul 2003 14:01:21 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-Message-ID: <20030717120121.GA15061@bytesex.org>
-References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com> <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org> <20030716210800.GE2279@kroah.com>
+	Thu, 17 Jul 2003 07:52:37 -0400
+From: Rory Browne <robro@compsoc.nuigalway.ie>
+Date: Thu, 17 Jul 2003 13:05:05 +0100
+To: linux-kernel@vger.kernel.org
+Subject: BK Licence: Protocols and Research
+Message-ID: <20030717120505.GA22304@zion.nuigalway.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716210800.GE2279@kroah.com>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.3.28i
+X-URL: http://student.nuigalway.ie
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 02:08:00PM -0700, Greg KH wrote:
-> On Wed, Jul 16, 2003 at 10:20:18PM +0200, Gerd Knorr wrote:
-> > Yes, it is allocated/freed by the driver, most seem to simply include
-> > one ore more "struct video_device" somewhere in the per-device struct.
-> 
-> So you CAN NOT just blindly put a kobject (meaning a class_device)
-> structure inside of there.
+Hi
 
-Why not ...
+I don't mean to start/restart/prolong a flame war about Bitkepper, but,
+I have a few things I'd like to have clarified.
 
-> > which want add private properties and rely on video_device->priv
-> > for finding the per-device data.  Problem isn't solved but justed
-> > moved to the next corner ...
-> 
-> No, just have the video drivers have a release callback to do the
-> freeing.
+Would the conduction of research(and publication of results of same) on 
+the bitkeeper formats/protocols, preclude users from using the Free version 
+of Bitkeeper, for the research project?
 
-... if a ->release() callback is required anyway to fix it?  I see two
-ways to handle it:
+Would the carrying out of such research using the free version of
+Bitkeeper, prevent them from developing a product which contains
+substantially similar capabilities of the BitKeeper Software in the
+Future, assuming that all copies of Bitkeeper were destroyed before the
+development started?
 
-  (1) mandatory ->release() callback, drivers must make sure the stuff
-      is not freed before the callback was called.  In that case the
-      class_device can be left embedded inside the drivers provate
-      structs.
-  (2) optional ->release() callback (for those drivers which want add
-      private attributes), "struct video_device" must be moved out of
-      the drivers private structs then and released in a new function
-      (which also calls the drivers ->release callback if present).
-      Should probably also be allocated by videodev.c for symmetry.
+Would previous activity in the area of developing a product which
+contains substantially similary features to Bitkeeper preclude users from
+using the Free Bitkeeper software?
 
-Both approaches require touching all v4l drivers in non-trivial ways
-through, not sure whenever it is a good idea to do that now.  Any chance
-to get that in before 2.6.0?  Or should I better make that change in
-2.7.x and live with /proc for the time being?
+I apologise if you consider that this post would be better placed on a
+different mailing list, but I felt I could get the most fulfilling
+unbiased, and educational feedback here. 
 
-  Gerd
+Regards 
 
--- 
-sigfault
+Rory

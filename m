@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279488AbRJXIIt>; Wed, 24 Oct 2001 04:08:49 -0400
+	id <S279490AbRJXIS7>; Wed, 24 Oct 2001 04:18:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279487AbRJXII2>; Wed, 24 Oct 2001 04:08:28 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:4110 "EHLO
+	id <S279491AbRJXISu>; Wed, 24 Oct 2001 04:18:50 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:5902 "EHLO
 	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S279484AbRJXIIT>; Wed, 24 Oct 2001 04:08:19 -0400
+	id <S279490AbRJXISm>; Wed, 24 Oct 2001 04:18:42 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.13..
-In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
-	<1003909145.1101.9.camel@turing>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <Pine.LNX.4.10.10110221430090.16785-100000@innerfire.net>
 From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 24 Oct 2001 10:08:19 +0200
-In-Reply-To: <1003909145.1101.9.camel@turing> (christophe barbe's message of "24 Oct 2001 09:39:05 +0200")
-Message-ID: <tgn12ho3yk.fsf@mercury.rus.uni-stuttgart.de>
+Date: 24 Oct 2001 10:18:42 +0200
+In-Reply-To: <Pine.LNX.4.10.10110221430090.16785-100000@innerfire.net> (Gerhard Mack's message of "Mon, 22 Oct 2001 14:30:36 -0700 (PDT)")
+Message-ID: <tghespo3h9.fsf@mercury.rus.uni-stuttgart.de>
 User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbe <christophe.barbe.ml@online.fr> writes:
+Gerhard Mack <gmack@innerfire.net> writes:
 
-> PS: If the DMCA and other scary stuff bother you too much, what about
-> exiling in Paris in France ;-)
+> Has it become time for a non-us.vger.kernel.org ??
 
-France is currently on its way to strict crypto regulation. :-/
+This whole non-use concept doesn't work.  Even if the server is
+located in a free country, traffic might still be routed over US soil.
 
 -- 
 Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE

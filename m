@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262921AbTJ3VmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbTJ3VmS
+	id S262851AbTJ3Vgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTJ3Vgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:42:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18356 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262921AbTJ3VmQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:42:16 -0500
-Date: Thu, 30 Oct 2003 13:44:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: age <ahuisman@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: READAHEAD
-Message-Id: <20031030134407.0c97c86e.akpm@osdl.org>
-In-Reply-To: <bnrdqi$uho$1@news.cistron.nl>
-References: <bnrdqi$uho$1@news.cistron.nl>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Thu, 30 Oct 2003 16:36:36 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:16861 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S262836AbTJ3Vgb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:36:31 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
+Date: Thu, 30 Oct 2003 13:36:23 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F3718@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
+Thread-Index: AcOfKH1d87XM/teDSmW2eaQ7SXT5ywABI1SQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, <davidm@hpl.hp.com>,
+       "David Mosberger" <davidm@napali.hpl.hp.com>
+Cc: <davidm@hpl.hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <marcelo@conectiva.com.br>
+X-OriginalArrivalTime: 30 Oct 2003 21:36:24.0945 (UTC) FILETIME=[DE5C6E10:01C39F2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-age <ahuisman@cistron.nl> wrote:
->
-> I have a problem which i don`t understand and i hope that you
->  will and can  help me. The problem is that i experience strange disk
->  read performance. I have to set hdparm -m16 -u1 -c1 -d1 -a4096 /dev/hde
->  to get  timing buffered disk reads of 56 MB/SEC.
->  When i disable readahead i get 17 MB/SEC
->  When i enable readahead with -a8 i get  17 MB/SEC
->  When i enable readahead with -a16 i get 24,5 MB/SEC
->  When i enable readahead with -a32 i get 30,5 MB/SEC
->  When i enable readahead with -a64 i get 35 MB/SEC
->  When i enable readahead with -a128 i get 39 MB/SEC
->  When i enable readahead with -a256 i get 39 MB/SEC
->  When i enable readahead with -a512 i get 41 MB/SEC
->  When i enable readahead with -a1024 i get 50 MB/SEC
->  When i enable readahead with -a2048 i get 50 MB/SEC
->  When i enable readahead with -a4096 i get 56 MB/SEC
->  With -a8192,-a16384 and -a32768 i get also 56MB/SEC
+> On Friday 24 October 2003 4:21 pm, David Mosberger wrote:
+> > >>>>> On Fri, 24 Oct 2003 15:16:59 -0700, "Luck, Tony" 
+> <tony.luck@intel.com> said:
+> >   >> Different arches behave differently, though.  In the 
+> case of ia64,
+> >   >> it'a always safe to prefetch (even with lfetch.fault).
+> > 
+> >   Tony> Not quite always ... this was how I found the efi 
+> trim.bottom
+> >   Tony> bug, since Linux had allocated a pgd at 
+> 0xa00000-16k, and the
+> >   Tony> lfetch that reached out beyond the end of the page to the
+> >   Tony> uncacheable address 0xa00000 took an MCA.
+> > 
+> > But don't confuse cause and effect!  The MCA was caused by a bad TLB
+> > entry.  The lfetch only triggered the latent bug (as might have a
+> > instruction-prefetch).
 > 
->  Before, i never had to set readahead so high
->  Please could you tell me, what is going on here ?
+> I'm assuming that the EFI memory map trim fixes prevent the bad
+> TLB entry, and hence, the prefetching patch is not required by ia64
+> in 2.4.  Tony, let me know if otherwise.
 
-Lots of people have been reporting this.  It's rather weird.
+If EFI trim is doing its job (and the current version now seems
+to be handling all cases correctly), then you should no longer
+be able to have a TLB entry erroneously marking an uncacheable
+area of memory for cacheable access ... so you can keep the prefetch
+for ia64 (David pointed out that dropping this prefetch has a
+severe negative impact on lmbench fork+execve test).
 
-Is the same effect observable when reading a large file, or is it only
-observable via `hdparm -t'?
-
+-Tony

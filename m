@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264812AbUEYIc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUEYItb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264812AbUEYIc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 04:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUEYIc3
+	id S264815AbUEYItb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 04:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264816AbUEYItb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 04:32:29 -0400
-Received: from mx01.qsc.de ([213.148.129.14]:57559 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S264812AbUEYI2c convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 04:28:32 -0400
-Date: Tue, 25 May 2004 10:22:41 +0200 (CEST)
-Message-Id: <20040525.102241.635758403.rene@rocklinux-consulting.de>
-To: azarah@nosferatu.za.org
-Cc: kangur@polcom.net, linux-kernel@vger.kernel.org, rock-user@rocklinux.org
-Subject: Re: Distributions vs kernel development
-From: Rene Rebe <rene@rocklinux-consulting.de>
-In-Reply-To: <1085426241.9516.7.camel@nosferatu.lan>
-References: <Pine.LNX.4.58.0405091057060.14709@alpha.polcom.net>
-	<20040509.111350.67880957.rene@rocklinux-consulting.de>
-	<1085426241.9516.7.camel@nosferatu.lan>
-X-Mailer: Mew version 3.1 on XEmacs 21.4.13 (Rational FORTRAN)
+	Tue, 25 May 2004 04:49:31 -0400
+Received: from lum.tdiedrich.de ([193.24.211.71]:56551 "EHLO lum.tdiedrich.de")
+	by vger.kernel.org with ESMTP id S264815AbUEYIt3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 04:49:29 -0400
+Date: Tue, 25 May 2004 10:49:17 +0200
+From: Tobias Diedrich <ranma@tdiedrich.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: tvtime and the Linux 2.6 scheduler
+Message-ID: <20040525084916.GC19699@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma@tdiedrich.de>,
+	linux-kernel@vger.kernel.org
+References: <20040523154859.GC22399@dumbterm.net> <20040523224908.25194.qmail@web40607.mail.yahoo.com> <c8tikk$u6f$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "heap.localnet", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On: Mon, 24 May 2004 21:17:21 +0200, Martin
-	Schlemmer <azarah@nosferatu.za.org> wrote: > On Sun, 2004-05-09 at
-	11:13, Rene Rebe wrote: > > > But the last time I took a look not even
-	an installer or such. + > > Gentoo has no support for custom
-	modifications not even thinking about > > a way to group such custom
-	modifications / build configuration into a > > well defined way to form
-	a distribution. + ROCK Linux has a real > > sandbox build environment,
-	not this optimization via CFLAGS, and so on > > Gentoo wannabe. > > > >
-	Weird .. last time I checked, Gentoo sandbox was originally derived
-	from > ROCK Linux's sandbox wrapper .... [...] 
-	Content analysis details:   (0.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c8tikk$u6f$1@gatekeeper.tmr.com>
+X-GPG-Fingerprint: 7168 1190 37D2 06E8 2496  2728 E6AF EC7A 9AC7 E0BC
+X-GPG-Key: http://studserv.stud.uni-hannover.de/~ranma/gpg-key
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Virus: No
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.17.5
+X-Spam: No
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bill Davidsen wrote:
 
-On: Mon, 24 May 2004 21:17:21 +0200,
-    Martin Schlemmer <azarah@nosferatu.za.org> wrote:
-> On Sun, 2004-05-09 at 11:13, Rene Rebe wrote:
-> 
-> > But the last time I took a look not even an installer or such. +
-> > Gentoo has no support for custom modifications not even thinking about
-> > a way to group such custom modifications / build configuration into a
-> > well defined way to form a distribution. + ROCK Linux has a real
-> > sandbox build environment, not this optimization via CFLAGS, and so on
-> > Gentoo wannabe.
-> > 
-> 
-> Weird .. last time I checked, Gentoo sandbox was originally derived from
-> ROCK Linux's sandbox wrapper ....
+> There have been pretty good explanations of this, so I'll just say that 
+> it might be that someone with a machine of limited capacity would be 
+> able to generate 50fps and not 60fps. In much of Europe the TV flickers 
+> at the same frequency as the lights ;-)
 
-Interesting ,) I did not know Gentoo copied ROCK Linux code, too. I
-already put re-reviewing Gentoo on my this-year's TODO. So I'm finally
-up-to-date with such stuff again ...
+Rather the other way around.
 
-Sincerely yours,
-  René Rebe
-    - ROCK Linux stable release maintainer
+768*288*50*2 = 22118400
+640*240*60000*2/1001 = 18413586
 
---  
-René Rebe - Europe/Germany/Berlin
-  rene@rocklinux.org rene@rocklinux-consulting.de
-http://www.rocklinux.org http://www.rocklinux-consulting.de
+So the amount of data to process is higher for PAL (in square pixel
+resolution).
+
+-- 
+Tobias						PGP: http://9ac7e0bc.2ya.com
+He said he hadn't had a byte in three days.
+I had a short, so I split it with him.
 

@@ -1,29 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267490AbRGRPjw>; Wed, 18 Jul 2001 11:39:52 -0400
+	id <S267494AbRGRQBf>; Wed, 18 Jul 2001 12:01:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267492AbRGRPjn>; Wed, 18 Jul 2001 11:39:43 -0400
-Received: from [213.97.45.174] ([213.97.45.174]:14867 "EHLO pau.intranet.ct")
-	by vger.kernel.org with ESMTP id <S267490AbRGRPja>;
-	Wed, 18 Jul 2001 11:39:30 -0400
-Date: Wed, 18 Jul 2001 17:39:26 +0200 (CEST)
-From: Pau <linux4u@wanadoo.es>
-X-X-Sender: <pau@pau.intranet.ct>
-To: <linux-kernel@vger.kernel.org>
-Subject: Zombies in 2.4.6-ac[45]
-Message-ID: <Pine.LNX.4.33.0107181734550.15055-100000@pau.intranet.ct>
+	id <S267854AbRGRQBZ>; Wed, 18 Jul 2001 12:01:25 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:30216
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S267494AbRGRQBM>; Wed, 18 Jul 2001 12:01:12 -0400
+Date: Wed, 18 Jul 2001 12:00:45 -0400
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: Re: [PATCH] reiserfs b_count usage
+Message-ID: <309310000.995472045@tiny>
+In-Reply-To: <20010718175342.B18183@athlon.random>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In 2.4.6-ac4 and 2.4.6-ac5 I keep on getting processes in Z state, mainly
-identd (spawned from an identd daemon) and galeon (the gnome browser).
-An strace to the process ends immediately. I've had almost 300 Z processes
-only in galeon.
 
-Any explanation? Any help to trace it?
+On Wednesday, July 18, 2001 05:53:42 PM +0200 Andrea Arcangeli
+<andrea@suse.de> wrote:
 
-Pau
+> On Wed, Jul 18, 2001 at 10:25:20AM -0400, Chris Mason wrote:
+>> @@ -2597,7 +2599,7 @@
+>>  
+>>    if (bh) {
+>>      reiserfs_clean_and_file_buffer(bh) ;
+>> -    atomic_dec(&(bh->b_count)) ; /* get_hash incs this */
+>> +    put_bh(bh) ; /* get_hash grabs the buffer */
+>>      if (atomic_read(&(bh->b_count)) < 0) {
+>>        printk("journal-2165: bh->b_count < 0\n") ;
+>>      }
+> 
+> in mainline you aren't calling reiserfs_clean_and_file_buffer above, so
+> it rejects.
+
+Correct, it goes cleanly on top of the direct->indirect cleanup patch that
+was sent to l-k last week, and sent to linus for inclusion.  ac already has
+it, so it should apply there.
+
+-chris
+
 

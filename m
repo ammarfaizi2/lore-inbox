@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287946AbSBDAb5>; Sun, 3 Feb 2002 19:31:57 -0500
+	id <S287966AbSBDAdQ>; Sun, 3 Feb 2002 19:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287966AbSBDAbq>; Sun, 3 Feb 2002 19:31:46 -0500
-Received: from relay1.pair.com ([209.68.1.20]:2321 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S287946AbSBDAbg>;
-	Sun, 3 Feb 2002 19:31:36 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C5DD7D7.64A52BB1@kegel.com>
-Date: Sun, 03 Feb 2002 16:37:43 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kev <klmitch@MIT.EDU>
-CC: Arjen Wolfs <arjen@euro.net>, coder-com@undernet.org,
-        feedback@distributopia.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMPnetwork 
- performance
-In-Reply-To: <200202040007.TAA19301@multics.mit.edu>
+	id <S287979AbSBDAc5>; Sun, 3 Feb 2002 19:32:57 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2313 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287966AbSBDAcv>;
+	Sun, 3 Feb 2002 19:32:51 -0500
+Date: Sun, 3 Feb 2002 22:32:28 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Tim Coleman <tim@timcoleman.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 Compile errors
+Message-ID: <20020204003228.GA1733@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Tim Coleman <tim@timcoleman.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1012530613.1169.2.camel@tux.epenguin.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1012530613.1169.2.camel@tux.epenguin.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kev wrote:
-> 
-> > The /dev/epoll patch is good, but the interface is different enough
-> > from /dev/poll that ircd would need a new engine_epoll.c anyway.
-> > (It would look like a cross between engine_devpoll.c and engine_rtsig.c,
-> > as it would need to be notified by os_linux.c of any EWOULDBLOCK return values.
-> > Both rtsigs and /dev/epoll only provide 'I just became ready' notification,
-> > but no 'I'm not ready anymore' notification.)
-> 
-> I don't understand what it is you're saying here.  The ircu server uses
-> non-blocking sockets, and has since long before EfNet and Undernet branched,
-> so it already handles EWOULDBLOCK or EAGAIN intelligently, as far as I know.
+Em Thu, Jan 31, 2002 at 09:30:11PM -0500, Tim Coleman escreveu:
 
-Right.  poll() and Solaris /dev/poll are programmer-friendly; they give 
-you the current readiness status for each socket.  ircu handles them fine.
+> I'm getting some more compiler errors when trying to compile kernel
+> 2.5.3.
+ 
+> deflate.c is complaining about no linux/zutil.h which then breaks a whole
+> bunch of stuff included from defutil.h
 
-/dev/epoll and Linux 2.4's rtsig feature, on the other hand, are
-programmer-hostile; they don't tell you which sockets are ready.
-Instead, they tell you when sockets *become* ready;
-your only indication that those sockets have become *unready*
-is when you see an EWOULDBLOCK from them.
+mv linux/* include/linux
+rmdir linux
 
-If this didn't make any sense, maybe seeing how it's used might help.
-Look at Poller::clearReadiness() in
-http://www.kegel.com/dkftpbench/doc/Poller.html#DOC.9.11 or
-http://www.kegel.com/dkftpbench/dkftpbench-0.38/Poller_sigio.cc
-and the calls to Poller::clearReadiness() in
-http://www.kegel.com/dkftpbench/dkftpbench-0.38/ftp_client_pipe.cc
-
-- Dan
+- Arnaldo

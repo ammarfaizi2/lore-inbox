@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbTJ3SOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 13:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbTJ3SOc
+	id S262740AbTJ3SVM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 13:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTJ3SVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 13:14:32 -0500
-Received: from ultra12.almamedia.fi ([193.209.83.38]:61673 "EHLO
-	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
-	id S262729AbTJ3SOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 13:14:31 -0500
-Message-ID: <3FA15506.B9B76A5D@users.sourceforge.net>
-Date: Thu, 30 Oct 2003 20:14:30 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
-X-Accept-Language: en
+	Thu, 30 Oct 2003 13:21:12 -0500
+Received: from team-server.ntb.ch ([146.136.1.32]:56799 "EHLO
+	team-server.ntb.ch") by vger.kernel.org with ESMTP id S262740AbTJ3SVL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 13:21:11 -0500
+Message-ID: <002f01c398a0$8f5c8360$b1248892@ntb.ch>
+From: "Angelo Compagnoni" <acompagnoni@ntb.ch>
+To: <linux-kernel@vger.kernel.org>
+Subject: PCI-driver bursting to target
+Date: Wed, 22 Oct 2003 15:29:46 +0200
 MIME-Version: 1.0
-To: Ben Slusky <sluskyb@paranoiacs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
-References: <20031030134137.GD12147@fukurou.paranoiacs.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-OriginalArrivalTime: 30 Oct 2003 18:21:10.0023 (UTC) FILETIME=[97B93170:01C39F12]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Slusky wrote:
-> The attached patch changes the loop device transfer functions (including
-> cryptoloop transfers) to accept page/offset pairs instead of virtual
-> addresses, and removes the redundant kmaps in do_lo_send, do_lo_receive,
-> and loop_transfer_bio. Per Andrew Morton's request a while back.
+>Is there any feature in the kernel source, that supports burst writes and
+reads to a target?
+>The driver I have works for single data transfer with the methods
+writel(b,addr) and readl(addr).
+>But I need the burst mode for my diploma thesis.
+>Thank you for help.
+>I wish to be personally CC'ed the answers/comments posted to the >list in
+response to my posting.
 
-Cryptoloop is not the only user of loop transfer interface. Please don't
-change that interface as it breaks code outside of mainline kernel.
-
-Cryptoapi interface is quite broken. Your change extends that breakage to
-loop transfer interface. Please don't do that.
-
-Linus, please don't apply this patch.
-
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

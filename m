@@ -1,50 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272229AbRHWMKp>; Thu, 23 Aug 2001 08:10:45 -0400
+	id <S272242AbRHWMOP>; Thu, 23 Aug 2001 08:14:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272244AbRHWMKf>; Thu, 23 Aug 2001 08:10:35 -0400
-Received: from pk.nord-com.net ([213.168.202.34]:5369 "EHLO pk.nord-com.de")
-	by vger.kernel.org with ESMTP id <S272229AbRHWMKU>;
-	Thu, 23 Aug 2001 08:10:20 -0400
-Date: Thu, 23 Aug 2001 14:05:55 +0200
-From: Roland Bauerschmidt <rb@debian.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010823140555.A1077@newton.bauerschmidt.eu.org>
-Mail-Followup-To: Roland Bauerschmidt <rb@debian.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010822030807.N120@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010822030807.N120@pervalidus>
-User-Agent: Mutt/1.3.20i
+	id <S272257AbRHWMN4>; Thu, 23 Aug 2001 08:13:56 -0400
+Received: from relay02.cablecom.net ([62.2.33.102]:260 "EHLO
+	relay02.cablecom.net") by vger.kernel.org with ESMTP
+	id <S272242AbRHWMNx>; Thu, 23 Aug 2001 08:13:53 -0400
+Message-Id: <200108231214.f7NCE1k15642@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: linux-kernel@vger.kernel.org
+Subject: hardware checksumming
+Date: Thu, 23 Aug 2001 14:13:56 +0200
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fr?d?ric L. W. Meunier wrote:
-> Am I the only one afraid that the Python requirement can turn
-> into a problem ? You can develop anything on Linux without
-> Python. I'd compare Python to Tcl - you only install it to
-> waste space, develop, or run applications that use it. Perl
-> is very different. It's required by GNU Automake and more.
-> 
-> I'm really surprised by the fact that nobody noticed what a
-> nightmare 2.6 will be with such a requirement. You can't
-> expect everybody to install something that's of no use for
-> most.
-
-Well, I don't know the details of the plans, but IMHO is a dependency to
-python for configuring the kernel not unreasonable. Nowadays a lot of
-people don't even compile their kernels themselves, and thus not
-_everybody_ is required to have python installed. When using make
-menuconfig you are also required to have curses development files
-installed even if you don't need them for anything else. Python also is
-of (fast) growing popularity, and for example in Debian (I don't know
-about other distributions, but I suppose it's similar there) Python is
-Priority: standard (whereas libncurses5-dev surely isn't). 
-
-You my 0.02$, Roland
-
--- 
-Roland Bauerschmidt
+is hardware support by a NIC for checksum generation / offloading not quite 
+usless? the checksumming enging can only be used when UDP/TCP packets
+are <= the MTU of the NIC (e.g 1500 bytes). 
+i expact that UDP/TCP packets are in general bigger than that or is exactly 
+that wrong and the network protokoll stack splits the data to be transfered 
+so that each tcp packet is not bigger than the MTU. but whats with UPD there 
+this wont work. 
+ 

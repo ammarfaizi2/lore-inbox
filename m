@@ -1,99 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbTENDFr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 23:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTENDFr
+	id S263245AbTENDL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 23:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTENDL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 23:05:47 -0400
-Received: from holomorphy.com ([66.224.33.161]:60095 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262284AbTENDFo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 23:05:44 -0400
-Date: Tue, 13 May 2003 20:18:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: axel@pearbough.net
-Subject: Re: drivers/scsi/aic7xxx/aic7xxx_osm.c: warning is error
-Message-ID: <20030514031826.GB29926@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, axel@pearbough.net
-References: <20030514004009.GA20914@neon.pearbough.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030514004009.GA20914@neon.pearbough.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 13 May 2003 23:11:56 -0400
+Received: from dsl081-085-006.lax1.dsl.speakeasy.net ([64.81.85.6]:16567 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id S263245AbTENDLy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 23:11:54 -0400
+Message-ID: <3EC1B6F9.7030008@tmsusa.com>
+Date: Tue, 13 May 2003 20:24:41 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shawn <core@enodev.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: odd db4 error with 2.5.69-mm4 [was Re: Huraaa for 2.5]
+References: <1052866461.23191.4.camel@www.enodev.com>	 <20030514012731.GF8978@holomorphy.com>	 <1052877161.3569.17.camel@www.enodev.com>  <3EC1AAC4.1010104@tmsusa.com> <1052880432.3569.34.camel@www.enodev.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 02:40:09AM +0200, axel@pearbough.net wrote:
-> today compiled 2.5.69-bk8 with gcc version 3.3 20030510 and a warning in
-> drivers/scsi/aic7xxx/aic7xxx_osm.c resulted in an error because of gcc flag
-> -Werror.
+Not available from rhn yet afaik - I got
+them from a redhat employee page IIRC -
 
-I can't reproduce this with gcc-3.2; does this do better?
+I put a copy at:
 
-I also removed some extremely fishy arithmetic in a check for crossing
-4GB boundaries; I hope you don't mind.
+ftp://ftp.mainphrame.com/fixes/redhat-rpm/RH9/
+
+Joe
+
+Shawn wrote:
+
+>I sure wish I knew what triggers this bug. it worked fine under 2.5.6x
+>on rh 80 for me.
+>
+>Ah crap. I'm running rpm-4.2-0.69 because rhn has been busy. FRICK.
+>
+>On Tue, 2003-05-13 at 21:32, J Sloan wrote:
+>  
+>
+>>Shawn wrote:
+>>
+>>    
+>>
+>>>Not to get away from the praise too much, but I have a rpm/db4 problem
+>>>that seems to be related to the kernel. before I started backing out
+>>>parts of 69-mm4, I just wanted to figure out /which/ parts to try
+>>>backing out.
+>>>
+>>>As root, I basically can't use rpm at all. I think it's select() related
+>>>as strace shows it timing out. The odd thing is that it works great as a
+>>>non-privileged user.
+>>>
+>>>2.5.69-mm4, otherwise mostly stock rh90 setup.
+>>>
+>>>      
+>>>
+>>Just out of curiosity, have you tried:
+>>
+>>LD_KERNEL_ASSUME=2.4.1 rpm -qi iptables
+>>
+>>OTOH, rpm-4.2-1 seems to "just work" here -
+>>
+>>where "here" is of the form:
+>>
+>>2.5.6x on RH9
+>>
+>>Joe
+>>
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>    
+>>
+>
+>
+>  
+>
 
 
--- wli
-
-
-diff -prauN linux-2.5.69-bk8-1/drivers/scsi/aic7xxx/aic7xxx_osm.c linux-2.5.69-bk8-2/drivers/scsi/aic7xxx/aic7xxx_osm.c
---- linux-2.5.69-bk8-1/drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-05-13 17:26:56.000000000 -0700
-+++ linux-2.5.69-bk8-2/drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-05-13 19:56:26.000000000 -0700
-@@ -744,18 +744,20 @@ ahc_linux_map_seg(struct ahc_softc *ahc,
- 		      "Increase AHC_NSEG\n");
- 
- 	consumed = 1;
--	sg->addr = ahc_htole32(addr & 0xFFFFFFFF);
-+	sg->addr = ahc_htole32(addr & ~0U);
- 	scb->platform_data->xfer_len += len;
--	if (sizeof(bus_addr_t) > 4
--	 && (ahc->flags & AHC_39BIT_ADDRESSING) != 0) {
-+	if (sizeof(bus_addr_t) > 4 &&
-+			(ahc->flags & AHC_39BIT_ADDRESSING) != 0) {
- 		/*
--		 * Due to DAC restrictions, we can't
--		 * cross a 4GB boundary.
-+		 * Due to DAC restrictions, we can't cross 4GB boundaries.
-+		 * Right shift by 30 to find GB-granularity placement
-+		 * without getting tripped up by anal compilers.
- 		 */
--		if ((addr ^ (addr + len - 1)) & ~0xFFFFFFFF) {
-+		if ((addr >> 30) < 4 && ((addr + len - 1) >> 30) >= 4) {
- 			struct	 ahc_dma_seg *next_sg;
- 			uint32_t next_len;
- 
-+			/* somebody clean this up to return an error */
- 			printf("Crossed Seg\n");
- 			if ((scb->sg_count + 2) > AHC_NSEG)
- 				panic("Too few segs for dma mapping.  "
-@@ -764,12 +766,22 @@ ahc_linux_map_seg(struct ahc_softc *ahc,
- 			consumed++;
- 			next_sg = sg + 1;
- 			next_sg->addr = 0;
--			next_len = 0x100000000 - (addr & 0xFFFFFFFF);
-+
-+			/*
-+			 * 2's complement arithmetic assumed.
-+			 * We want: 4GB - low 32 bits of addr
-+			 * to find the length of the low segment
-+			 * and to subtract it out from the high
-+			 */
-+			next_len = -((uint32_t)addr);
- 			len -= next_len;
--			next_len |= ((addr >> 8) + 0x1000000) & 0x7F000000;
-+
-+			/* c.f. struct ahc_dma_seg for meaning of high byte */
-+			next_len |= ((addr >> 8) + AHC_SG_LEN_MASK + 1)
-+						& AHC_SG_HIGH_ADDR_MASK;
- 			next_sg->len = ahc_htole32(next_len);
- 		}
--		len |= (addr >> 8) & 0x7F000000;
-+		len |= (addr >> 8) & AHC_SG_HIGH_ADDR_MASK;
- 	}
- 	sg->len = ahc_htole32(len);
- 	return (consumed);

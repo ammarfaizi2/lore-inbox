@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265995AbSLSTTg>; Thu, 19 Dec 2002 14:19:36 -0500
+	id <S266042AbSLSTWK>; Thu, 19 Dec 2002 14:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265998AbSLSTTg>; Thu, 19 Dec 2002 14:19:36 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:5874 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S265995AbSLSTTf>; Thu, 19 Dec 2002 14:19:35 -0500
-Date: Thu, 19 Dec 2002 11:25:58 -0800
-From: Chris Wright <chris@wirex.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] 2.5.52-lsm1
-Message-ID: <20021219112558.B21399@figure1.int.wirex.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-References: <20021219025123.A23371@figure1.int.wirex.com> <20021219111433.GM1922@holomorphy.com>
-Mime-Version: 1.0
+	id <S266043AbSLSTWK>; Thu, 19 Dec 2002 14:22:10 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55051 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266042AbSLSTWJ>; Thu, 19 Dec 2002 14:22:09 -0500
+Message-ID: <3E021E2E.2090503@transmeta.com>
+Date: Thu, 19 Dec 2002 11:29:50 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: bart@etpmod.phys.tue.nl
+CC: torvalds@transmeta.com, lk@tantalophile.demon.co.uk,
+       terje.eggestad@scali.com, drepper@redhat.com, matti.aarnio@zmailer.org,
+       hugh@veritas.com, davej@codemonkey.org.uk, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+References: <20021219132239.4650B51F88@gum12.etpnet.phys.tue.nl>
+In-Reply-To: <20021219132239.4650B51F88@gum12.etpnet.phys.tue.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021219111433.GM1922@holomorphy.com>; from wli@holomorphy.com on Thu, Dec 19, 2002 at 03:14:33AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* William Lee Irwin III (wli@holomorphy.com) wrote:
+bart@etpmod.phys.tue.nl wrote:
+> On 18 Dec, Linus Torvalds wrote:
 > 
-> Forgive my ignorance (if this applies) but I recently submitted a patch
-> acked by both you and gregkh. If there are difficulties with it I'd be
-> much obliged to hear of them and will resolve them with the utmost
-> urgency. Aside from that my only concern is that it did not appear in
-> your changelog. If it's been deferred to a later push that is also okay
-> with me.
+>>On Wed, 18 Dec 2002, Jamie Lokier wrote:
+>>
+>>>That said, you always need the page at 0xfffe0000 mapped anyway, so
+>>>that sysexit can jump to a fixed address (which is fastest).
+>>
+>>Yes. This is important. There _needs_ to be some fixed address at least as 
+>>far as the kernel is concerned (it might move around between reboots or 
+>>something like that, but it needs to be something the kernel knows about 
+>>intimately and doesn't need lots of dynamic lookup).
+>>
+>>However, there's another issue, namely process startup cost. I personally 
+>>want it to be as light as at all possible. I hate doing an "strace" on 
+>>user processes and seeing tons and tons of crapola showing up. Just for 
+> 
+> So why not map the magic page at 0xffffe000 at some other address as
+> well? 
+> 
+> Static binaries can just directly jump/call into the magic page.
+> 
+> Shared binaries do somekind of mmap("/proc/self/mem") magic to put a
+> copy of the page at an address that is convenient for them. Shared
+> binaries have to do a lot of mmap-ing anyway, so the overhead should be
+> negligible.
+> 
 
-As you already noted, Greg has pushed that change to Linus in a separate
-patchset.
+That would require /proc to be mounted for all shared binaries to work.
+ That is tantamount to killing chroot().
 
-cheers,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Perhaps it could be done with mremap(), but I would assume that would
+entail a special case in the mremap() code.
+
+A special system call would be a bit gross, but it's better than a total
+hack.
+
+	-hpa
+
+

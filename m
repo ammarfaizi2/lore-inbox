@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132853AbQLNUGj>; Thu, 14 Dec 2000 15:06:39 -0500
+	id <S129260AbQLNUI7>; Thu, 14 Dec 2000 15:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132854AbQLNUGa>; Thu, 14 Dec 2000 15:06:30 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:4367 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S132853AbQLNUGY>;
-	Thu, 14 Dec 2000 15:06:24 -0500
-Date: Thu, 14 Dec 2000 20:35:38 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel boot params
-Message-ID: <20001214203537.J599@almesberger.net>
-In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>
-Mime-Version: 1.0
+	id <S132879AbQLNUIt>; Thu, 14 Dec 2000 15:08:49 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18958 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132854AbQLNUIb>;
+	Thu, 14 Dec 2000 15:08:31 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012141937.TAA02604@raistlin.arm.linux.org.uk>
+Subject: Re: linux ipv6 questions.  bugs?
+To: kuznet@ms2.inr.ac.ru
+Date: Thu, 14 Dec 2000 19:37:37 +0000 (GMT)
+Cc: pete@research.NETsol.COM, linux-kernel@vger.kernel.org
+In-Reply-To: <200012141931.WAA03039@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Dec 14, 2000 10:31:58 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>; from whtdrgn@mail.cannet.com on Wed, Dec 06, 2000 at 08:31:31AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy A. DeWees wrote:
->     Could someone be so kind to point me to a page where I can find
-> a list of parameters I can pass to a kernel on boot.
+kuznet@ms2.inr.ac.ru writes:
+> > bash-2.04# ping6 fe80::a00:2bff:fe95:1d7b
+> > connect: Invalid argument
+> 
+> Yes, of course. Link local address without interface is invalid.
 
-The following script lists almost all parameters your 2.4 kernel accepts.
+Ok...
 
-The exceptions are parameters obtained via non-standard means, i.e.
- - init= in init/main.c
- - mem=, nopentium, etc. in arch/*/kernel/setup.c (i386 examples)
- - anything your boot loader catches and hides (e.g. vga=, initrd=)
+bash-2.04# strace ping6 -I fe80::800:2b95:1d7b fe80::800:2b95:1d7b
+...
+socket(PF_INET6, SOCK_RAW, 58)          = 3
+getuid()                                = 0
+setuid(0)                               = 0
+bind(3, {sin_family=AF_INET6, sin6_port=htons(0), inet_pton(AF_INET6, "fe80::800:2b95:1d7b", &sin6_addr), sin6_flowinfo=htonl(0)}}, 24) = -1 EINVAL (Invalid argument)
+write(2, "ping: bind icmp socket: Invalid "..., 41ping: bind icmp socket: Invalid argument) = 41
+_exit(1)                                = ?
+bash-2.04#
 
-Only tested on i386. Probably works on other 32 bit platforms, but
-not on true 64 bit platforms. Should do more error checking.
-
-Usage:
-
-./lss.pl /wherever/vmlinux
-
-- Werner
-
------------------------------------ lss.pl ------------------------------------
-
-#!/usr/bin/perl
-open(KERNEL,$ARGV[0]) || die "open $ARGV[0]: $!";
-for (split("\n",`objdump -h $ARGV[0]`)) {
-    next unless /^\s*\d+\s+(\S+)\s+(\S+)\s+(\S+)\s+\S+\s+(\S+)/;
-    ($size{$1}, $addr{$1}, $offset{$1}) = (hex $2, hex $3, hex $4);
-}
-die "kernel too old for __setup" unless defined $size{".setup.init"};
-for ($i = 0; $i < $size{".setup.init"}; $i += 8) {
-    sysseek(KERNEL,$offset{".setup.init"}+$i,0);
-    sysread(KERNEL,$pos,4);
-    $pos = unpack("L",$pos);
-    sysseek(KERNEL,$pos-$addr{".data.init"}+$offset{".data.init"},0);
-    sysread(KERNEL,$str,256);
-    $str =~ s/\000.*/\n/s;
-    print $str;
-}
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+still no go.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

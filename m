@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267224AbTAFXoH>; Mon, 6 Jan 2003 18:44:07 -0500
+	id <S267216AbTAFXlt>; Mon, 6 Jan 2003 18:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267233AbTAFXoH>; Mon, 6 Jan 2003 18:44:07 -0500
-Received: from packet.digeo.com ([12.110.80.53]:36595 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267224AbTAFXoG>;
-	Mon, 6 Jan 2003 18:44:06 -0500
-Message-ID: <3E1A16C5.87EDE35A@digeo.com>
-Date: Mon, 06 Jan 2003 15:52:37 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S267218AbTAFXlt>; Mon, 6 Jan 2003 18:41:49 -0500
+Received: from holomorphy.com ([66.224.33.161]:43394 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267216AbTAFXls>;
+	Mon, 6 Jan 2003 18:41:48 -0500
+Date: Mon, 6 Jan 2003 15:50:24 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Chris Wood <cwood@xmission.com>
-CC: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+Message-ID: <20030106235024.GA23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wood <cwood@xmission.com>, linux-kernel@vger.kernel.org
 References: <3E1A12B5.4020505@xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Jan 2003 23:52:37.0459 (UTC) FILETIME=[B0DF5A30:01C2B5DE]
+Content-Disposition: inline
+In-Reply-To: <3E1A12B5.4020505@xmission.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wood wrote:
-> 
-> Due to kswapd problems in Redhat's 2.4.9 kernel, I have had to upgrade
-> to the 2.4.20 kernel with the IBM Summit Patches for our IBM x440.
-> ...
-> 16480 total                                      0.0138
->    6383 .text.lock.swap                          110.0517
->    4689 .text.lock.vmscan                         28.2470
->    4486 shrink_cache                               4.6729
->     168 rw_swap_page_base                          0.6176
->     124 prune_icache                               0.5167
+On Mon, Jan 06, 2003 at 04:35:17PM -0700, Chris Wood wrote:
+>   6383 .text.lock.swap                          110.0517
+>   4689 .text.lock.vmscan                         28.2470
+>   4486 shrink_cache                               4.6729
+>    168 rw_swap_page_base                          0.6176
+>    124 prune_icache                               0.5167
+>     81 statm_pgd_range                            0.1534
+>     51 .text.lock.inode                           0.0966
+>     38 system_call                                0.6786
+>     31 .text.lock.tty_io                          0.0951
+>     31 .text.lock.locks                           0.1435
+>     18 .text.lock.sched                           0.0373
+>     16 _stext                                     0.2000
+>     15 fput                                       0.0586
+>     11 .text.lock.read_write                      0.0924
+>      9 strnicmp                                   0.0703
+>      9 do_wp_page                                 0.0110
+>      9 do_page_fault                              0.0066
+>      9 .text.lock.namei                           0.0073
+>      9 .text.lock.fcntl                           0.0714
+>      8 sys_read                                   0.0294
 
-With six gigs of memory, it looks like the VM has gone nuts
-trying to locate some reclaimable lowmem.
+This is really bad lock contention. You may need 2.5.x.
 
-Suggest you send the contents of /proc/meminfo and /proc/slabinfo,
-captured during a period of misbehaviour.
 
-Then please apply 
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1.bz2
-and send a report on the outcome.
+Bill

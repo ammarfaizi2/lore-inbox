@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSFPXhd>; Sun, 16 Jun 2002 19:37:33 -0400
+	id <S316616AbSFPXvC>; Sun, 16 Jun 2002 19:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316616AbSFPXhc>; Sun, 16 Jun 2002 19:37:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:65292 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316615AbSFPXhb>;
-	Sun, 16 Jun 2002 19:37:31 -0400
-Date: Mon, 17 Jun 2002 01:37:32 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@suse.de>, Andrea Arcangeli <andrea@suse.de>,
-       Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-       Richard Brunner <richard.brunner@amd.com>, mark.langsdorf@amd.com
-Subject: Re: another new version of pageattr caching conflict fix for 2.4
-Message-ID: <20020617013732.A14867@wotan.suse.de>
-References: <20020614062754.A11232@wotan.suse.de> <20020614112849.A22888@redhat.com> <20020614181328.A18643@wotan.suse.de> <20020614173133.GH2314@inspiron.paqnet.com> <20020614200537.A5418@wotan.suse.de> <m17kkzv8lq.fsf@frodo.biederman.org> <20020616184801.A15227@wotan.suse.de> <m13cvnun7o.fsf@frodo.biederman.org> <20020616204305.A32022@wotan.suse.de> <m1y9dft2t8.fsf@frodo.biederman.org>
+	id <S316617AbSFPXvB>; Sun, 16 Jun 2002 19:51:01 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8190 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S316616AbSFPXvA>; Sun, 16 Jun 2002 19:51:00 -0400
+Subject: Re: [PATCH] 2.4-ac: sparc64 support for O(1) scheduler
+From: Robert Love <rml@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "David S. Miller" <davem@redhat.com>, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206161710240.7461-100000@e2>
+References: <Pine.LNX.4.44.0206161710240.7461-100000@e2>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 16 Jun 2002 16:45:45 -0700
+Message-Id: <1024271149.3090.13.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1y9dft2t8.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > MTRRs work on physical, not virtual memory, so they have no aliasing
-> > issues.
-> 
-> Doesn't the AGP aperture cause a physical alias?  Leading to strange
+On Sun, 2002-06-16 at 08:19, Ingo Molnar wrote:
 
-Yes. That's what this patch is all about.
+> Linus applied them already, they will be in 2.5.22. They fix real bugs and
+> i've seen no problems on my testboxes. Those bits are a must for SMP x86
+> and Sparc64 as well, there is absolutely no reason to selectively delay
+> their backmerge. Besides the last task_rq_lock() optimization which got
+> undone in 2.5 already, all the recent scheduler bits i posted are needed.
 
-> the same problems if the agp aperture was marked write-back, and the
+I know they are fine (I looked over them) and I saw Linus took them, but
+2.5.22 is not yet out and I did not see any reason to rush to new bits
+to Alan for 2.4 when we could wait a bit and make sure 2.5 proves them
+fine...
 
-AGP aperture is uncacheable, not write-back.
+My approach thus far with 2.5 -> 2.4 O(1) backports has been one of
+caution and it has worked fine thus far.  I figure, what is the rush?
 
-> memory was marked uncacheable.  My gut impression is to just make the
-> agp aperture write-back cacheable, and then we don't have to change
-> the kernel page table at all.  Unfortunately I don't expect the host
-
-That would violate the AGP specification.
-
-> bridge with the memory and agp controllers to like that mode,
-> especially as there are physical aliasing issues.
-
-exactly.
-
-> 
-> > Fixing the MTRRs is fine, but it is really outside the scope of my patch.
-> > Just changing the kernel map wouldn't be enough to fix wrong MTRRs,
-> > because it wouldn't cover highmem. 
-> 
-> My preferred fix is to use PAT, to override the buggy mtrrs.  Which
-> brings up the same aliasing issues.  Which makes it related but
-> outside the scope of the problem.
-
-I don't follow you here. IMHO it is much easier to fix the MTRRs in the
-MTRR driver for those rare buggy BIOS (if they exist - I've never seen one)
-than to hack up all of memory management just to get the right bits set.
-I see no disadvantage of using the MTRRs and it is lot simpler than
-PAT and pte bits.
-
-
--Andi
+	Robert Love
 

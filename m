@@ -1,98 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbUBICzX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 21:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUBICzX
+	id S264930AbUBIC6G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 21:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUBIC5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 21:55:23 -0500
-Received: from data.idl.com.au ([203.32.82.9]:8859 "EHLO smtp.idl.net.au")
-	by vger.kernel.org with ESMTP id S264898AbUBICzJ (ORCPT
+	Sun, 8 Feb 2004 21:57:53 -0500
+Received: from mail.kroah.org ([65.200.24.183]:49083 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264916AbUBIC5s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 21:55:09 -0500
-From: Athol Mullen <me@privacy.net>
-Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
-Newsgroups: linux.kernel
-References: <1mLsS-6Oq-7@gated-at.bofh.it> <1mLsS-6Oq-9@gated-at.bofh.it> <1mLsS-6Oq-5@gated-at.bofh.it> <1mRHV-4Xn-7@gated-at.bofh.it>
-Organization: Mullen Automotive Engineering
-User-Agent: tin/1.5.16-20030125 ("Bubbles") (UNIX) (Linux/2.4.22 (i686))
-Message-ID: <c06jlm$13ju4j$1@ID-215292.news.uni-berlin.de>
-Date: Mon, 9 Feb 2004 02:50:31 +0000
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Feb 2004 21:57:48 -0500
+Date: Sun, 8 Feb 2004 18:57:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Fab Tillier <ftillier@infiniconsys.com>
+Cc: "Hefty, Sean" <sean.hefty@intel.com>, Troy Benjegerdes <hozer@hozed.org>,
+       infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Message-ID: <20040209025712.GA22737@kroah.com>
+References: <20040208162946.GA2531@kroah.com> <08628CA53C6CBA4ABAFB9E808A5214CB017C1A11@mercury.infiniconsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB017C1A11@mercury.infiniconsys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> wrote:
-> On Sun, Feb 08, 2004 at 11:45:18AM +1100, Athol Mullen wrote:
+On Sun, Feb 08, 2004 at 08:51:22AM -0800, Fab Tillier wrote:
+> > On Sun, Feb 08, 2004 at 12:31:56AM -0800, Fab Tillier wrote:
+> > >
+> > > I think there is value in allowing the code to be shared between
+> > > kernel mode and user mode.  Would using a macro that resolve to the
+> > > native kernel spin lock structure and functions be acceptable?
+> > 
+> > Probably not, just use the in-kernel call, and be done with it.  If you
+> > _really_ want to share code between userspace and the kernel, keep a
+> > different version of it somewhere else.
+> 
+> Are you suggesting branching the user mode code from the kernel mode code?
+> Duplication is not the same as sharing code - you have twice the number of
+> places that require fixing in the event of a bug.  If we can help it, we'd
+> like to avoid this.
 
-> I captured dmesg and /proc/ide/piix, but forgot to post them. They're at
-> work now. But I did the change, by commenting out the call to
-> eighty_ninety_three() in piix.c, and my disks came back to 54 MB/s each,
-> and 64 MB/s cumulated.  dmesg showed UDMA33 before and now displays
-> UDMA100 again. But I obviously cannot let it like that because if I
-> install this kernel in a 40-pin machine, I will get some surprizes !
+Do you honestly think that if your code ever makes it into the main
+kernel tree, you would be able somehow to extact that and use it from
+userspace properly?
 
-That's what worries me...
+No, just don't do this.
 
-> I understand. But could you please post your ICH5 detection code so that
-> I can try it on this machine. I still can play with it for a few days
-> before it gets racked. And I can try with both 40 and 80-pin cables.
+Remember, if you _can_ do this from userspace, then your code doesn't
+need to be in the kernel at all :)
 
-This patch inserts the piix code into eighty_ninty_three() - obviously
-this is for testing purposes only.  The patch was diff'd against 2.4.22,
-but patches okay to 2.6.1 with:
-    Hunk #1 succeeded at 719 (offset -10 lines).
+Oh, and I repeat, let's see some code.  No more bickering about "what
+ifs" anymore.
 
---- ide-iops.c.orig	2004-01-18 15:04:24.000000000 +1100
-+++ ide-iops.c	2004-01-18 16:41:16.000000000 +1100
-@@ -729,6 +729,34 @@
- 
- #else
- 
-+#ifdef CONFIG_BLK_DEV_PIIX
-+	/* ICH BIOSes are supposed to set a bit flags for us */
-+	
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	struct pci_dev *dev	= hwif->pci_dev;
-+	u16 cr_flag		= 0x10 << drive->dn;
-+	u16			reg54;
-+
-+	if (hwif->pci_dev->vendor == PCI_VENDOR_ID_INTEL) {
-+		switch(hwif->pci_dev->device) {
-+			case PCI_DEVICE_ID_INTEL_82801BA_8:
-+	    		case PCI_DEVICE_ID_INTEL_82801BA_9:
-+	    		case PCI_DEVICE_ID_INTEL_82801CA_10:
-+	    		case PCI_DEVICE_ID_INTEL_82801CA_11:
-+	    		case PCI_DEVICE_ID_INTEL_82801E_11:
-+	    		case PCI_DEVICE_ID_INTEL_82801DB_10:
-+			case PCI_DEVICE_ID_INTEL_82801DB_11:
-+			case PCI_DEVICE_ID_INTEL_82801EB_11:
-+			case PCI_DEVICE_ID_INTEL_82801AA_1:
-+			case PCI_DEVICE_ID_INTEL_82372FB_1:
-+			    {
-+			    pci_read_config_word(dev, 0x54, &reg54);
-+			    return ((reg54 & cr_flag) ? 1 : 0);
-+			    }
-+		}
-+	}
-+#endif /* CONFIG_BLK_DEV_PIIX */
-+
- 	return ((u8) ((HWIF(drive)->udma_four) &&
- #ifndef CONFIG_IDEDMA_IVB
- 			(drive->id->hw_config & 0x4000) &&
-
-
-
-(Still fudging via Kmail because tin won't work properly...)
-
--- 
-Athol
-<http://cust.idl.com.au/athol>
-Linux Registered User # 254000
-I'm a Libran Engineer. I don't argue, I discuss.
-
-
+greg k-h

@@ -1,991 +1,932 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVDFL5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVDFL77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVDFL5B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 07:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVDFL5A
+	id S262183AbVDFL77 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 07:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVDFL77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 07:57:00 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:62143 "EHLO
+	Wed, 6 Apr 2005 07:59:59 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:62399 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262175AbVDFLrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 07:47:10 -0400
-Message-Id: <20050406114655.119804000@faui31y>
+	id S262177AbVDFLrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 07:47:12 -0400
+Message-Id: <20050406114653.064745000@faui31y>
 References: <20050406114610.287064000@faui31y>
-Date: Wed, 06 Apr 2005 13:46:15 +0200
+Date: Wed, 06 Apr 2005 13:46:11 +0200
 From: Martin Waitz <tali@admingilde.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 5/6] DocBook: remove obsolete templates
-Content-Disposition: inline; filename=docbook-remove-obsolete-templates.patch
+Subject: [patch 1/6] DocBook: changes and extensions to the kernel documentation
+Content-Disposition: inline; filename=some-changes-and-extensions-to-the-kernel-documentation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DocBook: remove obsolete templates
+DocBook: changes and extensions to the kernel documentation
 
-From: Jeff Garzik <jgarzik@pobox.com>
+From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
 
-As the author of tulip-user and via-audio docbooks, I can say that
-they are out of date and should be deleted.
+I have recompiled Linux kernel 2.6.11.5 documentation for me and our
+university students again.  The documentation could be extended for more
+sources which are equipped by structured comments for recent 2.6 kernels. 
+I have tried to proceed with that task.  I have done that more times from
+2.6.0 time and it gets boring to do same changes again and again.  Linux
+kernel compiles after changes for i386 and ARM targets.  I have added
+references to some more files into kernel-api book, I have added some
+section names as well.  So please, check that changes do not break
+something and that categories are not too much skewed.
 
+I have changed kernel-doc to accept "fastcall" and "asmlinkage" words
+reserved by kernel convention.  Most of the other changes are modifications
+in the comments to make kernel-doc happy, accept some parameters
+description and do not bail out on errors.  Changed <pid> to @pid in the
+description, moved some #ifdef before comments to correct function to
+comments bindings, etc.
+
+You can see result of the modified documentation build at
+  http://cmp.felk.cvut.cz/~pisa/linux/lkdb-2.6.11.tar.gz
+
+Some more sources are ready to be included into kernel-doc generated
+documentation.  Sources has been added into kernel-api for now.  Some more
+section names added and probably some more chaos introduced as result of
+quick cleanup work.
+
+Signed-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Martin Waitz <tali@admingilde.org>
 
- Documentation/DocBook/tulip-user.tmpl |  327 ------------------
- Documentation/DocBook/via-audio.tmpl  |  597 ----------------------------------
- Documentation/DocBook/Makefile        |    7 
- 3 files changed, 3 insertions(+), 928 deletions(-)
+ Documentation/DocBook/kernel-api.tmpl |  186 ++++++++++++++++++++++++++++++++--
+ drivers/video/fbmem.c                 |    5 
+ fs/proc/base.c                        |   10 -
+ include/linux/fs.h                    |   12 +-
+ include/linux/net.h                   |   38 +++---
+ include/linux/skbuff.h                |    2 
+ include/net/sock.h                    |  134 ++++++++++++------------
+ kernel/exit.c                         |    2 
+ kernel/power/swsusp.c                 |    2 
+ mm/page_alloc.c                       |    3 
+ mm/vmalloc.c                          |    8 -
+ net/core/datagram.c                   |   28 ++---
+ net/core/sock.c                       |   12 +-
+ net/core/stream.c                     |   12 +-
+ net/sunrpc/xdr.c                      |   12 +-
+ scripts/kernel-doc                    |    2 
+ 16 files changed, 320 insertions(+), 148 deletions(-)
 
-Index: linux-docbook/Documentation/DocBook/Makefile
+Index: linux-docbook/Documentation/DocBook/kernel-api.tmpl
 ===================================================================
---- linux-docbook.orig/Documentation/DocBook/Makefile	2005-04-06 12:12:46.103850545 +0200
-+++ linux-docbook/Documentation/DocBook/Makefile	2005-04-06 12:25:19.150939983 +0200
-@@ -7,10 +7,9 @@
- # list of DOCBOOKS.
+--- linux-docbook.orig/Documentation/DocBook/kernel-api.tmpl	2005-04-06 12:13:12.673832313 +0200
++++ linux-docbook/Documentation/DocBook/kernel-api.tmpl	2005-04-06 12:24:11.943114418 +0200
+@@ -49,13 +49,33 @@
+ !Iinclude/asm-i386/unaligned.h
+      </sect1>
  
- DOCBOOKS := wanbook.xml z8530book.xml mcabook.xml videobook.xml \
--	    kernel-hacking.xml kernel-locking.xml via-audio.xml \
--	    deviceiobook.xml procfs-guide.xml tulip-user.xml \
--	    writing_usb_driver.xml scsidrivers.xml sis900.xml \
--	    kernel-api.xml journal-api.xml lsm.xml usb.xml \
-+	    kernel-hacking.xml kernel-locking.xml deviceiobook.xml \
-+	    procfs-guide.xml writing_usb_driver.xml scsidrivers.xml \
-+	    sis900.xml kernel-api.xml journal-api.xml lsm.xml usb.xml \
- 	    gadget.xml libata.xml mtdnand.xml librs.xml
+-<!-- FIXME:
+-  kernel/sched.c has no docs, which stuffs up the sgml.  Comment
+-  out until somebody adds docs.  KAO
+      <sect1><title>Delaying, scheduling, and timer routines</title>
+-X!Ekernel/sched.c
++!Iinclude/linux/sched.h
++!Ekernel/sched.c
++!Ekernel/timer.c
++     </sect1>
++     <sect1><title>Internal Functions</title>
++!Ikernel/exit.c
++!Ikernel/signal.c
+      </sect1>
+-KAO -->
++
++     <sect1><title>Kernel objects manipulation</title>
++<!--
++X!Iinclude/linux/kobject.h
++-->
++!Elib/kobject.c
++     </sect1>
++
++     <sect1><title>Kernel utility functions</title>
++!Iinclude/linux/kernel.h
++<!-- This needs to clean up to make kernel-doc happy
++X!Ekernel/printk.c
++ -->
++!Ekernel/panic.c
++!Ekernel/sys.c
++!Ekernel/rcupdate.c
++     </sect1>
++
+   </chapter>
  
- ###
-Index: linux-docbook/Documentation/DocBook/via-audio.tmpl
+   <chapter id="adt">
+@@ -81,7 +101,9 @@ KAO -->
+ !Elib/vsprintf.c
+      </sect1>
+      <sect1><title>String Manipulation</title>
+-!Ilib/string.c
++<!-- All functions are exported at now
++X!Ilib/string.c
++ -->
+ !Elib/string.c
+      </sect1>
+      <sect1><title>Bit Operations</title>
+@@ -98,6 +120,25 @@ KAO -->
+ !Iinclude/asm-i386/uaccess.h
+ !Iarch/i386/lib/usercopy.c
+      </sect1>
++     <sect1><title>More Memory Management Functions</title>
++!Iinclude/linux/rmap.h
++!Emm/readahead.c
++!Emm/filemap.c
++!Emm/memory.c
++!Emm/vmalloc.c
++!Emm/mempool.c
++!Emm/page-writeback.c
++!Emm/truncate.c
++     </sect1>
++  </chapter>
++
++
++  <chapter id="ipc">
++     <title>Kernel IPC facilities</title>
++
++     <sect1><title>IPC utilities</title>
++!Iipc/util.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="kfifo">
+@@ -114,6 +155,10 @@ KAO -->
+      <sect1><title>sysctl interface</title>
+ !Ekernel/sysctl.c
+      </sect1>
++
++     <sect1><title>proc filesystem interface</title>
++!Ifs/proc/base.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="debugfs">
+@@ -127,6 +172,10 @@ KAO -->
+ 
+   <chapter id="vfs">
+      <title>The Linux VFS</title>
++     <sect1><title>The Filesystem types</title>
++!Iinclude/linux/fs.h
++!Einclude/linux/fs.h
++     </sect1>
+      <sect1><title>The Directory Cache</title>
+ !Efs/dcache.c
+ !Iinclude/linux/dcache.h
+@@ -142,13 +191,31 @@ KAO -->
+ !Efs/locks.c
+ !Ifs/locks.c
+      </sect1>
++     <sect1><title>Other Functions</title>
++!Efs/mpage.c
++!Efs/namei.c
++!Efs/buffer.c
++!Efs/bio.c
++!Efs/seq_file.c
++!Efs/filesystems.c
++!Efs/fs-writeback.c
++!Efs/block_dev.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="netcore">
+      <title>Linux Networking</title>
++     <sect1><title>Networking Base Types</title>
++!Iinclude/linux/net.h
++     </sect1>
+      <sect1><title>Socket Buffer Functions</title>
+ !Iinclude/linux/skbuff.h
++!Iinclude/net/sock.h
++!Enet/socket.c
+ !Enet/core/skbuff.c
++!Enet/core/sock.c
++!Enet/core/datagram.c
++!Enet/core/stream.c
+      </sect1>
+      <sect1><title>Socket Filter</title>
+ !Enet/core/filter.c
+@@ -158,6 +225,14 @@ KAO -->
+ !Enet/core/gen_stats.c
+ !Enet/core/gen_estimator.c
+      </sect1>
++     <sect1><title>SUN RPC subsystem</title>
++<!-- The !D functionality is not perfect, garbage has to be protected by comments
++!Dnet/sunrpc/sunrpc_syms.c
++-->
++!Enet/sunrpc/xdr.c
++!Enet/sunrpc/svcsock.c
++!Enet/sunrpc/sched.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="netdev">
+@@ -194,11 +269,26 @@ X!Ekernel/module.c
+ !Iarch/i386/kernel/irq.c
+      </sect1>
+ 
++     <sect1><title>Resources Management</title>
++!Ekernel/resource.c
++     </sect1>
++
+      <sect1><title>MTRR Handling</title>
+ !Earch/i386/kernel/cpu/mtrr/main.c
+      </sect1>
+      <sect1><title>PCI Support Library</title>
+ !Edrivers/pci/pci.c
++!Edrivers/pci/pci-driver.c
++!Edrivers/pci/remove.c
++!Edrivers/pci/pci-acpi.c
++<!-- kerneldoc does not understand to __devinit
++X!Edrivers/pci/search.c
++ -->
++!Edrivers/pci/msi.c
++!Edrivers/pci/bus.c
++!Edrivers/pci/hotplug.c
++!Edrivers/pci/probe.c
++!Edrivers/pci/rom.c
+      </sect1>
+      <sect1><title>PCI Hotplug Support Library</title>
+ !Edrivers/pci/hotplug/pci_hotplug_core.c
+@@ -223,6 +313,14 @@ X!Earch/i386/kernel/mca.c
+ !Efs/devfs/base.c
+   </chapter>
+ 
++  <chapter id="sysfs">
++     <title>The Filesystem for Exporting Kernel Objects</title>
++!Efs/sysfs/file.c
++!Efs/sysfs/dir.c
++!Efs/sysfs/symlink.c
++!Efs/sysfs/bin.c
++  </chapter>
++
+   <chapter id="security">
+      <title>Security Framework</title>
+ !Esecurity/security.c
+@@ -233,6 +331,61 @@ X!Earch/i386/kernel/mca.c
+ !Ekernel/power/pm.c
+   </chapter>
+ 
++  <chapter id="devdrivers">
++     <title>Device drivers infrastructure</title>
++     <sect1><title>Device Drivers Base</title>
++<!--
++X!Iinclude/linux/device.h
++-->
++!Edrivers/base/driver.c
++!Edrivers/base/class_simple.c
++!Edrivers/base/core.c
++!Edrivers/base/firmware_class.c
++!Edrivers/base/transport_class.c
++!Edrivers/base/dmapool.c
++<!-- Cannot be included, because
++     attribute_container_add_class_device_adapter
++ and attribute_container_classdev_to_container
++     exceed allowed 44 characters maximum
++X!Edrivers/base/attribute_container.c
++-->
++!Edrivers/base/sys.c
++<!--
++X!Edrivers/base/interface.c
++-->
++!Edrivers/base/platform.c
++!Edrivers/base/bus.c
++     </sect1>
++     <sect1><title>Device Drivers Power Management</title>
++!Edrivers/base/power/main.c
++!Edrivers/base/power/resume.c
++!Edrivers/base/power/suspend.c
++     </sect1>
++     <sect1><title>Device Drivers ACPI Support</title>
++<!-- Internal functions only
++X!Edrivers/acpi/sleep/main.c
++X!Edrivers/acpi/sleep/wakeup.c
++X!Edrivers/acpi/motherboard.c
++X!Edrivers/acpi/bus.c
++-->
++!Edrivers/acpi/scan.c
++<!-- No correct structured comments
++X!Edrivers/acpi/pci_bind.c
++-->
++     </sect1>
++     <sect1><title>Device drivers PnP support</title>
++!Edrivers/pnp/core.c
++<!-- No correct structured comments
++X!Edrivers/pnp/system.c
++ -->
++!Edrivers/pnp/card.c
++!Edrivers/pnp/driver.c
++!Edrivers/pnp/manager.c
++!Edrivers/pnp/support.c
++     </sect1>
++  </chapter>
++
++
+   <chapter id="blkdev">
+      <title>Block Devices</title>
+ !Edrivers/block/ll_rw_blk.c
+@@ -250,7 +403,23 @@ X!Earch/i386/kernel/mca.c
+ 
+   <chapter id="snddev">
+      <title>Sound Devices</title>
++!Iinclude/sound/core.h
+ !Esound/sound_core.c
++!Iinclude/sound/pcm.h
++!Esound/core/pcm.c
++!Esound/core/device.c
++!Esound/core/info.c
++!Esound/core/rawmidi.c
++!Esound/core/sound.c
++!Esound/core/memory.c
++!Esound/core/pcm_memory.c
++!Esound/core/init.c
++!Esound/core/isadma.c
++!Esound/core/control.c
++!Esound/core/pcm_lib.c
++!Esound/core/hwdep.c
++!Esound/core/pcm_native.c
++!Esound/core/memalloc.c
+ <!-- FIXME: Removed for now since no structured comments in source
+ X!Isound/sound_firmware.c
+ -->
+@@ -258,6 +427,7 @@ X!Isound/sound_firmware.c
+ 
+   <chapter id="uart16x50">
+      <title>16x50 UART Driver</title>
++!Iinclude/linux/serial_core.h
+ !Edrivers/serial/serial_core.c
+ !Edrivers/serial/8250.c
+   </chapter>
+@@ -310,9 +480,11 @@ X!Isound/sound_firmware.c
+      <sect1><title>Frame Buffer Memory</title>
+ !Edrivers/video/fbmem.c
+      </sect1>
++<!--
+      <sect1><title>Frame Buffer Console</title>
+-!Edrivers/video/console/fbcon.c
++X!Edrivers/video/console/fbcon.c
+      </sect1>
++-->
+      <sect1><title>Frame Buffer Colormap</title>
+ !Edrivers/video/fbcmap.c
+      </sect1>
+Index: linux-docbook/drivers/video/fbmem.c
 ===================================================================
---- linux-docbook.orig/Documentation/DocBook/via-audio.tmpl	2005-04-06 12:12:46.103850545 +0200
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,597 +0,0 @@
--<?xml version="1.0" encoding="UTF-8"?>
--<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
--	"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" []>
+--- linux-docbook.orig/drivers/video/fbmem.c	2005-04-06 12:13:12.674832161 +0200
++++ linux-docbook/drivers/video/fbmem.c	2005-04-06 12:24:11.946113964 +0200
+@@ -1257,6 +1257,8 @@ int fb_new_modelist(struct fb_info *info
+ static char *video_options[FB_MAX];
+ static int ofonly;
+ 
++extern const char *global_mode_option;
++
+ /**
+  * fb_get_options - get kernel boot parameters
+  * @name:   framebuffer name as it would appear in
+@@ -1297,9 +1299,6 @@ int fb_get_options(char *name, char **op
+ 	return retval;
+ }
+ 
 -
--<book id="ViaAudioGuide">
-- <bookinfo>
--  <title>Via 686 Audio Driver for Linux</title>
--  
--  <authorgroup>
--   <author>
--    <firstname>Jeff</firstname>
--    <surname>Garzik</surname>
--   </author>
--  </authorgroup>
+-extern const char *global_mode_option;
 -
--  <copyright>
--   <year>1999-2001</year>
--   <holder>Jeff Garzik</holder>
--  </copyright>
--
--  <legalnotice>
--   <para>
--     This documentation is free software; you can redistribute
--     it and/or modify it under the terms of the GNU General Public
--     License as published by the Free Software Foundation; either
--     version 2 of the License, or (at your option) any later
--     version.
--   </para>
--      
--   <para>
--     This program is distributed in the hope that it will be
--     useful, but WITHOUT ANY WARRANTY; without even the implied
--     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
--     See the GNU General Public License for more details.
--   </para>
--      
--   <para>
--     You should have received a copy of the GNU General Public
--     License along with this program; if not, write to the Free
--     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
--     MA 02111-1307 USA
--   </para>
--      
--   <para>
--     For more details see the file COPYING in the source
--     distribution of Linux.
--   </para>
--  </legalnotice>
-- </bookinfo>
--
--<toc></toc>
--
--  <chapter id="intro">
--      <title>Introduction</title>
--  <para>
--  	The Via VT82C686A "super southbridge" chips contain
--	AC97-compatible audio logic which features dual 16-bit stereo
--	PCM sound channels (full duplex), plus a third PCM channel intended for use
--	in hardware-assisted FM synthesis.
--  </para>
--  <para>
--  	The current Linux kernel audio driver for this family of chips
--	supports audio playback and recording, but hardware-assisted
--	FM features, and hardware buffer direct-access (mmap)
--	support are not yet available.
--  </para>
--  <para>
--  	This driver supports any Linux kernel version after 2.4.10.
--  </para>
--  <para>
--	Please send bug reports to the mailing list <email>linux-via@gtf.org</email>.
--	To subscribe, e-mail <email>majordomo@gtf.org</email> with
--  </para>
--  <programlisting>
--	subscribe linux-via
--  </programlisting>
--  <para>
--	in the body of the message.
--  </para>
--  </chapter>
--  
--  <chapter id="install">
--      <title>Driver Installation</title>
--  <para>
--  	To use this audio driver, select the
--	CONFIG_SOUND_VIA82CXXX option in the section Sound during kernel configuration.
--	Follow the usual kernel procedures for rebuilding the kernel,
--	or building and installing driver modules.
--  </para>
--  <para>
--  	To make this driver the default audio driver, you can add the
--	following to your /etc/conf.modules file:
--  </para>
--  <programlisting>
--	alias sound via82cxxx_audio
--  </programlisting>
--  <para>
--  	Note that soundcore and ac97_codec support modules
--	are also required for working audio, in addition to
--	the via82cxxx_audio module itself.
--  </para>
--  </chapter>
--  
--  <chapter id="reportbug">
--      <title>Submitting a bug report</title>
--  <sect1 id="bugrepdesc"><title>Description of problem</title>
--  <para>
--	Describe the application you were using to play/record sound, and how
--	to reproduce the problem.
--  </para>
--  </sect1>
--  <sect1 id="bugrepdiag"><title>Diagnostic output</title>
--  <para>
--	Obtain the via-audio-diag diagnostics program from
--	http://sf.net/projects/gkernel/ and provide a dump of the
--	audio chip's registers while the problem is occurring.  Sample command line:
--  </para>
--  <programlisting>
--	./via-audio-diag -aps > diag-output.txt
--  </programlisting>
--  </sect1>
--  <sect1 id="bugrepdebug"><title>Driver debug output</title>
--  <para>
--	Define <constant>VIA_DEBUG</constant> at the beginning of the driver, then capture and email
--	the kernel log output.  This can be viewed in the system kernel log (if
--	enabled), or via the dmesg program.  Sample command line:
--  </para>
--  <programlisting>
--	dmesg > /tmp/dmesg-output.txt
--  </programlisting>
--  </sect1>
--  <sect1 id="bugrepprintk"><title>Bigger kernel message buffer</title>
--  <para>
--	If you wish to increase the size of the buffer displayed by dmesg, then
--	change the <constant>LOG_BUF_LEN</constant> macro at the top of linux/kernel/printk.c, recompile
--	your kernel, and pass the <constant>LOG_BUF_LEN</constant> value to dmesg.  Sample command line with
--	<constant>LOG_BUF_LEN</constant> == 32768:
--  </para>
--  <programlisting>
--	dmesg -s 32768 > /tmp/dmesg-output.txt
--  </programlisting>
--  </sect1>
--  </chapter>
--  
--  <chapter id="bugs">
--     <title>Known Bugs And Assumptions</title>
--  <para>
--  <variablelist>
--    <varlistentry><term>Low volume</term>
--    <listitem>
--    <para>
--	Volume too low on many systems.  Workaround:  use mixer program
--	such as xmixer to increase volume.
--    </para>
--    </listitem></varlistentry>
--
--  </variablelist>
--	
--  </para>
--  </chapter>
--
--  <chapter id="thanks">
--      <title>Thanks</title>
--  <para>
--	Via for providing e-mail support, specs, and NDA'd source code.
--  </para>
--  <para>
--	MandrakeSoft for providing hacking time.
--  </para>
--  <para>
--	AC97 mixer interface fixes and debugging by Ron Cemer <email>roncemer@gte.net</email>.
--  </para>
--  <para>
--	Rui Sousa <email>rui.sousa@conexant.com</email>, for bugfixing
--	MMAP support, and several other notable fixes that resulted from
--	his hard work and testing.
--  </para>
--  <para>
--	Adrian Cox <email>adrian@humboldt.co.uk</email>, for bugfixing
--	MMAP support, and several other notable fixes that resulted from
--	his hard work and testing.
--  </para>
--  <para>
--  	Thomas Sailer for further bugfixes.
--  </para>
--  </chapter>
--  
--  <chapter id="notes">
--     <title>Random Notes</title>
--  <para>
--	Two /proc pseudo-files provide diagnostic information.  This is generally
--	not useful to most users.  Power users can disable CONFIG_SOUND_VIA82CXXX_PROCFS,
--	and remove the /proc support code.  Once
--	version 2.0.0 is released, the /proc support code will be disabled by
--	default.  Available /proc pseudo-files:
--  </para>
--  <programlisting>
--	/proc/driver/via/0/info
--	/proc/driver/via/0/ac97
--  </programlisting>
--  <para>
--	This driver by default supports all PCI audio devices which report
--	a vendor id of 0x1106, and a device id of 0x3058.  Subsystem vendor
--	and device ids are not examined.
--  </para>
--  <para>
--	GNU indent formatting options:
--  <programlisting>
---kr -i8 -ts8 -br -ce -bap -sob -l80 -pcs -cs -ss -bs -di1 -nbc -lp -psl
--  </programlisting>
--  </para>
--  <para>
--	Via has graciously donated e-mail support and source code to help further
--	the development of this driver.  Their assistance has been invaluable
--	in the design and coding of the next major version of this driver.
--  </para>
--  <para>
--	The Via audio chip apparently provides a second PCM scatter-gather
--	DMA channel just for FM data, but does not have a full hardware MIDI
--	processor.  I haven't put much thought towards a solution here, but it
--	might involve using SoftOSS midi wave table, or simply disabling MIDI
--	support altogether and using the FM PCM channel as a second (input? output?)
--  </para>
--  </chapter>
--
--  <chapter id="changelog">
--      <title>Driver ChangeLog</title>
--
--<sect1 id="version191"><title>
--Version 1.9.1
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    DSP read/write bugfixes from Thomas Sailer.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Add new PCI id for single-channel use of Via 8233.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Other bug fixes, tweaks, new ioctls.
--    </para>
--   </listitem>
--
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version1115"><title>
--Version 1.1.15
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    Support for variable fragment size and variable fragment number (Rui
--    Sousa)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Fixes for the SPEED, STEREO, CHANNELS, FMT ioctls when in read &amp;
--    write mode (Rui Sousa)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Mmaped sound is now fully functional. (Rui Sousa)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Make sure to enable PCI device before reading any of its PCI
--    config information. (fixes potential hotplug problems)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Clean up code a bit and add more internal function documentation.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    AC97 codec access fixes (Adrian Cox)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Big endian fixes (Adrian Cox)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    MIDI support (Adrian Cox)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Detect and report locked-rate AC97 codecs.  If your hardware only
--    supports 48Khz (locked rate), then your recording/playback software
--    must upsample or downsample accordingly.  The hardware cannot do it.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Use new pci_request_regions and pci_disable_device functions in
--    kernel 2.4.6.
--    </para>
--   </listitem>
--
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version1114"><title>
--Version 1.1.14
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    Use VM_RESERVE when available, to eliminate unnecessary page faults.
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version1112"><title>
--Version 1.1.12
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    mmap bug fixes from Linus.
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version1111"><title>
--Version 1.1.11
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    Many more bug fixes.  mmap enabled by default, but may still be buggy.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Uses new and spiffy method of mmap'ing the DMA buffer, based
--    on a suggestion from Linus.
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version1110"><title>
--Version 1.1.10
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    Many bug fixes.  mmap enabled by default, but may still be buggy.
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version119"><title>
--Version 1.1.9
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    Redesign and rewrite audio playback implementation.  (faster and smaller, hopefully)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Implement recording and full duplex (DSP_CAP_DUPLEX) support.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Make procfs support optional.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Quick interrupt status check, to lessen overhead in interrupt
--    sharing situations.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Add mmap(2) support.  Disabled for now, it is still buggy and experimental.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Surround all syscalls with a semaphore for cheap and easy SMP protection.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Fix bug in channel shutdown (hardware channel reset) code.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Remove unnecessary spinlocks (better performance).
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Eliminate "unknown AFMT" message by using a different method
--    of selecting the best AFMT_xxx sound sample format for use.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Support for realtime hardware pointer position reporting
--    (DSP_CAP_REALTIME, SNDCTL_DSP_GETxPTR ioctls)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Support for capture/playback triggering
--    (DSP_CAP_TRIGGER, SNDCTL_DSP_SETTRIGGER ioctls)
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    SNDCTL_DSP_SETDUPLEX and SNDCTL_DSP_POST ioctls now handled.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Rewrite open(2) and close(2) logic to allow only one user at
--    a time.  All other open(2) attempts will sleep until they succeed.
--    FIXME: open(O_RDONLY) and open(O_WRONLY) should be allowed to succeed.
--    </para>
--   </listitem>
--
--   <listitem>
--    <para>
--    Reviewed code to ensure that SMP and multiple audio devices
--    are fully supported.
--    </para>
--   </listitem>
--
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version118"><title>
--Version 1.1.8
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
--    	Clean up interrupt handler output.  Fixes the following kernel error message:
--    </para>
--  	<programlisting>
--	unhandled interrupt ...
--  	</programlisting>
--   </listitem>
--
--   <listitem>
--    <para>
--    	Convert documentation to DocBook, so that PDF, HTML and PostScript (.ps) output is readily
--	available.
--    </para>
--   </listitem>
--
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version117"><title>
--Version 1.1.7
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
-- Fix module unload bug where mixer device left registered
--  after driver exit
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version116"><title>
--Version 1.1.6
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
-- Rewrite via_set_rate to mimic ALSA basic AC97 rate setting
--    </para>
--   </listitem>
--   <listitem>
--    <para>
-- Remove much dead code
--    </para>
--   </listitem>
--   <listitem>
--    <para>
-- Complete spin_lock_irqsave -> spin_lock_irq conversion in via_dsp_ioctl
--    </para>
--   </listitem>
--   <listitem>
--    <para>
-- Fix build problem in via_dsp_ioctl
--    </para>
--   </listitem>
--   <listitem>
--    <para>
-- Optimize included headers to eliminate headers found in linux/sound
--	</para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version115"><title>
--Version 1.1.5
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
-- Disable some overly-verbose debugging code
--    </para>
--   </listitem>
--   <listitem>
--    <para>
-- Remove unnecessary sound locks
--   </para>
--   </listitem>
--   <listitem>
--    <para>
-- Fix some ioctls for better time resolution
--    </para>
--   </listitem>
--   <listitem>
--    <para>
-- Begin spin_lock_irqsave -> spin_lock_irq conversion in via_dsp_ioctl
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--<sect1 id="version114"><title>
--Version 1.1.4
--</title>
--  <itemizedlist spacing="compact">
--   <listitem>
--    <para>
-- Completed rewrite of driver.  Eliminated SoundBlaster compatibility
--  completely, and now uses the much-faster scatter-gather DMA engine.
--    </para>
--   </listitem>
--  </itemizedlist>
--</sect1>
--
--  </chapter>
--  
--  <chapter id="intfunctions">
--     <title>Internal Functions</title>
--!Isound/oss/via82cxxx_audio.c
--  </chapter>
--
--</book>
--
--
-Index: linux-docbook/Documentation/DocBook/tulip-user.tmpl
+ /**
+  *	video_setup - process command line options
+  *	@options: string of options
+Index: linux-docbook/fs/proc/base.c
 ===================================================================
---- linux-docbook.orig/Documentation/DocBook/tulip-user.tmpl	2005-04-06 12:12:46.104850394 +0200
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,327 +0,0 @@
--<?xml version="1.0" encoding="UTF-8"?>
--<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
--	"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" []>
+--- linux-docbook.orig/fs/proc/base.c	2005-04-06 12:13:12.675832010 +0200
++++ linux-docbook/fs/proc/base.c	2005-04-06 12:24:11.948113661 +0200
+@@ -1701,13 +1701,13 @@ static struct inode_operations proc_self
+ };
+ 
+ /**
+- * proc_pid_unhash -  Unhash /proc/<pid> entry from the dcache.
++ * proc_pid_unhash -  Unhash /proc/@pid entry from the dcache.
+  * @p: task that should be flushed.
+  *
+- * Drops the /proc/<pid> dcache entry from the hash chains.
++ * Drops the /proc/@pid dcache entry from the hash chains.
+  *
+- * Dropping /proc/<pid> entries and detach_pid must be synchroneous,
+- * otherwise e.g. /proc/<pid>/exe might point to the wrong executable,
++ * Dropping /proc/@pid entries and detach_pid must be synchroneous,
++ * otherwise e.g. /proc/@pid/exe might point to the wrong executable,
+  * if the pid value is immediately reused. This is enforced by
+  * - caller must acquire spin_lock(p->proc_lock)
+  * - must be called before detach_pid()
+@@ -1739,7 +1739,7 @@ struct dentry *proc_pid_unhash(struct ta
+ }
+ 
+ /**
+- * proc_pid_flush - recover memory used by stale /proc/<pid>/x entries
++ * proc_pid_flush - recover memory used by stale /proc/@pid/x entries
+  * @proc_entry: directoy to prune.
+  *
+  * Shrink the /proc directory that was used by the just killed thread.
+Index: linux-docbook/include/linux/fs.h
+===================================================================
+--- linux-docbook.orig/include/linux/fs.h	2005-04-06 12:13:12.676831859 +0200
++++ linux-docbook/include/linux/fs.h	2005-04-06 12:24:11.951113207 +0200
+@@ -1053,12 +1053,12 @@ static inline void file_accessed(struct 
+ int sync_inode(struct inode *inode, struct writeback_control *wbc);
+ 
+ /**
+- * &export_operations - for nfsd to communicate with file systems
+- * decode_fh:      decode a file handle fragment and return a &struct dentry
+- * encode_fh:      encode a file handle fragment from a dentry
+- * get_name:       find the name for a given inode in a given directory
+- * get_parent:     find the parent of a given directory
+- * get_dentry:     find a dentry for the inode given a file handle sub-fragment
++ * struct export_operations - for nfsd to communicate with file systems
++ * @decode_fh:      decode a file handle fragment and return a &struct dentry
++ * @encode_fh:      encode a file handle fragment from a dentry
++ * @get_name:       find the name for a given inode in a given directory
++ * @get_parent:     find the parent of a given directory
++ * @get_dentry:     find a dentry for the inode given a file handle sub-fragment
+  *
+  * Description:
+  *    The export_operations structure provides a means for nfsd to communicate
+Index: linux-docbook/include/linux/net.h
+===================================================================
+--- linux-docbook.orig/include/linux/net.h	2005-04-06 12:13:12.676831859 +0200
++++ linux-docbook/include/linux/net.h	2005-04-06 12:24:11.952113056 +0200
+@@ -64,19 +64,19 @@ typedef enum {
+ #define SOCK_PASSCRED		3
+ 
+ #ifndef ARCH_HAS_SOCKET_TYPES
+-/** sock_type - Socket types
+- * 
++/**
++ * enum sock_type - Socket types
++ * @SOCK_STREAM: stream (connection) socket
++ * @SOCK_DGRAM: datagram (conn.less) socket
++ * @SOCK_RAW: raw socket
++ * @SOCK_RDM: reliably-delivered message
++ * @SOCK_SEQPACKET: sequential packet socket
++ * @SOCK_PACKET: linux specific way of getting packets at the dev level.
++ *		  For writing rarp and other similar things on the user level.
++ *
+  * When adding some new socket type please
+  * grep ARCH_HAS_SOCKET_TYPE include/asm-* /socket.h, at least MIPS
+  * overrides this enum for binary compat reasons.
+- * 
+- * @SOCK_STREAM - stream (connection) socket
+- * @SOCK_DGRAM - datagram (conn.less) socket
+- * @SOCK_RAW - raw socket
+- * @SOCK_RDM - reliably-delivered message
+- * @SOCK_SEQPACKET - sequential packet socket 
+- * @SOCK_PACKET - linux specific way of getting packets at the dev level.
+- *		  For writing rarp and other similar things on the user level.
+  */
+ enum sock_type {
+ 	SOCK_STREAM	= 1,
+@@ -93,15 +93,15 @@ enum sock_type {
+ 
+ /**
+  *  struct socket - general BSD socket
+- *  @state - socket state (%SS_CONNECTED, etc)
+- *  @flags - socket flags (%SOCK_ASYNC_NOSPACE, etc)
+- *  @ops - protocol specific socket operations
+- *  @fasync_list - Asynchronous wake up list
+- *  @file - File back pointer for gc
+- *  @sk - internal networking protocol agnostic socket representation
+- *  @wait - wait queue for several uses
+- *  @type - socket type (%SOCK_STREAM, etc)
+- *  @passcred - credentials (used only in Unix Sockets (aka PF_LOCAL))
++ *  @state: socket state (%SS_CONNECTED, etc)
++ *  @flags: socket flags (%SOCK_ASYNC_NOSPACE, etc)
++ *  @ops: protocol specific socket operations
++ *  @fasync_list: Asynchronous wake up list
++ *  @file: File back pointer for gc
++ *  @sk: internal networking protocol agnostic socket representation
++ *  @wait: wait queue for several uses
++ *  @type: socket type (%SOCK_STREAM, etc)
++ *  @passcred: credentials (used only in Unix Sockets (aka PF_LOCAL))
+  */
+ struct socket {
+ 	socket_state		state;
+Index: linux-docbook/include/linux/skbuff.h
+===================================================================
+--- linux-docbook.orig/include/linux/skbuff.h	2005-04-06 12:13:12.677831708 +0200
++++ linux-docbook/include/linux/skbuff.h	2005-04-06 12:24:11.954112753 +0200
+@@ -974,6 +974,7 @@ static inline void __skb_queue_purge(str
+ 		kfree_skb(skb);
+ }
+ 
++#ifndef CONFIG_HAVE_ARCH_DEV_ALLOC_SKB
+ /**
+  *	__dev_alloc_skb - allocate an skbuff for sending
+  *	@length: length to allocate
+@@ -986,7 +987,6 @@ static inline void __skb_queue_purge(str
+  *
+  *	%NULL is returned in there is no free memory.
+  */
+-#ifndef CONFIG_HAVE_ARCH_DEV_ALLOC_SKB
+ static inline struct sk_buff *__dev_alloc_skb(unsigned int length,
+ 					      int gfp_mask)
+ {
+Index: linux-docbook/include/net/sock.h
+===================================================================
+--- linux-docbook.orig/include/net/sock.h	2005-04-06 12:13:12.678831557 +0200
++++ linux-docbook/include/net/sock.h	2005-04-06 12:24:11.956112450 +0200
+@@ -90,17 +90,17 @@ do {	spin_lock_init(&((__sk)->sk_lock.sl
+ struct sock;
+ 
+ /**
+-  *	struct sock_common - minimal network layer representation of sockets
+-  *	@skc_family - network address family
+-  *	@skc_state - Connection state
+-  *	@skc_reuse - %SO_REUSEADDR setting
+-  *	@skc_bound_dev_if - bound device index if != 0
+-  *	@skc_node - main hash linkage for various protocol lookup tables
+-  *	@skc_bind_node - bind hash linkage for various protocol lookup tables
+-  *	@skc_refcnt - reference count
+-  *
+-  *	This is the minimal network layer representation of sockets, the header
+-  *	for struct sock and struct tcp_tw_bucket.
++ *	struct sock_common - minimal network layer representation of sockets
++ *	@skc_family: network address family
++ *	@skc_state: Connection state
++ *	@skc_reuse: %SO_REUSEADDR setting
++ *	@skc_bound_dev_if: bound device index if != 0
++ *	@skc_node: main hash linkage for various protocol lookup tables
++ *	@skc_bind_node: bind hash linkage for various protocol lookup tables
++ *	@skc_refcnt: reference count
++ *
++ *	This is the minimal network layer representation of sockets, the header
++ *	for struct sock and struct tcp_tw_bucket.
+   */
+ struct sock_common {
+ 	unsigned short		skc_family;
+@@ -114,60 +114,60 @@ struct sock_common {
+ 
+ /**
+   *	struct sock - network layer representation of sockets
+-  *	@__sk_common - shared layout with tcp_tw_bucket
+-  *	@sk_shutdown - mask of %SEND_SHUTDOWN and/or %RCV_SHUTDOWN
+-  *	@sk_userlocks - %SO_SNDBUF and %SO_RCVBUF settings
+-  *	@sk_lock -	synchronizer
+-  *	@sk_rcvbuf - size of receive buffer in bytes
+-  *	@sk_sleep - sock wait queue
+-  *	@sk_dst_cache - destination cache
+-  *	@sk_dst_lock - destination cache lock
+-  *	@sk_policy - flow policy
+-  *	@sk_rmem_alloc - receive queue bytes committed
+-  *	@sk_receive_queue - incoming packets
+-  *	@sk_wmem_alloc - transmit queue bytes committed
+-  *	@sk_write_queue - Packet sending queue
+-  *	@sk_omem_alloc - "o" is "option" or "other"
+-  *	@sk_wmem_queued - persistent queue size
+-  *	@sk_forward_alloc - space allocated forward
+-  *	@sk_allocation - allocation mode
+-  *	@sk_sndbuf - size of send buffer in bytes
+-  *	@sk_flags - %SO_LINGER (l_onoff), %SO_BROADCAST, %SO_KEEPALIVE, %SO_OOBINLINE settings
+-  *	@sk_no_check - %SO_NO_CHECK setting, wether or not checkup packets
+-  *	@sk_route_caps - route capabilities (e.g. %NETIF_F_TSO)
+-  *	@sk_lingertime - %SO_LINGER l_linger setting
+-  *	@sk_hashent - hash entry in several tables (e.g. tcp_ehash)
+-  *	@sk_backlog - always used with the per-socket spinlock held
+-  *	@sk_callback_lock - used with the callbacks in the end of this struct
+-  *	@sk_error_queue - rarely used
+-  *	@sk_prot - protocol handlers inside a network family
+-  *	@sk_err - last error
+-  *	@sk_err_soft - errors that don't cause failure but are the cause of a persistent failure not just 'timed out'
+-  *	@sk_ack_backlog - current listen backlog
+-  *	@sk_max_ack_backlog - listen backlog set in listen()
+-  *	@sk_priority - %SO_PRIORITY setting
+-  *	@sk_type - socket type (%SOCK_STREAM, etc)
+-  *	@sk_protocol - which protocol this socket belongs in this network family
+-  *	@sk_peercred - %SO_PEERCRED setting
+-  *	@sk_rcvlowat - %SO_RCVLOWAT setting
+-  *	@sk_rcvtimeo - %SO_RCVTIMEO setting
+-  *	@sk_sndtimeo - %SO_SNDTIMEO setting
+-  *	@sk_filter - socket filtering instructions
+-  *	@sk_protinfo - private area, net family specific, when not using slab
+-  *	@sk_timer - sock cleanup timer
+-  *	@sk_stamp - time stamp of last packet received
+-  *	@sk_socket - Identd and reporting IO signals
+-  *	@sk_user_data - RPC layer private data
+-  *	@sk_sndmsg_page - cached page for sendmsg
+-  *	@sk_sndmsg_off - cached offset for sendmsg
+-  *	@sk_send_head - front of stuff to transmit
+-  *	@sk_write_pending - a write to stream socket waits to start
+-  *	@sk_state_change - callback to indicate change in the state of the sock
+-  *	@sk_data_ready - callback to indicate there is data to be processed
+-  *	@sk_write_space - callback to indicate there is bf sending space available
+-  *	@sk_error_report - callback to indicate errors (e.g. %MSG_ERRQUEUE)
+-  *	@sk_backlog_rcv - callback to process the backlog
+-  *	@sk_destruct - called at sock freeing time, i.e. when all refcnt == 0
++  *	@__sk_common: shared layout with tcp_tw_bucket
++  *	@sk_shutdown: mask of %SEND_SHUTDOWN and/or %RCV_SHUTDOWN
++  *	@sk_userlocks: %SO_SNDBUF and %SO_RCVBUF settings
++  *	@sk_lock:	synchronizer
++  *	@sk_rcvbuf: size of receive buffer in bytes
++  *	@sk_sleep: sock wait queue
++  *	@sk_dst_cache: destination cache
++  *	@sk_dst_lock: destination cache lock
++  *	@sk_policy: flow policy
++  *	@sk_rmem_alloc: receive queue bytes committed
++  *	@sk_receive_queue: incoming packets
++  *	@sk_wmem_alloc: transmit queue bytes committed
++  *	@sk_write_queue: Packet sending queue
++  *	@sk_omem_alloc: "o" is "option" or "other"
++  *	@sk_wmem_queued: persistent queue size
++  *	@sk_forward_alloc: space allocated forward
++  *	@sk_allocation: allocation mode
++  *	@sk_sndbuf: size of send buffer in bytes
++  *	@sk_flags: %SO_LINGER (l_onoff), %SO_BROADCAST, %SO_KEEPALIVE, %SO_OOBINLINE settings
++  *	@sk_no_check: %SO_NO_CHECK setting, wether or not checkup packets
++  *	@sk_route_caps: route capabilities (e.g. %NETIF_F_TSO)
++  *	@sk_lingertime: %SO_LINGER l_linger setting
++  *	@sk_hashent: hash entry in several tables (e.g. tcp_ehash)
++  *	@sk_backlog: always used with the per-socket spinlock held
++  *	@sk_callback_lock: used with the callbacks in the end of this struct
++  *	@sk_error_queue: rarely used
++  *	@sk_prot: protocol handlers inside a network family
++  *	@sk_err: last error
++  *	@sk_err_soft: errors that don't cause failure but are the cause of a persistent failure not just 'timed out'
++  *	@sk_ack_backlog: current listen backlog
++  *	@sk_max_ack_backlog: listen backlog set in listen()
++  *	@sk_priority: %SO_PRIORITY setting
++  *	@sk_type: socket type (%SOCK_STREAM, etc)
++  *	@sk_protocol: which protocol this socket belongs in this network family
++  *	@sk_peercred: %SO_PEERCRED setting
++  *	@sk_rcvlowat: %SO_RCVLOWAT setting
++  *	@sk_rcvtimeo: %SO_RCVTIMEO setting
++  *	@sk_sndtimeo: %SO_SNDTIMEO setting
++  *	@sk_filter: socket filtering instructions
++  *	@sk_protinfo: private area, net family specific, when not using slab
++  *	@sk_timer: sock cleanup timer
++  *	@sk_stamp: time stamp of last packet received
++  *	@sk_socket: Identd and reporting IO signals
++  *	@sk_user_data: RPC layer private data
++  *	@sk_sndmsg_page: cached page for sendmsg
++  *	@sk_sndmsg_off: cached offset for sendmsg
++  *	@sk_send_head: front of stuff to transmit
++  *	@sk_write_pending: a write to stream socket waits to start
++  *	@sk_state_change: callback to indicate change in the state of the sock
++  *	@sk_data_ready: callback to indicate there is data to be processed
++  *	@sk_write_space: callback to indicate there is bf sending space available
++  *	@sk_error_report: callback to indicate errors (e.g. %MSG_ERRQUEUE)
++  *	@sk_backlog_rcv: callback to process the backlog
++  *	@sk_destruct: called at sock freeing time, i.e. when all refcnt == 0
+  */
+ struct sock {
+ 	/*
+@@ -1223,8 +1223,8 @@ sock_recv_timestamp(struct msghdr *msg, 
+ 
+ /**
+  * sk_eat_skb - Release a skb if it is no longer needed
+- * @sk - socket to eat this skb from
+- * @skb - socket buffer to eat
++ * @sk: socket to eat this skb from
++ * @skb: socket buffer to eat
+  *
+  * This routine must be called with interrupts disabled or with the socket
+  * locked so that the sk_buff queue operation is ok.
+Index: linux-docbook/kernel/exit.c
+===================================================================
+--- linux-docbook.orig/kernel/exit.c	2005-04-06 12:13:12.678831557 +0200
++++ linux-docbook/kernel/exit.c	2005-04-06 12:24:11.958112148 +0200
+@@ -209,7 +209,7 @@ static inline int has_stopped_jobs(int p
+ }
+ 
+ /**
+- * reparent_to_init() - Reparent the calling kernel thread to the init task.
++ * reparent_to_init - Reparent the calling kernel thread to the init task.
+  *
+  * If a kernel thread is launched as a result of a system call, or if
+  * it ever exits, it should generally reparent itself to init so that
+Index: linux-docbook/kernel/power/swsusp.c
+===================================================================
+--- linux-docbook.orig/kernel/power/swsusp.c	2005-04-06 12:13:12.679831405 +0200
++++ linux-docbook/kernel/power/swsusp.c	2005-04-06 12:24:11.959111996 +0200
+@@ -1099,7 +1099,7 @@ static struct pbe * swsusp_pagedir_reloc
+ 	return pblist;
+ }
+ 
+-/**
++/*
+  *	Using bio to read from swap.
+  *	This code requires a bit more work than just using buffer heads
+  *	but, it is the recommended way for 2.5/2.6.
+Index: linux-docbook/mm/page_alloc.c
+===================================================================
+--- linux-docbook.orig/mm/page_alloc.c	2005-04-06 12:13:12.680831254 +0200
++++ linux-docbook/mm/page_alloc.c	2005-04-06 12:24:11.962111542 +0200
+@@ -1351,8 +1351,7 @@ static int __init build_zonelists_node(p
+ #define MAX_NODE_LOAD (num_online_nodes())
+ static int __initdata node_load[MAX_NUMNODES];
+ /**
+- * find_next_best_node - find the next node that should appear in a given
+- *    node's fallback list
++ * find_next_best_node - find the next node that should appear in a given node's fallback list
+  * @node: node whose fallback list we're appending
+  * @used_node_mask: nodemask_t of already used nodes
+  *
+Index: linux-docbook/mm/vmalloc.c
+===================================================================
+--- linux-docbook.orig/mm/vmalloc.c	2005-04-06 12:13:12.680831254 +0200
++++ linux-docbook/mm/vmalloc.c	2005-04-06 12:24:11.963111391 +0200
+@@ -475,6 +475,10 @@ void *vmalloc(unsigned long size)
+ 
+ EXPORT_SYMBOL(vmalloc);
+ 
++#ifndef PAGE_KERNEL_EXEC
++# define PAGE_KERNEL_EXEC PAGE_KERNEL
++#endif
++
+ /**
+  *	vmalloc_exec  -  allocate virtually contiguous, executable memory
+  *
+@@ -488,10 +492,6 @@ EXPORT_SYMBOL(vmalloc);
+  *	use __vmalloc() instead.
+  */
+ 
+-#ifndef PAGE_KERNEL_EXEC
+-# define PAGE_KERNEL_EXEC PAGE_KERNEL
+-#endif
 -
--<book id="TulipUserGuide">
-- <bookinfo>
--  <title>Tulip Driver User's Guide</title>
--  
--  <authorgroup>
--   <author>
--    <firstname>Jeff</firstname>
--    <surname>Garzik</surname>
--    <affiliation>
--     <address>
--      <email>jgarzik@pobox.com</email>
--     </address>
--    </affiliation>
--   </author>
--  </authorgroup>
--
--  <copyright>
--   <year>2001</year>
--   <holder>Jeff Garzik</holder>
--  </copyright>
--
--  <legalnotice>
--   <para>
--     This documentation is free software; you can redistribute
--     it and/or modify it under the terms of the GNU General Public
--     License as published by the Free Software Foundation; either
--     version 2 of the License, or (at your option) any later
--     version.
--   </para>
--      
--   <para>
--     This program is distributed in the hope that it will be
--     useful, but WITHOUT ANY WARRANTY; without even the implied
--     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
--     See the GNU General Public License for more details.
--   </para>
--      
--   <para>
--     You should have received a copy of the GNU General Public
--     License along with this program; if not, write to the Free
--     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
--     MA 02111-1307 USA
--   </para>
--      
--   <para>
--     For more details see the file COPYING in the source
--     distribution of Linux.
--   </para>
--  </legalnotice>
-- </bookinfo>
--
-- <toc></toc>
--
--  <chapter id="intro">
--    <title>Introduction</title>
--<para>
--The Tulip Ethernet Card Driver
--is maintained by Jeff Garzik (<email>jgarzik@pobox.com</email>).
--</para>
--
--<para>
--The Tulip driver was developed by Donald Becker and changed by
--Jeff Garzik, Takashi Manabe and a cast of thousands.
--</para>
--
--<para>
--For 2.4.x and later kernels, the Linux Tulip driver is available at
--<ulink url="http://sourceforge.net/projects/tulip/">http://sourceforge.net/projects/tulip/</ulink>
--</para>
--
--<para>
--	This driver is for the Digital "Tulip" Ethernet adapter interface.
--	It should work with most DEC 21*4*-based chips/ethercards, as well as
--	with work-alike chips from Lite-On (PNIC) and Macronix (MXIC) and ASIX.
--</para>
--
--<para>
--        The original author may be reached as becker@scyld.com, or C/O
--        Scyld Computing Corporation,
--        410 Severn Ave., Suite 210,
--        Annapolis MD 21403
--</para>
--
--<para>
--	Additional information on Donald Becker's tulip.c
--	is available at <ulink url="http://www.scyld.com/network/tulip.html">http://www.scyld.com/network/tulip.html</ulink>
--</para>
--
--  </chapter>
--
--  <chapter id="drvr-compat">
--    <title>Driver Compatibility</title>
--
--<para>
--This device driver is designed for the DECchip "Tulip", Digital's
--single-chip ethernet controllers for PCI (now owned by Intel).
--Supported members of the family
--are the 21040, 21041, 21140, 21140A, 21142, and 21143.  Similar work-alike
--chips from Lite-On, Macronics, ASIX, Compex and other listed below are also
--supported.
--</para>
--
--<para>
--These chips are used on at least 140 unique PCI board designs.  The great
--number of chips and board designs supported is the reason for the
--driver size and complexity.  Almost of the increasing complexity is in the
--board configuration and media selection code.  There is very little
--increasing in the operational critical path length.
--</para>
--  </chapter>
--
--  <chapter id="board-settings">
--    <title>Board-specific Settings</title>
--
--<para>
--PCI bus devices are configured by the system at boot time, so no jumpers
--need to be set on the board.  The system BIOS preferably should assign the
--PCI INTA signal to an otherwise unused system IRQ line.
--</para>
--
--<para>
--Some boards have EEPROMs tables with default media entry.  The factory default
--is usually "autoselect".  This should only be overridden when using
--transceiver connections without link beat e.g. 10base2 or AUI, or (rarely!)
--for forcing full-duplex when used with old link partners that do not do
--autonegotiation.
--</para>
--  </chapter>
--
--  <chapter id="driver-operation">
--    <title>Driver Operation</title>
--
--<sect1><title>Ring buffers</title>
--
--<para>
--The Tulip can use either ring buffers or lists of Tx and Rx descriptors.
--This driver uses statically allocated rings of Rx and Tx descriptors, set at
--compile time by RX/TX_RING_SIZE.  This version of the driver allocates skbuffs
--for the Rx ring buffers at open() time and passes the skb->data field to the
--Tulip as receive data buffers.  When an incoming frame is less than
--RX_COPYBREAK bytes long, a fresh skbuff is allocated and the frame is
--copied to the new skbuff.  When the incoming frame is larger, the skbuff is
--passed directly up the protocol stack and replaced by a newly allocated
--skbuff.
--</para>
--
--<para>
--The RX_COPYBREAK value is chosen to trade-off the memory wasted by
--using a full-sized skbuff for small frames vs. the copying costs of larger
--frames.  For small frames the copying cost is negligible (esp. considering
--that we are pre-loading the cache with immediately useful header
--information).  For large frames the copying cost is non-trivial, and the
--larger copy might flush the cache of useful data.  A subtle aspect of this
--choice is that the Tulip only receives into longword aligned buffers, thus
--the IP header at offset 14 isn't longword aligned for further processing.
--Copied frames are put into the new skbuff at an offset of "+2", thus copying
--has the beneficial effect of aligning the IP header and preloading the
--cache.
--</para>
--
--</sect1>
--
--<sect1><title>Synchronization</title>
--<para>
--The driver runs as two independent, single-threaded flows of control.  One
--is the send-packet routine, which enforces single-threaded use by the
--dev->tbusy flag.  The other thread is the interrupt handler, which is single
--threaded by the hardware and other software.
--</para>
--
--<para>
--The send packet thread has partial control over the Tx ring and 'dev->tbusy'
--flag.  It sets the tbusy flag whenever it's queuing a Tx packet. If the next
--queue slot is empty, it clears the tbusy flag when finished otherwise it sets
--the 'tp->tx_full' flag.
--</para>
--
--<para>
--The interrupt handler has exclusive control over the Rx ring and records stats
--from the Tx ring.  (The Tx-done interrupt can't be selectively turned off, so
--we can't avoid the interrupt overhead by having the Tx routine reap the Tx
--stats.)	 After reaping the stats, it marks the queue entry as empty by setting
--the 'base' to zero.	 Iff the 'tp->tx_full' flag is set, it clears both the
--tx_full and tbusy flags.
--</para>
--
--</sect1>
--
--  </chapter>
--
--  <chapter id="errata">
--    <title>Errata</title>
--
--<para>
--The old DEC databooks were light on details.
--The 21040 databook claims that CSR13, CSR14, and CSR15 should each be the last
--register of the set CSR12-15 written.  Hmmm, now how is that possible?
--</para>
--
--<para>
--The DEC SROM format is very badly designed not precisely defined, leading to
--part of the media selection junkheap below.  Some boards do not have EEPROM
--media tables and need to be patched up.  Worse, other boards use the DEC
--design kit media table when it isn't correct for their board.
--</para>
--
--<para>
--We cannot use MII interrupts because there is no defined GPIO pin to attach
--them.  The MII transceiver status is polled using an kernel timer.
--</para>
--  </chapter>
--
--  <chapter id="changelog">
--    <title>Driver Change History</title>
--
--    <sect1><title>Version 0.9.14 (February 20, 2001)</title>
--    <itemizedlist>
--    <listitem><para>Fix PNIC problems (Manfred Spraul)</para></listitem>
--    <listitem><para>Add new PCI id for Accton comet</para></listitem>
--    <listitem><para>Support Davicom tulips</para></listitem>
--    <listitem><para>Fix oops in eeprom parsing</para></listitem>
--    <listitem><para>Enable workarounds for early PCI chipsets</para></listitem>
--    <listitem><para>IA64, hppa csr0 support</para></listitem>
--    <listitem><para>Support media types 5, 6</para></listitem>
--    <listitem><para>Interpret a bit more of the 21142 SROM extended media type 3</para></listitem>
--    <listitem><para>Add missing delay in eeprom reading</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.11 (November 3, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Eliminate extra bus accesses when sharing interrupts (prumpf)</para></listitem>
--    <listitem><para>Barrier following ownership descriptor bit flip (prumpf)</para></listitem>
--    <listitem><para>Endianness fixes for >14 addresses in setup frames (prumpf)</para></listitem>
--    <listitem><para>Report link beat to kernel/userspace via netif_carrier_*. (kuznet)</para></listitem>
--    <listitem><para>Better spinlocking in set_rx_mode.</para></listitem>
--    <listitem><para>Fix I/O resource request failure error messages (DaveM catch)</para></listitem>
--    <listitem><para>Handle DMA allocation failure.</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.10 (September 6, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Simple interrupt mitigation (via jamal)</para></listitem>
--    <listitem><para>More PCI ids</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.9 (August 11, 2000)</title>
--    <itemizedlist>
--    <listitem><para>More PCI ids</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.8 (July 13, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Correct signed/unsigned comparison for dummy frame index</para></listitem>
--    <listitem><para>Remove outdated references to struct enet_statistics</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.7 (June 17, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Timer cleanups (Andrew Morton)</para></listitem>
--    <listitem><para>Alpha compile fix (somebody?)</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.6 (May 31, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Revert 21143-related support flag patch</para></listitem>
--    <listitem><para>Add HPPA/media-table debugging printk</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.5 (May 30, 2000)</title>
--    <itemizedlist>
--    <listitem><para>HPPA support (willy@puffingroup)</para></listitem>
--    <listitem><para>CSR6 bits and tulip.h cleanup (Chris Smith)</para></listitem>
--    <listitem><para>Improve debugging messages a bit</para></listitem>
--    <listitem><para>Add delay after CSR13 write in t21142_start_nway</para></listitem>
--    <listitem><para>Remove unused ETHER_STATS code</para></listitem>
--    <listitem><para>Convert 'extern inline' to 'static inline' in tulip.h (Chris Smith)</para></listitem>
--    <listitem><para>Update DS21143 support flags in tulip_chip_info[]</para></listitem>
--    <listitem><para>Use spin_lock_irq, not _irqsave/restore, in tulip_start_xmit()</para></listitem>
--    <listitem><para>Add locking to set_rx_mode()</para></listitem>
--    <listitem><para>Fix race with chip setting DescOwned bit (Hal Murray)</para></listitem>
--    <listitem><para>Request 100% of PIO and MMIO resource space assigned to card</para></listitem>
--    <listitem><para>Remove error message from pci_enable_device failure</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.4.3 (April 14, 2000)</title>
--    <itemizedlist>
--    <listitem><para>mod_timer fix (Hal Murray)</para></listitem>
--    <listitem><para>PNIC2 resuscitation (Chris Smith)</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.4.2 (March 21, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Fix 21041 CSR7, CSR13/14/15 handling</para></listitem>
--    <listitem><para>Merge some PCI ids from tulip 0.91x</para></listitem>
--    <listitem><para>Merge some HAS_xxx flags and flag settings from tulip 0.91x</para></listitem>
--    <listitem><para>asm/io.h fix (submitted by many) and cleanup</para></listitem>
--    <listitem><para>s/HAS_NWAY143/HAS_NWAY/</para></listitem>
--    <listitem><para>Cleanup 21041 mode reporting</para></listitem>
--    <listitem><para>Small code cleanups</para></listitem>
--    </itemizedlist>
--    </sect1>
--
--    <sect1><title>Version 0.9.4.1 (March 18, 2000)</title>
--    <itemizedlist>
--    <listitem><para>Finish PCI DMA conversion (davem)</para></listitem>
--    <listitem><para>Do not netif_start_queue() at end of tulip_tx_timeout() (kuznet)</para></listitem>
--    <listitem><para>PCI DMA fix (kuznet)</para></listitem>
--    <listitem><para>eeprom.c code cleanup</para></listitem>
--    <listitem><para>Remove Xircom Tulip crud</para></listitem>
--    </itemizedlist>
--    </sect1>
--  </chapter>
--
--</book>
+ void *vmalloc_exec(unsigned long size)
+ {
+ 	return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL_EXEC);
+Index: linux-docbook/net/core/datagram.c
+===================================================================
+--- linux-docbook.orig/net/core/datagram.c	2005-04-06 12:13:12.681831103 +0200
++++ linux-docbook/net/core/datagram.c	2005-04-06 12:24:11.964111239 +0200
+@@ -115,10 +115,10 @@ out_noerr:
+ 
+ /**
+  *	skb_recv_datagram - Receive a datagram skbuff
+- *	@sk - socket
+- *	@flags - MSG_ flags
+- *	@noblock - blocking operation?
+- *	@err - error code returned
++ *	@sk: socket
++ *	@flags: MSG_ flags
++ *	@noblock: blocking operation?
++ *	@err: error code returned
+  *
+  *	Get a datagram skbuff, understands the peeking, nonblocking wakeups
+  *	and possible races. This replaces identical code in packet, raw and
+@@ -201,10 +201,10 @@ void skb_free_datagram(struct sock *sk, 
+ 
+ /**
+  *	skb_copy_datagram_iovec - Copy a datagram to an iovec.
+- *	@skb - buffer to copy
+- *	@offset - offset in the buffer to start copying from
+- *	@iovec - io vector to copy to
+- *	@len - amount of data to copy from buffer to iovec
++ *	@skb: buffer to copy
++ *	@offset: offset in the buffer to start copying from
++ *	@iovec: io vector to copy to
++ *	@len: amount of data to copy from buffer to iovec
+  *
+  *	Note: the iovec is modified during the copy.
+  */
+@@ -377,9 +377,9 @@ fault:
+ 
+ /**
+  *	skb_copy_and_csum_datagram_iovec - Copy and checkum skb to user iovec.
+- *	@skb - skbuff
+- *	@hlen - hardware length
+- *	@iovec - io vector
++ *	@skb: skbuff
++ *	@hlen: hardware length
++ *	@iovec: io vector
+  * 
+  *	Caller _must_ check that skb will fit to this iovec.
+  *
+@@ -425,9 +425,9 @@ fault:
+ 
+ /**
+  * 	datagram_poll - generic datagram poll
+- *	@file - file struct
+- *	@sock - socket
+- *	@wait - poll table
++ *	@file: file struct
++ *	@sock: socket
++ *	@wait: poll table
+  *
+  *	Datagram poll: Again totally generic. This also handles
+  *	sequenced packet sockets providing the socket receive queue
+Index: linux-docbook/net/core/sock.c
+===================================================================
+--- linux-docbook.orig/net/core/sock.c	2005-04-06 12:13:12.682830952 +0200
++++ linux-docbook/net/core/sock.c	2005-04-06 12:24:11.966110937 +0200
+@@ -617,10 +617,10 @@ lenout:
+ 
+ /**
+  *	sk_alloc - All socket objects are allocated here
+- *	@family - protocol family
+- *	@priority - for allocation (%GFP_KERNEL, %GFP_ATOMIC, etc)
+- *	@prot - struct proto associated with this new sock instance
+- *	@zero_it - if we should zero the newly allocated sock
++ *	@family: protocol family
++ *	@priority: for allocation (%GFP_KERNEL, %GFP_ATOMIC, etc)
++ *	@prot: struct proto associated with this new sock instance
++ *	@zero_it: if we should zero the newly allocated sock
+  */
+ struct sock *sk_alloc(int family, int priority, struct proto *prot, int zero_it)
+ {
+@@ -968,8 +968,8 @@ static void __release_sock(struct sock *
+ 
+ /**
+  * sk_wait_data - wait for data to arrive at sk_receive_queue
+- * sk - sock to wait on
+- * timeo - for how long
++ * @sk:    sock to wait on
++ * @timeo: for how long
+  *
+  * Now socket state including sk->sk_err is changed only under lock,
+  * hence we may omit checks after joining wait queue.
+Index: linux-docbook/net/core/stream.c
+===================================================================
+--- linux-docbook.orig/net/core/stream.c	2005-04-06 12:13:12.682830952 +0200
++++ linux-docbook/net/core/stream.c	2005-04-06 12:24:11.966110937 +0200
+@@ -21,7 +21,7 @@
+ 
+ /**
+  * sk_stream_write_space - stream socket write_space callback.
+- * sk - socket
++ * @sk: socket
+  *
+  * FIXME: write proper description
+  */
+@@ -43,8 +43,8 @@ EXPORT_SYMBOL(sk_stream_write_space);
+ 
+ /**
+  * sk_stream_wait_connect - Wait for a socket to get into the connected state
+- * @sk - sock to wait on
+- * @timeo_p - for how long to wait
++ * @sk: sock to wait on
++ * @timeo_p: for how long to wait
+  *
+  * Must be called with the socket locked.
+  */
+@@ -79,7 +79,7 @@ EXPORT_SYMBOL(sk_stream_wait_connect);
+ 
+ /**
+  * sk_stream_closing - Return 1 if we still have things to send in our buffers.
+- * @sk - socket to verify
++ * @sk: socket to verify
+  */
+ static inline int sk_stream_closing(struct sock *sk)
+ {
+@@ -107,8 +107,8 @@ EXPORT_SYMBOL(sk_stream_wait_close);
+ 
+ /**
+  * sk_stream_wait_memory - Wait for more memory for a socket
+- * @sk - socket to wait for memory
+- * @timeo_p - for how long
++ * @sk: socket to wait for memory
++ * @timeo_p: for how long
+  */
+ int sk_stream_wait_memory(struct sock *sk, long *timeo_p)
+ {
+Index: linux-docbook/net/sunrpc/xdr.c
+===================================================================
+--- linux-docbook.orig/net/sunrpc/xdr.c	2005-04-06 12:13:12.683830800 +0200
++++ linux-docbook/net/sunrpc/xdr.c	2005-04-06 12:24:11.968110634 +0200
+@@ -46,9 +46,9 @@ xdr_decode_netobj(u32 *p, struct xdr_net
+ 
+ /**
+  * xdr_encode_opaque_fixed - Encode fixed length opaque data
+- * @p - pointer to current position in XDR buffer.
+- * @ptr - pointer to data to encode (or NULL)
+- * @nbytes - size of data.
++ * @p: pointer to current position in XDR buffer.
++ * @ptr: pointer to data to encode (or NULL)
++ * @nbytes: size of data.
+  *
+  * Copy the array of data of length nbytes at ptr to the XDR buffer
+  * at position p, then align to the next 32-bit boundary by padding
+@@ -76,9 +76,9 @@ EXPORT_SYMBOL(xdr_encode_opaque_fixed);
+ 
+ /**
+  * xdr_encode_opaque - Encode variable length opaque data
+- * @p - pointer to current position in XDR buffer.
+- * @ptr - pointer to data to encode (or NULL)
+- * @nbytes - size of data.
++ * @p: pointer to current position in XDR buffer.
++ * @ptr: pointer to data to encode (or NULL)
++ * @nbytes: size of data.
+  *
+  * Returns the updated current XDR buffer position
+  */
+Index: linux-docbook/scripts/kernel-doc
+===================================================================
+--- linux-docbook.orig/scripts/kernel-doc	2005-04-06 12:13:12.684830649 +0200
++++ linux-docbook/scripts/kernel-doc	2005-04-06 12:24:11.970110331 +0200
+@@ -1465,6 +1465,8 @@ sub dump_function($$) {
+ 
+     $prototype =~ s/^static +//;
+     $prototype =~ s/^extern +//;
++    $prototype =~ s/^fastcall +//;
++    $prototype =~ s/^asmlinkage +//;
+     $prototype =~ s/^inline +//;
+     $prototype =~ s/^__inline__ +//;
+     $prototype =~ s/^#define +//; #ak added
 
 --
 Martin Waitz

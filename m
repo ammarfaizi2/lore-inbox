@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262033AbSJDPUR>; Fri, 4 Oct 2002 11:20:17 -0400
+	id <S262094AbSJDPjQ>; Fri, 4 Oct 2002 11:39:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262032AbSJDPTI>; Fri, 4 Oct 2002 11:19:08 -0400
-Received: from [213.228.128.56] ([213.228.128.56]:28893 "HELO
-	front1.netvisao.pt") by vger.kernel.org with SMTP
-	id <S262023AbSJDPSk>; Fri, 4 Oct 2002 11:18:40 -0400
-Date: Fri, 4 Oct 2002 16:30:50 +0100
-From: "Paulo Andre'" <fscked@netvisao.pt>
-To: Dexter Filmore <Dexter.Filmore@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: apply *both* patches? (newbie question)
-Message-Id: <20021004163050.3ca7e869.fscked@netvisao.pt>
-In-Reply-To: <20021004144915.4e381f98.Dexter.Filmore@gmx.de>
-References: <20021004144915.4e381f98.Dexter.Filmore@gmx.de>
-Organization: Tool Enterprises
-X-Mailer: Sylpheed version 0.8.3claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262095AbSJDPjQ>; Fri, 4 Oct 2002 11:39:16 -0400
+Received: from netlx009.civ.utwente.nl ([130.89.1.91]:60561 "EHLO
+	netlx009.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S262094AbSJDPjP>; Fri, 4 Oct 2002 11:39:15 -0400
+Date: Fri, 4 Oct 2002 17:44:35 +0200 (CEST)
+From: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 : loadlin failure + analysys WAS : 2.5.32 bootfailure
+ for nfsroot
+In-Reply-To: <200210022109.g92L9Cp32061@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0210041731580.2792-100000@cam029208.student.utwente.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Oct 2002 14:49:15 +0200
-Dexter Filmore <Dexter.Filmore@gmx.de> wrote:
+On Thu, 3 Oct 2002, Denis Vlasenko wrote:
 
-> Let's say I wanna try 2.4.20pre8aa2 - do I only have to apply the -aa
-> patch or the pre8-patch *first* and *then* the -aa?
+> On 1 October 2002 22:17, caligula@cam029208.student.utwente.nl wrote:
+> > I build 3 kernels:zdisk,zImage and bzImge. All with gcc 2.95.3 and
+> > all with the same lean kernelconfig.
+> >
+> > Results:
+> > 1) zdisk -->booting fine from floppy,stops when it can't find a
+> > rootfilesystem. which is obvious since no ide/scsci
+> > /nfsroot/ramdisk/initrd  is compiled in. So thumbs up with this setup.
+> >
+> > 2)loadin + zImage --> loadlin loads kernel from hard disk,starts
+> > unzipping . The dots which indicate the progress keeps going,until ...
+> > whush,black screen followed by soft reboot.
+> >
+> > 3)loadlin +bzImage -->same symptoms as loadlin+zimage.
+> >
+> > The same setup works flawless with 2.4.x and 2.5.x <=2.5.31
+> >
+> > So now the questions. What did change from .31 to .32 wich could have
+> > influenced the interaction of loadin with the kernel? And how can I
+> > debug this?  I'm no coder but turning on debugging code with #defines
+> > is in my reach.
 
-You have to apply 2.4.20pre8 on top of stock 2.4.19 first and only then
-apply the aa2 patch.
+> 
+> <shameless plug>
+> 
+> I had some problems with loadlin too, got scared by its source,
+> cooked up a replacement:
+> 
+> http://imtp.ilyichevsk.odessa.ua/linux/vda/linld/
+> </shameless plug>
+> 
 
-	-- Paulo
+Ave Denis.
+
+I tested all the kernels  from 2.5.32 up to 2.5.40 (actually the ones who 
+compiled fine with my config). They all work with linld.  Thanx for the 
+tool. 
+
+Greetz Mu
+
+
+
+
+
+
+
+

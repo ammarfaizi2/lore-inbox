@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVCLKPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVCLKUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVCLKPI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 05:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVCLKPI
+	id S261280AbVCLKUK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 05:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVCLKUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 05:15:08 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:10124 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261180AbVCLKPD
+	Sat, 12 Mar 2005 05:20:10 -0500
+Received: from natnoddy.rzone.de ([81.169.145.166]:49372 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261280AbVCLKUE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 05:15:03 -0500
-Date: Sat, 12 Mar 2005 02:14:50 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: linux-xfs@oss.sgi.com
-cc: mc@cs.Stanford.EDU,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [CHECKER] XFS doesn't respect mount -o sync (XFS, 2.6.11)
-Message-ID: <Pine.GSO.4.44.0503120202580.10379-100000@elaine24.Stanford.EDU>
+	Sat, 12 Mar 2005 05:20:04 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Felix von Leitner <felix-linuxkernel@fefe.de>
+Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
+Date: Sat, 12 Mar 2005 11:24:16 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503121124.17295.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-We are from the Stanford Checker team and are working on a file system
-checker called FiSC.  We checked XFS and found that even when a XFS
-partition is mounted -o sync, file system operations are still not sync'ed
-correctly.
+Felix von Leitner wrote:
 
-A simple test case would be something like this:
-mkdir 0001
-reboot -f -n
-After reboot, directory 0001 is lost.
-Let me know if you need any more information to reproduce the warning.
+> Did I mention that I'm really tired of you putting stones into ATI's
+> way?  You might believe you have a right to piss everyone off, after all
+> people get what they paid for.  Or maybe you think you are on a crusade
+> to promote open source software.  But if you keep alienating me (I'm a
+> software developer) like this, I spend more time working around this
+> bullshit and less time writing free software.  In the end, everyone
+> loses.  I sincerely hope some day you people are done pissing in the
+> pool and can create at least some semblance of semi-stable APIs.  This
+> house is never going to be safe for living until you stop digging around
+> the foundation.
 
-We are not sure if this is the expected behavior on XFS or not, so your
-inputs on this are well appreciated.
+I cannot agree more. Many developers and maintainers say they don't care about 
+binary modules - but I do have the impression a few of them care a lot by 
+doing changes in a way that they break the current NVIDIA drivers on every 
+new kernel release. As I read now, it seems to be the same way with ATI. Even 
+GPL drivers developed outside the kernel are disfigured over and over with 
+#ifdefs on KERNEL_VERSION.
 
--Junfeng
+While I fully understand that no developer wants to support binary modules, I 
+would appreciate a little less hostile behaviour. And btw., instable API 
+leads to an instable kernel because not everyone can follow the changes.
 
+Stefan

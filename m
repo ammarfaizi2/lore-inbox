@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316039AbSFJUK3>; Mon, 10 Jun 2002 16:10:29 -0400
+	id <S316210AbSFJUiP>; Mon, 10 Jun 2002 16:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316043AbSFJUK2>; Mon, 10 Jun 2002 16:10:28 -0400
-Received: from p50887BDF.dip.t-dialin.net ([80.136.123.223]:38278 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316039AbSFJUK0>; Mon, 10 Jun 2002 16:10:26 -0400
-Date: Mon, 10 Jun 2002 14:10:23 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Andrew Morton <akpm@zip.com.au>, Tom Rini <trini@kernel.crashing.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-In-Reply-To: <Pine.LNX.4.44.0206101403010.6159-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0206101408380.6159-100000@hawkeye.luckynet.adm>
+	id <S316167AbSFJUgs>; Mon, 10 Jun 2002 16:36:48 -0400
+Received: from psmtp1.dnsg.net ([193.168.128.41]:31402 "HELO psmtp1.dnsg.net")
+	by vger.kernel.org with SMTP id <S316194AbSFJUgg>;
+	Mon, 10 Jun 2002 16:36:36 -0400
+Subject: 2.5.21 - autofs_wqt_t.
+To: linux-kernel@vger.kernel.org
+Date: Tue, 11 Jun 2002 00:30:51 +0200 (CEST)
+CC: torvalds@transmeta.com
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17HXgZ-0000Yy-00@skybase>
+From: Martin Schwidefsky <martin.schwidefsky@debitel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
+s390x needs to be added to the autofs_wqt_t type #if since it is one of
+the architectures that can execute 32- and 64-bit binaries. Because s390
+can live with autofs_wqt_t as int as well we use __s390__ in the #if.
+That leads to the question if the whole #if can be removed. Or is there
+a 32 bit architecture with a bits per int != bits per long ?
 
-On Mon, 10 Jun 2002, Thunder from the hill wrote:
-> #define __FUNCTION__ __func__
+blue skies,
+  Martin.
 
-Hmmm... that's just logical. If they just remove the __FUNCTION__ 
-constant, there's nothing to complain about if we redefine it. Even my 
-chaos brain sees that.
-
-Regards,
-Thunder
--- 
-German attitude becoming        |	Thunder from the hill at ngforever
-rightaway popular:		|
-       "Get outa my way,  	|	free inhabitant not directly
-    for I got a mobile phone!"	|	belonging anywhere
-
+diff -urN linux-2.5.21/include/linux/auto_fs.h linux-2.5.21-s390/include/linux/auto_fs.h
+--- linux-2.5.21/include/linux/auto_fs.h	Sun Jun  9 07:26:22 2002
++++ linux-2.5.21-s390/include/linux/auto_fs.h	Tue Jun  4 09:52:06 2002
+@@ -45,7 +45,8 @@
+  * If so, 32-bit user-space code should be backwards compatible.
+  */
+ 
+-#if defined(__sparc__) || defined(__mips__) || defined(__x86_64__) || defined(__powerpc__)
++#if defined(__sparc__) || defined(__mips__) || defined(__x86_64) \
++ || defined(__powerpc__) || defined(__s390__)
+ typedef unsigned int autofs_wqt_t;
+ #else
+ typedef unsigned long autofs_wqt_t;

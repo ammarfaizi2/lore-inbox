@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135277AbRDLTcd>; Thu, 12 Apr 2001 15:32:33 -0400
+	id <S135275AbRDLTcd>; Thu, 12 Apr 2001 15:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135271AbRDLTcY>; Thu, 12 Apr 2001 15:32:24 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3088 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135270AbRDLTat>; Thu, 12 Apr 2001 15:30:49 -0400
-Date: Thu, 12 Apr 2001 12:30:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: generic_osync_inode() broken?
-In-Reply-To: <Pine.LNX.4.21.0104121412150.2892-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.31.0104121228550.20191-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135276AbRDLTcW>; Thu, 12 Apr 2001 15:32:22 -0400
+Received: from ns.caldera.de ([212.34.180.1]:5395 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S135278AbRDLTbu>;
+	Thu, 12 Apr 2001 15:31:50 -0400
+Date: Thu, 12 Apr 2001 21:31:40 +0200
+Message-Id: <200104121931.VAA02438@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: badly punctuated parameter list in `#define' (2.4.3-ac5 and 2.4.4 -pre2)
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <86256A2C.0068BA0C.00@smtpnotes.altec.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
+In article <86256A2C.0068BA0C.00@smtpnotes.altec.com> you wrote:
 >
-> Comments?
+> When compiling 2.4.3-ac5 (and also 2.4.4-pre2) I get this:
 >
-> --- fs/inode.c~	Thu Mar 22 16:04:13 2001
-> +++ fs/inode.c	Thu Apr 12 15:18:22 2001
-> @@ -347,6 +347,11 @@
->  #endif
+> /usr/src/linux-2.4.3-ac5/include/asm/rwsem.h:26: badly punctuated parameter list
+>  in `#define'
 >
->  	spin_lock(&inode_lock);
-> +	while (inode->i_state & I_LOCK) {
-> +		spin_unlock(&inode_lock);
-> +		__wait_on_inode(inode);
-> +		spin_lock(&inode_lock);
-> +	}
->  	if (!(inode->i_state & I_DIRTY))
->  		goto out;
->  	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+> This appears to be due to some code in rwsem.h that is written for a different
+> version of gcc. (I'm still using gcc-2.91.66 as specified in
+> Documentation/Changes.)  It works for me if I replace it with the code in the
+> section labeled /* old gcc */.  Here's a patch to do that:
 
-Ehh.
+So the /* old gcc */ part should probably be enabled based on a define for the
+old compiler.  The right ifdef seems to be:
 
-Why not just lock the inode around the thing?
+  #if __GNUC__ == 2 && __GNUC_MINOR__ < 95
 
-The above looks rather ugly.
+Could you test it this way?
 
-		Linus
+	Christoph
 
+-- 
+Of course it doesn't work. We've performed a software upgrade.

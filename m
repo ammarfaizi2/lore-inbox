@@ -1,48 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVC3OQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVC3OUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbVC3OQA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 09:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVC3OQA
+	id S261909AbVC3OUa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 09:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVC3OUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 09:16:00 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:21513 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S261905AbVC3OPx (ORCPT
+	Wed, 30 Mar 2005 09:20:30 -0500
+Received: from mail.dif.dk ([193.138.115.101]:27008 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261909AbVC3OUR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 09:15:53 -0500
-Date: Wed, 30 Mar 2005 16:15:50 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050330141550.GA71637@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <be1ed86fc663c1a441ab51ea3d6fd4fe@mac.com> <MDEHLPKNGKAHNMBLJOLKAEIHCMAB.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEIHCMAB.davids@webmaster.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 30 Mar 2005 09:20:17 -0500
+Date: Wed, 30 Mar 2005 16:20:04 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: P Lavin <lavin.p@redpinesignals.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
+In-Reply-To: <424A51F5.1050501@redpinesignals.com>
+Message-ID: <Pine.LNX.4.62.0503301612510.5933@jjulnx.backbone.dif.dk>
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
+            <1111825958.6293.28.camel@laptopd505.fenrus.org>           
+ <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>           
+ <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>           
+ <1111881955.957.11.camel@mindpipe>           
+ <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>           
+ <20050327065655.6474d5d6.pj@engr.sgi.com>           
+ <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>           
+ <20050327174026.GA708@redhat.com>            <1112064777.19014.17.camel@mindpipe>
+            <84144f02050328223017b17746@mail.gmail.com>           
+ <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>           
+ <courier.42490293.000032B0@courier.cs.helsinki.fi>           
+ <20050329184411.1faa71eb.pj@engr.sgi.com> <courier.424A43A5.00002305@courier.cs.helsinki.fi>
+ <424A51F5.1050501@redpinesignals.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 11:00:30AM -0800, David Schwartz wrote:
-> 	Since the GPL permits their removal, removing them cannot be circumventing
-> the GPL. Since the GPL is the only license and the license permits you to
-> remove them, they cannot be a license enforcement mechanism. How can you
-> enforce a license that permits unrestricted functional modification?
+On Wed, 30 Mar 2005, P Lavin wrote:
 
-You misunderstand totally the EXPORT_GPL system.  It does not mean
-"this is a technological system to prevent you to use it with non-gpl
-compatible code".  It means "The author of that code consider that
-using this function makes your code so linux-specific that it must be
-a derivative work of the code implementing the function, so if you use
-it from non gpl-compatible code you'll be sued.  And since he's nice,
-he uses a technical method to prevent you from doing such a copyright
-violation by mistake.".
+> Date: Wed, 30 Mar 2005 12:45:01 +0530
+> From: P Lavin <lavin.p@redpinesignals.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
+> 
+> Hi,
+> In my wlan driver module, i allocated some memory using kmalloc in interrupt
+> context, this one failed but its not returning NULL , 
 
-See the subtle difference?  EXPORT_GPL is here to _help_ proprietary
-driver authors.  Your lawyers should _love_ it and skin you alive if
-you try to get around it.
+kmalloc() should always return NULL if the allocation failed.
 
-  OG.
+
+>so i was proceeding
+> further everything was going wrong... & finally the kernel crahed. Can any one
+> of you tell me why this is happening ? i cannot use GFP_KERNEL because i'm
+> calling this function from interrupt context & it may block. Any other
+
+If you need to allocate memory from interrupt context you should be using 
+GFP_ATOMIC (or, if possible, do the allocation earlier in a different 
+context).
+
+
+> solution for this ?? I'm concerned abt why kmalloc is not returning null if
+> its not a success ??
+> 
+I have no explanation for that, are you sure that's really what's 
+happening?
+
+
+> Is it not necessary to check for NULL before calling kfree() ??
+
+No, it is not nessesary to check for NULL before calling kfree() since 
+kfree() does    
+
+void kfree (const void *objp)
+{
+	... 
+        if (!objp)
+                return;
+	...
+}
+
+So, if you pass kfree() a NULL pointer it deals with it itself, you don't 
+need to check that explicitly before calling kfree() - that's redundant.
+
+
+-- 
+Jesper Juhl
+
 

@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVCZXar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVCZXfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVCZXar (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 18:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVCZXaq
+	id S261346AbVCZXfM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 18:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVCZXfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 18:30:46 -0500
-Received: from hera.kernel.org ([209.128.68.125]:48541 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261339AbVCZXam (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 18:30:42 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: INITRAMFS: junk in compressed archive
-Date: Sat, 26 Mar 2005 23:30:21 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <d24rad$378$1@terminus.zytor.com>
-References: <1111679972.5628.10.camel@FC3-bernhard-1.acousta.local> <1111762170.7238.3.camel@FC3-bernhard-1.acousta.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1111879821 3305 127.0.0.1 (26 Mar 2005 23:30:21 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 26 Mar 2005 23:30:21 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Sat, 26 Mar 2005 18:35:12 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:57495 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261346AbVCZXfI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 18:35:08 -0500
+In-Reply-To: <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost> <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com> <1111825958.6293.28.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <7d96f2772f942f802890c50801c4f5f8@dalecki.de>
+Content-Transfer-Encoding: 7bit
+Cc: ext2-devel@lists.sourceforge.net,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Jesper Juhl <juhl-lkml@dif.dk>
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
+Date: Sun, 27 Mar 2005 00:34:12 +0100
+To: linux-os@analogic.com
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1111762170.7238.3.camel@FC3-bernhard-1.acousta.local>
-By author:    Bernhard Schauer <linux-kernel-list@acousta.at>
-In newsgroup: linux.dev.kernel
+
+On 2005-03-27, at 00:21, linux-os wrote:
 >
-> other question:
-> 
-> Is there any size-limit on initramfs image? I found out that after
-> reducing the image size it is loaded & /init executed as expected...
-> 
+> Always, always, a call will be more expensive than a branch
+> on condition. It's impossible to be otherwise. A call requires
+> that the return address be written to memory (the stack),
+> using register indirection (the stack-pointer).
+>
+Needless to say that there are enough architectures out there, which 
+don't even
+have something like an explicit call as separate assembler 
+instruction...
 
-Kernel + compressed initramfs + uncompressed initramfs must fit in memory at
-the same time.
-
-	-hpa

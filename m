@@ -1,60 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275442AbRIZS2B>; Wed, 26 Sep 2001 14:28:01 -0400
+	id <S275449AbRIZSaV>; Wed, 26 Sep 2001 14:30:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275454AbRIZS1v>; Wed, 26 Sep 2001 14:27:51 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:62664 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275449AbRIZS1k>; Wed, 26 Sep 2001 14:27:40 -0400
-From: James Washer <e2big@us.ibm.com>
-Message-Id: <200109261827.f8QIRlk05044@crg8.beaverton.ibm.com>
-Subject: Kernel text getting corrupted 
-To: linux-kernel@vger.kernel.org
-Date: Wed, 26 Sep 2001 11:27:47 -0700 (PDT)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S275447AbRIZSaL>; Wed, 26 Sep 2001 14:30:11 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:32239 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S275440AbRIZSaB>;
+	Wed, 26 Sep 2001 14:30:01 -0400
+Date: Wed, 26 Sep 2001 20:29:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: tpepper@vato.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Paul Larson <plars@austin.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Christian =?iso-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>,
+        Jacek =?iso-8859-1?Q?=5Biso-8859-2=5D_Pop=B3awski?= 
+	<jpopl@interia.pl>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 0-order allocation failed
+Message-ID: <20010926202904.P27945@athlon.random>
+In-Reply-To: <20010926000922.I8350@athlon.random> <Pine.LNX.4.21.0109251823550.2193-100000@freak.distro.conectiva> <20010926010516.V8350@athlon.random> <20010926111509.A3332@cb.vato.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010926111509.A3332@cb.vato.org>; from tpepper@vato.org on Wed, Sep 26, 2001 at 11:15:09AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 26, 2001 at 11:15:09AM -0700, tpepper@vato.org wrote:
+> On Wed 26 Sep at 01:05:16 +0200 andrea@suse.de done said:
+> > On Tue, Sep 25, 2001 at 06:25:10PM -0300, Marcelo Tosatti wrote:
+> > > 
+> > > Does vm-tweaks-1 fixes the current problem we're seeing? 
+> > 
+> > it seems no by reading the last email, however I'm not seeing any
+> > problem, the DEBUG_GFP will tell us where the problem cames from,
+> > pssobly it's a highmem thing since I never reproduced anything bad here.
+> > But the point is that the above isn't going to be a right fix anyways.
+> 
+> vm-tweaks-1 fixes things for me.  I've got 512MB ram (kernel not
+> configured for highmem) and 1 gig of swap.  The workload is heavy file
+> i/o and has now been running almost 24 hours (about 2 billion I/Os or
+> a few TB of data I think so far).  Previously all the memory was being
+> consumed by cache, nothing swapped (as expected if the memory is cached
+> buffer i/o right?) and I'd get the:
 
-We've got a strange one. We're seeing system crashes where memory, including 
-kernel text (executable) pages, is being corrupted. If you have any idea what 
-might be causing this, or if you've seen this yourself, or if you have ideas 
-on how to debug it, please let us know.
+yes, unless the buffered I/O was identified as your very working set but
+even in such case the 2.4.10 vm shouldn't swapout too early.
 
-The corrupting data consist of 16  individual bytes, each at an 8-byte offset, 
-8 byte aligned. (see data below for an example)
+> 	__alloc_pages: 0-order allocation failed
+> Now I continue to see the memory consumption / no swap, and no more
+> error...iow the expected behaviour.
 
-Here's the data...  The first column marks the offset within the page, the 2nd 
-column is the corrupted data, the 3rd column is the expected/correct data
-Note, that the 0->0 is likely also corruption, but happenned to overwrite a zero 
-with a zero
+good. As far I can tell it is the check in swap_out that is making the
+difference and fixing the oom problem, it was very intentional indeed.
 
-0xca0 a0 24 =========
-0xca8 c0 8b =========
-0xcb0 12 8f =========
-0xcb8 00 53 =========
-0xcc0 22 04 =========
-0xcc8 4d c0 =========
-0xcd0 61 5b =========
-0xcd8 69 57 =========
-0xce0 74 c0 =========
-0xce8 41 10 =========
-0xcf0 00 18 =========
-0xcf8 00 11 =========
-0xd00 00 00
-0xd08 00 24 =========
-0xd10 10 83 =========
-0xd18 4d 19 =========
+> On an unrelated note if I want to backport the async I/O changes in 2.4.10,
+> are there patches from you I should apply other than:
+> 	2.4.10pre10aa1/40_blkdev-pagecache-17
+> 	2.4.7pre8aa1/41_blkdev-pagecache-5_drop_get_bh_async-1
 
-FYI. 
-Hardware is ~1GHz PIII, 512MB, UP, eepro100 nic, ide drives
-Software linux2.4.8,no modules, eepro100,  only 512MB of swap, serial ports 
-	are HEAVILY used.
+both patches are now included in mainline 2.4.10.
 
-please cc e2big@us.ibm.com and jbarkal@us.ibm.com ( if you don't mind )
--- 
-Jim Washer
-
+thanks,
+Andrea

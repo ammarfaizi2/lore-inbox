@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131247AbQKKQcj>; Sat, 11 Nov 2000 11:32:39 -0500
+	id <S131287AbQKKQqG>; Sat, 11 Nov 2000 11:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131287AbQKKQcU>; Sat, 11 Nov 2000 11:32:20 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:16365 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S131247AbQKKQcG>;
-	Sat, 11 Nov 2000 11:32:06 -0500
-Date: Sat, 11 Nov 2000 18:35:36 +0000
-From: Ingo Rohloff <lundril@gmx.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with NFS in 2.4test10
-Message-ID: <20001111183536.A758@flashline.chipnet>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20001109215045.A591@flashline.chipnet> <3A0B2FAB.334D36BC@asiapacificm01.nt.com> <3A0B30F3.FA703FAD@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <3A0B30F3.FA703FAD@mandrakesoft.com>; from Jeff Garzik on Thu, Nov 09, 2000 at 06:19:15PM -0500
+	id <S131293AbQKKQp4>; Sat, 11 Nov 2000 11:45:56 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:11987 "EHLO saturn.homenet")
+	by vger.kernel.org with ESMTP id <S131287AbQKKQpp>;
+	Sat, 11 Nov 2000 11:45:45 -0500
+Date: Sat, 11 Nov 2000 16:46:09 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Tigran Aivazian <tigran@veritas.com>, "H. Peter Anvin" <hpa@transmeta.com>,
+        Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <20001111172610.A9140@inspiron.suse.de>
+Message-ID: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ingo, do you have a BP6?  Make sure you have the latest BIOS for your
-> motherboard, there have been many BIOS updates for some dual-Celeron
-> motherboards.
+On Sat, 11 Nov 2000, Andrea Arcangeli wrote:
 
-I have to admit that I'm not sure what kind of dual board I got
-(i have to have a closer look).
-The reason is that this board is orgiginally for dual Pentium IIs.
-I got two Celerons (in S370 format), and use two modified
-MSI S370-to-Slot1 adaptor (aehm I hope I got this right)
-cards to make the Celerons multiprocessor enabled.
+> On Sat, Nov 11, 2000 at 02:51:21PM +0000, Tigran Aivazian wrote:
+> > Yes, Andrea, I know that paging is disabled at the point of loading the
+> > image but I was talking about the inability to boot (boot == complete
+> > booting, i.e. at least reach start_kernel()) a kernel with very large
+> > .data or .bss segments because of various reasons -- one of which,
+> > probably,is the inadequacy of those pg0 and pg1 page tables set up in
+> > head.S
+> 
+> Ah ok, I thought you were talking about bootloader.
+> 
+> About the initial pagetable setup on i386 port there's certainly a 3M limit on
+> the size of the kernel image, but it's trivial to enlarge it.  BTW, exactly for
+> that kernel size limit reasons in x86-64 I defined a 40Mbyte mapping where we
+> currently have a 4M mapping and that's even simpler to enlarge since they're 2M
+> PAE like pagetables.
+> 
+> Basically as far as the kernel can get loaded in memory correctly we have
+> no problem :)
+> 
+> > (which Peter says is infinite?) or the ones on .text/.data/.bss (and what
+> > exactly are they?)? See my question now?
+> 
+> We sure hit the 3M limit on the .bss clearing right now.
+> 
 
-I still think it is an 2.4test10 kernel issue, because
-my machine won't crash (as far as I can tell) if I use
-2.2.17. 
+I understand and agree with what you say except the number 4M. It is not
+4M but 8M, imho. See arch/i386/kernel/head.S
 
-(Am I correct that 2.4test10 is a lot more fine granular threaded
- in the kernel than 2.2.17 ? 
- If this is true I suspect that there is some kind of
- race/deadlock situtation in the NFS code...
-)
+/*
+ * The page tables are initialized to only 8MB here - the final page
+ * tables are set up later depending on memory size.
+ */
+.org 0x2000
+ENTRY(pg0)
 
-so long
-  Ingo
+.org 0x3000
+ENTRY(pg1)
+
+/*
+ * empty_zero_page must immediately follow the page tables ! (The
+ * initialization loop counts until empty_zero_page)
+ */
+
+.org 0x4000
+ENTRY(empty_zero_page)
+
+(the comment next to pg0 in asm/pgtable.h is misleading, whilst the
+comment above paging_init() is plain wrong -- I sent a patch to Linus
+yesterday but perhaps "wrong comment" is not a critical 2.4 issue :)
+
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

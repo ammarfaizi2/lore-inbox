@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbTCMNOY>; Thu, 13 Mar 2003 08:14:24 -0500
+	id <S262312AbTCMNSv>; Thu, 13 Mar 2003 08:18:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbTCMNOY>; Thu, 13 Mar 2003 08:14:24 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:29704 "EHLO pazke")
-	by vger.kernel.org with ESMTP id <S262303AbTCMNOD>;
-	Thu, 13 Mar 2003 08:14:03 -0500
-Date: Thu, 13 Mar 2003 16:24:49 +0300
+	id <S262320AbTCMNSv>; Thu, 13 Mar 2003 08:18:51 -0500
+Received: from cs-ats40.donpac.ru ([217.107.128.161]:31496 "EHLO pazke")
+	by vger.kernel.org with ESMTP id <S262312AbTCMNSh>;
+	Thu, 13 Mar 2003 08:18:37 -0500
+Date: Thu, 13 Mar 2003 16:29:23 +0300
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] irq handling code consolidation (i386 part)
-Message-ID: <20030313132449.GH1393@pazke>
+Cc: Linus Torvalds <torvalds@transmeta.com>, miles@lsi.nec.co.jp
+Subject: [PATCH] irq handling code consolidation (v850 part)
+Message-ID: <20030313132923.GI1393@pazke>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
+	Linus Torvalds <torvalds@transmeta.com>, miles@lsi.nec.co.jp
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OmL7C/BU0IhhC9Of"
+Content-Type: multipart/mixed; boundary="o99acAvKqrTZeiCU"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
 X-Uname: Linux 2.4.20aa1 i686 unknown
@@ -23,115 +23,56 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---OmL7C/BU0IhhC9Of
+--o99acAvKqrTZeiCU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-irq handling consolidation continues !
+irq handling code consolidation continues.
 
-i386 specific patch attached. Compiled and WorksForMe(tm)
+v850 specific patch attached. Untested.
 
 Best regards.
 
--- 
+--=20
 Andrey Panin		| Embedded systems software developer
 pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
 
---OmL7C/BU0IhhC9Of
+--o99acAvKqrTZeiCU
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-irq-i386-2.5.64"
+Content-Disposition: attachment; filename="patch-irq-v850-2.5.64"
+Content-Transfer-Encoding: quoted-printable
 
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/Kconfig linux-2.5.64/arch/i386/Kconfig
---- linux-2.5.64.vanilla/arch/i386/Kconfig	Mon Mar 10 00:52:24 2003
-+++ linux-2.5.64/arch/i386/Kconfig	Sun Mar  9 20:34:53 2003
-@@ -27,6 +27,10 @@
- 	  used to provide more virtual memory than the actual RAM present
- 	  in your computer.  If unusre say Y.
- 
+diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/v850/K=
+config linux-2.5.64/arch/v850/Kconfig
+--- linux-2.5.64.vanilla/arch/v850/Kconfig	Mon Mar 10 00:52:00 2003
++++ linux-2.5.64/arch/v850/Kconfig	Tue Mar 11 10:39:02 2003
+@@ -16,6 +16,9 @@
+ config UID16
+ 	bool
+ 	default n
 +config GENERIC_IRQ
 +	bool
 +	default y
-+
- config SBUS
+ config RWSEM_GENERIC_SPINLOCK
  	bool
- 
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel/irq.c linux-2.5.64/arch/i386/kernel/irq.c
---- linux-2.5.64.vanilla/arch/i386/kernel/irq.c	Mon Mar 10 00:52:25 2003
-+++ linux-2.5.64/arch/i386/kernel/irq.c	Sun Mar  9 20:34:53 2003
-@@ -2,130 +2,24 @@
-  *	linux/arch/i386/kernel/irq.c
-  *
-  *	Copyright (C) 1992, 1998 Linus Torvalds, Ingo Molnar
-- *
-- * This file contains the code used by various IRQ handling routines:
-- * asking for different IRQ's should be done through these routines
-- * instead of just grabbing them. Thus setups with different IRQ numbers
-- * shouldn't result in any weird surprises, and installing new handlers
-- * should be easier.
-- */
--
--/*
-- * (mostly architecture independent, will move to kernel/irq.c in 2.5.)
-- *
-- * IRQs are in fact implemented a bit like signal handlers for the kernel.
-- * Naturally it's not a 1:1 relation, but there are similarities.
-  */
- 
- #include <linux/config.h>
--#include <linux/errno.h>
--#include <linux/signal.h>
--#include <linux/sched.h>
--#include <linux/ioport.h>
- #include <linux/interrupt.h>
--#include <linux/timex.h>
--#include <linux/slab.h>
--#include <linux/random.h>
--#include <linux/smp_lock.h>
--#include <linux/init.h>
- #include <linux/kernel_stat.h>
--#include <linux/irq.h>
--#include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- 
- #include <asm/atomic.h>
--#include <asm/io.h>
--#include <asm/smp.h>
--#include <asm/system.h>
--#include <asm/bitops.h>
--#include <asm/uaccess.h>
--#include <asm/pgalloc.h>
--#include <asm/delay.h>
--#include <asm/desc.h>
--#include <asm/irq.h>
--
--
- 
- /*
-- * Linux has a controller-independent x86 interrupt architecture.
-- * every controller has a 'controller-template', that is used
-- * by the main code to do the right thing. Each driver-visible
-- * interrupt source is transparently wired to the apropriate
-- * controller. Thus drivers need not be aware of the
-- * interrupt-controller.
-- *
-  * Various interrupt controllers we handle: 8259 PIC, SMP IO-APIC,
-  * PIIX4's internal 8259 PIC and SGI's Visual Workstation Cobalt (IO-)APIC.
-  * (IO-APICs assumed to be messaging to Pentium local-APICs)
-- *
-- * the code is designed to be easily extended with new/different
-- * interrupt controllers, without having to do assembly magic.
-- */
--
+ 	default y
+diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/v850/k=
+ernel/irq.c linux-2.5.64/arch/v850/kernel/irq.c
+--- linux-2.5.64.vanilla/arch/v850/kernel/irq.c	Mon Mar 10 00:52:27 2003
++++ linux-2.5.64/arch/v850/kernel/irq.c	Tue Mar 11 10:39:02 2003
+@@ -25,50 +25,9 @@
+=20
+ #include <asm/system.h>
+=20
 -/*
 - * Controller mappings for all interrupt sources:
-  */
--irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned =
--	{ [0 ... NR_IRQS-1] = { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED}};
+- */
+-irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned =3D
+-	{ [0 ... NR_IRQS-1] =3D { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED}};
 -
--static void register_irq_proc (unsigned int irq);
- 
 -/*
 - * Special irq handlers.
 - */
@@ -147,32 +88,19 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -static void disable_none(unsigned int irq) { }
 -static void ack_none(unsigned int irq)
 -{
--/*
-- * 'what should we do if we get a hw irq event on an illegal vector'.
-- * each architecture has to answer this themselves, it doesn't deserve
-- * a generic callback i think.
-- */
--#if CONFIG_X86
--	printk("unexpected IRQ trap at vector %02x\n", irq);
--#ifdef CONFIG_X86_LOCAL_APIC
 -	/*
--	 * Currently unexpected vectors happen only on SMP and APIC.
--	 * We _must_ ack these because every local APIC has only N
--	 * irq slots per priority level, and a 'hanging, unacked' IRQ
--	 * holds up an irq slot - in excessive cases (when multiple
--	 * unexpected vectors occur) that might lock up the APIC
--	 * completely.
+-	 * 'what should we do if we get a hw irq event on an illegal vector'.
+-	 * each architecture has to answer this themselves, it doesn't deserve
+-	 * a generic callback i think.
 -	 */
--	ack_APIC_irq();
--#endif
--#endif
+-	printk("received IRQ %d with unknown interrupt type\n", irq);
 -}
 -
 -/* startup is the same as "enable", shutdown is same as "disable" */
 -#define shutdown_none	disable_none
 -#define end_none	enable_none
 -
--struct hw_interrupt_type no_irq_type = {
+-struct hw_interrupt_type no_irq_type =3D {
 -	"none",
 -	startup_none,
 -	shutdown_none,
@@ -181,29 +109,22 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	ack_none,
 -	end_none
 -};
--
--atomic_t irq_err_count;
--#ifdef CONFIG_X86_IO_APIC
--#ifdef APIC_MISMATCH_DEBUG
-+#if defined(CONFIG_X86_IO_APIC) && defined(APIC_MISMATCH_DEBUG)
- atomic_t irq_mis_count;
- #endif
--#endif
- 
++extern atomic_t irq_err_count;
+=20
+-volatile unsigned long irq_err_count, spurious_count;
++volatile unsigned long spurious_count;
+=20
  /*
   * Generic, controller-independent functions:
-@@ -183,129 +77,6 @@
+@@ -114,122 +73,10 @@
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
+ 	}
+-	seq_printf(p, "ERR: %10lu\n", irq_err_count);
++	seq_printf(p, "ERR: %10lu\n", atomic_read(&irq_err_count));
  	return 0;
  }
- 
--#if CONFIG_SMP
--inline void synchronize_irq(unsigned int irq)
--{
--	while (irq_desc[irq].status & IRQ_INPROGRESS)
--		cpu_relax();
--}
--#endif
--
+=20
 -/*
 - * This should really return information about whether
 - * we should do bottom half handling etc. Right now we
@@ -211,17 +132,18 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - * waste of time and is not what some drivers would
 - * prefer.
 - */
--int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct irqaction * action)
+-int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct irqac=
+tion * action)
 -{
--	int status = 1;	/* Force the "do bottom halves" bit */
+-	int status =3D 1; /* Force the "do bottom halves" bit */
 -
 -	if (!(action->flags & SA_INTERRUPT))
 -		local_irq_enable();
 -
 -	do {
--		status |= action->flags;
+-		status |=3D action->flags;
 -		action->handler(irq, action->dev_id, regs);
--		action = action->next;
+-		action =3D action->next;
 -	} while (action);
 -	if (status & SA_SAMPLE_RANDOM)
 -		add_interrupt_randomness(irq);
@@ -234,29 +156,28 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - * Generic enable/disable code: this just calls
 - * down into the PIC-specific version for the actual
 - * hardware disable after having gotten the irq
-- * controller lock. 
+- * controller lock.=20
 - */
-- 
+-=20
 -/**
 - *	disable_irq_nosync - disable an irq without waiting
 - *	@irq: Interrupt to disable
 - *
-- *	Disable the selected interrupt line.  Disables and Enables are
-- *	nested.
-- *	Unlike disable_irq(), this function does not ensure existing
+- *	Disable the selected interrupt line. Disables of an interrupt
+- *	stack. Unlike disable_irq(), this function does not ensure existing
 - *	instances of the IRQ handler have completed before returning.
 - *
 - *	This function may be called from IRQ context.
 - */
-- 
--inline void disable_irq_nosync(unsigned int irq)
+-=20
+-void inline disable_irq_nosync(unsigned int irq)
 -{
--	irq_desc_t *desc = irq_desc + irq;
+-	irq_desc_t *desc =3D irq_desc + irq;
 -	unsigned long flags;
 -
 -	spin_lock_irqsave(&desc->lock, flags);
 -	if (!desc->depth++) {
--		desc->status |= IRQ_DISABLED;
+-		desc->status |=3D IRQ_DISABLED;
 -		desc->handler->disable(irq);
 -	}
 -	spin_unlock_irqrestore(&desc->lock, flags);
@@ -266,15 +187,15 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - *	disable_irq - disable an irq and wait for completion
 - *	@irq: Interrupt to disable
 - *
-- *	Disable the selected interrupt line.  Enables and Disables are
-- *	nested.
-- *	This function waits for any pending IRQ handlers for this interrupt
+- *	Disable the selected interrupt line. Disables of an interrupt
+- *	stack. That is for two disables you need two enables. This
+- *	function waits for any pending IRQ handlers for this interrupt
 - *	to complete before returning. If you use this function while
 - *	holding a resource the IRQ handler may need you will deadlock.
 - *
 - *	This function may be called - with care - from IRQ context.
 - */
-- 
+-=20
 -void disable_irq(unsigned int irq)
 -{
 -	disable_irq_nosync(irq);
@@ -282,28 +203,27 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -}
 -
 -/**
-- *	enable_irq - enable handling of an irq
+- *	enable_irq - enable interrupt handling on an irq
 - *	@irq: Interrupt to enable
 - *
-- *	Undoes the effect of one call to disable_irq().  If this
-- *	matches the last disable, processing of interrupts on this
-- *	IRQ line is re-enabled.
+- *	Re-enables the processing of interrupts on this IRQ line
+- *	providing no disable_irq calls are now in effect.
 - *
 - *	This function may be called from IRQ context.
 - */
-- 
+-=20
 -void enable_irq(unsigned int irq)
 -{
--	irq_desc_t *desc = irq_desc + irq;
+-	irq_desc_t *desc =3D irq_desc + irq;
 -	unsigned long flags;
 -
 -	spin_lock_irqsave(&desc->lock, flags);
 -	switch (desc->depth) {
 -	case 1: {
--		unsigned int status = desc->status & ~IRQ_DISABLED;
--		desc->status = status;
--		if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
--			desc->status = status | IRQ_REPLAY;
+-		unsigned int status =3D desc->status & ~IRQ_DISABLED;
+-		desc->status =3D status;
+-		if ((status & (IRQ_PENDING | IRQ_REPLAY)) =3D=3D IRQ_PENDING) {
+-			desc->status =3D status | IRQ_REPLAY;
 -			hw_resend_irq(desc->handler,irq);
 -		}
 -		desc->handler->enable(irq);
@@ -318,14 +238,14 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	}
 -	spin_unlock_irqrestore(&desc->lock, flags);
 -}
--
- /*
-  * do_IRQ handles all normal device IRQ's (the special
-  * SMP cross-CPU interrupts have their own specific
-@@ -409,552 +180,3 @@
- 
+=20
+ /* Handle interrupt IRQ.  REGS are the registers at the time of ther
+    interrupt.  */
+@@ -314,388 +161,6 @@
+ 	irq_exit();
+=20
  	return 1;
- }
+-}
 -
 -/**
 - *	request_irq - allocate an interrupt line
@@ -338,7 +258,7 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - *	This call allocates interrupt resources and enables the
 - *	interrupt line and IRQ handling. From the point this
 - *	call is made your handler function may be invoked. Since
-- *	your handler function must clear any interrupt the board 
+- *	your handler function must clear any interrupt the board=20
 - *	raises, you must take care both to initialise your hardware
 - *	and to set up the interrupt handler in the right order.
 - *
@@ -358,10 +278,10 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - *	SA_SAMPLE_RANDOM	The interrupt can be used for entropy
 - *
 - */
-- 
--int request_irq(unsigned int irq, 
+-=20
+-int request_irq(unsigned int irq,=20
 -		void (*handler)(int, void *, struct pt_regs *),
--		unsigned long irqflags, 
+-		unsigned long irqflags,=20
 -		const char * devname,
 -		void *dev_id)
 -{
@@ -377,28 +297,29 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	 */
 -	if (irqflags & SA_SHIRQ) {
 -		if (!dev_id)
--			printk("Bad boy: %s (at 0x%x) called us without a dev_id!\n", devname, (&irq)[-1]);
+-			printk("Bad boy: %s (at 0x%x) called us without a dev_id!\n", devname, =
+(&irq)[-1]);
 -	}
 -#endif
 -
--	if (irq >= NR_IRQS)
+-	if (irq >=3D NR_IRQS)
 -		return -EINVAL;
 -	if (!handler)
 -		return -EINVAL;
 -
--	action = (struct irqaction *)
--			kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
+-	action =3D (struct irqaction *)
+-			kmalloc(sizeof(struct irqaction), GFP_KERNEL);
 -	if (!action)
 -		return -ENOMEM;
 -
--	action->handler = handler;
--	action->flags = irqflags;
--	action->mask = 0;
--	action->name = devname;
--	action->next = NULL;
--	action->dev_id = dev_id;
+-	action->handler =3D handler;
+-	action->flags =3D irqflags;
+-	action->mask =3D 0;
+-	action->name =3D devname;
+-	action->next =3D NULL;
+-	action->dev_id =3D dev_id;
 -
--	retval = setup_irq(irq, action);
+-	retval =3D setup_irq(irq, action);
 -	if (retval)
 -		kfree(action);
 -	return retval;
@@ -416,38 +337,40 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - *	does not return until any executing interrupts for this IRQ
 - *	have completed.
 - *
-- *	This function must not be called from interrupt context. 
+- *	This function may be called from interrupt context.=20
+- *
+- *	Bugs: Attempting to free an irq in a handler for the same irq hangs
+- *	      the machine.
 - */
-- 
+-=20
 -void free_irq(unsigned int irq, void *dev_id)
 -{
 -	irq_desc_t *desc;
 -	struct irqaction **p;
 -	unsigned long flags;
 -
--	if (irq >= NR_IRQS)
+-	if (irq >=3D NR_IRQS)
 -		return;
 -
--	desc = irq_desc + irq;
+-	desc =3D irq_desc + irq;
 -	spin_lock_irqsave(&desc->lock,flags);
--	p = &desc->action;
+-	p =3D &desc->action;
 -	for (;;) {
--		struct irqaction * action = *p;
+-		struct irqaction * action =3D *p;
 -		if (action) {
--			struct irqaction **pp = p;
--			p = &action->next;
--			if (action->dev_id != dev_id)
+-			struct irqaction **pp =3D p;
+-			p =3D &action->next;
+-			if (action->dev_id !=3D dev_id)
 -				continue;
 -
 -			/* Found it - now remove it from the list of entries */
--			*pp = action->next;
+-			*pp =3D action->next;
 -			if (!desc->action) {
--				desc->status |= IRQ_DISABLED;
+-				desc->status |=3D IRQ_DISABLED;
 -				desc->handler->shutdown(irq);
 -			}
 -			spin_unlock_irqrestore(&desc->lock,flags);
 -
--			/* Wait to make sure it's not being used on another CPU */
 -			synchronize_irq(irq);
 -			kfree(action);
 -			return;
@@ -476,7 +399,7 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - *	and a mask of potential interrupt lines is returned.
 - *
 - */
-- 
+-=20
 -unsigned long probe_irq_on(void)
 -{
 -	unsigned int i;
@@ -485,21 +408,21 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	unsigned long delay;
 -
 -	down(&probe_sem);
--	/* 
+-	/*=20
 -	 * something may have generated an irq long ago and we want to
--	 * flush such a longstanding irq before considering it as spurious. 
+-	 * flush such a longstanding irq before considering it as spurious.=20
 -	 */
--	for (i = NR_IRQS-1; i > 0; i--)  {
--		desc = irq_desc + i;
+-	for (i =3D NR_IRQS-1; i > 0; i--)  {
+-		desc =3D irq_desc + i;
 -
 -		spin_lock_irq(&desc->lock);
--		if (!irq_desc[i].action) 
+-		if (!irq_desc[i].action)=20
 -			irq_desc[i].handler->startup(i);
 -		spin_unlock_irq(&desc->lock);
 -	}
 -
 -	/* Wait for longstanding interrupts to trigger. */
--	for (delay = jiffies + HZ/50; time_after(delay, jiffies); )
+-	for (delay =3D jiffies + HZ/50; time_after(delay, jiffies); )
 -		/* about 20ms delay */ barrier();
 -
 -	/*
@@ -507,14 +430,14 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	 * (we must startup again here because if a longstanding irq
 -	 * happened in the previous stage, it may have masked itself)
 -	 */
--	for (i = NR_IRQS-1; i > 0; i--) {
--		desc = irq_desc + i;
+-	for (i =3D NR_IRQS-1; i > 0; i--) {
+-		desc =3D irq_desc + i;
 -
 -		spin_lock_irq(&desc->lock);
 -		if (!desc->action) {
--			desc->status |= IRQ_AUTODETECT | IRQ_WAITING;
+-			desc->status |=3D IRQ_AUTODETECT | IRQ_WAITING;
 -			if (desc->handler->startup(i))
--				desc->status |= IRQ_PENDING;
+-				desc->status |=3D IRQ_PENDING;
 -		}
 -		spin_unlock_irq(&desc->lock);
 -	}
@@ -522,28 +445,28 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	/*
 -	 * Wait for spurious interrupts to trigger
 -	 */
--	for (delay = jiffies + HZ/10; time_after(delay, jiffies); )
+-	for (delay =3D jiffies + HZ/10; time_after(delay, jiffies); )
 -		/* about 100ms delay */ barrier();
 -
 -	/*
 -	 * Now filter out any obviously spurious interrupts
 -	 */
--	val = 0;
--	for (i = 0; i < NR_IRQS; i++) {
--		irq_desc_t *desc = irq_desc + i;
+-	val =3D 0;
+-	for (i =3D 0; i < NR_IRQS; i++) {
+-		irq_desc_t *desc =3D irq_desc + i;
 -		unsigned int status;
 -
 -		spin_lock_irq(&desc->lock);
--		status = desc->status;
+-		status =3D desc->status;
 -
 -		if (status & IRQ_AUTODETECT) {
 -			/* It triggered already - consider it spurious. */
 -			if (!(status & IRQ_WAITING)) {
--				desc->status = status & ~IRQ_AUTODETECT;
+-				desc->status =3D status & ~IRQ_AUTODETECT;
 -				desc->handler->shutdown(i);
 -			} else
 -				if (i < 32)
--					val |= 1 << i;
+-					val |=3D 1 << i;
 -		}
 -		spin_unlock_irq(&desc->lock);
 -	}
@@ -555,7 +478,7 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - * Return a mask of triggered interrupts (this
 - * can handle only legacy ISA interrupts).
 - */
-- 
+-=20
 -/**
 - *	probe_irq_mask - scan a bitmap of interrupt lines
 - *	@val:	mask of interrupts to consider
@@ -573,19 +496,19 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	int i;
 -	unsigned int mask;
 -
--	mask = 0;
--	for (i = 0; i < NR_IRQS; i++) {
--		irq_desc_t *desc = irq_desc + i;
+-	mask =3D 0;
+-	for (i =3D 0; i < NR_IRQS; i++) {
+-		irq_desc_t *desc =3D irq_desc + i;
 -		unsigned int status;
 -
 -		spin_lock_irq(&desc->lock);
--		status = desc->status;
+-		status =3D desc->status;
 -
 -		if (status & IRQ_AUTODETECT) {
 -			if (i < 16 && !(status & IRQ_WAITING))
--				mask |= 1 << i;
+-				mask |=3D 1 << i;
 -
--			desc->status = status & ~IRQ_AUTODETECT;
+-			desc->status =3D status & ~IRQ_AUTODETECT;
 -			desc->handler->shutdown(i);
 -		}
 -		spin_unlock_irq(&desc->lock);
@@ -617,27 +540,27 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 - *	nothing prevents two IRQ probe callers from overlapping. The
 - *	results of this are non-optimal.
 - */
-- 
+-=20
 -int probe_irq_off(unsigned long val)
 -{
 -	int i, irq_found, nr_irqs;
 -
--	nr_irqs = 0;
--	irq_found = 0;
--	for (i = 0; i < NR_IRQS; i++) {
--		irq_desc_t *desc = irq_desc + i;
+-	nr_irqs =3D 0;
+-	irq_found =3D 0;
+-	for (i =3D 0; i < NR_IRQS; i++) {
+-		irq_desc_t *desc =3D irq_desc + i;
 -		unsigned int status;
 -
 -		spin_lock_irq(&desc->lock);
--		status = desc->status;
+-		status =3D desc->status;
 -
 -		if (status & IRQ_AUTODETECT) {
 -			if (!(status & IRQ_WAITING)) {
 -				if (!nr_irqs)
--					irq_found = i;
+-					irq_found =3D i;
 -				nr_irqs++;
 -			}
--			desc->status = status & ~IRQ_AUTODETECT;
+-			desc->status =3D status & ~IRQ_AUTODETECT;
 -			desc->handler->shutdown(i);
 -		}
 -		spin_unlock_irq(&desc->lock);
@@ -645,17 +568,17 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	up(&probe_sem);
 -
 -	if (nr_irqs > 1)
--		irq_found = -irq_found;
+-		irq_found =3D -irq_found;
 -	return irq_found;
 -}
 -
 -/* this was setup_x86_irq but it seems pretty generic */
 -int setup_irq(unsigned int irq, struct irqaction * new)
 -{
--	int shared = 0;
+-	int shared =3D 0;
 -	unsigned long flags;
 -	struct irqaction *old, **p;
--	irq_desc_t *desc = irq_desc + irq;
+-	irq_desc_t *desc =3D irq_desc + irq;
 -
 -	/*
 -	 * Some drivers like serial.c use request_irq() heavily,
@@ -678,8 +601,8 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -	 * The following block of code has to be executed atomically
 -	 */
 -	spin_lock_irqsave(&desc->lock,flags);
--	p = &desc->action;
--	if ((old = *p) != NULL) {
+-	p =3D &desc->action;
+-	if ((old =3D *p) !=3D NULL) {
 -		/* Can't share interrupts unless both agree to */
 -		if (!(old->flags & new->flags & SA_SHIRQ)) {
 -			spin_unlock_irqrestore(&desc->lock,flags);
@@ -688,215 +611,36 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/arch/i386/kernel
 -
 -		/* add new interrupt at end of irq queue */
 -		do {
--			p = &old->next;
--			old = *p;
+-			p =3D &old->next;
+-			old =3D *p;
 -		} while (old);
--		shared = 1;
+-		shared =3D 1;
 -	}
 -
--	*p = new;
+-	*p =3D new;
 -
 -	if (!shared) {
--		desc->depth = 0;
--		desc->status &= ~(IRQ_DISABLED | IRQ_AUTODETECT | IRQ_WAITING | IRQ_INPROGRESS);
+-		desc->depth =3D 0;
+-		desc->status &=3D ~(IRQ_DISABLED | IRQ_AUTODETECT | IRQ_WAITING | IRQ_IN=
+PROGRESS);
 -		desc->handler->startup(irq);
 -	}
 -	spin_unlock_irqrestore(&desc->lock,flags);
 -
--	register_irq_proc(irq);
+-	/* register_irq_proc(irq); */
 -	return 0;
--}
--
--static struct proc_dir_entry * root_irq_dir;
--static struct proc_dir_entry * irq_dir [NR_IRQS];
--
--#define HEX_DIGITS 8
--
--static unsigned int parse_hex_value (const char *buffer,
--		unsigned long count, unsigned long *ret)
--{
--	unsigned char hexnum [HEX_DIGITS];
--	unsigned long value;
--	int i;
--
--	if (!count)
--		return -EINVAL;
--	if (count > HEX_DIGITS)
--		count = HEX_DIGITS;
--	if (copy_from_user(hexnum, buffer, count))
--		return -EFAULT;
--
--	/*
--	 * Parse the first 8 characters as a hex string, any non-hex char
--	 * is end-of-string. '00e1', 'e1', '00E1', 'E1' are all the same.
--	 */
--	value = 0;
--
--	for (i = 0; i < count; i++) {
--		unsigned int c = hexnum[i];
--
--		switch (c) {
--			case '0' ... '9': c -= '0'; break;
--			case 'a' ... 'f': c -= 'a'-10; break;
--			case 'A' ... 'F': c -= 'A'-10; break;
--		default:
--			goto out;
--		}
--		value = (value << 4) | c;
--	}
--out:
--	*ret = value;
--	return 0;
--}
--
--#if CONFIG_SMP
--
--static struct proc_dir_entry * smp_affinity_entry [NR_IRQS];
--
--unsigned long irq_affinity [NR_IRQS] = { [0 ... NR_IRQS-1] = ~0UL };
--static int irq_affinity_read_proc (char *page, char **start, off_t off,
--			int count, int *eof, void *data)
--{
--	if (count < HEX_DIGITS+1)
--		return -EINVAL;
--	return sprintf (page, "%08lx\n", irq_affinity[(long)data]);
--}
--
--static int irq_affinity_write_proc (struct file *file, const char *buffer,
--					unsigned long count, void *data)
--{
--	int irq = (long) data, full_count = count, err;
--	unsigned long new_value;
--
--	if (!irq_desc[irq].handler->set_affinity)
--		return -EIO;
--
--	err = parse_hex_value(buffer, count, &new_value);
--
--	/*
--	 * Do not allow disabling IRQs completely - it's a too easy
--	 * way to make the system unusable accidentally :-) At least
--	 * one online CPU still has to be targeted.
--	 */
--	if (!(new_value & cpu_online_map))
--		return -EINVAL;
--
--	irq_affinity[irq] = new_value;
--	irq_desc[irq].handler->set_affinity(irq, new_value);
--
--	return full_count;
--}
--
--#endif
--
--static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
--			int count, int *eof, void *data)
--{
--	unsigned long *mask = (unsigned long *) data;
--	if (count < HEX_DIGITS+1)
--		return -EINVAL;
--	return sprintf (page, "%08lx\n", *mask);
--}
--
--static int prof_cpu_mask_write_proc (struct file *file, const char *buffer,
--					unsigned long count, void *data)
--{
--	unsigned long *mask = (unsigned long *) data, full_count = count, err;
--	unsigned long new_value;
--
--	err = parse_hex_value(buffer, count, &new_value);
--	if (err)
--		return err;
--
--	*mask = new_value;
--	return full_count;
--}
--
--#define MAX_NAMELEN 10
--
--static void register_irq_proc (unsigned int irq)
--{
--	char name [MAX_NAMELEN];
--
--	if (!root_irq_dir || (irq_desc[irq].handler == &no_irq_type) ||
--			irq_dir[irq])
--		return;
--
--	memset(name, 0, MAX_NAMELEN);
--	sprintf(name, "%d", irq);
--
--	/* create /proc/irq/1234 */
--	irq_dir[irq] = proc_mkdir(name, root_irq_dir);
--
--#if CONFIG_SMP
--	{
--		struct proc_dir_entry *entry;
--
--		/* create /proc/irq/1234/smp_affinity */
--		entry = create_proc_entry("smp_affinity", 0600, irq_dir[irq]);
--
--		if (entry) {
--			entry->nlink = 1;
--			entry->data = (void *)(long)irq;
--			entry->read_proc = irq_affinity_read_proc;
--			entry->write_proc = irq_affinity_write_proc;
--		}
--
--		smp_affinity_entry[irq] = entry;
--	}
--#endif
--}
--
--unsigned long prof_cpu_mask = -1;
--
--void init_irq_proc (void)
--{
--	struct proc_dir_entry *entry;
--	int i;
--
--	/* create /proc/irq */
--	root_irq_dir = proc_mkdir("irq", 0);
--
--	/* create /proc/irq/prof_cpu_mask */
--	entry = create_proc_entry("prof_cpu_mask", 0600, root_irq_dir);
--
--	if (!entry)
--	    return;
--
--	entry->nlink = 1;
--	entry->data = (void *)&prof_cpu_mask;
--	entry->read_proc = prof_cpu_mask_read_proc;
--	entry->write_proc = prof_cpu_mask_write_proc;
--
--	/*
--	 * Create entries for all existing IRQs.
--	 */
--	for (i = 0; i < NR_IRQS; i++)
--		register_irq_proc(i);
--}
--
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/include/asm-i386/hw_irq.h linux-2.5.64/include/asm-i386/hw_irq.h
---- linux-2.5.64.vanilla/include/asm-i386/hw_irq.h	Mon Mar 10 00:52:17 2003
-+++ linux-2.5.64/include/asm-i386/hw_irq.h	Sun Mar  9 20:34:53 2003
-@@ -116,4 +116,39 @@
- static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {}
- #endif
- 
-+extern irq_desc_t irq_desc[NR_IRQS];
-+
-+/*
-+ * Currently unexpected vectors happen only on SMP and APIC.
-+ * We _must_ ack these because every local APIC has only N
-+ * irq slots per priority level, and a 'hanging, unacked' IRQ
-+ * holds up an irq slot - in excessive cases (when multiple
-+ * unexpected vectors occur) that might lock up the APIC
-+ * completely.
-+ */
-+#ifdef CONFIG_X86_LOCAL_APIC
-+#define arch_ack_bad_irq(irq) ack_APIC_irq()
-+#else
+ }
+=20
+ /* Initialize irq handling for IRQs.
+diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/include/asm=
+-v850/hw_irq.h linux-2.5.64/include/asm-v850/hw_irq.h
+--- linux-2.5.64.vanilla/include/asm-v850/hw_irq.h	Thu Nov 28 01:36:18 2002
++++ linux-2.5.64/include/asm-v850/hw_irq.h	Tue Mar 11 10:39:02 2003
+@@ -5,4 +5,23 @@
+ {
+ }
+=20
 +#define arch_ack_bad_irq(irq) do { } while (0)
-+#endif
 +
 +/* Return a pointer to the irq descriptor for IRQ.  */
 +#define irq_desc(irq) (irq_desc + (irq))
@@ -911,12 +655,10 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/include/asm-i386
 +#define ARCH_NONSHARED_IRQ_MASK \
 +	~(IRQ_DISABLED | IRQ_AUTODETECT | IRQ_WAITING | IRQ_INPROGRESS)
 +
-+#define ARCH_AFFINITY_WIDTH	8
++#define HAVE_ARCH_IRQ_PROC
 +
-+#define ARCH_DEFAULT_IRQ_AFFINITY	~0UL
++#define register_irq_proc(irq) do { } while (0)
 +
-+#define arch_can_create_irq_proc() (1)
-+
- #endif /* _ASM_HW_IRQ_H */
+ #endif /* __V850_HW_IRQ_H__ */
 
---OmL7C/BU0IhhC9Of--
+--o99acAvKqrTZeiCU--

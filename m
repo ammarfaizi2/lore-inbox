@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276933AbRJHPXZ>; Mon, 8 Oct 2001 11:23:25 -0400
+	id <S276930AbRJHPVz>; Mon, 8 Oct 2001 11:21:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276938AbRJHPXP>; Mon, 8 Oct 2001 11:23:15 -0400
-Received: from [216.191.240.114] ([216.191.240.114]:36485 "EHLO
-	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S276933AbRJHPXE>;
-	Mon, 8 Oct 2001 11:23:04 -0400
-Date: Mon, 8 Oct 2001 11:20:32 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrea Arcangeli <andrea@suse.de>,
-        Ingo Molnar <mingo@elte.hu>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <E15qcES-0000rh-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.30.0110081117140.5473-100000@shell.cyberus.ca>
+	id <S276336AbRJHPVs>; Mon, 8 Oct 2001 11:21:48 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38202 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S276933AbRJHPVk>; Mon, 8 Oct 2001 11:21:40 -0400
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Cc: BALBIR SINGH <balbir.singh@wipro.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] I still see people using cli()
+In-Reply-To: <20011008084950.B16204@hq2>
+From: ebiederman@uswest.net (Eric W. Biederman)
+Date: 08 Oct 2001 09:11:57 -0600
+In-Reply-To: <20011008084950.B16204@hq2>
+Message-ID: <m1itdqw4hu.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Victor Yodaiken <yodaiken@fsmlabs.com> writes:
+
+> On Mon, Oct 08, 2001 at 07:59:05PM +0530, BALBIR SINGH wrote:
+> > BTW, that brings me to another issue, once the kernel becomes preemptibel,
+> what
+> 
+> > are the locking issues? how are semaphores and spin-locks affected? Has
+> anybody
+> 
+> > defined or come up with the rules/document yet?
+> 
+> IF the kernel becomes preemptible it will be so slow, so buggy, and so painful
+> to maintain, that those issues won't matter.
+
+The preemptible kernel work just takes the current SMP code, and
+allows it to work on a single processor.  You are not interruptted if
+you have a lock held.  This makes the number of cases in the kernel
+simpler, and should improve maintenance as more people will be
+affected by the SMP issues.
+
+Right now there is a preemptible kernel patch being maintained
+somewhere.  I haven't had a chance to look recently.  But the recent
+threads on low latency mentioned it.
+
+As for rules.  They are the usual SMP rules.  In earlier version there
+was a requirement or that you used balanced constructs.
+
+i.e.
+spin_lock_irqsave
+...
+spin_unlock_irqrestore
+
+and not.
+
+spin_lock_irqsave
+...
+spin_unlock
+..
+restore_flags.
 
 
-On Mon, 8 Oct 2001, Alan Cox wrote:
-
-> It doesnt save you from horrible performance. NAPI is there to do that, it
-> saves you from a dead box. You can at least rmmod the cardbus controller
-> with protection in place (or go looking for the problem with a debugger)
-
-I hear you, but I think isolation is important;
-If i am telneted (literal example here) onto that machine (note eth0 is
-not cardbus based) and cardbus is causing the loops then iam screwed.
-[The same applies to everything that shares interupts]
-
-cheers,
-jamal
-
+Eric

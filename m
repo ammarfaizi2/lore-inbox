@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273474AbRIYUFX>; Tue, 25 Sep 2001 16:05:23 -0400
+	id <S273483AbRIYUHd>; Tue, 25 Sep 2001 16:07:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273479AbRIYUFN>; Tue, 25 Sep 2001 16:05:13 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1288 "HELO
+	id <S273484AbRIYUHX>; Tue, 25 Sep 2001 16:07:23 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16392 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273474AbRIYUFA>; Tue, 25 Sep 2001 16:05:00 -0400
-Date: Tue, 25 Sep 2001 17:05:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
+	id <S273483AbRIYUHO>; Tue, 25 Sep 2001 16:07:14 -0400
+Date: Tue, 25 Sep 2001 15:43:41 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
 To: Pavel Machek <pavel@suse.cz>
 Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Out of memory handling broken
-In-Reply-To: <20010925003416.A151@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.33L.0109251702540.26091-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+Subject: Re: GFP_FAIL?
+In-Reply-To: <20010924210951.A165@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.21.0109251526190.2193-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001, Pavel Machek wrote:
 
-> I need to allocate as much memory as possible (but not more).
-> Okay, so I use out_of_memory, right?
 
-Nope, out_of_memory() is about virtual memory handling,
-not at all about physical memory.
+On Mon, 24 Sep 2001, Pavel Machek wrote:
 
-> But, when I looked into out_of_memory... Of course its
-> wrong. out_of_memory() contains
->
->         if (nr_swap_pages > 0)
->                 return 0;
->
-> ...which is obviously wrong. It is well possible to have free
-> swap _and_ be out of memory -- eat_memory() loop gets system to
-> this state easily.
+> Hi!
+> 
+> I need to alloc as much memory as possible, *but not more*. I do not
+> want to OOM-kill anything. How do I do this? Tried GFP_KERNEL, will
+> oom-kill. GFP_USER will OOM-kill, too.
 
-This is because you're using out_of_memory() for something
-it was never meant for.  ;)
+Currently, you can't. 
 
-Even if it didn't take swap into account, you'd still end
-up counting highmem pages your code cannot use...
+I've added a GFP_FAIL flag at 2.4.5-ac1 to be used by the bounce buffering
+allocation code to avoid highmem deadlocks, but it was removed due to no
+more need.
+(http://oss.sgi.com/projects/xfs/mail_archive/0103/msg00110.html is a
+similar patch which I proposed to the XFS people)
 
-cheers,
+The only problem by of a GFP_FAIL flag for some users is that it cannot
+fail _too_ easily. Think about the SCSI layer trying to allocate big
+memory chunks to do more effective (bigger) scatter-gather transfers.
 
-Rik
---
-IA64: a worthy successor to the i860.
+If we use GFP_FAIL to mean "get memory without any efforts", the
+scatter-gather big tables are never going to happen, thus we'll have
+crappy performance. For _those_ kind of allocations, we want to try a bit
+more instead failing so easily. See?
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Thats why I think Linus will not like such a flag with no exact meaning.
 
+Well, ask him. :) 
 

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbRERWGB>; Fri, 18 May 2001 18:06:01 -0400
+	id <S261576AbRERWNM>; Fri, 18 May 2001 18:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261576AbRERWFw>; Fri, 18 May 2001 18:05:52 -0400
-Received: from www.topmail.de ([212.255.16.226]:45485 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S261573AbRERWFp>;
-	Fri, 18 May 2001 18:05:45 -0400
-From: mirabilos <eccesys@topmail.de>
+	id <S261577AbRERWNC>; Fri, 18 May 2001 18:13:02 -0400
+Received: from 209.102.21.2 ([209.102.21.2]:23055 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S261576AbRERWMx>;
+	Fri, 18 May 2001 18:12:53 -0400
+Message-ID: <3B059E86.93415132@goingware.com>
+Date: Fri, 18 May 2001 18:13:28 -0400
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: CML 1 is ok
-Message-Id: <20010518220028.B139BA5AD65@www.topmail.de>
-Date: Sat, 19 May 2001 00:00:28 +0200 (MET DST)
+Subject: Linux Quality Database on Newsforge
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, no gpm, so handquoting:
-- CML 1 works ok
-for me too
-- menuconfig is great
-it requires ncurses, but _this_ piece of software almost
-anyone has. and if not I use make [old]config.
-- xconfig
-I never tested.
+chromatic has written a very nice article on the Linux Quality database
+at Newsforge:
 
-- python
-what's that?
-- upgrading
-gcc - 2.7.2.3 was ok, egcs and 2.9x I dont like.
-So I wait for 3.0 (which seems better).
+Linux Quality Database: One man's quest for kernel quality
+http://www.newsforge.com/article.pl?sid=01/05/17/204213&mode=thread
 
-netfilter: I _liked_ ipfwadm
-because I hate to always re-learn when a new kernel comes out.
-our company will soon ship a product still using ipfwadm (I
-started with 2.0.33, going to .36 and 2.4.0-testX).
-It's a pity this M$ism to not support it forever (they just
-stopped supporting DOS! and GW-BASIC *snief*)
+The site itself is at http://linuxquality.sunsite.dk/
 
--mirabilos
+You will see it is still in the planning stages.  Life has been quite
+hectic these last months, but I am making slow progress and I'm starting
+to get more time now.  I have written a couple of articles you may find
+useful, one on testing the kernel and the other on testing web
+applications.  The kernel testing article is at:
 
-PS: Don't answer plz as I'll be offline for a time.
-    _And_ I mean this honest, even it might considered sp.m
+Using Test Suites to Validate the Linux Kernel
+http://linuxquality.sunsite.dk/articles/testsuites/
 
--- 
-by telnet
+Best,
+
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+    Tilting at Windmills for a Better Tomorrow.

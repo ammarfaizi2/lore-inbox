@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267023AbSLXBFc>; Mon, 23 Dec 2002 20:05:32 -0500
+	id <S267025AbSLXBPC>; Mon, 23 Dec 2002 20:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267024AbSLXBFc>; Mon, 23 Dec 2002 20:05:32 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:58848 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267023AbSLXBF3>; Mon, 23 Dec 2002 20:05:29 -0500
-Date: Tue, 24 Dec 2002 02:12:27 +0100
-From: Andi Kleen <ak@muc.de>
-To: kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Stem compression for kallsyms
-Message-ID: <20021224011227.GA3171@averell>
+	id <S267026AbSLXBPC>; Mon, 23 Dec 2002 20:15:02 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2831 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267025AbSLXBPA>;
+	Mon, 23 Dec 2002 20:15:00 -0500
+Date: Mon, 23 Dec 2002 17:19:32 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
+Subject: [RFC] initial tty class support for 2.5.52
+Message-ID: <20021224011931.GA32397@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,164 +18,88 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-This patch implements simple stem compression for the kallsyms symbol 
-table. Each symbol has as first byte a count on how many characters
-are identical to the previous symbol. This compresses the often
-common repetive prefixes (like subsys_) fairly effectively.
+Here's a small patch against 2.5.52 that adds the start of tty class
+support to the kernel.  It also enables the usb-serial drivers to use
+this class.  With this patch, the /sys/class/tty directory looks like
+the following on my machine (with 1 4 port usb-to-serial device plugged
+in):
 
-On a fairly full featured monolithic i386 kernel this saves about 60k in 
-the kallsyms symbol table.
+/sys/class/tty/
+|-- devices
+|   |-- 12 -> ../../../devices/pci0/00:1e.0/01:0d.1/usb3/3-1/ttyUSB0
+|   |-- 13 -> ../../../devices/pci0/00:1e.0/01:0d.1/usb3/3-1/ttyUSB1
+|   |-- 14 -> ../../../devices/pci0/00:1e.0/01:0d.1/usb3/3-1/ttyUSB2
+|   `-- 15 -> ../../../devices/pci0/00:1e.0/01:0d.1/usb3/3-1/ttyUSB3
+`-- drivers
+    |-- usb-serial:clie_3.5 -> ../../../bus/usb-serial/drivers/clie_3.5
+    |-- usb-serial:edgeport_1 -> ../../../bus/usb-serial/drivers/edgeport_1
+    |-- usb-serial:edgeport_2 -> ../../../bus/usb-serial/drivers/edgeport_2
+    |-- usb-serial:edgeport_4 -> ../../../bus/usb-serial/drivers/edgeport_4
+    |-- usb-serial:edgeport_8 -> ../../../bus/usb-serial/drivers/edgeport_8
+    |-- usb-serial:generic -> ../../../bus/usb-serial/drivers/generic
+    |-- usb-serial:visor -> ../../../bus/usb-serial/drivers/visor
+    |-- usb-serial:whiteheat -> ../../../bus/usb-serial/drivers/whiteheat
+    `-- usb-serial:whiteheatnofirm -> ../../../bus/usb-serial/drivers/whiteheatnofirm
 
-The changes are very simple, so the 60k are not shabby.
+If no one has any problems with the patch, I'll send it on to Linus in a
+few days.
 
-One visible change is that the caller of kallsyms_lookup has to pass in 
-a buffer now, because it has to be modified. I added an arbitary
-127 character limit to it.
+thanks,
 
-Still >210k left in the symbol table unfortunately. Another idea would be to 
-delta encode the addresses in 16bits (functions are all likely to be smaller 
-than 64K).  This would especially help on 64bit hosts. Not done yet, however.
+greg k-h
 
-No, before someone asks, I don't want to use zlib for that. Far too fragile 
-during an oops and overkill too and it would require to link it into all
-kernels.
 
-Patch for 2.5.52. Please consider applying.
-
--Andi
-
-diff -u linux-2.5.52/include/linux/kallsyms.h-STEM linux-2.5.52/include/linux/kallsyms.h
---- linux-2.5.52/include/linux/kallsyms.h-STEM	2002-11-23 03:49:10.000000000 +0100
-+++ linux-2.5.52/include/linux/kallsyms.h	2002-12-23 15:27:54.000000000 +0100
-@@ -12,7 +12,7 @@
- const char *kallsyms_lookup(unsigned long addr,
- 			    unsigned long *symbolsize,
- 			    unsigned long *offset,
--			    char **modname);
-+			    char **modname, char *namebuf);
- 
- /* Replace "%s" in format with address, if found */
- extern void __print_symbol(const char *fmt, unsigned long address);
-@@ -22,7 +22,7 @@
- static inline const char *kallsyms_lookup(unsigned long addr,
- 					  unsigned long *symbolsize,
- 					  unsigned long *offset,
--					  char **modname)
-+					  char **modname, char *namebuf)
- {
- 	return NULL;
- }
-diff -u linux-2.5.52/fs/proc/base.c-STEM linux-2.5.52/fs/proc/base.c
---- linux-2.5.52/fs/proc/base.c-STEM	2002-11-30 13:58:18.000000000 +0100
-+++ linux-2.5.52/fs/proc/base.c	2002-12-23 15:26:16.000000000 +0100
-@@ -258,10 +258,11 @@
- 	char *modname;
- 	const char *sym_name;
- 	unsigned long wchan, size, offset;
-+	char namebuf[128];
- 
- 	wchan = get_wchan(task);
- 
--	sym_name = kallsyms_lookup(wchan, &size, &offset, &modname);
-+	sym_name = kallsyms_lookup(wchan, &size, &offset, &modname, namebuf);
- 	if (sym_name)
- 		return sprintf(buffer, "%s", sym_name);
- 	return sprintf(buffer, "%lu", wchan);
-diff -u linux-2.5.52/scripts/kallsyms.c-STEM linux-2.5.52/scripts/kallsyms.c
---- linux-2.5.52/scripts/kallsyms.c-STEM	2002-12-23 14:04:43.000000000 +0100
-+++ linux-2.5.52/scripts/kallsyms.c	2002-12-23 14:07:20.000000000 +0100
-@@ -93,6 +93,7 @@
- {
- 	unsigned long long last_addr;
- 	int i, valid = 0;
-+	char *prev;
- 
- 	printf(".data\n");
- 
-@@ -121,15 +122,22 @@
- 	printf(".globl kallsyms_names\n");
- 	printf("\t.align 8\n");
- 	printf("kallsyms_names:\n");
-+	prev = ""; 
- 	for (i = 0, last_addr = 0; i < cnt; i++) {
-+		int k;
-+
- 		if (!symbol_valid(&table[i]))
- 			continue;
- 		
- 		if (table[i].addr == last_addr)
- 			continue;
- 
--		printf("\t.string\t\"%s\"\n", table[i].sym);
-+		for (k = 0; table[i].sym[k] && table[i].sym[k] == prev[k]; ++k)
-+			; 
-+
-+		printf("\t.asciz\t\"\\x%02x%s\"\n", k, table[i].sym + k);
- 		last_addr = table[i].addr;
-+		prev = table[i].sym;
- 	}
- 	printf("\n");
- }
-diff -u linux-2.5.52/kernel/kallsyms.c-STEM linux-2.5.52/kernel/kallsyms.c
---- linux-2.5.52/kernel/kallsyms.c-STEM	2002-12-19 13:53:02.000000000 +0100
-+++ linux-2.5.52/kernel/kallsyms.c	2002-12-23 19:34:38.000000000 +0100
-@@ -4,6 +4,7 @@
-  * Rewritten and vastly simplified by Rusty Russell for in-kernel
-  * module loader:
-  *   Copyright 2002 Rusty Russell <rusty@rustcorp.com.au> IBM Corporation
-+ * Stem compression by Andi Kleen.
-  */
- #include <linux/kallsyms.h>
+diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c	Mon Dec 23 17:14:36 2002
++++ b/drivers/char/tty_io.c	Mon Dec 23 17:14:36 2002
+@@ -90,6 +90,7 @@
+ #include <linux/init.h>
  #include <linux/module.h>
-@@ -22,7 +23,7 @@
- const char *kallsyms_lookup(unsigned long addr,
- 			    unsigned long *symbolsize,
- 			    unsigned long *offset,
--			    char **modname)
-+			    char **modname, char *namebuf)
- {
- 	unsigned long i, best = 0;
+ #include <linux/smp_lock.h>
++#include <linux/device.h>
  
-@@ -30,6 +31,8 @@
- 	if ((void *)kallsyms_addresses == &kallsyms_dummy)
- 		BUG();
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+@@ -2261,12 +2262,19 @@
+ extern int vty_init(void);
+ #endif
  
-+	namebuf[127] = 0;
++struct device_class tty_devclass = {
++	.name	= "tty",
++};
++EXPORT_SYMBOL(tty_devclass);
 +
- 	if (addr >= (unsigned long)_stext && addr <= (unsigned long)_etext) {
- 		unsigned long symbol_end;
- 		char *name = kallsyms_names;
-@@ -42,8 +45,11 @@
- 		}
+ /*
+  * Ok, now we can initialize the rest of the tty devices and can count
+  * on memory allocations, interrupts etc..
+  */
+ void __init tty_init(void)
+ {
++	devclass_register(&tty_devclass);
++
+ 	/*
+ 	 * dev_tty_driver and dev_console_driver are actually magic
+ 	 * devices which get redirected at open time.  Nevertheless,
+diff -Nru a/drivers/usb/serial/bus.c b/drivers/usb/serial/bus.c
+--- a/drivers/usb/serial/bus.c	Mon Dec 23 17:14:36 2002
++++ b/drivers/usb/serial/bus.c	Mon Dec 23 17:14:36 2002
+@@ -128,6 +128,7 @@
+ 	device->driver.bus = &usb_serial_bus_type;
+ 	device->driver.probe = usb_serial_device_probe;
+ 	device->driver.remove = usb_serial_device_remove;
++	device->driver.devclass = &tty_devclass;
  
- 		/* Grab name */
--		for (i = 0; i < best; i++)
-+		for (i = 0; i < best; i++) { 
-+			++name;
-+			strncpy(namebuf + name[-1], name, 127); 
- 			name += strlen(name)+1;
-+		} 
+ 	retval = driver_register(&device->driver);
  
- 		/* Base symbol size on next symbol. */
- 		if (best + 1 < kallsyms_num_syms)
-@@ -54,7 +60,7 @@
- 		*symbolsize = symbol_end - kallsyms_addresses[best];
- 		*modname = NULL;
- 		*offset = addr - kallsyms_addresses[best];
--		return name;
-+		return namebuf;
- 	}
+diff -Nru a/include/linux/tty_driver.h b/include/linux/tty_driver.h
+--- a/include/linux/tty_driver.h	Mon Dec 23 17:14:36 2002
++++ b/include/linux/tty_driver.h	Mon Dec 23 17:14:36 2002
+@@ -227,4 +227,6 @@
+ #define SERIAL_TYPE_NORMAL	1
+ #define SERIAL_TYPE_CALLOUT	2
  
- 	return module_address_lookup(addr, symbolsize, offset, modname);
-@@ -66,8 +72,9 @@
- 	char *modname;
- 	const char *name;
- 	unsigned long offset, size;
-+	char namebuf[128];
- 
--	name = kallsyms_lookup(address, &size, &offset, &modname);
-+	name = kallsyms_lookup(address, &size, &offset, &modname, namebuf);
- 
- 	if (!name) {
- 		char addrstr[sizeof("0x%lx") + (BITS_PER_LONG*3/10)];
++extern struct device_class tty_devclass;
++
+ #endif /* #ifdef _LINUX_TTY_DRIVER_H */

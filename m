@@ -1,33 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbTALJuc>; Sun, 12 Jan 2003 04:50:32 -0500
+	id <S267346AbTALKF1>; Sun, 12 Jan 2003 05:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267349AbTALJuc>; Sun, 12 Jan 2003 04:50:32 -0500
-Received: from tomts9.bellnexxia.net ([209.226.175.53]:54660 "EHLO
-	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267350AbTALJuc>; Sun, 12 Jan 2003 04:50:32 -0500
-Date: Sun, 12 Jan 2003 04:59:26 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: two more oddities with the fs/Kconfig file
-In-Reply-To: <Pine.LNX.4.44.0301120449530.4974-100000@dell>
-Message-ID: <Pine.LNX.4.44.0301120458190.5012-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267348AbTALKF1>; Sun, 12 Jan 2003 05:05:27 -0500
+Received: from mx3.mail.ru ([194.67.57.13]:60946 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id <S267346AbTALKFZ>;
+	Sun, 12 Jan 2003 05:05:25 -0500
+From: "Andrey Borzenkov" <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.20 fix file_readahead for ide-cd and ide-floppy
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [62.118.150.174]
+Date: Sun, 12 Jan 2003 13:14:13 +0300
+Reply-To: "Andrey Borzenkov" <arvidjaar@mail.ru>
+Content-Type: multipart/mixed;
+	boundary="----shgDRrfj-wl45XVXYW8pXoz7O:1042366453"
+Message-Id: <E18Xf89-000Iej-00@f8.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jan 2003, Robert P. J. Day wrote:
 
-> config UMSDOS_FS
-> 	bool
-> 	---help---
+------shgDRrfj-wl45XVXYW8pXoz7O:1042366453
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
 
-oh, never mind ... i was confused by what the above meant,
-not realizing that i had inadvertantly removed the comment
-above it that stated that it was broken.  argh.
+The file_readahead setting in ide-cd and ide-floppy obviously
+assumed read-ahead values are kept as bytes. This made them
+totally useless. This patch unifies file_readahead with ide-disk
+making values be stored correctly as pages and displayed as KB.
 
-rday
+This also changes breada setting to match ide-disk as well (is it
+really used at all? It appears the only place where it is referenced
+is reiserfs).
+
+The patch is agains Mandrake sources but as I assume it should apply to vanilla kernel as well.
+
+cheers
+
+-andrey
+
+
+------shgDRrfj-wl45XVXYW8pXoz7O:1042366453
+Content-Type: application/octet-stream; name="2.4.20-2mdk.file_readahead-ide-cd-ide-floppy.patch"
+Content-Disposition: attachment; filename="2.4.20-2mdk.file_readahead-ide-cd-ide-floppy.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIC91c3Ivc3JjL2xpbnV4LTIuNC4yMC0ybWRrL2RyaXZlcnMvaWRlL2lkZS1jZC5jCTIwMDIt
+MTItMDkgMTQ6Mzg6MTcuMDAwMDAwMDAwICswMzAwCisrKyBkcml2ZXJzL2lkZS9pZGUtY2QuYwky
+MDAzLTAxLTExIDIyOjI1OjA2LjAwMDAwMDAwMCArMDMwMApAQCAtMjcxNyw4ICsyNzE3LDggQEAK
+IAlpbnQgbWFqb3IgPSBIV0lGKGRyaXZlKS0+bWFqb3I7CiAJaW50IG1pbm9yID0gZHJpdmUtPnNl
+bGVjdC5iLnVuaXQgPDwgUEFSVE5fQklUUzsKIAotCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJy
+ZWFkYV9yZWFkYWhlYWQiLAlTRVRUSU5HX1JXLCBCTEtSQUdFVCwgQkxLUkFTRVQsIFRZUEVfSU5U
+LCAwLCAyNTUsIDEsIDIsICZyZWFkX2FoZWFkW21ham9yXSwgTlVMTCk7Ci0JaWRlX2FkZF9zZXR0
+aW5nKGRyaXZlLAkiZmlsZV9yZWFkYWhlYWQiLAlTRVRUSU5HX1JXLCBCTEtGUkFHRVQsIEJMS0ZS
+QVNFVCwgVFlQRV9JTlRBLCAwLCBJTlRfTUFYLCAxLCAxMDI0LCAmbWF4X3JlYWRhaGVhZFttYWpv
+cl1bbWlub3JdLAlOVUxMKTsKKwlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJicmVhZGFfcmVhZGFo
+ZWFkIiwJU0VUVElOR19SVywgQkxLUkFHRVQsIEJMS1JBU0VULCBUWVBFX0lOVCwgMCwgMjU1LCAx
+LCAxLCAmcmVhZF9haGVhZFttYWpvcl0sIE5VTEwpOworCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJ
+ImZpbGVfcmVhZGFoZWFkIiwJU0VUVElOR19SVywgQkxLRlJBR0VULCBCTEtGUkFTRVQsIFRZUEVf
+SU5UQSwgMCwgNDA5NiwgUEFHRV9TSVpFLCAxMDI0LCAmbWF4X3JlYWRhaGVhZFttYWpvcl1bbWlu
+b3JdLAlOVUxMKTsKIAlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJtYXhfa2JfcGVyX3JlcXVlc3Qi
+LAlTRVRUSU5HX1JXLCBCTEtTRUNUR0VULCBCTEtTRUNUU0VULCBUWVBFX0lOVEEsIDEsIDI1NSwg
+MSwgMiwgJm1heF9zZWN0b3JzW21ham9yXVttaW5vcl0sIE5VTEwpOwogCWlkZV9hZGRfc2V0dGlu
+Zyhkcml2ZSwJImRzY19vdmVybGFwIiwJCVNFVFRJTkdfUlcsIC0xLCAtMSwgVFlQRV9CWVRFLCAw
+LCAxLCAxLAkxLCAmZHJpdmUtPmRzY19vdmVybGFwLCBOVUxMKTsKIH0KLS0tIC91c3Ivc3JjL2xp
+bnV4LTIuNC4yMC0ybWRrL2RyaXZlcnMvaWRlL2lkZS1mbG9wcHkuYwkyMDAyLTEyLTA5IDE0OjM4
+OjE3LjAwMDAwMDAwMCArMDMwMAorKysgZHJpdmVycy9pZGUvaWRlLWZsb3BweS5jCTIwMDMtMDEt
+MTIgMTI6Mjg6MDEuMDAwMDAwMDAwICswMzAwCkBAIC0yMDA3LDggKzIwMDcsOCBAQAogCWlkZV9h
+ZGRfc2V0dGluZyhkcml2ZSwJImJpb3NfY3lsIiwJCVNFVFRJTkdfUlcsCQkJCQktMSwJCQktMSwJ
+CQlUWVBFX0lOVCwJMCwJMTAyMywJCQkJMSwJMSwJJmRyaXZlLT5iaW9zX2N5bCwJCU5VTEwpOwog
+CWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJpb3NfaGVhZCIsCQlTRVRUSU5HX1JXLAkJCQkJLTEs
+CQkJLTEsCQkJVFlQRV9CWVRFLAkwLAkyNTUsCQkJCTEsCTEsCSZkcml2ZS0+Ymlvc19oZWFkLAkJ
+TlVMTCk7CiAJaWRlX2FkZF9zZXR0aW5nKGRyaXZlLAkiYmlvc19zZWN0IiwJCVNFVFRJTkdfUlcs
+CQkJCQktMSwJCQktMSwJCQlUWVBFX0JZVEUsCTAsCTYzLAkJCQkxLAkxLAkmZHJpdmUtPmJpb3Nf
+c2VjdCwJCU5VTEwpOwotCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJyZWFkYV9yZWFkYWhlYWQi
+LAlTRVRUSU5HX1JXLAkJCQkJQkxLUkFHRVQsCQlCTEtSQVNFVCwJCVRZUEVfSU5ULAkwLAkyNTUs
+CQkJCTEsCTIsCSZyZWFkX2FoZWFkW21ham9yXSwJCU5VTEwpOwotCWlkZV9hZGRfc2V0dGluZyhk
+cml2ZSwJImZpbGVfcmVhZGFoZWFkIiwJU0VUVElOR19SVywJCQkJCUJMS0ZSQUdFVCwJCUJMS0ZS
+QVNFVCwJCVRZUEVfSU5UQSwJMCwJSU5UX01BWCwJCQkxLAkxMDI0LAkmbWF4X3JlYWRhaGVhZFtt
+YWpvcl1bbWlub3JdLAlOVUxMKTsKKwlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJicmVhZGFfcmVh
+ZGFoZWFkIiwJU0VUVElOR19SVywJCQkJCUJMS1JBR0VULAkJQkxLUkFTRVQsCQlUWVBFX0lOVCwJ
+MCwJMjU1LAkJCQkxLAkxLAkmcmVhZF9haGVhZFttYWpvcl0sCQlOVUxMKTsKKwlpZGVfYWRkX3Nl
+dHRpbmcoZHJpdmUsCSJmaWxlX3JlYWRhaGVhZCIsCVNFVFRJTkdfUlcsCQkJCQlCTEtGUkFHRVQs
+CQlCTEtGUkFTRVQsCQlUWVBFX0lOVEEsCTAsCTQwOTYsCQkJUEFHRV9TSVpFLAkxMDI0LAkmbWF4
+X3JlYWRhaGVhZFttYWpvcl1bbWlub3JdLAlOVUxMKTsKIAlpZGVfYWRkX3NldHRpbmcoZHJpdmUs
+CSJtYXhfa2JfcGVyX3JlcXVlc3QiLAlTRVRUSU5HX1JXLAkJCQkJQkxLU0VDVEdFVCwJCUJMS1NF
+Q1RTRVQsCQlUWVBFX0lOVEEsCTEsCTI1NSwJCQkJMSwJMiwJJm1heF9zZWN0b3JzW21ham9yXVtt
+aW5vcl0sCU5VTEwpOwogCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJInRpY2tzIiwJCVNFVFRJTkdf
+UlcsCQkJCQktMSwJCQktMSwJCQlUWVBFX0JZVEUsCTAsCTI1NSwJCQkJMSwJMSwJJmZsb3BweS0+
+dGlja3MsCQlOVUxMKTsKIAo=
+
+------shgDRrfj-wl45XVXYW8pXoz7O:1042366453--
 

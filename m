@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288154AbSAMVA5>; Sun, 13 Jan 2002 16:00:57 -0500
+	id <S288153AbSAMVFh>; Sun, 13 Jan 2002 16:05:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288153AbSAMVAr>; Sun, 13 Jan 2002 16:00:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54538 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288149AbSAMVAe>; Sun, 13 Jan 2002 16:00:34 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Sun, 13 Jan 2002 21:11:59 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rml@tech9.net (Robert Love),
-        ken@canit.se (Kenneth Johansson), arjan@fenrus.demon.nl,
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <3C41ED4E.4D3F2D2C@linux-m68k.org> from "Roman Zippel" at Jan 13, 2002 09:25:50 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S288156AbSAMVF1>; Sun, 13 Jan 2002 16:05:27 -0500
+Received: from [24.93.67.54] ([24.93.67.54]:34579 "EHLO mail7.carolina.rr.com")
+	by vger.kernel.org with ESMTP id <S288153AbSAMVFL>;
+	Sun, 13 Jan 2002 16:05:11 -0500
+From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
+Date: Sun, 13 Jan 2002 16:04:47 -0500
+To: linux-kernel@vger.kernel.org
+Subject: patch-2.5.1-dj14.diff.gz is broken
+Message-ID: <20020113210447.GA8215@clt88-175-140.carolina.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Prv5-00080m-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't doubt that, but would you seriously consider the ll patch for
-> inclusion into the main kernel?
+$ gunzip -dc ../patch-2.5.1-dj14.diff.gz | patch -p1 
+patching file include/pcmcia/cs.h
+patching file include/scsi/scsicam.h
+patching file include/scsi/sg.h
+patch unexpectedly ends in middle of line
+patch: **** unexpected end of file in patch
 
-The mini ll patch definitely. The full ll one needs some head scratching to
-be sure its correct. pre-empt is a 2.5 thing which in some ways is easier
-because it doesnt matter if it breaks something.
+if I do 
+gunzip -t ../patch-2.5.1-dj14.diff.gz 
+gunzip: patch-2.5.1-dj14.diff.gz: unexpected end of file
 
-> Please let me rephrase, I just don't expect terrible good latency
-> numbers with non dma hardware.
-
-Expect the same with DMA hardware too at times.
+-- 
+Zilvinas Valinskas

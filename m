@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316267AbSEKTU2>; Sat, 11 May 2002 15:20:28 -0400
+	id <S316265AbSEKTgc>; Sat, 11 May 2002 15:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316265AbSEKTU1>; Sat, 11 May 2002 15:20:27 -0400
-Received: from ppp-217-133-216-65.dialup.tiscali.it ([217.133.216.65]:405 "EHLO
-	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S314684AbSEKTU0>;
-	Sat, 11 May 2002 15:20:26 -0400
-Subject: [PATCH] [2.4] [2.5] Fix PPPoATM crash on disconnection
-	(tasklet_disable; kfree(tasklet))
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: mitch@sfgoth.com, linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-9ZyLQKsRiOkTqgm5n1Vv"
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 11 May 2002 21:19:31 +0200
-Message-Id: <1021144771.3909.27.camel@ldb>
+	id <S316266AbSEKTgb>; Sat, 11 May 2002 15:36:31 -0400
+Received: from ns.suse.de ([213.95.15.193]:526 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S316265AbSEKTgb>;
+	Sat, 11 May 2002 15:36:31 -0400
+Date: Sat, 11 May 2002 21:36:30 +0200
+From: Dave Jones <davej@suse.de>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, andre@linux-ide.org
+Subject: Re: Linux 2.5.14-dj2
+Message-ID: <20020511213630.A30904@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rudmer van Dijk <rudmer@legolas.dynup.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, andre@linux-ide.org
+In-Reply-To: <4.1.20020511114723.009c8270@pop.cablewanadoo.nl> <20020508225147.GA11390@suse.de> <4.1.20020511114723.009c8270@pop.cablewanadoo.nl> <20020511191406.S5262@suse.de> <4.1.20020511205025.009703a0@pop.cablewanadoo.nl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 11, 2002 at 09:04:20PM +0200, Rudmer van Dijk wrote:
+ > >http://linus.bkbits.net:8080/linux-2.5/cset@1.513.1.14?nav=index.html
+ > and still the patch I included applied to 2.5.14-dj2... 
 
---=-9ZyLQKsRiOkTqgm5n1Vv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+*boggle* $deity knows how.
+I just checked. From a clean 2.4.14, with -dj2 patch applied, that
+segment of code reads..
 
-PPPoATM uses tasklet_disable() on a tasklet inside a struct and then
-frees the struct, leaving a pointer to the freed tasklet inside tasklet
-lists.
-This patch replaces tasklet_disable() with tasklet_kill().
+#if SUPPORT_SLOW_DATA_PORTS
+        if (drive->channel->slow)
+            ata_write_slow(drive, buffer, wcount);
+        else
+#endif 
+            ata_write_16(drive, buffer, wcount);
+    }
 
-This bug is present in both 2.4.18 and 2.5.15 (and the patch applies to
-both).
+So this part..
 
+ > > > - 			ata_write_16(drive, buffer, wcount<<1);
+ > > > + 			ata_write_16(drive, buffer, wcount);
 
---- linux-old/net/atm/pppoatm.c	Wed Apr 10 14:37:34 2002
-+++ linux/net/atm/pppoatm.c	Fri May 10 21:56:28 2002
-@@ -125,7 +125,7 @@
- 	pvcc =3D atmvcc_to_pvcc(atmvcc);
- 	atmvcc->push =3D pvcc->old_push;
- 	atmvcc->pop =3D pvcc->old_pop;
--	tasklet_disable(&pvcc->wakeup_tasklet);
-+	tasklet_kill(&pvcc->wakeup_tasklet);
- 	ppp_unregister_channel(&pvcc->chan);
- 	atmvcc->user_back =3D NULL;
- 	kfree(pvcc);
+Should reject (or at least say already applied)
 
---=-9ZyLQKsRiOkTqgm5n1Vv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+It may be patch(1) being funky, and doing something silly like adding the
+same patch twice (something thats bitten me a few times, and has also happened
+in Linus' tree once or twice).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+        Dave.
 
-iD8DBQA83W7Ddjkty3ft5+cRAuHJAJ9hgqFsR0U6ZY4sBf55XtWgzIbXPQCeJO9h
-bw91pWe1Ln5XDEE/Y82AW/c=
-=r8i7
------END PGP SIGNATURE-----
-
---=-9ZyLQKsRiOkTqgm5n1Vv--
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVBZXpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVBZXpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVBZXpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 18:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVBZXpU
+	id S261298AbVBZXpk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 18:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBZXpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 18:45:20 -0500
-Received: from fire.osdl.org ([65.172.181.4]:54729 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261296AbVBZXpP (ORCPT
+	Sat, 26 Feb 2005 18:45:40 -0500
+Received: from fire.osdl.org ([65.172.181.4]:56777 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261298AbVBZXpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 18:45:15 -0500
-Date: Sat, 26 Feb 2005 15:46:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] partitions/msdos.c
-In-Reply-To: <16929.1350.119511.746325@hertz.ikp.physik.tu-darmstadt.de>
-Message-ID: <Pine.LNX.4.58.0502261543190.25732@ppc970.osdl.org>
-References: <20050226213459.GA21137@apps.cwi.nl>
- <16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de>
- <Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org>
- <Pine.LNX.4.58.0502261433431.25732@ppc970.osdl.org>
- <16929.1350.119511.746325@hertz.ikp.physik.tu-darmstadt.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 26 Feb 2005 18:45:36 -0500
+Date: Sat, 26 Feb 2005 15:45:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias.Kunze@gmx-topmail.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] config option for default loglevel
+Message-Id: <20050226154505.43889139.akpm@osdl.org>
+In-Reply-To: <20050226190556.0def242c.Matthias.Kunze@gmx-topmail.de>
+References: <20050226190556.0def242c.Matthias.Kunze@gmx-topmail.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 27 Feb 2005, Uwe Bonnes wrote:
+Matthias Kunze <Matthias.Kunze@gmx-topmail.de> wrote:
 >
-> /dev/sda4         3512348     6003585   698791990+   0  Empty
-> Partition 4 has different physical/logical beginnings (non-Linux?):
->      phys=(0, 0, 0) logical=(3512347, 6, 16)
-> Partition 4 has different physical/logical endings:
->      phys=(0, 0, 0) logical=(6003584, 7, 6)
-> Partition 4 does not end on cylinder boundary.
+> I've created a little patch to make the default loglevel a configurable
+>  option.
 
-Yeah, your case could check for zero in the physical sector stuff too, but 
-I'm not sure that matters, since nobody really cares about the physical 
-values and they've long been too limited to matter. So I'm not at all 
-convinced that adding a few more checks for zero would be any better than 
-checking the one zero that Andries does.
-
-I think Andries' patch is fine. We should probably do the same for the 
-extended partition case, just to be consistent.
-
-		Linus
+It'd be better to make it a kernel boot option, IMO.  We already have
+`debug' and `quiet' (init/main.c), which are rather silly things.  An
+option to set the initial loglevel would make sense.

@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTJNREn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 13:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbTJNREn
+	id S262674AbTJNRfr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 13:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTJNRfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 13:04:43 -0400
-Received: from mail5.bluewin.ch ([195.186.1.207]:32921 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S262598AbTJNREl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 13:04:41 -0400
-Date: Tue, 14 Oct 2003 19:04:38 +0200
-Message-ID: <3F710B1D00077369@mssbzhh-int.msg.bluewin.ch>
-From: marc.kalberer@bluewin.ch
-Subject: linux 2.6.0-test7 broadcom driver b44
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Bluewin WebMail / BlueMail
-X-Originating-IP: 172.21.1.219
+	Tue, 14 Oct 2003 13:35:47 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:35714 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262674AbTJNRfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 13:35:45 -0400
+Date: Tue, 14 Oct 2003 18:33:49 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310141733.h9EHXnYg002262@81-2-122-30.bradfords.org.uk>
+To: Maciej Zenczykowski <maze@cela.pl>, jlnance@unity.ncsu.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+References: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-After about 30 recompiling of the kernel and svevral research on the net
-I came to the result :
-the Broadcom driver bcm4400 (b44) has a problem
+> On one hand I agree with you - OTOH: why not run an older version of the
+> kernel?
 
-log:
-- Kernel: b44.c:v0.9 (july 2003)
-- link is down 
-- flow control is off for tx and off for rx
+Security issues.  That applies for userspace as well.  Not upgrading,
+or at least disabling the functionality with the security issue is
+irresponsible.
 
-First I wasn't able to do a ifup: it gave me a siocsifflags not implemented
-error,
-but it disapear when I enable the acpi (??? Strange how those 2 things are
-related ??)
+Actually, this is one thing we could do to make Linux systems more
+usable on low spec hardware - fix all the security issues in ancient
+versions of the kernel and popular userspace applications.
 
-Then I tried the patch solution provided by http://twibble.org/dist/bcm4400/
-No better result !
-I used gcc 3.2.2
+> Are kernel versions 2.2 or even 2.0 really not sufficient for such
+> a situation?  It should be noted that newer kernels are adding a whole lot
+> of drivers which aren't much use with old hardware anyway and only a
+> little actual non-driver related stuff (sure it's an oversimplification,
+> but...).  Just like you don't expect to run the latest
+> games/X/mozilla/kde/gnome on old hardware perhaps you shouldn't run the
+> latest kernel... perhaps you should...
 
-I got an other feed back from somebody who installed the 2.4.22, with the
-b44 driver and who get a failure on bringing up the network at boot time
-but ..... network is strangely working correctly !
+No, 2.6 should run on a 4MB 386 with no significant performance
+penalty against 2.0, in my opinion.
 
-I don't know where to find more logs on this specific problem, if you need
-some more info, contact me
+> Sure I would really like to be able to compile a 2.6 for my 
+> firewall (486DX33+40MB-2MB badram) - but is this the way to go?
 
-Marc Kalberer
+Why not?
 
+> As for making the kernel smaller - perhaps a solution would be to code all 
+> strings as error codes and return ERROR#42345 or something instead of the 
+> full messages - there seem to be quite a lot of them.  I don't mean to 
+> suggest this solution for all compilations but perhaps a switch to remove 
+> strings and replace them with ints and then a seperately generated file of 
+> errnum->string. I'd expect that between 10-15% of the uncompressed kernel 
+> is currently pure text.
 
-marc.kalberer@programmers.ch
+I agree, error codes would be nice, but this discussion has come up
+before and I doubt they will ever get in to mainline.
 
+> Perhaps int->string conversion could be done by a loadable module or a 
+> userspace program?
+
+Not really going to help much, in my opinion, it'll just add overhead.
+
+John.

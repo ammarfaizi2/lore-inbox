@@ -1,114 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132853AbRDDRDV>; Wed, 4 Apr 2001 13:03:21 -0400
+	id <S132855AbRDDRDK>; Wed, 4 Apr 2001 13:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132849AbRDDRDK>; Wed, 4 Apr 2001 13:03:10 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:53499 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S132853AbRDDRDD>;
-	Wed, 4 Apr 2001 13:03:03 -0400
-Importance: Normal
-Subject: Re: [Lse-tech] Re: a quest for a better scheduler
+	id <S132849AbRDDRDA>; Wed, 4 Apr 2001 13:03:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:47636 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132856AbRDDRCt>; Wed, 4 Apr 2001 13:02:49 -0400
+Date: Wed, 4 Apr 2001 19:00:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: Kanoj Sarcar <kanoj@google.engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org (Linux Kernel List),
+Cc: mingo@elte.hu, Hubertus Franke <frankeh@us.ibm.com>,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Fabio Riccardi <fabio@chromium.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
         lse-tech@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF5E9EE337.4E94D8F7-ON85256A24.005D15F8@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Wed, 4 Apr 2001 13:03:32 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.7 |March 21, 2001) at
- 04/04/2001 01:02:12 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Subject: Re: [Lse-tech] Re: a quest for a better scheduler
+Message-ID: <20010404190043.N20911@athlon.random>
+In-Reply-To: <Pine.LNX.4.30.0104041527190.5382-100000@elte.hu> <200104041639.JAA78761@google.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200104041639.JAA78761@google.engr.sgi.com>; from kanoj@google.engr.sgi.com on Wed, Apr 04, 2001 at 09:39:23AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 04, 2001 at 09:39:23AM -0700, Kanoj Sarcar wrote:
+> example, for NUMA, we need to try hard to schedule a thread on the 
+> node that has most of its memory (for no reason other than to decrease
+> memory latency). Independently, some NUMA machines build in multilevel 
+> caches and local snoops that also means that specific processors on
+> the same node as the last_processor are also good candidates to run 
+> the process next.
 
+yes. That will probably need to be optional and choosen by the architecture
+at compile time too. The probably most important factor to consider is the
+penality of accessing remote memory, I think I can say on all recent and future
+machines with a small difference between local and remote memory (and possibly
+as you say with a decent cache protocol able to snoop cacheline data from the
+other cpus even if they're not dirty) it's much better to always try to keep
+the task in its last node. My patch is actually assuming recent machines and it
+keeps the task in its last node if not in the last cpu and it keeps doing
+memory allocation from there and it forgets about its original node where it
+started allocating the memory from.  This provided the best performance during
+userspace CPU bound load as far I can tell and it also better distribute the load.
 
-Kanoj, our cpu-pooling + loadbalancing allows you to do that.
-The system adminstrator can specify at runtime through a
-/proc filesystem interface the cpu-pool-size, whether loadbalacing
-should take place.
-We can put limiting to the local cpu-set during reschedule_idle
-back into the code, to make it complete and compatible with
-the approach that Andrea has taken.
-This way, one can fully isolate or combine cpu-sets.
+Kanoj could you also have a look at the NUMA related common code MM fixes I did
+in this patch? I'd like to get them integrated (just skip the arch/alpha/*
+include/asm-alpha/* stuff while reading the patch, they're totally orthogonal).
 
-here is the code for the pooling.
-http://lse.sourceforge.net/scheduling/LB/2.4.1-MQpool
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.3aa1/00_alpha-numa-1
 
-loadbalancing and /proc system combined in this module.
-http://lse.sourceforge.net/scheduling/LB/loadbalance.c
+If you prefer I can extract them in a more finegrinded patch just dropping
+the alpha stuff by hand.
 
-a writeup explaining this concept is available under
-http://lse.sourceforge.net/scheduling/LB/poolMQ.html
-
-Prerequisite is the MQ scheduler...
-http://lse.sourceforge.net/scheduling/2.4.1.mq1-sched
-
-We need to update these for 2.4.3 .... (coming)
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-
-
-
-Kanoj Sarcar <kanoj@google.engr.sgi.com>@lists.sourceforge.net on
-04/04/2001 12:50:58 PM
-
-Sent by:  lse-tech-admin@lists.sourceforge.net
-
-
-To:   andrea@suse.de (Andrea Arcangeli)
-cc:   mingo@elte.hu (Ingo Molnar), Hubertus Franke/Watson/IBM@IBMUS,
-      mkravetz@sequent.com (Mike Kravetz), fabio@chromium.com (Fabio
-      Riccardi), linux-kernel@vger.kernel.org (Linux Kernel List),
-      lse-tech@lists.sourceforge.net
-Subject:  Re: [Lse-tech] Re: a quest for a better scheduler
-
-
-
->
-> I didn't seen anything from Kanoj but I did something myself for the
-wildfire:
->
->
-ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.3aa1/10_numa-sched-1
-
->
-> this is mostly an userspace issue, not really intended as a kernel
-optimization
-> (however it's also partly a kernel optimization). Basically it splits the
-load
-> of the numa machine into per-node load, there can be unbalanced load
-across the
-> nodes but fairness is guaranteed inside each node. It's not extremely
-well
-> tested but benchmarks were ok and it is at least certainly stable.
->
-
-Just a quick comment. Andrea, unless your machine has some hardware
-that imply pernode runqueues will help (nodelevel caches etc), I fail
-to understand how this is helping you ... here's a simple theory though.
-If your system is lightly loaded, your pernode queues are actually
-implementing some sort of affinity, making sure processes stick to
-cpus on nodes where they have allocated most of their memory on. I am
-not sure what the situation will be under huge loads though.
-
-As I have mentioned to some people before, percpu/pernode/percpuset/global
-runqueues probably all have their advantages and disadvantages, and their
-own sweet spots. Wouldn't it be really neat if a system administrator
-or performance expert could pick and choose what scheduler behavior he
-wants, based on how the system is going to be used?
-
-Kanoj
-
-_______________________________________________
-Lse-tech mailing list
-Lse-tech@lists.sourceforge.net
-http://lists.sourceforge.net/lists/listinfo/lse-tech
-
-
-
+Andrea

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbVDBAIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262975AbVDBAvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262815AbVDBAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVDBAGM
+	id S262975AbVDBAvm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbVDBAFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:06:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262941AbVDAXsP convert rfc822-to-8bit
+	Fri, 1 Apr 2005 19:05:20 -0500
+Received: from mail.kroah.org ([69.55.234.183]:31964 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262934AbVDAXsO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:15 -0500
-Cc: gregkh@suse.de
-Subject: PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed.
-In-Reply-To: <11123992702166@kroah.com>
+	Fri, 1 Apr 2005 18:48:14 -0500
+Cc: akpm@osdl.org
+Subject: [PATCH] arch/i386/pci/i386.c: Use new for_each_pci_dev macro
+In-Reply-To: <11123992722697@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:50 -0800
-Message-Id: <11123992703458@kroah.com>
+Date: Fri, 1 Apr 2005 15:47:52 -0800
+Message-Id: <111239927248@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,41 +24,52 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.7, 2005/03/17 10:30:46-08:00, gregkh@suse.de
+ChangeSet 1.2181.16.16, 2005/03/17 14:50:04-08:00, akpm@osdl.org
 
-PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed.
+[PATCH] arch/i386/pci/i386.c: Use new for_each_pci_dev macro
 
-As reported by Prarit Bhargava <prarit@sgi.com>
+From: Domen Puncer <domen@coderock.org>
 
+As requested by Christoph Hellwig I created a new macro called
+for_each_pci_dev.  It is a wrapper for this common use of
+pci_get/find_device:
+
+(while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL))
+
+This macro will return the pci_dev *for all pci devices.  Here is the first
+patch I used to test this macro with.  Compiled and booted on my T23.
+There will be 53 more patches using this new macro.
+
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/pci/remove.c |    2 +-
- kernel/resource.c    |    1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/i386/pci/i386.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
---- a/drivers/pci/remove.c	2005-04-01 15:37:58 -08:00
-+++ b/drivers/pci/remove.c	2005-04-01 15:37:58 -08:00
-@@ -19,7 +19,7 @@
- 	pci_cleanup_rom(dev);
- 	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
- 		struct resource *res = dev->resource + i;
--		if (res->parent)
-+		if (res && res->parent)
- 			release_resource(res);
- 	}
- }
-diff -Nru a/kernel/resource.c b/kernel/resource.c
---- a/kernel/resource.c	2005-04-01 15:37:58 -08:00
-+++ b/kernel/resource.c	2005-04-01 15:37:58 -08:00
-@@ -505,6 +505,7 @@
- 			*p = res->sibling;
- 			write_unlock(&resource_lock);
- 			kfree(res);
-+			res = NULL;
- 			return;
- 		}
- 		p = &res->sibling;
+diff -Nru a/arch/i386/pci/i386.c b/arch/i386/pci/i386.c
+--- a/arch/i386/pci/i386.c	2005-04-01 15:34:37 -08:00
++++ b/arch/i386/pci/i386.c	2005-04-01 15:34:37 -08:00
+@@ -124,7 +124,7 @@
+ 	u16 command;
+ 	struct resource *r, *pr;
+ 
+-	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		pci_read_config_word(dev, PCI_COMMAND, &command);
+ 		for(idx = 0; idx < 6; idx++) {
+ 			r = &dev->resource[idx];
+@@ -168,7 +168,7 @@
+ 	int idx;
+ 	struct resource *r;
+ 
+-	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		int class = dev->class >> 8;
+ 
+ 		/* Don't touch classless devices and host bridges */
 

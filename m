@@ -1,124 +1,445 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSJPURT>; Wed, 16 Oct 2002 16:17:19 -0400
+	id <S261381AbSJPU0J>; Wed, 16 Oct 2002 16:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261366AbSJPURT>; Wed, 16 Oct 2002 16:17:19 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:11415 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261365AbSJPURR>; Wed, 16 Oct 2002 16:17:17 -0400
-Date: Wed, 16 Oct 2002 13:22:55 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Adam Radford <aradford@3WARE.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
-Subject: Re: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after SHT-> release()
-Message-ID: <20021016132255.A4170@eng2.beaverton.ibm.com>
-Mail-Followup-To: Adam Radford <aradford@3WARE.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'torvalds@transmeta.com'" <torvalds@transmeta.com>
-References: <A1964EDB64C8094DA12D2271C04B812672C79B@tabby>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <A1964EDB64C8094DA12D2271C04B812672C79B@tabby>; from aradford@3WARE.com on Wed, Oct 16, 2002 at 12:41:14PM -0700
+	id <S261384AbSJPU0J>; Wed, 16 Oct 2002 16:26:09 -0400
+Received: from ns.suse.de ([213.95.15.193]:35853 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261381AbSJPU0D>;
+	Wed, 16 Oct 2002 16:26:03 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Andrew Morton <akpm@digeo.com>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: [PATCH] linux-2.5.43-mm1: Further xattr/acl cleanups
+Date: Wed, 16 Oct 2002 22:32:00 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <E181a3S-0006Nq-00@snap.thunk.org> <200210161336.27935.agruen@suse.de> <3DAD8D5E.31E177BA@digeo.com>
+In-Reply-To: <3DAD8D5E.31E177BA@digeo.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_C1D3XOUOTFMP2AKE0BP7"
+Message-Id: <200210162232.00441.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16, 2002 at 12:41:14PM -0700, Adam Radford wrote:
-> I think sd_synchronize_cache() is getting called after SHT->release()
-> function,
-> which couldn't possibly be right.  This causes adaptec, 3ware, etc, to
-> segfault
-> on rmmod.
-> 
-> See below for adaptec segfault output:
-> 
-> aic7xxx
-> CPU:    1
-> EIP:    0060:[<c025918b>]    Not tainted
-> EFLAGS: 00010202
-> EIP is at put_device+0x7b/0xa0
-> eax: 00000000   ebx: c8997028   ecx: 00000001   edx: c0465470
-> esi: c12f4174   edi: c8997000   ebp: 00000000   esp: c5b81ee4
-> ds: 0068   es: 0068   ss: 0068
-> Process rmmod (pid: 1085, threadinfo=c5b80000 task=c5d4a800)
-> Stack: c8997028 c0481e20 c02d0f3a c8997028 c8997028 c0481f3c c8997028
-> c0481f4c
->        00000000 c66fe1e8 00000286 c798aa00 c0481e20 c12f4000 c13b5000
-> c02be9aa
->        c12f4000 c5b81f30 00000002 00030002 00000002 08072009 c042399f
-> 08071fff
-> Call Trace:
->  [<c02d0f3a>] sg_detach+0x20a/0x240
->  [<c02be9aa>] scsi_unregister_host+0x26a/0x5f0
->  [<c01418d8>] __alloc_pages+0x88/0x270
->  [<c892f12a>] exit_this_scsi_driver+0xa/0xc [aic7xxx]
->  [<c893a740>] driver_template+0x0/0x70 [aic7xxx]
->  [<c012029e>] free_module+0x1e/0x140
->  [<c011f3db>] sys_delete_module+0x1db/0x4c0
->  [<c010787f>] syscall_call+0x7/0xb
-> 
-> Code: 0f 0b 0d 01 86 69 3d c0 8b 83 d4 00 00 00 85 c0 74 04 53 ff
 
-Are you sure it is not a BUG? This looks just like what Badari reported
-yesterday:
+--------------Boundary-00=_C1D3XOUOTFMP2AKE0BP7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-kernel BUG at drivers/base/core.c:251!
-invalid operand: 0000
-qla2200
-CPU:    0
-EIP:    0060:[<c023eb24>]    Not tainted
-EFLAGS: 00010202
-EIP is at put_device+0x64/0x90
-eax: 00000000   ebx: f8a08028   ecx: f8a080c4   edx: 00000001
-esi: c3aded54   edi: f8a08000   ebp: 00000003   esp: cb007ee4
-ds: 0068   es: 0068   ss: 0068
-Process rmmod (pid: 4803, threadinfo=cb006000 task=f62c98c0)
-Stack: f8a08028 c0477a40 c02ce533 f8a08028 f8a08028 c0477b5c f8a08028 c0477b6c
-       00000000 40153f6d 00000286 f68fc000 c0477a40 c3adec00 f4df0000 c02a7a9a
-       c3adec00 cb007f30 00000002 00030002 00000001 08071002 c041685c 08070ffd  
-Call Trace:
- [<c02ce533>] sg_detach+0x1e3/0x210
- [<c02a7a9a>] scsi_unregister_host+0x26a/0x5d0
- [<c01f4736>] __generic_copy_to_user+0x56/0x80
- [<c013e4e8>] __alloc_pages+0x98/0x270
- [<f89e7cba>] exit_this_scsi_driver+0xa/0x10 [qla2200]
- [<f8a00360>] driver_template+0x0/0x74 [qla2200]
- [<c011ea0e>] free_module+0x1e/0x130
- [<c011dc94>] sys_delete_module+0x1b4/0x410
- [<c01075e3>] syscall_call+0x7/0xb
+This is against=20
+<http://www.zipworld.com.au/~akpm/linux/patches/2.5/2.5.43/2.5.43-mm1/>.=20
+Please look inside for comments. Seems to work pretty well; it has alread=
+y=20
+passed my basic test suite.
 
-I posted a patch to change the put_device() calls to device_unregister(),
-st.c got fixed in 2.5.43, these are still not fixed in 2.5.43:
+--Andreas.
 
---- linux-2.5.43/drivers/scsi/scsi.c	Tue Oct 15 20:28:22 2002
-+++ linux-2.5.43-unreg/drivers/scsi/scsi.c	Wed Oct 16 12:50:08 2002
-@@ -2248,7 +2248,7 @@
- 			if (shpnt->hostt->slave_detach)
- 				(*shpnt->hostt->slave_detach) (SDpnt);
- 			devfs_unregister (SDpnt->de);
--			put_device(&SDpnt->sdev_driverfs_dev);
-+			device_unregister(&SDpnt->sdev_driverfs_dev);
- 		}
- 	}
+--------------Boundary-00=_C1D3XOUOTFMP2AKE0BP7
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="mm1-incr1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="mm1-incr1.diff"
+
+Changes:
+
+* Minimize the calls to mark_inode_dirty() and ext3_mark_inode_dirty()
+  by removing extra calls from ext[23]_init_acl()
+* ext3_acl_chmod() cleanup: Don't pass in transaction handle anymore
+* Remove 2.4 locking leftover in fs/ext3/inode.c:ext3_setattr()
+* Remove the [gs]et_posix_acl inode operations
+
+diff -Nur linux-2.5.43-mm1/fs/ext2/acl.c linux-2.5.43-mm1+/fs/ext2/acl.c
+--- linux-2.5.43-mm1/fs/ext2/acl.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext2/acl.c	2002-10-16 20:19:09.000000000 +0200
+@@ -124,13 +124,7 @@
+ 	return ERR_PTR(-EINVAL);
+ }
  
-@@ -2299,7 +2299,7 @@
- 		/* Remove the /proc/scsi directory entry */
- 		sprintf(name,"%d",shpnt->host_no);
- 		remove_proc_entry(name, tpnt->proc_dir);
--		put_device(&shpnt->host_driverfs_dev);
-+		device_unregister(&shpnt->host_driverfs_dev);
- 		if (tpnt->release)
- 			(*tpnt->release) (shpnt);
- 		else {
---- linux-2.5.43/drivers/scsi/sg.c	Tue Oct 15 20:27:57 2002
-+++ linux-2.5.43-unreg/drivers/scsi/sg.c	Wed Oct 16 12:50:25 2002
-@@ -1611,7 +1611,7 @@
- 		sdp->de = NULL;
- 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_type);
- 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_kdev);
--		put_device(&sdp->sg_driverfs_dev);
-+		device_unregister(&sdp->sg_driverfs_dev);
- 		if (NULL == sdp->headfp)
- 			vfree((char *) sdp);
+-/*
+- * Inode operation get_posix_acl().
+- *
+- * inode->i_sem: down
+- * BKL held [before 2.5.x]
+- */
+-struct posix_acl *
++static struct posix_acl *
+ ext2_get_acl(struct inode *inode, int type)
+ {
+ 	int name_index;
+@@ -177,13 +171,7 @@
+ 	return acl;
+ }
+ 
+-/*
+- * Inode operation set_posix_acl().
+- *
+- * inode->i_sem: down
+- * BKL held [before 2.5.x]
+- */
+-int
++static int
+ ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
+ {
+ 	int name_index;
+@@ -348,10 +336,8 @@
+ 			if (IS_ERR(acl))
+ 				return PTR_ERR(acl);
+ 		}
+-		if (!acl) {
++		if (!acl)
+ 			inode->i_mode &= ~current->fs->umask;
+-			mark_inode_dirty(inode);
+-		}
  	}
+ 	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
+                struct posix_acl *clone;
+@@ -370,7 +356,6 @@
+ 		error = posix_acl_create_masq(clone, &mode);
+ 		if (error >= 0) {
+ 			inode->i_mode = mode;
+-			mark_inode_dirty(inode);
+ 			if (error > 0) {
+ 				/* This is an extended ACL */
+ 				error = ext2_set_acl(inode,
+diff -Nur linux-2.5.43-mm1/fs/ext2/acl.h linux-2.5.43-mm1+/fs/ext2/acl.h
+--- linux-2.5.43-mm1/fs/ext2/acl.h	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext2/acl.h	2002-10-16 20:25:05.000000000 +0200
+@@ -62,8 +62,6 @@
+ /* acl.c */
+ extern int ext2_permission (struct inode *, int);
+ extern int ext2_permission_locked (struct inode *, int);
+-extern struct posix_acl *ext2_get_acl (struct inode *, int);
+-extern int ext2_set_acl (struct inode *, int, struct posix_acl *);
+ extern int ext2_acl_chmod (struct inode *);
+ extern int ext2_init_acl (struct inode *, struct inode *);
+ 
+@@ -73,8 +71,6 @@
+ #else
+ #include <linux/sched.h>
+ #define ext2_permission NULL
+-#define ext2_get_acl	NULL
+-#define ext2_set_acl	NULL
+ 
+ static inline int
+ ext2_acl_chmod (struct inode *inode)
+diff -Nur linux-2.5.43-mm1/fs/ext2/file.c linux-2.5.43-mm1+/fs/ext2/file.c
+--- linux-2.5.43-mm1/fs/ext2/file.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext2/file.c	2002-10-16 20:20:05.000000000 +0200
+@@ -63,6 +63,4 @@
+ 	.removexattr	= ext2_removexattr,
+ 	.setattr	= ext2_setattr,
+ 	.permission	= ext2_permission,
+-	.get_posix_acl	= ext2_get_acl,
+-	.set_posix_acl	= ext2_set_acl,
+ };
+diff -Nur linux-2.5.43-mm1/fs/ext2/namei.c linux-2.5.43-mm1+/fs/ext2/namei.c
+--- linux-2.5.43-mm1/fs/ext2/namei.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext2/namei.c	2002-10-16 20:20:00.000000000 +0200
+@@ -379,8 +379,6 @@
+ 	.removexattr	= ext2_removexattr,
+ 	.setattr	= ext2_setattr,
+ 	.permission	= ext2_permission,
+-	.get_posix_acl	= ext2_get_acl,
+-	.set_posix_acl	= ext2_set_acl,
+ };
+ 
+ struct inode_operations ext2_special_inode_operations = {
+@@ -390,6 +388,4 @@
+ 	.removexattr	= ext2_removexattr,
+ 	.setattr	= ext2_setattr,
+ 	.permission	= ext2_permission,
+-	.get_posix_acl	= ext2_get_acl,
+-	.set_posix_acl	= ext2_set_acl,
+ };
+diff -Nur linux-2.5.43-mm1/fs/ext3/acl.c linux-2.5.43-mm1+/fs/ext3/acl.c
+--- linux-2.5.43-mm1/fs/ext3/acl.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext3/acl.c	2002-10-16 20:40:32.000000000 +0200
+@@ -125,12 +125,7 @@
+ 	return ERR_PTR(-EINVAL);
+ }
+ 
+-/*
+- * Inode operation get_posix_acl().
+- *
+- * inode->i_sem: down
+- */
+-struct posix_acl *
++static struct posix_acl *
+ ext3_get_acl(struct inode *inode, int type)
+ {
+ 	int name_index;
+@@ -183,7 +178,7 @@
+  * inode->i_sem: down unless called from ext3_new_inode
+  */
+ static int
+-ext3_do_set_acl(handle_t *handle, struct inode *inode, int type,
++ext3_set_acl(handle_t *handle, struct inode *inode, int type,
+ 		struct posix_acl *acl)
+ {
+ 	int name_index;
+@@ -243,30 +238,6 @@
+ 	return error;
+ }
+ 
+-/*
+- * Inode operation set_posix_acl().
+- *
+- * inode->i_sem: down
+- */
+-
+-int
+-ext3_set_acl(struct inode *inode, int type, struct posix_acl *acl)
+-{
+-	handle_t *handle;
+-	int error;
+-	
+-	if (!test_opt(inode->i_sb, POSIX_ACL))
+-		return 0;
+-
+-	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
+-	if (IS_ERR(handle))
+-		return PTR_ERR(handle);
+-	error = ext3_do_set_acl(handle, inode, type, acl);
+-	ext3_journal_stop(handle, inode);
+-
+-	return error;
+-}
+-
+ static int
+ __ext3_permission(struct inode *inode, int mask, int lock)
+ {
+@@ -368,18 +339,16 @@
+ 			if (IS_ERR(acl))
+ 				return PTR_ERR(acl);
+ 		}
+-		if (!acl) {
++		if (!acl)
+ 			inode->i_mode &= ~current->fs->umask;
+-			ext3_mark_inode_dirty(handle, inode);
+-		}
+ 	}
+ 	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
+ 		struct posix_acl *clone;
+ 		mode_t mode;
+ 
+ 		if (S_ISDIR(inode->i_mode)) {
+-			error = ext3_do_set_acl(handle, inode,
+-						ACL_TYPE_DEFAULT, acl);
++			error = ext3_set_acl(handle, inode,
++					     ACL_TYPE_DEFAULT, acl);
+ 			if (error)
+ 				goto cleanup;
+ 		}
+@@ -392,11 +361,10 @@
+ 		error = posix_acl_create_masq(clone, &mode);
+ 		if (error >= 0) {
+ 			inode->i_mode = mode;
+-			ext3_mark_inode_dirty(handle, inode);
+ 			if (error > 0) {
+ 				/* This is an extended ACL */
+-				error = ext3_do_set_acl(handle, inode,
+-							ACL_TYPE_ACCESS, clone);
++				error = ext3_set_acl(handle, inode,
++						     ACL_TYPE_ACCESS, clone);
+ 			}
+ 		}
+ 		posix_acl_release(clone);
+@@ -421,7 +389,7 @@
+  * inode->i_sem: down
+  */
+ int
+-ext3_acl_chmod(handle_t *handle, struct inode *inode)
++ext3_acl_chmod(struct inode *inode)
+ {
+ 	struct posix_acl *acl, *clone;
+         int error;
+@@ -438,8 +406,17 @@
+ 	if (!clone)
+ 		return -ENOMEM;
+ 	error = posix_acl_chmod_masq(clone, inode->i_mode);
+-	if (!error)
+-		error = ext3_do_set_acl(handle, inode, ACL_TYPE_ACCESS, clone);
++	if (!error) {
++		handle_t *handle;
++		
++		handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
++		if (IS_ERR(handle)) {
++			ext3_std_error(inode->i_sb, error);
++			return PTR_ERR(handle);
++		}
++		error = ext3_set_acl(handle, inode, ACL_TYPE_ACCESS, clone);
++		ext3_journal_stop(handle, inode);
++	}
+ 	posix_acl_release(clone);
+ 	return error;
+ }
+@@ -538,7 +515,7 @@
+ 	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
+ 	if (IS_ERR(handle))
+ 		return PTR_ERR(handle);
+-	error = ext3_do_set_acl(handle, inode, type, acl);
++	error = ext3_set_acl(handle, inode, type, acl);
+ 	ext3_journal_stop(handle, inode);
+ 
+ release_and_out:
+diff -Nur linux-2.5.43-mm1/fs/ext3/acl.h linux-2.5.43-mm1+/fs/ext3/acl.h
+--- linux-2.5.43-mm1/fs/ext3/acl.h	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext3/acl.h	2002-10-16 20:24:43.000000000 +0200
+@@ -62,12 +62,8 @@
+ /* acl.c */
+ extern int ext3_permission (struct inode *, int);
+ extern int ext3_permission_locked (struct inode *, int);
+-extern struct posix_acl *ext3_get_acl (struct inode *, int);
+-extern int ext3_set_acl (struct inode *, int, struct posix_acl *);
+-extern int ext3_acl_chmod (handle_t *, struct inode *);
++extern int ext3_acl_chmod (struct inode *);
+ extern int ext3_init_acl (handle_t *, struct inode *, struct inode *);
+-extern int ext3_get_acl_xattr (struct inode *, int, void *, size_t);
+-extern int ext3_set_acl_xattr (struct inode *, int, void *, size_t);
+ 
+ extern int init_ext3_acl(void);
+ extern void exit_ext3_acl(void);
+@@ -75,11 +71,9 @@
+ #else  /* CONFIG_EXT3_FS_POSIX_ACL */
+ #include <linux/sched.h>
+ #define ext3_permission NULL
+-#define ext3_get_acl	NULL
+-#define ext3_set_acl	NULL
+ 
+ static inline int
+-ext3_acl_chmod(handle_t *handle, struct inode *inode)
++ext3_acl_chmod(struct inode *inode)
+ {
+ 	return 0;
+ }
+diff -Nur linux-2.5.43-mm1/fs/ext3/file.c linux-2.5.43-mm1+/fs/ext3/file.c
+--- linux-2.5.43-mm1/fs/ext3/file.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext3/file.c	2002-10-16 20:20:47.000000000 +0200
+@@ -104,7 +104,5 @@
+ 	.listxattr	= ext3_listxattr,
+ 	.removexattr	= ext3_removexattr,
+ 	.permission	= ext3_permission,
+-	.get_posix_acl	= ext3_get_acl,
+-	.set_posix_acl	= ext3_set_acl,
+ };
+ 
+diff -Nur linux-2.5.43-mm1/fs/ext3/inode.c linux-2.5.43-mm1+/fs/ext3/inode.c
+--- linux-2.5.43-mm1/fs/ext3/inode.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext3/inode.c	2002-10-16 20:06:13.000000000 +0200
+@@ -2559,23 +2559,8 @@
+ 	if (S_ISREG(inode->i_mode) && inode->i_nlink)
+ 		ext3_orphan_del(NULL, inode);
+ 
+-#ifdef CONFIG_EXT3_FS_POSIX_ACL
+-	if (!rc && test_opt(inode->i_sb, POSIX_ACL) && (ia_valid & ATTR_MODE)) {
+-		handle_t *handle;
+-
+-		handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
+-		if (IS_ERR(handle)) {
+-			error = PTR_ERR(handle);
+-			goto err_out;
+-		}
+-		if (!(ia_valid & ATTR_SIZE))
+-			down(&inode->i_sem);
+-		rc = ext3_acl_chmod(handle, inode);
+-		if (!(ia_valid & ATTR_SIZE))
+-			up(&inode->i_sem);
+-		ext3_journal_stop(handle, inode);
+-	}
+-#endif
++	if (!rc && (ia_valid & ATTR_MODE))
++		rc = ext3_acl_chmod(inode);
+ 
+ err_out:
+ 	ext3_std_error(inode->i_sb, error);
+diff -Nur linux-2.5.43-mm1/fs/ext3/namei.c linux-2.5.43-mm1+/fs/ext3/namei.c
+--- linux-2.5.43-mm1/fs/ext3/namei.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/ext3/namei.c	2002-10-16 20:20:42.000000000 +0200
+@@ -2290,8 +2290,6 @@
+ 	.listxattr	= ext3_listxattr,	
+ 	.removexattr	= ext3_removexattr,
+ 	.permission	= ext3_permission,
+-	.get_posix_acl	= ext3_get_acl,
+-	.set_posix_acl	= ext3_set_acl,
+ };
+ 
+ struct inode_operations ext3_special_inode_operations = {
+@@ -2301,8 +2299,6 @@
+ 	.listxattr	= ext3_listxattr,
+ 	.removexattr	= ext3_removexattr,
+ 	.permission	= ext3_permission,
+-	.get_posix_acl	= ext3_get_acl,
+-	.set_posix_acl	= ext3_set_acl,
+ };
+ 
+  
+diff -Nur linux-2.5.43-mm1/fs/posix_acl.c linux-2.5.43-mm1+/fs/posix_acl.c
+--- linux-2.5.43-mm1/fs/posix_acl.c	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/fs/posix_acl.c	2002-10-16 20:38:47.000000000 +0200
+@@ -410,37 +410,3 @@
+ 
+ 	return 0;
+ }
+-
+-/*
+- * Get the POSIX ACL of an inode.
+- */
+-struct posix_acl *
+-get_posix_acl(struct inode *inode, int type)
+-{
+-	struct posix_acl *acl;
+-
+-	if (!inode->i_op->get_posix_acl)
+-		return ERR_PTR(-EOPNOTSUPP);
+-	down(&inode->i_sem);
+-	acl = inode->i_op->get_posix_acl(inode, type);
+-	up(&inode->i_sem);
+-
+-	return acl;
+-}
+-
+-/*
+- * Set the POSIX ACL of an inode.
+- */
+-int
+-set_posix_acl(struct inode *inode, int type, struct posix_acl *acl)
+-{
+-	int error;
+-
+-	if (!inode->i_op->set_posix_acl)
+-		return -EOPNOTSUPP;
+-	down(&inode->i_sem);
+-	error = inode->i_op->set_posix_acl(inode, type, acl);
+-	up(&inode->i_sem);
+-
+-	return error;
+-}
+diff -Nur linux-2.5.43-mm1/include/linux/fs.h linux-2.5.43-mm1+/include/linux/fs.h
+--- linux-2.5.43-mm1/include/linux/fs.h	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/include/linux/fs.h	2002-10-16 20:20:27.000000000 +0200
+@@ -792,8 +792,6 @@
+ 	ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
+ 	ssize_t (*listxattr) (struct dentry *, char *, size_t);
+ 	int (*removexattr) (struct dentry *, const char *);
+-	struct posix_acl *(*get_posix_acl) (struct inode *, int);
+-	int (*set_posix_acl) (struct inode *, int, struct posix_acl *);
+ };
+ 
+ struct seq_file;
+diff -Nur linux-2.5.43-mm1/include/linux/posix_acl.h linux-2.5.43-mm1+/include/linux/posix_acl.h
+--- linux-2.5.43-mm1/include/linux/posix_acl.h	2002-10-16 19:15:56.000000000 +0200
++++ linux-2.5.43-mm1+/include/linux/posix_acl.h	2002-10-16 20:38:38.000000000 +0200
+@@ -81,7 +81,4 @@
+ extern int posix_acl_chmod_masq(struct posix_acl *, mode_t);
+ extern int posix_acl_masq_nfs_mode(struct posix_acl *, mode_t *);
+ 
+-extern struct posix_acl *get_posix_acl(struct inode *, int);
+-extern int set_posix_acl(struct inode *, int, struct posix_acl *);
+-
+ #endif  /* __LINUX_POSIX_ACL_H */
+
+--------------Boundary-00=_C1D3XOUOTFMP2AKE0BP7--
+

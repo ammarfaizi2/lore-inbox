@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270774AbTHJXAm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 19:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270800AbTHJXAm
+	id S270759AbTHJXOS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 19:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTHJXOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 19:00:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53416 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270774AbTHJXAl
+	Sun, 10 Aug 2003 19:14:17 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:28589 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S270759AbTHJXOQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 19:00:41 -0400
-Message-ID: <3F36CE8D.8090201@pobox.com>
-Date: Sun, 10 Aug 2003 19:00:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Sun, 10 Aug 2003 19:14:16 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3 vs acpi
+Date: Sun, 10 Aug 2003 19:14:15 -0400
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ranty@debian.org, linux-kernel@vger.kernel.org, willy@debian.org
-Subject: Re: [PATCH] [2.6.0-test3] request_firmware related problems.
-References: <20030810210646.GA6746@ranty.pantax.net> <20030810142928.4b734e8d.akpm@osdl.org> <3F36CD93.4010704@pobox.com>
-In-Reply-To: <3F36CD93.4010704@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308101914.15673.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.63.55] at Sun, 10 Aug 2003 18:14:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> So, in terms of concrete suggestions:
-> 
-> 1) if schedule_work is called and no kevent thread is available, create 
-> a new one
-> 2) ponder perhaps an implementation that would use generic keventd until 
-> a certain load is reached; then, create per-cpu kernel threads just like 
-> private workqueue creation occurs now.  i.e. switch from shared 
-> (keventd) to private at runtime.
+Greetings;
 
+I turned off the acpi stuffs now and it boots, including with the 
+advansys driver built in.  Someone asked me to check 
+/proc/interrupts, which gave me a clue that I should enable an ESCD 
+update in the bios.  This moved some interrupts around and it seems 
+all is well, I'm running it, with X, on my gforce2 card right now.
 
-3) offer private workqueue interface like we have now -- but one thread 
-only, not NN threads
+However, this has the side effect of disabling a 'shutdown -h now' 
+which only reboots the machine instead of doing the shutdown.
+
+Also, my oss-install for 3.9.7k fails so I have no sound, not even a 
+console beep.  On going to www.opensound.com, I do not find a 2.6.x 
+compatible version.
+
+Where is the info to make alsa work (it didn't work with this chipset 
+a year ago) now?
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

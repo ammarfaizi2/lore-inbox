@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbUDLOdA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 10:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUDLOc7
+	id S262916AbUDLO0j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 10:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUDLOVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 10:32:59 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:59090 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262981AbUDLOcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 10:32:13 -0400
-Message-ID: <407AA848.2000008@nortelnetworks.com>
-Date: Mon, 12 Apr 2004 10:31:36 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Mon, 12 Apr 2004 10:21:01 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:47510 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262924AbUDLOTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 10:19:18 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Device-Mapper 7/9
+Date: Mon, 12 Apr 2004 09:19:07 -0500
+User-Agent: KMail/1.6
+References: <200404120912.45870.kevcorry@us.ibm.com>
+In-Reply-To: <200404120912.45870.kevcorry@us.ibm.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: want to clarify powerpc assembly conventions in head.S	and	entry.S
-References: <4077A542.8030108@nortelnetworks.com>	 <1081591559.25144.174.camel@gaston>  <4078D42C.1020608@nortelnetworks.com> <1081661150.1380.183.camel@gaston>
-In-Reply-To: <1081661150.1380.183.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404120919.07648.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>You knew this was coming...  What's special about syscalls?  There's the 
->>r3 thing, but other than that...
-> 
-> The whole codepath is a bit different, there's the syscall trace,
-> we can avoid saving much more registers are syscalls are function
-> calls and so can clobber the non volatiles, etc...
+Clarify the comment regarding the "next" field in struct dm_target_spec. The
+"next" field has different behavior if you're performing a DM_TABLE_STATUS
+command than it does if you're performing a DM_TABLE_LOAD command.
 
-It appears that we always enter the kernel via "transfer_to_handler", 
-and return via "ret_from_except".  Is this true? (I'm running on at 
-least a 74xx chip.)
+See populate_table() and retrieve_status() in drivers/md/dm-ioctl.c for more
+details on how this field is used.
 
-I want to insert two new bits of code, one that gets called before the 
-exception handler when we drop from userspace to kernelspace, and one as 
-late as possible before going back to userspace.  I need to catch 
-syscalls, interrupts, exceptions, everything.
-
-The entry one I planned on putting in "transfer_to_handler", just before 
-"addi   r11,r1,STACK_FRAME_OVERHEAD".
-
-I was planning on putting the exit one just after the "restore_user" 
-label.  Will this catch all possible returns to userspace?
-
-Thanks,
-
-Chris
+--- diff/include/linux/dm-ioctl.h	2004-04-09 09:41:45.000000000 -0500
++++ source/include/linux/dm-ioctl.h	2004-04-09 09:42:36.000000000 -0500
+@@ -129,8 +129,14 @@
+ 	int32_t status;		/* used when reading from kernel only */
+ 
+ 	/*
+-	 * Offset in bytes (from the start of this struct) to
+-	 * next target_spec.
++	 * Location of the next dm_target_spec.
++	 * - When specifying targets on a DM_TABLE_LOAD command, this value is
++	 *   the number of bytes from the start of the "current" dm_target_spec
++	 *   to the start of the "next" dm_target_spec.
++	 * - When retrieving targets on a DM_TABLE_STATUS command, this value
++	 *   is the number of bytes from the start of the first dm_target_spec
++	 *   (that follows the dm_ioctl struct) to the start of the "next"
++	 *   dm_target_spec.
+ 	 */
+ 	uint32_t next;
+ 

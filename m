@@ -1,278 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbRFFIrL>; Wed, 6 Jun 2001 04:47:11 -0400
+	id <S263703AbRFFI6W>; Wed, 6 Jun 2001 04:58:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263494AbRFFIrB>; Wed, 6 Jun 2001 04:47:01 -0400
-Received: from sniip-netline.inet.ntl.ru ([213.247.145.170]:3332 "EHLO
-	gw.sniip.ru") by vger.kernel.org with ESMTP id <S263491AbRFFIqr> convert rfc822-to-8bit;
-	Wed, 6 Jun 2001 04:46:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Info <arling@sniip.ru>
-Date: Wed, 6 Jun 2001 12:49:48 +0400
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01060611353200.01030@sh.lc>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Testing DEC 21041 and 21142 chipsets (tulip): it looks like kernels after 2.4.4 does not work with 21041; and 21142 does not work in 10M net at all
-X-Chameleon-Return-To: Info <arling@sniip.ru>
+	id <S263804AbRFFI6M>; Wed, 6 Jun 2001 04:58:12 -0400
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:50948 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S263703AbRFFI6G>; Wed, 6 Jun 2001 04:58:06 -0400
+Date: Wed, 6 Jun 2001 09:54:31 +0100
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+Message-ID: <20010606095431.C15199@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com> <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com> <3B1D927E.1B2EBE76@uow.edu.au> <20010605231908.A10520@illusionary.com> <991815578.30689.1.camel@nomade>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <991815578.30689.1.camel@nomade>; from xavier.bestel@free.fr on Wed, Jun 06, 2001 at 10:19:30AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are 2 tests.
+On Wed, Jun 06, 2001 at 10:19:30AM +0200, Xavier Bestel wrote:
+> On 05 Jun 2001 23:19:08 -0400, Derek Glidden wrote:
+> > On Wed, Jun 06, 2001 at 12:16:30PM +1000, Andrew Morton wrote:
+> > > "Jeffrey W. Baker" wrote:
+> > > > 
+> > > > Because the 2.4 VM is so broken, and
+> > > > because my machines are frequently deeply swapped,
+> > > 
+> > > The swapoff algorithms in 2.2 and 2.4 are basically identical.
+> > > The problem *appears* worse in 2.4 because it uses lots
+> > > more swap.
+> > 
+> > I disagree with the terminology you're using.  It *is* worse in 2.4,
+> > period.  If it only *appears* worse, then if I encounter a situation
+> > where a 2.2 box has utilized as much swap as a 2.4 box, I should see the
+> > same results.  Yet this happens not to be the case. 
+> 
+> Did you try to put twice as much swap as you have RAM ? (e.g. add a 512M
+> swapfile to your box)
+> This is what Linus recommended for 2.4 (swap = 2 * RAM), saying that
+> anything less won't do any good: 2.4 overallocates swap even if it
+> doesn't use it all. So in your case you just have enough swap to map
+> your RAM, and nothing to really swap your apps.
+> 
 
-TEST 1.
+For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
 
-Both IP and IPX does not work with 2.4.5 kernel on DEC 24041 
-chipset card (CNet 935E).
-
-I compile and try 2.4.5, 2.4.4-ac8-xfs-kdb and 2.4.5-ac8. 
-In all cases system does not see Netware server (NW5.0 sp3) in 
-ipx net and can't operate IP.
-
-In 2.4.4 kernet all is o'k. It's work configuration for me.
-
-I compile all kernels with the same parameters (copy .config 
-from /usr/src/linux-2.4.4 to new /linux, then make oldconfig -> 
-make dep -> make bzImage). All kernels are monolyte 
-(firewall-style) - without module support; all modules I need 
-included into kernel.
-
-Ethernet card type selected when kernel config.
-
-This effect appears in first time when I try 2.4.5-pre3. I take 
-no attention to it that time.
-
-It looks as one of changes after 2.4.4 causes unfunctionability 
-with 21041 DEC chipset. 
-
-
-TEST 2.
-
-After trying 21041 card I decide to try 21142 card (CNet 
-100TX). I didn't use this card, because when I try it in 
-november-december 1999 (on kernels like 2.2.10-12) it 
-demonstrate unstable work with IPX in my 10BASE-T network (CNet 
-CN8816 TPC hub) - tulip uncorrectly recognized 10Base net, and 
-switch card to 100Mbps by his own initiative, so connection 
-loses.
-
-Now 21242 did not work in 10Mbps net at all, in all kernels, 
-both on IP and IPX.
-
-TABLE OF RESULTS
-
-10BASE-T ethernet network
-+++++++++++++++++++++++++++++++++++++++++++
-Kernel                 +   21041           +        21142    +
-+++++++++++++++++++++++++++++++++++++++++++
-early 2.2.x            +    OK              +    unstable     +
-+++++++++++++++++++++++++++++++++++++++++++
-2.4.4                    +    OK              +   unworkable  +
-+++++++++++++++++++++++++++++++++++++++++++
-2.4.4-ac8-xfs-kdb+  unworkable+   unworkable      +
-+++++++++++++++++++++++++++++++++++++++++++
-2.4.5-pre3           +  unworkable+   unworkable      +
-+++++++++++++++++++++++++++++++++++++++++++
-2.4.5                   +  unworkable+   unworkable      +
-+++++++++++++++++++++++++++++++++++++++++++
-2.4.5-ac8            +  unworkable+   unworkable      +
-+++++++++++++++++++++++++++++++++++++++++++
-
-Results of ifconfig, slist and 2 pings followed. It is the same 
-system, exept of kernels.
-
-System-specific addresses (my IP, IP of my proxy/firewall, 
-hwaddr of my cards etc.) replaced by *.
-
-Best regards to all.
-George Afanassew
-
-****************************************************************
-****************************************************************
-The 21041 chipset
-
-***************************************************************
-Failed test: kernel 2.4.5-ac8 (analogically for 2.4.5, 
-2.4.4-ac8-xfs-kdb, 2.4.5-pre3):
-
-[root@sh root]# ifconfig
-eth0      Link encap:Ethernet  HWaddr **:**:**:**:**:**
-          inet addr:**.*.*.***  Bcast:**.255.255.255  
-Mask:255.0.0.0
-          IPX/Ethernet 802.2 addr:00000001:00**********
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:30 dropped:0 overruns:0 carrier:60
-          collisions:0 txqueuelen:100
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:10 Base address:0xe000
-
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:39 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:39 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-          RX bytes:2407 (2.3 Kb)  TX bytes:2407 (2.3 Kb)
- 
-[root@sh root]# slist
-slist: Server not found (0x8847) in ncp_open
-[root@sh root]# ping www.ru
-ping: unknown host www.ru
-[root@sh root]# ping **.*.*.**
-PING **.*.*.** (**.*.*.**) from **.*.*.*** : 56(84) bytes of 
-data.
->From **.*.*.***: Destination Host Unreachable
->From **.*.*.***: Destination Host Unreachable
->From **.*.*.***: Destination Host Unreachable
->From **.*.*.***: Destination Host Unreachable
->From **.*.*.***: Destination Host Unreachable
- 
---- **.*.*.** ping statistics ---
-7 packets transmitted, 0 packets received, +5 errors, 100% 
-packet loss
-[root@sh root]#
-********************************************************
-Sucessfull test: kernel 2.4.4
-
-[root@sh root]# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:**:**:**:**:**
-          inet addr:**.*.*.***  Bcast:**.255.255.255  
-Mask:255.0.0.0
-          IPX/Ethernet 802.2 addr:00000001:00**********
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:92 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:89 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:10305 (10.0 Kb)  TX bytes:7851 (7.6 Kb)
-          Interrupt:10 Base address:0xe000
-
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:30 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:30 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-          RX bytes:1620 (1.5 Kb)  TX bytes:1620 (1.5 Kb)
-
-[root@sh root]# slist
-
-Known NetWare File Servers         Network   Node Address
-------------------------------------------------
-NETWARE50                             00000003  000000000001
-[root@sh root]# ping www.ru
-PING www.ru (194.87.0.50) from **.*.*.*** : 56(84) bytes of 
-data.
-64 bytes from www.ru (194.87.0.50): icmp_seq=0 ttl=54 
-time=20.731 msec
-64 bytes from www.ru (194.87.0.50): icmp_seq=1 ttl=54 
-time=26.062 msec
-64 bytes from www.ru (194.87.0.50): icmp_seq=2 ttl=54 
-time=48.289 msec
-64 bytes from www.ru (194.87.0.50): icmp_seq=3 ttl=54 
-time=18.040 msec
-64 bytes from www.ru (194.87.0.50): icmp_seq=4 ttl=54 
-time=14.867 msec
-64 bytes from www.ru (194.87.0.50): icmp_seq=5 ttl=54 
-time=12.444 msec
-64 bytes from www.ru (194.87.0.50): icmp_seq=6 ttl=54 
-time=15.213 msec
- 
---- www.ru ping statistics ---
-7 packets transmitted, 7 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 12.444/22.235/48.289/11.419 ms
-[root@sh root]# ping **.*.*.**
-PING **.*.*.** (**.*.*.**) from **.*.*.*** : 56(84) bytes of 
-data.
-64 bytes from **.*.*.**: icmp_seq=0 ttl=255 time=428 usec
-64 bytes from **.*.*.**: icmp_seq=1 ttl=255 time=394 usec
-64 bytes from **.*.*.**: icmp_seq=2 ttl=255 time=394 usec
-64 bytes from **.*.*.**: icmp_seq=3 ttl=255 time=392 usec
- 
---- **.*.*.** ping statistics ---
-4 packets transmitted, 4 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 0.392/0.402/0.428/0.015 ms
-[root@sh root]#
-
-****************************************************
-****************************************************
-The 21142 chipset
-
-****************************************************
-Failed test: kernel 2.4.5-ac8 (analogically for 2.4.5, 
-2.4.4-ac8-xfs-kdb, 2.4.5-pre3)
-
-[root@sh root]# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:80:AD:B6:19:29
-          inet addr:**.*.*.***  Bcast:10.255.255.255  
-Mask:255.0.0.0
-          IPX/Ethernet 802.2 addr:00000001:0080ADB61929
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:1 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:10 Base address:0xe000
- 
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:33 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:33 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-          RX bytes:1878 (1.8 Kb)  TX bytes:1878 (1.8 Kb)
- 
-[root@sh root]# slist
-slist: Server not found (0x8847) in ncp_open
-[root@sh root]# ping www.ru
-ping: unknown host www.ru
-[root@sh root]# ping **.*.*.**
-PING **.*.*.** (**.*.*.**) from **.*.*.*** : 56(84) bytes of 
-data.
->From **.*.*.***: Destination Host Unreachable
->From **.*.*.***: Destination Host Unreachable
- 
---- **.*.*.** ping statistics ---
-5 packets transmitted, 0 packets received, +2 errors, 100% 
-packet loss
-[root@sh root]#
-
-*****************************************************
-Failed test: kernel 2.4.4
-
-[root@sh root]# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:80:AD:B6:19:29
-          inet addr:**.*.*.***  Bcast:10.255.255.255  
-Mask:255.0.0.0
-          IPX/Ethernet 802.2 addr:00000001:0080ADB61929
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:10 Base address:0xe000
- 
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:33 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:33 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-          RX bytes:1878 (1.8 Kb)  TX bytes:1878 (1.8 Kb)
- 
-[root@sh root]# slist
-slist: Server not found (0x8847) in ncp_open
-[root@sh root]# ping www.ru
-ping: unknown host www.ru
-[root@sh root]# ping **.*.*.**
-PING **.*.*.** (**.*.*.**) from **.*.*.*** : 56(84) bytes of 
-data.
->From **.*.*.***: Destination Host Unreachable
->From **.*.*.***: Destination Host Unreachable
- 
---- **.*.*.** ping statistics ---
-4 packets transmitted, 0 packets received, +2 errors, 100% 
-packet loss
-[root@sh root]#
+Sean

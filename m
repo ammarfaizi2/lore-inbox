@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269158AbSIRTfL>; Wed, 18 Sep 2002 15:35:11 -0400
+	id <S268865AbSIRTcD>; Wed, 18 Sep 2002 15:32:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269172AbSIRTfK>; Wed, 18 Sep 2002 15:35:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:62738 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269158AbSIRTfJ>; Wed, 18 Sep 2002 15:35:09 -0400
-Date: Wed, 18 Sep 2002 16:39:48 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Mark_H_Johnson@raytheon.com
-Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, <owner-linux-mm@kvack.org>
-Subject: Re: [PATCH] recognize MAP_LOCKED in mmap() call
-In-Reply-To: <OFC0C42F8D.E1325D58-ON86256C38.00695CD8@hou.us.ray.com>
-Message-ID: <Pine.LNX.4.44L.0209181639260.1519-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S268361AbSIRTcC>; Wed, 18 Sep 2002 15:32:02 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:43532 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S268865AbSIRTcC>;
+	Wed, 18 Sep 2002 15:32:02 -0400
+To: Olaf =?iso-8859-1?q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which processor/board for embedded NTP
+References: <1032354632.23252.14.camel@venus>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 18 Sep 2002 21:37:02 +0200
+In-Reply-To: <1032354632.23252.14.camel@venus>
+Message-ID: <87r8frqech.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002 Mark_H_Johnson@raytheon.com wrote:
-> Andrew Morton wrote:
-> >(SuS really only anticipates that mmap needs to look at prior mlocks
-> >in force against the address range.  It also says
-> >
-> >     Process memory locking does apply to shared memory regions,
-> >
-> >and we don't do that either.  I think we should; can't see why SuS
-> >requires this.)
->
-> Let me make sure I read what you said correctly. Does this mean that
-> Linux 2.4 (or 2.5) kernels do not lock shared memory regions if a
-> process uses mlockall?
+Olaf Fr±czyk <olaf@cbk.poznan.pl> writes:
 
-But it does.  Linux won't evict memory that's MLOCKed...
+> I have to build NTP server on an embedded pc.
+> Which processors/boards are suitable for this.
+> Such processor/board cannot have ANY problems with time handling.
+> I thought about Geode (NS), but I found some info that it doesn't have
+> TSC, or it works not properly (the PPS needs TSC). 
+> And of course has to work excellent with linux.
 
-cheers,
+The Geode's TSC will work quite well for you if you disable the
+suspend on HLT option in the processor.
 
-Rik
+On the newer "IA on a chip" geodes (SC1200, SC2200 and SC3200) there
+is also a high speed timer in the chipset that seems to be quite
+stable.
+
+  /Christer
+
 -- 
-Spamtrap of the month: september@surriel.com
+"Just how much can I get away with and still go to heaven?"
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

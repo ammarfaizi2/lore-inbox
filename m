@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263194AbTCWUh0>; Sun, 23 Mar 2003 15:37:26 -0500
+	id <S263191AbTCWUfa>; Sun, 23 Mar 2003 15:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263192AbTCWUh0>; Sun, 23 Mar 2003 15:37:26 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:54030 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263194AbTCWUhZ>; Sun, 23 Mar 2003 15:37:25 -0500
-Date: Sun, 23 Mar 2003 20:48:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Dominik Kubla <dominik@kubla.de>
-Cc: Jan Dittmer <j.dittmer@portrix.net>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: i2c-via686a driver
-Message-ID: <20030323204810.A11421@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dominik Kubla <dominik@kubla.de>,
-	Jan Dittmer <j.dittmer@portrix.net>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <3E7E0B37.5060505@portrix.net> <20030323202743.A11150@infradead.org> <200303232136.10089.dominik@kubla.de>
+	id <S263192AbTCWUfa>; Sun, 23 Mar 2003 15:35:30 -0500
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:8460 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id <S263191AbTCWUf3>; Sun, 23 Mar 2003 15:35:29 -0500
+Message-Id: <200303232046.h2NKkZAx039361@sirius.nix.badanka.com>
+Date: Sun, 23 Mar 2003 21:46:34 +0100
+From: Henrik Persson <nix@socialism.nu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+In-Reply-To: <200303231955.h2NJtWAx038337@sirius.nix.badanka.com>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
+	<200303231938.h2NJcAq14927@devserv.devel.redhat.com>
+	<20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+	<1048448838.1486.12.camel@phantasy.awol.org>
+	<200303231955.h2NJtWAx038337@sirius.nix.badanka.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303232136.10089.dominik@kubla.de>; from dominik@kubla.de on Sun, Mar 23, 2003 at 09:36:10PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 23, 2003 at 09:36:10PM +0100, Dominik Kubla wrote:
-> Why? It's a valid C99 feature and since the kernel already uses C99 
-> initializers it won't compile with compilers that choke on C99 comments 
-> anyway.
+On Sun, 23 Mar 2003 20:55:31 +0100
+Henrik Persson <nix@socialism.nu> wrote:
 
-Because there's a strong preference for traditional C style in the kernel.
-typedefs are also a valid C feature and we try to avoid them.
+> Would it really hurt that much to release 2.4.21 with the ptracefix(es)?
 
+Or would it hurt to release -pre6 like..right now with the fixes in it?
+
+This combined with a small notice on kernel.org would most certainly
+satisfy me, but as for now I had to browse trough the archives cause I
+deleted the mail with the patch by accident, and that's not very optimal,
+is it?
+
+-- 
+Henrik Persson  nix@socialism.nu  http://nix.badanka.com
+PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  

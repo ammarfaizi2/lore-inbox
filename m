@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbSIZRDy>; Thu, 26 Sep 2002 13:03:54 -0400
+	id <S261373AbSIZQ5m>; Thu, 26 Sep 2002 12:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbSIZRDy>; Thu, 26 Sep 2002 13:03:54 -0400
-Received: from p50846D8A.dip.t-dialin.net ([80.132.109.138]:10466 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S261405AbSIZRDx>;
-	Thu, 26 Sep 2002 13:03:53 -0400
-To: Adam Goldstein <Whitewlf@Whitewlf.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
-References: <EFED8A1D-D02F-11D6-AD2E-000502C90EA3@Whitewlf.net>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Thu, 26 Sep 2002 19:09:09 +0200
-In-Reply-To: <EFED8A1D-D02F-11D6-AD2E-000502C90EA3@Whitewlf.net> (Adam
- Goldstein's message of "Tue, 24 Sep 2002 22:38:56 -0400")
-Message-ID: <m3adm465l6.fsf@venus.fo.et.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
- i386-redhat-linux)
+	id <S261375AbSIZQ5m>; Thu, 26 Sep 2002 12:57:42 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:10372 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261373AbSIZQ5l> convert rfc822-to-8bit; Thu, 26 Sep 2002 12:57:41 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are broke.
+Date: Thu, 26 Sep 2002 19:02:47 +0200
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: "Nathan" <etherwolf@sopris.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209261901.17679.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Goldstein <Whitewlf@Whitewlf.net> writes:
+Hi Nathan,
 
-> [...]
-> cooperative data? Personally, I can't make heads or tails of the
-> vmstat  output, and, I still have as of yet to get a -real- answer for
-> what   "load" is.. besides the knee-jerk answer of "its the avg load
-> over X  minutes".  :)
+> This is surely the greenest of green questions (sorry), but I finally got my
+> kernel re-compiled the way I want it using the 2.4.19 sources from
+> kernel.org. It loads, seems to be working fine, except ipchains and
+> iptables... ipchains insists that it is incompatible with my kernel, and
+> iptables isn't sure what's going on but it thinks maybe something (. Well 
+> fine. I downloaded the latest versions of ipchains/tables from rpmfind and
+> upgraded, same thing.
 
-In the olden days (at least I learnt that definition for a system
-based on 3.x BSD), the "load average" is the number of runnable
-processes (i.e. those that could do work if they got a slice of CPU
-time) averaged over some period of time (1, 2, 5, 10 minutes).
+"Incompatible with this kernel" for ipchains seems so that you have compiled 
+Netfilter stuff into your kernel.
 
-So, naively speaking upgrading the box to the number of CPUs indicated
-by an average load average will keep it well busy while getting the
-maximum amount of work done. [Yes, of course this rule of thumb does
-not include the considerable overhead were one to really implement
-that scheme - we used this measure when scaling hardware well before
-SMP x86 became competitively available].
+"itself or the kernel needs upgrading" for iptables seems so that you either 
+haven't compiled netfilter as module(s) or static into the kernel and forgot 
+something in the kernel config.
 
-For Linux the load average also seems to include some notion of the
-fraction of time spent waiting for disk accesses; possibly Linux
-counts the number of processes which are either Runnable or Waiting
-for Disk.
+> I haven't been able to find any actual solutions off google for this... a
+> few people mention the same problem but no fixes. Can someone point this
+> rookie in the right direction to fix my packet filters? :-)
+Check your kernel config. "make menuconfig" or "xconfig" and goto:
 
-I don't know the concise definition in Linux's case either.
+Networking options  --->
+  IP: Netfilter Configuration  --->
 
-
-So long,
-   Joe
+and look if you did it properly.
 
 -- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

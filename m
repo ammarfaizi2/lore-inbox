@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264924AbRFZDLu>; Mon, 25 Jun 2001 23:11:50 -0400
+	id <S264927AbRFZDVy>; Mon, 25 Jun 2001 23:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264925AbRFZDLk>; Mon, 25 Jun 2001 23:11:40 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:60336 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S264924AbRFZDLc>; Mon, 25 Jun 2001 23:11:32 -0400
-Message-ID: <3B37FD71.44158F33@uow.edu.au>
-Date: Tue, 26 Jun 2001 13:11:45 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S264928AbRFZDVp>; Mon, 25 Jun 2001 23:21:45 -0400
+Received: from gw.netgem.com ([195.154.83.69]:31239 "EHLO gw.dev.netgem.com")
+	by vger.kernel.org with ESMTP id <S264927AbRFZDV3>;
+	Mon, 25 Jun 2001 23:21:29 -0400
+Message-ID: <3B37FFBA.8000201@netgem.com>
+Date: Tue, 26 Jun 2001 05:21:30 +0200
+From: Jocelyn Mayer <jma@netgem.com>
+Organization: Netgem S.A.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-20mdk i686; en-US; 0.8) Gecko/20010409
+X-Accept-Language: en, fr-fr
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        "Peter J. Braam" <braam@clusterfilesystem.com>
-Subject: ext3-2.4-0.0.8
-Content-Type: text/plain; charset=us-ascii
+To: landley@webofficenow.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft and Xenix.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext3 patches against kernels 2.4.5, 2.4.6-pre5 and 2.4.5-ac17 are
-available at http://www.uow.edu.au/~andrewm/linux/ext3/
+> /> > GEM was a gui from Digital Research I believe. /
+> /> > Geoworks/Geos was a seperate entity. /
+> /> /
+> /> Ah, the DR-DOS answer to dosshell/windows. Cool. (I used Dr. Dos 
+> byt never /
+> /> tried its gui.) /
+> 
+> Actually I believe GEM predates DR-DOS, and except for being
+> made by the same company I don't think they were ever related.
+> 
+> Eric 
 
-Almost all testing thus far has been against 2.4.5.  Known
-problems in 0.0.8 are:
+Well
 
-- A theoretical deadlock with quotas in -ac.  This is proving
-  impossible to demonstrate, and will be fixed in 0.0.9.
+I think I remember that DR-DOS was the name that Caldera
+gave to the Digital Research OS, previously known as GEMDOS,
+when then bought the company.
+GEMDOS was the official OS under the GEM Gui,
+but GEM was also able to run with MS-DOS
+and TOS (the Atari OS).
 
-- A fairly straightforward deadlock with quotas in 2.4.5[-pre].
-  This will probably be fixed in 0.0.9 as a side-effect of the
-  version 2 quota fix.
+Geoworks / Geos isn't a Digital Research product,
+but has been developped by guys who ran away from Digital
+when it has been bought by Novell...
 
-We wouldn't encourage people to put all their data on ext3,
-destroy their backups and then play russian roulette with
-power cords; however this software is in pretty good shape.
+Some guys told me that they worked with Geos
+and that it was really closed with the internal
+"GEM spirit"....
 
-Please test, and send any problem reports to ext3-users@redhat.com
+Regards.
 
-Thanks.
+Jocelyn.
 
--

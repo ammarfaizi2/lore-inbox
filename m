@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266487AbUAWAWb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 19:22:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUAWAWb
+	id S266490AbUAWAYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 19:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUAWAYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 19:22:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47836 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266487AbUAWAWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 19:22:30 -0500
-Date: Thu, 22 Jan 2004 16:23:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 oops in prune_dcache()
-Message-Id: <20040122162348.46637991.akpm@osdl.org>
-In-Reply-To: <20040122181751.A2101@mail.kroptech.com>
-References: <20040122181751.A2101@mail.kroptech.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 22 Jan 2004 19:24:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31956 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266490AbUAWAYP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 19:24:15 -0500
+Date: Fri, 23 Jan 2004 00:24:14 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-rc1-mm1
+Message-ID: <20040123002414.GA21151@parcelfarce.linux.theplanet.co.uk>
+References: <20040122013501.2251e65e.akpm@osdl.org> <20040122110342.A9271@infradead.org> <20040122151943.GW21151@parcelfarce.linux.theplanet.co.uk> <20040122233854.GA16052@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040122233854.GA16052@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Kropelin <akropel1@rochester.rr.com> wrote:
->
-> At 4 AM this morning (during cron run, I suppose) a box running 2.6.1
-> hit the oops below. It locked solid, had to hit the reset button to
-> reboot it. The machine had been running 2.6.1 for about a week prior
-> with no problems.
+On Thu, Jan 22, 2004 at 03:38:54PM -0800, Greg KH wrote:
+> On Thu, Jan 22, 2004 at 03:19:43PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > Greg, please, RTFS to see at which point do we decide which driver will
+> > be used by raw device.  It's _not_ RAW_SETBIND, it's open().  So where
+> > your symlink should point is undecided until the same point.
 > 
-> Hardware is single Pentium Pro 200, 128 MB RAM (extensively
-> memtest86'ed).
+> I don't care about which driver is used by the raw device, I care about
+> which block device the raw device is "bound" to.  That happens at
+> RAW_SETBIND time, right?  We do this in the line:
+> 	rawdev->binding = bdget(dev);
 
-Yes, but it is old.
+No.  We have no fscking idea what device it is.  All we know is a device
+number.  No driver-related activity (including insmod, etc.) happens
+until open().
 
-> Kernel is no-SMP, no-preempt, and (obviously) no-highmem.
-> 
-> Feel free to ask for more details if I can help. This is the first oops
-> I've seen since mid 2.5.x on this machine.
-> 
-> --Adam
-> 
-> 
-> Jan 21 04:06:32 print kernel: Unable to handle kernel paging request at virtual address 00008014
-> Jan 21 04:06:32 print kernel:  printing eip:
-> Jan 21 04:06:32 print kernel: c01570e5
-> Jan 21 04:06:32 print kernel: *pde = 00000000
-> Jan 21 04:06:32 print kernel: Oops: 0000 [#1]
-> Jan 21 04:06:32 print kernel: CPU:    0
-> Jan 21 04:06:32 print kernel: EIP:    0060:[<c01570e5>]    Not tainted
-> Jan 21 04:06:32 print kernel: EFLAGS: 00010206
-> Jan 21 04:06:32 print kernel: EIP is at prune_dcache+0xe5/0x130
-> Jan 21 04:06:32 print kernel: eax: 00008000   ebx: c1dc83e0   ecx: c577da74   edx: c577da74
+Among other things, RAW_SETBIND on inexistent device is a legitimate use.
+Which kills your "create a symlink at RAW_SETBIND" immediately - there
+might very well be nothing for it to point to.
 
-Bit 15 of %eax got flipped.  The kernel indexed off it and oopsed.
-
-This is most likely a hardware failure.
+You can bind /dev/raw0 to 8:0, then attach USB disk and then open
+/dev/raw0.  That ends up with /dev/raw0 becoming a raw alias for
+that disk.

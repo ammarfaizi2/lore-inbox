@@ -1,86 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132295AbRAKGN0>; Thu, 11 Jan 2001 01:13:26 -0500
+	id <S129406AbRAKGTi>; Thu, 11 Jan 2001 01:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132291AbRAKGNQ>; Thu, 11 Jan 2001 01:13:16 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13454 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132284AbRAKGNL>;
-	Thu, 11 Jan 2001 01:13:11 -0500
-Date: Thu, 11 Jan 2001 01:13:10 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation/filesystems/Locking update
-Message-ID: <Pine.GSO.4.21.0101110109440.15355-100000@weyl.math.psu.edu>
+	id <S129511AbRAKGT3>; Thu, 11 Jan 2001 01:19:29 -0500
+Received: from [203.162.5.11] ([203.162.5.11]:1290 "HELO
+	hcm-fw1-ext.hcm-fw1.vnn.vn") by vger.kernel.org with SMTP
+	id <S129406AbRAKGTR>; Thu, 11 Jan 2001 01:19:17 -0500
+Message-ID: <012101c07b96$a4d04f80$0e6419ac@db.vnnews.com>
+From: "Nguyen Truong Sinh" <n.t.sinh@vnnews.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Message from new kernel
+Date: Thu, 11 Jan 2001 13:20:50 +0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_011E_01C07BD1.5105F4A0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Patch updates filesystems/Locking - corrects ->writepage()
-prototype, removes dead vma methods and corrects ->writepage() and
-->readpage() description wrt page lock.
+This is a multi-part message in MIME format.
 
-	Please, apply.
+------=_NextPart_000_011E_01C07BD1.5105F4A0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-diff -urN S1-pre1/Documentation/filesystems/Locking S1-pre1-s_lock/Documentation/filesystems/Locking
---- S1-pre1/Documentation/filesystems/Locking	Fri Jul 28 15:50:51 2000
-+++ S1-pre1-s_lock/Documentation/filesystems/Locking	Thu Jan 11 01:01:14 2001
-@@ -117,7 +117,7 @@
- 
- --------------------------- address_space_operations --------------------------
- prototypes:
--	int (*writepage)(struct file *, struct page *);
-+	int (*writepage)(struct page *);
- 	int (*readpage)(struct file *, struct page *);
- 	int (*sync_page)(struct page *);
- 	int (*prepare_write)(struct file *, struct page *, unsigned, unsigned);
-@@ -126,8 +126,8 @@
- locking rules:
- 	All may block
- 		BKL	PageLocked(page)
--writepage:	no	yes
--readpage:	no	yes
-+writepage:	no	yes, unlocks
-+readpage:	no	yes, unlocks
- sync_page:	no	maybe
- prepare_write:	no	yes
- commit_write:	no	yes
-@@ -135,6 +135,7 @@
- 
- 	->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
- may be called from the request handler (/dev/loop).
-+	->readpage() and ->writepage() unlock the page.
- 	->sync_page() locking rules are not well-defined - usually it is called
- with lock on page, but that is not guaranteed. Considering the currently
- existing instances of this method ->sync_page() itself doesn't look
-@@ -285,26 +286,13 @@
- prototypes:
- 	void (*open)(struct vm_area_struct*);
- 	void (*close)(struct vm_area_struct*);
--	void (*unmap)(struct vm_area_struct*, unsigned long, size_t);
--	void (*protect)(struct vm_area_struct*, unsigned long, size_t, unsigned);
--	int (*sync)(struct vm_area_struct*, unsigned long, size_t, unsigned);
- 	struct page *(*nopage)(struct vm_area_struct*, unsigned long, int);
--	struct page *(*wppage)(struct vm_area_struct*, unsigned long, struct page*);
--	int (*swapout)(struct page *, struct file *);
- 
- locking rules:
- 		BKL	mmap_sem
- open:		no	yes
- close:		no	yes
--sync:		no	yes
--unmap:		no	yes
- nopage:		no	yes
--swapout:	yes	yes
--wpppage:				(see below)
--protect:				(see below)
--
--->wppage() and ->protect() have no instances and nothing calls them; looks like
--they must die...
- 
- ================================================================================
- 			Dubious stuff
+I am using Redhat 7.0 for my system. After install new kernel (2.4.0). =
+My system always inform=20
+NET: 3 messages suppressed
+
+What does it mean ? and how to fix it, I don't want it appears on the =
+console at all.
+
+Thanks.
+
+------=_NextPart_000_011E_01C07BD1.5105F4A0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Diso-8859-1" =
+http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.00.2614.3500" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT size=3D2>I am using Redhat 7.0 for my system. After install =
+new kernel=20
+(2.4.0). My system always inform </FONT></DIV>
+<DIV><FONT size=3D2>NET: 3 messages suppressed</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT size=3D2>What does it mean ? and how to fix it, I don't want =
+it appears=20
+on the console at all.</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT size=3D2>Thanks.</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_011E_01C07BD1.5105F4A0--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

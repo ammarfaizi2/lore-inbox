@@ -1,158 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSDXJFO>; Wed, 24 Apr 2002 05:05:14 -0400
+	id <S293337AbSDXI5h>; Wed, 24 Apr 2002 04:57:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSDXJFH>; Wed, 24 Apr 2002 05:05:07 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:24056 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S310979AbSDXJDu>; Wed, 24 Apr 2002 05:03:50 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020423080216.E25771@work.bitmover.com> 
-To: Larry McVoy <lm@bitmover.com>
-Cc: Jes Sorensen <jes@wildopensource.com>, Jeff Garzik <garzik@havoc.gtf.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree 
-Mime-Version: 1.0
+	id <S310654AbSDXI5K>; Wed, 24 Apr 2002 04:57:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47377 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293680AbSDXIzQ>;
+	Wed, 24 Apr 2002 04:55:16 -0400
+Message-ID: <3CC6730F.86CB43C6@zip.com.au>
+Date: Wed, 24 Apr 2002 01:55:43 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] remove PG_skip
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 24 Apr 2002 10:03:31 +0100
-Message-ID: <22053.1019639011@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-lm@bitmover.com said:
->  Sure, as soon as we find a mirror for bkbits.net, having a plain text
-> interface to the files/patches, is a fine idea.  Until then, I need to
-> hoard my bandwidth.  I'm working on the mirror problem.
 
-These are already available on the kernel.org mirrors.
+Remove PG_skip.  Nothing is using it (the change was acked by rmk a
+while back)
 
- http://ftp.??.kernel.org/pub/linux/kernel/people/dwmw2/bk-2.5/
- http://ftp.??.kernel.org/pub/linux/kernel/people/
+=====================================
 
-The individual patches look sane - I'm not entirely sure about the 'Full 
-patch' version, which seems to contain stuff not in the individual patches.
-
-<MODE REPLY-TO=!linux-kernel>
-
-	Larry, any idea why? Script below...
-
-</MODE>
-
-
-#!/bin/sh
-#
-# $Id: bkexport.sh,v 1.10 2002/04/23 00:13:24 dwmw2 Exp $ 
-
-BKDIR="$1"
-PATCHDIR="$2"
-CACHEDIR="$3"
-
-if [ "$BKDIR" = "" -o "$PATCHDIR" = "" -o "$CACHEDIR" = "" ] ; then
-    echo "Usage: $o <bkdir> <patchdir> <cachedir>"
-    exit 1
-fi
-
-cd $PATCHDIR || exit 1
-
-cd $CACHEDIR || exit 1
-
-cd $BKDIR || exit 1
-
-TAGCSET=`bk changes -t -d:I:\\\n | head -1`
-TAG=`bk changes -r$TAGCSET -d:TAG:`
-
-CSETS=`bk changes -d":I: " -r$TAGCSET,.`
-
-NEWESTCSET=`echo $CSETS | cut -f1 -d\ `
-
-if [ -r $PATCHDIR/cset-$TAGCSET-to-$NEWESTCSET.txt ]; then
-    # We already ran with this set of changesets. Don't bother to rebuild.
-   exit 0
-fi
-
-bk export -tpatch -r$TAGCSET,$NEWESTCSET > $PATCHDIR/cset-$TAGCSET-to-$NEWESTCSET.txt
-
-cat > $CACHEDIR/newindex.$$.html <<EOF
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-  <head>
-    <title>BitKeeper patches for `hostname`:$BKDIR</title>
-  </head>
-
-  <body>
- <H1>BitKeeper patches since $TAG</H1>
-
- <H2><A HREF="cset-$TAGCSET-to-$NEWESTCSET.txt">Full patch from $TAG to ChangeSet $NEWESTCSET</A></H2>
+--- 2.5.9/include/linux/page-flags.h~cleanup-050-pg_skip	Wed Apr 24 01:06:14 2002
++++ 2.5.9-akpm/include/linux/page-flags.h	Wed Apr 24 01:06:14 2002
+@@ -32,9 +32,6 @@
+  * active, inactive_dirty and inactive_clean lists are protected by
+  * the pagemap_lru_lock, and *NOT* by the usual PG_locked_dontuse bit!
+  *
+- * PG_skip is used on sparc/sparc64 architectures to "skip" certain
+- * parts of the address space.
+- *
+  * PG_error is set to indicate that an I/O error occurred on this page.
+  *
+  * PG_arch_1 is an architecture specific page state bit.  The generic
+@@ -62,14 +59,13 @@
+ #define PG_active		 7
  
-EOF
-
-for CSET in $CSETS; do
-    if [ ! -r $PATCHDIR/cset-$CSET.txt -o  \
-	 ! -r $CACHEDIR/cset-index-$CSET.html -o \
-         ! -r $CACHEDIR/cset-key-$CSET -o \
-	 "`cat $CACHEDIR/cset-key-$CSET 2>/dev/null`" != "`bk changes -r$CSET -d:KEY:`" ] ; then
-	bk export -tpatch -r$CSET > $PATCHDIR/cset-$CSET.txt
-        bk changes -r$CSET -d'<H3><A HREF="cset-:I:.txt">:G: :I:, :D: :T::TZ:, :USER: @ :HOST:</A></H3>\n<P>:HTML_C:</P>\n' > $CACHEDIR/cset-index-$CSET.html
-	bk changes -r$CSET -d:KEY: > $CACHEDIR/cset-key-$CSET
-    fi
-    cat $CACHEDIR/cset-index-$CSET.html >> $CACHEDIR/newindex.$$.html
-done
-
-if [ "$CSETS" = "" ] ; then
-    echo "<H3>No changes since last tag</h3>" >> $CACHEDIR/newindex.$$.html
-EOF
-fi
-
-cat >> $CACHEDIR/newindex.$$.html <<EOF
-  <hr>
-  Index generated at `date -u`
-  </body>
-</HTML>
-EOF
-mv $CACHEDIR/newindex.$$.html $PATCHDIR/index.html
-
-
-# Clean up old patches.
-cd $PATCHDIR
-
-for FILE in *.txt ; do 
-    case $FILE in
-    cset-$TAGCSET-to-$NEWESTCSET.txt)
-	continue
-	;;
-    cset-*.txt)
-	FILECSET=`echo $FILE | sed "s/^cset-\(.*\).txt\$/\\1/"`
-	if ! echo $CSETS | grep -q -- $FILECSET ; then
-	    rm "$FILE"
-	fi
-        continue
-	;;
-    esac
-
-done
-
-cd $CACHEDIR
-
-for FILE in *.html ; do 
-    case $FILE in
-    index.html)
-	continue
-	;;
-    cset-index-*.html)
-	FILECSET=`echo $FILE | sed "s/^cset-index-\(.*\).html\$/\\1/"`
-	if ! echo $CSETS | grep -q -- $FILECSET ; then
-	    rm "$FILE"
-	fi
-	continue
-	;;
-    esac
-done
-
-
---
-dwmw2
-
-
+ #define PG_slab			 8	/* slab debug (Suparna wants this) */
+-#define PG_skip			10	/* kill me now: obsolete */
+-#define PG_highmem		11
+-#define PG_checked		12	/* kill me in 2.5.<early>. */
++#define PG_highmem		 9
++#define PG_checked		10	/* kill me in 2.5.<early>. */
++#define PG_arch_1		11
+ 
+-#define PG_arch_1		13
+-#define PG_reserved		14
+-#define PG_launder		15	/* written out by VM pressure.. */
+-#define PG_private		16	/* Has something at ->private */
++#define PG_reserved		12
++#define PG_launder		13	/* written out by VM pressure.. */
++#define PG_private		14	/* Has something at ->private */
+ 
+ /*
+  * Per-CPU page acounting.  Inclusion of this file requires
+--- 2.5.9/arch/arm/mm/init.c~cleanup-050-pg_skip	Wed Apr 24 01:06:14 2002
++++ 2.5.9-akpm/arch/arm/mm/init.c	Wed Apr 24 01:44:54 2002
+@@ -64,18 +64,6 @@ static struct meminfo meminfo __initdata
+  */
+ struct page *empty_zero_page;
+ 
+-/* This is currently broken
+- * PG_skip is used on sparc/sparc64 architectures to "skip" certain
+- * parts of the address space.
+- *
+- * #define PG_skip	10
+- * #define PageSkip(page) (machine_is_riscpc() && test_bit(PG_skip, &(page)->flags))
+- *			if (PageSkip(page)) {
+- *				page = page->next_hash;
+- *				if (page == NULL)
+- *					break;
+- *			}
+- */
+ void show_mem(void)
+ {
+ 	int free = 0, total = 0, reserved = 0;

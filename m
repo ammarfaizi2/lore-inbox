@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268079AbRHCKFe>; Fri, 3 Aug 2001 06:05:34 -0400
+	id <S268206AbRHCKHy>; Fri, 3 Aug 2001 06:07:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268206AbRHCKFY>; Fri, 3 Aug 2001 06:05:24 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:64266 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268079AbRHCKFN> convert rfc822-to-8bit; Fri, 3 Aug 2001 06:05:13 -0400
-X-Apparently-From: <kiwiunixman@yahoo.co.nz>
-From: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
-Date: Fri, 03 Aug 2001 10:05:21 GMT
-Message-ID: <20010803.10052100@kiwiunixman.ihug.co.nz>
-Subject: Re: university studies?
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <E15SN84-0001BC-00@the-village.bc.nu>
-In-Reply-To: <E15SN84-0001BC-00@the-village.bc.nu>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2; Linux)
-X-Priority: 3 (Normal)
+	id <S268382AbRHCKHo>; Fri, 3 Aug 2001 06:07:44 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:41633 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S268206AbRHCKHZ>; Fri, 3 Aug 2001 06:07:25 -0400
+Message-ID: <3B6A78C1.7A1B13AB@veritas.com>
+Date: Fri, 03 Aug 2001 15:41:13 +0530
+From: "Amit S. Kale" <akale@veritas.com>
+Organization: Veritas Software (India)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: jalaja devi <jala_74@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kgdb ksymtab_addr not found!!
+In-Reply-To: <20010802174730.76395.qmail@web13704.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jalaja devi wrote:
+> 
+> Hi,
+> 
+> I have 2 quesions here:
+> 
+> 1. Could any plz tell me what am i missing out here?
+> 
+> I basically, trying to debug my my loadable module in
+> kernel in kernel2.4.6 version. I patched the kernel
+> with 2.4.6 kgdb patch, using the recent version.
+> 
+> I am using the modutils shell script to load my module
+> loadmodule.sh which creates a gdbscript. When I source
+> the gdbscript I get the following warnings:
+> 
+> warning : section _ksymtab not found in mymodule.o
+> warning : section _archdata not found in mymodule.o
+> 
+> Do I need to patch the kernel with the modutils. Why
+> do I get these warnings.
+
+These warnings can be safely ignored.
+
+> 
+> 2. How can I put a breakpoint to debug my init_module?
+> Which is the Kernel Fxn to be invoked to put a
+> breakpoint in my init_module?
+
+You can place a breakpoint just before the the statement
+where kernel calls init_module. Then load the generated
+gdb script into gdb once the breakpoint is hit. Now you
+can place a breakpoint directly into any statement in the
+module code.
 
 
->>>>>>>>>>>>>>>>>> Original Message <<<<<<<<<<<<<<<<<<
+> 
+> Thanks in advance,
+> 
+> Jalaja
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Make international calls for as low as $.04/minute with Yahoo! Messenger
+> http://phonecard.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On 8/3/01, 6:23:28 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote regarding 
-Re: university studies?:
-
-
-> > On Thu, Aug 02, 2001 at 08:24:45AM +0100, Riley Williams wrote:
-> > > One thing I will add, from long experience: If you learned BASIC
-> > > first, then learn Pascal BEFORE you try to learn C or C++ as you'll
-> > > come out a much better programmer than trying to learn C or C++
-> > > directly after BASIC.
-> >
-> > This makes me a little bit nervous...  I used to program a fair bit in 
-BASI=
-> > C ((Q|GW)BASIC mostly), and started learning C++ after that.  Could you 
-ela=
-> > borate a bit on the reasons?
-
-> pascal is a language that teaches you structured programming by making it
-> excruciatingly painful to write anything else. You can write basic in C 
-and
-> sometimes people going from one language to the other basically do that.
-
-> If you have few classes and a lot of 5000 line subroutines then worry, 
-but
-> there is no reason to assume that every ex basic programmer isnt going to
-> pick up C++ and good software design practices just because they once
-> wrote basic
-
-Hmm, my first programming experience was using BBC Basic, then I moved to 
-COBOL, AMOS and now I am learning Java, which should be a interesting 
-eXPerience.
-
-Just a side issue, has any one noticed the decline in the quality of IT 
-products over the last 15-20 years? Or is it just me?
-
-Matthew Gardiner
-
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+-- 
+Amit Kale
+Veritas Software ( http://www.veritas.com )

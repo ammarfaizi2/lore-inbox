@@ -1,79 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266310AbUIJAWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUIJAY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266310AbUIJAWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 20:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUIJAWI
+	id S266901AbUIJAY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 20:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUIJAWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 20:22:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51855 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266310AbUIJAVi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 20:21:38 -0400
-Date: Thu, 9 Sep 2004 17:21:35 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
-Message-ID: <20040909172134.G1924@build.pdx.osdl.net>
-References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net> <20040909160449.E1924@build.pdx.osdl.net> <20040910000819.GA7587@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040910000819.GA7587@lkcl.net>; from lkcl@lkcl.net on Fri, Sep 10, 2004 at 01:08:19AM +0100
+	Thu, 9 Sep 2004 20:22:48 -0400
+Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:25993 "EHLO
+	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S266218AbUIJAWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 20:22:02 -0400
+Message-ID: <4140F3A7.8040103@blueyonder.co.uk>
+Date: Fri, 10 Sep 2004 01:21:59 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6.9-rc1-bk16 Still cdrom/DVD oops
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Sep 2004 00:22:24.0919 (UTC) FILETIME=[3F171A70:01C496CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
->  i am not so worried about this scenario _because_:
-> 
->  under an selinux system, you would set up a policy which only
->  allowed the good_proc to exec other_good_procs (with the
->  macro can_exec(good_proc, { other_good_proc1, other_good_proc2 })
+Sep 10 01:15:05 barrabas automount[10389]: attempting to mount entry 
+/media/dvd
+Sep 10 01:15:08 barrabas kernel: asb100 1-002d: starting device update...
+Sep 10 01:15:08 barrabas kernel: asb100 1-002d: ... device update complete
+Sep 10 01:15:11 barrabas kernel: ISO 9660 Extensions: RRIP_1991A
+Sep 10 01:15:11 barrabas kernel: Unable to handle kernel paging request 
+at virtual address d0f3cef4
+Sep 10 01:15:11 barrabas kernel:  printing eip:
+Sep 10 01:15:11 barrabas kernel: c01459a1
+Sep 10 01:15:11 barrabas kernel: *pde = 00043067
+Sep 10 01:15:11 barrabas kernel: *pte = 10f3c000
+Sep 10 01:15:11 barrabas kernel: Oops: 0000 [#2]
+Sep 10 01:15:11 barrabas kernel: PREEMPT DEBUG_PAGEALLOC
+Sep 10 01:15:11 barrabas kernel: Modules linked in: nvidia parport_pc lp 
+parport sg st sd_mod sr_mod scsi_mod snd_seq_oss snd_seq_midi_event 
+usbhid ub usblp
+ snd_seq thermal processor snd_pcm_oss snd_mixer_oss fan sk98lin button 
+ipv6 eeprom snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page_alloc 
+gameport sn
+d_mpu401_uart snd_rawmidi snd_seq_device snd soundcore asb100 i2c_sensor 
+ohci1394 ieee1394 ehci_hcd ohci_hcd nvidia_agp agpgart evdev usbcore 
+forcedeth vfat
+ fat dm_mod
+Sep 10 01:15:11 barrabas kernel: CPU:    0
+Sep 10 01:15:11 barrabas kernel: EIP:    
+0060:[cache_free_debugcheck+385/640]    Tainted: P   VLI
+Sep 10 01:15:11 barrabas kernel: EIP:    0060:[<c01459a1>]    Tainted: 
+P   VLI
+Sep 10 01:15:11 barrabas kernel: EFLAGS: 00010002   (2.6.9-rc1-bk16)
+Sep 10 01:15:11 barrabas kernel: EIP is at cache_free_debugcheck+0x181/0x280
+Sep 10 01:15:11 barrabas automount[11981]: mount(generic): failed to 
+mount /dev/dvd (type auto) on /media/dvd
+Sep 10 01:15:11 barrabas kernel: eax: d0f3cef4   ebx: 80052c00   ecx: 
+c01cd040   edx: d0f3c000
+Sep 10 01:15:11 barrabas kernel: esi: dffef640   edi: c9d69d00   ebp: 
+d418bd24   esp: d418bcfc
+Sep 10 01:15:11 barrabas automount[10389]: attempting to mount entry 
+/media/dvd
+Sep 10 01:15:11 barrabas kernel: ds: 007b   es: 007b   ss: 0068
+Sep 10 01:15:11 barrabas kernel: Process mount (pid: 11982, 
+threadinfo=d418a000 task=d249bab0)
+Sep 10 01:15:11 barrabas kernel: Stack: c011e658 00000000 ffffffdd 
+c04b9221 10f3c000 c01cd040 d0f3c000 dffef640
+Sep 10 01:15:11 barrabas kernel:        c14d9f78 d0f3cef8 d418bd3c 
+c014664a 00000282 d0f3cef8 d0f3cfe6 00000000
+Sep 10 01:15:11 barrabas kernel:        d418bd90 c01cd040 c0377bcc 
+00000041 c015b2c0 d0f3cef8 c3d1beb8 00000029
+Sep 10 01:15:11 barrabas kernel: Call Trace:
+Sep 10 01:15:11 barrabas kernel:  [show_stack+166/176] show_stack+0xa6/0xb0
+Sep 10 01:15:11 barrabas kernel:  [<c0106e06>] show_stack+0xa6/0xb0
+Sep 10 01:15:11 barrabas kernel:  [show_registers+333/448] 
+show_registers+0x14d/0x1c0
+Sep 10 01:15:11 barrabas kernel:  [<c0106f7d>] show_registers+0x14d/0x1c0
+Sep 10 01:15:11 barrabas kernel:  [die+240/384] die+0xf0/0x180
+Sep 10 01:15:11 barrabas kernel:  [<c0107170>] die+0xf0/0x180
+Sep 10 01:15:11 barrabas kernel:  [do_page_fault+1047/1467] 
+do_page_fault+0x417/0x5bb
+Sep 10 01:15:11 barrabas kernel:  [<c0118f47>] do_page_fault+0x417/0x5bb
+Sep 10 01:15:11 barrabas kernel:  [error_code+45/56] error_code+0x2d/0x38
+Sep 10 01:15:11 barrabas kernel:  [<c01069e5>] error_code+0x2d/0x38
+Sep 10 01:15:11 barrabas kernel:  [kfree+74/144] kfree+0x4a/0x90
+Sep 10 01:15:11 barrabas kernel:  [<c014664a>] kfree+0x4a/0x90
+Sep 10 01:15:11 barrabas kernel:  
+[parse_rock_ridge_inode_internal+1424/1696] 
+parse_rock_ridge_inode_internal+0x590/0x6a0
+Sep 10 01:15:11 barrabas kernel:  [<c01cd040>] 
+parse_rock_ridge_inode_internal+0x590/0x6a0
+Sep 10 01:15:11 barrabas kernel:  [parse_rock_ridge_inode+24/80] 
+parse_rock_ridge_inode+0x18/0x50
+Sep 10 01:15:11 barrabas kernel:  [<c01cd318>] 
+parse_rock_ridge_inode+0x18/0x50
+Sep 10 01:15:11 barrabas kernel:  [isofs_read_inode+809/1072] 
+isofs_read_inode+0x329/0x430
+Sep 10 01:15:11 barrabas kernel:  [<c01cbd69>] isofs_read_inode+0x329/0x430
+Sep 10 01:15:11 barrabas kernel:  [isofs_iget+86/112] isofs_iget+0x56/0x70
+Sep 10 01:15:11 barrabas kernel:  [<c01cbf26>] isofs_iget+0x56/0x70
+Sep 10 01:15:11 barrabas kernel:  [isofs_fill_super+1252/1632] 
+isofs_fill_super+0x4e4/0x660
+Sep 10 01:15:11 barrabas kernel:  [<c01cb284>] isofs_fill_super+0x4e4/0x660
+Sep 10 01:15:11 barrabas kernel:  [get_sb_bdev+194/288] 
+get_sb_bdev+0xc2/0x120
+Sep 10 01:15:11 barrabas kernel:  [<c0160cf2>] get_sb_bdev+0xc2/0x120
+Sep 10 01:15:11 barrabas kernel:  [isofs_get_sb+26/32] 
+isofs_get_sb+0x1a/0x20
+Sep 10 01:15:11 barrabas kernel:  [<c01cbf5a>] isofs_get_sb+0x1a/0x20
+Sep 10 01:15:11 barrabas kernel:  [do_kern_mount+148/352] 
+do_kern_mount+0x94/0x160
+Sep 10 01:15:11 barrabas kernel:  [<c0160f64>] do_kern_mount+0x94/0x160
+Sep 10 01:15:11 barrabas kernel:  [do_new_mount+100/176] 
+do_new_mount+0x64/0xb0
+Sep 10 01:15:11 barrabas kernel:  [<c01771a4>] do_new_mount+0x64/0xb0
+Sep 10 01:15:11 barrabas kernel:  [do_mount+403/448] do_mount+0x193/0x1c0
+Sep 10 01:15:11 barrabas kernel:  [<c0177913>] do_mount+0x193/0x1c0
+Sep 10 01:15:11 barrabas kernel:  [sys_mount+136/272] sys_mount+0x88/0x110
+Sep 10 01:15:11 barrabas kernel:  [<c0177cb8>] sys_mount+0x88/0x110
+Sep 10 01:15:11 barrabas kernel:  [sysenter_past_esp+82/113] 
+sysenter_past_esp+0x52/0x71
+Sep 10 01:15:11 barrabas kernel:  [<c0105f89>] sysenter_past_esp+0x52/0x71
+Sep 10 01:15:11 barrabas kernel: Code: 38 eb a1 8d b4 26 00 00 00 00 8b 
+55 f0 89 f0 e8 16 e5 ff ff 8b 55 ec 89 10 8b 5e 38 e9 57 ff ff ff 8b 55 
+f0 89 f0 e8
+8f e4 ff ff <81> 38 a5 c2 0f 17 0f 84 8b 00 00 00 b9 14 f2 35 c0 89 f2 b8 27
+Regards
+Sid.
 
-OK, good.  Although, this does not help xinetd, so we're still trusting
-that code.
-
->  consequently, you'd design your firewall rules (in conjunction with
->  your selinux policy) to add _two_ dev+inode-program-enabled firewall rules
->  to cover the same socket, e.g. apache2 (good_proc) and some cgi script
->  helper (other_good_proc) - one for each program:
-> 
-> 	 iptables -A INPUT -m tcp --dport=80 -m program --exe=/usr/bin/apache2 -j ACCEPT
-> 
->  and:
-> 
-> 	 iptables -A INPUT -m tcp --dport=80 -m program --exe=/usr/cgi-bin/blahblah -j ACCEPT
-
-Isn't this likely to be in modcgi/modperl/etc instead of fork/exec'd?
-This is one specific example (which SELinux doesn't support, so it's
-moot there) where changing security domains during execution would
-confuse these rules.  E.g. reducing to a more restrictive domain while
-executing cgi-scripts.
-
-> > >  so it's a socket: let's take an example - and i'm assuming for now
-> > >  that things like passing file descriptors over unix-domain-sockets
-> > >  between processes just ... doesn't happen, okay? :)
-> > 
-> > These do happen, which is part of the problem ;-)
->  
->  i would not consider this to be a problem [in an environment where
->  you specify DENY as the default and ALLOW specific instances]
-> 
->  under such circumstances [file descs passed between programs]...
->  you would end up having to create _two_ program-specific rules, like
->  above.
-> 
->  one for each of the two programs.
-
-Actually you wouldn't, just one.  It will match, then one of those
-processes will get woken up and receive the data, regardless of whether
-you meant to allow it.  So, having some security layer involved mediated
-file desc passing clearly helps.  Point remains, any match will deliver
-data to socket.  However, if socket is shared, it could be a different
-process picking up data off of socket.
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====
+

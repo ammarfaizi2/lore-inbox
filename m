@@ -1,57 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318630AbSHENnb>; Mon, 5 Aug 2002 09:43:31 -0400
+	id <S317347AbSHENvO>; Mon, 5 Aug 2002 09:51:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318650AbSHENna>; Mon, 5 Aug 2002 09:43:30 -0400
-Received: from dsl-213-023-043-082.arcor-ip.net ([213.23.43.82]:14230 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318630AbSHENn3>;
-	Mon, 5 Aug 2002 09:43:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-Date: Mon, 5 Aug 2002 15:48:26 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <E17aiJv-0007cr-00@starship> <3D4DB9E4.E785184E@zip.com.au> <3D4E23C4.F746CF3D@zip.com.au>
-In-Reply-To: <3D4E23C4.F746CF3D@zip.com.au>
+	id <S318459AbSHENvO>; Mon, 5 Aug 2002 09:51:14 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:58406 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S317347AbSHENvN>; Mon, 5 Aug 2002 09:51:13 -0400
+Message-ID: <3D4E8387.3000704@mindspring.com>
+Date: Mon, 05 Aug 2002 06:54:15 -0700
+From: Walt H <waltabbyh@mindspring.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17biDi-0000w7-00@starship>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Raid0 slowdown from 2.4.19-rc1
+References: <Pine.LNX.4.33.0208050040120.15213-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 August 2002 09:05, Andrew Morton wrote:
-> Andrew Morton wrote:
-> It makes basically no difference at all.  Maybe pulled back 10 of the lost
-> 50%.  The kernel is still spending much time in the pte_chain walk in
-> page_remove_rmap().
+Sorry, should have said more about raid arrays. Drives are partitioned 
+as follows:
 
-I wouldn't call that 'no difference', just not as much as hoped for.
+hda1, hdc1 = 4GB
+hda2, hdc2 = Extended part - remainder of drive
+hda5, hdc5 = 2GB = raid1, md0 /boot
+hda6, hdc6 = ~15GB = raid0, md1 /usr
+hda7, hdc7 = ~15GB = raid0, md2 /home
+hda8, hdc8 = 1.5GB = raid0, /
+hda9, hdc9 = remainder = swap
 
-Well, I'm not quite out of tricks yet.  There's one more to go, and it just 
-might be worth more than all the others.  It's a little subtle though, and 
-I'm still working out some wrinkles, so I'll write it up in detail tomorrow.
+I agree, it seems as though you could see preempt lower performance, but 
+again, I haven't seen that either. In fact, the 2.4.18 kernel I was 
+using before was compiled with preempt also and showed ~68MB/Sec on md1,md2.
 
-For now, consider that our rmaps tend to form a lot of parallel chains.  That 
-is, if you look at the chains for two pages whose index differs by one, the 
-pte fields of each of the pte_chain nodes differs by 4.  This relationship 
-tends to hold quite consistently over rather large groups of pages, a fact 
-that I took advantage of in the lock batching.  Now, if we put a relative 
-number in the pte field instead of an absolute pointer, the corresponding 
-pte_chain nodes for all those parallel chains become identical.  How nice it 
-would be if we could share those pte chain nodes between pages.
+As for changes I may have made to .config? Nothing new. 2.4.19-rc1 
+compiled with xfs and preempt worked well also. I tried looking for 
+differences in raid drivers, but there were none to the raid0 driver. 
+ide-pdc202xx.c contained many changes, but I'm not a kernel hacker and 
+couldn't spot anything that might have affected this. Odd that it shows 
+up even under hdparm. Interestingly, when testing with bonnie++, the 
+overall sequential output was similar to the higher performing older 
+kernels. However, creates, deletes, and rewrites were all down 
+significantly.
 
-I've convinced myself that this is possible.  It's a little tricky though: we 
-have to handle CoW unsharing, and the possibility of the index changing (as 
-with the lock batching, but in this case there's a little more work to do).
-My feeling is that the implementation will not be particularly messy, even 
-though it sounds scary on first blush.
+-Walt
 
-> Despite the fact that the number of pte_chain references in
-> page_add/remove_rmap now just averages two in that test.
 
-It's weird that it only averages two.  It's a four way and your running 10 in
-parallel, plus a process to watch for completion, right?
+Mark Hahn wrote:
+>>Final 2.4.19 was patched with XFS and preempt and compiled using 
+> 
+> 
+> it's easy to imagine cases where preempt would produce lower performance,
+> though I haven't seen any hard evidence of that.
+> 
+> 
+>>cutting out preempt patches. First md1 array consists of two partitions 
+>>from hda & hdc. hdparm for both drives looks fine by themselves:
+> 
+> 
+> are they the first two partitions in hda/c?
+> 
+> 
+>>/dev/hda:
+>>  Timing buffered disk reads:  64 MB in  1.66 seconds = 38.55 MB/sec
+>>/dev/hdc:
+>>  Timing buffered disk reads:  64 MB in  1.65 seconds = 38.79 MB/sec
+> 
+> 
+> such a disk will normally degrade to around half that performance
+> in the tail of the disk.
+> 
+> 
+>>/dev/md1:
+>>  Timing buffered disk reads:  64 MB in  1.44 seconds = 44.44 MB/sec
+>>
+>>In 2.4.18 and up through 2.4.19-rc1 I saw 66-70MB/sec from this array. 
+>>Starting in rc2 it dropped to the mid 40's. I've also ran bonnie++ and 
+> 
+> 
+> nothing else changed?
+> 
 
--- 
-Daniel

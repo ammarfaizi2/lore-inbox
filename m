@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132671AbQK3Hpn>; Thu, 30 Nov 2000 02:45:43 -0500
+        id <S132685AbQK3Hvd>; Thu, 30 Nov 2000 02:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132656AbQK3HpY>; Thu, 30 Nov 2000 02:45:24 -0500
-Received: from mail.linux.student.kuleuven.ac.be ([193.190.253.82]:55300 "EHLO
-        mail.linux.student.kuleuven.ac.be") by vger.kernel.org with ESMTP
-        id <S132259AbQK3HpM>; Thu, 30 Nov 2000 02:45:12 -0500
-Date: Thu, 30 Nov 2000 08:14:43 +0100
-From: Arnaud Installe <arnaud@bach.kotnet.org>
-To: linux-kernel@vger.kernel.org
-Cc: ainstalle@filepool.com
-Subject: high load & poor interactivity on fast thread creation
-Message-ID: <20001130081443.A8118@bach.iverlek.kotnet.org>
-Reply-To: Arnaud Installe <a.installe@ieee.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.12i
+        id <S132689AbQK3HvX>; Thu, 30 Nov 2000 02:51:23 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:28912 "EHLO
+        webber.adilger.net") by vger.kernel.org with ESMTP
+        id <S132685AbQK3HvF>; Thu, 30 Nov 2000 02:51:05 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011300720.eAU7KYT28277@webber.adilger.net>
+Subject: Re: ext2 directory size bug (?)
+In-Reply-To: <Pine.LNX.4.21.0011300453200.31229-100000@ace.ulyssis.org>
+ "from Steven Van Acker at Nov 30, 2000 05:17:25 am"
+To: Steven Van Acker <deepstar@ulyssis.org>
+Date: Thu, 30 Nov 2000 00:20:34 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+You write:
+> Hmm, gonna try to follow the REPORTING-BUGS file here...
+> 
+> [1.] One line summary of the problem:
+> 
+>      directory size increases when adding 0-size files, 
+>      but doesn't decrease when removing them.
 
-When creating a lot of Java threads per second linux slows down to a
-crawl.  I don't think this happens on NT, probably because NT doesn't
-create new threads as fast as Linux does.
+It may or may not be considered a bug, but in any case it has been like
+this for a long time and I doubt it will change.  The directory size is
+not dependent upon the file size, only the length of the file names.
 
-Is there a way (setting ?) to solve this problem ?  Rate-limit the number
-of threads created ?  The problem occurred on linux 2.2, IBM Java 1.1.8.
+One "reason" why ext2 directories don't shrink when the files are deleted
+is because e2fsck relies on this behaviour for the lost+found directory,
+so that you don't need to allocate blocks for lost+foung on a corrupted
+filesystem when doing recovery of unlinked files.
 
-Thanks,
+In some cases, you may have a directory entry in the last block, so you
+can't free any of the earlier blocks even if they are empty.
 
-							Arnaud
+In most cases, if you have created many files in one directory in the past,
+you are likely to create many there again - so easier just to keep the
+directory blocks until next time.
 
+In most cases, the number of blocks allocated to a directory (but never
+to be used again) is very small, and people don't really worry about it.
+I think the scenario where you have a large amount of space in directories
+that will never be used again is very unusual and should not be a reason
+to make the code more complex.
+
+Cheers, Andreas
 -- 
-Arnaud Installe                                             a.installe@ieee.org
-
-Look, we trade every day out there with hustlers, deal-makers, shysters,
-con-men.  That's the way businesses get started.  That's the way this
-country was built.
-		-- Hubert Allen
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

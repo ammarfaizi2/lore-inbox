@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbUBPLGj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 06:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUBPLGj
+	id S261605AbUBPLmb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 06:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbUBPLmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 06:06:39 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:35013 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S263620AbUBPLGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 06:06:38 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reserved pages not flagged on Compaq evo?
-Date: Mon, 16 Feb 2004 19:16:16 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrea Arcangeli <andrea@suse.de>
-References: <87llnyggfm.fsf@larve.net> <20040204114113.GA1110@home.larve.net> <200402042024.47784.mhf@linuxmail.org>
-In-Reply-To: <200402042024.47784.mhf@linuxmail.org>
-X-OS: KDE 3 on GNU/Linux
+	Mon, 16 Feb 2004 06:42:31 -0500
+Received: from gate.corvil.net ([213.94.219.177]:20741 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261605AbUBPLm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 06:42:29 -0500
+Message-ID: <4030ACA3.6020009@draigBrady.com>
+Date: Mon, 16 Feb 2004 11:42:27 +0000
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402161916.16508.mhf@linuxmail.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IDE and locking
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 February 2004 20:36, Michael Frank wrote:
-> A 2.4.24 + swsusp 2.0 user reported a mce at the video base address
-> of 0xa0000 when writing the kernel image to disk (thus reading there)
-> on a Compaq evo1015v (Athlon XP 2000+)
-> 
-> NOMCE eliminates the mce but I am wondering about possible ill effects
-> should other reserved pages be invalidly accessed.
->   
-> It looks like these pages are not flagged reserved and therfore accessed. 
-> 
-> No other mce's have ever been reported.
-> 
-> What is the suggested approach to identify the root cause?
+Hi,
 
-Has been verified as fixed after flagging video and BIOS pages as nosave and
-by not accessing all nosave areas during suspend and resume. 
- 
-> Michael
-> 
-> 
+I'm working on an embedded system here that
+basically counts ethernet packets. I'm using
+2.4.20 and I'm noticing that when files are
+read from the compact flash (ext2), ethernet
+packets are being dropped.
+
+So to work around the problem, I'm precaching
+all the files (12MB) at boot like:
+find / -type f | while read file; do dd if=$file of=/dev/null; done
+
+So questions.
+
+1. Is this due to the BKL around the IDE subsystem?
+2. Are writes as susceptible as reads to the problem?
+    I'm guessing if the compact flash had a write cache
+    buffer I would be OK as I only write max 2MB at a time?
+3. There was talk about removing the BKL in 2.6 with
+    reference to:
+    http://sourceforge.net/project/showfiles.php?group_id=8875
+    Has this work been included?
+4. Is there a max number of files that can be cached by linux?
+5. Will the files be removed at any stage from the cache
+    if there is no memory pressure?
+6. Can I reserve memory for the file cache?
+
+cheers.
+-- 
+Pádraig Brady - http://www.pixelbeat.org
 

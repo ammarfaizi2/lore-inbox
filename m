@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317469AbSFRQBb>; Tue, 18 Jun 2002 12:01:31 -0400
+	id <S317465AbSFRQE6>; Tue, 18 Jun 2002 12:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317467AbSFRQBa>; Tue, 18 Jun 2002 12:01:30 -0400
-Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:15364
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S317463AbSFRQB3> convert rfc822-to-8bit; Tue, 18 Jun 2002 12:01:29 -0400
-Subject: Re: Drivers, Hardware, and their relationship to Bagels.
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Myrddin Ambrosius <imipak@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020618150628.12694.qmail@web12305.mail.yahoo.com>
-References: <20020618150628.12694.qmail@web12305.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 18 Jun 2002 18:01:27 +0200
-Message-Id: <1024416087.1019.5.camel@nomade>
+	id <S317466AbSFRQE5>; Tue, 18 Jun 2002 12:04:57 -0400
+Received: from rrcs-sw-24-153-135-82.biz.rr.com ([24.153.135.82]:52418 "HELO
+	UberGeek") by vger.kernel.org with SMTP id <S317465AbSFRQEz>;
+	Tue, 18 Jun 2002 12:04:55 -0400
+Subject: Re: VMM - freeing up swap space
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+Cc: "Linux Kernel \(E-mail\)" <linux-kernel@vger.kernel.org>
+In-Reply-To: <EE83E551E08D1D43AD52D50B9F5110927E7A9E@ntserver2>
+References: <EE83E551E08D1D43AD52D50B9F5110927E7A9E@ntserver2>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 18 Jun 2002 11:04:51 -0500
+Message-Id: <1024416291.7689.34.camel@UberGeek>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 18/06/2002 à 17:06, Myrddin Ambrosius a écrit :
-> The issue is this. My understanding is that -all-
-> hardware access should be through the kernel, partly
-> so that similar hardware can have a similar API, but
-> also so that kernel security code (eg: capabilities)
-> applies to ALL hardware and ALL lower-level
-> operations.
+The -AA kernels have fixes for this so it actually reclaims the swap and
+*cached* memory as well. 
 
-You want to forbid XFree86's DRI ?
-
-	Xav
-
-
+On Tue, 2002-06-18 at 10:56, Gregory Giguashvili wrote:
+> Hello,
+> 
+> Running an application allocating huge amounts of memory would push some
+> data from RAM to swap area. After the application terminates, swap area is
+> usually still occupied. 
+> 
+> Is there any way to clean up the swap area by pushing the data back to RAM?
+> 
+> Thanks in advance
+> Giga
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Gregory Giguashvili
+> Senior Software Engineer
+> Email: gregoryg@ParadigmGeo.com
+> Tel: 972-9-9709379 Fax: 972-3-9709337
+> Paradigm Geophysical Ltd.
+> http://www.math.tau.ac.il/~gregoryg
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

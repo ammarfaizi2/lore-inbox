@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVAMQPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVAMQPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVAMQPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 11:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVAMQJK
+	id S261661AbVAMQPy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 11:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVAMQIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 11:09:10 -0500
-Received: from mail108.messagelabs.com ([216.82.255.115]:1949 "HELO
-	mail108.messagelabs.com") by vger.kernel.org with SMTP
-	id S261663AbVAMQDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:03:02 -0500
-X-VirusChecked: Checked
-X-Env-Sender: AAnthony@sbs.com
-X-Msg-Ref: server-5.tower-108.messagelabs.com!1105632179!7446850!1
-X-StarScan-Version: 5.4.5; banners=sbs.com,-,-
-X-Originating-IP: [204.255.71.6]
-Message-ID: <4F23E557A0317D45864097982DE907941A38A8@pilotmail.sbscorp.sbs.com>
-From: Adam Anthony <AAnthony@sbs.com>
-To: khc@pm.waw.pl, Francois Romieu <romieu@fr.zoreil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Linux HDLC Stack - N2 module
-Date: Thu, 13 Jan 2005 09:02:20 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Thu, 13 Jan 2005 11:08:38 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:45923 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S261669AbVAMQAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:00:21 -0500
+Date: Thu, 13 Jan 2005 09:59:52 -0600
+From: DHollenbeck <dick@softplc.com>
+Subject: Re: yenta_socket rapid fires interrupts
+In-reply-to: <41E68215.8060004@suse.de>
+To: Stefan Seyfried <seife@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, magnus.damm@gmail.com
+Message-id: <41E69AF8.1000804@softplc.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040421
+References: <41E2BC77.2090509@softplc.com>
+ <Pine.LNX.4.58.0501101857330.2373@ppc970.osdl.org>
+ <41E42691.3060102@softplc.com>
+ <Pine.LNX.4.58.0501111143370.2373@ppc970.osdl.org>
+ <41E44248.2000500@softplc.com>
+ <Pine.LNX.4.58.0501111322060.2373@ppc970.osdl.org> <41E68215.8060004@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof and Ueimor,
-	Following the advice prescribed below, I've had a look at existing
-HDLC work in the kernel.  I tried firing up a Riscom/N2 adapter with the
-2.4.28 N2 module and HDLC support but was faced with a number of problems.
-It seems like the transmit buffers aren't getting emptied after transmit,
-because I can only transmit a few frames before traffic halts.  Transmit
-statistics don't increment either, but I am seeing frames on the remote end.
-	Has the N2 module been tested with recent kernels?  Is it useable?
-If not, which module will show me the genius of the Linux HDLC "stack"?
--AA
+More info comes.  The embedded system has a single PCI slot.  So I tried 
+the PCI card with the RICOH CARDBUS support on it in the embedded 
+system, and plugged in the problem CARDBUS card into the RICOH board 
+before powering up.  This is analogous to the case before, when the 
+motherboard resident TI1520 chip was in play. 
 
------Original Message-----
-From: Francois Romieu [mailto:romieu@fr.zoreil.com] 
-Sent: Monday, January 10, 2005 1:01 PM
-To: Adam Anthony
-Cc: netdev@oss.sgi.com; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /driver/net/wan/sbs520
+Now the system can load yenta_socket fine.
 
-Adam Anthony <AAnthony@sbs.com> :
-[...]
->        It would be great to receive some feedback on our work, and we hope
-> that this driver will eventually be added to the kernel.
+So it is definitely not a power supply _capacity_ issue, although I 
+suppose it could be power availability timing issue.  This experiment 
+tends to put more doubt into the TI1520 chip and the yenta support for it.
 
-It will probably require a few extra steps:
-- read Documentation/CodingStyle (mixed case, typedef from hell, ugly
-#ifdef);
-- grep ^static
-  -> no static functions ? Uh ?
-- use non-obsolete API (pci_find_device in 2005 ?);
-- convert the os independant wrappers.
+Dick
 
-Btw it would probably make sense 1) to figure out what can be merged with
-the in-tree DSCC4 driver and 2) to integrate the driver with the existing
-hdlc stack. Imho there is some duplicated work/code.
-
---
-Ueimor
-
-***This message has been scanned for virus, spam, and undesirable
-content.***
-***For further information, contact your mail administrator.***
-
-For limitations on the use and distribution of this message, please visit www.sbs.com/emaildisclaimer.

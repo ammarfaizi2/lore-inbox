@@ -1,34 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUDZPK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUDZPM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUDZPK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 11:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUDZPK5
+	id S262431AbUDZPM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 11:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUDZPM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 11:10:57 -0400
-Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:43159
-	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S261786AbUDZPK4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 11:10:56 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: Lucas Silva <mrprofetas@yahoo.co.uk>
-Subject: Re: BIOS vs Kernel
-Date: Mon, 26 Apr 2004 12:10:55 -0300
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040426150524.63980.qmail@web86406.mail.ukl.yahoo.com>
-In-Reply-To: <20040426150524.63980.qmail@web86406.mail.ukl.yahoo.com>
+	Mon, 26 Apr 2004 11:12:29 -0400
+Received: from web41403.mail.yahoo.com ([66.218.93.69]:58961 "HELO
+	web41403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262208AbUDZPMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 11:12:25 -0400
+Message-ID: <20040426151220.85059.qmail@web41403.mail.yahoo.com>
+Date: Mon, 26 Apr 2004 08:12:20 -0700 (PDT)
+From: Parag Nemade <cranium2003@yahoo.com>
+Subject: HELP ipt_hook: happy cracking message
+To: kernerl mail <linux-kernel@vger.kernel.org>
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       netfilter <netfilter-devel@lists.netfilter.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404261210.55962.norberto+linux-kernel@bensa.ath.cx>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lucas Silva wrote:
-> Wouldn't that be faster?
-> Would the kernel be able to communicate to it?
+hi,
+        i modified kernel so that it will create
+/proc/net/myproc file entry.
+the function of this entry is to crate a 16 byte char
+string from random no.s
+i used net_srandom and net_random and sys_time for
+that puspose. the problem is that i write program to
+generate string after 120 seconds but it is changing
+contents of myproc file every seconds. what can i do?
+ Also i am getting ipt_hook: happy cracking. message
+again and again why?
+regards,
+parag.
 
 
-http://www.linuxbios.org/
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Photos: High-quality 4x6 digital prints for 25¢
+http://photos.yahoo.com/ph/print_splash

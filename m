@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUJVUue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUJVUue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267785AbUJVUue (ORCPT <rfc822;willy@w.ods.org>);
+	id S267725AbUJVUue (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Oct 2004 16:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUJVUsq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUJVUsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:48:46 -0400
-Received: from imag.imag.fr ([129.88.30.1]:45798 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S267565AbUJVUdD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:33:03 -0400
-Date: Fri, 22 Oct 2004 22:32:59 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-Message-ID: <20041022203259.GA23441@linux.ensimag.fr>
-Reply-To: 20041022032039.730eb226.akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: Matthieu Castet <mat@ensilinx1.imag.fr>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Fri, 22 Oct 2004 22:33:00 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Fri, 22 Oct 2004 16:48:40 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:19877 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S267725AbUJVUqH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 16:46:07 -0400
+Message-ID: <4179718A.9000607@verizon.net>
+Date: Fri, 22 Oct 2004 16:46:02 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Karel Kulhavy <clock@twibright.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Official and unofficial documentation
+References: <20041022180933.GA21618@beton.cybernet.src>
+In-Reply-To: <20041022180933.GA21618@beton.cybernet.src>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.211.53] at Fri, 22 Oct 2004 15:46:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> add-acpi-based-floppy-controller-enumeration.patch
->   Add ACPI-based floppy controller enumeration.
+Karel Kulhavy wrote:
+> Hello
 > 
-> add-acpi-based-floppy-controller-enumeration-fix.patch
->   add-acpi-based-floppy-controller-enumeration fix
+> http://www.kernel.org contains some pointer to online documentation on various
+> web sites and also sometimes URL's are being mentioned in Documentation/ files
+> and <Help> in make menuconfig.
 > 
-> update-acpi-floppy-enumeration.patch
->   update ACPI floppy enumeration
+> Which of this documentation is official and which is unofficial?
 > 
-> floppy-acpi-enumeration-update.patch
->   floppy ACPI enumeration update
+> Cl<
+> -
 
-Why not using ACPI pnp patch [1] and convert this driver to use pnp core.
-It will be simpler and compatible with pnpbios...
+Since this is a community-developed kernel, there is no "official" 
+documentation per se; anyone is welcome to write whatever documentation 
+they care to, and if it's good enough, others will recommend it.
 
+The only true authority is the source code, but not everyone has the 
+skill to grok kernel code quickly.
 
-Matthieu
+If you are interested, I am starting to review and update the 
+Documentation directory - any help would be greatly appreciated.
 
-[1]
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109834588507413&w=2
+Jim

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273568AbRIVMLl>; Sat, 22 Sep 2001 08:11:41 -0400
+	id <S274897AbRIVMYO>; Sat, 22 Sep 2001 08:24:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274895AbRIVMLb>; Sat, 22 Sep 2001 08:11:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23051 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S273568AbRIVMLY>;
-	Sat, 22 Sep 2001 08:11:24 -0400
-Date: Sat, 22 Sep 2001 14:11:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] block highmem zero bounce v14
-Message-ID: <20010922141145.A1969@suse.de>
-In-Reply-To: <20010916234307.A12270@suse.de> <Pine.LNX.4.33.0109161447390.29507-100000@penguin.transmeta.com> <20010917000012.B12270@suse.de> <20010921114448.D1924@devserv.devel.redhat.com> <20010922130000.A632@suse.de> <20010922071839.A10727@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S274896AbRIVMYC>; Sat, 22 Sep 2001 08:24:02 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:3084 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S274895AbRIVMXp>; Sat, 22 Sep 2001 08:23:45 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010922071839.A10727@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.22i
-X-OS: Linux 2.2.20 i686
+Content-Transfer-Encoding: 7bit
+Message-ID: <15276.33416.91166.412805@beta.reiserfs.com>
+Date: Sat, 22 Sep 2001 16:22:32 +0400
+To: "Tony Hoyle" <tmh@nothing-on.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs does not work from fstab in 2.4.9-ac12
+In-Reply-To: <9og6rk$vd$1@sisko.my.home>
+In-Reply-To: <9og6rk$vd$1@sisko.my.home>
+X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 22 2001, Arjan van de Ven wrote:
-> On Sat, Sep 22, 2001 at 01:00:00PM +0200, Jens Axboe wrote:
-> > megaraid broke because can_dma_32 was enabled by mistake.
-> 
-> Nope; without that it was still bust.
-> Megaraid broke (and 3ware most likely as well) because  it had broken code
-> for the "only 1 scatter gather element" case....
+Tony Hoyle writes:
+ > I just got caught by this on a box which had a reiserfs /usr partition...
+ > 
+ > # mount /disk2
+ > reiserfs: kgetopt: there is not option
 
-Ah ok, that's actually a case I hadn't counted on being buggy in
-drivers. Typical, drive code sucks :-)
+Yes, it's known bug (you are using Alan's kernel, right?). Yesterday
+(2001.09.21) patch addressing this was posted on reiserfs list (archive
+at http://marc.theaimsgroup.com/?l=reiserfs&r=1&w=2) and sent
+to Alan.
 
-jens
+ > <lots of mount failure stuff>
+ > 
+ > The fstab that generated this (which has worked for every other version,
+ > so I believe it to be correct):
+ > /dev/hdb1      /disk2          reiserfs        defaults        0       0
+ > 
+ > However
+ > # mount -t reiserfs /dev/hdb1 /disk2
+ > 
+ > ..works correctly.
+ > 
+ > Tony
+ > 
+ > -- 
+ > Microsoft - two out of three dead people who expressed a preference
+ > said their coffins preferred it.
+ > 
+ > tmh@nothing-on.tv	http://www.nothing-on.tv
+ > -
+
+Nikita.

@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUFZBbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266915AbUFZBcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266914AbUFZBbN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 21:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUFZBbN
+	id S266915AbUFZBcx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 21:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266917AbUFZBcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 21:31:13 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:53661 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266914AbUFZBbM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 21:31:12 -0400
-Subject: Re: [PATCH] A generic_file_sendpage()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <20040625200342.GE8656@wohnheim.fh-wedel.de>
-References: <20040608154438.GK18083@dualathlon.random>
-	 <20040608193621.GA12780@holomorphy.com> <1086783559.1194.24.camel@boxen>
-	 <20040625191924.GA8656@wohnheim.fh-wedel.de>
-	 <20040625194611.GQ12308@parcelfarce.linux.theplanet.co.uk>
-	 <20040625200342.GE8656@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1088211213.9740.16.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 25 Jun 2004 20:53:34 -0400
+	Fri, 25 Jun 2004 21:32:53 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:9225 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S266915AbUFZBcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 21:32:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: 2.6.x signal handler bug
+Date: Sat, 26 Jun 2004 01:33:18 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <cbijou$nfa$1@abraham.cs.berkeley.edu>
+References: <40DCBBC3.2010308@di.uoa.gr>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1088213598 24042 128.32.153.228 (26 Jun 2004 01:33:18 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Sat, 26 Jun 2004 01:33:18 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 25/06/2004 klokka 16:03, skreiv Jörn Engel:
-> Not sure.  NFSv3 appears to be fixable, the only context is the UID,
-
-Huh???? WTF happened to the actual credential?
-
-> which happens to be stored in the inode as well.  NFSv4 and cifs could
-> be worse, I didn't look closely yet.  smbfs accesses the dentry, which
-> has similar effects, but should be fixable as well.
-> 
-> Do you know of any impossible cases?
-
-NFS, CIFS, all other networked filesystems that need private context
-information beyond what is contained in the struct file. Why?
-
-Trond
+Neither printf() nor longjmp() are safe to call from within
+the sighandler.  Have you tried deleting printf() and replacing
+longjmp() with siglongjmp()?  This is a FAQ; search the list archives
+for details.

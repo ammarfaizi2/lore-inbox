@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbTCYGrP>; Tue, 25 Mar 2003 01:47:15 -0500
+	id <S261546AbTCYGy6>; Tue, 25 Mar 2003 01:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbTCYGrP>; Tue, 25 Mar 2003 01:47:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:4369 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261568AbTCYGrE> convert rfc822-to-8bit;
-	Tue, 25 Mar 2003 01:47:04 -0500
-Date: Mon, 24 Mar 2003 22:57:39 -0800
-From: Greg KH <greg@kroah.com>
-To: Craig Dooley <cd5697@albany.edu>
+	id <S261570AbTCYGy6>; Tue, 25 Mar 2003 01:54:58 -0500
+Received: from proxy.povodiodry.cz ([62.77.115.11]:8851 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id <S261546AbTCYGy5>;
+	Tue, 25 Mar 2003 01:54:57 -0500
+From: "Vitezslav Samel" <samel@mail.cz>
+Date: Tue, 25 Mar 2003 08:06:05 +0100
+To: Alan Cox <alan@redhat.com>, Andre Hedrick <andre@linux-ide.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: uhci kernel panic
-Message-ID: <20030325065739.GB12590@kroah.com>
-References: <200303241632.32818.cd5697@albany.edu>
+Subject: Re: [IDE SiI680] throughput drop to 1/4
+Message-ID: <20030325070605.GA26860@pc11.op.pod.cz>
+Mail-Followup-To: Alan Cox <alan@redhat.com>,
+	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+References: <20030324072910.GA16596@pc11.op.pod.cz> <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <20030324072910.GA16596@pc11.op.pod.cz> <200303241213.h2OCD6u21467@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <200303241632.32818.cd5697@albany.edu>
+In-Reply-To: <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <200303241213.h2OCD6u21467@devserv.devel.redhat.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 04:32:32PM -0500, Craig Dooley wrote:
-> Reproducable kernel panic.  If I boot with a Microsoft Intellimouse Explorer 
-> plugged in, I get the following panic
+On Mon, Mar 24, 2003 at 07:13:06AM -0500, Alan Cox wrote:
+> >   Recently I tried to figure out in 2.5.65, why throughput on my disk which
+> > hangs on Silicon Image 680 dropped to 1/4 compared to 2.4.21-pre5, but didn't
+> > found anything useful. Are there any known issues with this driver?
 > 
-> [<c02d24a8>]	uhci_tranfer_result+0x1d8/0x1f0
-> [<c02d2d31>]	uhci_irq+0xd1/0x160
-> [<c02c68ec>]	usb_hdc_irq+0x2c/0x60
+> The same code in both cases. Its quite likely the problem is higher up in
+> the block or filesystem layer. It might also be a general IDE layer bug
+> 
+> What does performance look like on your other disk between
+> 2.4.21pre/2.5.65 ?
 
-Um, I don't see that oops down below.  I see some other strange stuff:
+  Will test it as I come back home (it's on my home machine). But I think this
+performance drop is only on the SiI680 interface.
 
-> Mar 21 21:33:48 broken kernel: ***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
-> Mar 21 21:33:48 broken kernel: **************************************************************************************************************A5 
-> Mar 21 21:33:48 broken kernel: Call Trace:
-> Mar 21 21:33:48 broken kernel:  [check_poison_obj+347/416] check_poison_obj+0x15b/0x1a0
-> Mar 21 21:33:48 broken kernel:  [kmalloc+361/448] kmalloc+0x169/0x1c0
-> Mar 21 21:33:48 broken kernel:  [ip_rcv+776/1088] ip_rcv+0x308/0x440
-> Mar 21 21:33:48 broken kernel:  [alloc_skb+174/576] alloc_skb+0xae/0x240
-> Mar 21 21:33:48 broken kernel:  [alloc_skb+174/576] alloc_skb+0xae/0x240
-> Mar 21 21:33:48 broken kernel:  [e100_rx_srv+388/960] e100_rx_srv+0x184/0x3c0
-> Mar 21 21:33:48 broken kernel:  [e100intr+596/656] e100intr+0x254/0x290
-> Mar 21 21:33:48 broken kernel:  [handle_IRQ_event+56/96] handle_IRQ_event+0x38/0x60
-> Mar 21 21:33:48 broken kernel:  [do_IRQ+174/352] do_IRQ+0xae/0x160
-> Mar 21 21:33:48 broken kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-> Mar 21 21:33:48 broken kernel:  [acpi_processor_idle+346/495] acpi_processor_idle+0x15a/0x1ef
-> Mar 21 21:33:48 broken kernel:  [default_idle+0/48] default_idle+0x0/0x30
-> Mar 21 21:33:48 broken kernel:  [acpi_processor_idle+0/495] acpi_processor_idle+0x0/0x1ef
-> Mar 21 21:33:48 broken kernel:  [default_idle+0/48] default_idle+0x0/0x30
-> Mar 21 21:33:48 broken kernel:  [cpu_idle+49/64] cpu_idle+0x31/0x40
-> Mar 21 21:33:48 broken kernel:  [rest_init+0/96] _stext+0x0/0x60
-> Mar 21 21:33:48 broken kernel: 
-> Mar 21 21:35:49 broken kernel: nvidia: no version magic, tainting kernel.
-> Mar 21 21:35:49 broken kernel: nvidia: module license 'unspecified' taints kernel.
-> Mar 21 21:37:57 broken kernel: nvidia: no version magic, tainting kernel.
-> Mar 21 21:37:57 broken kernel: nvidia: module license 'unspecified' taints kernel.
-> Mar 21 21:37:57 broken kernel: 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4191  Mon Dec  9 11:49:01 PST 2002
+On Mon, Mar 24, 2003 at 09:44:38AM -0800, Andre Hedrick wrote:
+> There should be a mode or a flag option in the siimage.h to disable MMIO
+> by default.  I am courious if this is a BARRIER on the read/write screwing
+> the pooch!
 
-Um, sorry, I don't think this is a usb problem, unless you can duplicate
-it without the nvidia driver in your kernel.
+  Back in late 2.5.4x (or was it early 2.5.5x ?) I tried
+#undef CONFIG_TRY_MMIO_SIIMAGE but nothing has changed (now there's no such
+symbol defined in siimage.c - gone in 2.5.63).
 
-Can you?
-
-If so, does the same thing happen if when you boot, you don't have the
-device plugged in, and then plug it in after boot?
-
-thanks,
-
-greg k-h
+	Cheers,
+		Vita

@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318287AbSHZVPg>; Mon, 26 Aug 2002 17:15:36 -0400
+	id <S318131AbSHZVX5>; Mon, 26 Aug 2002 17:23:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318292AbSHZVPg>; Mon, 26 Aug 2002 17:15:36 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:47806 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318287AbSHZVPf>;
-	Mon, 26 Aug 2002 17:15:35 -0400
-Date: Mon, 26 Aug 2002 23:22:37 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] per-arch load balancing
-In-Reply-To: <1030392283.1020.407.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0208262321240.10588-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318148AbSHZVX5>; Mon, 26 Aug 2002 17:23:57 -0400
+Received: from mnh-1-13.mv.com ([207.22.10.45]:27653 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318131AbSHZVX5>;
+	Mon, 26 Aug 2002 17:23:57 -0400
+Message-Id: <200208262231.RAA04222@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: copy_to_user to a kmapped address 
+In-Reply-To: Your message of "Mon, 26 Aug 2002 21:33:04 +0100."
+             <20020826213304.I4763@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Aug 2002 17:31:23 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+rmk@arm.linux.org.uk said:
+> Umm, that's copying from kaddr + offset _to_ desc->buf.  desc->buf
+> should be the user space address, and kaddr + offset a kernel address:
 
-On 26 Aug 2002, Robert Love wrote:
+Duh, nevermind...
 
-> The attached patch implements (optional) per-architecture load balancing
-> so we can cleanly implement specialized load balancing behavior for
-> NUMA, hyperthreading, etc.
+				Jeff
 
-nope, this is not the right approach, at least not for hyperthreading -
-i've got a generic approach in my tree, will post a patch soon (tm).
 
-> Please, apply.
-
-please dont ...
-
-	Ingo
 

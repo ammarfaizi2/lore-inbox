@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264183AbRFDK1y>; Mon, 4 Jun 2001 06:27:54 -0400
+	id <S263452AbRFCQB5>; Sun, 3 Jun 2001 12:01:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264173AbRFDKHL>; Mon, 4 Jun 2001 06:07:11 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:46354 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263859AbRFDKG4>; Mon, 4 Jun 2001 06:06:56 -0400
-Date: Mon, 4 Jun 2001 03:09:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Akash Jain <aki.jain@stanford.edu>,
-        <linux-kernel@vger.kernel.org>, <su.class.cs99q@nntp.stanford.edu>
-Subject: Re: [PATCH] fs/devfs/base.c
-In-Reply-To: <E156o6c-0005AB-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31.0106040308240.5368-100000@p4.transmeta.com>
+	id <S263338AbRFCPGh>; Sun, 3 Jun 2001 11:06:37 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3589 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263210AbRFCPG3>; Sun, 3 Jun 2001 11:06:29 -0400
+Subject: Re: Linux 2.4.5-ac7
+To: nico@cam.org (Nicolas Pitre)
+Date: Sun, 3 Jun 2001 16:03:58 +0100 (BST)
+Cc: green@linuxhacker.ru (Oleg Drokin), laughing@shared-source.org (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106031053110.1312-100000@xanadu.home> from "Nicolas Pitre" at Jun 03, 2001 10:56:53 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E156ZQ6-0004Pr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If it ever gets to a stability point where it's worth including in Alan's
+> tree, then the dependency could easily be modified to be "USB requires PCI
+> or SA1111".  In the mean time I keep that hairball in my tree.
 
+Even cleaner might be
 
-On Mon, 4 Jun 2001, Alan Cox wrote:
->
-> >  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
-> >    noticeable portion of it. It doesn't matter if you "know" your caller
->
-> Umm Linus on what platform - its 8K or more on all that I can think of
+USB requires nothing
+usb-ohci requires PCI (which it definitely does now with the API's it uses)
+usb-uchi requires PCI 
+uhci requires PCI
+[other controllers]
 
-Ehh.. It's _noticeably_ less than 8kB at least on i386.
-
-> We have a very large number of violators of 1K of stack, and very few of 2K
-> right now.
-
-"Two wrongs do not make a right".
-
-		Linus
+USB devices requires a USB controller was selected
 

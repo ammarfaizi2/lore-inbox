@@ -1,174 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbTEXOYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 10:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTEXOYJ
+	id S262042AbTEXObk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 10:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbTEXObk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 10:24:09 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:14050 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262019AbTEXOYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 10:24:03 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: Error during compile of 2.5.69-mm8
-Date: Sat, 24 May 2003 16:36:59 +0200
-User-Agent: KMail/1.5.9
-References: <200305230327.57985.schlicht@uni-mannheim.de> <200305230538.38946.schlicht@uni-mannheim.de> <20030522.213217.27796203.davem@redhat.com>
-In-Reply-To: <20030522.213217.27796203.davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 24 May 2003 10:31:40 -0400
+Received: from imap.gmx.net ([213.165.64.20]:62939 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262042AbTEXObi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 10:31:38 -0400
+Message-ID: <3ECF8559.5050209@gmx.net>
+Date: Sat, 24 May 2003 16:44:41 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_TO4z+5k460j6U36";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305241637.07395.schlicht@uni-mannheim.de>
+To: =?ISO-8859-2?Q?Rafa=B3_=27rmrmg=27_Roszak?= <rmrmg@wp.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [isdn] avm fritz pci
+References: <20030519134546.4c4395bf.rmrmg@wp.pl> <20030524082545.2d1cbdc2.rmrmg@wp.pl>
+In-Reply-To: <20030524082545.2d1cbdc2.rmrmg@wp.pl>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rafa³ 'rmrmg' Roszak wrote:
+> begin Rafa³ 'rmrmg' Roszak <rmrmg@wp.pl> quote:
+> 
+> 
+>>I have kernel 2.4.21-rc2  (I also tested 2.4.20 2.4.21-pre6, pre7 and
+>>rc1) and when I use 2 channels connect, system crash. Hisax modul is
+>>loaded with parametrs: 
+>>modprobe hisax protocol=2 type=27
+>>
+> 
+>  
+> I have this problem also in 2.4.21-rc3
+> I compilded kernel with MAGIC_SYSRQ but I can't reboot system after
+> crash use Alt+PrtScr+[s,u,b] ...
 
---Boundary-03=_TO4z+5k460j6U36
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_LO4z+OmqhAoH0Et"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
+Did you enable SysRq with
+echo 1 >/proc/sys/kernel/sysrq
+If so, can you test if sysrq works while the system is not crashed?
 
---Boundary-01=_LO4z+OmqhAoH0Et
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: body text
-Content-Disposition: inline
+In case SysRq doesn't work only after this crash, can you compile in the
+NMI watchdog and boot with parameter
+nmi_watchdog=1
+That should print a backtrace if your system hangs hard and SysRq does
+not work.
+NOTE 1: You can see the backtrace only if you are not using X at that time.
+NOTE 2: Your system will be dead after the NMI watchdog triggers. Please
+write down the backtrace and pass it through ksymoops.
 
-On Friday, 23 May 2003 06:32, David S. Miller wrote:
->    From: Thomas Schlichter <schlicht@uni-mannheim.de>
->    Date: Fri, 23 May 2003 05:38:38 +0200
->
->    OK, done...
->
-> I already did it myself and sent the changes to Linus, he should pick
-> them up by tomorrow.
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
 
-Well it seems you missed one file that my patch would have cought. So here =
-is=20
-a seperate diff to fix drivers/usb/media/pwc-if.c, too.
-
-I also attached a patch that fixes the SET_MODULE_OWNER thing for net/ipv4/=
- by=20
-using static initializers instead of performing the assignment at runtime.=
-=20
-This should be no problem here, as SET_MODULE_OWNER was called from static=
-=20
-init functions once. I also made 'esp4_init' static to be safe. This functi=
-on=20
-is not called from anywhere else in the whole kernel tree. (That's whar gre=
-p=20
-says)
-
-Both patches should cleanly apply to current bk.
-=46or me it compiles and runs without any problems...
-
-Best regards
-  Thomas Schlichter
-
---Boundary-01=_LO4z+OmqhAoH0Et
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="missed_wrong_SET_MODULE_OWNER.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="missed_wrong_SET_MODULE_OWNER.diff"
-
-=2D-- linux-2.5.69-bk/drivers/usb/media/pwc-if.c.orig	Sat May 24 16:12:40 2=
-003
-+++ linux-2.5.69-bk/drivers/usb/media/pwc-if.c	Sat May 24 16:13:43 2003
-@@ -1804,7 +1804,7 @@
- 	}
- 	memcpy(vdev, &pwc_template, sizeof(pwc_template));
- 	strcpy(vdev->name, name);
-=2D	SET_MODULE_OWNER(vdev);
-+	vdev->owner =3D THIS_MODULE;
- 	pdev->vdev =3D vdev;
- 	vdev->priv =3D pdev;
-=20
-
---Boundary-01=_LO4z+OmqhAoH0Et
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="better_wrong_SET_MODULE_OWNER.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="better_wrong_SET_MODULE_OWNER.diff"
-
-=2D-- linux-2.5.69-bk/net/ipv4/esp.c.orig	Sat May 24 16:14:29 2003
-+++ linux-2.5.69-bk/net/ipv4/esp.c	Sat May 24 16:13:43 2003
-@@ -567,7 +567,7 @@
- 	.no_policy	=3D	1,
- };
-=20
-=2Dint __init esp4_init(void)
-+static int __init esp4_init(void)
- {
- 	struct xfrm_decap_state decap;
-=20
-@@ -578,7 +578,6 @@
- 		decap_data_too_small();
- 	}
-=20
-=2D	esp_type.owner =3D THIS_MODULE;
- 	if (xfrm_register_type(&esp_type, AF_INET) < 0) {
- 		printk(KERN_INFO "ip esp init: can't add xfrm type\n");
- 		return -EAGAIN;
-=2D-- linux-2.5.69-bk/net/ipv4/ipcomp.c.orig	Sat May 24 16:15:04 2003
-+++ linux-2.5.69-bk/net/ipv4/ipcomp.c	Sat May 24 16:13:43 2003
-@@ -385,6 +385,7 @@
- static struct xfrm_type ipcomp_type =3D
- {
- 	.description	=3D "IPCOMP4",
-+	.owner		=3D THIS_MODULE,
- 	.proto	     	=3D IPPROTO_COMP,
- 	.init_state	=3D ipcomp_init_state,
- 	.destructor	=3D ipcomp_destroy,
-@@ -400,7 +401,6 @@
-=20
- static int __init ipcomp4_init(void)
- {
-=2D	ipcomp_type.owner =3D THIS_MODULE;
- 	if (xfrm_register_type(&ipcomp_type, AF_INET) < 0) {
- 		printk(KERN_INFO "ipcomp init: can't add xfrm type\n");
- 		return -EAGAIN;
-=2D-- linux-2.5.69-bk/net/ipv4/xfrm4_tunnel.c.orig	Sat May 24 16:15:34 2003
-+++ linux-2.5.69-bk/net/ipv4/xfrm4_tunnel.c	Sat May 24 16:13:43 2003
-@@ -215,6 +215,7 @@
-=20
- static struct xfrm_type ipip_type =3D {
- 	.description	=3D "IPIP",
-+	.owner		=3D THIS_MODULE,
- 	.proto	     	=3D IPPROTO_IPIP,
- 	.init_state	=3D ipip_init_state,
- 	.destructor	=3D ipip_destroy,
-@@ -229,7 +230,6 @@
-=20
- static int __init ipip_init(void)
- {
-=2D	ipip_type.owner =3D THIS_MODULE;
- 	if (xfrm_register_type(&ipip_type, AF_INET) < 0) {
- 		printk(KERN_INFO "ipip init: can't add xfrm type\n");
- 		return -EAGAIN;
-
---Boundary-01=_LO4z+OmqhAoH0Et--
-
---Boundary-03=_TO4z+5k460j6U36
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+z4OTYAiN+WRIZzQRApWAAJ9boWJe8RUI2hUlu14MwRz5ypKtdQCg7EM5
-j/86bTIeCO1n0tm2nlMf0RA=
-=GF+q
------END PGP SIGNATURE-----
-
---Boundary-03=_TO4z+5k460j6U36--

@@ -1,92 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268739AbUHaPgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUHaPm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268739AbUHaPgF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 11:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268738AbUHaPf6
+	id S268769AbUHaPm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 11:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268772AbUHaPm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 11:35:58 -0400
-Received: from mail2.bluewin.ch ([195.186.4.73]:26536 "EHLO mail2.bluewin.ch")
-	by vger.kernel.org with ESMTP id S268730AbUHaPfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 11:35:32 -0400
-Date: Tue, 31 Aug 2004 17:34:32 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
-Subject: [BENCHMARK] nproc: Look Ma, No get_tgid_list!
-Message-ID: <20040831153431.GA6010@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
-	Paul Jackson <pj@sgi.com>
-References: <20040827122412.GA20052@k3.hellgate.ch> <20040827162308.GP2793@holomorphy.com> <20040828194546.GA25523@k3.hellgate.ch> <20040828195647.GP5492@holomorphy.com> <20040828201435.GB25523@k3.hellgate.ch> <20040829160542.GF5492@holomorphy.com> <20040829170247.GA9841@k3.hellgate.ch>
+	Tue, 31 Aug 2004 11:42:56 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:33750 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268769AbUHaPmr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 11:42:47 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 31 Aug 2004 17:15:28 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch 1/4] v4l: i2c cleanups
+Message-ID: <20040831151528.GA15535@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040829170247.GA9841@k3.hellgate.ch>
-X-Operating-System: Linux 2.6.8 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This posting demonstrates a new method of monitoring all processes in
-a large system.
+  Hi,
 
-You may remember what a /proc based tool does when monitoring some
-10^5 processes -- it spends its time in the kernel hanging on to a
-read task_list_lock:
+This patch has some minor cleanups for the v4l i2c modules:  Don't
+ignore the i2c_add_driver return value and mark the init+exit
+functions with __init + __exit.
 
-==> 10000 processes: top -d 0 -b > /dev/null <==
-CPU: CPU with timer interrupt, speed 0 MHz (estimated)
-Profiling through timer interrupt
-samples  %        image name               symbol name
-35855    36.0707  vmlinux                  get_tgid_list
-9366      9.4223  vmlinux                  pid_alive
-7077      7.1196  libc-2.3.3.so            _IO_vfscanf_internal
-5386      5.4184  vmlinux                  number
-3664      3.6860  vmlinux                  proc_pid_stat
-3077      3.0955  libc-2.3.3.so            _IO_vfprintf_internal
-2136      2.1489  vmlinux                  __d_lookup
-1720      1.7303  vmlinux                  vsnprintf
-1451      1.4597  libc-2.3.3.so            __i686.get_pc_thunk.bx
-1409      1.4175  libc-2.3.3.so            _IO_default_xsputn_internal
-1258      1.2656  libc-2.3.3.so            _IO_putc_internal
-1225      1.2324  vmlinux                  link_path_walk
-1210      1.2173  libc-2.3.3.so            ____strtoul_l_internal
-1199      1.2062  vmlinux                  task_statm
-1157      1.1640  libc-2.3.3.so            ____strtol_l_internal
-794       0.7988  libc-2.3.3.so            _IO_sputbackc_internal
-776       0.7807  libncurses.so.5.4        _nc_outch
+please apply,
 
-Here's a profile for an nproc based tool monitoring the same set
-of processes:
+  Gerd
 
-==> 10000 processes: nprocbench <==
-CPU: CPU with timer interrupt, speed 0 MHz (estimated)
-Profiling through timer interrupt
-samples  %        app name                 symbol name
-8641     24.8626  vmlinux                  __task_mem
-2778      7.9931  vmlinux                  find_pid
-2536      7.2968  vmlinux                  finish_task_switch
-1872      5.3863  vmlinux                  netlink_recvmsg
-1637      4.7101  vmlinux                  nproc_pid_fields
-1373      3.9505  vmlinux                  __wake_up
-1218      3.5045  vmlinux                  __copy_to_user_ll
-1134      3.2628  vmlinux                  __task_mem_cheap
-944       2.7162  vmlinux                  mmgrab
-876       2.5205  vmlinux                  nproc_ps_do_pid
-568       1.6343  vmlinux                  skb_dequeue
-526       1.5135  libc-2.3.3.so            __recv
-514       1.4789  vmlinux                  alloc_skb
-510       1.4674  vmlinux                  __might_sleep
-485       1.3955  vmlinux                  skb_release_data
-463       1.3322  vmlinux                  netlink_attachskb
-363       1.0445  vmlinux                  sys_recvfrom
+diff -up linux-2.6.9-rc1/drivers/media/video/msp3400.c linux/drivers/media/video/msp3400.c
+--- linux-2.6.9-rc1/drivers/media/video/msp3400.c	2004-08-25 16:12:38.000000000 +0200
++++ linux/drivers/media/video/msp3400.c	2004-08-25 18:20:57.876559437 +0200
+@@ -737,7 +737,7 @@ autodetect_stereo(struct i2c_client *cli
+ static int msp34xx_sleep(struct msp3400c *msp, int timeout)
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+-
++	
+ 	add_wait_queue(&msp->wq, &wait);
+ 	if (!msp->rmmod) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+@@ -1444,7 +1444,7 @@ static int msp_command(struct i2c_client
+ 			msp3400c_setcarrier(client, MSP_CARRIER(10.7),
+ 					    MSP_CARRIER(10.7));
+ 			msp3400c_setvolume(client, msp->muted,
+-					   msp->volume, msp->balance);
++					   msp->volume, msp->balance);	
+ 		}
+ 		if (msp->active)
+ 			msp->restart = 1;
+@@ -1552,13 +1552,12 @@ static int msp_command(struct i2c_client
+ 
+ /* ----------------------------------------------------------------------- */
+ 
+-static int msp3400_init_module(void)
++static int __init msp3400_init_module(void)
+ {
+-	i2c_add_driver(&driver);
+-	return 0;
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void msp3400_cleanup_module(void)
++static void __exit msp3400_cleanup_module(void)
+ {
+ 	i2c_del_driver(&driver);
+ }
+diff -up linux-2.6.9-rc1/drivers/media/video/tda7432.c linux/drivers/media/video/tda7432.c
+--- linux-2.6.9-rc1/drivers/media/video/tda7432.c	2004-08-25 16:12:51.000000000 +0200
++++ linux/drivers/media/video/tda7432.c	2004-08-25 18:20:57.879558876 +0200
+@@ -532,17 +532,17 @@ static struct i2c_client client_template
+ 	.driver     = &driver, 
+ };
+ 
+-static int tda7432_init(void)
++static int __init tda7432_init(void)
+ {
+ 	if ( (loudness < 0) || (loudness > 15) ) {
+ 		printk(KERN_ERR "tda7432: loudness parameter must be between 0 and 15\n");
+ 		return -EINVAL;
+ 	}
+-	i2c_add_driver(&driver);
+-	return 0;
++
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void tda7432_fini(void)
++static void __exit tda7432_fini(void)
+ {
+ 	i2c_del_driver(&driver);
+ }
+diff -up linux-2.6.9-rc1/drivers/media/video/tda9875.c linux/drivers/media/video/tda9875.c
+--- linux-2.6.9-rc1/drivers/media/video/tda9875.c	2004-08-25 16:12:07.000000000 +0200
++++ linux/drivers/media/video/tda9875.c	2004-08-25 18:20:57.881558502 +0200
+@@ -403,13 +403,12 @@ static struct i2c_client client_template
+         .driver    = &driver,
+ };
+ 
+-static int tda9875_init(void)
++static int __init tda9875_init(void)
+ {
+-	i2c_add_driver(&driver);
+-	return 0;
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void tda9875_fini(void)
++static void __exit tda9875_fini(void)
+ {
+ 	i2c_del_driver(&driver);
+ }
+diff -up linux-2.6.9-rc1/drivers/media/video/tvaudio.c linux/drivers/media/video/tvaudio.c
+--- linux-2.6.9-rc1/drivers/media/video/tvaudio.c	2004-08-25 16:11:53.000000000 +0200
++++ linux/drivers/media/video/tvaudio.c	2004-08-25 18:20:57.885557754 +0200
+@@ -277,7 +277,7 @@ static int chip_thread(void *data)
+ 	daemonize("%s",i2c_clientname(&chip->c));
+ 	allow_signal(SIGTERM);
+ 	dprintk("%s: thread started\n", i2c_clientname(&chip->c));
+-
++	
+ 	for (;;) {
+ 		add_wait_queue(&chip->wq, &wait);
+ 		if (!chip->done) {
+@@ -1651,7 +1651,7 @@ static struct i2c_client client_template
+         .driver     = &driver,
+ };
+ 
+-static int audiochip_init_module(void)
++static int __init audiochip_init_module(void)
+ {
+ 	struct CHIPDESC  *desc;
+ 	printk(KERN_INFO "tvaudio: TV audio decoder + audio/video mux driver\n");
+@@ -1659,11 +1659,11 @@ static int audiochip_init_module(void)
+ 	for (desc = chiplist; desc->name != NULL; desc++)
+ 		printk("%s%s", (desc == chiplist) ? "" : ",",desc->name);
+ 	printk("\n");
+-	i2c_add_driver(&driver);
+-	return 0;
++
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void audiochip_cleanup_module(void)
++static void __exit audiochip_cleanup_module(void)
+ {
+ 	i2c_del_driver(&driver);
+ }
+diff -up linux-2.6.9-rc1/drivers/media/video/tvmixer.c linux/drivers/media/video/tvmixer.c
+--- linux-2.6.9-rc1/drivers/media/video/tvmixer.c	2004-08-25 16:13:26.000000000 +0200
++++ linux/drivers/media/video/tvmixer.c	2004-08-25 18:20:57.887557380 +0200
+@@ -330,17 +330,17 @@ static int tvmixer_clients(struct i2c_cl
+ 
+ /* ----------------------------------------------------------------------- */
+ 
+-static int tvmixer_init_module(void)
++static int __init tvmixer_init_module(void)
+ {
+ 	int i;
+ 	
+ 	for (i = 0; i < DEV_MAX; i++)
+ 		devices[i].minor = -1;
+-	i2c_add_driver(&driver);
+-	return 0;
++
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void tvmixer_cleanup_module(void)
++static void __exit tvmixer_cleanup_module(void)
+ {
+ 	int i;
+ 	
+diff -up linux-2.6.9-rc1/include/media/id.h linux/include/media/id.h
+--- linux-2.6.9-rc1/include/media/id.h	2004-08-25 16:12:15.000000000 +0200
++++ linux/include/media/id.h	2004-08-25 18:20:57.889557007 +0200
+@@ -35,4 +35,3 @@
+ #ifndef I2C_ALGO_SAA7134
+ # define I2C_ALGO_SAA7134 0x090000
+ #endif
+-
 
-Resource usage is now dominated by field computation, rather than by
-delivery overhead. By now it should be clear that nproc is not only a
-cleaner interface with lower overhead for tools, it also scales a lot
-better than /proc.
-
-Roger
+-- 
+return -ENOSIG;

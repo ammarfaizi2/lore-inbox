@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263518AbUCTTtR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 14:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUCTTtR
+	id S263522AbUCTTuy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 14:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263521AbUCTTuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 14:49:17 -0500
-Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:31901 "EHLO
-	gate2.perex.cz") by vger.kernel.org with ESMTP id S263518AbUCTTtN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 14:49:13 -0500
-Date: Sat, 20 Mar 2004 20:44:44 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-In-Reply-To: <20040320160911.B6726@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0403202038530.1816@pnote.perex-int.cz>
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com>
- <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0403201651520.1816@pnote.perex-int.cz>
- <20040320160911.B6726@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 20 Mar 2004 14:50:51 -0500
+Received: from waste.org ([209.173.204.2]:25232 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263519AbUCTTuo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 14:50:44 -0500
+Date: Sat, 20 Mar 2004 13:50:39 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] make inflate work with gcc3.5 and 4k stacks
+Message-ID: <20040320195039.GT11010@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Mar 2004, Russell King wrote:
+Quick fix to work around gcc3.5's automatic inline and broken stack
+requirements calculation. Without this, I see stack overflows at boot
+with 4k stacks.
 
-> It is well known that virt_to_page() is only valid on virtual addresses
-> which correspond to kernel direct mapped RAM pages, and undefined on
-> everything else.  Unfortunately, ALSA has been using it with
-> pci_alloc_consistent() for a long time, and this behaviour is what
-> makes ALSA broken.  The fact it works on x86 is merely incidental.
+gcc3.5 - fix inflate inlining
 
-It works on PPC as well (at least we have no error reports).
+ tiny-mpm/lib/inflate.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> If ALSA wants this functionality, the ALSA people should ideally have
-> put their requirements forward during the 2.5 development cycle so the
-> problem could be addressed.
+diff -puN lib/inflate.c~inflate-noinline lib/inflate.c
+--- tiny/lib/inflate.c~inflate-noinline	2004-03-20 13:39:18.000000000 -0600
++++ tiny-mpm/lib/inflate.c	2004-03-20 13:40:13.000000000 -0600
+@@ -686,7 +686,7 @@ DEBG("<stor");
+ 
+ 
+ 
+-STATIC int inflate_fixed(void)
++STATIC int noinline inflate_fixed(void)
+ /* decompress an inflated type 1 (fixed Huffman codes) block.  We should
+    either replace this with a custom decoder, or at least precompute the
+    Huffman tables. */
+@@ -740,7 +740,7 @@ DEBG("<fix");
+ 
+ 
+ 
+-STATIC int inflate_dynamic(void)
++STATIC int noinline inflate_dynamic(void)
+ /* decompress an inflated type 2 (dynamic Huffman codes) block. */
+ {
+   int i;                /* temporary variables */
 
-Yes, I'm sorry about that, but the ->nopage usage was requested by Jeff
-Garzik and we're not gurus for the VM stuff. Because we're probably first
-starting using of this mapping scheme, it resulted to problems.
+_
 
-> However, luckily in this instance, it is not a big problem to solve.  
-> It just requires time to sort through all the abstraction layers upon
-> abstraction layers which ALSA has.
-> 
-> - and I'm doing exactly this, right now.  Be patient. -
 
-Thanks a lot.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262379AbSI2Cn1>; Sat, 28 Sep 2002 22:43:27 -0400
+	id <S262384AbSI2CrI>; Sat, 28 Sep 2002 22:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262381AbSI2Cn1>; Sat, 28 Sep 2002 22:43:27 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:19210 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S262379AbSI2Cn0>; Sat, 28 Sep 2002 22:43:26 -0400
-Message-Id: <200209290248.g8T2mbx02015@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Luben Tuikov <luben@splentec.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while 
- doingfiletransfers
-In-Reply-To: Message from Luben Tuikov <luben@splentec.com> 
-   of "Sat, 28 Sep 2002 19:25:39 EDT." <3D963A73.F593F5F7@splentec.com> 
+	id <S262385AbSI2CrI>; Sat, 28 Sep 2002 22:47:08 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:65298 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262384AbSI2CrH>; Sat, 28 Sep 2002 22:47:07 -0400
+Date: Sun, 29 Sep 2002 03:52:25 +0100
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de
+Subject: Re: [PATCH][RFC] oprofile for 2.5.39
+Message-ID: <20020929025224.GA68153@compsoc.man.ac.uk>
+References: <20020929014440.GA66796@compsoc.man.ac.uk.suse.lists.linux.kernel> <p737kh5sf45.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Sep 2002 22:48:36 -0400
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+In-Reply-To: <p737kh5sf45.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-luben@splentec.com said:
-> TCQ goes hand in hand with Task Attributes. I.e. a tagged task is an
-> I_T_L_Q nexus and has a task attribute (Simple, Ordered, Head of
-> Queue, ACA; cf. SAM-3, 4.9.1). 
+On Sun, Sep 29, 2002 at 04:29:14AM +0200, Andi Kleen wrote:
 
-I believe the point I was making is that our only current expectation is 
-simple tag, which is unordered.
+> Can you explain what you need the context switch hook for ? 
 
-> aybe the generator of tags (block layer, user process through sg, etc)
-> should also set the tag attribute of the task, as per SAM-3. Most
-> often (as currently implicitly) this would be a Simple task attribute.
-> Why not the block layer borrow the idea from SAM-3, I see IDE only
-> coming closer to SCSI...
+Hmm, I tried to explain this in comments in the patch ...
 
-> This way there'd be no need for explicit barriers. They can be
-> implemented through Ordered and Head of Queue Tasks, everything else
-> is Simple attribute task (IO scheduler can play with those as it
-> wishes).
+> I don't think it's a good idea to put a hook at such a critical place.
 
-> This would provide for a more general basis the whole game (IO
-> scheduling, TCQ, IO barriers, etc). 
+... but I obviously didn't do a very good job.
 
-That would be rather the wrong approach.  As the layers move up from the 
-physical hardware, the level of abstraction becomes greater, so the current 
-proposal is (descending the abstractions):
+We need a context to look up the EIP against when we process each sample
+in buffer_sync.c. We could just log current at sample time along with
+EIP/event, but why would it be preferrable to just logging the same
+information once when it's needed ?
 
-journal transaction->REQ_BARRIER->cache synchronise (ide) or ordered tag (scsi)
+Basically it's a matter of :
 
-Most of the implementation is in ll_rw_blk.c if you want to take a look
+	task_struct *
+	EIP/Event
+	EIP/Event
+	EIP/Event
+	EIP/Event
+	....
 
-James
+versus
 
+	task_struct */EIP/Event
+	task_struct */EIP/Event
+	task_struct */EIP/Event
+	task_struct */EIP/Event
+	task_struct */EIP/Event
+	....
 
+Where task_struct is the same as the previous entry for the vast
+majority of entries.
+
+> 2.4 oprofile worked without such a hook, no ? 
+
+Sure, but it was ugly as hell (and worked completely differently)
+
+regards
+john
+
+-- 
+"When your name is Winner, that's it. You don't need a nickname."
+	- Loser Lane

@@ -1,298 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbTJAQk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 12:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbTJAQk3
+	id S262765AbTJAQak (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 12:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbTJAQ2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 12:40:29 -0400
-Received: from mail.convergence.de ([212.84.236.4]:1257 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262422AbTJAQj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 12:39:27 -0400
-Message-ID: <3F7B0337.3010308@convergence.de>
-Date: Wed, 01 Oct 2003 18:39:19 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@fs.tum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] select for drivers/media
-References: <20030928160536.GJ15338@fs.tum.de> <3F774CCC.3040707@convergence.de> <20030928212630.GS15338@fs.tum.de> <20030929173021.GA1762@kroah.com> <3F787A90.7020706@convergence.de> <Pine.LNX.4.44.0309292100430.8124-100000@serv>
-In-Reply-To: <Pine.LNX.4.44.0309292100430.8124-100000@serv>
-Content-Type: multipart/mixed;
- boundary="------------080303060907070207070203"
+	Wed, 1 Oct 2003 12:28:17 -0400
+Received: from hockin.org ([66.35.79.110]:6920 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S262474AbTJAQ0a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 12:26:30 -0400
+Date: Wed, 1 Oct 2003 00:10:07 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, braam@clusterfs.com,
+       rusty@rustcorp.com.au,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.edu>
+Subject: Re: [PATCH] Many groups patch.
+Message-ID: <20031001071007.GA29339@hockin.org>
+References: <20030929155528.A14709@hockin.org> <Pine.LNX.4.44.0309291609460.12684-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309291609460.12684-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080303060907070207070203
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Sep 29, 2003 at 04:10:23PM -0700, Linus Torvalds wrote:
+> > On Mon, Sep 29, 2003 at 03:43:43PM -0700, Tim Hockin wrote:
+> > > My version uses a struct group_info which has an array of pages.  The groups
+> 
+> I'm definitely happier about this one. 
+> 
+> Not that I'm any more thrilled about users using thousands of groups. But 
+> this looks a bit saner.
 
-Hi Roman, Greg, Adrian,
+OK, then.  Here's a brushed up version against 2.6.0-test6.  Linus, if you
+like this, I can get it into a public BK for you.  If not, please indicate
+the issues.
 
-> Please don't use select for something like PCI or NET, if e.g. PCI is not 
-> selected no pci driver should be visible or you annoy users which don't 
-> have a pci bus, but have to wade through thousands of nonrelevant drivers.
 
-Ok, I understand. Point taken. 8-)
 
-Attached you can find my latest patch: DVB depends on NET && INET again,
-the only subsystem that's getting SELECTed is I2C. All dvb drivers 
-depend on DVB_CORE instead of DVB now, so the user is forced to select 
-the dvb-core, which he'll need anyway.
+Summary: Get rid of the NGROUPS hard limit.
 
-> bye, Roman
+This patch removes all fixed-size arrays which depend on NGROUPS, and
+replaces them with struct group_info, which is refcounted, and holds an
+array of pages in which to store groups.  groups_alloc() and groups_free()
+are used to allocate and free struct group_info, and set_group_info is used
+to actually put a group_info into a task.  Groups are sorted and b-searched
+for efficiency.  Because groups are stored in a 2-D array, the GRP_AT()
+macro was added to allow simple 1-D style indexing.
 
-If it's ok like that, I can include this patch within my next patchset.
+This patch touches all the compat code in the 64-bit architectures.
+These files have a LOT of duplicated code from uid16.c.  I did not try to
+reduce duplicated code, and instead followed suit.  A proper cleanup of
+those architectures code-bases would be fun.  Any sysconf() which used to
+return NGROUPS now returns INT_MAX - there is no hard limit.
 
-CU
-Michael.
+This patch also touches nfsd by imposing a limit on the number of groups in
+an svc_cred struct.
 
---------------080303060907070207070203
-Content-Type: text/plain;
- name="10-DVB-Kconfig-and-Makefile-updates.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="10-DVB-Kconfig-and-Makefile-updates.diff"
+This patch modifies /proc/pid/status to only display the first 32 groups.
 
-- [DVB] split up saa7146 compilation in core part (saa7146.o) and video+vbi part (saa7146_vv). some drivers need both (av7110.c), some drivers only need the core stuff (budget*.c)
-- [DVB] add entry for sp887x DVB-T modulator to corresponding Kconfig
-- [DVB] use new SELECT facility of Kconfig, first mentioned by Adrian Bunk and Roman Zippel in DVB subsystem
-- [DVB] use SELECT in media/video/Kconfig, too.
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/common/Kconfig linux-2.6.0-test6-cvs/drivers/media/common/Kconfig
---- linux-2.6.0-test6/drivers/media/common/Kconfig	2003-10-01 12:25:26.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/common/Kconfig	2003-10-01 12:12:33.000000000 +0200
-@@ -1,8 +1,12 @@
- config VIDEO_SAA7146
--	def_tristate DVB_AV7110 || DVB_BUDGET || DVB_BUDGET_AV || \
--		     VIDEO_MXB || VIDEO_DPC || VIDEO_HEXIUM_ORION || \
--		     VIDEO_HEXIUM_GEMINI
--        depends on VIDEO_DEV && PCI && I2C
-+        tristate
-+	select I2C
-+
-+config VIDEO_SAA7146_VV
-+        tristate
-+	select VIDEO_BUF
-+	select VIDEO_VIDEOBUF
-+	select VIDEO_SAA7146
-+
- config VIDEO_VIDEOBUF
--	def_tristate VIDEO_SAA7134 || VIDEO_BT848 || VIDEO_SAA7146
--        depends on VIDEO_DEV
-+        tristate
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/common/Makefile linux-2.6.0-test6-cvs/drivers/media/common/Makefile
---- linux-2.6.0-test6/drivers/media/common/Makefile	2003-10-01 12:20:38.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/common/Makefile	2003-09-29 14:08:58.000000000 +0200
-@@ -1,5 +1,6 @@
- saa7146-objs    := saa7146_i2c.o saa7146_core.o 
- saa7146_vv-objs := saa7146_vv_ksyms.o saa7146_fops.o saa7146_video.o saa7146_hlp.o saa7146_vbi.o  
- 
--obj-$(CONFIG_VIDEO_SAA7146) += saa7146.o saa7146_vv.o
-+obj-$(CONFIG_VIDEO_SAA7146) += saa7146.o
-+obj-$(CONFIG_VIDEO_SAA7146_VV) += saa7146_vv.o
- 
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/dvb/Kconfig linux-2.6.0-test6-cvs/drivers/media/dvb/Kconfig
---- linux-2.6.0-test6/drivers/media/dvb/Kconfig	2003-10-01 12:20:38.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/dvb/Kconfig	2003-09-30 19:43:56.000000000 +0200
-@@ -3,16 +3,16 @@
- #
- 
- menu "Digital Video Broadcasting Devices"
--	depends on NET && INET 
- 
- config DVB
- 	bool "DVB For Linux"
-+	depends on NET && INET
- 	---help---
- 	  Support Digital Video Broadcasting hardware.  Enable this if you 
- 	  own a DVB adapter and want to use it or if you compile Linux for 
- 	  a digital SetTopBox.
- 
--	  API specs and user tools and are available for example from 
-+	  API specs and user tools are available from
- 	  <http://www.linuxtv.org/>. 
- 
- 	  Please report problems regarding this driver to the LinuxDVB 
-@@ -33,18 +33,16 @@
- source "drivers/media/dvb/frontends/Kconfig"
- 
- comment "Supported SAA7146 based PCI Adapters"
--	depends on DVB && PCI
--
-+	depends on DVB_CORE && PCI
- source "drivers/media/dvb/ttpci/Kconfig"
- 
- comment "Supported USB Adapters"
--	depends on DVB && USB
--
-+	depends on DVB_CORE && USB
- source "drivers/media/dvb/ttusb-budget/Kconfig"
- source "drivers/media/dvb/ttusb-dec/Kconfig"
- 
- comment "Supported FlexCopII (B2C2) Adapters"
--	depends on DVB && PCI
-+	depends on DVB_CORE && PCI
- source "drivers/media/dvb/b2c2/Kconfig"
- 
- endmenu
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/dvb/dvb-core/Kconfig linux-2.6.0-test6-cvs/drivers/media/dvb/dvb-core/Kconfig
---- linux-2.6.0-test6/drivers/media/dvb/dvb-core/Kconfig	2003-10-01 12:20:38.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/dvb/dvb-core/Kconfig	2003-09-29 15:50:51.000000000 +0200
-@@ -4,5 +4,8 @@
- 	select CRC32
- 	help
- 	  DVB core utility functions for device handling, software fallbacks etc.
-+	  Say Y when you have a DVB card and want to use it. Say Y if your want
-+	  to build your drivers outside the kernel, but need the DVB core. All 
-+	  in-kernel drivers will select this automatically if needed.
-+	  If unsure say N.
- 
--	  Say Y when you have a DVB card and want to use it. If unsure say N.
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/dvb/dvb-core/Makefile.lib linux-2.6.0-test6-cvs/drivers/media/dvb/dvb-core/Makefile.lib
---- linux-2.6.0-test6/drivers/media/dvb/dvb-core/Makefile.lib	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.0-test6-cvs/drivers/media/dvb/dvb-core/Makefile.lib	2002-11-08 18:13:22.000000000 +0100
-@@ -0,0 +1 @@
-+obj-$(CONFIG_DVB_CORE)		+= crc32.o
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/dvb/ttpci/Kconfig linux-2.6.0-test6-cvs/drivers/media/dvb/ttpci/Kconfig
---- linux-2.6.0-test6/drivers/media/dvb/ttpci/Kconfig	2003-10-01 12:20:38.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/dvb/ttpci/Kconfig	2003-09-29 14:28:39.000000000 +0200
-@@ -1,6 +1,8 @@
- config DVB_AV7110
- 	tristate "AV7110 cards"
--	depends on VIDEO_DEV && DVB_CORE
-+	depends on DVB_CORE
-+	select VIDEO_DEV
-+	select VIDEO_SAA7146_VV
- 	help
- 	  Support for SAA7146 and AV7110 based DVB cards as produced 
- 	  by Fujitsu-Siemens, Technotrend, Hauppauge and others.
-@@ -26,6 +28,7 @@
- config DVB_BUDGET
- 	tristate "Budget cards"
- 	depends on DVB_CORE
-+	select VIDEO_SAA7146
- 	help
- 	  Support for simple SAA7146 based DVB cards
- 	  (so called Budget- or Nova-PCI cards) without onboard
-@@ -38,7 +41,8 @@
- 
- config DVB_BUDGET_CI
- 	tristate "Budget cards with onboard CI connector"
--	depends on VIDEO_DEV && DVB_CORE && DVB_BUDGET
-+	depends on DVB_CORE
-+	select VIDEO_SAA7146
- 	help
- 	  Support for simple SAA7146 based DVB cards
- 	  (so called Budget- or Nova-PCI cards) without onboard
-@@ -51,7 +55,9 @@
- 
- config DVB_BUDGET_AV
- 	tristate "Budget cards with analog video inputs"
--	depends on VIDEO_DEV && DVB_CORE && DVB_BUDGET
-+	depends on DVB_CORE
-+	select VIDEO_DEV
-+	select VIDEO_SAA7146_VV
- 	help
- 	  Support for simple SAA7146 based DVB cards
- 	  (so called Budget- or Nova-PCI cards) without onboard
-@@ -64,7 +70,9 @@
- 
- config DVB_BUDGET_PATCH
- 	tristate "AV7110 cards with Budget Patch"
--	depends on DVB_CORE && DVB_BUDGET
-+	depends on DVB_BUDGET
-+	select VIDEO_DEV
-+	select VIDEO_SAA7146_VV
- 	help
- 	  Support for Budget Patch (full TS) modification on 
- 	  SAA7146+AV7110 based cards (DVB-S cards). This
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/dvb/ttusb-budget/Kconfig linux-2.6.0-test6-cvs/drivers/media/dvb/ttusb-budget/Kconfig
---- linux-2.6.0-test6/drivers/media/dvb/ttusb-budget/Kconfig	2003-10-01 12:20:38.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/dvb/ttusb-budget/Kconfig	2003-09-30 19:45:20.000000000 +0200
-@@ -1,6 +1,6 @@
- config DVB_TTUSB_BUDGET
- 	tristate "Technotrend/Hauppauge Nova-USB devices"
--	depends on DVB_CORE && USB
-+	depends on DVB_CORE
- 	help
- 	  Support for external USB adapters designed by Technotrend and
- 	  produced by Hauppauge, shipped under the brand name 'Nova-USB'.
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/dvb/frontends/Kconfig linux-2.6.0-test6-cvs/drivers/media/dvb/frontends/Kconfig
---- linux-2.6.0-test6/drivers/media/dvb/frontends/Kconfig	2003-10-01 13:36:35.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/dvb/frontends/Kconfig	2003-10-01 13:04:16.000000000 +0200
-@@ -26,6 +26,16 @@
- 	  DVB adapter simply enable all supported frontends, the 
- 	  right one will get autodetected.
- 
-+config DVB_SP887X
-+ 	tristate "Frontends with sp887x demodulators, e.g. Microtune DTF7072"
-+ 	depends on DVB_CORE
-+ 	help
-+ 	  A DVB-T demodulator driver. Say Y when you want to support the sp887x.
-+ 
-+ 	  If you don't know what tuner module is soldered on your
-+ 	  DVB adapter simply enable all supported frontends, the
-+ 	  right one will get autodetected.
-+
- config DVB_ALPS_TDLB7
- 	tristate "Alps TDLB7 (OFDM)"
- 	depends on DVB_CORE
-diff -uNrwB --new-file -uraN linux-2.6.0-test6/drivers/media/video/Kconfig linux-2.6.0-test6-cvs/drivers/media/video/Kconfig
---- linux-2.6.0-test6/drivers/media/video/Kconfig	2003-10-01 13:36:35.000000000 +0200
-+++ linux-2.6.0-test6-cvs/drivers/media/video/Kconfig	2003-09-30 19:40:39.000000000 +0200
-@@ -3,7 +3,7 @@
- #
- 
- menu "Video For Linux"
--	depends on VIDEO_DEV!=n
-+	depends on VIDEO_DEV
- 
- comment "Video Adapters"
- 
-@@ -228,7 +228,8 @@
- 
- config VIDEO_MXB
- 	tristate "Siemens-Nixdorf 'Multimedia eXtension Board'"
--	depends on VIDEO_DEV && PCI && I2C
-+	depends on VIDEO_DEV && PCI
-+	select VIDEO_SAA7146_VV
- 	---help---
- 	  This is a video4linux driver for the 'Multimedia eXtension Board'
- 	  TV card by Siemens-Nixdorf.
-@@ -238,7 +239,8 @@
- 
- config VIDEO_DPC
- 	tristate "Philips-Semiconductors 'dpc7146 demonstration board'"
--	depends on VIDEO_DEV && PCI && I2C
-+	depends on VIDEO_DEV && PCI
-+	select VIDEO_SAA7146_VV
- 	---help---
- 	  This is a video4linux driver for the 'dpc7146 demonstration
- 	  board' by Philips-Semiconductors. It's the reference design
-@@ -251,7 +253,8 @@
- 
- config VIDEO_HEXIUM_ORION
- 	tristate "Hexium HV-PCI6 and Orion frame grabber"
--	depends on VIDEO_DEV && PCI && I2C
-+	depends on VIDEO_DEV && PCI
-+	select VIDEO_SAA7146_VV
- 	---help---
- 	  This is a video4linux driver for the Hexium HV-PCI6 and
- 	  Orion frame grabber cards by Hexium.
-@@ -261,7 +264,8 @@
- 
- config VIDEO_HEXIUM_GEMINI
- 	tristate "Hexium Gemini frame grabber"
--	depends on VIDEO_DEV && PCI && I2C
-+	depends on VIDEO_DEV && PCI
-+	select VIDEO_SAA7146_VV
- 	---help---
- 	  This is a video4linux driver for the Hexium Gemini frame
- 	  grabber card by Hexium. Please note that the Gemini Dual
+This patch removes the NGROUPS define from all architectures as well as
+NGROUPS_MAX.
 
---------------080303060907070207070203--
+This patch changes the security API to check a struct group_info, rather
+than an array of gid_t.
 
+This patch totally horks Intermezzo.
+
+This was built and tested against 2.6.0-test6 (BK today) on an i386.

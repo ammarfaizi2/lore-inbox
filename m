@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131227AbQKUVWT>; Tue, 21 Nov 2000 16:22:19 -0500
+	id <S131259AbQKUV0t>; Tue, 21 Nov 2000 16:26:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131259AbQKUVWK>; Tue, 21 Nov 2000 16:22:10 -0500
-Received: from jalon.able.es ([212.97.163.2]:56048 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131227AbQKUVWB>;
-	Tue, 21 Nov 2000 16:22:01 -0500
-Date: Tue, 21 Nov 2000 21:51:45 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: beware of dead string constants
-Message-ID: <20001121215145.C748@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <14874.25691.629724.306563@wire.cadcamlab.org> <20001121071327.R1514@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20001121071327.R1514@devserv.devel.redhat.com>; from jakub@redhat.com on Tue, Nov 21, 2000 at 13:13:27 +0100
-X-Mailer: Balsa 1.0.0
+	id <S131413AbQKUV0k>; Tue, 21 Nov 2000 16:26:40 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:2308 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131259AbQKUV0W>; Tue, 21 Nov 2000 16:26:22 -0500
+Date: Tue, 21 Nov 2000 20:56:08 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Hakan Lennestal <hakanl@cdt.luth.se>,
+        Peter Samuelson <peter@cadcamlab.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0, test10, test11: HPT366 problem 
+In-Reply-To: <Pine.LNX.4.10.10011211033180.26689-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0011212053540.1029-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Nov 2000, Andre Hedrick wrote:
+>
+> Does that fix it?
 
-On Tue, 21 Nov 2000 13:13:27 Jakub Jelinek wrote:
-> On Tue, Nov 21, 2000 at 06:02:35AM -0600, Peter Samuelson wrote:
-> > 
-> > While trying to clean up some code recently (CONFIG_MCA, hi Jeff), I
-> > discovered that gcc 2.95.2 (i386) does not remove dead string
-> > constants:
-> > 
-> >   void foo (void)
-> >   {
-> >     if (0)
-> >       printk(KERN_INFO "bar");
-> >   }
-> > 
+WorksForMe(tm)
 
-Is it related to opt level ? -O3 does auto-inlining and -O2 does not
-(discovered that here, auto inlining in kernel trashes the cache...)
+Grrr. I specifically went and read the HPT366 blacklist before buying my
+shiny new hard drive.
+
+> On Tue, 21 Nov 2000, David Woodhouse wrote:
+> > Index: drivers/ide/hpt366.c
+> > ===================================================================
+> > RCS file: /inst/cvs/linux/drivers/ide/Attic/hpt366.c,v
+> > retrieving revision 1.1.2.10
+> > diff -u -r1.1.2.10 hpt366.c
+> > --- drivers/ide/hpt366.c	2000/11/10 14:56:31	1.1.2.10
+> > +++ drivers/ide/hpt366.c	2000/11/21 13:27:32
+> > @@ -55,6 +55,8 @@
+> >  };
+> >
+> >  const char *bad_ata66_4[] = {
+> > +	"IBM-DTLA-307045",
+> > +	"IBM-DTLA-307030",
+> >  	"WDC AC310200R",
+> >  	NULL
+> >  };
 
 -- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+dwmw2
 
-Linux 2.2.18-pre22-vm #7 SMP Sun Nov 19 03:29:20 CET 2000 i686 unknown
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

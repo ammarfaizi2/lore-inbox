@@ -1,31 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264946AbSJ3XiR>; Wed, 30 Oct 2002 18:38:17 -0500
+	id <S264963AbSJ3XpQ>; Wed, 30 Oct 2002 18:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264955AbSJ3XiR>; Wed, 30 Oct 2002 18:38:17 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:31402 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S264946AbSJ3XiQ>; Wed, 30 Oct 2002 18:38:16 -0500
-Subject: interrupt latency
-From: Keith Adamson <keith.adamson@attbi.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S264965AbSJ3XpQ>; Wed, 30 Oct 2002 18:45:16 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:43784 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S264963AbSJ3XpO>; Wed, 30 Oct 2002 18:45:14 -0500
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200210302343.g9UNhxW6012759@wildsau.idv.uni.linz.at>
+Subject: Re: VIA EPIA problem
+In-Reply-To: <1036021926.6756.3.camel@irongate.swansea.linux.org.uk> from Alan Cox at "Oct 30, 2 11:52:06 pm"
+Date: Thu, 31 Oct 2002 00:43:59 +0100 (MET)
+Cc: kernel@wildsau.idv.uni.linz.at, sergeyssv@mail.ru,
+       linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Oct 2002 18:50:50 -0500
-Message-Id: <1036021851.9791.12.camel@x1-6-00-d0-70-00-74-d1>
-Mime-Version: 1.0
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen people use realfeel.c to measure interrupt latency 
-on a system.  Most recently in an article at;
+> On Wed, 2002-10-30 at 22:13, H.Rosmanith (Kernel Mailing List) wrote:
+> > please see my posts to lkml some months (2, 3?) ago. there's a problem
+> > which stops the via-rhine. a small two-line patch will solve the problem.
+> > search in the archives for "via" and "path", because I made a typo
+> > and wrote "path" instead of "patch".
+> 
+> Can you forward another copy to the list if you have it handy ?
 
-http://www.linuxjournal.com//article.php?sid=6405
+okay. please note it's a workaround. but it worked at least for
+my board (and I have a via epia itx 500Mhz). this board seems to
+be the only one which had the problems with the vt6103 onboard
+ethernet-chip.
 
-But this program only measures interrupt jitter.  Is there 
-a good test program somewhere that will test true interrupt 
-latency?
 
+--- via-rhine.c.p9-debug      Thu Aug 29 07:14:12 2002
++++ via-rhine.c       Thu Aug 29 07:12:43 2002
+@@ -100,6 +100,15 @@
+      - allow selecting backoff algorithm (module parameter)
+      - cosmetic cleanups, remove 3 unused members of struct netdev_private
 
++     preliminary: (Herbert Rosmanith):
++     - for some yet unknown reason (which seems to be collision-related),
++      TX DMA is off in via_rhine_interrupt in the ChipCmd register. this
++      leads to an entry in the ringbuffer which is never processed and
++      therefore blocks the ringbuffer. the hack provided sets the TxRingPtr
++      in the chip to the entry blocking the ringbuffer, marking it for
++      being processed again. this error seems to happen only with the VT6103.> +
+ */
+
+ #define DRV_NAME     "via-rhine"
+@@ -474,6 +483,8 @@
+
+ #define MAX_MII_CNT  4
+ struct netdev_private {
++     // XXX hack hack hack
++     int intr_cmd;
+      /* Descriptor rings */
+      /* Descriptor rings */
+      struct rx_desc *rx_ring;
+      struct tx_desc *tx_ring;
+@@ -1294,11 +1305,13 @@
+ static void via_rhine_interrupt(int irq, void *dev_instance, struct pt_regs *rgs)
+ {
+      struct net_device *dev = dev_instance;
++     struct netdev_private *np=dev->priv;
+      long ioaddr;
+      u32 intr_status;
+      int boguscnt = max_interrupt_work;
+
+      ioaddr = dev->base_addr;
++     np->intr_cmd=readw(ioaddr+ChipCmd); // needed later in via_rhine_tx
+
+      while ((intr_status = readw(ioaddr + IntrStatus))) {
+              /* Acknowledge all of the current interrupt sources ASAP. */
+@@ -1350,8 +1363,12 @@
+              if (debug > 6)
+                      printk(KERN_DEBUG " Tx scavenge %d status %8.8x.\n",
+                                 entry, txstatus);
+-             if (txstatus & DescOwn)
++             if (txstatus & DescOwn) {
++                     if ((np->intr_cmd&0x0010)==0) // Gack! DMA is off
++                             writel(np->tx_ring_dma + entry * sizeof(struct tx_desc),
++                                     dev->base_addr+TxRingPtr);
+                      break;
++             }
+              if (txstatus & 0x8000) {
+                      if (debug > 1)
+                              printk(KERN_DEBUG "%s: Transmit error, Tx status %8.8x.\n",
 

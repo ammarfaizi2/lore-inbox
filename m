@@ -1,40 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265293AbTIJRN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 13:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbTIJRN5
+	id S265258AbTIJRQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 13:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbTIJRQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 13:13:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3308 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265293AbTIJRNz (ORCPT
+	Wed, 10 Sep 2003 13:16:56 -0400
+Received: from hal-5.inet.it ([213.92.5.24]:64673 "EHLO hal-5.inet.it")
+	by vger.kernel.org with ESMTP id S265258AbTIJRQv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 13:13:55 -0400
-Date: Wed, 10 Sep 2003 09:55:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm5 SMP (and mm6 and plain test5) got stuck during
- boot
-Message-Id: <20030910095559.249cdf68.akpm@osdl.org>
-In-Reply-To: <3F5F24AB.7060304@aitel.hist.no>
-References: <3F5847B7.9070308@aitel.hist.no>
-	<3F5F24AB.7060304@aitel.hist.no>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 Sep 2003 13:16:51 -0400
+Message-ID: <06cc01c377bf$edf4ad00$5aaf7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: "Andrea Arcangeli" <andrea@suse.de>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030910165944.GL21086@dualathlon.random> <20030910170534.GM21086@dualathlon.random>
+Subject: Re: Efficient IPC mechanism on Linux
+Date: Wed, 10 Sep 2003 19:21:09 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helgehaf@aitel.hist.no> wrote:
->
-> 2.6.0-test4-mm4, mm6 and plain 2.6.0-test5 are all useless on my
-> dual celeron.  The machine get stuck when initscripts
-> tries to configure networking.  I can break
-> out of that with ctrl+c, but then it gets
-> stuck on something else shortly thereafter,
-> so I can't get as far as logging in.
+> sorry for the self followup, but I just read another message where you
+> mention 2.2, if that was for 2.2 the locking was the ok.
 
-Please try test5-mm1.  If it still gets stuck then use
-sysrq-P and sysrq-T to work out where it is hanging.
+Oh, good. I was already going to put my head under sand. :-)
+
+I'm not so expert about the kernel. I've just read [ORLL]
+and some bits of the kernel sources.
+So, error in the codes are not so strange.
+
+But, it's better now that you know we are talking about version 2.2...
+
+I'm glad to hear that locking are ok.
+
+You say:
+
+> in terms of design as far as I can tell the most efficient way to do
+> message passing is not pass the data through the kernel at all (no
+> matter if you intend to copy it or not), and to simply use futex on top
+> of shm to synchronize/wakeup the access.  If we want to make an API
+> widespread, that should be simply an userspace library only.
+>
+> It's very inefficient to mangle pagetables and flush the tlb in a flood
+> like you're doing (or better like you should do), when you can keep the
+
+I guess futex are some kind of semaphore flavour under linux 2.4/2.6.
+However, you need to use SYS V shared memory in any case.
+Tests for SYS V shared memory are included in the web page
+(even though using SYS V semaphores).
+
+I don't think, reading the numbers, that managing pagetables "is very
+inefficient".
+I think very inefficient are SYS V semaphore orethe double-copying channel
+you call a pipe.
+
+> there's also an obvious DoS that is trivial to generate by locking in
+> ram some 64G of ram with ecbm_create_capability() see the for(count=0;
+> count<pages; ++count) atomic_inc (btw, you should use get_page, and all
+> the operations like LockPage to play with pages).
+
+As I say in the web page,
+
+ having all the pages locked in memory is not a necessary condition
+for the applicability of communication mechanisms based on capabilities.
+Simply, it make it easier to write the code and does not make me crazy
+with the Linux swapping system.
+
+Bye bye,
+Luca
+
 

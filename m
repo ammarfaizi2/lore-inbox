@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263928AbTJ1LA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 06:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTJ1LAP
+	id S263905AbTJ1Ldh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 06:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTJ1Ldh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 06:00:15 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:57739 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S263928AbTJ1LAI (ORCPT
+	Tue, 28 Oct 2003 06:33:37 -0500
+Received: from smtp2.att.ne.jp ([165.76.15.138]:36265 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S263905AbTJ1Ldf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 06:00:08 -0500
-Date: Tue, 28 Oct 2003 12:00:34 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Mark Bellon <mbellon@mvista.com>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Message-ID: <20031028110034.GG30725@marowsky-bree.de>
-References: <3F9D82F0.4000307@mvista.com> <20031027210054.GR24286@marowsky-bree.de> <3F9D8AAA.7010308@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F9D8AAA.7010308@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+	Tue, 28 Oct 2003 06:33:35 -0500
+Message-ID: <058d01c39d47$39becbb0$f3ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: <linux-kernel@vger.kernel.org>, <jw@pegasys.ws>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>
+Subject: Re: Blockbusting news, results end
+Date: Tue, 28 Oct 2003 20:31:20 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-10-27T14:14:18,
-   Mark Bellon <mbellon@mvista.com> said:
+jw schultz wrote:
 
-> The uSDE and udev are simlar in some respects. The uSDE allows for 
-> complete control of the policy handling a device - not just its naming. 
+> > I am assuming that these numbers are applicable (one is
+> > unknown):
+> > logical sector size == 512B
+> > physical sector size == ???B
+> > page size/filesystem block size == 4KB
+>
+> I have dialoged with Eric Mudama.  He is 99% sure that no
+> manufacturer of is making ATA drives with physical sectors
+> larger than 512B.  I'll let that statement trump Norman
+> Diamond's until i hear otherwise.
 
-Well, so could udev in theory, and I had this plan to enhance it to do
-so for the specific case of multipathing one day in the not too distant
-future (ie, before q1/04).
+Someone else in this discussion estimated that physical sectors are around
+1MB these days.  My friends at Toshiba confirmed that physical sectors are
+much larger than logical sectors.  The physical sector size resembles that
+1MB estimate far better than the 512B logical sector size.
 
-In as far as I can see, udev and uSDE really do not have too different
-goals. Competition is good, but only if they explore distinct approaches
-;-)
+> The drive manufacturers would like to be able to go to a
+> larger physical sector but the read-modify-write is just too
+> scary.
 
-> >How does this integrate with DM, md, EVMS, LVM...?
-> As devices appear in sysfs the uSDE reacts to them via their hotplug 
-> events. The policy for each device handles any device issues including 
-> dealing with any device nodes.  It is possible to track and maintain 
-> multiported devices and automatically provide multipath devices nodes 
-> for instance.
+It is really hard to imagine a physical sector still being 512B because the
+inter-sector gaps would take some huge multiple of the space occupied by the
+sectors.  I think this discussion has proved that we need to be scared of
+read-modify-writes, but I think the drive manufacturers are doing it even
+though it is scary.
 
-Yes, I know that, I was asking whether you had done any discussion with
-the EVMS2 folks for example to have a policy plugin to interact with
-EVMS2 accordingly and do the magic.
+> If they could be sure of market acceptance of drives
+> that required all I/O to be in larger units they would build
+> them because it would allow greater capacity (and i'm
+> guessing speed as well) on the same physical hardware.
 
+No, the effect on speed is the opposite.  A simple write could be done with
+one seek and a random fraction of a rotational delay.  A read-modify-write
+requires one seek and a random fraction plus additional entire rotational
+delay.
 
+I want to ask my friends why the read-modify-write behavior changed between
+a 512B write and a 4096B write.  When the drive finally reallocated the
+defective sector, it was during a 4096B write.  But I don't think they'll be
+allowed to answer.  They already weren't allowed to talk much about the
+firmware, but they did confirm that my original complaints about the
+defective firmware were pretty accurate.
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+By the way, a few years ago when I visited other departments at Toshiba's
+local division, I walked past a lot of ordinary large open-layout offices,
+and also walked past one highly secured door.  That door had a sign on it
+(in Japanese) saying that entry was prohibited to anyone not working on disk
+drive design.  The accidental occurences by which I became friends with some
+of their disk drive engineers were not a result of those business visits.
+Probably there is no way that Toshiba would ever officially publicize even
+the limited amount of information that my friends admitted to.  Nonetheless,
+I'm sure the physical sectors are not 512B.
 

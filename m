@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264986AbUELGAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264989AbUELGJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264986AbUELGAM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 02:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbUELGAM
+	id S264989AbUELGJa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUELGJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 02:00:12 -0400
-Received: from colin2.muc.de ([193.149.48.15]:1036 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264986AbUELGAJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 02:00:09 -0400
-Date: 12 May 2004 08:00:07 +0200
-Date: Wed, 12 May 2004 08:00:07 +0200
-From: Andi Kleen <ak@muc.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       randy.dunlap@osdl.org, Sam Ravnborg <sam@ravnborg.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Keith Owens <kaos@sgi.com>
-Subject: Re: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k
-Message-ID: <20040512060007.GB96009@colin2.muc.de>
-References: <1084252135.31802.312.camel@bach> <20040511080843.GB8751@colin2.muc.de> <1084317416.17692.29.camel@bach>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1084317416.17692.29.camel@bach>
-User-Agent: Mutt/1.4.1i
+	Wed, 12 May 2004 02:09:30 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6876 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S264989AbUELGJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 02:09:28 -0400
+Date: Wed, 12 May 2004 00:09:32 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <008201c437e7$b1a35160$6601a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <fa.jr282gn.1ni2t37@ifi.uio.no> <fa.cmd38j8.1tgg9ro@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 09:16:56AM +1000, Rusty Russell wrote:
-> A binary search as stands doesn't help much because we still need to
-> iterate through the names.  We could do "address, nameindex" pairs, but
-> with stem compression we need to at least wade back some way to decode
-> the name.
+If this is indeed the case, that those drives don't support the "flush write
+cache" command, I'd like to see Maxtor's excuse as to why.. I believe that
+Windows always powers down IDE drives before shutdown, maybe this is because
+of non-universal support for the "flush write cache" command?
 
-Yes, but that iteration is bounded.
 
-> 
-> I have a 30-line static huffman decoder (from the IDE mini-oopser) which
-> we could use instead of stem compression, which we could combine with
-> "address, bitoffset" pairs which would be about 20k smaller and faster
-> than the current approach, but is it worth the trouble?
+----- Original Message ----- 
+From: "Rene Herman" <rene.herman@keyaccess.nl>
+Newsgroups: fa.linux.kernel
+To: <gene.heskett@verizon.net>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, May 10, 2004 6:08 AM
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
 
-Probably not.
 
--Andi
+> Gene Heskett wrote:
+>
+> >> hda: Maxtor 6Y120P0, ATA DISK drive
+>
+> > I note the drive is the same model here too, Rene.
+> >
+> > The question remains however, is our data in danger?
+>
+> There's a fair change that we'll be told, yes, very much so, since these
+> drives don't seem to correctly support this life saving feature. The
+> real answer though will be more easily deducted by calculating the ratio
+> of unexplained file system corruptions you've had and reboots you've
+> managed (0, that is).
+>
+> Rene.
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSE3TUQ>; Thu, 30 May 2002 15:20:16 -0400
+	id <S316842AbSE3TY5>; Thu, 30 May 2002 15:24:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316839AbSE3TUP>; Thu, 30 May 2002 15:20:15 -0400
-Received: from pc132.utati.net ([216.143.22.132]:30116 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S316837AbSE3TUP>; Thu, 30 May 2002 15:20:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: linux-kernel@vger.kernel.org
-Subject: Continuing sis900 problem.
-Date: Thu, 30 May 2002 09:21:51 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: ollie@sis.com.tw
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020530194949.AA6D3742@merlin.webofficenow.com>
+	id <S316843AbSE3TY4>; Thu, 30 May 2002 15:24:56 -0400
+Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:26116 "EHLO
+	server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id <S316842AbSE3TYz>; Thu, 30 May 2002 15:24:55 -0400
+Message-Id: <5.1.0.14.2.20020530212421.02cb50e8@192.168.2.131>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 30 May 2002 21:25:41 +0200
+To: Jens Axboe <axboe@suse.de>
+From: system_lists@nullzone.org
+Subject: Re: 2.5.19 - raid1 erros on compile
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020530062248.GP17674@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you unplug the cat 5 from an sis900 card and plug it back in, the card
-starts holding on to packets for updwards of 15 seconds.
+Well its not on raid1.c file.
+It must be invoqued just from any funtion_structure_reference.
 
-PING mail.trommello.org (208.185.217.233) from 10.0.2.253 : 56(84) bytes of data.
-64 bytes from trommello.org (208.185.217.233): icmp_seq=3 ttl=242 time=80.168 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=0 ttl=242 time=3.481 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=1 ttl=242 time=2.489 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=2 ttl=242 time=1.491 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=4 ttl=242 time=80.174 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=5 ttl=242 time=85.992 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=6 ttl=242 time=81.517 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=7 ttl=242 time=2.000 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=8 ttl=242 time=1.000 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=15 ttl=242 time=86.527 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=16 ttl=242 time=90.386 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=17 ttl=242 time=80.170 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=18 ttl=242 time=90.185 msec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=9 ttl=242 time=9.599 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=10 ttl=242 time=8.598 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=11 ttl=242 time=7.599 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=12 ttl=242 time=6.599 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=13 ttl=242 time=5.599 sec
-64 bytes from trommello.org (208.185.217.233): icmp_seq=14 ttl=242 time=4.599 sec
+I'll wait a patch.
 
-This is 100% reproducible on the hardware I've got.  Compile the driver in,
-bring the interface up, unplug the cat 5 cable, plug it back in, device is in
-la-la land.  (Or maybe the network stack is.  I dunno.)
+Thanks anyway
 
-Last time I mentioned this, other people said they were seeing a similar problem.
-Donald Becker's website points you to a SiS URL (404) for support on the driver.
+At 08:22 30/05/2002 +0200, Jens Axboe wrote:
+>On Thu, May 30 2002, system_lists@nullzone.org wrote:
+> >
+> > I have problems compiling kernel with raid1 support.
+> >
+> > Any idea?
+> >
+> > thanks
+> >
+> > make[2]: Entering directory `/usr/src/linux-2.5.19/drivers/md'
+> > gcc -D__KERNEL__ -I/usr/src/linux-2.5.19/include -Wall -Wstrict-prototypes
+> > -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> > -pipe -mpreferred-stack-boundary=2
+> > -march=i686    -DKBUILD_BASENAME=raid1  -c -o raid1.o raid1.c
+> > raid1.c: In function `device_barrier':
+> > raid1.c:412: `tq_disk' undeclared (first use in this function)
+> > raid1.c:412: (Each undeclared identifier is reported only once
+> > raid1.c:412: for each function it appears in.)
+> > raid1.c: In function `make_request':
+> > raid1.c:449: `tq_disk' undeclared (first use in this function)
+> > raid1.c: In function `close_sync':
+> > raid1.c:651: `tq_disk' undeclared (first use in this function)
+>
+>run_task_queue(&tq_disk) -> blk_run_queues()
+>
+>--
+>Jens Axboe
 
-Still using a 2.4.18 kernel...
 
-Rob
+
+

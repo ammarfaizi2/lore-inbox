@@ -1,90 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317468AbSGXSnD>; Wed, 24 Jul 2002 14:43:03 -0400
+	id <S317463AbSGXSgB>; Wed, 24 Jul 2002 14:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317472AbSGXSnD>; Wed, 24 Jul 2002 14:43:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:63704 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317468AbSGXSnC>;
-	Wed, 24 Jul 2002 14:43:02 -0400
-Date: Wed, 24 Jul 2002 20:45:04 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S317468AbSGXSgB>; Wed, 24 Jul 2002 14:36:01 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:62193 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S317463AbSGXSgA>; Wed, 24 Jul 2002 14:36:00 -0400
+Date: Wed, 24 Jul 2002 20:50:19 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: Chris Snyder <csnyder@mvpsoft.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] scheduler bits for 2.5.27, -D4
-Message-ID: <Pine.LNX.4.44.0207242021580.2050-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Problems with Mylex DAC960P RAID controller
+Message-ID: <20020724205019.A2356@sexything>
+Reply-To: morten.helgesen@nextframe.net
+References: <3D3ED215.3080900@mvpsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D3ED215.3080900@mvpsoft.com>
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey, 
 
-updated scheduler changes/fixes, against BK-current:
+On Wed, Jul 24, 2002 at 12:13:09PM -0400, Chris Snyder wrote:
+> I emailed this list a couple of weeks ago with problems I was having 
+> with an Intergraph SMP server.  I ended up giving up with that box, and 
+> built a new server with a 2 ghz Athlon, 1GB RAM, etc.  I kept the RAID 
+> array, however, as it was the most expensive part of the old server, and 
+> is still usable.  The array is three 9 gig IBM SCSI-2UW disks on a Mylex 
+> DAC960P controller.  The controller was recently updated to the latest 
+> firmware (2.73)
 
-   http://redhat.com/~mingo/O(1)-scheduler/sched-2.5.27-D4
+DAC960P ? I`ve got a box running 2.4.18 with a Mylex DAC960PTL1 card. The
+box is rock solid. If my memory isn`t hosed, the correct name 
+of the card is 'Mylex AccelRaid 250'.
 
-the main change in -D4 (besides the merging) is that i've reworked the
-lowlevel entry.S hot-path impact of SCHED_BATCH. The test for SCHED_BATCH
-is now done in entry.S, so the cost of SCHED_BATCH is a single instruction
-in the 'work pending' path, plus a comparison & branch instruction in the
-'need to do preemption' path. This is the only overhead that non-batch
-processes see - the remaining overhead of schedule_batch() happens only
-for SCHED_BATCH processes.
+> I'm having problems, however, trying to get the card to work.  Whenever 
+> I try to insert the module for the card into my kernel, the system 
+> completely hangs.  I tried this both with the kernel version that comes 
+> with my distro CD, and 2.4.18, compiling it directly into the kernel 
+> with the latter.  In both cases, it hanged when trying to load the 
 
-(it could be made 3 instructions in the 'need to do preemption' path only,
-with the caveat of an AGI. [or its equivalent on other CPUs])
+I`ve got it compiled in.
 
-the irq hotpath, the syscall return hotpath is not affected, only the 'we
-will context switch now' hotpath is affected.
+> driver.  It will display the version information, but that's it.
 
-(-D4 compiles, boots & works just fine on x86 UP and SMP.)
+The DAC960 driver is quite verbose - this is what I`ve got :
 
-Bugfixes:
-
- - introduce new type of context-switch locking, this is a must-have for
-   ia64 and sparc64.
-
- - load_balance() bug noticed by Scott Rhine and myself: scan the
-   whole list to find imbalance number of tasks, not just the tail
-   of the list.
-
- - sched_yield() fix: use current->array not rq->active.
-
-Features:
-
- - SCHED_BATCH feature.
-
- - ->first_time_slice to limit the number of timeslices 'won' via child
-   exit - this is the logical equivalent of the child-timeslice
-   distribution change in Andrea's tree.
-
- - sched_yield() cleanup and simplification: yielding puts the task
-   into the expired queue. This eliminates spurious yields in which
-   the same task repeatedly calls into yield() without achieving
-   anything. It's also the most logical thing to do - the yielder
-   has asked for other tasks to be scheduled first.
-
-Cleanups, smaller changes:
-
- - simpler locking in schedule_tail().
-
- - load_balance() cleanup: split up into find_busiest_queue(),
-   pull_task() and load_balance() functions.
-
- - idle_tick() cleanups: use a parameter already existing in the
-   calling function.
-
- - scheduler_tick() cleanups: use more intuitive variable names.
-
- - remove obsolete comments.
-
- - clear ->first_time_slice when a new timeslice is calculated.
-
- - move the sched initialization code to the end of sched.c.
-
- - no need for nr_uninterruptible to be signed.
-
-	Ingo
+kernel: DAC960: ***** DAC960 RAID Driver Version 2.4.11 of 11 October 2001 *****
+kernel: DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
+kernel: DAC960#0: Configuring Mylex DAC960PTL1 PCI RAID Controller
+kernel: DAC960#0:   Firmware Version: 4.07-0-29, Channels: 1, Memory Size: 8MB
+kernel: DAC960#0:   PCI Bus: 0, Device: 15, Function: 1, I/O Address: Unassigned
+kernel: DAC960#0:   PCI Address: 0xD9000000 mapped at 0xE0800000, IRQ Channel: 11
+kernel: DAC960#0:   Controller Queue Depth: 124, Maximum Blocks per Command: 128
+kernel: DAC960#0:   Driver Queue Depth: 123, Scatter/Gather Limit: 33 of 33 Segments
+kernel: DAC960#0:   Stripe Size: 64KB, Segment Size: 8KB, BIOS Geometry: 255/63
+kernel: DAC960#0:   Physical Devices:
+kernel: DAC960#0:     0:2  Vendor: IBM       Model: DNES-309170W      Revision: SAH0
+kernel: DAC960#0:          Serial Number:         AJLCD237
+kernel: DAC960#0:          Disk Status: Online, 17915904 blocks
+kernel: DAC960#0:     0:4  Vendor: IBM       Model: DNES-309170W      Revision: SAH0
+kernel: DAC960#0:          Serial Number:         AJLCD597
+kernel: DAC960#0:          Disk Status: Online, 17915904 blocks
+kernel: DAC960#0:     0:6  Vendor: IBM       Model: DNES-309170W      Revision: SAH0
+kernel: DAC960#0:          Serial Number:         AJLCE762
+kernel: DAC960#0:          Disk Status: Online, 17915904 blocks
+kernel: DAC960#0:   Logical Drives:
+kernel: DAC960#0:     /dev/rd/c0d0: RAID-5, Online, 35831808 blocks, Write Thru
 
 
+> 
+> Any idea what's going on?  I just convinced the boss to spend some money 
 
+Never had problems with the DAC960 driver in 2.4 (or 2.2 for that matter) ...
+Could you provide the message printed by your kernel ? We can continue from
+there ... maybe Leonard has an idea of what`s going on ... Leonard ?
+
+> for new equipment, and I'd rather not have to spend more at the moment. 
+>  TIA.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+Cheers, 
+Morten
+
+-- 
+
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

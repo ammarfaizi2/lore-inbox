@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbUK3PmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbUK3PpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbUK3PmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 10:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbUK3PmG
+	id S262110AbUK3PpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 10:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbUK3PpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 10:42:06 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:59824 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id S262105AbUK3Pls convert rfc822-to-8bit (ORCPT
+	Tue, 30 Nov 2004 10:45:16 -0500
+Received: from mailer2.psc.edu ([128.182.66.106]:52173 "EHLO mailer2.psc.edu")
+	by vger.kernel.org with ESMTP id S262110AbUK3Po5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 10:41:48 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 30 Nov 2004 10:44:57 -0500
+Date: Tue, 30 Nov 2004 10:44:43 -0500 (EST)
+From: John Heffner <jheffner@psc.edu>
+To: kernel <kernel@nea-fast.com>
+cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 tcp problems
+In-Reply-To: <41AB6476.8060405@nea-fast.com>
+Message-ID: <Pine.LNX.4.58.0411301038150.14716@dexter.psc.edu>
+References: <41AB6476.8060405@nea-fast.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Walking all the physical memory in an x86 system
-Date: Tue, 30 Nov 2004 08:41:17 -0700
-Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C2057CA887@azsmsx406>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Walking all the physical memory in an x86 system
-Thread-Index: AcTW8wePkeYwDWpuTemZEBYnSPuOLA==
-From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Nov 2004 15:41:18.0334 (UTC) FILETIME=[08A059E0:01C4D6F3]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I've written a 2.4 kernel module where I'm trying to walk and
-record all of the physical memory contents in an x86 system. I have the
-following code fragment that does it but I suspect I'm missing a portion
-of the memory:
+On Mon, 29 Nov 2004, kernel wrote:
 
-unsigned long memory_address = PAGE_OFFSET;
-struct sysinfo RC_sys_info;
+> I've run into a problem with 2.6.(8.1,9) after installing a secondary
+> firewall. When I try to pull data through the original firewall (mail,
+> http, ssh), it stops after approx. 260k. Running ethereal tells me "A
+> segment before the frame was lost" followed by a bunch of  "This is a
+> TCP duplicate ack" when using ssh. All 2.4.x machines and windows
+> clients work fine. I built 2.4.28 and it works fine from my machine. I
+> also fiddled with tcp_ecn and that didn't fix it either. I don't have
+> any problems communicating to "local" machines. I've attached the
+> tcpdump output from an scp attempt. NIC is a 3Com Corporation 3c905B.
 
-si_meminfo(&RC_sys_info);
+Try `echo 0 > /proc/sys/net/ipv4/tcp_window_scaling'.  If this makes it
+work, it's almost certainly a buggy firewall.
 
-while (__pa(memory_address) < RC_sys_info.totalram * PAGE_SIZE)
-{
-	/* Read and record memory contents here. */
-	memory_address += 4;
-}
+Also, tcpdumps are far more useful if they are binary (tcpdump -w) and
+capture the beginning of the connection.
 
-Is there a better way to record all of the contents of physical memory
-since what I have above doesn't seem to get everything?
-
+  -John

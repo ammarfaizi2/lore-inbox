@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261343AbTCGDk4>; Thu, 6 Mar 2003 22:40:56 -0500
+	id <S261340AbTCGDkO>; Thu, 6 Mar 2003 22:40:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261341AbTCGDkc>; Thu, 6 Mar 2003 22:40:32 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:61321 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S261338AbTCGDjw>;
-	Thu, 6 Mar 2003 22:39:52 -0500
-Date: Thu, 6 Mar 2003 22:52:54 +0000
+	id <S261339AbTCGDkN>; Thu, 6 Mar 2003 22:40:13 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:61065 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S261340AbTCGDjq>;
+	Thu, 6 Mar 2003 22:39:46 -0500
+Date: Thu, 6 Mar 2003 22:52:38 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: Jaroslav Kysela <perex@perex.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] PnP/ALSA - Sample Driver Conversion - ALS100 (3/3)
-Message-ID: <20030306225254.GA28735@neo.rr.com>
+Subject: [RFC][PATCH] PnP/ALSA - Card Service Changes (1/3)
+Message-ID: <20030306225238.GA30866@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	Jaroslav Kysela <perex@perex.cz>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,375 +21,777 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch can be used as a sample and updates the als100 driver.
-It includes resource config templates.
+Hi Jaroslav,
+
+This patch updates PnP Card Services to support the ALSA drivers and should 
+make it possible for them to be converted.
+
+It makes two key changes:
+
+1.) PnP Cards can now have several pnp card drivers bound to them
+
+2.) PnP Card Services now use manual attaching and detaching of drivers.  As a
+result, it can run card requests through the same code paths as regular drivers
+and therefore the amount of code required to handle card drivers is
+significantly reduced.
+
+I would appreciate any comments.
 
 Thanks,
 Adam
 
-diff -urN a/sound/isa/als100.c b/sound/isa/als100.c
---- a/sound/isa/als100.c	Mon Feb 24 19:05:07 2003
-+++ b/sound/isa/als100.c	Wed Mar  5 23:28:32 2003
-@@ -24,11 +24,7 @@
- #include <linux/init.h>
- #include <linux/wait.h>
- #include <linux/time.h>
--#ifndef LINUX_ISAPNP_H
--#include <linux/isapnp.h>
--#define isapnp_card pci_bus
--#define isapnp_dev pci_dev
--#endif
-+#include <linux/pnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
-@@ -96,167 +92,127 @@
- MODULE_PARM_SYNTAX(dma16, SNDRV_DMA16_DESC);
- 
- struct snd_card_als100 {
--#ifdef __ISAPNP__
--	struct isapnp_dev *dev;
--	struct isapnp_dev *devmpu;
--	struct isapnp_dev *devopl;
--#endif	/* __ISAPNP__ */
-+	int dev_no;
-+	struct pnp_dev *dev;
-+	struct pnp_dev *devmpu;
-+	struct pnp_dev *devopl;
- };
 
--static snd_card_t *snd_als100_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
--
--#ifdef __ISAPNP__
--static struct isapnp_card *snd_als100_isapnp_cards[SNDRV_CARDS] __devinitdata = SNDRV_DEFAULT_PTR;
--static const struct isapnp_card_id *snd_als100_isapnp_id[SNDRV_CARDS] __devinitdata = SNDRV_DEFAULT_PTR;
--
--#define ISAPNP_ALS100(_va, _vb, _vc, _device, _audio, _mpu401, _opl) \
--        { \
--                ISAPNP_CARD_ID(_va, _vb, _vc, _device), \
--                devs : { ISAPNP_DEVICE_ID('@', '@', '@', _audio), \
--                         ISAPNP_DEVICE_ID('@', 'X', '@', _mpu401), \
--			 ISAPNP_DEVICE_ID('@', 'H', '@', _opl) } \
--        }
--
--static struct isapnp_card_id snd_als100_pnpids[] __devinitdata = {
-+static struct pnp_card_id snd_als100_pnpids[] __devinitdata = {
- 	/* ALS100 - PRO16PNP */
--	ISAPNP_ALS100('A','L','S',0x0001,0x0001,0x0001,0x0001),
-+	{ .id = "ALS0001", .devs = { { "@@@0001" }, { "@X@0001" }, { "@H@0001" }, } },
- 	/* ALS110 - MF1000 - Digimate 3D Sound */
--	ISAPNP_ALS100('A','L','S',0x0110,0x1001,0x1001,0x1001),
-+	{ .id = "ALS0110", .devs = { { "@@@1001" }, { "@X@1001" }, { "@H@1001" }, } },
- 	/* ALS120 */
--	ISAPNP_ALS100('A','L','S',0x0120,0x2001,0x2001,0x2001),
-+	{ .id = "ALS0120", .devs = { { "@@@2001" }, { "@X@2001" }, { "@H@2001" }, } },
- 	/* ALS200 */
--	ISAPNP_ALS100('A','L','S',0x0200,0x0020,0x0020,0x0001),
-+	{ .id = "ALS0200", .devs = { { "@@@0020" }, { "@X@0020" }, { "@H@0001" }, } },
- 	/* RTL3000 */
--	ISAPNP_ALS100('R','T','L',0x3000,0x2001,0x2001,0x2001),
--	{ ISAPNP_CARD_END, }
-+	{ .id = "RTL3000", .devs = { { "@@@2001" }, { "@X@2001" }, { "@H@2001" }, } },
-+	{ .id = "", } /* end */
- };
- 
--ISAPNP_CARD_TABLE(snd_als100_pnpids);
--
--#endif	/* __ISAPNP__ */
-+MODULE_DEVICE_TABLE(pnp_card, snd_als100_pnpids);
- 
- #define DRIVER_NAME	"snd-card-als100"
- 
-+static struct pnp_card_driver als100_pnpc_driver;
- 
--#ifdef __ISAPNP__
--static int __init snd_card_als100_isapnp(int dev, struct snd_card_als100 *acard)
-+static int __devinit snd_card_als100_isapnp(int dev, struct snd_card_als100 *acard,
-+					    struct pnp_card *card,
-+					    const struct pnp_card_id *id)
- {
--	const struct isapnp_card_id *id = snd_als100_isapnp_id[dev];
--	struct isapnp_card *card = snd_als100_isapnp_cards[dev];
--	struct isapnp_dev *pdev;
--
--	acard->dev = isapnp_find_dev(card, id->devs[0].vendor, id->devs[0].function, NULL);
--	if (acard->dev->active) {
--		acard->dev = NULL;
--		return -EBUSY;
--	}
--	acard->devmpu = isapnp_find_dev(card, id->devs[1].vendor, id->devs[1].function, NULL);
--	if (acard->devmpu->active) {
--		acard->dev = acard->devmpu = NULL;
--		return -EBUSY;
--	}
--	acard->devopl = isapnp_find_dev(card, id->devs[2].vendor, id->devs[2].function, NULL);
--	if (acard->devopl->active) {
--		acard->dev = acard->devmpu = acard->devopl = NULL;
--		return -EBUSY;
-+	struct pnp_dev *pdev;
-+	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
-+	int err;
-+	if (!cfg)
-+		return -ENOMEM;
-+	acard->dev = pnp_request_card_device(&als100_pnpc_driver, card, id->devs[0].id, NULL);
-+	if (acard->dev == NULL) {
-+		kfree(cfg);
-+		return -ENODEV;
- 	}
-+	acard->devmpu = pnp_request_card_device(&als100_pnpc_driver, card, id->devs[1].id, acard->dev);
-+	acard->devopl = pnp_request_card_device(&als100_pnpc_driver, card, id->devs[2].id, acard->devmpu);
- 
- 	pdev = acard->dev;
--	if (pdev->prepare(pdev)<0)
--		return -EAGAIN;
+diff -urN a/drivers/pnp/Kconfig b/drivers/pnp/Kconfig
+--- a/drivers/pnp/Kconfig	Mon Feb 24 19:05:32 2003
++++ b/drivers/pnp/Kconfig	Tue Mar  4 10:40:43 2003
+@@ -30,15 +30,6 @@
 
-+	pnp_init_resource_table(cfg);
+ 	  If unsure, say Y.
+
+-config PNP_CARD
+-	bool "Plug and Play card services"
+-	depends on PNP
+-	help
+-	  Select Y if you want the PnP Layer to manage cards.  Cards are groups
+-	  of PnP devices.  Some drivers, especially PnP sound card drivers, use
+-	  these cards.  If you want to use the protocol ISAPNP you will need to
+-	  say Y here.
+-
+ config PNP_DEBUG
+ 	bool "PnP Debug Messages"
+ 	depends on PNP
+@@ -51,7 +42,7 @@
+ 
+ config ISAPNP
+ 	bool "ISA Plug and Play support (EXPERIMENTAL)"
+-	depends on PNP && EXPERIMENTAL && PNP_CARD
++	depends on PNP && EXPERIMENTAL
+ 	help
+ 	  Say Y here if you would like support for ISA Plug and Play devices.
+ 	  Some information is in <file:Documentation/isapnp.txt>.
+diff -urN a/drivers/pnp/Makefile b/drivers/pnp/Makefile
+--- a/drivers/pnp/Makefile	Mon Feb 24 19:05:04 2003
++++ b/drivers/pnp/Makefile	Mon Mar  3 22:32:14 2003
+@@ -2,9 +2,7 @@
+ # Makefile for the Linux Plug-and-Play Support.
+ #
+ 
+-pnp-card-$(CONFIG_PNP_CARD) = card.o
+-
+-obj-y		:= core.o driver.o resource.o manager.o support.o interface.o quirks.o names.o system.o $(pnp-card-y)
++obj-y		:= core.o card.o driver.o resource.o manager.o support.o interface.o quirks.o names.o system.o
+ 
+ obj-$(CONFIG_PNPBIOS)		+= pnpbios/
+ obj-$(CONFIG_ISAPNP)		+= isapnp/
+diff -urN a/drivers/pnp/card.c b/drivers/pnp/card.c
+--- a/drivers/pnp/card.c	Mon Feb 24 19:05:44 2003
++++ b/drivers/pnp/card.c	Wed Mar  5 22:22:42 2003
+@@ -16,15 +16,15 @@
+ #endif
+ 
+ #include <linux/pnp.h>
+-#include <linux/init.h>
+ #include "base.h"
+ 
+ 
+ LIST_HEAD(pnp_cards);
+ 
+-static const struct pnp_card_id * match_card(struct pnpc_driver *drv, struct pnp_card *card)
 +
-+	/* override resources */
- 	if (port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[0], port[dev], 16);
-+		pnp_resource_change(&cfg->port_resource[0], port[dev], 16);
- 	if (dma8[dev] != SNDRV_AUTO_DMA)
--		isapnp_resource_change(&pdev->dma_resource[0], dma8[dev],
--			1);
-+		pnp_resource_change(&cfg->dma_resource[0], dma8[dev], 1);
- 	if (dma16[dev] != SNDRV_AUTO_DMA)
--		isapnp_resource_change(&pdev->dma_resource[1], dma16[dev],
--			1);
-+		pnp_resource_change(&cfg->dma_resource[1], dma16[dev], 1);
- 	if (irq[dev] != SNDRV_AUTO_IRQ)
--		isapnp_resource_change(&pdev->irq_resource[0], irq[dev], 1);
--
--	if (pdev->activate(pdev)<0) {
--		printk(KERN_ERR PFX "AUDIO isapnp configure failure\n");
--		return -EBUSY;
--	}
--
--	port[dev] = pdev->resource[0].start;
--	dma8[dev] = pdev->dma_resource[1].start;
--	dma16[dev] = pdev->dma_resource[0].start;
--	irq[dev] = pdev->irq_resource[0].start;
-+		pnp_resource_change(&cfg->irq_resource[0], irq[dev], 1);
-+	if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0)
-+		printk(KERN_ERR PFX "AUDIO the requested resources are invalid, using auto config\n");
-+	err = pnp_activate_dev(pdev);
-+	if (err < 0) {
-+		printk(KERN_ERR PFX "AUDIO pnp configure failure\n");
-+		return err;
-+	}
-+	port[dev] = pnp_port_start(pdev, 0);
-+	dma8[dev] = pnp_dma(pdev, 1);
-+	dma16[dev] = pnp_dma(pdev, 0);
-+	irq[dev] = pnp_irq(pdev, 0);
++static const struct pnp_card_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
+ {
+-	const struct pnp_card_id *drv_id = drv->id_table;
++	const struct pnp_card_id * drv_id = drv->id_table;
+ 	while (*drv_id->id){
+ 		if (compare_pnp_id(card->id,drv_id->id))
+ 			return drv_id;
+@@ -33,31 +33,26 @@
+ 	return NULL;
+ }
  
- 	pdev = acard->devmpu;
--	if (pdev == NULL || pdev->prepare(pdev)<0) {
--		mpu_port[dev] = -1;
+-static int card_bus_match(struct device *dev, struct device_driver *drv)
++static void generic_card_remove_handler(struct pnp_dev * dev)
+ {
+-	struct pnp_card * card = to_pnp_card(dev);
+-	struct pnpc_driver * pnp_drv = to_pnpc_driver(drv);
+-	if (match_card(pnp_drv, card) == NULL)
 -		return 0;
--	}
+-	return 1;
++	struct pnp_card_driver * drv = to_pnp_card_driver(dev->driver);
++	if (!dev->card || !drv)
++		return;
++	if (drv->remove)
++		drv->remove(dev->card);
++	drv->link.remove = NULL;
+ }
+
+-struct bus_type pnpc_bus_type = {
+-	.name	= "pnp_card",
+-	.match	= card_bus_match,
+-};
 -
--	if (mpu_port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[0], mpu_port[dev],
--			2);
--	if (mpu_irq[dev] != SNDRV_AUTO_IRQ)
--		isapnp_resource_change(&pdev->irq_resource[0], mpu_irq[dev],
--			1);
 -
--	if (pdev->activate(pdev)<0) {
--		printk(KERN_ERR PFX "MPU-401 isapnp configure failure\n");
--		mpu_port[dev] = -1;
--		acard->devmpu = NULL;
-+	if (pdev != NULL) {
-+		pnp_init_resource_table(cfg);
-+			goto __mpu_error;
-+		if (mpu_port[dev] != SNDRV_AUTO_PORT)
-+			pnp_resource_change(&cfg->port_resource[0], mpu_port[dev], 2);
-+		if (mpu_irq[dev] != SNDRV_AUTO_IRQ)
-+			pnp_resource_change(&cfg->irq_resource[0], mpu_irq[dev], 1);
-+		if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0)
-+			printk(KERN_ERR PFX "MPU401 the requested resources are invalid, using auto config\n");
-+		err = pnp_activate_dev(pdev);
-+		if (err < 0)
-+			goto __mpu_error;
-+		mpu_port[dev] = pnp_port_start(pdev, 0);
-+		mpu_irq[dev] = pnp_irq(pdev, 0);
- 	} else {
--		mpu_port[dev] = pdev->resource[0].start;
--		mpu_irq[dev] = pdev->irq_resource[0].start;
-+	     __mpu_error:
-+	     	if (pdev) {
-+		     	pnp_release_card_device(pdev);
-+	     		printk(KERN_ERR PFX "MPU401 pnp configure failure, skipping\n");
-+	     	}
-+	     	acard->devmpu = NULL;
-+	     	mpu_port[dev] = -1;
- 	}
+ /**
+- * pnpc_add_id - adds an EISA id to the specified card
++ * pnp_add_card_id - adds an EISA id to the specified card
+  * @id: pointer to a pnp_id structure
+  * @card: pointer to the desired card
+  *
+  */
  
- 	pdev = acard->devopl;
--	if (pdev == NULL || pdev->prepare(pdev)<0) {
--		fm_port[dev] = -1;
--		return 0;
--	}
--
--	if (fm_port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[0], fm_port[dev], 4);
--
--	if (pdev->activate(pdev)<0) {
--		printk(KERN_ERR PFX "OPL isapnp configure failure\n");
--		fm_port[dev] = -1;
--		acard->devopl = NULL;
-+	if (pdev != NULL) {
-+		pnp_init_resource_table(cfg);
-+		if (fm_port[dev] != SNDRV_AUTO_PORT)
-+			pnp_resource_change(&cfg->port_resource[0], fm_port[dev], 4);
-+		if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0)
-+			printk(KERN_ERR PFX "OPL3 the requested resources are invalid, using auto config\n");
-+		err = pnp_activate_dev(pdev);
-+		if (err < 0)
-+			goto __fm_error;
-+		fm_port[dev] = pnp_port_start(pdev, 0);
- 	} else {
--		fm_port[dev] = pdev->resource[0].start;
-+	      __fm_error:
-+	     	if (pdev) {
-+		     	pnp_release_card_device(pdev);
-+	     		printk(KERN_ERR PFX "OPL3 pnp configure failure, skipping\n");
-+	     	}
-+	     	acard->devopl = NULL;
-+	     	fm_port[dev] = -1;
- 	}
- 
-+	kfree(cfg);
+-int pnpc_add_id(struct pnp_id *id, struct pnp_card *card)
++int pnp_add_card_id(struct pnp_id *id, struct pnp_card * card)
+ {
+-	struct pnp_id *ptr;
++	struct pnp_id * ptr;
+ 	if (!id)
+ 		return -EINVAL;
+ 	if (!card)
+@@ -73,7 +68,7 @@
  	return 0;
  }
  
--static void snd_card_als100_deactivate(struct snd_card_als100 *acard)
--{
--	if (acard->dev) {
--		acard->dev->deactivate(acard->dev);
--		acard->dev = NULL;
--	}
--	if (acard->devmpu) {
--		acard->devmpu->deactivate(acard->devmpu);
--		acard->devmpu = NULL;
--	}
--	if (acard->devopl) {
--		acard->devopl->deactivate(acard->devopl);
--		acard->devopl = NULL;
--	}
--}
--#endif	/* __ISAPNP__ */
--
--static void snd_card_als100_free(snd_card_t *card)
--{
--	struct snd_card_als100 *acard = (struct snd_card_als100 *)card->private_data;
--
--	if (acard) {
--#ifdef __ISAPNP__
--		snd_card_als100_deactivate(acard);
--#endif	/* __ISAPNP__ */
--	}
--}
--
--static int __init snd_card_als100_probe(int dev)
-+static int __init snd_card_als100_probe(int dev,
-+					struct pnp_card *pcard,
-+					const struct pnp_card_id *pid)
+-static void pnpc_free_ids(struct pnp_card *card)
++static void pnp_free_card_ids(struct pnp_card * card)
  {
- 	int error;
- 	sb_t *chip;
-@@ -268,18 +224,11 @@
- 				 sizeof(struct snd_card_als100))) == NULL)
- 		return -ENOMEM;
- 	acard = (struct snd_card_als100 *)card->private_data;
--	card->private_free = snd_card_als100_free;
- 
--#ifdef __ISAPNP__
--	if ((error = snd_card_als100_isapnp(dev, acard))) {
-+	if ((error = snd_card_als100_isapnp(dev, acard, pcard, pid))) {
- 		snd_card_free(card);
- 		return error;
+ 	struct pnp_id * id;
+ 	struct pnp_id *next;
+@@ -87,50 +82,39 @@
  	}
--#else
--	printk(KERN_ERR PFX "you have to enable PnP support ...\n");
--	snd_card_free(card);
--	return -ENOSYS;
--#endif	/* __ISAPNP__ */
+ }
  
- 	if ((error = snd_sbdsp_create(card, port[dev],
- 				      irq[dev],
-@@ -336,13 +285,12 @@
- 		snd_card_free(card);
- 		return error;
+-static void pnp_release_card(struct device *dmdev)
+-{
+-	struct pnp_card * card = to_pnp_card(dmdev);
+-	pnpc_free_ids(card);
+-	kfree(card);
+-}
+-
+ /**
+- * pnpc_add_card - adds a PnP card to the PnP Layer
++ * pnp_add_card - adds a PnP card to the PnP Layer
+  * @card: pointer to the card to add
+  */
+ 
+-int pnpc_add_card(struct pnp_card *card)
++int pnp_add_card(struct pnp_card * card)
+ {
+ 	int error = 0;
++	struct list_head * pos;
+ 	if (!card || !card->protocol)
+ 		return -EINVAL;
+-	sprintf(card->dev.bus_id, "%02x:%02x", card->protocol->number, card->number);
+-	INIT_LIST_HEAD(&card->rdevs);
+-	card->dev.parent = &card->protocol->dev;
+-	card->dev.bus = &pnpc_bus_type;
+-	card->dev.release = &pnp_release_card;
+-	card->status = PNP_READY;
+-	error = device_register(&card->dev);
+-	if (error == 0){
+-		struct list_head *pos;
+-		spin_lock(&pnp_lock);
+-		list_add_tail(&card->global_list, &pnp_cards);
+-		list_add_tail(&card->protocol_list, &card->protocol->cards);
+-		spin_unlock(&pnp_lock);
+-		list_for_each(pos,&card->devices){
+-			struct pnp_dev *dev = card_to_pnp_dev(pos);
+-			__pnp_add_device(dev);
+-		}
++
++	spin_lock(&pnp_lock);
++	list_add_tail(&card->global_list, &pnp_cards);
++	list_add_tail(&card->protocol_list, &card->protocol->cards);
++	spin_unlock(&pnp_lock);
++
++	/* we wait until now to add devices in order to ensure the drivers
++	 * will be able to use all of the related devices on the card 
++	 * without waiting any unresonable length of time */
++	list_for_each(pos,&card->devices){
++		struct pnp_dev *dev = card_to_pnp_dev(pos);
++		__pnp_add_device(dev);
  	}
--	snd_als100_cards[dev] = card;
-+	pnp_set_card_drvdata(pcard, card);
+ 	return error;
+ }
+ 
+ /**
+- * pnpc_remove_card - removes a PnP card from the PnP Layer
++ * pnp_remove_card - removes a PnP card from the PnP Layer
+  * @card: pointer to the card to remove
+  */
+ 
+-void pnpc_remove_card(struct pnp_card *card)
++void pnp_remove_card(struct pnp_card * card)
+ {
+ 	struct list_head *pos, *temp;
+ 	if (!card)
+@@ -142,22 +126,25 @@
+ 	spin_unlock(&pnp_lock);
+ 	list_for_each_safe(pos,temp,&card->devices){
+ 		struct pnp_dev *dev = card_to_pnp_dev(pos);
+-		pnpc_remove_device(dev);
++		pnp_remove_card_device(dev);
+ 	}
++	pnp_free_card_ids(card);
++	kfree(card);
+ }
+ 
+ /**
+- * pnpc_add_device - adds a device to the specified card
++ * pnp_add_card_device - adds a device to the specified card
+  * @card: pointer to the card to add to
+  * @dev: pointer to the device to add
+  */
+ 
+-int pnpc_add_device(struct pnp_card *card, struct pnp_dev *dev)
++int pnp_add_card_device(struct pnp_card * card, struct pnp_dev * dev)
+ {
+-	if (!dev || !dev->protocol || !card)
++	if (!card || !dev || !dev->protocol)
+ 		return -EINVAL;
+-	dev->dev.parent = &card->dev;
+-	sprintf(dev->dev.bus_id, "%02x:%02x.%02x", dev->protocol->number, card->number,dev->number);
++	dev->dev.parent = &dev->protocol->dev;
++	snprintf(dev->dev.bus_id, BUS_ID_SIZE, "%02x:%02x.%02x", dev->protocol->number,
++		 card->number,dev->number);
+ 	spin_lock(&pnp_lock);
+ 	dev->card = card;
+ 	list_add_tail(&dev->card_list, &card->devices);
+@@ -166,12 +153,12 @@
+ }
+ 
+ /**
+- * pnpc_remove_device- removes a device from the specified card
++ * pnp_remove_card_device- removes a device from the specified card
+  * @card: pointer to the card to remove from
+  * @dev: pointer to the device to remove
+  */
+ 
+-void pnpc_remove_device(struct pnp_dev *dev)
++void pnp_remove_card_device(struct pnp_dev * dev)
+ {
+ 	spin_lock(&pnp_lock);
+ 	dev->card = NULL;
+@@ -182,19 +169,17 @@
+ 
+ /**
+  * pnp_request_card_device - Searches for a PnP device under the specified card
++ * @drv: pointer to the driver requesting the card
+  * @card: pointer to the card to search under, cannot be NULL
+  * @id: pointer to a PnP ID structure that explains the rules for finding the device
+  * @from: Starting place to search from. If NULL it will start from the begining.
+- *
+- * Will activate the device
+  */
+ 
+-struct pnp_dev * pnp_request_card_device(struct pnp_card *card, const char *id, struct pnp_dev *from)
++struct pnp_dev * pnp_request_card_device(struct pnp_card_driver * drv, struct pnp_card *card, const char * id, struct pnp_dev * from)
+ {
+-	struct list_head *pos;
+-	struct pnp_dev *dev;
+-	struct pnpc_driver *cdrv;
+-	if (!card || !id)
++	struct list_head * pos;
++	struct pnp_dev * dev;
++	if (!card || !id || !drv)
+ 		goto done;
+ 	if (!from) {
+ 		pos = card->devices.next;
+@@ -214,168 +199,87 @@
+ 	return NULL;
+ 
+ found:
+-	if (pnp_device_attach(dev) < 0)
+-		return NULL;
+-	cdrv = to_pnpc_driver(card->dev.driver);
+-	if (dev->active == 0) {
+-		if (!(cdrv->flags & PNPC_DRIVER_DO_NOT_ACTIVATE)) {
+-			if(pnp_activate_dev(dev)<0) {
+-				pnp_device_detach(dev);
+-				return NULL;
+-			}
++	down_write(&dev->dev.bus->subsys.rwsem);
++	dev->dev.driver = &drv->link.driver;
++	if (drv->link.driver.probe) {
++		if (drv->link.driver.probe(&dev->dev)) {
++			dev->dev.driver = NULL;
++			return NULL;
+ 		}
+-	} else {
+-		if ((cdrv->flags & PNPC_DRIVER_DO_NOT_ACTIVATE))
+-			pnp_disable_dev(dev);
+ 	}
+-	spin_lock(&pnp_lock);
+-	list_add_tail(&dev->rdev_list, &card->rdevs);
+-	spin_unlock(&pnp_lock);
++	device_bind_driver(&dev->dev);
++	up_write(&dev->dev.bus->subsys.rwsem);
++
+ 	return dev;
+ }
+ 
+ /**
+  * pnp_release_card_device - call this when the driver no longer needs the device
+  * @dev: pointer to the PnP device stucture
+- *
+- * Will disable the device
+  */
+ 
+-void pnp_release_card_device(struct pnp_dev *dev)
+-{
+-	spin_lock(&pnp_lock);
+-	list_del(&dev->rdev_list);
+-	spin_unlock(&pnp_lock);
+-	pnp_device_detach(dev);
+-}
+-
+-static void pnpc_recover_devices(struct pnp_card *card)
+-{
+-	struct list_head *pos, *temp;
+-	list_for_each_safe(pos,temp,&card->rdevs){
+-		struct pnp_dev *dev = list_entry(pos, struct pnp_dev, rdev_list);
+-		pnp_release_card_device(dev);
+-	}
+-}
+-
+-int pnpc_attach(struct pnp_card *pnp_card)
++void pnp_release_card_device(struct pnp_dev * dev)
+ {
+-	spin_lock(&pnp_lock);
+-	if(pnp_card->status != PNP_READY){
+-		spin_unlock(&pnp_lock);
+-		return -EBUSY;
+-	}
+-	pnp_card->status = PNP_ATTACHED;
+-	spin_unlock(&pnp_lock);
+-	return 0;
+-}
+- 
+-void pnpc_detach(struct pnp_card *pnp_card)
+-{
+-	spin_lock(&pnp_lock);
+-	if (pnp_card->status == PNP_ATTACHED)
+-		pnp_card->status = PNP_READY;
+-	spin_unlock(&pnp_lock);
+-	pnpc_recover_devices(pnp_card);
+-}
+-
+-static int pnpc_card_probe(struct device *dev)
+-{
+-	int error = 0;
+-	struct pnpc_driver *drv = to_pnpc_driver(dev->driver);
+-	struct pnp_card *card = to_pnp_card(dev);
+-	const struct pnp_card_id *card_id = NULL;
+-
+-	pnp_dbg("pnp: match found with the PnP card '%s' and the driver '%s'", dev->bus_id,drv->name);
+-
+-	error = pnpc_attach(card);
+-	if (error < 0)
+-		return error;
+-	if (drv->probe) {
+-		card_id = match_card(drv, card);
+-		if (card_id != NULL)
+-			error = drv->probe(card, card_id);
+-		if (error >= 0){
+-			card->driver = drv;
+-			error = 0;
+-		} else
+-			pnpc_detach(card);
+-	}
+-	return error;
+-}
+-
+-static int pnpc_card_remove(struct device *dev)
+-{
+-	struct pnp_card * card = to_pnp_card(dev);
+-	struct pnpc_driver * drv = card->driver;
+-
+-	if (drv) {
+-		if (drv->remove)
+-			drv->remove(card);
+-		card->driver = NULL;
+-	}
+-	pnpc_detach(card);
+-	return 0;
++	struct pnp_card_driver * drv = to_pnp_card_driver(to_pnp_driver(dev->dev.driver));
++	if (!drv)
++		return;
++	down_write(&dev->dev.bus->subsys.rwsem);
++	drv->link.remove = NULL;
++	device_release_driver(&dev->dev);
++	drv->link.remove = &generic_card_remove_handler;
++	up_write(&dev->dev.bus->subsys.rwsem);
+ }
+ 
+ /**
+- * pnpc_register_driver - registers a PnP card driver with the PnP Layer
+- * @cdrv: pointer to the driver to register
++ * pnp_register_card_driver - registers a PnP card driver with the PnP Layer
++ * @drv: pointer to the driver to register
+  */
+ 
+-int pnpc_register_driver(struct pnpc_driver * drv)
++int pnp_register_card_driver(struct pnp_card_driver * drv)
+ {
+-	int count;
+-	struct list_head *pos;
+-
+-	drv->driver.name = drv->name;
+-	drv->driver.bus = &pnpc_bus_type;
+-	drv->driver.probe = pnpc_card_probe;
+-	drv->driver.remove = pnpc_card_remove;
+-
+-	pnp_dbg("the card driver '%s' has been registered", drv->name);
+-
+-	count = driver_register(&drv->driver);
++	int count = 0;
++	struct list_head *pos, *temp;
+ 
+-	/* get the number of initial matches */
+-	if (count >= 0){
+-		count = 0;
+-		list_for_each(pos,&drv->driver.devices){
+-			count++;
++	drv->link.name = drv->name;
++	drv->link.id_table = NULL;	/* this will disable auto matching */
++	drv->link.flags = drv->flags;
++	drv->link.probe = NULL;
++	drv->link.remove = &generic_card_remove_handler;
++
++	pnp_register_driver(&drv->link);
++
++	list_for_each_safe(pos,temp,&pnp_cards){
++		struct pnp_card *card = list_entry(pos, struct pnp_card, global_list);
++		const struct pnp_card_id *id = match_card(drv,card);
++		if (id) {
++			if (drv->probe) {
++				if (drv->probe(card, id)>=0)
++					count++;
++			} else
++				count++;
+ 		}
+ 	}
+ 	return count;
+ }
+ 
+ /**
+- * pnpc_unregister_driver - unregisters a PnP card driver from the PnP Layer
+- * @cdrv: pointer to the driver to unregister
+- *
+- * Automatically disables requested devices
++ * pnp_unregister_card_driver - unregisters a PnP card driver from the PnP Layer
++ * @drv: pointer to the driver to unregister
+  */
+ 
+-void pnpc_unregister_driver(struct pnpc_driver *drv)
++void pnp_unregister_card_driver(struct pnp_card_driver * drv)
+ {
+-	driver_unregister(&drv->driver);
+-	pnp_dbg("the card driver '%s' has been unregistered", drv->name);
+-}
++	pnp_unregister_driver(&drv->link);
+ 
+-static int __init pnp_card_init(void)
+-{
+-	printk(KERN_INFO "pnp: Enabling Plug and Play Card Services.\n");
+-	return bus_register(&pnpc_bus_type);
++	pnp_dbg("the card driver '%s' has been unregistered", drv->name);
+ }
+ 
+-subsys_initcall(pnp_card_init);
+-
+-EXPORT_SYMBOL(pnpc_add_card);
+-EXPORT_SYMBOL(pnpc_remove_card);
+-EXPORT_SYMBOL(pnpc_add_device);
+-EXPORT_SYMBOL(pnpc_remove_device);
++EXPORT_SYMBOL(pnp_add_card);
++EXPORT_SYMBOL(pnp_remove_card);
++EXPORT_SYMBOL(pnp_add_card_device);
++EXPORT_SYMBOL(pnp_remove_card_device);
++EXPORT_SYMBOL(pnp_add_card_id);
+ EXPORT_SYMBOL(pnp_request_card_device);
+ EXPORT_SYMBOL(pnp_release_card_device);
+-EXPORT_SYMBOL(pnpc_register_driver);
+-EXPORT_SYMBOL(pnpc_unregister_driver);
+-EXPORT_SYMBOL(pnpc_add_id);
+-EXPORT_SYMBOL(pnpc_attach);
+-EXPORT_SYMBOL(pnpc_detach);
++EXPORT_SYMBOL(pnp_register_card_driver);
++EXPORT_SYMBOL(pnp_unregister_card_driver);
+diff -urN a/drivers/pnp/driver.c b/drivers/pnp/driver.c
+--- a/drivers/pnp/driver.c	Mon Feb 24 19:05:39 2003
++++ b/drivers/pnp/driver.c	Tue Mar  4 19:44:22 2003
+@@ -53,12 +53,11 @@
+ static const struct pnp_device_id * match_device(struct pnp_driver *drv, struct pnp_dev *dev)
+ {
+ 	const struct pnp_device_id *drv_id = drv->id_table;
+-	if (!drv)
++	if (!drv_id)
+ 		return NULL;
+-	if (!dev)
+-		return NULL;
+-	while (*drv_id->id){
+-		if (compare_pnp_id(dev->id,drv_id->id))
++
++	while (*drv_id->id) {
++		if (compare_pnp_id(dev->id, drv_id->id))
+ 			return drv_id;
+ 		drv_id++;
+ 	}
+@@ -102,14 +101,18 @@
+ 		return error;
+ 
+ 	if (pnp_dev->active == 0) {
+-		if (!(pnp_drv->flags & PNP_DRIVER_DO_NOT_ACTIVATE)) {
++		if (!(pnp_drv->flags & PNP_DRIVER_RES_DO_NOT_CHANGE)) {
+ 			error = pnp_activate_dev(pnp_dev);
+ 			if (error < 0)
+ 				return error;
+ 		}
++	} else if (pnp_drv->flags & PNP_DRIVER_RES_DISABLE) {
++		error = pnp_disable_dev(pnp_dev);
++		if (error < 0)
++			return error;
+ 	}
+ 	error = 0;
+-	if (pnp_drv->probe && pnp_dev->active) {
++	if (pnp_drv->probe) {
+ 		dev_id = match_device(pnp_drv, pnp_dev);
+ 		if (dev_id != NULL)
+ 			error = pnp_drv->probe(pnp_dev, dev_id);
+@@ -117,9 +120,8 @@
+ 	if (error >= 0){
+ 		pnp_dev->driver = pnp_drv;
+ 		error = 0;
+-	}
+-	else
+-	goto fail;
++	} else
++		goto fail;
+ 	return error;
+ 
+ fail:
+diff -urN a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
+--- a/drivers/pnp/isapnp/core.c	Mon Feb 24 19:05:33 2003
++++ b/drivers/pnp/isapnp/core.c	Tue Mar  4 10:45:53 2003
+@@ -626,7 +626,7 @@
+ 		isapnp_peek(name, size1);
+ 		name[size1] = '\0';
+ 		*size -= size1;
+-		
++
+ 		/* clean whitespace from end of string */
+ 		while (size1 > 0  &&  name[--size1] == ' ')
+ 			name[size1] = '\0';
+@@ -647,7 +647,7 @@
+ 		return 1;
+ 	if (pnp_build_resource(dev, 0) == NULL)
+ 		return 1;
+-	pnpc_add_device(card,dev);
++	pnp_add_card_device(card,dev);
+ 	while (1) {
+ 		if (isapnp_read_tag(&type, &size)<0)
+ 			return 1;
+@@ -659,7 +659,7 @@
+ 				if ((dev = isapnp_parse_device(card, size, number++)) == NULL)
+ 					return 1;
+ 				pnp_build_resource(dev,0);
+-				pnpc_add_device(card,dev);
++				pnp_add_card_device(card,dev);
+ 				size = 0;
+ 				skip = 0;
+ 			} else {
+@@ -852,7 +852,7 @@
+ 			device & 0x0f,
+ 			(device >> 12) & 0x0f,
+ 			(device >> 8) & 0x0f);
+-	pnpc_add_id(id,card);
++	pnp_add_card_id(id,card);
+ }
+ 
+ 
+@@ -962,7 +962,7 @@
+ 			isapnp_parse_current_resources(dev, &dev->res);
+ 		}
+
+-		pnpc_add_card(card);
++		pnp_add_card(card);
+ 	}
+ 	isapnp_wait();
  	return 0;
+diff -urN a/drivers/pnp/system.c b/drivers/pnp/system.c
+--- a/drivers/pnp/system.c	Mon Feb 24 19:06:03 2003
++++ b/drivers/pnp/system.c	Tue Mar  4 19:21:58 2003
+@@ -93,7 +93,7 @@
+
+ static struct pnp_driver system_pnp_driver = {
+ 	.name		= "system",
+-	.flags		= PNP_DRIVER_DO_NOT_ACTIVATE,
++	.flags		= PNP_DRIVER_RES_DO_NOT_CHANGE,
+ 	.id_table	= pnp_dev_table,
+ 	.probe		= system_pnp_probe,
+ 	.remove		= NULL,
+diff -urN a/include/linux/pnp.h b/include/linux/pnp.h
+--- a/include/linux/pnp.h	Mon Feb 24 19:06:01 2003
++++ b/include/linux/pnp.h	Wed Mar  5 22:22:31 2003
+@@ -138,11 +138,9 @@
+ 	struct list_head global_list;	/* node in global list of cards */
+ 	struct list_head protocol_list;	/* node in protocol's list of cards */
+ 	struct list_head devices;	/* devices attached to the card */
+-	struct list_head rdevs;		/* a list of devices requested by the card driver */
+ 	int status;
+ 
+ 	struct pnp_protocol * protocol;
+-	struct pnpc_driver * driver;
+ 	struct pnp_id * id;		/* contains supported EISA IDs*/
+ 
+ 	void	      * protocol_data;	/* Used to store protocol specific data */
+@@ -161,22 +159,22 @@
+ 	(card) != global_to_pnp_card(&pnp_cards); \
+ 	(card) = global_to_pnp_card((card)->global_list.next))
+ 
+-static inline void *pnpc_get_drvdata (struct pnp_card *pcard)
++static inline void *pnp_get_card_drvdata (struct pnp_card *pcard)
+ {
+ 	return dev_get_drvdata(&pcard->dev);
  }
  
--#ifdef __ISAPNP__
--static int __init snd_als100_isapnp_detect(struct isapnp_card *card,
--					   const struct isapnp_card_id *id)
-+static int __devinit snd_als100_pnp_detect(struct pnp_card *card,
-+					   const struct pnp_card_id *id)
+-static inline void pnpc_set_drvdata (struct pnp_card *pcard, void *data)
++static inline void pnp_set_card_drvdata (struct pnp_card *pcard, void *data)
  {
- 	static int dev;
- 	int res;
-@@ -350,9 +298,7 @@
- 	for ( ; dev < SNDRV_CARDS; dev++) {
- 		if (!enable[dev])
- 			continue;
--		snd_als100_isapnp_cards[dev] = card;
--		snd_als100_isapnp_id[dev] = id;
--		res = snd_card_als100_probe(dev);
-+		res = snd_card_als100_probe(dev, card, id);
- 		if (res < 0)
- 			return res;
- 		dev++;
-@@ -360,17 +306,28 @@
- 	}
- 	return -ENODEV;
+ 	dev_set_drvdata(&pcard->dev, data);
  }
--#endif
-+
-+static void __devexit snd_als100_pnp_remove(struct pnp_card * pcard)
-+{
-+	snd_card_t *card = (snd_card_t *) pnp_get_card_drvdata(pcard);
-+
-+	snd_card_disconnect(card);
-+	snd_card_free_in_thread(card);
-+}
-+
-+static struct pnp_card_driver als100_pnpc_driver = {
-+	.flags          = PNP_DRIVER_RES_DISABLE,
-+        .name           = "als100",
-+        .id_table       = snd_als100_pnpids,
-+        .probe          = snd_als100_pnp_detect,
-+        .remove         = __devexit_p(snd_als100_pnp_remove),
-+};
-
- static int __init alsa_card_als100_init(void)
- {
- 	int cards = 0;
  
--#ifdef __ISAPNP__
--	cards += isapnp_probe_cards(snd_als100_pnpids, snd_als100_isapnp_detect);
--#else
--	printk(KERN_ERR PFX "you have to enable ISA PnP support.\n");
--#endif
-+	cards += pnp_register_card_driver(&als100_pnpc_driver);
- #ifdef MODULE
- 	if (!cards)
- 		printk(KERN_ERR "no ALS100 based soundcards found\n");
-@@ -380,10 +337,7 @@
-
- static void __exit alsa_card_als100_exit(void)
+-static inline void *pnpc_get_protodata (struct pnp_card *pcard)
++static inline void *pnp_get_card_protodata (struct pnp_card *pcard)
  {
--	int dev;
+ 	return pcard->protocol_data;
+ }
+ 
+-static inline void pnpc_set_protodata (struct pnp_card *pcard, void *data)
++static inline void pnp_set_card_protodata (struct pnp_card *pcard, void *data)
+ {
+ 	pcard->protocol_data = data;
+ }
+@@ -299,11 +297,8 @@
+ 	} devs[PNP_MAX_DEVICES];	/* logical devices */
+ };
+ 
+-#define PNP_DRIVER_DO_NOT_ACTIVATE	(1<<0)
 -
--	for (dev = 0; dev < SNDRV_CARDS; dev++)
--		snd_card_free(snd_als100_cards[dev]);
-+	pnp_unregister_card_driver(&als100_pnpc_driver);
- }
+ struct pnp_driver {
+-	struct list_head node;
+-	char *name;
++	char * name;
+ 	const struct pnp_device_id *id_table;
+ 	unsigned int flags;
+ 	int  (*probe)  (struct pnp_dev *dev, const struct pnp_device_id *dev_id);
+@@ -311,21 +306,22 @@
+ 	struct device_driver driver;
+ };
+
+-#define	to_pnp_driver(drv) container_of(drv,struct pnp_driver, driver)
+-
+-#define PNPC_DRIVER_DO_NOT_ACTIVATE	(1<<0)
++#define	to_pnp_driver(drv) container_of(drv, struct pnp_driver, driver)
  
- module_init(alsa_card_als100_init)
+-struct pnpc_driver {
+-	struct list_head node;
+-	char *name;
++struct pnp_card_driver {
++	char * name;
+ 	const struct pnp_card_id *id_table;
+ 	unsigned int flags;
+ 	int  (*probe)  (struct pnp_card *card, const struct pnp_card_id *card_id);
+ 	void (*remove) (struct pnp_card *card);
+-	struct device_driver driver;
++	struct pnp_driver link;
+ };
+ 
+-#define	to_pnpc_driver(drv) container_of(drv,struct pnpc_driver, driver)
++#define	to_pnp_card_driver(drv) container_of(drv, struct pnp_card_driver, link)
++
++/* pnp driver flags */
++#define PNP_DRIVER_RES_DO_NOT_CHANGE	0x0001	/* do not change the state of the device */
++#define PNP_DRIVER_RES_DISABLE		0x0003	/* ensure the device is disabled */
+ 
+ 
+ /*
+@@ -366,9 +362,21 @@
+ void pnp_unregister_protocol(struct pnp_protocol *protocol);
+ int pnp_add_device(struct pnp_dev *dev);
+ void pnp_remove_device(struct pnp_dev *dev);
+-extern struct list_head pnp_global;
+ int pnp_device_attach(struct pnp_dev *pnp_dev);
+ void pnp_device_detach(struct pnp_dev *pnp_dev);
++extern struct list_head pnp_global;
++
++/* card */
++int pnp_add_card(struct pnp_card *card);
++void pnp_remove_card(struct pnp_card *card);
++int pnp_add_card_device(struct pnp_card *card, struct pnp_dev *dev);
++void pnp_remove_card_device(struct pnp_dev *dev);
++int pnp_add_card_id(struct pnp_id *id, struct pnp_card *card);
++struct pnp_dev * pnp_request_card_device(struct pnp_card_driver * drv, struct pnp_card *card, const char * id, struct pnp_dev * from);
++void pnp_release_card_device(struct pnp_dev * dev);
++int pnp_register_card_driver(struct pnp_card_driver * drv);
++void pnp_unregister_card_driver(struct pnp_card_driver * drv);
++extern struct list_head pnp_cards;
+ 
+ /* resource */
+ struct pnp_resources * pnp_build_resource(struct pnp_dev *dev, int dependent);
+@@ -413,6 +421,17 @@
+ static inline int pnp_device_attach(struct pnp_dev *pnp_dev) { return -ENODEV; }
+ static inline void pnp_device_detach(struct pnp_dev *pnp_dev) { ; }
+ 
++/* card */
++static inline int pnp_add_card(struct pnp_card *card) { return -ENODEV; }
++static inline void pnp_remove_card(struct pnp_card *card) { ; }
++static inline int pnp_add_card_device(struct pnp_card *card, struct pnp_dev *dev) { return -ENODEV; }
++static inline void pnp_remove_card_device(struct pnp_dev *dev) { ; }
++static inline int pnp_add_card_id(struct pnp_id *id, struct pnp_card *card) { return -ENODEV; }
++static inline struct pnp_dev * pnp_request_card_device(struct pnp_card_driver * drv, struct pnp_card *card, const char * id, struct pnp_dev * from) { return -ENODEV; }
++static inline void pnp_release_card_device(struct pnp_dev * dev) { ; }
++static inline int pnp_register_card_driver(struct pnp_card_driver * drv) { return -ENODEV; }
++static inline void pnp_unregister_card_driver(struct pnp_card_driver * drv) { ; }
++
+ /* resource */
+ static inline struct pnp_resources * pnp_build_resource(struct pnp_dev *dev, int dependent) { return NULL; }
+ static inline struct pnp_resources * pnp_find_resources(struct pnp_dev *dev, int depnum) { return NULL; }
+@@ -445,37 +464,6 @@
+ 
+ #endif /* CONFIG_PNP */
+ 
+-
+-#if defined(CONFIG_PNP_CARD)
+-
+-/* card */
+-int pnpc_add_card(struct pnp_card *card);
+-void pnpc_remove_card(struct pnp_card *card);
+-int pnpc_add_device(struct pnp_card *card, struct pnp_dev *dev);
+-void pnpc_remove_device(struct pnp_dev *dev);
+-struct pnp_dev * pnp_request_card_device(struct pnp_card *card, const char *id, struct pnp_dev *from);
+-void pnp_release_card_device(struct pnp_dev *dev);
+-int pnpc_register_driver(struct pnpc_driver * drv);
+-void pnpc_unregister_driver(struct pnpc_driver *drv);
+-int pnpc_add_id(struct pnp_id *id, struct pnp_card *card);
+-extern struct list_head pnp_cards;
+-int pnpc_attach(struct pnp_card *card);
+-void pnpc_detach(struct pnp_card *card);
+-
+-#else
+-
+-/* card */
+-static inline int pnpc_add_card(struct pnp_card *card) { return -ENODEV; }
+-static inline void pnpc_remove_card(struct pnp_card *card) { ; }
+-static inline int pnpc_add_device(struct pnp_card *card, struct pnp_dev *dev) { return -ENODEV; }
+-static inline void pnpc_remove_device(struct pnp_dev *dev) { ; }
+-static inline struct pnp_dev * pnp_request_card_device(struct pnp_card *card, const char *id, struct pnp_dev *from) { return NULL; }
+-static inline void pnp_release_card_device(struct pnp_dev *dev) { ; }
+-static inline int pnpc_register_driver(struct pnpc_driver *drv) { return -ENODEV; }
+-static inline void pnpc_unregister_driver(struct pnpc_driver *drv) { ; }
+-static inline int pnpc_add_id(struct pnp_id *id, struct pnp_card *card) { return -ENODEV; }
+-
+-#endif /* CONFIG_PNP_CARD */
+ 
+ #define pnp_err(format, arg...) printk(KERN_ERR "pnp: " format "\n" , ## arg)
+ #define pnp_info(format, arg...) printk(KERN_INFO "pnp: " format "\n" , ## arg)

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315946AbSHIVTE>; Fri, 9 Aug 2002 17:19:04 -0400
+	id <S315942AbSHIVSz>; Fri, 9 Aug 2002 17:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSHIVTE>; Fri, 9 Aug 2002 17:19:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55052 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315946AbSHIVTD>; Fri, 9 Aug 2002 17:19:03 -0400
-Date: Fri, 9 Aug 2002 14:23:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Larson <plars@austin.ibm.com>
-cc: Hubertus Franke <frankeh@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>,
-       Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,
-       <andrea@suse.de>, Dave Jones <davej@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-In-Reply-To: <1028921658.19434.365.camel@plars.austin.ibm.com>
-Message-ID: <Pine.LNX.4.33.0208091420240.19267-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315946AbSHIVSz>; Fri, 9 Aug 2002 17:18:55 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:26391 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S315942AbSHIVSy>;
+	Fri, 9 Aug 2002 17:18:54 -0400
+Date: Fri, 9 Aug 2002 23:22:31 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at /usr/src/linux-2.5.30/include/linux/dcache.h:261!
+Message-ID: <20020809212231.GB1252@win.tue.nl>
+References: <200208091732.g79HW4q02868@eng2.beaverton.ibm.com> <3D542C06.50008@us.ibm.com> <3D542D75.7FEA9DDF@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D542D75.7FEA9DDF@zip.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 09, 2002 at 02:00:37PM -0700, Andrew Morton wrote:
 
-On 9 Aug 2002, Paul Larson wrote:
->
-> I suspect that it would actually require more than just this. 
+> > > Code;  c0160d0f <d_unhash+f/70>   <=====
 
-There are various /proc paths, Andries had a full patch at some point a 
-long time ago.
+> It would be much more useful if the oops code were to dump the
+> text preceding the exception EIP rather than after it, actually.
 
-My point was not so much that this is sufficient, but that the approach is 
-valid. I'd rather go with the simple approach (that solves two problems) 
-than with a much more complex approach (that solves only one).
+I think I already mentioned what the stack trace is for this oops:
+for me, it is sd_detach -> driverfs_remove_partitions ->
+put_device -> driverfs_remove_dir -> driverfs_rmdir -> d_unhash.
 
-And yes, I doubt I actually want to give all 30 bits to pid space in the 
-long run (the per-node pid space argument is still valid), but it's better 
-to start with 30 bits and actively trying to break things and then phasing 
-it down later than to be timid and never even see the stuff that breaks.
+I have seen lots of other oopses related to driverfs.
+Submitted a stopgap patch to prevent some of them, but withdrew it
+when it became clear that even the ugly stopgap did not prevent all.
 
-		Linus
+This driverfs partition stuff is messy. The code paths where partitions
+are created are very different from those where partitions are removed,
+and it can easily happen that a partition is removed that was never
+created, leading to an oops.
+
+Andries
 

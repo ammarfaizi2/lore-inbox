@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbTF1Af1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 20:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTF1Af1
+	id S265039AbTF1AlO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 20:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265003AbTF1Ahl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 20:35:27 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:43181 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S265054AbTF1AcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 20:32:09 -0400
-From: Frank.Schmischke@t-online.de (frank.schmischke)
-To: linux-kernel@vger.kernel.org
-Subject: bug (?) in mounting disk
-Date: Thu, 26 Jun 2003 02:42:40 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jun 2003 20:37:41 -0400
+Received: from relay02.roc.ny.frontiernet.net ([66.133.131.35]:51883 "EHLO
+	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S264994AbTF1Ah2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 20:37:28 -0400
+Date: Fri, 27 Jun 2003 20:51:40 -0400
+From: Scott McDermott <vaxerdec@frontiernet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Message-ID: <20030627205140.F29149@newbox.localdomain>
+References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306260242.40215.frank.schmischke@t-online.de>
-X-Seen: false
-X-ID: V8LUY2ZBweVWebhPYHY2qgfyZo8TQ91elJbiKy9LitTruMpoZ51PEX@t-dialin.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030628001625.GC18676@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 27, 2003 at 05:16:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+Larry McVoy on Fri 27/06 17:16 -0700:
+> I don't know if you all realize this but at one point we
+> had corrupted data in several repositories and the backups
+> were also shot.
 
-I have a big problem with kernel 2.4.21. I've installed 2.4.21 at 3 computers, 
-where root-partition is on /dev/hda. There, the kernel is working fine.
+ever hear of tapes?
 
-But on my athlon 1000MHz, there I have a via-chipset for UDMA100. So I have a 
-cdrom at /dev/hda and my disk is at /dev/hdc. Until kernel 2.4.20, everything 
-works fine. But with kernel 2.4.21, the kernel will load module 
-block-major-22, so that kernel will crash at fsck (no filesystem is mounted 
-at this time). But ide-disk is compiled in kernel, not as a modul.
-I have have also tried patch -ac2, but this will not help.
-
-I'm using:
-gcc-3.3
-reiserfs-3.6.8
-modutils-2.4.25
-util-linux-2.11z
-pciutils-2.1.11
-binutils-2.14
-
-Thanks
-Frank
-
+how about SCSI?

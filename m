@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129754AbRBYVPJ>; Sun, 25 Feb 2001 16:15:09 -0500
+	id <S129774AbRBYVet>; Sun, 25 Feb 2001 16:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129759AbRBYVPA>; Sun, 25 Feb 2001 16:15:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33805 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129754AbRBYVOq>;
-	Sun, 25 Feb 2001 16:14:46 -0500
-Date: Sun, 25 Feb 2001 22:14:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Steven Walter <srwalter@yahoo.com>
+	id <S129806AbRBYVek>; Sun, 25 Feb 2001 16:34:40 -0500
+Received: from rachael.franken.de ([193.175.24.38]:16909 "EHLO
+	rachael.franken.de") by vger.kernel.org with ESMTP
+	id <S129793AbRBYVeW>; Sun, 25 Feb 2001 16:34:22 -0500
+Date: Sun, 25 Feb 2001 22:28:07 +0100
+From: Matthias Bruestle <m@mbsks.franken.de>
+To: Drew Bertola <drew@drewb.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2 broke gcd (or, audio CD's won't play)
-Message-ID: <20010225221433.M7830@suse.de>
-In-Reply-To: <20010223183743.A26519@hapablap.dyn.dhs.org>
+Subject: Re: Power management on Sony C1Vx
+Message-ID: <20010225222807.E3253@mbsks.franken.de>
+In-Reply-To: <20010225205521.C3253@mbsks.franken.de> <15001.26086.318898.287148@champ.drew.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010223183743.A26519@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Fri, Feb 23, 2001 at 06:37:43PM -0600
+X-Mailer: Mutt 1.0i
+In-Reply-To: <15001.26086.318898.287148@champ.drew.net>; from drew@drewb.com on Sun, Feb 25, 2001 at 08:07:02PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 23 2001, Steven Walter wrote:
-> After upgrading to 2.4.2, gcd or any audio CD player will work.  The
-> attached chunk of dmesg is the messages produced by attempting to play
-> them.  The player just loops through all tracks, playing nothing.
-> Ripping CD's a la cdparanoia still works.
-> 
-> If its any consequence, my CD-ROM is now detected as a CD-ROM/DVD-ROM.
-> Is this also a problem, or merely an optimization in the boot-detection
-> routines?
+> > Note as stated in the FAQ: I am not subscribed, so please CC also to me,
+> > when answering. (Or else my spies have to do this. :) )
 
-That doesn't matter, the boot info just means it could be either
-a cdrom or a dvd drive.
+Mahlzeit
 
-But these:
 
-ATAPI device hdc:
-  Error: Illegal request -- (Sense key=0x05)
-  Invalid command operation code -- (asc=0x20, ascq=0x00)
-  The failed "Play Audio MSF" packet command was:
-  "47 00 00 2d 2b 1b 39 38 00 00 00 00 "
-ATAPI device hdc:
-  Error: Illegal request -- (Sense key=0x05)
-  Invalid command operation code -- (asc=0x20, ascq=0x00)
-  The failed "Test Unit Ready" packet command was:
-  "00 00 00 00 00 00 00 00 00 00 00 00 "
-ATAPI device hdc:
-  Error: Illegal request -- (Sense key=0x05)
-  Invalid command operation code -- (asc=0x20, ascq=0x00)
-  The failed "Test Unit Ready" packet command was:
-  "00 00 00 00 00 00 00 00 00 00 00 00 "
-ATAPI device hdc:
-  Error: Illegal request -- (Sense key=0x05)
-  Invalid command operation code -- (asc=0x20, ascq=0x00)
-  The failed "Play Audio MSF" packet command was:
-  "47 00 00 37 04 28 39 38 00 00 00 00 "
+On Sun, Feb 25, 2001 at 08:07:02PM +0000, Drew Bertola wrote:
+> Try Gvaiocontrols for screen brightness (the volume control doesn't
+> work yet).
 
-look very odd. It's basically saying that these required commands
-are not implemented by the drive. 2.4.1 worked fine?!
+That works. There is also the commandline utility setbrightness.
+This works too, but my problem is standby and suspend.
+
+
+Thanks
+
+endergone Zwiebeltuete
 
 -- 
-Jens Axboe
-
+live free or die

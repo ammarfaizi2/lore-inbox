@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131447AbRCKQlQ>; Sun, 11 Mar 2001 11:41:16 -0500
+	id <S131392AbRCKRYe>; Sun, 11 Mar 2001 12:24:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131448AbRCKQlG>; Sun, 11 Mar 2001 11:41:06 -0500
-Received: from cmailg7.svr.pol.co.uk ([195.92.195.177]:1289 "EHLO
-	cmailg7.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S131447AbRCKQlB>; Sun, 11 Mar 2001 11:41:01 -0500
-Date: Sun, 11 Mar 2001 16:35:50 +0000 (GMT)
-From: Chris Andrews <chris@netsw.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.1 on RHL 6.2
-Message-ID: <Pine.LNX.4.21.0103111625500.1297-100000@rhododendron.symes.netsw.co.uk>
+	id <S131406AbRCKRYZ>; Sun, 11 Mar 2001 12:24:25 -0500
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:14580 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S131392AbRCKRYO>; Sun, 11 Mar 2001 12:24:14 -0500
+Date: Sun, 11 Mar 2001 12:23:33 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <7xWQFvVHw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.21.0103111211140.30437-100000@mhw.ULib.IUPUI.Edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9 Mar 2001, Kai Henningsen wrote:
+[snip]
+> And remember that other companies have been doing similar things since  
+> just about forever. It's not as if MS invented this thing.
+> 
+> Or maybe I have to take that back. The "must not modify" clause certainly  
+> seems non-standard.
+> 
+> AT&T Unix source didn't carry a "must not modify" rider.
+> 
+> IBM's big iron OS source certainly didn't carry a "must not modify" rider.
+> 
+> In fact, making modifications was very much the *point* of this excercise.
 
-> >Make sure you have the following symlinks in your /usr/include 
-> >directory, assuming you're on an x86 machine: 
-> > 
-> >asm -> /usr/src/linux/include/asm-i386/ 
-> >linux -> /usr/src/linux/include/linux/ 
->
-> Note! You only have to have those symlinks on broken systems such 
-> as Redhat. 
->
-> Sane systems such as Debian have a copy of the kernel header files 
-> that the C library was compiled against in /usr/include/{linux,asm} 
-> instead of symlinks to the kernel source. Do not play the symlink 
-> trick on those systems. 
->
-> Before this turns into a flamewar: this has been discussed 20 or 
-> so times before, and both Linus and the glibc developers agree 
-> that you a distribution should do the latter. The headers you use 
-> to compile userland binaries should be the same as the C library 
-> was compiled against. 
+Indeed, Digital LCG used to publish our bug reports verbatim, including
+patches if we supplied 'em, and thank us for the help.  (In fact, VMS
+Engineering took heat for publishing "sanitized" reports instead of
+photocopying the SPR forms as LCG had.)
 
-I've been following this advice for some time, but doing so tripped me up.
-My system is RH 6.2, but with kernel 2.4 (and latest modutils etc). I
-kept my kernel headers at 2.2.14, i.e. those supplied with the 6.2
-kernel-headers RPM.
+MS' approach reminds me of what the fellow said about Lotho
+Sackville-Baggins:
 
-This breaks XFree 86 4, however, which checks the kernel version you are
-*running* and then expects the headers for that kernel to be available. To
-build X I had to move the symlink to point at some 2.4 headers so X could
-find (IIRC) input.h, and others. 
+	Seems he wanted to own everything himself, and then order folk
+	about.
 
-So what's at fault here? X for looking at the current kernel, me for not
-telling X not to do that, or me again for not recompiling glibc and using
-the new headers 'legally'?
-
-Chris.
+-- 
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+Make a good day.
 

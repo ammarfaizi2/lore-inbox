@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbUCCRIw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 12:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbUCCRIw
+	id S262517AbUCCRJM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 12:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbUCCRJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 12:08:52 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:10144 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262521AbUCCRIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 12:08:51 -0500
-Date: Wed, 03 Mar 2004 11:07:39 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>, "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
-Message-ID: <10500000.1078333658@[10.1.1.4]>
-In-Reply-To: <20040303165746.GO4922@dualathlon.random>
-References: <20040303070933.GB4922@dualathlon.random>
- <20040303025820.2cf6078a.akpm@osdl.org> <7440000.1078328791@[10.10.2.4]>
- <20040303165746.GO4922@dualathlon.random>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 12:09:12 -0500
+Received: from waste.org ([209.173.204.2]:42402 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262517AbUCCRJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 12:09:08 -0500
+Date: Wed, 3 Mar 2004 11:09:07 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel mode console
+Message-ID: <20040303170907.GG3883@waste.org>
+References: <200403022152.06950.billyrose@cox-internet.com> <c23l34$n46$1@terminus.zytor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <c23l34$n46$1@terminus.zytor.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---On Wednesday, March 03, 2004 17:57:46 +0100 Andrea Arcangeli
-<andrea@suse.de> wrote:
-
->> There was talk at one point of moving the "unswappable" state down into 
->> the struct page. Is that still realistic? It would seem rather more
->> efficient, but I forget what problem we ran into with it.
+On Wed, Mar 03, 2004 at 03:57:24AM +0000, H. Peter Anvin wrote:
+> Followup to:  <200403022152.06950.billyrose@cox-internet.com>
+> By author:    Billy Rose <billyrose@cox-internet.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > i have some bandwidth i can dedicate to writting a kernel module that provides 
+> > a command interpreter running in kernel space (think of it as the god mode 
+> > console in quake). the purpose for this would be primarily aimed at the 
+> > kernel developers so they can reach in and grab variables, dump certain 
+> > sections of memory, walk memory, dump code segments, dump processes 
+> > (including the kernel data structures for them), anything else i/you can 
+> > think of. is this a waste of time, or would that get used?
+> > 
 > 
-> that already exists and it's PG_reserved, but it's inefficient compared
-> to VM_RESERVED, since it forces the vm to check all ptes.
+> Google(kgdb).
 
-What we've actually discussed before was more along the lines of PG_locked
-to match VM_LOCKED, but the main idea was to be able to skip over
-ineligible pages without having ot look up their mappings during pageout.
+Or kdb for that matter.
 
-Dave McCracken
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

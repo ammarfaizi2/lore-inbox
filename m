@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUEKFZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUEKGHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUEKFZw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 01:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEKFZw
+	id S261718AbUEKGHs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 02:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEKGHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 01:25:52 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:34212 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261857AbUEKFZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 01:25:46 -0400
-Date: Tue, 11 May 2004 10:56:58 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, dipankar@in.ibm.com,
-       manfred@colorfullife.com, torvalds@osdl.org, davej@redhat.com,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: dentry bloat.
-Message-ID: <20040511105658.F31521@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <409DDDAE.3090700@colorfullife.com> <20040509153316.GE4007@in.ibm.com> <20040509221712.GA17014@parcelfarce.linux.theplanet.co.uk> <20040509152720.039f759a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040509152720.039f759a.akpm@osdl.org>; from akpm@osdl.org on Sun, May 09, 2004 at 03:27:20PM -0700
+	Tue, 11 May 2004 02:07:48 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:27881 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261718AbUEKGHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 02:07:47 -0400
+Date: Tue, 11 May 2004 08:07:42 +0200 (MEST)
+From: Armin Schindler <armin@melware.de>
+To: Andre Ben Hamou <andre@bluetheta.com>
+cc: Eric Dumazet <dada1@cosmosbay.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Multithread select() bug
+In-Reply-To: <40A009D9.9090404@bluetheta.com>
+Message-ID: <Pine.LNX.4.31.0405110759570.16956-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 03:27:20PM -0700, Andrew Morton wrote:
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Tue, 11 May 2004, Andre Ben Hamou wrote:
+> Eric Dumazet wrote:
+> > So please how do you guarantee that thread 1 runs *before* thread 2)
 > >
-> > On Sun, May 09, 2004 at 09:03:16PM +0530, Dipankar Sarma wrote:
-> >  
-> > > Actually, what may happen is that since the dentries are added
-> > > in the front, a double move like that would result in hash chain
-> > > traversal looping. Timing dependent and unlikely, but d_move_count
-> > > avoided that theoritical possibility. It is not about skipping
-> > > dentries which is safe because a miss would result in a real_lookup()
-> > 
-> > Not really.  A miss could result in getting another dentry allocated
-> > for the same e.g. directory, which is *NOT* harmless at all.
-> 
-> The d_bucket logic does look a bit odd.
-> 
-> 		dentry = hlist_entry(node, struct dentry, d_hash);
-> 
-> 		/* if lookup ends up in a different bucket 
-> 		 * due to concurrent rename, fail it
-> 		 */
-> 		if (unlikely(dentry->d_bucket != head))
-> 			break;
-> 
-> 		/*
-> 		 * We must take a snapshot of d_move_count followed by
-> 		 * read memory barrier before any search key comparison 
-> 		 */
-> 		move_count = dentry->d_move_count;
-> 
-> There is a window between the d_bucket test and sampling of d_move_count. 
-> What happens if the dentry gets moved around in there?
-> 
-> Anyway, regardless of that, it is more efficient to test d_bucket _after_
-> performing the hash comparison.  And it seems saner to perform the d_bucket
-> check when things are pinned down by d_lock.
-> 
+> > Thread 1)
+> >        select( fd)
+> >
+> > Thread 2)
+> >        close(fd)
+> >
+> > Thats not possible.
+> >
 
-This should be fine. Earlier d_bucket check was done before "continue" as the 
-lookup used to loop infinetly. The reason for infinite looping was that lookup 
-going to a different hash bucket due to concurrent d_move and not finding
-the list head from where it started.
+Some time ago I sent a patch for the select() systemcall to return
+if the last fd was closed. If select() specifies more than one fd, then
+staying in select is valid, but if there is no more fd left to wait on,
+select() should return I think. I don't know what standards say here
+or other Unix do in that case, so I did't have a good reason for the patch
+and it was ignored.
+The patch was for 2.4, but 2.6 is the same and poll() as well.
 
-After introduction of hlist, there is less chance of lookup looping
-infinitely even if it is moved to a different hash bucket as hlist ends with 
-NULL.
+Armin
 
-
-But I still see theoritical possibilty of increased looping. Double rename can 
-keep putting lookup back at the head of hash chain and hlist end is never seen.
-
-
-
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/

@@ -1,45 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276766AbRJKTz3>; Thu, 11 Oct 2001 15:55:29 -0400
+	id <S276793AbRJKT4K>; Thu, 11 Oct 2001 15:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276793AbRJKTzT>; Thu, 11 Oct 2001 15:55:19 -0400
-Received: from peace.netnation.com ([204.174.223.2]:39436 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S276766AbRJKTzI>; Thu, 11 Oct 2001 15:55:08 -0400
-Date: Thu, 11 Oct 2001 12:55:38 -0700
-From: Simon Kirby <sim@netnation.com>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Really slow netstat and /proc/net/tcp in 2.4
-Message-ID: <20011011125538.C10868@netnation.com>
-In-Reply-To: <20011011114736.A13722@netnation.com> <200110111930.XAA28404@ms2.inr.ac.ru>
-Mime-Version: 1.0
+	id <S276800AbRJKT4B>; Thu, 11 Oct 2001 15:56:01 -0400
+Received: from zok.sgi.com ([204.94.215.101]:23212 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S276793AbRJKTzs>;
+	Thu, 11 Oct 2001 15:55:48 -0400
+Message-ID: <XFMail.20011011145135.jkp@riker.nailed.org>
+X-Mailer: XFMail 1.5.0 on IRIX
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200110111930.XAA28404@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Oct 11, 2001 at 11:30:25PM +0400
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <XFMail.20011011143922.jkp@riker.nailed.org>
+Date: Thu, 11 Oct 2001 14:51:35 -0500 (CDT)
+Organization: SGI, Inc.
+From: jkp@riker.nailed.org
+To: linux-kernel@vger.kernel.org
+Subject: IGNORE: RE: 2.4.10-ac12 compile error
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 11:30:25PM +0400, kuznet@ms2.inr.ac.ru wrote:
+Ignore. My own stupidity.
 
-> Hello!
+
+On 11-Oct-2001 jkp@riker.nailed.org wrote:
+> I just downloaded the -ac12 patch to 2.4.10 and applied it over 2.4.10.
+> The patch applied fine (no rejects).
 > 
-> > Is there something that changed from 2.2 -> 2.4 with regards to the
-> > speed of netstat and /proc/net/tcp?
+> Compile produces this:
 > 
-> Incredibly high size of hash table, I think.
-> At least here size is ~1MB. And all this is read each 1K of data read
-> via /proc/ :-)
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe
+> -mpreferred-stack-boundary=2 -march=i586    -DEXPORT_SYMTAB -c serial.c
+> In file included from serial.c:172:
+> /usr/src/linux-2.4.10-ac12/include/linux/serialP.h:27:25: operator '(' has no
+> left operand
+> serial.c:192:25: operator '(' has no left operand
+> serial.c:195:25: operator '(' has no left operand
+> serial.c:216:51: operator '(' has no left operand
+> serial.c:668:25: operator '(' has no left operand
+> serial.c: In function `receive_chars':
+> serial.c:671: warning: implicit declaration of function `queue_task_irq_off'
+> serial.c:1423:25: operator '(' has no left operand
+> serial.c:1572:25: operator '(' has no left operand
+> serial.c:2148:25: operator '(' has no left operand
+> serial.c: In function `rs_write':
+> serial.c:1867: warning: implicit declaration of function `copy_from_user'
+> serial.c:2195:25: operator '(' has no left operand
+> serial.c:2372:25: operator '(' has no left operand
+> serial.c: In function `get_serial_info':
+> serial.c:2065: warning: implicit declaration of function `copy_to_user'
+> serial.c:2529:25: operator '(' has no left operand
+> serial.c:2544:25: operator '(' has no left operand
+> serial.c:3156:25: operator '(' has no left operand
+> serial.c:3822:25: operator '(' has no left operand
+> serial.c:3827:32: linux/symtab_begin.h: No such file or directory
+> serial.c:3830:30: linux/symtab_end.h: No such file or directory
+> serial.c: At top level:
+> serial.c:3826: variable `serial_syms' has initializer but incomplete type
+> serial.c:3828: warning: implicit declaration of function `X'
+> serial.c:3828: warning: excess elements in struct initializer
+> serial.c:3828: warning: (near initialization for `serial_syms')
+> serial.c:3829: warning: excess elements in struct initializer
+> serial.c:3829: warning: (near initialization for `serial_syms')
+> serial.c:5380:25: operator '(' has no left operand
+> serial.c:5383:25: operator '(' has no left operand
+> serial.c:5418:25: operator '(' has no left operand
+> serial.c:5421:25: operator '(' has no left operand
+> serial.c:5432:25: operator '(' has no left operand
+> serial.c:5439:25: operator '(' has no left operand
+> serial.c:2389: warning: `rs_break' defined but not used
+> serial.c:3826: warning: `serial_syms' defined but not used
+> make[3]: *** [serial.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.4.10-ac12/drivers/char'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.4.10-ac12/drivers/char'
+> make[1]: *** [_subdir_char] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.10-ac12/drivers'
+> make: *** [_dir_drivers] Error 2
+> 
+> All the lines above include the macro LINUX_VERSION_CODE which appears
+> to be undefined. About 50 other files compiled fine.
+> 
+> Thanks.
+> 
+> -- 
+> ----------------------------------
+> Jens Petersohn       x33128
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-So it's walking the hash table per block read, and the hash table is very
-large?  Hmm.  I notice it's a bit faster if I use dd if=/proc/net/tcp
-of=/dev/null bs=1024k, but not much.
-
-Is it possible to fix this?  Was the 2.2 hash table just that much
-smaller?
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+-- 
+----------------------------------
+Jens Petersohn       x33128

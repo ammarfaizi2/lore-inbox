@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282971AbRK0Vg2>; Tue, 27 Nov 2001 16:36:28 -0500
+	id <S282975AbRK0VjN>; Tue, 27 Nov 2001 16:39:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282970AbRK0VgS>; Tue, 27 Nov 2001 16:36:18 -0500
-Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:8322 "EHLO
-	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S282969AbRK0VgA>; Tue, 27 Nov 2001 16:36:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: CS423x audio driver updates for testing
-Date: Tue, 27 Nov 2001 13:34:53 -0500
-X-Mailer: KMail [version 1.2]
-Cc: whampton@staffnet.com, cobra@linse.ufsc.br
-In-Reply-To: <E164Ja5-0007qT-00@the-village.bc.nu>
-In-Reply-To: <E164Ja5-0007qT-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <01112713345300.01486@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S282974AbRK0VjD>; Tue, 27 Nov 2001 16:39:03 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:45952 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S282968AbRK0ViZ>; Tue, 27 Nov 2001 16:38:25 -0500
+Date: Tue, 27 Nov 2001 14:42:08 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@timpanogas.org
+Subject: Re: aha152x driver build broken 2.5.1-pre2
+Message-ID: <20011127144208.B6048@vger.timpanogas.org>
+In-Reply-To: <20011127144016.A6048@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011127144016.A6048@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, Nov 27, 2001 at 02:40:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 November 2001 05:17, Alan Cox wrote:
-> This gets rid of the nasty clicks on the thinkpad. On the TP600 this leaves
-> us with fully functional sound including save/restore (if your bios is
-> not too ancient at least). The mixer changes are from Daniel Cobra, I added
-> the ident changes and made the driver pick the right (I hope) feature sets
-> for each board.
->
-> Can folks with cs42xx series audio give it a test make sure it doesn't
-> break anything
->
-> Alan
 
-Well, it didn't break anything, but it didn't fix my no-sound after suspend 
-problem.
+Linus,
 
-Without your patch, sound on my dell inspiron 3500 laptop works fine until 
-the first APM suspend and resume cycle, after which noatun under KDE will 
-block indefinitely trying to write sound and trying sound from the command 
-line (no X/KDE running) can get a little sound out sometimes, but it loops 
-endlessly with warnings printing to the console about an IRQ problem.  To get 
-sound working again, I have to power the laptop off and back on.
+Sorry.  Did not see your post on this subject.  
 
-I just applied the patch against 2.5.0 (with the 
-don't-eat-your-filesystem-on-shutdown patch as well: hey, it's 2.5, it's 
-supposed to do that, isn't it?) and it made no noticeable difference.
-
-lspci produces the same output before and after APM suspend.  It's a strange 
-chipset, but it's using the ad1848 sound driver:
-
-lspci -s 01:00.1 -v -v
-
-01:00.1 Multimedia audio controller: Neomagic Corporation [MagicMedia 256AV 
-Audio] (rev 12)
-        Subsystem: Dell Computer Corporation MagicMedia 256AV Audio Device on 
-Colorado Inspiron
-        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B+
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin B routed to IRQ 11
-        Region 0: Memory at fe000000 (32-bit, prefetchable) [size=4M]
-        Region 1: Memory at fe700000 (32-bit, non-prefetchable) [size=1M]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Jeff
 
 
-Any clues?
+On Tue, Nov 27, 2001 at 02:40:16PM -0700, Jeff V. Merkey wrote:
+> 
+> 
+> See attached.  Build broken in 2.5.1-pre2 for the aha152x drivers.
+> Reporting undelcared functions.
+> 
+> Jeff
+> 
 
-Rob
+> make all_targets
+> make[3]: Entering directory `/usr/src/linux/drivers/scsi'
+> ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o scsicam.o scsi_proc.o scsi_error.o scsi_obsolete.o scsi_queue.o scsi_lib.o scsi_merge.o scsi_dma.o scsi_scan.o scsi_syms.o
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DAHA152X_STAT -DAUTOCONF -c -o aha152x.o aha152x.c
+> aha152x.c: In function `aha152x_detect':
+> aha152x.c:1352: `io_request_lock' undeclared (first use in this function)
+> aha152x.c:1352: (Each undeclared identifier is reported only once
+> aha152x.c:1352: for each function it appears in.)
+> make[3]: *** [aha152x.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux/drivers/scsi'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux/drivers/scsi'
+> make[1]: *** [_subdir_scsi] Error 2
+> make[1]: Leaving directory `/usr/src/linux/drivers'
+> make: *** [_dir_drivers] Error 2
+

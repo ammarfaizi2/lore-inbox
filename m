@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbTA2N2j>; Wed, 29 Jan 2003 08:28:39 -0500
+	id <S265936AbTA2NZK>; Wed, 29 Jan 2003 08:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbTA2N2j>; Wed, 29 Jan 2003 08:28:39 -0500
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:18590 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S265987AbTA2N2i>; Wed, 29 Jan 2003 08:28:38 -0500
-Date: Tue, 28 Jan 2003 20:24:26 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Bootscreen
-Message-ID: <20030128202426.E646@nightmaster.csn.tu-chemnitz.de>
-References: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2> <1529810000.1043776134@titus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1529810000.1043776134@titus>; from mbligh@aracnet.com on Tue, Jan 28, 2003 at 09:48:55AM -0800
-X-Spam-Score: -3.1 (---)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18dsPe-0004aV-00*s0Mab7MyL6o*
+	id <S265939AbTA2NZK>; Wed, 29 Jan 2003 08:25:10 -0500
+Received: from mail2.webart.de ([195.30.14.11]:32778 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S265936AbTA2NZJ>;
+	Wed, 29 Jan 2003 08:25:09 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F2928946939B@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'Richard B. Tilley \"\"(Brad)'" <rtilley@vt.edu>,
+       Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
+       rob@r-morris.co.uk, linux-kernel@vger.kernel.org
+Subject: RE: Scaring the non-geeks (was Bootscreen)
+Date: Wed, 29 Jan 2003 14:25:11 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+> How do positive terms such as OK or YES scare people?
+The problem is not necessarily the init scripts. Each
+distributor can customise these quite easily. The problem
+is (how I see it) divided into two parts:
 
-On Tue, Jan 28, 2003 at 09:48:55AM -0800, Martin J. Bligh wrote:
-[Linux and Bootscreens]
+	I. The kernel messages. (And yes, I do know
+      about both, "quiet" and "console=/foo/bar)
 
-> I think it's a better plan to justify new features with an explantion
-> of why we should have something, rather than than saying there's no
-> reason we shouldn't. 
+	II. Both, using "quiet" or "console=/foo/bar",
+      and customising the init scripts only leaves
+      you with a blank, black screen. Now, you might
+      argue how "classic" or "beatieful" black is.
+      But it should be obvious this is an absolute
+      matter of taste. A nice picture is far more
+      appealing, and pleasing, and whatnot.
 
-Ok, I would say there are several reasons:
-
-   - People like themes and this makes the theme madness more
-     complete
-
-   - Some people get nervous, if they see text (esp. slow
-     readers for obvious reasons)
-
-   - Other people consider graphics archaic and "uncool"
-
-The last 2 apply to kids as well.
-
-So there are usability concerns and the boot might be the right
-place to implement that kind bootscreen retainment.
-
-Showing the dmesg log buffer on panic or BUG would be a nice
-thing, to retain usability in that case as well.
-
-Regards
-
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+	- Raphael

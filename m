@@ -1,81 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319273AbSH2TAg>; Thu, 29 Aug 2002 15:00:36 -0400
+	id <S319282AbSH2TDE>; Thu, 29 Aug 2002 15:03:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319282AbSH2TAg>; Thu, 29 Aug 2002 15:00:36 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:20145 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319273AbSH2TAf>;
-	Thu, 29 Aug 2002 15:00:35 -0400
-Message-ID: <3D6E6FD1.8040204@us.ibm.com>
-Date: Thu, 29 Aug 2002 12:02:41 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020822
-X-Accept-Language: en-us, en
+	id <S319294AbSH2TDE>; Thu, 29 Aug 2002 15:03:04 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:12281 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S319282AbSH2TDD>; Thu, 29 Aug 2002 15:03:03 -0400
+Message-ID: <8A9A5F4E6576D511B98F00508B68C20A0C84D1CC@orsmsx106.jf.intel.com>
+From: "Raj, Ashok" <ashok.raj@intel.com>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Kernel Stack Limit...
+Date: Thu, 29 Aug 2002 12:07:19 -0700
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@zip.com.au, Gerrit Huizenga <gerrit@us.ibm.com>,
-       Hans-J Tannenberger <hjt@us.ibm.com>,
-       Janet Morgan <janetmor@us.ibm.com>, Mike Anderson <andmike@us.ibm.com>,
-       Martin Bligh <mjbligh@us.ibm.com>
-Subject: Re: 2.5.32 IO performance issues
-References: <Pine.LNX.4.44L.0208291538470.1857-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Thu, 29 Aug 2002, Badari Pulavarty wrote:
->>I am having severe IO performance problems with 2.5.32 (2.5.31 works fine).
->>I was wondering what caused this.
->>
->>As you can see, IO rate went from
->>
->>		384MB/sec with 6% CPU utilization on 2.5.31
->>			to
->>		120MB/sec with 19% CPU utilization on 2.5.32
->>
->>Any idea ?
-> 
-> 384 MB/s is suspiciously fast.  What kind of disk subsystem
-> do you have to achieve that speed ?
+Hello.
 
-Oh, that's nothing! :)
+Please reply to me, since i dont have this email id on the list. 
 
-> Hardware: 8x 700MHz P-III, 4 Qlogic FC controllers, 40 disks
-> Test: 40 dds on 40 raw devices (40 disks).
+Could someone tell me at what the kernel stack size limit is? 
 
-One tray of 10 10k RPM disks, per controller.  The controllers are also 
-spread across 2 completely separate 64bit/66Mhz PCI busses (not bridged).
+Is there a gcc option for x86 that can warn if too large variables are
+specified in the stack?
 
-   Bus 10, device   8, function  0:
-     SCSI storage controller: QLogic Corp. QLA2200 (#2) (rev 5).
-       IRQ 23.
-       Master Capable.  Latency=96.  Min Gnt=64.
-       I/O at 0xb000 [0xb0ff].
-       Non-prefetchable 32 bit memory at 0xfe1ff000 [0xfe1fffff].
-   Bus 10, device   9, function  0:
-     SCSI storage controller: QLogic Corp. QLA2200 (#3) (rev 5).
-       IRQ 24.
-       Master Capable.  Latency=96.  Min Gnt=64.
-       I/O at 0xb100 [0xb1ff].
-       Non-prefetchable 32 bit memory at 0xfe1fe000 [0xfe1fefff].
-   Bus 13, device   6, function  0:
-     SCSI storage controller: QLogic Corp. QLA2200 (#4) (rev 5).
-       IRQ 21.
-       Master Capable.  Latency=96.  Min Gnt=64.
-       I/O at 0xd000 [0xd0ff].
-       Non-prefetchable 32 bit memory at 0xfebff000 [0xfebfffff].
-   Bus 13, device   7, function  0:
-     SCSI storage controller: QLogic Corp. QLA2200 (#5) (rev 5).
-       IRQ 22.
-       Master Capable.  Latency=96.  Min Gnt=64.
-       I/O at 0xd100 [0xd1ff].
-       Non-prefetchable 32 bit memory at 0xfebfe000 [0xfebfefff].
+recently we had a problem with one variable accidently declared on the stack
+which was quite large, and when
+some calls nested, we noticed stack corruption. Once the variable was moved
+to global, the corruption went away. We would always see that some member of
 
+"current" would be corrupted, so when the user mode program exits, we will
+notice the files member would be having garbage values.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+if there is a compiler option to force that during compilation to point out
+such weirdness, or if a runtime check could be done during each function
+exit, 
+it would be really useful.
 
+thanks
+ashokr

@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUGNUnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264229AbUGNUpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUGNUnl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 16:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUGNUnl
+	id S264229AbUGNUpw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 16:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUGNUpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 16:43:41 -0400
-Received: from gate.crashing.org ([63.228.1.57]:3817 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264183AbUGNUn1 (ORCPT
+	Wed, 14 Jul 2004 16:45:51 -0400
+Received: from gatekeeper.excelhustler.com ([68.99.114.105]:39063 "EHLO
+	gatekeeper.elmer.external.excelhustler.com") by vger.kernel.org
+	with ESMTP id S264229AbUGNUpe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 16:43:27 -0400
-Subject: Prism54 Oops
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1089837799.2129.0.camel@gaston>
+	Wed, 14 Jul 2004 16:45:34 -0400
+Date: Wed, 14 Jul 2004 15:45:27 -0500
+From: John Goerzen <jgoerzen@complete.org>
+To: linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
+Message-ID: <20040714204527.GA31038@excelhustler.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <20040714202700.GF22472@khan.acc.umu.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Jul 2004 16:43:20 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040714202700.GF22472@khan.acc.umu.se>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got that today... (2.6.7 on ppc)
+On Wed, Jul 14, 2004 at 10:27:00PM +0200, David Weinehall wrote:
+> On Wed, Jul 14, 2004 at 08:16:55PM +0000, John Goerzen wrote:
+> > I'm glad I'm not the only one that is suspecting that.  I just tried
+> > switching my T40p from APM to ACPI.  I got suspending to RAM working in
+> > ACPI, but noticed that when I got it back out of my laptop bag later, it
+> > was physically warm to the touch.  It also had consumed more battery
+> > power than it would have when suspended with APM.  And, if I would shine
+> > a bright light on the screen, I could make out text on it.  In other
+> > words, the backlight was off but it was still displaying stuff.
+> 
+> Does poweroff work for you?  At least my T40 has problems shutting off
+> properly when using 2.6 + ACPI.  A bit annoying; I have to keep the
+> powerkey pressed for a few seconds for it to turn off.
 
-Ben.
+The only way I ever turn the machine off is by running the halt command,
+and that is working fine for me.  I haven't tried the power key.
 
-Jul 14 15:29:38 gaston kernel: eth2: timeout waiting for mgmt response
-Jul 14 15:29:41 gaston last message repeated 3 times
-Jul 14 15:29:41 gaston kernel: eth2: mgmt tx queue is still full
-Jul 14 15:29:45 gaston last message repeated 20 times
-Jul 14 15:29:46 gaston kernel: NETDEV WATCHDOG: eth2: transmit timed out
-Jul 14 15:29:47 gaston kernel: eth2: timeout waiting for mgmt response
-Jul 14 15:29:49 gaston kernel: NETDEV WATCHDOG: eth2: transmit timed out
-Jul 14 15:29:49 gaston kernel: eth2: timeout waiting for mgmt response
-Jul 14 15:29:50 gaston kernel: eth2: timeout waiting for mgmt response
-Jul 14 15:29:50 gaston kernel: NETDEV WATCHDOG: eth2: transmit timed out
-Jul 14 15:29:55 gaston kernel: eth2: timeout waiting for mgmt response
-Jul 14 15:29:55 gaston kernel: eth2: mgmt tx queue is still full
-Jul 14 15:29:55 gaston last message repeated 15 times
-Jul 14 15:29:55 gaston kernel: Oops: kernel access of bad area, sig: 11 [#1]
-Jul 14 15:29:55 gaston kernel: NIP: 80047C94 LR: C20487EC SP: 819E5E60 REGS: 819e5db0 TRAP: 0300    Not tainted
-Jul 14 15:29:55 gaston kernel: MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
-Jul 14 15:29:55 gaston kernel: DAR: 00100100, DSISR: 40000000
-Jul 14 15:29:55 gaston kernel: TASK = bff80cc0[3] 'events/0' THREAD: 819e4000Last syscall: 120
-Jul 14 15:29:55 gaston kernel: GPR00: 80661120 819E5E60 BFF80CC0 00100100 819E5E20 FFFFFFFF 80390000 802E0000
-Jul 14 15:29:55 gaston kernel: GPR08: 819E5E2C 80694DC0 B4583610 80390000 82004024 00000000 00000000 00000000
-Jul 14 15:29:55 gaston kernel: GPR16: 00000000 00000000 00000000 00000000 00000000 00220000 00230000 00000000
-Jul 14 15:29:55 gaston kernel: GPR24: 00000000 BFF83EBC 819E5ED0 00000000 B45835F8 00009032 819E5ED0 FFFFFFFB
-Jul 14 15:29:55 gaston kernel: NIP [80047c94] kfree+0x40/0xa4
-Jul 14 15:29:55 gaston kernel: LR [c20487ec] mgt_update_addr+0x9c/0xb0 [prism54]
-Jul 14 15:29:55 gaston kernel: Call trace:
-Jul 14 15:29:55 gaston kernel:  [c20487ec] mgt_update_addr+0x9c/0xb0 [prism54]
-Jul 14 15:29:55 gaston kernel:  [c2048894] mgt_commit+0x94/0xb0 [prism54]
-Jul 14 15:29:55 gaston kernel:  [c2046a78] islpci_reset_if+0x12c/0x170 [prism54]
-Jul 14 15:29:55 gaston kernel:  [c2046bf4] islpci_reset+0x138/0x180 [prism54]
-Jul 14 15:29:55 gaston kernel:  [c2041bac] islpci_do_reset_and_wake+0x1c/0xa8 [prism54]
-Jul 14 15:29:55 gaston kernel:  [80033510] worker_thread+0x17c/0x21c
-Jul 14 15:29:55 gaston kernel:  [8003754c] kthread+0xb8/0xc0
-Jul 14 15:29:55 gaston kernel:  [8000b230] kernel_thread+0x44/0x60
-Jul 14 15:29:55 gaston kernel: NETDEV WATCHDOG: eth2: transmit timed out
-Jul 14 15:30:25 gaston last message repeated 15 times
-
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+-- John

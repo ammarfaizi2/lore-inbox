@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbUKDTTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbUKDTTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbUKDTTu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUKDTTk
+	id S262364AbUKDTTt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbUKDTTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:19:40 -0500
-Received: from web81309.mail.yahoo.com ([206.190.37.84]:347 "HELO
-	web81309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262317AbUKDTNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:13:01 -0500
-Message-ID: <20041104191258.77740.qmail@web81309.mail.yahoo.com>
-Date: Thu, 4 Nov 2004 11:12:58 -0800 (PST)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
-To: Greg KH <greg@kroah.com>
-Cc: Tejun Heo <tj@home-tj.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041104185826.GA17756@kroah.com>
+	Thu, 4 Nov 2004 14:19:35 -0500
+Received: from mail.tmr.com ([216.238.38.203]:12554 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262335AbUKDTNr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:13:47 -0500
+Date: Thu, 4 Nov 2004 14:04:58 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 USB storage problems
+In-Reply-To: <20041104011932.0b5d2aae@lembas.zaitcev.lan>
+Message-ID: <Pine.LNX.3.96.1041104135949.12155B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
-> On Thu, Nov 04, 2004 at 04:02:58PM +0900, Tejun Heo wrote:
-> >  df_02_bus_rescan_devcies_fix.patch
-> > 
-> >  bus_rescan_devices() eventually calls device_attach() and thus
-> > requires write locking the corresponding bus.  The original code just
-> > called bus_for_each_dev() which only read locks the bus.  This patch
-> > separates __bus_for_each_dev() and __bus_for_each_drv(), which don't
-> > do locking themselves, out from the original functions and call them
-> > with read lock in the original functions and with write lock in
-> > bus_rescan_devices().
-> > 
-> > 
-> > Signed-off-by: Tejun Heo <tj@home-tj.org>
-> 
-> Thanks, I cleaned up the formatting a bit in this patch and applied it.
-> 
+On Thu, 4 Nov 2004, Pete Zaitcev wrote:
 
-Hmm, I do not like that the patch now fiddles with bus's rwsem before
-incrementing bus's refcount.
+> On Wed, 03 Nov 2004 17:02:43 -0500, Bill Davidsen <davidsen@tmr.com> wrote:
+> 
+> > I just got information on this in another thread, in case you didn't see 
+> > my note there, is this behaviour a bug, design choice, or unavoidable 
+> > hardware issue? I can turn it off now, but I'm supposed to be getting a 
+> > flash key thing to test, which is why I turned it on in the first place.
+> 
+> The explanation may be a little long.
 
-I think just iterating through device list right the bus_rescan_devices
-will be good enough. I sent the patch together with other 3, did it get
-lost? 
+Thank you for taking the time to make it! I now understand the problem
+not only well enough to avoid it, but to ask another question below.
+> 
+> On most distributions, drivers are loaded with hotplug. Nobody, and I do
+> mean it, for all practical reasons nobody loads their drivers from
+> /etc/rc.d/rc.local anymore. (Side note: it is possible to load ub from
+> /etc/modprobe.conf, but not usb-storage, because of too many layers
+> between a block device and usb-storage: an open is a non-event there)
+> 
+> The hotplug is controlled by match lists, generated from C source (indirectly;
+> actually from object files, compiled from C source). This way, what is loaded
+> by hotplug would match what is present if same things were linked in, among
+> other things. The hotplug has no preference mechanism aside from hand-editing
+> those match lists. They have to be non-conflicting.
+> 
+> Given the above, it's hurtful to allow drivers to conflict, so such conflicts
+> are rare. I know of bcm5700 vs. tg3, eepro100 vs. e100, 812x vs 8130too.
+> AFAIK, in all such cases if one is configured, another cannot be configured
+> and vice versa. The USB contains an exception, curiously enough. In 2.4
+> kernels, it was possible to configure both uhci (ALT) and usb-uhci as
+> modules. It was annoying; Red Hat resolved it by loading usb-uhci from
+> /etc/rc.d/rc.sysinit (also marked in /etc/modules.conf, but that was
+> just a tag for kudzu and other tools).
+> 
+> So, when ub is configured to service certain classes of devices, usb-storage
+> relinquishes its control of them, resolving the conflict. This is assymmetric
+> in its implementation, but it's an artefact; no implication is made about
+> which driver is first among equals. In an ideal world we'd have something
+> like CONFIG_USB_STORAGE_PREF with two values "ub" and "usb-storage", or such.
+> 
+> I thought about the coexistence between the two at some length, and it seems
+> to me that the current scheme is the simplest workable scheme. I even thought
+> it as "least confusing" until messages from Wolfgang and others made it clear
+> that relationship between ub and usb-storage is not obvious enough to them.
+> I'm always open to patches, too.
+
+It would seem that wanting to use both flash keys and more common USB
+devices would be the common case for those who use flash keys at all.
+Would it be possible to have the regular USB drivers support the slow
+devices, if only to the extent of handing them off as they do CD, NIC, or
+disk? Or are these slow devices so unique that they are totally
+incompatible with faster devices?
+
+> 
+> -- Pete
+> 
 
 -- 
-Dmitry
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

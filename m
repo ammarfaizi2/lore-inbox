@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266518AbUAOAD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 19:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266521AbUAOAD0
+	id S264941AbUAOARV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 19:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbUAOARV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 19:03:26 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:65520 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266518AbUAOAC4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 19:02:56 -0500
-Message-ID: <4005D8A5.3010002@mvista.com>
-Date: Wed, 14 Jan 2004 16:02:45 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Matt Mackall <mpm@selenic.com>, "Amit S. Kale" <amitkale@emsyssoft.com>,
-       Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net,
-       discuss@x86-64.org, ak@suse.de, shivaram.upadhyayula@wipro.com,
-       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <400237F0.9020407@mvista.com> <200401122020.08578.amitkale@emsyssoft.com> <40046296.1050702@mvista.com> <20040114063155.GF28521@waste.org> <4005A03A.40409@mvista.com> <20040114232631.GB9983@kroah.com>
-In-Reply-To: <20040114232631.GB9983@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 19:17:21 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:61401 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S264941AbUAOARQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 19:17:16 -0500
+Date: Wed, 14 Jan 2004 16:17:12 -0800
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.X] SIOCSIFNAME wilcard suppor & name validation
+Message-ID: <20040115001712.GA24056@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20040112234332.GA1785@bougret.hpl.hp.com> <20040113142204.0b41403b.shemminger@osdl.org> <20040113162112.509edb71.davem@redhat.com> <20040114161324.61b7198f.shemminger@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040114161324.61b7198f.shemminger@osdl.org>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Jan 14, 2004 at 12:02:02PM -0800, George Anzinger wrote:
+On Wed, Jan 14, 2004 at 04:13:24PM -0800, Stephen Hemminger wrote:
+> Bug: dev_alloc_name returns the number of the slot used, so comparison needs
+> to be < 0.
 > 
->>Right.  I had hoped that we might one day be able to use the USB and I am 
->>sure there are others.
-> 
-> 
-> Raw USB?  Or some kind of USB to serial device?
-> 
-> Remember, USB needs interrupts to work, see the kdb patches for the mess
-> that people have tried to go through to send usb data without interrupts
-> (doesn't really work...)
+> diff -Nru a/net/core/dev.c b/net/core/dev.c
+> --- a/net/core/dev.c	Wed Jan 14 16:09:02 2004
+> +++ b/net/core/dev.c	Wed Jan 14 16:09:02 2004
+> @@ -718,7 +718,7 @@
+>  
+>  	if (strchr(newname, '%')) {
+>  		int err = dev_alloc_name(dev, newname);
+> -		if (err)
+> +		if (err < 0)
+>  			return err;
+>  		strcpy(newname, dev->name);
+>  	}
 
-I gave up on USB when I asked the following questions:
-1. How many different HW USB master devices need to be supported (i.e. appear on 
-your normal line of MBs)? (answer, too many)
-2. Can I isolate a USB port from the kernel so that it does not even know it is 
-there? (answer: NO)
+	Doh ! I feel stupid.
 
-What I want is a USB port that is completely coded in kgdb software (keeps 
-Heisenberg out).  It would be a polled device except for the ^C (or equivalent) 
-interrupt.
-
-We, of course, have the same issues with the eth interface.  Far too much of the 
-rest of the kernel is involved in the communications with it.  Also there are 
-way to many interfaces to code each one seperatly, thus the current effort using 
-a good deal of the kernel to remove all that special code.  Of course Heisenberg 
-and all his friends and relations are taking up residence in that code :)  Might 
-not be too bad except that his uncle is Murphy.
-
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+	Jean

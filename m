@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265160AbTLZJ7i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 04:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTLZJ7i
+	id S265066AbTLZKIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 05:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTLZKIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 04:59:38 -0500
-Received: from sina187-156.sina.com.cn ([202.106.187.156]:61700 "HELO sina.com")
-	by vger.kernel.org with SMTP id S265160AbTLZJ7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 04:59:35 -0500
-Date: Fri, 26 Dec 2003 17:59:05 +0800
-From: dlion <dlion2004@sina.com.cn>
-X-Mailer: The Bat! (v2.00)
-Reply-To: dlion2004@sina.com.cn
-X-Priority: 3 (Normal)
-Message-ID: <7624288781.20031226175905@sina.com.cn>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-In-Reply-To: <3FDD7DFD.7020306@labs.fujitsu.com>
-References: <3FDD7DFD.7020306@labs.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 Dec 2003 05:08:17 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:8867 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265066AbTLZKIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 05:08:16 -0500
+Subject: Re: Page aging broken in 2.6
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@surriel.com>
+In-Reply-To: <20031226093356.A8980@flint.arm.linux.org.uk>
+References: <1072423739.15458.62.camel@gaston>
+	 <20031225234023.20396cbc.akpm@osdl.org>
+	 <20031226093356.A8980@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1072433251.15477.69.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 26 Dec 2003 21:07:32 +1100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Tsuchiya,
 
-Monday, December 15, 2003, 5:25:17 PM, you wrote:
+> ARM would strictly need the flush as well.  I seem to vaguely remember,
+> however, that when this code went in there was some discussion about
+> this very topic, and it was decided that the flush was not critical.
+> 
+> Indeed, 2.4 seems to have the same logic concerning not flushing the
+> PTE:
+> 
+>         /* Don't look at this pte if it's been accessed recently. */
+>         if ((vma->vm_flags & VM_LOCKED) || ptep_test_and_clear_young(page_table)) {
+>                 mark_page_accessed(page);
+>                 return 0;
+>         }
 
-TY> Hi,
+I can imagine that an architecture with TLBs will usually evict
+the entry from the TLB sooner or later and the accessed bit will end
+up beeing set again. On PPC, that isn't the case, the entry can well
+stay a loooong time in the hash and if not evicted, _PAGE_ACCESSED
+will never be set again.
 
-TY> Ext2 and Ext3 filesystem go to inconsistent status by
-TY> simple test program on my system.
-
-TY> My test program is a script that extract a tar+gzip archive
-TY> twice and compare them, and remove one of the tree, and then
-TY> another extracting, and compare them again. A very simple test.
-
-I tried your script on ext2 and ext3 filesystem on a ramdisk. I got errors,
-too. It seems that this problem is unrelated to device driver or
-hardware.
-
-The mozilla tarball is too big for a ramdisk. I use a
-zhcon-0.2.1.tar.gz (4,991,350 bytes) instead.
-
-I only got one kind of error on ext2 filesystem. That is, the script
- said the read-only directory zhcon-0.2.1 is missing, but it _is_ there.
-I used e2fsck to check the ramdisk and found no error.
-
-I got other errors on ext3 filesystem include:
-1. missing file
-2. corrupted file
-but when I used fsck.ext3 to check the ramdisk, the result was clean.
-
-My system is:
-CPU:  AMD Athlon XP 1800+
-RAM:  256M DDR333
-Chipset: VIA KT400A
-Linux Distribution: Fedora Core 1
-Linux Kernel: kernel-2.4.22-1.2115.nptl.athlon.rpm
-
--- 
-Best regards,
- dlion                            mailto:dlion2004_at_sina.com.cn
+Ben.
 
 

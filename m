@@ -1,82 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTFJKRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 06:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTFJKRQ
+	id S261568AbTFJKTU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 06:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTFJKTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 06:17:16 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:8209 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261825AbTFJKRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 06:17:01 -0400
-Date: Tue, 10 Jun 2003 12:30:15 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030610123015.4242716e.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<20030605181423.GA17277@alpha.home.local>
-	<20030608131901.7cadf9ea.skraw@ithnet.com>
-	<20030608134901.363ebe42.skraw@ithnet.com>
-	<20030609171011.7f940545.skraw@ithnet.com>
-	<Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jun 2003 06:19:20 -0400
+Received: from webmail26.rediffmail.com ([203.199.83.148]:63623 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id S261568AbTFJKTG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 06:19:06 -0400
+Date: 10 Jun 2003 10:32:40 -0000
+Message-ID: <20030610103240.3422.qmail@webmail26.rediffmail.com>
+MIME-Version: 1.0
+From: "jairam nair" <jairamnair@rediffmail.com>
+Reply-To: "jairam nair" <jairamnair@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem while Crosscompiling Ksymoops
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jun 2003 21:38:16 -0400 (EDT)
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+  Hi,
+    I am trying to cross compile ksymoops-2.4.9 for Strong ARM. 
+But i
+am getting a segmentation Fault. The error messages is as below.
+    Can anybody tell me what should be given for DEF_MAP, since in 
+the
+target machine there is no System.map file.
 
-> On Mon, 9 Jun 2003, Stephan von Krawczynski wrote:
-> 
-> > During the whole testing with SMP I recognised that the tar-verify always
-> > brought up "content differs" warnings. Which basically means that the
-> > filesize is ok but the content is not. As there might be various causes for
-> > this (bad tape, bad drive, bad cabling) I did not give very much about it.
-> > But it turns out there are no more such warnings when using an UP kernel
-> > (on the same box with the complete same hardware including tapes).
-> > 
-> > >From this experience I would conclude the following (for my personal test
-> > case):
-> 
-> Can you also try this with 2.5?
+  Can anybody give some idea on this.
 
-Uh, do I trust Linus ? ;-) Well, probably I am going to take a look. The whole
-story eats a lot of time as I have to deal with GBs of data for every single
-test.
+Thanks and regards
+      Jairam
 
-> > 1) aic-driver has problems with smp/up switching (meaning crashes when
-> > trying an SMP build with nosmp). This is completely reproducable.
-> 
-> Can you also try an SMP kernel with noapic?
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o ksymoops.o ksymoops.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o io.o io.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o ksyms.o ksyms.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o map.o map.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o misc.o misc.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o object.o object.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o oops.o oops.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o re.o re.c
+arm-linux-gcc -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include   -c -o symbol.o symbol.c
+arm-linux-gcc io.o ksyms.o ksymoops.o map.o misc.o object.o 
+oops.o
+re.o symbol.o -Dlinux -Wall -Wno-conversion -Waggregate-return
+-Wstrict-prototypes -Wmissing-prototypes
+-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+-DDEF_OBJECTS=\"/lib/modules/*r/\"
+-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+-I/skiff/local/include -L/skiff/local/lib -arm-linux-ld,-Bstatic 
+-lbfd
+-liberty -arm-linux-ld,-Bdynamic -o ksymoops
+collect2: ld terminated with signal 11 [Segmentation fault], 
+core
+dumped
+make: *** [ksymoops] Error 1
 
-Can you clarify? Do you mean options "nosmp noapic" or just "noapic" on SMP
-kernel?
 
-> > 2) aic-driver (almost no matter what version) has problems with SMP setup
-> > and tape drives. Obviously data integrity is not given. This is completely
-> > reproducable in my test setup.
-> 
-> I have had problems with symmetric interrupt handling but can normally get 
-> it working with noapic. And no it doesn't appear to be an interrupt 
-> routing problem on my box (If it is someone please clearly state what the 
-> exact problem is to me)
 
-Hm, my question is: if it were exclusively an apic problem, why do other
-controllers (in a filesystem environment) work flawlessly. Maybe the driver and
-apic simply have differing opinions in certain race cases, but that does not
-mean that apic is always to blame, does it?
 
-Regards,
-Stephan
+
+
+
+___________________________________________________
+Get www. mycompany .com and 5 matching email ids.
+Just Rs. 1499/ year.
+Click here http://www.rediffmailpro.com
+

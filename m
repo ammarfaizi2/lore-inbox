@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267529AbTAXEi3>; Thu, 23 Jan 2003 23:38:29 -0500
+	id <S267544AbTAXEqO>; Thu, 23 Jan 2003 23:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267530AbTAXEi3>; Thu, 23 Jan 2003 23:38:29 -0500
-Received: from cache2.telkomsel.co.id ([202.155.14.253]:33809 "EHLO
-	cache2.telkomsel.co.id") by vger.kernel.org with ESMTP
-	id <S267529AbTAXEi2>; Thu, 23 Jan 2003 23:38:28 -0500
-Message-ID: <3E30C2A5.5040502@bna.telkomsel.co.id>
-Date: Fri, 24 Jan 2003 11:35:49 +0700
-From: arief_mulya <arief@bna.telkomsel.co.id>
-Organization: damai itu indah <peace is beautiful>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+	id <S267542AbTAXEqO>; Thu, 23 Jan 2003 23:46:14 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:42504 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S267541AbTAXEqN>; Thu, 23 Jan 2003 23:46:13 -0500
+Date: Thu, 23 Jan 2003 21:54:37 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+       marcelo@conectiva.com.br
+Subject: Re: Aic7xxx 6.2.28 and Aic79xx 1.3.0 Released
+Message-ID: <756820000.1043384077@aslan.scsiguy.com>
+In-Reply-To: <20030123.202727.102788332.davem@redhat.com>
+References: <694670000.1043380598@aslan.scsiguy.com>
+ 	<20030123.195327.107011605.davem@redhat.com>
+ 	<739810000.1043382396@aslan.scsiguy.com>
+ <20030123.202727.102788332.davem@redhat.com>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, tech@openbsd.org,
-       freebsd-hackers@freebsd.org, tech-kern@netbsd.org
-Subject: Technical Differences of *BSD and Linux
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+> And in fact, you are describing exactly what Linus and Marcelo's
+> jobs are, to reject bogus/broken changes.
 
+I think you missed the subtely of what I said.  It's not "their duty"
+to never make a mistake, and it is not expected that they will catch
+everything.  When they do miss something, or make a mistake you probably
+tell them in a straight forward fashion.  In this case, what you
+effectively said to me was:
 
-I Apologize, If this thread has existed before, and so if
-this is very offtopic and tiredsome for most of you here.
+	"Hey.  I would appreciate it if you would stop not
+	 noticing this change that I made to your code through
+	 Linus without telling you. *Twice* no less.  Wake up!
+	 Wasn't it obvious?  It is *your duty* to notice these
+	 one line changes that happen to break the build on
+	 a platform that I care about but doesn't have any
+	 consequences on the platforms you are probably testing.
+	 Oh, and the aic79xx driver... well I didn't bother to
+	 look at that because it's not in my configuration.
+	 Oh well."
 
-I'm a newbie, and just about to get my feet wet into the
-kernel-code, been using (GNU/)Linux (or whatever the name
-is, I personally don't really care, I caremost at the
-technical excellence) for the last two years, I personally
-think it's a toupper(great); system.
+And I get all of this grief *after* I already included the change
+instead of after the first time I missed it.  You really make me
+laugh!
 
-But after recently reviewing some BSD based systems, I began
-to wonder. And these are my questions (I'm trying to avoid 
-flame and being a troll here, so if there's any of my 
-questions is not on technical basis, or are being such a 
-jerk troll please just trash filter my name and email address):
-
-1. In what technical area of the kernel are Linux and *BSD 
-differ?
-2. How does it differ? What are the technical reasoning 
-behind the decisions?
-
-3. Is there any group of developer from each project that 
-review each other changes, and tries to make the best code 
-out, or is the issues very system specific (something that 
-work best on Linux might not be so on FreeBSD or NetBSD or 
-OpenBSD)?
-
-4. Any chance of merging the very best part of each kernel?
-5. Or is it possible to do so?
-
-
-Anything else that matters, are welcome.
-
-Please answer technically, I don't wanna be a troll here, 
-and I hope so do everyone that answers this. I really like 
-to learn, not to read some flame of who's the best.
-
-To freebsd and openbsd list, please CC the answer to me 
-directly, as I don't get response from the majordomo of my 
-subscription requests, yet.
-
-
-Best Regards,
-
-arief_mulya
--- 
+--
+Justin
 

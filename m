@@ -1,82 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbRBSQ1O>; Mon, 19 Feb 2001 11:27:14 -0500
+	id <S130242AbRBSQ2E>; Mon, 19 Feb 2001 11:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129599AbRBSQ1E>; Mon, 19 Feb 2001 11:27:04 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:20516 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129393AbRBSQ0w>; Mon, 19 Feb 2001 11:26:52 -0500
-Date: Mon, 19 Feb 2001 10:26:44 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [LONG RANT] Re: Linux stifles innovation... 
-In-Reply-To: <Pine.LNX.3.96.1010219162217.20451A-100000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.96.1010219102055.17842O-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130226AbRBSQ1y>; Mon, 19 Feb 2001 11:27:54 -0500
+Received: from adsl-64-163-64-74.dsl.snfc21.pacbell.net ([64.163.64.74]:6149
+	"EHLO konerding.com") by vger.kernel.org with ESMTP
+	id <S129393AbRBSQ1q>; Mon, 19 Feb 2001 11:27:46 -0500
+Message-Id: <200102191627.f1JGRE621842@konerding.com>
+To: Ansari <mike@khi.sdnpk.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Running Bind 9 on Redhat 7 
+In-Reply-To: Your message of "Mon, 19 Feb 2001 20:00:48 +0500."
+             <3A913520.3011C7D6@khi.sdnpk.org> 
+Date: Mon, 19 Feb 2001 08:27:14 -0800
+From: dek_ml@konerding.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Feb 2001, Mikulas Patocka wrote:
+Ansari writes:
+>Hi !!
+>
+>I am configuring Bind 9 on Redhat 7 but unable to start the named.
+>Here is my /var/log message log:
+>
+>
+>Feb 20 09:49:58 ns2 named[2003]: starting BIND 9.0.0
+>Feb 20 09:49:58 ns2 named[2005]: loading configuration from
+>'/var/named/named.bo
+>ot'
+>Feb 20 09:49:58 ns2 named[2005]: the default for the 'auth-nxdomain'
+>option is n
+>ow 'no'
+>Feb 20 09:49:58 ns2 modprobe: modprobe: Can't locate module net-pf-10
+>Feb 20 09:49:58 ns2 named[2005]: no IPv6 interfaces found
+>Feb 20 09:49:58 ns2 named[2005]: listening on IPv4 interface lo,
+>127.0.0.1#53
+>Feb 20 09:49:58 ns2 named[2005]: socket.c:1183: unexpected error:
+>Feb 20 09:49:58 ns2 named[2005]: setsockopt(10, SO_TIMESTAMP) failed
+>Feb 20 09:49:58 ns2 named[2005]: listening on IPv4 interface eth0,
+>209.58.33.71#
+>53
+>Feb 20 09:49:58 ns2 named[2005]: socket.c:1183: unexpected error:
+>Feb 20 09:49:58 ns2 named[2005]: setsockopt(12, SO_TIMESTAMP) failed
+>Feb 20 09:49:58 ns2 named[2005]: socket.c:1183: unexpected error:
+>Feb 20 09:49:58 ns2 named[2005]: setsockopt(9, SO_TIMESTAMP) failed
+>Feb 20 09:49:58 ns2 named[2005]: dns_master_load: db.127.0.0:1: no TTL
+>specified
+>Feb 20 09:49:58 ns2 named[2005]: dns_zone_load: zone
+>0.0.127.IN-ADDR.ARPA/IN: da
+>tabase db.127.0.0: dns_db_load failed: no ttl
+>Feb 20 09:49:58 ns2 named[2005]: loading zones: no ttl
+>Feb 20 09:49:58 ns2 named[2005]: exiting (due to fatal error)
+>Feb 20 09:50:00 ns2 CROND[2010]: (root) CMD (   /sbin/rmmod -as)
 
-> > > I suspect part of the problem with commercial driver support on Linux is that
-> > > the Linux driver API (such as it is) is relatively poorly documented
-> > 
-> > In-kernel documentation, agreed.
-> > 
-> > _Linux Device Drivers_ is a good reference for 2.2 and below.
-> 
-> And do implementators of generic kernel functions and developers of device
-> drivers respect it? And how can they respect it if it's a commercial book?
+There are several things wrong here.
 
-_Linux Device Drivers_ documents the 2.2 (and previous) API, and
-thus refutes the argument that the kernel API is poorly documented.
-Since the publication of the book -succeeds- the publication of the
-APIs, your questions are not applicable.
+First I should point out RedHat 7.1beta comes with BIND 9 as a package.
+Second if you're using BIND 8 named config files and you don't have a top line which
+looks like:
+$TTL 86400
 
+before your SOA record, then you will see the message about "no ttl".
 
-> > > and seems
-> > > to change almost on a week-by-week basis anyway. I've done my share of chasing
-> > > the current kernel revision with drivers that aren't part of the kernel tree:
-> > > by the time you update the driver to work with the current kernel revision,
-> > > there's a new one out, and the driver doesn't compile with it.
-> > 
-> > This is entirely in your imagination.  Driver APIs are stable across the
-> > stable series of kernels: 2.0.0 through 2.0.38, 2.2.0 through 2.2.18,
-> > 2.4.0 through whatever.
-> 
-> No true. Do you remember for example the mark_buffer_dirty change in some
-> 2.2.x that triggered ext2 directory corruption? (mark_buffer_dirty was
-> changed so that it could block). 
-> 
-> Another example of bug that comes from the lack of specification is
-> calling of get_free_pages by non-running processes that caused lockups on
-> all kernels < 2.2.15. And it is still not cleaned up - see tcp_recvmsg(). 
-> 
-> Having documentation could prevent this kind of bugs.
+Thirdly, and this is really the only kernel-related one, it appears that
+named is asking for support for TIMESTAMP on the socket and it's failing.
+I don't know why that is, as it looks like the TIMESTAMP socket option is supported
+in 2.4 (presumably 2.2 as well).  
 
-Hardly.  No documentation is often -better- than bad documentation.
-
-> You don't need too
-> long texts, just a brief description: "this function may be called from
-> process/bh/interrupt context, it may/may not block, it may/may not be
-> called in TASK_[UN]INTERURPTIBLE state, it may take these locks."
-> 
-> With documentation developers would be able to change implementation of
-> kernel functions without the need to recheck all drivers that use them. 
-
-Anytime you change implementation, you gotta check all drivers that use
-them.  I know, I'm one of the grunts that does such reviews and changes.
-
-> Saying "code is the specification" is not good.
-
-I'm not arguing against documentation.  That is dumb.  But the code is
-ALWAYS canonical.  Not docs.
-
-	Jeff
-
-
-
-
-
+Dave

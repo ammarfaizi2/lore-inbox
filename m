@@ -1,102 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUKASvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269586AbUKASxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbUKASvP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 13:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264890AbUKASvO
+	id S269586AbUKASxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 13:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S287887AbUKASxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 13:51:14 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:46479 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S269873AbUKAS27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 13:28:59 -0500
-Message-ID: <418685AE.2020508@drdos.com>
-Date: Mon, 01 Nov 2004 11:51:26 -0700
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] bio.c: make bio_destructor static
-References: <20041030164450.GN4374@stusta.de> <20041101180348.GB5299@suse.de>
-In-Reply-To: <20041101180348.GB5299@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 13:53:05 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:5248 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S287422AbUKASgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 13:36:37 -0500
+Date: Mon, 1 Nov 2004 19:36:31 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: x86-64 numa: accessing memnodemap[] beyond its end
+Message-ID: <20041101183631.GA24023@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-
->On Sat, Oct 30 2004, Adrian Bunk wrote:
->  
->
->>bio_destructor in fs/bio.c isn't used outside of this file, and after 
->>quickly thinking about it I didn't find a reason why it should.
->>
->>The patch below makes it static.
->>
->>
->>Signed-off-by: Adrian Bunk <bunk@stusta.de>
->>    
->>
->
->Acked-by: Jens Axboe <axboe@suse.de>
->
->  
->
->>--- linux-2.6.10-rc1-mm2-full/fs/bio.c.old	2004-10-30 13:53:41.000000000 +0200
->>+++ linux-2.6.10-rc1-mm2-full/fs/bio.c	2004-10-30 13:56:16.000000000 +0200
->>@@ -91,7 +91,7 @@
->> /*
->>  * default destructor for a bio allocated with bio_alloc()
->>  */
->>-void bio_destructor(struct bio *bio)
->>+static void bio_destructor(struct bio *bio)
->> {
->> 	const int pool_idx = BIO_POOL_IDX(bio);
->> 	struct biovec_pool *bp = bvec_array + pool_idx;
->>
->>
->>    
->>
->
->  
->
-Jens,
-
-This change does not break me either. Seems benign. One thing to 
-consider is the ability to remap
-block addresses from bios for mv operations that occur across mount 
-points. At present, do_rename
-returns -EXDEV if someone attempts an mv operation accross mount points 
-which point to
-physical storage in the same system, and requires all the data copy up 
-to user space then back
-down. This seems wasteful of cycles and inefficient.
-
-A better model, and one I have implemented in the dsfs file system (I 
-changed do_rename extensively)
-is to cache the mv'd file and alias the bio chain to point to the new 
-disk location during mv commands,
-even across mount points, and allow the data to DMA directly between 
-local mount points without
-moving the data up to user space and back down.
-
-I am doing this with some heavy modifications, but I think it more 
-appropriately should be a kernel
-feature "fait acompli." The bio interface in the buffer cache (and some 
-triggers in do rename) has to
-be able to remap data chains to another device on the fly.
-
-Why? If you are using remote Fiber Channel adapters that map storage 
-local as SCSI it's super fast
-and low cycle overhead to simply mv the files and have them dma out on 
-the storage and skip the
-inefficient user space copy.
-
-Just a suggestion.
-
-Jeff
+Hello,
+   what prevents function below (arch/x86_64/mm/numa.c) from accessing
+memnodemap[] beyond its end?  NODEMAPSIZE is 0xFF, so for first attempted
+bit shift 24 it attempts to access field 0x100000000 >> 24 = 0x100.
+Fortunately it survives as memnodemap[256] fortunately contains zero and
+not 0xFF or 0x01, but still it seems to me that some test for index
+overflow is missing here. 
+						Thanks,
+							Petr Vandrovec
 
 
+u8  memnodemap[NODEMAPSIZE];
 
+int __init compute_hash_shift(struct node *nodes)
+{
+        int i;
+        int shift = 24;
+        u64 addr;
+
+        /* When in doubt use brute force. */
+        while (shift < 48) {
+                memset(memnodemap,0xff,sizeof(*memnodemap) * NODEMAPSIZE);
+                for (i = 0; i < numnodes; i++) {
+                        if (nodes[i].start == nodes[i].end)
+                                continue;
+                        for (addr = nodes[i].start;
+                             addr < nodes[i].end;
+                             addr += (1UL << shift)) {
+                                if (memnodemap[addr >> shift] != 0xff &&
+                                    memnodemap[addr >> shift] != i) {
+                                        printk(KERN_INFO
+                                            "node %d shift %d addr %Lx conflict %d\n",
+                                               i, shift, addr, memnodemap[addr>>shift]);
+                                        goto next;
+                                }
+                                memnodemap[addr >> shift] = i;
+                        }
+                }
+                return shift;
+        next:
+                shift++;
+        }
+        memset(memnodemap,0,sizeof(*memnodemap) * NODEMAPSIZE);
+        return -1;
+}
+
+Bootdata ok (command line is BOOT_IMAGE=2.6.10-1-424-64 ro root=801 ramdisk=0 video=matroxfb:vesa:0x11E,left:16,right:8,hslen:48,xres:1920,upper:2,vslen:4,lowe)
+Linux version 2.6.10-rc1-c2424 (root@vana) (gcc version 3.3.3 (Debian 20040401)) #2 SMP Mon Nov 1 15:43:42 CET 2004
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 0000000000100000 - 0000000040000000 (usable)
+ BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
+Scanning NUMA topology in Northbridge 24
+Number of nodes 2 (10010)
+Node 0 MemBase 0000000000000000 Limit 000000003fffffff
+Node 1 MemBase 0000000100000000 Limit 000000013fffffff
+node 1 shift 24 addr 100000000 conflict 0
+Using node hash shift of 25
+Bootmem setup node 0 0000000000000000-000000003fffffff
+Bootmem setup node 1 0000000100000000-000000013fffffff
+
+P.S.:  No, this setup does not come from standard BIOS.

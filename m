@@ -1,100 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264056AbTE3XYz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 19:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264057AbTE3XYz
+	id S264061AbTE3X0L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 19:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbTE3X0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 19:24:55 -0400
-Received: from [65.198.37.67] ([65.198.37.67]:63956 "EHLO gghcwest.com")
-	by vger.kernel.org with ESMTP id S264056AbTE3XYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 19:24:53 -0400
-Subject: Re: Different geometry settings for identical drives
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <306584240A9@vcnet.vc.cvut.cz>
-References: <306584240A9@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Message-Id: <1054337888.24145.6.camel@heat>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 30 May 2003 16:38:09 -0700
+	Fri, 30 May 2003 19:26:11 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:64460 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264061AbTE3X0J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 19:26:09 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Neil Schemenauer <nas@python.ca>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][CFT] new IO scheduler for 2.4.20
+Date: Sat, 31 May 2003 09:40:41 +1000
+User-Agent: KMail/1.5.1
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Matt <matt@lpbproductions.com>
+References: <20030530220923.GA404@glacier.arctrix.com>
+In-Reply-To: <20030530220923.GA404@glacier.arctrix.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305310940.41780.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-30 at 16:20, Petr Vandrovec wrote:
-> On 30 May 03 at 15:46, Jeffrey Baker wrote:
-> 
-> > hda: host protected area => 1
-> > hda: setmax LBA 234441648, native  234375000
-> > hda: 234375000 sectors (120000 MB) w/8192KiB Cache, CHS=232514/16/63, UDMA(100)
-> > hdc: attached ide-disk driver.
-> > hdc: host protected area => 1
-> > hdc: setmax LBA 234441648, native  234375000
-> > hdc: 234375000 sectors (120000 MB) w/8192KiB Cache, CHS=232514/16/63, UDMA(100)
-> > hdd: attached ide-cdrom driver.
-> > hdd: ATAPI 24X CD-ROM drive, 128kB Cache, UDMA(33)
-> > 
-> > The result is that hda works fine but hdc doesn't.  When I try to mke2fs
-> > on the latter I see:
-> > 
-> > hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> > hdc: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=234441583, sector=232343808
-> > 
-> > You can see that LBAsect (234441583) is higher than the "native" sectors
-> > quoted by the kernel (234375000, difference 66583 sectors).  Why are
-> > these two disks being addressed differently?  
-> 
-> As far as I can tell, it has nothing to do with disk geometry.
-> 
-> Someone just cut couple of sectors at the end from disk, you compiled
-> your kernel without CONFIG_IDEDISK_STROKE, but still kernel for some
-> reason reports block size as if idedisk_set_max_address() was invoked.
-> 
-> I do not see how this could happen with 2.4.21-rc3... Can you recheck
-> that you are using 2.4.21-rc3 without any additional patches?
+On Sat, 31 May 2003 08:09, Neil Schemenauer wrote:
+> The major benefit of this patch is that read latency is much lower while
+> lots of writes are occuring.  On my machine, running:
+>
+>  while :; do dd if=/dev/zero of=foo bs=1M count=1000 conv=notrunc; done
+>
+> makes 2.4.20 unusable.  With this patch the "write bomb" causes no
+> particular problems.
+>
+> With this version of the patch I've improved the bulk read performance
+> of the elevator.  The bonnie++ results are now:
+>
+>                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block--
+>                Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP
+> 2.4.20           1G 13001  97 34939  18 13034   7 12175  92 34112  14
+> 2.4.20-nas       1G 12923  98 36471  17 13340   8 10809  83 35569  13
+>
+> Note that the "rewrite" and "per-char read" stats are slightly bogus for
+> 2.4.20-nas.  Reads get a boost in priority over writes.  When the
+> "per-char read" test has started there is still some writing happening
+> from the rewrite test.  I think the net effect is that the "rewrite"
+> number is too high and the "per-char read" number is too low.
+>
+> I would be very pleased if someone could run some tests on using bonnie,
+> contest, or their other favorite benchmarks and post the results.
 
-I'm running 2.4.21-rc3 with the latest patch from ftp.x86-64.org:
+Nice to see 2.4 getting some attention. I'll try and get around to contesting 
+it.
 
-prime:/usr/src# uname -r
-2.4.21-rc3
+How does this compare to akpm's read-latency2 patch that he posed some time 
+ago? That seems to make a massive difference but was knocked back for style 
+or approach.
 
-The x86-64.org patch doesn't touch much outside of arch/x86_64.  You are
-right that CONFIG_IDE_STROKE is off:
-
-prime:/usr/src/linux# grep IDE .config | sort | tac  
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDE=y
-# IDE, ATA and ATAPI Block devices
-# CONFIG_VIDEO_SELECT is not set
-# CONFIG_VIDEO_DEV is not set
-# CONFIG_PARIDE is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-# CONFIG_BLK_DEV_IDECS is not set
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# ATA/IDE/MFM/RLL support
-
--jwb
-
+Con

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130664AbRAEXtp>; Fri, 5 Jan 2001 18:49:45 -0500
+	id <S129387AbRAEXz5>; Fri, 5 Jan 2001 18:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRAEXtf>; Fri, 5 Jan 2001 18:49:35 -0500
-Received: from adsl-63-194-89-126.dsl.snfc21.pacbell.net ([63.194.89.126]:51218
-	"HELO skull.piratehaven.org") by vger.kernel.org with SMTP
-	id <S130664AbRAEXtY>; Fri, 5 Jan 2001 18:49:24 -0500
-Date: Fri, 5 Jan 2001 15:44:46 -0800
-From: Brian Pomerantz <bapper@piratehaven.org>
-To: yiding_wang@agilent.com
+	id <S129777AbRAEXzr>; Fri, 5 Jan 2001 18:55:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8719 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129387AbRAEXzj>;
+	Fri, 5 Jan 2001 18:55:39 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101052356.f05NumX17925@flint.arm.linux.org.uk>
+Subject: Re: port of linux to Intel IXP1200
+To: fryman@cc.gatech.edu (Josh Fryman)
+Date: Fri, 5 Jan 2001 23:56:47 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: InfiniBand Project
-Message-ID: <20010105154446.A11669@skull.piratehaven.org>
-Mail-Followup-To: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797101128D68@xsj02.sjs.agilent.com>
-Mime-Version: 1.0
+In-Reply-To: <3A565BA5.E04635EE@cc.gatech.edu> from "Josh Fryman" at Jan 05, 2001 06:41:25 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797101128D68@xsj02.sjs.agilent.com>
-X-homepage: http://www.piratehaven.org/~bapper/
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a possibility I could work on here at LLNL.  My group has
-been talking about investigating Infiniband and we figured Linux would
-be a good spot to start with it.  The ASCI Purple machine (100 TFLOPS)
-will probably use IB for it's I/O network, though there is obviously
-no commitment to is yet as this machines delivery date is a ways away.
-We need to start looking at it soon so we know how well we can
-integrate it into our environment.
+Josh Fryman writes:
+> does anyone out there know if linux has been successfully ported to the Intel
+> IXP1200 programmable network processor?  it's got an SA-1 core with lots of
+> frills, and there have been rumors of a linux port, but i can't find anything
+> through normal channels.
 
+Yes there is.  Look at:
 
-BAPper
+http://www.netwinder.org/~urnaik/ixp1200_howto.html
 
-On Fri, Jan 05, 2001 at 04:06:24PM -0700, yiding_wang@agilent.com wrote:
-> Has anyone started IB support project for Linux yet?  Particularly I am
-> interested in OS support and verbs layer from Linux side.  I am involved in
-> an IB product on HCA and TCA side.  Current solution will be emulating scsi
-> but eventually all IB component is required.  I noticed that kernel 2.4.0
-> only has IB class defined.
-> 
-> Many thanks!
-> 
-> Eddie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+for more information on getting Linux running.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

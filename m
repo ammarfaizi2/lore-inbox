@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbSLQTMD>; Tue, 17 Dec 2002 14:12:03 -0500
+	id <S265759AbSLQTPY>; Tue, 17 Dec 2002 14:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbSLQTMD>; Tue, 17 Dec 2002 14:12:03 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:62900
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S265543AbSLQTLd>; Tue, 17 Dec 2002 14:11:33 -0500
-Message-ID: <3DFF78BE.3040201@redhat.com>
-Date: Tue, 17 Dec 2002 11:19:26 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, Hugh Dickins <hugh@veritas.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, hpa@transmeta.com
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212171050470.1095-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212171050470.1095-100000@home.transmeta.com>
+	id <S266292AbSLQTPY>; Tue, 17 Dec 2002 14:15:24 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25573 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265759AbSLQTOi>; Tue, 17 Dec 2002 14:14:38 -0500
+Date: Tue, 17 Dec 2002 14:22:35 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: My fixes to ide-tape in 2.4.20-ac2
+Message-ID: <20021217142235.C8233@devserv.devel.redhat.com>
+References: <20021213224424.A3446@devserv.devel.redhat.com> <Pine.LNX.4.50L.0212162248480.31876-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.50L.0212162248480.31876-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Dec 16, 2002 at 10:49:35PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+> Date: Mon, 16 Dec 2002 22:49:35 -0200 (BRST)
+> From: Marcelo Tosatti <marcelo@conectiva.com.br>
 
-> In the meantime, I do agree with you that the TLS approach should work
-> too, and might be better. It will allow all six arguments to be used if we
-> just find a good calling conventions 
+> > I checked that my fixes were not corrected by Alan Stern,
+> > and re-diffed them against 2.4.20-ac2. I think it would
+> > be right if Alan (Cox :-) applied this patch to -ac3 or something.
+> > Marcelo agreed to take it many times but forgot to actually apply.
+> 
+> I haven't applied them because I was afraid they could break something.
+> 
+> Great that now its been tested in -ac.
 
-If you push out the AT_* patch I'll hack the glibc bits (probably the
-TLS variant).  Won't take too  long, you'll get results this afternoon.
+Yes, Alan saves the day. However, I would think this is what your
+-pre series were supposed to do. Add fixes, see if they break things.
+Release more often. If patches regress, remove them. Obviously, your
+master vision is different, but personally I think it's unfortunate.
 
-What about AMD's instruction?  Is it as flawed as sysenter?  If not and
-%ebp is available I really should use the TLS method.
-
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
-
+Greetings,
+-- Pete

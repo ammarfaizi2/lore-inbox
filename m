@@ -1,70 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbUKEUko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUKEUnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbUKEUko (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbUKEUkn
+	id S261198AbUKEUnu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUKEUnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:40:43 -0500
-Received: from main.gmane.org ([80.91.229.2]:46315 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261214AbUKEUkJ (ORCPT
+	Fri, 5 Nov 2004 15:43:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:50394 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261198AbUKEUne (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:40:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <Fieroch@web.de>
-Subject: kernel module grip with gravis Xterminator gamepad
-Date: Fri, 05 Nov 2004 21:17:02 +0100
-Message-ID: <cmgn3s$fb0$1@sea.gmane.org>
+	Fri, 5 Nov 2004 15:43:34 -0500
+Date: Fri, 5 Nov 2004 12:42:09 -0800
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>, anil.s.keshavamurthy@intel.com,
+       tokunaga.keiich@jp.fujitsu.com, motoyuki@soft.fujitsu.com
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       rml@novell.com, linux-kernel@vger.kernel.org, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
+Message-ID: <20041105204209.GA1204@kroah.com>
+References: <20041105001328.3ba97e08.akpm@osdl.org> <20041105164523.GC1295@stusta.de> <20041105180513.GA32007@kroah.com> <20041105201012.GA24063@vrfy.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-de, en-us, en
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041105201012.GA24063@vrfy.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Nov 05, 2004 at 09:10:12PM +0100, Kay Sievers wrote:
+> On Fri, Nov 05, 2004 at 10:05:13AM -0800, Greg KH wrote:
+> > On Fri, Nov 05, 2004 at 05:45:23PM +0100, Adrian Bunk wrote:
+> > > The following error (compin from Linus' tree) is caused by the fact that 
+> > > hotplug_path is no longer EXPORT_SYMBOL'ed:
+> > > 
+> > > 
+> > > <--  snip  -->
+> > > 
+> > > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.10-rc1-mm3; fi
+> > > WARNING: /lib/modules/2.6.10-rc1-mm3/kernel/drivers/acpi/container.ko needs unknown symbol hotplug_path
+> > > 
+> > > <--  snip  -->
+> > 
+> > Hm, must be an -mm specific change that is causing this.  I don't see
+> > this in the current tree.
+> > 
+> > Len, why would any ACPI code be wanting to get access to hotplug_path
+> > directly?
+> 
+> 
+> I've found it. This wants to introduce a new direct /sbin/hotplug call,
+> with "add" and "remove" events, without sysfs support.
+> 
+> It should use class support or kobject_hotplug() instead.  Nobody should
+> fake hotplug events anymore, cause every other notification transport
+> will not get called (currently uevent over netlink).
+>   http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/broken-out/bk-acpi.patch
+> 
+> +static int
+> +container_run_sbin_hotplug(struct acpi_device *device, char *action)
+> +{
+> ...
+> +	argv[i++] = hotplug_path;
+> +	argv[i++] = "container";
+> +	argv[i] = NULL;
+> ...
+> +	i = 0;
+> +	envp[i++] = "HOME=/";
+> +	envp[i++] = "PATH=/sbin;/bin;/usr/sbin;/usr/bin";
+> +	envp[i++] = action_str;
+> +	envp[i++] = container_str;
+> +	envp[i++] = "PLATFORM=ACPI";
+> +	envp[i] = NULL;
+> ...
 
-Hello,
+Good catch.  Yeah, that code is just wrong.
 
-I've got the gravis Xterminator gamepad and I think, the driver grip has
-to be adapted.
-The gamepad works, but the order of its axes and buttons is not correct.
-The gamepad has got a proportional directional pad (joystick-like
-control) and a 8-way digital directional pad. There are other
-proportional flippers and throttle buttons so that they are 9 axes all
-together.
+Anil, your name is on this file.  Care to fix it up to use the proper
+driver core hotplug functionality instead of rolling your own?
 
-The jscalibrator detects axis 0 and axis 1 for the proportional
-directional pad, then the other axes and at last the 8-way directional
-pad as axis 7 and axis 8.
-Because of the 8-way directional pad is the main directional pad and
-many games only use axis 0 and axis 1 for control, this directional pad
-should be axis 0 and axis 1. Axis 2 and axis 3 should be for the
-proportional directional pad and then the other ones should follow.
+Or is there some reason you are wanting to do this kind of notification
+that the driver core is not providing for you?
 
-It's the same with the buttons. Button 0 and button 1 are on
-the bottom side and hard to reach. Button 0 - 5 should be the six main
-buttons.
+thanks,
 
-Is it possible to change this or is there any possibility for me as user
-to change the order of the axes and button ids?
-
-Thanks in advance,
-Alexander
-
-PS: I'm running kernel 2.6.9 with module grip for the gamepad
-Xterminator (gameport, not usb)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBi9++lLqZutoTiOMRAnmVAJ9vtcuj/fbvgPd56j7xVF3rVFnprgCfThXn
-63lsUaJfAxCvCh/TV1VQul8=
-=+cg9
------END PGP SIGNATURE-----
-
+greg k-h

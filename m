@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbTDYMXv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 08:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTDYMXv
+	id S263902AbTDYMZa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 08:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTDYMZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 08:23:51 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:1069 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S262633AbTDYMXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 08:23:50 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A9201FD92C9@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: Adrian Bunk <bunk@fs.tum.de>, Linus Torvalds <torvalds@transmeta.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
+	Fri, 25 Apr 2003 08:25:30 -0400
+Received: from 213-97-251-19.uc.nombres.ttd.es ([213.97.251.19]:19624 "EHLO
+	linalco.com") by vger.kernel.org with ESMTP id S263902AbTDYMZ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 08:25:28 -0400
+Date: Fri, 25 Apr 2003 14:29:42 +0200
+From: Ragnar Hojland Espinosa <ragnar@linalco.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: "Downing, Thomas" <Thomas.Downing@ipc.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Flame Linus to a crisp!
-Date: Fri, 25 Apr 2003 08:36:00 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030425122942.GB11586@linalco.com>
+References: <170EBA504C3AD511A3FE00508BB89A9201FD8E40@exnanycmbx4.ipc.com> <3EA7F0C6.8010907@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA7F0C6.8010907@techsource.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk [mailto:bunk@fs.tum.de]
+On Thu, Apr 24, 2003 at 10:12:22AM -0400, Timothy Miller wrote:
+> 
+> As much as I dislike Microsoft for its business practices, I still feel 
+> uneasy having illegal copies of their Office suite.  So I use OpenOffice 
+> instead.  Likewise, I prefer to use Linux because having a free copy of 
+> it is perfectly legal.  And finally, although I do like the idea of 
+> being able to sample music before I buy it, I feel an attachment to 
+> artists I listen to, so I buy their CD's (despite the fact that it helps 
+> the RIAA).
+ 
+> So the idea of having something which prevents me from illegally 
+> pirating something doesn't bother me so much.  Whenever I have to do 
+> serious work, I either use an OSS tool, or I pay money for a piece of 
+> software so I can get support -- sometimes, I even pay for OSS stuff. 
+> The idea of a DRM system malfunctioning and preventing me from 
+> accessing my legally-licensed material DOES bother me very much, but I 
+> think only in the hands of people like us can it be done right, because 
+> we're the very ones who would suffer were it to break.
 
->On Wed, Apr 23, 2003 at 10:43:37PM -0700, Linus Torvalds wrote:
->>...
->> And hey, the fact is (at least as far as I'm concerned), that as long as
->> you make the hardware, you can control what it runs.
->>...
->
->Linux is currently widely used and through this there comes some power. 
->Let me try to make examples where this might be important:
+What I don't get is why would you think MS you'd be able to open MS docs with
+open office, or how would Wine work.  Or even more simple, would you be able
+to just plug a samba server and that it would be recognized by MS clients as
+a trusted party?
 
-You cast these comments in the context of corporate use, so -
-
-The primary reason corporations are beginning to adopt Linux is TCO
-- and such adoption is in its early stages, though growing.  Such
-adoption is _only_ to the extent that Linux will run specific
-applications.
-
-Companies do _not_ adopt Linux because it is the only OS on which
-their critical applications run.  They don't adopt it because it's
-the coolest OS out there.  All the corporate required applications 
-run on other O$'s.  If support for a facility percieved as desirable
-or necessary (in this case, DRM)is not available in Linux due to the
-terms of the GPL, corporations will drop Linux in a heartbeat.
-
-Some companies (viz certain very large financial institutions) are
-only now just beginning to write applications _on_ Linux.  When
-Linux has a majority market share, with the rest of the market in
-disarray, _then_ you have some power; but only for a limitted time.
+I must surely be missing something..
+-- 
+Ragnar Hojland - Project Manager
+Linalco "Especialistas Linux y en Software Libre"
+http://www.linalco.com Tel: +34-91-5970074 Fax: +34-91-5970083

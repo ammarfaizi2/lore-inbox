@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271965AbRIDNAS>; Tue, 4 Sep 2001 09:00:18 -0400
+	id <S271260AbRIDNH2>; Tue, 4 Sep 2001 09:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271966AbRIDNAI>; Tue, 4 Sep 2001 09:00:08 -0400
-Received: from a407.woctni.sk ([195.28.70.181]:31251 "EHLO a407.woctn.sk")
-	by vger.kernel.org with ESMTP id <S271965AbRIDM74>;
-	Tue, 4 Sep 2001 08:59:56 -0400
-Message-ID: <XFMail.010904145710.rastos@woctni.sk>
-X-Mailer: XFMail 1.3 [p0] on HP-UX (unknown)
-X-Priority: 3 (Normal)
-X-Chameleon-Return-To: rastos@woctni.sk
-X-XFmail-Return-To: rastos@woctni.sk
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Date: Tue, 04 Sep 2001 14:57:10 +0200 (METDST)
-Reply-To: Rastislav Stanik <rastos@woctni.sk>
-Organization: West Ost Connection s.r.o.
-From: Rastislav Stanik <rastos@woctni.sk>
+	id <S271289AbRIDNHT>; Tue, 4 Sep 2001 09:07:19 -0400
+Received: from victor.ndsuk.com ([194.202.59.31]:26131 "EHLO victor.ndsuk.com")
+	by vger.kernel.org with ESMTP id <S271260AbRIDNHG>;
+	Tue, 4 Sep 2001 09:07:06 -0400
+Message-ID: <F128989C2E99D4119C110002A507409801555FD8@topper.hrow.ndsuk.com>
+From: "Elgar, Jeremy" <JElgar@ndsuk.com>
 To: linux-kernel@vger.kernel.org
-Subject: Should I use Linux to develop driver for specialized ISA card?
+Subject: Applying multiple patches 
+Date: Tue, 4 Sep 2001 14:07:56 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+Sorry if this is covered somewhere but I had a look last night (and asked
+various people) but came up blank.
 
-I'd like to know your opinion on following problem:
+Is there a way to apply multiple patches to a source tree (if the patches
+were produced from the same base tree)
 
-I'm developing specialized plotter.
-The moving parts of the plotter are controlled by ISA card that generates
-(and responds to) interrupts on each movement or printing event.
-The interrupts can be generated quite fast; up to frequency of 4kHz.
+The problem I have is thus,  I want to apply patch-2.4.9-ac6 (I guess might
+as well do ac7 now) and the xfs patch
+but both are from a vanilla 2-4-9.
 
-I need to write a driver for that.
-The 1st prototype is developed in MS-DOS,but I hit problem with memory.
-The driver needs to use (and transfer) quite big chunks of memory.
-1MB is not enough.
+Is there a standard way of doing this or is a `by hand solution`
 
-In NT you don't develop drivers so easily. It is actually a pain.
-Therefore I'm considering Linux. The machine would be probably 
-dedicated and, may be later, embeded in the plotter.
-Problems:
-- It is unlikely that my driver would ever make it to main-stream kernel source.
-- I'm just a C/C++ programmer, I have just rough idea what does it mean to
-'develop a driver in Linux'. I'm pretty familiar with Linux as sys-admin though.
+(I managed to apply the ac first then the xfs (ignoring a couple of files
+that are older in ac) but it was the config file that was messed up)
 
-All I need is: to have piece of code executed on some interrupt,
-read/write IO ports of the card and be able to transfer big pieces
-of memory to the card.
+Its probably quite simple but I couldn't figure it
 
-What do you think? Is Linux the ideal platform for me?
+Cheers
 
-Please, Cc: to rastos@woctni.sk, I'm not subscribed to the mailing list (yet).
----
-        bye
-                rastos
+Jeremy
+
+
+
+
+ 
+===============================================================
+Information contained in this email message is intended only for
+use of the individual or entity named above. If the reader of this
+message is not the intended recipient, or the employee or agent
+responsible to deliver it to the intended recipient, you are hereby
+notified that any dissemination, distribution or copying of this
+communication is strictly prohibited. If you have received this
+communication in error, please immediately notify us by email
+to postmaster@ndsuk.com and destroy the original message. 
+
+

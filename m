@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVAFOsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVAFOtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVAFOsd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 09:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVAFOsd
+	id S262846AbVAFOtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 09:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVAFOtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 09:48:33 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:15797 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262844AbVAFOsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 09:48:30 -0500
-Message-ID: <41DD4FBC.2070404@grupopie.com>
-Date: Thu, 06 Jan 2005 14:48:28 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, jaharkes@cs.cmu.edu,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       acme@conectiva.com.br, davem@redhat.com, nathans@sgi.com
-Subject: Re: [Coverity] Untrusted user data in kernel
-References: <1103247211.3071.74.camel@localhost.localdomain> <20050105120423.GA13662@logos.cnet> <20050105161653.GF13455@fi.muni.cz> <20050105140549.GA14622@logos.cnet> <20050106091844.GB6961@fi.muni.cz>
-In-Reply-To: <20050106091844.GB6961@fi.muni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jan 2005 09:49:51 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:45758 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262846AbVAFOt1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 09:49:27 -0500
+Date: Thu, 6 Jan 2005 16:51:03 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Takashi Iwai <tiwai@suse.de>, ak@suse.de, mingo@elte.hu,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: [PATCH] fget_light/fput_light for ioctls
+Message-ID: <20050106145103.GB25898@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak wrote:
-> [...]
-> +	if (mem.len <= 0 || mem.addr < 0 || mem.len > 65536 || mem.addr > 65535
-> +		|| mem.addr + mem.len > 65536)
-> +		return -EFAULT;
+Hello!
+With new unlocked_ioctl and ioctl_compat, ioctls can now
+be as fast as read/write.
+So lets use fget_light/fput_light there, to get some speedup
+in common case on SMP.
 
-Just an extremely small nitpick. The conditions
+mst
 
-mem.len > 65536 || mem.addr > 65535
+Signed-off-by: Michael s. Tsirkin <mst@mellanox.co.il>
 
-aren't needed, because if one of them is true, then
-
-mem.addr + mem.len > 65536
-
-must be true also, since we've already asserted that len>0 and addr>=0.
-
-This would be even simpler if len and addr were unsigned as they should 
-be, but that's probably not your fault :(
-
--- 
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
+diff -rup linux-2.6.10/fs/compat.c linux-2.6.10-ioctls/fs/compat.c
+--- linux-2.6.10/fs/compat.c	2005-01-06 17:54:13.000000000 +0200
++++ linux-2.6.10-ioctls/fs/compat.c	2005-01-06 20:15:44.407259408 +0200
+@@ -431,8 +431,9 @@ asmlinkage long compat_sys_ioctl(unsigne
+ 	struct file *filp;
+ 	int error = -EBADF;
+ 	struct ioctl_trans *t;
++	int fput_needed;
+ 
+-	filp = fget(fd);
++	filp = fget_light(fd, &fput_needed);
+ 	if (!filp)
+ 		goto out;
+ 
+@@ -476,7 +479,7 @@ asmlinkage long compat_sys_ioctl(unsigne
+  do_ioctl:
+ 	error = sys_ioctl(fd, cmd, arg);
+  out_fput:
+-	fput(filp);
++	fput_light(file, fput_needed);
+  out:
+ 	return error;
+ }
+diff -rup linux-2.6.10/fs/ioctl.c linux-2.6.10-ioctls/fs/ioctl.c
+--- linux-2.6.10/fs/ioctl.c	2005-01-06 17:54:13.000000000 +0200
++++ linux-2.6.10-ioctls/fs/ioctl.c	2005-01-06 20:34:09.329285728 +0200
+@@ -80,8 +83,9 @@ asmlinkage long sys_ioctl(unsigned int f
+ 	struct file * filp;
+ 	unsigned int flag;
+ 	int on, error = -EBADF;
++	int fput_needed;
+ 
+-	filp = fget(fd);
++	filp = fget_light(fd, &fput_needed);
+ 	if (!filp)
+ 		goto out;
+ 
+@@ -154,7 +158,7 @@ asmlinkage long sys_ioctl(unsigned int f
+ 			break;
+ 	}
+  out_fput:
+-	fput(filp);
++	fput_light(filp, fput_needed);
+  out:
+ 	return error;
+ }

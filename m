@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318080AbSIJU3u>; Tue, 10 Sep 2002 16:29:50 -0400
+	id <S318058AbSIJU0W>; Tue, 10 Sep 2002 16:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318086AbSIJU3u>; Tue, 10 Sep 2002 16:29:50 -0400
-Received: from warden-b.diginsite.com ([208.29.163.249]:19911 "HELO
-	wardenb.diginsite.com") by vger.kernel.org with SMTP
-	id <S318080AbSIJU3t>; Tue, 10 Sep 2002 16:29:49 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Joe Kellner <jdk@kingsmeadefarm.com>
-Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
-Date: Tue, 10 Sep 2002 13:26:05 -0700 (PDT)
-Subject: Re: XFS?
-In-Reply-To: <1031689072.3d7e5370a83d2@webmail>
-Message-ID: <Pine.LNX.4.44.0209101324050.8888-100000@dlang.diginsite.com>
+	id <S318061AbSIJU0W>; Tue, 10 Sep 2002 16:26:22 -0400
+Received: from pD9E23544.dip.t-dialin.net ([217.226.53.68]:50366 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318058AbSIJU0V>; Tue, 10 Sep 2002 16:26:21 -0400
+Date: Tue, 10 Sep 2002 14:31:17 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] undo 2.5.34 ftape damage
+In-Reply-To: <15742.2206.709234.102259@kim.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0209101430090.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-and you know something is mainstream when slackware includes it.
+Hi,
 
-said as a longtime slackware user :-)
+On Tue, 10 Sep 2002, Mikael Pettersson wrote:
+> In the 2.5.33->2.5.34 step someone removed "export-objs" from
+> drivers/char/ftape/lowlevel/Makefile, which makes it impossible to build
+> ftape as a module since is _does_ have a number of EXPORT_SYMBOL's.
 
-I know slackware 8.1 included XFS, I don't think it was in 8.0.
+This is the expsyms output. Draw your own conclusions on what should be 
+done.
 
-David Lang
+Remove arch/arm/kernel/apm.o.
+Remove arch/arm/mach-clps711x/leds-p720t.o.
+Remove arch/arm/mach-integrator/leds.o.
+Add arch/arm/mach-ftvpci/leds.o.
+Remove arch/arm/mach-pxa/irq.o.
+Remove arch/arm/mach-pxa/sa1111.o.
+Remove arch/arm/mach-sa1100/irq.o.
+Remove arch/arm/mach-sa1100/usb_ctl.o.
+Remove arch/arm/mach-sa1100/usb_recv.o.
+Remove arch/arm/mach-sa1100/usb_send.o.
+Remove arch/ppc/amiga/amiga_ksyms.o.
+Remove drivers/char/ftape/zftape/zftape_syms.o. <-- Bugger?
+Remove drivers/char/pty.o.
+Add drivers/usb/class/usb-midi.o.
 
-On Tue, 10 Sep 2002, Joe Kellner wrote:
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 
-> Date: Tue, 10 Sep 2002 16:17:52 -0400
-> From: Joe Kellner <jdk@kingsmeadefarm.com>
-> To: John Alvord <jalvo@mbay.net>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: XFS?
->
->
-> > So does Redhat/Suse/??? ship XFS yet?
-> >
-> > john
-> >
->
-> Mandrake has had XFS support in the default boot kernel since 8.0. AFAIK, Suse
-> and  Slackware also have XFS capable kernels now too.
->
->
->
-> -------------------------------------------------
-> sent via KingsMeade secure webmail http://www.kingsmeadefarm.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

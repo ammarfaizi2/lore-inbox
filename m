@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313279AbSDDRl1>; Thu, 4 Apr 2002 12:41:27 -0500
+	id <S313276AbSDDRpR>; Thu, 4 Apr 2002 12:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313276AbSDDRlI>; Thu, 4 Apr 2002 12:41:08 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:31943 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313271AbSDDRlF>;
-	Thu, 4 Apr 2002 12:41:05 -0500
-Date: Thu, 4 Apr 2002 09:40:57 -0800
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: flaniganr@intel.co.jp, linux-kernel@vger.kernel.org,
-        dhinds@zen.stanford.edu, Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] 2.5.8-pre1 wavelan_cs
-Message-ID: <20020404094057.B26632@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <87vgb8x8bt.fsf@hazuki.jp.intel.com> <3CABFE55.9@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S313280AbSDDRpI>; Thu, 4 Apr 2002 12:45:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38158 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313276AbSDDRov>; Thu, 4 Apr 2002 12:44:51 -0500
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 4 Apr 2002 19:00:10 +0100 (BST)
+Cc: mingo@redhat.com (Ingo Molnar),
+        tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        arjanv@redhat.com (Arjan van de Ven), hugh@veritas.com (Hugh Dickins),
+        stelian.pop@fr.alcove.com (Stelian Pop),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20020404184405.C32431@dualathlon.random> from "Andrea Arcangeli" at Apr 04, 2002 06:44:05 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16tBWs-0006Rh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 02:18:45AM -0500, Jeff Garzik wrote:
-> flaniganr@intel.co.jp wrote:
-> > not sure if i did this right, so if you 
-> > have any suggestions/comments please tell me.
-> > 
-> > Basically 2.5.8-pre1 fails to compile with:
-> > 
-> > In file included from wavelan_cs.c:59:
-> > wavelan_cs.p.h:495:33: warning: extra tokens at end of #undef directive
-> > wavelan_cs.c: In function `wv_pcmcia_config':
-> > wavelan_cs.c:4480: structure has no member named `rmem_start'
-> > wavelan_cs.c:4482: structure has no member named `rmem_end'
-> > make[3]: *** [wavelan_cs.o] Error 1
-> 
-> not needed, just delete the unused references to rmem_{start,end}.
-> (see attached patch)
-> 
-> 	Jeff
+> adding export symbol here and there it's the same thing you did in the
+> redhat kernel and in your tux patches here:
 
-	Correct. It was just information displayed by ifconfig.
-	Jeff, will you take care of it or do you need an "official"
-patch (I would just resend your patch + the one of Robert).
-	Thanks...
+Nothing to do with me. I suspect Ingo and DaveM both discussed it however.
 
-	Jean
+> vmalloc_to_page. Now if you claim that that's not legal, then I claim
+> all binary only drivers out there are completly illegal, because they
+
+That is a possible situation. No lawyer I've talked to is prepared to give
+a definitive answer on the question of whether it is a derivative work. In
+the UK case it recently got even more complex because a judge ruled that
+loading a program into memory is clearly an act of copying.
+
+Alan

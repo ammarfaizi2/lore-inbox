@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289493AbSAPVsJ>; Wed, 16 Jan 2002 16:48:09 -0500
+	id <S289065AbSAPVmf>; Wed, 16 Jan 2002 16:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289038AbSAPVsA>; Wed, 16 Jan 2002 16:48:00 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:37505
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287940AbSAPVro>; Wed, 16 Jan 2002 16:47:44 -0500
-Date: Wed, 16 Jan 2002 16:31:44 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-Message-ID: <20020116163144.D12306@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <esr@thyrsus.com> <200201161506.g0GF6Xjs001294@tigger.cs.uni-dortmund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200201161506.g0GF6Xjs001294@tigger.cs.uni-dortmund.de>; from brand@jupiter.cs.uni-dortmund.de on Wed, Jan 16, 2002 at 04:06:33PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S287936AbSAPVkr>; Wed, 16 Jan 2002 16:40:47 -0500
+Received: from mail.mbnet.fi ([194.100.160.29]:49924 "EHLO mail.mbnet.fi")
+	by vger.kernel.org with ESMTP id <S287940AbSAPVjg>;
+	Wed, 16 Jan 2002 16:39:36 -0500
+Message-ID: <3C45F45C.5000005@mbnet.fi>
+Date: Wed, 16 Jan 2002 23:45:00 +0200
+From: Joonas Koivunen <rzei@mbnet.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Power off NOT working, kernel 2.4.16
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <brand@jupiter.cs.uni-dortmund.de>:
-> > Release 2.1.3: Tue Jan 15 14:41:45 EST 2002
-> > 	* Resync with 2.4.18-pre3 and 2.5.2.
-> > 	* It is now possible to declare explicit saveability predicates.
-> > 	* The `vitality' flag is gone from the language.  Instead, the 
-> > 	  autoprober detects the type of your root filesystem and forces
-> > 	  its symbol to Y.
-> 
-> Great! Now I can't configure a kernel for ext3 only on an ext2 box. Keep it
-> up! As it goes, we can safely forget about CML2...
+Hey everyone,
 
-Oh, nonsense.  You can do this just fine with any of the manual configurators.
-Now repeat after me, Horst:
+I keep having this problem with 2.2 and 2.4 kernel series, and that is 
+APM poweroff not working. I tried all possible boot time commands which 
+could help me without results.
 
-	The autoconfigurator is *optional*, not required.
+APM poweroff has actually been working with this computer, back when we 
+used 2.0.36 type kernels, and that one was possibly redhat patched or 
+something else, and windowses knew also how to poweroff, with mainboards 
+drivers. APM poweroff seized to operate when I switched to 2.2 serie 
+kernels.
 
-	The autoconfigurator is *optional*, not required.
+My system is P2 prosessor on ASUS P2L97. cat /proc/apm tells:
 
-	The autoconfigurator is *optional*, not required.
+1.15 1.2 0x03 0x01 0xff 0x80 -1% -1 ?
 
-	The autoconfigurator is *optional*, not required.
+booting with debug option doesn't make apm speak more, well I dunno how 
+could I provide more information.
 
-	The autoconfigurator is *optional*, not required.
+TIA,
+rzei
 
-		:	:	:	:	:
-
-Please continue until insight penetrates your skull.  Thank you.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-A human being should be able to change a diaper, plan an invasion,
-butcher a hog, conn a ship, design a building, write a sonnet, balance
-accounts, build a wall, set a bone, comfort the dying, take orders, give
-orders, cooperate, act alone, solve equations, analyze a new problem,
-pitch manure, program a computer, cook a tasty meal, fight efficiently,
-die gallantly. Specialization is for insects.
-	-- Robert A. Heinlein, "Time Enough for Love"

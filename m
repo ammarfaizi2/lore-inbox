@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280149AbRJaK5F>; Wed, 31 Oct 2001 05:57:05 -0500
+	id <S280146AbRJaLBp>; Wed, 31 Oct 2001 06:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280147AbRJaK44>; Wed, 31 Oct 2001 05:56:56 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:34062 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S280150AbRJaK4h>; Wed, 31 Oct 2001 05:56:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] Smbfs + preempt on 2.4.10
-Date: Wed, 31 Oct 2001 12:55:40 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E15yXWU-0006EF-00@the-village.bc.nu>
-In-Reply-To: <E15yXWU-0006EF-00@the-village.bc.nu>
-Cc: linux-kernel@vger.kernel.org
+	id <S280153AbRJaLBf>; Wed, 31 Oct 2001 06:01:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44813 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280147AbRJaLBc>; Wed, 31 Oct 2001 06:01:32 -0500
+Subject: Re: apm suspend broken ?
+To: pascal.lengard@wanadoo.fr (Pascal Lengard)
+Date: Wed, 31 Oct 2001 11:08:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), suonpaa@iki.fi (Samuli Suonpaa),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110310208410.2024-100000@co2.localdomain> from "Pascal Lengard" at Oct 31, 2001 02:27:31 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <01103112554004.00794@nemo>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ytEL-0003LY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 October 2001 11:57, you wrote:
-> > I can't find where that write() func ptr is coming
-> > (tracked it to tty->ldisc.write, but failed to find out
-> > where that field is assigned to).
-> > Somebody enlighten me...
->
-> For the vesa fb scrolling case you probably want to put your own scheduling
-> points into the vesafb copying
+> 2.4.9 ==> apm works
+> 2.4.10-pre8 ==> apm works
+> 2.4.10-pre10 ==> apm works
+> 2.4.10-pre11 ==> apm works
+> 2.4.10-pre12 ==> apm broken
 
-You are right but I couldn't find where vesafb copying routine lives in the 
-tree :-(  Perhaps I should try harder digging...
---
-vda
+Thanks
+
+I'll have a look when I get some time to poke at APM again

@@ -1,78 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTFLLq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 07:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTFLLqZ
+	id S264374AbTFLMGs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 08:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTFLMGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 07:46:25 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:20097 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S264809AbTFLLqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 07:46:23 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [2.5.70-mm8] NETDEV WATCHDOG: eth0: transmit timed out
-Date: Thu, 12 Jun 2003 13:59:36 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030611013325.355a6184.akpm@digeo.com> <200306111725.49952.schlicht@uni-mannheim.de> <20030611115626.26ddac3a.akpm@digeo.com>
-In-Reply-To: <20030611115626.26ddac3a.akpm@digeo.com>
+	Thu, 12 Jun 2003 08:06:47 -0400
+Received: from smtp02.web.de ([217.72.192.151]:41226 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S264374AbTFLMGq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 08:06:46 -0400
+Message-ID: <000f01c33013$c713eeb0$6602a8c0@Schleppi>
+From: "Gregor Essers" <gregor.essers@web.de>
+To: "I Am Falling I Am Fading" <skuld@anime.net>
+Cc: <davej@codemonkey.org.uk>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0306120512320.13378-100000@inconnu.isu.edu>
+Subject: Re: Via KT400 and AGP 8x Support
+Date: Wed, 11 Jun 2003 14:19:58 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_ssG6+wTQAvmkiNc";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200306121359.41608.schlicht@uni-mannheim.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi i will look into that with the bridges, i hope that Hercules is so that
+they give me the spec´s (Plan of the Card) with the Jupers/Bridges for AGP
+2.0.
 
---Boundary-02=_ssG6+wTQAvmkiNc
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+The minus on Performace is not great, in my eyes.
 
-Andrew Morton wrote:
-> Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
-> > OK, I've found it...!
+It´s very SAD that Ati and Nvidia will not give the Specs or an Sourcecode
+of the Drivers :/.
+
+Regards
+
+Gregor Essers
+
+----- Original Message -----
+From: "I Am Falling I Am Fading" <skuld@anime.net>
+To: "John Bradford" <john@grabjohn.com>
+Cc: <davej@codemonkey.org.uk>; <gregor.essers@web.de>;
+<linux-kernel@vger.kernel.org>
+Sent: Thursday, June 12, 2003 1:15 PM
+Subject: Re: Via KT400 and AGP 8x Support
+
+
+> On Thu, 12 Jun 2003, John Bradford wrote:
 >
-> Thanks.
+> > > The only other solution is to kick your card down into AGP 2.0 mode,
+which
+> > > most BIOSes do not allow you to do in software. Instead what you have
+to
+> > > do is cut/unsolder traces on your video card for the pins used for AGP
+3.0
+> > > detection. This is a near-permanent and horrible solution but it does
+get
+> > > everything working. :-/
+> >
+> > Insulating tape on certain pins works on ISA cards, but whether it would
+be
+> > practical on the smaller pins of an AGP card, I'm not sure.
 >
-> > After reverting the pci-init-ordering-fix everything works as expected
-> > again...
+> Tried it already... The pins are too small to get adequate purchase for
+> the tape -- the friction just causes it to slide around in the slot and
+> gets goo around.
 >
-> Damn.  That patch fixes other bugs.  i386 pci init ordering is busted.
+> Superglue might be a better solution....
+>
+> ...but I think the solder method is better.
+>
+> On the Radeon 9700 Pro at least there are a couple jumpers on the
+> appropriate pins, bridged by 0-ohm surface mount resistors (i.e. simple
+> conductors). What you can do is just unsolder the bridges and it becomes
+> an AGP 2.0 card... If you have a very steady hand you can also resolder
+> them to get your AGP 3.0 back.
+>
+> Still this is not a fun solution as you can potentially cook your card
+> (make sure to use a 15 watt iron, nothing higher).
+>
+> -----
+> James Sellman -- ISU CoE-CS/ISLUG Linux Lab Admin   |"Lum, did you just
+see
+> ----------------------------------------------------| a hentai rabbit
+flying
+> skuld@inconnu.isu.edu      |   // A4000/604e/60 128M| through the air?"
+> skuld@anime.net            | \X/  A500/20 3M        |   - Miyake Shinobu
+>
+>
 
-Now, after further investigation, it seems reverting the pci-init-ordering-=
-fix=20
-is not necessary... I simply had to switch off ACPI (for example with the=20
-'acpi=3Doff' kernel parameter).
-
-I recognized it because the changed kernel had the problems again if i star=
-ted=20
-it with 'pci=3Dnoacpi', but not with 'acpi=3Doff'. So I tried the original =
-=2Dmm8=20
-kernel with this option and... IT WORKS!
-
-So perhaps it is better to leave this patch in the -mm tree and fix ACPI=20
-(which does not work for me anyway).
-
-Best regards
-   Thomas Schlichter
-
---Boundary-02=_ssG6+wTQAvmkiNc
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+6GssYAiN+WRIZzQRAsmnAKC32ZghTMX5vdNHCo56yOrQYqh7PgCfYjgh
-3D5z8Z5nDgY2eQMR6oK9C48=
-=QO5+
------END PGP SIGNATURE-----
-
---Boundary-02=_ssG6+wTQAvmkiNc--

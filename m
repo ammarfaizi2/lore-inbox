@@ -1,288 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSJ0IcB>; Sun, 27 Oct 2002 03:32:01 -0500
+	id <S262317AbSJ0Ipj>; Sun, 27 Oct 2002 03:45:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSJ0IcB>; Sun, 27 Oct 2002 03:32:01 -0500
-Received: from h-66-166-207-249.SNVACAID.covad.net ([66.166.207.249]:21658
-	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262312AbSJ0Ib6>; Sun, 27 Oct 2002 03:31:58 -0500
-Date: Sun, 27 Oct 2002 01:36:19 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org, axboe@suse.de,
-       netwerk@valinux.com, jerdfelt@valinux.com, neilb@cse.unsw.edu.au,
-       mikep@linuxtr.net, linux-tr@linux-tr.net, arjanv@redhat.com,
-       henrique@cyclades.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch(2.5.44 and 2.4.x): 6 files referenced pci_dev.driver_data instead of pci_{g,s}et_drv_data
-Message-ID: <20021027013619.A5918@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S262322AbSJ0Ipj>; Sun, 27 Oct 2002 03:45:39 -0500
+Received: from bohnice.netroute.lam.cz ([212.71.169.62]:1523 "EHLO
+	shunka.yo.cz") by vger.kernel.org with ESMTP id <S262317AbSJ0Ipg>;
+	Sun, 27 Oct 2002 03:45:36 -0500
+Message-ID: <000601c27d96$15654540$4500a8c0@cybernet.cz>
+From: =?iso-8859-1?Q?Vladim=EDr_Trebick=FD?= <guru@cimice.yo.cz>
+To: "Alex Riesen" <fork0@users.sf.net>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <20021027092337.GA4507@steel>
+Subject: Re: Swap doesn't work
+Date: Sun, 27 Oct 2002 09:51:17 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Does your swap partition show up in /proc/swaps? It has to contain
+> something like this:
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I have
+/dev/hda6                       partition       594364  0       -1
+in my /proc/swaps
 
-	Six driver in linux-2.5.44 directly reference
-pci_dev.driver_data.  This patch makes them use pci_{get,set}_drv_data
-instead.
+> Btw, do you see something swap-related in dmesg? Like:
+>
+>   Unable to find swap-space signature
+>   Unable to handle swap header version ...
+>   Swap area shorter than signature indicates
+>   Empty swap-file
+>
+> And do you actually see something like this:
+>   Adding Swap: 506008k swap-space (priority -1)
+>
 
-	This patch is of more than just academic interest, as I intend
-to submit a patch shortly for 2.5 that will eliminate
-pci_dev.driver_data in favor of pci_dev.dev.driver_data.  By applying
-these changes to both 2.5.44 and your 2.4 trees if you maintiain them,
-it will be one less difference between 2.4 and 2.5 for you to think
-about.
+In dmesg I see only this, but some problem with signanture is in syslog (at
+the
+end of this mail)
 
-	I have verified that the updated drivers compile without any
-warnings related to this change (one of IDE drivers has some other
-warnings).  I have not otherwise tested these changes, but they should
-compile to the same object code as before.
+$ dmesg | grep swap
+Starting kswapd
+Adding Swap: 594364k swap-space (priority -1)
 
-	I would appreciate it if you would apply these changes to your
-respective drivers and forward the changes for your drivers to Linus.
-If you would prefer that I send the changes to Linus or follow some
-other course of action I can, but I think requires few of Linus's CPU
-cycles when changes for a driver are emailed from that driver's
-maintainer.  If I have failed to contact the appropriate maintainer,
-please let me know.
+> How did you initialized the swap partition? Recent kernels support both
+> v1 and v2 swaps, which is can be set for mkswap using -v0 (-v1).
+> Actually i mean did you initialized it at all? 8)
 
+I just created a partition with fdisk /dev/hda6, done "mkswap /dev/hda6" put
+the information to /etc/fstab and turned it on with "swapon -a". TOP shows
+Swap:  594364K av,       0K used,  594364K free
 
-Modified files				I think maintainers are...
+syslog logs these kinds of kernel messages (those I guess are important):
 
-drivers/block/umem.c			nettwerk@valinux.com
-					jerdefelt@valinux.com
-					neilb@cse.unsw.edu.au
+Sep 29 22:04:19 shunka kernel: swap_free: Bad swap offset entry 1b3d0000
+...
+Sep 29 22:04:19 shunka kernel: swap_free: Bad swap offset entry 1b3d0000
+...
+Sep 10 10:03:28 shunka2 kernel: swap_dup: Bad swap file entry 00000022
+...
+Sep  4 21:30:40 shunka kernel: Unable to find swap-space signature        //
+!!!!!!!!
+...
+Oct 26 19:25:29 shunka kernel:  <1>Unable to handle kernel paging request at
+virtual address 2064656e
+Oct 26 19:25:29 shunka kernel:  printing eip:
+Oct 26 19:25:29 shunka kernel: c012f781
+Oct 26 19:25:29 shunka kernel: *pde = 00000000
+Oct 26 19:25:29 shunka kernel: Oops: 0000
+Oct 26 19:25:29 shunka kernel: CPU:    0
+Oct 26 19:25:29 shunka kernel: EIP:    0010:[<c012f781>]    Not tainted
+Oct 26 19:25:29 shunka kernel: EFLAGS: 00010202
+Oct 26 19:25:29 shunka kernel: eax: c026a19c   ebx: c026a19c   ecx: c105f584
+edx: 2064656e
+Oct 26 19:25:29 shunka kernel: esi: c95472f8   edi: c1d57000   ebp: c95472f8
+esp: c459de94
+Oct 26 19:25:29 shunka kernel: ds: 0018   es: 0018   ss: 0018
+Oct 26 19:25:29 shunka kernel: Process cpp0 (pid: 12431, stackpage=c459d000)
+Oct 26 19:25:29 shunka kernel: Stack: c105f584 c012f465 c026a19c 01d56067
+c105f584 c012091c cb728da0 080be6e4
+Oct 26 19:25:29 shunka kernel:        080be6e4 c3823080 c0120963 cb728da0
+c60fd7a0 c95472f8 00000001 080be6e4
+Oct 26 19:25:29 shunka kernel:        cb728da0 080be6e4 080be6e4 c3823080
+c0120b8b cb728da0 c60fd7a0 080be6e4
+Oct 26 19:25:29 shunka kernel: Call Trace:    [<c012f465>] [<c012091c>]
+[<c0120963>] [<c0120b8b>] [<c010fe47>]
+Oct 26 19:25:29 shunka kernel:   [<c010fd34>] [<c0121f78>] [<c0122067>]
+[<c0120f40>] [<c0108844>]
+Oct 26 19:25:29 shunka kernel:
+Oct 26 19:25:29 shunka kernel: Code: 8b 02 89 83 b4 00 00 00 c7 02 00 00 00
+00 89 d0 5b c3 90 56
+Oct 26 19:25:29 shunka kernel:  <1>Unable to handle kernel paging request at
+virtual address 6164262c
+Oct 26 19:25:29 shunka kernel:  printing eip:
+Oct 26 19:25:29 shunka kernel: c012f510
+Oct 26 19:25:29 shunka kernel: *pde = 00000000
+Oct 26 19:25:29 shunka kernel: Oops: 0000
+Oct 26 19:25:29 shunka kernel: CPU:    0
+Oct 26 19:25:29 shunka kernel: EIP:    0010:[<c012f510>]    Not tainted
+Oct 26 19:25:29 shunka kernel: EFLAGS: 00010206
+Oct 26 19:25:29 shunka kernel: eax: 61642628   ebx: c1089dfc   ecx: 00000010
+edx: c954713c
+Oct 26 19:25:29 shunka kernel: esi: c026a19c   edi: c3789760   ebp: 08448000
+esp: c459dd10
+Oct 26 19:25:29 shunka kernel: ds: 0018   es: 0018   ss: 0018
+Oct 26 19:25:29 shunka kernel: Process cpp0 (pid: 12431, stackpage=c459d000)
+Oct 26 19:25:29 shunka kernel: Stack: c954713c 00017000 00007000 c011fa1d
+c60fd5c0 cb728da0 00017000 08048000
+Oct 26 19:25:29 shunka kernel:        08448000 c3823084 c3823084 00000008
+00000000 0805f000 c3823080 00000000
+Oct 26 19:25:29 shunka kernel:        0805f000 c0122192 cb728da0 08048000
+00017000 cb728da0 c459de60 c459c000
+Oct 26 19:25:29 shunka kernel: Call Trace:    [<c011fa1d>] [<c0122192>]
+[<c0112212>] [<c0116265>] [<c0108d59>]
+Oct 26 19:25:29 shunka kernel:   [<c0110037>] [<c010fd34>] [<c012091c>]
+[<c0120963>] [<c0120b8b>] [<c010fe47>]
+Oct 26 19:25:29 shunka kernel:   [<c015e6c2>] [<c0108844>] [<c012f781>]
+[<c012f465>] [<c012091c>] [<c0120963>]
+Oct 26 19:25:29 shunka kernel:   [<c0120b8b>] [<c010fe47>] [<c010fd34>]
+[<c0121f78>] [<c0122067>] [<c0120f40>]
+Oct 26 19:25:29 shunka kernel:   [<c0108844>]
+Oct 26 19:25:29 shunka kernel:
+Oct 26 19:25:29 shunka kernel: Code: 39 50 04 75 0e 56 53 57 50 e8 76 02 00
+00 83 c4 10 eb 08 89
+Oct 26 19:25:29 shunka kernel:  <1>Unable to handle kernel paging request at
+virtual address 2064656e
+Oct 26 19:25:29 shunka kernel:  printing eip:
+Oct 26 19:25:29 shunka kernel: c012f781
+Oct 26 19:25:29 shunka kernel: *pde = 00000000
+Oct 26 19:25:29 shunka kernel: Oops: 0000
+Oct 26 19:25:29 shunka kernel: CPU:    0
+Oct 26 19:25:29 shunka kernel: EIP:    0010:[<c012f781>]    Not tainted
+Oct 26 19:25:29 shunka kernel: EFLAGS: 00010202
+Oct 26 19:25:29 shunka kernel: eax: c026a19c   ebx: c026a19c   ecx: c97fe744
+edx: 2064656e
+Oct 26 19:25:29 shunka kernel: esi: c97fe744   edi: 081d1e42   ebp: c39f4080
+esp: c6657ebc
+Oct 26 19:25:29 shunka kernel: ds: 0018   es: 0018   ss: 0018
+Oct 26 19:25:29 shunka kernel: Process cc1 (pid: 12432, stackpage=c6657000)
+Oct 26 19:25:29 shunka kernel: Stack: c110d17c c012f465 c026a19c c110d17c
+081d1e42 c0120aa1 cb7289e0 081d1e42
+Oct 26 19:25:29 shunka kernel:        081d1e42 c39f4080 c0120b8b cb7289e0
+c493ed40 081d1e42 00000000 c97fe744
+Oct 26 19:25:29 shunka kernel:        cb7289e0 081d1e42 cb7289fc c493ed40
+c010fe47 cb7289e0 c493ed40 081d1e42
+Oct 26 19:25:29 shunka kernel: Call Trace:    [<c012f465>] [<c0120aa1>]
+[<c0120b8b>] [<c010fe47>] [<c010fd34>]
+Oct 26 19:25:29 shunka kernel:   [<c01e0e5d>] [<c01e0f5e>] [<c01173ea>]
+[<c0109c0d>] [<c0108844>]
+Oct 26 19:25:29 shunka kernel:
+Oct 26 19:25:29 shunka kernel: Code: 8b 02 89 83 b4 00 00 00 c7 02 00 00 00
+00 89 d0 5b c3 90 56
+...
+Oct 26 19:20:52 shunka kernel: kernel BUG at page_alloc.c:117!
+Oct 26 19:20:52 shunka kernel: invalid operand: 0000
+Oct 26 19:20:52 shunka kernel: CPU:    0
+Oct 26 19:20:52 shunka kernel: EIP:    0010:[<c012ab39>]    Not tainted
+Oct 26 19:20:52 shunka kernel: EFLAGS: 00010282
+Oct 26 19:20:52 shunka kernel: eax: 01000010   ebx: c1111d40   ecx: c026a19c
+edx: c10c42a4
+Oct 26 19:20:52 shunka kernel: esi: 00000000   edi: 00148000   ebp: 085e5000
+esp: c8fb1e30
+Oct 26 19:20:52 shunka kernel: ds: 0018   es: 0018   ss: 0018
+Oct 26 19:20:52 shunka kernel: Process cc1 (pid: 12012, stackpage=c8fb1000)
+Oct 26 19:20:52 shunka kernel: Stack: c1111d40 001e9000 00148000 085e5000
+c01173ea 00000046 00000000 c026a19c
+Oct 26 19:20:52 shunka kernel:        c103400c c026a1d8 00000216 ffffffff
+00003321 c012b389 c012b807 c1111d40
+Oct 26 19:20:52 shunka kernel:        c011f5f9 c1111d40 c3af5cb4 c011fa2b
+05441067 c493ec80 cb728bc0 001e9000
+Oct 26 19:20:52 shunka kernel: Call Trace:    [<c01173ea>] [<c012b389>]
+[<c012b807>] [<c011f5f9>] [<c011fa2b>]
+Oct 26 19:20:52 shunka kernel:   [<c0122192>] [<c0112212>] [<c0116265>]
+[<c011b21a>] [<c01085cf>] [<c010fd34>]
+Oct 26 19:20:52 shunka kernel:   [<c0122067>] [<c01173ea>] [<c0120f40>]
+[<c0108844>] [<c0108774>]
+Oct 26 19:20:52 shunka kernel:
+Oct 26 19:20:52 shunka kernel: Code: 0f 0b 75 00 2c c1 22 c0 8b 43 18 24 eb
+89 43 18 c6 43 24 05
 
-drivers/ide/pci/hpt366.c		alan@lxorg.uk.uu.org.uk
-drivers/ide/pci/siimage.c		andre@linux-ide.org
-					axboe@suse.de
+Thanks,
+Vladimir Trebicky
 
-drivers/net/tokenring/3c359.c		mikep@linuxtr.net
-					linux-tr@linux-tr.net
+--
+Vladimir Trebicky
+guru@cimice.yo.cz
 
-drivers/net/tulip/xircom_cb.c		arjanv@redhat.com
-
-drivers/net/wan/pc300_drv.c		henrique@cyclades.com
-
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
-
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=diff
-
---- linux-2.5.44/drivers/block/umem.c	2002-10-18 21:02:34.000000000 -0700
-+++ linux/drivers/block/umem.c	2002-10-27 01:09:51.000000000 -0700
-@@ -1039,11 +1039,11 @@
- 	printk(KERN_INFO "MM%d: Window size %d bytes, IRQ %d\n", card->card_number,
- 	       card->win_size, card->irq);
- 
-         spin_lock_init(&card->lock);
- 
--	dev->driver_data = card;
-+	pci_set_drvdata(dev, card);
- 
- 	if (pci_write_cmd != 0x0F) 	/* If not Memory Write & Invalidate */
- 		pci_write_cmd = 0x07;	/* then Memory Write command */
- 
- 	if (pci_write_cmd & 0x08) { /* use Memory Write and Invalidate */
-@@ -1098,11 +1098,11 @@
- --                              mm_pci_remove
- -----------------------------------------------------------------------------------
- */
- static void mm_pci_remove(struct pci_dev *dev)
- {
--	struct cardinfo *card = dev->driver_data;
-+	struct cardinfo *card = pci_get_drvdata(dev);
- 
- 	tasklet_kill(&card->tasklet);
- 	iounmap(card->csr_remap);
- 	release_mem_region(card->csr_base, card->csr_len);
- #ifdef CONFIG_MM_MAP_MEMORY
---- linux-2.5.44/drivers/ide/pci/hpt366.c	2002-10-18 21:01:57.000000000 -0700
-+++ linux/drivers/ide/pci/hpt366.c	2002-10-27 01:09:53.000000000 -0700
-@@ -314,11 +314,11 @@
- 	if (drive_fast & 0x80)
- 		pci_write_config_byte(dev, regfast, drive_fast & ~0x80);
- #endif
- 
- 	reg2 = pci_bus_clock_list(speed,
--		(struct chipset_bus_clock_list_entry *) dev->driver_data);
-+		(struct chipset_bus_clock_list_entry *) pci_get_drvdata(dev));
- 	/*
- 	 * Disable on-chip PIO FIFO/buffer
- 	 *  (to avoid problems handling I/O errors later)
- 	 */
- 	pci_read_config_dword(dev, regtime, &reg1);
-@@ -367,11 +367,11 @@
- 	if (new_fast != drive_fast)
- 		pci_write_config_byte(dev, regfast, new_fast);
- 
- 	list_conf = pci_bus_clock_list(speed, 
- 				       (struct chipset_bus_clock_list_entry *)
--				       dev->driver_data);
-+				       pci_get_drvdata(dev));
- 
- 	pci_read_config_dword(dev, drive_pci, &drive_conf);
- 	list_conf = (list_conf & ~conf_mask) | (drive_conf & conf_mask);
- 	
- 	if (speed < XFER_MW_DMA_0) {
-@@ -399,11 +399,11 @@
- 	drive_fast &= ~0x07;
- 	pci_write_config_byte(dev, regfast, drive_fast);
- 					
- 	list_conf = pci_bus_clock_list(speed,
- 			(struct chipset_bus_clock_list_entry *)
--					dev->driver_data);
-+					pci_get_drvdata(dev));
- 	pci_read_config_dword(dev, drive_pci, &drive_conf);
- 	list_conf = (list_conf & ~conf_mask) | (drive_conf & conf_mask);
- 	if (speed < XFER_MW_DMA_0)
- 		list_conf &= ~0x80000000; /* Disable on-chip PIO FIFO/buffer */
- 	pci_write_config_dword(dev, drive_pci, list_conf);
-@@ -839,11 +839,11 @@
- 	 * speed that we're running at. NOTE: the internal PLL will
- 	 * result in slow reads when using a 33MHz PCI clock. we also
- 	 * don't like to use the PLL because it will cause glitches
- 	 * on PRST/SRST when the HPT state engine gets reset.
- 	 */
--	if (dev->driver_data) 
-+	if (pci_get_drvdata(dev)) 
- 		goto init_hpt37X_done;
- 	
- 	/*
- 	 * adjust PLL based upon PCI clock, enable it, and wait for
- 	 * stabilization.
-@@ -921,11 +921,11 @@
- 		default:
- 			pci_set_drvdata(dev, (void *) thirty_three_base_hpt366);
- 			break;
- 	}
- 
--	if (!dev->driver_data)
-+	if (!pci_get_drvdata(dev))
- 	{
- 		printk(KERN_ERR "hpt366: unknown bus timing.\n");
- 		return -EOPNOTSUPP;
- 	}
- 	return 0;
---- linux-2.5.44/drivers/ide/pci/siimage.c	2002-10-18 21:01:48.000000000 -0700
-+++ linux/drivers/ide/pci/siimage.c	2002-10-27 01:09:54.000000000 -0700
-@@ -28,12 +28,12 @@
- static int n_siimage_devs;
- 
- static char * print_siimage_get_info (char *buf, struct pci_dev *dev, int index)
- {
- 	char *p		= buf;
--	u8 mmio		= (dev->driver_data != NULL) ? 1 : 0;
--	u32 bmdma	= (mmio) ? ((u32) dev->driver_data) :
-+	u8 mmio		= (pci_get_drvdata(dev) != NULL) ? 1 : 0;
-+	u32 bmdma	= (mmio) ? ((u32) pci_get_drvdata(dev)) :
- 				    (pci_resource_start(dev, 4));
- 
- 	p += sprintf(p, "\nController: %d\n", index);
- 	p += sprintf(p, "SiI%x Chipset.\n", dev->device);
- 	if (mmio)
-@@ -767,18 +767,18 @@
- 
- 	hwif->rqsize = 128;
- 	if ((dev->device == PCI_DEVICE_ID_SII_3112) && (!(class_rev)))
- 		hwif->rqsize = 16;
- 
--	if (dev->driver_data == NULL)
-+	if (pci_get_drvdata(dev) == NULL)
- 		return;
- 	init_mmio_iops_siimage(hwif);
- }
- 
- static unsigned int __init ata66_siimage (ide_hwif_t *hwif)
- {
--	if (hwif->pci_dev->driver_data == NULL) {
-+	if (pci_get_drvdata(hwif->pci_dev) == NULL) {
- 		u8 ata66 = 0;
- 		pci_read_config_byte(hwif->pci_dev, SELREG(0), &ata66);
- 		return (ata66 & 0x01) ? 1 : 0;
- 	}
- #ifndef CONFIG_TRY_MMIO_SIIMAGE
---- linux-2.5.44/drivers/net/tokenring/3c359.c	2002-10-18 21:02:34.000000000 -0700
-+++ linux/drivers/net/tokenring/3c359.c	2002-10-27 01:09:55.000000000 -0700
-@@ -1778,11 +1778,11 @@
- 	return 0 ; 
- }
- 
- static void __devexit xl_remove_one (struct pci_dev *pdev)
- {
--	struct net_device *dev = pdev->driver_data;
-+	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct xl_private *xl_priv=(struct xl_private *)dev->priv;
- 	
- 	unregister_trdev(dev);
- 	iounmap(xl_priv->xl_mmio) ; 
- 	pci_release_regions(pdev) ; 
---- linux-2.5.44/drivers/net/tulip/xircom_cb.c	2002-10-18 21:02:28.000000000 -0700
-+++ linux/drivers/net/tulip/xircom_cb.c	2002-10-27 01:09:56.000000000 -0700
-@@ -297,11 +297,11 @@
- 	dev->hard_start_xmit = &xircom_start_xmit;
- 	dev->stop = &xircom_close;
- 	dev->get_stats = &xircom_get_stats;
- 	dev->priv = private;
- 	dev->do_ioctl = &private_ioctl;
--	pdev->driver_data = dev;
-+	pci_set_drvdata(pdev, dev);
- 
- 	
- 	/* start the transmitter to get a heartbeat */
- 	/* TODO: send 2 dummy packets here */
- 	tranceiver_voodoo(private);
-@@ -324,11 +324,11 @@
-  Interrupts and such are already stopped in the "ifconfig ethX down"
-  code.
-  */
- static void __devexit xircom_remove(struct pci_dev *pdev)
- {
--	struct net_device *dev = pdev->driver_data;
-+	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct xircom_private *card;
- 	enter("xircom_remove");
- 	if (dev!=NULL) {
- 		card=dev->priv;
- 		if (card!=NULL) {	
---- linux-2.5.44/drivers/net/wan/pc300_drv.c	2002-10-18 21:02:32.000000000 -0700
-+++ linux/drivers/net/wan/pc300_drv.c	2002-10-27 01:09:57.000000000 -0700
-@@ -3554,11 +3554,11 @@
- 	       card->hw.rambase, card->hw.plxbase, card->hw.scabase,
- 	       card->hw.falcbase);
- #endif
- 
- 	/* Set PCI drv pointer to the card structure */
--	pdev->driver_data = card;
-+	pci_set_drvdata(pdev, card);
- 
- 	/* Set board type */
- 	switch (device_id) {
- 		case PCI_DEVICE_ID_PC300_TE_1:
- 		case PCI_DEVICE_ID_PC300_TE_2:
-@@ -3629,11 +3629,11 @@
- 	return -ENODEV;
- }
- 
- static void __devexit cpc_remove_one(struct pci_dev *pdev)
- {
--	pc300_t *card = (pc300_t *) pdev->driver_data;
-+	pc300_t *card = pci_get_drvdata(pdev);
- 
- 	if (card->hw.rambase != 0) {
- 		int i;
- 
- 		/* Disable interrupts on the PCI bridge */
-
---PEIAKu/WMn1b1Hv9--

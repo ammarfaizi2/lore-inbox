@@ -1,138 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbUCVTQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 14:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbUCVTQQ
+	id S262291AbUCVTSh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 14:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUCVTSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 14:16:16 -0500
-Received: from pop.gmx.de ([213.165.64.20]:8933 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262271AbUCVTQM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 14:16:12 -0500
-X-Authenticated: #21910825
-Message-ID: <405F3B1C.3030500@gmx.net>
-Date: Mon, 22 Mar 2004 20:14:36 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-CC: Arjan van de Ven <arjanv@redhat.com>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Device mapper devel list <dm-devel@redhat.com>,
-       Thomas Horsten <thomas@horsten.com>, medley@lists.infowares.com
-Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
-References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com> <20040321074711.GA13232@devserv.devel.redhat.com> <405D9CDA.6070107@gmx.at>
-In-Reply-To: <405D9CDA.6070107@gmx.at>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Mon, 22 Mar 2004 14:18:37 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:19116 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262291AbUCVTSb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 14:18:31 -0500
+Date: Mon, 22 Mar 2004 11:18:10 -0800
+From: Russ Weight <rweight@us.ibm.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Disassemble vmlinuz (i386)
+Message-ID: <20040322191810.GB22607@us.ibm.com>
+References: <20040322175807.GA22404@us.ibm.com> <200403221821.i2MILCox004241@eeyore.valparaiso.cl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200403221821.i2MILCox004241@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wilfried Weissmann wrote:
-> Arjan van de Ven wrote:
+I guess a little background would help to explain the "desparation".
+I have been helping to debug a problem that occurred at another
+company. We were provided with stack-traces (generated with sysrq-t).
+We also had the vmlinuz file, and sources. We were not provided with a
+vmlinux file.  We made an attempt to build the same kernel, but there
+was enough uncertainty about the build environment, configuration
+files, etc. that we wanted to compare with the actual kernel that
+was being used.
+
+On Mon, Mar 22, 2004 at 02:21:12PM -0400, Horst von Brand wrote:
+> Russ Weight <rweight@us.ibm.com> said:
+> > 	Admittedly, you would have to be pretty desparate to want
+> > to disassemble vmlinuz... but I was... and I did.  There may
+> > be other (better?) ways to do this, but since I didn't find
+> > a complete recipe for this in my web searches, I'll post what
+> > I did in case it might be helpful to others.
 > 
->> On Sat, Mar 20, 2004 at 07:23:01PM -0700, Kevin P. Fleming wrote:
->>
->>> Jeff Garzik wrote:
->>>
->>>
->>>> So go ahead, and I'll lend you as much help as I can.  I have the
->>>> full Promise RAID docs, and it seems like another guy on the lists
->>>> has full Silicon Image "medley" RAID docs...
-
-Jeff: May I request your docs?
-
-
-> I am the only one without docs? Oh, Crap!
+> When I needed to do stuff like this, I went back to the vmlinux
+> (uncompressed) which was lying around in the build directory. Or even to
+> the individual .o files.
 > 
->>>
->>> If these "soft" RAID implementations only support RAID-0/1/0+1/1+0,
->>> is there really any need for a new DM target? Wouldn't you just need
->>> a userspace tool to recognize the array and do the "dmsetup"
->>> operations to make it usable?
->>
->>
->>
->> the later.
+In my case, the vmlinux file, .o's, etc. were not available.
+
+> > 	Note that this was done on a 2.4.9 kernel.
+> > 
+> > - Russ
+> > 
+> > 
+> > The short version:
+> > ==================
+> > (1) Strip the header and decompress the kernel
 > 
+> Or grab the uncompressed version (if available).
 > 
-> Why not join my evms-plugin work? This has 4 advantages over the
-> "stand-alone binary" approach:
-
-Well, I had something in mind which closely resembles the ataraid-detect
-tool Thomas Horsten (Medley RAID) suggested.
-
-http://lists.infowares.com/archive/medley/2004-February/000001.html
-
-OK, I was even aiming for less: Write an ataraid-detect tool which outputs
-the correct mapping for dmsetup. If I manage to write it generically
-enough, it can be integrated into evms or used as a standalone program,
-whatever you like.
-
-
-> 1. its all within evms
-> There is no need for additional tools required to setup the volume
-> (thinking about installers and initrd...).
-
-The EVMS sample initrd is HUGE. (2.1 MB) I'm aiming for a initrd size of
-less than 1/10 of that.
-
-
-> 2. evms comes with partition handling.
-> Otherwise someone has to write another tool/library that does the
-> partition setup.
-
-Well, kpartx is already written.
-
-
-> 3. it works for 2.6 and (patched) 2.4 kernels
-
-Can't dispute that.
-
-
-> 4. nice clickety-click user interface
-> Especially useful for lazy people like me. ;)
-
-I prefer the "no user interface" approach. But then again, I'm biased.
-
-
-> My plugin has to be a bit redesigned to allow easier integration of
-> support code for other controllers. What is required is basically to
-> split the plugin in a common and a per-controller module. No big deal.
-> Or we can make a new plugin for every controller...
+> > (2) Write a small C program to copy the decompressed kernel
+> >     into a shared memory segment.
 > 
-> see: http://marc.theaimsgroup.com/?l=evms-devel&m=107936928618685&w=2
+> Placing it into a file and objdump(1) should give most of what you are
+> after... and you might also start gdb(1) on the file. Dunno if the weird
+> startup code/placement messes it up, but worth a try.
 
-I downloaded the code and am playing with it right now.
+The decompressed file did not contain an elf header, and could not be
+opened with objdump.
 
+> > (3) Run the C program under gdb - stop at a breakpoint after the
+> >     copy and then use the gdb "disassemble" command to disassemble
+> > 	the kernel from shared memory.
+> > (4) Clean up the addresses. If you pick a good virtual address
+> >     for the shared memory segment, then the cleanup can be a fairly
+> > 	simple search & replace.
+> 
+> May I ask what you were after?
 
-> Apropos: If we do evms plugins then we might want to have the
-> possibility to detect if some ataraid module aleady has picked up the
-> disk. In this case we should not create a volume because of someone
-> might try to mount the same volume via the ataraid and evms devicefiles
-> which leads to filesystem corruption. I thought about makeing a /proc
-> ataraid entry that contains the claimed disks. I think this should be
-> supported by all ataraid modules if this is done so I am asking you:
-
-That's one of the problems that made me look for a 2.6-only solution. This
-way, you won't get the problems described above.
-
-
-> What do you think?
-
-I'll use your work as a foundation. First step is integrating detection
-for non-HPT arrays. If the code looks too messy after that, I still can
-refactor it.
-
-As soon as I have some code to get at least PDCRAID working, I'll post again.
-
-
-Regards,
-Carl-Daniel
-
+I think I have answered your questions above. The sequence that I
+described in my post is certainly a round-about solution. But it
+worked quite well...

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265964AbUAEWXH (ORCPT <rfc822;willy@w.ods.org>);
+	id S265975AbUAEWXH (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 5 Jan 2004 17:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbUAEWV5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbUAEWVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:21:57 -0500
-Received: from viruswall.ccf.swri.edu ([129.162.252.34]:5619 "EHLO
-	viruswall.ccf.swri.edu") by vger.kernel.org with ESMTP
-	id S265964AbUAEWUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:20:19 -0500
-Date: Mon, 05 Jan 2004 16:20:15 -0600
-From: Chris Smith <chris.smith@swri.org>
-Subject: ld.so kernel difference
-To: linux-kernel@vger.kernel.org
-Message-id: <7bf757ae92.7ae927bf75@swri.org>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.17 (built Jun 23 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Mon, 5 Jan 2004 17:21:51 -0500
+Received: from findaloan.ca ([66.11.177.6]:41166 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S265975AbUAEWUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:20:30 -0500
+Date: Mon, 5 Jan 2004 17:18:40 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040105221840.GA3222@mark.mielke.cc>
+Mail-Followup-To: Andreas Schwab <schwab@suse.de>,
+	Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+References: <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <Pine.LNX.4.58.0401041903290.6089@dlang.diginsite.com> <200401042148.24742.rob@landley.net> <20040105151303.GA30849@mark.mielke.cc> <jey8smmjye.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jey8smmjye.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a system booting via pxe using a kernel built from redhat source (2.4.20-8). I am trying to get the system to boot using a kernel.org kernel. (one of many 2.4.22, 23, 20) 
+On Mon, Jan 05, 2004 at 05:36:09PM +0100, Andreas Schwab wrote:
+> Mark Mielke <mark@mark.mielke.cc> writes:
+> > There are a few cases that we might be forced to maintain regular
+> > numbers: mkfifo() creates a named pipe, and bind() creates a named
+> > socket.
+> Neither fifos nor sockets are devices.
 
-This system is very stripped down, no disks. ~12MB for the full running os. essentially the init is the only thing running. it starts various daemons then loops on a bash propmt.
+Well, then, as long as things like this don't break... :-)
 
-What I am seeing (and why i sent it to this list) is that there appears to be a difference in how the libraries are being found between the two types of kernels. the redhat derived kenrel is working but none of the kernel.org kernels are. 
+Other than backing up /dev, does anybody have *real* cases where a
+program assumes major:minor is consistent across reboots? We should
+start notifying the authors now... NFS seems to be one, given the
+explanation offered for how fsid's are derived...
 
-the error i am seeing with the kenrel.org kernels is: 
-/bin/sh: error while loading shared libraries libc.so.6: cannot open shared object file: no such file or directory.
+mark
 
-then it tries to kill the init and the kernel panics.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-is there a way the kernel can influence how/where ld.so looks for a library? the libraries are present on the ramdisk just not found by the kernel. the kernel is accessing the ramdisk since it is trying to run the init script (it is failing on loading /bin/sh since this is not statically linked). the "redhat" kernel using the same ramdisk works fine (same ld.so.cache, etc).
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-??
-
-chris
+                           http://mark.mielke.cc/
 

@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135994AbRD0LpW>; Fri, 27 Apr 2001 07:45:22 -0400
+	id <S135998AbRD0LxZ>; Fri, 27 Apr 2001 07:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135998AbRD0LpN>; Fri, 27 Apr 2001 07:45:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:25473 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135994AbRD0LpE>; Fri, 27 Apr 2001 07:45:04 -0400
-Date: Fri, 27 Apr 2001 07:43:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alexander Viro <viro@math.psu.edu>
-cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.GSO.4.21.0104261651110.15385-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.3.95.1010427073924.29572A-100000@chaos.analogic.com>
+	id <S136003AbRD0LxP>; Fri, 27 Apr 2001 07:53:15 -0400
+Received: from c4.h061013036.is.net.tw ([61.13.36.4]:31494 "EHLO
+	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
+	id <S135998AbRD0LxM>; Fri, 27 Apr 2001 07:53:12 -0400
+Message-ID: <611C3E2A972ED41196EF0050DA92E0760265D57A@EXCHANGE2>
+From: Yiping Chen <YipingChen@via.com.tw>
+To: "'kernel@kvack.org'" <kernel@kvack.org>,
+        Yiping Chen <YipingChen@via.com.tw>
+Cc: "'Vivek Dasmohapatra'" <vivek@etla.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: About rebuild 2.4.x kernel to support SMP.
+Date: Fri, 27 Apr 2001 19:53:04 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Alexander Viro wrote:
-
-> 
-> 
-> On Thu, 26 Apr 2001, Richard B. Johnson wrote:
-> 
-> > The disk image, raw.bin, does NOT contain the image of the floppy.
-> > Most of boot stuff added by lilo is missing. It will eventually
-> > get there, but it's not there now, even though the floppy was
-> > un-mounted!
-> 
-> I doubt that you can reproduce that on anything remotely recent.
-> All buffers are flushed when last user closes device.
-> 
-    2.4.3
-
-Buffers are not flushed (actually written) to disk. The floppy continues
-to be written for 20 to 30 seconds after  `umount` returns to
-the shell. A program like `cp` , accessing the raw device during this time
-does not get what will eventually be written.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+I have a important question about compile driver here, sometimes we install
+RedHat Linux
+When you boot the system , it will not include the kernel source, if we
+don't have kernel source ,
+whether can we compile the driver (NIC).
+I am confused, beacuse we need include many kernel header file, if you don't
+have linux kernel 
+source (I means that there is no kernel source in /usr/src, whether we can
+compile the driver module
+successfully?), whether we can just use the header file in /usr/include?
+thanks!!
+Yiping Chen

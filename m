@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSKDWYe>; Mon, 4 Nov 2002 17:24:34 -0500
+	id <S262815AbSKDWfn>; Mon, 4 Nov 2002 17:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262813AbSKDWYe>; Mon, 4 Nov 2002 17:24:34 -0500
-Received: from momus.sc.intel.com ([143.183.152.8]:57545 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S262812AbSKDWYc>; Mon, 4 Nov 2002 17:24:32 -0500
-Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF77@orsmsx102.jf.intel.com>
-From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-To: "'Greg KH'" <greg@kroah.com>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: RFC: bare pci configuration access functions ?
-Date: Mon, 4 Nov 2002 14:30:25 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S262821AbSKDWfn>; Mon, 4 Nov 2002 17:35:43 -0500
+Received: from pc-80-195-35-58-ed.blueyonder.co.uk ([80.195.35.58]:3207 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S262815AbSKDWfm>; Mon, 4 Nov 2002 17:35:42 -0500
+Date: Mon, 4 Nov 2002 22:42:13 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Duncan Sands <baldrick@wanadoo.fr>, Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Htree ate my hard drive, was: post-halloween 0.2
+Message-ID: <20021104224213.F14318@redhat.com>
+References: <20021030171149.GA15007@suse.de> <200210310727.52636.baldrick@wanadoo.fr> <20021031080717.GF28982@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021031080717.GF28982@clusterfs.com>; from adilger@clusterfs.com on Thu, Oct 31, 2002 at 01:07:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> Ah, so exporting those types of functions is not practical?  Oh well...
+On Thu, Oct 31, 2002 at 01:07:17AM -0700, Andreas Dilger wrote:
+> On Oct 31, 2002  07:27 +0100, Duncan Sands wrote:
 
-It simply needs changes to every arch codes in architecture specific way, as
-I explained in #2. This is practical, or not depending on how we view :)
-Better not go on with this since there's lighter, better known solution.
+> > After a bit of switching back and forth between 2.4.19 and 2.5.44,
+> > fsck was run while booting 2.4.19 (the usual check because of >30
+> > mounts).  There was a message about optimizing directories.  Booting
+> > continued but (big surprise) X refused to run.  It turned out that some
+> > device files had vanished.
 
-> > There could be two ways to achieve bare pci config accesses for all
-> > architectures.
-> 
-> <snip>
-> 
-> Wait, again I'm confused.  Let's go over the main points here:
-> 
->  - for 2.5 everyone uses the pci_bus_read_config* and
->    pci_bus_write_config* functions and is happy.  Well ACPI 
-> isn't happy,
->    but the code there currently works, so let's leave it at that.
+> > tune2fs -O ^dir_index /dev/hdXXX
+> > to remove htree support.  No problems since then.
 
-See how each and every php drivers in 2.5 manage this differently only to
-fake pci driver for non-existing pci_bus w/ own overhead. It's ugly.
+> I wonder if there is still a bug in the e2fsck code for re-hashing
+> directories?
 
-> 
->  - for 2.4 we don't have the pci_bus* functions, so we need to do
->    something.  I originally wanted to look into exporting the
->    pci_config_* function pointers, but you said that doesn't look
->    possible based on the different arch specific implementation.
+Possibly, but I'm more worried about why the fsck did a directory
+optimise on reboot, especially on the root filesystem (where /dev is
+usually stored).  Doing major fs surgery on a mounted, readonly
+filesystem is sort-of safe, but only if you reboot afterwards.
+Continuing and remounting read-write can cause all sorts of damage as
+the cached fs data no longer matches what's on disk.
 
-The simplest, sound way of exporting bare pci config access function is what
-I proposed as #1. It doesn't need any change on arch pci codes.
-More specifically, pci_bus_read_config_##size(pci_bus, ...) is simply
-replaced with
-pci_read_config_##size(pci_dev, ...).
+Duncan, did you have fsck set up to do a forced htree rebuild on
+reboot?
 
->    
->  - Because of this, you just proposed a patch, yet your patch uses the
->    pci_bus_* functions which are not present on 2.4.  If they were,
->    everyone would be happy again, and not need such a patch, right?
-
-I proposed pure PCI config access method required by some kernel components,
-not just to get around the absence of pci_bus in 2.4, but also to address
-the ugliness of having everyone fake pci driver w/ individual's overhead.
-The #1 proposed is the solution for all architectures w/o any change in
-existing arch pci codes, while the concept has already been proved.
-
-Below is copied from previous email thread.
--------------------------------
->> OK, if simple and pure pci config access is not possible in Linux land,
->> let pci driver fake itself, not everyone else :)
->> Just export the two APIs like pci_config_{read|write}(s,b,d,f,s,v),
->> or the ones in acpi driver. Hide the fake pci_bus manipulation in them. 
->> This way is way better than having everyone fake pci driver ;-)
-
->I agree.  But can we do this for all archs?  I don't know, and look
->forward to your patch proving this will work.  Without all arch support
->of this, I can't justify only exporting the functions for i386 and ia64.
-------------------------------
-
-Thanks,
-J.I.
-
+Cheers,
+ Stephen

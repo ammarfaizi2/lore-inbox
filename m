@@ -1,30 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVDAESy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVDAEXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVDAESy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 23:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVDAESy
+	id S262611AbVDAEXh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 23:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVDAEXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 23:18:54 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:32667
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262601AbVDAESv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 23:18:51 -0500
-Date: Thu, 31 Mar 2005 20:18:17 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Roland Dreier <roland@topspin.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][1/3] IPoIB: set skb->mac.raw on receive
-Message-Id: <20050331201817.64fe1b69.davem@davemloft.net>
-In-Reply-To: <20053311936.983q6QLaPvAkIcQj@topspin.com>
-References: <20053311936.983q6QLaPvAkIcQj@topspin.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 23:23:37 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:4852 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262611AbVDAEXZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 23:23:25 -0500
+Message-ID: <424CCCB5.3030200@mvista.com>
+Date: Thu, 31 Mar 2005 22:23:17 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: sysfs for IPMI, for new mm kernels
+References: <424CB9DA.1040707@mvista.com> <200503312243.02139.dtor_core@ameritech.net>
+In-Reply-To: <200503312243.02139.dtor_core@ameritech.net>
+Content-Type: multipart/mixed;
+ boundary="------------040009030206000903060008"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Roland, netdev@oss.sgi.com CC:'ing either Jeff Garzik and
-myself, please.
+This is a multi-part message in MIME format.
+--------------040009030206000903060008
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Dmitry Torokhov wrote:
+
+>On Thursday 31 March 2005 22:02, Corey Minyard wrote:
+>  
+>
+>>+       snprintf(name, sizeof(name), "ipmi%d", if_num);
+>>+       class_device_create(ipmi_class, dev, NULL, name);
+>>
+>>    
+>>
+>
+>class_device_create(ipmi_class, dev, NULL, "ipmi%d", if_num) ?
+>
+>  
+>
+Yes, much better.  Let's try again...
+
+-Corey
+
+--------------040009030206000903060008
+Content-Type: text/x-patch;
+ name="ipmi-sysfs.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi-sysfs.diff"
+
+Add support for sysfs to the IPMI device interface.
+
+Signed-off-by: Corey Minyard <minyard@acm.org>
+
+Index: linux-2.6.12-rc1/drivers/char/ipmi/ipmi_devintf.c
+===================================================================
+--- linux-2.6.12-rc1.orig/drivers/char/ipmi/ipmi_devintf.c
++++ linux-2.6.12-rc1/drivers/char/ipmi/ipmi_devintf.c
+@@ -44,6 +44,7 @@
+ #include <linux/ipmi.h>
+ #include <asm/semaphore.h>
+ #include <linux/init.h>
++#include <linux/device.h>
+ 
+ #define IPMI_DEVINTF_VERSION "v33"
+ 
+@@ -519,15 +520,21 @@
+ 		 " interface.  Other values will set the major device number"
+ 		 " to that value.");
+ 
++static struct class *ipmi_class;
++
+ static void ipmi_new_smi(int if_num)
+ {
+-	devfs_mk_cdev(MKDEV(ipmi_major, if_num),
+-		      S_IFCHR | S_IRUSR | S_IWUSR,
++	dev_t dev = MKDEV(ipmi_major, if_num);
++
++	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
+ 		      "ipmidev/%d", if_num);
++
++	class_device_create(ipmi_class, dev, NULL, "ipmi%d", if_num);
+ }
+ 
+ static void ipmi_smi_gone(int if_num)
+ {
++	class_device_destroy(ipmi_class, MKDEV(ipmi_major, if_num));
+ 	devfs_remove("ipmidev/%d", if_num);
+ }
+ 
+@@ -548,8 +555,15 @@
+ 	printk(KERN_INFO "ipmi device interface version "
+ 	       IPMI_DEVINTF_VERSION "\n");
+ 
++	ipmi_class = class_create(THIS_MODULE, "ipmi");
++	if (IS_ERR(ipmi_class)) {
++		printk(KERN_ERR "ipmi: can't register device class\n");
++		return PTR_ERR(ipmi_class);
++	}
++
+ 	rv = register_chrdev(ipmi_major, DEVICE_NAME, &ipmi_fops);
+ 	if (rv < 0) {
++		class_destroy(ipmi_class);
+ 		printk(KERN_ERR "ipmi: can't get major %d\n", ipmi_major);
+ 		return rv;
+ 	}
+@@ -563,6 +577,7 @@
+ 	rv = ipmi_smi_watcher_register(&smi_watcher);
+ 	if (rv) {
+ 		unregister_chrdev(ipmi_major, DEVICE_NAME);
++		class_destroy(ipmi_class);
+ 		printk(KERN_WARNING "ipmi: can't register smi watcher\n");
+ 		return rv;
+ 	}
+@@ -573,6 +588,7 @@
+ 
+ static __exit void cleanup_ipmi(void)
+ {
++	class_destroy(ipmi_class);
+ 	ipmi_smi_watcher_unregister(&smi_watcher);
+ 	devfs_remove(DEVICE_NAME);
+ 	unregister_chrdev(ipmi_major, DEVICE_NAME);
+
+--------------040009030206000903060008--

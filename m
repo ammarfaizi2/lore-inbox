@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUIVLLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUIVLWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbUIVLLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 07:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUIVLLQ
+	id S264377AbUIVLWg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 07:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUIVLWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 07:11:16 -0400
-Received: from open.hands.com ([195.224.53.39]:38810 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S264500AbUIVLK4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 07:10:56 -0400
-Date: Wed, 22 Sep 2004 12:21:59 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FUSE fusexmp proxy example solves umount problem!
-Message-ID: <20040922112159.GD20688@lkcl.net>
-References: <20040922004941.GC14303@lkcl.net> <1095845610.2613.4.camel@laptop.fenrus.com>
+	Wed, 22 Sep 2004 07:22:36 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:37639 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S264377AbUIVLWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 07:22:33 -0400
+Date: Wed, 22 Sep 2004 13:21:58 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: kj <kernel-janitors@osdl.org>, linux-kernel@vger.kernel.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: 2.6.9-rc2-kjt1 rio_linux compile error
+Message-ID: <20040922112157.GB27364@fs.tum.de>
+References: <20040921221307.GG4260@stro.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095845610.2613.4.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <20040921221307.GG4260@stro.at>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 11:33:30AM +0200, Arjan van de Ven wrote:
-> On Wed, 2004-09-22 at 02:49, Luke Kenneth Casson Leighton wrote:
-> > what do people think about a filesystem proxy kernel module?
-> > has anyone heard of such a beast already?
-> > (which can also do xattrs)
-> > 
-> > fusexmp.c (in file system in userspace package) does stateless
-> > filesystem proxy redirection.
-> > 
-> > this is a PERFECT solution to the problem of users removing media
-> > from drives without warning. 
-> 
-> eh and the 2.6 kernel doesn't deal with it? It really is supposed to
-> deal with it nicely already...
+On Wed, Sep 22, 2004 at 12:13:07AM +0200, maximilian attems wrote:
+>...
+> added since 2.6.9-rc1-kjt1
+>...
+> msleep-drivers_char_rio_linux.patch
+>   From: Nishanth Aravamudan <nacc@us.ibm.com>
+>   Subject: [Kernel-janitors] [PATCH 2.6.9-rc2 20/33] char/rio_linux: replace 	schedule_timeout() with msleep()/msleep_interruptible()
+>...
 
-okay.
+This doesn't compile (obvious typo):
 
-the reason that fusexmp works is because it doesn't actually touch the
-filesystem except on an operation: there's no state information stored,
-no file handles kept open, no directory handles kept open.
+<--  snip  -->
 
-an implementation of this same functionality (a filesystem proxy)
-in the linux kernel would involve:
+...
+  CC      drivers/char/rio/rio_linux.o
+drivers/char/rio/rio_linux.c: In function `RIODelay':
+drivers/char/rio/rio_linux.c:333: warning: implicit declaration of function `jiffes_to_msecs'
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x141239): In function `RIODelay':
+: undefined reference to `jiffes_to_msecs'
+make: *** [.tmp_vmlinux1] Error 1
 
-- creating proxy inodes
+<--  snip  -->
 
-- reconstructing the full path name
-
-  d_path(dentry, mnt, full_path, sizeof(full_path));
-
-  then prefixing that with the mount point and then issuing a
-  proxy command.
-
-
-now, if the solution to this problem in the linux kernel is broken
-because someone forgot to deal with opendir() then _great_.
-
-in the meantime...
-
-l.
+cu
+Adrian
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267687AbTGTSsi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 14:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbTGTSsi
+	id S267712AbTGTTCx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 15:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267770AbTGTTCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 14:48:38 -0400
-Received: from smtp-2.concepts.nl ([213.197.30.52]:3595 "EHLO
-	smtp-2.concepts.nl") by vger.kernel.org with ESMTP id S267687AbTGTSsg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 14:48:36 -0400
-Subject: Re: [2.5.x] doesn't boot at all on one computer
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030713211105.GA8661@suse.de>
-References: <1058115160.2200.7.camel@shrek.bitfreak.net>
-	 <20030713171523.GA28526@suse.de>
-	 <1058118821.2238.11.camel@shrek.bitfreak.net>
-	 <20030713211105.GA8661@suse.de>
-Content-Type: text/plain
-Message-Id: <1058727848.2200.194.camel@shrek.bitfreak.net>
+	Sun, 20 Jul 2003 15:02:53 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:7610 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S267712AbTGTTCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 15:02:50 -0400
+Date: Sun, 20 Jul 2003 21:17:33 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.com
+Subject: Re: [PATCH] Compile fix for suspend.c
+Message-ID: <20030720191733.GA292@elf.ucw.cz>
+References: <20030720092314.GA11395@himi.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 20 Jul 2003 21:04:08 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030720092314.GA11395@himi.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave & all,
+Hi!
 
-On Sun, 2003-07-13 at 23:11, Dave Jones wrote:
-> On Sun, Jul 13, 2003 at 07:53:41PM +0200, Ronald Bultje wrote:
->  > >  > http://213.197.11.65/ronald/config-2.5.74-worksforothers
-[..]
-> <randomguess>
-> Can you try with CONFIG_VIDEO_SELECT=n ?
+> kernel/suspend.c fails to build as of a bk pull at about 08:00 UTC,
+> with redefinitions of _text.
 
-I had some time to test this today. Did I mention that you're a hero?
-This fixed it, thanks!
+You were right; I can see the error, too. And your fix is right, since
+current suspend.c no longer uses these sections. (It still uses
+__nosave_begin/_end, through).
+								Pavel
 
-Ronald
+> ===== kernel/suspend.c 1.42 vs edited =====
+> --- 1.42/kernel/suspend.c       Sat May  3 04:16:11 2003
+> +++ edited/kernel/suspend.c     Sun Jul 20 19:14:48 2003
+> @@ -83,7 +83,6 @@
+>  #define ADDRESS2(x) __ADDRESS(__pa(x))         /* Needed for x86-64 where some pages are in m
+> emory twice */
+>  
+>  /* References to section boundaries */
+> -extern char _text, _etext, _edata, __bss_start, _end;
+>  extern char __nosave_begin, __nosave_end;
+>  
+>  extern int is_head_of_free_region(struct page *);
+> 
+
+
 
 -- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

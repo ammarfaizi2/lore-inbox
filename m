@@ -1,122 +1,217 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285630AbSAAWV1>; Tue, 1 Jan 2002 17:21:27 -0500
+	id <S286315AbSAAWii>; Tue, 1 Jan 2002 17:38:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285632AbSAAWVQ>; Tue, 1 Jan 2002 17:21:16 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:58130 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S285630AbSAAWVD>; Tue, 1 Jan 2002 17:21:03 -0500
-Date: Tue, 1 Jan 2002 23:20:22 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-Message-ID: <20020101232022.A7608@suse.cz>
-In-Reply-To: <Pine.LNX.4.21.0201012256570.2782-100000@nieuw3.stempel.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0201012256570.2782-100000@nieuw3.stempel.dhs.org>; from eazstempel@cal009001.student.utwente.nl on Tue, Jan 01, 2002 at 11:03:52PM +0100
+	id <S286322AbSAAWi3>; Tue, 1 Jan 2002 17:38:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47120 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286315AbSAAWiQ>;
+	Tue, 1 Jan 2002 17:38:16 -0500
+Message-ID: <3C323A56.C22E2864@mandrakesoft.com>
+Date: Tue, 01 Jan 2002 17:38:14 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: NFS "dev_t" issues..
+In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------7E951E4F5ABAD43F8811728D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 01, 2002 at 11:03:52PM +0100, Edward Stempel wrote:
-> In my BIOS-setup there is an option "PCI latency" which defaults to
-> 32. First I changed it to 128. That worked perfect. Later I have decreased
-> it to 64, 48 and 40. But 40 still gave some problems (a little bit
-> distortion of my sound). After that I tried 44, but the disk was to slow
-> with this setting (30 MB/s instead of 40 MB/s). So now I have a PCI
-> latency of 48. The strange thing is that it seems not to work
-> directly. After the system boot when I do hdparm -t, I get about 5
-> MB/s. But then when I switch using_dma off and on again using hdparm, I
-> get the full 40 MB/s and no distortion of my es1371. Any ideas what might
-> cause this?
+This is a multi-part message in MIME format.
+--------------7E951E4F5ABAD43F8811728D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-You'd have to tell me all other settings in your setup first so I can
-guess the cause. What options do you use? Is DMA enabled automatically?
-Etc, etc ...
+Linus Torvalds wrote:
+> Because the types aren't at all compatible any more, the macros that are
+> used for user-level "dev_t" are no longer working for a kdev_t. So we have
+> 
+>         dev_t                   kdev_t
+> 
+>         MKDEV(major,minor)      mk_kdev(major, minor)
+>         MAJOR(dev)              major(dev)
+>         MINOR(dev)              minor(dev)
+>         dev == dev2             kdev_same(dev, dev2)
+>         !dev                    kdev_none(dev)
 
-> 
-> Regards,
-> 
-> Edward  
->  
-> 
-> 
-> 
-> ---------- Forwarded message ----------
-> Date: Tue, 1 Jan 2002 18:14:41 +0100
-> From: Vojtech Pavlik <vojtech@suse.cz>
-> To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-> Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-> Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-> 
-> On Fri, Dec 28, 2001 at 05:10:43PM +0100, Edward Stempel wrote:
-> 
-> > Excellent! That solved my problem.
-> 
-> What exactly did you have to change? It might be worth to include the
-> changing of the latency setting in the kernel.
-> 
-> > 
-> > Thankx
-> > 
-> > Edward
-> > 
-> > 
-> > 
-> > 
-> > Date: Fri, 28 Dec 2001 10:15:05 +0100
-> > From: Vojtech Pavlik <vojtech@suse.cz>
-> > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-> > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-> > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-> > 
-> > On Fri, Dec 28, 2001 at 03:32:34AM +0100, Edward Stempel wrote:
-> > 
-> > > I have an Asus a7v266 mother board and an Ensoniq sound card in it. 
-> > > The ide chipset is a VIA VT8233 that is capable of UDMA100. So I built a
-> > > kernel with the es1371 sound driver and the via82cxxx ide driver
-> > > configured in it. Actually I tried the kernel 2.4.17 first, and the latest
-> > > I tried is 4.5.1 with the latest patch (patch-2.5.2-pre3) applied to it.
-> > > I also tried the kernel 2.5.1 with Vojtech  patch (via-3.33.diff from
-> > > his email dated 2001-12-23 23:20:48) applied to it, with the same
-> > > (negative) results.
-> > > 
-> > > The good thing is that hdparm reports appr. 40 MB/sec when using DMA and
-> > > about 6 MB/sec when not using DMA.
-> > > Unfortunately using DMA for ide results in some ugly distortion of the
-> > > sound from my soundcard whenever some IO to the disk is done.  :((
-> > > 
-> > > I have assigned different interrupts to the PCI-cards (ide is 
-> > > on-board) and I even changed the sound card's PCI slot, so it shared
-> > > its interrupt with another device (acpi instead of USB). It did not solve
-> > > the problem. Because the problem only occurs when switching on using_dma
-> > > on the ide driver, I think it is a DMA problem with the ide driver. It may
-> > > be the es1371 driver as well off course, but I suspect it is the ide
-> > > driver (or chipset).
-> > >   
-> > > Reading the list archive from linux-kernel, I discovered there have been
-> > > more problems with DMA using this chipset, but I did not find anyone
-> > > having the same problem as I have now.
-> > > 
-> > > Has someone also dealt with these problems, or can someone help me
-> > > solving this problem? Please help!  
-> > > 
-> > > Below are some outputs using kernel 5.1 with patch-2.5.2-pre3.
-> > 
-> > You may try changing the PCI latency settings on either the IDE
-> > controller or the sound card. Other than that, I don't know how to help.
-> > 
-> > -- 
-> > Vojtech Pavlik
-> > SuSE Labs
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs
+And, assignments "kdev_t foo = 0" become "kdev_t foo = NODEV".
+
+At least I hope so ;-)  The below patch fixes up rd.c and loop.c.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+--------------7E951E4F5ABAD43F8811728D
+Content-Type: text/plain; charset=us-ascii;
+ name="block.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="block.patch"
+
+Index: drivers/block/rd.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_5/drivers/block/rd.c,v
+retrieving revision 1.7
+diff -u -r1.7 rd.c
+--- drivers/block/rd.c	2001/12/20 18:55:32	1.7
++++ drivers/block/rd.c	2002/01/01 22:35:11
+@@ -246,7 +246,7 @@
+ 	unsigned long offset, len;
+ 	int rw = sbh->bi_rw;
+ 
+-	minor = MINOR(sbh->bi_dev);
++	minor = minor(sbh->bi_dev);
+ 
+ 	if (minor >= NUM_RAMDISKS)
+ 		goto fail;
+@@ -280,10 +280,10 @@
+ 	int error = -EINVAL;
+ 	unsigned int minor;
+ 
+-	if (!inode || !inode->i_rdev) 	
++	if (!inode || kdev_none(inode->i_rdev))
+ 		goto out;
+ 
+-	minor = MINOR(inode->i_rdev);
++	minor = minor(inode->i_rdev);
+ 
+ 	switch (cmd) {
+ 		case BLKFLSBUF:
+@@ -407,7 +407,7 @@
+ 		rd_bdev[i] = NULL;
+ 		if (bdev)
+ 			blkdev_put(bdev, BDEV_FILE);
+-		destroy_buffers(MKDEV(MAJOR_NR, i));
++		destroy_buffers(mk_kdev(MAJOR_NR, i));
+ 	}
+ 
+ 	devfs_unregister (devfs_handle);
+@@ -449,7 +449,7 @@
+ 			       &rd_bd_op, NULL);
+ 
+ 	for (i = 0; i < NUM_RAMDISKS; i++)
+-		register_disk(NULL, MKDEV(MAJOR_NR,i), 1, &rd_bd_op, rd_size<<1);
++		register_disk(NULL, mk_kdev(MAJOR_NR,i), 1, &rd_bd_op, rd_size<<1);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	/* We ought to separate initrd operations here */
+Index: drivers/block/loop.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_5/drivers/block/loop.c,v
+retrieving revision 1.7
+diff -u -r1.7 loop.c
+--- drivers/block/loop.c	2001/12/30 22:22:58	1.7
++++ drivers/block/loop.c	2002/01/01 22:35:21
+@@ -155,8 +155,8 @@
+ {
+ 	if (S_ISREG(lo_dentry->d_inode->i_mode))
+ 		return (lo_dentry->d_inode->i_size - lo->lo_offset) >> BLOCK_SIZE_BITS;
+-	if (blk_size[MAJOR(lodev)])
+-		return blk_size[MAJOR(lodev)][MINOR(lodev)] -
++	if (blk_size[major(lodev)])
++		return blk_size[major(lodev)][minor(lodev)] -
+                                 (lo->lo_offset >> BLOCK_SIZE_BITS);
+ 	return MAX_DISK_SIZE;
+ }
+@@ -379,7 +379,7 @@
+  */
+ static int loop_end_io_transfer(struct bio *bio, int nr_sectors)
+ {
+-	struct loop_device *lo = &loop_dev[MINOR(bio->bi_dev)];
++	struct loop_device *lo = &loop_dev[minor(bio->bi_dev)];
+ 	int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
+ 
+ 	if (!uptodate || bio_rw(bio) == WRITE) {
+@@ -429,10 +429,10 @@
+ 	unsigned long IV;
+ 	int rw = bio_rw(rbh);
+ 
+-	if (MINOR(rbh->bi_dev) >= max_loop)
++	if (minor(rbh->bi_dev) >= max_loop)
+ 		goto out;
+ 
+-	lo = &loop_dev[MINOR(rbh->bi_dev)];
++	lo = &loop_dev[minor(rbh->bi_dev)];
+ 	spin_lock_irq(&lo->lo_lock);
+ 	if (lo->lo_state != Lo_bound)
+ 		goto inactive;
+@@ -615,7 +615,7 @@
+ 
+ 	if (S_ISBLK(inode->i_mode)) {
+ 		lo_device = inode->i_rdev;
+-		if (lo_device == dev) {
++		if (kdev_same(lo_device, dev)) {
+ 			error = -EBUSY;
+ 			goto out;
+ 		}
+@@ -725,7 +725,7 @@
+ 	loop_release_xfer(lo);
+ 	lo->transfer = NULL;
+ 	lo->ioctl = NULL;
+-	lo->lo_device = 0;
++	lo->lo_device = NODEV;
+ 	lo->lo_encrypt_type = 0;
+ 	lo->lo_offset = 0;
+ 	lo->lo_encrypt_key_size = 0;
+@@ -818,12 +818,12 @@
+ 
+ 	if (!inode)
+ 		return -EINVAL;
+-	if (MAJOR(inode->i_rdev) != MAJOR_NR) {
++	if (major(inode->i_rdev) != MAJOR_NR) {
+ 		printk(KERN_WARNING "lo_ioctl: pseudo-major != %d\n",
+ 		       MAJOR_NR);
+ 		return -ENODEV;
+ 	}
+-	dev = MINOR(inode->i_rdev);
++	dev = minor(inode->i_rdev);
+ 	if (dev >= max_loop)
+ 		return -ENODEV;
+ 	lo = &loop_dev[dev];
+@@ -873,11 +873,11 @@
+ 
+ 	if (!inode)
+ 		return -EINVAL;
+-	if (MAJOR(inode->i_rdev) != MAJOR_NR) {
++	if (major(inode->i_rdev) != MAJOR_NR) {
+ 		printk(KERN_WARNING "lo_open: pseudo-major != %d\n", MAJOR_NR);
+ 		return -ENODEV;
+ 	}
+-	dev = MINOR(inode->i_rdev);
++	dev = minor(inode->i_rdev);
+ 	if (dev >= max_loop)
+ 		return -ENODEV;
+ 
+@@ -900,12 +900,12 @@
+ 
+ 	if (!inode)
+ 		return 0;
+-	if (MAJOR(inode->i_rdev) != MAJOR_NR) {
++	if (major(inode->i_rdev) != MAJOR_NR) {
+ 		printk(KERN_WARNING "lo_release: pseudo-major != %d\n",
+ 		       MAJOR_NR);
+ 		return 0;
+ 	}
+-	dev = MINOR(inode->i_rdev);
++	dev = minor(inode->i_rdev);
+ 	if (dev >= max_loop)
+ 		return 0;
+ 
+@@ -1016,7 +1016,7 @@
+ 	blk_size[MAJOR_NR] = loop_sizes;
+ 	blksize_size[MAJOR_NR] = loop_blksizes;
+ 	for (i = 0; i < max_loop; i++)
+-		register_disk(NULL, MKDEV(MAJOR_NR, i), 1, &lo_fops, 0);
++		register_disk(NULL, mk_kdev(MAJOR_NR, i), 1, &lo_fops, 0);
+ 
+ 	printk(KERN_INFO "loop: loaded (max %d devices)\n", max_loop);
+ 	return 0;
+
+--------------7E951E4F5ABAD43F8811728D--
+

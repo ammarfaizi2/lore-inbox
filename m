@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSENO6q>; Tue, 14 May 2002 10:58:46 -0400
+	id <S315753AbSENO7r>; Tue, 14 May 2002 10:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315750AbSENO6p>; Tue, 14 May 2002 10:58:45 -0400
-Received: from trained-monkey.org ([209.217.122.11]:44043 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S315753AbSENO6o>; Tue, 14 May 2002 10:58:44 -0400
-To: "chen, xiangping" <chen_xiangping@emc.com>
-Cc: "'Steve Whitehouse'" <Steve@ChyGwyn.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A43@srgraham.eng.emc.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 14 May 2002 10:58:43 -0400
-Message-ID: <m3vg9q4vz0.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S315750AbSENO7q>; Tue, 14 May 2002 10:59:46 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22657 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S315753AbSENO7o>; Tue, 14 May 2002 10:59:44 -0400
+Date: Tue, 14 May 2002 08:59:41 -0600
+Message-Id: <200205141459.g4EExfU07828@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove compat code for old devfs naming scheme
+In-Reply-To: <20020514155508.A31292@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "xiangping" == chen, xiangping <chen_xiangping@emc.com> writes:
+Christoph Hellwig writes:
+> On Tue, May 14, 2002 at 08:35:03AM -0600, Richard Gooch wrote:
+> > > As this was never present in official kernels there is really no need
+> > > in keeping it - it just bloats the kernel.
+> > > 
+> > > Could you please forward this patch to Linus and maybe Marcelo with
+> > > your next devfs update?
+> > 
+> > What on earth are you talking about? This code has been in the kernel
+> > since 2.3.46. It's just lived in a different place: fs/devfs/util.c.
+> 
+> Of course this code was present, otherwise it would be rather hard
+> to remove it..
+> 
+> But the old devfs naming scheme was obsolete before devfs was merged
+> in 2.3.46 so there is no valid reason to support it for root=.
 
-xiangping> Hi, When the system stucks, I could not get any response
-xiangping> from the console or terminal.  But basically the only
-xiangping> network connections on both machine are the nbd connection
-xiangping> and a couple of telnet sessions. That is what shows on
-xiangping> "netstat -t".
+The reason to support it is because lots of people are depending on
+it. A lot of systems would break for no real gain. This code is in the
+init section, so the memory will be freed before init(8) starts.
 
-xiangping> /proc/sys/net/ipv4/tcp_[rw]mem are "4096 262144 4096000",
-xiangping> /proc/sys/net/core/*mem_default are 4096000,
-xiangping> /proc/sys/net/core/*mem_max are 8192000, I did not change
-xiangping> /proc/sys/net/ipv4/tcp_mem.
+The code should stay. In 2.5, I can move it into the mini devfsd that
+will go into the initial rootfs.
 
-Don't do this, setting the [rw]mem_default values to that is just
-insane. Do it in the applications that needs it and nowhere else.
+				Regards,
 
-xiangping> The system was low in memory, I started up 20 to 40 thread
-xiangping> to do block write simultaneously.
-
-If you have a lot of outstanding connections and active threads, it's
-not unlikely you run out of memory if each socket eats 4MB.
-
-Jes
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

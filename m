@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbQKMAoG>; Sun, 12 Nov 2000 19:44:06 -0500
+	id <S129145AbQKMAvr>; Sun, 12 Nov 2000 19:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129092AbQKMAn4>; Sun, 12 Nov 2000 19:43:56 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:33195 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129047AbQKMAnq>; Sun, 12 Nov 2000 19:43:46 -0500
-Message-Id: <5.0.0.25.2.20001113002439.0572d070@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Mon, 13 Nov 2000 00:43:44 +0000
-To: Alan.Cox@linux.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Linux-2.2.x-BUG(?) memmory not detected
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129092AbQKMAvg>; Sun, 12 Nov 2000 19:51:36 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:42769 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129040AbQKMAv0>; Sun, 12 Nov 2000 19:51:26 -0500
+Message-ID: <3A0F3B08.8C218DA4@holly-springs.nc.us>
+Date: Sun, 12 Nov 2000 19:51:20 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.18pre21 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: latest 2.2.18-X patch?
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDCBE@orsmsx31.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Thanks everyone!
 
-Just noticed that both 2.2.18pre21 and RedHat-7.0-patched-2.2.16 kernels 
-only detect 64Mb out of 192Mb RAM on my Dual Celeron/Intel 440GX chipset 
-based workstation. - I haven't tried any other 2.2 kernels on that 
-particular PC so maybe this is a general 2.2.x thing.
+I've discovered that it works with my USB scanner, but the IBMCAM
+doesn't work at all with the usb-uhci driver. It works once with the
+uhci driver. Subsequent access using xawtv causes instantaneous lock-up.
+No oops, nothing. Just freezes the entire system. Not even the keyboard
+responds (can't toggle capslock, etc). Needless to say, magic sysrq
+didn't work.
 
-The setup is one 64Mb SDRAM and one 128Mb SDRAM so it would seem that the 
-128Mb one is not detected at all.
+I've got another machine; I'll see if I can get a serial port dump to
+report.
 
-All 2.3/2.4 kernels I have tried have always detected the full 192Mb RAM.
+This was with 2.2.17 + pre-patch-2.2.18-21 on an Athlon 600.
 
-Is this a known feature or a bug? - If I can supply any more info to help 
-track this down just let me know what you want to know and I will be happy 
-to obtain the information from this PC...
 
-Regards,
+-M
 
-         Anton
-
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+"Dunlap, Randy" wrote:
+> 
+> ftp.??.kernel.org/pub/linux/kernel/v2.2
+> for linux-2.2.17.tar.{gz,bz2}
+> and then ftp.??.kernel.org.pub/linux/kernel/people/alan/2.2.18pre
+> for pre-patch-2.2.18-21.{gz,bz2}
+> 
+> Yes (USB backport).
+> 
+> ~Randy_________________________________________
+> |randy.dunlap_at_intel.com        503-677-5408|
+> |NOTE: Any views presented here are mine alone|
+> |& may not represent the views of my employer.|
+> -----------------------------------------------
+> 
+> > From: Michael Rothwell [mailto:rothwell@holly-springs.nc.us]
+> >
+> > Where's the best place to get the latest 2.2.18 kernel? And does it
+> > include the USB backport?
+> > -
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

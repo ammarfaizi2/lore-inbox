@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267596AbUHTGcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUHTGdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267596AbUHTGcp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 02:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHTGcp
+	id S267601AbUHTGdv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 02:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUHTGdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 02:32:45 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:23987 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S267596AbUHTGcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 02:32:43 -0400
-Date: Fri, 20 Aug 2004 08:32:56 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] add missing watchdog COMPATIBLE_IOCTLs
-Message-ID: <20040820063255.GF4908@infomag.infomag.iguana.be>
-References: <200408031851.40923.arnd@arndb.de>
+	Fri, 20 Aug 2004 02:33:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22752 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267597AbUHTGdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 02:33:44 -0400
+Date: Thu, 19 Aug 2004 23:31:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: garloff@suse.de, mason@suse.com, axboe@suse.de, antisthenes@inbox.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bio_uncopy_user mem leak
+Message-Id: <20040819233155.68c1411e.akpm@osdl.org>
+In-Reply-To: <41256DC9.7070500@kolivas.org>
+References: <1092909598.8364.5.camel@localhost>
+	<412489E5.7000806@kolivas.org>
+	<1092923494.12138.1667.camel@watt.suse.com>
+	<20040819195521.GC12363@tpkurt.garloff.de>
+	<41256DC9.7070500@kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408031851.40923.arnd@arndb.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arnd,
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+>  Andrew did you threaten to make a 2.6.8.2 since 2.6.8{,.1} cannot safely 
+>  burn an audio cd?
 
-> The watchdog ioctl interface is defined correctly for 32 bit emulation,
-> although WIOC_GETSUPPORT was not marked as such, for an unclear reason.
-> WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT were added in may 2002 to the
-> code but never to the ioctl list. This adds all three definitions.
-
-This is indeed correct. We should add them. I can't test it myself because
-I have no 64 bit system...
-
-Anyway: I included it in "my watchdog tree" so that it can be merged into
-the kernel.
-
-Thanks,
-Wim.
-
+Uh, I guess that depends on how rested Linus feels when he returns.  I
+think there's a fairly significant networking fix too.  As I said: we'll see.

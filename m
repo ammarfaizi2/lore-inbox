@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262863AbUCJVja (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUCJVil
+	id S262857AbUCJVnb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbUCJVnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:38:41 -0500
-Received: from mail.shareable.org ([81.29.64.88]:394 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S262859AbUCJVgw (ORCPT
+	Wed, 10 Mar 2004 16:43:16 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:4078 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262854AbUCJVkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 16:36:52 -0500
-Date: Wed, 10 Mar 2004 21:36:50 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] different proposal for mq_notify(SIGEV_THREAD)
-Message-ID: <20040310213650.GC7341@mail.shareable.org>
-References: <404B2C46.90709@colorfullife.com> <20040310203857.GA7341@mail.shareable.org> <404F814C.1070202@colorfullife.com>
+	Wed, 10 Mar 2004 16:40:52 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [PATCH] backing dev unplugging
+Date: Wed, 10 Mar 2004 21:40:50 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c2o212$4h0$1@news.cistron.nl>
+References: <20040310124507.GU4949@suse.de> <20040310130046.2df24f0e.akpm@osdl.org> <20040310210207.GL15087@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <404F814C.1070202@colorfullife.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1078954850 4640 62.216.29.200 (10 Mar 2004 21:40:50 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> >The difference is that your proposal eliminates those fds.
-> >But there is no reason that I can see why mq_notify() should be
-> >optimised in this way and futexes not.
-> > 
-> >
-> I would start with message queues, but the mechanism must be generic 
-> enough to be used for futexes, etc.
-> 
-> The main open question is if I should write something new or if I can 
-> reuse netlink.
+In article <20040310210207.GL15087@suse.de>,
+Jens Axboe  <axboe@suse.de> wrote:
+>On Wed, Mar 10 2004, Andrew Morton wrote:
+>> Jens Axboe <axboe@suse.de> wrote:
+>> >
+>> > Here's a first cut at killing global plugging of block devices to reduce
+>> > the nasty contention blk_plug_lock caused.
+>> 
+>> Shouldn't we take read_lock(&md->map_lock) in dm_table_unplug_all()?
+>
+>Ugh yes, we certainly should.
 
-What about extending epoll to handle non-fd event sources?
-Is netlink cleaner than that?  (I've never used or looked at netlink).
+With the latest patches from Joe it would be more like
 
--- Jamie
+	map = dm_get_table(md);
+	if (map) {
+		dm_table_unplug_all(map);
+		dm_table_put(map);
+	}
+
+No lock ranking issues, you just get a refcounted map (table, really).
+
+Mike.
+

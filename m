@@ -1,213 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280593AbRKBIAA>; Fri, 2 Nov 2001 03:00:00 -0500
+	id <S280599AbRKBIBk>; Fri, 2 Nov 2001 03:01:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280594AbRKBH7v>; Fri, 2 Nov 2001 02:59:51 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:32269 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S280593AbRKBH7d>;
-	Fri, 2 Nov 2001 02:59:33 -0500
-Message-ID: <3BE25263.9080108@epfl.ch>
-Date: Fri, 02 Nov 2001 08:59:31 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280596AbRKBIBa>; Fri, 2 Nov 2001 03:01:30 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:39948 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S280595AbRKBIBL>; Fri, 2 Nov 2001 03:01:11 -0500
+Message-ID: <3BE2529A.63B1C366@idb.hist.no>
+Date: Fri, 02 Nov 2001 09:00:26 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Robert Love <rml@tech9.net>
-Subject: [PATCH] agp for i820 chipset
-Content-Type: multipart/mixed;
- boundary="------------040809020702010606040401"
+To: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre6
+In-Reply-To: message from Linus Torvalds on Wednesday October 31,
+			<Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com> <15329.8658.642254.284398@notabene.cse.unsw.edu.au> <3BE1B6CD.7DA43A6C@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040809020702010606040401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Andrew Morton wrote:
 
-Hello all
+> Another potential microoptimisation would be to write out
+> clean blocks if that helps merging.  So if we see a write
+> for blocks 1,2,3,5,6,7 and block 4 is known to be in memory,
+> then write it out too.  I suspect this would be a win for
+> ATA but a loss for SCSI.  Not sure.
+> 
 
-Here is a small patch that enables agp on i820 chipsets. I kept a 
-structure similar to the i840/i850 agp support. I have been able to use 
-the module succesfully, X started, OpenGL apps and Quake3 are running fine.
-The patch has been made against a 2.4.9 RedHat kernel, but can be rather 
-easily adapted to the latest 2.4 kernel.
+A not to stupid disk would implement the seek to block 5
+as waiting for block 4 to move past.  So
+rewriting block 4 probably wouldn't help.  could be 
+interesting to see a benchmark for that though, perhaps
+some drives are really dumb.
 
-Does anyone know whether the Side Band Adressing (SBA) and Fast Write 
-Protocol (FWP) can be enabled without changing too much of the code ?
+The average "half rotation delay" when seeking does not apply
+when the seek _isn't_ random.
 
-Please CC to me your comments/flames/praises as I am not subscribed to 
-the list.
-
-Best regards.
-
-Nicolas.
--- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
-
---------------040809020702010606040401
-Content-Type: text/plain;
- name="agp_i820_2.4.9-6.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="agp_i820_2.4.9-6.patch"
-
-diff -Nru /usr/src/linux-2.4.9-6/drivers/char/agp/agp.h /tmppc41/linux.agp_i820/drivers/char/agp/agp.h
---- /usr/src/linux-2.4.9-6/drivers/char/agp/agp.h       Thu Oct 18 15:00:01 2001+++ /tmppc41/linux.agp_i820/drivers/char/agp/agp.h      Fri Nov  2 08:38:22 2001@@ -170,6 +170,9 @@
- #ifndef PCI_DEVICE_ID_INTEL_810_0
- #define PCI_DEVICE_ID_INTEL_810_0       0x7120
- #endif
-+#ifndef PCI_DEVICE_ID_INTEL_820_0
-+#define PCI_DEVICE_ID_INTEL_820_0       0x2500
-+#endif
- #ifndef PCI_DEVICE_ID_INTEL_840_0
- #define PCI_DEVICE_ID_INTEL_840_0              0x1a21
- #endif
-@@ -188,6 +191,9 @@
- #ifndef PCI_DEVICE_ID_INTEL_810_1
- #define PCI_DEVICE_ID_INTEL_810_1       0x7121
- #endif
-+#ifndef PCI_DEVICE_ID_INTEL_820_1
-+#define PCI_DEVICE_ID_INTEL_820_1       0x250f
-+#endif
- #ifndef PCI_DEVICE_ID_INTEL_810_DC100_1
- #define PCI_DEVICE_ID_INTEL_810_DC100_1 0x7123
- #endif
-@@ -242,6 +248,10 @@
- #define INTEL_NBXCFG    0x50
- #define INTEL_ERRSTS    0x91
-
-+/* intel i820 registers */
-+#define INTEL_I820_RDCR     0x51
-+#define INTEL_I820_ERRSTS   0xc8
-+
- /* intel i840 registers */
- #define INTEL_I840_MCHCFG   0x50
- #define INTEL_I840_ERRSTS      0xc8
-@@ -268,6 +278,7 @@
- #define I810_DRAM_ROW_0        0x00000001
- #define I810_DRAM_ROW_0_SDRAM  0x00000001
-
-+
- /* VIA register */
- #define VIA_APBASE      0x10
- #define VIA_GARTCTRL    0x80
-diff -Nru /usr/src/linux-2.4.9-6/drivers/char/agp/agpgart_be.c /tmppc41/linux.agp_i820/drivers/char/agp/agpgart_be.c
---- /usr/src/linux-2.4.9-6/drivers/char/agp/agpgart_be.c        Thu Oct 18 15:00:01 2001
-+++ /tmppc41/linux.agp_i820/drivers/char/agp/agpgart_be.c       Fri Nov  2 08:44:28 2001
-@@ -1188,6 +1188,40 @@
-        return 0;
- }
-
-+static int intel_820_configure(void)
-+{
-+       u32 temp;
-+       u8 temp2;
-+       aper_size_info_16 *current_size;
-+
-+       current_size = A_SIZE_16(agp_bridge.current_size);
-+
-+       /* aperture size */
-+       pci_write_config_byte(agp_bridge.dev, INTEL_APSIZE,
-+                             (char)current_size->size_value);
-+
-+       /* address to map to */
-+       pci_read_config_dword(agp_bridge.dev, INTEL_APBASE, &temp);
-+       agp_bridge.gart_bus_addr = (temp & PCI_BASE_ADDRESS_MEM_MASK);
-+
-+       /* attbase - aperture base */
-+       pci_write_config_dword(agp_bridge.dev, INTEL_ATTBASE,
-+                              agp_bridge.gatt_bus_addr);
-+
-+       /* agpctrl */
-+       pci_write_config_dword(agp_bridge.dev, INTEL_AGPCTRL, 0x0000);
-+
-+       /* global enable aperture access */
-+       /* This flag is not accessed through MCHCFG register as in */
-+       /* i850 chipset. */
-+       pci_read_config_byte(agp_bridge.dev, INTEL_I820_RDCR, &temp2);
-+       pci_write_config_byte(agp_bridge.dev, INTEL_I820_RDCR,
-+                             temp2 | 0x02);
-+       /* clear any possible AGP-related error conditions */
-+       pci_write_config_word(agp_bridge.dev, INTEL_I820_ERRSTS, 0x001c);
-+       return 0;
-+}
-+
- static int intel_840_configure(void)
- {
-        u32 temp;
-@@ -1314,6 +1348,36 @@
-        (void) pdev; /* unused */
- }
-
-+static int __init intel_820_setup (struct pci_dev *pdev)
-+{
-+       agp_bridge.masks = intel_generic_masks;
-+       agp_bridge.num_of_masks = 1;
-+       agp_bridge.aperture_sizes = (void *) intel_generic_sizes;
-+       agp_bridge.size_type = U16_APER_SIZE;
-+       agp_bridge.num_aperture_sizes = 7;
-+       agp_bridge.dev_private_data = NULL;
-+       agp_bridge.needs_scratch_page = FALSE;
-+       agp_bridge.configure = intel_820_configure;
-+       agp_bridge.fetch_size = intel_fetch_size;
-+       agp_bridge.cleanup = intel_cleanup;
-+       agp_bridge.tlb_flush = intel_tlbflush;
-+       agp_bridge.mask_memory = intel_mask_memory;
-+       agp_bridge.agp_enable = agp_generic_agp_enable;
-+       agp_bridge.cache_flush = global_cache_flush;
-+       agp_bridge.create_gatt_table = agp_generic_create_gatt_table;
-+       agp_bridge.free_gatt_table = agp_generic_free_gatt_table;
-+       agp_bridge.insert_memory = agp_generic_insert_memory;
-+       agp_bridge.remove_memory = agp_generic_remove_memory;
-+       agp_bridge.alloc_by_type = agp_generic_alloc_by_type;
-+       agp_bridge.free_by_type = agp_generic_free_by_type;
-+       agp_bridge.agp_alloc_page = agp_generic_alloc_page;
-+       agp_bridge.agp_destroy_page = agp_generic_destroy_page;
-+
-+       return 0;
-+
-+       (void) pdev; /* unused */
-+}
-+
- static int __init intel_840_setup (struct pci_dev *pdev)
- {
-        agp_bridge.masks = intel_generic_masks;
-@@ -2971,6 +3035,12 @@
-                "Intel",
-                "i815",
-                intel_generic_setup },
-+       { PCI_DEVICE_ID_INTEL_820_0,
-+               PCI_VENDOR_ID_INTEL,
-+               INTEL_I820,
-+               "Intel",
-+               "i820",
-+               intel_820_setup },
-        { PCI_DEVICE_ID_INTEL_840_0,
-                PCI_VENDOR_ID_INTEL,
-                INTEL_I840,
-diff -Nru /usr/src/linux-2.4.9-6/drivers/char/drm/drm_agpsupport.h /tmppc41/linux.agp_i820/drivers/char/drm/drm_agpsupport.h
---- /usr/src/linux-2.4.9-6/drivers/char/drm/drm_agpsupport.h    Thu Oct 18 15:00:01 2001
-+++ /tmppc41/linux.agp_i820/drivers/char/drm/drm_agpsupport.h   Thu Nov  1 10:50:41 2001
-@@ -273,6 +273,7 @@
-
- #if LINUX_VERSION_CODE >= 0x020400
-                case INTEL_I815:        head->chipset = "Intel i815";    break;
-+               case INTEL_I820:        head->chipset = "Intel i820";    break;
-                case INTEL_I840:        head->chipset = "Intel i840";    break;
-                case INTEL_I850:        head->chipset = "Intel i850";    break;
- #endif
-diff -Nru /usr/src/linux-2.4.9-6/include/linux/agp_backend.h /tmppc41/linux.agp_i820/include/linux/agp_backend.h
---- /usr/src/linux-2.4.9-6/include/linux/agp_backend.h  Thu Oct 18 15:00:08 2001+++ /tmppc41/linux.agp_i820/include/linux/agp_backend.h Thu Nov  1 08:36:26 2001@@ -46,6 +46,7 @@
-        INTEL_GX,
-        INTEL_I810,
-        INTEL_I815,
-+       INTEL_I820,
-        INTEL_I840,
-        INTEL_I850,
-        VIA_GENERIC,
-
---------------040809020702010606040401--
-
+Helge Hafting

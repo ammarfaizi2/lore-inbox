@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274963AbRIXUjK>; Mon, 24 Sep 2001 16:39:10 -0400
+	id <S274965AbRIXUkl>; Mon, 24 Sep 2001 16:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274962AbRIXUjA>; Mon, 24 Sep 2001 16:39:00 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2321 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S274952AbRIXUiq>; Mon, 24 Sep 2001 16:38:46 -0400
-Date: Mon, 24 Sep 2001 17:38:45 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] minor page aging update
-Message-ID: <Pine.LNX.4.33L.0109241734490.1864-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274960AbRIXUke>; Mon, 24 Sep 2001 16:40:34 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:33525 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S274952AbRIXUkS>; Mon, 24 Sep 2001 16:40:18 -0400
+Date: Mon, 24 Sep 2001 21:40:43 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: Re: Linux-2.4.10 + ext3
+Message-ID: <20010924214043.C13817@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>, <9om4ed$1hv$1@penguin.transmeta.com> <20010923193008.A13982@vitelus.com> <3BAEAC52.677C064C@zip.com.au> <20010924143501.A19387@bg77.anu.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010924143501.A19387@bg77.anu.edu.au>; from simon@bg77.anu.edu.au on Mon, Sep 24, 2001 at 02:35:01PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Mon, Sep 24, 2001 at 02:35:01PM +1000, Simon Fowler wrote:
+> 
+> Speaking of ext3 and 2.4.10, do you have an idea when you could
+> get an updated ext3 patch for 2.4.10?
 
-here is the promised minor page aging update to 2.4.9-ac15:
+It's already online.
 
-1) use min()/max() for age_page_{up,down}, now the
-   thing is resistant to people changing PAGE_AGE_DECL ;)
-
-2) in try_to_swap_out(), still adjust the page age even if
-   the zone does have enough inactive pages ... this is a
-   very cheap operation and will keep the page aging info
-   in zones better up to date
-
-3) only call do_try_to_free_pages() when we have a free
-   shortage, this means kswapd() won't waste CPU time on
-   working sets which fit in memory, but "spill over"
-   into the inactive list ... also update comments a bit
-
-4) remove run_task_queue(&tq_disk) from kswapd() since
-   page_launder() will already have done this if needed
-
-regards,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+--Stephen

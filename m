@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbSK1Swo>; Thu, 28 Nov 2002 13:52:44 -0500
+	id <S265426AbSK1TB7>; Thu, 28 Nov 2002 14:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266720AbSK1Swo>; Thu, 28 Nov 2002 13:52:44 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:52103 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S266718AbSK1Swn>; Thu, 28 Nov 2002 13:52:43 -0500
-X-Envelope-From: kraxel@bytesex.org
-From: Gerd Knorr <kraxel@bytesex.org>
-Message-Id: <200211281823.gASINAuN014312@bytesex.org>
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RELEASE] module-init-tools 0.8
-In-Reply-To: <200211281616.gASGGOE6012229@bytesex.org>
-References: <20021128023017.91FAC2C250@lists.samba.org> <200211281616.gASGGOE6012229@bytesex.org>
-Date: Thu, 28 Nov 2002 19:23:10 +0100
+	id <S266716AbSK1TB7>; Thu, 28 Nov 2002 14:01:59 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:34443
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265426AbSK1TB7>; Thu, 28 Nov 2002 14:01:59 -0500
+Date: Thu, 28 Nov 2002 14:12:39 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Mohamed El Ayouty <melayout@umich.edu>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] IDE-SCSI module corrupts further module loading on 2.5.50
+In-Reply-To: <1038414979.1564.3.camel@syKr0n.mine.nu>
+Message-ID: <Pine.LNX.4.50.0211281411340.14410-100000@montezuma.mastecende.com>
+References: <1038383730.1526.0.camel@syKr0n.mine.nu> 
+ <Pine.LNX.4.50.0211280306400.14410-100000@montezuma.mastecende.com>
+ <1038414979.1564.3.camel@syKr0n.mine.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  alias char-major-6 lp
->  alias parport_lowlevel parport_pc
->  
->  Smells like a deadlock due to request_module() in some modules init
->  function or something like this.
+On Wed, 27 Nov 2002, Mohamed El Ayouty wrote:
 
-Next try:  Changed "alias char-major-6" to "off".  Works better, at
-least the system comes up with all network stuff working and I can
-login as user (with $HOME at nfs).  Various modules still fail to
-load (bttv driver, matroxfb):
+> I have an Intel i815.
 
-WARNING: Error inserting v4l2_common (/lib/modules/2.5.50/kernel/v4l2-common.o): Invalid module format
-WARNING: Error inserting video_buf (/lib/modules/2.5.50/kernel/video-buf.o): Invalid module format
-FATAL: Error inserting bttv (/lib/modules/2.5.50/kernel/bttv.o): Unknown symbol in module
+Thank you, i'm just trying to collect information for a pending bug.
 
-WARNING: Error inserting matroxfb_misc (/lib/modules/2.5.50/kernel/matroxfb_misc.o): Invalid module format
-WARNING: Error inserting matroxfb_accel (/lib/modules/2.5.50/kernel/matroxfb_accel.o): Invalid module format
-WARNING: Error inserting matroxfb_DAC1064 (/lib/modules/2.5.50/kernel/matroxfb_DAC1064.o): Invalid module format
-FATAL: Error inserting matroxfb_base (/lib/modules/2.5.50/kernel/matroxfb_base.o): Unknown symbol in module
-
-  Gerd
-
+Cheers,
+	Zwane
 -- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+function.linuxpower.ca

@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263577AbUCYTle (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:41:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbUCYTle
+	id S263587AbUCYTvk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbUCYTvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:41:34 -0500
-Received: from h190n2fls306o1003.telia.com ([81.224.179.190]:10987 "EHLO
-	Athlon1.hemma.se") by vger.kernel.org with ESMTP id S263577AbUCYTl3
+	Thu, 25 Mar 2004 14:51:40 -0500
+Received: from 011.081.dsl.concepts.nl ([213.197.11.81]:22749 "EHLO
+	server.thuis.lan") by vger.kernel.org with ESMTP id S263587AbUCYTvj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:41:29 -0500
-Message-ID: <406335BB.1050601@am.chalmers.se>
-Date: Thu, 25 Mar 2004 20:40:43 +0100
-From: Thomas Svedberg <thsv@am.chalmers.se>
-User-Agent: Mozilla Thunderbird 0.5+ (X11/20040309)
+	Thu, 25 Mar 2004 14:51:39 -0500
+Message-ID: <40633843.3090300@xs4all.nl>
+Date: Thu, 25 Mar 2004 20:51:31 +0100
+From: Rik van Ballegooijen <sleightofmind@xs4all.nl>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: eric.valette@free.fr
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5-rc2-mm2 still does not boot but it progress : seems to
- be console font related
-References: <406172C9.8000706@free.fr> <406302A9.8030805@am.chalmers.se> <40630BC0.2090807@free.fr>
-In-Reply-To: <40630BC0.2090807@free.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: sleightofmind@xs4all.nl, m.c.p@wolk-project.de,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, len.brown@intel.com
+Subject: Re: [BUG 2.6.5-rc2-bk5 and 2.6.5-rc2-mm3] ACPI seems to be broken
+References: <200403251432.32787@WOLK>	<4062E986.2080508@xs4all.nl> <20040325090232.15e8f59f.akpm@osdl.org>
+In-Reply-To: <20040325090232.15e8f59f.akpm@osdl.org>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Valette wrote:
-> Thomas Svedberg wrote:
-> 
->> I have these hangs as well, just tried 2.6.5-rc2-mm3 and they are 
->> still there.
->> However setting video=radeonfb:off as boot parameter solves the 
->> problem, if this can be of any help.
->> More info on request.
-> 
-> 
-> Yes because the console-screen.sh shell script checks for /dev/fb. Could 
-> you try the patceh suggested by Andrew in this thread (I'm not sure it 
-> is in mm3). I attached it for your convenience.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I must have missed it, an yes it fixes the problem.
-(I tried it on top of -mm3)
+Andrew Morton wrote:
+| Rik van Ballegooijen <sleightofmind@xs4all.nl> wrote:
+|
+|> with acpi on it can also run, but not if you supply vga=. I tried with
+|> vga=0x317 and it stalls after "Freeing unused kernel memory". When i
+|> turn off acpi using acpi=off and also supply vga=0x317 it continues
+|> booting, but hangs during execution of bootscripts.
+|
+|
+| It would be interesting to try reverting probe_roms-02-fixes.patch and
+| probe_roms-01-move-stuff.patch.
 
-/Thomas
+Reverting these two patches does nothing. The result is exactly the same
+as above.
+Reverting the acpi stuff that went into -bk some days ago does solve the
+problem. I haven't checked yet which part to be exact causes this though.
 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff -puN drivers/char/vt.c~a drivers/char/vt.c
-> --- 25/drivers/char/vt.c~a	2004-03-24 09:49:10.285591688 -0800
-> +++ 25-akpm/drivers/char/vt.c	2004-03-24 09:50:54.355770616 -0800
-> @@ -2471,10 +2471,13 @@ static int con_open(struct tty_struct *t
->  				tty->winsize.ws_row = video_num_lines;
->  				tty->winsize.ws_col = video_num_columns;
->  			}
-> +			release_console_sem();
->  			vcs_make_devfs(tty);
-> +			goto out;
->  		}
->  	}
->  	release_console_sem();
-> +out:
->  	return ret;
->  }
->  
-> @@ -2484,11 +2487,13 @@ static void con_close(struct tty_struct 
->  	if (tty && tty->count == 1) {
->  		struct vt_struct *vt;
->  
-> -		vcs_remove_devfs(tty);
->  		vt = tty->driver_data;
->  		if (vt)
->  			vc_cons[vt->vc_num].d->vc_tty = NULL;
->  		tty->driver_data = 0;
-> +		release_console_sem();
-> +		vcs_remove_devfs(tty);
-> +		return;
->  	}
->  	release_console_sem();
->  }
-> 
-> _
-> 
-> 
+- -Rik
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
-.......................................................................
-  Thomas Svedberg
-  Department of Applied Mechanics
-  Chalmers University of Technology
-
-  Address: S-412 96 Göteborg, SWEDEN
-  E-mail : thsv@bigfoot.com, thsv@am.chalmers.se
-  Phone  : +46 31 772 1522
-  Fax    : +46 31 772 3827
-.......................................................................
+iD8DBQFAYzhDq1cnhHKeD68RAv0bAJ0Xt5LaLsizdw8SLENi8AGdsnJmvACgj8L3
+dWQa/6iEvC1ilyfZwlWgHok=
+=sEZU
+-----END PGP SIGNATURE-----

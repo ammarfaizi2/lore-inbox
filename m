@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282920AbRLBUax>; Sun, 2 Dec 2001 15:30:53 -0500
+	id <S284322AbRLBUfN>; Sun, 2 Dec 2001 15:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284309AbRLBUae>; Sun, 2 Dec 2001 15:30:34 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:34688 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S282920AbRLBUa0>;
-	Sun, 2 Dec 2001 15:30:26 -0500
-Date: Sun, 2 Dec 2001 10:31:25 +0100
+	id <S282922AbRLBUfG>; Sun, 2 Dec 2001 15:35:06 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:36736 "EHLO
+	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S284314AbRLBUev>;
+	Sun, 2 Dec 2001 15:34:51 -0500
+Date: Sun, 2 Dec 2001 12:19:22 +0100
 From: Pavel Machek <pavel@suse.cz>
 To: kernel list <linux-kernel@vger.kernel.org>
-Subject: emu10k: no recording?
-Message-ID: <20011202103124.A181@elf.ucw.cz>
+Cc: ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: ACPI+HP omnibook -- freeze until power is pressed?
+Message-ID: <20011202121922.A2356@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,15 +22,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-On 2.4.14 (never tried previous kernels, sorry), playback on emu10k
-works well (modulo infrequent dropouts even on unloaded system), but
-recording seems br0ken.
+I'm seeing strange thing on hp omnibook... I work on console, and
+machine suddenly locks up without me doing anything strange. So I
+press powerbutton for a short while, and ... machine continues to work
+as if nothing happened. Not even keyboard presses are lost.
 
-cat /dev/dsp > /tmp/delme followed by 
-
-cat /tmp/delme > /dev/dsp gives *some* noise, but definitely not TV
-audio I fed it :-(. Anyone met that problems? Any solutions known?
-
+But its annoying, anyway. 2.4.14-acpi. Happened ~10 times so
+far. Anyone seen something similar?
 								Pavel
 -- 
 "I do not steal MS software. It is not worth it."

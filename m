@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261648AbSI0ICy>; Fri, 27 Sep 2002 04:02:54 -0400
+	id <S261655AbSI0IDz>; Fri, 27 Sep 2002 04:03:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261652AbSI0ICx>; Fri, 27 Sep 2002 04:02:53 -0400
-Received: from n13.sp.op.dlr.de ([129.247.25.4]:40601 "EHLO n13.sp.op.dlr.de")
-	by vger.kernel.org with ESMTP id <S261648AbSI0ICw>;
-	Fri, 27 Sep 2002 04:02:52 -0400
-Message-ID: <3D941150.8060409@dlr.de>
-Date: Fri, 27 Sep 2002 10:05:36 +0200
-From: Martin Wirth <Martin.Wirth@dlr.de>
-Reply-To: Martin.Wirth@dlr.de
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.0) Gecko/20020611
-X-Accept-Language: en-us, en
+	id <S261661AbSI0IDy>; Fri, 27 Sep 2002 04:03:54 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:31243 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261655AbSI0IDw>; Fri, 27 Sep 2002 04:03:52 -0400
+Message-Id: <200209270804.g8R84cp08026@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Does kernel use system stdarg.h?
+Date: Fri, 27 Sep 2002 10:58:52 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar  <mingo@elte.hu> wrote:
- > sigh. And we cannot even properly detect which unpin_page() was the last
- > unpinning of the page - there can be so many other reasons a page's count
- > is elevated. And keeping a page sticky forever is no solution either, the
- > number of sticky pages would increase significantly, causing real fork()
- > problems.
+make[3]: Entering directory `/usr/src/linux-2.5.36/kernel'
+gcc -E 
+-Wp,-MD,/usr/src/linux-2.5.36/include/linux/modules/kernel/.exec_domain.ver.d 
+-D__KERNEL__ -I/usr/src/linux-2.5.36/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=i486 -nostdinc -iwithprefix include 
+   -DKBUILD_BASENAME=exec_domain -D__GENKSYMS__  exec_domain.c | 
+/sbin/genksyms -p smp_ -k 2.5.36 > 
+/usr/src/linux-2.5.36/include/linux/modules/kernel/exec_domain.ver.tmp
+In file included from exec_domain.c:12:
+/usr/src/linux-2.5.36/include/linux/kernel.h:10:20: stdarg.h: No such file or 
+directory
 
-Maybe you can resurrect your approach by using a sticky counter instead of a flag.
-If there are really that many unused fields in struct page for the case considered
-here this should be possible.
-
-But another point: what happens if  get_user_pages (and the sticky-setting)
-is called after the fork completed? If there was no write access to the
-page between the fork and the futex call you may get the same race.
-
-More general this seems not be a futex problem, but a general inconsistancy
-between COW and page pinning by get_user_pages. You may get similar races if
-you pin pages to do zero copy DMA on COWed pages. The bus-master device then
-maybe transfers data to a child's page instead of a parent page (if someone write
-touched the page between the call to get_user_pages and DMA completion).
-
-One solution would be to force get_user_pages and copy_page_range
-to replace a page marked for COW before handling it (of couse only on demand).
-
-Martin
-
+There is no stdarg.h in kernel tree, should it be there?
+For now I just copied GCC one into linux/include...
+--
+vda

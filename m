@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbULDWAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbULDWFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbULDWAS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 17:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbULDWAS
+	id S261177AbULDWFF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 17:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbULDWFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 17:00:18 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:46988 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261176AbULDWAD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 17:00:03 -0500
-Subject: Re: [PATCH] aic7xxx large integer
-From: Robert Love <rml@novell.com>
-To: Miguel Angel Flores <maf@sombragris.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41B222BE.9020205@sombragris.com>
-References: <41B222BE.9020205@sombragris.com>
-Content-Type: text/plain
-Date: Sat, 04 Dec 2004 17:01:17 -0500
-Message-Id: <1102197677.6052.77.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Dec 2004 17:05:05 -0500
+Received: from services.cse.ucsc.edu ([128.114.48.10]:27380 "EHLO
+	services.cse.ucsc.edu") by vger.kernel.org with ESMTP
+	id S261177AbULDWFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 17:05:02 -0500
+Date: Sat, 4 Dec 2004 14:05:00 -0800 (PST)
+From: Lan Xue <lanxue@soe.ucsc.edu>
+X-X-Sender: lanxue@moondance.cse.ucsc.edu
+To: netdev@oss.sgi.com
+cc: kernerl mail <linux-kernel@vger.kernel.org>
+Subject: global memory access
+In-Reply-To: <20041202094433.39132.qmail@web41411.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.58.0412041401570.28362@moondance.cse.ucsc.edu>
+References: <20041202094433.39132.qmail@web41411.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-04 at 21:49 +0100, Miguel Angel Flores wrote:
+Hi,
 
-> -	mask_39bit = 0x7FFFFFFFFFULL;
-> +	mask_39bit = 0x7FFFFFFF;
+I was wondering how a user-level program can share a writable memory
+buffer with the kernel. The memory can either belongs to the kernel space
+or the user space, but both kernel module and user program should be able
+to access(read, write) it.
 
-I cannot believe that this is the correct solution and, if it is, the
-name of the variable ought to be changed.
+Any hint? Many thanks,
 
-More likely, I suspect that the mask wants to be 39-bits, what with its
-name and all.
-
-The problem is that DMA addresses come in both 32-bit (generic) and
-64-bit (high) forms.  mask_39bit is a dma_addr_t so it is 64-bit if
-CONFIG_HIGHMEM64G and 32-bit otherwise.  Possibly, the right solution is
-to make mask_39bit dma64_addr_t.  Or, if the mapping needs to be
-consistent, assign a different value depending on the value of
-CONFIG_HIGHMEM64G.
-
-See Documentation/DMA-*.txt for more information.
-
-	Robert Love
-
+Lan
 

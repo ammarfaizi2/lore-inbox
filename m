@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311724AbSCNSn5>; Thu, 14 Mar 2002 13:43:57 -0500
+	id <S311723AbSCNSoh>; Thu, 14 Mar 2002 13:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311723AbSCNSns>; Thu, 14 Mar 2002 13:43:48 -0500
-Received: from 213-98-126-44.uc.nombres.ttd.es ([213.98.126.44]:14977 "HELO
-	mitica.trasno.org") by vger.kernel.org with SMTP id <S311726AbSCNSnd>;
-	Thu, 14 Mar 2002 13:43:33 -0500
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pcmcia oops problem?
-In-Reply-To: <3C90BA11.40106@mandrakesoft.com> <m2henjruos.fsf@trasno.mitica>
-	<200203141801.g2EI1sK00638@vindaloo.ras.ucalgary.ca>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <200203141801.g2EI1sK00638@vindaloo.ras.ucalgary.ca>
-Date: 14 Mar 2002 19:40:54 +0100
-Message-ID: <m23cz3ro09.fsf@trasno.mitica>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S311726AbSCNSo2>; Thu, 14 Mar 2002 13:44:28 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:21009 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311723AbSCNSoW>; Thu, 14 Mar 2002 13:44:22 -0500
+Message-ID: <3C90EF20.CB3A4415@zip.com.au>
+Date: Thu, 14 Mar 2002 10:42:40 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: suparna@in.ibm.com
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, andre@linux-ide.org, bcrl@redhat.com
+Subject: Re: 2.5.6: ide driver broken in PIO mode
+In-Reply-To: <Pine.LNX.4.21.0203131339050.26768-100000@serv> <a6o30m$25j$1@penguin.transmeta.com> <20020313203408.GD20220@suse.de>,
+		<20020313203408.GD20220@suse.de>; from axboe@suse.de on Wed, Mar 13, 2002 at 09:34:08PM +0100 <20020314213611.A1884@in.ibm.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "richard" == Richard Gooch <rgooch@ras.ucalgary.ca> writes:
+Suparna Bhattacharya wrote:
+> 
+> ...
+> However, the latest code I have also covers the avoidance of bv_len,
+> bv_offset modifications by the block layer, which I'd been
+> concerned about for quite a while and ought to have done something about
+> much sooner ;)
 
-richard> Juan Quintela writes:
->> >>>>> "jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
->> 
-jeff> Can you describe the pcmcia oops problem in detail?
-jeff> What output do you get from a serial console?
->> 
->> Ok, trying to get better message now.
+urgh.  I didn't know there was a risk of this.
 
-richard> Can you:
+I'm using bv_offset and bv_len in the bi_end_io handler to work out
+whether to unlock the final page in the multipage BIO.
 
-richard> - capture the Oops and decode with ksymoops
+That can probably be avoided, but it would be better if these
+can be left alone, or at least, restored to their original value
+before returning the BIO to whoever created it.
 
-stack overflow, when we got the Oops, we have already overwrote half
-the memory, i.e. the stack trace makes no sense at all :(
+I'm also using bi_private, under the assumption that the ownership
+rules for that are analogous to buffer_head.b_private.   Is this
+correct?   Who owns bi_private?
 
-richard> - make sure you always Cc: me on devfs-related problems (I nearly
-richard> missed this one).
 
-Not sure what is this one, and I am beggining to think that the
-problem is some subtle thing in andrea_vm.
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+-

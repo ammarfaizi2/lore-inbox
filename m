@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277187AbRJDROm>; Thu, 4 Oct 2001 13:14:42 -0400
+	id <S277191AbRJDRTc>; Thu, 4 Oct 2001 13:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277185AbRJDROd>; Thu, 4 Oct 2001 13:14:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:33155 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S277187AbRJDROP>;
-	Thu, 4 Oct 2001 13:14:15 -0400
-Message-ID: <3BBC98F7.F23A2D26@us.ibm.com>
-Date: Thu, 04 Oct 2001 10:14:31 -0700
-From: "David C. Hansen" <haveblue@us.ibm.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Big kernel lock in release functions
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277189AbRJDRTW>; Thu, 4 Oct 2001 13:19:22 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:65154 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S277185AbRJDRTO>; Thu, 4 Oct 2001 13:19:14 -0400
+Date: Thu, 4 Oct 2001 11:19:34 -0600
+Message-Id: <200110041719.f94HJYQ07125@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+In-Reply-To: <jehetfcr73.fsf@sykes.suse.de>
+In-Reply-To: <m1n137zbyo.fsf@frodo.biederman.org>
+	<Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com>
+	<200110041602.f94G20k06280@vindaloo.ras.ucalgary.ca>
+	<jehetfcr73.fsf@sykes.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I've been looking at use of the big kernel lock in a lot of different
-places in the kernel.  I've noticed that there are quite a few uses in
-devices' release functions, with no obvious purpose.  Take a look at
-arch/m68k/atari/joystick.c:
+Andreas Schwab writes:
+> Richard Gooch <rgooch@ras.ucalgary.ca> writes:
+> 
+> |> Linus Torvalds writes:
+> |> > 
+> |> > On 4 Oct 2001, Eric W. Biederman wrote:
+> |> > >
+> |> > > First what user space really wants is the MAP_COPY.  Which is
+> |> > > MAP_PRIVATE with the guarantee that they don't see anyone else's changes.
+> |> > 
+> |> > Which is a completely idiotic idea, and which is only just another
+> |> > example of how absolutely and stunningly _stupid_ Hurd is.
+> |> 
+> |> Indeed. If you're updated a shared library, why not *create a new
+> |> file* and then rename it?!? That lets running programmes work fine,
+> |> and new programmes will get the new library. Also, the following
+> |> construct makes a lot of sense:
+> |> 	ld -shared -o libfred.so *.o || mv libfred.so /usr/local/lib
+> 
+> That || should be &&, otherwise you are doing exactly the opposite
+> of what you want.
 
-    lock_kernel();
-    joystick[minor].active = 0;
-    joystick[minor].ready = 0;
+Yeah. Of course. Brain fart. Fingers faster than brain syndrome...
 
-    if ((joystick[0].active == 0) && (joystick[1].active == 0))
-        ikbd_joystick_disable();
-    unlock_kernel();
+				Regards,
 
-  But, there are other places in the same file where the same operations
-are performed with no locking at all (except for
-ikbd_joystick_disable()). Is there a reason to have locking in the
-release function but not in the read or open functions?  
-  This is a quite common practice in release functions throughout the
-kernel.  In 2.4.10, I counted 108 different places where the BKL is used
-in a release function.  I'm not claiming that all of these are
-unnecessary, but I believe a big chunk of them are.  
-
---
-David C. Hansen
-haveblue@us.ibm.com
-IBM LTC Base/OS Group
-(503)578-4080
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129718AbRBXXtS>; Sat, 24 Feb 2001 18:49:18 -0500
+	id <S129723AbRBXXx7>; Sat, 24 Feb 2001 18:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129720AbRBXXtJ>; Sat, 24 Feb 2001 18:49:09 -0500
-Received: from ns.suse.de ([213.95.15.193]:48908 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129718AbRBXXsy>;
-	Sat, 24 Feb 2001 18:48:54 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New net features for added performance
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com>
-From: Andi Kleen <ak@suse.de>
-Date: 25 Feb 2001 00:48:35 +0100
-In-Reply-To: Jeff Garzik's message of "25 Feb 2001 00:27:56 +0100"
-Message-ID: <oupsnl3k5gs.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129726AbRBXXxk>; Sat, 24 Feb 2001 18:53:40 -0500
+Received: from 2-225.cwb-adsl.telepar.net.br ([200.193.161.225]:44014 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129723AbRBXXxf>; Sat, 24 Feb 2001 18:53:35 -0500
+Date: Sat, 24 Feb 2001 19:14:08 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Frédéric L. W. Meunier <0@pervalidus.net@conectiva.com.br,
+        @pop.zip.com.au>@conectiva.com.br
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why CONFIG_MPENTIUMIII by default?
+Message-ID: <20010224191407.B2564@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Frédéric L. W. Meunier <0@perv
+	alidus.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010224204253.F127@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <20010224204253.F127@pervalidus>; from 0@pervalidus.net on Sat, Feb 24, 2001 at 08:42:53PM -0300
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+Em Sat, Feb 24, 2001 at 08:42:53PM -0300, Frédéric L. W. Meunier escreveu:
+> Is there any reason to use CONFIG_MPENTIUMIII by default? I
+> think this should be changed to CONFIG_M386, which should work
+> for most, and would avoid people reporting problems because
+> they forgot to set the right processor type.
 
-> Advantages:  A de-allocation immediately followed by a reallocation is
-> eliminated, less L1 cache pollution during interrupt handling. 
-> Potentially less DMA traffic between card and host.
-> 
-> Disadvantages?
+humm AFAIK the default config is nothing more than Linus setup, not
+something to server as a basic setup for everybody, so go buy Linus a i386
+machine for development 8)
 
-You need a new mechanism to cope with low memory situations because the 
-drivers can tie up quite a bit of memory (in fact you gave up unified
-memory management). 
-
-> 3) Slabbier packet allocation.  Even though skb allocation is decently
-> fast, you are still looking at an skb buffer head grab and a kmalloc,
-> for each [dev_]alloc_skb call.  I was wondering if it would be possible
-> to create a helper function for drivers which would improve the hot-path
-> considerably:
-[...]
-
-If you need such a horror it just means there is something wrong with slab.
-Better fix slab.
-
-
-4) Better support for aligned RX by only copying the header, no the whole
-packet, to end up with an aligned IP header. Unless the driver knows about
-all protocol lengths this means the stack needs to support "parse header
-in this buffer, then switch to other buffer with computed offset for data" 
-
--Andi
+- Arnaldo

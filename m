@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVCBXs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVCBXsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVCBXs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVCBXoD
+	id S261346AbVCBXsa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVCBXoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:44:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29878 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261186AbVCBXm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:42:58 -0500
-Message-ID: <42264F6C.8030508@pobox.com>
-Date: Wed, 02 Mar 2005 18:42:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 18:44:30 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:52175 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261346AbVCBXkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 18:40:53 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Date: Wed, 2 Mar 2005 15:40:09 -0800
+User-Agent: KMail/1.7.2
+Cc: Linas Vepstas <linas@austin.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>
+References: <422428EC.3090905@jp.fujitsu.com> <1109803303.5611.108.camel@gaston> <20050302233003.GO1220@austin.ibm.com>
+In-Reply-To: <20050302233003.GO1220@austin.ibm.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503021540.10222.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IMO too confusing.
+On Wednesday, March 2, 2005 3:30 pm, Linas Vepstas wrote:
+> Put it another way: a device driver author should have the opportunity
+> to poll the pci bus status if they so desire.  Polling for bus status
+> on ppc64 is real easy.  Given what Jesse Barnes was saying, it sounded
+> like a simple (optional, the dev driver doesn't have to use it) poll
+> is not enough, because some errors might be transactional.
 
-And it exacerbates an on-going issue:  we are moving away from "release 
-early, release often", as this proposal just pushes the list of pending 
-stuff back even further.
+Yeah, I'm not arguing against your call, it could be useful for polling for 
+errors or for use in an error handling callback.  What I was trying to say 
+earlier (maybe I wasn't very clear) was that the idea of creating 
+transactions for certain types of I/O (even if those transactions are 
+artificial and purely in software) can be useful since it creates boundaries 
+and context, making it easier to figure out what went wrong, hopefully making 
+it easier to fix things and carry on.
 
-Developers right now are sitting on big piles, and pushing that back 
-even further means every odd release means you are creating a 
-2.4.x/2.5.x backport situation every two releases.
+IOW, using Seto-san's iochk_clear/iochk_read interface makes certain types of 
+errors much easier to deal with since you *know* where an error occurred and 
+can presumably deal with it right away.  The problem comes in for things that 
+aren't well encapsulated, like DMA, for which error polling or some sort of 
+callback is needed (and even with polling you'll need to poll in an error 
+handling thread as you mentioned since the driver may start DMA, return, and 
+the error can happen later when we're not actually in driver code).  So I 
+think we mostly agree on what things need to be done, you and benh just have 
+to fight it out over the details. :)
 
-To take a radical position on the other side, I would prefer a weekly 
-snapshot as the release, staging invasive things in -mm.
-
-And I think -mm is not enough, even.  We have to come up with new ways 
-to manage this ever-increasing flow of data into our tree.
-
-	Jeff
-
-
-
+Jesse

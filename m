@@ -1,93 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268034AbUHKL4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268032AbUHKMBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268034AbUHKL4f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 07:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUHKL4d
+	id S268032AbUHKMBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 08:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUHKMBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 07:56:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:29841 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268032AbUHKL43
+	Wed, 11 Aug 2004 08:01:36 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:19104 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S268032AbUHKMBe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 07:56:29 -0400
-Date: Wed, 11 Aug 2004 07:55:52 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Erik Mouw <erik@harddisk-recovery.com>
-cc: Paul Jackson <pj@sgi.com>, Eric Masson <cool_kid@future-ericsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fork and Exec a process within the kernel
-In-Reply-To: <20040811114100.GB10047@harddisk-recovery.nl>
-Message-ID: <Pine.LNX.4.53.0408110743020.15953@chaos>
-References: <4117E68A.4090701@future-ericsoft.com> <20040809161003.554a5de1.pj@sgi.com>
- <4118E822.3000303@future-ericsoft.com> <20040810092116.7dfe118c.pj@sgi.com>
- <Pine.LNX.4.53.0408101456260.13579@chaos> <20040811095139.GA10047@harddisk-recovery.com>
- <Pine.LNX.4.53.0408110721540.15879@chaos> <20040811114100.GB10047@harddisk-recovery.nl>
+	Wed, 11 Aug 2004 08:01:34 -0400
+Message-ID: <411A0A9C.70008@free.fr>
+Date: Wed, 11 Aug 2004 14:01:32 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Karol Kozimor <sziwan@hell.org.pl>
+Cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8-rc4-mm1 : Hard freeze due to ACPI
+References: <41189098.4000400@free.fr> <4118A500.1080306@free.fr> <1092151779.5028.40.camel@dhcppc4> <20040810154446.GB22863@hell.org.pl>
+In-Reply-To: <20040810154446.GB22863@hell.org.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Aug 2004, Erik Mouw wrote:
+Karol Kozimor wrote:
 
-> On Wed, Aug 11, 2004 at 07:24:42AM -0400, Richard B. Johnson wrote:
-> > On Wed, 11 Aug 2004, Erik Mouw wrote:
-> > > Please don't mislead newbies, Richard. /dev/console is NOT a link to
-> > > /dev/tty0, it's a completely different device:
-> > >
-> > > erik@abra2:~ >ls -l /dev/console
-> > > crw-------    1 root     tty        5,   1 Apr  7 09:13 /dev/console
-> > > erik@abra2:~ >ls -l /dev/tty0
-> > > crw-------    1 root     tty        4,   0 Feb 10  2000 /dev/tty0
-> > >
-> >
-> > Bullshit. I know how to use `file`.
-> >
-> > Script started on Wed Aug 11 07:21:39 2004
-> > # file /dev/console
-> > /dev/console: symbolic link to /dev/tty0
->
-> It might be a symlink on your machine, but that doesn't mean it's the
-> right way. For almost 7 years, /dev/console is a separate device, not a
-> symlink. Here's the relevant section from Documentation/devices.txt:
->
->   The console device, /dev/console, is the device to which system
->   messages should be sent, and on which logins should be permitted in
->   single-user mode.  Starting with Linux 2.1.71, /dev/console is managed
->   by the kernel; for previous versions it should be a symbolic link to
->   either /dev/tty0, a specific virtual console such as /dev/tty1, or to
->   a serial port primary (tty*, not cu*) device, depending on the
->   configuration of the system.
->
-> Linux-2.1.71 was released on December 4, 1997. In your signature you
-> claim to run linux-2.4.26. Please update your system.
->
->
-> Erik
+> Here's more about my problem: it seems 2.6.8-rc3-mm1 sometimes manages to
+> boot here. Even so, kacpid completely hogs the CPU. dmesg and debug output
+> is at http://hell.org.pl/~sziwan/2.6.8-rc3-mm1.report (300 kB), DSDT is at
+> http://hell.org.pl/~sziwan/l3800c.dsl. Note the odd thermal zone output
+> (did somebody mention TZ problems?). Call trace below.
+> Best regards,
 
-RedHat is NOT Linux. The MAJOR-MINOR 5.1 used in RedHat for the
-console has a very serious problem for anybody doing development
-work. If there are any kernel messages, they go to __all__ open
-terminals. This means that the only "quiet" terminals that may be
-available to kill off a runaway process are available iff you can
-log in over the network.
+I've seen this problem long before 2.6.8-rc3-mm1 on LKML (e.g. 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0406.2/0040.html) and on 
+different laptop (Dell). So may be, there is a deadlock window somephere 
+that just open ups or close depending on :
+	- Compiler,
+	- Unrelated patches,
+	- ...
 
-Most everybody I know, who does serious development work, and
-certainly those who want to control where the %*)&$#!@ kernel
-messages go, will make sure they go to the "ALT-F1" as I have
-shown. The original query was about how to make kernel messages
-go to where, i.e., what VT do they come from. I have shown
-how you can control where they go.
+I guess, hunting will be fun... I would start by the thermal problem as 
+it seems to be hit also by a few people... I whish I could have kdb 
+integrated to see what happens but on mm tree applying it is too painfull...
 
-Now, if you look at the kernel source, you will note that
-just prior to attempting to exec /sbin/init, /dev/console
-is opened. This means that you can properly use whatever
-you want if you continue to use a sym-link.
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
 
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
 

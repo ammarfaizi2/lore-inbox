@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268256AbTALHl0>; Sun, 12 Jan 2003 02:41:26 -0500
+	id <S267328AbTALH4H>; Sun, 12 Jan 2003 02:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268257AbTALHl0>; Sun, 12 Jan 2003 02:41:26 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:54028 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S268256AbTALHlZ>;
-	Sun, 12 Jan 2003 02:41:25 -0500
-Date: Sun, 12 Jan 2003 02:58:44 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: inefficient RT vs efficient non-RT
-Message-ID: <20030112075844.GA16050@mark.mielke.cc>
+	id <S268257AbTALH4H>; Sun, 12 Jan 2003 02:56:07 -0500
+Received: from h80ad2641.async.vt.edu ([128.173.38.65]:58241 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267328AbTALH4G>; Sun, 12 Jan 2003 02:56:06 -0500
+Message-Id: <200301120804.h0C84jLE011563@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Subject: Re: inefficient RT vs efficient non-RT 
+In-Reply-To: Your message of "Sun, 12 Jan 2003 02:58:44 EST."
+             <20030112075844.GA16050@mark.mielke.cc> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030112075844.GA16050@mark.mielke.cc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-500163364P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Jan 2003 03:04:44 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 11:09:13PM -0800, David Schwartz wrote:
-> 	No, I've never used vxWorks, I just understand the difference 
-> between an RTOS and a non-RTOS and how to choose the right tool for 
-> the job. If an application can run on an OS that is not an RTOS, it 
-> almost always does. RTOSes are usually used where you *must* *have* 
-> guarantees.
+--==_Exmh_-500163364P
+Content-Type: text/plain; charset=us-ascii
 
-The parts that you are not considering are:
+On Sun, 12 Jan 2003 02:58:44 EST, Mark Mielke said:
+> Think about it logically -- if I can process 5X as much data as you can on
+> the same hardware, but I can't guarantee that *at* 5X no data will be lost,
+> but then, I only run at 1X (the same speed as you), how many packets have
+> a chance of being lost?
 
-   1) Many RT applications only need a small portion of RT.
+The question is, of course, whether you're willing to bet the entire
+chemical plant on the chances of a packet being lost.
 
-   2) VxWorks adds a much more significant hit to performance that many
-      consider to be reasonable. In fact, the hit is such that given the
-      *SAME* capacity requirements, there is evidence that non-RT Linux
-      can be sufficiently faster than RT VxWorks that 99.999+% can be
-      'guaranteed' and still have time to spare.
-
-I'm talking actual experiments by actual RT application designers. The
-product in question, I believe, is a CDMA cellular telephone switch.
-
-You are talking theory from a text book. I'm talking practice from people
-who are frustrated with VxWorks on a daily basis.
-
-Don't assume that because it has 'RT' on the label, that it makes it
-beyond comparison with a non-RT operating system. Any operating system
-can be poorly written, and that includes RT systems that successfully
-guarantee system calls to require a fixed amount of time to
-complete. The fixed amount of time to complete may be fixed, but it
-may also be unreasonable high.
-
-Think about it logically -- if I can process 5X as much data as you can on
-the same hardware, but I can't guarantee that *at* 5X no data will be lost,
-but then, I only run at 1X (the same speed as you), how many packets have
-a chance of being lost?
-
-In theory, a few, perhaps more. In practice, it's really hard to say,
-and I trust experimental data from my peers over theory from
-you. Sorry. :-)
-
-When you've run your software on VxWorks, and then run your software on
-Linux, and you have numbers (experience + numbers vs theory) then I'll
-take your word over theirs.
-
-Until then, I don't plan to touch VxWorks. I much prefer encouraging
-Linux+RT to out-perform VxWorks, and be able to prove it. (For all I know,
-they may have done this already -- from what I have heard about VxWorks,
-it can't be that hard...)
-
-mark
+There's a difference between "if the core temperature hits 350
+degrees, the pump WILL go on in 13 milliseconds" and "if the core temp
+hits 350 degrees, the pump will have a 98% chance of going on sometime
+between 13 and 17.5 milliseconds..."
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
 
-                           http://mark.mielke.cc/
+--==_Exmh_-500163364P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+ISGbcC3lWbTT17ARAvkZAKDbrKuP+OQOSp2avW1spLLBorI+RQCeJL4x
+sm6WLPJxaRcqdt0+VBwlugo=
+=Y4R/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-500163364P--

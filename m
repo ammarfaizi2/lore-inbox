@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265967AbRF1Oi1>; Thu, 28 Jun 2001 10:38:27 -0400
+	id <S265975AbRF1Oo2>; Thu, 28 Jun 2001 10:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265972AbRF1OiR>; Thu, 28 Jun 2001 10:38:17 -0400
-Received: from ip116.gte31.rb1.bel.nwlink.com ([207.202.209.116]:26647 "EHLO
-	lily.altaserv.net") by vger.kernel.org with ESMTP
-	id <S265967AbRF1OiO>; Thu, 28 Jun 2001 10:38:14 -0400
-Date: Thu, 28 Jun 2001 07:37:26 -0700 (PDT)
-From: <chuckw@altaserv.net>
-X-X-Sender: <chuckw@localhost.localdomain>
-To: Aaron Lehmann <aaronl@vitelus.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        David Woodhouse <dwmw2@infradead.org>, <alan@lxorguk.ukuu.org.uk>,
-        <jffs-dev@axis.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <20010627225421.A23843@vitelus.com>
-Message-ID: <Pine.LNX.4.33.0106280732480.10308-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265979AbRF1OoS>; Thu, 28 Jun 2001 10:44:18 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:61970 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S265975AbRF1OoG>;
+	Thu, 28 Jun 2001 10:44:06 -0400
+Date: Thu, 28 Jun 2001 16:43:51 +0200
+From: sebastien person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: maybe silly question ?
+Message-Id: <20010628164351.6e4ef674.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.5.0pre1 (GTK+ 1.2.6; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I have compiled a 2.4 kernel (I was on 2.2) and it seems that everything
+went
+well. But when I tried uname -rs I found a 2.2 kernel ? Is it possible
+that the
+2.4 kernel run and that uname -rs result is wrong ? what really does uname
+-rs ,
+does it use proc system or maybe anything else ?
 
-> > Linux NET4.0 for Linux 2.4
-> > Based upon Swansea University Computer Society NET3.039
->
-> The later line is not something of interest to most people, and if it
-> happens to be they can research it rather than being force-fed history
-> on bootup.
-
-I've never met a single person who shared that opinion. In fact, quite the
-contrary. It's the main source of currency in this space. If you can't
-toot your own horn and/or share credit what's all of this open source
-stuff worth? We aren't all Mother Theresa now...
-
--Chuck
-
-
--- 
-Chuck Wolber		| steward: "Are you the pilot?"
-System Administrator	| pilot: "Yes, why?"
-AltaServ Corporation	| steward, handing box to pilot: "Then this is for you."
-(425)576-1202		| pilot, looking inside box: "Oh, it's a new altimeter."
-ten.vresatla@wkcuhc	| 	--Chris Kennedy
-
+Thanks

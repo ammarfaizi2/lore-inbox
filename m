@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267862AbTBEIcN>; Wed, 5 Feb 2003 03:32:13 -0500
+	id <S267866AbTBEIhs>; Wed, 5 Feb 2003 03:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267865AbTBEIcN>; Wed, 5 Feb 2003 03:32:13 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:45279 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267862AbTBEIcM>; Wed, 5 Feb 2003 03:32:12 -0500
-Message-Id: <200302050841.h158fjJV001962@eeyore.valparaiso.cl>
-To: Jeff Muizelaar <muizelaar@rogers.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc 2.95 vs 3.21 performance 
-In-Reply-To: Your message of "Tue, 04 Feb 2003 17:59:29 EST."
-             <3E4045D1.4010704@rogers.com> 
-Date: Wed, 05 Feb 2003 09:41:45 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S267867AbTBEIhs>; Wed, 5 Feb 2003 03:37:48 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:50439 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267866AbTBEIhr>; Wed, 5 Feb 2003 03:37:47 -0500
+Date: Wed, 5 Feb 2003 08:47:17 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@transmeta.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030205084717.A16212@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, torvalds@transmeta.com,
+	linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+References: <20030205041538.GA16823@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030205041538.GA16823@kroah.com>; from greg@kroah.com on Tue, Feb 04, 2003 at 08:15:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Massive Cc: snippage]
+On Tue, Feb 04, 2003 at 08:15:38PM -0800, Greg KH wrote:
+> Hi,
+> 
+> These changesets include some new LSM hooks, all of which have been sent
+> to lkml with no dissenting comments.  Some of these hooks are the same
+> ones I sent for 2.5.58, but were not picked up.  These include hooks for
+> syslog and sysctl, restores some previously lost hooks, and reworked the
+> hooks for the security structures for private files.
 
-Jeff Muizelaar <muizelaar@rogers.com> said:
+I still don't see the issue of each LSM module having to duplicate the list
+of sysctls beeing addressed.  Coul you please work something out for that
+before sending it for inclusion?
 
-[...]
-
-> There is also tcc (http://fabrice.bellard.free.fr/tcc/)
-> It claims to support gcc-like inline assembler, appears to be much 
-> smaller and faster than gcc. Plus it is GPL so the liscense isn't a 
-> problem either.
-> Though, I am not really sure of the quality of code generated
-
-Horrible.
-
->                                                               or of how 
-> mature it is.
-
-Nice for one-file throwaway C proggies. But then again, Perl is so much
-better at what you'd want to do most of the time...
-
-Look, people, the gcc folks have recently redone the guts of the compiler
-to make more advanced optimizations possible/easier (look at the news for
-2000-2002 at <http://gcc.gnu.org>). It still needs a lot of porting over of
-optimizations and developing new ones, plus tuning, AFAIU.
-
-The other open(ish) C compilers I know about are mere toys.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbTHZJ4R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 05:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbTHZJ4R
+	id S263562AbTHZJp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 05:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbTHZJp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 05:56:17 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:15627 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263561AbTHZJ4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 05:56:15 -0400
-Date: Tue, 26 Aug 2003 10:56:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Samphan Raruenrom <samphan@nectec.or.th>
-Cc: Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
-       Linux TLE Team <rdi1@opentle.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
-Message-ID: <20030826105613.A23356@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Samphan Raruenrom <samphan@nectec.or.th>,
-	Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
-	Linux TLE Team <rdi1@opentle.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th>
+	Tue, 26 Aug 2003 05:45:26 -0400
+Received: from holomorphy.com ([66.224.33.161]:24238 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263572AbTHZJpY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 05:45:24 -0400
+Date: Tue, 26 Aug 2003 02:46:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org
+Subject: Re: cache limit
+Message-ID: <20030826094634.GP4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Takao Indoh <indou.takao@soft.fujitsu.com>,
+	linux-kernel@vger.kernel.org
+References: <20030821234709.GD1040@matchmail.com> <AC36AB3038685indou.takao@soft.fujitsu.com> <20030825041117.GN4306@holomorphy.com> <20030825225847.GA16831@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F4B23E2.8040401@nectec.or.th>; from samphan@nectec.or.th on Tue, Aug 26, 2003 at 04:09:54PM +0700
+In-Reply-To: <20030825225847.GA16831@matchmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 04:09:54PM +0700, Samphan Raruenrom wrote:
-> The only visible feature of this new magicdev is that now
-> GNOME users can eject there CDs (the discs' icon will
-> disappear). The eject button now act as 'umount' command.
-> 
-> One new requirement from this new magicdev is the question
-> "will umount failed?". I have no preference on any way to
-> implement it. Should there be the right way to do it, I'll
-> do so. I can think of many way to implement it (including
-> adding a new lazy-lock mode to cdrom device) but since
-> I have no kernel hacking experience, I need everyone
-> advices. Novice users need this 'eject' button after all.
+On Sun, Aug 24, 2003 at 09:11:17PM -0700, William Lee Irwin III wrote:
+>> This is moderately misguided; essentially the only way userspace can
+>> utilize RAM at all is via the pagecache. It's not useful to limit this;
+>> you probably need inode-highmem or some such nonsense.
 
-This doesn't make sense at all.  Just try the unmount and
-tell the user if it failed - you can't say whether it will
-fail before trying.
+On Mon, Aug 25, 2003 at 03:58:47PM -0700, Mike Fedyk wrote:
+> Exactly.  Every program you have opened, and all of its libraries will show
+> up as pagecache memory also, so seeing a large pagecache in and of itself
+> may not be a problem.
+> Let's get past the tuning paramenter you want in /proc, and tell us more
+> about what you are doing that is causing this problem to be shown.
 
+One thing I thought of after the post was whether they actually had in
+mind tunable hard limits on _unmapped_ pagecache, which is, in fact,
+useful. OTOH that's largely speculation and we really need them to
+articulate the true nature of their problem.
+
+
+-- wli

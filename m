@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTJLW31 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 18:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTJLW31
+	id S261234AbTJLWpX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 18:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTJLWpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 18:29:27 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:2549 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S261190AbTJLW3Z convert rfc822-to-8bit
+	Sun, 12 Oct 2003 18:45:22 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:25017 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S261234AbTJLWpV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 18:29:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Richard J Moore <rasman@uk.ibm.com>
-Organization: Linux Technoilogy Centre - RAS team
-To: "David S. Miller" <davem@redhat.com>, karim@opersys.com
-Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
-Date: Sun, 12 Oct 2003 23:23:48 +0000
-User-Agent: KMail/1.4.1
-Cc: jmorris@redhat.com, zanussi@us.ibm.com, linux-kernel@vger.kernel.org,
-       bob@watson.ibm.com
-References: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com> <3F86C519.4030209@opersys.com> <20031011103429.5ebe3085.davem@redhat.com>
-In-Reply-To: <20031011103429.5ebe3085.davem@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200310122323.48885.rasman@uk.ibm.com>
+	Sun, 12 Oct 2003 18:45:21 -0400
+Date: Sun, 12 Oct 2003 15:45:19 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, Dave Jones <davej@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, marcelo.tosatti@cyclades.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] laptop mode
+Message-ID: <20031012224519.GA9043@ip68-4-255-84.oc.oc.cox.net>
+References: <200310091103.h99B31ug014566@hera.kernel.org> <3F856A7E.2010607@pobox.com> <20031009140547.GD1232@suse.de> <20031009141734.GB23545@redhat.com> <20031009142632.GI1232@suse.de> <20031011114913.GA516@elf.ucw.cz> <20031011135943.GB1107@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031011135943.GB1107@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 11 October 2003 5:34 pm, David S. Miller wrote:
-> On Fri, 10 Oct 2003 10:41:29 -0400
->
-> Karim Yaghmour <karim@opersys.com> wrote:
-> > The question isn't whether netlink can transfer hundreds of thousands of
-> > data units in one fell swoop. The question is: is it more efficient than
-> > relayfs at this?
->
-> Wrong, it's the queueing model that's important for applications
-> like this.
+On Sat, Oct 11, 2003 at 03:59:43PM +0200, Jens Axboe wrote:
+> Not very likely, imho. People have been using spin down with hdparm for
+> years (in Linux and elsewhere), while acoustic management is a bit more
+> esoteric.
 
-Why is a queuing model relvant to low-level kernel tracing, which is the prime 
-target of relayfs? In otherwords why would netlink be the infrastructure of 
-choice on which to implenment tracing, say in a GB ethernet driver?
+I'm having trouble finding this on Google now, but I've heard rumors
+over the years of old Fireball drives corrupting data if they receive
+write commands too soon after spinning up (i.e., the drive doesn't
+bother waiting to spin up fully first). Maybe I'm not remembering the
+details correctly, but it was something about the drive trying to act on
+commands before it was fully spun up and malfunctioning as a result.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Richard J Moore
-IBM Linux Technology Centre
+-Barry K. Nathan <barryn@pobox.com>

@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266972AbRGICtz>; Sun, 8 Jul 2001 22:49:55 -0400
+	id <S266988AbRGIDAe>; Sun, 8 Jul 2001 23:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266988AbRGICto>; Sun, 8 Jul 2001 22:49:44 -0400
-Received: from smarty.smart.net ([207.176.80.102]:20231 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S266972AbRGICtc>;
-	Sun, 8 Jul 2001 22:49:32 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200107090303.XAA20213@smarty.smart.net>
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-To: linux-kernel@vger.kernel.org
-Date: Sun, 8 Jul 2001 23:03:05 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266989AbRGIDAY>; Sun, 8 Jul 2001 23:00:24 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:41231 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266988AbRGIDAN>; Sun, 8 Jul 2001 23:00:13 -0400
+Date: Sun, 8 Jul 2001 19:59:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33.0107081227020.7044-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0107081949290.18364-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Victor Yodaiken <yodaiken@fsmlabs.com>
+
+On Sun, 8 Jul 2001, Linus Torvalds wrote:
 >
->I think anywhere that you have inner loop or often used operations
->that are short assembler sequences, inline asm is a win - it's easy to
->show for example, that the Linux asm x86  macro semaphore down
->is three times as fast as
->a called version. I wish, however
->that GCC did not use a horrible overly complex lisplike syntax and
->that there was a way to inline functions written in .S files.
+> Anyway, having looked at the buffer case, I htink I found a potentially
+> nasty bug: "unlock_buffer()" with a buffer count of zero.
 
-If you can loop faster in asm, and you surely can on x86/Gcc in many
-cases, that's a win, and probably quite a worthwhile one, but that's
-independant of inline in terms of "not a C call". I think that distinction
-may be prone to being overlooked. The longer your average loop, the less
-asm("") matters, i.e. the less of a proportional hit a C stack ceremony
-is. You can loop in asm and still not need asm(""), if you pay for the
-stack frame. Plan 9 has about 4 string functions that are hand-coded, but
-they are C-called, from what I can tell, and have been told.
+[ Basic problem: write-completion race with the code that does
+  "try_to_free_buffers" ]
 
-Rick Hohensee
-		www.clienux.com
+Suggested fix:
+ - every b_end_io() function should decrement the buffer count as the
+   _last_ thing it does to the buffer.
+ - every bh IO submitter would have to increment the bh count before
+   submitting it for IO.
 
+This way, I don't think try_to_free_buffers() can be confused: the only
+thing that can suddenly start using a buffer is:
+ - finding it on a buffer list (eg the BUF_DIRTY list) in order to wait on
+   it or submit it for IO.
+ - finding it on the hash list (ie "getblk()") during a bh lookup.
+
+In both cases, try_to_free_buffers() owns the spinlocks that are required
+for the list/hash lookup, so these things are nicely synchronized with
+trying to free the buffer.
+
+The only thing I can see that _wasn't_ synchronized with trying to free
+the buffer was the IO completion, and if we make it the rule that the IO
+is always handled with the buffer count elevated, and that the last thing
+the IO completion does is equivalent to
+
+	mb();	/* make sure all other bh changes are visible to other  CPU's */
+	atomic_dec(&bh->b_count);	/* potentially free the bh */
+
+then we're ok (and "unlock_buffer()" ends up acting as the "mb()", so that
+part is covered). This way, if "try_to_free_buffers()" has seen
+bh->b_count being zero (which is the only case where it will consider
+freeing the buffer), we know that we're not racing with IO completion.
+
+Do people agree with this, or see any holes in it?
+
+		Linus
 

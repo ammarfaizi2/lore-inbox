@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbTEGFkk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 01:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbTEGFkk
+	id S262873AbTEGFkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 01:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTEGFkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 01:40:40 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:33459 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262878AbTEGFkj (ORCPT
+	Wed, 7 May 2003 01:40:16 -0400
+Received: from [62.29.80.31] ([62.29.80.31]:14468 "EHLO cmpe.boun.edu.tr")
+	by vger.kernel.org with ESMTP id S262873AbTEGFkO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 01:40:39 -0400
-Date: Tue, 6 May 2003 22:53:07 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-Cc: linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.69] IA64 sn mod_timer fixes for kernel/mca.c
-Message-Id: <20030506225307.5ccb318f.akpm@digeo.com>
-In-Reply-To: <1052283842.19524.44.camel@lima.royalchallenge.com>
-References: <1052283842.19524.44.camel@lima.royalchallenge.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 May 2003 01:40:14 -0400
+From: "ismail (cartman) donmez" <voidcartman@yahoo.com>
+Organization: Bogazici University
+To: Thomas Horsten <thomas@horsten.com>, "David S. Miller" <davem@redhat.com>,
+       marcelo@conectiva.com.br
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
+Date: Wed, 7 May 2003 08:50:59 +0300
+User-Agent: KMail/1.5.9
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+References: <20030506104956.A29357@infradead.org> <20030506.060642.84373569.davem@redhat.com> <200305061640.13360.thomas@horsten.com>
+In-Reply-To: <200305061640.13360.thomas@horsten.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+   =?ISO-8859-1?Q?=20charset=3D=22=FDso-885?= =?ISO-8859-1?Q?9-9=22?=
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 May 2003 05:53:05.0659 (UTC) FILETIME=[EDDAC4B0:01C3145C]
+Message-Id: <200305070850.59912.voidcartman@yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
+On Tuesday 06 May 2003 18:40, Thomas Horsten wrote:
+> --- linux-2.4.21-rc1-orig/include/asm-i386/types.h	2002-08-03
+> 01:39:45.000000000 +0100
+> +++ linux-2.4.21-rc1-ac4/include/asm-i386/types.h	2003-05-06
+> 15:07:06.000000000 +0100
+> @@ -17,10 +17,8 @@
+>  typedef __signed__ int __s32;
+>  typedef unsigned int __u32;
 >
-> mca.c: Trivial {del,add}_timer to mod_timer conversion.
+> -#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+>  typedef __signed__ long long __s64;
+>  typedef unsigned long long __u64;
+> -#endif
 
-Please just roll all these up into one big patch.
+Imho this is bad here you define a long long variable even if userspace apps 
+use -ansi flag where Ansi standart has no support for long long variables. I 
+think this should be fixed in userspace.
+
+-- 
+Brain fried -- Core dumped 

@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130466AbQKKAWM>; Fri, 10 Nov 2000 19:22:12 -0500
+	id <S131629AbQKKAYl>; Fri, 10 Nov 2000 19:24:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131629AbQKKAVw>; Fri, 10 Nov 2000 19:21:52 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:22950 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131610AbQKKAVn>; Fri, 10 Nov 2000 19:21:43 -0500
-Message-ID: <3A0C90FD.CB645430@uow.edu.au>
-Date: Sat, 11 Nov 2000 11:21:17 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S132010AbQKKAYb>; Fri, 10 Nov 2000 19:24:31 -0500
+Received: from sf1-smtp11.hamquist.com ([199.108.89.5]:56071 "HELO
+	sf1-smtp11.hamquist.com") by vger.kernel.org with SMTP
+	id <S131629AbQKKAYT>; Fri, 10 Nov 2000 19:24:19 -0500
+X-Server-Uuid: c29e0ff2-e8b9-11d1-a493-00c04fbbd7d3
+Message-ID: <93BA6BFC5E48D4118A8200508B6BBC4924AB7A@sf1-mail01.hamquist.com>
+From: "Allen, David B" <David.B.Allen@chase.com>
+To: "'michael@pmcl.ph.utexas.edu'" <michael@pmcl.ph.utexas.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: intel etherpro100 on 2.2.18p21 vs 2.2.18p17
+Date: Fri, 10 Nov 2000 16:24:12 -0800
 MIME-Version: 1.0
-To: George Anzinger <george@mvista.com>
-CC: Keith Owens <kaos@ocs.com.au>, John Kacur <jkacur@home.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: test11-pre2 compile error undefined reference to `bust_spinlocks' 
- WHAT?!
-In-Reply-To: <23569.973832900@kao2.melbourne.sgi.com> <3A0C2D4A.83C75D4B@mvista.com>
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 16124E3A3763-01-02
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> 
-> The notion of releasing a spin lock by initializing it seems IMHO, on
-> the face of it, way off.  Firstly the protected area is no longer
-> protected which could lead to undefined errors/ crashes and secondly,
-> any future use of spinlocks to control preemption could have a lot of
-> trouble with this, principally because the locker is unknown.
-> 
-> In the case at hand, it would seem that an unlocked path to the console
-> is a more correct answer that gives the system a far better chance of
-> actually remaining viable.
-> 
+FWIW, I have a dual-proc SuperMicro motherboard P3DM3 with integrated
+Adaptec SCSI and Intel 8255x built-in NIC.
 
-Does bust_spinlocks() muck up the preemptive kernel's spinlock
-counting?  Would you prefer spin_trylock()/spin_unlock()?
-It doesn't matter - if we call bust_spinlocks() the kernel is
-known to be dead meat and there is a fsck in your near future.
+Sometimes on a cold boot I get the "kernel: eth0: card reports no RX
+buffers" that repeats, but if I follow it with a warm boot the message
+doesn't appear (even on subsequent warm boots).  So this is definitely
+reproducible, but it doesn't happen every time.
 
-We are still trying to find out why kumon@fujitsu's 8-way is
-crashing on the test10-pre5 sched.c.  Looks like it's fixed
-in test11-pre2 but we want to know _why_ it's fixed.  And at
-present each time he hits the bug, his printk() deadlocks.
+I can't offer much more than that, but at least you know you're not the only
+one experiencing this.
 
-So bust_spinlocks() is a RAS feature :)  A very important one -
-it's terrible when your one-in-a-trillion bug happens and there
-are no diagnostics.
+ -----Original Message-----
+From: 	michael@pmcl.ph.utexas.edu [mailto:michael@pmcl.ph.utexas.edu] 
+Sent:	Friday, November 10, 2000 9:00 AM
+To:	linux-kernel@vger.kernel.org
+Subject:	intel etherpro100 on 2.2.18p21 vs 2.2.18p17
 
-It's a work-in-progress.  There are a lot of things which
-can cause printk to deadlock:
+We have several Supermicro 370DL3 boards (scsi, built into epro100, dual
+pentium iii) - which are giving the following ethernet card error on
+2.2.18p21, but not on 2.2.18p17.  This error has happened on 3 out of 4
+boards with this configuration.
 
-- console_lock
-- timerlist_lock
-- global_irq_lock (console code does global_cli)
-- log_wait.lock
-- tasklist_lock (printk does wake_up) (*)
-- runqueue_lock (printk does wake_up)
+Oct 18 12:17:34 db1 kernel: eth0: card reports no RX buffers. 
+The above message repeats itself and the ethernet card does not work.
 
-I'll be proposing a better patch for this in a few days.
+On bootup:
+<SNIP>
+Oct 18 12:17:34 db1 kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro10$
+Oct 18 12:17:34 db1 kernel: eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31
+Modified by Andrey V. Savochkin <saw@saw.sw.c$
+Oct 18 12:17:34 db1 kernel: eth0: Intel PCI EtherExpress Pro100 82557,
+00:30:48:21:2F:9E, I/O at 0xd400, IRQ 31.
+Oct 18 12:17:34 db1 kernel:   Board assembly 000000-000, Physical
+connectors present: RJ45
+Oct 18 12:17:34 db1 kernel:   Primary interface chip i82555 PHY #1.
+Oct 18 12:17:34 db1 kernel:   General self-test: passed.
+Oct 18 12:17:34 db1 kernel:   Serial sub-system self-test: passed.
+Oct 18 12:17:34 db1 kernel:   Internal registers self-test: passed.
+Oct 18 12:17:34 db1 kernel:   ROM checksum self-test: passed (0x04f4518b).
+Oct 18 12:17:34 db1 kernel:   Receiver lock-up workaround activated.
+<SNIP>
+Oct 18 12:17:34 db1 kernel: eth0: card reports no RX buffers. 
 
-(*) Keith: this explains why you can't do a printk() in
-__wake_up_common: printk calls wake_up().  Duh.
+
+I believe this has been an ongoing issue for these intel nics?
+
+--Michael
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

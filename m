@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272692AbRIGOzr>; Fri, 7 Sep 2001 10:55:47 -0400
+	id <S272695AbRIGPAz>; Fri, 7 Sep 2001 11:00:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272691AbRIGOzf>; Fri, 7 Sep 2001 10:55:35 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:22808 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S272689AbRIGOzU>; Fri, 7 Sep 2001 10:55:20 -0400
-Date: Fri, 7 Sep 2001 16:56:12 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: "David S. Miller" <davem@redhat.com>
-Subject: flush_tlb_all in vmalloc_area_pages
-Message-ID: <20010907165612.T11329@athlon.random>
-Mime-Version: 1.0
+	id <S272697AbRIGPAf>; Fri, 7 Sep 2001 11:00:35 -0400
+Received: from infinity.ciit.y12.doe.gov ([134.167.144.20]:50706 "EHLO
+	infinity.ciit.y12.doe.gov") by vger.kernel.org with ESMTP
+	id <S272698AbRIGPAY>; Fri, 7 Sep 2001 11:00:24 -0400
+Message-ID: <3B98E111.B1251D12@ciit.y12.doe.gov>
+Date: Fri, 07 Sep 2001 11:00:34 -0400
+From: Lawrence MacIntyre <lpz@ciit.y12.doe.gov>
+Organization: Center for Information Infrastructure Technology
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-SGI_XFS_1.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: hamachi (GNIC-II) and 2.4.9-ac9
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-can somebody see a good reason for flushing the tlb in vmalloc? We must
-do that in vfree but doing it in vmalloc is just a waste of time, we are
-guaranteed that's an unmapped space before we start setting up the
-pagetables so such address space cannot be cached in any tlb in first
-place.
+Hi:
 
-For the flush_cache_all for the virtually indexed caches should be the
-same issue in theory (at least the kmap logic only needs to flush the
-caches before the unmapping [not before the mapping] too)
-
-Am I missing something, Dave?
-
---- 2.4.10pre4aa1/mm/vmalloc.c.~1~	Sat May 26 04:03:50 2001
-+++ 2.4.10pre4aa1/mm/vmalloc.c	Fri Sep  7 16:53:41 2001
-@@ -144,7 +144,6 @@
- 	int ret;
- 
- 	dir = pgd_offset_k(address);
--	flush_cache_all();
- 	spin_lock(&init_mm.page_table_lock);
- 	do {
- 		pmd_t *pmd;
-@@ -164,7 +163,6 @@
- 		ret = 0;
- 	} while (address && (address < end));
- 	spin_unlock(&init_mm.page_table_lock);
--	flush_tlb_all();
- 	return ret;
- }
- 
-Andrea
+I have two machines with the Packet Engines Gigabit Ethernet NIC GNIC-II
+(hamachi) running RH7.1.  One is an alpha, the other is a dual-cpu
+coppermine P-III on a SuperMicro P3DME motherboard.  I was getting 325
+Mb/s between them with the stock RH kernel, and I decided to upgrade to
+the 2.4.9 tree.  It won't compile on the alpha, (keyboard stuff, fixed
+in -ac1), so I got the ac9 patches, and built the kernel.  It's fine,
+except that the hamachi won't work.  ifconfig shows no packets received,
+but some errors, there are no strange messages in /var/log/messages.  I
+then built the same kernel on the intel box, and the same thing
+happened.  No working hamachi.
+-- 
+                                 Lawrence
+                                    ~
+------------------------------------------------------------------------
+ Lawrence MacIntyre    Center for Information Infrastructure Technology
+ 865.574.8696   lpz@ciit.y12.doe.gov   http://www.ciit.y12.doe.gov/~lpz

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131348AbRCNNVA>; Wed, 14 Mar 2001 08:21:00 -0500
+	id <S131347AbRCNNTj>; Wed, 14 Mar 2001 08:19:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131351AbRCNNUu>; Wed, 14 Mar 2001 08:20:50 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:23045 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131348AbRCNNUf>;
-	Wed, 14 Mar 2001 08:20:35 -0500
-Date: Wed, 14 Mar 2001 14:19:44 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
-        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: static scheduling - SCHED_IDLE?
-Message-ID: <20010314141944.A27572@pcep-jamie.cern.ch>
-In-Reply-To: <20010309210913.F13320@pcep-jamie.cern.ch> <Pine.LNX.4.33.0103100154310.2283-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0103100154310.2283-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Sat, Mar 10, 2001 at 01:56:41AM -0300
+	id <S131348AbRCNNT3>; Wed, 14 Mar 2001 08:19:29 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:26051 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S131347AbRCNNTM>; Wed, 14 Mar 2001 08:19:12 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Brad Douglas <brad@neruo.com>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
+Date: Wed, 14 Mar 2001 14:17:56 +0100
+Message-Id: <20010314131756.18036@mailhost.mipsys.com>
+In-Reply-To: <E14d6Ee-00009a-00@usw-sf-list1.sourceforge.net>
+In-Reply-To: <E14d6Ee-00009a-00@usw-sf-list1.sourceforge.net>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> > reschedule:
-> > 	orl $PF_HONOUR_LOW_PRIORITY,flags(%ebx)
-> > 	call SYMBOL_NAME(schedule)    # test
-> > 	andl $~PF_HONOUR_LOW_PRIORITY,flags(%ebx)
-> > 	jmp ret_from_sys_call
-> 
-> Wonderful !
-> 
-> I think we'll want to use this, since we can use it for:
-> 
-> 1. SCHED_IDLE
-> 2. load control, when the VM starts thrashing we can just
->    suspend a few processes to make sure the system as a
->    whole won't thrash to death
+>I think registering fbcon as a PM client and doing the above when the
+>fbdev suspend/resume hooks are called should work.  A memory backup is
+>worked on until the resume is run and the backup is restored to the
+>display.
+>
+>So the fbdev drivers would register PM with fbcon, not PCI, correct?
 
-Surely it would be easier, and more appropriate, to make the processes
-sleep when they next page fault.
+Either that, or the fbdev would register with PCI (or whatever), _and_
+fbcon would too independently. In that scenario, fbcon would only handle
+things like disabling the cursor timer, while fbdev's would handle HW
+issues. THe only problem is for fbcon to know that a given fbdev is
+asleep, this could be an exported per-fbdev flag, an error code, or
+whatever. In this case, fbcon can either buffer text input, or fallback
+to the cfb working on the backed up fb image (that last thing can be
+handled entirely within the fbdev I guess).
 
--- Jamie
+Ben.
+
+
+

@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317114AbSF1TE2>; Fri, 28 Jun 2002 15:04:28 -0400
+	id <S317142AbSF1TKk>; Fri, 28 Jun 2002 15:10:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317142AbSF1TE0>; Fri, 28 Jun 2002 15:04:26 -0400
-Received: from mailhost.cs.clemson.edu ([130.127.48.6]:53651 "EHLO
-	cs.clemson.edu") by vger.kernel.org with ESMTP id <S317114AbSF1TEY>;
-	Fri, 28 Jun 2002 15:04:24 -0400
-Date: Fri, 28 Jun 2002 15:06:42 -0400 (EDT)
-From: Bendi Vinaya Kumar <vbendi@cs.clemson.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Skbuff Trimming
-In-Reply-To: <p73k7okm7d1.fsf@oldwotan.suse.de>
-Message-ID: <Pine.GSO.4.44.0206281432170.8345-100000@noisy.cs.clemson.edu>
+	id <S317144AbSF1TKj>; Fri, 28 Jun 2002 15:10:39 -0400
+Received: from [212.44.140.49] ([212.44.140.49]:4224 "HELO mops.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S317142AbSF1TKi>;
+	Fri, 28 Jun 2002 15:10:38 -0400
+Message-Id: <200206281821.WAA00420@mops.inr.ac.ru>
+Subject: Re: Fragment flooding in 2.4.x/2.5.x
+To: trond.myklebust@fys.uio.no (Trond Myklebust)
+Date: Fri, 28 Jun 2002 22:21:10 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200206281238.40242.trond.myklebust@fys.uio.no> from "Trond Myklebust" at Jun 28, 2 12:38:39 pm
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On 28 Jun 2002, Andi Kleen wrote:
+> suddenly jump to ~4.5MB/s (peak was 5MB/s).
 
-> Bendi Vinaya Kumar <vbendi@cs.clemson.edu> writes:
->
-> > But, it does not do the same on
-> > "frag_list". Why?
->
-> frag_list is not a general purpose skbuff facility and is not used by
-> most protocols and not directly supported by most of skbuff.c It is just
-> supported by some specific paths to enable lazy defragmenting. It is not
-> an attempt to turn skbuffs into mbufs.
->
-> -Andi
+Hmm.. it is funny that you were satisfied with previous value
+and it is funny that it still does not saturate link.
 
-I agree with you. I couldn't find a
-case when it (frag_list) is used.
 
-Function
+> however I hope you agree that it shows that fixing this bug *is* worth the 
+> effort.
 
-ip_rcv
-(http://lxr.linux.no/source/net/ipv4/ip_input.c#L383)
+Of course. If you noticed this year or two or three ago, it would be even
+an urgent problem. But until now it was problem with status of "well-known
+bogosity which requires some sane solution but can wait for some good idea
+for infinite time because of absence of any real applications sensing it" :-)
 
-uses two functions, namely,
-
-1) pskb_may_pull, which might
-   result in a call to __pskb_pull_tail
-
-and 2) __pskb_trim, which might
-       result in a call to ___pskb_trim.
-
-Function __pskb_pull_tail
-operates on data in both frags
-array and frag_list. As mentioned
-earlier, ___pskb_trim doesn't operate
-on frag_list. Since these two functions
-are called from ip_rcv, they must be
-operating on the same sk buff. One function
-handles frag_list, the other doesn't.
-
-Isn't there an inconsistency in treatment here,
-even though frag_list is not commonly used
-in practice?
-
-Thank you.
-
-Regards,
-Vinaya Kumar Bendi
-P.S.: Kindly CC any answers/comments
-      to vbendi@cs.clemson.edu.
-
+Alexey

@@ -1,85 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267016AbUBFAqF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 19:46:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267045AbUBFAqE
+	id S267107AbUBFAdO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 19:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267105AbUBFAcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 19:46:04 -0500
-Received: from lgsx14.lg.ehu.es ([158.227.2.29]:60669 "EHLO lgsx14.lg.ehu.es")
-	by vger.kernel.org with ESMTP id S267016AbUBFAqA (ORCPT
+	Thu, 5 Feb 2004 19:32:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5064 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267045AbUBFAck (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 19:46:00 -0500
-Message-ID: <4022E3C8.4020704@wanadoo.es>
-Date: Fri, 06 Feb 2004 01:46:00 +0100
-From: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-CC: Craig Bradney <cbradney@zip.com.au>, Andrew Morton <akpm@osdl.org>,
-       david+challenge-response@blue-labs.org,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       a.verweij@student.tudelft.nl
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org> <1076026496.16107.23.camel@athlonxp.bradney.info> <4022DE3C.1080905@wanadoo.es> <4022E209.3040909@gmx.de>
-In-Reply-To: <4022E209.3040909@gmx.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 5 Feb 2004 19:32:40 -0500
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat" DIO read race still fails
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <20040205160755.25583627.akpm@osdl.org>
+References: <20040205014405.5a2cf529.akpm@osdl.org>
+	 <1076023899.7182.97.camel@ibm-c.pdx.osdl.net>
+	 <20040205160755.25583627.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1076027555.7182.122.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Feb 2004 16:32:35 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
+On Thu, 2004-02-05 at 16:07, Andrew Morton wrote:
+> Daniel McNeil <daniel@osdl.org> wrote:
+> >
+> > Andrew,
+> > 
+> > I tested 2.6.2-mm1 on an 8-proc running 6 copies of the read_under
+> > test and all 6 read_under tests saw uninitialized data in less than 5
+> > minutes. :(
+> 
+> The performance implications of synchronising behind kjournald writes for
+> normal non-blocking writeback are bad.  Can you detail what you now think
+> is the failure mechanism?
+> 
 
-> Luis Miguel García wrote:
->
->> Craig Bradney wrote:
->>
->>>
->>>
->>>
->>> One day hopefully this will be sorted in the BIOSes and in mainline. I
->>> keep having to patch for every release (although as thats the only 
->>> patch
->>> I have to do I'm sure there are many worse off than me). I use the 3com
->>> n/w on my A7N8X Deluxe v2 BIOS 1007 so no need for nforcedeth.
->>>
->>> Best patches are at:
->>> http://lkml.org/lkml/2003/12/21/7
->>>
->>> Ive applied them to 2.6.0 and 2.6.1 and give no crashes and no heat
->>> issues.
->>
->
-> Unfortunately that patch doesn't work for me. Still locks if I try 
-> APIC +CPU DIsc.
->
->>>
->>> (XP2600+ runs at 31/32C normal use and 38C compiling with Zalman cooler
->>> +exhaust fans in box)
->>>
->>> Craig
->>>  
->>>
->> you mean 31 - 38 C readed from /proc/acpi/temp[........]????
->>
->> I'm having readings of 53 in idle and even 64 while compiling!! I 
->> have no case fan, but I don't think it's so important for this bug 
->> difference.
->
->
-> The problem is, you cannot trust those infos esp not across board 
-> manufacturers. In case of Abit nearly every bios shows different 
-> values...
->
-> I have an Athon XP running at 2.1Gz with 1.65vcore. Idle: 50°C (with 
-> CPU Disc usually about 44-40°C) and under load about 54°C. I am usign 
-> a more or less self-made watercooling.
->
->
-> Prakash
->
+I think the problem is that any block_write_full_page(WB_SYNC_NONE)
+that hits a page that has a buffer in process of being written will
+get PageWriteback cleared even though the i/o has not completed.
+(The buffer will be locked, but buffer_dirty() is cleared, so
+ __block_write_full_page() will SetPageWriteback(); unlock_page();
+ see no buffer were submitted and call end_page_writeback())
 
-There is a way to "activate" cpu Disconnect? or it gets enabled by 
-simply applying it?
+Any subsequent filemap_write_and_wait() or filemap_fdatawrite() /
+filemap_fdatawait will never wait for that i/o.  So this could
+potentially be a problem for more than just DIO.
 
-Yes, I have a Abit motherboards, perhaps it's the problem with the bios.
+BTW: 2.4 __block_write_full_page() always did a lock_buffer(), so
+it waits for i/o in flight.
+
+I agree though, it would be best if non-sync __block_write_full_page()
+would not block on buffers in flight.  Somehow we need to move the
+clearing of PageWriteback() until after the buffer has been written
+even for the case where ll_rw_block() is called.
+
+Thoughts?
+
+Daniel
+
+

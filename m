@@ -1,105 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269249AbUINKYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUINKv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269249AbUINKYM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 06:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269256AbUINKYM
+	id S269090AbUINKv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 06:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269254AbUINKv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 06:24:12 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26073 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269249AbUINKYA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 06:24:00 -0400
-Date: Tue, 14 Sep 2004 12:25:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: [patch] sched, net: fix scheduling latencies in netstat
-Message-ID: <20040914102517.GE24622@elte.hu>
-References: <20040914091529.GA21553@elte.hu> <20040914093855.GA23258@elte.hu> <20040914095110.GA24094@elte.hu> <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q8BnQc91gJZX4vDc"
+	Tue, 14 Sep 2004 06:51:59 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:14786 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S269090AbUINKv5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 06:51:57 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5, ehci stuff gone
+Date: Tue, 14 Sep 2004 06:51:55 -0400
+User-Agent: KMail/1.7
+Cc: Greg KH <greg@kroah.com>
+References: <200409132307.19242.gene.heskett@verizon.net> <200409140105.32221.gene.heskett@verizon.net> <20040914053140.GA18591@kroah.com>
+In-Reply-To: <20040914053140.GA18591@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040914101904.GD24622@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200409140651.55520.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.51.156] at Tue, 14 Sep 2004 05:51:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 14 September 2004 01:31, Greg KH wrote:
+>On Tue, Sep 14, 2004 at 01:05:32AM -0400, Gene Heskett wrote:
+>> On Monday 13 September 2004 23:56, Greg KH wrote:
+>> >On Mon, Sep 13, 2004 at 11:07:19PM -0400, Gene Heskett wrote:
+>> >> Greetings;
+>> >>
+>> >> I've rebooted to 2.6.9-rc1-mm5, and found that my 2 printers,
+>> >> usb-2.0 capable are not found.  Reverting to -mm4 brings them
+>> >> back among the living.
+[...]
+>> >Anyway, try the following patch from David Brownell, it fixed the
+>> > ohci issues that I had in my laptop, and will show up in the
+>> > next -mm patch.
 
---Q8BnQc91gJZX4vDc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[...]
 
+And it worked just fine Greg, thanks.
 
-the attached patch fixes long scheduling latencies caused by access to
-the /proc/net/tcp file. The seqfile functions keep softirqs disabled for
-a very long time (i've seen reports of 20+ msecs, if there are enough
-sockets in the system). With the attached patch it's below 100 usecs.
-
-the cond_resched_softirq() relies on the implicit knowledge that this
-code executes in process context and runs with softirqs disabled.
-
-potentially enabling softirqs means that the socket list might change
-between buckets - but this is not an issue since seqfiles have a 4K
-iteration granularity anyway and /proc/net/tcp is often (much) larger
-than that.
-
-This patch has been in the -VP patchset for weeks.
-
-	Ingo
-
---Q8BnQc91gJZX4vDc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fix-latency-netstat.patch"
-
-
-the attached patch fixes long scheduling latencies caused by access to
-the /proc/net/tcp file. The seqfile functions keep softirqs disabled for
-a very long time (i've seen reports of 20+ msecs, if there are enough
-sockets in the system). With the attached patch it's below 100 usecs.
-
-the cond_resched_softirq() relies on the implicit knowledge that this
-code executes in process context and runs with softirqs disabled.
-
-potentially enabling softirqs means that the socket list might change
-between buckets - but this is not an issue since seqfiles have a 4K
-iteration granularity anyway and /proc/net/tcp is often (much) larger
-than that.
-
-This patch has been in the -VP patchset for weeks.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/net/ipv4/tcp_ipv4.c.orig	
-+++ linux/net/ipv4/tcp_ipv4.c	
-@@ -2227,7 +2227,10 @@ static void *established_get_first(struc
- 		struct sock *sk;
- 		struct hlist_node *node;
- 		struct tcp_tw_bucket *tw;
--	       
-+
-+		/* We can reschedule _before_ having picked the target: */
-+		cond_resched_softirq();
-+
- 		read_lock(&tcp_ehash[st->bucket].lock);
- 		sk_for_each(sk, node, &tcp_ehash[st->bucket].chain) {
- 			if (sk->sk_family != st->family) {
-@@ -2274,6 +2277,10 @@ get_tw:
- 		}
- 		read_unlock(&tcp_ehash[st->bucket].lock);
- 		st->state = TCP_SEQ_STATE_ESTABLISHED;
-+
-+		/* We can reschedule between buckets: */
-+		cond_resched_softirq();
-+
- 		if (++st->bucket < tcp_ehash_size) {
- 			read_lock(&tcp_ehash[st->bucket].lock);
- 			sk = sk_head(&tcp_ehash[st->bucket].chain);
-
---Q8BnQc91gJZX4vDc--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,322 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268336AbRGWTw4>; Mon, 23 Jul 2001 15:52:56 -0400
+	id <S267660AbRGWUH5>; Mon, 23 Jul 2001 16:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268333AbRGWTws>; Mon, 23 Jul 2001 15:52:48 -0400
-Received: from moline.gci.com ([205.140.80.106]:56849 "EHLO moline.gci.com")
-	by vger.kernel.org with ESMTP id <S268336AbRGWTwc>;
-	Mon, 23 Jul 2001 15:52:32 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA315053E11C3@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
+	id <S266606AbRGWUHr>; Mon, 23 Jul 2001 16:07:47 -0400
+Received: from krs-dhcp336.studby.uio.no ([129.240.107.113]:42679 "EHLO
+	ilm.nlc.no") by vger.kernel.org with ESMTP id <S267660AbRGWUHe>;
+	Mon, 23 Jul 2001 16:07:34 -0400
+Date: Mon, 23 Jul 2001 22:07:57 +0200
 To: linux-kernel@vger.kernel.org
-Subject: PAS16/ NCR5380 bug in 2.4.7
-Date: Mon, 23 Jul 2001 11:52:29 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: 3-order allocation failed
+Message-ID: <20010723220757.B22625@ilm.nlc.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.18i
+From: =?iso-8859-1?Q?Dagfinn_Ilmari_Manns=E5ker?= <ilmari@ilm.nlc.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-When accessing the cdrom, the system hangs completely.
+My computer is serving stuff via Apache over an ssh tunnel. Since
+2.4.5-ac-something (I thint it was -ac5, not quite sure), I've been getting
+lots of these messages in the kernel log (up to 1200/min, less with later
+kernels, it seems):
 
-SAK still works and allows me to reboot, but sync and umount do not
-appear to work during this hang.  No other user programs appear
-to be functioning, however network activity (this machine is a
-firewall/router) passes through and is NAT translated correctly.
+Jul 23 21:06:01 ilm kernel: __alloc_pages: 3-order allocation failed.
 
-It looks as if this driver is no longer actively maintained by
-John Weidman as there is no contact information for him in the
-header, or in the MAINTAINERS file.
+This only occurs when there has been considerable traffic (over 200kB/s) for
+some time, and only when it's Apache over SSH. I can push >800kB/s for hours
+with samba without getting these messages. I haven't tried apache without SSH,
+but I'll try that tomoroow.
+The data is being served from a 36GB ReiserFS sw-raid0 array on 2 UltraWide
+SCSI drives on a Tekram 390F controller.
 
+I'm currently using a RealTek 8139 NIC (8139too driver); but it also occured
+with a RealTek 8029 (ne2k-pci).
 
-Kernel is 2.4.7, i686-300 128Mb ram
-**********************
+When this occurs, transfers stall after a few hundred kilobytes (but directory
+indices and small documents work just fine), and X programs are unable to
+connect to the X server. As soon as I stop the transfers, everything is OK.
 
-[root@gw /root]# modprobe pas16
-scsi0 : at 0x0388 irq 12 options CAN_QUEUE=32  CMD_PER_LUN=2 release=3
-generic options AUTOPROBE_IRQ AUTOSENSE PSEUDO DMA UNSAFE  generic release=7
-  Vendor: NEC       Model: CD-ROM DRIVE:501  Rev: 2.2
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 4, lun 0
-sr0: scsi-1 drive
-[root@gw /root]#
-[root@gw /root]# eject cdrom
-scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 4, lun
-0 Start/Stop Unit 00 00 00 02 00
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Start/Stop Unit 00 00 00 02 00
-NCR5380 : coroutine isn't running.
-STATUS_REG: 07 ,PARITY,IO,SEL
-BASR: 10
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
+Some system information:
+Linux version 2.4.7 (ilmari@ilm.nlc.no) (gcc version 2.95.4 20010703
+(Debian prerelease)) #2 Sat Jul 21 19:03:00 CEST 2001
 
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine isn't running.
-scsi0: no currently connected command
-scsi0: issue_queue
-scsi0: disconnected_queue
-scsi0 : destination target 4, lun 0
-        command = 27 (0x1b)00 00 00 02 00
+Relevant devices:
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 15
+        Region 0: I/O ports at e400 [size=32]
 
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Start/Stop Unit 00 00 00 02 00
-NCR5380 : coroutine isn't running.
-STATUS_REG: 07 ,PARITY,IO,SEL
-BASR: 10
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
+00:0d.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 26)
+        Subsystem: Tekram Technology Co.,Ltd. DC390F Ultra Wide SCSI Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (4250ns min, 16000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at e800 [size=256]
+        Region 1: Memory at db004000 (32-bit, non-prefetchable) [size=256]
+        Region 2: Memory at db005000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [40] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine isn't running.
-scsi0: no currently connected command
-scsi0: issue_queue
-scsi0: disconnected_queue
-scsi0 : destination target 4, lun 0
-        command = 27 (0x1b)00 00 00 02 00
+00:11.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+        Subsystem: Kingston Technologies EtheRx
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 15
+        Region 0: I/O ports at ec00 [size=256]
+        Region 1: Memory at db006000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
+Related packages:
+ii  gcc       2.95.4-4  The GNU C compiler.
+ii  libc6     2.2.3-7   GNU C Library: Shared libraries and Timezone data
+ii  apache    1.3.20-1  Versatile, high-performance HTTP server
+ii  ssh       2.9p2-4   Secure rlogin/rsh/rcp replacement (OpenSSH)
+ii  samba     2.2.1a-1  A LanManager like file and printer server for Unix.
 
-scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 4, lun
-0 Prevent/Allow Medium Removal 00 00 00 00 00
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: disconnected_queue
-
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: disconnected_queue
-
-scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 4, lun
-0 Prevent/Allow Medium Removal 00 00 00 00 00
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0: disconnected_queue
-
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0: disconnected_queue
-
-***********
-The cdrom would eject itself, but the driver never returned control
-to the 'eject' application, and hung in the above state.
-At this point, i shut down, double-checked termination, and forced
-it by adding a hard active terminator on the scsi bus after the
-cdrom (only device on the bus) instead of relying on the CDROM's
-built-in terminators
-***********
-
-[root@gw /root]# modprobe pas16
-scsi0 : at 0x0388e irq 12 options CAN_QUEUE=32  CMD_PER_LUN=2 release=3
-generic options AUTOPROBE_IRQ AUTOSENSE PSEUDO DMA UNSAFE generic release=7
-  Vendor: NEC       Model: CD-ROM DRIVE:501  Rev: 2.2
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 4, lun 0
-sr0: scsi-1 drive
-[root@gw /root]# eject cdrom
-
-INIT: Switching to runscsi : aborting command due to timeout : pid 0, scsi0,
-channel 0, id 4, lun 0 Start/Stop Unit 00 00 00 02 00
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Start/Stop Unit 00 00 00 02 00
-NCR5380 : coroutine isn't running.
-STATUS_REG: 07 ,PARITY,IO,SEL
-BASR: 10
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine isn't running.
-scsi0: no currently connected command
-scsi0: issue_queue
-scsi0: disconnected_queue
-scsi0 : destination target 4, lun 0
-        command = 27 (0x1b)00 00 00 02 00
-
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Start/Stop Unit 00 00 00 02 00
-NCR5380 : coroutine isn't running.
-STATUS_REG: 07 ,PARITY,IO,SEL
-BASR: 10
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine isn't running.
-scsi0: no currently connected command
-scsi0: issue_queue
-scsi0: disconnected_queue
-scsi0 : destination target 4, lun 0
-        command = 27 (0x1b)00 00 00 02 00
-
-level: 6
-INIT: scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id
-4, lun 0 Prevent/Allow Medium Removal 00 00 00 00 00
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: disconnected_queue
-
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: disconnected_queue
-
-scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 4, lun
-0 Prevent/Allow Medium Removal 00 00 00 00 00
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0: disconnected_queue
-
-scsi0 : aborting command
-scsi0 : destination target 4, lun 0
-        command = Prevent/Allow Medium Removal 00 00 00 00 00
-NCR5380 : coroutine is running.
-STATUS_REG: 4d ,PARITY,BSY,CD,IO
-BASR: 08
-ICR: 00
-MODE: 00
-scsi0 : REQ not asserted, phase unknown.
-
-NCR5380 core release=7.   PAS16 release=3
-Base Addr: 0x00000    io_port: 0388      IRQ: 12.
-Highwater I/O busy_spin_counts -- write: 0  read: 0
-NCR5380 : coroutine is running.
-scsi0 : destination target 4, lun 0
-        command = 30 (0x1e)00 00 00 00 00
-scsi0: issue_queue
-scsi0: disconnected_queue
-
-***********
-at this point the system is again unresponse, and requires hard-reset
-as before, the cdrom has ejected from the drive, but there has been
-no return from the actual command.
+-- 
+Dagfinn I. Mannsåker
+GPG Public Key ID: 0x51ECFAC6
+Fingerprint:  48BB A64D CE9B 9A06 65DF  395C D42E CDC4 51EC FAC6
 

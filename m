@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286189AbRLJIMG>; Mon, 10 Dec 2001 03:12:06 -0500
+	id <S286190AbRLJIOR>; Mon, 10 Dec 2001 03:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286190AbRLJILz>; Mon, 10 Dec 2001 03:11:55 -0500
-Received: from mail.2d3d.co.za ([196.14.185.200]:35296 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S286189AbRLJILw>;
-	Mon, 10 Dec 2001 03:11:52 -0500
-Date: Mon, 10 Dec 2001 10:14:52 +0200
-From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: 2.4.16 & OOM killer screw up
-Message-ID: <20011210101452.F1502@crystal.2d3d.co.za>
-Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
+	id <S286191AbRLJIN4>; Mon, 10 Dec 2001 03:13:56 -0500
+Received: from zero.tech9.net ([209.61.188.187]:43782 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S286190AbRLJINs>;
+	Mon, 10 Dec 2001 03:13:48 -0500
+Subject: Re: "Colo[u]rs"
+From: Robert Love <rml@tech9.net>
+To: Stevie O <stevie@qrpff.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011210024959.01c81c20@whisper.qrpff.net>
+In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
+	<5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net> 
+	<5.1.0.14.2.20011210024959.01c81c20@whisper.qrpff.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 10 Dec 2001 03:13:55 -0500
+Message-Id: <1007972036.1237.36.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w3uUfsyyY1Pqa/ej"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: 2d3D, Inc.
-X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
-X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
-X-Uptime: 9:38am  up 19 min,  2 users,  load average: 0.09, 0.04, 0.04
-X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-12-10 at 03:00, Stevie O wrote:
 
---w3uUfsyyY1Pqa/ej
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> For the n-way associative deal:
 
-Hi!
+If the cache is n-way associative, it can store n lines at each
+mapping.  So even though two virtual addresses map to the same cache
+line, they can both be stored.  Of course, if you have k addresses such
+that k>n, then you reach the same problem as direct map (the case where
+n=1) caches.
 
-If I leave my machine on for a day or two without doing anything on it (e.g.
-my machine at work over a weekend) and I come back then 1) all my memory is
-used for buffers/caches and when I try running application, the OOM killer
-kicks in, tries to allocate swap space (which I don't have) and kills
-whatever I try start (that's with 300M+ memory in buffers/caches).
+To reiterate, the point of coloring would be to prevent the case of
+multiple addresses mapping to the same line.  Let me give you a
+real-life example.  We recently have been trying to color the kernel
+stack.  If every process's stack lies at the same address (let alone the
+same page multiple and offset), then they all map to the same place in
+the cache and we can effectively only cache one of them (and
+subsequently cache miss on every other access).  If we "color" the
+location of the stack, we make sure they don't all map to the same
+place.  This obviously involves some knowledge of the cache system, but
+it tends to be general enough that we can get it right for all cases.
 
---=20
+If you are _really_ interested in this, an excellent and very thorough
+book is UNIX Systems for Modern Architectures: Symmetric Multiprocessing
+and Caching for Kernel Programmers, by Curt Schimmel.
 
-Regards
- Abraham
+	Robert Love
 
-Man must shape his tools lest they shape him.
-		-- Arthur R. Miller
-
-__________________________________________________________
- Abraham vd Merwe - 2d3D, Inc.
-
- Device Driver Development, Outsourcing, Embedded Systems
-
-  Cell: +27 82 565 4451         Snailmail:
-   Tel: +27 21 761 7549            Block C, Antree Park
-   Fax: +27 21 761 7648            Doncaster Road
- Email: abraham@2d3d.co.za         Kenilworth, 7700
-  Http: http://www.2d3d.com        South Africa
-
-
---w3uUfsyyY1Pqa/ej
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8FG78zNXhP0RCUqMRAkWRAJ43AZ2W12WqbUchwKZy2AA9JruepQCeMYmJ
-Zt7bAn209o9EwZfXBNxwdN8=
-=V4Eo
------END PGP SIGNATURE-----
-
---w3uUfsyyY1Pqa/ej--

@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268959AbUH3UMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268904AbUH3UPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268959AbUH3UMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268954AbUH3UMN
+	id S268904AbUH3UPk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268914AbUH3UPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 16:12:13 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:18436 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S268965AbUH3ULR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 16:11:17 -0400
-Message-Id: <6.1.2.0.2.20040830215949.0213c298@inet.uni2.dk>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
-Date: Mon, 30 Aug 2004 22:11:04 +0200
-To: Brian Litzinger <brian@worldcontrol.com>, Greg KH <greg@kroah.com>
-From: Kenneth Lavrsen <kenneth@lavrsen.dk>
-Subject: Re: Summarizing the PWC driver questions/answers
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20040830173157.GA24392@top.worldcontrol.com>
-References: <20040827162613.GB32244@kroah.com>
- <20040830173157.GA24392@top.worldcontrol.com>
+	Mon, 30 Aug 2004 16:15:40 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8955 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268904AbUH3UP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 16:15:27 -0400
+Date: Mon, 30 Aug 2004 22:15:19 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jens Axboe <axboe@suse.de>, Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: What policy for BUG_ON()?
+Message-ID: <20040830201519.GH12134@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19:31 2004-08-30, Brian Litzinger wrote:
->I do not believe he "had no choice".  The guards at Auswitchs made the
->same argument at Nuremberg.  The tribunal determined they did have a
->choice.  I doubt we can consider the conditions here more extreme
->then there.
+Let me try to summarize the different options regarding BUG_ON, 
+concerning whether the argument to BUG_ON might contain side effects, 
+and whether it should be allowed in some "do this only if you _really_ 
+know what you are doing" situations to let BUG_ON do nothing.
 
-I would like to put a great deal of distance between myself and the 
-oppinions I and others have expressed concerning a little driver for a 
-camera - and the unacceptable analogy expressed above.
+Options:
+1. BUG_ON must not be defined to do nothing
+1a. side effects are allowed in the argument of BUG_ON
+1b. side effects are not allowed in the argument of BUG_ON
+2. BUG_ON is allowed to be defined to do nothing
+2a. side effects are allowed in the argument of BUG_ON
+2b. side effects are not allowed in the argument of BUG_ON
 
-Brian! - comparing Nazies that exterminated millions of people in gas 
-chambers with a guy that annoys some people that happens to own a webcamera 
-is disgusting.
+It would be good if there was a decision which of the four choices 
+should become documented policy.
 
-I do not want anyone to think that I  - in any way - am associated with the 
-above repulsive statement.
 
-Kenneth
+<--  snip  -->
 
+My personal opinions:
+
+IMHO, 1b doesn't make much sense, since in the case of 1. side effects 
+are never a problem.
+
+IMHO, 2b is bad since it might cause nasty heisenbugs if BUG_ON does  
+nothing, and preserving the side effects is easy.
+
+<--  snip  -->
+
+
+cu
+Adrian
 
 -- 
-Kenneth Lavrsen,
-Glostrup, Denmark
-kenneth@lavrsen.dk
-Home Page - http://www.lavrsen.dk 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbTE0UeC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264157AbTE0Uce
+	id S264178AbTE0UeB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTE0Ucm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:32:34 -0400
-Received: from static213-229-38-018.adsl.inode.at ([213.229.38.18]:40321 "HELO
-	home.winischhofer.net") by vger.kernel.org with SMTP
-	id S264126AbTE0Uap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:30:45 -0400
-Message-ID: <3ED3CE5E.90709@winischhofer.net>
-Date: Tue, 27 May 2003 22:45:18 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x
-References: <3ED21CE3.9060400@winischhofer.net>  <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>  <3ED32BA4.4040707@winischhofer.net>  <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com> <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55.0305271050150.2340@bigblue.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 16:32:42 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34459
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264146AbTE0UcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 16:32:08 -0400
+Date: Tue, 27 May 2003 22:45:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527204519.GQ3767@dualathlon.random>
+References: <3ED2DE86.2070406@storadinc.com> <200305272032.03645.m.c.p@wolk-project.de> <20030527201028.GJ3767@dualathlon.random> <200305272224.22567.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305272224.22567.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> On Tue, 27 May 2003, Alan Cox wrote:
+On Tue, May 27, 2003 at 10:24:22PM +0200, Marc-Christian Petersen wrote:
+> I try to backport BIO and then AS for quite over 2 weeks now, but it seems, at 
+> least for me, that it's an impossible mission ;(
+
+bio breaks all drivers, not a good idea to backport ;)
+
+note that the anticipatory scheduler generates very bad results with the
+winmark. it certainly has merits but it has large downsides too.
+
+I would be also curious if you could compare anticipatory with CFQ. The
+CFQ was designed to provide the highest possible degree of fariness.
+
+> > I'll try to find what's the precise reason of the interactivity drop
+> cool. Thanks.
 > 
+> > with the 2.4.18->2.4.19 blkdev changes on Thu. I think I shortly looked
+> > into it once but there was no definitive answer, or anyways going back
+> > to the 2.4.18 code didn't appeal or make much sense.
+> Yeah, that's not an option. The throughput has been increased in 2.4.19 
+> compared to 2.4.18.
+
+agreed.
+
 > 
->>I'm keeping an eye on it. The correct answer appears to be
->>"use ACPI" once it works on SiS
-> 
-> 
-> ACPI does fix it. Sadly it rock crashes my machine.
+> > However I suspect this responsiveness issue could be storage hardware
+> > dependent.
+> Hmm, I am quite sure that it isn't. I have ton's of mostly totally different 
+> hardware in my company, also test machines for WOLK at freenet.de (the 
+> biggest I had was a QUAD Xeon 1GHz with 16GB memory and hardware RAID (Compaq 
+> ML570 to be exact (f*cking nice machine btw. ;) and I even hit it on that 
+> machine. Friends of mine having also different hardware then me, also hitting 
+> that bug. _If_ it's the case of storage hardware, then many storage hardware 
+> is affected ;)
 
-Did you try the newest patches from sf? Works like a charm in my M650 
-(once I had patched my DSDT)...
+;)
 
->>I'll probably try some of those changes in a later -ac and see what
->>happens
-> 
-> 
-> Are you going to take care of this for 2.4 and 2.5 Alan ?
-> If yes I'd rather bail out, otherwise I'll continue to follow the 2.4 and
-> 2.5 patch ..
+> > The sentence by Linus in the last few days while talking with Jens,
+> > about storage that reorders stuff and starve requests at the two ends of
+> > the platter was very scary, maybe you're really bitten by something like
+> > that. Linux does the right thing but your hardware keeps posting stuff
+> > under the os and mine doesn't.
+> Oh, did I miss something at lkml or was it privately?
 
-Since this is quite important stuff I wouldn't wait for anything... we 
-have the hardware, we can test it - and I don't think Alan has a 650 or 
-alike for testing, right?
+I read it on l-k yesterday a few days ago, search emails from Linus with
+Jens somewhere in CC and you should find it.
 
-Thomas
-
-
-
--- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:thomas@winischhofer.net          *** http://www.winischhofer.net
-mailto:twini@xfree86.org
-
+Andrea

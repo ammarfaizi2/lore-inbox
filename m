@@ -1,60 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268537AbUILJI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268538AbUILJKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268537AbUILJI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 05:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268541AbUILJI5
+	id S268538AbUILJKw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 05:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUILJKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 05:08:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24552 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268537AbUILJIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 05:08:55 -0400
-Date: Sun, 12 Sep 2004 02:06:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: kaigai@ak.jp.nec.com, hugh@veritas.com, wli@holomorphy.com,
-       takata.hirokazu@renesas.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] atomic_inc_return() for i386[1/5] (Re:
- atomic_inc_return)
-Message-Id: <20040912020641.4bce3ce2.akpm@osdl.org>
-In-Reply-To: <20040912082538.GA87823@muc.de>
-References: <Pine.LNX.4.44.0409092005430.14004-100000@localhost.localdomain>
-	<200409100326.i8A3QsYV007096@mailsv.bs1.fc.nec.co.jp>
-	<20040911160532.07216174.akpm@osdl.org>
-	<20040912082538.GA87823@muc.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 12 Sep 2004 05:10:52 -0400
+Received: from outbound04.telus.net ([199.185.220.223]:55776 "EHLO
+	priv-edtnes28.telusplanet.net") by vger.kernel.org with ESMTP
+	id S268538AbUILJK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 05:10:26 -0400
+From: "Wolfpaw - Dale Corse" <admin@wolfpaw.net>
+To: <davem@davemloft.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial of Service
+Date: Sun, 12 Sep 2004 03:10:29 -0600
+Message-ID: <000f01c498a8$59b24700$0200a8c0@wolf>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <025e01c4989c$ba5f62b0$0300a8c0@s>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> wrote:
->
-> On Sat, Sep 11, 2004 at 04:05:32PM -0700, Andrew Morton wrote:
-> > kaigai@ak.jp.nec.com (Kaigai Kohei) wrote:
-> > >
-> > > 
-> > > [1/5] atomic_inc_return-linux-2.6.9-rc1.i386.patch
-> > >   This patch implements atomic_inc_return() and so on for i386,
-> > >   and includes runtime check whether CPU is legacy 386.
-> > >   It is same as I posted to LKML and Andi Kleen at '04/09/01.
-> > > 
-> > 
-> > Can we not use the `alternative instruction' stuff to eliminate the runtime
-> > test?
+David,
 > 
-> Yes, we could. I suggested this to Kaigai-san earlier, but
-> he decided that it was too complicated because he would have needed
-> to add an additional alternative() macro with enough parameters.
+> If the application doesn't close it's file descriptors there 
+> is absolutely nothing the kernel can do about it.
 > 
-> Given that atomic instructions are quite costly anyways and the jump
-> should be very predictable he's probably right that it wouldn't 
-> be worth the effort. 
+> It's a resource leak, plain and simple.
+> 
+> > That being said - below is a the proper description, and 
+> the code used
+> > to exploit it. Hope it helps. This version is not the one which 
+> > invokes the CLOSE_WAIT state, but rather the TIME_WAIT one, 
+> I am not 
+> > able to publish the source code for the CLOSE_WAIT bug.
+> 
+> There is nothing wrong with creating tons of TIME_WAIT 
+> sockets, they simply time out after 60 seconds (unless hit by 
+> a RESET packet or similar).  This is how TCP works.
+
+I am aware of that, you are missing the point. The point is
+the part where the socket is reused before it is completely
+closed, the end result being the daemon its pointed at keeps
+the connection open, and thus ends up in a DOS condition.
+
+Please do me a favor, and read the bug before you comment.
+
+> 
+> > The log however clearly shows that a mysql descriptor is 
+> closed, and 
+> > then used immediately again by the socket call, which 
+> causes it never 
+> > to end up getting closed. Linux apparently has either no 
+> timeout for 
+> > CLOSE_WAIT, or it's a very very long one.. Either way is a 
+> bad thing.
+> 
+> Please do us all a favor and learn how TCP works.
+
+A) Stop asking me for favors.
+B) You have some serious aggression issues you need to work on :) I
+   openly admitted not submitting issues before at the beginning of
+   my first email, did I miss the part where it became required for
+   you to turn into an asshole? :) I can see why people would toss
+   exploits off to the zeroday groups, you get a more warm reception 
+   when you report a bug, and it ends up fixed in the end, instead of
+   overrun with excuses :)
+
+> CLOSE_WAIT means simply that only one side of the TCP 
+> connection has done a close.  Therefore the other end stays 
+> open until that side closes as well.
+> 
+> There is no way to "time things out" or release the
+> state.
 > 
 
-Hm.  Well if these things only have a few callsites then OK.  But if we go
-and do something like implementing atomic_inc() or up_read() or whatever
-with atomic_add_return() then we'd need to do something from a codesize
-POV.
+This is your "godly developer answer" to this bug? Ok, well,
+so I am to assume that this is the mission of the kernel:
+
+A) All software must run perfectly, because we "can't do anything
+   about resource leaks"
+B) The internet is perfect, and there are no problems with TCP, so
+   we can't add a timeout for CLOSE_WAIT, we must just leave it there
+   forever. Forget the fact it could potentially bring the server, or
+   the daemon it is speaking to down to its knees.
+C) Don't submit bugs, because David likes to tell you that you know
+   nothing, and "as a favor" to please go and find out what the hell
+   your talking about. He obviously knows everything, so please, stop
+   insulting his mailing list.
+
+Is that correct? Here and I thought the job of the operating system was
+to deal with issues such as this. If this is indeed where Linux is headed,
+I fear the internet may be in a good deal of trouble.
+
+For the record, I believe Microsoft Windows, and FreeBSD both have timeouts
+for this TCP State. But, I better go learn how they work, before I make
+such a comment.
+
+Regards,
+Dale.
 

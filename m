@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262872AbTCSAQf>; Tue, 18 Mar 2003 19:16:35 -0500
+	id <S262881AbTCSAVk>; Tue, 18 Mar 2003 19:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262875AbTCSAQe>; Tue, 18 Mar 2003 19:16:34 -0500
-Received: from smtp08.iddeo.es ([62.81.186.18]:12250 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id <S262872AbTCSAQd>;
-	Tue, 18 Mar 2003 19:16:33 -0500
-Date: Wed, 19 Mar 2003 01:27:28 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: micklweiss@gmx.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux on 16-bit processors
-Message-ID: <20030319002728.GC4278@werewolf.able.es>
-References: <17232.1048031207@www59.gmx.net>
+	id <S262882AbTCSAVk>; Tue, 18 Mar 2003 19:21:40 -0500
+Received: from packet.digeo.com ([12.110.80.53]:61353 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262881AbTCSAVj>;
+	Tue, 18 Mar 2003 19:21:39 -0500
+Date: Tue, 18 Mar 2003 16:26:01 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm1
+Message-Id: <20030318162601.78f11739.akpm@digeo.com>
+In-Reply-To: <873clkw6ui.fsf@lapper.ihatent.com>
+References: <20030318031104.13fb34cc.akpm@digeo.com>
+	<87adfs4sqk.fsf@lapper.ihatent.com>
+	<87bs08vfkg.fsf@lapper.ihatent.com>
+	<20030318160902.C21945@flint.arm.linux.org.uk>
+	<873clkw6ui.fsf@lapper.ihatent.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <17232.1048031207@www59.gmx.net>; from micklweiss@gmx.net on Wed, Mar 19, 2003 at 00:46:47 +0100
-X-Mailer: Balsa 2.0.9
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Mar 2003 00:31:59.0058 (UTC) FILETIME=[F3D30320:01C2EDAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+>
+> I'm not suspecting the PCI in particular for the PCIC-bits, only
+> making X and the Radeon work again. But here you are:
 
-On 03.19, micklweiss@gmx.net wrote:
-> I'm interested on running Linux on some less powerful, cheaper 16 bit
-> systems. I would like to know if there is a slimmed down version of the kernel (any
-> version 2.2+) that can run on 16-bit CPUs. I know that linux "requires" a
-> 32-bit CPU, but I know that it has run on less. I'm interested in any arch -
-> really. 
+Something bad has happened to the Radeon driver in recent kernels.  I've seen
+various reports with various syptoms and some suspicion has been directed at
+the AGP changes.
 
-http://www.uclinux.org/
+But as far as I know nobody has actually got down and done the binary search
+to find out exactly when it started happening.
 
-It doesn't need an mmu, boots on a Palm. ;) Look  in 'uClinux Ports'
-
-Or http://www.linux.org/projects/ports.html, look for m68k ports, don't know
-if any of them work on cpus below 68020.
-
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

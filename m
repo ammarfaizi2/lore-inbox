@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbTHYCgo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 22:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbTHYCgo
+	id S261418AbTHYDAr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTHYDAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 22:36:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41964 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261385AbTHYCgn
+	Sun, 24 Aug 2003 23:00:47 -0400
+Received: from dyn-ctb-210-9-243-120.webone.com.au ([210.9.243.120]:6148 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261418AbTHYDAp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 22:36:43 -0400
-Message-ID: <3F497614.4090600@pobox.com>
-Date: Sun, 24 Aug 2003 22:36:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+	Sun, 24 Aug 2003 23:00:45 -0400
+Message-ID: <3F497BB6.90100@cyberone.com.au>
+Date: Mon, 25 Aug 2003 13:00:06 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Steve French <smfrench@austin.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: via rhine network failure on 2.6.0-test4
-References: <3F491E69.5090206@austin.rr.com>
-In-Reply-To: <3F491E69.5090206@austin.rr.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy
+References: <3F48B12F.4070001@cyberone.com.au> <29760000.1061744102@[10.10.2.4]>
+In-Reply-To: <29760000.1061744102@[10.10.2.4]>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French wrote:
-> The via rhine driver fails to get a dhcp address on my test system on 
-> 2.6.0-test4.   ethereal shows no dhcp request leaving the box but 
-> ifconfig does show the device and it is detected in /proc/pci.   
-> Switching from the test3 vs.  test4 snapshots built with equivalent 
-> configure options on the same system (SuSE 8.2) - test3 works but test4 
-> does not.   This is using essentially the default config for both the 
-> test3 and test4 cases - the only changes are SMP disabled, scsi devices 
-> disabled, Athlon, via-rhine enabled in network devices and a handful of 
-> additional filesystems enabled, debug memory allocations enabled.   This 
-> is the first time in many months that I have seen problems with the 
-> via-rhine driver on 2.6
-> 
-> Analyzing the code differences between 2.6.0-test3 and test4 (in 
-> via-rhine.c) is not very promising since the only line that has changed 
-> (kfree to free_netdev) is in the routine via_rhine_remove_one that seems 
-> unlikely to cause problems sending data on the network.
-> 
-> Ideas as to what could have caused the regression?
 
 
-Does /proc/interrupts show any interrupts being received on your eth 
-device?  Does dmesg report any irq assignment problems, or similar?
+Martin J. Bligh wrote:
 
-This sounds like ACPI or irq routing related.
+>Seems to do badly with CPU intensive tasks:
+>
+>Kernbench: (make -j vmlinux, maximal tasks)
+>                              Elapsed      System        User         CPU
+>              2.6.0-test3       46.00      115.49      571.94     1494.25
+>         2.6.0-test4-nick       49.37      131.31      611.15     1500.75
+>
 
-	Jeff
+Thanks Martin.
 
+>
+>Oddly, schedule itself is significantly cheaper, but you seem
+>to end up with much more expense elsewhere. Thrashing tasks between
+>CPUs, maybe (esp given the increased user time)? I'll do a proper 
+>baseline against test4, but I don't expect it to be any different, really.
+>
+
+Yeah I'd say most if not all would be my fault though. What happens
+is that a lowest priority process will get a 1ms timeslice if there
+is a highest priority process on the same runqueue, though it will
+get I think 275ms if there are only other low priority processes
+there.
+
+A kernbench probably has enough IO to keep priorities up a bit and
+keep timeslices short. The timeslice stuff could probably still use
+a bit of tuning. On the other hand, nice -20 processes should get
+big timeslices, while other schedulers give them small timeslices.
 
 

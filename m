@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289163AbSANWsG>; Mon, 14 Jan 2002 17:48:06 -0500
+	id <S289145AbSANWuE>; Mon, 14 Jan 2002 17:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289156AbSANWsA>; Mon, 14 Jan 2002 17:48:00 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:15001 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S289149AbSANWre>; Mon, 14 Jan 2002 17:47:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Robert Love <rml@tech9.net>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 23:46:45 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Momchil Velikov <velco@fadata.bg>, yodaiken@fsmlabs.com,
-        Daniel Phillips <phillips@bonn-fries.net>,
+	id <S289140AbSANWt7>; Mon, 14 Jan 2002 17:49:59 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:17678 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S289120AbSANWtp>;
+	Mon, 14 Jan 2002 17:49:45 -0500
+Date: Mon, 14 Jan 2002 15:46:40 -0700
+From: yodaiken@fsmlabs.com
+To: Momchil Velikov <velco@fadata.bg>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver.Neukum@lrz.uni-muenchen.de,
+        yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
         Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <16QDdD-1EqtSyC@fwd03.sul.t-online.com> <1011040605.4604.26.camel@phantasy>
-In-Reply-To: <1011040605.4604.26.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16QFsj-206pZgC@fwd03.sul.t-online.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020114154640.A26460@hq.fsmlabs.com>
+In-Reply-To: <E16QB8b-0002K8-00@the-village.bc.nu> <87sn98ftpi.fsf@fadata.bg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <87sn98ftpi.fsf@fadata.bg>; from velco@fadata.bg on Tue, Jan 15, 2002 at 12:34:01AM +0200
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 15, 2002 at 12:34:01AM +0200, Momchil Velikov wrote:
+> One can consider a non-preemptible kernel as a special kind of
+> priority inversion, preemptible kernel will eliminate _that_ case of
+> priority inversion.
 
-> Well, semaphores block.  And we have these races right now with
-> SCHED_FIFO tasks.  I still contend preempt does not change the nature of
-> the problem and it certainly doesn't introduce a new one.
+The problem here is that priority means something very different in 
+a time-shared system than in a hard real-time system. And even in real-time
+systems, as Walpole and colleagues have pointed out, priority doesn't
+really capture much of what is needed for good scheduling.
 
-But it does:
+In a general purpose system,  priorities are dynamic and "fair". 
+The priority of even the lowliest process increases while it waits
+for time. In a raw real-time system, the low priority process can sit
+forever and should wait until no higher priority thread needs the 
+processor. So it's absurd to talk of priority inversion in a non RT
+system. When a low priority process is delaying a higher priority task
+for reasons of fairness, increased throughput, or any other valid
+objective, that is not a scheduling error.
 
-down(&sem);
-do_something_that_cannot_block();
-up(&sem);
 
-Will stop a SCHED_FIFO task for a definite amount of time. Only
-until it returns from the kernel to user space at worst.
+> 
+> Regards,
+> -velco
 
-If do_something_that_cannot_block() can be preempted, a SCHED_FIFO
-task can block indefinitely long on the semaphore, because you have
-no guarantee that the scheduler will ever again select the the preempted task.
-In fact it must never again select the preempted task as long as there's
-another runnable SCHED_FIFO task.
-
-	Regards
-		Oliver
-
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

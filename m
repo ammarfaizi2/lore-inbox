@@ -1,204 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132045AbRCYPzt>; Sun, 25 Mar 2001 10:55:49 -0500
+	id <S132056AbRCYQE3>; Sun, 25 Mar 2001 11:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132050AbRCYPzk>; Sun, 25 Mar 2001 10:55:40 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:35846 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132045AbRCYPzZ>;
-	Sun, 25 Mar 2001 10:55:25 -0500
-Date: Sun, 25 Mar 2001 16:53:37 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-mm@kvack.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] pae-2.4.3-A4
-In-Reply-To: <Pine.LNX.4.31.0103191839510.1003-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0103251643070.6469-200000@elte.hu>
+	id <S132051AbRCYQEU>; Sun, 25 Mar 2001 11:04:20 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:30986 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S132056AbRCYQEJ>; Sun, 25 Mar 2001 11:04:09 -0500
+Date: Sun, 25 Mar 2001 18:12:56 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <01032411110700.03927@tabby>
+Message-ID: <Pine.LNX.4.30.0103251754300.13864-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-1918233271-985532017=:6469"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---655616-1918233271-985532017=:6469
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Sat, 24 Mar 2001, Jesse Pollard wrote:
+> On Fri, 23 Mar 2001, Alan Cox wrote:
+[ .... about non-overcommit .... ]
+> > Nobody feels its very important because nobody has implemented it.
 
+Enterprises use other systems because they have much better resource
+management than Linux -- adding non-overcommit wouldn't help them much.
+Desktop users, Linux newbies don't understand what's
+eager/early/non-overcommit vs lazy/late/overcommit memory management
+[just see these threads here if you aren't bored already enough ;)] and
+even if they do at last they don't have the ability to implement it. And
+between them, people are mostly fine with ulimit.
 
-On Mon, 19 Mar 2001, Linus Torvalds wrote:
+> Small correction - It was implemented, just not included in the standard
+> kernel.
 
-> The complete changelog is appended, but the biggest recent change is
-> the mmap_sem change, which I updated with new locking rules for
-> pte/pmd_alloc to avoid the race on the actual page table build.
->
-> This has only been tested on i386 without PAE, and is known to break
-> other architectures. Ingo, mind checking what PAE needs? [...]
+Please note, adding optional non-overcommit also wouldn't help much
+without guaranteed/reserved resources [e.g. you are OOM -> appps, users
+complain, admin login in and BANG OOM killer just killed one of the
+jobs]. This was one of the reasons I made the reserved root memory
+patch [this is also the way other OS'es do]. Now just the different
+patches should be merged and write an OOM FAQ for users how to avoid,
+control, etc it].
 
-one nontrivial issue was that on PAE the pgd has to be installed with
-'present' pgd entries, due to a CPU erratum. This means that the
-pgd_present() code in mm/memory.c, while correct theoretically, doesnt
-work with PAE. An equivalent solution is to use !pgd_none(), which also
-works with the PAE workaround.
+	Szaka
 
-PAE mode could re-define pgd_present() to filter out the workaround - do
-you prefer this to the !pgd_none() solution?
-
-the rest was pretty straightforward.
-
-in any case, with the attached pae-2.4.3-A4 patch (against 2.4.3-pre7,
-applies to 2.4.2-ac24 cleanly as well) applied, 2.4.3-pre7 boots & works
-just fine on PAE 64GB-HIGHMEM and non-PAE kernels.
-
-- the patch also does another cleanup: removes various bad_pagetable code
-  snippets all around the x86 tree, it's not needed anymore. This saves 8
-  KB RAM on x86 systems.
-
-- removed the last remaining *_kernel() macro.
-
-- fixed a minor clear_page() bug in pgalloc.h, gfp() could fail in the
-  future.
-
-	Ingo
-
---655616-1918233271-985532017=:6469
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pae-2.4.3-A4"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0103251653370.6469@elte.hu>
-Content-Description: 
-Content-Disposition: attachment; filename="pae-2.4.3-A4"
-
-LS0tIGxpbnV4L21tL21lbW9yeS5jLm9yaWcJU3VuIE1hciAyNSAxODo1NTow
-NSAyMDAxDQorKysgbGludXgvbW0vbWVtb3J5LmMJU3VuIE1hciAyNSAxODo1
-NTowNyAyMDAxDQpAQCAtMTI5NSw3ICsxMjk1LDcgQEANCiAJCSAqIEJlY2F1
-c2Ugd2UgZHJvcHBlZCB0aGUgbG9jaywgd2Ugc2hvdWxkIHJlLWNoZWNrIHRo
-ZQ0KIAkJICogZW50cnksIGFzIHNvbWVib2R5IGVsc2UgY291bGQgaGF2ZSBw
-b3B1bGF0ZWQgaXQuLg0KIAkJICovDQotCQlpZiAocGdkX3ByZXNlbnQoKnBn
-ZCkpIHsNCisJCWlmICghcGdkX25vbmUoKnBnZCkpIHsNCiAJCQlwbWRfZnJl
-ZShuZXcpOw0KIAkJCWdvdG8gb3V0Ow0KIAkJfQ0KQEAgLTEzMTMsNyArMTMx
-Myw3IEBADQogICovDQogcHRlX3QgKnB0ZV9hbGxvYyhzdHJ1Y3QgbW1fc3Ry
-dWN0ICptbSwgcG1kX3QgKnBtZCwgdW5zaWduZWQgbG9uZyBhZGRyZXNzKQ0K
-IHsNCi0JaWYgKCFwbWRfcHJlc2VudCgqcG1kKSkgew0KKwlpZiAocG1kX25v
-bmUoKnBtZCkpIHsNCiAJCXB0ZV90ICpuZXc7DQogDQogCQkvKiAiZmFzdCIg
-YWxsb2NhdGlvbiBjYW4gaGFwcGVuIHdpdGhvdXQgZHJvcHBpbmcgdGhlIGxv
-Y2suLiAqLw0KQEAgLTEzMjksNyArMTMyOSw3IEBADQogCQkJICogQmVjYXVz
-ZSB3ZSBkcm9wcGVkIHRoZSBsb2NrLCB3ZSBzaG91bGQgcmUtY2hlY2sgdGhl
-DQogCQkJICogZW50cnksIGFzIHNvbWVib2R5IGVsc2UgY291bGQgaGF2ZSBw
-b3B1bGF0ZWQgaXQuLg0KIAkJCSAqLw0KLQkJCWlmIChwbWRfcHJlc2VudCgq
-cG1kKSkgew0KKwkJCWlmICghcG1kX25vbmUoKnBtZCkpIHsNCiAJCQkJcHRl
-X2ZyZWUobmV3KTsNCiAJCQkJZ290byBvdXQ7DQogCQkJfQ0KLS0tIGxpbnV4
-L2luY2x1ZGUvYXNtLWkzODYvcGdhbGxvYy0zbGV2ZWwuaC5vcmlnCVN1biBN
-YXIgMjUgMTg6NTU6MDUgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvYXNtLWkz
-ODYvcGdhbGxvYy0zbGV2ZWwuaAlTdW4gTWFyIDI1IDE5OjIzOjAyIDIwMDEN
-CkBAIC0yMSwxMiArMjEsMTIgQEANCiB7DQogCXVuc2lnbmVkIGxvbmcgKnJl
-dDsNCiANCi0JaWYgKChyZXQgPSBwbWRfcXVpY2tsaXN0KSAhPSBOVUxMKSB7
-DQorCXJldCA9IHBtZF9xdWlja2xpc3Q7DQorCWlmIChyZXQgIT0gTlVMTCkg
-ew0KIAkJcG1kX3F1aWNrbGlzdCA9ICh1bnNpZ25lZCBsb25nICopKCpyZXQp
-Ow0KIAkJcmV0WzBdID0gMDsNCiAJCXBndGFibGVfY2FjaGVfc2l6ZS0tOw0K
-LQl9IGVsc2UNCi0JCXJldCA9ICh1bnNpZ25lZCBsb25nICopZ2V0X3BtZF9z
-bG93KCk7DQorCX0NCiAJcmV0dXJuIChwbWRfdCAqKXJldDsNCiB9DQogDQpA
-QCAtNDEsNSArNDEsMTAgQEANCiB7DQogCWZyZWVfcGFnZSgodW5zaWduZWQg
-bG9uZylwbWQpOw0KIH0NCisNCisjZGVmaW5lIHBtZF9mcmVlKHBtZCkgcG1k
-X2ZyZWVfZmFzdChwbWQpDQorDQorI2RlZmluZSBwZ2RfcG9wdWxhdGUocGdk
-LCBwbWQpIFwNCisJZG8geyBzZXRfcGdkKHBnZCwgX19wZ2QoMSArIF9fcGEo
-cG1kKSkpOyBfX2ZsdXNoX3RsYigpOyB9IHdoaWxlKDApDQogDQogI2VuZGlm
-IC8qIF9JMzg2X1BHQUxMT0NfM0xFVkVMX0ggKi8NCi0tLSBsaW51eC9pbmNs
-dWRlL2FzbS1pMzg2L3BnYWxsb2MuaC5vcmlnCVN1biBNYXIgMjUgMTg6NTY6
-MjUgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvcGdhbGxvYy5o
-CVN1biBNYXIgMjUgMTk6MzU6NTkgMjAwMQ0KQEAgLTExLDcgKzExLDggQEAN
-CiAjZGVmaW5lIHB0ZV9xdWlja2xpc3QgKGN1cnJlbnRfY3B1X2RhdGEucHRl
-X3F1aWNrKQ0KICNkZWZpbmUgcGd0YWJsZV9jYWNoZV9zaXplIChjdXJyZW50
-X2NwdV9kYXRhLnBndGFibGVfY2FjaGVfc3opDQogDQotI2RlZmluZSBwbWRf
-cG9wdWxhdGUocG1kLCBwdGUpCQlzZXRfcG1kKHBtZCwgX19wbWQoX1BBR0Vf
-VEFCTEUgKyBfX3BhKHB0ZSkpKQ0KKyNkZWZpbmUgcG1kX3BvcHVsYXRlKHBt
-ZCwgcHRlKSBcDQorCQlzZXRfcG1kKHBtZCwgX19wbWQoX1BBR0VfVEFCTEUg
-KyBfX3BhKHB0ZSkpKQ0KIA0KICNpZiBDT05GSUdfWDg2X1BBRQ0KICMgaW5j
-bHVkZSA8YXNtL3BnYWxsb2MtM2xldmVsLmg+DQpAQCAtNzIsNyArNzMsOCBA
-QA0KIAlwdGVfdCAqcHRlOw0KIA0KIAlwdGUgPSAocHRlX3QgKikgX19nZXRf
-ZnJlZV9wYWdlKEdGUF9LRVJORUwpOw0KLQljbGVhcl9wYWdlKHB0ZSk7DQor
-CWlmIChwdGUpDQorCQljbGVhcl9wYWdlKHB0ZSk7DQogCXJldHVybiBwdGU7
-DQogfQ0KIA0KQEAgLTEwMCw3ICsxMDIsNiBAQA0KIAlmcmVlX3BhZ2UoKHVu
-c2lnbmVkIGxvbmcpcHRlKTsNCiB9DQogDQotI2RlZmluZSBwdGVfZnJlZV9r
-ZXJuZWwocHRlKQlwdGVfZnJlZV9zbG93KHB0ZSkNCiAjZGVmaW5lIHB0ZV9m
-cmVlKHB0ZSkJCXB0ZV9mcmVlX3Nsb3cocHRlKQ0KICNkZWZpbmUgcGdkX2Zy
-ZWUocGdkKQkJZnJlZV9wZ2Rfc2xvdyhwZ2QpDQogI2RlZmluZSBwZ2RfYWxs
-b2MoKQkJZ2V0X3BnZF9mYXN0KCkNCi0tLSBsaW51eC9pbmNsdWRlL2FzbS1p
-Mzg2L3BndGFibGUuaC5vcmlnCVN1biBNYXIgMjUgMTk6MDM6NTggMjAwMQ0K
-KysrIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvcGd0YWJsZS5oCVN1biBNYXIg
-MjUgMTk6MDQ6MDYgMjAwMQ0KQEAgLTI0MywxMiArMjQzLDYgQEANCiAvKiBw
-YWdlIHRhYmxlIGZvciAwLTRNQiBmb3IgZXZlcnlib2R5ICovDQogZXh0ZXJu
-IHVuc2lnbmVkIGxvbmcgcGcwWzEwMjRdOw0KIA0KLS8qDQotICogSGFuZGxp
-bmcgYWxsb2NhdGlvbiBmYWlsdXJlcyBkdXJpbmcgcGFnZSB0YWJsZSBzZXR1
-cC4NCi0gKi8NCi1leHRlcm4gdm9pZCBfX2hhbmRsZV9iYWRfcG1kKHBtZF90
-ICogcG1kKTsNCi1leHRlcm4gdm9pZCBfX2hhbmRsZV9iYWRfcG1kX2tlcm5l
-bChwbWRfdCAqIHBtZCk7DQotDQogI2RlZmluZSBwdGVfcHJlc2VudCh4KQko
-KHgpLnB0ZV9sb3cgJiAoX1BBR0VfUFJFU0VOVCB8IF9QQUdFX1BST1ROT05F
-KSkNCiAjZGVmaW5lIHB0ZV9jbGVhcih4cCkJZG8geyBzZXRfcHRlKHhwLCBf
-X3B0ZSgwKSk7IH0gd2hpbGUgKDApDQogDQotLS0gbGludXgvYXJjaC9pMzg2
-L21tL2luaXQuYy5vcmlnCVN1biBNYXIgMjUgMTk6MDI6MDUgMjAwMQ0KKysr
-IGxpbnV4L2FyY2gvaTM4Ni9tbS9pbml0LmMJU3VuIE1hciAyNSAxOTowMjo0
-MiAyMDAxDQpAQCAtNDAsNzcgKzQwLDYgQEANCiBzdGF0aWMgdW5zaWduZWQg
-bG9uZyB0b3RhbHJhbV9wYWdlczsNCiBzdGF0aWMgdW5zaWduZWQgbG9uZyB0
-b3RhbGhpZ2hfcGFnZXM7DQogDQotLyoNCi0gKiBCQURfUEFHRSBpcyB0aGUg
-cGFnZSB0aGF0IGlzIHVzZWQgZm9yIHBhZ2UgZmF1bHRzIHdoZW4gbGludXgN
-Ci0gKiBpcyBvdXQtb2YtbWVtb3J5LiBPbGRlciB2ZXJzaW9ucyBvZiBsaW51
-eCBqdXN0IGRpZCBhDQotICogZG9fZXhpdCgpLCBidXQgdXNpbmcgdGhpcyBp
-bnN0ZWFkIG1lYW5zIHRoZXJlIGlzIGxlc3Mgcmlzaw0KLSAqIGZvciBhIHBy
-b2Nlc3MgZHlpbmcgaW4ga2VybmVsIG1vZGUsIHBvc3NpYmx5IGxlYXZpbmcg
-YW4gaW5vZGUNCi0gKiB1bnVzZWQgZXRjLi4NCi0gKg0KLSAqIEJBRF9QQUdF
-VEFCTEUgaXMgdGhlIGFjY29tcGFueWluZyBwYWdlLXRhYmxlOiBpdCBpcyBp
-bml0aWFsaXplZA0KLSAqIHRvIHBvaW50IHRvIEJBRF9QQUdFIGVudHJpZXMu
-DQotICoNCi0gKiBaRVJPX1BBR0UgaXMgYSBzcGVjaWFsIHBhZ2UgdGhhdCBp
-cyB1c2VkIGZvciB6ZXJvLWluaXRpYWxpemVkDQotICogZGF0YSBhbmQgQ09X
-Lg0KLSAqLw0KLQ0KLS8qDQotICogVGhlc2UgYXJlIGFsbG9jYXRlZCBpbiBo
-ZWFkLlMgc28gdGhhdCB3ZSBnZXQgcHJvcGVyIHBhZ2UgYWxpZ25tZW50Lg0K
-LSAqIElmIHlvdSBjaGFuZ2UgdGhlIHNpemUgb2YgdGhlc2UgdGhlbiBjaGFu
-Z2UgaGVhZC5TIGFzIHdlbGwuDQotICovDQotZXh0ZXJuIGNoYXIgZW1wdHlf
-YmFkX3BhZ2VbUEFHRV9TSVpFXTsNCi0jaWYgQ09ORklHX1g4Nl9QQUUNCi1l
-eHRlcm4gcG1kX3QgZW1wdHlfYmFkX3BtZF90YWJsZVtQVFJTX1BFUl9QTURd
-Ow0KLSNlbmRpZg0KLWV4dGVybiBwdGVfdCBlbXB0eV9iYWRfcHRlX3RhYmxl
-W1BUUlNfUEVSX1BURV07DQotDQotLyoNCi0gKiBXZSBpbml0IHRoZW0gYmVm
-b3JlIGV2ZXJ5IHJldHVybiBhbmQgbWFrZSB0aGVtIHdyaXRhYmxlLXNoYXJl
-ZC4NCi0gKiBUaGlzIGd1YXJhbnRlZXMgd2UgZ2V0IG91dCBvZiB0aGUga2Vy
-bmVsIGluIHNvbWUgbW9yZSBvciBsZXNzIHNhbmUNCi0gKiB3YXkuDQotICov
-DQotI2lmIENPTkZJR19YODZfUEFFDQotc3RhdGljIHBtZF90ICogZ2V0X2Jh
-ZF9wbWRfdGFibGUodm9pZCkNCi17DQotCXBtZF90IHY7DQotCWludCBpOw0K
-LQ0KLQlzZXRfcG1kKCZ2LCBfX3BtZChfUEFHRV9UQUJMRSArIF9fcGEoZW1w
-dHlfYmFkX3B0ZV90YWJsZSkpKTsNCi0NCi0JZm9yIChpID0gMDsgaSA8IFBB
-R0VfU0laRS9zaXplb2YocG1kX3QpOyBpKyspDQotCQllbXB0eV9iYWRfcG1k
-X3RhYmxlW2ldID0gdjsNCi0NCi0JcmV0dXJuIGVtcHR5X2JhZF9wbWRfdGFi
-bGU7DQotfQ0KLSNlbmRpZg0KLQ0KLXN0YXRpYyBwdGVfdCAqIGdldF9iYWRf
-cHRlX3RhYmxlKHZvaWQpDQotew0KLQlwdGVfdCB2Ow0KLQlpbnQgaTsNCi0N
-Ci0JdiA9IHB0ZV9ta2RpcnR5KG1rX3B0ZV9waHlzKF9fcGEoZW1wdHlfYmFk
-X3BhZ2UpLCBQQUdFX1NIQVJFRCkpOw0KLQ0KLQlmb3IgKGkgPSAwOyBpIDwg
-UEFHRV9TSVpFL3NpemVvZihwdGVfdCk7IGkrKykNCi0JCWVtcHR5X2JhZF9w
-dGVfdGFibGVbaV0gPSB2Ow0KLQ0KLQlyZXR1cm4gZW1wdHlfYmFkX3B0ZV90
-YWJsZTsNCi19DQotDQotDQotDQotdm9pZCBfX2hhbmRsZV9iYWRfcG1kKHBt
-ZF90ICpwbWQpDQotew0KLQlwbWRfRVJST1IoKnBtZCk7DQotCXNldF9wbWQo
-cG1kLCBfX3BtZChfUEFHRV9UQUJMRSArIF9fcGEoZ2V0X2JhZF9wdGVfdGFi
-bGUoKSkpKTsNCi19DQotDQotdm9pZCBfX2hhbmRsZV9iYWRfcG1kX2tlcm5l
-bChwbWRfdCAqcG1kKQ0KLXsNCi0JcG1kX0VSUk9SKCpwbWQpOw0KLQlzZXRf
-cG1kKHBtZCwgX19wbWQoX0tFUk5QR19UQUJMRSArIF9fcGEoZ2V0X2JhZF9w
-dGVfdGFibGUoKSkpKTsNCi19DQotDQogaW50IGRvX2NoZWNrX3BndF9jYWNo
-ZShpbnQgbG93LCBpbnQgaGlnaCkNCiB7DQogCWludCBmcmVlZCA9IDA7DQot
-LS0gbGludXgvYXJjaC9pMzg2L2tlcm5lbC9oZWFkLlMub3JpZwlTdW4gTWFy
-IDI1IDE5OjA0OjIzIDIwMDENCisrKyBsaW51eC9hcmNoL2kzODYva2VybmVs
-L2hlYWQuUwlTdW4gTWFyIDI1IDE5OjA0OjU3IDIwMDENCkBAIC00MTUsMjMg
-KzQxNSw2IEBADQogRU5UUlkoZW1wdHlfemVyb19wYWdlKQ0KIA0KIC5vcmcg
-MHg1MDAwDQotRU5UUlkoZW1wdHlfYmFkX3BhZ2UpDQotDQotLm9yZyAweDYw
-MDANCi1FTlRSWShlbXB0eV9iYWRfcHRlX3RhYmxlKQ0KLQ0KLSNpZiBDT05G
-SUdfWDg2X1BBRQ0KLQ0KLSAub3JnIDB4NzAwMA0KLSBFTlRSWShlbXB0eV9i
-YWRfcG1kX3RhYmxlKQ0KLQ0KLSAub3JnIDB4ODAwMA0KLQ0KLSNlbHNlDQot
-DQotIC5vcmcgMHg3MDAwDQotDQotI2VuZGlmDQogDQogLyoNCiAgKiBUaGlz
-IHN0YXJ0cyB0aGUgZGF0YSBzZWN0aW9uLiBOb3RlIHRoYXQgdGhlIGFib3Zl
-IGlzIGFsbA0KLS0tIGxpbnV4L01BSU5UQUlORVJTLm9yaWcJU3VuIE1hciAy
-NSAxOToyMzoxMyAyMDAxDQorKysgbGludXgvTUFJTlRBSU5FUlMJU3VuIE1h
-ciAyNSAxOToyNDo0NiAyMDAxDQpAQCAtMTQ1NCw2ICsxNDU0LDExIEBADQog
-TDoJbGludXgteDI1QHZnZXIua2VybmVsLm9yZw0KIFM6CU1haW50YWluZWQN
-CiANCitYODYgMy1MRVZFTCBQQUdJTkcgKFBBRSkgU1VQUE9SVA0KK1A6CUlu
-Z28gTW9sbmFyDQorTToJbWluZ29AcmVkaGF0LmNvbQ0KK1M6CU1haW50YWlu
-ZWQNCisNCiBaODUyMzAgU1lOQ0hST05PVVMgRFJJVkVSDQogUDoJQWxhbiBD
-b3gNCiBNOglhbGFuQHJlZGhhdC5jb20NCg==
---655616-1918233271-985532017=:6469--

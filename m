@@ -1,60 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbSLFVtK>; Fri, 6 Dec 2002 16:49:10 -0500
+	id <S267625AbSLFV7M>; Fri, 6 Dec 2002 16:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267625AbSLFVtK>; Fri, 6 Dec 2002 16:49:10 -0500
-Received: from mail.ccur.com ([208.248.32.212]:58898 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id <S262602AbSLFVtK>;
-	Fri, 6 Dec 2002 16:49:10 -0500
-Message-ID: <3DF11D16.289456B2@ccur.com>
-Date: Fri, 06 Dec 2002 16:56:38 -0500
-From: Jim Houston <jim.houston@ccur.com>
-Reply-To: jim.houston@ccur.com
-Organization: Concurrent Computer Corp.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: george anzinger <george@mvista.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212061307310.3830-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S267627AbSLFV7M>; Fri, 6 Dec 2002 16:59:12 -0500
+Received: from 216-42-72-140.ppp.netsville.net ([216.42.72.140]:33674 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id <S267625AbSLFV7L>;
+	Fri, 6 Dec 2002 16:59:11 -0500
+Subject: Re: [patch] fix the ext3 data=journal unmount bug
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       ext3 users list <ext3-users@redhat.com>
+In-Reply-To: <1039209773.5300.84.camel@sisko.scot.redhat.com>
+References: <3DF0F69E.FF0E513A@digeo.com> <1039203287.9244.97.camel@tiny> 
+	<3DF0FE4F.5F473D5E@digeo.com> 
+	<1039204675.5301.55.camel@sisko.scot.redhat.com> 
+	<1039206858.9244.130.camel@tiny> 
+	<1039209773.5300.84.camel@sisko.scot.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Dec 2002 17:07:00 -0500
+Message-Id: <1039212420.9244.173.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Fri, 2002-12-06 at 16:22, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> On Fri, 6 Dec 2002, george anzinger wrote:
-> >
-> > I have not looked at your code yet, but I am concerned that
-> > the restart may not be able to get to the original
-> > parameters.
+> On Fri, 2002-12-06 at 20:34, Chris Mason wrote:
 > 
-> The way the new system call restarting is done, it never looks at the old
-> parameters. They don't even _exist_ for the restarted call (well, they do,
-> but the restart function can't actually get at them). So it is up to the
-> original interrupted call to save off anything it needs saving off (and it
-> get sthe "restart_block" structure to do that saving in. Right now that's
-> just three words, but we can expand it if necessary).
+> > The bulk of the sync(2) will be async though, since most of the io is
+> > actually writing dirty data buffers out.  We already do that in two
+> > stages.
 > 
-      
-Hi Linus,
+> Not with data journaling.  That's the whole point: the VFS assumes too
+> much about where the data is being written, when.
 
-I know it would be a few extra lines of assembly code but it would be
-nice if the restart routine had the original arguments.  Would it be too
-ugly to do something like:
+But with data journaling, there's a limited amount data pending that
+needs to be sent to the log.  It isn't like the data pages in the
+data=writeback, where there might be gigs and gigs worth of pages.  
 
-sys_restart_syscall:
-	GET_THREAD_INFO(%eax)
-	jmp	TI_RESTART_BLOCK(%eax)
+Most data=journal setups are for synchronous writes, where the
+transactions will be small, so sending things to the log won't take
+long.
 
-I'm having second thoughts about even sending this.  Its just that I hate
-casts more than I hate assembly code and using the restart_block to save 
-the arguments implys casts.
+> 
+> > For 2.5, if an FS really wanted a two stage sync for it's non-data
+> > pages
+> 
+> But it's data that is the problem.  For sync() semantics,
+> data-journaling only requires that the pages have hit the journal.  For
+> umount, it is critical that we complete the final writeback before
+> destroying the inode lists.
 
-Jim Houston - Concurrent Computer Corp.
+Well, I was trying to find a word for pages involved w/the journal and
+failed ;-)  My only real point is we can add an async sync without
+changing the way supers get processed.
+
+It seems like a natural progression to start adding journal address
+spaces to deal with this instead of extra stuff in the super code, where
+locking and super flag semantics make things sticky.
+
+-chris
+
+

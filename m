@@ -1,61 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQLGS21>; Thu, 7 Dec 2000 13:28:27 -0500
+	id <S129859AbQLGS3r>; Thu, 7 Dec 2000 13:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLGS2S>; Thu, 7 Dec 2000 13:28:18 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:640 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129340AbQLGS2F>; Thu, 7 Dec 2000 13:28:05 -0500
-Date: Thu, 7 Dec 2000 11:54:38 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-test9 Root no longer permitted to format floppies?
-Message-ID: <Pine.LNX.3.95.1001207114503.171A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129846AbQLGS3h>; Thu, 7 Dec 2000 13:29:37 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:54789 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S129370AbQLGS3Y>; Thu, 7 Dec 2000 13:29:24 -0500
+Date: Thu, 7 Dec 2000 13:57:41 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: M Sweger <mikesw@whiterose.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New CD-R high capacity drive specs are coming. (fwd)
+Message-ID: <20001207135741.E25411@alcove.wittsend.com>
+Mail-Followup-To: M Sweger <mikesw@whiterose.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012071231500.10252-100000@whiterose.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.LNX.4.21.0012071231500.10252-100000@whiterose.net>; from mikesw@whiterose.net on Thu, Dec 07, 2000 at 12:33:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 07, 2000 at 12:33:35PM -0500, M Sweger wrote:
 
-Script started on Thu Dec  7 11:44:01 2000
-# fdformat /dev/fd0h1440
-Double-sided, 80 tracks, 18 sec/track. Total capacity 1440 kB.
-Formatting ... 
-ioctl(FDFMTBEG): Operation not permitted
-# exit
-exit
-Script done on Thu Dec  7 11:44:42 2000
+> Hi,
 
-Who do you have to be in order to format floppy drives? Or have all
-the ioctl numbers been changed since 2.2.18 ?
+>    See the article below.
 
-write(1, "Double-sided, 80 tracks, 18 sec/"..., 63) = 63
-write(1, "Formatting ... ", 15)         = 15
-ioctl(3, 0x247, 0)                      = -1 EPERM (Operation not permitted)
-brk(0)                                  = 0x804af98
-brk(0x804afe8)                          = 0x804afe8
-brk(0x804b000)                          = 0x804b000
-brk(0x804c000)                          = 0x804c000
+> I just read that the specs are out for three different types of CD-R
+> drives in terms of disk capacity and speeds from Constellation 3D,and it
+> is heading towards manufacturing. It's great for movies and coporate
+> archiving, but was degraded for the consumer market -- Nothing above
+> 5Gb/side for the consumer whereas for the coporate it's 200Gb/side. I
+> don't think it will  compete for the PC market unless the disk capacities
+> are upped! Probably purposely degraded so that you can't copy a HDTV DVD
+> to your PC CD-R disk. Here is the 
+> <a href="http://biz.yahoo.com/bw/001207/ny_constel.html">link </a>
 
+	Look at those specs closely and you may understand a little
+better.  The "consumer" device is for the small 45mm discs (about the
+size of the credit card CD's or the little MO music discs).
 
-It looks like they should still be okay?
+	The CD sized (120mm) discs are the 32 Gig per side "VCR" devices.
+They've always said (first announcement well over a year ago) that
+they would focus first on the small disc r/w format for the consumer.
+My bet would be that the CD sized drives and the 32 Gig FMD discs
+would not be far behind.
 
-fd.h:#define FDFMTBEG _IO(2,0x47)
-fd.h:#define	FDFMTTRK _IOW(2,0x48, struct format_descr)
-fd.h:#define FDFMTEND _IO(2,0x49)
+	The 200Gig devices are a whopping 300mm!  That's 2-1/2 the
+diameter of the current CD format.  That's a 12" platter we are talking
+about here.  That will be NICE for large centers with large data demands
+(kiss them tapes GOOD BY) but I don't see it on MY desk top!  :-)
 
-Maybe a broken MACRO?
+	So it's strictly a physical packaging and production issue.  I can
+certainly see where they would want to roll that little 1.8" format out
+the door for the consumer market first.  Lots of us would love to have
+the larger 5-1/2" format and I'm sure it won't be far behind, but
+you have to choose your initial devices carefully to avoid over
+burdening your startup production.
 
-Cheers,
-Dick Johnson
+	I certainly wouldn't call it "degraded for the consumer market"
+any more than I would call those little MO discs "degraded for the
+consumer market".  Those little discs are likely to be perfect for the
+consumer market (Radio Shack "pop a disc from your pocket into a player"
+crowd).  That form factor would also be fantastic for PDAs, handhelds,
+and small laptops.
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+	I don't see any real conspiracy here, just some sensible business
+and production planning (gee, how refreshing).
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

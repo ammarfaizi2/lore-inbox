@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbUGIAUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUGIAa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUGIAUS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 20:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUGIAUS
+	id S261711AbUGIAa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 20:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUGIAa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 20:20:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46279 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261867AbUGIAUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 20:20:08 -0400
-Date: Thu, 8 Jul 2004 17:19:58 -0700 (PDT)
-From: Bryce Harrington <bryce@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: <akpm@osdl.org>, <wli@holomorphy.com>, <ltp-list@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, <testdev@osdl.org>
-Subject: Re: [LTP] Re: Recent changes in LTP test results
-In-Reply-To: <20040707141406.2a46cf82.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0407081643420.32246-100000@osdlab.pdx.osdl.net>
+	Thu, 8 Jul 2004 20:30:26 -0400
+Received: from neptune.fsa.ucl.ac.be ([130.104.233.21]:35032 "EHLO
+	neptune.fsa.ucl.ac.be") by vger.kernel.org with ESMTP
+	id S261711AbUGIAaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 20:30:25 -0400
+Message-ID: <40EDE70C.40202@246tNt.com>
+Date: Fri, 09 Jul 2004 02:30:04 +0200
+From: Sylvain Munaut <tnt@246tnt.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040404)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/2] Freescale MPC52xx support for 2.6 - Base part
+References: <40ED7C51.90103@246tNt.com> <17F799EA-D13C-11D8-A787-000393DBC2E8@freescale.com>
+In-Reply-To: <17F799EA-D13C-11D8-A787-000393DBC2E8@freescale.com>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Kumar Gala wrote:
 
-Thanks, I tried this patch out, and it does fix the accept01 error.  :-)
+ > A few comments:
+ >
+ > cputable.c: * the 8280/52xx, maybe we should just have G2_LE, (same
+ > core exists in 8272, 8249, etc.)
 
-    http://khack.osdl.org/stp/294783/
+IMHO, yes it may be better.
 
-Do you have ideas on the other failures encountered?
+ > mpc52xx_setup.c: * what is cpu_52xx[]?
 
-Bryce
+A table with coefficients taken from datasheet. They're used to
+compute the core frequency according to XLB bus frequency and external
+jumper configurations.
 
-On Wed, 7 Jul 2004, David S. Miller wrote:
-> On Wed, 7 Jul 2004 13:48:52 -0700 (PDT)
-> Bryce Harrington <bryce@osdl.org> wrote:
->
-> > I have retested with ltp-full-20040603.  This version of LTP hangs on
-> > our system but fortunately completes most of the tests before doing so.
-> > It indicates that it still encounters the same errors, e.g.:
->
-> It hangs (actually, it OOPS's) on accept01, which is fixed in the current
-> BK sources via this patch:
->
-> # This is a BitKeeper generated diff -Nru style patch.
-> #
-> # ChangeSet
-> #   2004/07/06 22:02:06-07:00 davem@nuts.davemloft.net
-> #   [IPV4]: Set UDP accept back to sock_no_accept.
-> #
-> #   Setting it to inet_accept causes UDP accept attempts
-> #   to OOPS.  In particular, accept01 from LTP tries this.
-> #
-> #   Signed-off-by: David S. Miller <davem@redhat.com>
-> #
-> # net/ipv4/af_inet.c
-> #   2004/07/06 22:01:31-07:00 davem@nuts.davemloft.net +1 -1
-> #   [IPV4]: Set UDP accept back to sock_no_accept.
-> #
-> #   Setting it to inet_accept causes UDP accept attempts
-> #   to OOPS.  In particular, accept01 from LTP tries this.
-> #
-> #   Signed-off-by: David S. Miller <davem@redhat.com>
-> #
-> diff -Nru a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-> --- a/net/ipv4/af_inet.c	2004-07-07 14:09:13 -07:00
-> +++ b/net/ipv4/af_inet.c	2004-07-07 14:09:13 -07:00
-> @@ -823,7 +823,7 @@
->  	.bind =		inet_bind,
->  	.connect =	inet_dgram_connect,
->  	.socketpair =	sock_no_socketpair,
-> -	.accept =	inet_accept,
-> +	.accept =	sock_no_accept,
->  	.getname =	inet_getname,
->  	.poll =		datagram_poll,
->  	.ioctl =	inet_ioctl,
->
+ > ppcboot.h: * was bi_immr_base not sufficient?
+
+I suppose your question is why create bi_mbar_base instead of using immr.
+Well, I guess that would work just fine. The structure is just taken 
+straight from U-Boot sources.
+
+If the question was if I really need to add fields for the frequency, 
+then the answer is yes. (Else, I must measure them which takes times and 
+is inherently less precise).
+
+
+Sylvain Munaut
 

@@ -1,129 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUGIVA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUGIVDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUGIVA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 17:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUGIVA0
+	id S264931AbUGIVDh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 17:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUGIVDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 17:00:26 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:16357 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S264701AbUGIVAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 17:00:12 -0400
-Date: Fri, 9 Jul 2004 14:00:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix building on Solaris (and don't break Cygwin)
-Message-ID: <20040709210011.GG28002@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 9 Jul 2004 17:03:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7339 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264851AbUGIVDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 17:03:18 -0400
+Date: Fri, 9 Jul 2004 17:00:04 -0400
+Message-Id: <200407092100.i69L04VZ006230@redrum.boston.redhat.com>
+From: Peter Martuccelli <peterm@redhat.com>
+To: davidm@hpl.hp.com
+Cc: akpm@osdl.org, faith@redhat.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ray.lanza@hp.com, peterm@redhat.com
+Subject: [PATCH] IA64 audit support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following is from Jean-Christophe Dubois <jdubois@mc.com>.  On
-Solaris 2.8, <stdint.h> does not exist, but <inttypes.h> does.  However,
-on cygwin (the other odd place that the kernel is compiled on)
-<inttypes.h> doesn't exist.  So we end up with something like the
-following.
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
---- linux-2.6.7/scripts/sumversion.c    Wed Jun 16 01:19:43 2004
-+++ 2.6/scripts/sumversion.c    Fri Jul  9 04:10:27 2004
-@@ -1,5 +1,9 @@
- #include <netinet/in.h>
-+#ifdef __sun__
-+#include <inttypes.h>
-+#else // __sun__
- #include <stdint.h>
-+#endif // __sun__
- #include <ctype.h>
- #include <errno.h>
- #include <string.h>
---- linux-2.6.7/scripts/genksyms/genksyms.c     Wed Jun 16 01:19:23 2004
-+++ 2.6/scripts/genksyms/genksyms.c     Thu Jul  8 11:04:04 2004
-@@ -27,7 +27,9 @@
- #include <unistd.h>
- #include <assert.h>
- #include <stdarg.h>
-+#ifdef __GNU_LIBRARY__
- #include <getopt.h>
-+#endif /* __GNU_LIBRARY__ */
+This patch adds IA64 support to the audit infrastructure.  The IA64 audit 
+patch complements the existing audit support for the i386, PPC64, and x86_64
+architectures.
+
+Signed-off-by: Peter Martuccelli <peterm@redhat.com>
+
+diffstat:
+ arch/ia64/ia32/ia32_entry.S    |    8 ++++---
+ arch/ia64/kernel/entry.S       |   10 +++++----
+ arch/ia64/kernel/ivt.S         |    7 ++++--
+ arch/ia64/kernel/ptrace.c      |   42 +++++++++++++++++++++++++++++++++++++++--
+ include/asm-ia64/thread_info.h |    5 +++-
+ init/Kconfig                   |    2 -
+ 6 files changed, 61 insertions(+), 13 deletions(-)
+
+diff -Naurp linux-2.6.7-pristine/arch/ia64/ia32/ia32_entry.S linux-2.6.7/arch/ia64/ia32/ia32_entry.S
+--- linux-2.6.7-pristine/arch/ia64/ia32/ia32_entry.S	2004-06-16 16:32:05.000000000 -0400
++++ linux-2.6.7/arch/ia64/ia32/ia32_entry.S	2004-07-07 14:11:34.000000000 -0400
+@@ -110,7 +110,9 @@ GLOBAL_ENTRY(ia32_ret_from_clone)
+ 	ld4 r2=[r2]
+ 	;;
+ 	mov r8=0
+-	tbit.nz p6,p0=r2,TIF_SYSCALL_TRACE
++	and r2=_TIF_SYSCALL_TRACEAUDIT,r2
++	;;
++	cmp.ne p6,p0=r2,r0
+ (p6)	br.cond.spnt .ia32_strace_check_retval
+ 	;;					// prevent RAW on r8
+ END(ia32_ret_from_clone)
+@@ -142,7 +144,7 @@ GLOBAL_ENTRY(ia32_trace_syscall)
+ 	adds r2=IA64_PT_REGS_R8_OFFSET+16,sp
+ 	;;
+ 	st8 [r2]=r3				// initialize return code to -ENOSYS
+-	br.call.sptk.few rp=syscall_trace	// give parent a chance to catch syscall args
++	br.call.sptk.few rp=syscall_trace_enter	// give parent a chance to catch syscall args
+ .ret2:	// Need to reload arguments (they may be changed by the tracing process)
+ 	adds r2=IA64_PT_REGS_R1_OFFSET+16,sp	// r2 = &pt_regs.r1
+ 	adds r3=IA64_PT_REGS_R13_OFFSET+16,sp	// r3 = &pt_regs.r13
+@@ -170,7 +172,7 @@ GLOBAL_ENTRY(ia32_trace_syscall)
+ 	adds r2=IA64_PT_REGS_R8_OFFSET+16,sp	// r2 = &pt_regs.r8
+ 	;;
+ 	st8.spill [r2]=r8			// store return value in slot for r8
+-	br.call.sptk.few rp=syscall_trace	// give parent a chance to catch return value
++	br.call.sptk.few rp=syscall_trace_leave	// give parent a chance to catch return value
+ .ret4:	alloc r2=ar.pfs,0,0,0,0			// drop the syscall argument frame
+ 	br.cond.sptk.many ia64_leave_kernel
+ END(ia32_trace_syscall)
+diff -Naurp linux-2.6.7-pristine/arch/ia64/kernel/entry.S linux-2.6.7/arch/ia64/kernel/entry.S
+--- linux-2.6.7-pristine/arch/ia64/kernel/entry.S	2004-06-16 16:32:05.000000000 -0400
++++ linux-2.6.7/arch/ia64/kernel/entry.S	2004-07-07 14:11:34.000000000 -0400
+@@ -506,7 +506,7 @@ GLOBAL_ENTRY(ia64_trace_syscall)
+ 	;;
+  	stf.spill [r16]=f10
+  	stf.spill [r17]=f11
+-	br.call.sptk.many rp=syscall_trace // give parent a chance to catch syscall args
++	br.call.sptk.many rp=syscall_trace_enter // give parent a chance to catch syscall args
+ 	adds r16=PT(F6)+16,sp
+ 	adds r17=PT(F7)+16,sp
+ 	;;
+@@ -546,7 +546,7 @@ GLOBAL_ENTRY(ia64_trace_syscall)
+ .strace_save_retval:
+ .mem.offset 0,0; st8.spill [r2]=r8		// store return value in slot for r8
+ .mem.offset 8,0; st8.spill [r3]=r10		// clear error indication in slot for r10
+-	br.call.sptk.many rp=syscall_trace // give parent a chance to catch return value
++	br.call.sptk.many rp=syscall_trace_leave // give parent a chance to catch return value
+ .ret3:	br.cond.sptk ia64_leave_syscall
  
- #include "genksyms.h"
- 
-@@ -502,12 +504,21 @@
-        fputs("Usage:\n"
-              "genksyms [-dDwqhV] > /path/to/.tmp_obj.ver\n"
-              "\n"
-+#ifdef __GNU_LIBRARY__
-              "  -d, --debug           Increment the debug level
-(repeatable)\n"
-              "  -D, --dump            Dump expanded symbol defs (for
-debugging only)\n"
-              "  -w, --warnings        Enable warnings\n"
-              "  -q, --quiet           Disable warnings (default)\n"
-              "  -h, --help            Print this message\n"
-              "  -V, --version         Print the release version\n"
-+#else  /* __GNU_LIBRARY__ */
-+             "  -d                    Increment the debug level
-(repeatable)\n"
-+             "  -D                    Dump expanded symbol defs (for
-debugging only)\n"
-+             "  -w                    Enable warnings\n"
-+             "  -q                    Disable warnings (default)\n"
-+             "  -h                    Print this message\n"
-+             "  -V                    Print the release version\n"
-+#endif /* __GNU_LIBRARY__ */
-              , stderr);
+ strace_error:
+@@ -573,7 +573,7 @@ GLOBAL_ENTRY(ia64_strace_leave_kernel)
+ 	 */
+ 	nop.m 0
+ 	nop.i 0
+-	br.call.sptk.many rp=syscall_trace // give parent a chance to catch return value
++	br.call.sptk.many rp=syscall_trace_leave // give parent a chance to catch return value
+ }
+ .ret4:	br.cond.sptk ia64_leave_kernel
+ END(ia64_strace_leave_kernel)
+@@ -599,7 +599,9 @@ GLOBAL_ENTRY(ia64_ret_from_clone)
+ 	ld4 r2=[r2]
+ 	;;
+ 	mov r8=0
+-	tbit.nz p6,p0=r2,TIF_SYSCALL_TRACE
++	and r2=_TIF_SYSCALL_TRACEAUDIT,r2
++	;;
++	cmp.ne p6,p0=r2,r0
+ (p6)	br.cond.spnt .strace_check_retval
+ 	;;					// added stop bits to prevent r8 dependency
+ END(ia64_ret_from_clone)
+diff -Naurp linux-2.6.7-pristine/arch/ia64/kernel/ivt.S linux-2.6.7/arch/ia64/kernel/ivt.S
+--- linux-2.6.7-pristine/arch/ia64/kernel/ivt.S	2004-06-16 16:32:05.000000000 -0400
++++ linux-2.6.7/arch/ia64/kernel/ivt.S	2004-07-07 14:11:34.000000000 -0400
+@@ -752,7 +752,9 @@ ENTRY(break_fault)
+ 	;;
+ 	ld4 r2=[r2]				// r2 = current_thread_info()->flags
+ 	;;
+-	tbit.z p8,p0=r2,TIF_SYSCALL_TRACE
++	and r2=_TIF_SYSCALL_TRACEAUDIT,r2	// mask trace or audit
++	;;
++	cmp.eq p8,p0=r2,r0
+ 	mov b6=r20
+ 	;;
+ (p8)	br.call.sptk.many b6=b6			// ignore this return addr
+@@ -1573,10 +1575,11 @@ ENTRY(dispatch_to_ia32_handler)
+ 	ld4 r2=[r2]		// r2 = current_thread_info()->flags
+ 	;;
+ 	ld8 r16=[r16]
+-	tbit.z p8,p0=r2,TIF_SYSCALL_TRACE
++	and r2=_TIF_SYSCALL_TRACEAUDIT,r2	// mask trace or audit
+ 	;;
+ 	mov b6=r16
+ 	movl r15=ia32_ret_from_syscall
++	cmp.eq p8,p0=r2,r0
+ 	;;
+ 	mov rp=r15
+ (p8)	br.call.sptk.many b6=b6
+diff -Naurp linux-2.6.7-pristine/arch/ia64/kernel/ptrace.c linux-2.6.7/arch/ia64/kernel/ptrace.c
+--- linux-2.6.7-pristine/arch/ia64/kernel/ptrace.c	2004-06-16 16:32:05.000000000 -0400
++++ linux-2.6.7/arch/ia64/kernel/ptrace.c	2004-07-08 17:36:47.000000000 -0400
+@@ -1447,9 +1447,8 @@ sys_ptrace (long request, pid_t pid, uns
+ 	return ret;
  }
  
-@@ -516,6 +527,7 @@
+-/* "asmlinkage" so the input arguments are preserved... */
+ 
+-asmlinkage void
++void
+ syscall_trace (void)
  {
-   int o;
+ 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+@@ -1472,3 +1471,42 @@ syscall_trace (void)
+ 		current->exit_code = 0;
+ 	}
+ }
++
++/* "asmlinkage" so the input arguments are preserved... */
++
++asmlinkage void
++syscall_trace_enter (long arg0, long arg1, long arg2, long arg3,
++	  long arg4, long arg5, long arg6, long arg7, long stack)
++{
++	struct pt_regs *regs = (struct pt_regs *) &stack;
++	long syscall;
++
++	if (unlikely(current->audit_context)) {
++		if (IS_IA32_PROCESS(regs))
++			syscall = regs->r1;
++		else
++			syscall = regs->r15;
++
++		audit_syscall_entry(current, syscall, arg0, arg1, arg2, arg3);
++	}
++
++	if (test_thread_flag(TIF_SYSCALL_TRACE)
++	    && (current->ptrace & PT_PTRACED))
++		syscall_trace();
++}
++
++/* "asmlinkage" so the input arguments are preserved... */
++
++asmlinkage void
++syscall_trace_leave (long arg0, long arg1, long arg2, long arg3,
++	  long arg4, long arg5, long arg6, long arg7, long stack)
++{
++	struct pt_regs *regs = (struct pt_regs *) &stack;
++
++	if (unlikely(current->audit_context))
++		audit_syscall_exit(current, regs->r8);
++
++	if (test_thread_flag(TIF_SYSCALL_TRACE)
++	    && (current->ptrace & PT_PTRACED))
++		syscall_trace();
++}
+diff -Naurp linux-2.6.7-pristine/include/asm-ia64/thread_info.h linux-2.6.7/include/asm-ia64/thread_info.h
+--- linux-2.6.7-pristine/include/asm-ia64/thread_info.h	2004-06-16 16:32:09.000000000 -0400
++++ linux-2.6.7/include/asm-ia64/thread_info.h	2004-07-07 14:11:34.000000000 -0400
+@@ -73,12 +73,15 @@ struct thread_info {
+ #define TIF_SIGPENDING		1	/* signal pending */
+ #define TIF_NEED_RESCHED	2	/* rescheduling necessary */
+ #define TIF_SYSCALL_TRACE	3	/* syscall trace active */
++#define TIF_SYSCALL_AUDIT	4	/* syscall auditing active */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
  
-+#ifdef __GNU_LIBRARY__
-   struct option long_opts[] = {
-     {"debug", 0, 0, 'd'},
-     {"warnings", 0, 0, 'w'},
-@@ -528,6 +540,9 @@
+ #define TIF_WORK_MASK		0x7	/* like TIF_ALLWORK_BITS but sans TIF_SYSCALL_TRACE */
+-#define TIF_ALLWORK_MASK	0xf	/* bits 0..3 are "work to do on user-return" bits */
++#define TIF_ALLWORK_MASK	0x1f	/* bits 0..4 are "work to do on user-return" bits */
  
-   while ((o = getopt_long(argc, argv, "dwqVDk:p:",
-                          &long_opts[0], NULL)) != EOF)
-+#else  /* __GNU_LIBRARY__ */
-+  while ((o = getopt(argc, argv, "dwqVDk:p:")) != EOF)
-+#endif /* __GNU_LIBRARY__ */
-     switch (o)
-       {
-       case 'd':
---- linux-2.6.7/arch/ppc/boot/utils/mkbugboot.c Wed Jun 16 01:19:36 2004
-+++ 2.6/arch/ppc/boot/utils/mkbugboot.c Fri Jul  9 04:11:43 2004
-@@ -21,6 +21,11 @@
- #include <stdlib.h>
- #include <errno.h>
- #include <fcntl.h>
-+#ifdef __sun__
-+#include <inttypes.h>
-+#else // __sun__
-+#include <stdint.h>
-+#endif // __sun__
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
++#define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
++#define _TIF_SYSCALL_TRACEAUDIT	(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
+diff -Naurp linux-2.6.7-pristine/init/Kconfig linux-2.6.7/init/Kconfig
+--- linux-2.6.7-pristine/init/Kconfig	2004-06-16 16:33:52.000000000 -0400
++++ linux-2.6.7/init/Kconfig	2004-07-07 14:11:34.000000000 -0400
+@@ -149,7 +149,7 @@ config AUDIT
  
- #ifdef __i386__
- #define cpu_to_be32(x) le32_to_cpu(x)
-@@ -48,11 +53,6 @@
- 
- /* size of read buffer */
- #define SIZE 0x1000
--
--/* typedef long int32_t; */
--typedef unsigned long uint32_t;
--typedef unsigned short uint16_t;
--typedef unsigned char uint8_t;
- 
- /* PPCBUG ROM boot header */
- typedef struct bug_boot_header {
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+ config AUDITSYSCALL
+ 	bool "Enable system-call auditing support"
+-	depends on AUDIT && (X86 || PPC64 || ARCH_S390)
++	depends on AUDIT && (X86 || PPC64 || ARCH_S390 || IA64)
+ 	default y if SECURITY_SELINUX
+ 	default n
+ 	help

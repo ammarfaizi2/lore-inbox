@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSK3XxJ>; Sat, 30 Nov 2002 18:53:09 -0500
+	id <S261338AbSLAAFA>; Sat, 30 Nov 2002 19:05:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261338AbSK3XxJ>; Sat, 30 Nov 2002 18:53:09 -0500
-Received: from dot.freshdot.net ([195.64.80.165]:33042 "EHLO dot.freshdot.net")
-	by vger.kernel.org with ESMTP id <S261333AbSK3XxI>;
-	Sat, 30 Nov 2002 18:53:08 -0500
-Date: Sun, 1 Dec 2002 01:00:34 +0100
-From: Sander Smeenk <ssmeenk@freshdot.net>
+	id <S261339AbSLAAFA>; Sat, 30 Nov 2002 19:05:00 -0500
+Received: from x101-201-249-dhcp.reshalls.umn.edu ([128.101.201.249]:12161
+	"EHLO arashi.yi.org") by vger.kernel.org with ESMTP
+	id <S261338AbSLAAE7>; Sat, 30 Nov 2002 19:04:59 -0500
+Date: Sat, 30 Nov 2002 18:12:24 -0600
+From: Matt Reppert <arashi@arashi.yi.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.50 results
-Message-ID: <20021201000034.GA22081@dot.freshdot.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Unsafe MODULE_ usage in crc32.c
+Message-Id: <20021130181224.4b4cddad.arashi@arashi.yi.org>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-After a little struggle with 2.5.50 and it's new modules system I got
-things running on my Toshiba laptop.
+Okay, I know, it's just a library module, doesn't need to ever be unloaded
+anyway. But error noise in dmesg annoys me, hence this patch.
 
-Now there's a couple of things:
+Matt
 
-1) I get these messages while typing just normal stuff on my keyboard:
-| Dec  1 00:28:00 misery kernel: atkbd.c: Unknown key (set 2, scancode 0x96, on isa0060/serio0) pressed.
-| Dec  1 00:28:10 misery kernel: atkbd.c: Unknown key (set 2, scancode 0xae, on isa0060/serio0) pressed.
-| Dec  1 00:28:13 misery kernel: atkbd.c: Unknown key (set 2, scancode 0x91, on isa0060/serio0) pressed.
-| Dec  1 00:28:23 misery kernel: atkbd.c: Unknown key (set 2, scancode 0xa3, on isa0060/serio0) pressed.
-| Dec  1 00:28:38 misery kernel: atkbd.c: Unknown key (set 2, scancode 0xa6, on isa0060/serio0) pressed.
-I'm not doing anything funny at that moment, just typing commands.
-Messaged appear at a random interval and at random keys.
+  Convert CRC32 to try_module_get; fixes an unsafe usage that
+  prevents unloading.
 
-2) Apparently when one boots 2.5.50 without having the newest
-module-init-tools, the kernel panics while doing a shutdown.
-Unfortunately I can't give much more information, because now I have the
-new module-init-tools, and when it happened, all I could see was the
-last bit of the panic.
 
-Lastly, while loading modules:
+ lib/crc32.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
-| [0:57] [root@misery:~] # modprobe trident
-| WARNING: Error inserting ac97_codec
-| (/lib/modules/2.5.50/kernel/ac97_codec.o): Invalid module format
-| FATAL: Error inserting trident (/lib/modules/2.5.50/kernel/trident.o):
-| Unknown symbol in module
-| zsh: 456 exit 1     modprobe trident
-| [0:57] [root@misery:~] # 
+--- linux-2.5.50/lib/crc32.c~crc32-unsafe	2002-11-30 05:31:19.000000000 -0600
++++ linux-2.5.50-arashi/lib/crc32.c	2002-11-30 05:36:17.000000000 -0600
+@@ -551,7 +551,10 @@ static int __init init_crc32(void)
+ 	rc1 = crc32init_le();
+ 	rc2 = crc32init_be();
+ 	rc = rc1 || rc2;
+-	if (!rc) MOD_INC_USE_COUNT;
++	if (!rc) {
++		if (!try_module_get(THIS_MODULE))
++			rc = -1;
++	}
+ 	return rc;
+ }
+ 
 
-'trident' is the driver for my laptop's soundcard. But it fails to load.
-
-HTH,
-Sander.
-
--- 
-| Why is the time of day with the slowest traffic called rush hour?
-| 1024D/08CEC94D - 34B3 3314 B146 E13C 70C8  9BDB D463 7E41 08CE C94D
+[patch ends]

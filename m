@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUDLEcx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 00:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUDLEcx
+	id S262742AbUDLEoE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 00:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDLEoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 00:32:53 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:50630 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S262730AbUDLEcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 00:32:51 -0400
-Subject: Re: [ACPI] Re: [PATCH] filling in ACPI method access via sysfs  
-	namespace
-From: Alex Williamson <alex.williamson@hp.com>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Matthew Wilcox <willy@debian.org>, John Belmonte <john@neggie.net>,
-       acpi-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <407A1787.5060508@myrealbox.com>
-References: <fa.n5srcao.1k1orra@ifi.uio.no> <fa.e0sva3e.u5k09i@ifi.uio.no>
-	 <407A1787.5060508@myrealbox.com>
-Content-Type: text/plain
-Message-Id: <1081744367.1715.30.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 11 Apr 2004 22:32:48 -0600
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Apr 2004 00:44:04 -0400
+Received: from web60604.mail.yahoo.com ([216.109.118.242]:10408 "HELO
+	web60604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262742AbUDLEoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 00:44:02 -0400
+Message-ID: <20040412044402.85530.qmail@web60604.mail.yahoo.com>
+Date: Sun, 11 Apr 2004 21:44:02 -0700 (PDT)
+From: Ravi Kumar Munnangi <munnangi_ivar@yahoo.com>
+Subject: multiple kernels
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-04-11 at 22:13, Andy Lutomirski wrote:
+Hi Users,
+ 
+  Iam currently using RedHat 8.0 (Linux-2.4.18-14).
+  For some reasons I want to have Linux-2.2.17 also
+  on my system.
+  I can compile the new kernel but I want to skip the
+configuration part. Because Iam new to linux Iam not
+much confident of configuration process. Is there any
+way to make use of already existing configuration on
+Linux-2.4.18? Will this work?
+  Please help me!
 
-> Is there any reason this shouldn't be an ioctl?
-> 
+ Thanks,
+ravikumar
 
-   See the thread John pointed me to on Friday:
-
-http://sourceforge.net/mailarchive/message.php?msg_id=7455349
-
-Matthew ended it with "sysfs does not support ioctls.  case closed." 
-I'm rather fond of the methods living in the sysfs directory
-structure...
-
-	Alex
-
+__________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - File online by April 15th
+http://taxes.yahoo.com/filing.html

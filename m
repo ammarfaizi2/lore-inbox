@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287388AbSBRUez>; Mon, 18 Feb 2002 15:34:55 -0500
+	id <S284732AbSBRUtB>; Mon, 18 Feb 2002 15:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286263AbSBRUe2>; Mon, 18 Feb 2002 15:34:28 -0500
-Received: from mail2.svr.pol.co.uk ([195.92.193.210]:52536 "EHLO
-	mail2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S285161AbSBRUeM> convert rfc822-to-8bit; Mon, 18 Feb 2002 15:34:12 -0500
-Subject: =?iso-8859-1?Q?DTI  announces =A315,285,194,957 bonanza ?=
-From: "enquiries@Clickit.co.uk" <enquiries@Clickit.co.uk>
-Date: Mon, 18 Feb 2002 20:32:48 GMT
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-X-Priority: 2
-X-MSMail-Priority: High
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-X-Mailer: JMail 3.6.3 by Dimac (www.dimac.net)
-Message-Id: <E16cuUE-00013w-00.2002-02-18-20-34-10@mail2.svr.pol.co.uk>
+	id <S285229AbSBRUsw>; Mon, 18 Feb 2002 15:48:52 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44806 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284732AbSBRUsi>;
+	Mon, 18 Feb 2002 15:48:38 -0500
+Date: Mon, 18 Feb 2002 12:43:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrik Weiskircher <me@justp.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: khubd zombie
+Message-ID: <20020218204345.GF20284@kroah.com>
+In-Reply-To: <1014039193.523.42.camel@dev1lap> <20020218181417.GA19992@kroah.com> <1014062182.608.36.camel@pat> <20020218200041.GE20284@kroah.com> <1014063390.6649.8.camel@pat>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1014063390.6649.8.camel@pat>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 21 Jan 2002 17:13:00 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-£15,285,194,957 and that’s official.
-Thats how much money was spent on-line in Britain last year according to the DTI.
+On Mon, Feb 18, 2002 at 09:16:30PM +0100, Patrik Weiskircher wrote:
+> 
+> khubd is a kernel thread, yes.
+> But if I issue a 'killall khubd' it shouldn't become a zombie.
 
+Agreed.  I'll look into this.
 
-Dear reader,
+> > And what happened to your USB devices when you kill khubd after applying
+> > your patch?
+> 
+> They work as always.
 
-If you would like to increase your slice of this growing cake here are three possible 
-steps you could take beginning right now. 
+Try removing a device, or plugging a new one in :)
 
-1 Download a free report to help you prepare for the next phase in development.
-
-Buying an IT system - http://www.clickit.co.uk/download.asp?userid=97048&msg=18
- 
-This report offers a simple non-technical approach to buying IT systems based on two decades of
-experience and it is guaranteed to reduce stress and costs in your next IT project.
-
-E- procurement what should I be doing now - http://www.clickit.co.uk/download.asp?userid=97048&msg=18
- 
-This is not about systems and products it is designed to help bring into perspective the impact
-that e-commerce is having on business right now and help you take the right steps to avoid losing out.
-
-
-
-2 Order a free comprehensive web-site evaluation by the experts at Clickit UK 
-
-	This will cover a considerable range of aspects including:
-	 Performance
-	 Look and feel.
-	 Navigability and presentation of content.
-	 Body copy and marketing approach
-	 Functionality such as scripts.
-http://www.clickit.co.uk/report.asp?userid=97048&msg=18
- 
-
-Armed with this report you will be in a much better position to evaluate your position and move on.
-
-
-
-3 Take the direct route and phone 0870 7583183 now.
-The call will be answered by an Internet expert who will understand your needs.
-
-
-If you do not wish to receive similar emails in future click below 
-http://www.clickit.co.uk/unsubscribe.asp?userid=97048&msg=18
- ?id=97048
-
-
-
-
-
+greg k-h

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265169AbSKETmZ>; Tue, 5 Nov 2002 14:42:25 -0500
+	id <S264967AbSKETad>; Tue, 5 Nov 2002 14:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265170AbSKETmZ>; Tue, 5 Nov 2002 14:42:25 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:53909 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265169AbSKETmY>; Tue, 5 Nov 2002 14:42:24 -0500
-Subject: Re: [lkcd-devel] Re: What's left over.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-In-Reply-To: <20021105161902.I1408@almesberger.net>
-References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com>
-	<3DC19A4C.40908@pobox.com> <20021031193705.C2599@almesberger.net>
-	<20021105171230.A11443@in.ibm.com> <20021105150048.H1408@almesberger.net>
-	<1036521360.5012.116.camel@irongate.swansea.linux.org.uk> 
-	<20021105161902.I1408@almesberger.net>
-Content-Type: text/plain
+	id <S265103AbSKETac>; Tue, 5 Nov 2002 14:30:32 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:22983 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S264967AbSKETac>; Tue, 5 Nov 2002 14:30:32 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Wed, 6 Nov 2002 06:36:58 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 20:10:46 +0000
-Message-Id: <1036527046.6750.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15816.7642.109406.151180@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: Reconfiguring one SW-RAID when other RAIDs are running
+In-Reply-To: message from H. Peter Anvin on Monday November 4
+References: <3DC762FC.8070007@zytor.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 19:19, Werner Almesberger wrote:
-> kexec needs:
->  - a system call to set it up
+On Monday November 4, hpa@zytor.com wrote:
+> Hi all,
+> 
+> I'm trying to re-create a RAID while leaving the other RAIDs -- 
+> including the root filesystem -- running, but mkraid refuses to run:
+> 
+> hera 1 # mkraid /dev/md2
+> /dev/md0: array is active -- run raidstop first.
+> mkraid: aborted.
+> (In addition to the above messages, see the syslog and /proc/mdstat as well
+>   for potential clues.)
 
-Device, file, insmod...
+My guess is that the following patch would fix it, but I haven't
+tested it.
 
->  - a way to silence devices (difference to dumper: kexec normally
->    operates under an intact system, so it's more similar to, say,
->    swsusp. But I expect that cleaning up device power management
->    would also clear the path for more reliable dumpers.)
+NeilBrown
 
-So you need to register with the power management as the last thing to
-be suspended and do a suspend before kexec.
-
-> So not merging it is mainly inconvenient to use, adds the system
-> call allocation as a continuous annoyance, and makes it a little
-> harder to work on the related infrastructure. But then, despite
-> being somewhat obscure, bootimg and kexec have been in use for
-> years, the design is about as lean as it can get, and it's cool.
-> What more could you ask for ? :-)
-
-I'm mostly worried about how to make these things fit the least
-intrusively into the kernel.
+--- mkraid.c	2002/11/05 19:34:57	1.1
++++ mkraid.c	2002/11/05 19:35:29
+@@ -244,7 +244,7 @@ int main (int argc, char *argv[])
+     while (*args) {
+ 	for (p = cfg_head; p; p = p->next) {
+ 	    if (strcmp(p->md_name, *args)) continue;
+-	    if (check_active(cfg)) 
++	    if (check_active(p)) 
+ 		goto abort;
+ 	    if (force_flag) {
+ 		fprintf(stderr, "DESTROYING the contents of %s in 5 seconds, Ctrl-C if unsure!\n", *args);
 

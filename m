@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289978AbSAKPLk>; Fri, 11 Jan 2002 10:11:40 -0500
+	id <S289983AbSAKPOg>; Fri, 11 Jan 2002 10:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289977AbSAKPLZ>; Fri, 11 Jan 2002 10:11:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44805 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289978AbSAKPLJ>; Fri, 11 Jan 2002 10:11:09 -0500
-Subject: Re: [patch] O(1) scheduler, -H5
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Fri, 11 Jan 2002 15:22:48 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020111145811.B31366@flint.arm.linux.org.uk> from "Russell King" at Jan 11, 2002 02:58:11 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289981AbSAKPOT>; Fri, 11 Jan 2002 10:14:19 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:15762 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S289979AbSAKPOG>;
+	Fri, 11 Jan 2002 10:14:06 -0500
+Message-ID: <3C3F00E5.60906@nokia.com>
+Date: Fri, 11 Jan 2002 17:12:37 +0200
+From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
+Reply-To: affix-devel@lists.sourceforge.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Newsgroups: comp.os.linux.networking
+To: Affix support <affix-support@lists.sourceforge.net>,
+        affix-devel@lists.sourceforge.net,
+        Bluetooth-Drivers-for-Linux 
+	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
+        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_9pre8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16P3W4-0007vd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately it wasn't a simple "replace global irq with spinlocks" - some
-> code also got moved around so its not clear that the problem was fixed by
-> the spinlocks or the code reordering.  I'd rather know which it was.
+Hello,
 
-The code re-ordering fixes the bug. The spinlocks are an unrelated change
-that belong in a seperate diff.
+
+Find new affix release Affix-0_9pre8 on
+http://affix.sourceforge.net
+
+Version 0.9pre8 [11.01.2002]
+- Added debmod and debapp rules to build Debian packages
+- btsrv unregister services when terminates
+- connection establishment fixed
+- Now you can remove sdp services on the fly.
+- some SDP fixes
+
+br, Dmitri
+
+-- 
+ Dmitri Kassatkine
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitri.kassatkine@nokia.com
+
+

@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUIAKNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIAKRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265410AbUIAKNg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 06:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUIAKLn
+	id S265487AbUIAKRX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 06:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUIAKRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 06:11:43 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:26884 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265410AbUIAKKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 06:10:07 -0400
-Date: Wed, 1 Sep 2004 11:09:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: lkml@lpbproductions.com, Timothy Miller <miller@techsource.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 3ware queue depth [was: Re: HIGHMEM4G config for 1GB RAM on desktop?]
-Message-ID: <20040901110944.A10160@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	lkml@lpbproductions.com, Timothy Miller <miller@techsource.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <200408021602.34320.swsnyder@insightbb.com> <1094030083l.3189l.2l@traveler> <1094030194l.3189l.3l@traveler> <200409010233.31643.lkml@lpbproductions.com> <1094032735l.3189l.7l@traveler>
+	Wed, 1 Sep 2004 06:17:22 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:48071 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S265795AbUIAKRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 06:17:03 -0400
+References: <courier.41359B53.00007549@softhome.net>
+            <20040901095229.GA11908@devserv.devel.redhat.com>
+In-Reply-To: <20040901095229.GA11908@devserv.devel.redhat.com> 
+From: filia@softhome.net
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+Date: Wed, 01 Sep 2004 04:16:59 -0600
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1094032735l.3189l.7l@traveler>; from miquels@cistron.nl on Wed, Sep 01, 2004 at 09:58:55AM +0000
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [212.18.200.6]
+Message-ID: <courier.4135A19B.00007EA5@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 09:58:55AM +0000, Miquel van Smoorenburg wrote:
-> On 2004.09.01 11:33, Matt Heler wrote:
-> >
-> > I have a 3ware 7000-2 card. And I noticed the same problem. 
-> > 
-> > Actually what I just did now was change the max luns from 254 to 64. 
-> > Recompiled and booted up. This seems to fix all my problems, and the speed 
-> > seems to be quite faster then before.
-> 
-> Yes, that is because the queue_depth parameter gets set from
-> TW_MAX_CMDS_PER_LUN by the 3w-xxxx.c driver ...
-> 
-> I found the 3ware patch. The patch below makes the queue depth
-> an optional module parameter, makes sure that the initial
-> nr_requests is twice the size of the queue_depth, and
-> makes queue_depth writable for the 3ware driver.
+Arjan van de Ven writes: 
 
- - the writeable queue_depth sysfs attr is fine,
- - the reverse_scan option is vetoed because it can't be supported when
-   the driver will be converted to the pci_driver interface (soon)
- - I'm not so sure about the module parameter, what's the problem of beeing
-   able to only change the queue depth once sysfs is mounted?
+> On Wed, Sep 01, 2004 at 03:50:11AM -0600, filia@softhome.net wrote:
+>> Hi!  
+>> 
+>> Stop being arrogant.
+>> Can you please elaborate on how to make Linux kernel support e.g. motion 
+>> controllers? They do not fit *any* known to me driver interface. They have 
+>> several axes, they have about twenty parameters (float or integer), and 
+> 
+> parameters nicely fit in sysfs. 
+> 
 
+ What about errors?
+ "set di 200000" might fail for lots of reasons. 
+
+>> they have several commands, a-la start, graceful stop, abrupt stop. Plus 
+>> obviously diagnostics - about ten another commands with absolutely 
+>> different parameters. And about ten motion monitoring commands. And this is 
+>> one example I were need to program. 
+> 
+> a write() interface doesn't work???
+> Hard to believe, you even call them commands.
+> fd = open("/dev/funkydevice");
+> write(fd, "start"); 
+> 
+> doesn't sound insane to me 
+> 
+
+ it doesn't, since you didn't tryed to make error handling. every thing can 
+fail - this is control of mechanics - and it fails often and for a lot of 
+reasons. Put here error handling (write(struct whatever) has to return 
+another struct whatever2 filled with error description) and thread-safeness. 
+Pluss some controllers do support multi-dimensional movements "start 
+x,y,z,etc" - and you might have _several_ error structs. Atomicity is 
+important for multi-dimensional moves too - move on given axes starts with 
+single command. 
+
+ hu? 
+
+ I do not see much point in renaming ioctl() to write() all over the place - 
+at least when people see ioctl() they understand that it is not standard 
+functionality. write() will for sure confuse a lot of people. 
+
+ --- with respect. best regards.
+***    Philips @ Saarbruecken. 

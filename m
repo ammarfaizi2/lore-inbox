@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280257AbRKEG25>; Mon, 5 Nov 2001 01:28:57 -0500
+	id <S280255AbRKEGka>; Mon, 5 Nov 2001 01:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280255AbRKEG2r>; Mon, 5 Nov 2001 01:28:47 -0500
-Received: from wiproecmx2.wipro.com ([164.164.31.6]:53991 "EHLO
-	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S280262AbRKEG2h>; Mon, 5 Nov 2001 01:28:37 -0500
-Reply-To: <sivakumar.kuppusamy@wipro.com>
-From: "Sivakumar Kuppusamy" <sivakumar.kuppusamy@wipro.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: Patch for finding Memory leak in 2.2 kernel
-Date: Mon, 5 Nov 2001 12:22:48 +0530
-Message-ID: <003401c165c6$7b96e0a0$5f08720a@wipro.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S280262AbRKEGkW>; Mon, 5 Nov 2001 01:40:22 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:42489 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S280255AbRKEGkL>; Mon, 5 Nov 2001 01:40:11 -0500
+To: mlist-linux-kernel@nntp-server.caltech.edu
+Path: news
+From: Wei Xiaoliang <weixl@caltech.edu>
+Newsgroups: mlist.linux.kernel
+Subject: How can I know the number of current users in the system?
+Date: Sun, 04 Nov 2001 22:15:23 +0000
+Organization: CS.Caltech.EDU
+Message-ID: <3BE5BDFB.B49A8147@caltech.edu>
+Reply-To: weixl@caltech.edu
+NNTP-Posting-Host: 137-pppold-its.caltech.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-26mdk i686)
+X-Accept-Language: en, zh, zh-CN, af, zh-TW
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi every one,
+    I have a problem not clear: Is there any counter for the user number
+in linux?
+I want to do anexperiment which will get the number of current user in
+the system and try fair-share scheduling based on it. I read the sys.c
+and user.c but cannot find a counter for it. Is there any counter for
+this things?
 
-This is a multi-part message in MIME format.
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Hi All,
-I found a patch for 2.0.29 kernel for finding memory leak.
-Is there any similar patch for 2.2 kernel? 
-
-Thanks in advance for your replies
-Siva
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-------------------------------------------------------------------------------------------------------------------------
-
---------------InterScan_NT_MIME_Boundary--
+    If no, where can I put the inc instruct and dec instruct  or the
+counter? in the uid_hash_insert and uid_hash_remove?
+    Thank you!
+-----------------------------------------------------------------------
+Xiaoliang (David) Wei                    Graduate Student in CS, Caltech
+E-mail: weixl@caltech.edu                Office: 158 Jorgensen
+Phone: 1-(626)-395-3555 (O)        1-(626)-577-5238 (H)
+Mail:     Xiaoliang Wei, 256-80 Caltech, Pasadena, CA 91125, U.S.A.
+WWW: http://www.cs.caltech.edu/~weixl    http://166.111.69.241/~wxl
+-----------------------------------------------------------------------

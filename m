@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263873AbUDPWpe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbUDPWpd
+	id S263914AbUDPWpY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbUDPWpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:45:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40401 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263917AbUDPWoe (ORCPT
+	Fri, 16 Apr 2004 18:45:23 -0400
+Received: from [62.38.232.71] ([62.38.232.71]:32996 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S263914AbUDPWos (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:44:34 -0400
-Date: Fri, 16 Apr 2004 15:46:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: msync() needed before munmap() when writing to shared mapping?
-Message-Id: <20040416154652.7ab27e79.akpm@osdl.org>
-In-Reply-To: <20040416220223.GA27084@mail.shareable.org>
-References: <20040416220223.GA27084@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Apr 2004 18:44:48 -0400
+From: "P. Christeas" <p_christ@hol.gr>
+To: rct@frus.com (Bob Tracy)
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
+Date: Sat, 17 Apr 2004 01:42:24 +0300
+User-Agent: KMail/1.6.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404170142.24798.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> wrote:
->
-> I've followed the logic from do_munmap() and it looks good:
-> unmap_vmas->zap_pte_range->page_remove_rmap->set_page_dirty.
-> 
-> Can someone confirm this is correct, please?
+<crap>
+Its me!
+I'm the second person in our solar system that has such a card! 
+I do have the New Media *Basics SCSI* card! I remember back in the kernel 2.2 
+days that I had found that code, hacked it and used it.. Since then, I hadn't 
+tried to use it again. Actually, I lost (hd failure) the system together with 
+the patch I had for that code..
+Anyway, I believe that support for such hw is another Linux success story and 
+reserves a sticker at major distros saying "Linux: Supports all hardware; 
+even New Media's SCSI cards!".
+</crap>
 
-yup, zap_pte_range() transfers pte dirtiness into pagecache dirtiness when
-tearing down the mapping, leaving the dirty page floating about in
-pagecache for kupdate/kswapd/fsync to catch.  Longstanding behaviour.
-
+I cleanly compiled and run your module. Looks OK. I haven't yet attached any 
+peripheral, though. It's of no use to me, but I will be glad to help you by 
+testing that code (w. devices as well).
+Thanks for resurrecting the dead!

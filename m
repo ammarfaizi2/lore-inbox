@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbTIJKPN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 06:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbTIJKPN
+	id S261284AbTIJKKy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 06:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbTIJKKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 06:15:13 -0400
-Received: from hal-4.inet.it ([213.92.5.23]:45732 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S261458AbTIJKPI (ORCPT
+	Wed, 10 Sep 2003 06:10:53 -0400
+Received: from [213.13.155.14] ([213.13.155.14]:18186 "EHLO zmail.pt")
+	by vger.kernel.org with ESMTP id S261284AbTIJKKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 06:15:08 -0400
-Message-ID: <022e01c37785$02690aa0$5aaf7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: "Arjan van de Ven" <arjanv@redhat.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <20030910095255.GA21313@mail.jlokier.co.uk> <20030910120729.C14352@devserv.devel.redhat.com>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 12:17:13 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 10 Sep 2003 06:10:51 -0400
+Subject: Re: Scaling noise
+From: Ricardo Bugalho <ricardo.b@zmail.pt>
+To: rob@landley.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200309100114.37867.rob@landley.net>
+References: <20030903040327.GA10257@work.bitmover.com>
+	 <200309090211.16136.rob@landley.net>
+	 <pan.2003.09.09.16.07.28.847940@zmail.pt>
+	 <200309100114.37867.rob@landley.net>
+Content-Type: text/plain
+Message-Id: <1063188639.1601.15.camel@ezquiel.nara.homeip.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 10 Sep 2003 11:10:40 +0100
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Authenticated-Sender: ricardo.b@zmail.pt
+X-Spam-Processed: zmail.pt, Wed, 10 Sep 2003 11:08:05 +0100
+	(not processed: spam filter disabled)
+X-Return-Path: ricardo.b@zmail.pt
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: ricardo.b@zmail.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This test is sort of the worst case against my argument:
-> 1) It's a cpu with low memory bandwidth
-> 2) It's a 1 CPU system
-> 3) It's a pII not pIV; the pII is way more efficient cycle wise
->    for pagetable operations
+On Wed, 2003-09-10 at 06:14, Rob Landley wrote:
+> I'm not sure what the point of out-of-order VLIW would be.  You just put extra 
+> pressure on the memory bus by tagging your instructions with grouping info, 
+> just to give you even LESS leeway about shuffling the groups at run-time...
 
-I'm a Compuer Science graduate. And at least one single thing I've learned
-in my studies.
-More efficient Firmware support
-(such as an extremely wide memory bandwith
-or tens of CPUs in an SMP/NUMA
-or efficient cache line transfer support)
+The point is: simpler in-order implementations. In-order CPUs don't
+reorder instructions at run-time, as the name suggests.
 
-DOES NOT ALLOW YOU TO WASTE CYCLES IN DOING USELESS THINGS,
-such as TWO physical copies of a message if a process want to cooperate with
-another one.
+> > VLIW ISAs are no different from others regarding branch prediction --
+> > which is a problem for ALL pipelined implementations, superscalar or not.
+> > Speculative execution is a feature of out-of-order implementation.
+> 
+> Ah yes, predication.  Rather than having instruction execution thingies be 
+> idle, have them follow both branches and do work with a 100% chance of being 
+> thrown away.  And you wonder why the chips have heat problems... :)
 
-We are not engineer that simply have to let the things work.
+You're confusing brach prediction with instruction predication.
+Branch prediction is a design feature, needed for most pipelined CPUs.
+Because they're pipelined, the CPU may not know whether to take or not
+the branch when its time to fetch the next instructions. So, instead of
+stalling, it guesses. If its wrong, it has to rollback.
+Instruction predication is another form of conditional execution: each
+instruction has a predicate (a register) and is only executed if the
+predicate is true.
+The bad thing is that these instructions take their slot in the
+pipeline, even if the CPU knows they'll never be executed in the moment
+it fecthed them.
+The good sides are:
+a) Unlike branches, it doesn't have a constant mispredict penalty. So,
+its good to replace "small" and unpredictable branches
+b) Instead of a control dependency (branches) predication is a data
+dependency. So, it gives compilers more freedom in scheduling-
 
-That's all.
-Luca.
+> The point was, you can spend your transistor budget with big caches on the 
+> die, but there are diminishing returns.
+
+Depends on the workload..
+
+-- 
+	Ricardo
 

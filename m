@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285007AbRL3VBY>; Sun, 30 Dec 2001 16:01:24 -0500
+	id <S285000AbRL3VDq>; Sun, 30 Dec 2001 16:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284987AbRL3VBP>; Sun, 30 Dec 2001 16:01:15 -0500
-Received: from oss.sgi.com ([216.32.174.27]:52166 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S285020AbRL3VBA>;
-	Sun, 30 Dec 2001 16:01:00 -0500
-Date: Sun, 30 Dec 2001 19:00:20 -0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Lennert Buytenhek <buytenh@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] global errno considered harmful
-Message-ID: <20011230190020.A14157@dea.linux-mips.net>
-In-Reply-To: <20011230110623.A17083@gnu.org> <200112301956.OAA02630@ccure.karaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112301956.OAA02630@ccure.karaya.com>; from jdike@karaya.com on Sun, Dec 30, 2001 at 02:56:21PM -0500
-X-Accept-Language: de,en,fr
+	id <S284987AbRL3VDg>; Sun, 30 Dec 2001 16:03:36 -0500
+Received: from mail.gmx.de ([213.165.64.20]:34403 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S285000AbRL3VD3>;
+	Sun, 30 Dec 2001 16:03:29 -0500
+Message-ID: <3C2F8100.6070701@GMX.li>
+Date: Sun, 30 Dec 2001 22:02:56 +0100
+From: Jan Schubert <Jan.Schubert@GMX.li>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-video@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] drivers/video/mdacon.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 30, 2001 at 02:56:21PM -0500, Jeff Dike wrote:
+This patch is against linux-2417/drivers/video/mdacon.c to get 
+non-Hercules MDA working. Actually it does nothing, than assume a non 
+Hercules-MDA is compatible to "normal" Hercules. The current behaviour 
+is something confussing...
 
-> buytenh@gnu.org said:
-> > Is there any particular reason we need a global errno in the kernel at
-> > all? (which, by the way, doesn't seem to be subject to any kind of
-> > locking)  
-> 
-> As far as I've been able to tell, no.
+The problem whith the current version is, if you have such a 
+non-Hercules MDA it will detected while booting the kernel and you see a 
+message like "MDA with 8k RAM detected". Unfortunatley this message is 
+printed, but your card will _not_ be initialized, is it not recognized 
+as Hercules-compatible. So you will see the boot-message (and assume it 
+is working), but nothing on your MDA-console/monitor. So we have to 
+change this. It would be correct, to modify mdacon.c to _not_ print a 
+message about detecting a MDA is it not Hercules-compatible. But as i 
+mentioned above, at least my card is detected as non-Hercules but seems 
+fully compatible. So I would prefer, to consider any detected 
+non-Hercules MDA as Hercules-compatible. Please note, there is also some 
+special detection of "HerculesPlus" and "HerculesColor" in mdacon.c. 
+Does anybody know about any non Hercules compatible MDA ?
 
-Historically the reason was to make unistd.h usable from userspace.  Which
-is causing tremendous portability problems so apps better shouldn't think
-about using the syscall interface directly.
+TiA,
+Jan
 
-> > It makes life for User Mode Linux somewhat more complicated
-> > than it could be, and it generally just seems a bad idea.
-> 
-> Yeah.  In order for -fno-common to not blow up the UML build (because of the
-> clash between libc errno and kernel errno), I had to add -Derrno=kernel_errno
-> to all the kernel file compiles.  It would be nice to get rid of that wart.
-> 
-> > Referenced patch deletes all mention of a global errno from the
-> > kernel
-> 
-> Awesome.  This definitely needs to happen.  If no one spots any breakage,
-> send it in...
+------------------
 
-As user application are trying to use unistd.h and expect errno to get
-set properly unistd.h or at least it's syscallX macros will have to be
-made unusable from userspace or silent breakage of such apps rebuild
-against new headers will occur.
+--- drivers/video/mdacon.c.orig    Sun Dec 30 02:44:25 2001
++++ drivers/video/mdacon.c    Sun Dec 30 21:36:50 2001
+@@ -24,6 +24,7 @@
+  *
+  *  Changelog:
+  *  Paul G. (03/2001) Fix mdacon= boot prompt to use __setup().
++ *  20011230 Jan.Schubert@GMX.li - consider non-Hercules MDA compatible
+  */
 
-  Ralf
+ #include <linux/types.h>
+@@ -291,6 +292,10 @@
+                                break;
+                }
+        }
++       else {  /* consider non-Hercules as Hercules-compatible */
++               mda_type = TYPE_HERC;
++               mda_type_name = "Hercules compatible (hopefully)";
++       }
+
+        return 1;
+ }
+@@ -342,9 +347,8 @@
+                return NULL;
+        }
+
+-       if (mda_type != TYPE_MDA) {
+-               mda_initialize();
+-       }
++       /* at this point, we found an MDA */
++       mda_initialize();
+
+        /* cursor looks ugly during boot-up, so turn it off */
+        mda_set_cursor(mda_vram_len - 1);
+

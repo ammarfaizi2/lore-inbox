@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280744AbRKSWAu>; Mon, 19 Nov 2001 17:00:50 -0500
+	id <S280748AbRKSWHA>; Mon, 19 Nov 2001 17:07:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280748AbRKSWAj>; Mon, 19 Nov 2001 17:00:39 -0500
-Received: from auemail1.lucent.com ([192.11.223.161]:55761 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S280744AbRKSWAa>; Mon, 19 Nov 2001 17:00:30 -0500
-Message-ID: <3BF980F6.6080503@lucent.com>
-Date: Mon, 19 Nov 2001 17:00:22 -0500
-From: John Ellson <ellson@lucent.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011115
-X-Accept-Language: en-us
+	id <S280750AbRKSWGw>; Mon, 19 Nov 2001 17:06:52 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:40148 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S280748AbRKSWGn>;
+	Mon, 19 Nov 2001 17:06:43 -0500
+Date: Mon, 19 Nov 2001 22:06:38 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Devlinks.  Code.  (Dcache abuse?)
+Message-ID: <1925755060.1006207598@[195.224.237.69]>
+In-Reply-To: <E165w5m-0007mR-00@the-village.bc.nu>
+In-Reply-To: <E165w5m-0007mR-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] "make modules_install" breaks with new /bin/cp
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-2.4.15-pre6, fileutils-4.1.1-1.i386.rpm
+Alan,
 
-With my configuration (details not important), "make modules_install" results in:
+>> Which trademark law are you violating by having that in a directory
+>> name path, which you are not also violating by having it in the
+>> kernel source, make config, name of the module and its printk()
+>> on load, etc. etc.
+>
+> You can change all the other names with almost zero impact
 
-mkdir -p /lib/modules/2.4.15-pre6/kernel/drivers/sound/
-cp soundcore.o sound.o cs4232.o ad1848.o pss.o ad1848.o mpu401.o cs4232.o uart401.o ad1848.o mpu401.o uart6850.o 
-v_midi.o btaudio.o /lib/modules/2.4.15-pre6/kernel/drivers/sound/
-cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/ad1848.o' with `ad1848.o'
-cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/cs4232.o' with `cs4232.o'
-cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/ad1848.o' with `ad1848.o'
-cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/mpu401.o' with `mpu401.o'
-make[2]: *** [_modinst__] Error 1
+Ah - OK; dname/dt didn't occur to me, but still this is
+a consequence of a violation, not the violation itself; what
+aspect of trademark law is a problem?
 
-This hasn't been a problem with earlier version of /bin/cp (upto fileutils-4.1-4.i386.rpm in RH7.2),
-but /bin/cp from fileutils-4.1.1-1.i386.rpm (in the Rawhide collection) is more pedantic about
-multiple copies of the same file.
+There are a few other examples of this. /proc/cpuinfo has
 
-This patch works around this "feature".  It would be better if the Makefiles were changed to only
-install modules once, but thats a deeper problem.
+shed[amb].121$ cat /proc/cpuinfo
+...
+vendor_id       : GenuineIntel
+...
+model name      : Pentium III (Coppermine)
 
+That's 2, if not 3 trademarks without acknowledgement that
+might be searched for by userspace programs.
 
+The solution is presumably that lanana doesn't accept /registered/
+trademarks without a GPL compatible license from the trademark
+holder. I don't believe you would have too much of a problem
+with unregistered trademarks.
 
---- Rules.make.orig	Mon Nov 19 16:49:55 2001
-+++ Rules.make	Mon Nov 19 16:50:20 2001
-@@ -173,7 +173,7 @@
-  _modinst__: dummy
-  ifneq "$(strip $(ALL_MOBJS))" ""
-  	mkdir -p $(MODLIB)/kernel/$(MOD_DESTDIR)
-- 
-cp $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
-+ 
-for i in $(ALL_MOBJS);do cp $$i $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET);done
-  endif
+In any case, most trademark law has some concept of 'fair use'.
+See the difficulty many trademark holders have in suing
+registrants of [trademark]sucks.[registrysuffix]. I think
+the use in terms of supporting hardware is pretty
+fair. Cloning competing OS functionality is closer to
+the wind I admit.
 
-  .PHONY: modules_install
+(Only tangentially relevant but for amusement value and a
+ beautifully argued case read
+  http://arbiter.wipo.int/domains/decisions/html/2001/d2001-0918.html
+ enjoyment almost guaranteed
+)
 
-	
-
-
--- 
-John Ellson (ellson@lucent.com)  Lucent Technologies, Holmdel, NJ, 07733
-
+--
+Alex Bligh

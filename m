@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbUCRNrj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 08:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbUCRNri
+	id S262647AbUCRNvY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 08:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUCRNvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 08:47:38 -0500
-Received: from main.gmane.org ([80.91.224.249]:50579 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262632AbUCRNrh (ORCPT
+	Thu, 18 Mar 2004 08:51:24 -0500
+Received: from main.gmane.org ([80.91.224.249]:58003 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262647AbUCRNvX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 08:47:37 -0500
+	Thu, 18 Mar 2004 08:51:23 -0500
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: Martin Wilke <werwolf@unixfreunde.de>
-Subject: Temp Problems on AMD XP
-Date: Thu, 18 Mar 2004 14:52:38 +0100
+Subject: term problem kernel 2.6.4
+Date: Thu, 18 Mar 2004 14:49:27 +0100
 Organization: unixfreunde.de
-Message-ID: <pan.2004.03.18.13.52.38.546168@unixfreunde.de>
+Message-ID: <pan.2004.03.18.13.49.27.465911@unixfreunde.de>
 Reply-To: werwolf@unixfreunde.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -35,5 +35,4 @@ compiling) and pc powered himself down then.
 i took my old config-files and did not change anything.
 last night i upgraded to 2.6.5-rc1 and everything is running normal as 
 before..
-
 

@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277277AbRJEACm>; Thu, 4 Oct 2001 20:02:42 -0400
+	id <S277276AbRJEACm>; Thu, 4 Oct 2001 20:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277276AbRJEACd>; Thu, 4 Oct 2001 20:02:33 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:61967 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S277277AbRJEACU>; Thu, 4 Oct 2001 20:02:20 -0400
-Date: Fri, 5 Oct 2001 08:04:10 +0800 (SGT)
-From: Linux Kernel <linux-kernel@vger.kernel.org>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Peter Rival <frival@zk3.dec.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Some 2.4.9 vs. 2.4.10 results
-In-Reply-To: <3BBCC246.2060206@zk3.dec.com>
-Message-ID: <Pine.LNX.4.33.0110050801190.5725-100000@boston.corp.fedex.com>
+	id <S277282AbRJEACc>; Thu, 4 Oct 2001 20:02:32 -0400
+Received: from mccammon.ucsd.edu ([132.239.16.211]:10124 "EHLO
+	mccammon.ucsd.edu") by vger.kernel.org with ESMTP
+	id <S277276AbRJEACP>; Thu, 4 Oct 2001 20:02:15 -0400
+Date: Thu, 4 Oct 2001 17:03:05 -0700 (PDT)
+From: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
+X-X-Sender: <apodtele@chemcca18.ucsd.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+Message-ID: <Pine.LNX.4.33.0110041618450.2582-100000@chemcca18.ucsd.edu>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/05/2001
- 08:02:43 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/05/2001
- 08:02:47 AM,
-	Serialize complete at 10/05/2001 08:02:47 AM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi guys,
 
-I don't have any real benchmark data, but all I want to add it that
-2.4.11-pre2 is even faster than 2.4.10.
+I've already expressed my concern about using srand(1) in private e-mails.
+I think it's unscientific to use one particular random sequence. Since 
+no one checked if that matters, I changed srand(1) to srand(time(NULL)) 
+and I'm posting my results. I don't do testing of Alan or Linus's kernels, 
+but use recent Red Hat kernel. I think I've shown that it does matter.
 
-With 2.4.11-pre2, I can watch DVD (xmovie 1.8) on my IBM 240Z with frame
-update a lot faster than 2.4.10.
+Six quick consecutive runs of modified qs on a small set of 8 million 
+integers (obviously no swap activity):
 
+> time ./a.out 8000000
+0 errors.
+24.250u 0.310s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+0 errors.
+24.290u 0.260s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+0 errors.
+24.300u 0.260s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
+0 errors.
+24.270u 0.300s 0:24.57 100.0%   0+0k 0+0io 116pf+0w
+0 errors.
+24.290u 0.270s 0:24.56 100.0%   0+0k 0+0io 116pf+0w
+0 errors.
+24.280u 0.280s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+Apparently, no significant deviations in computing times.
 
-On Thu, 4 Oct 2001, Peter Rival wrote:
+Six runs of modified qs on a large set of 80 million integers (a lot of 
+swapping!)
 
-> Hi all,
->
-> 	I just thought I'd pop in my two cents on this whole topic.  In short
-> form, on my Alpha GS80 (8 CPUs, 8 GB, 40 U160 disks/4x2channel adapters,
-> 2 NUMA nodes) 2.4.9 is almost unusable while 2.4.10 flies quite nicely.
->   Under 2.4.9 even things as simple as a mke2fs on a single 18 GB drive
-> took minutes, while under 2.4.10 only seconds.  When I say 2.4.10, it's
-> actually 2.4.10+the vm_tweak patch.
->
-> 	I'm attaching a copy of the results of an AIM VII "shared" run as well as
-> a lockstat report from a 500 user datapoint under 2.4.10.  If there is
-> desire, I can generate a lockstat report for 2.4.9 as well.  I'm also
-> going to see if I can get our profiling package to work on this system
-> again, and if so I'll forward along those results as well.
->
-> 	And not to bring up another old string, but just for giggles I removed
-> the lock_kernel()/unlock_kernel() in llseek() to see what came of it.
-> In short, a 2.2% gain in throughput and nearly 50% drop in the amount of
-> time the kernel_lock is taken under this load.  Definitely looking
-> forward to 2.5. ;)  Anyway, if there is something else anyone would be
-> interested in that would be useful to run under this load (or a
-> different set of statistics), feel free to let me know.
->
->   - Pete
->
+> time ./a.out 80000000
+0 errors.
+261.580u 4.250s 11:09.21 39.7%  0+0k 0+0io 17379pf+0w
+0 errors.
+260.460u 3.660s 9:09.72 48.0%   0+0k 0+0io 13194pf+0w
+0 errors.
+260.620u 4.510s 10:39.80 41.4%  0+0k 0+0io 16714pf+0w
+0 errors.
+261.790u 4.150s 10:09.58 43.6%  0+0k 0+0io 16331pf+0w
+0 errors.
+260.400u 4.140s 9:23.46 46.9%   0+0k 0+0io 13722pf+0w
+0 errors.
+259.980u 3.940s 9:10.22 47.9%   0+0k 0+0io 14240pf+0w
+
+mean = 9m57s; standard deviation = 50s.
+
+Apparently, the random sequence does matter (to the Rik's algorithm at 
+least since it's in RH kernel).
+
+I wonder how big the deviation is for official and AC trees.
+Now Lorenzo's results seem inconclusive.
+
+Regards,
+Alexei
 

@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVCVAoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVCVAo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVCVAoz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 19:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbVCVAn7
+	id S262224AbVCVAo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:44:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVCVAnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 19:43:59 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32906 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262231AbVCVAnX (ORCPT
+	Mon, 21 Mar 2005 19:43:40 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:2502 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262226AbVCVAnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 19:43:23 -0500
-Date: Mon, 21 Mar 2005 16:43:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: jonsmirl@gmail.com, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: current linus bk, error mounting root
-Message-Id: <20050321164318.04a5dc82.akpm@osdl.org>
-In-Reply-To: <20050322003807.GA10180@kroah.com>
-References: <9e47339105030909031486744f@mail.gmail.com>
-	<20050321154131.30616ed0.akpm@osdl.org>
-	<9e473391050321155735fc506d@mail.gmail.com>
-	<20050321161925.76c37a7f.akpm@osdl.org>
-	<20050322003807.GA10180@kroah.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Mar 2005 19:43:09 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.12-rc1-mm1
+Date: Mon, 21 Mar 2005 16:42:00 -0800
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, arjanv@infradead.org,
+       linux-kernel@vger.kernel.org
+References: <20050321025159.1cabd62e.akpm@osdl.org> <200503210915.53193.jbarnes@engr.sgi.com> <20050321202506.GA3982@stusta.de>
+In-Reply-To: <20050321202506.GA3982@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503211642.00796.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
+On Monday, March 21, 2005 12:25 pm, Adrian Bunk wrote:
+> On Mon, Mar 21, 2005 at 09:15:53AM -0800, Jesse Barnes wrote:
+> > On Monday, March 21, 2005 2:51 am, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc
+> > >1/2. 6.12-rc1-mm1/
+> >
+> > Andrew, please drop
+> >
+> > revert-allow-oem-written-modules-to-make-calls-to-ia64-oem-sal-functions.
+> >patch
+> >
+> > The tiocx.c driver is now in the tree, and it uses those functions.
 >
-> > I don't agree that this is a userspace issue.  It's just not sane for a
-> > driver to be in an unusable state for an arbitrary length of time after
-> > modprobe returns.
-> 
-> It is a userspace issue.  If you have a static /dev there are no
-> problems, right?  If you use udev, you need to wait for the device node
-> to show up, it will not be there right after modprobe returns.
+> IOW:
+> The EXPORT_SYMBOL's should still be removed, but the functions
+> themselves should stay.
 
-OK, that's different.
+Actually, no, since tiocx can be built modular.  The patch should just be 
+dropped.
 
-(grumble, mutter)
-
-It would be very convenient, tidy and sane if we _could_ arrange for
-modprobe to block until the device node appears though.  I think devfs can
-do that ;)
-
+Thanks,
+Jesse

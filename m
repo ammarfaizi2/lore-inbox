@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264482AbRF1Vmf>; Thu, 28 Jun 2001 17:42:35 -0400
+	id <S264489AbRF1Vng>; Thu, 28 Jun 2001 17:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264407AbRF1Vm0>; Thu, 28 Jun 2001 17:42:26 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:59716 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S264482AbRF1VmR>; Thu, 28 Jun 2001 17:42:17 -0400
-Message-Id: <200106282143.f5SLht624150@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Yaacov Akiba Slama <slamaya@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available 
-In-Reply-To: Message from Yaacov Akiba Slama <slamaya@yahoo.com> 
-   of "Fri, 29 Jun 2001 00:12:50 +0300." <3B3B9DD2.1030103@yahoo.com> 
-Date: Thu, 28 Jun 2001 16:43:55 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S264407AbRF1Vn0>; Thu, 28 Jun 2001 17:43:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:7694 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S264489AbRF1VnQ>;
+	Thu, 28 Jun 2001 17:43:16 -0400
+Date: Thu, 28 Jun 2001 23:43:05 +0200
+From: Olaf Hering <olh@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: John R Lenton <john@grulic.org.ar>, linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+Message-ID: <20010628234305.A4175@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0106280921460.10308-100000@localhost.localdomain> <31074.993745533@redhat.com> <20010628183040.E7494@grulic.org.ar> <3B3BA303.2807E1E6@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <3B3BA303.2807E1E6@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Jun 28, 2001 at 05:34:59PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
+On Thu, Jun 28, Jeff Garzik wrote:
 
-> So I only hope that the smart guys at SGI find a way to prepare the 
-> patches the way Linus loves because now the file 
-> "patch-2.4.5-xfs-1.0.1-core" (which contains the modifs to the kernel 
-> and not the new files) is about 174090 bytes which is a lot.
+> John R Lenton wrote:
+> > 
+> > On Thu, Jun 28, 2001 at 05:25:33PM +0100, David Woodhouse wrote:
+> > >
+> > > KERN_BANNER
+> > 
+> > cool, what about kbannerd ?
 > 
-> YA
 > 
+> I'm still pushing for a Perl interpreter in the kernel, let's not forget
+> that too.
 
-But that is not a patch intended for Linus, it is intended to enable all
-the XFS features. I have a couple of kernel patches which total 46298 bytes
-which get you a working XFS filesystem in the kernel, and I could do
-lots of things to make them smaller. When you hit header files in the
-correct manner for different platforms the size tends to mushroom.
-These lines are all in different fcntl.h files for example:
-
-+#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    0x80000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    02000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    0x200000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    0x200000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    01000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    02000000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    0x80000 /* invisible I/O, for DMAPI/XDSM */
-+#define O_INVISIBLE    02000000 /* invisible I/O, for DMAPI/XDSM */
-
-You make the patches look a lot bigger than they really are. There is
-a difference between a patch which is placing things in the correct
-places and one which is designed to be as short as possible.
-
-Steve
+kde.o. 2.5?
 
 
+Gruss Olaf
 
+-- 
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...

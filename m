@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317429AbSFROcU>; Tue, 18 Jun 2002 10:32:20 -0400
+	id <S317427AbSFRObW>; Tue, 18 Jun 2002 10:31:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317430AbSFROcT>; Tue, 18 Jun 2002 10:32:19 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:24332 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S317429AbSFROcR> convert rfc822-to-8bit; Tue, 18 Jun 2002 10:32:17 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S317429AbSFRObV>; Tue, 18 Jun 2002 10:31:21 -0400
+Received: from waste.org ([209.173.204.2]:29569 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S317427AbSFRObV>;
+	Tue, 18 Jun 2002 10:31:21 -0400
+Date: Tue, 18 Jun 2002 09:30:27 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       Martin Dalecki <dalecki@evision-ventures.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/19] writeback tunables
+In-Reply-To: <3D0E52DD.4CE57058@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206180921030.26335-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.4.19-pre10 link error - cpqarray related ?
-Date: Tue, 18 Jun 2002 09:32:13 -0500
-Message-ID: <A2C35BB97A9A384CA2816D24522A53BB01E88FF1@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.19-pre10 link error - cpqarray related ?
-Thread-Index: AcIW01ehGfAI3xRhQNeY7Aju6lC21AAARTBQ
-From: "White, Charles" <Charles.White@hp.com>
-To: "Dave Jones" <davej@suse.de>
-Cc: "Adrian Bunk" <bunk@fs.tum.de>, "Filip Sneppe" <filip.sneppe@chello.be>,
-       <linux-kernel@vger.kernel.org>,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>, "Arrays" <arrays@hp.com>
-X-OriginalArrivalTime: 18 Jun 2002 14:32:14.0195 (UTC) FILETIME=[F066EC30:01C216D4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.. 
-I will look at that. 
+On Mon, 17 Jun 2002, Andrew Morton wrote:
 
+> Russell King wrote:
+> >
+> > On Mon, Jun 17, 2002 at 12:33:18PM +0200, Martin Dalecki wrote:
+> > ...
+> > > > +int dirty_expire_centisecs = 30 * 100;
+> > > > +
+> > >
+> > > Blind guess - didn't the 100 wan't to be HZ?!
+> >
+> > The units are centiseconds (as the name suggests). 5 * 100 centiseconds = 5
+> > seconds, so the dirty writeback timeout is 5 seconds.  Check the code a
+> > little further and you'll see HZ gets factored into them on use.
+> >
+>
+> Yup.  Sorry about the "_centisecs" thing.  That's a bit anal, but
+> I tend to think that it's best to be really explicit about the
+> units, make it a bit easier to use.  I don't know how many times
+> I've had to peer in fs/buffer.c to remember what those dang numbers do.
+>
+> Possibly, "seconds" may be sufficiently high resolution for
+> these things.  But I wasn't sure - maybe someone wants to
+> run the kupdate function five times per second?  Dunno.
 
------Original Message-----
-From: Dave Jones [mailto:davej@suse.de]
-Sent: Tuesday, June 18, 2002 9:21 AM
-To: White, Charles
-Cc: Adrian Bunk; Filip Sneppe; linux-kernel@vger.kernel.org; Marcelo
-Tosatti; Arrays
-Subject: Re: 2.4.19-pre10 link error - cpqarray related ?
-
-
-On Tue, Jun 18, 2002 at 09:11:23AM -0500, White, Charles wrote:
- > Interesting... It compiled for me fine.  Both statically and dynamic. 
- >  
- > What version of the compiler are you using?
-
-__devexit/__devexit_p problems are a binutils issue.
-Likely you have an older binutils which doesn't exhibit this problem.
-
-        Dave
+Possibly, we should just concede that anywhere where we're measuring time,
+we'll eventually want to use a non-integer external representation just so
+we're not building in obsolescense. With a couple simple wrappers like
+atoif(".667",HZ)=67, this could be pretty painless.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,62 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbUDLVmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDLVmz
+	id S263129AbUDLVwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUDLVwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:42:55 -0400
-Received: from mail.kroah.org ([65.200.24.183]:50822 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263124AbUDLVmx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:42:53 -0400
-Date: Mon, 12 Apr 2004 14:42:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Hunold <hunold@convergence.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems adding sysfs support to dvb subsystem
-Message-ID: <20040412214232.GA23692@kroah.com>
-References: <407AFD5B.8010502@convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <407AFD5B.8010502@convergence.de>
-User-Agent: Mutt/1.5.6i
+	Mon, 12 Apr 2004 17:52:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16315 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263129AbUDLVwN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 17:52:13 -0400
+Message-ID: <407B0F7F.5030205@pobox.com>
+Date: Mon, 12 Apr 2004 17:51:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Jacobowitz <dan@debian.org>
+CC: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
+References: <BF1FE1855350A0479097B3A0D2A80EE002F7B775@hdsmsx402.hd.intel.com> <20040407145929.GA1247@nevyn.them.org> <20040412185147.GA7717@nevyn.them.org> <20040412212838.GA1613@nevyn.them.org>
+In-Reply-To: <20040412212838.GA1613@nevyn.them.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 10:34:35PM +0200, Michael Hunold wrote:
+Daniel Jacobowitz wrote:
+> On Mon, Apr 12, 2004 at 02:51:47PM -0400, Daniel Jacobowitz wrote:
 > 
-> What I'd like to have is something like this, so I can add attributes to 
-> the frontend for example:
-> /sys/class/dvb/adapter0/frontend0/
+>>[Jeff, I'm sending this to you because your name is above the Via PCI
+>>quirks.  It's in a followup comment, though, so there's probably
+>>someone else I should be talking to about the original quirks - I just
+>>haven't worked out who yet.]
+>>
+>>I'm trying to track down an interrupt routing problem on my Via-chipset
+>>motherboard (it's an Abit VP6).  The symptoms are that the USB and
+>>audio drivers eat each other; it appears that they are on the same
+>>IRQ line, even though /proc/interrupts says:
+>> 11:     300000          0   IO-APIC-level  uhci_hcd, uhci_hcd
+>> 19:     299999          1   IO-APIC-level  au8830
+>>
+>>So eventually one of them gets wedged on, and the other panics because
+>>it can't identify the incoming interrupts.
+>>
+>>At boot I see this, from drivers/pci/quirks.c:
+>>
+>>PCI: Via IRQ fixup for 0000:00:07.2, from 5 to 11
+>>PCI: Via IRQ fixup for 0000:00:07.3, from 5 to 11
+>>
+>>Is it possible that the same problem, i.e. writes to the INTERRUPT_LINE
+>>register causing connection to the PIC, could apply to devices in the PCI
+>>slots?  The register still shows 5 for the au8830, which is the IRQ it
+>>gets assigned to if I boot without ACPI.
+>>
+>>I know this hypothesis sounds a little weak.  I'm running out of ideas
+>>:)
 > 
-> I wasn't able to find a driver that provides this simple "hierarchical" 
-> order, so I did some experiments with little luck.
 > 
-> Creating this hierarchical order manually (like for "devfs") didn't 
-> work, I get
-> > find: /sys/class/dvb/adapter0/frontend0: No such file or directory
-> errors upon access:
+> I've worked out the part of the problem involving that quirk.  There's
+> an entry in quirks.c which reads:
 > 
-> > sprintf((void*)&dvbdev->class_device.class_id, "adapter%d/%s%d", 
-> adap->num, dnames[type], id);
-> > class_device_register(&dvbdev->class_device);
+> /*
+>  *      VIA northbridges care about PCI_INTERRUPT_LINE
+>  */
+> 
+> int interrupt_line_quirk;
+> 
+> static void __devinit quirk_via_bridge(struct pci_dev *pdev)
+> {
+>         if(pdev->devfn == 0)
+>                 interrupt_line_quirk = 1;
+> }
+> 
+> The i386 pirq_enable_irq honors this:
+>         /* VIA bridges use interrupt line for apic/pci steering across
+>            the V-Link */
+>         else if (interrupt_line_quirk)
+>                 pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
+> 
+> The matching function in ACPI does not honor this quirk, so we probably
+> have routing troubles on a lot of affected VIA northbridges.  There's
+> at least one thing which looks like an example of this in Bugzilla
+> (which was "fixed" by twiddling the IRQ balancing code).  With this
+> patch I get a little better (more predictable, at least) behavior.
 
-No, you can't create subdirectories directly by just adding a '/' to the
-name of the class device, sorry.  You will have to create a kobject for
-the directory, and create the attributes in that kobject, like
-networking did.
 
-Yeah, it's a bit of a pain, but creating subdirectories in an easy
-manner is on the TODO list for the driver core for 2.7.
+You're certainly on the right track.  Len and I have discussed how to 
+best handle this in ACPI, I'll let him comment further...
 
-If you want to get up and running quickly, which would not require you
-to fix up any lifetime rules for your dvb drivers, you could implement
-the class_simple interface, like a lot of other driver subsystems
-currently are doing, and then in 2.7 convert over to a proper driver
-model conversion.  I say this as I am only guessing as to what your
-lifetime rules are for your dvb devices and drivers...
+	Jeff
 
-Hope this helps,
 
-greg k-h
+

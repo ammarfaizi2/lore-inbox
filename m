@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbTKGWmY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTKGW0M
+	id S262066AbTKGWmV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTKGW0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:26:12 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:6888 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264005AbTKGJqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 04:46:06 -0500
-Date: Fri, 7 Nov 2003 10:45:59 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Mark Gross <mgross@linux.co.intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP signal latency fix up.
-In-Reply-To: <1068169363.1831.15.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.56.0311071039490.20509@earth>
-References: <Pine.LNX.4.44.0311061510440.1842-100000@home.osdl.org> 
- <1068169185.1831.9.camel@localhost.localdomain> <1068169363.1831.15.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Nov 2003 17:26:50 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5533 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264347AbTKGN4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 08:56:07 -0500
+Date: Fri, 7 Nov 2003 14:56:06 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: test9: suspend no go
+Message-ID: <20031107135605.GF20585@atrey.karlin.mff.cuni.cz>
+References: <3F9BCF7A.7000403@portrix.net> <20031107100609.GA5088@elf.ucw.cz> <3FAB8CA1.7040105@portrix.net> <20031107132146.GC20585@atrey.karlin.mff.cuni.cz> <3FABA030.9040405@portrix.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FABA030.9040405@portrix.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Fri, 6 Nov 2003, Mark Gross wrote:
+> |>Any idea, why the laptop is not powering on again after suspend? I can
+> |>hold down the power switch as long as I want to, but the laptop doesn't
+> |>do a thing.
+> |
+> |
+> | Seems like hardware bug? [So you have to remove battery/AC then
+> | poweron?]
+> | 								Pavel
+> 
+> Exactly. Pretty annoying. In those days where Windows XP powered the
+> laptop, this worked, so I'm pretty sure it is no hardware bug. If I
+> press the power switch, the power & disk light goes on, but nothing happens.
+> Is there anything w/ acpi I can try?
 
->  			}
-> -			success = 1;
->  		}
-> -#ifdef CONFIG_SMP
-> -	       	else
-> -			if (unlikely(kick) && task_running(rq, p) && (task_cpu(p) != smp_processor_id()))
-> -				smp_send_reschedule(task_cpu(p));
-> -#endif
-> +		success = 1;
+Hacking lowlevel sleep functions, maybe. Not sure about l-k status.
 
-hm, this i believe is incorrect - you've moved the 'success' case outside
-of the 'real wakeup' branch.
-
-to avoid races, we only want to report success if the thread has been
-truly placed on the runqueue by this call. The other case (eg. changing
-TASK_INTERRUPTIBLE to TASK_RUNNING) does not count as a 'wakeup'. Note
-that if the task was in a non-TASK_RUNNING state then we dont have to kick
-the process anyway because it's in kernel-mode and will go through the
-signal return path soon.
-
-	Ingo
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267485AbSKSWGc>; Tue, 19 Nov 2002 17:06:32 -0500
+	id <S267448AbSKSWIv>; Tue, 19 Nov 2002 17:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267493AbSKSWGc>; Tue, 19 Nov 2002 17:06:32 -0500
-Received: from shuzbut.anathoth.gen.nz ([203.96.153.249]:59789 "EHLO
+	id <S267493AbSKSWIv>; Tue, 19 Nov 2002 17:08:51 -0500
+Received: from shuzbut.anathoth.gen.nz ([203.96.153.249]:3982 "EHLO
 	shuzbut.anathoth.gen.nz") by vger.kernel.org with ESMTP
-	id <S267448AbSKSWG2>; Tue, 19 Nov 2002 17:06:28 -0500
-Subject: [PATCH] ALERT!! - 2.2.x i386 Linux kernel has DoS same as 2.4.x!!!!
+	id <S267448AbSKSWIq>; Tue, 19 Nov 2002 17:08:46 -0500
+Subject: [PATCH] ALERT!! - 2.2.x i386 Linux kernel has 2.4.x DoS!!!!
 From: Matthew Grant <grantma@anathoth.gen.nz>
 To: debian-security@lists.debian.org, linux-kernel@vger.kernel.org,
        bugtraq@lists.securityfocus.com, lwn@lwn.net, alan@redhat.com,
        Herbert Xu <herbert@debian.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-IwcrYTEeZTKHkb33FSEP"
 X-Mailer: Ximian Evolution 1.0.7 
-Date: 20 Nov 2002 11:13:23 +1300
-Message-Id: <1037744004.10197.5.camel@luther>
+Date: 20 Nov 2002 11:15:42 +1300
+Message-Id: <1037744143.10198.9.camel@luther>
 Mime-Version: 1.0
 X-Virus-Scanned-By: Amavis with CLAM Anti Virus on shuzbut.anathoth.gen.nz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--=-IwcrYTEeZTKHkb33FSEP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Here is the gpg signed version of the notice.  I am a Debian Developer,=20
+so you will find my key  on the Debian key ring.
+
+---------------------------------------------------------------------------=
+----
+
 ALERT ALERT ALERT!
 
 Sorry about shouting, but no one seems to take any notice that the
-kernel 2.4.x local DoS ALSO definitely affects linux kernel 2.2.x, 
+kernel 2.4.x local DoS ALSO definitely affects linux kernel 2.2.x,=20
 and possibly 2.0.x
 
-I have been working on this one, and no one so far has produced any headlines
+I have been working on this one, and no one so far has produced any headlin=
+es
 about it, but 2.2.x is ALSO affected.
 
-I have tested and found 2.2.x is vulnerable with Andrea Archangeli's exploit. 
-It also has exactly the same lcall7() function in the system call interface 
-as 2.4.x, and is definitely vulnerable. The patch below definitely STOPS the
+I have tested and found 2.2.x is vulnerable with Andrea Archangeli's exploi=
+t.=20
+It also has exactly the same lcall7() function in the system call interface=
+=20
+as 2.4.x, and is definitely vulnerable. The patch below definitely STOPS th=
+e
 crashes in 2.2.x.
 
 Result of bug is as in 2.4.x, an absolute lockup of the machine. This
@@ -44,15 +59,15 @@ Here is the patch to fix 2.2:
 --- linux/arch/i386/kernel/entry.S.orig	Sat Nov  3 05:39:05 2001
 +++ linux/arch/i386/kernel/entry.S	Tue Nov 19 13:46:47 2002
 @@ -63,7 +63,9 @@
- OLDSS		= 0x38
- 
- CF_MASK		= 0x00000001
-+TF_MASK		= 0x00000100
- IF_MASK		= 0x00000200
-+DF_MASK		= 0x00000400
- NT_MASK		= 0x00004000
- VM_MASK		= 0x00020000
- 
+ OLDSS		=3D 0x38
+=20
+ CF_MASK		=3D 0x00000001
++TF_MASK		=3D 0x00000100
+ IF_MASK		=3D 0x00000200
++DF_MASK		=3D 0x00000400
+ NT_MASK		=3D 0x00004000
+ VM_MASK		=3D 0x00020000
+=20
 @@ -139,6 +141,9 @@
  	movl CS(%esp),%edx	# this is eip..
  	movl EFLAGS(%esp),%ecx	# and this is cs..
@@ -65,7 +80,9 @@ Here is the patch to fix 2.2:
  	movl %esp,%ebx
 
 
+Best Regards,
 
+Matthew Grant
 
 
 ---------------------------------------------------------------------------
@@ -99,19 +116,19 @@ Exploit code from lkml  Andrea Arcangeli <andrea@suse.de>
 > we just can't allow userspace to set NT or iret will crash at ret from
 > userspace, furthmore there's no useful thing the userspace can do with
 > the NT flag.
-> 
+>=20
 > here the fix, it applies to all 2.4 and 2.5:
-> 
+>=20
 > --- 2.4.20rc1aa2/arch/i386/kernel/ptrace.c.~1~	Fri Aug  9 14:52:06
 2002
 > +++ 2.4.20rc1aa2/arch/i386/kernel/ptrace.c	Thu Nov 14 03:56:00 2002
 > @@ -28,7 +28,7 @@
->  
+> =20
 >  /* determines which flags the user has access to. */
->  /* 1 = access 0 = no access */
+>  /* 1 =3D access 0 =3D no access */
 > -#define FLAG_MASK 0x00044dd5
 > +#define FLAG_MASK 0x00040dd5
->  
+> =20
 >  /* set's the trap flag. */
 >  #define TRAP_FLAG 0x100
 
@@ -122,7 +139,7 @@ pushf popf lcall like this:
 
 int main( void )
 {
-    char dos[] = "\x9C"                           /* pushfd       */
+    char dos[] =3D "\x9C"                           /* pushfd       */
                  "\x58"                           /* pop eax      */
                  "\x0D\x00\x41\x00\x00"           /* or eax,4100h  */
                  "\x50"                           /* push eax     */
@@ -131,7 +148,7 @@ int main( void )
 
     void (* f)( void );
 
-    f = (void *) dos; (* f)();
+    f =3D (void *) dos; (* f)();
 
     return 1;
 }
@@ -153,7 +170,7 @@ Andrea
 
 
 
-------------- Message from linux-kernel@vger.kernel.org-------------- 
+------------- Message from linux-kernel@vger.kernel.org--------------=20
 
 
 List:     linux-kernel
@@ -166,29 +183,29 @@ On 13 Nov 2002, Alan Cox wrote:
 > On Tue, 2002-11-12 at 23:31, Christoph Hellwig wrote:
 > > On Tue, Nov 12, 2002 at 02:28:55PM -0900, Leif Sawyer wrote:
 > > > This was posted on bugtraq today...
-> > 
+> >=20
 > > A real segfaulting program?  wow :)
-> 
+>=20
 > Looks like the TF handling bug which was fixed a while ago
 
-It wasn't fixed for 2.2.22. 2.2 has got only syscall7, so fix should be 
+It wasn't fixed for 2.2.22. 2.2 has got only syscall7, so fix should be=20
 trivial, isn't ?
 Should be look like:
 
 
-diff -urN linux.orig/arch/i386/kernel/entry.S 
+diff -urN linux.orig/arch/i386/kernel/entry.S=20
 linux/arch/i386/kernel/entry.S
 --- linux.orig/arch/i386/kernel/entry.S Tue May 21 01:32:34 2002
 +++ linux/arch/i386/kernel/entry.S      Thu Nov 14 21:39:36 2002
 @@ -63,7 +63,9 @@
- OLDSS          = 0x38
+ OLDSS          =3D 0x38
 
- CF_MASK                = 0x00000001
-+TF_MASK                = 0x00000100
- IF_MASK                = 0x00000200
-+DF_MASK                = 0x00000400
- NT_MASK                = 0x00004000
- VM_MASK                = 0x00020000
+ CF_MASK                =3D 0x00000001
++TF_MASK                =3D 0x00000100
+ IF_MASK                =3D 0x00000200
++DF_MASK                =3D 0x00000400
+ NT_MASK                =3D 0x00004000
+ VM_MASK                =3D 0x00020000
 
 @@ -139,6 +141,9 @@
         movl CS(%esp),%edx      # this is eip..
@@ -216,4 +233,19 @@ Please read the FAQ at  http://www.tux.org/lkml/
 
 
 
+
+--=-IwcrYTEeZTKHkb33FSEP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA92rgOuk55Di7iAnARArEnAJoDe1VARxwaoeumxQmgfH0hADkoPgCfU94q
+w0gQyLn3N/1bfgTqDTqQjrE=
+=FNtp
+-----END PGP SIGNATURE-----
+
+--=-IwcrYTEeZTKHkb33FSEP--
 

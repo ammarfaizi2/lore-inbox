@@ -1,57 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVCXDki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263004AbVCXDip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVCXDki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 22:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVCXDjL
+	id S263004AbVCXDip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 22:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVCXDdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 22:39:11 -0500
-Received: from graphe.net ([209.204.138.32]:10762 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262536AbVCXDh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 22:37:26 -0500
-Date: Wed, 23 Mar 2005 19:37:14 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>, Tina Yang <tinay@chelsio.com>,
-       Scott Bardone <sbardone@chelsio.com>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: Re: [-mm patch] drivers/net/chelsio/osdep.h: small cleanups
-In-Reply-To: <20050324031026.GV1948@stusta.de>
-Message-ID: <Pine.LNX.4.58.0503231934430.11120@server.graphe.net>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <20050324031026.GV1948@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Wed, 23 Mar 2005 22:33:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55825 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263004AbVCXDKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 22:10:51 -0500
+Date: Thu, 24 Mar 2005 04:10:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/arcnet/: possible cleanups
+Message-ID: <20050324031045.GW1948@stusta.de>
+References: <20050311181641.GK3723@stusta.de> <4240AFC1.6050803@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4240AFC1.6050803@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We just send an update to Andrew and Jeff that also fixes this issue.
-Sadly that patch is >300k so we cannot post it to the list.
+On Tue, Mar 22, 2005 at 06:52:33PM -0500, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >This patch contains the following possible cleanups:
+> >- make needlessly global code static
+> >- arcnet.c: kill the outdated VERSION
+> 
+> As I said WRT other drivers...  I don't like removing the printk completely.
 
-On Thu, 24 Mar 2005, Adrian Bunk wrote:
+OK, updated patch below.
 
-> The #define MODVERSIONS doesn't make sense.
->
-> And there's no need to #ifdef an #include <linux/module.h>.
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> --- linux-2.6.12-rc1-mm1-full/drivers/net/chelsio/osdep.h.old	2005-03-24 01:20:02.000000000 +0100
-> +++ linux-2.6.12-rc1-mm1-full/drivers/net/chelsio/osdep.h	2005-03-24 01:20:17.000000000 +0100
-> @@ -33,13 +33,7 @@
->  #define __CHELSIO_OSDEP_H
->
->  #include <linux/version.h>
-> -#if defined(MODULE) && ! defined(MODVERSIONS)
-> -#define MODVERSIONS
-> -#endif
-> -#ifdef MODULE
->  #include <linux/module.h>
-> -#endif
-> -
->  #include <linux/config.h>
->  #include <linux/types.h>
->  #include <linux/delay.h>
->
->
+> >- arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
+> 
+> why?
+
+- it's unused
+- the struct can become static without the EXPORT_SYMBOL
+
+
+<--  snip  -->
+
+
+This patch contains the following possible cleanups:
+- make needlessly global code static
+- arcnet.c: remove the outdated VERSION
+- arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
+- arcnet.c: remove the unneeded EXPORT_SYMBOL(arcnet_dump_packet)
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/net/arcnet/arc-rawmode.c |    2 +-
+ drivers/net/arcnet/arcnet.c      |   19 ++++++++++---------
+ drivers/net/arcnet/rfc1051.c     |    2 +-
+ drivers/net/arcnet/rfc1201.c     |    3 +--
+ include/linux/arcdevice.h        |    9 ---------
+ 5 files changed, 13 insertions(+), 22 deletions(-)
+
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c.old	2005-02-16 15:16:38.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c	2005-02-16 15:16:51.000000000 +0100
+@@ -42,7 +42,7 @@
+ static int prepare_tx(struct net_device *dev, struct archdr *pkt, int length,
+ 		      int bufnum);
+ 
+-struct ArcProto rawmode_proto =
++static struct ArcProto rawmode_proto =
+ {
+ 	.suffix		= 'r',
+ 	.mtu		= XMTU,
+--- linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h.old	2005-02-16 15:17:26.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h	2005-02-16 15:20:57.000000000 +0100
+@@ -206,7 +206,6 @@
+ 
+ extern struct ArcProto *arc_proto_map[256], *arc_proto_default,
+ 	*arc_bcast_proto, *arc_raw_proto;
+-extern struct ArcProto arc_proto_null;
+ 
+ 
+ /*
+@@ -334,17 +333,9 @@
+ #define arcnet_dump_skb(dev,skb,desc) ;
+ #endif
+ 
+-#if (ARCNET_DEBUG_MAX & D_RX) || (ARCNET_DEBUG_MAX & D_TX)
+-void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
+-			int take_arcnet_lock);
+-#else
+-#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) ;
+-#endif
+-
+ void arcnet_unregister_proto(struct ArcProto *proto);
+ irqreturn_t arcnet_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+ struct net_device *alloc_arcdev(char *name);
+-void arcnet_rx(struct net_device *dev, int bufnum);
+ 
+ #endif				/* __KERNEL__ */
+ #endif				/* _LINUX_ARCDEVICE_H */
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c.old	2005-02-16 15:17:47.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c	2005-02-16 15:21:20.000000000 +0100
+@@ -41,8 +41,6 @@
+  *     <jojo@repas.de>
+  */
+ 
+-#define VERSION "arcnet: v3.93 BETA 2000/04/29 - by Avery Pennarun et al.\n"
+-
+ #include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/types.h>
+@@ -61,6 +59,7 @@
+ static int null_prepare_tx(struct net_device *dev, struct archdr *pkt,
+ 			   int length, int bufnum);
+ 
++static void arcnet_rx(struct net_device *dev, int bufnum);
+ 
+ /*
+  * one ArcProto per possible proto ID.  None of the elements of
+@@ -71,7 +70,7 @@
+  struct ArcProto *arc_proto_map[256], *arc_proto_default,
+    *arc_bcast_proto, *arc_raw_proto;
+ 
+-struct ArcProto arc_proto_null =
++static struct ArcProto arc_proto_null =
+ {
+ 	.suffix		= '?',
+ 	.mtu		= XMTU,
+@@ -90,7 +89,6 @@
+ EXPORT_SYMBOL(arc_proto_default);
+ EXPORT_SYMBOL(arc_bcast_proto);
+ EXPORT_SYMBOL(arc_raw_proto);
+-EXPORT_SYMBOL(arc_proto_null);
+ EXPORT_SYMBOL(arcnet_unregister_proto);
+ EXPORT_SYMBOL(arcnet_debug);
+ EXPORT_SYMBOL(alloc_arcdev);
+@@ -118,8 +116,8 @@
+ 
+ 	arcnet_debug = debug;
+ 
+-	printk(VERSION);
++	printk("arcnet loaded.\n");
+
+ #ifdef ALPHA_WARNING
+ 	BUGLVL(D_EXTRA) {
+ 		printk("arcnet: ***\n"
+@@ -178,8 +174,8 @@
+  * Dump the contents of an ARCnet buffer
+  */
+ #if (ARCNET_DEBUG_MAX & (D_RX | D_TX))
+-void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
+-			int take_arcnet_lock)
++static void arcnet_dump_packet(struct net_device *dev, int bufnum,
++			       char *desc, int take_arcnet_lock)
+ {
+ 	struct arcnet_local *lp = dev->priv;
+ 	int i, length;
+@@ -208,7 +204,10 @@
+ 
+ }
+ 
+-EXPORT_SYMBOL(arcnet_dump_packet);
++#else
++
++#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) do { } while (0)
++
+ #endif
+ 
+ 
+@@ -987,7 +986,7 @@
+  * This is a generic packet receiver that calls arcnet??_rx depending on the
+  * protocol ID found.
+  */
+-void arcnet_rx(struct net_device *dev, int bufnum)
++static void arcnet_rx(struct net_device *dev, int bufnum)
+ {
+ 	struct arcnet_local *lp = dev->priv;
+ 	struct archdr pkt;
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c.old	2005-02-16 15:22:16.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c	2005-02-16 15:22:23.000000000 +0100
+@@ -43,7 +43,7 @@
+ 		      int bufnum);
+ 
+ 
+-struct ArcProto rfc1051_proto =
++static struct ArcProto rfc1051_proto =
+ {
+ 	.suffix		= 's',
+ 	.mtu		= XMTU - RFC1051_HDR_SIZE,
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c.old	2005-02-16 15:22:35.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c	2005-02-16 15:22:46.000000000 +0100
+@@ -43,7 +43,7 @@
+ 		      int bufnum);
+ static int continue_tx(struct net_device *dev, int bufnum);
+ 
+-struct ArcProto rfc1201_proto =
++static struct ArcProto rfc1201_proto =
+ {
+ 	.suffix		= 'a',
+ 	.mtu		= 1500,	/* could be more, but some receivers can't handle it... */
+

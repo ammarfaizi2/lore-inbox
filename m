@@ -1,94 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262624AbTDAQDP>; Tue, 1 Apr 2003 11:03:15 -0500
+	id <S262625AbTDAQNd>; Tue, 1 Apr 2003 11:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262625AbTDAQDP>; Tue, 1 Apr 2003 11:03:15 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:57277 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262624AbTDAQDL>; Tue, 1 Apr 2003 11:03:11 -0500
-Date: Tue, 01 Apr 2003 08:13:43 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@digeo.com>, colpatch@us.ibm.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (2.5.66-mm2) War on warnings
-Message-ID: <25070000.1049213622@[10.10.2.4]>
-In-Reply-To: <20030401152703.GA21986@gtf.org>
-References: <19200000.1049210557@[10.10.2.4]> <20030401152703.GA21986@gtf.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S262629AbTDAQNc>; Tue, 1 Apr 2003 11:13:32 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:6872 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262625AbTDAQNb>;
+	Tue, 1 Apr 2003 11:13:31 -0500
+Date: Tue, 1 Apr 2003 21:59:57 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: bcrl@redhat.com, akpm@digeo.com
+Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Filesystem aio rdwr patchset 
+Message-ID: <20030401215957.A1800@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> drivers/base/node.c: In function `register_node_type':
->> drivers/base/node.c:96: warning: suggest parentheses around assignment used as truth value
->> drivers/base/memblk.c: In function `register_memblk_type':
->> drivers/base/memblk.c:54: warning: suggest parentheses around assignment used as truth value
->> 
->> Bah.
->> 
->> --- linux-2.5.66-mm2/drivers/base/node.c	2003-04-01 06:40:02.000000000 -0800
->> +++ 2.5.66-mm2/drivers/base/node.c	2003-04-01 06:37:32.000000000 -0800
->> @@ -93,7 +93,7 @@ int __init register_node_type(void)
->>  {
->>  	int error;
->>  	if (!(error = devclass_register(&node_devclass)))
->> -		if (error = driver_register(&node_driver))
->> +		if ((error = driver_register(&node_driver)))
->>  			devclass_unregister(&node_devclass);
-> 
-> Personally, I feel statements like these are prone to continual error
-> and confusion.  I would prefer to break each test like this out into
-> separate assignment and test statements.  Combining them decreases
-> readability, while saving a paltry few extra bytes of source code.
-> 
-> Sure, the gcc warning is silly, but the code is a bit obtuse too.
+Have taken a first pass at implementing the write path
+for filesystem aio. 
 
-True, I agree with this in general, and I think Andrew does too, from
-previous comments. I was just being lazy ;-) More appropriate patch below.
-Compile tested, but not run.
+Attached as a response to this mail is the full 
+patchset for filesystem aio (retry based model) including 
+read and write paths.
 
-M.
+01aioretry.patch : this is the common generic aio
+  retry code
+02aiordwr.patch  : this is the filesystem read+write
+  changes for aio using the retry model
 
-diff -urpN -X /home/fletch/.diff.exclude mm2/drivers/base/memblk.c mm2-warnfix/drivers/base/memblk.c
---- mm2/drivers/base/memblk.c	Tue Apr  1 08:05:55 2003
-+++ mm2-warnfix/drivers/base/memblk.c	Tue Apr  1 08:08:36 2003
-@@ -50,9 +50,13 @@ int __init register_memblk(struct memblk
- int __init register_memblk_type(void)
- {
- 	int error;
--	if (!(error = devclass_register(&memblk_devclass)))
--		if (error = driver_register(&memblk_driver))
-+
-+	error = devclass_register(&memblk_devclass);
-+	if (!error) {
-+		error = driver_register(&memblk_driver);
-+		if (error)
- 			devclass_unregister(&memblk_devclass);
-+	}
- 	return error;
- }
- postcore_initcall(register_memblk_type);
-diff -urpN -X /home/fletch/.diff.exclude mm2/drivers/base/node.c mm2-warnfix/drivers/base/node.c
---- mm2/drivers/base/node.c	Tue Apr  1 08:05:55 2003
-+++ mm2-warnfix/drivers/base/node.c	Tue Apr  1 08:07:36 2003
-@@ -92,9 +92,13 @@ int __init register_node(struct node *no
- int __init register_node_type(void)
- {
- 	int error;
--	if (!(error = devclass_register(&node_devclass)))
--		if (error = driver_register(&node_driver))
-+	
-+	error = devclass_register(&node_devclass);
-+	if (!error) {
-+		error = driver_register(&node_driver);
-+		if (error)
- 			devclass_unregister(&node_devclass);
-+	}
- 	return error;
- }
- postcore_initcall(register_node_type);
+03aiobread.patch : code for async breads which can
+  be used by filesystems for providing async get block 
+  implementation
+04ext2-aiogetblk.patch :  an async get block 
+  implementation for ext2
+
+I would really appreciate comments and review feedback 
+from the perspective of fs developers especially on
+the latter 2 patches in terms of whether this seems a 
+sound approach or if I'm missing something very crucial
+(which I just well might be)
+Is this easy to do for other filesystems as well ?
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286262AbSAEE0y>; Fri, 4 Jan 2002 23:26:54 -0500
+	id <S286734AbSAEE1d>; Fri, 4 Jan 2002 23:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286734AbSAEE0n>; Fri, 4 Jan 2002 23:26:43 -0500
-Received: from h00e02954cece.ne.mediaone.net ([24.91.228.68]:57220 "EHLO
-	gonzo.amherst.genlogic.com") by vger.kernel.org with ESMTP
-	id <S286262AbSAEE00>; Fri, 4 Jan 2002 23:26:26 -0500
-Message-ID: <3C368096.4070207@mediaone.net>
-Date: Fri, 04 Jan 2002 23:27:02 -0500
-From: Sam Krasnik <genlogic@mediaone.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S287439AbSAEE1Y>; Fri, 4 Jan 2002 23:27:24 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5874 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S286734AbSAEE1Q>;
+	Fri, 4 Jan 2002 23:27:16 -0500
+Date: Fri, 4 Jan 2002 23:27:15 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [FIX] missing piece from fs/super.c in -pre8
+In-Reply-To: <Pine.LNX.4.33.0201042017410.1371-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0201042321200.27334-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: atp870u and acard scsi HELP!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->> i tried rewriting it myself...i cannot get it to insmod.
->> it just hangs...can anyone help? i am not very
->> knowledgeable of the scsi driver code ;-(
->>
->
-> Umm the atp870u is supported in 2.2 and 2.4 by the default kernels. 
-
-...so one would think...yes it is supported technically, and the atp870u
-driver does exist...but the 2.4 one does not work, that is a known fact.
-browsing the forums, it seems that people were complaining about
- >2037 not working, but that the original one worked just fine.
-some of the code has a different format in 2.4 than 2.2 and 2.0,
-mostly the external stuff to load as modules...etc, but i can't get it 
-to work.
-so i needed help porting the old one into the new 2.4 framework
-if you will.
-
-         regards,
-
---sam
 
 
+On Fri, 4 Jan 2002, Linus Torvalds wrote:
+
+> 
+> On Fri, 4 Jan 2002, Alexander Viro wrote:
+> >
+> > Linus, I doubt that making the thing inline was a good idea.  Reason: for
+> > filesystems like NFS we almost definitely want something like server name
+> > + root path to identify the superblock.  And that can easily grow past
+> > 32 bytes.
+> 
+> Since it is only used for printouts, I'd much rather have simpler code.
+> Especially since I couldn't convince myself that all users in your version
+> even initialized the dang pointer.
+
+Set to NULL when we allocate superblock.
+Allocated and set by get_sb_bdev() (which takes care of block filesystems)
+Allocated and set by nfs_read_super() (which takes care of NFS).
+That covers all users...
+ 
+> There is nothing wrong with having a requirement that informational stuff
+> be limited to X characters..
+
+In principle - yes...
 

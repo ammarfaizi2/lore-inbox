@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbUCVJXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 04:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbUCVJXI
+	id S261843AbUCVJlC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 04:41:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUCVJlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 04:23:08 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:53474 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261816AbUCVJXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 04:23:04 -0500
-Date: Mon, 22 Mar 2004 17:18:57 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: pcg@goof.com
-Cc: "Pavel Machek" <pavel@suse.cz>,
-       "Software Suspend - Mailing Lists" 
+	Mon, 22 Mar 2004 04:41:02 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:40324 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261843AbUCVJk7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 04:40:59 -0500
+Date: Mon, 22 Mar 2004 17:40:53 +0800
+From: Cameron Patrick <cameron@patrick.wattle.id.au>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: pcg@goof.com, Pavel Machek <pavel@suse.cz>,
+       Software Suspend - Mailing Lists 
 	<swsusp-devel@lists.sourceforge.net>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr49atvpk4evsfm@smtp.pacific.net.th>
-User-Agent: Opera M2/7.50 (Linux, build 615)
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] (no subject)
+Message-ID: <20040322094053.GO16890@patrick.wattle.id.au>
+Mail-Followup-To: Michael Frank <mhf@linuxmail.org>, pcg@goof.com,
+	Pavel Machek <pavel@suse.cz>,
+	Software Suspend - Mailing Lists <swsusp-devel@lists.sourceforge.net>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <opr49atvpk4evsfm@smtp.pacific.net.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opr49atvpk4evsfm@smtp.pacific.net.th>
+Organization: Parenthesis Conspiracy
+User-Agent: Mutt/1.5.5.1+cvs20040105+cjp-1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004 01:29:34 +0100, Pavel Machek <pavel@ucw.cz> wrote:
->
-> +/*
-> + * Copyright (c) 2000-2002 Marc Alexander Lehmann <pcg@goof.com>
-> + *
-> + * Redistribution and use in source and binary forms, with or without modifica-
-> + * tion, are permitted provided that the following conditions are met:
-> + *
-> + *   1.  Redistributions of source code must retain the above copyright notice,
-> + *       this list of conditions and the following disclaimer.
-> + *
-> + *   2.  Redistributions in binary form must reproduce the above copyright
-> + *       notice, this list of conditions and the following disclaimer in the
-> + *       documentation and/or other materials provided with the distribution.
-> + *
-> + *   3.  The name of the author may not be used to endorse or promote products
-> + *       derived from this software without specific prior written permission.
->
-> lzf compression should go under /lib, not under kernel/power, and
-> probably should go in separately.
->
-> This looks like BSD with advertising clause. I do not think you are
-> allowed to link this with kernel. It does not follow kernel coding style.
+Hi all,
 
-Hello Marc,
+Michael Frank wrote:
 
-As you will be aware, everone using swsusp2 loves to use your LZF functionality
-which yields effective suspend/resume transfer rates of well above 100MB/s.
+| >+ *   3.  The name of the author may not be used to endorse or promote products
+| >+ *       derived from this software without specific prior written permission.
+[...]
+| >This looks like BSD with advertising clause. I do not think you are
+| >allowed to link this with kernel. It does not follow kernel coding style.
+[...]
+| As said, BSD-only licensed code is _invalid_ to be linked with kernel code,
+| therefor swsusp2 will have to drop LZF alltogether unless you relicense it.
 
-With inclusion of swsusp2 into kernel mainline drawing nearer, one _major_
-issue was raised, which is the BSD license you released LZF under.
+The licence above looks like BSD /without/ advertising clause, which
+is GPL compatible.  Note that the (GPL-incompatible) advertising
+clause is the one that says "mention me in your advertising materials"
+whereas the above licence only requires mention in accompanying
+documentation and says /not/ to use the name of the author to promote
+derived works.
 
-As said, BSD-only licensed code is _invalid_ to be linked with kernel code,
-therefor swsusp2 will have to drop LZF alltogether unless you relicense it.
+See also http://www.gnu.org/philosophy/license-list.html, under "The
+modified BSD license":
 
-Would you please consider to relicense under GPL2, or GPL2 + BSD.
-Intel does something like GPL2 + BSD this with ACPI btw. Please have a look
-at their license.
+    This is the original BSD license, modified by removal of the
+    advertising clause. It is a simple, permissive non-copyleft free
+    software license, compatible with the GNU GPL.
 
-This means in practice that GPL2 allows inclusion into the kernel, which
-being opensource credits you, and other proprietary apps using the BSD
-license will credit you in their documentation.
+The licence so described looks to me the same as LZF's licence.
 
-Also, as Pavel mentioned, LZF code should be put in /lib and cleaned up. This
-is a chance to get LZF into the kernel and it would be much appreciated if you
-please would take care of this. Thank you!
+Cheers,
 
-Regards
-Michael
+Cameron.
 

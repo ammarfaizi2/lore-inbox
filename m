@@ -1,115 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264292AbTCXRPT>; Mon, 24 Mar 2003 12:15:19 -0500
+	id <S264290AbTCXRPT>; Mon, 24 Mar 2003 12:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264280AbTCXQtT>; Mon, 24 Mar 2003 11:49:19 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:57578 "EHLO
+	id <S264293AbTCXQtY>; Mon, 24 Mar 2003 11:49:24 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:56042 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S264293AbTCXQbD>; Mon, 24 Mar 2003 11:31:03 -0500
-Message-Id: <200303241642.h2OGgD35008355@deviant.impure.org.uk>
-Date: Mon, 24 Mar 2003 16:42:01 +0000
+	id <S264292AbTCXQbC>; Mon, 24 Mar 2003 11:31:02 -0500
+Message-Id: <200303241642.h2OGg635008297@deviant.impure.org.uk>
+Date: Mon, 24 Mar 2003 16:41:53 +0000
 To: torvalds@transmeta.com
 From: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Bose sound support for cs4232 OSS driver.
+Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: add support for 8 port lava octo cards to 8250_pci
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/sound/oss/cs4232.c linux-2.5/sound/oss/cs4232.c
---- bk-linus/sound/oss/cs4232.c	2003-03-08 09:58:07.000000000 +0000
-+++ linux-2.5/sound/oss/cs4232.c	2003-02-26 10:52:04.000000000 +0000
-@@ -34,6 +34,8 @@
-  * anyway.
-  *
-  * Changes
-+ *      John Rood               Added Bose Sound System Support.
-+ *      Toshio Spoor
-  *	Alan Cox		Modularisation, Basic cleanups.
-  *      Paul Barton-Davis	Separated MPU configuration, added
-  *                                       Tropez+ (WaveFront) support
-@@ -58,6 +60,10 @@
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/serial/8250_pci.c linux-2.5/drivers/serial/8250_pci.c
+--- bk-linus/drivers/serial/8250_pci.c	2003-03-16 14:16:04.000000000 +0000
++++ linux-2.5/drivers/serial/8250_pci.c	2003-03-17 23:42:35.000000000 +0000
+@@ -897,6 +897,7 @@ enum pci_board_num_t {
  
- #define KEY_PORT	0x279	/* Same as LPT1 status port */
- #define CSN_NUM		0x99	/* Just a random number */
-+#define INDEX_ADDRESS   0x00    /* (R0) Index Address Register */
-+#define INDEX_DATA      0x01    /* (R1) Indexed Data Register */
-+#define PIN_CONTROL     0x0a    /* (I10) Pin Control */
-+#define ENABLE_PINS     0xc0    /* XCTRL0/XCTRL1 enable */
+ 	pbn_b0_bt_1_460800,
+ 	pbn_b0_bt_2_460800,
++	pbn_b0_bt_4_460800,
  
- static void CS_OUT(unsigned char a)
- {
-@@ -67,6 +73,7 @@ static void CS_OUT(unsigned char a)
- #define CS_OUT2(a, b)		{CS_OUT(a);CS_OUT(b);}
- #define CS_OUT3(a, b, c)	{CS_OUT(a);CS_OUT(b);CS_OUT(c);}
+ 	pbn_b0_bt_1_921600,
+ 	pbn_b0_bt_2_921600,
+@@ -1039,6 +1040,12 @@ static struct pci_board pci_boards[] __d
+ 		.base_baud	= 460800,
+ 		.uart_offset	= 8,
+ 	},
++	[pbn_b0_bt_4_460800] = {
++		.flags		= FL_BASE0|FL_BASE_BARS,
++		.num_ports	= 4,
++		.base_baud	= 460800,
++		.uart_offset	= 8,
++	},
  
-+static int __initdata bss       = 0;
- static int mpu_base = 0, mpu_irq = 0;
- static int synth_base = 0, synth_irq = 0;
- static int mpu_detected = 0;
-@@ -97,7 +104,31 @@ static void sleep(unsigned howlong)
- 	schedule_timeout(howlong);
- }
- 
--int probe_cs4232(struct address_info *hw_config, int isapnp_configured)
-+static void enable_xctrl(int baseio)
-+{
-+        unsigned char regd;
-+                
-+        /*
-+         * Some IBM Aptiva's have the Bose Sound System. By default
-+         * the Bose Amplifier is disabled. The amplifier will be 
-+         * activated, by setting the XCTRL0 and XCTRL1 bits.
-+         * Volume of the monitor bose speakers/woofer, can then
-+         * be set by changing the PCM volume.
-+         *
-+         */
-+                
-+        printk("cs4232: enabling Bose Sound System Amplifier.\n");
-+        
-+        /* Switch to Pin Control Address */                   
-+        regd = inb(baseio + INDEX_ADDRESS) & 0xe0;
-+        outb(((unsigned char) (PIN_CONTROL | regd)), baseio + INDEX_ADDRESS );
-+        
-+        /* Activate the XCTRL0 and XCTRL1 Pins */
-+        regd = inb(baseio + INDEX_DATA);
-+        outb(((unsigned char) (ENABLE_PINS | regd)), baseio + INDEX_DATA );
-+}
-+
-+int __init probe_cs4232(struct address_info *hw_config, int isapnp_configured)
- {
- 	int i, n;
- 	int base = hw_config->io_base, irq = hw_config->irq;
-@@ -218,7 +249,7 @@ int probe_cs4232(struct address_info *hw
- 	return 0;
- }
- 
--void attach_cs4232(struct address_info *hw_config)
-+void __init attach_cs4232(struct address_info *hw_config)
- {
- 	int base = hw_config->io_base,
- 		irq = hw_config->irq,
-@@ -275,9 +306,14 @@ void attach_cs4232(struct address_info *
- 		}
- 		hw_config->slots[1] = hw_config2.slots[1];
- 	}
-+	
-+	if (bss)
-+	{
-+        	enable_xctrl(base);
-+	}
- }
- 
--static void unload_cs4232(struct address_info *hw_config)
-+static void __exit unload_cs4232(struct address_info *hw_config)
- {
- 	int base = hw_config->io_base, irq = hw_config->irq;
- 	int dma1 = hw_config->dma, dma2 = hw_config->dma2;
-@@ -349,6 +385,8 @@ MODULE_PARM(synthirq,"i");
- MODULE_PARM_DESC(synthirq,"Maui WaveTable IRQ");
- MODULE_PARM(isapnp,"i");
- MODULE_PARM_DESC(isapnp,"Enable ISAPnP probing (default 1)");
-+MODULE_PARM(bss,"i");
-+MODULE_PARM_DESC(bss,"Enable Bose Sound System Support (default 0)");
- 
- /*
-  *	Install a CS4232 based card. Need to have ad1848 and mpu401
+ 	[pbn_b0_bt_1_921600] = {
+ 		.flags		= FL_BASE0|FL_BASE_BARS,
+@@ -1928,6 +1935,12 @@ static struct pci_device_id serial_pci_t
+ 	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_QUATRO_B,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_b0_bt_2_115200 },
++	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_OCTO_A,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b0_bt_4_460800 },
++	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_OCTO_B,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b0_bt_4_460800 },
+ 	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_PORT_PLUS,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_b0_bt_2_460800 },
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pci/pci.ids linux-2.5/drivers/pci/pci.ids
+--- bk-linus/drivers/pci/pci.ids	2003-03-17 12:40:51.000000000 +0000
++++ linux-2.5/drivers/pci/pci.ids	2003-03-17 13:09:03.000000000 +0000
+@@ -4911,6 +4911,8 @@
+ 	0100  Lava Dual Serial
+ 	0101  Lava Quatro A
+ 	0102  Lava Quatro B
++	0180  Lava Octo A
++	0181  Lava Octo B
+ 	0200  Lava Port Plus
+ 	0201  Lava Quad A
+ 	0202  Lava Quad B

@@ -1,227 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268974AbRHBPjk>; Thu, 2 Aug 2001 11:39:40 -0400
+	id <S269042AbRHBPkV>; Thu, 2 Aug 2001 11:40:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269042AbRHBPjb>; Thu, 2 Aug 2001 11:39:31 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:9999 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268975AbRHBPjL>; Thu, 2 Aug 2001 11:39:11 -0400
-From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
+	id <S269047AbRHBPkL>; Thu, 2 Aug 2001 11:40:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48914 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269042AbRHBPkA>; Thu, 2 Aug 2001 11:40:00 -0400
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
+To: rgooch@ras.ucalgary.ca (Richard Gooch)
+Date: Thu, 2 Aug 2001 16:36:42 +0100 (BST)
+Cc: adilger@turbolinux.com (Andreas Dilger), linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+In-Reply-To: <no.id> from "Richard Gooch" at Aug 02, 2001 08:37:20 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15209.29680.763652.510738@beta.namesys.com>
-Date: Thu, 2 Aug 2001 19:38:24 +0400
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-CC: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH]: reiserfs: C-old-format.patch
-X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
+Message-Id: <E15SKWg-0000uC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+> So, yes, you can already patch other subsystems to dynamically assign
+> major numbers in 2.4.7. I'd like to see people do that. My patch for
+> sd.c can also serve as a demonstration on how to use the new API.
 
-this patch fixes bugs in the support for reiserfs format <3.5:
-file-systems of this format are now mountable and convertible.
+Its a bit of an ugly hack but I guess its the best anyone can put together
+for a 2.4 kernel tree. Going to a 32bit dev_t is going to make life so much
+simpler do all of this without ugly hacks
 
-Please apply.
-
-[lkml: please CC me, I am not subscribed.]
-
-Nikita.
-diff -rup linux-2.4.8-pre3/fs/reiserfs/super.c linux-2.4.8-pre3.patched/fs/reiserfs/super.c
---- linux-2.4.8-pre3/fs/reiserfs/super.c	Wed Aug  1 21:12:55 2001
-+++ linux-2.4.8-pre3.patched/fs/reiserfs/super.c	Wed Aug  1 21:18:00 2001
-@@ -29,19 +29,11 @@
- 
- #endif
- 
--#define SUPPORT_OLD_FORMAT
- 
- #define REISERFS_OLD_BLOCKSIZE 4096
- #define REISERFS_SUPER_MAGIC_STRING_OFFSET_NJ 20
- 
- 
--#if 0
--// this one is not used currently
--inline void reiserfs_mark_buffer_dirty (struct buffer_head * bh, int flag)
--{
--  mark_buffer_dirty (bh, flag);
--}
--#endif
- 
- //
- // a portion of this function, particularly the VFS interface portion,
-@@ -367,98 +359,34 @@ void check_bitmap (struct super_block * 
- 		      free, SB_FREE_BLOCKS (s));
- }
- 
--#ifdef SUPPORT_OLD_FORMAT 
--
--/* support old disk layout */
--static int read_old_super_block (struct super_block * s, int size)
--{
--    struct buffer_head * bh;
--    struct reiserfs_super_block * rs;
--
--    printk("read_old_super_block: try to find super block in old location\n");
--    /* there are only 4k-sized blocks in v3.5.10 */
--    if (size != REISERFS_OLD_BLOCKSIZE)
--	set_blocksize(s->s_dev, REISERFS_OLD_BLOCKSIZE);
--    bh = bread (s->s_dev, 
--		REISERFS_OLD_DISK_OFFSET_IN_BYTES / REISERFS_OLD_BLOCKSIZE, 
--		REISERFS_OLD_BLOCKSIZE);
--    if (!bh) {
--	printk("read_old_super_block: unable to read superblock on dev %s\n", kdevname(s->s_dev));
--	return 1;
--    }
--
--    rs = (struct reiserfs_super_block *)bh->b_data;
--    if (strncmp (rs->s_magic,  REISERFS_SUPER_MAGIC_STRING, strlen ( REISERFS_SUPER_MAGIC_STRING))) {
--	/* pre-journaling version check */
--	if(!strncmp((char*)rs + REISERFS_SUPER_MAGIC_STRING_OFFSET_NJ,
--		    REISERFS_SUPER_MAGIC_STRING, strlen(REISERFS_SUPER_MAGIC_STRING))) {
--	    printk("read_old_super_blockr: a pre-journaling reiserfs filesystem isn't suitable there.\n");
--	    brelse(bh);
--	    return 1;
--	}
--	  
--	brelse (bh);
--	printk ("read_old_super_block: can't find a reiserfs filesystem on dev %s.\n", kdevname(s->s_dev));
--	return 1;
--    }
--
--    if(REISERFS_OLD_BLOCKSIZE != le16_to_cpu (rs->s_blocksize)) {
--	printk("read_old_super_block: blocksize mismatch, super block corrupted\n");
--	brelse(bh);
--	return 1;
--    }	
--
--    s->s_blocksize = REISERFS_OLD_BLOCKSIZE;
--    s->s_blocksize_bits = 0;
--    while ((1 << s->s_blocksize_bits) != s->s_blocksize)
--	s->s_blocksize_bits ++;
- 
--    SB_BUFFER_WITH_SB (s) = bh;
--    SB_DISK_SUPER_BLOCK (s) = rs;
--    s->s_op = &reiserfs_sops;
--    return 0;
--}
--#endif
- 
--//
--// FIXME: mounting old filesystems we _must_ change magic string to
--// make then unmountable by reiserfs of 3.5.x
--//
--static int read_super_block (struct super_block * s, int size)
-+static int read_super_block (struct super_block * s, int size, int offset)
- {
-     struct buffer_head * bh;
-     struct reiserfs_super_block * rs;
- 
--    bh = bread (s->s_dev, REISERFS_DISK_OFFSET_IN_BYTES / size, size);
-+
-+    bh = bread (s->s_dev, offset / size, size);
-     if (!bh) {
--	printk("read_super_block: unable to read superblock on dev %s\n", kdevname(s->s_dev));
-+	printk ("read_super_block: "
-+		"bread failed (dev %s, block %d, size %d)\n", 
-+		kdevname (s->s_dev), offset / size, size);
- 	return 1;
-     }
- 
-     rs = (struct reiserfs_super_block *)bh->b_data;
-     if (!is_reiserfs_magic_string (rs)) {
--	printk ("read_super_block: can't find a reiserfs filesystem on dev %s\n",
--		kdevname(s->s_dev));
-+	printk ("read_super_block: "
-+		"can't find a reiserfs filesystem on (dev %s, block %lu, size %d)\n",
-+		kdevname(s->s_dev), bh->b_blocknr, size);
- 	brelse (bh);
- 	return 1;
-     }
- 
-     //
--    // ok, reiserfs signature (old or new) found in 64-th 1k block of
--    // the device
-+    // ok, reiserfs signature (old or new) found in at the given offset
-     //
--
--#ifndef SUPPORT_OLD_FORMAT 
--    // with SUPPORT_OLD_FORMAT undefined - detect old format by
--    // checking super block version
--    if (le16_to_cpu (rs->s_version) != REISERFS_VERSION_2) { 
--	brelse (bh);
--	printk ("read_super_block: unsupported version (%d) of reiserfs found on dev %s\n",
--		le16_to_cpu (rs->s_version), kdevname(s->s_dev));
--	return 1;
--    }
--#endif
--    
-     s->s_blocksize = le16_to_cpu (rs->s_blocksize);
-     s->s_blocksize_bits = 0;
-     while ((1 << s->s_blocksize_bits) != s->s_blocksize)
-@@ -468,17 +396,22 @@ static int read_super_block (struct supe
-     
-     if (s->s_blocksize != size)
- 	set_blocksize (s->s_dev, s->s_blocksize);
--    bh = reiserfs_bread (s->s_dev, REISERFS_DISK_OFFSET_IN_BYTES / s->s_blocksize, s->s_blocksize);
-+
-+    bh = bread (s->s_dev, offset / s->s_blocksize, s->s_blocksize);
-     if (!bh) {
--	printk("read_super_block: unable to read superblock on dev %s\n", kdevname(s->s_dev));
-+	printk ("read_super_block: "
-+		"bread failed (dev %s, block %d, size %d)\n", 
-+		kdevname (s->s_dev), offset / size, size);
- 	return 1;
-     }
-     
-     rs = (struct reiserfs_super_block *)bh->b_data;
-     if (!is_reiserfs_magic_string (rs) ||
- 	le16_to_cpu (rs->s_blocksize) != s->s_blocksize) {
-+	printk ("read_super_block: "
-+		"can't find a reiserfs filesystem on (dev %s, block %lu, size %d)\n",
-+		kdevname(s->s_dev), bh->b_blocknr, size);
- 	brelse (bh);
--	printk ("read_super_block: can't find a reiserfs filesystem on dev %s.\n", kdevname(s->s_dev));
- 	return 1;
-     }
-     /* must check to be sure we haven't pulled an old format super out
-@@ -489,7 +422,8 @@ static int read_super_block (struct supe
-     if (bh->b_blocknr >= le32_to_cpu(rs->s_journal_block) && 
- 	bh->b_blocknr < (le32_to_cpu(rs->s_journal_block) + JOURNAL_BLOCK_COUNT)) {
- 	brelse(bh) ;
--	printk("super-459: read_super_block: super found at block %lu is within its own log. "
-+	printk("super-459: read_super_block: "
-+	       "super found at block %lu is within its own log. "
- 	       "It must not be of this format type.\n", bh->b_blocknr) ;
- 	return 1 ;
-     }
-@@ -504,6 +438,8 @@ static int read_super_block (struct supe
-     return 0;
- }
- 
-+
-+
- /* after journal replay, reread all bitmap and super blocks */
- static int reread_meta_blocks(struct super_block *s) {
-   int i ;
-@@ -712,15 +648,12 @@ struct super_block * reiserfs_read_super
-     }
- 
-     /* read block (64-th 1k block), which can contain reiserfs super block */
--    if (read_super_block (s, size)) {
--#ifdef SUPPORT_OLD_FORMAT
-+    if (read_super_block (s, size, REISERFS_DISK_OFFSET_IN_BYTES)) {
- 	// try old format (undistributed bitmap, super block in 8-th 1k block of a device)
--	if(read_old_super_block(s,size)) 
-+	if (read_super_block (s, size, REISERFS_OLD_DISK_OFFSET_IN_BYTES)) 
- 	    goto error;
- 	else
- 	    old_format = 1;
--#endif
--	goto error ;
-     }
- 
-     s->u.reiserfs_sb.s_mount_state = le16_to_cpu (SB_DISK_SUPER_BLOCK (s)->s_state); /* journal victim */
+Alan

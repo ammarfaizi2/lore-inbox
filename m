@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265334AbSJaVBC>; Thu, 31 Oct 2002 16:01:02 -0500
+	id <S264813AbSJaU6r>; Thu, 31 Oct 2002 15:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265335AbSJaVBC>; Thu, 31 Oct 2002 16:01:02 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:37090 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265334AbSJaVAy>; Thu, 31 Oct 2002 16:00:54 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A492@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Cc: "'Greg@kroah.com'" <Greg@kroah.com>
-Subject: RE: bare pci configuration access functions ?
-Date: Thu, 31 Oct 2002 13:07:08 -0800
+	id <S264861AbSJaU6q>; Thu, 31 Oct 2002 15:58:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11018 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264813AbSJaU6q>;
+	Thu, 31 Oct 2002 15:58:46 -0500
+Message-ID: <3DC19ACA.9030906@pobox.com>
+Date: Thu, 31 Oct 2002 16:04:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM REPORT 2.4.20-rc1: sundance.c
+References: <20021031173834.4514603a.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Lee, Jung-Ik [mailto:jung-ik.lee@intel.com] 
-> 	Some kernel drivers/components such as hotplug 
-> pci/io-node drivers,
-> ACPI driver, some console drivers, etc **need bare pci 
-> configuration space
-> access** before either pci driver is initialized or struct pci_dev is
-> constructed.
-> 
-> ACPI needs this for ACPI/PCI population, hotplug pci driver 
-> for populating
-> hot-added pci hierarchy. As more drivers are cross ported 
-> over to wider
-> architectures, this would become wider need. Help me if 
-> others need this
-> too.
+Stephan von Krawczynski wrote:
 
-When the PCI Config stuff got revamped a few months ago, Greg KH, myself,
-and some other people discussed this, and the conclusion seemed to be that
-it was less ugly to make the code that needs bare PCI config access use fake
-structs, than to have the bare functions exposed. Greg, am I remembering
-correctly?
+>Hello all,
+>
+>I'd like to point out that (at least) the network driver sundance.c has weird
+>flaws when trying to use more than MAX_UNITS (8) cards at the same time. Since
+>
 
-Regards -- Andy
+Smileys nonwithstanding, you need to include far more information
+
+Please define "weird flaws"... explicitly.
+
+>this driver can be used for DFE-580TX 4 port network card it is really easy to
+>get more than 8 ports :-)
+>In fact the driver does check against MAX_UNITS, but does _not_ fail if you go
+>through the roof. Instead you can expect really interesting ifconfig-outputs
+>;-)
+>IMHO it should check and fail. I wonder what other card drivers do in such a
+>case ...
+>  
+>
+
+Other card drivers handle this case just fine.  The expected behavior is 
+that module options will only support up to MAX_UNITS of certain 
+arguments, but beyond that nothing is affected at all.
+
+    Jeff
+
+
+
+

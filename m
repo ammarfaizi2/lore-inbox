@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLGHnJ>; Thu, 7 Dec 2000 02:43:09 -0500
+	id <S129183AbQLGI0t>; Thu, 7 Dec 2000 03:26:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQLGHnA>; Thu, 7 Dec 2000 02:43:00 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11027 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129226AbQLGHmi>; Thu, 7 Dec 2000 02:42:38 -0500
-Date: Wed, 6 Dec 2000 23:10:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Miles Lane <miles@megapathdsl.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The horrible hack from hell called A20
-In-Reply-To: <3A2F3174.60205@megapathdsl.net>
-Message-ID: <Pine.LNX.4.10.10012062307280.1221-100000@penguin.transmeta.com>
+	id <S129319AbQLGI0j>; Thu, 7 Dec 2000 03:26:39 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:16912 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129183AbQLGI02>; Thu, 7 Dec 2000 03:26:28 -0500
+Date: Wed, 6 Dec 2000 19:44:02 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: D-LINK DFE-530-TX
+Message-ID: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Which ethernet module works with this card?  2.2.17 kernel
 
 
-On Wed, 6 Dec 2000, Miles Lane wrote:
-> 
-> I have also just tried a test pass with 3c59x built in and
-> USB built as modules.  I booted with only the 3c575 inserted.
-> I got eth0 running and then loaded usb-ohci (with the enable
-> bus mastering change added).  This resulted in modprobe hanging
-> again.
 
-I bet you're hanging on the rtnl_semaphore due to having a /sbin/hotplug
-policy.
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
 
-Miles, mind trying out a really simple change in the
-____call_usermodehelper() function in kernel/kmod.c? 
-
-Change: #if 0 out the whole block that says "if (retval >= 0)" and does
-the waiting for the child. We shouldn't wait for the user mode helper:
-that's just going to cause nasty deadlocks. Deadlocks like the one you
-seem to be seeing, in fact.
-
-Does your ifconfig problem go away with that fix?
-
-		Linus
+#[Mike A. Harris bash tip #3 - how to disable core dumps]
+# Put the following at the bottom of your ~/.bash_profile
+ulimit -c 0
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

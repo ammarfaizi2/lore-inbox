@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbTJTSkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 14:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbTJTSkZ
+	id S262760AbTJTSrr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 14:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTJTSrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 14:40:25 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:43280 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262708AbTJTSkX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 14:40:23 -0400
-Date: Mon, 20 Oct 2003 20:49:53 +0200
-To: Peter Lieverdink <cafuego@coffee.cc.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8-mm1
-Message-ID: <20031020184953.GA13000@hh.idb.hist.no>
-References: <20031020020558.16d2a776.akpm@osdl.org> <200310201340.48681.dev@sw.ru> <20031020024942.01094ff0.akpm@osdl.org> <20031020110539.GA14214@coffee.cc.com.au>
+	Mon, 20 Oct 2003 14:47:47 -0400
+Received: from hell.org.pl ([212.244.218.42]:53768 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S262760AbTJTSrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 14:47:46 -0400
+Date: Mon, 20 Oct 2003 20:47:51 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
+Message-ID: <20031020184750.GA26154@hell.org.pl>
+Mail-Followup-To: M?ns Rullg?rd <mru@users.sourceforge.net>,
+	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20031020110539.GA14214@coffee.cc.com.au>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <yw1x8yngj7xg.fsf@users.sourceforge.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 09:05:39PM +1000, Peter Lieverdink wrote:
-> Re the new framebuffer code, it appears to not work on matroxfb.
-> On bootup the console gets as far as:
-> 
-> ...
-> found SMP MP-table at 000f4db0
-> hm, page 000f4000 reserved twice.
-> 
-> And then it stops, whereas normally the framebuffer would kick in with a pengiun and continue booting.
-> I boot the kernel with "video=matroxfb:vesa:0x192". When I disable it with "video=matroxfb:off" the system
-> boots fine.
-> 
-2.6.0-test8-mm1 won't start with matroxfb for me either.
-I have
-video=matroxfb:vesa:0x1BB
-This works with 2.6.0-test8, I get two nice penguins.
-With mm1 all I get is lilo printing loading linux...
-and then everything stops.  There isn't even a mode switch,
-and no fsck on startup after using reset.
+Thus wrote M?ns Rullg?rd:
+> > Suspending and resuming from S1 disables ACPI interrupts for my machine
+> > (ASUS L3800C laptop). No further interrupts and events are generated,
+> > /proc/interrupts shows no change w.r. to ACPI. This happens regardless of
+> > whether the specific IRQ is shared or not.
+> suspend, the extra buttons (I use them to fire up programs) stop
+> working.  Normally, they will generate an ACPI event, that is
+> processed by acpid etc.  After a suspend, each button will work once.
+> If I then close and open the lid, they will work one more time, and so
+> on.  Any way I can help?
 
-Helge Hafting
+Please specify the type of suspend. The situation I described only occurs
+for S1 (or, echo -n standby, more specifically), and only in certain kernel
+versions.
+Best regards,
+
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265306AbUFHUOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265309AbUFHUST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265306AbUFHUOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 16:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265310AbUFHUOu
+	id S265309AbUFHUST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 16:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265310AbUFHUST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 16:14:50 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:59009 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265306AbUFHUOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 16:14:49 -0400
-Date: Tue, 8 Jun 2004 22:14:46 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-       shaggy@austin.ibm.com
-Subject: Re: Linux 2.4.26 JFS: cannot mount
-Message-ID: <20040608201446.GA13764@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	shaggy@austin.ibm.com
-References: <20040608195610.GA4757@merlin.emma.line.org>
+	Tue, 8 Jun 2004 16:18:19 -0400
+Received: from cantor.suse.de ([195.135.220.2]:52377 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265309AbUFHUSR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 16:18:17 -0400
+Subject: Re: [PATCH] writeback_inodes can race with unmount
+From: Chris Mason <mason@suse.com>
+To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <40C61A20.4000906@kolumbus.fi>
+References: <1086722523.10973.157.camel@watt.suse.com>
+	 <40C61A20.4000906@kolumbus.fi>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1086725926.10973.161.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040608195610.GA4757@merlin.emma.line.org>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 08 Jun 2004 16:18:47 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Jun 2004, Matthias Andree wrote:
-
-> I recently had a mount failure for a jfs file system at boot-up, mount
-> complained about bad options or superblock, but no messages were stuffed
-> in dmesg.
+On Tue, 2004-06-08 at 15:57, Mika Penttilä wrote:
+> Chris Mason wrote:
 > 
-> Running fsck.jfs /dev/hda6 without further argument fixed this problem,
-> after fsck.jfs, I could mount the file system normally.
-> (fsck.jfs version 1.1.1, 17-Dec-2002)
+> >There's a small window where the filesystem can be unmounted during
+> >writeback_inodes.  The end result is the iput done by sync_sb_inodes
+> >could be done after the FS put_super and and the super has been removed
+> >from all lists.
+> >  
+> >
+> 
+> Why don't we have the same race in the sync() path as well? Moving the 
+> locking to sync_sb_inodes() itself would fix it also.
 
-Further info, it turned out that the fsck column for the respective file
-system was 0. It has now been fixed to 2.
+In the sync() path we're already taking a read lock on s_umount sem. 
+Moving the locking into sync_sb_inodes would be tricky, it is sometimes
+called with the write lock on s_umount_sem held and sometimes with a
+read lock.
 
-Question: is the JFS kernel driver supposed to mount a dirty file system
-(replaying journal or whatever) without user space help - for instance,
-if it's used as root file system?
+-chris
+
+

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbUBVPJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 10:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUBVPJ3
+	id S261519AbUBVPIN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 10:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbUBVPIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 10:09:29 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:2178 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261465AbUBVPJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 10:09:26 -0500
-Date: Sun, 22 Feb 2004 16:09:25 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: linux-kernel@vger.kernel.org, Judith Lebzelter <judith@osdl.org>,
-       Dan Kegel <dank@kegel.com>, cliff white <cliffw@osdl.org>
-Subject: Re: Kernel Cross Compiling [update]
-Message-ID: <20040222150924.GA23051@MAIL.13thfloor.at>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Judith Lebzelter <judith@osdl.org>, Dan Kegel <dank@kegel.com>,
-	cliff white <cliffw@osdl.org>
-References: <20040222035350.GB31813@MAIL.13thfloor.at> <20040222090711.A11210@flint.arm.linux.org.uk>
+	Sun, 22 Feb 2004 10:08:13 -0500
+Received: from mail.shareable.org ([81.29.64.88]:64641 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261519AbUBVPIK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 10:08:10 -0500
+Date: Sun, 22 Feb 2004 15:07:53 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Christer Weinigel <christer@weinigel.se>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
+Message-ID: <20040222150753.GB25664@mail.shareable.org>
+References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <m3vfm1trj8.fsf@zoo.weinigel.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040222090711.A11210@flint.arm.linux.org.uk>
+In-Reply-To: <m3vfm1trj8.fsf@zoo.weinigel.se>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 09:07:11AM +0000, Russell King wrote:
-> On Sun, Feb 22, 2004 at 04:53:50AM +0100, Herbert Poetzl wrote:
-> >    interesting is that some architectures (arm, chris, v850)
-> >    do not even have an appropriate default config
-> 
-> For some (eg ARM) one single default config makes zero sense.  I've
-> been debating about removing arch/arm/defconfig for this reason; we
-> have a whole host of machine default configurations in arch/arm/config
-> to serve this purpose.
-
-ah, okay, so could you 'suggest' or even 'provide' a config
-which is somewhat 'representative' for the arm kernel
-architecture, so that (mostly) platform independant patches
-could be tested on this arch?
-
-> >    				   linux-2.4.25
-> >    			   config  dep     kernel  modules
+Christer Weinigel wrote:
+> > 	long sys_mark_dir_clean(dirfd);
 > > 
-> >    alpha/alpha: 	   OK	   OK	   OK	   OK
-> >    arm/arm:		   OK	   OK	   FAILED  FAILED
+> > the syscall returns whether the directory was valid/clean already.
 > 
-> ARM is not expected to build in 2.4 kernels, and probably never will.
+> Isn't this rather bad, it's only possible to have one process that
+> does this magic clean bit thing.  Other applications such as Wine or
+> a DOS emulator might want to get the same speedups.
 
-okay, so this is a dead end for 2.4, right?
+No.  The magic clean bit is associated with dirfd - different file
+descriptors have separate magic clean bits.
 
-TIA,
-Herbert
+> Add a new create syscall with the same idea as your one bit syscall,
+> which checks that the generation number matches.  If the generation
+> number doesn't match the create call fails.
+> 
+>     int create_synchronized(name, mode, generation);
 
-> -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
->                  2.6 Serial core
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Hmm.  That's an interesting idea.
+
+-- Jamie

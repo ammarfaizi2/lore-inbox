@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUIGIcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267713AbUIGIiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267708AbUIGIcu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 04:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267711AbUIGIcu
+	id S267713AbUIGIiw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 04:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIGIiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 04:32:50 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:7369 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S267708AbUIGIcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 04:32:48 -0400
-Message-ID: <413D7204.8090502@tu-harburg.de>
-Date: Tue, 07 Sep 2004 10:32:04 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+	Tue, 7 Sep 2004 04:38:52 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:32781 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267713AbUIGIiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 04:38:50 -0400
+Message-ID: <413D74A5.3070002@hist.no>
+Date: Tue, 07 Sep 2004 10:43:17 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
-References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904181220.B16644@infradead.org> <20040904172223.GC9765@wohnheim.fh-wedel.de> <20040904182556.A16774@infradead.org>
-In-Reply-To: <20040904182556.A16774@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+Subject: Re: New proposed DRM interface design
+References: <20040904102914.B13149@infradead.org>	 <4139C8A3.6010603@tungstengraphics.com>	 <9e47339104090408362a356799@mail.gmail.com>	 <4139FEB4.3080303@tungstengraphics.com>	 <9e473391040904110354ba2593@mail.gmail.com>	 <1094386050.1081.33.camel@localhost.localdomain>	 <9e47339104090508052850b649@mail.gmail.com>	 <1094393713.1264.7.camel@localhost.localdomain>	 <9e473391040905083326707923@mail.gmail.com>	 <1094395462.1271.12.camel@localhost.localdomain> <9e47339104090509056e54866e@mail.gmail.com>
+In-Reply-To: <9e47339104090509056e54866e@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Jon Smirl wrote:
+
+>They have to be merged. Cards with two heads need the mode set on each
+>head. fbdev only sets the mode on one head. If I teach fbdev how to
+>set the mode of the other head fbdev needs to learn about memory
+>management.  The DRM memory management code is complex and is a big
+>chunk of the driver.
 >
->>>Could you give some context please?
+>I would also like to fix things so that we can have two logged in
+>users, one on each head. This isn't going to work if one them uses
+>fbdev and keeps swithing the chip to 2D mode while the other user is
+>in 3D mode. The chip needs to stay in 3D mode with the CP running.
 >
-> 
-> Oh, I know what union mounts are.  But I wonder who's hacking on them
-> as they need some major VFS surgey to get right.
-> 
+>  
+>
+Yes!  I use the ruby patch and have two users logged in on the
+two heads of a G550.  It works fine - as long as no mode
+change is attempted.  And only one user can use 3D (or even 2D),
+the other is stuck with a unaccelerated framebuffer.
 
-Ok, first sorry for the late reply. I'm working on a vfs-based 
-union-mount implementation for linux. The focus is on the basic 
-functionality explained by McKusick [1] without a need for a new 
-separate filesystem, without options like "before". "after", "in 
-between" or something like that, with permanent whiteouts if the fstype 
-supports them. For the copyup I plan to use Jörn's patch.
-At the moment some basic stuff (actually the unions) is working, so you 
-actually can "see" something but I don't think that the patches are 
-ready for being posted now. Please relax and wait a few weeks because I 
-have to go back to university for some final exams. After that I'm back 
-for some more full-time hacking on union-mounts.
+>We're not going to get OOPS display while running X without merging.
+>Something I would really like to have since I just had some and was
+>force to hook up a serial console.
+>  
+>
+Also nice to have.
 
-[1]:http://www.usenix.org/publications/library/proceedings/neworl/full_papers/mckusick.a
-
-Regards,
-Jan
+Helge Hafting

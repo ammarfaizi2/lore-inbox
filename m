@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286756AbSABF3R>; Wed, 2 Jan 2002 00:29:17 -0500
+	id <S286759AbSABFmH>; Wed, 2 Jan 2002 00:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286758AbSABF3I>; Wed, 2 Jan 2002 00:29:08 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:21962 "EHLO
+	id <S286758AbSABFl5>; Wed, 2 Jan 2002 00:41:57 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:23506 "EHLO
 	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S286756AbSABF2x>; Wed, 2 Jan 2002 00:28:53 -0500
-Date: Tue, 01 Jan 2002 21:27:07 -0800
+	id <S286776AbSABFlt>; Wed, 2 Jan 2002 00:41:49 -0500
+Date: Tue, 01 Jan 2002 21:40:03 -0800
 From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: highmem and usb [was
+Subject: Re: [linux-usb-devel] Re: highmem and usb [was:
  "sr: unaligned transfer" in 2.5.2-pre1]
-To: Jens Axboe <axboe@suse.de>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+        Jens Axboe <axboe@suse.de>
 Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-        Matthew Dharm <mdharm@one-eyed-alien.net>, Greg KH <greg@kroah.com>
-Message-id: <06c801c1934e$1fc01a20$6800000a@brownell.org>
+        Greg KH <greg@kroah.com>
+Message-id: <06df01c1934f$ee4e68a0$6800000a@brownell.org>
 MIME-version: 1.0
 X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 X-Mailer: Microsoft Outlook Express 5.50.4133.2400
@@ -26,66 +27,52 @@ In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> <20011223112249.B4493@kroah.com>
  <20011230212700.B652@one-eyed-alien.net> <20011231125157.D1246@suse.de>
  <20011231145455.C6465@one-eyed-alien.net>
  <065e01c192fd$fe066e20$6800000a@brownell.org> <20020101233423.I16092@suse.de>
+ <20020101152859.D14915@one-eyed-alien.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Not that I've seen a writeup about highmem (linux/Documentation
-> > doesn't seem to have one anyway) but if I infer correctly from that
-> > DMA-mapping.txt writeup, URBs don't support it because there's no way
-> > to specify buffers as a "struct page *" or an array of "struct
-> > scatterlist".  That's the only way that document identifies to access
-> > "highmem memory".
-> 
-> What kind of mapping does URBs require? A virtual mapping?
+> > > Not that I've seen a writeup about highmem (linux/Documentation
+> > > doesn't seem to have one anyway) but if I infer correctly from that
+> > > DMA-mapping.txt writeup, URBs don't support it because there's no way
+> > > to specify buffers as a "struct page *" or an array of "struct
+> > > scatterlist".  That's the only way that document identifies to access
+> > > "highmem memory".
+>
+> This sounds like another good reason to have URBs take scatterlists
+> directly, oddly enough. :)
 
-Each URB points to one transfer buffer, address plus length, where
-the USB device drivers directly read/write those addresses.   The
-requirement for drivers is that the transfer buffers can be passed to
-pci_map_single() calls by the Host Controller Drivers (HCDs).  The
-device drivers, and URBs, don't expose such mappings, they only
-require that they can be created/destroyed.
-
-I'd be inclined to say transfer buffers must not be "virtual" mappings,
-but since terminology can differ I'll let you draw your conclusion.
+If it's got to be done, I'd much rather it were "page + offset", so that the
+usbcore code can be simpler.  We know how to turn scatterlists into
+bulk queued requests, so there's no need for anything more ... :)
 
 
-> > > (1) Do the USB HCDs support highmem?  I seem to recall they do, but
-> > > I'm not certain.
-> > 
-> > If URBs can't describe highmem, the HCD's won't support them per se;
-> > you'd have to turn highmem to "lowmem" or whatever it's called, and
-> > then let the HCDs manage the lowmem-to-dma_addr_t mappings.
-> > 
-> > Alternatively, in 2.5 we might add "highmem" support to USB.  Now that
-> > I've looked at it a few minutes, I suspect we must -- just to support
-> > block devices (usb-storage) fully.  Is there more to it than adding
-> 
-> No, you can always ask to get pages low mem bounced. Highmem is no
-> requirement, and if your device really can't support it there's no point
-> in attempting to support it.
+> > No, you can always ask to get pages low mem bounced. Highmem is no
+> > requirement, and if your device really can't support it there's no point
+> > in attempting to support it.
+>
+> I presume there is some overhead in bouncing to lowmem?  I imagine that
+> highmem support for the HCDs wouldn't be that difficult -- they are just
+> PCI devices, after all.
 
-Standard HC hardware (EHCI, OHCI, UHCI) can use 32bit addresses
-for their PCI DMA.  EHCI can also, in some implementations, handle 64bit
-addresses.
+I'm unclear on what "bouncing to lowmem" involves, but I'd rather avoid
+teaching all three HCDs a second model for addressing transfer buffers.
+
+At least until later in the 2.5 series, when we believe they'll share a lot
+more common code and so that new model can be taught to just ONE
+piece of code.  Fixing bugs in one place easier than in three!
 
 
-> > page+offset as an alternative way to describe the transfer_buffer?
-> 
-> no
-> 
-> > (And making all the "single" mapping calls in the HCDs use page
-> > mappings.)
-> 
-> exactly
+> I'd rather eliminate as much overhead as possible -- I already get
+> complaints from performance fanatics about the inability of usb-storage to
+> get past 92% bus saturation (sustained), and the problem will only get
+> worse on USB 2.0
 
-So you're saying that pci_map_page() is not necessary?  And that
-highmem buffers (page+offset, or scatterlist thereof) can be turned
-into the form needed by URBs using some other mechanism?
-
-I'd certainly rather that be the case for the moment, for simplicity.
-Keep in mind that usb-storage seems to be the only driver that'd
-run into that issue.
+Well then you'll  be glad to see a patch from me, soonish, that teaches
+the usb-storage "transport" code to use bulk queueing.  That'll get the
+bandwidth utilization up as high as it can get.  It won't address any of
+these highmem issues though.
 
 - Dave
+
 
 

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSFYTsi>; Tue, 25 Jun 2002 15:48:38 -0400
+	id <S314529AbSFYTuY>; Tue, 25 Jun 2002 15:50:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSFYTsh>; Tue, 25 Jun 2002 15:48:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19468 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313477AbSFYTsh>;
-	Tue, 25 Jun 2002 15:48:37 -0400
-Message-ID: <3D18C8C8.D35FF1A3@zip.com.au>
-Date: Tue, 25 Jun 2002 12:47:20 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: linux-kernel@vger.kernel.org
-Subject: Re: efficient copy_to_user and copy_from_user routines in Linux Kernel
-References: <3D18A26A.73E6DD07@zip.com.au> from "Andrew Morton" at Jun 25, 2 09:15:01 pm <200206251743.VAA00510@sex.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315413AbSFYTuX>; Tue, 25 Jun 2002 15:50:23 -0400
+Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:62642 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S314529AbSFYTuW>; Tue, 25 Jun 2002 15:50:22 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 25 Jun 2002 12:50:18 -0700
+Message-Id: <200206251950.MAA00725@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: driverfs is not for everything! (was: [PATCH] /proc/scsi/map )
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> Hello!
-> 
-> > I changed tcp to use a different copy if either source or dest were
-> > not eight-byte aligned, and found that the resulting improvement
-> > across a mixed networking load was only 1%.  Your numbers are higher,
-> > so perhaps there are different alignments in the mix...
-> 
-> Did you look at sender or changed both of the functions?
+>> = ???
+>  = Patrick Mochel
+>> I think the qualification for appearing in driverfs is actually possessing a 
+>> driver.  Therefore, we accept FC and iSCSI.  Things which appear as 
+>> FileSystems are debatable, but not anything which has a real device driver.
+>
+>The qualification for appearing in the device tree is the physical 
+>presence of the device, regardless of the presence of a driver to control 
+>it. (This typically depends on the presence of the bus driver so it can 
+>discover the device.) Presence in the device tree implies presence in 
+>driverfs.
 
-I changed it to use csum_copy_from_user() instead of copy_from_user()
-if the source and dest weren't 8-byte aligned.   No other changes
-in there.   
+	Lots of "soft" drivers, from /dev/lop to FC and iSCSI could
+be simplified by using the struct device <--> struct device_driver
+rendezvous code.  Under Patrick's propoposed, policy, we would not be
+able to get the simplifications in scsi.c, usb.c, or anything else that
+could possibly drive a device that was too "soft" for Patrick.
 
-> After that accident TCP was changed and it does not use copy_from_user more,
-> it does copy_and_csum even when no checksum is required. So, his results
-> on sender side (except for strange anomaly at msg size 8K) just confirm
-> nil effect of copy_from_user.
+	It is also important for supporting hot plugging that user level
+facilities understand that if ide disk #7 was removed that that
+poisons /dev/loop/7.
 
-Yup.
-
-> What's about copy_to_user, we forgot about this at all,
-> worrying mostly about sender side. :-)
-
-We didn't really forget, but we were trying to get a 2.4 kernel out,
-so it became a "fix in 2.5" item.  You're right, we should fix it in
-2.4.
-
-I wrote a little app to test this - it times a couple of copy algorithms
-at all possible alignments.  It may be useful for someone...  http://www.zip.com.au/~akpm/linux/cptimer.tar.gz
-I think it covers everything - uncached/cache source/dest,
-all possible transfer alignemnts.
-
-The cost of getting it wrong is, iirc, 40% slowdown.  In the
-kernel's single most expensive function.
-
--
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUJBBXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUJBBqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267164AbUJBBXV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 21:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUJBBXV
+	id S267165AbUJBBqv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 21:46:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUJBBqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 21:23:21 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:48290 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267164AbUJBBXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 21:23:19 -0400
-Subject: Re: [Alsa-devel] alsa-driver will not compile with kernel
-	2.6.9-rc2-mm4-S7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <1096679629.22244.4.camel@krustophenia.net>
-References: <1096675930.27818.74.camel@krustophenia.net>
-	 <32868.192.168.1.8.1096677269.squirrel@192.168.1.8>
-	 <20041002004854.GB26711@thundrix.ch>
-	 <1096678383.27818.87.camel@krustophenia.net>
-	 <1096679629.22244.4.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1096680198.22244.6.camel@krustophenia.net>
+	Fri, 1 Oct 2004 21:46:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50358 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267165AbUJBBqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 21:46:49 -0400
+Date: Fri, 1 Oct 2004 18:44:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mmap() on cdrom files fails since 2.6.9-rc2-bk2 (Was: in -mmX)
+Message-Id: <20041001184431.4e0c6ba5.akpm@osdl.org>
+In-Reply-To: <20040929222619.5da3f207.khali@linux-fr.org>
+References: <2Jw9b-52b-13@gated-at.bofh.it>
+	<20040929222619.5da3f207.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 21:23:18 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 21:13, Lee Revell wrote:
-> For now unset CONFIG_OLD_REMAP_PAGE_RANGE and it should work.  Not yet
-> tested.
+Jean Delvare <khali@linux-fr.org> wrote:
+>
+> Quoting myself:
+> 
+> > I think I found a bug in 2.6.9-rc2-mm4. It doesn't seem to be able to
+> > mmap() files located on cdroms. Same problem with -mm3 and -mm1.
+> > 2.6.9-rc2 works fine. I reproduced it on two completely different
+> > systems, so I guess it isn't device dependant.
+> 
+> Looks like I should have done more testing before reporting. The problem
+> is not only in -mmX, it shows in the -bk series as well. The mmap()
+> problem I am experiencing seems to have been introduced between
+> 2.6.9-rc2-bk1 and 2.6.9-rc2-bk2. This somewhat narrows the research
+> field.
 
-Yup, this works.  Trivial patch:
+It works OK here.  Can you put together a simple test app?
 
---- alsa-driver/configure~	2004-09-29 16:05:19.000000000 -0400
-+++ alsa-driver/configure	2004-10-01 21:14:20.000000000 -0400
-@@ -6629,7 +6629,7 @@
- CFLAGS=$ac_save_CFLAGS
- if test "$new_remap" != "1"; then
-   cat >>confdefs.h <<\_ACEOF
--#define CONFIG_OLD_REMAP_PAGE_RANGE 1
-+#undef CONFIG_OLD_REMAP_PAGE_RANGE
- _ACEOF
- 
- fi
+Is it an iso9660 filesystem?
 
-Lee
+> I still don't know how to investigate the problem any further.
+> Suggestions welcome.
 
+Try the same thing on a read-only mounted ext3 filesystem, maybe?
+
+Capture the strace output.

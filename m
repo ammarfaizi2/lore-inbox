@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVAKRr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVAKRuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVAKRr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVAKRr5
+	id S261175AbVAKRuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVAKRsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:47:57 -0500
-Received: from colin2.muc.de ([193.149.48.15]:12812 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261182AbVAKRdi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:33:38 -0500
-Date: 11 Jan 2005 18:33:32 +0100
-Date: Tue, 11 Jan 2005 18:33:32 +0100
-From: Andi Kleen <ak@muc.de>
+	Tue, 11 Jan 2005 12:48:50 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:3565 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261175AbVAKRg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 12:36:26 -0500
+Message-ID: <41E40E9D.9090502@comcast.net>
+Date: Tue, 11 Jan 2005 12:36:29 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: brking@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-Message-ID: <20050111173332.GA17077@muc.de>
-References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com> <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com> <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com> <1105454259.15794.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105454259.15794.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: starting with 2.7
+References: <1105096053.5444.11.camel@ulysse.olympe.o2t>	 <20050107111508.GA6667@infradead.org> <20050107111751.GA6765@infradead.org>	 <41DEC83D.30105@comcast.net>	 <1105196469.10519.3.camel@localhost.localdomain>	 <41E37DA0.80702@comcast.net> <1105456172.15742.16.camel@localhost.localdomain>
+In-Reply-To: <1105456172.15742.16.camel@localhost.localdomain>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 02:37:40PM +0000, Alan Cox wrote:
-> On Llu, 2005-01-10 at 22:57, Brian King wrote:
-> > > For this I would add a semaphore or a lock bit to pci_dev.
-> > > Probably a simple flag is good enough that is checked by sysfs/proc
-> > > and return EBUSY when set. 
-> > 
-> > How about something like this... (only compile tested at this point)
-> 
-> 
-> User space does not expect to get dumped with -EBUSY randomly on PCI
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think it's a reasonable thing to do.  If you prefer you could fake a
-0xffffffff read, that would look like busy or non existing hardware.
-But the errno would seem to be cleaner to me.
 
-There may be other reasons to have error codes here in the future
-too - e.g. with the upcomming support for real PCI error handling
-it would make a lot of sense to return EIO in some cases. User space
-will just have to cope with that.
 
-> accesses. Not a viable option in that form _but_ making them sleep would
-> work - even with a simple global wait queue
-> for the pci_unblock_.. path
-> 
-> ie add the following (oh and uninlined probably for compatcness)
-> 
-> static int pci_user_wait_access(struct pci_dev *pdev) {
-> 	wait_event(&pci_ucfg_wait, dev->block_ucfg_access == 0);
-> }
+Alan Cox wrote:
+| On Maw, 2005-01-11 at 07:17, John Richard Moser wrote:
+|
+|>Hello??
+|>
+|>The latest 2.0 version of the Linux kernel is:  	2.0.40 	2004-02-08
+|>07:13 UTC 	F 	V 	VI 	  	Changelog
+|>
+|>You have FOUR.  2.6, 2.4, 2.2, 2.0
+|
+|
+| 2.4.29 is as different from say 2.4.9 as 2.0 is from 2.2 or 2.6.9 from
+| 2.6.5
+|
+| You have a lot more than four
+|
 
-I don't like this very much. What happens when the device 
-doesn't get out of BIST for some reason? 
+That's not good.
 
-I think it's better to keep this simple, and an error is fine for that.
+2.4.29 should ideally be 2.4.9 with a buttload of bug fixes.  Same with
+2.6.5/2.6.9.  Major feature differences should ideally come with majors,
+i.e. 2.0->2.2->2.4->2.6
 
--Andi
+A few bugfix backports may be fine, though that's already light to fair
+work (depending on how many security bugs are being found and need
+backporting, versus how many can patch clean without porting); How do
+you people maintain 4 ACTIVE branches?
+
+oi, whatever.
+|
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB5A6dhDd4aOud5P8RAhAtAJ9FgTkd/AyZXuI59gyiIVAJNFM9rgCdGYss
+kN4m4Bc5BVeVLZbWGHIP+xg=
+=hDM/
+-----END PGP SIGNATURE-----

@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVCLN6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVCLOBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVCLN6o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 08:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCLN6o
+	id S261912AbVCLOBm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 09:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVCLOBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 08:58:44 -0500
-Received: from [213.85.13.118] ([213.85.13.118]:42624 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261913AbVCLN5l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 08:57:41 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Sat, 12 Mar 2005 09:01:42 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:57486 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261912AbVCLOBe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 09:01:34 -0500
+Message-ID: <4232F642.2050704@tiscali.de>
+Date: Sat, 12 Mar 2005 15:01:38 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Strange Linking Problem
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16946.62799.737502.923025@gargle.gargle.HOWL>
-Date: Sat, 12 Mar 2005 16:57:35 +0300
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
-Subject: Re: [PATCH] mm counter operations through macros
-Newsgroups: gmane.linux.kernel.mm,gmane.linux.kernel
-In-Reply-To: <Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503110422150.19280@schroedinger.engr.sgi.com>
-	<20050311182500.GA4185@redhat.com>
-	<Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter writes:
- > On Fri, 11 Mar 2005, Dave Jones wrote:
- > 
- > > Splitting this last one into inc_mm_counter() and dec_mm_counter()
- > > means you can kill off the last argument, and get some of the
- > > readability back. As it stands, I think this patch adds a bunch
- > > of obfuscation for no clear benefit.
- > 
- > Ok.
- > -----------------------------------------------------------------
- > This patch extracts all the operations on counters protected by the
- > page table lock (currently rss and anon_rss) into definitions in
- > include/linux/sched.h. All rss operations are performed through
- > the following macros:
- > 
- > get_mm_counter(mm, member)		-> Obtain the value of a counter
- > set_mm_counter(mm, member, value)	-> Set the value of a counter
- > update_mm_counter(mm, member, value)	-> Add to a counter
+Hi!
+I hope I'm right here. I've the following assembler code:
 
-A nitpick, but wouldn't be it clearer to call it add_mm_counter()? As an
-additional bonus this matches atomic_{inc,dec,add}() and makes macro
-names more uniform.
+SECTION .DATA
+        hello:     db 'Hello world!',10
+        helloLen:  equ $-hello
 
- > inc_mm_counter(mm, member)		-> Increment a counter
- > dec_mm_counter(mm, member)		-> Decrement a counter
+SECTION .TEXT
+        GLOBAL main
 
-Nikita.
+main:
+
+
+
+        ; Write 'Hello world!' to the screen
+        mov eax,4            ; 'write' system call
+        mov ebx,1            ; file descriptor 1 = screen
+        mov ecx,hello        ; string to write
+        mov edx,helloLen     ; length of string to write
+        int 80h              ; call the kernel
+
+        ; Terminate program
+        mov eax,1            ; 'exit' system call
+        mov ebx,0            ; exit with error code 0
+        int 80h              ; call the kernel
+
+
+Then I run:
+
+nasm -f elf hello.asm
+
+
+I link it with ld and run it:
+
+ld -s -o hello hello.o
+./hello
+segmentation fault
+
+
+I link it with the gcc and run it:
+
+gcc hello.o -o hello
+./hello
+Hello world!
+
+
+What's wrong with the ld?
+
+Matthias-Christian Ott

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265809AbTB0Rtw>; Thu, 27 Feb 2003 12:49:52 -0500
+	id <S265711AbTB0SDF>; Thu, 27 Feb 2003 13:03:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbTB0Rtv>; Thu, 27 Feb 2003 12:49:51 -0500
-Received: from B5109.pppool.de ([213.7.81.9]:50351 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S265809AbTB0Rts>; Thu, 27 Feb 2003 12:49:48 -0500
-Subject: Re: Minutes from Feb 21 LSE Call
-From: Daniel Egger <degger@fhm.edu>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E18nu9a-0004VP-00@calista.inka.de>
-References: <E18nu9a-0004VP-00@calista.inka.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5NuIb28ToOJtnx2WaH7I"
+	id <S265815AbTB0SDF>; Thu, 27 Feb 2003 13:03:05 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:17897 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S265711AbTB0SDE>; Thu, 27 Feb 2003 13:03:04 -0500
+Date: Fri, 28 Feb 2003 07:16:31 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Software Suspend Functionality in 2.5
+In-reply-to: <20030227181220.A3082@in.ibm.com>
+To: suparna@in.ibm.com
+Cc: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1046369790.2190.9.camel@laptop-linux.cunninghams>
 Organization: 
-Message-Id: <1046368220.14387.23.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 27 Feb 2003 18:50:21 +0100
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1046238339.1699.65.camel@laptop-linux.cunninghams>
+ <20030227181220.A3082@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---=-5NuIb28ToOJtnx2WaH7I
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I've looked at LKCD and seen that they have a provision for compressing
+the pages which are written. Ideally, I'd like to see us sharing code
+because I reckon there's a fair bit in common between the two projects.
+For the moment, though, I haven't seriously considered implementing
+compression. I've just been concentrating on getting things as stable as
+possible under 2.4 (given that there's no driver model there), and
+beginning to seek to port the changes to 2.5. Perhaps compression could
+be added later, but I am worrying about the basics (getting the pages
+saved in any form!) first.
 
-Am Mit, 2003-02-26 um 06.30 schrieb Bernd Eckenfels:
+On Fri, 2003-02-28 at 01:42, Suparna Bhattacharya wrote:
+> Nigel,
+> 
+> When I noticed some of your discussions on swsusp mailing
+> list earlier, a question that crossed my mind was whether
+> you'd thought about the possibility of compression of data 
+> at the time of copy. 
+> 
+> Would that have been another way to helped achieve the 
+> objective you have in mind ? Do any issues come to mind ?
+> 
+> Regards
+> Suparna
+> 
 
-> > unfortunantly for them the core CPU speeds became uncoupled from the
-> > memory speeds and skyrocketed up to the point where CISC cores are as f=
-ast
-> > or faster then the 'high speed' RISC cores.
-
-> Hmm.. are there any RISC Cores which run even closely to CISC Speeds?
-
-Define RISC and CISC: do you mean pure RISC implementations or RISC
-implementations with CISC frontend?
-
-Define Speed: Felt speed, clock speed or measurable speed?
-
-I'm convinced that for each (sensible) combination of definations above
-there's a clear indication that your question is wrong.
-
---=20
-Servus,
-       Daniel
-
---=-5NuIb28ToOJtnx2WaH7I
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+Xk/cchlzsq9KoIYRAuNDAJwNWz6MX2FH3lXhf32ZL1eideinLwCg4byF
-YHNQdI1GCGOcc6CVfROCyro=
-=1VRG
------END PGP SIGNATURE-----
-
---=-5NuIb28ToOJtnx2WaH7I--
 

@@ -1,104 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130671AbRBGAmM>; Tue, 6 Feb 2001 19:42:12 -0500
+	id <S130695AbRBGAmW>; Tue, 6 Feb 2001 19:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRBGAmC>; Tue, 6 Feb 2001 19:42:02 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:28945 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S130671AbRBGAlx>; Tue, 6 Feb 2001 19:41:53 -0500
-Date: Tue, 6 Feb 2001 19:41:51 -0500 (EST)
-From: Ivan Borissov Ganev <ganev@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.4.[01] lockups
-In-Reply-To: <Pine.LNX.4.20.0102070207300.1226-500000@gamspc7.ihep.su>
-Message-ID: <Pine.SOL.4.21.0102061907230.7348-100000@tuomotu.cc.gatech.edu>
+	id <S130673AbRBGAmM>; Tue, 6 Feb 2001 19:42:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:64261 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130695AbRBGAl6>; Tue, 6 Feb 2001 19:41:58 -0500
+Date: Tue, 6 Feb 2001 16:41:21 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <20010207002107.L1167@redhat.com>
+Message-ID: <Pine.LNX.4.10.10102061628440.2045-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
 
-I am experiencing a problem with both 2.4.0 and 2.4.1. The problem is that
-at seemingly random times the console locks up. After the lockup I can no
-longer type and the mouse is frozen. As far as I can tell, other systems
-services are not affected, i.e. programs continue to run, music is being
-played, I/O is fine. It looks like _only_ the console devices are locked
-up.
+On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
+> 
+> On Tue, Feb 06, 2001 at 08:57:13PM +0100, Ingo Molnar wrote:
+> > 
+> > [overhead of 512-byte bhs in the raw IO code is an artificial problem of
+> > the raw IO code.]
+> 
+> No, it is a problem of the ll_rw_block interface: buffer_heads need to
+> be aligned on disk at a multiple of their buffer size.
 
-I work under X most of the time, but this has happened on a bare VC once
-also. The frequency of occurrence varies from 0 to a few times a day, with
-an average about 1 time/day.
+Ehh.. True of ll_rw_block() and submit_bh(), which are meant for the
+traditional block device setup, where "b_blocknr" is the "virtual
+blocknumber" and that indeed is tied in to the block size.
 
-When it happens I use my UPS to power the machine down gracefully and then
-reboot, however, it is a nuisance. After reboot the system log does not
-have anything out of the ordinary in it. I think this might be related to
-the other reports of lockups with 2.4.1 (by Ed Tomlinson and Alexander
-Zvyagin).
+That's the whole _point_ of ll_rw_block() and friends - they show the
+device at a different "virtual blocking" level than the low-level physical
+accesses necessarily are. Which very much means that if you have a 4kB
+"view", of the device, you get a stream of 4kB blocks. Not 4kB sized
+blocks at 512-byte offsets (or whatebver the hardware blocking size is).
 
-The system specs are the following:
+This way the interfaces are independent of the hardware blocksize. Which
+is logical and what you'd expect. You need to go to a lower level to see
+those kinds of blocking issues.
 
-motherboard: ABIT BH6 rev 1.0
-	the BH6 is based on Intel's 440BX chipset
-	(chipset BIOS updated to the latest available one)
+But it is _not_ true of "generic_make_request()" and the block IO layer in
+general. It obviously _cannot_ be true, because the block I/O layer has
+always had the notion of merging consecutive blocks together - regardless
+of whether the end result is even a power of two or antyhing like that in
+size. You can make an IO request for pretty much any size, as long as it's
+a multiple of the hardare blocksize (normally 512 bytes, but there are
+certainly devices out there with other blocksizes).
 
-CPU: Pentium II (Deschutes) stepping 02 @ 400MHz
+The fact is, if you have problems like the above, then you don't
+understand the interfaces. And it sounds like you designed kiobuf support
+around the wrong set of interfaces.
 
-RAM: 256MB SDRAM
+If you want to get at the _sector_ level, then you do
 
-HDD: 3 hard drives:
-	hda: QUANTUM BIGFOOT TS8.4A, ATA DISK drive	( 8GB)
-	hdb: WDC WD205AA, ATA DISK drive		(30GB)
-	hdc: WDC AC21200H, ATA DISK drive		( 1GB)
+	lock_bh();
+	bh->b_rdev = device;
+	bh->b_rsector = sector-number (where linux defines "sector" to be 512 bytes)
+	bh->b_size = size in bytes (must be a multiple of 512);
+	bh->b_data = pointer;
+	bh->b_end_io = callback;
+	generic_make_request(rw, bh);
 
-CD-ROM:
-	hdd: CR-801NP, ATAPI CD/DVD-ROM drive
+which doesn't look all that complicated to me. What's the problem?
 
-FDC:
-	Floppy drive(s): fd0 is 1.44M
-	FDC 0 is a post-1991 82077
-
-ttyS:
-	two serial ports on the motherboard
-
-video:
-	Matrox Millenium G200 (8MB SDRAM)
-
-eth:
-	Intel EtherExpressPro 10/100 (connected to DSL)
-
-sound:
-	Creative SB AWE64 (ISA device)
-
-modem:
-	USR3030/2729371324[0]{U.S. Robotics 56K FAX INT}
-
-I also have a Hauppauge bt848-based TV tuner card but the driver for it
-is compiled as a module and not loaded or used.
-
-All hard drives use DMA by default but the kernel usually switches to PIO
-for the CD-ROM after I start using it.
-
-Any ideas as to the cause for the lockups would be greatly appreciated. I
-am also willing to experiment/troubleshoot/test possible solutions, except
-that I have no idea where to start from.
-
-Cheers,
---Ivan
-
-
-------------------------------------------------------------------------------
-        Ivan Ganev                           327236 Georgia Tech Station
-   College of Computing                           Atlanta,  GA 30332
-Georgia Institute of Technology                    1-(404)-365-8694
-    ganev@cc.gatech.edu                     http://www.cc.gatech.edu/~ganev     
-------------------------------------------------------------------------------
-             Learning is not compulsory. Neither is survival.
-                        -- W. Edwards Deming
-
-
-
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269069AbUHYBIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269075AbUHYBS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269069AbUHYBIl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 21:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269075AbUHYBIl
+	id S269075AbUHYBS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 21:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269085AbUHYBS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 21:08:41 -0400
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:3794 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S269069AbUHYBIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 21:08:39 -0400
-Message-Id: <200408250108.i7P18bG00800@mail002.syd.optusnet.com.au>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-From: chakkerz_dev@optusnet.com.au
+	Tue, 24 Aug 2004 21:18:29 -0400
+Received: from main.gmane.org ([80.91.224.249]:16271 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269075AbUHYBS1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 21:18:27 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Cc: chakkerz@optusnet.com.au
-Date: Wed, 25 Aug 2004 11:08:37 +1000
-Subject: nforce2 / i8x0 sound breakage -> sys lockup
+From: fraga@abusar.org ( =?ISO-8859-1?Q?D=E2niel?= Fraga)
+Subject: Re: Linux 2.6.9-rc1
+Date: Tue, 24 Aug 2004 22:01:28 -0300
+Organization: http://www.turbonerd.hpg.ig.com.br
+Message-ID: <805tv1-ec2.ln1@tux.abusar.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+    <20040824184245.GE5414@waste.org>
+    <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+    <cggjvs$bv9$1@sea.gmane.org> <412BD946.1080908@linux-user.net>
+Reply-To: fraga@abusar.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 200-207-206-233.dsl.telesp.net.br
+X-Newsreader: knews 1.0c.0
+X-Leafnode-Warning: administrator allowed illegal use of 8-bit data in header.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <412BD946.1080908@linux-user.net>,
+	Daniel Andersen <anddan@linux-user.net> writes:
 
-Hi, just wanted to note that the sound in 2.6.7 and 2.6.8.1 is dead:
+> As Linus initially said, there is the possibility of releasing a bug-fix 
+> patch 2.6.8.2 *after* 2.6.9 has been released. This can make things very 
 
-after compiling and installing etc the new kernels first thing i was seeing was 
-occasional lockups in 2.6.7 and was blaming nvidia's taint. 2.6.8.1 saw far more 
-lockups, however after investigating the issue of the nvidia drivers i found it wasn't the 
-gfx system that was causing it, it was sound.
+	Why does this could happen? Do you agree with me that when 2.6.9 is
+released, all future versions should be based on 2.6.9? Or it's a BK
+issue I don't know?
 
-playing with mpg123 i got complaints of libao being broken, so i upgraded that, the i 
-got pcm_hw something or other I/O errors.
+> confusing when patch-2.6.9 is against 2.6.8.1 and not 2.6.8.2 (or 
+> 2.6.8). So if we use a rule of always patching against the first x.y.Z 
+> release (and not the last x.y.z.W by the time the new x.y.Z is released) 
+> we can assure consistence in the patch management.
 
-it's a GA 7N400 Pro 2 Mobo, with nforce2 chipset though i believe it uses a realtech 
-sound chip (not sure of the type). I found a couple of references to this being stuffed, 
-and HP specific fixes (which don't help :) )
+	Ok, I understand the problem. But isn't it possible to avoid
+releasing some 2.6.8.x version after 2.6.9? I mean, I'm not
+understanding why this could happen.
 
-Distro is Slack 10.0
+	Ps: sorry if this question is silly, but I didn't get the point why
+2.6.8.2 could be released after 2.6.9.
 
-Any thoughts on a solution? please CC chakkerz@optusnet.com.au / reply all on this, 
-so i get the message :)
+-- 
+http://Processo.tk (1001 dias)
+http://U-br.tk
+Linux 2.6.7
+São Paulo - SP
 
-thanks
-  Christian Unger

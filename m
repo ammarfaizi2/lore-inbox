@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTFGKzI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 06:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTFGKzH
+	id S263025AbTFGKz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 06:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTFGKz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 06:55:07 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:5009 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S263023AbTFGKzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 06:55:06 -0400
-Message-Id: <200306071108.h57B8WsG006673@ginger.cmf.nrl.navy.mil>
-To: Werner Almesberger <wa@almesberger.net>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2) 
-In-reply-to: Your message of "Fri, 06 Jun 2003 21:10:05 -0300."
-             <20030606211005.H3232@almesberger.net> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Sat, 07 Jun 2003 07:06:42 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-0.9
+	Sat, 7 Jun 2003 06:55:59 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:24965 "EHLO god.stev.org")
+	by vger.kernel.org with ESMTP id S263025AbTFGKzx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 06:55:53 -0400
+Date: Sat, 7 Jun 2003 12:19:40 +0100 (IST)
+From: James Stevenson <james@stev.org>
+To: chas williams <chas@cmf.nrl.navy.mil>
+cc: Werner Almesberger <wa@almesberger.net>,
+       "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+ (take 2) 
+In-Reply-To: <200306070047.h570lfsG003377@ginger.cmf.nrl.navy.mil>
+Message-ID: <Pine.LNX.4.44.0306071214110.19033-100000@god.stev.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030606211005.H3232@almesberger.net>,Werner Almesberger writes:
->The data plane, yes. But the control/configuration plane is
->synchronous. And it also makes sure that the driver stops
->doing asynchronous things when removing a VCC.
+On Fri, 6 Jun 2003, chas williams wrote:
 
-i forgot to mention that this is difficult with the way most of the
-atm drivers are written.  in smp kernels, you cant disable interrupts
-across all processors to keep the drivers bottom halves from running.
-(ok, you could but it would be very naughty).  if the bottom halves were
-tasklets this would be easy, but most drivers would need converted.
+> In message <20030606210620.G3232@almesberger.net>,Werner Almesberger writes:
+> >TCP connections will survive route changes, interface
+> >removals, etc.
+> 
+> really?  if i remove my ethernet interface i expect all the
+> connections to die.
+
+Think of a latop with a normall ethernet card in it.
+When you unplug the cable it wont disconnect all the tcp
+connection on the interface so that you could re route everything though
+a wireless card.
+
+
+

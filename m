@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUJ3TF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbUJ3TFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUJ3TF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 15:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUJ3TF2
+	id S261253AbUJ3TFg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 15:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbUJ3TFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 15:05:28 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:5354 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S261252AbUJ3TFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 15:05:19 -0400
-Date: Sat, 30 Oct 2004 12:05:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mporter@kernel.crashing.org,
-       takeharu1219@ybb.ne.jp
-Subject: Re: [patch 3/8] KGDB support for ppc32
-Message-ID: <20041030190517.GG15699@smtp.west.cox.net>
-References: <2.29102004.trini@kernel.crashing.org> <1.29102004.trini@kernel.crashing.org> <3.29102004.trini@kernel.crashing.org>
+	Sat, 30 Oct 2004 15:05:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4267 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261253AbUJ3TFa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 15:05:30 -0400
+Date: Sat, 30 Oct 2004 14:14:53 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andreas Herrmann <AHERRMAN@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [PATCH] reduce stack consumption in do_mount
+Message-ID: <20041030161453.GA17602@logos.cnet>
+References: <OF2D3B25A6.EBF2AF62-ONC1256F3B.005D01ED-C1256F3B.005EBAFF@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3.29102004.trini@kernel.crashing.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <OF2D3B25A6.EBF2AF62-ONC1256F3B.005D01ED-C1256F3B.005EBAFF@de.ibm.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:33:29AM -0700, Tom Rini wrote:
+On Thu, Oct 28, 2004 at 07:14:52PM +0200, Andreas Herrmann wrote:
+
+> I have seen a kernel stack overflow during mount of a SCSI disk on
+> s390, 31bit, with 4K stack size.
 > 
-> Cc: Matt Porter <mporter@kernel.crashing.org>
-> This adds KGDB support for ppc32 and was done by myself.  Note that this
-> currently doesn't work on 40x || BOOKE, but that problem is more generic (the
-> current ppc stub doesn't work either) and Matt Porter is close to having a
-> tested solution now.
+> The backtrace showed that there were 3 functions with stack
+> consumption of above 200 bytes.
+> 
+> These are do_mount (328 bytes stack size), ext3_fill_super (288 bytes)
+> and mpage_writepages (352 bytes).
 
-As Matt has posted his work which makes KGDB functional again, the
-following small patch is needed on top of this to make 40x || BOOKE work
-with this stub.
+One possibly interesting thing for you guys who are trying to reduce 
+stack usage is using the SLAB allocator for pagevec structures in the VM
+code. mpage_readpages/writepages use those, and pretty much all VM code.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Allocating those structures from SLAB can also increase performance
+due to cache colouring, but requires the additional instructions into
+kmalloc() for allocation - needs benchmarking.
 
- linux-2.6.10-rc1/arch/ppc/kernel/kgdb.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
---- linux-2.6.10-rc1/arch/ppc/kernel/kgdb.c
-+++ linux-2.6.10-rc1/arch/ppc/kernel/kgdb.c
-@@ -54,7 +54,7 @@
- 	{ 0x0d00, 0x04 /* SIGILL */  },		/* reserved */
- 	{ 0x0e00, 0x04 /* SIGILL */  },		/* reserved */
- 	{ 0x0f00, 0x04 /* SIGILL */  },		/* reserved */
--	{ 0x2000, 0x05 /* SIGTRAP */},		/* debug */
-+	{ 0x2002, 0x05 /* SIGTRAP */},		/* debug */
- #else
- 	{ 0x0200, 0x0b /* SIGSEGV */ },		/* machine check */
- 	{ 0x0300, 0x0b /* SIGSEGV */ },		/* address error (store) */
-@@ -240,8 +240,8 @@
- 			if (remcom_in_buffer[0] == 's')
- 			{
- #if defined (CONFIG_40x) || defined(CONFIG_BOOKE)
-+				mtspr(SPRN_DBCR0, mfspr(SPRN_DBCR0) | DBCR0_IC);
- 				linux_regs->msr |= MSR_DE;
--				current->thread.dbcr0 |= (DBCR0_IDM | DBCR0_IC);
- #else
- 				linux_regs->msr |= MSR_SE;
- #endif
+I want to try so if no one does it before.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282904AbRLVWyB>; Sat, 22 Dec 2001 17:54:01 -0500
+	id <S282914AbRLVXFB>; Sat, 22 Dec 2001 18:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282902AbRLVWxv>; Sat, 22 Dec 2001 17:53:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53516 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282898AbRLVWxp>; Sat, 22 Dec 2001 17:53:45 -0500
-Subject: Re: affinity and tasklets...
-To: ashokr2@attbi.com (Ashok Raj)
-Date: Sat, 22 Dec 2001 23:03:47 +0000 (GMT)
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <PPENJLMFIMGBGDDHEPBBIEKFCAAA.ashokr2@attbi.com> from "Ashok Raj" at Dec 22, 2001 09:16:24 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282916AbRLVXEv>; Sat, 22 Dec 2001 18:04:51 -0500
+Received: from mta13n.bluewin.ch ([195.186.1.206]:41540 "EHLO
+	mta13n.bluewin.ch") by vger.kernel.org with ESMTP
+	id <S282914AbRLVXEi>; Sat, 22 Dec 2001 18:04:38 -0500
+Message-ID: <3C234CC10005C1D9@mta13n.bluewin.ch> (added by
+	    postmaster@bluewin.ch)
+From: "Per Jessen" <per@computer.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Sun, 23 Dec 2001 00:22:39 +0100
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16HvBD-0005af-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i.e in our devices, a single interrupt from our device indicates several
-> device virtual interrupts, so even if i have several tasklets for each
-> virtual device interrupts, the code that runs the real intr and schedules
-> tasklets will end up queueing all of them on a single cpu.
+On Sat, 22 Dec 2001 21:18:08 +0100 (MET), Pozsar Balazs wrote:
+>
+>This might be a standard, but _it_is_not_adopted_anywhere! (at least I
+>haven't seen it anywhere (I might be blind)).
+>I would rather call standard something which is adopted in real life.
 
-Why do you care. Unless your interrupt event handling code is seriously slow
-surely you want to run the things serially, efficiently and while the cache
-is hot ?
+No, that would be a socalled defacto standard. Ie. not necessarily a standard 
+proposed and recommended by a standards body. For instance, you may think that 
+the UK using pounds and ounces is standard - after all they are both being 
+used in real life. But it is contrary to the standard. (as given by the SI
+system).
+
+
+rgds,
+Per 
+
+regards,
+Per Jessen, Zurich
+http://www.enidan.com - home of the J1 serial console.
+
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+
+

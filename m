@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130038AbQLHS4F>; Fri, 8 Dec 2000 13:56:05 -0500
+	id <S132218AbQLHS6F>; Fri, 8 Dec 2000 13:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130146AbQLHSz4>; Fri, 8 Dec 2000 13:55:56 -0500
-Received: from feral.com ([192.67.166.1]:19784 "EHLO feral.com")
-	by vger.kernel.org with ESMTP id <S130038AbQLHSzs>;
-	Fri, 8 Dec 2000 13:55:48 -0500
-Date: Fri, 8 Dec 2000 10:22:22 -0800 (PST)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: mjacob@feral.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: baettig@scs.ch, linux-kernel@vger.kernel.org
-Subject: Re: io_request_lock question (2.2)
-In-Reply-To: <E144NpK-0003ti-00@the-village.bc.nu>
-Message-ID: <Pine.BSF.4.21.0012081017560.29052-100000@beppo.feral.com>
+	id <S130146AbQLHS5z>; Fri, 8 Dec 2000 13:57:55 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:63753 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129669AbQLHS5p>; Fri, 8 Dec 2000 13:57:45 -0500
+Date: Fri, 8 Dec 2000 10:26:30 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Rohland <cr@sap.com>
+cc: linux-kernel@vger.kernel.org, ch.rohland@gmx.net
+Subject: Re: [PATCH,preliminary] cleanup shm handling
+In-Reply-To: <qwwu28fkpxh.fsf@sap.com>
+Message-ID: <Pine.LNX.4.10.10012081023170.11302-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,33 +20,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-> > 	spin_lock_irq(&io_request_lock);
-> > we finish the request and return to the add_request function which calls
-> > 	spin_unlock_irqrestore(&io_request_lock,flags);
-> > and restores the flags.     
-> > 
-> > Isn't it possible now that the flags which we restore are out of date now?
-> > Is this idiom the right one to use for 2.2?
+On 8 Dec 2000, Christoph Rohland wrote:
 > 
-> It is fine for 2.2 as well.
-> 
-> The flags you restore are ok. It restores the interrupt state to the state it
-> was in when you were called. Think of save_flags/restore_flags as bracketing
-> regions of code (and being nestable in pairs). The only real bizarre rule is
-> that you cannot save_flags in one function and restore_flags in another without
-> upsetting DaveM - as it breaks on the sparc if you do that
+> here is my first shot for cleaning up the shm handling. It did survive
+> some basic testing but is not ready for inclusion. 
 
-Yes, and I believe that this is what's broken about the SCSI midlayer. The the
-io_request_lock cannot be completely released in a SCSI HBA because the flags
-for that save are way up the stack somewhere. This means that if you need to,
-for example, sleep on something like loop coming up, you can spin_unlock_irq,
-but you can't restore flags, so for the UP case, you just hang. To avoid this,
-I'm having to build a kernel thread to handle all of this kind of stuff in a
-separate context. What a PITA.
+The only comment I have right now is that you probably should not mark the
+page dirty in "nopage" - theoretically somebody might have a sparse
+mapping and depend on zero pages for the ones that aren't touched. It's
+better to delay the dirty marking until swapout() (and write(), when that
+is implemented), so that we don't needlessly create swap entries for zero
+pages.
 
--matt
+(No, probably nobody does this for traditional shared memory, but I could
+well imagine mmap() on /dev/zero with most of the pages being read-only).
 
+Other than that the approach at least looks reasonable. And cleaner than
+what we currently have.
 
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

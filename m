@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266515AbUFQPQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266551AbUFQPRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266515AbUFQPQL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 11:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUFQPQL
+	id S266551AbUFQPRI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 11:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266548AbUFQPRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 11:16:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59113 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266537AbUFQPPR (ORCPT
+	Thu, 17 Jun 2004 11:17:08 -0400
+Received: from ozlabs.org ([203.10.76.45]:26846 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266545AbUFQPQ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 11:15:17 -0400
+	Thu, 17 Jun 2004 11:16:57 -0400
+Date: Fri, 18 Jun 2004 01:11:53 +1000
+From: Anton Blanchard <anton@samba.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
 Subject: Re: PATCH: Further aacraid work
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Alan Cox <alan@redhat.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20040617145808.GA29938@devserv.devel.redhat.com>
+Message-ID: <20040617151153.GA30514@krispykreme>
 References: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2402C@otce2k03.adaptec.com>
-	 <1087484107.2090.42.camel@mulgrave>
-	 <20040617145808.GA29938@devserv.devel.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7kMR3E+EDJK6j55MRO+3"
-Organization: Red Hat UK
-Message-Id: <1087485308.2711.36.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 17 Jun 2004 17:15:09 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2402C@otce2k03.adaptec.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> This would not be such an issue if Linux provided large SG elements
+> rather than the fubar descending page order ones they issue today. If
+> this could be fixed, I'd not even be interested in the optimization of
+> the SG.
 
---=-7kMR3E+EDJK6j55MRO+3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Please divert some of your anger towards your manufacturer of dodgy
+hardware. Any sane hardware with an IOMMU handles this just fine.
+eg on ppc64 running a disk test:
 
-On Thu, 2004-06-17 at 16:58, Alan Cox wrote:
-> On Thu, Jun 17, 2004 at 09:55:03AM -0500, James Bottomley wrote:
-> > This is hardly a big problem, is it?  it only occurs during the first
-> > few moments of system operation.  After that, the pages assigned to a
-> > virtual region are pretty much random.
->=20
-> When I looked at it (which I grant was 2.2 and 2.4 the pattern was
-> visible on machines that had been running for a week or more)
+sg size    in        out
+1           3      47569
+2           0       2591
+3           0       1123
+4           0        447
+5           0        429
+...
+62       5095          0
+64      47061          0
 
-probably because of the buddy grouping/ungrouping;
+The IOMMU is taking 62-64 entry SG lists and producing 1-5 entry lists.
 
---- linux-2.6.7/mm/page_alloc.c~        2004-06-17 17:13:58.830727762
-+0200
-+++ linux-2.6.7/mm/page_alloc.c 2004-06-17 17:13:58.831727642 +0200
-@@ -301,7 +301,7 @@ expand(struct zone *zone, struct page *p
-                area--;
-                high--;
-                size >>=3D 1;
--               list_add(&page->lru, &area->free_list);
-+               list_add_tail(&page->lru, &area->free_list);
-                MARK_USED(index, high, area);
-                index +=3D size;
-                page +=3D size;
-
-
---=-7kMR3E+EDJK6j55MRO+3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA0bV8xULwo51rQBIRAlEXAJ42eG+Gu/xC7eCaz+ydWcIbIaOCNQCghDRJ
-Fx50hqcw28JVXv4sbODenDM=
-=dnLU
------END PGP SIGNATURE-----
-
---=-7kMR3E+EDJK6j55MRO+3--
-
+Anton

@@ -1,81 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbUCaXmz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 18:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUCaXmy
+	id S262106AbUCaXwl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 18:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUCaXwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 18:42:54 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:13218 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262108AbUCaXmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 18:42:15 -0500
-Subject: Re: finding out the value of HZ from userspace
-From: Albert Cahalan <albert@users.sf.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Peter Williams <peterw@aurema.com>, albert@users.sourceforge.net,
-       arjanv@redhat.com, ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040331134009.76ca3b6d.rddunlap@osdl.org>
-References: <1079453698.2255.661.camel@cube>
-	 <20040320095627.GC2803@devserv.devel.redhat.com>
-	 <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com>
-	 <20040331134009.76ca3b6d.rddunlap@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080776817.2233.2326.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 31 Mar 2004 18:46:58 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Mar 2004 18:52:41 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:56272 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261988AbUCaXwi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 18:52:38 -0500
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [PATCH] ibmvscsi driver - sixth version
+References: <opr3u0ffo7l6e53g@us.ibm.com> <20040225134518.A4238@infradead.org>  <opr3xta6gbl6e53g@us.ibm.com> <1079027038.2820.57.camel@mulgrave> <opr5qwiyw4l6e53g@us.ibm.com> <406B3FDA.9010507@pobox.com>  <opr5q1enb6l6e53g@us.ibm.com> <1080776399.11299.63.camel@mulgrave>
+Message-ID: <opr5q28vkql6e53g@us.ibm.com>
+From: Dave Boutcher <sleddog@us.ibm.com>
+Organization: IBM
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Date: Wed, 31 Mar 2004 17:51:57 -0600
+In-Reply-To: <1080776399.11299.63.camel@mulgrave>
+User-Agent: Opera7.23/Win32 M2 build 3227
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | >>>>there is one. Nothing uses it
-> | >>>>(sysconf() provides this info)
-> | >>>
-> | >>>If you have a recent glibc on a recent kernel, it might.
-> | >>>You could also get a -1 or a supposed ABI value that
-> | >>>has nothing to do with the kernel currently running.
-> | >>>The most reliable way is to first look around on the
-> | >>>stack in search of ELF notes, and then fall back to
-> | >>>some horribly gross hacks as needed.
-> | >>
-> | >>eh sysconf() is the nice way to get to the ELF notes
-> | >>instead of having to grovel yourself.
-> | > 
-> | > 
-> | > Unless there is some hidden feature that lets
-> | > me specify the ELF note number directly, no way.
-> | > 
-> | > The sysconf(_SC_CLK_TCK) call does not return an
-> | > error code when used on a 2.2.xx i386 kernel.
-> | > You get an arbitrary value that fails for ARM,
-> | > Alpha, and any system with modified HZ.
-> | 
-> | As Linux is supposed to be POSIX compliant this is a bug and should be 
-> | fixed.
-> 
-> 
-> My understanding (from a few years back) is that Linux is POSIX
-> if/when/where it makes sense, but not necessarily POSIX-just-to-be-POSIX.
+On 31 Mar 2004 18:39:57 -0500, James Bottomley 
+<James.Bottomley@SteelEye.com> wrote:
+>> > 14) why are you faking a PCI bus?  The following is very, very wrong:
+>> >
+>> > +static struct pci_dev iseries_vscsi_dev = {
+>> > +	.dev.bus = &pci_bus_type,
+>> > +	.dev.bus_id = "vscsi",
+>> > +	.dev.release = noop_release
+>> >
+>> > Did I mention "very" wrong?  :)
+>> Because for iseries it is implemented in the pci code.  While it may
+>> look wrong, it is actually correct.  Check out
+>> arch/ppc64/kernel/iSeries_iommu.c and arch/ppc64/kernel/dma.c.
+>> This device has to have dev->bus == &pci_bus_type otherwise the
+>> dma_mapping_foo functions won't work correctly.
+>
+> Erm, something is very wrong in the iSeries code then.  This
+> iseries_vio_device is a struct device.  As such, it should contain all
+> the information it needs for the DMA API to act on it without performing
+> silly pci device tricks.
+>
+> This looks like it's done because the iseries should be converted to the
+> generic device infrastructure, but in fact it's not.  Since the generic
+> API has been around for over a year and was designed to solve precisely
+> these very problems it needs fixing rather than trying to work around it
+> in a driver.
+There will always be 1 (no more, no less) of these struct devices in the
+system, so I'll move the definition of this into iSeries_iommu and then
+just reference it from the driver.  I think that should abstract things
+sufficiently.
 
-The fixing has been done.
-
-This is not yet helpful for app developers, because
-old kernels and old libraries are still in use.
-
-If you rely on sysconf(_SC_CLK_TCK) to work, then
-your software will support:
-
-* all systems with a 2.6.xx kernel
-* all systems with a 2.4.xx kernel and recent glibc
-* all i386 systems running with the default HZ
-
-That's quite a bit I suppose. Maybe you have no
-interest in supporting a 1200 HZ Alpha with an old
-kernel or glibc. Maybe you don't care about somebody
-running a 2.2.xx kernel with modified HZ.
-
-For the moment, I still care. I won't for long.
-
-
+Dave B

@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318710AbSHQSgQ>; Sat, 17 Aug 2002 14:36:16 -0400
+	id <S318715AbSHQShy>; Sat, 17 Aug 2002 14:37:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318711AbSHQSgQ>; Sat, 17 Aug 2002 14:36:16 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41745
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318710AbSHQSgP>; Sat, 17 Aug 2002 14:36:15 -0400
-Date: Sat, 17 Aug 2002 11:30:33 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
-Subject: Re: IDE?
-In-Reply-To: <5.1.0.14.2.20020817192217.02179a50@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10208171127580.23171-100000@master.linux-ide.org>
+	id <S318716AbSHQShy>; Sat, 17 Aug 2002 14:37:54 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:12197 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318715AbSHQShx>;
+	Sat, 17 Aug 2002 14:37:53 -0400
+Date: Sat, 17 Aug 2002 20:42:39 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Gabriel Paubert <paubert@iram.es>,
+       James Bottomley <James.Bottomley@HansenPartnership.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
+In-Reply-To: <Pine.LNX.4.44.0208171134070.3169-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208172041480.16545-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Anton,
+On Sat, 17 Aug 2002, Linus Torvalds wrote:
 
-They will become PIO over DMA, and it will become interesting.
-But you are correct, we are stuck wit PIO regardless.
+> The gdt descriptor alignment really shouldn't matter, but that bogus GDT
+> _size_ thing in the descriptor might do it.
+> 
+> Right now it's set to be 0x8000, which is not a legal GDT size (it
+> should be of the form n*8-1), and is nonsensical anyway (the comment
+> says 2048 entries, but the fact is, we don't _have_ 2048 entries in
+> there).
 
-Andre Hedrick
-LAD Storage Consulting Group
+hm, in BK-curr it's set to:
 
-On Sat, 17 Aug 2002, Anton Altaparmakov wrote:
+SYMBOL_NAME(cpu_gdt_descr):
+        .word GDT_ENTRIES*8-1
+        .long SYMBOL_NAME(cpu_gdt_table)
 
-> At 19:16 17/08/02, Jan-Benedict Glaw wrote:
-> >On Fri, 2002-08-16 18:35:29 -0700, Linus Torvalds <torvalds@transmeta.com>
-> >wrote in message <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>:
-> > > On Fri, 16 Aug 2002, Alexander Viro wrote:
-> >
-> > >     - in particular, it would only bother with PCI (or better)
-> > >       controllers, and with UDMA-only setups.
-> >[...]
-> > > And then in five years, in Linux-3.2, we might finally just drop support
-> > > for the old IDE code with PIO etc. Inevitably some people will still use
-> >
-> >That's bad. Then, you're nailed to use old kernels without having
-> >possibilities of recent kernels only because you're working with eg. old
-> >Alphas, PCMCIA-IDE things or so? Bad, bad, badhorribly bad. Even it's
-> >sloooow, there'll always some need for PIO-only controller support...
-> 
-> I don't think it is possible to have DMA only drivers. On DMA 
-> failure/timeouts/whatever, the current DMA drivers always fall back to PIO 
-> mode and this is a good thing. Otherwise many transfers would simply fail. 
-> Dropping PIO mode fallback would mean a lot of IO errors. Any system put 
-> under stress will at some point fall back to PIO mode (at least judgjing 
-> from the limited number of systems I have) because it doesn't manage to do 
-> the DMA transfers in time. That was very visible during the period when 
-> Andre's new IDE core went into 2.5.something_early and it turned out that 
-> PIO was broken at that point. For example my VIA box was running just fine 
-> then in DMA mode but as soon as I put it under stress it blew up due to it 
-> falling out of DMA and the then broken PIO mode... And VIA686b is 
-> mainstream hardware...
-> 
-> Best regards,
-> 
->          Anton
-> 
-> 
-> -- 
->    "I've not lost my mind. It's backed up on tape somewhere." - Unknown
-> -- 
-> Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-> Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-> WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+this should be the correct value, right? Where do we have a 0x8000 size
+value?
+
+and the per-CPU GDT gets set up before being loaded.
+
+	Ingo
 

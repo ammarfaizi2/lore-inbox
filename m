@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbTEGF6h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 01:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTEGF6h
+	id S262880AbTEGGHd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTEGGHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 01:58:37 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:17103 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262234AbTEGF6g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 01:58:36 -0400
-Date: Tue, 06 May 2003 20:56:54 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Mannthey <kmannth@us.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][Patch] fix for irq_affinity_write_proc v2.5
-Message-ID: <2770000.1052279813@[10.10.2.4]>
-In-Reply-To: <1052250874.1202.162.camel@dhcp22.swansea.linux.org.uk>
-References: <1052247789.16886.261.camel@dyn9-47-17-180.beaverton.ibm.com> <1052250874.1202.162.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 7 May 2003 02:07:33 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:3593 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262880AbTEGGHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:07:31 -0400
+Date: Wed, 7 May 2003 07:20:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: dwmw2@infradead.org, thomas@horsten.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
+Message-ID: <20030507072002.A7424@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, dwmw2@infradead.org,
+	thomas@horsten.com, linux-kernel@vger.kernel.org
+References: <1052255946.7532.66.camel@imladris.demon.co.uk> <20030506.200638.78728404.davem@redhat.com> <20030507062613.A5318@infradead.org> <20030506.220714.35679546.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030506.220714.35679546.davem@redhat.com>; from davem@redhat.com on Tue, May 06, 2003 at 10:07:14PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>   irq_affinity_write_proc currently directly calls set_ioapic_affinity
->> which writes to the ioapic.  This undermines the work done by kirqd by
->> writing a cpu mask directly to the ioapic. I propose the following patch
->> to tie the /proc affinity writes into the same code path as kirqd. 
->> Kirqd will enforce the affinity requested by the user.   
+On Tue, May 06, 2003 at 10:07:14PM -0700, David S. Miller wrote:
+> This doesn't even consider the case where the ipsec-tools copy of the
+> headers becomes out of date with the kernel copy.  This isn't a
+> theoretical issue, this problem is real.
 > 
-> Why should the kernel be enforcing policy here. You have to be root to 
-> do this, and root should have the ability to configure apparently stupid
-> things because they may find them useful.
+> For example, I just changed the values of a few SADB_EALG_* values in
+> pfkeyv2.h.  Now ipsec-tools is effectively broken.  Oops, when will
+> the copy in ipsec-tools get updated?
 
-Whilst in general, I'd agree, in this case it makes no sense - there are
-two masks set: the irqbalance mask, and the apicid mask. If irqbalance
-is on, setting the apicid mask doesn't really do anything, because 
-irqbalance is going to reset it dynamically very shortly afterwards
-anyway. It's hard to imagine how that might be useful ;-)
+You just broke the userland ABI which must not happen.  at all.  That's
+why userland having older headers is fine.
 
-It might conceivably be useful to disable irqbalance dynamically, if that's
-what you mean, but that shouldn't be the default behaviour, I think. 
-Keith already a nice simple patch to make it a config option ... doing it 
-dynamically is a different project, IMHO, and one of questionable utility 
-to anyone not capable of coding it themselves ;-)
+> What about applications, ie. normal ones, that want to pass IPSEC
+> policies into the kernel via the socket options we have that allows
+> per-socket IPSEC rules to be specified?  The copy in ipsec-tools
+> doesn't help them at all.
 
-M.
+That's why we want the glibc-kernheader package.  Or even better
+a package of headers that can be used by the kernel and userland,
+but this would require people to properly sort out kernel header
+functionality like internal structures and prototypes/inlines from
+the actual ABI-relevant contents.  The networking headers currently
+are very bad on this.
 

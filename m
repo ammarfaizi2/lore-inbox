@@ -1,97 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133025AbRDRFun>; Wed, 18 Apr 2001 01:50:43 -0400
+	id <S132738AbRDRGKK>; Wed, 18 Apr 2001 02:10:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133027AbRDRFue>; Wed, 18 Apr 2001 01:50:34 -0400
-Received: from relay2.scripps.edu ([137.131.200.30]:20438 "EHLO
-	relay2.scripps.edu") by vger.kernel.org with ESMTP
-	id <S133025AbRDRFuU>; Wed, 18 Apr 2001 01:50:20 -0400
-Date: Tue, 17 Apr 2001 22:47:09 -0700 (PDT)
-From: Andy Arvai <arvai@scripps.edu>
-Message-Id: <200104180547.WAA25629@astra.scripps.edu>
-To: linux-smp@vger.kernel.org
-Subject: pirq boot parameter for tyan S2520
+	id <S132753AbRDRGKA>; Wed, 18 Apr 2001 02:10:00 -0400
+Received: from thorin.y.ics.muni.cz ([147.251.61.126]:60942 "HELO
+	charybda.fi.muni.cz") by vger.kernel.org with SMTP
+	id <S132738AbRDRGJu>; Wed, 18 Apr 2001 02:09:50 -0400
+From: Jan Kasprzak <kas@informatics.muni.cz>
+Date: Wed, 18 Apr 2001 08:09:46 +0200
+To: Wolfgang Rohdewald <WRohdewald@dplanet.ch>
 Cc: linux-kernel@vger.kernel.org
-X-Sun-Charset: US-ASCII
+Subject: Re: Possible problem with zero-copy TCP and sendfile()
+Message-ID: <20010418080946.E2167@informatics.muni.cz>
+In-Reply-To: <20010417170206.C2589096@informatics.muni.cz> <20010417161036.A21620@bastard.inflicted.net> <20010417223636.C2167@informatics.muni.cz> <20010417212249.D0552C24B@poboxes.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010417212249.D0552C24B@poboxes.com>; from WRohdewald@dplanet.ch on Tue, Apr 17, 2001 at 11:22:47PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wolfgang Rohdewald wrote:
+: On Tuesday 17 April 2001 22:36, Jan Kasprzak wrote:
+: > +    if (len == -1 || len > 0 && len < count) {
+: 
+: are you sure there are no missing () ?
+: 
+: if ((len == -1) || (len > 0) && (len < count)) {
+: 
+: assumig that && has precedence over || (I believe so)
 
-Hi,
+	Yes, but the precedence of ==, <, and > is even higher.
+However, I've found a problem with the previous patch: The first chunk should
+read:
 
-I have a Tyan S2520 motherboard and I am getting IO-APIC errors. I
-looked in the documentation in IO-APIC.txt and there was the following
-one-liner:
+-    if((len = sendfile(session.d->outf->fd, retr_fd, offset, count)) == -1) {
++    len = sendfile(session.d->outf->fd, retr_fd, offset, count);
++    if (len == -1 || len > 0 && len < count) {
++       if (len != -1)
++              errno = EINTR;
 
-	echo -n pirq=; echo `scanpci | grep T_L | cut -c56-` | sed 's/ /,/g'
+i.e. we should not overwrite errno, when it is valid.
 
-Unfortunately, this doesn't work for me. There is no "T_L" in the
-output of scanpci for me. Any idea's would be greatly appreciated.
-Below is the output of scanpci on my system. Thanks for any help.
+-Yenya
 
-Andy
-arvai@scripps.edu
+PS.: You can find the C operators precedence for example at
+	http://www.howstuffworks.com/c14.htm (found by Google).
 
-
-
-PCI says configuration type 1
-
-PCI probing configuration type 1
-
-Probing for devices on PCI bus 0:
-
-pci bus 0x0 cardnum 0x00 function 0x0000: vendor 0x8086 device 0x1a21
- Intel  Device unknown
-
-pci bus 0x0 cardnum 0x01 function 0x0000: vendor 0x8086 device 0x1a23
- Intel  Device unknown
-
-pci bus 0x0 cardnum 0x02 function 0x0000: vendor 0x8086 device 0x1a24
- Intel  Device unknown
-
-pci bus 0x0 cardnum 0x1e function 0x0000: vendor 0x8086 device 0x244e
- Intel  Device unknown
-
-pci bus 0x0 cardnum 0x1f function 0x0000: vendor 0x8086 device 0x2440
- Intel  Device unknown
-
-pci bus 0x0 cardnum 0x1f function 0x0001: vendor 0x8086 device 0x244b
- Intel  Device unknown
-
-Probing for devices on PCI bus 1:
-
-Probing for devices on PCI bus 2:
-
-pci bus 0x2 cardnum 0x1f function 0x0000: vendor 0x8086 device 0x1360
- Intel  Device unknown
-
-Probing for devices on PCI bus 3:
-
-pci bus 0x1 cardnum 0x08 function 0x0000: vendor 0x8086 device 0x2449
- Intel  Device unknown
-
-pci bus 0x1 cardnum 0x0b function 0x0000: vendor 0x1002 device 0x4752
- ATI Mach64 GR
-
-pci bus 0x1 cardnum 0x0d function 0x0000: vendor 0x8086 device 0x1229
- Intel 82557/8 10/100MBit network controller
-
-Probing for devices on PCI bus 4:
-
-pci bus 0x3 cardnum 0x00 function 0x0000: vendor 0x8086 device 0x1161
- Intel  Device unknown
-
-pci bus 0x3 cardnum 0x04 function 0x0000: vendor 0x9005 device 0x00c0
- Adaptec  Device unknown
-
-pci bus 0x3 cardnum 0x04 function 0x0001: vendor 0x9005 device 0x00c0
- Adaptec  Device unknown
-
-pci bus 0x3 cardnum 0x05 function 0x0000: vendor 0x8086 device 0x1004
- Intel  Device unknown
-
-pci bus 0x3 cardnum 0x07 function 0x0000: vendor 0x9005 device 0x00c0
- Adaptec  Device unknown
-
-pci bus 0x3 cardnum 0x07 function 0x0001: vendor 0x9005 device 0x00c0
- Adaptec  Device unknown
+-- 
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+Mantra: "everything is a stream of bytes". Repeat until enlightened. --Linus

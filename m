@@ -1,138 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274910AbTHABPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 21:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274911AbTHABPr
+	id S274944AbTHAB0b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 21:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274945AbTHAB0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 21:15:47 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:35307 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S274910AbTHABPo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 21:15:44 -0400
-Date: Fri, 01 Aug 2003 13:18:12 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [PATCH] Allow initrd_load() before software_resume()
-In-reply-to: <20030801002742.1033FE8003AE@mwinf0502.wanadoo.fr>
-To: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Message-id: <1059700691.1750.1.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20030801002742.1033FE8003AE@mwinf0502.wanadoo.fr>
+	Thu, 31 Jul 2003 21:26:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37580 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274944AbTHAB03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 21:26:29 -0400
+Date: Thu, 31 Jul 2003 18:27:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Bakos <bakhos@msi.umn.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compile error for Opteron CPU with kernel 2.6.0-test2
+Message-Id: <20030731182705.5b4f2b33.akpm@osdl.org>
+In-Reply-To: <Pine.SGI.4.33.0307312008210.23301-100000@ir12.msi.umn.edu>
+References: <20030731145954.47d6247f.akpm@osdl.org>
+	<Pine.SGI.4.33.0307312008210.23301-100000@ir12.msi.umn.edu>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Michael Bakos <bakhos@msi.umn.edu> wrote:
+>
+> In file included from include/linux/topology.h:35,
+>                   from include/linux/mmzone.h:294,
+>                   from include/linux/gfp.h:4,
+>                   from include/linux/slab.h:15,
+>                   from include/linux/percpu.h:4,
+>                   from include/linux/sched.h:31,
+>                   from arch/x86_64/kernel/asm-offsets.c:7:
+>  include/asm/topology.h: In function `pcibus_to_cpumask':
+>  include/asm/topology.h:24: error: invalid operands to binary &
+>  make[1]: *** [arch/x86_64/kernel/asm-offsets.s] Error 1
+>  make: *** [arch/x86_64/kernel/asm-offsets.s] Error 2
 
-I'll try to apply it to the 2.4 version and include it in the upcoming
-2.6 version. (Yes, upcoming means it's finally on the way).
+urgh, OK.  We're chasing around in circles here.  And the cpumask_t patch
+still isn't ready for merging.
 
-Regards,
 
-Nigel
+This might fix it.
 
-On Fri, 2003-08-01 at 12:29, Pascal Brisset wrote:
-> This patch adds a boot parameter "resume_initrd".
-> If present, init will load the initrd before trying to resume.
-> 
-> This makes it posssible to resume from an encrypted suspend image.
-> The initrd should insmod cryptoloop.o or loop-AES.o and perform
-> losetup -e so that resume=/dev/loopX makes sense.
-> Note: software_resume() should not be allowed to complete if
-> initrd has altered disks (e.g. by flushing journals).
-> 
-> /initrd
-> |-- bin
-> |   |-- ash
-> |   |-- insmod
-> |   `-- losetup
-> |-- dev
-> |   |-- console
-> |   |-- hdaX
-> |   |-- loopX
-> |   |-- null
-> |   `-- tty
-> |-- linuxrc
-> |-- loop.o
-> `-- lost+found
-> 
-> Resuming works, but suspension seems to fail more frequently when
-> the swap is encrypted. I am using loop-AES-v1.7d + patch for 2.6.
-> 
-> Is it safe to suspend to loop devices ?
-> 
-> -- Pascal
-> 
-> 
-> ______________________________________________________________________
-> 
-> diff -ur linux-2.6.0-test1.orig/Documentation/kernel-parameters.txt linux-2.6.0-test1/Documentation/kernel-parameters.txt
-> --- linux-2.6.0-test1.orig/Documentation/kernel-parameters.txt	2003-07-14 05:39:36.000000000 +0200
-> +++ linux-2.6.0-test1/Documentation/kernel-parameters.txt	2003-08-01 01:19:46.000000000 +0200
-> @@ -816,6 +816,8 @@
->  
->  	resume=		[SWSUSP] Specify the partition device for software suspension
->  
-> +	resume_initrd   [SWSUSP] Run initrd before resuming from software suspension
-> +
->  	riscom8=	[HW,SERIAL]
->  			Format: <io_board1>[,<io_board2>[,...<io_boardN>]]
->  
-> diff -ur linux-2.6.0-test1.orig/init/do_mounts.c linux-2.6.0-test1/init/do_mounts.c
-> --- linux-2.6.0-test1.orig/init/do_mounts.c	2003-07-14 05:32:44.000000000 +0200
-> +++ linux-2.6.0-test1/init/do_mounts.c	2003-08-01 01:21:44.000000000 +0200
-> @@ -49,6 +49,15 @@
->  __setup("ro", readonly);
->  __setup("rw", readwrite);
->  
-> +static int resume_initrd = 0;
-> +static int __init set_resume_initrd(char *str)
-> +{
-> +	resume_initrd = 1;
-> +	return 1;
-> +}
-> +
-> +__setup("resume_initrd", set_resume_initrd);
-> +
->  static dev_t __init try_name(char *name, int part)
->  {
->  	char path[64];
-> @@ -365,12 +374,21 @@
->  
->  	is_floppy = MAJOR(ROOT_DEV) == FLOPPY_MAJOR;
->  
-> -	/* This has to be before mounting root, because even readonly mount of reiserfs would replay
-> -	   log corrupting stuff */
-> -	software_resume();
-> +	/* software_resume() has to be before mounting root, because even
-> +	   readonly mount of reiserfs would replay log corrupting stuff.
-> +	   However, users may still want to run initrd first. */
-> +	if (resume_initrd) {
-> +		if (initrd_load()) {
-> +			software_resume();
-> +			goto out;
-> +		}
-> +	}
-> +	else {
-> +		software_resume();
->  
-> -	if (initrd_load())
-> -		goto out;
-> +		if (initrd_load())
-> +			goto out;
-> +	}
->  
->  	if (is_floppy && rd_doload && rd_load_disk(0))
->  		ROOT_DEV = Root_RAM0;
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+ arch/x86_64/kernel/mpparse.c  |    2 +-
+ include/asm-x86_64/mpspec.h   |    2 +-
+ include/asm-x86_64/topology.h |    7 +++++--
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
+diff -puN include/asm-x86_64/topology.h~x86_64-cpumask_t-fix include/asm-x86_64/topology.h
+--- 25/include/asm-x86_64/topology.h~x86_64-cpumask_t-fix	2003-07-31 18:20:51.000000000 -0700
++++ 25-akpm/include/asm-x86_64/topology.h	2003-07-31 18:25:11.000000000 -0700
+@@ -19,9 +19,12 @@ extern cpumask_t cpu_online_map;
+ #define node_to_cpu_mask(node)	(fake_node ? cpu_online_map : cpumask_of_cpu(node))
+ #define node_to_memblk(node)		(node)
+ 
+-static inline unsigned long pcibus_to_cpumask(int bus)
++static inline cpumask_t pcibus_to_cpumask(int bus)
+ {
+-	return mp_bus_to_cpumask[bus] & cpu_online_map;
++	cpumask_t ret;
++
++	cpus_and(ret, mp_bus_to_cpumask[bus], cpu_online_map);
++	return ret;
+ }
+ 
+ #define NODE_BALANCE_RATE 30	/* CHECKME */ 
+diff -puN include/asm-x86_64/mpspec.h~x86_64-cpumask_t-fix include/asm-x86_64/mpspec.h
+--- 25/include/asm-x86_64/mpspec.h~x86_64-cpumask_t-fix	2003-07-31 18:24:12.000000000 -0700
++++ 25-akpm/include/asm-x86_64/mpspec.h	2003-07-31 18:24:35.000000000 -0700
+@@ -166,7 +166,7 @@ enum mp_bustype {
+ };
+ extern unsigned char mp_bus_id_to_type [MAX_MP_BUSSES];
+ extern int mp_bus_id_to_pci_bus [MAX_MP_BUSSES];
+-extern unsigned long mp_bus_to_cpumask [MAX_MP_BUSSES];
++extern cpumask_t mp_bus_to_cpumask [MAX_MP_BUSSES];
+ 
+ extern unsigned int boot_cpu_physical_apicid;
+ extern cpumask_t phys_cpu_present_map;
+diff -puN arch/x86_64/kernel/mpparse.c~x86_64-cpumask_t-fix arch/x86_64/kernel/mpparse.c
+--- 25/arch/x86_64/kernel/mpparse.c~x86_64-cpumask_t-fix	2003-07-31 18:24:54.000000000 -0700
++++ 25-akpm/arch/x86_64/kernel/mpparse.c	2003-07-31 18:25:45.000000000 -0700
+@@ -43,7 +43,7 @@ int acpi_found_madt;
+ int apic_version [MAX_APICS];
+ unsigned char mp_bus_id_to_type [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
+ int mp_bus_id_to_pci_bus [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
+-unsigned long mp_bus_to_cpumask [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1UL };
++cpumask_t mp_bus_to_cpumask [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = CPU_MASK_ALL };
+ 
+ int mp_current_pci_id = 0;
+ /* I/O APIC entries */
+
+_
 

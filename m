@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273014AbTG3Qtd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273019AbTG3Qtc
+	id S272225AbTG3Q6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 12:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273022AbTG3Q6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:49:32 -0400
-Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:37310
-	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S273014AbTG3Qtb
+	Wed, 30 Jul 2003 12:58:06 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:46514 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S272225AbTG3Q6D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:49:31 -0400
-Message-ID: <54974.216.12.38.216.1059583683.squirrel@www.ghz.cc>
-In-Reply-To: <20030730122145.77592840.sfr@canb.auug.org.au>
-References: <20030730110548.73919ca0.sfr@canb.auug.org.au><82E003DC-C22E-11D7-BB43-003065DC6B50@ghz.cc>
-    <20030730122145.77592840.sfr@canb.auug.org.au>
-Date: Wed, 30 Jul 2003 12:48:03 -0400 (EDT)
-Subject: Re: [REPOST] "apm: suspend: Unable to enter requested state" 
-     after2.5.31 (incl. 2.6.0testX)
-From: "Charles Lepple" <clepple@ghz.cc>
-To: "Stephen Rothwell" <sfr@canb.auug.org.au>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
+	Wed, 30 Jul 2003 12:58:03 -0400
+Date: Wed, 30 Jul 2003 09:58:02 -0700 (PDT)
+From: henrique2.gobbi@cyclades.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Anuradha Ratnaweera <anuradha@ratnaweera.net>,
+       Wichert Akkerman <wichert@wiggy.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Contributing to the kernel while being employed
+In-Reply-To: <29610000.1059582685@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0307300952520.6400-100000@intra.cyclades.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Rothwell said:
-> If you get no OOPS from running the above, then you could try the second
-> patch below. If your machine still behaves the same way, then you have
-> completely ruled out that change to the apm code ... so we need to look
-> elsewhere.
 
-I guess it wasn't using that descriptor. The machine behaved the same way
-as before when I tested each patch ("unable to enter requested state", and
-system comes back to normal).
+I don't understand laws.
+What you guys think about this ?
 
-While experimenting, I noticed something else: in the cases where a system
-suspend failed ('apm -s', closing the lid, or activating IBM's hibernate
-mode), a 'system standby' request worked. Trying to transition from
-standby to suspend does not work, however-- the laptop wakes up, and
-eventually prints the same error message as for a normal suspend.
+Labor Code section 2870 of the State of California:
 
-thanks for the patch,
+"Any provision in an employment agreement which provides that an employee 
+shall assign or offer to assign any of his or her rights in an invention 
+to his or her employer shall not apply to an inventory that the employee 
+developed entirely on his or her own time without using the employer's 
+equipment, supplies, facilities, or trade secret information..."
 
--- 
-Charles Lepple <clepple@ghz.cc>
-http://www.ghz.cc/charles/
+henrique
+
+On Wed, 30 Jul 2003, Martin J. Bligh wrote:
+
+> > What if the employer _is_ interested in contributing to the open source
+> > under company copyright and doesn't mind using company resources, but
+> > the employee prefers to keep copyright to himself.  The only way he can
+> > do it is by using his own resources and time (off hours).  But this is
+> > not possible if there is a contract that coveres the full employment
+> > period, including after hours.
+> 
+> Why do you want the copyright? So you can sue in case of violation?
+> If so, then giving both yourself and your employer copyright might help ...
+> 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

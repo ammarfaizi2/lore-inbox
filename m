@@ -1,67 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVCFOZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVCFOZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVCFOZh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 09:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCFOZh
+	id S261399AbVCFOZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 09:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVCFOZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 09:25:37 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:58832 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261400AbVCFOZJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 09:25:09 -0500
-Date: Sun, 6 Mar 2005 23:24:50 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok
-Message-Id: <20050306232450.104fd7b7.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 6 Mar 2005 09:25:27 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13584 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261399AbVCFOZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 09:25:05 -0500
+Date: Sun, 6 Mar 2005 15:25:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, jdike@karaya.com,
+       Jim Houston <jim.houston@comcast.net>,
+       Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Subject: [-mm patch] one DEBUG_INFO is enough for everyone
+Message-ID: <20050306142503.GB5070@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts verify_area to access_ok for include/asm-mips.
+Why does everyone think one DEBUG_INFO wasn't enough?
 
-Yoichi
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+---
 
-diff -urN -X dontdiff a-orig/include/asm-mips/uaccess.h a/include/asm-mips/uaccess.h
---- a-orig/include/asm-mips/uaccess.h	Sat Mar  5 04:15:22 2005
-+++ a/include/asm-mips/uaccess.h	Sun Mar  6 15:51:02 2005
-@@ -254,13 +254,11 @@
- ({									\
- 	__typeof__(*(ptr)) __gu_val = 0;				\
- 	long __gu_addr;							\
--	long __gu_err;							\
-+	long __gu_err = -EFAULT;					\
- 									\
- 	might_sleep();							\
- 	__gu_addr = (long) (ptr);					\
--	__gu_err = verify_area(VERIFY_READ, (void *) __gu_addr, size);	\
--									\
--	if (likely(!__gu_err)) {					\
-+	if (access_ok(VERIFY_READ, (void *) __gu_addr, size)) {		\
- 		switch (size) {						\
- 		case 1: __get_user_asm("lb", __gu_err); break;		\
- 		case 2: __get_user_asm("lh", __gu_err); break;		\
-@@ -348,14 +346,12 @@
- ({									\
- 	__typeof__(*(ptr)) __pu_val;					\
- 	long __pu_addr;							\
--	long __pu_err;							\
-+	long __pu_err = -EFAULT;					\
- 									\
- 	might_sleep();							\
- 	__pu_val = (x);							\
- 	__pu_addr = (long) (ptr);					\
--	__pu_err = verify_area(VERIFY_WRITE, (void *) __pu_addr, size);	\
--									\
--	if (likely(!__pu_err)) {					\
-+	if (access_ok(VERIFY_WRITE, (void *) __pu_addr, size)) {	\
- 		switch (size) {						\
- 		case 1: __put_user_asm("sb", __pu_val); break;		\
- 		case 2: __put_user_asm("sh", __pu_val); break;		\
+ arch/arm/Kconfig.debug   |    9 ---------
+ arch/arm26/Kconfig.debug |   10 ----------
+ arch/i386/Kconfig.kgdb   |    5 -----
+ arch/x86_64/Kconfig.kgdb |    5 -----
+ lib/Kconfig.debug        |   15 ++-------------
+ 5 files changed, 2 insertions(+), 42 deletions(-)
+
+--- linux-2.6.11-mm1-full/lib/Kconfig.debug.old	2005-03-06 15:08:23.000000000 +0100
++++ linux-2.6.11-mm1-full/lib/Kconfig.debug	2005-03-06 15:10:33.000000000 +0100
+@@ -136,26 +136,15 @@
+ config DEBUG_INFO
+ 	bool "Compile the kernel with debug info"
+ 	depends on DEBUG_KERNEL
+ 	help
+           If you say Y here the resulting kernel image will include
+ 	  debugging info resulting in a larger kernel image.
+-	  Say Y here only if you plan to use gdb to debug the kernel.
+-	  If you don't debug the kernel, you can say N.
++	  Say Y here only if you plan to debug the kernel.
+ 
+-config DEBUG_INFO
+-	bool "Enable kernel debugging symbols"
+-	depends on DEBUG_KERNEL && USERMODE
+-	help
+-	  When this is enabled, the User-Mode Linux binary will include
+-	  debugging symbols.  This enlarges the binary by a few megabytes,
+-	  but aids in tracking down kernel problems in UML.  It is required
+-	  if you intend to do any kernel development.
+-
+-	  If you're truly short on disk space or don't expect to report any
+-	  bugs back to the UML developers, say N, otherwise say Y.
++	  If unsure, say N.
+ 
+ config DEBUG_IOREMAP
+ 	bool "Enable ioremap() debugging"
+ 	depends on DEBUG_KERNEL && PARISC
+ 	help
+ 	  Enabling this option will cause the kernel to distinguish between
+--- linux-2.6.11-mm1-full/arch/i386/Kconfig.kgdb.old	2005-03-06 15:11:29.000000000 +0100
++++ linux-2.6.11-mm1-full/arch/i386/Kconfig.kgdb	2005-03-06 15:11:41.000000000 +0100
+@@ -61,17 +61,12 @@
+ 	default 4
+ 	help
+ 	  This is the irq for the debug port.  If everything is working
+ 	  correctly and the kernel has interrupts on a control C to the
+ 	  port should cause a break into the kernel debug stub.
+ 
+-config DEBUG_INFO
+-	bool
+-	depends on KGDB
+-	default y
+-
+ config KGDB_MORE
+ 	bool "Add any additional compile options"
+ 	depends on KGDB
+ 	default n
+ 	help
+ 	  Saying yes here turns on the ability to enter additional
+--- linux-2.6.11-mm1-full/arch/arm/Kconfig.debug.old	2005-03-06 15:12:21.000000000 +0100
++++ linux-2.6.11-mm1-full/arch/arm/Kconfig.debug	2005-03-06 15:12:36.000000000 +0100
+@@ -44,21 +44,12 @@
+ 	  printed when the kernel detects an internal error. This debugging
+ 	  information is useful to kernel hackers when tracking down problems,
+ 	  but mostly meaningless to other people. It's safe to say Y unless
+ 	  you are concerned with the code size or don't want to see these
+ 	  messages.
+ 
+-config DEBUG_INFO
+-	bool "Include GDB debugging information in kernel binary"
+-	help
+-	  Say Y here to include source-level debugging information in the
+-	  `vmlinux' binary image. This is handy if you want to use gdb or
+-	  addr2line to debug the kernel. It has no impact on the in-memory
+-	  footprint of the running kernel but it can increase the amount of
+-	  time and disk space needed for compilation of the kernel. If in
+-	  doubt say N.
+ 
+ # These options are only for real kernel hackers who want to get their hands dirty.
+ config DEBUG_LL
+ 	bool "Kernel low-level debugging functions"
+ 	depends on DEBUG_KERNEL
+ 	help
+--- linux-2.6.11-mm1-full/arch/arm26/Kconfig.debug.old	2005-03-06 15:13:05.000000000 +0100
++++ linux-2.6.11-mm1-full/arch/arm26/Kconfig.debug	2005-03-06 15:13:15.000000000 +0100
+@@ -35,22 +35,12 @@
+ 	  printed when the kernel detects an internal error. This debugging
+ 	  information is useful to kernel hackers when tracking down problems,
+ 	  but mostly meaningless to other people. It's safe to say Y unless
+ 	  you are concerned with the code size or don't want to see these
+ 	  messages.
+ 
+-config DEBUG_INFO
+-	bool "Include GDB debugging information in kernel binary"
+-	help
+-	  Say Y here to include source-level debugging information in the
+-	  `vmlinux' binary image. This is handy if you want to use gdb or
+-	  addr2line to debug the kernel. It has no impact on the in-memory
+-	  footprint of the running kernel but it can increase the amount of
+-	  time and disk space needed for compilation of the kernel. If in
+-	  doubt say N.
+-
+ # These options are only for real kernel hackers who want to get their hands dirty.
+ config DEBUG_LL
+ 	bool "Kernel low-level debugging functions"
+ 	depends on DEBUG_KERNEL
+ 	help
+ 	  Say Y here to include definitions of printascii, printchar, printhex
+--- linux-2.6.11-mm1-full/arch/x86_64/Kconfig.kgdb.old	2005-03-06 15:13:55.000000000 +0100
++++ linux-2.6.11-mm1-full/arch/x86_64/Kconfig.kgdb	2005-03-06 15:14:05.000000000 +0100
+@@ -62,17 +62,12 @@
+ 	default 4
+ 	help
+ 	  This is the irq for the debug port.  If everything is working
+ 	  correctly and the kernel has interrupts on a control C to the
+ 	  port should cause a break into the kernel debug stub.
+ 
+-config DEBUG_INFO
+-	bool
+-	depends on KGDB
+-	default y
+-
+ config KGDB_MORE
+ 	bool "Add any additional compile options"
+ 	depends on KGDB
+ 	default n
+ 	help
+ 	  Saying yes here turns on the ability to enter additional
+

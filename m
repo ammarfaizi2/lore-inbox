@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269756AbRHIKt0>; Thu, 9 Aug 2001 06:49:26 -0400
+	id <S269757AbRHIKvq>; Thu, 9 Aug 2001 06:51:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269757AbRHIKtQ>; Thu, 9 Aug 2001 06:49:16 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:2067 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S269756AbRHIKs5>;
-	Thu, 9 Aug 2001 06:48:57 -0400
-Date: Thu, 9 Aug 2001 12:48:30 +0200
-Message-Id: <200108091048.MAA04335@linux06.vertis.nl>
-From: Rolf Fokkens <FokkensR@vertis.nl>
+	id <S269760AbRHIKvg>; Thu, 9 Aug 2001 06:51:36 -0400
+Received: from atlrel6.hp.com ([192.151.27.8]:32516 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S269757AbRHIKv2>;
+	Thu, 9 Aug 2001 06:51:28 -0400
+Message-ID: <3B726A70.D41EEDED@india.hp.com>
+Date: Thu, 09 Aug 2001 16:18:16 +0530
+From: Milind <dmilind@india.hp.com>
+Organization: HP
+X-Mailer: Mozilla 4.7 [en] (X11; I; HP-UX B.10.20 9000/712)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [BUG] Total freeze of 2.4 kernel
+Cc: blore-linux@yahoogroups.com, gesl@yahoogroups.com
+Subject: Some additions to SIZE field is that OK?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not a detailed bug report, but it may nevertheless be interesting
-for others that have the same problem. I have the impression that my first
-report got lost somewhere, so this is the second attempt to post it.
+Hi ,
 
-We installed a 2.4.7 kernel on a Compaq Proliant server and it makes the
-machine freeze totally at various moments. We've been running 2.4 on several
-other non-server machines for a while without any problem at all, so we
-tried to figure out what may be causing the problem. Here is a list of what
-we know so far:
+I've found out from one of our (HP) tools, "glance tool" that, the SIZE
+field is also
+constituted of virtual pages used for shared-memory, u-area , mry-mapped
+files,
+I/O device mapping (in addtion to text,data, and stack)  pertaining to
+the particular process.
 
-INITIAL SYMPTOMS
+Further , in case  of  LINUX it is  seen that the value for SIZE is a
+single field from
+'proc' file  system(i.e 23rd field in /proc/<pid>/stat file). I couldn't
+get any documentation
+for fields in above(stat) file in LINUX.
 
-At totally unpredictable moments the sever hangs. Nothing on the display, no
-keyboard led response, no disk activity, no ping response on the net.
+So we really don't know what all constitute SIZE in linux.
 
-2.2.19 KERNEL
+I wanted some elaboration on this matter.
 
-The machine ran a 2.2.19 kernel prior to the 2.4.7 kernel without any
-problems at all. Only kernel upgrades forced us to do reboots.
+Thanks
+Milind
 
-CPQHEALTH
 
-There were Compaq cpqhealth modules in the kernel. Those are binary modules
-from Compaq that help to gather health information about the machine. The
-modules didn't load in a 2.4.7 kernel (cpqhealth 2.1 even created kernel
-stack dumps when loaded in a 2.4.7 kernel on another machine) so we removed
-the cpqhealth software. It didn't help.
 
-CPQARRAY
 
-This is the first machine with a Compaq SMART 3200 raid controller we tried
-with 2.4.7. I don't believe this is causing the problem, but it's worth
-mentioning I think.
 
-MONITOR/MOUSE/KEYBOARD SWITCH
-
-This also is the first machine with an electronic MONITOR/MOUSE/KEYBOARD
-SWITCH. Last weekend the machine ran w/o any problems at all, but today
-(monday) it had a hangup. We can be sure that nobody touched the switch
-during the weekend and today at was used most certainly, so there may be a
-relation between the switch and the hanging.
-
-Of course we'll go on investigating this, but because the machine has a
-semi-production status we have to do this with care. However suggestions are
-wellcome.
-
-Rolf

@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289109AbSAJBJ7>; Wed, 9 Jan 2002 20:09:59 -0500
+	id <S289107AbSAJBSk>; Wed, 9 Jan 2002 20:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289107AbSAJBJt>; Wed, 9 Jan 2002 20:09:49 -0500
-Received: from are.twiddle.net ([64.81.246.98]:32900 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S289111AbSAJBJh>;
-	Wed, 9 Jan 2002 20:09:37 -0500
-Date: Wed, 9 Jan 2002 17:09:28 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Anton Blanchard <anton@samba.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-Message-ID: <20020109170928.A4365@twiddle.net>
-Mail-Followup-To: Anton Blanchard <anton@samba.org>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020108114355.GA25718@krispykreme> <Pine.LNX.4.33.0201081533270.7255-100000@localhost.localdomain> <20020109231513.GA10002@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020109231513.GA10002@krispykreme>; from anton@samba.org on Thu, Jan 10, 2002 at 10:15:14AM +1100
+	id <S289112AbSAJBSa>; Wed, 9 Jan 2002 20:18:30 -0500
+Received: from adsl16503.estpak.ee ([213.219.110.111]:1293 "HELO eero")
+	by vger.kernel.org with SMTP id <S289107AbSAJBSS>;
+	Wed, 9 Jan 2002 20:18:18 -0500
+From: Z-editor Greetings <greetings@z-editor.com>
+Reply-To: greetings@z-editor.com
+Subject: Greeting Card form J.
+Date: Thu, 10 Jan 2002 03:22:41 +0200
+X-Mailer: 007 Direct Email Easy
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="ffb622fe-0566-11d6-9c69-00e02934281a"
+Message-Id: <20020110011822Z289107-13996+3333@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 10:15:14AM +1100, Anton Blanchard wrote:
-> I expect most architectures have a reasonably fast find_first_zero_bit
-> so they can simply do:
-> 
-> static inline int sched_find_first_zero_bit(unsigned long *bitmap)
-> {
-> 	return find_first_zero_bit(bitmap, MAX_PRIO);
-> }
 
-Careful.  The following is really quite a bit better on Alpha:
+This is a multi-part message in MIME format
+--ffb622fe-0566-11d6-9c69-00e02934281a
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-static inline int
-sched_find_first_zero_bit(unsigned long *bitmap)
-{
-        unsigned long b0 = bitmap[0];
-        unsigned long b1 = bitmap[1];
-        unsigned long b2 = bitmap[2];
-        unsigned long ofs = MAX_RT_PRIO;
-
-        if (unlikely(~(b0 & b1) != 0)) {
-                b2 = (~b0 == 0 ? b0 : b1);
-                ofs = (~b0 == 0 ? 0 : 64);
-        }
-
-        return ffz(b2) + ofs;
-}
-
-It compiles down to 
-
-        ldq $2,0($16)
-        ldq $3,8($16)
-        lda $5,128($31)
-        ldq $0,16($16)
-        and $2,$3,$1
-        ornot $31,$2,$4
-        ornot $31,$1,$1
-        bne $1,$L8
-$L2:
-        ornot $31,$0,$0
-        cttz $0,$0
-        addl $0,$5,$0
-        ret $31,($26),1
-$L8:
-        mov $2,$0
-        cmpult $31,$4,$5
-        cmovne $4,$3,$0
-        sll $5,6,$5
-        br $31,$L2
-
-which is a fair bit better than find_first_zero_bit if for
-no other reason than we collect all the memory accesses
-right up at the beginning.
-
-While we're on the subject of sched_find_first_zero_bit, I'd 
-like to complain about Ingo's choice of header file.  Why in
-the world did you choose mmu_context.h?  Invent a new asm/sched.h
-if you must, but please don't choose headers at random.
+You have just received a virtual greeting card from J.
 
 
-r~
+You can view your greeting card at :
+http://www.z-editor.com/cards/7acmynnyjjn.html
+
+Your greeting card will be available for the next 90 days
+We wish you all the best!
+_____________________________________________________________________________=
+__________
+
+This card has been sent to you through the Virtual Greeting Card System at
+Z-editor.com
+Viewing and sending Z-editor cards is free. The greeting card is =
+virus-checked.
+
+Z-editor is an easy to use web-based web editor. Try it today for free at: =
+http://www.z-editor.com
+
+Z-editor enables you to modify and create web pages yourself. There is no
+reason to contact a busy IT specialist any more! Modify your web site from =
+anywhere in
+the world - no installations needed.
+
+Check out cool additional functions (e.g. virtual greeting card, mailing =
+list,
+etc), which can be easily added to your web site.
+
+We are looking forward to your visit to http://www.z-editor.com  
+--ffb622fe-0566-11d6-9c69-00e02934281a--
+

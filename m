@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263793AbTLJRmP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTLJRmP
+	id S263778AbTLJRkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTLJRkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:42:15 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:20241 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S263793AbTLJRmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:42:12 -0500
-Date: Wed, 10 Dec 2003 17:44:18 +0000
-From: Joe Thornber <thornber@sistina.com>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Jens Axboe <axboe@suse.de>, Joe Thornber <thornber@sistina.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Device-mapper submission for 2.4
-Message-ID: <20031210174418.GF476@reti>
-References: <20031209134551.GG472@reti> <Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet> <20031209143412.GI472@reti> <Pine.LNX.4.56.0312092106280.30298@fogarty.jakma.org> <20031209222624.GA6591@reti> <20031210084546.GG3988@suse.de> <Pine.LNX.4.56.0312101726340.1218@fogarty.jakma.org>
+	Wed, 10 Dec 2003 12:40:22 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:59131 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263778AbTLJRkU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:40:20 -0500
+Subject: Re: 2.4.23 + Preempt, JFS Corruption.
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Joshua Schmidlkofer <joshua@imr-net.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1071005675.32237.97.camel@bubbles.imr-net.com>
+References: <1071005675.32237.97.camel@bubbles.imr-net.com>
+Content-Type: text/plain
+Message-Id: <1071078012.2277.50.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0312101726340.1218@fogarty.jakma.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 10 Dec 2003 11:40:12 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 05:30:01PM +0000, Paul Jakma wrote:
-> On Wed, 10 Dec 2003, Jens Axboe wrote:
+On Tue, 2003-12-09 at 15:34, Joshua Schmidlkofer wrote:
+> Howdy,
 > 
-> > Arguments akin to "But XFS got merged, surely we can to" don't hold
-> > up one bit. Should be obvious why.
+>    We are migrating from ext3 to jfs and had a weird error.  We have a
+> dual pentium III 1.4 ghz system.  We have 4GB of ram, and a Mylex
+> AcceleRAID 170 [DAC960] controller. Intel pro/100 nics, nothing else too
+> special.  The motherboard chipset is ServerWorks.  We added a 40GB ide
+> drive to the onboard controller.  It has jfs on it, and we are using
+> this for the migration.  We have been backing up to it for a few days,
+> and it went read-only on us.  
 > 
-> Its not about a /new/ feature, its about an existing feature which is 
-> incompatible between 2.4 and 2.6.
-> 
-> I dont really care whether its done via forward or backware compat. 
-> (but why was LVM1 removed from 2.6?)
+>   I have dtree page corrupt errors, but no hardware errors.  jfs fsck
+> errors out as well.
 
-The LVM1 driver was removed because dm covered the same functionality
-+ lots more, and is more flexible.  The LVM2 tools still understand
-the LVM1 metadata format, so there is no problem about not being able
-to read data in 2.6.  The main reason for submitting dm to 2.4 was
-that there are a lot of people out there who want to use LVM2/EVMS
-tools with 2.4, and kept asking me to do it.  If this is against
-Marcelos current policy then so be it; I probably should have checked
-with him before spamming lkml with the submission.  I don't want this
-to degenerate into the old LVM1 vs dm argument; people can search the
-archives for that.
+jfs_fsck reports the errors, but is running read-only.  Did you run it
+with "-n"?  In read-write mode, it should "fix" the problem (by removing
+the corrupt directory and placing its contents in lost+found).
 
-- Joe
+I've seen a few scattered reports of corrupted directories lately, so
+there may be a race in the JFS code that I haven't found yet.  I'd be
+interested if anyone has found a reproducible way of causing any JFS
+corruption.
+
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

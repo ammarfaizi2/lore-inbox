@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbTLWIQI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 03:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbTLWIQI
+	id S265052AbTLWISa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 03:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTLWISa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 03:16:08 -0500
-Received: from [194.243.27.136] ([194.243.27.136]:3076 "HELO
-	venere.pandoraonline.it") by vger.kernel.org with SMTP
-	id S265051AbTLWIQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 03:16:04 -0500
-Subject: Ooops with kernel 2.4.22 and reiserfs
-From: Carlo <devel@integra-sc.it>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1072118947.21200.1.camel@atena>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Dec 2003 19:49:07 +0100
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 03:18:30 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:37637 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S265052AbTLWIS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 03:18:29 -0500
+Date: Tue, 23 Dec 2003 09:16:00 +0100 (CET)
+From: Jesper Juhl <juhl@dif.dk>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Badness in pci_find_subsys & sleeping function called from
+ invalid context
+In-Reply-To: <20031223004937.GA5341@kroah.com>
+Message-ID: <Pine.LNX.4.56.0312230914270.28119@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.56.0312221959460.27724@jju_lnx.backbone.dif.dk>
+ <20031223004937.GA5341@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-i receive the follow message error when i delete file from a large
-partition (100GB) of an IDE drive (120GB) with reiserfs filesystem and
-kernel 2.4.22. Other partitions are EXT3.
- 
-I received this message several time in my test that erase jpeg files in
-nested directories.
-May i increase the verbose of this error?
 
 
-hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
-DataRequest }
-ide0: Drive 0 didn't accept speed setting. Oh, well.
-hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
- 
-hda: CHECK for good STATUS
-Unable to handle kernel paging request at virtual address ffffffe0
- printing eip:
-c0146553
-*pde = 00002063
-*pte = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0146553>]    Not tainted
-EFLAGS: 00010213
-eax: cded5f68   ebx: ffffffe0   ecx: cded5000   edx: 00000010
-esi: 00000000   edi: cded5e40   ebp: cded5e68   esp: cb18bf24
-ds: 0018   es: 0018   ss: 0018
-Process rmdir (pid: 21907, stackpage=cb18b000)
-Stack: 00000000 cded5e40 cded5e40 c2dfc340 cded5e40 bffffae8 c01465dd
-cded5e40
-       cded5e40 c013fa0f cded5e40 000001fe cb7d9040 c2dfc340 cded5e40
-c018d840
-       c013fb69 cded5e40 cded5d40 cb18bf9c 00000000 fffffff0 cded5e40
-cded5e40
-Call Trace:    [<c01465dd>] [<c013fa0f>] [<c018d840>] [<c013fb69>]
-[<c013fc84>]
-  [<c0114d00>] [<c01088a3>]
- 
-Code: 8b 03 8b 36 85 c0 75 32 8d 4b 18 8b 51 04 8b 43 18 89 50 04
+On Mon, 22 Dec 2003, Greg KH wrote:
 
-[]$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(tm) XP 2700+
-stepping        : 1
-cpu MHz         : 2158.060
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 4299.16
+> On Mon, Dec 22, 2003 at 08:10:44PM +0100, Jesper Juhl wrote:
+> >
+> > After upgrading to 2.6.0 (from 2.4.22)I'm getting a lot of the below
+> > messages in my logs.
+> > I'm well aware that this might purely be a problem with the binary Nvidia
+> > drivers I'm using with my Geforce3, especially since I had to use the patches
+> > available from http://www.minion.de/ to be able to use those drivers at all,
+>
+> That's exactly what is causing this problem.  Sorry, nothing we can do
+> about it here.
+>
+I rather expected that to be the case, but as I said I merely
+reported it in case there was some fixable problem exposed.
+
+Thank you for taking the time to take a look at it.
+
+
+/Jesper Juhl
 

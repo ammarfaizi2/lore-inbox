@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUE1Wrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUE1WuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbUE1Wrt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 18:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbUE1Wrt
+	id S264058AbUE1WuR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 18:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUE1Wrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 18:47:49 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:32451 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263971AbUE1WGj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 18:06:39 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: CONFIG_IRQBALANCE for AMD64?
-Date: Fri, 28 May 2004 15:05:48 -0700
-Message-ID: <7F740D512C7C1046AB53446D372001730182BC35@scsmsx402.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CONFIG_IRQBALANCE for AMD64?
-thread-index: AcRE/RP61/1Nsw7sTl+6kKs2Gv15GgAACy2g
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Andi Kleen" <ak@muc.de>, "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 May 2004 22:05:50.0256 (UTC) FILETIME=[EFBAC300:01C444FF]
+	Fri, 28 May 2004 18:47:55 -0400
+Received: from tmailb1.svr.pol.co.uk ([195.92.168.141]:28944 "EHLO
+	tmailb1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S264076AbUE1Wkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 18:40:39 -0400
+Subject: XP to linux over SK98 gigabit, 150KB/sec ?
+From: Eamonn Hamilton <bethaud99@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1085784184.15385.9.camel@snifter.freeserve.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 28 May 2004 23:43:05 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Andi Kleen [mailto:ak@muc.de]
->Sent: Friday, May 28, 2004 2:45 PM
->To: Martin J. Bligh
->Cc: linux-kernel@vger.kernel.org; Nakajima, Jun
->Subject: Re: CONFIG_IRQBALANCE for AMD64?
->
->"Martin J. Bligh" <mbligh@aracnet.com> writes:
->
->> Whatever we do ... all arches are going to need to provide a way to
->direct
->> interrupts to a certain CPU, or group thereof. Can they all do that
->already?
->> I'll confess to not having looked at non-i386 arches. And are others
-as
->> brain damaged as the P4? or do they do something round-robin by
-default?
->
->I wouldn't really blame the the P4, it's the IO-APICs in the chipsets
->that balance or not balance.
->
->At least the AMD chipsets found in most Opteron boxes need software
->balancing too.
+Hi Folks,
 
-Actually lowest priority delivery works on P4 and AMD (I did not tested
-it on AMD, though), if we _update_ TPR. But I don't recommend that,
-instead we should implement the similar or optimized behavior in
-software because "soft TPR" can be more efficient and scalable. And I
-think this is something in my mind, and I think the kernel should do it.
+I'm looking at a very weird problem here, and I was hoping somebody had
+seen this before.
 
-Jun
+A friend has a network, two XP systems and two linux boxes on a gigabit
+switch all with Marvell Yukon-based cards in. XP->XP, he gets ~20MB/sec
+,linux to linux is the same kind of rate using the sk98lin driver under
+2.6.6. Jumbo frames are out as the switch doesn't support them.
 
->
->-Andi
->
+Bizarrely, however, he gets 20MB/sec reads from linux to XP, but
+150KB/sec writes using either ftp or samba, unless he streams from the
+linux box using anything else on the network, in which case the
+bandwidth goes up, but not  to the consistent 20MB/sec. This almost
+working state of affairs was arrived at after disabling PMTU discovery
+on the XP systems, but all the systems use the same MTU which is 1500
+bytes.
+
+I've upped the rmem_max and wmem_max to 256kb each, but this doesn't
+seem to have helped. 
+
+Has anybody seen this kind of behaviour, or got any ideas?
+
+Cheers,
+Eamonn
+ 
+ 
+--
+"He's an immortal small-town boxer with a passion for fast cars. She's
+an artistic snooty vampire with an MBA from Harvard. They fight crime!"
 

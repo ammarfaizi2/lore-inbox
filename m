@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131037AbRCFRZM>; Tue, 6 Mar 2001 12:25:12 -0500
+	id <S131036AbRCFR3N>; Tue, 6 Mar 2001 12:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131039AbRCFRYx>; Tue, 6 Mar 2001 12:24:53 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:17652 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131036AbRCFRYu>; Tue, 6 Mar 2001 12:24:50 -0500
-Date: Tue, 6 Mar 2001 14:23:45 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Lars Marowsky-Bree <lmb@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch submissions
-In-Reply-To: <20010306180206.A4640@marowsky-bree.de>
-Message-ID: <Pine.LNX.4.33.0103061423170.1409-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131040AbRCFR3D>; Tue, 6 Mar 2001 12:29:03 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:12307 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S131036AbRCFR2u>;
+	Tue, 6 Mar 2001 12:28:50 -0500
+Date: Tue, 06 Mar 2001 18:28:40 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Annoying CD-rom driver error messages
+To: law@sgi.com
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3AA51E48.17333215@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Lars Marowsky-Bree wrote:
-> On 2001-03-06T16:56:32,
->    Alan Cox <alan@lxorguk.ukuu.org.uk> said:
->
-> > I'm getting a notable increase in people sending me patches that do major
-> > things and should be 2.5 stuff. Please if you want to rewrite the VM completely,
-> > redesign the scsi layer and the like wait until 2.5.
->
-> When will 2.5 be forked?
->
-> If anyone wants to redesign the SCSI layer, by all means, DO NOT
-> STOP HIM! ;-)
+LA Walsh (law@sgi.com) wrote:
 
-If somebody is able to redesign the SCSI layer, I'm *sure*
-that person will be able to maintain a separate patch for
-some time ...
+> Alan Cox wrote: 
+> > 
+> > > support to function efficiently -- perhaps that technology needs to be further developed 
+> > > on Linux so app writers don't also have to be kernel experts and experts in all the 
+> > > various bus and device types out there? 
+> > 
+> > You mean someone should write a libcdrom that handles stuff like that - quite 
+> > possibly 
+> 
+> ---
+>         More generally -- if I want to know if a DVD has been inserted and of what type
+> and/or a floppy has been inserted or a removable media of type "X" or perhaps
+> more generally -- not just if a 'device' has changed but a file or directory?
+>         I think that is what famd is supposed to do, but apparently it does so (I'm 
+> guessing from the external description) by polling and says it needs kernel support
+> to be more efficient.  Famd was apparently ported to Linux from Irix where it had
+> the kernel ability to be notified of changed file-space items (file-space = anything
+> accessible w/a pathname).
+>         Now if I can just remember where I saw this mythical port of the 'file-access
+> monitoring daemon'....
 
-regards,
+This notification exists in 2.4.x ( at least the docs say so :-)
+see /usr/src/linux/Documentation/dnotify.txt 
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263265AbSJHUUE>; Tue, 8 Oct 2002 16:20:04 -0400
+	id <S261419AbSJHTK7>; Tue, 8 Oct 2002 15:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbSJHUTO>; Tue, 8 Oct 2002 16:19:14 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:12561
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261427AbSJHTLh>; Tue, 8 Oct 2002 15:11:37 -0400
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-From: Robert Love <rml@tech9.net>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, riel@conectiva.com.br
-In-Reply-To: <20021008190513.GA4728@tapu.f00f.org>
-References: <1034044736.29463.318.camel@phantasy>
-	<20021008183824.GA4494@tapu.f00f.org>
-	<1034102950.30670.1433.camel@phantasy> 
-	<20021008190513.GA4728@tapu.f00f.org>
-Content-Type: text/plain
+	id <S261418AbSJHTKZ>; Tue, 8 Oct 2002 15:10:25 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22800 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263243AbSJHTF2>; Tue, 8 Oct 2002 15:05:28 -0400
+Subject: PATCH: make dmx1391 work with new 5380
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 20:02:37 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Oct 2002 15:17:16 -0400
-Message-Id: <1034104637.29468.1483.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E17yzcr-0004tv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-08 at 15:05, Chris Wedgwood wrote:
-
-> > In other words, this flag pretty much disables the pagecache for
-> > this mapping, although we happily keep it around for write-behind
-> > and read-ahead.  But once the data is behind us and safe to kill, we
-> > do.  It is manual drop-behind.
-> 
-> OK.  What might use this though?  What applications might want to
-> disable the page-cache but still use write-behind?
-
-Streaming I/O wants read-ahead.  Filesystems themselves implement the
-write-behind and we do not want to circumvent so much of the kernel.
-
-The point of O_STREAMING is one change: drop pages in the pagecache
-behind our current position, that are free-able, because we know we will
-never want them.  Its a hint from the application saying "I will never
-revisit this so dump it".
-
-O_DIRECT is a much bigger can of worms.  You lose a lot of what the
-kernel provides.  You have to do things in block-sized chunks.  Etc.
-etc.
-
-> > O_DIRECT has a lot of semantics, one of which is to attempt to
-> > minimize cache effects.
-> 
-> It depends on the OS.  Some OS are broken and treat O_DIRECT as a
-> hint, Linux and IRIX know it's a *requirement*.
-
-Yep.  Linux treats most "hints" (e.g. madvise) as a requirement - it
-fails if it cannot do it.  That is against the spec most of the time,
-but oh well...
-
-> > O_STREAMING would be for your TiVo or network audio streamer.  Any
-> > file I/O that is inherently sequential and access-once.  No point
-> > trashing the pagecache with its data - but otherwise the behavior is
-> > normal.
-> 
-> Actually, this sounds perfect for O_DIRECT.  But I don't know much
-> about streaming video.
->
-> Since you only want the data once, why use the page-cache at all and
-> needlessly copy?  Certainly, the requirements for O_DIRECT are not
-> that hard to meet or implement.
->
-> Don't get me wrong, I'm not saying this is a bad thing at all.  The
-> patch is small and elegant so it's hard to object; I'm just trying to
-> understand where in practice I would use this over O_DIRECT.
-
-Shrug.  I do not have much experience with O_DIRECT.  I suspect the
-synchronous nature and the requirement of aligned buffers is not ideal.
-
-With O_STREAMING you can simply set the flag and use your normal I/O and
-normal interfaces and have a field day.
-
-Andrew, any experience on one vs. the other?
-
-	Robert Love 
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/scsi/dmx3191d.h linux.2.5.41-ac1/drivers/scsi/dmx3191d.h
+--- linux.2.5.41/drivers/scsi/dmx3191d.h	2002-07-20 20:11:20.000000000 +0100
++++ linux.2.5.41-ac1/drivers/scsi/dmx3191d.h	2002-10-06 23:19:44.000000000 +0100
+@@ -27,7 +27,9 @@
+ int dmx3191d_proc_info(char *, char **, off_t, int, int, int);
+ int dmx3191d_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
+ int dmx3191d_release_resources(struct Scsi_Host *);
+-int dmx3191d_reset(Scsi_Cmnd *, unsigned int);
++int dmx3191d_bus_reset(Scsi_Cmnd *);
++int dmx3191d_host_reset(Scsi_Cmnd *);
++int dmx3191d_device_reset(Scsi_Cmnd *);
+ 
+ 
+ #define DMX3191D {				\
+@@ -37,8 +39,10 @@
+ 	release:	dmx3191d_release_resources,	\
+ 	info:		dmx3191d_info,			\
+ 	queuecommand:	dmx3191d_queue_command,		\
+-	abort:		dmx3191d_abort,			\
+-	reset:		dmx3191d_reset, 		\
++	eh_abort_handler:	dmx3191d_abort,		\
++	eh_bus_reset_handler:	dmx3191d_bus_reset, 	\
++	eh_device_reset_handler:dmx3191d_device_reset, 	\
++	eh_host_reset_handler:	dmx3191d_host_reset, 	\
+ 	bios_param:	NULL,				\
+ 	can_queue:	32,				\
+         this_id:	7,				\

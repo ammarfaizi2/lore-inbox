@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269555AbTGJSjg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269560AbTGJSjg
+	id S269537AbTGJSgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269539AbTGJSgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:39:36 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:23303 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269555AbTGJSj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:39:29 -0400
-Date: Thu, 10 Jul 2003 14:53:35 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NBD oops in 2.5-bk.
-In-Reply-To: <20030710172052.GA32479@suse.de>
-Message-ID: <Pine.LNX.4.10.10307101450510.764-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Jul 2003 14:36:44 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40972 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S269537AbTGJSgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:36:33 -0400
+Date: Thu, 10 Jul 2003 20:51:12 +0200
+From: Jan Kara <jack@suse.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>, jack@suse.cz,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_QFMT_V2 vs. `VFS v0 quota format support'
+Message-ID: <20030710185112.GB8678@atrey.karlin.mff.cuni.cz>
+References: <Pine.GSO.4.21.0307101748020.3972-100000@vervain.sonytel.be> <20030710165346.A28322@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030710165346.A28322@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003, Dave Jones wrote:
-
-> Current bitkeeper tree seems to have problems with NBD.
-> As soon as I modprobe nbd (or boot with it compiled in)
-> I get this..
+> On Thu, Jul 10, 2003 at 05:50:33PM +0200, Geert Uytterhoeven wrote:
+> > 
+> > Why does the help text for CONFIG_QFMT_V2 say `VFS v0 quota format support' and
+> > not `VFS v2 quota format support'?
 > 
-> nbd: registered device at major 43
-> Unable to handle kernel paging request at virtual address 5a5a5a7e
->  printing eip:
-> c027864b
-> *pde = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<c027864b>]    Not tainted
-> EFLAGS: 00010206
-> EIP is at kobject_get+0xb/0x50
-> eax: 5a5a5a6a   ebx: 5a5a5a6a   ecx: c0492e7f   edx: 00000000
-> esi: ffffffea   edi: c60b91a0   ebp: c4f01f14   esp: c4f01f10
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 1141, threadinfo=c4f00000 task=c6524000)
-> Stack: c60b91a0 c4f01f24 c0278319 5a5a5a6a c60b91a0 c4f01f38 c0278537 c60b91a0 
->        c77f8004 c60b9004 c4f01f60 c03063e6 c60b91a0 c60b91a0 00000014 c0492e7d 
->        c046f3c6 c77f8004 d087bf60 00000001 c4f01fa8 d08151d9 c77f8004 d087bf40 
-> Call Trace:
->  [<c0278319>] kobject_init+0x29/0x50
->  [<c0278537>] kobject_register+0x17/0x50
->  [<c03063e6>] blk_register_queue+0x56/0x90
->  [<d08151d9>] nbd_init+0x1d9/0x250 [nbd]
->  [<c0144f5c>] sys_init_module+0x1cc/0x370
->  [<c010a027>] syscall_call+0x7/0xb
-> 
-> Code: 8b 43 14 85 c0 74 0c ff 43 14 89 d8 8b 5d fc 89 ec 5d c3 68 
+> Ask Jan, that's the name he's been using all through the development of
+> the patch and in the quota tools.
+  At the beginning I started calling the original quota format 'old' and
+the new one 'v0' (because in the quota file there's written 0 in the
+version  field ;)). If I did the decision now I would name it
+differently...
+  In the code on the other hand I started naming the formats v1 and v2
+because internal type identifiers are '1' and '2'.
+  So I agree that this is a bit messy but I'm not sure it's worth
+renaming.
 
-2.5.74-mm does not have this problem, could you try the following patch from Andrew's tree?
-
-nbd-kobject-oops-fix.patch
-
-That should fix the problem. I guess we need to push to Linus?
-
---
-Paul
-
+								Honza
+  
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

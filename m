@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313460AbSC2Pqz>; Fri, 29 Mar 2002 10:46:55 -0500
+	id <S313462AbSC2PsP>; Fri, 29 Mar 2002 10:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313462AbSC2Pqr>; Fri, 29 Mar 2002 10:46:47 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:31947 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313460AbSC2Pqd>;
-	Fri, 29 Mar 2002 10:46:33 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S313463AbSC2PsG>; Fri, 29 Mar 2002 10:48:06 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27152 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S313462AbSC2Pr6>; Fri, 29 Mar 2002 10:47:58 -0500
+Date: Fri, 29 Mar 2002 10:45:18 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] ext2_fill_super breakage
+In-Reply-To: <3CA3B48F.25F9042D@zip.com.au>
+Message-ID: <Pine.LNX.3.96.1020329104016.22866B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15524.35903.821173.784043@napali.hpl.hp.com>
-Date: Fri, 29 Mar 2002 07:46:07 -0800
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic show_stack facility
-In-Reply-To: <20020329152314.A22333@phoenix.infradead.org>
-X-Mailer: VM 7.01 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 29 Mar 2002 15:23:14 +0000, Christoph Hellwig <hch@infradead.org> said:
+On Thu, 28 Mar 2002, Andrew Morton wrote:
 
-  Christoph> This patch adds a prototype for show_stack to sched.h and
-  Christoph> exports it.  Andrea's VM updates want this, as does Tux
-  Christoph> and I think it's a facility we want to proive genericly.
+> BTW, ext3 keeps a kdev_t on-disk for external journals.  The
+> external journal support is experimental, added to allow people
+> to evaluate the usefulness of external journalling.  If we
+> decide to retain the capability we'll be moving it to a UUID
+> or mount-based scheme.  So if the kdev_t is being a problem,
+> I think we can just break it.
 
-  Christoph> Note that some architectures (e.g. ia64) have a
-  Christoph> conflicting prototype and some (e.g. sparc) don't have
-  Christoph> show_stack at all, but I think -pre5 is early enough in
-  Christoph> the 2.4.19 cycle to let the maintainers fix it.
+  If experience on JFS is any predictor, the external journal will be
+quite useful as a performance issue. It can be put on a faster device to
+avoid bottlenecks. With JFS I finally wound up with the journal on a
+battery-backed SCSI solid state disk, and got about 30% faster completion
+of my daily audit run which deleted ~1000000 (yes one million) files as
+fast as it could when done.
 
-  Christoph> Could you apply the patch to your tree?
+  I was also creating the same number of files over the course of a day,
+which is still a respectable directory change rate!
 
-Please don't.  The patch is broken.
+  I predict that applications which create/delete a lot of files will run
+better with tuning this feature.
 
-Christoph, why do you think the prototype for ia64 is different?  It's
-because it *has to be*.  In general, you can't do a backtrace without
-having the full (preserved) state of the CPU at the point of which the
-backtrace begins.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-	--david

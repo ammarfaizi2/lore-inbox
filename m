@@ -1,53 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVC3Bts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVC3BxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVC3Bts (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 20:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVC3Btf
+	id S261709AbVC3BxX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 20:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVC3BxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 20:49:35 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:54173 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261709AbVC3Bt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 20:49:27 -0500
-In-Reply-To: <1112139564.31848.65.camel@gaston>
-References: <1111966920.5409.27.camel@gaston> <1112067369.19014.24.camel@mindpipe> <4a7a16914e8d838e501b78b5be801eca@dalecki.de> <1112084311.5353.6.camel@gaston> <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de> <1112134385.5386.22.camel@mindpipe>  <4249E3F4.8070005@nortel.com> <1112139564.31848.65.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <3437534780e9f73588875e8964bac2ed@dalecki.de>
-Content-Transfer-Encoding: 7bit
-Cc: Chris Friesen <cfriesen@nortel.com>, Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: Mac mini sound woes
-Date: Wed, 30 Mar 2005 03:48:57 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.619.2)
+	Tue, 29 Mar 2005 20:53:23 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:50336 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261709AbVC3BxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 20:53:13 -0500
+Date: Tue, 29 Mar 2005 17:53:12 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment register access)
+Message-ID: <20050330015312.GA27309@lucon.org>
+References: <20050326020506.GA8068@lucon.org> <20050327222406.GA6435@lucon.org> <m14qev3h8l.fsf@muc.de> <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 29, 2005 at 04:30:01PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 28 Mar 2005, Andi Kleen wrote:
+> >
+> > "H. J. Lu" <hjl@lucon.org> writes:
+> > > The new assembler will disallow them since those instructions with
+> > > memory operand will only use the first 16bits. If the memory operand
+> > > is 16bit, you won't see any problems. But if the memory destinatin
+> > > is 32bit, the upper 16bits may have random values. The new assembler
+> > 
+> > Does it really have random values on existing x86 hardware?
+> 
+> The upper bits are not written at all, so it's not random.
+> 
+> > If it is a only a "theoretical" problem that does not happen
+> > in practice I would advise to not do the change.
+> 
+> My preference too. The reason we use "movl" is because we really do want 
+> the 32-bit versions, since they are faster. It's a conscious choice. In 
+> contrast "movw" generates bigger and slower code on all assemblers out 
+> there, and "mov" doesn't make it clear which one it is. Is it the slow 
+> one, or the fast one? 
 
-On 2005-03-30, at 01:39, Benjamin Herrenschmidt wrote:
+"mov" shouldn't generate the 0x66 prefix, at least with the assembler
+since binutils 2.14.90.0.4 20030523. The assembler in CVS won't generate
+0x66 for "movw" either.
 
-> On Tue, 2005-03-29 at 17:25 -0600, Chris Friesen wrote:
->> Lee Revell wrote:
->>
->>> This is the exact line of reasoning that led to Winmodems.
->>
->> My main issue with winmodems is not so much the software offload, but
->> rather that the vendors don't release full specs.
->>
->> If all winmodem manufacturers released full hardware specs, I doubt
->> people would really complain all that much.  There's a fairly large 
->> pool
->> of talent available to write drivers once the interfaces are known.
->
-> Look at the pile of junk that are most winmodem driver implementations,
-> nothing I want to see in the kernel ever. Those things should be in
-> userland.
+> Now, those versions of gas may be so old that nobody cares, but the
+> explicit size still is a GOOD THING. The size DOES MATTER. People who want
 
-You are joking? Linux IS NOT an RT OS. And well not too long ago you 
-could
-be jailed for example in germany for using not well behaving 
-communication devices.
+Suggesting "mov" instead of "movw" is for the existing assemblers. Or
+kernel can check assembler version to decide if "movw" should be used.
+I can verify the first Linux assembler which won't generate 0x66 for
+"movw".
 
+> the smaller and faster version do not want to just rely on gas
+> automatically getting it right, especially since gas has historically been
+> very very bad at getting things right.
+
+We are fixing those issues in assembler. If people run into problems
+like that with gas, they can report them. They will be fixed.
+
+> 
+> What is the advantage of not allowing "movl %ds,mem"? Really? Especially
+> since I suspect the kernel is pretty much the only one who does this, and
+> the kernel really does do it on purpose. The kernel explicitly wants the
+> 32-bit version, knowing that the upper bits are undefined.
+> 
+
+Kernel has
+
+	unsigned gsindex;
+	asm volatile("movl %%gs,%0" : "=g" (gsindex));
+	...
+	if (gsindex)
+		
+
+It is OK if gcc never generates memory access like
+
+	movl %gs,0x128(%rsp)
+
+Otherwise, the upper bits in gsindex are undefined. The new
+assembler will make sure that it won't happen.
+
+
+H.J.

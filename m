@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272328AbTG3XLV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 19:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272331AbTG3XLU
+	id S272331AbTG3XbU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 19:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272332AbTG3XbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 19:11:20 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:3831 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272328AbTG3XLT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 19:11:19 -0400
-Subject: Re: TSCs are a no-no on i386
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030730203318.GH1873@lug-owl.de>
-References: <20030730135623.GA1873@lug-owl.de>
-	 <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com>
-	 <20030730184529.GE21734@fs.tum.de>
-	 <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk>
-	 <20030730203318.GH1873@lug-owl.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059606259.10505.20.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 30 Jul 2003 19:31:20 -0400
+Received: from mail.kroah.org ([65.200.24.183]:17291 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272331AbTG3XbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 19:31:17 -0400
+Date: Wed, 30 Jul 2003 16:28:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Philip Graham Willoughby <pgw99@doc.ic.ac.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030730232843.GA5764@kroah.com>
+References: <20030729151701.GA6795@bodmin.doc.ic.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 Jul 2003 00:05:53 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030729151701.GA6795@bodmin.doc.ic.ac.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-30 at 21:33, Jan-Benedict Glaw wrote:
-> Well... For sure, I can write a LD_PRELOAD lib dealing with SIGILL, but
-> how do I enable it for the whole system. That is, I'd need to give
-> LD_PRELOAD=xxx at the kernel's boot prompt to have it as en environment
-> variable for each and every process?
+On Tue, Jul 29, 2003 at 04:17:03PM +0100, Philip Graham Willoughby wrote:
+> Hi all,
+> 
+> This patch adds an abstraction layer for programmable LED devices,
+> hardware drivers for the Status LEDs found on some Intel PIIX4E based
+> server hardware (notably the ISP1100 1U rackmount server) and LEDs wired
+> to the parallel port data lines.
 
+Some minor comments:
+	- read Documentation/CodingStyle and apply it to your code.
+	- fix up the usages of the MOD_* functions.  Get rid of the ones
+	  for the file_ops and have the core increment the count of the
+	  drivers before the core calls them.
+	- please do not use ioctls.  They are hell for 64bit kernels.
+	  Use either a filesystem for your subsystem, or sysfs.
+	- try doing this for 2.6 first if you want any chance at all to
+	  get it into the main kernel trees.
 
-/etc/ld.preload
+Good luck,
 
-> That sounds a tad inelegant to me. Really, I'd prefer to see libstdc++
-> be compiled for i386 ...
-
-True
-
-
+greg k-h

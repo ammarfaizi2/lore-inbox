@@ -1,89 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUJJCWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUJJCat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268053AbUJJCWd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 22:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUJJCWc
+	id S268069AbUJJCat (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 22:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUJJCat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 22:22:32 -0400
-Received: from mail.dif.dk ([193.138.115.101]:8931 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268053AbUJJCWN (ORCPT
+	Sat, 9 Oct 2004 22:30:49 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60563 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268069AbUJJCar (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 22:22:13 -0400
-Date: Sun, 10 Oct 2004 04:29:51 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Ben Collins <bcollins@debian.org>,
-       linux1394-devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] check copy_to_user return value in raw1394
-In-Reply-To: <41687FCA.5010907@osdl.org>
-Message-ID: <Pine.LNX.4.61.0410100426110.29333@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0410100208270.2973@dragon.hygekrogen.localhost>
- <Pine.LNX.4.61.0410100220580.2973@dragon.hygekrogen.localhost>
- <41687FCA.5010907@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Oct 2004 22:30:47 -0400
+Date: Sat, 9 Oct 2004 19:28:23 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rick Lindsley <ricklind@us.ibm.com>
+Cc: colpatch@us.ibm.com, mbligh@aracnet.com, Simon.Derr@bull.net,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+ memory placement
+Message-Id: <20041009192823.4ffdfb3c.pj@sgi.com>
+In-Reply-To: <200410071905.i97J57TS014336@owlet.beaverton.ibm.com>
+References: <20041007072842.2bafc320.pj@sgi.com>
+	<200410071905.i97J57TS014336@owlet.beaverton.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Oct 2004, Randy.Dunlap wrote:
+Rick wrote:
+> One does?  No, in my world, there's constant auditing going on and if
+> you can get away with having a machine idle, power to ya, but chances
+> are somebody's going to come and take away at least the cycles and maybe
 
-> Jesper Juhl wrote:
-> > On Sun, 10 Oct 2004, Jesper Juhl wrote:
-> > 
-> > 
-> > > Here's a proposed patch to make sure we check the return value of
-> > > copy_to_user in raw1394.c::raw1394_read
-> > 
-> 
-> How about sending it to:
-> 
-> IEEE 1394 SUBSYSTEM
-> P:	Ben Collins
-> M:	bcollins@debian.org
-> L:	linux1394-devel@lists.sourceforge.net
-> W:	http://www.linux1394.org/
-> S:	Maintained
-> 
+I don't doubt that such worlds as yours exist, nor that you live in one.
 
-Right, I should probably do that... Added as a recipient on this mail...
+In some of the worlds my customers live in, they have been hit so many
+times with the pains of performance degradation and variation due to
+unwanted interaction between applications that they get nervous if a
+supposedly unused CPU or Memory looks to be in use.  Just the common use
+by Linux of unused memory to keep old pages in cache upsets them.
 
-> and change "if(" to "if (" ...
-> 
-Done.
+And, perhaps more to the point, while indeed some other department may
+soon show up to make use of those lost cycles, the computer had jolly
+well better leave those cycles lost _until_ the customer decides to use
+them.
 
+Unlike the computer in my dentists office, which should "just do it",
+maximizing throughput as best it can, not asking any questions, the
+computers in some of my customers high end shops are managed more tightly
+(sometimes very tightly) and they expect to control load placement.
 
-Here's a revised patch : 
-
-Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.9-rc3-bk9-orig/drivers/ieee1394/raw1394.c linux-2.6.9-rc3-bk9/drivers/ieee1394/raw1394.c
---- linux-2.6.9-rc3-bk9-orig/drivers/ieee1394/raw1394.c	2004-09-30 05:03:45.000000000 +0200
-+++ linux-2.6.9-rc3-bk9/drivers/ieee1394/raw1394.c	2004-10-10 04:24:57.000000000 +0200
-@@ -411,6 +411,7 @@ static ssize_t raw1394_read(struct file 
-         struct file_info *fi = (struct file_info *)file->private_data;
-         struct list_head *lh;
-         struct pending_request *req;
-+	ssize_t ret;
- 
-         if (count != sizeof(struct raw1394_request)) {
-                 return -EINVAL;
-@@ -443,10 +444,15 @@ static ssize_t raw1394_read(struct file 
-                         req->req.error = RAW1394_ERROR_MEMFAULT;
-                 }
-         }
--        __copy_to_user(buffer, &req->req, sizeof(req->req));
-+        if (copy_to_user(buffer, &req->req, sizeof(req->req))) {
-+		ret = -EFAULT;
-+		goto out;
-+	}
- 
-+        ret = (ssize_t)sizeof(struct raw1394_request);
-+out:
-         free_pending_request(req);
--        return sizeof(struct raw1394_request);
-+	return ret;
- }
- 
- 
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

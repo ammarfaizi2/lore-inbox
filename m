@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263042AbSJBLTr>; Wed, 2 Oct 2002 07:19:47 -0400
+	id <S263045AbSJBLUA>; Wed, 2 Oct 2002 07:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263045AbSJBLTr>; Wed, 2 Oct 2002 07:19:47 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:21776 "EHLO
-	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S263042AbSJBLTq>; Wed, 2 Oct 2002 07:19:46 -0400
-Date: Wed, 2 Oct 2002 13:23:52 +0200
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.40 Compile fix for UP-NOAPIC-ACPI
-Message-ID: <20021002112352.GD1952@tmathiasen>
+	id <S263047AbSJBLUA>; Wed, 2 Oct 2002 07:20:00 -0400
+Received: from pop018pub.verizon.net ([206.46.170.212]:55021 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S263045AbSJBLT7>; Wed, 2 Oct 2002 07:19:59 -0400
+Message-Id: <200210021120.g92BKsmI000342@pool-141-150-241-241.delv.east.verizon.net>
+Date: Wed, 2 Oct 2002 07:20:54 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Krishnakumar B <kitty@cse.wustl.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard problems with Linux-2.5.40
+References: <15770.24570.170414.576715@samba.doc.wustl.edu> <200210021101.g92B18mI000182@pool-141-150-241-241.delv.east.verizon.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6sX45UoQRIJXqkqR"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-OS: Linux 2.4.19
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210021101.g92B18mI000182@pool-141-150-241-241.delv.east.verizon.net>; from skip.ford@verizon.net on Wed, Oct 02, 2002 at 07:01:00AM -0400
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop018.verizon.net from [141.150.241.241] at Wed, 2 Oct 2002 06:25:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Skip Ford wrote:
+> Krishnakumar B wrote:
+> > 
+> > atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) pressed.
+> > atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) released.
+> > atkbd.c: Unknown key (set 2, scancode 0x120, on isa0060/serio0) pressed.
+>
+> The scancodes have changed.  Try adding keycode 336 = XF86AudioMedia and
+> keycode 288 = XF86Refresh.
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Forget that, too early in the morning.  Those are the scancodes not the
+keycodes.
 
-Seems 2.5.40 won't compile on UP when no local apic is used and ACPI is
-enabled.
-
-Not sure attached patch is 100% correct, but it seems to work for me.
-
-Cheers,
-Torben
-
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="up-acpi-compile.diff"
-
---- linux-2.5.40-vanilla/arch/i386/kernel/mpparse.c	Tue Oct  1 09:06:28 2002
-+++ linux-2.5.40/arch/i386/kernel/mpparse.c	Wed Oct  2 13:14:18 2002
-@@ -784,6 +784,8 @@
- 
- #ifdef CONFIG_ACPI_BOOT
- 
-+#ifdef CONFIG_X86_LOCAL_APIC 
-+
- void __init mp_register_lapic_address (
- 	u64			address)
- {
-@@ -1127,4 +1129,6 @@
- 
- #endif /*CONFIG_X86_IO_APIC*/
- 
-+#endif /*CONFIG_X86_LOCAL_APIC*/
-+
- #endif /*CONFIG_ACPI_BOOT*/
-
---6sX45UoQRIJXqkqR--
+-- 
+Skip

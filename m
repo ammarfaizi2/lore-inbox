@@ -1,73 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbUJ0UGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbUJ0TuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbUJ0UGo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbUJ0T7o
+	id S262559AbUJ0TuE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 15:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbUJ0Tru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:59:44 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20122 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262570AbUJ0T7B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:59:01 -0400
-Message-ID: <417FFE82.4060305@tmr.com>
-Date: Wed, 27 Oct 2004 16:01:06 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nico Augustijn <kernel@janestarz.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, hvr@gnu.org,
-       clemens@endorphin.org, linux-kernel@vger.kernel.org
-Subject: Re: Cryptoloop patch for builtin default passphrase
-References: <9550.212.241.49.39.1098883651.squirrel@webmail.xs4all.nl>
-In-Reply-To: <9550.212.241.49.39.1098883651.squirrel@webmail.xs4all.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 15:47:50 -0400
+Received: from waste.org ([209.173.204.2]:65184 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262658AbUJ0Tlh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 15:41:37 -0400
+Date: Wed, 27 Oct 2004 14:41:13 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netpoll_setup questions
+Message-ID: <20041027194113.GP31237@waste.org>
+References: <16767.50093.59665.83462@segfault.boston.redhat.com> <20041027173031.GO31237@waste.org> <16767.61372.910664.763968@segfault.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16767.61372.910664.763968@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Augustijn wrote:
-> On Tue, Oct 26, 2004 at 08:17:53AM +0200, Jan Engelhardt wrote:
+On Wed, Oct 27, 2004 at 02:58:04PM -0400, Jeff Moyer wrote:
+> ==> Regarding Re: netpoll_setup questions; Matt Mackall <mpm@selenic.com> adds:
 > 
->>>This here patch will make the kernel use a default passphrase (compiled
+> mpm> On Wed, Oct 27, 2004 at 11:50:05AM -0400, Jeff Moyer wrote:
+> >> Hi, Matt,
+> >> 
+> >> The section of code in the body of this if statement:
+> >> 
+> >> if (!(ndev->flags & IFF_UP)) {
+> >> 
+> >> is a bit broken.  First, upon discussion with jgarzik, it seems we
+> >> should not check for IFF_UP, but instead do netif_running.
 > 
-> into
+> mpm> Well I cribbed it from the nfsroot code, which is perhaps not up on
+> mpm> fashion.
 > 
->>>the kernel or cryptoloop.ko module) when you set up a cryptoloop device
-> 
-> with:
-> 
->>Suppose I break in via ssh:
->>I could load the module (if applicable), and find the address of the
->>function or variable in System.map, extract the static passphrase, and
->>well. Then?
-> 
-> 
-> Ahem.
-> The point you are making is rather moot. Because if you manage to get a
-> shell on the system, the data can readily be copied because the encrypted
-> filesystem is supposed to be mounted.
-> Unless I miss your point.
-> 
-> And once you are in the system there are easier ways to obtain the
-> passphrase than the one you described above. As I clearly stated earlier,
-> it is merely more difficult to obtain the encrypted data. It is _not_
-> impossible. It took me approximately 4 hours to break into the system
-> myself. I bet there's people around who can do it in less than 1 hour.
-> 
-> Some of you might then ask: "What's the point of it then anyway?"
-> Well, I am probably capable of creating a much better solution with almost
-> unbreakable encryption. My boss just won't allow me the time for this.
-> This patch took me about a day to write. It's the best I could come up
-> with in such a short time.
+> Hmm, I can't seem to find the relevant code.  Where is it?
 
-And this provides another level of protection, which makes it useful. It 
-stops the casual thief who steals your laptop, and that's the most 
-likely exposure. If you expect you system to be secure against 
-government agencies or serious industrial espionage, this is pretty much 
-worthless, better crypto would be needed, encrypted swap, etc.
+net/ipv4/ipconfig.c, IIRC.
+ 
+> mpm> I don't expect it does. Usually we have our own IP address from the
+> mpm> command line, but if we don't, we will check if there's an in_dev
+> mpm> connected to the device and if so, look up the device's IP. This is
+> mpm> useful for the modular case where the network is up before we start
+> mpm> and we have a handy default for local IP.
+> 
+> Right, but the case in question is the one where we don't have a local IP
+> specified:
+
+Yeah..
+ 
+> 	if (!np->local_ip) {
+
+"but if we don't"
+
+> 		rcu_read_lock();
+> 		in_dev = __in_dev_get(ndev);
+> 
+> 		if (!in_dev) {
+
+"we will check if there's an in_dev"
+
+> 			rcu_read_unlock();
+> 			printk(KERN_ERR "%s: no IP address for %s, aborting\n",
+> 			       np->name, np->dev_name);
+> 			goto release;
+> 		}
+> 
+> 		np->local_ip = ntohl(in_dev->ifa_list->ifa_local);
+
+"if so, look up the device's IP"
+
+> 		rcu_read_unlock();
+> 		printk(KERN_INFO "%s: local IP %d.%d.%d.%d\n",
+> 		       np->name, HIPQUAD(np->local_ip));
+> 	}
+> 
+> 
+> >> And, in the case where it doesn't, you will get an oops further on when
+> >> dereferencing the ifa_list.
+> 
+> mpm> Does this actually happen? I'm checking in_dev for null already, but
+> mpm> perhaps I need to check ifa_list as well.
+> 
+> Yes, that should do it.
+
+Again, does the oops actually happen? I'd expect I'd have seen it by
+now if this were really a problem, but I don't mind adding another check.
+
+> Here is a patch which should work.  I'll test today.
+> 
+> -Jeff
+> 
+> --- linux-2.6.9/net/core/netpoll.c~	2004-10-21 17:49:10.000000000 -0400
+> +++ linux-2.6.9/net/core/netpoll.c	2004-10-27 14:53:57.492149880 -0400
+> @@ -571,7 +571,7 @@ int netpoll_setup(struct netpoll *np)
+>  		goto release;
+>  	}
+>  
+> -	if (!(ndev->flags & IFF_UP)) {
+> +	if (!netif_running(ndev)) {
+>  		unsigned short oflags;
+>  		unsigned long atmost, atleast;
+>  
+> @@ -617,7 +617,7 @@ int netpoll_setup(struct netpoll *np)
+>  		rcu_read_lock();
+>  		in_dev = __in_dev_get(ndev);
+>  
+> -		if (!in_dev) {
+> +		if (!in_dev || !in_dev->ifa_list) {
+>  			rcu_read_unlock();
+>  			printk(KERN_ERR "%s: no IP address for %s, aborting\n",
+>  			       np->name, np->dev_name);
+
+Looks good to me.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Mathematics is the supreme nostalgia of our time.

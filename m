@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312690AbSDKRtt>; Thu, 11 Apr 2002 13:49:49 -0400
+	id <S312691AbSDKRx0>; Thu, 11 Apr 2002 13:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312691AbSDKRts>; Thu, 11 Apr 2002 13:49:48 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:20694 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S312690AbSDKRts>; Thu, 11 Apr 2002 13:49:48 -0400
-Date: Thu, 11 Apr 2002 17:49:42 +0000
-From: "John P. Looney" <john@antefacto.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-Message-ID: <20020411174941.GC17962@antefacto.com>
-Reply-To: john@antefacto.com
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020411154601.GY17962@antefacto.com> <20020411164331.GR612@gallifrey> <20020411184923.A15238@ucw.cz> <20020411170910.GS612@gallifrey> <20020411191339.B15435@ucw.cz>
+	id <S312694AbSDKRxZ>; Thu, 11 Apr 2002 13:53:25 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:22151
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S312691AbSDKRxZ>; Thu, 11 Apr 2002 13:53:25 -0400
+Date: Thu, 11 Apr 2002 10:51:26 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove compiler.h from mmap.c
+Message-ID: <20020411175126.GE19157@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.44L.0204111436080.31387-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
-X-URL: http://www.redbrick.dcu.ie/~valen
-X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 07:13:39PM +0200, Vojtech Pavlik mentioned:
-> > I'd presumed this was
-> > the whole point of the busid spec in the config file.
-> No, it's for running one Xserver on multiple displays at once only.
-> Sad, ain't it?
+On Thu, Apr 11, 2002 at 02:37:23PM -0300, Rik van Riel wrote:
 
- Very sad. Nice to know it's not really the kernel's fault. 
+> compiler.h is included via other include files now and its
+> #include has been removed from most C files, this patch
+> finishes the job for mm/*
 
- Is it possible to say "Any mice plugged in to this port is
-/dev/input/mouse3" etc. so that if someone plugged out your mouse, plugged
-in another into a different port, and you plugged yours back in, that they
-wouldn't renumberate ?
+What #include file is mm/mmap.c getting <linux/compiler.h> from now?
+Hiding (or relying on indirect) #includes isn't always a good thing...
 
-Kate
- 
 -- 
-_______________________________________
-John Looney             Chief Scientist
-a n t e f a c t o     t: +353 1 8586004
-www.antefacto.com     f: +353 1 8586014
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135974AbRDTQv3>; Fri, 20 Apr 2001 12:51:29 -0400
+	id <S135967AbRDTQxt>; Fri, 20 Apr 2001 12:53:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135967AbRDTQvJ>; Fri, 20 Apr 2001 12:51:09 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:56080 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S135974AbRDTQvE>;
-	Fri, 20 Apr 2001 12:51:04 -0400
-Date: Fri, 20 Apr 2001 12:50:05 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Tom Rini <trini@kernel.crashing.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>,
-        lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-Message-ID: <20010420125005.B8086@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Nicolas Pitre <nico@cam.org>, Tom Rini <trini@kernel.crashing.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Matthew Wilcox <willy@ldl.fc.hp.com>,
-	james rich <james.rich@m.cc.utah.edu>,
-	lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
-In-Reply-To: <20010420085148.V13403@opus.bloom.county> <Pine.LNX.4.33.0104201206250.12186-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104201206250.12186-100000@xanadu.home>; from nico@cam.org on Fri, Apr 20, 2001 at 12:35:12PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S135976AbRDTQxm>; Fri, 20 Apr 2001 12:53:42 -0400
+Received: from gate.terreactive.ch ([212.90.202.121]:42487 "HELO
+	toe.terreactive.ch") by vger.kernel.org with SMTP
+	id <S135967AbRDTQxY>; Fri, 20 Apr 2001 12:53:24 -0400
+Message-ID: <3AE068E7.72116BFB@tac.ch>
+Date: Fri, 20 Apr 2001 18:50:47 +0200
+From: Roberto Nibali <ratz@tac.ch>
+Organization: terreActive
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en, de-CH, zh-CN
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org,
+        Donald Becker <becker@scyld.com>, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
+In-Reply-To: <Pine.LNX.4.33.0104200301380.5165-100000@age.cs.columbia.edu> <3AE05F5A.7942C824@tac.ch> <3AE061A5.FDB4CD5C@mandrakesoft.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre <nico@cam.org>:
-> Why not having everybody's tree consistent with themselves and have whatever
-> CONFIGURE_* symbols and help text be merged along with the very code it
-> refers to?  It's worthless to have config symbols be merged into Linus' or
-> Alan's tree if the code isn't there (yet).  It simply makes no sense.
+Jeff Garzik wrote:
+> 
+> Roberto Nibali wrote:
+> >
+> > > This was a special case, which btw had nothing to do with the starfire
+> > > driver itself. The user needed to support more than 8 eth ports, which
+> > > 2.2 complains about, and more than 16 eth ports, which 2.2 simply doesn't
+> > > allow without further changes.
+> >
+> > I made the changes and I was able to load 4 quadboards, 2 3com cards and
+> > 1 eepro100 (onboard) and I did some tests and it works fine. However the
+> > starfire driver seems not to initialize more then 4 quadboards. I put in
+> > 5 and he doesn't initialize it and the others don't work although they
+> > get initialized.
+> 
+> If all five show up in 'lspci', then starfire driver should be able to
+> register all five.  [if it doesn't, it is probably a starfire bug]
 
-And now it has a cost, too.  It makes finding real bugs more difficult.
+No, it's not a bug but thank you for this tip. It's just a put-on limitation
+in the driver itself:
+
+--- starfire.c~	Fri Apr 20 18:48:05 2001
++++ starfire.c	Fri Apr 20 18:27:20 2001
+@@ -308,7 +308,7 @@
+ 	void (*resume)(struct pci_dev *dev);	/* Device woken up */
+ };
+ 
+-#define PCI_MAX_MAPPINGS 16
++#define PCI_MAX_MAPPINGS 32
+ static struct pci_driver_mapping drvmap [PCI_MAX_MAPPINGS] = { { NULL, } , };
+ 
+ #define __devinit			__init
+
+This cures my problem. I've checked this and it seems as if Ion copied
+this from the sound/emu10k1/emu_wrapper.c code, where I understand that
+nobody will have more then 16 times the same soundcard. Ion, do I break
+something with this? If not, could you please adjust your driver?
+
+Thanks to all of you for your help. I learned a lot today.
+Roberto Nibali, ratz
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Every election is a sort of advance auction sale of stolen goods. 
-	-- H.L. Mencken 
+mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`

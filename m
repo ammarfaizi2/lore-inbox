@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129904AbRBJFNN>; Sat, 10 Feb 2001 00:13:13 -0500
+	id <S129946AbRBJGCP>; Sat, 10 Feb 2001 01:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129946AbRBJFMy>; Sat, 10 Feb 2001 00:12:54 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:51461 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129904AbRBJFMt>; Sat, 10 Feb 2001 00:12:49 -0500
-Date: Sat, 10 Feb 2001 18:12:46 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bidirectional named pipe?
-Message-ID: <20010210181246.C8934@metastasis.f00f.org>
-In-Reply-To: <E14OxTz-0007yS-00@the-village.bc.nu> <3A81D5B4.9CBC9B0D@kasey.umkc.edu> <95v90g$ke6$1@cesium.transmeta.com>
-Mime-Version: 1.0
+	id <S130624AbRBJGCG>; Sat, 10 Feb 2001 01:02:06 -0500
+Received: from Mail.ubishops.ca ([192.197.190.5]:19725 "EHLO Mail.ubishops.ca")
+	by vger.kernel.org with ESMTP id <S129946AbRBJGCA>;
+	Sat, 10 Feb 2001 01:02:00 -0500
+Message-ID: <3A84D950.899549B4@yahoo.co.uk>
+Date: Sat, 10 Feb 2001 01:01:52 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] to deal with bad dev->refcnt in unregister_netdevice()
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <95v90g$ke6$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Feb 08, 2001 at 03:10:08PM -0800
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 08, 2001 at 03:10:08PM -0800, H. Peter Anvin wrote:
+> > Here is a patch which may not solve the underlying 
+> 
+> This does not. refcnt cannot be <1 at this point. 
 
-    I would really like it if open() on a socket would be the same
-    thing to connect to a socket as a client.  I don't think it's a
-    good idea to do that for the server side, though, since it would
-    have to know about accept() anyway.
+The refcnt shouldn't be less than 1, but it is in fact
+less than 1.  (As I'm sure you understand.)
 
-things like this (non-portable hacks) belong in libc surely?
+> > assuming that the latter messages aren't serious? 
+> 
+> They are fatal. Machine must be rebooted after them. 
 
+True.  I found that with testing---lots of ifups and ifdowns,
+etc.---the kernel becomes unstable.
 
+> > I hope the networking gurus can find the real bugs here. 
+> 
+> Well, someone forgets to grab refcnt or makes redundant dev_put. 
+> Try to catch this, f.e. adding BUG() to the places where fatal 
+> messages are generated to get backtraces. 
+> Alexey
 
-  --cw
+I think that the ipx driver makes an inappropriate dev_put
+in its notifier callback.  However that is for people better
+acquainted with the come than I to judge.  Removing the ipx
+driver does work around the problem though.
+
+Thomas
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

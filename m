@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbUDFPUC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:20:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbUDFPUB
+	id S263878AbUDFPVY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUDFPVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:20:01 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:52454 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263870AbUDFPT5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:19:57 -0400
-Date: Tue, 6 Apr 2004 20:50:46 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: rusty@au1.ibm.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
-Message-ID: <20040406152046.GB8996@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040405121824.GA8497@in.ibm.com> <4071F9C5.2030002@yahoo.com.au> <20040406083713.GB7362@in.ibm.com> <407277AE.2050403@yahoo.com.au> <20040406145616.GB8516@in.ibm.com> <4072C6EA.1070803@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4072C6EA.1070803@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+	Tue, 6 Apr 2004 11:21:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16270 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263873AbUDFPVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 11:21:18 -0400
+Message-Id: <200404061520.i36FKr216891@mail.osdl.org>
+Date: Tue, 6 Apr 2004 08:20:49 -0700 (PDT)
+From: markw@osdl.org
+Subject: Re: 2.6.5-rc3-mm4
+To: nickpiggin@yahoo.com.au
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, axboe@suse.de,
+       mingo@redhat.com
+In-Reply-To: <406E017D.9040107@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 07, 2004 at 01:04:10AM +1000, Nick Piggin wrote:
-> AFAIKS, no.
+On  3 Apr, Nick Piggin wrote:
+> Mark Wong wrote:
+>> On Sat, Apr 03, 2004 at 09:43:57AM +1000, Nick Piggin wrote:
+>> 
+>>>Which looks like it is taking a lot longer (is it the same test?)
+>>>It is difficult to tell how idle each one is due to lack of total
+>>>ticks reported, but, copy_to/from_user is 3% the amount of idle
+>>>time in 2.6.3, while being 3.5% the amount of idle time in your
+>>>profile.
+>> 
+>> 
+>> Whoops, I changed when the sample is take.  This 2.6.3 results samples
+>> when the test is ramping up, while all the subsequent tests are sampling
+>> after the test ramps up.  I can redo this one.
 > 
-> If this happens before migrate_all_tasks, there shouldn't be a
-> problem because migrate_all_tasks will move the woken task anyway.
-> 
-> It can't happen after migrate_all_tasks, because there is nothing
-> on the offline CPU to be woken up.
+> That would be good, thanks.
 
-Hmm ..I was thinking of this scenario ..Lets say task A uses
-schedule_timeout on CPU3 :
+Ok, updated the web page for for 2.6.3 ext2, ext3 with the deadline
+elevator:
+	http://developer.osdl.org/markw/fs/dbt2_project_results.html
 
-
-	schedule_timeout(10ms);
-
-A timer is added in CPU3 meant to fire after (max) 10 ms.
-The task is then put to sleep.
-
-During this sleep duration, CPU3 can go down. migrate_all_tasks
-not finding A in the runqueue won't bother abt it.
-
-As pary of CPU_DEAD processing, migrate_timers will move the timer
-that was added in CPU3 to CPU2 (say). 
-
-After 10 ms, when the timer fires on CPU2, it will do a wakeup on 
-Task A. At that point, won't Task A still be affine to CPU3? Won't
-try_to_wake_up attempt adding it to CPU3? At that point 'this_cpu'
-is 2 and 'cpu' is 3 (in try_to_wake_up)?
-
-> If you do need the check there, then my lazy migrate method is
-> unquestionably better, because this is the only thing it would
-> otherwise have to add to a fastpath. Right?
-
-I don't think we strictly need the cpu_is_offline check in try_to_wake_up
-if we were to migrate _all_ (running 'n sleeping) tasks in one shot 
-(with tasklist lock held) when a CPU goes down :-)
-
-Sorry I did not mean to compare our patches like this, just trying to work
-out which will be the right thing to do!!
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Mark

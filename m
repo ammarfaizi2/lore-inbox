@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319035AbSIJBMh>; Mon, 9 Sep 2002 21:12:37 -0400
+	id <S313113AbSIJBWZ>; Mon, 9 Sep 2002 21:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319065AbSIJBMg>; Mon, 9 Sep 2002 21:12:36 -0400
-Received: from 213-4-13-153.uc.nombres.ttd.es ([213.4.13.153]:48257 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S319035AbSIJBMg>; Mon, 9 Sep 2002 21:12:36 -0400
-Subject: Wake-on-LAN/PCI Linux support
-From: Felipe Alfaro Solana <falfaro@borak.es>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 10 Sep 2002 03:17:13 +0200
-Message-Id: <1031620633.1324.34.camel@teapot>
-Mime-Version: 1.0
+	id <S316465AbSIJBWZ>; Mon, 9 Sep 2002 21:22:25 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15367 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313113AbSIJBWY>; Mon, 9 Sep 2002 21:22:24 -0400
+Date: Mon, 9 Sep 2002 18:27:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Nicholas Miell <nmiell@attbi.com>
+cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] USB changes for 2.5.34
+In-Reply-To: <1031618129.1403.12.camel@entropy>
+Message-ID: <Pine.LNX.4.44.0209091825390.1714-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Does Linux currently support Wake-on-LAN/PCI? I have a 3Com 3c905 TX-M
-NIC which supports wake-on-LAN and wake-on-PCI. On Windows XP, I have
-configured the system so that I can use "ether-wake" to wake up my
-system from standby/hibernation remotely through the network.
+On 9 Sep 2002, Nicholas Miell wrote:
+> 
+> show_trace isn't exported for modules, and (even worse) isn't even
+> implemented on all architectures, IIRC.
 
-This even works when I shutdown the machine from Windows XP. It seems
-that shutting down from Windows XP does not totally disable power from
-the computer. I think the computer must be in a deep standby mode cause
-the NIC is working and listening on the network. In fact, when shutting
-down XP, the switch port for my NIC card shows the card is listening. If
-I use "ether-wake", the computer powers up and starts booting up.
+So? If it is a problem for people, fix it. Or remove the damn call. It 
+_still_ isn't valid to kill a machine for a non-fatal error.
 
-However, when I shut down linux by using "init 0", the system gets
-totally shut down, including the NIC. The switch port for the NIC shows
-the card is not mantaining the link and thus, "ether-wake" is totally
-useless.
+We're not Windows. We don't take GFP's for random reasons. I'm not
+interested in what some people call "hardening", but I _am_ interested in
+a system that is rock solid and works even when it doesn't necessarily
+expect to.
 
-I would like to see similar support on Linux.
-
-Sincerely,
-
-   Felipe Alfaro
+		Linus
 

@@ -1,82 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbTEGCPh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 22:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTEGCPh
+	id S261832AbTEGCO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 22:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTEGCO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 22:15:37 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:22923 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP id S262633AbTEGCPe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 22:15:34 -0400
-Message-ID: <3EB86F31.3090301@attbi.com>
-Date: Tue, 06 May 2003 19:28:01 -0700
-From: Miles Lane <miles.lane@attbi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.4a) Gecko/20030403
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.69 -- drivers/macintosh/adbhid.c:137: too many arguments to function
- `adbhid_input_keycode'
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 May 2003 22:14:59 -0400
+Received: from holomorphy.com ([66.224.33.161]:29068 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261832AbTEGCO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 22:14:58 -0400
+Date: Tue, 6 May 2003 19:27:17 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keith Mannthey <kmannth@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][Patch] fix for irq_affinity_write_proc v2.5
+Message-ID: <20030507022717.GV8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Keith Mannthey <kmannth@us.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1052247789.16886.261.camel@dyn9-47-17-180.beaverton.ibm.com> <1052250874.1202.162.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052250874.1202.162.camel@dhcp22.swansea.linux.org.uk>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gnu C                  3.2.2
-Gnu make               3.80
-util-linux             2.11x
-mount                  2.11x
-module-init-tools      0.9.11a
-e2fsprogs              1.32
-pcmcia-cs              3.2.3
-PPP                    2.4.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 3.1.6
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.7
+On Maw, 2003-05-06 at 20:03, Keith Mannthey wrote:
+>>   irq_affinity_write_proc currently directly calls set_ioapic_affinity
+>> which writes to the ioapic.  This undermines the work done by kirqd by
+>> writing a cpu mask directly to the ioapic. I propose the following patch
+>> to tie the /proc affinity writes into the same code path as kirqd. 
+>> Kirqd will enforce the affinity requested by the user.   
 
-#
-# Macintosh device drivers
-#
-CONFIG_ADB_CUDA=y
-CONFIG_ADB_PMU=y
-CONFIG_PMAC_PBOOK=y
-CONFIG_PMAC_APM_EMU=y
-CONFIG_PMAC_BACKLIGHT=y
-# CONFIG_MAC_FLOPPY is not set
-# CONFIG_MAC_SERIAL is not set
-CONFIG_ADB=y
-CONFIG_ADB_MACIO=y
-CONFIG_INPUT_ADBHID=y
-CONFIG_MAC_EMUMOUSEBTN=y
-# CONFIG_ANSLCD is not set
+On Tue, May 06, 2003 at 08:54:35PM +0100, Alan Cox wrote:
+> Why should the kernel be enforcing policy here. You have to be root to 
+> do this, and root should have the ability to configure apparently stupid
+> things because they may find them useful.
 
-   gcc -Wp,-MD,drivers/macintosh/.adbhid.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -Iarch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized 
--mmultiple -mstring -fomit-frame-pointer -nostdinc -iwithprefix include 
-    -DKBUILD_BASENAME=adbhid -DKBUILD_MODNAME=adbhid -c -o 
-drivers/macintosh/adbhid.o drivers/macintosh/adbhid.c
-drivers/macintosh/adbhid.c: In function `adbhid_keyboard_input':
-drivers/macintosh/adbhid.c:137: too many arguments to function 
-`adbhid_input_keycode'
-drivers/macintosh/adbhid.c:139: too many arguments to function 
-`adbhid_input_keycode'
-drivers/macintosh/adbhid.c: At top level:
-drivers/macintosh/adbhid.c:143: parse error before "pt_regs"
-drivers/macintosh/adbhid.c: In function `adbhid_input_keycode':
-drivers/macintosh/adbhid.c:144: number of arguments doesn't match prototype
-drivers/macintosh/adbhid.c:87: prototype declaration
-drivers/macintosh/adbhid.c:147: `keycode' undeclared (first use in this 
-function)
-drivers/macintosh/adbhid.c:147: (Each undeclared identifier is reported 
-only once
-drivers/macintosh/adbhid.c:147: for each function it appears in.)
-drivers/macintosh/adbhid.c:152: `id' undeclared (first use in this function)
-drivers/macintosh/adbhid.c:152: `regs' undeclared (first use in this 
-function)
-make[2]: *** [drivers/macintosh/adbhid.o] Error 1
+It's basically not working as specified for clustered hierarchical, and
+in truth the specification can never be met. As it stands most calls to
+it are lethal on such systems, especially those using physical destmod.
 
+I'd prefer to have it redesigned for some validity checking and error
+returns as on such systems the impossible destinations serve no purpose
+but raising MCE's and/or deadlocking the box.
+
+
+-- wli

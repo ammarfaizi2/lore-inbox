@@ -1,75 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292935AbSCDWIU>; Mon, 4 Mar 2002 17:08:20 -0500
+	id <S292923AbSCDWNA>; Mon, 4 Mar 2002 17:13:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292932AbSCDWIJ>; Mon, 4 Mar 2002 17:08:09 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28754 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S292923AbSCDWHv>; Mon, 4 Mar 2002 17:07:51 -0500
-Date: Mon, 4 Mar 2002 23:06:03 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, riel@conectiva.com.br,
-        phillips@bonn-fries.net, davidsen@tmr.com, mfedyk@matchmail.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre1aa1
-Message-ID: <20020304230603.O20606@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.44L.0203041116120.2181-100000@imladris.surriel.com><190330000.1015261149@flay> <20020304191804.2e58761c.skraw@ithnet.com> <203430000.1015267614@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <203430000.1015267614@flay>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S292932AbSCDWMv>; Mon, 4 Mar 2002 17:12:51 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:24073 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S292923AbSCDWMg>; Mon, 4 Mar 2002 17:12:36 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 4 Mar 2002 14:15:58 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: Davide Libenzi <davidel@xmailserver.org>, Robert Love <rml@tech9.net>,
+        Rusty Russell <rusty@rustcorp.com.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fast Userspace Mutexes III.
+In-Reply-To: <20020304154848.A1055@elinux01.watson.ibm.com>
+Message-ID: <Pine.LNX.4.44.0203041305250.1561-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04, 2002 at 10:46:54AM -0800, Martin J. Bligh wrote:
-> >> 2) We can do local per-node scanning - no need to bounce
-> >> information to and fro across the interconnect just to see what's
-> >> worth swapping out.
-> > 
-> > Well, you can achieve this by "attaching" the nodes' local memory 
-> > (zone) to its cpu and let the vm work preferably only on these attached 
-> > zones (regarding the list scanning and the like). This way you have no 
-> > interconnect traffic generated. But this is in no way related to rmap.
+On Mon, 4 Mar 2002, Hubertus Franke wrote:
+
+> On Mon, Mar 04, 2002 at 12:13:50PM -0800, Davide Libenzi wrote:
+> > On 4 Mar 2002, Robert Love wrote:
 > >
-> >> I can't see any way to fix this without some sort of rmap - any
-> >> other suggestions as to how this might be done?
-> > 
-> > As stated above: try to bring in per-node zones that are preferred by their cpu. This can work equally well for UP,SMP and NUMA (maybe even for cluster).
-> > UP=every zone is one or more preferred zone(s)
-> > SMP=every zone is one or more preferred zone(s)
-> > NUMA=every cpu has one or more preferred zone(s), but can walk the whole zone-list if necessary.
+> > > On Sun, 2002-03-03 at 22:55, Rusty Russell wrote:
+> > > > 1) Use mmap/mprotect bits, not new syscall (thanks RTH, Erik Biederman)
+> > > > 2) Fix wakeup race in kernel (thanks Martin Wirth, Paul Mackerras)
+> > > > 3) Simplify locking to a single atomic (no more arch specifics!)
+> > > > 4) Use wake-one by handcoding queues.
+> > > > 5) Comments added.
+> > > >
+> > > > Thanks to all for feedback and review: I'd appreciate a comment from
+> > > > those arch's which need to do something with the PROT_SEM bit.
+> > > >
+> > > > Once again, tested on 2.4.18 UP PPC, compiles on 2.5.6-pre1.
+> > > >
+> > > > Bad news is that we're up to 206 lines again.
+> > > > Rusty.
+> > >
+> > > Good work.  I likee.
 > >
-> > Preference is implemented as simple list of cpu-ids attached to every 
-> > memory zone.  This is for being able to see the whole picture. Every 
-> > cpu has a private list of (preferred) zones which is used by vm for the 
-> > scanning jobs (swap et al). This way there is no need to touch interconnection. 
-> > If you are really in a bad situation you can alway go back to the global 
-> > list and do whatever is needed.
-> 
-> As I understand the current code (ie this may be totally wrong ;-) ) I think 
-> we already pretty much have what you're suggesting. There's one (or more) 
-> zone per node chained off the pgdata_t, and during memory allocation we 
-> try to scan through the zones attatched to the local node first. The problem 
+> > Ok, i reply to this because my 'd' Pine's key is heavily used in these days :-)
+> > I took a look at the code yesterday night and i've a stupid question
+> > Rusty. I do not know what is the code used in the upper part of the
+> > iceberg ( userspace ) but are you doing a dec_and_test() on userspace
+> > before entering the kernel ? Or, is the kernel code the slow path or you
+> > enter it by default ?
+> >
+> >
+> >
+> > - Davide
+> >
+>
+> Yes, that section is missing. It should be just as you said.
+>
+> int futex_down(atomic_t *count)
+> {
+> 	if (!atomic_dec_and_test(count))
+> 		return sys_futex(count,FUTEX_DOWN);
+> 	return 0;
+> }
 
-yes, also make sure to keep this patch from SGI applied, it's very
-important to avoid memory balancing if there's still free memory in the
-other zones:
+That's great. What if the process holding the mutex dies while there're
+sleeping tasks waiting for it ?
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1/20_numa-mm-1
 
-It should apply cleanly on top of my vm-28.
 
-> seems to me to be that the way we do current swap-out scanning is virtual, 
-> not physical, and thus cannot be per zone => per node.
 
-actually if you do process bindings the pte should be all allocated
-local to the node if numa is enabled, and if there's no binding, no
-matter if you have rmap or not, the ptes can be spread across the whole
-system (just like the physical pages in the inactive/active lrus,
-because they're not per-node).
+- Davide
 
-Andrea
+
+

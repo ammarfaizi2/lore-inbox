@@ -1,131 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269256AbUIHR3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269260AbUIHRba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269256AbUIHR3w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 13:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUIHR3v
+	id S269260AbUIHRba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 13:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUIHRat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 13:29:51 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:23787 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S269256AbUIHR3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 13:29:40 -0400
-Subject: [patch 1/1] uml:fix ubd deadlock on SMP
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Wed, 08 Sep 2004 19:25:02 +0200
-Message-Id: <20040908172503.384144933@zion.localdomain>
+	Wed, 8 Sep 2004 13:30:49 -0400
+Received: from unthought.net ([212.97.129.88]:9156 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S269259AbUIHRai (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 13:30:38 -0400
+Date: Wed, 8 Sep 2004 19:30:37 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: Anando Bhattacharya <a3217055@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Major XFS problems...
+Message-ID: <20040908173037.GI390@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Greg Banks <gnb@melbourne.sgi.com>,
+	Anando Bhattacharya <a3217055@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20040908123524.GZ390@unthought.net> <322909db040908080456c9f291@mail.gmail.com> <20040908154434.GE390@unthought.net> <1094661418.19981.36.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094661418.19981.36.camel@hole.melbourne.sgi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 09, 2004 at 02:36:58AM +1000, Greg Banks wrote:
+> On Thu, 2004-09-09 at 01:44, Jakob Oestergaard wrote:
+> > SMP systems on 2.6 have a problem with XFS+NFS.
+> 
+> Knfsd threads in 2.6 are no longer serialised by the BKL, and the
+> change has exposed a number of SMP issues in the dcache.  Try the
+> two patches at
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=108330112505555&w=2
+> 
+> and
+> 
+> http://linus.bkbits.net:8080/linux-2.5/cset@1.1722.48.23
+> 
+> (the latter is in recent Linus kernels).  If you're still having
+> problems after applying those patches, Nathan and I need to know.
+> 
 
-Trivial: don't lock the queue spinlock when called from the request function.
-Since the faulty function must use spinlock in another case, double-case it.
-And since we will never use both functions together, let no object code be
-shared between them.
+Ok - Anders (as@cohaesio.com) will hopefully get a test setup (similar
+to the big server) running tomorrow, and will then see if the system can
+be broken with these two patches applied.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+Are we right in assuming that no other patches should be necessary atop
+of 2.6.8.1 in order to get a stable XFS?   (that we should not apply
+other XFS specific patches?)
 
- uml-linux-2.6.8.1-paolo/arch/um/drivers/ubd_kern.c |   36 ++++++++++++++++-----
- 1 files changed, 28 insertions(+), 8 deletions(-)
+Thanks,
 
-diff -puN arch/um/drivers/ubd_kern.c~uml-fix-ubd-deadlock arch/um/drivers/ubd_kern.c
---- uml-linux-2.6.8.1/arch/um/drivers/ubd_kern.c~uml-fix-ubd-deadlock	2004-09-08 19:04:27.662926344 +0200
-+++ uml-linux-2.6.8.1-paolo/arch/um/drivers/ubd_kern.c	2004-09-08 19:05:36.700431048 +0200
-@@ -54,6 +54,7 @@
- #include "mem.h"
- #include "mem_kern.h"
- 
-+/*This is the queue lock. FIXME: make it per-UBD device.*/
- static spinlock_t ubd_io_lock = SPIN_LOCK_UNLOCKED;
- static spinlock_t ubd_lock = SPIN_LOCK_UNLOCKED;
- 
-@@ -396,14 +397,16 @@ int thread_fd = -1;
-  */
- int intr_count = 0;
- 
--static void ubd_finish(struct request *req, int error)
-+static inline void __ubd_finish(struct request *req, int error, int lock)
- {
- 	int nsect;
- 
- 	if(error){
-- 		spin_lock(&ubd_io_lock);
-+		if (lock)
-+			spin_lock(&ubd_io_lock);
- 		end_request(req, 0);
-- 		spin_unlock(&ubd_io_lock);
-+		if (lock)
-+			spin_unlock(&ubd_io_lock);
- 		return;
- 	}
- 	nsect = req->current_nr_sectors;
-@@ -412,11 +415,28 @@ static void ubd_finish(struct request *r
- 	req->errors = 0;
- 	req->nr_sectors -= nsect;
- 	req->current_nr_sectors = 0;
--	spin_lock(&ubd_io_lock);
-+	if (lock)
-+		spin_lock(&ubd_io_lock);
- 	end_request(req, 1);
--	spin_unlock(&ubd_io_lock);
-+	if (lock)
-+		spin_unlock(&ubd_io_lock);
-+}
-+
-+/* We will use only one of them, not both, i.e. ubd_finish with the io_thread
-+ * and ubd_finish_nolock without the separate io thread, so it's better to waste
-+ * some space to gain performance. */
-+
-+static void ubd_finish(struct request *req, int error)
-+{
-+	__ubd_finish(req, error, 1);
-+}
-+
-+static void ubd_finish_nolock(struct request *req, int error)
-+{
-+	__ubd_finish(req, error, 0);
- }
- 
-+/*Called with ubd_io_lock not held*/
- static void ubd_handler(void)
- {
- 	struct io_thread_req req;
-@@ -965,6 +985,7 @@ static int prepare_mmap_request(struct u
- 	return(0);
- }
- 
-+/*Called with ubd_io_lock held*/
- static int prepare_request(struct request *req, struct io_thread_req *io_req)
- {
- 	struct gendisk *disk = req->rq_disk;
-@@ -977,9 +998,7 @@ static int prepare_request(struct reques
- 	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
- 		printk("Write attempted on readonly ubd device %s\n", 
- 		       disk->disk_name);
-- 		spin_lock(&ubd_io_lock);
- 		end_request(req, 0);
-- 		spin_unlock(&ubd_io_lock);
- 		return(1);
- 	}
- 
-@@ -1029,6 +1048,7 @@ static int prepare_request(struct reques
- 	return(0);
- }
- 
-+/*Called with ubd_io_lock held*/
- static void do_ubd_request(request_queue_t *q)
- {
- 	struct io_thread_req io_req;
-@@ -1040,7 +1060,7 @@ static void do_ubd_request(request_queue
- 			err = prepare_request(req, &io_req);
- 			if(!err){
- 				do_io(&io_req);
--				ubd_finish(req, io_req.error);
-+				ubd_finish_nolock(req, io_req.error);
- 			}
- 		}
- 	}
-_
+-- 
+
+ / jakob
+

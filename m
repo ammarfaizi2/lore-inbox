@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbULZPw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbULZPyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbULZPw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 10:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbULZPw5
+	id S261675AbULZPyN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 10:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbULZPxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 10:52:57 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:14260 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261678AbULZPuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 10:50:19 -0500
-Subject: Re: Ho ho ho - Linux v2.6.10
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Blazejowski <diffie@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Diffie <diffie@blazebox.homeip.net>
-In-Reply-To: <Pine.LNX.4.58.0412252121370.2353@ppc970.osdl.org>
-References: <9dda349204122520106f3b2f46@mail.gmail.com>
-	 <Pine.LNX.4.58.0412252121370.2353@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Sun, 26 Dec 2004 09:46:51 -0600
-Message-Id: <1104076011.5268.20.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Sun, 26 Dec 2004 10:53:22 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:60323 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S261680AbULZPuK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 10:50:10 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 typo in include/linux/netfilter.h
+Date: Sun, 26 Dec 2004 10:50:04 -0500
+User-Agent: KMail/1.7
+Cc: Nick Warne <nick@linicks.net>, "David S. Miller" <davem@davemloft.net>
+References: <200412260917.38717.nick@linicks.net> <20041226023200.1bbf594d.davem@davemloft.net> <200412261059.57661.nick@linicks.net>
+In-Reply-To: <200412261059.57661.nick@linicks.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412261050.05070.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.45.252] at Sun, 26 Dec 2004 09:50:05 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-25 at 21:27 -0800, Linus Torvalds wrote:
-> As to what the "DV failed", it's apparently normal if DV is disabled, 
-> whatever the hell that is.  James will know whether it's something to 
-> worry about..
+On Sunday 26 December 2004 05:59, Nick Warne wrote:
+>On Sunday 26 December 2004 10:32, David S. Miller wrote:
+>> > Line 161
+>> >
+>> > /* Call setsockopt() */
+>> > int nf_setsockopt(struct sock *sk, int pf, int optval, char
+>> > __user *opt, int len(;  <-------
+>>
+>> That doesn't exist in the 2.6.10 sources.  Something is
+>> up with the source tree you have.  Lots of people would
+>> be complaining if this simplistic error were actually
+>> in the real 2.6.10 tree.
+>
+>Yes, I thought strange, but this is the full tar.bz2 from kernel.org
+> - I downloaded this morning about 2 hours ago.
+>
+>http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
+>
+>Nick
 
-DV is Domain Validation.  It's a way of probing the SCSI bus to see what
-type of transfer speeds and widths it can support.  DV is part of the
-mid-layer SPI transport class, which is where most drivers get it from.
-However, this message is from the aic7xxx which does its own DV
-separately from the mid-layer.  As far as I can tell from the aic7xxx
-code, it has a state machine model of DV and it prints this message if
-it goes through an unexpected transition of that state machine, but I've
-no idea from the message what actually happened.  Everything seems to
-proceed normally, since the device that caused the problems is later
-configured at 160MB/s (the maximum the aic7xxx can do).
+I've had troubles of that nature when getting the .bz2's in a past 
+life, so I normally get the .gz's and have had no reccurances of such 
+little gotchas.
 
-James
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUJFChz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266748AbUJFClN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266486AbUJFChz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 22:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUJFChy
+	id S266748AbUJFClN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 22:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUJFCkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 22:37:54 -0400
-Received: from mail.renesas.com ([202.234.163.13]:18681 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S266768AbUJFCaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 22:30:03 -0400
-Date: Wed, 06 Oct 2004 11:29:49 +0900 (JST)
-Message-Id: <20041006.112949.1059966026.takata.hirokazu@renesas.com>
+	Tue, 5 Oct 2004 22:40:13 -0400
+Received: from mail.renesas.com ([202.234.163.13]:25553 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S266793AbUJFCao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 22:30:44 -0400
+Date: Wed, 06 Oct 2004 11:30:14 +0900 (JST)
+Message-Id: <20041006.113014.628180038.takata.hirokazu@renesas.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc3-mm2 3/5] [m32r] Remove
- arch/m32r/drivers/m32r_cfc.[ch]
+Subject: [PATCH 2.6.9-rc3-mm2 5/5] [m32r] Remove arch/m32r/drivers/m5drv.c
 From: Hirokazu Takata <takata@linux-m32r.org>
 In-Reply-To: <20041006.112743.635726864.takata.hirokazu@renesas.com>
 References: <20041006.112743.635726864.takata.hirokazu@renesas.com>
@@ -25,1024 +24,687 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2.6.9-rc3-mm2 3/5] [m32r] Remove arch/m32r/drivers/m32r_cfc.[ch]
+[PATCH 2.6.9-rc3-mm2 5/5] [m32r] Remove arch/m32r/drivers/m5drv.c
 
-Please remove obsolete m32r-specific driver files,
-which are no longer used.
+Please remove an m32r-specific driver file, m5drv.c.
 
 Thanks.
 
 Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 ---
 
- arch/m32r/drivers/m32r_cfc.c |  910 -------------------------------------------
- arch/m32r/drivers/m32r_cfc.h |   85 ----
- 2 files changed, 995 deletions(-)
+ arch/m32r/drivers/m5drv.c |  664 ----------------------------------------------
+ 1 files changed, 664 deletions(-)
 
 
-diff -ruNp a/arch/m32r/drivers/m32r_cfc.c b/arch/m32r/drivers/m32r_cfc.c
---- a/arch/m32r/drivers/m32r_cfc.c	2004-10-01 11:14:54.000000000 +0900
-+++ b/arch/m32r/drivers/m32r_cfc.c	1970-01-01 09:00:00.000000000 +0900
-@@ -1,910 +0,0 @@
+diff -ruNp a/arch/m32r/drivers/m5drv.c b/arch/m32r/drivers/m5drv.c
+--- a/arch/m32r/drivers/m5drv.c	2004-10-01 11:14:54.000000000 +0900
++++ b/arch/m32r/drivers/m5drv.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1,664 +0,0 @@
 -/*
-- *  linux/arch/m32r/drivers/m32r_cfc.c
+- * MTD chip driver for M5M29GT320VP
 - *
-- *  Device driver for the CFC functionality of M32R.
+- * Copyright (C) 2003   Takeo Takahashi
 - *
-- *  Copyright (c) 2001, 2002, 2003, 2004
-- *    Hiroyuki Kondo, Naoto Sugai, Hayato Fujiwara
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- *
+- * $Id$
 - */
 -
--#include <linux/module.h>
--#include <linux/moduleparam.h>
--#include <linux/init.h>
+-#ifndef __KERNEL__
+-#  define __KERNEL__
+-#endif
+-
 -#include <linux/config.h>
--#include <linux/types.h>
--#include <linux/fcntl.h>
--#include <linux/string.h>
 -#include <linux/kernel.h>
--#include <linux/errno.h>
--#include <linux/timer.h>
+-#include <linux/module.h>
+-#include <linux/version.h>
+-#include <linux/types.h>
 -#include <linux/sched.h>
--#include <linux/slab.h>
--#include <linux/ioport.h>
--#include <linux/delay.h>
--#include <linux/workqueue.h>
+-#include <linux/errno.h>
 -#include <linux/interrupt.h>
--#include <linux/device.h>
--#include <asm/irq.h>
--#include <asm/io.h>
--#include <asm/bitops.h>
--#include <asm/system.h>
+-#include <linux/mtd/map.h>
+-#include <linux/mtd/cfi.h>
+-#include <linux/delay.h>
 -
--#include <pcmcia/version.h>
--#include <pcmcia/cs_types.h>
--#include <pcmcia/ss.h>
--#include <pcmcia/cs.h>
+-#define M5DRV_DEBUG(n, args...) if ((n) & m5drv_debug) printk(KERN_DEBUG args)
 -
--#undef MAX_IO_WIN	/* FIXME */
--#define MAX_IO_WIN 1
--#undef MAX_WIN	/* FIXME */
--#define MAX_WIN 1
+-#undef UNLOCK_BEFORE_ERASE
 -
--#include "m32r_cfc.h"
+-#define M5DRV_PAGE_SIZE		(256)		/* page program size */
+-#define M5DRV_BLOCK_SIZE8	(8*1024)	/* 8K block size in byte */
+-#define M5DRV_BLOCK_SIZE64	(64*1024)	/* 64K block size in byte */
+-#define M5DRV_MAX_BLOCK_NUM	70		/* number of blocks */
+-#define M5DRV_ERASE_REGION	2		/* 64KB and 8KB */
 -
--#if !defined(COFIG_PLAT_USRV)
--#define PCMCIA_DEBUG   3
--#endif	/* COFIG_PLAT_USRV */
+-/*
+- * Software commands
+- */
+-#define CMD_READ_ARRAY          0xff
+-#define CMD_DEVICE_IDENT        0x90
+-#define CMD_READ_STATUS         0x70
+-#define CMD_CLEAR_STATUS        0x50
+-#define CMD_BLOCK_ERASE         0x20
+-#define CMD_CONFIRM             0xd0
+-#define CMD_PROGRAM_BYTE        0x40
+-#define CMD_PROGRAM_WORD        CMD_PROGRAM_BYTE
+-#define CMD_PROGRAM_PAGE        0x41
+-#define CMD_SINGLE_LOAD_DATA    0x74
+-#define CMD_BUFF2FLASH          0x0e
+-#define CMD_FLASH2BUFF          0xf1
+-#define CMD_CLEAR_BUFF          0x55
+-#define CMD_SUSPEND             0xb0
+-#define CMD_RESUME              0xd0
+-#define IDENT_OFFSET        	0	/* indent command offset */
 -
--#ifdef PCMCIA_DEBUG
--int m32r_cfc_debug = PCMCIA_DEBUG;
--module_param(m32r_cfc_debug, int, 0444);
--#define DEBUG(n, args...) if (m32r_cfc_debug>(n)) printk(args)
--#else
--#define DEBUG(n, args...) do { } while (0)
--#endif
+-/*
+- * Status
+- */
+-#define STATUS_READY              0x80 /* 0:busy 1:ready */
+-#define STATUS_SUSPEND            0x40 /* 0:progress/complete 1:suspend */
+-#define STATUS_ERASE              0x20 /* 0:pass 1:error */
+-#define STATUS_PROGRAM            0x10 /* 0:pass 1:error */
+-#define STATUS_BLOCK              0x08 /* 0:pass 1:error */
 -
--/* Poll status interval -- 0 means default to interrupt */
--static int poll_interval = 0;
+-/*
+- * Device Code
+- */
+-#define MAKER		(0x1c)
+-#define M5M29GT320VP	(0x20)
+-#define M5M29GB320VP	(0x21)
 -
--typedef enum pcc_space { as_none = 0, as_comm, as_attr, as_io } pcc_as_t;
+-static const char version[] = "M5DRV Flash Driver";
+-static const char date[] = __DATE__;
+-static const char time[] = __TIME__;
+-static int m5drv_debug = 0;
+-MODULE_PARM(m5drv_debug, "i");
 -
--typedef struct pcc_socket {
--	u_short			type, flags;
--	struct pcmcia_socket	socket;
--	unsigned int		number;
-- 	ioaddr_t		ioaddr;
--	u_long			mapaddr;
--	u_long			base;	/* PCC register base */
--	u_char			cs_irq1, cs_irq2, intr;
--	pccard_io_map	io_map[MAX_IO_WIN];
--	pccard_mem_map	mem_map[MAX_WIN];
--	u_char			io_win;
--	u_char			mem_win;
--	pcc_as_t		current_space;
--	u_char			last_iodbex;
--#ifdef CHAOS_PCC_DEBUG
--	u_char			last_iosize;
--#endif
--#ifdef CONFIG_PROC_FS
--	struct proc_dir_entry *proc;
--#endif
--} pcc_socket_t;
--
--static int pcc_sockets = 0;
--static pcc_socket_t socket[M32R_MAX_PCC] = {
--	{ 0, }, /* ... */
+-struct m5drv_info {
+-	struct flchip *chip;
+-	int chipshift;
+-	int numchips;
+-	struct flchip chips[1];
+-	unsigned char buf[M5DRV_BLOCK_SIZE64];
+-#define M5BUF	(m5drv->buf)
 -};
 -
--#define ISA_LOCK(n, f) do { } while (0)
--#define ISA_UNLOCK(n, f) do { } while (0)
--
--/*====================================================================*/
--
--static unsigned int pcc_get(u_short, unsigned int);
--static void pcc_set(u_short, unsigned int , unsigned int );
--
--static spinlock_t pcc_lock = SPIN_LOCK_UNLOCKED;
--
--#if !defined(CONFIG_PLAT_USRV)
--static __inline__ u_long pcc_port2addr(unsigned long port, int size) {
--	u_long addr = 0;
--	u_long odd;
--
--	if (size == 1) {	/* byte access */
--		odd = (port&1) << 11;
--		port -= port & 1;
--		addr = CFC_IO_MAPBASE_BYTE - CFC_IOPORT_BASE + odd + port;
--	} else if (size == 2)
--		addr = CFC_IO_MAPBASE_WORD - CFC_IOPORT_BASE + port;
--
--	return addr;
--}
--#else	/* CONFIG_PLAT_USRV */
--static __inline__ u_long pcc_port2addr(unsigned long port, int size) {
--	u_long odd;
--	u_long addr = ((port - CFC_IOPORT_BASE) & 0xf000) << 8;
--
--	if (size == 1) {	/* byte access */
--		odd = port & 1;
--		port -= odd;
--		odd <<= 11;
--		addr = (addr | CFC_IO_MAPBASE_BYTE) + odd + (port & 0xfff);
--	} else if (size == 2)	/* word access */
--		addr = (addr | CFC_IO_MAPBASE_WORD) + (port & 0xfff);
--
--	return addr;
--}
--#endif	/* CONFIG_PLAT_USRV */
--
--void pcc_ioread_byte(int sock, unsigned long port, void *buf, size_t size,
--	size_t nmemb, int flag)
--{
--	u_long addr;
--	unsigned char *bp = (unsigned char *)buf;
--	unsigned long flags;
--
--	DEBUG(3, "m32r_cfc: pcc_ioread_byte: sock=%d, port=%#lx, buf=%p, "
--		 "size=%u, nmemb=%d, flag=%d\n",
--		  sock, port, buf, size, nmemb, flag);
--
--	addr = pcc_port2addr(port, 1);
--	if (!addr) {
--		printk("m32r_cfc:ioread_byte null port :%#lx\n",port);
--		return;
--	}
--	DEBUG(3, "m32r_cfc: pcc_ioread_byte: addr=%#lx\n", addr);
--
--	spin_lock_irqsave(&pcc_lock, flags);
--	/* read Byte */
--	while (nmemb--)
--	   	*bp++ = readb(addr);
--	spin_unlock_irqrestore(&pcc_lock, flags);
--}
--
--void pcc_ioread_word(int sock, unsigned long port, void *buf, size_t size,
--	size_t nmemb, int flag)
--{
--	u_long addr;
--	unsigned short *bp = (unsigned short *)buf;
--	unsigned long flags;
--
--	DEBUG(3, "m32r_cfc: pcc_ioread_word: sock=%d, port=%#lx, "
--		 "buf=%p, size=%u, nmemb=%d, flag=%d\n",
--		 sock, port, buf, size, nmemb, flag);
--
--	if (size != 2)
--		printk("m32r_cfc: ioread_word :illigal size %u : %#lx\n", size,
--			port);
--	if (size == 9)
--		printk("m32r_cfc: ioread_word :insw \n");
--
--	addr = pcc_port2addr(port, 2);
--	if (!addr) {
--		printk("m32r_cfc:ioread_word null port :%#lx\n",port);
--		return;
--	}
--	DEBUG(3, "m32r_cfc: pcc_ioread_word: addr=%#lx\n", addr);
--
--	spin_lock_irqsave(&pcc_lock, flags);
--	/* read Word */
--   	while (nmemb--)
--		*bp++ = readw(addr);
--	spin_unlock_irqrestore(&pcc_lock, flags);
--}
--
--void pcc_iowrite_byte(int sock, unsigned long port, void *buf, size_t size,
--	size_t nmemb, int flag)
--{
--	u_long addr;
--	unsigned char *bp = (unsigned char *)buf;
--	unsigned long flags;
--
--	DEBUG(3, "m32r_cfc: pcc_iowrite_byte: sock=%d, port=%#lx, "
--		 "buf=%p, size=%u, nmemb=%d, flag=%d\n",
--		 sock, port, buf, size, nmemb, flag);
--
--	/* write Byte */
--	addr = pcc_port2addr(port, 1);
--	if (!addr) {
--		printk("m32r_cfc:iowrite_byte null port:%#lx\n",port);
--		return;
--	}
--	DEBUG(3, "m32r_cfc: pcc_iowrite_byte: addr=%#lx\n", addr);
--
--	spin_lock_irqsave(&pcc_lock, flags);
--	while (nmemb--)
--		writeb(*bp++, addr);
--	spin_unlock_irqrestore(&pcc_lock, flags);
--}
--
--void pcc_iowrite_word(int sock, unsigned long port, void *buf, size_t size,
--	size_t nmemb, int flag)
--{
--	u_long addr;
--	unsigned short *bp = (unsigned short *)buf;
--	unsigned long flags;
--
--	DEBUG(3, "m32r_cfc: pcc_iowrite_word: sock=%d, port=%#lx, "
--		 "buf=%p, size=%u, nmemb=%d, flag=%d\n",
--		 sock, port, buf, size, nmemb, flag);
--
--	if(size != 2)
--		printk("m32r_cfc: iowrite_word :illigal size %u : %#lx\n",
--			size, port);
--	if(size == 9)
--		printk("m32r_cfc: iowrite_word :outsw \n");
--
--	addr = pcc_port2addr(port, 2);
--	if (!addr) {
--		printk("m32r_cfc:iowrite_word null addr :%#lx\n",port);
--		return;
--	}
--#if 1
--	if (addr & 1) {
--		printk("m32r_cfc:iowrite_word port addr (%#lx):%#lx\n", port,
--			addr);
--		return;
--	}
+-struct mtd_info *m5drv_probe(struct map_info *map);
+-static int m5drv_probe_map(struct map_info *map, struct mtd_info *mtd);
+-static int m5drv_wait(struct map_info *map, struct flchip *chip, loff_t adr);
+-static void m5drv_release(struct flchip *chip);
+-static int m5drv_query_blksize(loff_t ofs);
+-static int m5drv_read(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf);
+-static int m5drv_read_oneblock(struct map_info *map, loff_t from);
+-static int m5drv_write(struct mtd_info *mtd, loff_t adr, size_t len, size_t *retlen, const u_char *buf);
+-static int m5drv_write_oneblock(struct map_info *map, loff_t adr, size_t len, const u_char *buf);
+-static int m5drv_write_onepage(struct map_info *map, struct flchip *chip, unsigned long adr, const u_char *buf);
+-static int m5drv_erase(struct mtd_info *mtd, struct erase_info *instr);
+-static int m5drv_do_wait_for_ready(struct map_info *map, struct flchip *chip, unsigned long adr);
+-static int m5drv_erase_oneblock(struct map_info *map, struct flchip *chip, unsigned long adr);
+-static void m5drv_sync(struct mtd_info *mtd);
+-static int m5drv_suspend(struct mtd_info *mtd);
+-static void m5drv_resume(struct mtd_info *mtd);
+-static void m5drv_destroy(struct mtd_info *mtd);
+-#ifdef UNLOCK_BEFORE_ERASE
+-static void m5drv_unlock_oneblock(struct map_info *map, struct flchip *chip, unsigned long adr);
 -#endif
--	DEBUG(3, "m32r_cfc: pcc_iowrite_word: addr=%#lx\n", addr);
 -
--	spin_lock_irqsave(&pcc_lock, flags);
--	while (nmemb--)
--		writew(*bp++, addr);
--	spin_unlock_irqrestore(&pcc_lock, flags);
--}
--
--/*====================================================================*/
--
--#define IS_ALIVE		0x8000
--
--typedef struct pcc_t {
--	char				*name;
--	u_short				flags;
--} pcc_t;
--
--static pcc_t pcc[] = {
--#if !defined(CONFIG_PLAT_USRV)
--	{ "m32r_cfc", 0 }, { "", 0 },
--#else	/* CONFIG_PLAT_USRV */
--	{ "m32r_cfc", 0 }, { "m32r_cfc", 0 }, { "m32r_cfc", 0 },
--	{ "m32r_cfc", 0 }, { "m32r_cfc", 0 }, { "", 0 },
--#endif	/* CONFIG_PLAT_USRV */
+-static struct mtd_chip_driver m5drv_chipdrv = {
+-	probe:		m5drv_probe,
+-	destroy:	m5drv_destroy,
+-	name:		"m5drv",
+-	module:		THIS_MODULE
 -};
 -
--static irqreturn_t pcc_interrupt(int, void *, struct pt_regs *regs);
--
--/*====================================================================*/
--
--static struct timer_list poll_timer;
--
--static unsigned int pcc_get(u_short sock, unsigned int reg)
+-struct mtd_info *m5drv_probe(struct map_info *map)
 -{
--	unsigned int val = inw(reg);
--	DEBUG(3, "m32r_cfc: pcc_get: reg(0x%08x)=0x%04x\n", reg, val);
--	return val;
+-	struct mtd_info *mtd = NULL;
+-	struct m5drv_info *m5drv = NULL;
+-	int width;
+-
+-	mtd = kmalloc(sizeof(*mtd), GFP_KERNEL);
+-	if (!mtd) {
+-		printk("m5drv: can not allocate memory for mtd_info\n");
+-		return NULL;
+-	}
+-
+-	m5drv = kmalloc(sizeof(*m5drv), GFP_KERNEL);
+-	if (!m5drv) {
+-		printk("m5drv: can not allocate memory for m5drv_info\n");
+-		kfree(mtd);
+-		return NULL;
+-	}
+-
+-	memset(mtd, 0, sizeof(*mtd));
+-	width = m5drv_probe_map(map, mtd);
+-	if (!width) {
+-		printk("m5drv: m5drv_probe_map error (width=%d)\n", width);
+-		kfree(mtd);
+-		kfree(m5drv);
+-		return NULL;
+-	}
+-	mtd->priv = map;
+-	mtd->type = MTD_OTHER;
+-	mtd->erase = m5drv_erase;
+-	mtd->read = m5drv_read;
+-	mtd->write = m5drv_write;
+-	mtd->sync = m5drv_sync;
+-	mtd->suspend = m5drv_suspend;
+-	mtd->resume = m5drv_resume;
+-	mtd->flags = MTD_CAP_NORFLASH;	/* ??? */
+-	mtd->name = map->name;
+-
+-	memset(m5drv, 0, sizeof(*m5drv));
+-	m5drv->chipshift = 23;
+-	m5drv->numchips = 1;
+-	m5drv->chips[0].start = 0;
+-	m5drv->chips[0].state = FL_READY;
+-	m5drv->chips[0].mutex = &m5drv->chips[0]._spinlock;
+-	m5drv->chips[0].word_write_time = 0;
+-	init_waitqueue_head(&m5drv->chips[0].wq);
+-	spin_lock_init(&m5drv->chips[0]._spinlock);
+-
+-	map->fldrv = &m5drv_chipdrv;
+-	map->fldrv_priv = m5drv;
+-
+-	MOD_INC_USE_COUNT;
+-	return mtd;
 -}
 -
--
--static void pcc_set(u_short sock, unsigned int reg, unsigned int data)
+-static int m5drv_probe_map(struct map_info *map, struct mtd_info *mtd)
 -{
--	outw(data, reg);
--	DEBUG(3, "m32r_cfc: pcc_set: reg(0x%08x)=0x%04x\n", reg, data);
--}
+-	u16 tmp;
+-	u16 maker, device;
+-	int width = 2;
+-	struct mtd_erase_region_info *einfo;
 -
--/*======================================================================
--
--	See if a card is present, powered up, in IO mode, and already
--	bound to a (non PC Card) Linux driver.  We leave these alone.
--
--	We make an exception for cards that seem to be serial devices.
--
--======================================================================*/
--
--static int __init is_alive(u_short sock)
--{
--	unsigned int stat;
--
--	DEBUG(3, "m32r_cfc: is_alive:\n");
--
--	printk("CF: ");
--	stat = pcc_get(sock, (unsigned int)PLD_CFSTS);
--	if (!stat)
--		printk("No ");
--	printk("Card is detected at socket %d : stat = 0x%08x\n", sock, stat);
--	DEBUG(3, "m32r_cfc: is_alive: sock stat is 0x%04x\n", stat);
--
+-	map->write16(map, CMD_READ_ARRAY, IDENT_OFFSET);
+-	tmp = map->read16(map, IDENT_OFFSET);
+-	map->write16(map, CMD_DEVICE_IDENT, IDENT_OFFSET);
+-	maker = map->read16(map, IDENT_OFFSET);
+-	maker &= 0xff;
+-	if (maker == MAKER) {
+-		/* FIXME: check device */
+-		device = maker >> 8;
+-		printk("m5drv: detected M5M29GT320VP\n");
+-		einfo = kmalloc(sizeof(*einfo) * M5DRV_ERASE_REGION, GFP_KERNEL);
+-		if (!einfo) {
+-			printk("m5drv: cannot allocate memory for erase_region\n");
+-			return 0;
+-		}
+-		/* 64KB erase block (blk no# 0-62) */
+-		einfo[0].offset = 0;
+-		einfo[0].erasesize = 0x8000 * width;
+-		einfo[0].numblocks = (7 + 8 + 24 + 24);
+-		/* 8KB erase block (blk no# 63-70) */
+-		einfo[1].offset = 0x3f0000;
+-		einfo[1].erasesize = 0x1000 * width;
+-		einfo[1].numblocks = (2 + 8);
+-		mtd->numeraseregions = M5DRV_ERASE_REGION;
+-		mtd->eraseregions = einfo;
+-		mtd->size = 0x200000 * width;		/* total 4MB */
+-		/*
+-		 * mtd->erasesize is used in parse_xxx_partitions.
+-		 * last erase block has a partition table.
+-		 */
+-		mtd->erasesize = 0x8000 * width;
+-		return width;
+-	} else if (map->read16(map, IDENT_OFFSET) == CMD_DEVICE_IDENT) {
+-		printk("m5drv: looks like RAM\n");
+-		map->write16(map, tmp, IDENT_OFFSET);
+-	} else {
+-		printk("m5drv: can not detect flash memory (0x%04x)\n", maker);
+-	}
+-	map->write16(map, CMD_READ_ARRAY, IDENT_OFFSET);
 -	return 0;
 -}
 -
--static void add_pcc_socket(ulong base, int irq, ulong mapaddr, ioaddr_t ioaddr)
+-static int m5drv_query_blksize(loff_t ofs)
 -{
--  	pcc_socket_t *t = &socket[pcc_sockets];
+-	int blk;
 -
--	DEBUG(3, "m32r_cfc: add_pcc_socket: base=%#lx, irq=%d, "
--		 "mapaddr=%#lx, ioaddr=%08x\n",
--		 base, irq, mapaddr, ioaddr);
--
--	/* add sockets */
--	t->ioaddr = ioaddr;
--	t->mapaddr = mapaddr;
--#if !defined(CONFIG_PLAT_USRV)
--	t->base = 0;
--	t->flags = 0;
--	t->cs_irq1 = irq;		// insert irq
--	t->cs_irq2 = irq + 1;		// eject irq
--#else	/* CONFIG_PLAT_USRV */
--	t->base = base;
--	t->flags = 0;
--	t->cs_irq1 = 0;			// insert irq
--	t->cs_irq2 = 0;			// eject irq
--#endif	/* CONFIG_PLAT_USRV */
--
--	if (is_alive(pcc_sockets))
--		t->flags |= IS_ALIVE;
--
--	/* add pcc */
--#if !defined(CONFIG_PLAT_USRV)
--	request_region((unsigned int)PLD_CFRSTCR, 0x20, "m32r_cfc");
--#else	/* CONFIG_PLAT_USRV */
--	{
--		unsigned int reg_base;
--
--		reg_base = (unsigned int)PLD_CFRSTCR;
--		reg_base |= pcc_sockets << 8;
--		request_region(reg_base, 0x20, "m32r_cfc");
+-	blk = ofs >> 16;
+-	if (blk > 0x3f) {
+-		printk("m5drv: out of block address (0x%08x)\n", (u32)ofs);
+-		return M5DRV_BLOCK_SIZE64;
 -	}
--#endif	/* CONFIG_PLAT_USRV */
--	printk(KERN_INFO "  %s ", pcc[pcc_sockets].name);
--	printk("pcc at 0x%08lx\n", t->base);
--
--	/* Update socket interrupt information, capabilities */
--	t->socket.features |= (SS_CAP_PCCARD | SS_CAP_STATIC_MAP);
--	t->socket.map_size = M32R_PCC_MAPSIZE;
--	t->socket.io_offset = ioaddr;	/* use for io access offset */
--	t->socket.irq_mask = 0;
--#if !defined(CONFIG_PLAT_USRV)
--	t->socket.pci_irq = PLD_IRQ_CFIREQ ;	/* card interrupt */
--#else	/* CONFIG_PLAT_USRV */
--	t->socket.pci_irq = PLD_IRQ_CF0 + pcc_sockets;
--#endif	/* CONFIG_PLAT_USRV */
--
--#ifndef CONFIG_PLAT_USRV
--	/* insert interrupt */
--	request_irq(irq, pcc_interrupt, 0, "m32r_cfc", pcc_interrupt);
--	/* eject interrupt */
--	request_irq(irq+1, pcc_interrupt, 0, "m32r_cfc", pcc_interrupt);
--
--	DEBUG(3, "m32r_cfc: enable CFMSK, RDYSEL\n");
--	pcc_set(pcc_sockets, (unsigned int)PLD_CFIMASK, 0x01);
--#endif	/* CONFIG_PLAT_USRV */
--#if defined(CONFIG_PLAT_M32700UT) || defined(CONFIG_PLAT_USRV) || defined(CONFIG_PLAT_OPSPUT)
--	pcc_set(pcc_sockets, (unsigned int)PLD_CFCR1, 0x0200);
--#endif
--	pcc_sockets++;
--
--	return;
+-	if (blk == 63) blk += ((ofs & 0x0000e000) >> 13);
+-	if (blk > M5DRV_MAX_BLOCK_NUM) {
+-		printk("m5drv: out of block address (0x%08x)\n", (u32)ofs);
+-		return M5DRV_BLOCK_SIZE64;
+-	}
+-	return ((blk >= 63)? M5DRV_BLOCK_SIZE8:M5DRV_BLOCK_SIZE64);
 -}
 -
--
--/*====================================================================*/
--
--static irqreturn_t pcc_interrupt(int irq, void *dev, struct pt_regs *regs)
+-static int m5drv_wait(struct map_info *map, struct flchip *chip, loff_t adr)
 -{
--	int i;
--	u_int events = 0;
--	int handled = 0;
+-	__u16 status;
+-	unsigned long timeo;
+-	DECLARE_WAITQUEUE(wait, current);
 -
--	DEBUG(3, "m32r_cfc: pcc_interrupt: irq=%d, dev=%p, regs=%p\n",
--		irq, dev, regs);
--	for (i = 0; i < pcc_sockets; i++) {
--		if (socket[i].cs_irq1 != irq && socket[i].cs_irq2 != irq)
--			continue;
+- 	timeo = jiffies + HZ;
+-	adr &= ~1;	/* align 2 */
 -
--		handled = 1;
--		DEBUG(3, "m32r_cfc: pcc_interrupt: socket %d irq 0x%02x ",
--			i, irq);
--		events |= SS_DETECT;	/* insert or eject */
--		if (events)
--			pcmcia_parse_events(&socket[i].socket, events);
--	}
--	DEBUG(3, "m32r_cfc: pcc_interrupt: done\n");
+-retry:
+-	spin_lock_bh(chip->mutex);
 -
--	return IRQ_RETVAL(handled);
--} /* pcc_interrupt */
--
--static void pcc_interrupt_wrapper(u_long data)
--{
--	DEBUG(3, "m32r_cfc: pcc_interrupt_wrapper:\n");
--	pcc_interrupt(0, NULL, NULL);
--	init_timer(&poll_timer);
--	poll_timer.expires = jiffies + poll_interval;
--	add_timer(&poll_timer);
--}
--
--/*====================================================================*/
--
--static int _pcc_get_status(u_short sock, u_int *value)
--{
--	u_int status;
--
--	DEBUG(3, "m32r_cfc: _pcc_get_status:\n");
--	status = pcc_get(sock, (unsigned int)PLD_CFSTS);
--	*value = (status) ? SS_DETECT : 0;
-- 	DEBUG(3, "m32r_cfc: _pcc_get_status: status=0x%08x\n", status);
--
--#if defined(CONFIG_PLAT_M32700UT) || defined(CONFIG_PLAT_USRV) || defined(CONFIG_PLAT_OPSPUT)
--	if ( status ) {
--		/* enable CF power */
--		status = inw((unsigned int)PLD_CPCR);
--		if (!(status & PLD_CPCR_CF)) {
--			DEBUG(3, "m32r_cfc: _pcc_get_status: "
--				 "power on (CPCR=0x%08x)\n", status);
--			status |= PLD_CPCR_CF;
--			outw(status, (unsigned int)PLD_CPCR);
+-	switch (chip->state) {
+-	case FL_READY:
+-		map->write16(map, CMD_READ_STATUS, adr);
+-		chip->state = FL_STATUS;
+-	case FL_STATUS:
+-		status = map->read16(map, adr);
+-		if ((status & STATUS_READY) != STATUS_READY) {
 -			udelay(100);
 -		}
--		*value |= SS_POWERON;
--
--		pcc_set(sock, (unsigned int)PLD_CFBUFCR,0);/* enable buffer */
--		udelay(100);
--
--		*value |= SS_READY; 		/* always ready */
--		*value |= SS_3VCARD;
--	} else {
--		/* disable CF power */
--		status = inw((unsigned int)PLD_CPCR);
--		status &= ~PLD_CPCR_CF;
--		outw(status, (unsigned int)PLD_CPCR);
--		udelay(100);
--		DEBUG(3, "m32r_cfc: _pcc_get_status: "
--			 "power off (CPCR=0x%08x)\n", status);
--	}
--#elif defined(CONFIG_PLAT_MAPPI2)
--	if ( status ) {
--                status = pcc_get(sock, (unsigned int)PLD_CPCR);
--                if (status == 0) { /* power off */
--                        pcc_set(sock, (unsigned int)PLD_CPCR, 1);
--                        pcc_set(sock, (unsigned int)PLD_CFBUFCR,0); /* force buffer off for ZA-36 */
--                        udelay(50);
--                }
--                status = pcc_get(sock, (unsigned int)PLD_CFBUFCR);
--                if (status != 0) { /* buffer off */
--                                pcc_set(sock, (unsigned int)PLD_CFBUFCR,0);
--                                udelay(50);
--                                pcc_set(sock, (unsigned int)PLD_CFRSTCR, 0x0101);
--                                udelay(25); /* for IDE reset */
--                                pcc_set(sock, (unsigned int)PLD_CFRSTCR, 0x0100);
--                                mdelay(2);  /* for IDE reset */
--                } else {
--                        *value |= SS_POWERON;
--                        *value |= SS_READY;
--                }
--	}
--#else
--#error no platform configuration
--#endif
--	DEBUG(3, "m32r_cfc: _pcc_get_status: GetStatus(%d) = %#4.4x\n",
--		 sock, *value);
--	return 0;
--} /* _get_status */
--
--/*====================================================================*/
--
--static int _pcc_get_socket(u_short sock, socket_state_t *state)
--{
--//	pcc_socket_t *t = &socket[sock];
--
--#if defined(CONFIG_PLAT_M32700UT) || defined(CONFIG_PLAT_USRV) || defined(CONFIG_PLAT_OPSPUT)
--	state->flags = 0;
--	state->csc_mask = SS_DETECT;	/* ??? */
--	state->csc_mask |= SS_READY;	/* ??? */
--	state->io_irq = 0;
--	state->Vcc = 33;	/* 3.3V fixed */
--	state->Vpp = 33;
--#endif
--	DEBUG(3, "m32r_cfc:  GetSocket(%d) = flags %#3.3x, Vcc %d, Vpp %d, "
--		  "io_irq %d, csc_mask %#2.2x\n", sock, state->flags,
--		  state->Vcc, state->Vpp, state->io_irq, state->csc_mask);
--	return 0;
--} /* _get_socket */
--
--/*====================================================================*/
--
--static int _pcc_set_socket(u_short sock, socket_state_t *state)
--{
--#if defined(CONFIG_PLAT_MAPPI2)
--	u_long reg = 0;
--#endif
--	DEBUG(3, "m32r_cfc: SetSocket(%d, flags %#3.3x, Vcc %d, Vpp %d, "
--		  "io_irq %d, csc_mask %#2.2x)\n", sock, state->flags,
--		  state->Vcc, state->Vpp, state->io_irq, state->csc_mask);
--
--#if defined(CONFIG_PLAT_M32700UT) || defined(CONFIG_PLAT_USRV) || defined(CONFIG_PLAT_OPSPUT)
--	if (state->Vcc) {
--		if ((state->Vcc != 50) && (state->Vcc != 33))
--			return -EINVAL;
--		/* accept 5V and 3.3V */
--	}
--#elif defined(CONFIG_PLAT_MAPPI2)
--        if (state->Vcc) {
--                /*
--                 * 5V only
--                 */
--                if (state->Vcc == 50) {
--                        reg |= PCCSIGCR_VEN;
--                } else {
--                        return -EINVAL;
--                }
--        }
--#endif
--
--	if (state->flags & SS_RESET) {
--		DEBUG(3, ":RESET\n");
--		pcc_set(sock,(unsigned int)PLD_CFRSTCR,0x101);
--	}else{
--		pcc_set(sock,(unsigned int)PLD_CFRSTCR,0x100);
--	}
--	if (state->flags & SS_OUTPUT_ENA){
--		DEBUG(3, ":OUTPUT_ENA\n");
--		/* bit clear */
--		pcc_set(sock,(unsigned int)PLD_CFBUFCR,0);
--	} else {
--		pcc_set(sock,(unsigned int)PLD_CFBUFCR,1);
--	}
--
--#ifdef PCMCIA_DEBUG
--	if(state->flags & SS_IOCARD){
--		DEBUG(3, ":IOCARD");
--	}
--	if (state->flags & SS_PWR_AUTO) {
--		DEBUG(3, ":PWR_AUTO");
--	}
--	if (state->csc_mask & SS_DETECT)
--		DEBUG(3, ":csc-SS_DETECT");
--	if (state->flags & SS_IOCARD) {
--		if (state->csc_mask & SS_STSCHG)
--			DEBUG(3, ":STSCHG");
--	} else {
--		if (state->csc_mask & SS_BATDEAD)
--			DEBUG(3, ":BATDEAD");
--		if (state->csc_mask & SS_BATWARN)
--			DEBUG(3, ":BATWARN");
--		if (state->csc_mask & SS_READY)
--			DEBUG(3, ":READY");
--	}
--	DEBUG(3, "\n");
--#endif
--	return 0;
--} /* _set_socket */
--
--/*====================================================================*/
--
--static int _pcc_set_io_map(u_short sock, struct pccard_io_map *io)
--{
--	u_char map;
--
--	DEBUG(3, "m32r_cfc: SetIOMap(%d, %d, %#2.2x, %d ns, "
--		  "%#4.4x-%#4.4x)\n", sock, io->map, io->flags,
--		  io->speed, io->start, io->stop);
--	map = io->map;
--
--	return 0;
--} /* _set_io_map */
--
--/*====================================================================*/
--
--static int _pcc_set_mem_map(u_short sock, struct pccard_mem_map *mem)
--{
--
--	u_char map = mem->map;
--	u_long mode;
--	u_long addr;
--	pcc_socket_t *t = &socket[sock];
--
--	DEBUG(3, "m32r_cfc: SetMemMap(%d, %d, %#2.2x, %d ns, "
--		 "%#5.5lx-%#5.5lx, %#5.5x)\n", sock, map, mem->flags,
--		 mem->speed, mem->res->start, mem->res->end, mem->card_start);
--
--	/*
--	 * sanity check
--	 */
--	if ((map > MAX_WIN) || (mem->card_start > 0x3ffffff) ||
--		(mem->res->start > mem->res->end)) {
--		return -EINVAL;
--	}
--
--	/*
--	 * de-activate
--	 */
--	if ((mem->flags & MAP_ACTIVE) == 0) {
--		t->current_space = as_none;
--		return 0;
--	}
--
--	/*
--	 * Disable first
--	 */
--//	pcc_set(sock, PCCR, 0);
--
--	/*
--	 * Set mode
--	 */
--	if (mem->flags & MAP_ATTRIB) {
--		mode = PCMOD_AS_ATTRIB | PCMOD_CBSZ;
--		t->current_space = as_attr;
--	} else {
--		mode = 0; /* common memory */
--		t->current_space = as_comm;
--	}
--//	pcc_set(sock, PCMOD, mode);
--
--	/*
--	 * Set address
--	 */
--	addr = t->mapaddr + (mem->card_start & M32R_PCC_MAPMASK);
--//	pcc_set(sock, PCADR, addr);
--
--	mem->res->start = addr + mem->card_start;
--	mem->res->end = mem->res->start + (M32R_PCC_MAPSIZE - 1);
--
--	/*
--	 * Set timing
--	 */
--//	pcc_set(sock, PCATCR, pcc_access_timing);
--
--	/*
--	 * Enable again
--	 */
--//	pcc_set(sock, PCCR, 1);
--
--	return 0;
--
--} /* _set_mem_map */
--
--#if 0 /* driver model ordering issue */
--/*======================================================================
--
--	Routines for accessing socket information and register dumps via
--	/proc/bus/pccard/...
--
--======================================================================*/
--
--static ssize_t show_info(struct class_device *class_dev, char *buf)
--{
--	pcc_socket_t *s = container_of(class_dev, struct pcc_socket,
--		socket.dev);
--
--	return sprintf(buf, "type:     %s\nbase addr:    0x%08lx\n",
--		pcc[s->type].name, s->base);
--}
--
--static ssize_t show_exca(struct class_device *class_dev, char *buf)
--{
--	/* FIXME */
--
--	return 0;
--}
--
--static CLASS_DEVICE_ATTR(info, S_IRUGO, show_info, NULL);
--static CLASS_DEVICE_ATTR(exca, S_IRUGO, show_exca, NULL);
--#endif
--
--/*====================================================================*/
--
--/* this is horribly ugly... proper locking needs to be done here at
-- * some time... */
--#define LOCKED(x) do { \
--	int retval; \
--	unsigned long flags; \
--	spin_lock_irqsave(&pcc_lock, flags); \
--	retval = x; \
--	spin_unlock_irqrestore(&pcc_lock, flags); \
--	return retval; \
--} while (0)
--
--
--static int pcc_get_status(struct pcmcia_socket *s, u_int *value)
--{
--	unsigned int sock = container_of(s, struct pcc_socket, socket)->number;
--
--	if (socket[sock].flags & IS_ALIVE) {
--		DEBUG(3, "m32r_cfc: pcc_get_status: sock(%d) -EINVAL\n", sock);
--		*value = 0;
--		return -EINVAL;
--	}
--	DEBUG(3, "m32r_cfc: pcc_get_status: sock(%d)\n", sock);
--	LOCKED(_pcc_get_status(sock, value));
--}
--
--static int pcc_get_socket(struct pcmcia_socket *s, socket_state_t *state)
--{
--	unsigned int sock = container_of(s, struct pcc_socket, socket)->number;
--
--	if (socket[sock].flags & IS_ALIVE) {
--		DEBUG(3, "m32r_cfc: pcc_get_socket: sock(%d) -EINVAL\n", sock);
--		return -EINVAL;
--	}
--	DEBUG(3, "m32r_cfc: pcc_get_socket: sock(%d)\n", sock);
--	LOCKED(_pcc_get_socket(sock, state));
--}
--
--static int pcc_set_socket(struct pcmcia_socket *s, socket_state_t *state)
--{
--	unsigned int sock = container_of(s, struct pcc_socket, socket)->number;
--
--	if (socket[sock].flags & IS_ALIVE) {
--		DEBUG(3, "m32r_cfc: pcc_set_socket: sock(%d) -EINVAL\n", sock);
--		return -EINVAL;
--	}
--	DEBUG(3, "m32r_cfc: pcc_set_socket: sock(%d)\n", sock);
--	LOCKED(_pcc_set_socket(sock, state));
--}
--
--static int pcc_set_io_map(struct pcmcia_socket *s, struct pccard_io_map *io)
--{
--	unsigned int sock = container_of(s, struct pcc_socket, socket)->number;
--
--	if (socket[sock].flags & IS_ALIVE) {
--		DEBUG(3, "m32r_cfc: pcc_set_io_map: sock(%d) -EINVAL\n", sock);
--		return -EINVAL;
--	}
--	DEBUG(3, "m32r_cfc: pcc_set_io_map: sock(%d)\n", sock);
--	LOCKED(_pcc_set_io_map(sock, io));
--}
--
--static int pcc_set_mem_map(struct pcmcia_socket *s, struct pccard_mem_map *mem)
--{
--	unsigned int sock = container_of(s, struct pcc_socket, socket)->number;
--
--	if (socket[sock].flags & IS_ALIVE) {
--		DEBUG(3, "m32r_cfc: pcc_set_mem_map: sock(%d) -EINVAL\n", sock);
--		return -EINVAL;
--	}
--	DEBUG(3, "m32r_cfc: pcc_set_mem_map: sock(%d)\n", sock);
--	LOCKED(_pcc_set_mem_map(sock, mem));
--}
--
--static int pcc_init(struct pcmcia_socket *s)
--{
--	DEBUG(3, "m32r_cfc: pcc_init()\n");
--	return 0;
--}
--
--static int pcc_suspend(struct pcmcia_socket *sock)
--{
--	DEBUG(3, "m32r_cfc: pcc_suspend()\n");
--	return pcc_set_socket(sock, &dead_socket);
--}
--
--static struct pccard_operations pcc_operations = {
--	.init			= pcc_init,
--	.suspend		= pcc_suspend,
--	.get_status		= pcc_get_status,
--	.get_socket		= pcc_get_socket,
--	.set_socket		= pcc_set_socket,
--	.set_io_map		= pcc_set_io_map,
--	.set_mem_map		= pcc_set_mem_map,
--};
--
--/*====================================================================*/
--
--static int m32rpcc_suspend(struct device *dev, u32 state, u32 level)
--{
--	int ret = 0;
--	if (level == SUSPEND_SAVE_STATE)
--		ret = pcmcia_socket_dev_suspend(dev, state);
--	return ret;
--}
--
--static int m32rpcc_resume(struct device *dev, u32 level)
--{
--	int ret = 0;
--	if (level == RESUME_RESTORE_STATE)
--		ret = pcmcia_socket_dev_resume(dev);
--	return ret;
--}
--
--
--static struct device_driver pcc_driver = {
--	.name = "cfc",
--	.bus = &platform_bus_type,
--	.suspend = m32rpcc_suspend,
--	.resume = m32rpcc_resume,
--};
--
--static struct platform_device pcc_device = {
--	.name = "cfc",
--	.id = 0,
--};
--
--/*====================================================================*/
--
--#define UT_CFC
--static int __init init_m32r_pcc(void)
--{
--	int i, ret;
--
--	ret = driver_register(&pcc_driver);
--	if (ret)
--		return ret;
--
--	ret = platform_device_register(&pcc_device);
--	if (ret){
--		driver_unregister(&pcc_driver);
--		return ret;
--	}
--
--#if defined(CONFIG_PLAT_MAPPI2)
--        pcc_set(0, (unsigned int)PLD_CFCR0, 0x0f0f);
--        pcc_set(0, (unsigned int)PLD_CFCR1, 0x0200);
--#endif
--
--	pcc_sockets = 0;
--
--#if !defined(CONFIG_PLAT_USRV)
--	add_pcc_socket(M32R_PCC0_BASE, PLD_IRQ_CFC_INSERT, CFC_ATTR_MAPBASE,
--		       CFC_IOPORT_BASE);
--#else	/* CONFIG_PLAT_USRV */
--	{
--		ulong base, mapaddr;
--		ioaddr_t ioaddr;
--
--		for (i = 0 ; i < M32R_MAX_PCC ; i++) {
--			base = (ulong)PLD_CFRSTCR;
--			base = base | (i << 8);
--			ioaddr = (i + 1) << 12;
--			mapaddr = CFC_ATTR_MAPBASE | (i << 20);
--			add_pcc_socket(base, 0, mapaddr, ioaddr);
+-		break;
+-	default:
+-		printk("m5drv: waiting for chip\n");
+-		if (time_after(jiffies, timeo)) { /* jiffies is after timeo */
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			add_wait_queue(&chip->wq, &wait);
+-			spin_unlock_bh(chip->mutex);
+-			schedule();
+-			remove_wait_queue(&chip->wq, &wait);
+-			spin_lock_bh(chip->mutex);	// by takeo
+-			if (signal_pending(current)) {
+-				printk("m5drv: canceled\n");
+-				map->write16(map, CMD_CLEAR_STATUS, adr);
+-				map->write16(map, CMD_READ_ARRAY, adr);
+-				chip->state = FL_READY;
+-				return -EINTR;
+-			}
 -		}
+-		timeo = jiffies + HZ;
+-		goto retry;
 -	}
--#endif	/* CONFIG_PLAT_USRV */
--
--	if (pcc_sockets == 0) {
--		printk("socket is not found.\n");
--		platform_device_unregister(&pcc_device);
--		driver_unregister(&pcc_driver);
--		return -ENODEV;
--	}
--
--	/* Set up interrupt handler(s) */
--
--	for (i = 0 ; i < pcc_sockets ; i++) {
--		socket[i].socket.dev.dev = &pcc_device.dev;
--		socket[i].socket.ops = &pcc_operations;
--		socket[i].socket.owner = THIS_MODULE;
--		socket[i].number = i;
--		ret = pcmcia_register_socket(&socket[i].socket);
--		if (ret && i--) {
--			for (; i>= 0; i--)
--				pcmcia_unregister_socket(&socket[i].socket);
--			break;
--		}
--#if 0	/* driver model ordering issue */
--		class_device_create_file(&socket[i].socket.dev,
--					 &class_device_attr_info);
--		class_device_create_file(&socket[i].socket.dev,
--					 &class_device_attr_exca);
--#endif
--	}
--
--	/* Finally, schedule a polling interrupt */
--	if (poll_interval != 0) {
--		poll_timer.function = pcc_interrupt_wrapper;
--		poll_timer.data = 0;
--		init_timer(&poll_timer);
--		poll_timer.expires = jiffies + poll_interval;
--		add_timer(&poll_timer);
--	}
--
+-	map->write16(map, CMD_READ_ARRAY, adr);
+-	chip->state = FL_READY;
 -	return 0;
--} /* init_m32r_pcc */
+-}
 -
--static void __exit exit_m32r_pcc(void)
+-static void m5drv_release(struct flchip *chip)
 -{
+-	M5DRV_DEBUG(1, "m5drv_release\n");
+-	wake_up(&chip->wq);
+-	spin_unlock_bh(chip->mutex);
+-}
+-
+-static int m5drv_read(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf)
+-{
+-	struct map_info *map = mtd->priv;
+-	struct m5drv_info *m5drv = map->fldrv_priv;
+-	int chipnum;
+-	int ret;
+-
+-	*retlen = 0;
+-
+-	chipnum = (from >> m5drv->chipshift);
+-	if (chipnum >= m5drv->numchips) {
+-		printk("m5drv: out of chip number (%d)\n", chipnum);
+-		return -EIO;
+-	}
+-
+-	/* We don't support erase suspend */
+-	ret = m5drv_wait(map, &m5drv->chips[chipnum], from);
+-	if (ret < 0) return ret;
+-
+-	map->copy_from(map, buf, from, len);
+-
+-	m5drv_release(&m5drv->chips[chipnum]);
+-	*retlen = len;
+-	return 0;
+-}
+-
+-static int m5drv_read_oneblock(struct map_info *map, loff_t from)
+-{
+-	struct m5drv_info *m5drv = map->fldrv_priv;
+-	int ofs;
+-	int ret;
+-	int blksize;
+-	int chipnum;
+-
+-	M5DRV_DEBUG(1, "m5drv_read_oneblock(0x%08x)\n", (u32)from);
+-	chipnum = (from >> m5drv->chipshift);
+-	blksize = m5drv_query_blksize(from);
+-	ofs = (from & ~(blksize - 1));
+-
+-	ret = m5drv_wait(map, &m5drv->chips[chipnum], from);
+-	if (ret < 0) return ret;
+-
+-	map->copy_from(map, M5BUF, ofs, blksize);
+-
+-	m5drv_release(&m5drv->chips[chipnum]);
+-	return 0;
+-}
+-
+-static int m5drv_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf)
+-{
+-	struct map_info *map = mtd->priv;
+-	struct m5drv_info *m5drv = map->fldrv_priv;
+-	int ret = 0;
+-	int blksize;
+-	int chipnum;
+-	int thislen;
+-
+-	M5DRV_DEBUG(1, "m5drv_write(to=0x%08x, len=%d, buf=0x%08x\n", (u32)to, (u32)len, (u32)buf);
+-	*retlen = 0;
+-	blksize = m5drv_query_blksize(to);
+-	chipnum = (to >> m5drv->chipshift);
+-
+-	/*
+-	 * we does not support byte/word program yet.
+-	 */
+-	for (thislen = len; thislen > 0; thislen -= blksize) {
+-		thislen = ((thislen >= blksize)? blksize:thislen);
+-		ret = m5drv_write_oneblock(map, to, thislen, buf);
+-		if (ret < 0) return ret;
+-		to += blksize;
+-		buf += blksize;
+-		*retlen += thislen;
+-	}
+-	return 0;
+-}
+-
+-static int m5drv_write_oneblock(struct map_info *map, loff_t adr, size_t len, const u_char *buf)
+-{
+-	struct m5drv_info *m5drv = map->fldrv_priv;
+-	int ofs;
+-	int blksize;
+-	int ret;
+-	int chipnum;
 -	int i;
 -
--	for (i = 0; i < pcc_sockets; i++)
--		pcmcia_unregister_socket(&socket[i].socket);
+-	M5DRV_DEBUG(1, "m5drv_write_oneblock(0x%08x, %d)\n", (u32)adr, (u32)len);
+-	chipnum = (adr >> m5drv->chipshift);
+-	ret = m5drv_read_oneblock(map, adr);
+-	if (ret < 0) return ret;
+-	blksize = m5drv_query_blksize(adr);
+-	ofs = (adr & (blksize - 1));
+-	adr = adr & ~(blksize - 1);
+-	memcpy(M5BUF + ofs, buf, len);	/* copy to block buffer */
+-#if 0	/*
+-	 * FIXME: erasing is unnecessary.
+-	 */
+-	ret = m5drv_erase_oneblock(map, &m5drv->chips[chipnum], adr);
+-	if (ret < 0) return ret;
+-#endif
+-	for (i = 0; i < len; i += M5DRV_PAGE_SIZE) {
+-		ret = m5drv_write_onepage(map, &m5drv->chips[chipnum], adr, M5BUF+i);
+-		if (ret < 0) return ret;
+-		adr += M5DRV_PAGE_SIZE;
+-	}
+-	return 0;
+-}
 -
--	platform_device_unregister(&pcc_device);
--	if (poll_interval != 0)
--		del_timer_sync(&poll_timer);
+-static int m5drv_write_onepage(struct map_info *map, struct flchip *chip, unsigned long adr, const u_char *buf)
+-{
+-	int ret;
+-	int i;
+-	u_short data;
+-	long padr;	/* page address */
+-	u_short status;
+-	int chipnum;
+-	struct m5drv_info *m5drv = map->fldrv_priv;
 -
--	driver_unregister(&pcc_driver);
--} /* exit_m32r_pcc */
+-	M5DRV_DEBUG(1, "m5drv_write_onepage(0x%08x, 0x%08x)\n", (u32)adr, (u32)buf);
+-	padr = adr;
+-	padr &= ~1;	/* align 2 */
+-	chipnum = (adr >> m5drv->chipshift);
 -
--module_init(init_m32r_pcc);
--module_exit(exit_m32r_pcc);
--MODULE_LICENSE("Dual MPL/GPL");
--/*====================================================================*/
-diff -ruNp a/arch/m32r/drivers/m32r_cfc.h b/arch/m32r/drivers/m32r_cfc.h
---- a/arch/m32r/drivers/m32r_cfc.h	2004-10-01 11:14:54.000000000 +0900
-+++ b/arch/m32r/drivers/m32r_cfc.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,85 +0,0 @@
+-	ret = m5drv_wait(map, chip, padr);
+-	if (ret < 0) return ret;
+-
+-	map->write16(map, CMD_PROGRAM_PAGE, padr);
+-	chip->state = FL_WRITING;
+-	for (i = 0; i < M5DRV_PAGE_SIZE; i += map->buswidth) {
+-		data = ((*buf << 8)| *(buf + 1));
+-		/*
+-		 * FIXME: convert be->le ?
+-		 */
+-		map->write16(map, data, adr);
+-		adr += map->buswidth;
+-		buf += map->buswidth;
+-	}
+-
+-	ret = m5drv_do_wait_for_ready(map, chip, padr);
+-	if (ret < 0) {
+-		m5drv_release(&m5drv->chips[chipnum]);
+-		return ret;
+-	}
+-
+-	status = map->read16(map, padr);
+-	if ((status & STATUS_READY) != STATUS_READY) {
+-		printk("m5drv: error page writing at addr=0x%08x status=0x%08x\n",
+-			(u32)padr, (u32)status);
+-		map->write16(map, CMD_CLEAR_STATUS, padr);
+-	}
+-	map->write16(map, CMD_READ_ARRAY, padr);
+-	chip->state = FL_READY;
+-	m5drv_release(&m5drv->chips[chipnum]);
+-	return 0;
+-}
+-
+-static int m5drv_erase(struct mtd_info *mtd, struct erase_info *instr)
+-{
+-	struct map_info *map = mtd->priv;
+-	struct m5drv_info *m5drv = map->fldrv_priv;
+-	unsigned long adr,len;
+-	int chipnum, ret=0;
+-	int erasesize = 0;
+-	int i;
+-
+-	M5DRV_DEBUG(2, "m5drv_erase(0x%08x)\n", instr->addr);
+-	chipnum = instr->addr >> m5drv->chipshift;
+-	if (chipnum >= m5drv->numchips) {
+-		printk("m5drv: out of chip number (%d)\n", chipnum);
+-		return -EIO;
+-	}
+-	adr = instr->addr & ((1<<m5drv->chipshift)-1);
+-	len = instr->len;
+-	if (mtd->numeraseregions == 0) {
+-		erasesize = mtd->erasesize;
+-	} else if (mtd->numeraseregions == 1) {
+-		erasesize = mtd->eraseregions->erasesize;
+-	} else {
+-		for (i = 0; i < (mtd->numeraseregions - 1); i++) {
+-			if (adr < mtd->eraseregions[i+1].offset) {
+-				erasesize = mtd->eraseregions[i].erasesize;
+-				break;
+-			}
+-		}
+-		if (i == (mtd->numeraseregions - 1)) {	/* last region */
+-			erasesize = mtd->eraseregions[i].erasesize;
+-		}
+-	}
+-	M5DRV_DEBUG(2, "erasesize=%d, len=%ld\n", erasesize, len);
+-	if (erasesize == 0) return -EINVAL;
+-	if(instr->addr & (erasesize - 1))
+-		return -EINVAL;
+-	if(instr->len & (erasesize - 1))
+-		return -EINVAL;
+-	if(instr->len + instr->addr > mtd->size)
+-		return -EINVAL;
+-
+-	while (len) {
+-		ret = m5drv_erase_oneblock(map, &m5drv->chips[chipnum], adr);
+-		if (ret < 0) return ret;
+-
+-		adr += erasesize;
+-		len -= erasesize;
+-		if(adr >> m5drv->chipshift){
+-			adr = 0;
+-			chipnum++;
+-			if(chipnum >= m5drv->numchips)
+-				break;
+-		}
+-	}
+-	instr->state = MTD_ERASE_DONE;
+-	if(instr->callback) {
+-		M5DRV_DEBUG(1, "m5drv: call callback\n");
+-		instr->callback(instr);
+-	}
+-	return 0;
+-}
+-
+-static int m5drv_do_wait_for_ready(struct map_info *map, struct flchip *chip, unsigned long adr)
+-{
+-	int ret;
+-	int timeo;
+-	u_short status;
+-	DECLARE_WAITQUEUE(wait, current);
+-
+-	/* unnecessary CMD_READ_STATUS */
 -/*
-- *  $Id$
-- *
-- * Copyright (C) 2001 by Hiroyuki Kondo
-- */
+-	map->write16(map, CMD_READ_STATUS, adr);
+-	status = map->read16(map, adr);
+-*/
 -
--#if !defined(CONFIG_PLAT_USRV)
--#define M32R_MAX_PCC	2
--#else	/* CONFIG_PLAT_USRV */
--#define M32R_MAX_PCC	CONFIG_CFC_NUM
--#endif	/* CONFIG_PLAT_USRV */
+-	timeo = jiffies + HZ;
 -
+-	while (time_before(jiffies, timeo)) {
 -/*
-- * M32R PC Card Controler
-- */
--#define M32R_PCC0_BASE        0x00ef7000
--#define M32R_PCC1_BASE        0x00ef7020
+-		map->write16(map, CMD_READ_STATUS, adr);
+-*/
+-		status = map->read16(map, adr);
+-		if ((status & STATUS_READY) == STATUS_READY) {
+-			M5DRV_DEBUG(1, "m5drv_wait_for_ready: ok, ready\n");
+-			/*
+-		 	 * FIXME: do full status check
+-		 	 */
+-			ret = 0;
+-			goto out;
+-		}
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		add_wait_queue(&chip->wq, &wait);
 -
+-		// enabled by takeo
+-		spin_unlock_bh(chip->mutex);
+-
+-		schedule_timeout(1);
+-		schedule();
+-		remove_wait_queue(&chip->wq, &wait);
+-
+-		// enabled by takeo
+-		spin_lock_bh(chip->mutex);
+-
+-		if (signal_pending(current)) {
+-			ret = -EINTR;
+-			goto out;
+-		}
+-		//timeo = jiffies + HZ;
+-	}
+-	ret = -ETIME;
+-out:
+-	if (ret < 0) {
+-		map->write16(map, CMD_CLEAR_STATUS, adr);
+-		map->write16(map, CMD_READ_ARRAY, adr);
+-		chip->state = FL_READY;
+-	}
+-	return ret;
+-}
+-
+-static int m5drv_erase_oneblock(struct map_info *map, struct flchip *chip, unsigned long adr)
+-{
+-	int ret;
+-	u_short status;
+-	struct m5drv_info *m5drv = map->fldrv_priv;
+-	int chipnum;
+-
+-	M5DRV_DEBUG(1, "m5drv_erase_oneblock()\n");
+-
+-#ifdef UNLOCK_BEFORE_ERASE
+-	m5drv_unlock_oneblock(map, chip, adr);
+-#endif
+-
+-	chipnum = (adr >> m5drv->chipshift);
+-	adr &= ~1;		/* align 2 */
+-
+-	ret = m5drv_wait(map, chip, adr);
+-	if (ret < 0) return ret;
+-
+-	map->write16(map, CMD_BLOCK_ERASE, adr);
+-	map->write16(map, CMD_CONFIRM, adr);
+-	chip->state = FL_ERASING;
+-
+-	ret = m5drv_do_wait_for_ready(map, chip, adr);
+-	if(ret < 0) {
+-		m5drv_release(&m5drv->chips[chipnum]);
+-		return ret;
+-	}
+-
+-	status = map->read16(map, adr);
+-	if ((status & STATUS_READY) == STATUS_READY) {
+-		M5DRV_DEBUG(1, "m5drv: erase completed status=%04x\n", status);
+-		map->write16(map, CMD_READ_ARRAY, adr);
+-		chip->state = FL_READY;
+-		m5drv_release(&m5drv->chips[chipnum]);
+-		return 0;		/* ok, erasing completed */
+-	}
+-
+-	printk("m5drv: error erasing block at addr=%08lx status=%08x\n",
+-		adr,status);
+-	map->write16(map, CMD_READ_ARRAY, adr);		/* cancel erasing */
+-	chip->state = FL_READY;
+-	m5drv_release(&m5drv->chips[chipnum]);
+-	return -EIO;
+-}
+-
+-
+-#ifdef UNLOCK_BEFORE_ERASE
 -/*
-- * Register offsets
+- * we don't support unlock yet
 - */
--#define PCCR            0x00
--#define PCADR           0x04
--#define PCMOD           0x08
--#define PCIRC           0x0c
--#define PCCSIGCR        0x10
--#define PCATCR          0x14
+-static void m5drv_unlock_oneblock(struct map_info *map, struct flchip *chip, unsigned long adr)
+-{
+-	M5DRV_DEBUG(1, "m5drv_unlock_oneblock\n");
+-}
+-#endif
 -
--/*
-- * PCCR
-- */
--#define PCCR_PCEN       (1UL<<(31-31))
+-static void m5drv_sync(struct mtd_info *mtd)
+-{
+-	M5DRV_DEBUG(1, "m5drv_sync()\n");
+-}
 -
--/*
-- * PCIRC
-- */
--#define PCIRC_BWERR     (1UL<<(31-7))
--#define PCIRC_CDIN1     (1UL<<(31-14))
--#define PCIRC_CDIN2     (1UL<<(31-15))
--#define PCIRC_BEIEN     (1UL<<(31-23))
--#define PCIRC_CIIEN     (1UL<<(31-30))
--#define PCIRC_COIEN     (1UL<<(31-31))
+-static int m5drv_suspend(struct mtd_info *mtd)
+-{
+-	M5DRV_DEBUG(1, "m5drv_suspend()\n");
+-	return -EINVAL;
+-}
 -
--/*
-- * PCCSIGCR
-- */
--#define PCCSIGCR_SEN    (1UL<<(31-3))
--#define PCCSIGCR_VEN    (1UL<<(31-7))
--#define PCCSIGCR_CRST   (1UL<<(31-15))
--#define PCCSIGCR_COCR   (1UL<<(31-31))
+-static void m5drv_resume(struct mtd_info *mtd)
+-{
+-	M5DRV_DEBUG(1, "m5drv_resume()\n");
+-}
 -
--/*
-- *
-- */
--#define PCMOD_AS_ATTRIB	(1UL<<(31-19))
--#define PCMOD_AS_IO	(1UL<<(31-18))
+-static void m5drv_destroy(struct mtd_info *mtd)
+-{
+-	M5DRV_DEBUG(1, "m5drv_destroy()\n");
+-}
 -
--#define PCMOD_CBSZ	(1UL<<(31-23)) /* set for 8bit */
+-int __init m5drv_probe_init(void)
+-{
+-	printk("MTD chip driver\n");
+-	register_mtd_chip_driver(&m5drv_chipdrv);
+-	return 0;
+-}
 -
--#define PCMOD_DBEX	(1UL<<(31-31)) /* set for excahnge */
+-static void __exit m5drv_probe_exit(void)
+-{
+-	M5DRV_DEBUG(1, "m5drv_probe_exit()\n");
+-	unregister_mtd_chip_driver(&m5drv_chipdrv);
+-}
 -
--/*
-- * M32R PCC Map addr
-- */
+-module_init(m5drv_probe_init);
+-module_exit(m5drv_probe_exit);
 -
--#define M32R_PCC0_MAPBASE        0x14000000
--#define M32R_PCC1_MAPBASE        0x16000000
--
--#define M32R_PCC_MAPMAX		 0x02000000
--
--#define M32R_PCC_MAPSIZE	 0x00001000 /* XXX */
--#define M32R_PCC_MAPMASK     	(~(M32R_PCC_MAPMAX-1))
--
--#define CFC_IOPORT_BASE		0x1000
--
--#if !defined(CONFIG_PLAT_USRV)
--#define CFC_ATTR_MAPBASE        0x0c014000
--#define CFC_IO_MAPBASE_BYTE     0xac012000
--#define CFC_IO_MAPBASE_WORD     0xac002000
--#else	/* CONFIG_PLAT_USRV */
--#define CFC_ATTR_MAPBASE	0x04014000
--#define CFC_IO_MAPBASE_BYTE	0xa4012000
--#define CFC_IO_MAPBASE_WORD	0xa4002000
--#endif	/* CONFIG_PLAT_USRV */
--
+-MODULE_AUTHOR("Takeo Takahashi");
+-MODULE_DESCRIPTION("MTD chip driver for M5M29GT320VP");
+-MODULE_LICENSE("GPL");
+-EXPORT_NO_SYMBOLS;
 
 --
 Hirokazu Takata <takata@linux-m32r.org>

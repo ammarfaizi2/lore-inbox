@@ -1,92 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262983AbVCXCIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262985AbVCXCLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbVCXCIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 21:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVCXCIz
+	id S262985AbVCXCLP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 21:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVCXCLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 21:08:55 -0500
-Received: from mail.renesas.com ([202.234.163.13]:47839 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262983AbVCXCGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 21:06:44 -0500
-Date: Thu, 24 Mar 2005 10:54:54 +0900 (JST)
-Message-Id: <20050324.105454.844021327.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, sugai@isl.melco.co.jp, takata@linux-m32r.org
-Subject: [PATCH 2.6.12-rc1] m32r: Update MMU-less support (1/3)
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-References: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 23 Mar 2005 21:11:14 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:28519 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262985AbVCXCJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 21:09:46 -0500
+Message-ID: <42422165.20505@yahoo.com.au>
+Date: Thu, 24 Mar 2005 13:09:41 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Blaisorblade <blaisorblade@yahoo.it>
+CC: user-mode-linux-devel@lists.sourceforge.net,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>, akpm@osdl.org,
+       jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [patch 02/12] uml: cpu_relax fix
+References: <20050322162121.4295D2125C@zion> <4241A2C0.2050206@fujitsu-siemens.com> <200503240250.38153.blaisorblade@yahoo.it>
+In-Reply-To: <200503240250.38153.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is for updating m32r's MMU-less support.
+Blaisorblade wrote:
+> On Wednesday 23 March 2005 18:09, Bodo Stroesser wrote:
+> 
+>>blaisorblade@yahoo.it wrote:
+>>
+>>>Use rep_nop instead of barrier for cpu_relax, following $(SUBARCH)'s
+>>>doing that (i.e. i386 and x86_64).
+>>
+>>IIRC, Jeff had the idea, to use sched_yield() for this (from a discussion
+>>on #uml).
+> 
+> Hmm, makes sense, but this is to benchmark well... I remember from early 
+> discussions on 2.6 scheduler that using sched_yield might decrease 
+> performance (IIRC starve the calling application).
+> 
 
-	* arch/m32r/kernel/entry.s:
-	- Fix syscall table for !CONFIG_MMU
+Typically, for places where cpu_relax is used, sched_yield would be
+a poor fit. So yes it could easily reduce performance.
 
-	* arch/m32r/kernel/traps.c:
-	- Fix EIT vector setup routine for !CONFIG_MMU
+> Also, that call should be put inside the idle loop, not for cpu_relax, which 
+> is very different, since it is used (for instance) in kernel/spinlock.c for 
+> spinlocks, and in such things. The "Pause" opcode is explicitly recommended 
+> (by Intel manuals, I don't recall why) for things like spinlock loops, and 
+> using yield there would be bad.
+> 
 
-Signed-off-by: Naoto Sugai <sugai@isl.melco.co.jp>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- arch/m32r/kernel/entry.S |   21 +++++++++++----------
- arch/m32r/kernel/traps.c |    2 ++
- 2 files changed, 13 insertions(+), 10 deletions(-)
+The other thing is that sched_yield won't relax at all if you are the
+only thing running, it will be a busy wait. So again, maybe not a great
+fit for the idle loop either.
 
 
-diff -ruNp a/arch/m32r/kernel/entry.S b/arch/m32r/kernel/entry.S
---- a/arch/m32r/kernel/entry.S	2005-03-07 14:10:21.000000000 +0900
-+++ b/arch/m32r/kernel/entry.S	2005-03-23 20:05:40.343327214 +0900
-@@ -69,16 +69,17 @@
- #include <asm/mmu_context.h>
- 
- #if !defined(CONFIG_MMU)
--#define sys_madvise             sys_ni_syscall
--#define sys_readahead           sys_ni_syscall
--#define sys_mprotect            sys_ni_syscall
--#define sys_msync               sys_ni_syscall
--#define sys_mlock               sys_ni_syscall
--#define sys_munlock             sys_ni_syscall
--#define sys_mlockall            sys_ni_syscall
--#define sys_munlockall          sys_ni_syscall
--#define sys_mremap              sys_ni_syscall
--#define sys_mincore             sys_ni_syscall
-+#define sys_madvise		sys_ni_syscall
-+#define sys_readahead		sys_ni_syscall
-+#define sys_mprotect		sys_ni_syscall
-+#define sys_msync		sys_ni_syscall
-+#define sys_mlock		sys_ni_syscall
-+#define sys_munlock		sys_ni_syscall
-+#define sys_mlockall		sys_ni_syscall
-+#define sys_munlockall		sys_ni_syscall
-+#define sys_mremap		sys_ni_syscall
-+#define sys_mincore		sys_ni_syscall
-+#define sys_remap_file_pages	sys_ni_syscall
- #endif /* CONFIG_MMU */
- 
- #define R4(reg)			@reg
-diff -ruNp a/arch/m32r/kernel/traps.c b/arch/m32r/kernel/traps.c
---- a/arch/m32r/kernel/traps.c	2005-03-07 14:10:21.000000000 +0900
-+++ b/arch/m32r/kernel/traps.c	2005-03-23 20:05:40.372322745 +0900
-@@ -95,8 +95,10 @@ void	set_eit_vector_entries(void)
- 	eit_vector[31] = 0xff000000UL;
- 	eit_vector[32] = BRA_INSN(ei_handler, 32);
- 	eit_vector[64] = BRA_INSN(pie_handler, 64);
-+#ifdef CONFIG_MMU
- 	eit_vector[68] = BRA_INSN(ace_handler, 68);
- 	eit_vector[72] = BRA_INSN(tme_handler, 72);
-+#endif /* CONFIG_MMU */
- #ifdef CONFIG_SMP
- 	eit_vector[184] = (unsigned long)smp_reschedule_interrupt;
- 	eit_vector[185] = (unsigned long)smp_invalidate_interrupt;
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUBWMih (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 07:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUBWMih
+	id S261796AbUBWMkz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 07:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUBWMkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 07:38:37 -0500
-Received: from catv-5062a04e.szolcatv.broadband.hu ([80.98.160.78]:62733 "EHLO
-	catv-5062a04e.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
-	id S261786AbUBWMif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 07:38:35 -0500
-Message-ID: <4039F443.30204@freemail.hu>
-Date: Mon, 23 Feb 2004 13:38:27 +0100
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu; rv:1.6) Gecko/20040115
-X-Accept-Language: hu, en
+	Mon, 23 Feb 2004 07:40:55 -0500
+Received: from ns.suse.de ([195.135.220.2]:13022 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261796AbUBWMkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 07:40:53 -0500
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       =?iso-8859-1?q?Markus_H=E4stbacka?= <midian@ihme.org>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [NET] 64 bit byte counter for 2.6.3
+References: <1077123078.9223.7.camel@midux> <20040222173622.GB1371@elf.ucw.cz>
+	<200402230634.33531.jeffpc@optonline.net>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: YOW!!  Now I'm playing with my HOLOGRAPHIC ATOMIC SIMULATION LASER
+ pinball machine!!  WORLD PEACE is in the BALANCE!!
+Date: Mon, 23 Feb 2004 13:38:52 +0100
+In-Reply-To: <200402230634.33531.jeffpc@optonline.net> (Jeff Sipek's message
+ of "Mon, 23 Feb 2004 06:34:23 -0500")
+Message-ID: <je4qti2co3.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise TX2plus PATA port?
-References: <4039B8AF.9060002@freemail.hu>
-In-Reply-To: <4039B8AF.9060002@freemail.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Boszormenyi Zoltan írta:
-> Hi,
-> 
-> how can I make it work? The BIOS recognizes the drive
-> (jumpered as master) but 2.6.3-mm2 does not. Device id is 0x3373.
-> pdc202xx_new, pdc202xx_old and sata_promise drivers
-> are compiled in. Motherboard is an MSI K8T Neo FIS2R.
-> The 120GB Samsung and the Sony CRX300E DVD/CDRW combo
-> are recognized by both the BIOS and the kernel.
+Jeff Sipek <jeffpc@optonline.net> writes:
 
-Needless to say that those devices are attached to the VIA
-IDE ports, that works OK. BTW all PATA and SATA host drivers
-are compiled in. The Promise SATA378 TX2plus PATA port still
-does not work.
+> Hmm...I've been told that u_int64_t is the C99 (IIRC) standard
+
+In C99 it's spelt uint64_t.
+
+Andreas.
 
 -- 
-Best regards,
-Zoltán Böszörményi
-
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285408AbRLNQYv>; Fri, 14 Dec 2001 11:24:51 -0500
+	id <S285409AbRLNQZl>; Fri, 14 Dec 2001 11:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285409AbRLNQYr>; Fri, 14 Dec 2001 11:24:47 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:58889 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S285404AbRLNQYL>; Fri, 14 Dec 2001 11:24:11 -0500
-Date: Fri, 14 Dec 2001 16:22:53 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Tim Waugh <twaugh@redhat.com>
-Cc: Andrey Panin <pazke@orbita1.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move SIIG combo cards support to parport_serial.c
-Message-ID: <20011214162253.A15589@flint.arm.linux.org.uk>
-In-Reply-To: <20011215165739.A201@pazke.ipt> <20011214135749.S14588@redhat.com>
+	id <S285404AbRLNQYt>; Fri, 14 Dec 2001 11:24:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:28677 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S285407AbRLNQYV>;
+	Fri, 14 Dec 2001 11:24:21 -0500
+Date: Fri, 14 Dec 2001 17:24:03 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Stephen Lord <lord@sgi.com>
+Cc: "David S. Miller" <davem@redhat.com>, gibbs@scsiguy.com,
+        LB33JM16@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
+Message-ID: <20011214162403.GE1180@suse.de>
+In-Reply-To: <200112132048.fBDKmog10485@aslan.scsiguy.com> <1008277112.22093.7.camel@jen.americas.sgi.com> <1008278244.22208.12.camel@jen.americas.sgi.com> <20011213.132734.38711065.davem@redhat.com> <20011214151642.GE30529@suse.de> <20011214161506.GB1180@suse.de> <3C1A27FA.7000807@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011214135749.S14588@redhat.com>; from twaugh@redhat.com on Fri, Dec 14, 2001 at 01:57:49PM +0000
+In-Reply-To: <3C1A27FA.7000807@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 14, 2001 at 01:57:49PM +0000, Tim Waugh wrote:
-> On Sat, Dec 15, 2001 at 04:57:39PM +0300, Andrey Panin wrote:
-> 
-> > Untested, but compiles and should work :))
-> > 
-> > These patches were sended to LKML some months ago, but seems like they 
-> > was lost somewhere and I can't remember any answer.
-> 
-> I'm waiting for someone to tell me that it still works. :-)
+On Fri, Dec 14 2001, Stephen Lord wrote:
+> >--- linux/drivers/scsi/sym53c8xx.c~	Fri Dec 14 11:10:38 2001
+> >+++ linux/drivers/scsi/sym53c8xx.c	Fri Dec 14 11:10:51 2001
+> >@@ -12174,7 +12174,7 @@
+> >
+> >		use_sg = map_scsi_sg_data(np, cmd);
+> >		if (use_sg > MAX_SCATTER) {
+> >-			unmap_scsi_sg_data(np, cmd);
+> >+			unmap_scsi_data(np, cmd);
+> >			return -1;
+> >		}
+> >		data = &cp->phys.data[MAX_SCATTER - use_sg];
+> >
+> There is one of these in ncr53c8xx.c as well, line 8135
 
-I'm still waiting for people to test out the new serial layer and
-report all the bugs that are bound to be in there. 8)
+Agrh crap, thanks Steve!
 
-One you're happy with the changes, I'll put them into my serial cvs.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-- 
+Jens Axboe
 

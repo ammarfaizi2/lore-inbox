@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262113AbREXPwg>; Thu, 24 May 2001 11:52:36 -0400
+	id <S262112AbREXPqr>; Thu, 24 May 2001 11:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262114AbREXPw0>; Thu, 24 May 2001 11:52:26 -0400
-Received: from geos.coastside.net ([207.213.212.4]:3499 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S262113AbREXPwL>; Thu, 24 May 2001 11:52:11 -0400
-Mime-Version: 1.0
-Message-Id: <p05100302b732dcfd329f@[207.213.214.37]>
-In-Reply-To: <20010524121936.I12470@suse.de>
-In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
- <200105240658.f4O6wEWq031945@webber.adilger.int>
- <20010524103145.A9521@gruyere.muc.suse.de> <20010524121936.I12470@suse.de>
-Date: Thu, 24 May 2001 08:46:06 -0700
-To: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Dying disk and filesystem choice.
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        monkeyiq <monkeyiq@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S262113AbREXPqg>; Thu, 24 May 2001 11:46:36 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:33028 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262112AbREXPqW>; Thu, 24 May 2001 11:46:22 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Transmeta Crusoe support?
+Date: 24 May 2001 08:46:14 -0700
+Organization: A poorly-installed InterNetNews site
+Message-ID: <9ejac6$8d4$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0105241809180.1129-100000@boston.corp.fedex.com> <E152wAq-00053X-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:19 PM +0200 2001-05-24, Jens Axboe wrote:
->In fact you will typically only see an I/O error if the drive _can't_
->remap the sector anymore, because it has run out. No point in reporting
->a condition that was recovered.
+In article <E152wAq-00053X-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>> Question is whether I need to recompile everything (kernel and binaries)
+>> on my current 586 platform in order to move to Crusoe?
 >
->I'd still say, that if you get bad block errors reported from your disk
->it's long overdue for replacement.
+>No. Crusoe should work out of the box in that sense. Its actually however
+>not brilliantly documented for things like longrun mode where folks have
+>actually been poking around the acpi data in order to find out how the thing
+>works... thats the ironic part 8)
 
-This can't be right. It implies that the drive is returning bogus 
-data with no error indication. Remapping a bad sector is not the same 
-as recovering it.
--- 
-/Jonathan Lundell.
+Now, now, we released all the longrun utilities a few months ago, so the
+"poke around ACPI" stuff is fairly dated by now (and what the reverse-
+engineered code did was actually _not_ longrun at all, but "coolrun",
+the temperature-based stuff). 
+
+		Linus

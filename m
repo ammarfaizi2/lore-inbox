@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbSAZRgc>; Sat, 26 Jan 2002 12:36:32 -0500
+	id <S285783AbSAZRjc>; Sat, 26 Jan 2002 12:39:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285747AbSAZRgW>; Sat, 26 Jan 2002 12:36:22 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:29595 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S285720AbSAZRgT>; Sat, 26 Jan 2002 12:36:19 -0500
-Date: Sat, 26 Jan 2002 18:36:37 +0100
-From: Roland Arendes <roland@arendes.de>
-X-Mailer: The Bat! (v1.53d) Personal
-Reply-To: Roland Arendes <roland@arendes.de>
-X-Priority: 3 (Normal)
-Message-ID: <73506817655.20020126183637@arendes.de>
-To: "Stolle, Martin (KIV)" <MStolle@kiv.de>
-Cc: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.17 with -rmap VM patch ROCKS!!!
-In-Reply-To: <4353BABFDF95D311BFC30004AC4CB22AAE3495@sdar000001.kiv-da.de>
-In-Reply-To: <4353BABFDF95D311BFC30004AC4CB22AAE3495@sdar000001.kiv-da.de>
+	id <S285747AbSAZRjW>; Sat, 26 Jan 2002 12:39:22 -0500
+Received: from mailgate5.cinetic.de ([217.72.192.165]:3811 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S285783AbSAZRjP> convert rfc822-to-8bit; Sat, 26 Jan 2002 12:39:15 -0500
+Date: Sat, 26 Jan 2002 18:39:09 +0100
+Message-Id: <200201261739.g0QHd9C14650@mailgate5.cinetic.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: http://freemail.web.de/
+From: Patrick Scharrenberg <pittipatti@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: Again: strange ext2-errror with 2.4.17
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-hi Stolle, Martin (KIV),
+last week (17.01.02) I wrote that I had these ext2 
+errors with 2.4.17, destroing my data.
 
-SMK> I installed 2.4.17-rmap-11c and later 2.4.17-rmap-12a on my
-SMK> 2-CPU-Pentium-III
-SMK> and on one of my 4-CPU-Xeon-III's, and since then, the machine isn't
-SMK> swapping any
-SMK> longer.
-SMK> Thanks to you and Rik van Riels!
-SMK> I would like if Rik's kernel patches would go into standard.
-SMK> They are really well!
+After switching back to 2.4.10, fsck'ing and backing up the 
+remaining files I recompiled the 2.4.17 and started to rerun the 
+system with this kernel. 
 
-I can really agree to those statements. It also seems that my
-harddrives are more quiet and faster, because the heavy swap-accesses
-of the official 2.4.17 are gone.
+Today the error appeared again!!
 
-(It's now even possible to compile a 2.4.17 with -j2 on a SMP system with 64MB
-without swap-usage! Yes, it's a lower end system :)
+I shut down the system now, so that it is not destroying 
+itself too much.. :-(
+Sunday evening I can tell you more about it (if you like to)
+because the system is actual about 100 km away.
 
-Marcelo: I recommend the rmap12a-patch for the official stable tree. Please
-have a look at rmap12a!
+So, if you need more information, please contact me. I can 
+send you any logs, etc. you need..
 
--roland
+c.u.
+..patrick
+______________________________________________________________________________
+Geben Sie Ihren Lottotipp gerne auf den letzten Drücker ab?Beim WEB.DE
+Lottoservice gibt's keine Warteschlangen. http://tippen2.web.de/?x=9
 

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264538AbRFJQDJ>; Sun, 10 Jun 2001 12:03:09 -0400
+	id <S264536AbRFJP6K>; Sun, 10 Jun 2001 11:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264539AbRFJQC7>; Sun, 10 Jun 2001 12:02:59 -0400
-Received: from as73.astro.ch ([192.53.104.1]:18191 "EHLO as73.astro.ch")
-	by vger.kernel.org with ESMTP id <S264538AbRFJQCr>;
-	Sun, 10 Jun 2001 12:02:47 -0400
-Date: Sun, 10 Jun 2001 18:02:08 +0200 (METDST)
-From: Alois Treindl <alois@astro.ch>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Oops with kernel 2.4.5 on heavy disk traffic
-In-Reply-To: <Pine.GSO.4.21.0106101122570.22838-100000@weyl.math.psu.edu>
-Message-ID: <Pine.HPX.4.21.0106101755220.13723-100000@as73.astro.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264537AbRFJP57>; Sun, 10 Jun 2001 11:57:59 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:44806 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S264536AbRFJP5n>;
+	Sun, 10 Jun 2001 11:57:43 -0400
+Date: Sun, 10 Jun 2001 17:57:30 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
+Message-ID: <20010610175730.B15945@ontario.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20010610152526.B13172@ontario.alcove-fr> <E1596NC-0006g5-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <E1596NC-0006g5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jun 10, 2001 at 03:39:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Jun 2001, Alexander Viro wrote:
+On Sun, Jun 10, 2001 at 03:39:26PM +0100, Alan Cox wrote:
 
-> 	Please, apply. What's happing here is simple - we set i_ino by
-> PID and get something out of range of per-process inode. Confusion
-> follows... Fix: move initializing ->u.proc_i.task past the check.
-> Then proc_delete_inode() will be happy with it.
-> 	Alois, Bryce - that ought to fix the oopsen you see.
+> > The driver does not yet support overlay (no docs... :-( ), but it does =
+> > support
+> 
+> Are you sure the hardware supports overlay ?
 
-Alexander
+Yes. But, even if I know how to program the mchip to output to
+the video bus, there is something missing to enable overlay
+(either in the mchip or in the ati video driver).
 
-do I read this right: this is not a very critical bug?
-In my case, it was 'top' which crashed twice (I was unable to reproduce
-this while trying hard in the last 4 hours, after the original two cases). 
+> > grabbing, jpeg snapshots and mjpeg compressed videos (through a private=
+> >  API,
+> > documented in <file:Documentation/video4linux/meye.txt>).
+> 
+> We have an API for mjpeg in the buz, I wonder if its possible to make that
+> more generic.
 
-Are any processes which are not - like top or ps - trying to read
-the /proc file system likely to be affected by the bug?
+I started with that one and abandoned it later, since it is really
+targeted to _tv_ capture cards only (the size of capture can be only 
+the PAL/NTSC size, and many other little things, like framerate 
+fixed to PAL/NTSC mode too etc.)
 
-I am a bit worried about applying 'unauthorized' kernel paches to my
-server. This has created problems for me in the past.
+Maybe video4linux version 2 will be a more useful API for all
+cameras / webcams / video capture cards. (almost a carbon copy
+of what I say in Documentation/video4linux/meye.txt :-) ).
 
-So, it the bug is non critical, I would rather accept the occasional
-crash of 'top' or 'ps' than playing around with kernel code.
-
-Please, comment.
- 
-Alois
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273729AbRJIIuh>; Tue, 9 Oct 2001 04:50:37 -0400
+	id <S273495AbRJIJJN>; Tue, 9 Oct 2001 05:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273748AbRJIIu0>; Tue, 9 Oct 2001 04:50:26 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:168 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273729AbRJIIuQ>;
-	Tue, 9 Oct 2001 04:50:16 -0400
-Date: Tue, 9 Oct 2001 04:50:35 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: Re: [PATCH] devfs v194 available
-In-Reply-To: <200110090604.f99644D23291@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0110090445340.13381-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273789AbRJIJJD>; Tue, 9 Oct 2001 05:09:03 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:2574 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S273495AbRJIJIv>; Tue, 9 Oct 2001 05:08:51 -0400
+Date: Tue, 9 Oct 2001 19:03:37 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: pmckenne@us.ibm.com, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-Id: <20011009190337.0009802c.rusty@rustcorp.com.au>
+In-Reply-To: <20011008235208.A26109@twiddle.net>
+In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com>
+	<20011008235208.A26109@twiddle.net>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 8 Oct 2001 23:52:08 -0700
+Richard Henderson <rth@twiddle.net> wrote:
 
-
-On Tue, 9 Oct 2001, Richard Gooch wrote:
-
->   Hi, all. Version 194 of my devfs patch is now available from:
-> http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-> The devfs FAQ is also available here.
+> On Mon, Oct 08, 2001 at 06:55:24PM -0700, Paul E. McKenney wrote:
+> > This is a proposal to provide a wmb()-like primitive that enables
+> > lock-free traversal of lists while elements are concurrently being
+> > inserted into these lists.
 > 
-> Patch directly available from:
-> ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+> I've discussed this with you before and you continue to have
+> completely missed the point.
 > 
-> AND:
-> ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
-> 
-> This is against 2.4.11-pre6. Highlights of this release:
-> 
-> - Fixed overrun in <devfs_link> by removing function (not needed)
+> Alpha requires that you issue read-after-read memory barriers on
+> the reader side if you require ordering between reads.  That is
+> the extent of the weakness of the memory ordering.
 
-... doesn't fix _under_run in try_modload() (see what happens if namelen is
-255 and parent is devfs root)
+Actually, I think you are missing the point.  On most architectures, a
+writer can do:
 
-... doesn't fix the deadlock introduced into -pre6 in place of symlink
-races. That
+	int *global_ptr = NULL;
 
-    /*  Need to follow the link: this is a stack chomper  */
-    down_read (&symlink_rwsem);
-    retval = curr->registered ?
-        search_for_entry (parent, curr->u.symlink.linkname,
-                          curr->u.symlink.length, FALSE, FALSE, NULL,
-                          TRUE) : NULL;
-    up_read (&symlink_rwsem);
+	x = 1;
+	wmb();
+	global_ptr = &x;
 
-is a fairly bad idea.  Think what happens if somebody else tries to
-acquire symlink_rwsem for write between two calls of down_read() in
-that recursion.
+And a reader can rely on the dereference as an implicit read barrier:
 
+	if (global_ptr) {
+		if (*global_ptr != 1)
+			BUG();
+	}
+
+This is *not guarenteed* on the Alpha.  To quote an earlier offline mail
+from Paul McKenney (cc'd to you):
+
+> The case that they said can cause trouble is if the CPU 1's caches are
+> partitioned.  In such cases, the partitions of the cache run pretty much
+> independently.  If "p" is in a cacheline handled by one partition, and
+> "*p" is in a cacheline handled by the other partition, it is possible
+> for the invalidation of "p" (due to the "p = &a") to get processed before
+> the invalidation of "*p" (which is just "a", due to the "a = 1").
+
+Now, expecting every piece of code to insert an rmb() before dereferencing
+a pointer in these cases, just so Alphas don't fail occasionally is NOT a
+good solution.  Inventing a "rmb_me_harder()" macro for Alpha only is pretty
+horrible too.  I don't *like* making Alpha's wmb() stronger, but it is the
+only solution which doesn't touch common code.
+
+Of course, we can continue to ignore it, which is my preferred solution.
+
+Hope that helps,
+Rusty.
+PS.  This was used by Alan Cox for lock-free insertion into the firewall linked
+     list in 2.0 - 2.2, and will become more common.

@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbUBZBSt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 20:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUBZBSt
+	id S262594AbUBZBVC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 20:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbUBZBVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 20:18:49 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:21252 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261463AbUBZBSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 20:18:47 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm3
-Date: Thu, 26 Feb 2004 02:18:19 +0100
-User-Agent: KMail/1.6.1
-Cc: Nick Piggin <piggin@cyberone.com.au>, Mike Fedyk <mfedyk@matchmail.com>,
-       Andrew Morton <akpm@osdl.org>
-References: <20040222172200.1d6bdfae.akpm@osdl.org> <403D1347.8090801@matchmail.com> <403D468D.2090901@cyberone.com.au>
-In-Reply-To: <403D468D.2090901@cyberone.com.au>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+	Wed, 25 Feb 2004 20:21:02 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:62600 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262594AbUBZBU4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 20:20:56 -0500
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200402260217.49239@WOLK>
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Intel vs AMD x86-64
+Date: Wed, 25 Feb 2004 17:19:31 -0800
+Message-ID: <7F740D512C7C1046AB53446D37200173EA288C@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Intel vs AMD x86-64
+Thread-Index: AcP7/WkAzTlhTlAPTfi44oq9R+FZ8wABJOaQ
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, "Timothy Miller" <miller@techsource.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Feb 2004 01:19:31.0712 (UTC) FILETIME=[963D7800:01C3FC06]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 February 2004 02:06, Nick Piggin wrote:
+Yes, that's the very reason I said "useless for compilers." The way
+IP/RIP is updated is different (and implementation specific) on those
+processors if 66H is used with a near branch. For example, RIP may be
+zero-extended to 64 bits (from IP), as you observed before.
 
-Hi,
+Jun
+>-----Original Message-----
+>From: H. Peter Anvin [mailto:hpa@zytor.com]
+>Sent: Wednesday, February 25, 2004 4:14 PM
+>To: Timothy Miller
+>Cc: Nakajima, Jun; linux-kernel@vger.kernel.org
+>Subject: Re: Intel vs AMD x86-64
+>
+>Timothy Miller wrote:
+>>
+>>
+>> Nakajima, Jun wrote:
+>>
+>>> For near branches (CALL, RET, JCC, JCXZ, JMP, etc.), the operand
+size is
+>>> forced to 64 bits on both processors in 64-bit mode, basically
+meaning
+>>> RIP is updated.
+>>>
+>>> Compilers would typically use a JMP short for "intraprocedural
+jumps",
+>>> which requires just an 8-bit displacement relative to RIP.
+>>
+>> I see.  It's too bad you can't have a 16-bit displacement.
+>>
+>> Ummm... so if 66H were used with a near branch, would that affect the
+>> size of the immediate operand which gets added to RIP, or would that
+>> affect the the portion of IP/EIP/RIP affected?  If it's the latter,
+>> that's pretty silly.
+>>
+>
+>Yes, that would be pretty silly.
+>
+>I honestly don't remember off the top of my head what "o16 jmp blah"
+>does on i386; I have a vague memory that it zero-extends %eip to 32
+>bits, which makes it useless, of course.
+>
+>	-hpa
 
-> >>> What about Nick's fix up patch for the two patches above?  Should I
-> >>> include that one also?
-> > I'm running 2.6.3-mm3-486-fazok (nick's patch), and it has improved my
-> > slab usage greatly.  It was averaging 500MB-700MB slab.  Now slab is
-> > ~230MB, and page cache is ~700MB
-> That is a much better sounding ratio. Of course that doesn't mean much
-> if performance is worse. Slab might be getting reclaimed a little bit
-> too hard vs pagecache now.
-
-sorry for not following this thread, but where do I find the mm3 rollup patch 
-this thread is talking about? akpm's directory does not contain it, or I am 
-blind b/c it isn't named like that or similar ;>
-
-ciao, Marc

@@ -1,46 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129153AbQKXBSy>; Thu, 23 Nov 2000 20:18:54 -0500
+        id <S129219AbQKXC2W>; Thu, 23 Nov 2000 21:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129255AbQKXBSo>; Thu, 23 Nov 2000 20:18:44 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:14160 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129153AbQKXBS1>; Thu, 23 Nov 2000 20:18:27 -0500
-Date: Fri, 24 Nov 2000 01:48:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel_thread bogosity
-Message-ID: <20001124014830.I1461@athlon.random>
-In-Reply-To: <20001123232333.A6426@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001123232333.A6426@bug.ucw.cz>; from pavel@suse.cz on Thu, Nov 23, 2000 at 11:23:33PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+        id <S129255AbQKXC2M>; Thu, 23 Nov 2000 21:28:12 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:41691 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S129219AbQKXC16>;
+        Thu, 23 Nov 2000 21:27:58 -0500
+Date: Fri, 24 Nov 2000 02:57:45 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011240157.CAA140709.aeb@aak.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, bernds@redhat.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: gcc 2.95.2 is buggy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2000 at 11:23:33PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> You see? Kernel_thread does not check is sys_clone() worked! Aha,
+Yesterday night I wrote
 
-"=&a" (retval)
+> Note: this is not yet a confirmed compiler bug
 
-> caller is responsible for that, but init/main.c does not seem too
-> carefull. Maybe kernel_thread should at least print a warning?
+but in the meantime there is good confirmation.
+This really is a bug in gcc 2.95.2.
 
-If clone fails during start_kernel that's the last of your problems so nobody
-cared. If you want to add a check on the retval go ahead, that's right indeed.
+>From bernds@redhat.com Thu Nov 23 10:45:07 2000
+> Please, could you send me ...
 
-> Plus, can someone explain me why it does not need to setup %%ecx with
-> either zero or address of stack?
+>From torvalds@transmeta.com Thu Nov 23 18:00:48 2000
+> Can we get a show of hands?
 
-Not necessary because a kernel thread never exit from kernel.
+Below a demo program.
 
-Andrea
+Andries
+
+-------------------- bug.c -----------------------------
+/*
+ * bug.c - aeb, 001124
+ *
+ * This program shows a bug in gcc 2.95.2.
+ * It should print 0x0 and exit.
+ * For me it prints 0x84800000.
+ *
+ * Compile with:
+ *    gcc -Wall -O2 -o bug bug.c
+ */
+#include <stdio.h>
+
+struct inode {
+	long long		i_size;
+	struct super_block	*i_sb;
+};
+
+struct file {
+	long long		f_pos;
+};
+
+struct super_block {
+	int			s_blocksize;
+	unsigned char		s_blocksize_bits;
+	int			s_hs;
+};
+
+static char *
+isofs_bread(unsigned int block)
+{
+	printf("0x%x\n", block);
+	exit(0);
+}
+
+static int
+do_isofs_readdir(struct inode *inode, struct file *filp)
+{
+	int bufsize = inode->i_sb->s_blocksize;
+	unsigned char bufbits = inode->i_sb->s_blocksize_bits;
+	unsigned int block, offset;
+	char *bh = NULL;
+	int hs;
+
+ 	if (filp->f_pos >= inode->i_size)
+		return 0;
+ 
+	offset = filp->f_pos & (bufsize - 1);
+	block = filp->f_pos >> bufbits;
+	hs = inode->i_sb->s_hs;
+
+	while (filp->f_pos < inode->i_size) {
+		if (!bh)
+			bh = isofs_bread(block);
+
+		hs += block << bufbits;
+
+		if (hs == 0)
+			filp->f_pos++;
+
+		if (offset >= bufsize)
+			offset &= bufsize - 1;
+
+		if (*bh)
+			filp->f_pos++;
+
+		filp->f_pos++;
+	}
+	return 0;
+}
+
+struct super_block s;
+struct inode i;
+struct file f;
+
+int
+main(int argc, char **argv){
+	s.s_blocksize = 512;
+	s.s_blocksize_bits = 9;
+	i.i_size = 2048;
+	i.i_sb = &s;
+	f.f_pos = 0;
+
+	do_isofs_readdir(&i,&f);
+	return 0;
+}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

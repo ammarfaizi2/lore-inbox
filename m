@@ -1,69 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVC3RBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVC3RJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVC3RBi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 12:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVC3RBi
+	id S261898AbVC3RJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 12:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVC3RJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 12:01:38 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:53321 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262351AbVC3RBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 12:01:16 -0500
-Date: Wed, 30 Mar 2005 18:00:54 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, davem@davemloft.net,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
-In-Reply-To: <20050326150321.C12809@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0503301731210.21413@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> 
-    <20050325212234.F12715@flint.arm.linux.org.uk> 
-    <4244C3B7.4020409@yahoo.com.au> 
-    <20050326113530.A12809@flint.arm.linux.org.uk> 
-    <20050326133720.B12809@flint.arm.linux.org.uk> 
-    <424568D2.7090701@yahoo.com.au> 
-    <20050326150321.C12809@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 30 Mar 2005 12:09:25 -0500
+Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:22147 "EHLO
+	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
+	id S261898AbVC3RJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 12:09:13 -0500
+Date: Thu, 31 Mar 2005 01:09:15 +0800
+From: Bernard Blackham <bernard@blackham.com.au>
+To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: matt@ucc.asn.au
+Subject: ext2 corruption - regression between 2.6.9 and 2.6.10
+Message-ID: <20050330170915.GY4300@blackham.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="CblX+4bnyfN0pR09"
+Content-Disposition: inline
+Organization: Dagobah Systems
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Mar 2005, Russell King wrote:
-> On Sun, Mar 27, 2005 at 12:51:14AM +1100, Nick Piggin wrote:
-> 
-> > But I don't quite understand (should really look at the code more),
-> > how come you aren't leaking memory?
-> 
-> The ARM free_pgd_slow() knows about this special first L1 page table, and
-> knows to free it if it exists when its called.
-> 
-> > Do _all_ processes share this same first L1 page table?
-> 
-> No.  It has to be specific to each process.  Each L1 page table entry
-> covers 2MB, but executables start at virtual 0x8000.
 
-I'm not satisfied with Nick's patch because it defines FIRST_USER_ADDRESS
-as FIRST_USER_PGD_NR * PGDIR_SIZE i.e. 2MB.  And if that is the first
-user address, then there is no need for his patch, because the new
-free_pgtables will never touch that pgd because there's no vma in it.
+--CblX+4bnyfN0pR09
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-That's why I thought arm needed no special code for this
-(overlooking the nr_ptes bug issue, sorry).
+Whilst trying to stress test a Promise SX8 card, we stumbled across
+some nasty filesystem corruption in ext2. Our tests involved
+creating an ext2 partition, mounting, running several concurrent
+fsx's over it, umounting, and fsck'ing, all scripted[1]. The fsck
+would always return with errors.
 
-But above you say FIRST_USER_ADDRESS should actually be 0x8000?
-In that case, I think we should define FIRST_USER_ADDRESS to 0,
-either in every asm-arch or in asm-generic, with arm overriding
-it to 0x8000 - or better, to whatever #define you already have
-for that 0x8000, but I didn't find it.
+This regression was traced back to a change between 2.6.9 and
+2.6.10, which moves the functionality of ext2_put_inode into
+ext2_clear_inode.  The attached patch reverses this change, and
+eliminated the source of corruption.
 
-If vmas can occur in between 0x8000 and 2MB, then with Nick's patch
-we'd be liable to pass free_pgtables a vma with vm_start lower than
-floor, which is not a case I've thought through, nor wish to.
+Whilst stress tesing the same Promise SX8 card on an ext3 partition
+(amd64 machine) also with fsx, we encountered a kernel panic who's
+backtrace looked like:
+  ext3_discard_reservation
+  ext3_truncate
+  .
+  .
+  .
+  do_truncate
+  sys_ftruncate
+Could this same change (which was in ext3 also) be responsible for
+this?
 
-And, whether FIRST_USER_ADDRESS is 0x8000 or 2MB,
-shouldn't your arch_get_unmapped_area be enforcing it?
+Bernard.
 
-Hugh
+[1] http://matt.ucc.asn.au/ext2bad/
+
+-- 
+ Bernard Blackham <bernard at blackham dot com dot au>
+
+--CblX+4bnyfN0pR09
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ext2-fix.diff"
+
+diff linux-2.6.10.orig/fs/ext2/ext2.h linux-2.6.10/fs/ext2/ext2.h
+--- linux-2.6.10.orig/fs/ext2/ext2.h	2004-10-19 05:55:29.000000000 +0800
++++ linux-2.6.10/fs/ext2/ext2.h	2004-12-25 05:35:40.000000000 +0800
+@@ -116,6 +116,7 @@ extern unsigned long ext2_count_free (st
+ /* inode.c */
+ extern void ext2_read_inode (struct inode *);
+ extern int ext2_write_inode (struct inode *, int);
++extern void ext2_put_inode (struct inode *);
+ extern void ext2_delete_inode (struct inode *);
+ extern int ext2_sync_inode (struct inode *);
+ extern void ext2_discard_prealloc (struct inode *);
+diff linux-2.6.10.orig/fs/ext2/inode.c linux-2.6.10/fs/ext2/inode.c
+--- linux-2.6.10.orig/fs/ext2/inode.c	2004-10-19 05:53:11.000000000 +0800
++++ linux-2.6.10/fs/ext2/inode.c	2004-12-25 05:33:51.000000000 +0800
+@@ -53,6 +53,19 @@ static inline int ext2_inode_is_fast_sym
+ }
+ 
+ /*
++ * Called at each iput().
++ *
++ * The inode may be "bad" if ext2_read_inode() saw an error from
++ * ext2_get_inode(), so we need to check that to avoid freeing random disk
++ * blocks.
++ */
++void ext2_put_inode(struct inode *inode)
++{
++	if (!is_bad_inode(inode))
++		ext2_discard_prealloc(inode);
++}
++
++/*
+  * Called at the last iput() if i_nlink is zero.
+  */
+ void ext2_delete_inode (struct inode * inode)
+diff linux-2.6.10.orig/fs/ext2/super.c linux-2.6.10/fs/ext2/super.c
+--- linux-2.6.10.orig/fs/ext2/super.c	2004-10-19 05:54:38.000000000 +0800
++++ linux-2.6.10/fs/ext2/super.c	2004-12-25 05:35:01.000000000 +0800
+@@ -197,17 +199,16 @@ static void ext2_clear_inode(struct inod
+ 		posix_acl_release(ei->i_default_acl);
+ 		ei->i_default_acl = EXT2_ACL_NOT_CACHED;
+ 	}
+ #endif
+-	if (!is_bad_inode(inode))
+-		ext2_discard_prealloc(inode);
+ }
+ 
+ 
+ static struct super_operations ext2_sops = {
+ 	.alloc_inode	= ext2_alloc_inode,
+ 	.destroy_inode	= ext2_destroy_inode,
+ 	.read_inode	= ext2_read_inode,
+ 	.write_inode	= ext2_write_inode,
++	.put_inode	= ext2_put_inode,
+ 	.delete_inode	= ext2_delete_inode,
+ 	.put_super	= ext2_put_super,
+ 	.write_super	= ext2_write_super,
+
+--CblX+4bnyfN0pR09--

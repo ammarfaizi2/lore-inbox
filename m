@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266046AbUBJRDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266030AbUBJRCp
+	id S265989AbUBJR3P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUBJR0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:02:45 -0500
-Received: from mail.kroah.org ([65.200.24.183]:9696 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266037AbUBJRB5 (ORCPT
+	Tue, 10 Feb 2004 12:26:30 -0500
+Received: from hera.kernel.org ([63.209.29.2]:48339 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265989AbUBJRZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:01:57 -0500
-Date: Tue, 10 Feb 2004 09:01:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Mike Bell <kernel@mikebell.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040210170157.GA27421@kroah.com>
-References: <20040210113417.GD4421@tinyvaio.nome.ca>
+	Tue, 10 Feb 2004 12:25:44 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Very preliminary dynamic pty patch
+Date: Tue, 10 Feb 2004 17:25:36 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0b46g$ulg$1@terminus.zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210113417.GD4421@tinyvaio.nome.ca>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1076433936 31409 63.209.29.3 (10 Feb 2004 17:25:36 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 10 Feb 2004 17:25:36 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 03:34:18AM -0800, Mike Bell wrote:
-> I've been reading a lot lately about udev and how it's both very
-> different to and much better than devfs, and with _most_ of the reasons
-> given, I can't see how either is the case. I'd like to lay out why I
-> think that is.
+Try it out and send me the oopsen :)
 
-Did you read:
-	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/dynpty-test-1.patch
 
-> Basically, udev relies on sysfs exporting
-> device numbers. Well, imagine for a moment sysfs exported actual device
-> files instead of just the numbers you'd need to make a device file (a
-> pretty minor change, though not one I'm advocating).
+The patch is against current 2.6 top of tree.
 
-But that is not what sysfs does.  And sysfs will not do this.  So this
-point is moot.
-
-> Sorry if any of these points has already been discussed on
-> linux-kernel, I don't have time to read the list so I'm going based on
-> what's been reported in things like kernel-traffic.
-
-They pretty much all have been in the past.  Try reading the archives,
-that's what they are there for :)
-
-greg k-h
+	-hpa
+-- 
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

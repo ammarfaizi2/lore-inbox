@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285207AbRLSKZz>; Wed, 19 Dec 2001 05:25:55 -0500
+	id <S285186AbRLSKYq>; Wed, 19 Dec 2001 05:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285227AbRLSKZp>; Wed, 19 Dec 2001 05:25:45 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:3332 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S285207AbRLSKZ0>; Wed, 19 Dec 2001 05:25:26 -0500
-Date: Wed, 19 Dec 2001 11:25:22 +0100 (CET)
-From: Petr Kulhavy <brain@artax.karlin.mff.cuni.cz>
-To: Andrey Panin <pazke@orbita1.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with GUS PnP: ad1848, pnp
-In-Reply-To: <20011220104657.A195@pazke.ipt>
-Message-ID: <Pine.LNX.3.96.1011219111521.11868A-100000@artax.karlin.mff.cuni.cz>
-X-Echelon: GRU Vatutinki Aquarium Khodynka Chodynka Khodinka Putin Suvorov USA Russia Ladygin China Moscow missile reconnaissance agent spetsnaz security tactical target operation military defense spy information attack bomb explode tap intercept plan intelligence war analysis echelon sucks
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285207AbRLSKYf>; Wed, 19 Dec 2001 05:24:35 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:42502 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S285186AbRLSKYa>; Wed, 19 Dec 2001 05:24:30 -0500
+Date: Wed, 19 Dec 2001 10:23:39 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+Cc: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
+Subject: Re: APM driver patch summary
+Message-ID: <20011219102339.A21861@flint.arm.linux.org.uk>
+In-Reply-To: <1008710648.21102.1.camel@thanatos> <20011218214235.I13126@flint.arm.linux.org.uk> <E16GYl6-0000nz-00@phalynx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16GYl6-0000nz-00@phalynx>; from bodnar42@phalynx.dhs.org on Tue, Dec 18, 2001 at 08:55:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Dec 2001, Andrey Panin wrote:
+On Tue, Dec 18, 2001 at 08:55:11PM -0800, Ryan Cumming wrote:
+> Just a quick recap for those of use who haven't picked up an x86 manual 
+> recently:
 
-> First, don't mix isapnptools and kernel level ISAPNP support.
+OR for those who don't have such a thing. 8)
 
-Why? Both should set card parameters, shouldn't they? And when one sets
-parameters, the second should be able to read them (and read the same
-values).
+Yes, it was a thinko.  Just like not attaching the patch which was supposed
+to be there according to the same email.
 
-> Second, send a copy of /proc/isapnp to lkml, may be we can add isapnp
-> support for your card.
-
-OK. But how do I learn if my card is supported or not?
-
-Brain
-
---------------------------------
-Petr `Brain' Kulhavy
-<brain@artax.karlin.mff.cuni.cz>
-http://artax.karlin.mff.cuni.cz/~brain
-Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
-
----
-Never eat anything bigger than your head.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

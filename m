@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270259AbTGNOaK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 10:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270223AbTGNO2Y
+	id S270281AbTGNOdr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 10:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270609AbTGNOdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 10:28:24 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:39935 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S270281AbTGNOYs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 10:24:48 -0400
-Date: Mon, 14 Jul 2003 09:39:33 -0500
-From: Amos Waterland <apw@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 kernel regression in alarm() syscall behaviour?
-Message-ID: <20030714143933.GA2925@kvasir.austin.ibm.com>
-References: <1057871573.16218.3.camel@tanda.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1057871573.16218.3.camel@tanda.austin.ibm.com>
-User-Agent: Mutt/1.4i
+	Mon, 14 Jul 2003 10:33:46 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40643 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S270281AbTGNOc0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 10:32:26 -0400
+Date: Mon, 14 Jul 2003 16:46:35 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: =?iso-8859-1?q?Mike=20Martin?= <redtuxxx@yahoo.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel oops with 2.5.74 2.5.75
+In-Reply-To: <20030714140127.4336.qmail@web60004.mail.yahoo.com>
+Message-ID: <Pine.SOL.4.30.0307141643040.484-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think Wes' mail client mangled his testcase a bit.  Here is a cleaned
-up version.
 
-Compile with:
+Please send dmesg with oops
+(make sure you have CONFIG_KALLSYMS enabled).
 
-  % gcc -Wall -Werror alarm.c -o alarm
+--
+Bartlomiej
 
-Output on 2.4 kernel is:
+On Mon, 14 Jul 2003, [iso-8859-1] Mike Martin wrote:
 
-  % ./alarm
-  [1058193354] alarm(0), want retval:0; got retval:0 (PASS)
-  ...
-  [1058193354] alarm(9), want retval:8; got retval:8 (PASS)
-  0/10 tests failed
+> I am getting a kernel oops with both these kernels as soon as it the
+> kernel loads the ide drivers (hd*)
+>
+> I am using ALI1542 chipset, K6/2 500 cpu
+> I have tried progressively disabling various ide options (cramfs,
+> acls tcq etc) to no effect
+>
+> I run ext3 compiled in
+>
+> This is on a base of RH9 with updated modutils from rawhide.
+>
+> The kernel apparrently compiles fine (no errors)
+>
+> Anyone any ideas what could be the cause of this (2.5.66 worked on
+> this machine and runs 2.4.21 fine)
+>
+> If its not a simple fix I will bugzilla it
 
-Output on 2.5 kernel is: many failures.  The number of failures go down
-when the system is heavily stressed.
-
----- Begin alarm.c ----
-
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/time.h>
-
-#define MINVAL 0
-#define MAXVAL 10
-#define NOALARM 0
-
-int main(int argc, char **argv)
-{
-    int retval = 0, failed = 0, tests = MAXVAL, prev = 0, curr = 0;
-    struct timeval time;
-
-    if (argc > 1)
-        if (sscanf(argv[1], "%d", &tests) != 1)
-            return 1;
-
-    for (curr = MINVAL; curr < tests; curr++) {
-        retval = alarm(curr);
-        gettimeofday(&time, NULL);
-        printf("[%li] alarm(%d), want retval:%d; ",
-               time.tv_sec, curr, prev);
-        /* was there a previous alarm? */
-        if (retval == NOALARM && prev == NOALARM) {
-            printf("got retval:0 (PASS)");
-        } else if (retval == NOALARM && prev > NOALARM) {
-            printf("got retval:0 (FAIL)");
-            failed++;
-        } else if (retval != prev) {
-            printf("got retval:%d (FAIL)", retval);
-            failed++;
-        } else {
-            printf("got retval:%d (PASS)", retval);
-        }
-        printf("\n");
-        prev = curr;
-    }
-    printf("%d/%d tests failed\n", failed, tests);
-    return failed;
-}
-
----- End alarm.c ----

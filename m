@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130769AbRASLik>; Fri, 19 Jan 2001 06:38:40 -0500
+	id <S131369AbRASLoW>; Fri, 19 Jan 2001 06:44:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131369AbRASLib>; Fri, 19 Jan 2001 06:38:31 -0500
-Received: from dwdmx2.dwd.de ([141.38.2.10]:41586 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id <S130769AbRASLiU>;
-	Fri, 19 Jan 2001 06:38:20 -0500
-Date: Fri, 19 Jan 2001 12:36:33 +0100 (CET)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: <Holger.Kiehl@dwd.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: More filesystem corruption under 2.4.1-pre8 and SW Raid5
-In-Reply-To: <3A68226D.4FDEFB7B@colorfullife.com>
-Message-Id: <Pine.LNX.4.30.0101191222170.28348-100000@talentix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131496AbRASLoM>; Fri, 19 Jan 2001 06:44:12 -0500
+Received: from libra.cyb.it ([212.11.95.209]:59405 "EHLO relay2.flashnet.it")
+	by vger.kernel.org with ESMTP id <S131369AbRASLoK>;
+	Fri, 19 Jan 2001 06:44:10 -0500
+Date: Fri, 19 Jan 2001 12:38:47 +0100
+From: David Santinoli <u235@libero.it>
+To: James Bottomley <J.E.J.Bottomley@HansenPartnership.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Partition renumbering under 2.4.0
+Message-ID: <20010119123847.D943@aidi.santinoli.com>
+In-Reply-To: <200101171556.KAA01055@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200101171556.KAA01055@localhost.localdomain>; from J.E.J.Bottomley@HansenPartnership.com on Wed, Jan 17, 2001 at 10:56:14AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 17, 2001 at 10:56:14AM -0500, James Bottomley wrote:
+> Under 2.4, if you use devfs, the solaris (and other) slice recognition code
+> could be enhanced to give the correct names to all the slices.  This would
+> turn out to be something like /dev/ide/hdb2s7 (or something even worse---I'm
+> afraid I only really know the naming scheme for SCSI devices) but at least you
+> can find the exact slice you're looking for in an easy and intuitive way.
+> 
+> So, would you prefer the quick fix, or the more durable solution (which would 
+> require you to change your fstab)?
 
+Personally I'd be happy with the quick hack, but the slice-enhanced naming
+scheme possible with devfs looks like the way to go.
 
-On Fri, 19 Jan 2001, Manfred Spraul wrote:
+Besides, I think that documenting this issue in the "Changes" file would help
+somehow.
 
-> > Another thing I notice is that the responsiveness of the machine
-> > decreases dramatically as the test progresses until it is nearly
-> > useless. After the test is done everything is back to normal.
-> > The same behavior was observed under 2.2.18.
->
-> That's expected: ext2 performs linear searches through the directory,
-> and with 50 000 entries that's very slow.
->
-Would reiserfs be better and does it now work with SW Raid5?
-
-> I'm running a few quick tests, but I don't have a large enough spare
-> partition (~ 1GB?) for a full test.
->
-> How much main memory do you have, how large is your raid5 partition?
->
-On the two machines I have tried both have 256 MB of memory and one
-has a 8GB Raid5 and the other has a 30GB Raid5 partition.
-
-> Could you try to reproduce the problem with fewer files and less main
-> memory?
->
-I will try.
-
-> I'm running your test with 48 MB ram, 12500 files, 9 processes in a 156
-> MB partition (swapoff, here is the test partition ;-).
-> With 192MB Ram I don't see the corruption.
->
-I am not sure if I understand you correctly: with 48MB you do get
-corruption and with 192MB not? And if you do see corruption are you
-using SW Raid, SMP?
-
-With 10000 I also had no problem, my next step was 50000.
-
-Holger
-
+Thanks,
+ David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,100 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318941AbSIIWu7>; Mon, 9 Sep 2002 18:50:59 -0400
+	id <S318970AbSIIWwt>; Mon, 9 Sep 2002 18:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318946AbSIIWu7>; Mon, 9 Sep 2002 18:50:59 -0400
-Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:33265 "EHLO
-	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
-	id <S318941AbSIIWu6>; Mon, 9 Sep 2002 18:50:58 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: <root@chaos.analogic.com>, "'David S. Miller'" <davem@redhat.com>,
-       <phillips@arcor.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: Calculating kernel logical address ..
-Date: Mon, 9 Sep 2002 15:52:12 -0700
-Message-ID: <01b901c25853$8a0f65f0$9e10a8c0@IMRANPC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1031608526.29792.77.camel@irongate.swansea.linux.org.uk>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S318976AbSIIWwt>; Mon, 9 Sep 2002 18:52:49 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:1959 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318970AbSIIWws>; Mon, 9 Sep 2002 18:52:48 -0400
+Date: Mon, 9 Sep 2002 23:56:54 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question about pseudo filesystems
+Message-ID: <20020909235654.A5875@kushida.apsleyroad.org>
+References: <20020907192736.A22492@kushida.apsleyroad.org> <E17o4UE-0006Zh-00@starship> <20020909204834.A5243@kushida.apsleyroad.org> <E17oUtY-0006tn-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17oUtY-0006tn-00@starship>; from phillips@arcor.de on Mon, Sep 09, 2002 at 10:12:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> > The expected behaviour is as it has always been: rmmod fails if anyone
+> > is using the module, and succeeds if nobody is using the module.  The
+> > garbage collection of modules is done using "rmmod -a" periodically, as
+> > it always has been.
+> 
+> When you say 'rmmod modulename' the module is supposed to be removed, if
+> it can be.  That is the user's expectation, and qualifies as 'obviously
+> correct'.
+> 
+> Garbage collecting should *not* be the primary mechanism for removing
+> modules, that is what rmmod is for.  Neither should a filesystem module
+> magically disappear from the system just because the last mount went
+> away, unless the module writer very specifically desires that.  This is
+> where the obfuscating opinion is coming from: Al has come up with an
+> application where he wants the magic disappearing behavior and wants
+> to impose it on the rest of the world, regardless of whether it makes
+> sense.
 
-But the buffer which I am concerned about was allocated my kmalloc() and
-mapped to the process space in mmap(). AFAIK, kmalloc'ed buffers are
-guaranteed to be mapped.
+I think you've misunderstood.  The module does _not_ disappear when the
+last file reference is closed.  It's reference count is decremented,
+that is all.  Just the same as if you managed the reference count
+yourself.  You still need rmmod to actually remove the module.
 
-Here is how I am doing it:
-
-1) Implement mmap method in driver.
-2) allocate memory by kmalloc()
-3) set reserved bit for all allocated pages.
-4) set VM_LOCKED flag on the memory aread. ( vma->flags |= VM_LOCKED; )
-5) call remap_page_range() to map physical address of the buffer to the user
-space address.
-
-I have posted the complete code in a previous post under the same subject.
-Now in ioctl() method, the user gives me the memory address. I know that it
-was mmaped by looking at the ioctl code. Now I have to calculate physical
-address of the user memory address. I know that it was allocated my kmalloc
-so it should be mapped. I am currently accessing the process page tables to
-find the kernel logical address so that I could use virt_to_bus() to get bus
-address.
-
-adr = user_address;
-pgd_offset(current->mm, adr);
-if (!pgd_none(*pgd)) {
-	pmd = pmd_offset(pgd, adr);
-	if (!pmd_none(*pmd)) {
-		ptep = pte_offset(pmd, adr);
-		pte = *ptep;
-		if(pte_present(pte)) {
-			kaddr  = (unsigned long) page_address(pte_page(pte));
-			kaddr |= (adr & (PAGE_SIZE - 1));
-		}
-	}
-}
-
-One suggestion was to use get_user_pages() after getting appropriate
-semaphore but I have learned that this API is fundamentally broken for
-architectures with noncoherent caches. Does any body has any solution?
-
-Thanks,
-Imran.
-
-
-
-
-
-
-
-
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Monday, September 09, 2002 2:55 PM
-To: imran.badr@cavium.com
-Cc: root@chaos.analogic.com; 'David S. Miller'; phillips@arcor.de;
-linux-kernel@vger.kernel.org
-Subject: RE: Calculating kernel logical address ..
-
-
-On Mon, 2002-09-09 at 19:12, Imran Badr wrote:
-> But my question here still begging an answer: What would be the portable
-way
-> to calculate kernel logical address of that user buffer?
-
-Who says it even has one ? Not all user allocated pages are even mapped
-into the kernel by default. The kiobuf stuff used in 2.4 will do the job
-for 2.4. For 2.5 the API will probably look a little different and be a
-fair bit faster
-
-
+-- Jamie

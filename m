@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265617AbUAZXxh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 18:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUAZXxh
+	id S265620AbUAZXkR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 18:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265623AbUAZXkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 18:53:37 -0500
-Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:41360 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S265635AbUAZXw2 (ORCPT
+	Mon, 26 Jan 2004 18:40:17 -0500
+Received: from mail.kroah.org ([65.200.24.183]:6609 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265620AbUAZXjj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 18:52:28 -0500
-Date: Mon, 26 Jan 2004 18:37:38 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: David Sanders <linux@sandersweb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PNP depends on ISA ? (2.6.2-rc2
-Message-ID: <20040126183738.GB3180@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	David Sanders <linux@sandersweb.net>, linux-kernel@vger.kernel.org
-References: <20040126193144.GC2004@luna.mooo.com> <20040126161746.GA3180@neo.rr.com> <200401261813.48324@sandersweb.net>
+	Mon, 26 Jan 2004 18:39:39 -0500
+Date: Mon, 26 Jan 2004 15:39:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Robert Reardon <rreardon@dsl.pipex.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: (Wrong ID) USB Crontroller
+Message-ID: <20040126233939.GB7535@kroah.com>
+References: <1075147348.7156.12.camel@mordor>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401261813.48324@sandersweb.net>
+In-Reply-To: <1075147348.7156.12.camel@mordor>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 06:15:43PM -0500, David Sanders wrote:
-> On Monday 26 January 2004 11:17 am, Adam Belay wrote:
-> > On Mon, Jan 26, 2004 at 09:31:44PM +0200, Micha Feigin wrote:
-> > > I was wondering why pnp depends on isa being selected in 2.6.2-rc2,
+On Mon, Jan 26, 2004 at 08:02:28PM +0000, Robert Reardon wrote:
+> Hi all,
 > 
-> > Yes, it only is related to isa devices, but they include onboard
-> I the 2.4.x kernel I seem to remember being able to cat /proc/isapnp 
-> and getting info about pnp devices on my system.  Is there an 
-> equivalent in 2.6.x ?
+> I've been trying to get USB working with the 2.6 and keep getting 
+> the attached error messages. The kernel appears (to me at least)
+> to detect the USB controller correctly on boot, but it still doesn't
+> want to work. This is my first post to the list, so please be gentle
+> :-).
+> 
+> The motherboard is a Supermicro 370DDE, currently running
+> kernel-2.6.2-rc1-mm3. I've tried to attached any relevant information
+> but I'm happy to provide more if it's needed.
+> 
+> cat /proc/version reports:
+> 
+> Linux version 2.6.2-rc1-mm3 (root@mordor) (gcc version 3.3.2 20031218
+> (Gentoo Linux 3.3.2-r5, propolice-3.3-7)) #2 SMP Sun Jan 25 21:16:13 GMT
+> 2004
+> 
+> Anyone got any ideas?
 
-Yes.  A complete interface, including id information and control over
-resource management is provided through sysfs.
+Yeah, get rid of your usbmodules binary.  It's not needed and is causing
+the problem.
 
-#mkdir /sys
-#mount -t sysfs none /sys
+thanks,
 
-Look in /sys/bus/pnp for more information.
-
-Thanks,
-Adam
+greg k-h

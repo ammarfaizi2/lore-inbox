@@ -1,58 +1,104 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315168AbSFOIUA>; Sat, 15 Jun 2002 04:20:00 -0400
+	id <S315162AbSFOIXA>; Sat, 15 Jun 2002 04:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315170AbSFOIT7>; Sat, 15 Jun 2002 04:19:59 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54977 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315168AbSFOIT7>;
-	Sat, 15 Jun 2002 04:19:59 -0400
-Date: Sat, 15 Jun 2002 10:19:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 IDE 91
-Message-ID: <20020615081952.GD1359@suse.de>
-In-Reply-To: <20020614151703.GB1120@suse.de> <Pine.LNX.4.44.0206140940240.2576-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S315167AbSFOIXA>; Sat, 15 Jun 2002 04:23:00 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:60822 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315162AbSFOIW6>; Sat, 15 Jun 2002 04:22:58 -0400
+Date: Sat, 15 Jun 2002 09:54:14 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Lionel Bouton <Lionel.Bouton@inet6.fr>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.20 hardlock w/ hdparm
+Message-ID: <Pine.LNX.4.44.0206150948140.30400-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 14 2002, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 14 Jun 2002, Jens Axboe wrote:
-> >
-> > - current 2.5 bk deadlocks reading partition info off disk. Again a
-> >   locking problem I suppose, to be honest I just got very tired when
-> >   seeing it happen and didn't want to spend tim looking into it.
-> 
-> Hmm. There's a bug in "balance_irq()" if you are trying to run a SMP
-> kernel on an UP machine right now, and it _might_ be that the lockup has
-> nothing to do with the IDE layer, but simple with the first PCI interrupt
-> (as opposed to local timer interrupt) coming in.
-> 
-> One-liner from Zwane Mwaikambo (cut-and-paste, so space is wrong, please
-> apply by hand).
-> 
-> --- linux-2.5.19/arch/i386/kernel/io_apic.c.orig        Fri Jun 14 17:43:20 2002
-> +++ linux-2.5.19/arch/i386/kernel/io_apic.c     Fri Jun 14 17:42:23 2002
-> @@ -251,7 +251,7 @@
->         irq_balance_t *entry = irq_balance + irq;
->         unsigned long now = jiffies;
-> 
-> -       if (unlikely(entry->timestamp != now)) {
-> +       if ((entry->timestamp != now) && (smp_num_cpus > 1)) {
->                 unsigned long allowed_mask;
->                 int random_number;
-> 
-> I don't know. Might be the IDE code too, of course.
+Hi Lionel, Martin,
+2.5.20, hdparm + IDE deadlocks on my testbox
 
-If it's just a SMP kernel on UP, then that's not the problem here. This
-was SMP kernel on SMP machine.
+kernel:Linux version 2.5.20+prempt (zwane@montezuma.mastecende.com) (gcc version
+2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #24 SMP Wed Jun 5 21:48:07 SAST 2002
 
+ata subsys:
+ATA/ATAPI device driver v7.0.0
+ATA: PCI bus speed 33.3MHz
+ATA: Silicon Integrated Systems [SiS] 5513 [IDE], PCI slot 00:00.1
+PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try using pci=biosirq.
+ATA: chipset rev.: 208
+ATA: non-legacy mode: IRQ probe delayed
+SiS620
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
+hda: WDC WD75DA-00AWA1, DISK drive
+hdb: WDC AC11200L, DISK drive
+hdc: ST310212A, DISK drive
+hdd: ATAPI CDROM, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ hda: 14666400 sectors w/2048KiB Cache, CHS=15520/15/63, UDMA(66)
+ hda: [PTBL] [912/255/63] hda1 hda2 hda3 hda4
+ hdb: 2503872 sectors w/256KiB Cache, CHS=2484/16/63, DMA
+ hdb: [PTBL] [621/64/63] hdb1
+ hdc: 20005650 sectors w/512KiB Cache, CHS=19846/16/63, UDMA(66)
+ hdc: [PTBL] [1245/255/63] hdc1 hdc2 hdc3
+ hdc2: <netbsd: hdc5 hdc6 >
+hdd: ATAPI 50X CD-ROM drive, 128kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+
+strace hdparm /dev/hda:
+lseek(3, 0, SEEK_SET)                   = 0
+lseek(3, 0, SEEK_SET)                   = 0
+lseek(3, 0, SEEK_SET)                   = 0
+lseek(3, 0, SEEK_SET)                   = 0
+getitimer(ITIMER_REAL, {it_interval={1000, 0}, it_value={993, 770000}}) = 0
+write(1, "128 MB in  4.35 seconds = 29.43 "..., 39128 MB in  4.35 seconds = 29.43 MB/sec) = 39
+fsync(3)                                = 0
+ioctl(3, BLKFLSBUF, 0)                  = 0
+ioctl(3, 0x31f, 0)                      = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+nanosleep({1, 0}, {1, 0})               = 0
+shmdt(0x4001f000)                       = 0
+shmget(IPC_PRIVATE, 1048576, 0x180|0600) = 32768
+shmctl(32768, 0x10b /* SHM_??? */, 0)   = 0
+shmat(32768, 0, 0)                      = 0x4001f000
+shmctl(32768, 0x100 /* SHM_??? */, 0)   = 0
+sync()                                  = 0
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+nanosleep({3, 0}, {3, 0})
+*** dead as a doorpost ***
+write(1, " Timing buffered disk reads:  ", 30 Timing buffered disk reads:  ) = 30
+setitimer(ITIMER_REAL, {it_interval={1000, 0}, it_value={1000, 0}}, NULL) = 0
+getitimer(ITIMER_REAL, {it_interval={1000, 0}, it_value={1000, 0}}) = 0
+read(3, "3\300\216\320\274\0|\373P\7P\37\374\276\33|\277\33\6PW"..., 1048576) = 1048576
+
+I was going to test a disk w/o DMA (try to cover all the bases) but i got the
+following repeatedly until it locks up again;
+hdb: lost interrupt
+hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdb: drive not ready for command
+
+Now i'm not 100% sure wether this is even an ATA problem (although my SCSI 
+based testbox survived) and pretty certain its not an SiS controller 
+problem but i'll try and find the point where it deadlocks, pretty bad 
+bug report, please tell me which information you'd really want.
+
+btw Martin you seem to like pain so get ready for when i whip out the old 
+Quantum mavericks, 486 (SiS) and Opti621 card ;)
+
+Thanks,
+	Zwane Mwaikambo
 -- 
-Jens Axboe
+http://function.linuxpower.ca
+		
+
 

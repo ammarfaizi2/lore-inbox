@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265958AbUGAP4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265962AbUGAQL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265958AbUGAP4z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 11:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUGAP4z
+	id S265962AbUGAQL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 12:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUGAQL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 11:56:55 -0400
-Received: from ida.rowland.org ([192.131.102.52]:9476 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265958AbUGAP4y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 11:56:54 -0400
-Date: Thu, 1 Jul 2004 11:56:53 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Duncan Sands <baldrick@free.fr>
-cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption &
- lockups & poor performance
-In-Reply-To: <200407011726.24592.baldrick@free.fr>
-Message-ID: <Pine.LNX.4.44L0.0407011153330.1083-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jul 2004 12:11:29 -0400
+Received: from bay22-f9.bay22.hotmail.com ([64.4.16.59]:42756 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265962AbUGAQL2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 12:11:28 -0400
+X-Originating-IP: [62.101.98.215]
+X-Originating-Email: [paolo407@hotmail.com]
+From: "paolo ciarrocchi" <paolo407@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: how can I help you ?
+Date: Thu, 01 Jul 2004 16:11:24 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <BAY22-F9t16itRHQq0A00018958@hotmail.com>
+X-OriginalArrivalTime: 01 Jul 2004 16:11:24.0175 (UTC) FILETIME=[0E33D1F0:01C45F86]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jul 2004, Duncan Sands wrote:
+Hi all,
+in the past I've run a lot of tests against 2.5.* kernels and posted the 
+results to
+the list. I think they were usefull, but at the moment OSDL is doing much 
+more tests
+and in a much more professional way.
 
-> > Is it possible that you are exceeding the capacity of your PCI bus?
-> 
-> I guess so, but that's no reason to hang...  Or is overloading the PCI
-> bus somehow problematic?
+So the question is,
+is there any kind of test that I could run ?
 
-Well it's certainly not good!  :-)
+Thanks.
 
-One of the failure modes that will cause an immediate shutdown of a USB 
-host controller is a PCI error.  If the controller isn't working lots of 
-bad things are likely to follow.  I can imagine that even if that doesn't 
-happen, PCI errors could mess up other drivers or hardware too.
+Ciao,
+                        Paolo
 
-Alan Stern
+P.S I'm not subscribed anymore to the list, so please cc me if you wanna 
+reply.
+
+--
+paoloc.doesntexist.org
+http://www.cafeshops.com/paoloc
+
+_________________________________________________________________
+Filtri antispamming e antivirus per la tua casella di posta 
+http://www.msn.it/msn/hotmail
 

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbTHZHiT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 03:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbTHZHiT
+	id S262663AbTHZHdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 03:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTHZHdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 03:38:19 -0400
-Received: from almesberger.net ([63.105.73.239]:49928 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S263133AbTHZHiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 03:38:17 -0400
-Date: Tue, 26 Aug 2003 04:38:02 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
-Message-ID: <20030826043802.D1212@almesberger.net>
-References: <20030826024808.B3448@almesberger.net> <Pine.LNX.4.44.0308260010480.31955-100000@localhost.localdomain>
+	Tue, 26 Aug 2003 03:33:32 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:24582 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262663AbTHZHdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 03:33:31 -0400
+Date: Tue, 26 Aug 2003 08:32:49 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Samphan Raruenrom <samphan@nectec.or.th>
+Cc: Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
+       Linux TLE Team <rdi1@opentle.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
+Message-ID: <20030826083249.B20776@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Samphan Raruenrom <samphan@nectec.or.th>,
+	Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
+	Linux TLE Team <rdi1@opentle.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308260010480.31955-100000@localhost.localdomain>; from nagendra_tomar@adaptec.com on Tue, Aug 26, 2003 at 12:15:58AM +0530
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F4B0343.7050605@nectec.or.th>; from samphan@nectec.or.th on Tue, Aug 26, 2003 at 01:50:43PM +0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nagendra Singh Tomar wrote:
-> I fail to understand this. How can we say that its not a bug. If we 
-> support recursive tasklets, we should support killing them also. If we can 
-> do it why not do it. Is there any reason for that.
+On Tue, Aug 26, 2003 at 01:50:43PM +0700, Samphan Raruenrom wrote:
+> I'm sorry for issueing this layering violation. I read a guideline that
+> it's easier to submit a patch to add device driver ioctl than inventing
+> something new. It really doesn't belong here.
 
-It's just a question of how you define "to kill" :-) But the
-naming is ambiguous, because people may indeed expect
-tasklet_kill to work like kill(2).
+That guideline is wrong.  Adding a driver ioctl is slmost always wrong.
 
-Obviously, tasklet_kill could set a flag that prevents a
-tasklet from rescheduling itself. But then you'd change
-the semantics of tasklet_schedule, and in many cases, you'd
-still need some flag to tell you what has happened.
+> Could you guide me where else can I place this functionality?
+> 
+> (my random idea)
+> - fcntl(open("/dev/cdrom", F_MNTSTAT)
+> - umount2("/dev/cdrom", MS_TEST) // not actually perform
+> - new system call! e.g. mntstat(open("/dev/cdrom"))
 
-Example: if a tasklet allocates some resources, and frees
-them when running the next time, you'd need a flag that
-tells the caller(s) of tasklet_kill whether there are
-still such resources that need freeing.
+In userspace.  Or you could tell me what you want to actually
+archive - your call by itself doesn't make any sense.
 
-The current mechanism makes sure that the tasklet will
-execute one last time, if scheduled before tasklet_kill.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVCIKFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVCIKKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVCIKFk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVCIKFj
+	id S262234AbVCIKKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCIKKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:05:39 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:24316 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261537AbVCIKFe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:05:34 -0500
-Date: Wed, 9 Mar 2005 11:04:57 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       chrisw@osdl.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.11.2
-In-Reply-To: <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
-Message-ID: <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be>
-References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
+	Wed, 9 Mar 2005 05:10:15 -0500
+Received: from web51402.mail.yahoo.com ([206.190.38.181]:60593 "HELO
+	web51402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262234AbVCIKKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 05:10:11 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=yuq7/7sGopAv8jEFsccgqXUatBTip+cu+aL3HWhfvarZunPAnUEe1vJDJvHLNK0NL0ce777ytB1N5kxI7125M8atknBg2aAWGe7qAjG5DfmX/mJvKXlL2vtEZFOB1oCwF5Ifxi0RtsL69ZRl2yCJ+F6aJa4xPIEbbrOSq99ili4=  ;
+Message-ID: <20050309101010.93190.qmail@web51402.mail.yahoo.com>
+Date: Wed, 9 Mar 2005 11:10:10 +0100 (CET)
+From: Joerg Pommnitz <pommnitz@yahoo.com>
+Subject: Re: select(2), usbserial, tty's and disconnect
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Mar 2005, Marcos D. Marado Torres wrote:
-> On Wed, 9 Mar 2005, Greg KH wrote:
-> > which is a patch against the 2.6.11.1 release.  If consensus arrives
-> > that this patch should be against the 2.6.11 tree, it will be done that
-> > way in the future.
-> 
-> IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt
-> againt
-> the last -rc but against 2.6.x.
+Robert Hancock wrote:
+> I thought this (hangup on remove [jpo]) had been merged, but I could be
+> wrong.
 
-It's a stable release, not a pre/rc, so against 2.6.11.1 sounds most logical to
-me.
+I just checked bitkeeper. The patch went in some time ago:
 
-Gr{oetje,eeting}s,
+4 months eolson 1.126 usb-serial: add tty_hangup on disconnect
 
-						Geert
+Regards
+  Joerg
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129760AbRBUR3M>; Wed, 21 Feb 2001 12:29:12 -0500
+	id <S129691AbRBURbM>; Wed, 21 Feb 2001 12:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129807AbRBUR2w>; Wed, 21 Feb 2001 12:28:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43016 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129759AbRBUR2l>;
-	Wed, 21 Feb 2001 12:28:41 -0500
-Date: Wed, 21 Feb 2001 18:27:43 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: plugging in 2.4. Does it work?
-Message-ID: <20010221182743.W1447@suse.de>
-In-Reply-To: <200102211536.f1LFaWZ03985@oboe.it.uc3m.es>
+	id <S129892AbRBURbC>; Wed, 21 Feb 2001 12:31:02 -0500
+Received: from [213.155.192.193] ([213.155.192.193]:2052 "HELO motoko")
+	by vger.kernel.org with SMTP id <S129807AbRBURav>;
+	Wed, 21 Feb 2001 12:30:51 -0500
+Date: Wed, 21 Feb 2001 18:38:02 +0100
+From: Frank Contrepois <sokak@telvia.it>
+To: linux-kernel@vger.kernel.org
+Subject: CWND always 2
+Message-ID: <20010221183802.A174@motoko.2y.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200102211536.f1LFaWZ03985@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Wed, Feb 21, 2001 at 04:36:32PM +0100
+User-Agent: Mutt/1.2.5i
+X-PGP-Id: 35070F6A Available at keyserver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21 2001, Peter T. Breuer wrote:
-> I'm particularly concerned about the error behaviour. How should I set
-> up the end_request code in the case when the request is to be errored?
-> Recall that my  end_request code is presently like this:
-> 
->      io_spin_lock
->      while (end_that_request_first(req,!req->errors);
->      // one more time for luck
->      if (!end_that_request_first(req,!req->errors)
->         end_that_request_last(req);
->      io_spin_unlock
-> 
-> and I get the impression from other driver code snippets that a single
-> end_that_request_first is enough, but looking at the implementation it
-> can't be. It looks from ll_rw_blk that I should walk the bh chain just
-> the same in the case of error, no?
+I try to figure aout the different values taken by snd_cwnd
+and after a little of work i find out that the number 2 is 
+the maximum reached.. even when passing a 100MB file on a 
+LAN
 
-The implementation in ll_rw_blk.c (and other places) assumes that
-a failed request just means the first chunk and it then makes sense
-to just end i/o on that buffer and resetup the request for the next
-buffer. If you want to completely scrap the request on an error, then
-you'll just have to do that manually (ie loop end_that_request_first
-and end_that_request_last at the end).
+can you explain that to me???
 
-void my_end_request(struct request *rq, int uptodate)
-{
-	while (end_that_request_first(rq, uptodate))
-		;
+I'm working on a 2.4.1 kernel
+i386
 
-	io_lock
-	end_that_request_last(rq);
-	io_unlock
-}
+i've tried out with proc and printk....
 
-And why you keep insisting on a duplicate end_that_request_first I don't
-know?!
+please answer me at sokak@tin.it
 
+thanx hopping not to bother anyone
 -- 
-Jens Axboe
-
+Pazzooo

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263135AbSJOPBV>; Tue, 15 Oct 2002 11:01:21 -0400
+	id <S262937AbSJOO7M>; Tue, 15 Oct 2002 10:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSJOPBV>; Tue, 15 Oct 2002 11:01:21 -0400
-Received: from f206.pav1.hotmail.com ([64.4.31.206]:55056 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S263135AbSJOPBU>;
-	Tue, 15 Oct 2002 11:01:20 -0400
-X-Originating-IP: [63.229.167.10]
-From: "Anthony Martinez" <i_am_pi_@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: AMD PCNet adapter
-Date: Tue, 15 Oct 2002 09:07:09 -0600
+	id <S263039AbSJOO7M>; Tue, 15 Oct 2002 10:59:12 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:60916 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S262937AbSJOO7L>; Tue, 15 Oct 2002 10:59:11 -0400
+Date: Tue, 15 Oct 2002 11:05:01 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+Message-ID: <20021015110501.B11395@redhat.com>
+References: <3DAB46FD.9010405@watson.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F206ccSN00ktmzmVBCO00002a2e@hotmail.com>
-X-OriginalArrivalTime: 15 Oct 2002 15:07:10.0217 (UTC) FILETIME=[88E2BF90:01C2745C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DAB46FD.9010405@watson.ibm.com>; from nagar@watson.ibm.com on Mon, Oct 14, 2002 at 06:36:45PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-Are there modem drivers available for an AMD PCNet adapter, chip AM79C978XC, 
-or is this even the right place to ask?
+On Mon, Oct 14, 2002 at 06:36:45PM -0400, Shailabh Nagar wrote:
+> As of today, there is no scalable alternative to poll/select in the 2.5
+> kernel even though the topic has been discussed a number of times
+> before. The case for a scalable poll has been made often so I won't
+> get into that.
 
-This card has both ethernet and modem ports, and works with the windoze 
-drivers.
+Have you bothered addressing the fact that async poll scales worse than 
+/dev/epoll?  That was the original reason for dropping it.
 
-I saw some discussion about an AM79C973 in the archives, but that was an 
-ethernet card.
-
-Many Thanks
-Pi
-
-
-_________________________________________________________________
-Chat with friends online, try MSN Messenger: http://messenger.msn.com
-
+		-ben

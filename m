@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263928AbTDNVib (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263938AbTDNVib (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:38:31 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:49288 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263928AbTDNViX (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 17:38:23 -0400
-Date: Mon, 14 Apr 2003 14:52:21 -0700
-From: Greg KH <greg@kroah.com>
-To: oliver@neukum.name
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-Message-ID: <20030414215221.GA5989@kroah.com>
-References: <20030414190032.GA4459@kroah.com> <200304142311.01245.oliver@neukum.org> <20030414213054.GA5700@kroah.com> <200304142343.17802.oliver@neukum.org>
+	id S263961AbTDNVqE (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263950AbTDNVpd (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:45:33 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65289
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263961AbTDNVpN 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:45:13 -0400
+Subject: Re: 2.5 'what to expect' document.
+From: Robert Love <rml@tech9.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030414214807.GB993@mars.ravnborg.org>
+References: <20030414193138.GA24870@suse.de>
+	 <20030414214807.GB993@mars.ravnborg.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050357422.3664.85.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304142343.17802.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 14 Apr 2003 17:57:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 11:43:17PM +0200, Oliver Neukum wrote:
-> 
-> > > Well, for a little elegance you might introduce subdirectories for each
-> > > type of hotplug event and use only them.
-> >
-> > No, that's for the individual scripts/programs to decide.  For example,
-> > that's what the current hotplug scripts do, but that's not at all what
-> > the udev program wants to do.
-> 
-> So have them put a symlink into each subdirectory. This is the way it's
-> done for init since times immemorial.
+On Mon, 2003-04-14 at 17:48, Sam Ravnborg wrote:
 
-But the number of different "types" keeps growing.  For some programs
-(like udev) they really don't care about the type, and if you add a new
-type, it still works just fine.  Other programs do care about the type,
-so they can look at it and make a judgement based on it.
+> > - The bdflush() syscall is now officially deprecated. The syscall
+> >   does nothing, and prints a stern warning to users. The functionality
+> >   is replaced by the pdflush deamons.
+>
+> Can I safely delete /sbin/update from my initscripts then?
 
-thanks,
+If you never plan to boot 2.2 or earlier, yes.
 
-greg k-h
+	Robert Love
+
+
+

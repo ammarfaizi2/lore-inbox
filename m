@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131580AbQKNXQE>; Tue, 14 Nov 2000 18:16:04 -0500
+	id <S131594AbQKNXQf>; Tue, 14 Nov 2000 18:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131594AbQKNXPy>; Tue, 14 Nov 2000 18:15:54 -0500
-Received: from pm3-6-39.apex.net ([209.250.41.102]:10502 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S131430AbQKNXPv>; Tue, 14 Nov 2000 18:15:51 -0500
-Date: Tue, 14 Nov 2000 16:31:54 -0600
-From: Steven Walter <srwalter@hapablap.dyn.dhs.org>
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "couldn't find the kernel version the module was compiled for" - help!
-Message-ID: <20001114163154.A3328@hapablap.dyn.dhs.org>
-In-Reply-To: <20001114222843Z131509-521+212@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20001114222843Z131509-521+212@vger.kernel.org>; from ttabi@interactivesi.com on Tue, Nov 14, 2000 at 03:58:38PM -0600
+	id <S131610AbQKNXQ3>; Tue, 14 Nov 2000 18:16:29 -0500
+Received: from [213.8.185.152] ([213.8.185.152]:6665 "EHLO callisto.yi.org")
+	by vger.kernel.org with ESMTP id <S131594AbQKNXQH>;
+	Tue, 14 Nov 2000 18:16:07 -0500
+Date: Wed, 15 Nov 2000 00:45:36 +0200 (IST)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: test11-pre5
+In-Reply-To: <Pine.LNX.4.10.10011141346480.15149-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0011150030030.26513-100000@callisto.yi.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If my understanding is correct, you need to include version.h without
-"#define __NO_VERSION__" in one and only one of your module's .c files.
-More than one, and you get redefinition errors; less than one, and its
-undefined.
 
-On Tue, Nov 14, 2000 at 03:58:38PM -0600, Timur Tabi wrote:
-> I'm at a loss to explain why I can't get this working.
-> 
-> I have a driver written for 2.4 that I'm porting back to 2.2.  Every time I
-> think I got it working, something surprises me.  
-> 
-> First, I had a bunch of link errors on the redifintion of
-> __module_kernel_version.  To fix that, someone told me to do this:
-> 
-> #define __NO_VERSION__
-> #include <linux/version.h>
-> 
-> And sure enough, no more errors.
-> 
-> However, now I get this error from insmod when I try to load my driver:
-> 
-> [root@two ttabi]# insmod tdmcddk.sys 
-> tdmcddk.sys: couldn't find the kernel version the module was compiled for
-> 
-> I've tried all sorts of things - recompiling the kernels, changing the order of
-> #include files (version.h, module.h, modversions.h, whatever).  Either the
-> driver won't link, or it won't load.
-> 
-> I had our other Linux programmer (who works only with 2.2) look at the problem,
-> but he couldn't figure it out, either.
-> 
-> I'd be very appreciative of any assistance.
-> 
+against: test11-pre5
+summery: dev_3c501.name shouldn't be NULL, or we get oops
+reason: Correct me if I'm wrong, but 3c501.c:init_module() calls
+net_init.c:register_netdev(&dev_3c501), which calls strchr(),
+{and might also,which might} dereference dev_3c501.name.
+
+--- linux/drivers/net/3c501.c	Wed Nov 15 00:30:40 2000
++++ linux/drivers/net/3c501.c	Wed Nov 15 00:31:44 2000
+@@ -915,6 +915,7 @@
+ #ifdef MODULE
+ 
+ static struct net_device dev_3c501 = {
++	name:		"",
+ 	init:		el1_probe,
+ 	base_addr:	0x280,
+ 	irq:		5,
+
+
+-- 
+Dan Aloni 
+dax@karrde.org
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

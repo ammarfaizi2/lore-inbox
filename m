@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbULPUFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbULPUGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbULPUFF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbULPUFF
+	id S261957AbULPUGH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbULPUGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:05:05 -0500
-Received: from mail.tmr.com ([216.238.38.203]:63249 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261879AbULPUE6 (ORCPT
+	Thu, 16 Dec 2004 15:06:07 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:5529 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id S261957AbULPUGB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:04:58 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: CD and 2.6 - more data fewer answers
-Date: Thu, 16 Dec 2004 15:06:16 -0500
-Organization: TMR Associates, Inc
-Message-ID: <cpsp7f$mve$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 16 Dec 2004 15:06:01 -0500
+X-Qmail-Scanner-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.23 (Clear:RC:0(213.238.100.99):. Processed in 0.193133 secs)
+Message-ID: <003901c4e3ab$d86c8580$0e25fe0a@pysiak>
+From: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6 flavours
+Date: Thu, 16 Dec 2004 21:13:56 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-2";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1103226928 23534 192.168.12.100 (16 Dec 2004 19:55:28 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 2.6.7-rc1-mm1 test system with both IDE CD and USB CD-R. Both 
-work fine as I normally use them, the CD-R is my primary backup device.
+Hi,
 
-With all the discussion of DMA or not DMA, I decided to try some 
-reads... I tried readcd using /dev/hdc and the user was 60%, sys 40%, no 
-idle. Using ATAPI:0,0,0 I saw user 60%, sys 2% idle 38%. Then using the 
-USB device I saw user 4%, sys 9%, idle 12%, wio 75%. The USB is much 
-faster, so this looked right, and it appeared that on data reads DMA was 
-being used. I have no idea where all the user CPU was going.
+AFAICS the -ac tree should be the most stable of all kernels, right?
 
-Then I turned on -c2scan to read 2352 byte sectors without the final 
-error correct. With /dev/hdc I saw use 42%, sys 68%. Using ATAPI:0,0,0 I 
-saw user 47%, sys 53%. And using the USB device the c2scan ended without 
-reading any data.
+-mm is totally bleeding edge
+-bk the same
+-ck is experimental
 
-The difference between /dev/hdc and ATAPI:0,0,0 is small, although 
-consistent. The access by SCSI number failed with the USB drive, and 
-/dev/scd0 resulted in "readcd: Invalid argument. Cannot get SCSI I/O 
-buffer" when tried (yes, as root as well).
+Others are experimental too.
 
-I make no claim that this sheds light on the question, just a sprinkle 
-of data to provide flavor. I'll bring in an audio CD tomorrow and see 
-what trying to rip that does, unless someone beats me to it.
+Looking at the changelogs, the most reasonable kernel to use for
+generic use are the -ac kernels, which I am going to use since 2.6.10
+as long as Alan is kindly going to continue his fabulous work.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I swear not to use 2.6.10 until Alan publishes 2.6.10-ac1 :-)
+
+Regards,
+Maciej
+

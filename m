@@ -1,57 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVAONhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVAONh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVAONhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 08:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVAONhT
+	id S262281AbVAONh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 08:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVAONgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 08:37:19 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:44008 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262282AbVAONfY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 08:35:24 -0500
-Date: Sat, 15 Jan 2005 14:34:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Steven Rostedt <rostedt@goodmis.org>, Bill Huey <bhuey@lnxw.com>
-Subject: [patch] Real-Time Preemption, -RT-2.6.11-rc1-V0.7.35-00
-Message-ID: <20050115133454.GA8748@elte.hu>
-References: <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <20050104064013.GA19528@nietzsche.lynx.com> <20050104094518.GA13868@elte.hu>
+	Sat, 15 Jan 2005 08:36:55 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:30888 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262281AbVAONb3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 08:31:29 -0500
+Subject: [PATCH 6/6] cifs: convert schedule_timeout to msleep and ssleep
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: sfrench@samba.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1105795818.9555.9.camel@localhost>
+References: <1105795546.9555.2.camel@localhost>
+	 <1105795614.9555.3.camel@localhost>  <1105795682.9555.5.camel@localhost>
+	 <1105795751.9555.7.camel@localhost>  <1105795818.9555.9.camel@localhost>
+Date: Sat, 15 Jan 2005 15:31:28 +0200
+Message-Id: <1105795888.9555.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050104094518.GA13868@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch converts cifs code to use msleep() and ssleep() instead of
+schedule_timeout().
 
-i have released the -V0.7.35-00 Real-Time Preemption patch, which can be
-downloaded from the usual place:
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-  http://redhat.com/~mingo/realtime-preempt/
+ cifsfs.c  |    9 ++++-----
+ connect.c |   25 +++++++++----------------
+ 2 files changed, 13 insertions(+), 21 deletions(-)
 
-The two dozen split out latency patches (including PREEMPT_BKL) that
-were in -mm are in BK now, so i've rebased the -RT patchset to
-2.6.11-rc1. It would be nice to check for regressions (or the lack of
-them), to make sure everything latency-related has been properly merged
-upstream from -mm. (so that a new splitup cycle can start.)
+Index: 2.6/fs/cifs/cifsfs.c
+===================================================================
+--- 2.6.orig/fs/cifs/cifsfs.c	2005-01-12 23:33:14.476445944 +0200
++++ 2.6/fs/cifs/cifsfs.c	2005-01-12 23:37:09.402731720 +0200
+@@ -32,6 +32,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/vfs.h>
+ #include <linux/mempool.h>
++#include <linux/delay.h>
+ #include "cifsfs.h"
+ #include "cifspdu.h"
+ #define DECLARE_GLOBALS_HERE
+@@ -748,14 +749,12 @@
+ 
+ 	oplockThread = current;
+ 	do {
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		
+-		schedule_timeout(1*HZ);  
++		ssleep(1);
++
+ 		spin_lock(&GlobalMid_Lock);
+ 		if(list_empty(&GlobalOplock_Q)) {
+ 			spin_unlock(&GlobalMid_Lock);
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			schedule_timeout(39*HZ);
++			ssleep(39);
+ 		} else {
+ 			oplock_item = list_entry(GlobalOplock_Q.next, 
+ 				struct oplock_q_entry, qhead);
+Index: 2.6/fs/cifs/connect.c
+===================================================================
+--- 2.6.orig/fs/cifs/connect.c	2005-01-12 23:33:14.479445488 +0200
++++ 2.6/fs/cifs/connect.c	2005-01-12 23:37:47.396955720 +0200
+@@ -29,6 +29,7 @@
+ #include <linux/ctype.h>
+ #include <linux/utsname.h>
+ #include <linux/mempool.h>
++#include <linux/delay.h>
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+ #include "cifspdu.h"
+@@ -174,8 +175,7 @@
+ 					server->workstation_RFC1001_name);
+ 		}
+ 		if(rc) {
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			schedule_timeout(3 * HZ);
++			ssleep(3);
+ 		} else {
+ 			atomic_inc(&tcpSesReconnectCount);
+ 			spin_lock(&GlobalMid_Lock);
+@@ -226,8 +226,7 @@
+ 
+ 		if (smb_buffer == NULL) {
+ 			cERROR(1,("Can not get memory for SMB response"));
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			schedule_timeout(HZ * 3); /* give system time to free memory */
++			ssleep(3);
+ 			continue;
+ 		}
+ 		iov.iov_base = smb_buffer;
+@@ -308,8 +307,7 @@
+ 				} else {
+ 					/* give server a second to
+ 					clean up before reconnect attempt */
+-					set_current_state(TASK_INTERRUPTIBLE);
+-					schedule_timeout(HZ);
++					ssleep(1);
+ 					/* always try 445 first on reconnect
+ 					since we get NACK on some if we ever
+ 					connected to port 139 (the NACK is 
+@@ -433,8 +431,7 @@
+ 	and get out of SendReceive.  */
+ 	wake_up_all(&server->request_q);
+ 	/* give those requests time to exit */
+-	set_current_state(TASK_INTERRUPTIBLE);
+-	schedule_timeout(HZ/8);
++	msleep(125);
+ 
+ 	if(server->ssocket) {
+ 		sock_release(csocket);
+@@ -471,17 +468,15 @@
+ 		}
+ 		spin_unlock(&GlobalMid_Lock);
+ 		read_unlock(&GlobalSMBSeslock);
+-		set_current_state(TASK_INTERRUPTIBLE);
+ 		/* 1/8th of sec is more than enough time for them to exit */
+-		schedule_timeout(HZ/8); 
++		msleep(125);
+ 	}
+ 
+ 	if (list_empty(&server->pending_mid_q)) {
+ 		/* mpx threads have not exited yet give them 
+ 		at least the smb send timeout time for long ops */
+ 		cFYI(1, ("Wait for exit from demultiplex thread"));
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule_timeout(46 * HZ);	
++		ssleep(46);
+ 		/* if threads still have not exited they are probably never
+ 		coming home not much else we can do but free the memory */
+ 	}
+@@ -497,8 +492,7 @@
+ 			GFP_KERNEL);
+ 	}
+ 
+-	set_current_state(TASK_INTERRUPTIBLE);
+-	schedule_timeout(HZ/4);
++	msleep(250);
+ 	return 0;
+ }
+ 
+@@ -2924,8 +2918,7 @@
+ 	
+ 	cifs_sb->tcon = NULL;
+ 	if (ses) {
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule_timeout(HZ / 2);
++		msleep(500);
+ 	}
+ 	if (ses)
+ 		sesInfoFree(ses);
 
-to create a -V0.7.34-00 tree from scratch, the patching order is:
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.11-rc1.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.11-rc1-V0.7.35-00
-
-	Ingo

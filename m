@@ -1,95 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbRCENCV>; Mon, 5 Mar 2001 08:02:21 -0500
+	id <S129259AbRCENUz>; Mon, 5 Mar 2001 08:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129242AbRCENCM>; Mon, 5 Mar 2001 08:02:12 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:38842 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129257AbRCENCH>; Mon, 5 Mar 2001 08:02:07 -0500
-Message-ID: <3AA38E05.549BCF95@uow.edu.au>
-Date: Tue, 06 Mar 2001 00:00:53 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
+	id <S129250AbRCENUo>; Mon, 5 Mar 2001 08:20:44 -0500
+Received: from node1600a.a2000.nl ([24.132.96.10]:39593 "EHLO
+	appel.lilypond.org") by vger.kernel.org with ESMTP
+	id <S129259AbRCENUb>; Mon, 5 Mar 2001 08:20:31 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: Erik Hensema <erik@hensema.xs4all.nl>, linux-kernel@vger.kernel.org,
+        bug-bash@gnu.org
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <20010227140333.C20415@cistron.nl>
+	<E14XkQG-0003R7-00@the-village.bc.nu>
+	<20010228211043.A4579@hensema.xs4all.nl> <20010301120446.A34@(none)>
+Organization: Jan at Appel
+From: Jan Nieuwenhuizen <janneke@gnu.org>
+Date: 05 Mar 2001 14:20:23 +0100
+In-Reply-To: Pavel Machek's message of "Thu, 1 Mar 2001 12:04:47 +0000"
+Message-ID: <m3k8648i94.fsf@appel.lilypond.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-To: Cort Dougan <cort@fsmlabs.com>
-CC: linux-fbdev-devel@sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Brad Douglas <brad@neruo.com>
-Subject: Re: [prepatches] removal of console_lock
-In-Reply-To: <3AA1EF6C.A9C7613E@uow.edu.au>,
-		<3AA1EF6C.A9C7613E@uow.edu.au>; from andrewm@uow.edu.au on Sun, Mar 04, 2001 at 06:31:56PM +1100 <20010304231508.M2565@ftsoj.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cort Dougan wrote:
+Pavel Machek <pavel@suse.cz> writes:
+
+> > $ head -1 testscript
+> > #!/bin/sh
+> > $ ./testscript
+> > bash: ./testscript: No such file or directory
 > 
-> I still get huge over-runs with fbdev (much improved, though).
+> What kernel wants to say is "/usr/bin/perl\r: no such file". Saying ENOEXEC
+> would be even more confusing.
 
-If you're referring to scheduling overruns then yes, you will
-still see monstrous ones.  We're still spending great lengths of
-time in the kernel, only now we're doing it with interrupts
-enabled.  We can still block all tasks for half a second at a time.
+So, why don't we make bash say that, then?  As I guess that we've all
+been bitten by this before.
 
-This means that if you're telnetting into a machine and someone
-cats a big file on the console, the system is completely unusable
-until the `cat' completes.
+What are the chances for something like this to be included?
 
-(edit, edit, test, test)
-
-OK, fixed.
-
-> Andrew, are you still working on it?  If so, I'm happy to keep you
-> up-to-date on performance WRT Linux/PPC.
-
-Please do.
-
-I don't view this work as part of low-latency, BTW.  Low
-latency is a feature.  The interrupt and scheduling
-latencies caused by console+fbcon is a bug.
+Greetings,
+Jan.
 
 
-There are new patches at
+--- ../bash-2.04/execute_cmd.c	Tue Jan 25 17:29:11 2000
++++ ./execute_cmd.c	Mon Mar  5 13:50:23 2001
+@@ -3035,6 +3035,42 @@
+     }
+ }
+ 
++/* Look for #!INTERPRETER in file COMMAND, and return INTERPRETER . */
++static char *
++extract_hash_bang_interpreter (char *command, char buf[80])
++{
++  int fd;
++  char *interpreter;
++
++  interpreter = "";
++  fd = open (command, O_RDONLY);
++  if (fd >= 0)
++    {
++      int len;
++	      
++      len = read (fd, (char *)buf, 80);
++      close (fd);
++	      
++      if (len > 0
++	  && buf[0] == '#' && buf[1] == '!')
++	{
++	  int i;
++	  int start;
++		  
++	  for (i = 2; whitespace (buf[i]) && i < len; i++)
++	    ;
++	  
++	  for (start = i;
++	       !whitespace (buf[i]) && buf[i] != '\n' && i < len;
++	       i++)
++	    ;
++
++	  interpreter = substring ((char *)buf, start, i);
++	}
++    }
++  return interpreter;
++}
++
+ /* Execute a simple command that is hopefully defined in a disk file
+    somewhere.
+ 
+@@ -3155,7 +3191,12 @@
+ 
+       if (command == 0)
+ 	{
+-	  internal_error ("%s: command not found", pathname);
++	  char buf[80];
++	  char *interpreter = extract_hash_bang_interpreter (pathname, buf);
++	      
++	  internal_error ("%s: command not found: `%s'", pathname,
++			  interpreter);
++	  
+ 	  exit (EX_NOTFOUND);	/* Posix.2 says the exit status is 127 */
+ 	}
+ 
 
-	http://www.uow.edu.au/~andrewm/linux/console.html
 
-- Fixed a compile warning in i386_ksyms.c
+-- 
+Jan Nieuwenhuizen <janneke@gnu.org> | GNU LilyPond - The music typesetter
+http://www.xs4all.nl/~jantien       | http://www.lilypond.org
 
-- Include interrupt.h for UP builds
-
-- Fixed a thinko which broke dmesg
-
-- added console_conditional_schedule()
-
-- used console_conditional_schedule() in four places.
-
-  This change allows the kernel to reschedule if needed while
-  performing lengthy console operations.   Scheduling latency
-  is reduced from 500 milliseconds to 1 millisecond.
-
-- Updated to latest kernels.
-
-
-I think that's everything fixed.  IWFM with Riva hardware.  If
-you still see huge latencies, please let me know how to
-reproduce them - it's pretty trivial to fix it with the
-new infrastructure.
-
-BTW: the latest lolat patch still applies to 2.4.3-pre2.
-People are after me for -ac patches as well, so I'll start
-tracking Alan's kernels soon.
-
-BTW2: testing methodology:
-
-- Load netdriver with `debug=7'
-- cat many files on VC1
-- cat many files on VC2
-- run netperf on VC3 to generate vast amounts of console and
-  log output in both process and interrupt context
-- Madly flick between VCs
-  
-
--

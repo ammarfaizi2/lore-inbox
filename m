@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbUCWKIn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 05:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbUCWKIn
+	id S262428AbUCWKNv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 05:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbUCWKNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 05:08:43 -0500
-Received: from rootsrv.net ([217.160.131.12]:22681 "HELO rootsrv.net")
-	by vger.kernel.org with SMTP id S262427AbUCWKIl (ORCPT
+	Tue, 23 Mar 2004 05:13:50 -0500
+Received: from holomorphy.com ([207.189.100.168]:1684 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262428AbUCWKNt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 05:08:41 -0500
-Message-ID: <40600CDD.5050807@pop2wap.net>
-Date: Tue, 23 Mar 2004 11:09:33 +0100
-From: Christof <mail@pop2wap.net>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: synchronous serial port communication (16550A)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Mar 2004 05:13:49 -0500
+Date: Tue, 23 Mar 2004 02:13:23 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com
+Subject: Re: [PATCH] nodemask_t x86_64 changes [5/7]
+Message-ID: <20040323101323.GD2045@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, colpatch@us.ibm.com,
+	linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+	haveblue@us.ibm.com
+References: <1079651082.8149.175.camel@arrakis> <20040322230850.1d8f26dc.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040322230850.1d8f26dc.pj@sgi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Mar 22, 2004 at 11:08:50PM -0800, Paul Jackson wrote:
+> I'll be surprised if the following line works:
+> 	nodemask_t node_offline_map = nodes_complement(node_online_map);
+> 1) Doesn't nodes_complement return void, and work in place?
+> 2) It might set bits above MAX_NUMNODES, if MAX_NUMNODES isn't a word size multiple.
+> I am less sure of (2) - the exact details of handling the unused bits of
+> a bitmask are still confusing me.  But this would be one of the very
+> rare situations that I can find that would actually be sensitive to
+> possible confusions here - most places don't set bits that aren't
+> already set in some mask, or are careful to initialize a mask with just
+> set bits in select positions from 0 to MAX_NUMNODES-1.
 
-I have a possible problem with the 8250 serial port driver in linux (2.6.2).
-I communicate with a graphic controller with LCD-Display via ttyS0. This
-controller has a small buffer: 20 bytes. When the buffer is full it
-asserts the CTS line. When it can receive data again, the CTS line is
-cleared.
-My software checks the CTS line each time before sending a byte. If it
-is asserted, it waits until its cleared and goes on. When data is sent
-although CTS is asserted, the graphic controller will be confused and
-garbage will appear on the LCD screen.
-
-To make the story short: I see a lot of garbage on the LCD.
-It looks like output would be buffered and all data would be sent at
-once without giving me the possibility to check if everything's
-allright. Sometimes I can send >400 Bytes and ioctl says that CTS is not
-asserted, altough it certainly is. What I need is totally synchronous
-I/O. I want all bytes to be sent physically before I check for CTS, but
-I can't find a possibility to actually achieve this. I tried to hack the
-driver not to use the FIFO (My Linux box has a 16550A UART) and to set
-the size of the circ buffer to 1, but nothing helped.
-I compiled my software for cygwin for my Windows-machine and it worked,
-the only thing is that I don't know what UART is build in, but i suppose
-that it also has a FIFO since it is a quite new machine. (The FIFO is
-also enabled in windows too).
-
-Do you have any idea what I could do?
-
-Thanks in advance and sorry for the messy english =)
-
-Regards,
-  Christof Krueger
+In general I attempted to model things after 3-address code.
+bitmap_complement() is a glaring inconsistency I wouldn't mind seeing
+shored up with the rest (though I guess it's only got 2 operands).
 
 
+-- wli

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263705AbREYLOa>; Fri, 25 May 2001 07:14:30 -0400
+	id <S263712AbREYLW3>; Fri, 25 May 2001 07:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263707AbREYLOT>; Fri, 25 May 2001 07:14:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4365 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263705AbREYLOE>; Fri, 25 May 2001 07:14:04 -0400
+	id <S263710AbREYLWT>; Fri, 25 May 2001 07:22:19 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:65287 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S263709AbREYLWH>; Fri, 25 May 2001 07:22:07 -0400
+Date: Fri, 25 May 2001 12:56:21 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Aaron Lehmann <aaronl@vitelus.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, adam@yggdrasil.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-To: johnc@damncats.org (John Cavan)
-Date: Fri, 25 May 2001 12:10:31 +0100 (BST)
-Cc: aaronl@vitelus.com (Aaron Lehmann),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3B0E2D3B.EDC082A6@damncats.org> from "John Cavan" at May 25, 2001 06:00:27 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Message-ID: <20010525125618.H12364@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010524230321.B23155@vitelus.com> <Pine.GSO.4.21.0105250229220.24864-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E153FUG-0006QG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0105250229220.24864-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, May 25, 2001 at 02:34:05AM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not to sound dense, but what part of the GPL prohibits a piece of GPL'd
-> software from including non-GPL'd code? The GPL does explicitly state
-> that you can't include it's software in proprietary code, but I don't
-> recall seeing a provision that prohibits the other way around.
+On Fri, May 25, 2001 at 02:34:05AM -0400, Alexander Viro wrote:
+> Erm... May I point you to the sysdep/libm-ieee754/e_j0.c? There's a bunch
+> of constants of unknown origin. If you want to modify the implementation
+> you most certainly want more than numeric values.
 
-The same thinbg holds true both ways. A work containing GPL code must be GPL
-or freer. Adding either to the other is the same thing.
+Nothing special IMHO. Look up 'Bessel functions' in a math book and you
+should be able to derive the constants.
 
-The firmware is a seperate work, and its mere aggregation even if a .o file
-is a more unusual archive formt
 
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311900AbSCOBvx>; Thu, 14 Mar 2002 20:51:53 -0500
+	id <S311905AbSCOByc>; Thu, 14 Mar 2002 20:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311901AbSCOBvn>; Thu, 14 Mar 2002 20:51:43 -0500
-Received: from adsl-64-169-88-198.dsl.snfc21.pacbell.net ([64.169.88.198]:2691
-	"EHLO fokker") by vger.kernel.org with ESMTP id <S311900AbSCOBvh>;
-	Thu, 14 Mar 2002 20:51:37 -0500
-Message-ID: <3C9153A7.292C320@ianduggan.net>
-Date: Thu, 14 Mar 2002 17:51:35 -0800
-From: Ian Duggan <ian@ianduggan.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18+mki+w4l i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.18 Preempt Freezeups
-Content-Type: text/plain; charset=us-ascii
+	id <S311904AbSCOByM>; Thu, 14 Mar 2002 20:54:12 -0500
+Received: from zero.tech9.net ([209.61.188.187]:13583 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S311903AbSCOByE>;
+	Thu, 14 Mar 2002 20:54:04 -0500
+Subject: Re: 2.4.18 Preempt Freezeups
+From: Robert Love <rml@tech9.net>
+To: Ian Duggan <ian@ianduggan.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C9153A7.292C320@ianduggan.net>
+In-Reply-To: <3C9153A7.292C320@ianduggan.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 14 Mar 2002 20:54:09 -0500
+Message-Id: <1016157250.4599.62.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-03-14 at 20:51, Ian Duggan wrote:
 
-Hi,
+> Stock 2.4.17+preempt+lock-break+mki-adapter+win4lin
+> 
+> 	- Problem extremely intermittent, maybe once a day.
+> 
+> 
+> Stock 2.4.18+preempt+mki-adapter+win4lin
+> 
+> 	- Very frequent, and also repeatable every time I
+> 		try to start win4lin.
 
-I seem to be getting some odd behavior that I think may be related to
-the preempt patch somehow.
+Pretty clear it is win4line.  Is it SMP-safe?
 
+Is there another kernel module you load for win4lin?  Binary?  It needs
+to be made preempt (and SMP) -safe.
 
-Problem:
---------
-
-The machine completely hangs with the exception of constantly repeating
-the same 1/4 second sound sample that happens to be playing at the time
-of the hang. The kernel does not respond to network traffic, nor to
-SYS-REQ commands. A hard reset is all that works at this point.
-
-
-CPU, Kernels and Patches:
--------------------------
-
-Dual Pentium III 450MHz, SMP Kernels
+	Robert Love
 
 
-Stock 2.4.17+preempt+lock-break+mki-adapter+win4lin
-
-	- Problem extremely intermittent, maybe once a day.
-
-
-Stock 2.4.18+preempt+mki-adapter+win4lin
-
-	- Very frequent, and also repeatable every time I
-		try to start win4lin.
-
-
-Stock 2.4.18+mki-adapter+win4lin
-
-	- No problems thus far. Win4lin works fine.
-
-
-
-The mki-adapter and win4lin patches are needed for win4lin to work. I
-include them here because it seems to be some sort of interaction
-between them and preempt, or some behavior that they can evoke
-repeatable which causes the problem to surface.
-
-The problem could easily be somewhere in the win4lin stuff, and preempt
-causes it to appear there.
-
-What can I do to try to hunt down this problem, given that the machine
-is completly useless once it happens?
-
--- Ian
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Ian Duggan                    ian@ianduggan.net
-                              http://www.ianduggan.net

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUCKNHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUCKNHt
+	id S261241AbUCKNKF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUCKNKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:07:49 -0500
-Received: from zero.aec.at ([193.170.194.10]:30982 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261244AbUCKNHs (ORCPT
+	Thu, 11 Mar 2004 08:10:05 -0500
+Received: from [213.226.134.105] ([213.226.134.105]:22012 "EHLO mx.ktv.lt")
+	by vger.kernel.org with ESMTP id S261241AbUCKNKB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:07:48 -0500
-To: Boszormenyi Zoltan <zboszor@freemail.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86_64 IOMMU question
-References: <1yxkz-6ct-31@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 18 Mar 2004 00:14:09 +0100
-In-Reply-To: <1yxkz-6ct-31@gated-at.bofh.it> (Boszormenyi Zoltan's message
- of "Thu, 11 Mar 2004 13:20:15 +0100")
-Message-ID: <m3ptbbawxq.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+	Thu, 11 Mar 2004 08:10:01 -0500
+Date: Thu, 11 Mar 2004 15:07:03 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: NVIDIA and 2.6.4?
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+References: <20040311123100.GE17760@rdlg.net>
+In-Reply-To: <20040311123100.GE17760@rdlg.net>
+X-Mailer: Mahogany 0.65.0 'Claire', compiled for Linux 2.4.18-rc4 i686
+Message-Id: <20040311131027.051055D9A@mx.ktv.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Boszormenyi Zoltan <zboszor@freemail.hu> writes:
+On Thu, 11 Mar 2004 07:31:00 -0500 "Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
 
-> is it possible to use the IOMMU to help 32 bit devices
-> that limit their capabilities with pci_set_dma_mask()?
-> E.g. the emu10k1 limits itself under 256MB. Can the IOMMU
-> pass the data to/from the card from/to above 256MB?
+> And that's just for starters.  Does anyone know if there's a way to get
+> this to compile cleanly or is it SoL until a new driver is released
+> (running 1.0.4191 currently).
 
-It can only remap to the AGP aperture, which is usually
-just below the 4GB boundary. In theory you could move the aperture
-to a very low address and remap to that (see 
-arch/x86_64/kernel/aperture.c), but that would waste memory.
+At least for x86 the latest driver (1.0-5336) is compatible with 2.6.x
+(didn't test on 2.6.4 though).
 
--Andi
+Regards,
+Nerijus
 

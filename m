@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUFMPyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUFMP5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUFMPyU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 11:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbUFMPyU
+	id S265196AbUFMP5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 11:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265197AbUFMP5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 11:54:20 -0400
-Received: from gate.crashing.org ([63.228.1.57]:38082 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265195AbUFMPyS (ORCPT
+	Sun, 13 Jun 2004 11:57:47 -0400
+Received: from gprs214-6.eurotel.cz ([160.218.214.6]:22400 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265196AbUFMP5q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 11:54:18 -0400
-Subject: Re: [PATCH] Fix ppc64 out_be64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: anton@au.ibm.com, linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <521xkk77xh.fsf@topspin.com>
-References: <521xkk77xh.fsf@topspin.com>
-Content-Type: text/plain
-Message-Id: <1087141822.8210.176.camel@gaston>
+	Sun, 13 Jun 2004 11:57:46 -0400
+Date: Sun, 13 Jun 2004 17:57:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, herbert@gondor.apana.org.au,
+       mochel@digitalimplant.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix memory leak in swsusp
+Message-ID: <20040613155724.GA2683@elf.ucw.cz>
+References: <20040609130451.GA23107@elf.ucw.cz> <20040611210059.2522e02d.akpm@osdl.org> <40CB7EBD.2020109@linuxmail.org> <200406121932.49477.jeffpc@optonline.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 13 Jun 2004 10:50:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406121932.49477.jeffpc@optonline.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> -static inline void out_be64(volatile unsigned long *addr, int val)
-> +static inline void out_be64(volatile unsigned long *addr, unsigned long val)
->  {
-> -	__asm__ __volatile__("std %1,0(%0); sync" : "=m" (*addr) : "r" (val));
-> +	__asm__ __volatile__("std %1,%0; sync" : "=m" (*addr) : "r" (val));
->  }
+> > At some stage, you copy the page that contains the preempt count for the
+> > process that is doing the suspending. If you use memcpy on a 3Dnow machine,
+> > the preempt count is incremented prior to doing the copy of the page. Then,
+> > at resume time, it is one too high.
+> 
+> Well, if we know that it is one too high, why not decrement right after the 
+> resume?
 
-Ugh ? The syntax of std is std rS, ds(rA), so your fix doesn't look good to me,
-and it definitely builds with the current syntax, though I agree the type
-is indeed wrong. I also spotted another bug where we forgot to change an
-eieio into sync in there though.
+You are suggesting very dirty hack. See archives why it is basically
+undoable.
 
-Does this totally untested patch works for you ?
-
-===== include/asm-ppc64/io.h 1.18 vs edited =====
---- 1.18/include/asm-ppc64/io.h	2004-05-21 02:50:11 -05:00
-+++ edited/include/asm-ppc64/io.h	2004-06-12 19:01:41 -05:00
-@@ -307,7 +307,7 @@
- 
- static inline void out_be32(volatile unsigned *addr, int val)
- {
--	__asm__ __volatile__("stw%U0%X0 %1,%0; eieio"
-+	__asm__ __volatile__("stw%U0%X0 %1,%0; sync"
- 			     : "=m" (*addr) : "r" (val));
- }
- 
-@@ -358,7 +358,7 @@
- 
- static inline void out_be64(volatile unsigned long *addr, int val)
- {
--	__asm__ __volatile__("std %1,0(%0); sync" : "=m" (*addr) : "r" (val));
-+	__asm__ __volatile__("std%U0%X0 %1,%0; sync" : "=m" (*addr) : "r" (val));
- }
- 
- #ifndef CONFIG_PPC_ISERIES 
-
-
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

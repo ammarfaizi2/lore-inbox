@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262622AbUCJOci (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 09:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbUCJOci
+	id S262623AbUCJOeo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 09:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUCJOeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 09:32:38 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:45770 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S262622AbUCJOcd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 09:32:33 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Brice Figureau <brice@daysofwonder.com>
-Date: Wed, 10 Mar 2004 15:32:00 +0200
+	Wed, 10 Mar 2004 09:34:44 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32730 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262623AbUCJOem
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 09:34:42 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Thomas Horsten <thomas@horsten.com>
+Subject: Re: [PATCH] 2.4.x Linux Medley RAID Version 7
+Date: Wed, 10 Mar 2004 15:39:28 +0100
+User-Agent: KMail/1.5.3
+References: <Pine.LNX.4.40.0403101258180.32012-200000@jehova.dsm.dk>
+In-Reply-To: <Pine.LNX.4.40.0403101258180.32012-200000@jehova.dsm.dk>
+Cc: andre@linux-ide.org, <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: PROBLEM: task->tty->driver problem/oops in proc_pid_sta
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, wli@holomorphy.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <48F1C131BD@vcnet.vc.cvut.cz>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403101539.28258.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Mar 04 at 11:54, Brice Figureau wrote:
 
-> I've digged a little deeper into the following oops that occurs every
-> night on my servers (see my previous mail):
+Hi,
 
-Or you could dig LKML archives - I reported it in jan & feb three times.
+On Wednesday 10 of March 2004 14:07, Thomas Horsten wrote:
+> I'll submit this again in the hope that it will be included.
 
-> Something interesting: the oops occurs always in a thread (either mysql
-> or java), not in a principal process (verified by finding the only task
-> that is locked by doing some cat in /proc/<pid>/task/).
+I don't like the idea of having 2 drivers doing basically the same thing.
+Please explain why we can't have one Medley software RAID driver?
+[ Yes, I read http://www.ussg.iu.edu/hypermail/linux/kernel/0308.0/0156.html ]
 
-wli has a patch, unfortunately for some reason it did not hit
-main kernel yet. I've put it (without Wli's permission) at 
-http://platan.vc.cvut.cz/ftp/pub/linux/pidstat.patch.
-For unknown reason patch did not find its way to Linus's kernel yet,
-although it renders 2.6.x unusable in any multiuser environment.
-
-> Then I tried to reproduce it exactly and found the following:
-> 1) log in with ssh on the server (this allocates a tty: /dev/pts/0)
-> 2) launch a java application using some threads, the application in
-> question uses /dev/pts/0 as tty
-> 3) log-out, this releases /dev/pts/0
-> 4) log in again (this session uses /dev/pts/1)
-> 5) run chkrootkit or a 'ps mauxgww' -> the previous oops is reported.
-
-I have simple C program which you run under normal account on any
-2.6.x kernel and it will turn box into dead piece of metal if SMP
-kernel is used, or at least all 'ps' services stop (on UP kernel).
-Not useful as exploit, but quite sufficient as a DoS.
-                                                            Petr Vandrovec
-                                                            
+Regards,
+Bartlomiej
 

@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbUAHXzO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 18:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUAHXzN
+	id S264411AbUAHX5k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 18:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbUAHX5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 18:55:13 -0500
-Received: from bender.bawue.de ([193.7.176.20]:12750 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S264288AbUAHXzK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 18:55:10 -0500
-To: a.othieno@bluewin.ch (Arthur Othieno)
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.1-rc3] Canonically reference files in
- Documentation/, Documentation/ part
-In-Reply-To: <20040108221040.GB785@mars> (Arthur Othieno's message of "Thu,
- 8 Jan 2004 23:10:40 +0100")
-References: <86isjm70wq.fsf@n-dimensional.de> <20040108221040.GB785@mars>
-From: Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-Date: Fri, 09 Jan 2004 00:54:24 +0100
-Message-ID: <86lloingi7.fsf@n-dimensional.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
- linux)
+	Thu, 8 Jan 2004 18:57:40 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:31448 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S264411AbUAHX5f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 18:57:35 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: Maciej Zenczykowski <maze@cela.pl>
+Subject: Re: Howto use diff compatibly
+Date: Thu, 8 Jan 2004 18:57:31 -0500
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl>
+In-Reply-To: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401081857.31210.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.61.108] at Thu, 8 Jan 2004 17:57:33 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a.othieno@bluewin.ch (Arthur Othieno) writes:
+On Thursday 08 January 2004 17:02, Maciej Zenczykowski wrote:
+>> I have a better idea.  Who is the current maintainer for
+>> drivers/block/floppy.c?
+>
+>Check MAINTAINERS for floppy
+>
+>linux 2.4.23:
+>
+>IDE/ATAPI FLOPPY DRIVERS
+>P:      Paul Bristow
+>M:      Paul Bristow <paul@paulbristow.net>
+>W:      http://paulbristow.net/linux/idefloppy.html
+>L:      linux-kernel@vger.kernel.org ^^^^^^^^^
+>S:      Maintained
+>
+>Cheers,
+>MaZe.
 
-> On Thu, Jan 08, 2004 at 07:25:41PM +0100, Hans Ulrich Niedermann wrote:
->> diff -Nru a/Documentation/digiepca.txt b/Documentation/digiepca.txt
+Unforch, this appears to apply only to the ide-floppies, such as the 
+ill-treated LS-120/240 stuffs.
 
->> -/usr/src/linux/Documentation/README.epca.dir/user.doc for more details.  Note,
->> +Documentation/README.epca.dir/user.doc for more details.  Note,
->                  ^^^^^^^^^^^^^^^^^^^^^^^^
-> Non-existent.
+I'm refering to the regular, get 'em for a 20 dollar bill at 
+circuit-city 3.5 floppys, or the older 5.25" versions, definitely not 
+the high-priced spread.
 
-Ooops. Thanks for checking.
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-OK, I'm going to add additional checks and correct my patches.
-
-If we're going to get them in, we might as well do it right the
-first time.
-
-Uli

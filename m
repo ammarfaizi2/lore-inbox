@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbTJ0Mrf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 07:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTJ0Mrf
+	id S261686AbTJ0MyT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 07:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTJ0MyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 07:47:35 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:45765 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261626AbTJ0Mre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 07:47:34 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Mon, 27 Oct 2003 07:54:19 -0500
+Received: from mail.comset.net ([213.172.0.3]:51897 "EHLO mail.comset.net")
+	by vger.kernel.org with ESMTP id S261686AbTJ0MyS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 07:54:18 -0500
+From: Vitaly Fertman <vitaly@namesys.com>
+Organization: NAMESYS
+To: Oleg Drokin <green@linuxhacker.ru>, Hans Reiser <reiser@namesys.com>
+Subject: Re: Blockbusting news, results end
+Date: Mon, 27 Oct 2003 15:44:37 +0300
+User-Agent: KMail/1.5.1
+Cc: ndiamond@wta.att.ne.jp, linux-kernel@vger.kernel.org
+References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60> <3F9C107D.3040401@namesys.com> <20031026190707.GC14147@linuxhacker.ru>
+In-Reply-To: <20031026190707.GC14147@linuxhacker.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200310271543.15160.vitaly@namesys.com>
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16285.5092.216272.470811@laputa.namesys.com>
-Date: Mon, 27 Oct 2003 15:47:32 +0300
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Burton Windle <bwindle@fint.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: fsstress causes memory leak in test6, test8
-In-Reply-To: <20031027121609.GA27611@redhat.com>
-References: <Pine.LNX.4.58.0310251842570.371@morpheus>
-	<20031026170241.628069e3.akpm@osdl.org>
-	<20031027121609.GA27611@redhat.com>
-X-Mailer: VM 7.17 under 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones writes:
- > On Sun, Oct 26, 2003 at 05:02:41PM -0800, Andrew Morton wrote:
- > 
- >  > It is not a "leak" as such - the dentries will get shrunk in normal usage
- >  > (create enough non-dir dentries and the "leaked" directory dentries will
- >  > get reclaimed).  The really deep directories which fsstress creates
- >  > demonstrated the bug.
- > 
- > This could explain the random reiserfs oopses/hangs I was seeing several
- > months back after running fsstress for a day or so. The reiser folks
+On Sunday 26 October 2003 22:07, Oleg Drokin wrote:
+> Hello!
+>
+> On Sun, Oct 26, 2003 at 09:20:45PM +0300, Hans Reiser wrote:
+> > >Everything else should be handled
+> > >by reiserfsprogs anyway. Without reiserfsprogs support (which was ready
+> > >too),
+> >
+> > If it isn't included in what we release, the job isn't done, and the
+> > work is useless.  I don't know why people think that if they have
+> > written a patch that they and only they know where to get and how to
+> > apply, something useful has been done.
+>
+> The kernel patch was handed to Vitaly with instructions on how to apply and
+> how to use. (And Vitaly added necessary support to reiserfsprogs, without
+> which this patch would be useless)
+> Now the decision of whenever to release this piece of code (the patch and
+> the reiserfsprogs parts) is not mine.
 
-This could explain hangs, but hardly oopses. System just freezes due to
-out-of-memory.
+The code needed to be tested first before releasing, it is done by now and
+I am about to put on our ftp site 3.6.12-pre1 release with this bad block support.
 
- > were scratching their heads, and we even put it down to flaky hardware
- > or maybe even a CPU bug back then.
+-- 
+Thanks,
+Vitaly Fertman
 
-Of course we did, there are no bugs in reiserfs, you know. :)
-
- > 
- >  > Given that it took a year for anyone to notice, it's probably best that
- >  > this not be included for 2.6.0.
- > 
- > I agree in a "lets get 2.6 out the door" sense, but once thats 'out
- > there' a user-level DoS should be fixed up pretty quickly.
- > The paranoid could always run 2.6-mm I guess 8-)
- > 
- > 		Dave
- > 
-
-Nikita.
 

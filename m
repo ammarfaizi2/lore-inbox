@@ -1,41 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUH0Uht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUH0Uht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267454AbUH0Uht (ORCPT <rfc822;willy@w.ods.org>);
+	id S267502AbUH0Uht (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 27 Aug 2004 16:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUH0Ud5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUH0Ucy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:33:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:55483 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267621AbUH0UcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:32:14 -0400
-Date: Fri, 27 Aug 2004 13:31:07 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Summarizing the PWC driver questions/answers
-Message-ID: <20040827203106.GA3546@kroah.com>
-References: <20040827162613.GB32244@kroah.com> <Pine.LNX.4.44L0.0408271442040.650-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0408271442040.650-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 27 Aug 2004 16:32:54 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:50388 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266756AbUH0UaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 16:30:19 -0400
+Message-ID: <412F99CE.2070906@blue-labs.org>
+Date: Fri, 27 Aug 2004 16:30:06 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040825
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kenneth Lavrsen <kenneth@lavrsen.dk>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Summarizing the PWC driver questions/answers
+References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
+In-Reply-To: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
+Content-Type: multipart/mixed;
+ boundary="------------080607010608070208070600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 02:51:01PM -0400, Alan Stern wrote:
-> On Fri, 27 Aug 2004, Greg KH wrote:
-> 
-> > Q: Why did you remove the hook from the pwc driver?
-> > A: It was there for the explicit purpose to support a binary only
-> >    module.  That goes against the kernel's documented procedures, so I
-> >    had to take it out.
-> 
-> Can you say exactly where these procedures/policies are spelled out?
+This is a multi-part message in MIME format.
+--------------080607010608070208070600
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-See Linus's response on this thread for a statement of such a policy.
+I'm going to be short and simple.
 
-As to where they are written down, I don't know, sorry.
+You're making a huge fuss over this.  You're making wild claims about 
+being forced to throw away $2000 worth of cameras, the next great thing 
+that Linus will toss out of the kernel, companies being hurt, and 10,000 
+or more people being put out.
 
-greg k-h
+Here are a few points to consider Kenneth;
+
+- Maintain the PWC support yourself
+- Stay with the last kernel that supported PWC
+- Maintain a patch that puts PWC support into the kernel
+- Since the NDA has long since expired, why not investigate using the 
+whole of the code?
+
+I would also consider the ramifications of a business model that uses 
+bleeding edge releases of kernels for their customers.  You're so upset 
+and maddened by what has happened, that you've lost focus on what is 
+going on.
+
+The hook wasn't right.  It goes against policy of the kernel.  Putting 
+off dealing with it is a slippery slope.
+
+The reaction from the PWC camp seems to be wholly heated and with little 
+logical discussion.  Before you turn your flamethrower on me, I also 
+have two cameras.  Doing things the Right Way is better, I really don't 
+want to be moving the lines every time something doesn't suit me perfectly.
+
+-david
+p.s. If you feel like throwing away two grand worth of cameras, feel 
+free to ship them to me.  I'm sure my trashcan would enjoy the use of them.
+
+--------------080607010608070208070600
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------080607010608070208070600--

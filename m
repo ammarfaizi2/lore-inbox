@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267028AbSKRXpU>; Mon, 18 Nov 2002 18:45:20 -0500
+	id <S266100AbSKRX1h>; Mon, 18 Nov 2002 18:27:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267032AbSKRXpU>; Mon, 18 Nov 2002 18:45:20 -0500
-Received: from dp.samba.org ([66.70.73.150]:13787 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267028AbSKRXpS>;
-	Mon, 18 Nov 2002 18:45:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: mbm@tinc.org.uk
-Cc: linux-kernel@vger.kernel.org, Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: 2.5.48: BUG() at kernel/module.c:1000 
-In-reply-to: Your message of "Mon, 18 Nov 2002 22:39:11 -0000."
-             <200211182239.gAIMdBL04074@mort.demon.co.uk> 
-Date: Tue, 19 Nov 2002 10:50:42 +1100
-Message-Id: <20021118235221.4B9A92C237@lists.samba.org>
+	id <S266826AbSKRX1F>; Mon, 18 Nov 2002 18:27:05 -0500
+Received: from rj.sgi.com ([192.82.208.96]:50074 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S266100AbSKRXZV>;
+	Mon, 18 Nov 2002 18:25:21 -0500
+Date: Tue, 19 Nov 2002 10:32:02 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Memory leak in 2.4 vmalloc.c get_vm_area
+Message-ID: <20021118233202.GB535@frodo.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200211182239.gAIMdBL04074@mort.demon.co.uk> you write:
-> The code (get_sizes) that calculates the amount of space required
-> by the sections assumes that the first one is loaded at address
-> zero (or large alignment) when performing subsequent alignments.
+hi Alan,
 
-Please test this patch (Petr, contains fix for you too).
+I noticed you recently merged this patch with Marcelo in the
+2.4 BK tree (lists you as author, and annotation says it came
+from DaveM originally)...
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+        --- 1.10/mm/vmalloc.c   Tue Feb  5 06:10:20 2002
+        +++ 1.11/mm/vmalloc.c   Thu Sep  5 05:22:42 2002
+        @@ -177,6 +177,8 @@
+                if (!area)
+                        return NULL;
+                size += PAGE_SIZE;
+        +       if(!size)
+        +               return NULL;
+                addr = VMALLOC_START;
+                write_lock(&vmlist_lock);
+                for (p = &vmlist; (tmp = *p) ; p = &tmp->next) {
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.48/kernel/module.c working-2.5.48-fixes/kernel/module.c
---- linux-2.5.48/kernel/module.c	2002-11-19 09:58:52.000000000 +1100
-+++ working-2.5.48-fixes/kernel/module.c	2002-11-19 10:33:48.000000000 +1100
-@@ -788,9 +788,10 @@ static void simplify_symbols(Elf_Shdr *s
- /* Get the total allocation size of the init and non-init sections */
- static struct sizes get_sizes(const Elf_Ehdr *hdr,
- 			      const Elf_Shdr *sechdrs,
--			      const char *secstrings)
-+			      const char *secstrings,
-+			      unsigned long common_length)
- {
--	struct sizes ret = { 0, 0 };
-+	struct sizes ret = { 0, common_length };
- 	unsigned i;
- 
- 	/* Everything marked ALLOC (this includes the exported
-@@ -943,10 +944,9 @@ static struct module *load_module(void *
- 	mod->live = 0;
- 	module_unload_init(mod);
- 
--	/* How much space will we need?  (Common area in core) */
--	sizes = get_sizes(hdr, sechdrs, secstrings);
--	common_length = read_commons(hdr, &sechdrs[symindex]);
--	sizes.core_size += common_length;
-+	/* How much space will we need?  (Common area in first) */
-+	sizes = get_sizes(hdr, sechdrs, secstrings,
-+			  read_commons(hdr, &sechdrs[symindex]));
- 
- 	/* Set these up, and allow archs to manipulate them. */
- 	mod->core_size = sizes.core_size;
-@@ -973,7 +973,7 @@ static struct module *load_module(void *
- 	mod->module_core = ptr;
- 
- 	ptr = module_alloc(mod->init_size);
--	if (!ptr) {
-+	if (!ptr && mod->init_size) {
- 		err = -ENOMEM;
- 		goto free_core;
- 	}
+
+This looks to me like it introduces a memory leak in the new !size
+case - either the "size" bump and test needs to be moved before the
+"area" kmalloc, or we need to kfree(area) before returning NULL.
+
+If you like, I'll make a (trivial) patch to do one of these?
+
+cheers.
+
+-- 
+Nathan

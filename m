@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265398AbUHQQ1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265770AbUHQQ1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265398AbUHQQ1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 12:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbUHQQ1R
+	id S265770AbUHQQ1g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 12:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUHQQ1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 12:27:17 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:12163 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265398AbUHQQ1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 12:27:16 -0400
-Subject: Re: [PATCH][4/6]Register snapshotting before kexec-boot
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Hariprasad Nellitheertha [imap]" <hari@in.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot@osdl.org, Andrew Morton <akpm@osdl.org>,
-       "Suparna Bhattacharya [imap]" <suparna@in.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, litke@us.ibm.com,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <20040817120911.GE3916@in.ibm.com>
-References: <20040817120239.GA3916@in.ibm.com>
-	 <20040817120531.GB3916@in.ibm.com> <20040817120717.GC3916@in.ibm.com>
-	 <20040817120809.GD3916@in.ibm.com>  <20040817120911.GE3916@in.ibm.com>
+	Tue, 17 Aug 2004 12:27:35 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:21156 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S265795AbUHQQ1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 12:27:33 -0400
+Subject: libata (ICH5/6) patches for 2.4.27?
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Reply-To: christian.guggenberger@physik.uni-regensburg.de
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1092760037.5415.74.camel@nighthawk>
+Message-Id: <1092760052.1765.8.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 09:27:17 -0700
+Date: Tue, 17 Aug 2004 18:27:32 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 05:09, Hariprasad Nellitheertha wrote:
-> Regards, Hari
-> +       /* Now copy over the saved task pointers and the registers
-> +        * to the end of the  reserved area
-> +        */
-> +       dest_addr = (void *)(__va(CRASH_BACKUP_BASE + CRASH_BACKUP_SIZE));
+Hi,
 
-Why the cast?  Isn't __va() already returning a void*?
+I'm looking for libata patches against 2.4.27. Well, I know these are
+already in 2.4.28-pre1, but I'd really appreciate to get pristine
+patches for 2.4.27. 
 
--- Dave
+thanks.
+ - Christian
+ 
+
 

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbTBETvB>; Wed, 5 Feb 2003 14:51:01 -0500
+	id <S264673AbTBET6z>; Wed, 5 Feb 2003 14:58:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264628AbTBETvB>; Wed, 5 Feb 2003 14:51:01 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:1945 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S263991AbTBETvA>; Wed, 5 Feb 2003 14:51:00 -0500
-Message-ID: <3E416D45.8090503@bogonomicon.net>
-Date: Wed, 05 Feb 2003 14:00:05 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
+	id <S264657AbTBET6w>; Wed, 5 Feb 2003 14:58:52 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:9964 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id <S264628AbTBET6t>;
+	Wed, 5 Feb 2003 14:58:49 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] don't swapon mounted devices
+Date: Wed, 5 Feb 2003 13:08:14 -0700
+User-Agent: KMail/1.4.3
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>, rossb@google.com,
-       alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
-References: <20030202161837.010bed14.skraw@ithnet.com>	<3E3D4C08.2030300@pobox.com>	<20030202185205.261a45ce.skraw@ithnet.com>	<3E3D6367.9090907@pobox.com>	<20030205104845.17a0553c.skraw@ithnet.com>	<1044443761.685.44.camel@zion.wanadoo.fr>	<3E414243.4090303@google.com>	<1044465151.685.149.camel@zion.wanadoo.fr>	<3E4147A0.4050709@google.com>	<1044466495.684.153.camel@zion.wanadoo.fr> <20030205183808.3a2fa115.skraw@ithnet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <200302051308.14925.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The attached patch against 2.4.21-pre3 fixes a problem in sys_swapon.
+Previous behavior:
 
-> Ok, yet another small brick in the wall: this mb has 64bit/66MHz PCI slots. PDC
-> is only 32bit/33MHz PCI. So it may well be that others are in fact _able_ to
-> produce a damn lot more data/interrupts than the PDC. I am pretty astonished by
-> the number of interrupts created by the 3com tg3 cards anyways...
+	* boot kernel with "root=/dev/sda3 init=/bin/bash" (ext3 root)
+	* mount -t proc proc /proc
+	* /sbin/swapon /dev/sda3    <--- NOTE: same as root!
+	* mount -n -o remount,rw /
+	* oops in __make_request because superblock buffer_head is
+	  no longer mapped (via sys_swapon -> set_blocksize ->
+	  kill_bdev-> truncate_inode_pages -> do_flushpage ->
+	  block_flushpage -> discard_bh_page -> discard_buffer)
 
-On my box one of the devices sharing the interrupt with the disk
-is the display, the USB is quiet with no devices connected.  I am 
-running 2.4.21-pre4-ac2.  I'd have redistributed interrupts but the 
-motherboard dosen't allow me to specifically set them and APIC isn't 
-supposed to work on the nForce2 yet.
+I think 2.5 avoids this problem by attempting to get exclusive
+use of the device with bd_claim (see
+http://linux.bkbits.net:8080/linux-2.5/cset@1.369.32.10?nav=index.html|src/.|src/mm|related/mm/swapfile.c)
 
-cat /proc/interrupts
-            CPU0
-   0:     273068          XT-PIC  timer
-   1:       5547          XT-PIC  keyboard
-   2:          0          XT-PIC  cascade
-   5:     122188          XT-PIC  eth0
-  10:     641526          XT-PIC  ide2, ide3, usb-ohci, nvidia
-  11:          0          XT-PIC  NVIDIA nForce Audio, usb-ohci
-  12:      78237          XT-PIC  PS/2 Mouse
-  14:     109475          XT-PIC  ide0
-  15:     114178          XT-PIC  ide1
-NMI:          0
-LOC:     273027
-ERR:      18344
-MIS:          0
+bd_claim is not in 2.4, so this seems next-best. 
 
-- Bryan
+Bjorn
+
+
+--- 1.25/mm/swapfile.c	Sat Dec 28 16:18:13 2002
++++ edited/mm/swapfile.c	Wed Feb  5 10:32:27 2003
+@@ -915,6 +915,11 @@
+ 		struct block_device_operations *bdops;
+ 		devfs_handle_t de;
+ 
++		if (is_mounted(dev)) {
++			error = -EBUSY;
++			goto bad_swap_2;
++		}
++
+ 		p->swap_device = dev;
+ 		set_blocksize(dev, PAGE_SIZE);
+ 		
 

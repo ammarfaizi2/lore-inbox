@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261891AbSI3BHF>; Sun, 29 Sep 2002 21:07:05 -0400
+	id <S261884AbSI3BPv>; Sun, 29 Sep 2002 21:15:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261892AbSI3BHF>; Sun, 29 Sep 2002 21:07:05 -0400
-Received: from smtp3.texas.rr.com ([24.93.36.231]:20647 "EHLO
-	txsmtp03.texas.rr.com") by vger.kernel.org with ESMTP
-	id <S261891AbSI3BHE>; Sun, 29 Sep 2002 21:07:04 -0400
-Message-ID: <00d601c2681e$a60c3280$7f71a018@OMIT>
-From: "omit_ECE" <omit@rice.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: linux-kernel@vger.kernel.org
-Date: Sun, 29 Sep 2002 20:13:56 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S261886AbSI3BPv>; Sun, 29 Sep 2002 21:15:51 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:44515 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261884AbSI3BPu>;
+	Sun, 29 Sep 2002 21:15:50 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 30 Sep 2002 03:21:12 +0200 (MEST)
+Message-Id: <UTC200209300121.g8U1LCS07667.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, acme@conectiva.com.br
+Subject: init ordering bug in 802/psnap.c vs llc/llc_main.c
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Humm, 2.5.39? It is compiled statically, isn't it?
+> I'm working exclusively with modules up to now
 
-I want to know the one-way trip time in TCP header.
-In tcp_input.c , I found many functions under which include
-rcv_tsval and  rcv_tsecr . I don't know which two are right.
-So, I put many "printf" and fprintf in functions and compile the kernel.
-But when compiling it, some errors happen,
+A good hint. llc/llc_main.c crashes in llc_sap_find()
+because llc_init() has not yet been called, so that
+llc_main_station.sap_list.list is not initialized.
 
-net/network.o: In function `tcp_parse_options':
-net/network.o: In function `tcp_rcv_established':
-net/network.o: In function `tcp_rcv_synsent_state_process':
-net/network.o: In function `tcp_rcv_state_process':
-net/network.o(.text+0x2807b): undefined reference to `printf'
-net/network.o(.text+0x2808c): undefined reference to `printf'
-net/network.o(.text+0x2631d): undefined reference to `fopen'
-net/network.o(.text+0x26334): undefined reference to `fprintf'
-net/network.o(.text+0x2634e): undefined reference to `fprintf'
-net/network.o(.text+0x2635a): undefined reference to `fclose'
+And llc_sap_find() was called from 802/psnap.c, in snap_init().
 
-Aren't "printf" and "fprintf"  standard outputs? I also put #include <stdio.h>
-and "FILE *in_file", but they didn't work. Please give me suggestions.
-Thank you.
+Calling llc_init() and snap_init() in the right order
+makes the oops go away.
+
+Andries

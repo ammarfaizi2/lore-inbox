@@ -1,97 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131973AbRCVK1t>; Thu, 22 Mar 2001 05:27:49 -0500
+	id <S131958AbRCVKSJ>; Thu, 22 Mar 2001 05:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131963AbRCVK1k>; Thu, 22 Mar 2001 05:27:40 -0500
-Received: from munk.apl.washington.edu ([128.95.96.184]:29958 "EHLO
-	munk.apl.washington.edu") by vger.kernel.org with ESMTP
-	id <S131973AbRCVK1V>; Thu, 22 Mar 2001 05:27:21 -0500
-Date: Thu, 22 Mar 2001 02:23:10 -0800 (PST)
-From: Brian Dushaw <dushaw@munk.apl.washington.edu>
-To: William Park <parkw@better.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VIA vt82c686b  and UDMA(100)
-In-Reply-To: <20010322010507.A3170@better.net>
-Message-ID: <Pine.LNX.4.30.0103220217480.3867-100000@munk.apl.washington.edu>
+	id <S131963AbRCVKR7>; Thu, 22 Mar 2001 05:17:59 -0500
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:30216 "HELO
+	zcamail05.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S131958AbRCVKRw>; Thu, 22 Mar 2001 05:17:52 -0500
+Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CD09@aeoexc1.aeo.cpqcorp.net>
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: "'Andrea Arcangeli'" <andrea@suse.de>
+Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: AlphaServer with 4 GB RAM, kernel 2.2.19pre17aa1 patched with big
+	mem... locks for 4 Gbytes, works for 2,6,8 Gbytes
+Date: Thu, 22 Mar 2001 11:15:06 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No luck with either William's or Agus's suggestions.  Still 11 MB/s
-transfer rate, dma enabled or not.  The motherboard is a newer IWILL.
+Hello lkml,
 
-dmesg outputs:
-Uniform Multi-Platform E-IDE driver Revision: 6.30
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-hda: WDC WD300BB-00AUA1, ATA DISK drive
-hdc: Hewlett-Packard CD-Writer Plus 9100b, ATAPI CDROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: WDC WD300BB-00AUA1, 28629MB w/2048kB Cache, CHS=3649/255/63, UDMA(100)
+I have two machines AlphaServers ES40
 
-hdparm -i /dev/hda outputs:
- Model=WDC WD300BB-00AUA1, FwRev=18.20D18, SerialNo=WD-WMA6R3063544
- Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
- RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
- BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=off
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=0
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=58633344
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
- UDMA modes: mode0 mode1 mode2 mode3 mode4 *mode5
+machine 1 with 4 Gbytes of RAM
+machine 2 with 8 Gbytes of RAM
 
-hdparm -t /dev/hda outputs:
-/dev/hda:
- Timing buffered disk reads:  64 MB in  5.66 seconds = 11.31 MB/sec
+These two machines work perfectly with Tru64, The RAM is ok
+on both of these machines.
 
-[sigh...]
+1) I recompiled kernel 2.2.19pre17aa1 
 
-I suppose it could be the Western Digital disk - I seem to recall that
-linux has a difficult history with WD (a comment that may merely start
-an unfounded rumour...)
+==> The two machines boot well, but are limited to 2 Gbytes of RAM.
 
-B.D.
+2) So I applyed the patch 2.2.19pre17aa1.b, configured with BIGMEM enabled,
+recompiled and reboot.
 
-On Thu, 22 Mar 2001, William Park wrote:
+The two machines boot, see respectively 4 Gbytes and 8 Gbytes of RAM. a 
+little C program allocating writting and reading to the memory shows it is
+really working. 
 
-> On Wed, Mar 21, 2001 at 08:40:21PM -0800, Brian Dushaw wrote:
-> > Dear Linux Kernel Wisemen,
-> >    I have been following the discussion of the VIA vt82c686b chipset
-> > and the troubles people have had in getting UDMA(100) to work.  This
-> > is to report that I have now tried the 2.4.2-ac20 kernel and the
-> > 2.2.18 kernel with Andre's patch (dated March 20) and neither of
-> > them get the disk speed up to where it ought to be.  hdparm -t reports
-> > back 11 MB/s or so for either kernel.
-> >    VIA82CXXX enabled, and I also tried the ide0=ata66 flag, in desparation.
-> >    At boot up both kernels report the disk as UDMA(100) - everything
-> > seems to be peachy keen, but for the sluggish disk performance.
-> >
-> > Merely a report from the front lines,
->
-> Try 'hdparm -d1 -t', and see what you get.
->
-> :wq --William Park, Open Geometry Consulting, Linux/Python, 8 CPUs.
->
+THE PROBLEM:
+-------------------------
 
--- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+On the machine with 4 Gbytes the system freezes when doing /bin/lspci 
+or more /proc/pci (2 equivalent system calls fopen(/proc/pci) ) and not 
+on the machine with 8 GBytes!
 
-Brian Dushaw
-Applied Physics Laboratory
-University of Washington
-1013 N.E. 40th Street
-Seattle, WA  98105-6698
-(206) 685-4198   (206) 543-1300
-(206) 543-6785 (fax)
-dushaw@apl.washington.edu
+Remark: When I say freezes, I don't see the kernel panic message on the 
+console and when I was running in SMP multiusers I kept receiving spinlock 
+messages every 2 minutes:
 
-Web Page:  http://staff.washington.edu/dushaw/index.html
+	opensched.c:30 spinlock stuck in httpd at fffffc000032d524(3) owner
+lspci at fffffc000035155c(1) read_write.c:43
+	sched.c:30 spinlock stuck in identd at fffffc000032d524(2) owner
+lspci at fffffc000035155c(1) read_write.c:43
+	sched.c:30 spinlock stuck in identd at fffffc000032d524(0) owner
+lspci at fffffc000035155c(1) read_write.c:43
 
+For the following I prefered to go back to Uni Processor kernel in single
+user
+mode because the system is more simple and the problems are the same:
+
+3) If I try to reboot the 4 Gbytes machine giving mem=2048 M at boot time,
+everything works fine again (except the 2 GBytes of RAM unavailable)
+
+4) If I try to reboot the 8 Gbytes machine giving mem=4096 M at boot time,
+I have the same behaviour, freezing when doing more /proc/pci , as the 4 
+Gbytes machine
+
+5) If I try to reboot the 8 Gbytes machine giving mem=2048 M or 6144 M,
+everything works perfectly.
+
+
+SMP/UP:
+--------------
+
+I HAVE EXACTLY THE SAME RESULTS WITH SMP/UP kernel so I guess 
+investigating on Uni processor is simpler.
+
+
+I have tried to go through the code source of the patch but I am new to
+kernel
+programming, it looks like there is a switching mecanism around the 4 Gbytes
+value for RAM size... that could be it.... I am still investigating.
+
+
+Any Ideas ?
+
+
+----------------------------------------------------------------------------
+--
+Sebastien CABANIOLS
+COMPAQ France 
+HPTC Engineer
+CustomSystems & Solutions  Annecy  
+High Performance Technical Computing 
+Office No.  +33 (0)4 50 09 44 10
+Fax No.  +33 (0)4 50 64 01 39 
+Email.   sebastien.cabaniols@compaq.com 
+----------------------------------------------------------------------------
+--
+
+  

@@ -1,62 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUIIPFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIIPGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUIIPFw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 11:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUIIPFw
+	id S265487AbUIIPGj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 11:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265462AbUIIPGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 11:05:52 -0400
-Received: from a.smtp.visualtech.com ([208.16.19.9]:59777 "EHLO
-	chons.visualtech.com") by vger.kernel.org with ESMTP
-	id S265477AbUIIPFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 11:05:44 -0400
-Message-ID: <41407134.4030606@voicenet.com>
-Date: Thu, 09 Sep 2004 11:05:24 -0400
-From: Adam K Kirchhoff <adamk@voicenet.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adam K Kirchhoff <adamk@voicenet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: irq 26: nobody cared!
-References: <Pine.LNX.4.58.0409081726530.1820@thorn.ashke.com> <1094682284.12336.21.camel@localhost.localdomain> <41403848.7020305@voicenet.com>
-In-Reply-To: <41403848.7020305@voicenet.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Sep 2004 11:06:39 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:56399 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265492AbUIIPGW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 11:06:22 -0400
+Date: Thu, 9 Sep 2004 17:06:07 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH][linux-2.6.9-rc1-mm4-funny characters in init/Kconfig:313
+Message-ID: <20040909150607.GA7507@mars.ravnborg.org>
+Mail-Followup-To: Borislav Petkov <petkov@uni-muenster.de>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <200409091410.01568.petkov@uni-muenster.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409091410.01568.petkov@uni-muenster.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam K Kirchhoff wrote:
+On Thu, Sep 09, 2004 at 02:10:01PM +0200, Borislav Petkov wrote:
+> Hi, 
+> probably these shouldn't be there:
 
-> Alan Cox wrote:
->
->> On Mer, 2004-09-08 at 22:35, Adam K Kirchhoff wrote:
->>  
->>
->>> I have a dual P3 system (via motherboard) with 1.5 gigs of RAM (with
->>> highmem enabled in the kernel).  Under heavy networking load, I get the
->>> following error:
->>>   
->>
->>
->> Try variously turning off acpi and the apic. If the routing tables are
->> still shot try the irqfixup patch I posted, it might well rescue your
->> box.
->>
->>  
->>
->
-> Booting with 'noapic' seems to have solved the problem.  At least my 
-> attempts to replicate it so far (copying a large directory over nfs) 
-> hasn't produced the same error.
->
-> Thanks for the help, Alan!
->
-> Adam
->
->
+Already fixed in my tree.
 
-Actually, it looks like *enabling* ACPI (which had previously been 
-disabled) and enabling the APIC gets it working properly as well.
-
-Adam
+	Sam

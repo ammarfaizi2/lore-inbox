@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263997AbTKDIsm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 03:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTKDIsm
+	id S263994AbTKDImy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 03:42:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTKDImy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 03:48:42 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:36317 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S263997AbTKDIsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 03:48:40 -0500
-Subject: Re: allocating netlink families? (was: re: Announce: NetKeeper
-	Firewall For Linux)
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: fleury@cs.auc.dk
-In-Reply-To: <3FA6F628.70305@ixiacom.com>
-References: <3FA6F628.70305@ixiacom.com>
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1067935673.29545.1.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 04 Nov 2003 09:47:53 +0100
+	Tue, 4 Nov 2003 03:42:54 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:37536 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S263994AbTKDImw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 03:42:52 -0500
+Message-ID: <3FA7663D.7060509@softhome.net>
+Date: Tue, 04 Nov 2003 09:41:33 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       Jes Sorensen <jes@wildopensource.com>
+Subject: Re: virt_to_page/pci_map_page vs. pci_map_single
+References: <NuZH.1a5.7@gated-at.bofh.it> <NI6s.1MM.3@gated-at.bofh.it> <NMtC.7Vs.21@gated-at.bofh.it> <NNSy.1Cd.1@gated-at.bofh.it> <NV3O.5w7.19@gated-at.bofh.it> <NWCA.7Qv.19@gated-at.bofh.it>
+In-Reply-To: <NWCA.7Qv.19@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-11-04 at 01:43, Dan Kegel wrote:
-> Emmanuel Fleury wrote:
->  >   http://www.cs.auc.dk/~fleury/netkeeper/
+Hi!
+
+   Can any-one draw a conclusion?
+   Which function should be used in which case?
+
+   So this will be at least reflected in lkml archives ;-)
+
+David S. Miller wrote:
+> On Mon, 3 Nov 2003 14:02:57 -0800
+> David Mosberger <davidm@napali.hpl.hp.com> wrote:
 > 
-> Hey, that seems to be a nice example of how to write
-> a new netlink family.  Thanks!
-
-:)
-
-> I see you're using NETLINK_USERSOCK.  Netlink families
-> appear to be a precious commodity (netlink_dev.c, at
-> least, will break if you raise MAX_LINKS above 32).
 > 
-> Has there been any discussion of how one should pick
-> netlink family numbers for new stuff like netkeeper?
+>>>>>>>On 03 Nov 2003 09:17:59 -0500, Jes Sorensen <jes@wildopensource.com> said:
+>>
+>>  Jes> Hmmm, my brain has gotten ia64ified ;-) It's basically the normal
+>>  Jes> mappings of the kernel, ie. the kernel text/data/bss segments as well
+>>  Jes> as anything you do not get back as a dynamic mapping such as
+>>  Jes> ioremap/vmalloc/kmap.
+>>
+>>I don't think it's safe to use virt_to_page() on static kernel
+>>addresses (text, data, and bss).  For example, ia64 linux nowadays
+>>uses a virtual mapping for the static kernel memory, so it's not part
+>>of the identity-mapped segment.
+> 
+> 
+> That's correct and it'll break on sparc64 for similar reasons.
+> 
+> It's also not safe to do virt_to_page() on kernel stack addresses
+> either.
+> 
 
-I think netlink is perfect as it is for now. 
-Our scheme just demonstrate how flexible is this code.
 
-Before being added "permanently" (I don't like this word) we should get
-out with something better than an alpha release. :)
-
-But, even if the process is long, we are still working on it. 
-And hopefully one day it will be possible to try Netekeeper easily
-on your own network (I have to admit now that the user-space tools are
-difficult to get to work, even if I trust a lot the kernel-space code).
-
-> Sure, everyone could use NETLINK_USERSOCK, but
-> that means only one new netlink module could be resident at a time...
-
-Yes, this is true, but it doesn't matter so much for experimental things
-(in my humble opinion).
-
-Regards
 -- 
-Emmanuel
-
-But the important thing is persistence.
-  -- Calvin trying to juggle eggs (Bill Waterson)
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  "... and for $64000 question, could you get yourself       |_|*|_|
+    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
+                                 -- Al Viro @ LKML           |*|*|*|
 

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267159AbTAKFEN>; Sat, 11 Jan 2003 00:04:13 -0500
+	id <S266359AbTAKFMh>; Sat, 11 Jan 2003 00:12:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267160AbTAKFEM>; Sat, 11 Jan 2003 00:04:12 -0500
-Received: from yossman.net ([209.162.234.20]:40456 "EHLO yossman.net")
-	by vger.kernel.org with ESMTP id <S267159AbTAKFDS>;
-	Sat, 11 Jan 2003 00:03:18 -0500
-Message-ID: <3E1FA7A0.6090305@yossman.net>
-Date: Sat, 11 Jan 2003 00:12:00 -0500
-From: Brian Davids <dlister@yossman.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: robw@optonline.net
-CC: linux-kernel@vger.kernel.org
-Subject: OT: Renaming the kernel??!?!?!? (Was Re: Nvidia and its choice to
- read the GPL "differently")
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <20030111025449.GJ9124@work.bitmover.com> <1042253924.1385.70.camel@RobsPC.RobertWilkens.com> <200301110316.WAA00987@onevista.com> <1042256140.1259.99.camel@RobsPC.RobertWilkens.com> <3E1FA07F.7000903@tmsusa.com> <1042260296.1278.181.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042260296.1278.181.camel@RobsPC.RobertWilkens.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267049AbTAKFMg>; Sat, 11 Jan 2003 00:12:36 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:17671 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S266359AbTAKFMf>; Sat, 11 Jan 2003 00:12:35 -0500
+Subject: Re: [Linux-fbdev-devel] [RFC][PATCH][FBDEV]: Setting fbcon's
+	windows size
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0301092140020.5660-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0301092140020.5660-100000@phoenix.infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1042255015.932.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Jan 2003 13:10:58 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Wilkens wrote:
-
-> Anyway, I'm here to discuss the kernel.  The issue at hand was
-> whether the kernel should be renamed.  I didn't bring up the topic, I
-> was only chiming in with an opinion.  As the topic went on, things
-> got further off-topic as can happen.
+On Sat, 2003-01-11 at 02:18, James Simmons wrote:
 > 
-> "renaming of a kernel" is a topic relevant to a kernel mailing list.
+> > Here's an improved GTF implementation.  I was a bit delayed because I
+> > was trying to find a way to do square roots without using floating
+> > point.  The diff is against linux-2.5.54 + your latest fbdev.diff.
+> 
+> Applied. 
+> 
+> > but is more or less usable.  Tested with i810fb and rivafb. (For rivafb,
+> > I have to use a hacked version. The latest one does not work for the
+> > riva128).
+> 
+> What hack did you do? That is based on the latest riva driver from 2.4.2X.
+>  
+I just combined the old riva_hw.c in linux-2.5.52 with the new fbdev.c
+code.  Not too sure why, either the newest riva_hw.c has dropped support
+for old hardware, or we are using it incorrectly.  If I'm to guess, the
+new riva_hw.c did not come from linux-2.4.20, but probably from Xfree86?
 
-Maybe you should read the e-mails a bit more carefully.  The issue
-you're refering to is NOT renaming the kernel, but rather what people
-believe the collection of kernel, libraries, and user-land tools should
-properly be called.  I don't think I've ever seen RMS (or anyone else
-for that matter) say that the kernel itself should be called anything
-other than Linux.  The controversy is what peoples' ideas of what
-constitutes the operating system are and what to call it.
+> > BTW, I downloaded the source code of read-edid, and it seems that the
+> > following monitor limits are parsable from the EDID block: HorizSync,
+> > VertRefresh, DotClock, and GTF capability. We may change info->monspecs
+> > to match that. Also, the EDID contains a list of supported modes, but
+> > there's only 4 of them(?).  
+> 
+> I figured monspec would have to be improved. I'm looking into the EDID 
+> info right now. I'm also looking at read-edid. Next I need to figure out 
+> how to use i2c to get this info.
+> 
+Good luck :-)
 
+Tony
 
-Brian Davids
 

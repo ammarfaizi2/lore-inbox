@@ -1,41 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264202AbRFTAUQ>; Tue, 19 Jun 2001 20:20:16 -0400
+	id <S264395AbRFTA01>; Tue, 19 Jun 2001 20:26:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264436AbRFTAUH>; Tue, 19 Jun 2001 20:20:07 -0400
-Received: from marine.sonic.net ([208.201.224.37]:9734 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S264202AbRFTAT6>;
-	Tue, 19 Jun 2001 20:19:58 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 19 Jun 2001 17:19:45 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
+	id <S264436AbRFTA0S>; Tue, 19 Jun 2001 20:26:18 -0400
+Received: from mm02snlnto.sandia.gov ([132.175.109.21]:28935 "HELO
+	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
+	id <S264395AbRFTA0G>; Tue, 19 Jun 2001 20:26:06 -0400
+X-Server-Uuid: 7edb479a-fd89-11d2-9a77-0090273cd58c
+From: "Nathan D. Fabian" <ndfabia@sandia.gov>
+Organization: Sandia National Laboratories
 To: linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010619171945.I6778@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p05100319b75593a25b1e@[10.128.7.49]>
-User-Agent: Mutt/1.3.18i
+Subject: [Patch] swapfile.c
+Date: Tue, 19 Jun 2001 18:24:25 -0600
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-ID: <01061918242500.00988@sphinx>
+X-Filter-Version: 1.3 (sass165)
+X-WSS-ID: 17313211425300-01-01
+Content-Type: multipart/mixed; 
+ charset=iso-8859-1; 
+ boundary="------------Boundary-00=_P4D7RQCU0F69RZW8TCH0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 04:56:16PM -0700, Jonathan Lundell wrote:
-> But so what? That's $16 worth of DRAM (I just checked). Not so bad 
-> *if* threads are otherwise a great solution. I grant that one might 
-> have a pretty tough time making the case, but again, for the right 
-> application, say some app with a dedicated server, 73MB isn't the end 
-> of the world (though I suppose it was at the time...).
 
+--------------Boundary-00=_P4D7RQCU0F69RZW8TCH0
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-How much would 73MB of cache cost?  How much would it cost to get that much
-on the CPU?
+The following diff tries to improve on the efficiency of try_to_unuse(). =
+ It=20
+removes the potential O(|swap_map|^2) business and makes it linear time. =
+=20
+I'm not sure what this means in terms of overall change, but Linus seemed=
+=20
+interested in the innefficiency in that code.  Test with caution.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Nathan.
+--------------Boundary-00=_P4D7RQCU0F69RZW8TCH0
+Content-Type: text/x-c; 
+ charset=iso-8859-1; 
+ name=swapfile.diff
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; 
+ filename=swapfile.diff
+
+ZGlmZiAtdXdyTiBsaW51eC9tbS9zd2FwZmlsZS5jLm9sZCBsaW51eC9tbS9zd2FwZmlsZS5jCi0t
+LSBsaW51eC9tbS9zd2FwZmlsZS5jLm9sZAlUdWUgSnVuIDE5IDE3OjE1OjA3IDIwMDEKKysrIGxp
+bnV4L21tL3N3YXBmaWxlLmMJVHVlIEp1biAxOSAxNzo0NDoyNCAyMDAxCkBAIC0zMjgsNiArMzI4
+LDQxIEBACiAJcmV0dXJuOwogfQogCitzdGF0aWMgaW50IHVudXNlX2VudHJ5IChzd3BfZW50cnlf
+dCBlbnRyeSkgeworCXN0cnVjdCBwYWdlICpwYWdlOworCXN0cnVjdCB0YXNrX3N0cnVjdCAqcDsK
+KworCS8qIEdldCBhIHBhZ2UgZm9yIHRoZSBlbnRyeSwgdXNpbmcgdGhlIGV4aXN0aW5nIHN3YXAK
+KyAgICAgICAJY2FjaGUgcGFnZSBpZiB0aGVyZSBpcyBvbmUuICBPdGhlcndpc2UsIGdldCBhIGNs
+ZWFuCisgICAgICAgCXBhZ2UgYW5kIHJlYWQgdGhlIHN3YXAgaW50byBpdC4gKi8KKwlwYWdlID0g
+cmVhZF9zd2FwX2NhY2hlX2FzeW5jKGVudHJ5KTsKKwlpZiAoIXBhZ2UpIHsKKwkJc3dhcF9mcmVl
+KGVudHJ5KTsKKwkJcmV0dXJuIC1FTk9NRU07CisJfQorCisJbG9ja19wYWdlIChwYWdlKTsKKwlp
+ZiAoUGFnZVN3YXBDYWNoZShwYWdlKSkKKwkJZGVsZXRlX2Zyb21fc3dhcF9jYWNoZV9ub2xvY2so
+cGFnZSk7CisJVW5sb2NrUGFnZSAocGFnZSk7CisKKwlyZWFkX2xvY2soJnRhc2tsaXN0X2xvY2sp
+OworCWZvcl9lYWNoX3Rhc2socCkKKwkJdW51c2VfcHJvY2VzcyhwLT5tbSwgZW50cnksIHBhZ2Up
+OworCXJlYWRfdW5sb2NrKCZ0YXNrbGlzdF9sb2NrKTsKKworCXNobWVtX3VudXNlKGVudHJ5LCBw
+YWdlKTsKKwkvKiBOb3cgZ2V0IHJpZCBvZiB0aGUgZXh0cmEgcmVmZXJlbmNlIHRvIHRoZSB0ZW1w
+b3JhcnkKKyAgICAgICAgICAgICAgICAgCXBhZ2Ugd2UndmUgYmVlbiB1c2luZy4gKi8KKwlwYWdl
+X2NhY2hlX3JlbGVhc2UocGFnZSk7CisJLyoKKyAJKiBDaGVjayBmb3IgYW5kIGNsZWFyIGFueSBv
+dmVyZmxvd2VkIHN3YXAgbWFwIGNvdW50cy4KKyAJKi8KKwlzd2FwX2ZyZWUoZW50cnkpOworCisJ
+cmV0dXJuIDA7Cit9CisKIC8qCiAgKiBXZSBjb21wbGV0ZWx5IGF2b2lkIHJhY2VzIGJ5IHJlYWRp
+bmcgZWFjaCBzd2FwIHBhZ2UgaW4gYWR2YW5jZSwKICAqIGFuZCB0aGVuIHNlYXJjaCBmb3IgdGhl
+IHByb2Nlc3MgdXNpbmcgaXQuICBBbGwgdGhlIG5lY2Vzc2FyeQpAQCAtMzM2LDEyICszNzEsMTAg
+QEAKIHN0YXRpYyBpbnQgdHJ5X3RvX3VudXNlKHVuc2lnbmVkIGludCB0eXBlKQogewogCXN0cnVj
+dCBzd2FwX2luZm9fc3RydWN0ICogc2kgPSAmc3dhcF9pbmZvW3R5cGVdOwotCXN0cnVjdCB0YXNr
+X3N0cnVjdCAqcDsKLQlzdHJ1Y3QgcGFnZSAqcGFnZTsKIAlzd3BfZW50cnlfdCBlbnRyeTsKIAlp
+bnQgaTsKKwlpbnQgZXJyOwogCi0Jd2hpbGUgKDEpIHsKIAkJLyoKIAkJICogRmluZCBhIHN3YXAg
+cGFnZSBpbiB1c2UgYW5kIHJlYWQgaXQgaW4uCiAJCSAqLwpAQCAtMzU2LDQyICszODksMTkgQEAK
+IAkJCQkgKi8KIAkJCQlpZiAoc2ktPnN3YXBfbWFwW2ldICE9IFNXQVBfTUFQX01BWCkKIAkJCQkJ
+c2ktPnN3YXBfbWFwW2ldKys7CisKIAkJCQlzd2FwX2RldmljZV91bmxvY2soc2kpOwotCQkJCWdv
+dG8gZm91bmRfZW50cnk7Ci0JCQl9Ci0JCX0KLQkJc3dhcF9kZXZpY2VfdW5sb2NrKHNpKTsKLQkJ
+YnJlYWs7CiAKLQlmb3VuZF9lbnRyeToKIAkJZW50cnkgPSBTV1BfRU5UUlkodHlwZSwgaSk7Ci0K
+LQkJLyogR2V0IGEgcGFnZSBmb3IgdGhlIGVudHJ5LCB1c2luZyB0aGUgZXhpc3Rpbmcgc3dhcAot
+ICAgICAgICAgICAgICAgICAgIGNhY2hlIHBhZ2UgaWYgdGhlcmUgaXMgb25lLiAgT3RoZXJ3aXNl
+LCBnZXQgYSBjbGVhbgotICAgICAgICAgICAgICAgICAgIHBhZ2UgYW5kIHJlYWQgdGhlIHN3YXAg
+aW50byBpdC4gKi8KLQkJcGFnZSA9IHJlYWRfc3dhcF9jYWNoZV9hc3luYyhlbnRyeSk7Ci0JCWlm
+ICghcGFnZSkgewotCQkJc3dhcF9mcmVlKGVudHJ5KTsKLSAgCQkJcmV0dXJuIC1FTk9NRU07CisJ
+CQllcnIgPSB1bnVzZV9lbnRyeSAoZW50cnkpOworCQkJaWYgKGVyciA8IDApIHsKKwkJCQlyZXR1
+cm4gZXJyOwogCQl9Ci0JCWxvY2tfcGFnZShwYWdlKTsKLQkJaWYgKFBhZ2VTd2FwQ2FjaGUocGFn
+ZSkpCi0JCQlkZWxldGVfZnJvbV9zd2FwX2NhY2hlX25vbG9jayhwYWdlKTsKLQkJVW5sb2NrUGFn
+ZShwYWdlKTsKLQkJcmVhZF9sb2NrKCZ0YXNrbGlzdF9sb2NrKTsKLQkJZm9yX2VhY2hfdGFzayhw
+KQotCQkJdW51c2VfcHJvY2VzcyhwLT5tbSwgZW50cnksIHBhZ2UpOwotCQlyZWFkX3VubG9jaygm
+dGFza2xpc3RfbG9jayk7Ci0JCXNobWVtX3VudXNlKGVudHJ5LCBwYWdlKTsKLQkJLyogTm93IGdl
+dCByaWQgb2YgdGhlIGV4dHJhIHJlZmVyZW5jZSB0byB0aGUgdGVtcG9yYXJ5Ci0gICAgICAgICAg
+ICAgICAgICAgcGFnZSB3ZSd2ZSBiZWVuIHVzaW5nLiAqLwotCQlwYWdlX2NhY2hlX3JlbGVhc2Uo
+cGFnZSk7Ci0JCS8qCi0JCSAqIENoZWNrIGZvciBhbmQgY2xlYXIgYW55IG92ZXJmbG93ZWQgc3dh
+cCBtYXAgY291bnRzLgotCQkgKi8KLQkJc3dhcF9mcmVlKGVudHJ5KTsKLQkJc3dhcF9saXN0X2xv
+Y2soKTsKKwogCQlzd2FwX2RldmljZV9sb2NrKHNpKTsKKworCQkJc3dhcF9saXN0X2xvY2soKTsK
+KwkJCS8qIGNoZWNrIHRoaXMgdmFsdWUgYWdhaW4gYWZ0ZXIgdW51c2luZyB0aGUgZW50cnkgKi8K
+IAkJaWYgKHNpLT5zd2FwX21hcFtpXSA+IDApIHsKIAkJCWlmIChzaS0+c3dhcF9tYXBbaV0gIT0g
+U1dBUF9NQVBfTUFYKQogCQkJCXByaW50aygiVk06IFVuZGVhZCBzd2FwIGVudHJ5ICUwOGx4XG4i
+LCAKQEAgLTM5OSw5ICs0MDksMTMgQEAKIAkJCW5yX3N3YXBfcGFnZXMrKzsKIAkJCXNpLT5zd2Fw
+X21hcFtpXSA9IDA7CiAJCX0KLQkJc3dhcF9kZXZpY2VfdW5sb2NrKHNpKTsKIAkJc3dhcF9saXN0
+X3VubG9jaygpOworCisJCQkvKiBMZWF2ZSB0aGUgZGV2aWNlIGxvY2tlZCBmb3IgbG9vcCAqLwor
+CQl9CiAJfQorCXN3YXBfZGV2aWNlX3VubG9jayAoc2kpOworCiAJcmV0dXJuIDA7CiB9CiAK
+
+--------------Boundary-00=_P4D7RQCU0F69RZW8TCH0--
+

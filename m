@@ -1,83 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265476AbTIDSgr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbTIDSgq
+	id S265490AbTIDShi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbTIDSg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:36:46 -0400
-Received: from mail.bandwidthco.com ([66.14.166.45]:54148 "EHLO
-	server5.bandwidthco.com") by vger.kernel.org with ESMTP
-	id S265476AbTIDSfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:35:07 -0400
-Reply-To: <markee@bandwidthco.com>
-From: "Mark E. Donaldson" <markee@bandwidthco.com>
-To: "Scott Mcdermott" <smcdermott@questra.com>,
-       <netfilter@lists.netfilter.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: SNAT interaction with kernel-based IPSEC (in 2.6)
-Date: Thu, 4 Sep 2003 11:34:56 -0700
-Message-ID: <DKEDJAAMDCDBHFKPBEMPEEFNCIAA.markee@bandwidthco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030904091525.GO17837@questra.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Thu, 4 Sep 2003 14:36:56 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:43242
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S265444AbTIDSfB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:35:01 -0400
+Date: Thu, 4 Sep 2003 18:05:16 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: precise characterization of ext3 atomicity
+Message-ID: <20030904160516.GH2359@wind.cocodriloo.com>
+References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030904181540.GC13676@matchmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NAT and IPsec (depending on whether you are using AH or ESP) often do not
-play well together.  I suspect your assumptions are correct on what is
-occurring.  To solve this problem, I suggest you add a third interface on
-your firewall and direct all IPsec packets out if it.  Non-IPsec packets
-would then be allowed to go outbound (SNATTED) as normal. This would allow
-you to effectively SNAT and use IPsec off the same firewall.
+On Thu, Sep 04, 2003 at 11:15:40AM -0700, Mike Fedyk wrote:
+> On Thu, Sep 04, 2003 at 08:25:18PM +0400, Hans Reiser wrote:
+> > In data=journal and data=ordered modes ext3 also guarantees that the 
+> > metadata will be committed atomically with the data they point to.  However 
+> > ext3 does not provide user data atomicity guarantees beyond the scope of a 
+> > single filesystem disk block (usually 4 kilobytes).  If a single write() 
+> > spans two disk blocks it is possible that a crash partway through the write 
+> > will result in only one of those blocks appearing in the file after 
+> > recovery.
+> 
+> And how does reiser4 do this without changing the userspace apps?
 
------Original Message-----
-From: netfilter-admin@lists.netfilter.org
-[mailto:netfilter-admin@lists.netfilter.org]On Behalf Of Scott Mcdermott
-Sent: Thursday, September 04, 2003 2:15 AM
-To: netfilter@lists.netfilter.org; linux-kernel@vger.kernel.org
-Subject: SNAT interaction with kernel-based IPSEC (in 2.6)
-
-
-I'm having some difficulty doing simple pings over an IPSEC
-tunnel using the implementation in 2.6.0-test4 (with
-Racoon, and successful Phase 1 and 2, I get the IPSEC SA
-fine), in combination with iptables.
-
-I have SNAT rules on the same machine that is my IPSEC
-tunnel endpoint.  I have RFC1918 IPs on my near side of the
-NAT/IPSEC box, which are SNATted to routable IPs in the
-normal case (where they don't go over the IPSEC tunnel) and
-conntracked.  If they are destined for the remote LAN though
-(at other end of tunnel), they need to go through
-unmolested: I do NOT want them SNATted when they go over the
-IPSEC tunnel, but to instead just bypass the `nat' table
-altogether.  Is this possible? I would like them still to
-traverse the `filter' table (so I can restrict the remote
-LAN), but I would be happy right now if I could get just
-bypass iptables altogether.
-
-I am suspecting that when my packets do go over the tunnel,
-get to the other end, and are unwrapped, they have the
-translated IP as the source, and not the original RFC1918
-source IP (which would then allow replies to get routed
-correctly back over the IPSEC tunnel to me).  I am awaiting
-a reply from the other end on whether or not my suspicion is
-true, but in the meantime, I thought I would try to get an
-understanding of how the kernel IPSEC implementation and
-netfilter interact, and if it's even possible to do what I'm
-trying to do (bypass nat rules in the case that the packet
-is destined for the tunnel).  Hopefully this is a common
-procedure that others have attempted already.
-
-Thanks for any information.  Sorry to crosspost, I am not
-sure where to discuss IPSEC issues that regard Netfilter.  I
-tried subscribing to netdev, but it seems to just ignore my
-subscription emails.
+It won't.
 
 
+[ snip ] 
+> Most files are written with several write() calls, so even if each call is
+> atomic, your entire file will not be there.
+> 
+> Also, ext3 could claim the same atomicity if it only updated meta-data on
+> write() call boundaries, instead of block boundaries.
+
+There will be a new API to support userspace-controlled
+multifile transactions.
+
+At first stab, multifile transactions will be used internally to
+implement extended attributes.
+
+Now, another question is.. will the transaction API support commit() and
+rollback()? *grin*
+
+(wonder about coding a simple transactional database with
+ shell scripts ;)
+
+-- 
+winden/network
+
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

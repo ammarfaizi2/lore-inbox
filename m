@@ -1,84 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262261AbSJKB2J>; Thu, 10 Oct 2002 21:28:09 -0400
+	id <S262337AbSJKBdi>; Thu, 10 Oct 2002 21:33:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262266AbSJKB2J>; Thu, 10 Oct 2002 21:28:09 -0400
-Received: from pheriche.sun.com ([192.18.98.34]:19890 "EHLO pheriche.sun.com")
-	by vger.kernel.org with ESMTP id <S262261AbSJKB2C>;
-	Thu, 10 Oct 2002 21:28:02 -0400
-From: Timothy Hockin <th122948@scl2.sfbay.sun.com>
-Message-Id: <200210110133.g9B1Xjb18401@scl2.sfbay.sun.com>
-Subject: [BK SUMMARY] fix NGROUPS hard limit
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Thu, 10 Oct 2002 18:33:45 -0700 (PDT)
-Reply-To: thockin@sun.com
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262351AbSJKBdi>; Thu, 10 Oct 2002 21:33:38 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:20379 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262337AbSJKBdf>;
+	Thu, 10 Oct 2002 21:33:35 -0400
+Subject: [whoops][PATCH] linux-2.5.41_cyclone-fixes_A1
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: greg kh <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1034298580.19094.53.camel@cog>
+References: <1034298580.19094.53.camel@cog>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Oct 2002 18:32:37 -0700
+Message-Id: <1034299957.19094.65.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Thu, 2002-10-10 at 18:09, john stultz wrote:
+> Linus, 
+> 	This patch just syncs up the cyclone-timer code w/ Greg's changes from
+> this morning. 
 
-This patchset removes the hard NGROUPS limit.  It has been in use in a similar
-form (but with a sysctl-set limit) on our systems for some time.
+Whoops! Exported the wrong changeset. Here is the full patch.
 
-The last changeset is of questionable value - nfsiod is not included by or
-referenced by anything.  Perhaps it should just be removed?
+Try this instead.
 
-I have a separate patch to convert XFS to the generic qsort(), which I will
-bounce to SGI if/when this gets pulled.
+sorry,
+-john
 
-There is a small change needed for glibc, and I will send that patch to the
-glibc people if/when this gets pulled.
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Thu Oct 10 18:31:05 2002
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Thu Oct 10 18:31:05 2002
+@@ -9,6 +9,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/init.h>
+ #include <linux/timex.h>
++#include <linux/errno.h>
+ 
+ #include <asm/timer.h>
+ #include <asm/io.h>
+@@ -81,7 +82,7 @@
+ 	
+ 	/*make sure we're on a summit box*/
+ 	/*XXX need to use proper summit hooks! such as xapic -john*/
+-	if(!use_cyclone) return 0; 
++	if(!use_cyclone) return -ENODEV; 
+ 	
+ 	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
+ 
+@@ -92,12 +93,12 @@
+ 	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+ 	if(!reg){
+ 		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
+-		return 0;
++		return -ENODEV;
+ 	}
+ 	base = *reg;	
+ 	if(!base){
+ 		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
+-		return 0;
++		return -ENODEV;
+ 	}
+ 	
+ 	/* setup PMCC */
+@@ -107,7 +108,7 @@
+ 	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+ 	if(!reg){
+ 		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
+-		return 0;
++		return -ENODEV;
+ 	}
+ 	reg[0] = 0x00000001;
+ 
+@@ -118,7 +119,7 @@
+ 	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+ 	if(!reg){
+ 		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
+-		return 0;
++		return -ENODEV;
+ 	}
+ 	reg[0] = 0x00000001;
+ 
+@@ -129,7 +130,7 @@
+ 	cyclone_timer = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+ 	if(!cyclone_timer){
+ 		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
+-		return 0;
++		return -ENODEV;
+ 	}
+ 
+ 	/*quick test to make sure its ticking*/
+@@ -140,12 +141,12 @@
+ 		if(cyclone_timer[0] == old){
+ 			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
+ 			cyclone_timer = 0;
+-			return 0;
++			return -ENODEV;
+ 		}
+ 	}
+ 
+ 	/* Everything looks good! */
+-	return 1;
++	return 0;
+ }
+ 
 
-Lastly, this does not fixup all the architectures.  I have other patchsets for
-that, which need to be reviewed by arch maintainers.
-
-Tim
-
-
-Please do a
-
-	bk pull http://suncobalt.bkbits.net/ngroups-2.5
-
-This will update the following files:
-
- fs/nfsd/auth.c                 |   11 +-
- fs/proc/array.c                |    2 
- include/asm-i386/param.h       |    4 
- include/linux/init_task.h      |    1 
- include/linux/kernel.h         |    5 +
- include/linux/limits.h         |    3 
- include/linux/nfsiod.h         |    3 
- include/linux/sched.h          |    3 
- include/linux/sunrpc/svcauth.h |    4 
- kernel/exit.c                  |    7 +
- kernel/fork.c                  |    4 
- kernel/sys.c                   |   88 +++++++++++++++-----
- kernel/uid16.c                 |   63 ++++++++++----
- lib/Makefile                   |    5 -
- lib/bsearch.c                  |   49 +++++++++++
- lib/qsort.c                    |  180 +++++++++++++++++++++++++++++++++++++++++
- net/sunrpc/svcauth.c           |    4 
- 17 files changed, 384 insertions(+), 52 deletions(-)
-
-through these ChangeSets (diffs in separate email):
-
-<thockin@freakshow.cobalt.com> (02/10/10 1.742)
-   convert nfsiod to use OLD_NGROUPS - does anyone _use_ this file anymore?
-
-<thockin@freakshow.cobalt.com> (02/10/10 1.741)
-   fix usage of NGROUPS in nfsd and svcauth
-
-<thockin@freakshow.cobalt.com> (02/10/10 1.740)
-   Remove the limit of 32 groups.  We now have a per-task, dynamic array of
-   groups, which is kept sorted and refcounted.
-
-   This ChangeSet incorporates all the core functionality. but does not fixup
-   all the incorrect usages of groups.  That is in a seperate ChangeSet.
-
-<thockin@freakshow.cobalt.com> (02/10/10 1.739)
-   Add generic qsort() and bsearch(): qsort() from BSD, bsearch() from glibc
+@@ -166,7 +167,7 @@
+ 
+ /* cyclone timer_opts struct */
+ struct timer_opts timer_cyclone = {
+-	init: init_cyclone, 
+-	mark_offset: mark_offset_cyclone, 
+-	get_offset: get_offset_cyclone
++	.init = init_cyclone, 
++	.mark_offset = mark_offset_cyclone, 
++	.get_offset = get_offset_cyclone
+ };
 

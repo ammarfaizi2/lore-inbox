@@ -1,135 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbUKODhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUKODhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbUKODhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUKODg3
+	id S261468AbUKODhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKODgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:36:29 -0500
-Received: from ozlabs.org ([203.10.76.45]:9139 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261485AbUKOC7G (ORCPT
+	Sun, 14 Nov 2004 22:36:51 -0500
+Received: from ozlabs.org ([203.10.76.45]:691 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261468AbUKOCj6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 21:59:06 -0500
+	Sun, 14 Nov 2004 21:39:58 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16792.7267.321004.667834@cargo.ozlabs.ibm.com>
-Date: Mon, 15 Nov 2004 14:02:59 +1100
+Message-ID: <16792.6126.561975.238024@cargo.ozlabs.ibm.com>
+Date: Mon, 15 Nov 2004 13:43:58 +1100
 From: Paul Mackerras <paulus@samba.org>
 To: akpm@osdl.org
 Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] power_state and __iomem for mediabay.c
+Subject: [PATCH] Add __iomem annotations to drivers/scsi/mac53c94.c
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch does the power_state -> power.power_state conversion for
-drivers/macintosh/mediabay.c and makes it use void __iomem * for
-ioremap cookies.  Once the IDE code is converted to not use unsigned
-long for MMIO register addresses, I will be able to remove a few casts
-from here.
+This patch adds __iomem annotations to drivers/scsi/mac53c94.c, and
+changes one use of st_le32 to writel.
 
 Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-diff -urN linux-2.5/drivers/macintosh/mediabay.c test-pmac/drivers/macintosh/mediabay.c
---- linux-2.5/drivers/macintosh/mediabay.c	2004-08-03 08:07:43.000000000 +1000
-+++ test-pmac/drivers/macintosh/mediabay.c	2004-11-15 13:49:10.160443344 +1100
-@@ -45,7 +45,7 @@
- #endif
- 
- #define MB_FCR32(bay, r)	((bay)->base + ((r) >> 2))
--#define MB_FCR8(bay, r)		(((volatile u8*)((bay)->base)) + (r))
-+#define MB_FCR8(bay, r)		(((volatile __iomem u8*)((bay)->base)) + (r))
- 
- #define MB_IN32(bay,r)		(in_le32(MB_FCR32(bay,r)))
- #define MB_OUT32(bay,r,v)	(out_le32(MB_FCR32(bay,r), (v)))
-@@ -67,7 +67,7 @@
+diff -urN linux-2.5/drivers/scsi/mac53c94.c test-pmac/drivers/scsi/mac53c94.c
+--- linux-2.5/drivers/scsi/mac53c94.c	2004-04-04 16:06:05.000000000 +1000
++++ test-pmac/drivers/scsi/mac53c94.c	2004-11-15 09:36:29.000000000 +1100
+@@ -41,9 +41,9 @@
  };
  
- struct media_bay_info {
--	volatile u32*			base;
-+	u32 __iomem			*base;
- 	int				content_id;
- 	int				state;
- 	int				last_value;
-@@ -80,7 +80,7 @@
- 	int				sleeping;
- 	struct semaphore		lock;
- #ifdef CONFIG_BLK_DEV_IDE
--	unsigned long			cd_base;
-+	void __iomem			*cd_base;
- 	int 				cd_index;
- 	int				cd_irq;
- 	int				cd_retry;
-@@ -443,7 +443,7 @@
- 	int	i;
- 
- 	for (i=0; i<media_bay_count; i++)
--		if (media_bays[i].mdev && base == media_bays[i].cd_base) {
-+		if (media_bays[i].mdev && base == (unsigned long) media_bays[i].cd_base) {
- 			if ((what == media_bays[i].content_id) && media_bays[i].state == mb_up)
- 				return 0;
- 			media_bays[i].cd_index = -1;
-@@ -468,7 +468,7 @@
- 			
- 			down(&bay->lock);
- 
-- 			bay->cd_base	= base;
-+ 			bay->cd_base	= (void __iomem *) base;
- 			bay->cd_irq	= irq;
- 
- 			if ((MB_CD != bay->content_id) || bay->state != mb_up) {
-@@ -553,7 +553,7 @@
- 	    	break;
- 	    
- 	case mb_ide_waiting:
--		if (bay->cd_base == 0) {
-+		if (bay->cd_base == NULL) {
- 			bay->timer = 0;
- 			bay->state = mb_up;
- 			MBDBG("mediabay%d: up before IDE init\n", i);
-@@ -651,7 +651,7 @@
- static int __devinit media_bay_attach(struct macio_dev *mdev, const struct of_match *match)
+ struct fsc_state {
+-	struct	mac53c94_regs *regs;
++	struct	mac53c94_regs __iomem *regs;
+ 	int	intr;
+-	struct	dbdma_regs *dma;
++	struct	dbdma_regs __iomem *dma;
+ 	int	dmaintr;
+ 	int	clk_freq;
+ 	struct	Scsi_Host *host;
+@@ -106,10 +106,10 @@
+ static int mac53c94_host_reset(struct scsi_cmnd *cmd)
  {
- 	struct media_bay_info* bay;
--	volatile u32 *regbase;
-+	u32 __iomem *regbase;
- 	struct device_node *ofnode;
+ 	struct fsc_state *state = (struct fsc_state *) cmd->device->host->hostdata;
+-	struct mac53c94_regs *regs = state->regs;
+-	struct dbdma_regs *dma = state->dma;
++	struct mac53c94_regs __iomem *regs = state->regs;
++	struct dbdma_regs __iomem *dma = state->dma;
+ 
+-	st_le32(&dma->control, (RUN|PAUSE|FLUSH|WAKE) << 16);
++	writel((RUN|PAUSE|FLUSH|WAKE) << 16, &dma->control);
+ 	writeb(CMD_SCSI_RESET, &regs->command);	/* assert RST */
+ 	udelay(100);			/* leave it on for a while (>= 25us) */
+ 	writeb(CMD_RESET, &regs->command);
+@@ -121,8 +121,8 @@
+ 
+ static void mac53c94_init(struct fsc_state *state)
+ {
+-	struct mac53c94_regs *regs = state->regs;
+-	struct dbdma_regs *dma = state->dma;
++	struct mac53c94_regs __iomem *regs = state->regs;
++	struct dbdma_regs __iomem *dma = state->dma;
+ 	int x;
+ 
+ 	writeb(state->host->this_id | CF1_PAR_ENABLE, &regs->config1);
+@@ -143,7 +143,7 @@
+ static void mac53c94_start(struct fsc_state *state)
+ {
+ 	struct scsi_cmnd *cmd;
+-	struct mac53c94_regs *regs = state->regs;
++	struct mac53c94_regs __iomem *regs = state->regs;
  	int i;
  
-@@ -664,7 +664,8 @@
- 	/* Media bay registers are located at the beginning of the
-          * mac-io chip, we get the parent address for now (hrm...)
-          */
--	regbase = (volatile u32 *)ioremap(ofnode->parent->addrs[0].address, 0x100);
-+	regbase = (u32 __iomem *)
-+		ioremap(ofnode->parent->addrs[0].address, 0x100);
- 	if (regbase == NULL) {
- 		macio_release_resources(mdev);
- 		return -ENOMEM;
-@@ -713,13 +714,13 @@
+ 	if (state->phase != idle || state->current_req != NULL)
+@@ -191,8 +191,8 @@
+ static void mac53c94_interrupt(int irq, void *dev_id, struct pt_regs *ptregs)
  {
- 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 	struct fsc_state *state = (struct fsc_state *) dev_id;
+-	struct mac53c94_regs *regs = state->regs;
+-	struct dbdma_regs *dma = state->dma;
++	struct mac53c94_regs __iomem *regs = state->regs;
++	struct dbdma_regs __iomem *dma = state->dma;
+ 	struct scsi_cmnd *cmd = state->current_req;
+ 	int nb, stat, seq, intr;
+ 	static int mac53c94_errors;
+@@ -458,10 +458,10 @@
+ 	state->pdev = pdev;
+ 	state->mdev = mdev;
  
--	if (state != mdev->ofdev.dev.power_state && state >= 2) {
-+	if (state != mdev->ofdev.dev.power.power_state && state == PM_SUSPEND_MEM) {
- 		down(&bay->lock);
- 		bay->sleeping = 1;
- 		set_mb_power(bay, 0);
- 		up(&bay->lock);
- 		msleep(MB_POLL_DELAY);
--		mdev->ofdev.dev.power_state = state;
-+		mdev->ofdev.dev.power.power_state = state;
- 	}
- 	return 0;
- }
-@@ -728,8 +729,8 @@
- {
- 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
- 
--	if (mdev->ofdev.dev.power_state != 0) {
--		mdev->ofdev.dev.power_state = 0;
-+	if (mdev->ofdev.dev.power.power_state != 0) {
-+		mdev->ofdev.dev.power.power_state = 0;
- 
- 	       	/* We re-enable the bay using it's previous content
- 	       	   only if it did not change. Note those bozo timings,
+-	state->regs = (struct mac53c94_regs *)
++	state->regs = (struct mac53c94_regs __iomem *)
+ 		ioremap(macio_resource_start(mdev, 0), 0x1000);
+ 	state->intr = macio_irq(mdev, 0);
+-	state->dma = (struct dbdma_regs *)
++	state->dma = (struct dbdma_regs __iomem *)
+ 		ioremap(macio_resource_start(mdev, 1), 0x1000);
+ 	state->dmaintr = macio_irq(mdev, 1);
+ 	if (state->regs == NULL || state->dma == NULL) {

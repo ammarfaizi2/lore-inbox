@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293548AbSCGHni>; Thu, 7 Mar 2002 02:43:38 -0500
+	id <S293549AbSCGH4N>; Thu, 7 Mar 2002 02:56:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310146AbSCGHn2>; Thu, 7 Mar 2002 02:43:28 -0500
-Received: from adsl-209-233-33-110.dsl.snfc21.pacbell.net ([209.233.33.110]:35310
-	"EHLO lorien.emufarm.org") by vger.kernel.org with ESMTP
-	id <S293548AbSCGHnJ>; Thu, 7 Mar 2002 02:43:09 -0500
-Date: Wed, 6 Mar 2002 23:43:08 -0800
-From: Danek Duvall <duvall@emufarm.org>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: root-owned /proc/pid files for threaded apps?
-Message-ID: <20020307074308.GA330@lorien.emufarm.org>
-Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020307060110.GA303@lorien.emufarm.org>
+	id <S293553AbSCGH4D>; Thu, 7 Mar 2002 02:56:03 -0500
+Received: from h139n1fls24o900.telia.com ([213.66.143.139]:51934 "EHLO
+	oden.fish.net") by vger.kernel.org with ESMTP id <S293549AbSCGHz4>;
+	Thu, 7 Mar 2002 02:55:56 -0500
+Date: Thu, 7 Mar 2002 08:56:36 +0100
+From: Voluspa <voluspa@bigfoot.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6-pre3 Kernel panic: VFS: Unable to mount root fs on 03:02
+Message-Id: <20020307085636.4feb2372.voluspa@bigfoot.com>
+In-Reply-To: <Pine.GSO.4.21.0203070127190.24127-100000@weyl.math.psu.edu>
+In-Reply-To: <20020307072124.6365c8ac.voluspa@bigfoot.com>
+	<Pine.GSO.4.21.0203070127190.24127-100000@weyl.math.psu.edu>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020307060110.GA303@lorien.emufarm.org>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 10:01:10PM -0800, Danek Duvall wrote:
+On Thu, 7 Mar 2002 01:29:30 -0500 (EST)
+Alexander Viro <viro@math.psu.edu> wrote:
 
-> I just upgraded from 2.4.8-pre3-ac2 to 2.4.19-pre2-ac2, and found that
-> for threaded programs like mozilla and xmms, files in /proc/<pid> are
-> owned by root, even if the process belongs to another user.
-> 
-> I'll backtrack kernels to see if I can find the patch that caused it
-> and report back if I hear nothing.
+> Add
+> 		printk("mount() -> %d\n", err);
+> right before
+>                 printk ("VFS: Cannot open root device \"%s\" or %s\n",
+>                         root_device_name, kdevname (ROOT_DEV));
+> in init/do_mounts.c and see what it prints.
 
-It's caused by the ac2 patch, but I'm not sure which part.  Maybe the
-changes to set_user(), causing the dumpable flag to be set to zero, and
-thus the uid/gid of the inode not to be set to the real owner?
+(An hour of compile time later):
 
-Danek
+[...]
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+mount() -> -14
+VFS: Cannot open root device "302" or 03:02
+Please append a correct "root=" boot option
+Kernel panic: VFS: Unable to mount root fs on 03:02
+
+I'm writing this on the exact same partition setup with 2.4.18-pre7-ac2 so there's nothing wrong with how lilo handles the boot process.
+
+Regards,
+Mats Johannesson
+Sweden

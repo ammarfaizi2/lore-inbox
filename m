@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTI1W4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 18:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTI1W4k
+	id S262767AbTI1XIc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 19:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTI1XIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 18:56:40 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.24]:9059 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262738AbTI1W4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 18:56:38 -0400
-Date: Sun, 28 Sep 2003 14:55:32 +0200
-Message-Id: <200309281255.h8SCtWRj005606@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 322] Amiga CyberVision 64 frame buffer device is broken
+	Sun, 28 Sep 2003 19:08:32 -0400
+Received: from host3.whitb.cust.sover.net ([207.136.236.67]:54669 "EHLO
+	patternbook.com") by vger.kernel.org with ESMTP id S262767AbTI1XIa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 19:08:30 -0400
+Date: Sun, 28 Sep 2003 19:08:29 -0400
+From: Whit Blauvelt <whit@transpect.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Strange active ftp failure - adendum
+Message-ID: <20030928230829.GA13971@free.transpect.com>
+References: <20030928200226.GA13382@free.transpect.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030928200226.GA13382@free.transpect.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga CyberVision 64 frame buffer device is broken (needs update to new fbdev
-framework)
+A bit more experience, a few more details:
 
---- linux-2.6.0-test6/drivers/video/Kconfig	Tue Sep  9 10:13:11 2003
-+++ linux-m68k-2.6.0-test6/drivers/video/Kconfig	Fri Sep 19 14:32:14 2003
-@@ -190,8 +190,8 @@
- 	  otherwise say N.
- 
- config FB_CYBER
--	tristate "Amiga CyberVision support"
--	depends on FB && ZORRO
-+	tristate "Amiga CyberVision 64 support"
-+	depends on FB && ZORRO && BROKEN
- 	help
- 	  This enables support for the Cybervision 64 graphics card from
- 	  Phase5. Please note that its use is not all that intuitive (i.e. if
+To try to pinpoint whether the smp code was involved, I read the SMP HOWTO,
+then built a non-smp 2.4.22 kernel (make mrproper; copy in prior .config
+file and deselect smp with make menuconfig; make bzImage; make modules; make
+modules_install; plus appropriate LILO steps). The SMP HOWTO suggests this
+should have worked. However the resulting kernel panics.
 
-Gr{oetje,eeting}s,
+Call employee closer to office (I'm remote) to go in and reboot to working
+2.4.20 (smp) kernel (after confirming panic). Surprisingly, now active ftp
+is working on both lines. 
 
-						Geert
+The machine has been rebooted before - although only a half-dozen times
+since the active ftp problem became apparent - and the second-line active
+ftp failure has been consistent. What could happen only sometimes in bootup
+that would enable/disable it? I still need to find a better option than
+"Reboot, test active ftp on second line, if not working then repeat."
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Thanks,
+Whit
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293184AbSBWTJd>; Sat, 23 Feb 2002 14:09:33 -0500
+	id <S293187AbSBWTMu>; Sat, 23 Feb 2002 14:12:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293181AbSBWTJV>; Sat, 23 Feb 2002 14:09:21 -0500
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:33951 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S293184AbSBWTJJ>; Sat, 23 Feb 2002 14:09:09 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: Hang on floppy access, patched 2.4.18-rc[34]
-Date: Sat, 23 Feb 2002 20:08:52 +0100
-X-Mailer: KMail [version 1.3.9]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-        Robert Love <rml@tech9.net>
+	id <S293188AbSBWTMk>; Sat, 23 Feb 2002 14:12:40 -0500
+Received: from pogo.esscom.com ([199.89.135.169]:11283 "EHLO esscom.com")
+	by vger.kernel.org with ESMTP id <S293187AbSBWTMa>;
+	Sat, 23 Feb 2002 14:12:30 -0500
+Date: Sat, 23 Feb 2002 12:12:07 -0700 (MST)
+From: Kurt Ferreira <kferreir@esscom.com>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+In-Reply-To: <20020223193812.A4168@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.21.0202231206400.2620-100000@pogo.esscom.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200202232008.52370.Dieter.Nuetzel@hamburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You wrote:
->Hi.
+Hello,
+
+On Sat, 23 Feb 2002, bert hubert wrote:
+
+> Lots of people found the time to send derogative answers though - and how
+> well known are these in extinguising discussion and allowing us more time to
+> code! 
+> 
+> Typing in the few reasons why this, or any idea, is so well rejected hardly
+> takes more time and *does* extinguish the thread rapidly.
 >
-> My system is locking up when trying to access the floppy drive.
-> The mount or mkfs command just get stuck, no response to ctrl-c.
-> Kernel is 2.4.18-rc3 with vm-25, sched-O1, read-latency, mini-lowlat,
-> irqrate-A1. But is also hangs on rc4 without irqrate-A1.
-> Decoded output from SysRQ-P follows:
 
-How did you get the SysRQ-P output?
-Didn't it lock up "hard"?
+I think you might not being understanding.  It has been discussed.  In
+some cases over and over.  A search of the mailing list archives give the
+reasons why these (and many like it) have been rejected.  The terse 'no'
+is most likley fustration that the poster did not do his/her homework by
+searching archives before posting.
 
-I use a similar kernel for several weeks and it lock up "hard" during "make 
-zlilo" (always) or "make bzImage" (from time to time) ;-(
-I have to-do several sync commands form another shell to build a bootable 
-kernel. But "make modules modules_install" works always smooth.
-No hangs during "normal" use.
-
-Latest kernel is:
-Linux version 2.4.18-pre8-K3-VM-24-preempt-lock (root@SunWave1) (gcc version 
-2.95.3 20010315 (SuSE)) #1 Mit Feb 13 23:15:44 CET 2002
-plus
-waitq-2.4.17-mainline-1
-bootmem-2.4.17-pre6
-read-latency-2
-latest ReiserFS stuff
-
-Regards,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+Kurt
 

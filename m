@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271645AbRHPTvg>; Thu, 16 Aug 2001 15:51:36 -0400
+	id <S271631AbRHPUB0>; Thu, 16 Aug 2001 16:01:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271648AbRHPTv0>; Thu, 16 Aug 2001 15:51:26 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14345 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S271657AbRHPTvI>; Thu, 16 Aug 2001 15:51:08 -0400
-Date: Thu, 16 Aug 2001 21:51:13 +0200
-From: Jan Kara <jack@suse.cz>
-To: Zakhar Kirpichenko <zakhar@silver.com.ua>
+	id <S271632AbRHPUBS>; Thu, 16 Aug 2001 16:01:18 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:49023 "EHLO
+	arlab191.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S271631AbRHPUBG> convert rfc822-to-8bit; Thu, 16 Aug 2001 16:01:06 -0400
+Subject: Re: limit cpu
+From: Wes Felter <wmf@austin.ibm.com>
+To: Eduardo =?ISO-8859-1?Q?Cort=E9s?= <the_beast@softhome.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: disk quota + 2.4.3 and higher -- OOPS
-Message-ID: <20010816215113.G9790@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.10.10108151641270.10516-100000@rasta.silver.com.ua>
+In-Reply-To: <20010816012150Z268614-760+2237@vger.kernel.org>
+In-Reply-To: <20010816012150Z268614-760+2237@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 16 Aug 2001 14:58:54 -0500
+Message-Id: <997991934.20279.11.camel@arlab191.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.10.10108151641270.10516-100000@rasta.silver.com.ua>; from zakhar@silver.com.ua on Wed, Aug 15, 2001 at 04:50:25PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On 16 Aug 2001 03:21:58 +0200, Eduardo Cortés wrote:
+> hi,
+> i want to know if linux can limit the max cpu usage (not cpu time) per user, 
+> like freebsd login classes. I see /etc/security/limits.conf and ulimit from 
+> bash, but they limit the max cpu time, not de max cpu usage (%cpu). 
 
-> 	Sorry for offtopic (may be), but disk quotas don't work on Red Hat
-> Linux 7.1 and kernels 2.2.x and 2.4.x. Quota tools installed from RPM
-> package provided in standard RH distribution: quota-3.00-4, 2.4.2-2 kernel
-> sources taken from the dist too. Other kernel versions support quota
-> partially: repquota gives some quota statistics, but the kernel doesn't
-> update quota data until 'quotacheck' is run manually. Disk quotas don't
-> work too - even when repquota shows some limits, 'quota' doesn't and any
-> user can write to the fs inspite of the disk limits.
-  And what does say command 'quotaon -avug' executed as root? It seems to me
-like quotas aren't turned on in kernel...
+There are a couple of patches:
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE Labs
+http://www.cs.umass.edu/~lass/software/qlinux/
+http://fairsched.sourceforge.net/
+http://www.surriel.com/patches/2.3/2.3.99-3-schedpatch5
+
+Wes Felter
+System Software Department
+IBM Austin Research Lab
+11400 Burnet Rd., Austin, TX 78758
+Tel 512-838-7933

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbSKAGnU>; Fri, 1 Nov 2002 01:43:20 -0500
+	id <S265646AbSKAGpk>; Fri, 1 Nov 2002 01:45:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265644AbSKAGnT>; Fri, 1 Nov 2002 01:43:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3078 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265643AbSKAGnT>; Fri, 1 Nov 2002 01:43:19 -0500
-Date: Thu, 31 Oct 2002 22:36:35 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.3.96.1021101000448.23822B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0210312233190.5595-100000@home.transmeta.com>
+	id <S265647AbSKAGpk>; Fri, 1 Nov 2002 01:45:40 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:55512 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265646AbSKAGpj>; Fri, 1 Nov 2002 01:45:39 -0500
+From: "Venkata Jagana" <jagana@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.45
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+Cc: davem@redhat.com, kkumar@beaverton.ibm.com, kuznet@ms2.inr.ac.ru,
+       ajtuomin@tml.hut.fi, lpetande@tml.hut.fi, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFFA13F15A.27343A7E-ON88256C64.00238392@boulder.ibm.com>
+Date: Thu, 31 Oct 2002 22:51:13 -0800
+X-MIMETrack: Serialize by Router on D03NM036/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/31/2002 11:51:15 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 1 Nov 2002, Bill Davidsen wrote:
-> 
->   If you really believed the stuff you say you'd put it in and promise to
-> take it out if people didn't find it useful or there were inherent
-> limitations.
 
-This never works. Be honest. Nobody takes out features, they are stuck 
-once they get in. Which is exactly why my job is to say "no", and why 
-there is no "accepted unless proven bad". 
 
-> It would probably take 10-30% off the time to a stable release.
+> Registration process should live in user space.
 
-Talk is cheap.
+I believe even the registration part should belong to kernel and
+here are the reasons why.
 
-I've not seen a _single_ bug-report with a fix that attributed the
-existing LKCD patches. I might be more impressed if I had. 
+The Home Agent needs to consult the Binding Cache, which is stored
+upon successful completion of Binding updates registration, for
+tunnelling the packets belonging to the mobile nodes away from home.
+In addition, as part of the registration process but before caching
+the binding updates, the Home Agent may need to perform duplicate address
+detection (DAD), if needed, through ND protocol messages. And also,
+IPSec is mandated for Home Agent registration and so, Home Agent
+must use IPSec for responding to Binding updates from Mobile Nodes.
 
-The basic issue is that we don't put patches in in the hope that they will
-prove themselves later. Your argument is fundamentally flawed.
 
-		Linus
+Thanks,
+Venkat
+
+----------------------------------------------------------------
+Venkata R Jagana
+IBM Linux Technology Centre, Beaverton
+jagana@us.ibm.com
+Tel: (503) 578 3430 T/L 775-3430
+
+
 

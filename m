@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267584AbSLNKFw>; Sat, 14 Dec 2002 05:05:52 -0500
+	id <S267573AbSLNKEI>; Sat, 14 Dec 2002 05:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267587AbSLNKFw>; Sat, 14 Dec 2002 05:05:52 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27275 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267584AbSLNKFv>;
-	Sat, 14 Dec 2002 05:05:51 -0500
-Date: Sat, 14 Dec 2002 10:13:27 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Courtney Grimland <cgrimland@yahoo.com>
-Cc: BoehmeSilvio <Boehme.Silvio@afb.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-ac1 KT400 AGP support
-Message-ID: <20021214101327.GB30545@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Courtney Grimland <cgrimland@yahoo.com>,
-	BoehmeSilvio <Boehme.Silvio@afb.de>, linux-kernel@vger.kernel.org
-References: <2F4E8F809920D611B0B300508BDE95FE294452@AFB91> <20021213195759.3233dc42.cgrimland@yahoo.com>
-Mime-Version: 1.0
+	id <S267584AbSLNKEI>; Sat, 14 Dec 2002 05:04:08 -0500
+Received: from packet.digeo.com ([12.110.80.53]:34998 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267573AbSLNKEH>;
+	Sat, 14 Dec 2002 05:04:07 -0500
+Message-ID: <3DFB03E8.C7AB1271@digeo.com>
+Date: Sat, 14 Dec 2002 02:11:52 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mohamed El Ayouty <melayout@umich.edu>
+CC: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in
+References: <1039790158.25215.48.camel@syKr0n.mine.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021213195759.3233dc42.cgrimland@yahoo.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Dec 2002 10:11:52.0772 (UTC) FILETIME=[39403040:01C2A359]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 07:57:59PM -0600, Courtney Grimland wrote:
- > You should be able to set AGP to 4x or 2x in the BIOS.
+Mohamed El Ayouty wrote:
+> 
+> Hi,
+> 
+> This sounds more like the bug I have opened:
+> 
+> http://bugme.osdl.org/show_bug.cgi?id=110
+> 
+> where if CONFIG_DEVFS_FS = Y and CONFIG_DEVFS_MOUNT = Y, you will get:
+> 
+> VFS: Cannot open root device "hda2" or 03:02
+> Please append a correct "root=" boot option
+> Kernel panic: VFS: Unable to mount root fs on 03:02
+> 
+> I worked around it by enabling CONFIG_UNIX98_PTYS = Y under the
+> character devices.
+> 
+> But, a recent update to the bug shows that a patch was posted but nobody
+> cared.
+> 
+> Personally, I think the patch should be merged.
 
-Aparently some KT400 BIOS's got clever, and took away the option.
-They switch to AGP 3.0 if an AGP 3.0 card is present, and drop
-back to 2.0 if a 2.0 card is present.
+You mean this one?
 
-		Dave
+	http://www.lkml.org/archive/2002/12/13/50/index.html
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+It appears to simply disable internal mounting of devfs.
+
+In which kernel did this problem first appear?   There were
+devfs changes in 2.5.51.

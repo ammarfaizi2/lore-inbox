@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293447AbSCUGUD>; Thu, 21 Mar 2002 01:20:03 -0500
+	id <S289298AbSCUGcf>; Thu, 21 Mar 2002 01:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293448AbSCUGTx>; Thu, 21 Mar 2002 01:19:53 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:58891 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S293447AbSCUGTl>;
-	Thu, 21 Mar 2002 01:19:41 -0500
+	id <S293448AbSCUGcZ>; Thu, 21 Mar 2002 01:32:25 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:26872 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S289298AbSCUGcL>; Thu, 21 Mar 2002 01:32:11 -0500
+From: "Guillaume Boissiere" <boissiere@attbi.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 21 Mar 2002 01:30:53 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15513.30999.494913.910369@gargle.gargle.HOWL>
-Date: Thu, 21 Mar 2002 17:09:27 +1100
-From: Christopher Yeoh <cyeoh@samba.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] fcntl returns wrong error code
-X-Mailer: VM 7.03 under Emacs 21.1.1
+Subject: Re: [STATUS 2.5]  March 20, 2002
+Message-ID: <3C9937CD.13622.403BA303@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Added to the latest update.  Thanks for the feedback!
+-- Guillaume
 
-When fcntl(fd, F_DUPFD, b) is called where 'b' is greater than the
-maximum allowable value EINVAL should be returned. From POSIX:
 
-"[EINVAL] The cmd argument is invalid, or the cmd argument is F_DUPFD and
-arg is negative or greater than or equal to {OPEN_MAX}, or ..."
+> Guillaume, could you add an entry for UDF on CDRW write support that
+> Jens Axboe intents to merge in 2.5 (see url).
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101583526325962&w=2
+> 
+> Thanks,
+> Christophe
+> 
+> On Wed, Mar 20, 2002 at 11:39:12AM -0500, Guillaume Boissiere wrote:
+> > The latest status update for the 2.5 series is available at
+> > http://kernelnewbies.org/status/ with links for each item.
+> > 
+> > Of note since last week is the merge of NAPI, which is a way 
+> > to deal with high network packet load -- networking drivers
+> > authors may want to take a look at the porting guide.
+> > Also merged is a big ACPI patch, which should pave the way 
+> > for better power management in Linux.
+> >
+> > As usual, please let me know of anything incorrect or missing.  
+> > Cheers,
+> >
+> > -- Guillaume
 
-Currently we instead return EMFILE. The following patch (against
-2.4.19pre-4) fixes this behaviour:
 
---- linux-2.4.18/fs/fcntl.c~	Mon Sep 24 05:13:11 2001
-+++ linux-2.4.18/fs/fcntl.c	Thu Mar 21 16:50:06 2002
-@@ -120,8 +120,13 @@
- 	int ret;
- 
- 	ret = locate_fd(files, file, start);
--	if (ret < 0) 
-+	if (ret < 0) {
-+		/* We should return EINVAL instead of EMFILE if the
-+		   request for the fd starts beyond the valid range */
-+		if (ret==-EMFILE && start>=current->rlim[RLIMIT_NOFILE].rlim_cur)
-+			ret = -EINVAL;
- 		goto out_putf;
-+	}
- 	allocate_fd(files, file, ret);
- 	return ret;
-
-Chris.
--- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia

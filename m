@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315606AbSE2Wii>; Wed, 29 May 2002 18:38:38 -0400
+	id <S315616AbSE2WmZ>; Wed, 29 May 2002 18:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315611AbSE2Wih>; Wed, 29 May 2002 18:38:37 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:10907
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S315606AbSE2Wih>; Wed, 29 May 2002 18:38:37 -0400
-Date: Wed, 29 May 2002 18:38:27 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Paul P Komkoff Jr <i@stingr.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.19 - What's up with the kernel build?
-In-Reply-To: <3CF540F8.6000802@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0205291827130.23147-100000@xanadu.home>
+	id <S315619AbSE2WmY>; Wed, 29 May 2002 18:42:24 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:27667 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315616AbSE2WmX>; Wed, 29 May 2002 18:42:23 -0400
+Date: Wed, 29 May 2002 15:42:08 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Melchior FRANZ <a8603365@unet.univie.ac.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19: tdfxfb broken
+In-Reply-To: <200205292243.11106@pflug3.gphy.univie.ac.at>
+Message-ID: <Pine.LNX.4.10.10205291539010.19493-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 May 2002, Jeff Garzik wrote:
 
-> Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
-> he wanted an evolution to a new build system... not an unreasonable 
-> request to at least consider.  Despite Keith's quality of code (again -- 
-> I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
-> very "take it or leave it dammit".  Not the best way to win friends and 
-> influence people.
+> I'm using the framebuffer on a 3dfx V3-3000 using the tdfxfb driver and
+> the following setup:
 > 
-> If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
-> work with Kai to integrate it into 2.5.x.
+>   append = "3 video=tdfx:1280x1024-8,nomtrr,font:SUN12x22"
+> 
+> This worked well for all 2.4.* kernels and all working 2.5.* kernels
+> so far. It doesn't work with 2.5.19. The screen remains all black
+> without any text being shown. Just the logo is shown in its original size
+> at the right position, but in wrong colors (e.g. the normally black
+> background around Tux is blue).
 
-When I suggested to Keith he push kbuild25 the way Linus likes, he (Keith) 
-considered that was a "stupid comment" and that he'd ignore stupid comments.
-
-So it looks like someone else will have to volunteer to split kbuild25 into
-multiple small patches and feed them "piecemeal" to Linus before we ever see
-it into the kernel tree.
+I noticed that when I tried the above line. I have a patch coming. Give me
+a few minutes.
 
 
-Nicolas
 

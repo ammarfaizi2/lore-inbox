@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbULJSU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbULJS2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbULJSU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 13:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbULJSU0
+	id S261792AbULJS2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 13:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbULJS2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 13:20:26 -0500
-Received: from holomorphy.com ([207.189.100.168]:58002 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261791AbULJSUN (ORCPT
+	Fri, 10 Dec 2004 13:28:20 -0500
+Received: from waste.org ([209.173.204.2]:60139 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261792AbULJS2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 13:20:13 -0500
-Date: Fri, 10 Dec 2004 10:19:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
-       nickpiggin@yahoo.com.au
-Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041210181954.GU2714@holomorphy.com>
-References: <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <20041203022854.GL32635@dualathlon.random> <20041210163614.GN2714@holomorphy.com> <20041210173554.GW16322@dualathlon.random> <20041210174336.GP2714@holomorphy.com> <20041210175504.GY16322@dualathlon.random> <20041210180031.GT2714@holomorphy.com> <20041210181529.GZ16322@dualathlon.random>
+	Fri, 10 Dec 2004 13:28:16 -0500
+Date: Fri, 10 Dec 2004 10:28:04 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, Bernard Normier <bernard@zeroc.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Concurrent access to /dev/urandom
+Message-ID: <20041210182804.GT8876@waste.org>
+References: <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org> <20041209212936.GO8876@waste.org> <20041210044759.GQ8876@waste.org> <20041210163558.GB10639@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041210181529.GZ16322@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041210163558.GB10639@thunk.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 10:00:31AM -0800, William Lee Irwin III wrote:
->> Yet those don't appear in the tasklist, so some task in the tasklist
->> has to get ->mm set to &init_mm. The notion above was that the init_mm
->> check was to handle some out-of-tree attempt to do aio from kernel threads.
+On Fri, Dec 10, 2004 at 11:35:58AM -0500, Theodore Ts'o wrote:
+> On Thu, Dec 09, 2004 at 08:47:59PM -0800, Matt Mackall wrote:
+> > 
+> > But it turns out that we can do this without hashing under the lock
+> > after all. What's important is that we mix and extract atomically.
+> > Something like this should be quite reasonable:
+> 
+> The core idea is good, but your patch has a bug in it; it bashes
+> add_ptr before it gets saved into r->add_ptr.
 
-On Fri, Dec 10, 2004 at 07:15:29PM +0100, Andrea Arcangeli wrote:
-> Not sure to understand correctly but, aio has always been done through
-> kernel threads, and that's the whole thing about aio. Not sure what
-> you're doing out-of-tree, but you don't need to use init_mm to deal with
-> kernel threads, infact kernel threads can only have ->mm = NULL. When
-> switching mm with use_mm the aio thread is only going to use a real mm
-> with mappings in userspace, so even in that case you don't need init_mm.
-> I didn't see the out of tree code though.
+I seem to remember having a rationale for that, but I'm fine with your
+way.
 
-Maybe the whole init_mm check should die since nothing in-tree could
-cause it?
+> Also, it's a more
+> complicated than it needed to be (which makes it harder to analyze
+> it).
 
+Fair enough. s/__add/mix/, please.
 
--- wli
+> Finally, it won't work if the pool doesn't get initialized with
+> sufficient randomness in the init scripts, and there are too many
+> constant zero's in the pool.  But this is easily fixed by using a
+> different initialization pattern.
+
+It won't work as in we'll still get duplicates? I don't see how that
+happens. The polynomial for the output pools is dense enough that even
+on the very next one word mix, we're getting 96 bits changed in the
+output and 32 new ones shifted in. And we're always doing at least
+three adds for each pull.
+
+It's still suboptimal, perhaps, but I'd rather mix more in
+init_std_data. In fact, I was hoping to abolish the pool clearing
+function in favor of just init_std_data, as there's not much utility
+in going back to a known state here. Let's address this separately.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

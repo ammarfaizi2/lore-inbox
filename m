@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSKKWnN>; Mon, 11 Nov 2002 17:43:13 -0500
+	id <S261506AbSKKWrL>; Mon, 11 Nov 2002 17:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261506AbSKKWnM>; Mon, 11 Nov 2002 17:43:12 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:19984 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261356AbSKKWnM>; Mon, 11 Nov 2002 17:43:12 -0500
-Message-Id: <200211112249.gABMnux21337@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: john stultz <johnstul@us.ibm.com>
-cc: "J.E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Voyager subarchitecture for 2.5.46 
-In-Reply-To: Message from john stultz <johnstul@us.ibm.com> 
-   of "11 Nov 2002 13:58:44 PST." <1037051926.3844.4.camel@cornchips> 
+	id <S261520AbSKKWrL>; Mon, 11 Nov 2002 17:47:11 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:24534 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261506AbSKKWrC>; Mon, 11 Nov 2002 17:47:02 -0500
+Date: Mon, 11 Nov 2002 23:53:40 +0100
+To: dm@uk.sistina.com, linux-lvm@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] make device mapper compile on 2.5.4x
+Message-ID: <20021111225340.GA3587@lina.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 11 Nov 2002 17:49:56 -0500
-From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Bernd Eckenfels <ecki@lina.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-johnstul@us.ibm.com said:
-> We'd still need to go back and yank out the #ifdef CONFIG_X86_TSC'ed
-> macros in profile.h and pksched.h or replace them w/ inlines that wrap
-> the rdtsc calls w/ if(cpu_has_tsc && !tsc_disable) or some such line.
+Hello,
 
-Actually, the best way to do this might be to vector the rdtsc calls through a 
-function pointer (i.e. they return zero always if the TSC is disabled, or the 
-TSC value if it's OK).  I think this might be better than checking the 
-cpu_has_tsc flag in the code (well it's more expandable anyway, it won't be 
-faster...)
+device mapper does not compile on my 2.4.x tree, because of an argument
+incompatibility in set_device_ro(). Please find attached a patch, which
+makes this file compile. I am not sure if it is correct, since I do not
+unterstand whats going on here, and have not tested it yet. Please somebody
+have a look at it since it it broken for multiple releases, yet.
 
-When the TSC code is sorted out on a per cpu basis, consumers are probably 
-going to expect rdtsc to return usable values whatever CPU it is called on, so 
-vectoring the calls now may help this.
+BTW: I also suggest to remove the www.sistina.com/lvm/ url from the
+MAINTAINER file since it does not contain any useful information anymore.
 
-James
+Greetings
+Bernd
+
+--- drivers/md/dm-ioctl.c~	2002-11-11 23:27:38.000000000 +0100
++++ drivers/md/dm-ioctl.c	2002-11-11 23:43:41.000000000 +0100
+@@ -560,6 +560,7 @@
+ 	struct dm_table *t;
+ 	struct mapped_device *md;
+ 	int minor;
++	struct block_device *bdev;
+ 
+ 	r = check_name(param->name);
+ 	if (r)
+@@ -585,7 +586,12 @@
+ 	}
+ 	dm_table_put(t);	/* md will have grabbed its own reference */
+ 
+-	set_device_ro(dm_kdev(md), 0/*(param->flags & DM_READONLY_FLAG)*/);
++	bdev = bdget(kdev_t_to_nr(dm_kdev(md)));
++	if (!bdev)
++		return -ENXIO;
++	set_device_ro(bdev, (param->flags & DM_READONLY_FLAG));
++	bdput(bdev);
++
+ 	r = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
+ 	dm_put(md);
+ 
+@@ -847,6 +853,7 @@
+ 	int r;
+ 	struct mapped_device *md;
+ 	struct dm_table *t;
++	struct block_device *bdev;
+ 
+ 	r = dm_table_create(&t, get_mode(param));
+ 	if (r)
+@@ -871,7 +878,12 @@
+ 		return r;
+ 	}
+ 
+-	set_device_ro(dm_kdev(md), (param->flags & DM_READONLY_FLAG));
++	bdev = bdget(kdev_t_to_nr(dm_kdev(md)));
++	if (!bdev)
++		return -ENXIO;
++	set_device_ro(bdev, (param->flags & DM_READONLY_FLAG));
++	bdput(bdev);
++
+ 	dm_put(md);
+ 
+ 	r = info(param, user);
 
 
+-- 
+  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
+ ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
+  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

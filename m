@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274680AbRJAHg6>; Mon, 1 Oct 2001 03:36:58 -0400
+	id <S274683AbRJAHbs>; Mon, 1 Oct 2001 03:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274681AbRJAHgs>; Mon, 1 Oct 2001 03:36:48 -0400
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:47623 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S274680AbRJAHgg>;
-	Mon, 1 Oct 2001 03:36:36 -0400
-Date: Mon, 1 Oct 2001 09:36:48 +0200 (CEST)
-From: Peter Svensson <petersv@psv.nu>
-To: Evan Harris <eharris@puremagic.com>
-cc: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: RAID5: mkraid --force /dev/md0 doesn't work properly
-In-Reply-To: <Pine.LNX.4.33.0110010113420.2459-100000@kinison.puremagic.com>
-Message-ID: <Pine.LNX.4.33.0110010934330.20107-100000@cheetah.psv.nu>
+	id <S274669AbRJAHbi>; Mon, 1 Oct 2001 03:31:38 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48394 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274683AbRJAHb2>; Mon, 1 Oct 2001 03:31:28 -0400
+Subject: Re: 2.4.10-ac1 with gcc-3.0.1 compile error!
+To: haiquy@yahoo.com (=?iso-8859-1?q?Steve=20Kieu?=)
+Date: Mon, 1 Oct 2001 08:36:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (kernel)
+In-Reply-To: <20011001064308.52994.qmail@web10408.mail.yahoo.com> from "=?iso-8859-1?q?Steve=20Kieu?=" at Oct 01, 2001 04:43:08 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15nxdI-0000To-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Oct 2001, Evan Harris wrote:
+> -mpreferred-stack-boundary=2 -march=i686    -c -o
+> timer.o timer.c
+> timer.c:35: conflicting types for `xtime'
+> /home/sk/src/linux/include/linux/sched.h:573: previous
 
->
-> md0 : active raid5 sde1[6] sdi1[5] sdh1[4] sdg1[3] sdf1[2] sdd1[0]
->       179203840 blocks level 5, 256k chunk, algorithm 0 [6/5] [U_UUUU]
->       [=>...................]  recovery =  8.4% (3023688/35840768)
-> finish=88.9min speed=6148K/sec
->
-> Now, my question is: the hotadd seems to have reordered the disks, so when
-> the rebuild is completed, do I need to reorder my raidtab to reflect this?
-> Like this?
-
-Once the resync has completed the hotadded disk will drop into its slot.
-Ie there is no need to change the numbers in /etc/raidtab, they wil be
-correct once the array has recovered.
-
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
-
-
+Thanks. I forgot to remote the volatile from the sched.h case now that
+Linus tree seems to have proved its not needed

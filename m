@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbREMCSo>; Sat, 12 May 2001 22:18:44 -0400
+	id <S261366AbREMCfi>; Sat, 12 May 2001 22:35:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261365AbREMCSf>; Sat, 12 May 2001 22:18:35 -0400
-Received: from sunny.pacific.net.au ([210.23.129.40]:31720 "EHLO
-	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S261363AbREMCSX>; Sat, 12 May 2001 22:18:23 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S261371AbREMCf2>; Sat, 12 May 2001 22:35:28 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:4871 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S261369AbREMCfR>; Sat, 12 May 2001 22:35:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>,
+        Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+Date: Sun, 13 May 2001 04:13:19 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0105121817020.11973-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0105121817020.11973-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-From: "ashridah" <ashridah@pobox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2  keeps flooding
-X-Mailer: Pronto v2.2.5 On linux/mysql
-Date: 12 May 2001 21:17:57 EST
-Reply-To: "ashridah" <ashridah@pobox.com>
-In-Reply-To: <Pine.A41.4.31.0105130055400.19270-100000@pandora.inf.elte.hu>
-In-Reply-To: <Pine.A41.4.31.0105130055400.19270-100000@pandora.inf.elte.hu>
-Message-Id: <E14ylSK-0000dO-00@mycrondo>
+Message-Id: <01051304131900.02742@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 13 May 2001 00:18, Alexander Viro wrote:
+> On Sat, 12 May 2001, Andreas Dilger wrote:
+> > We could use the "buffer_uptodate" flag on the buffer to signal
+> > that the block has been checked.  AFAIK, a new buffer will not be
+> > uptodate, and once it is it will not be read from disk again... 
+> > However, if a user-space process read the buffer would also mark it
+> > uptodate without doing the check...  Maybe we should use a new BH_
+> > pointer... Just need to factor out the ext2_check_page() code so
+> > that it works on a generic memory pointer and end pointer.
+>
+> Or you could simply use ext2_get_page() and forget about this crap.
 
-On Sun, 13 May 2001 01:00:39 +0200 (CEST), BERECZ Szabolcs said:
+I tried that first.  The resulting code was not nice and worked only 
+for 4K block_size, as far as I took it.
 
-> Hi!
->  
->  root@kama3:/home/szabi# cat /proc/mounts
->  ...
->  /dev/hdb2 /usr ext2 rw 0 0
->  ...
->  root@kama3:/home/szabi# swapon /dev/hdb2
-[snip]
-
-hmm. while the technical issues of this situation are fairly interesting,
-can i make a suggestion? if you're running out of swap every now and 
-then, perhaps you need to use swapd (a userspace daemon, that adds
-more swap from swapfiles as you need it, and recovers the space when
-things become less pressing). that's much better than trying it by hand
-when necessary. As you've noticed, we're all only human, and mistakes
-can be made.
-
-swapd: http://cvs.linux.hr/swapd/
-
-as a side bonus, you get to keep that partition as a filesystem, and also
-dedicate it to being the swapfile holder.
-
-while this is a solution i'd never go in for (userspace is slightly more
-fallible
-than i like (which doesn't stop me from using devfsd) given the situation
-swapd needs to act in), but it's better than doing it by hand, no?
-
-Andrew 'ashridah' Pilley
-
->  do you need any other information?
->  
->  Bye,
->  Szabi
->  
->  -
->  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->  the body of a message to majordomo@vger.kernel.org
->  More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  Please read the FAQ at  http://www.tux.org/lkml/
->  
-
+I'm not sure what advantage you see in ext2_get_page, perhaps you can 
+explain.
+--
+Daniel

@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbTILRnR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 13:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbTILRnR
+	id S261787AbTILRlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 13:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbTILRlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 13:43:17 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:23723 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261164AbTILRnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 13:43:15 -0400
-Message-Id: <200309121743.h8CHhB114413@brk-mail1.uk.sun.com>
-Date: Fri, 12 Sep 2003 18:43:10 +0100 (BST)
-From: Marco Bertoncin - Sun Microsystems UK - Platform OS
-	 Development Engineer <Marco.Bertoncin@Sun.COM>
-Reply-To: Marco Bertoncin - Sun Microsystems UK - Platform
-	   OS Development Engineer <Marco.Bertoncin@Sun.COM>
-Subject: Re: NFS/MOUNT/sunrpc problem?
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: 4Gf427wD7xROCyZfv6+Gxg==
-X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.4.6_06 SunOS 5.8 sun4u sparc 
+	Fri, 12 Sep 2003 13:41:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59329 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261787AbTILRlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 13:41:15 -0400
+Date: Fri, 12 Sep 2003 10:41:14 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Breno <brenosp@brasilsec.com.br>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Stack size
+Message-ID: <20030912104114.B21503@build.pdx.osdl.net>
+References: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br>; from brenosp@brasilsec.com.br on Sun, Oct 12, 2003 at 01:35:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Hey, any chance you could join us in September? ;-) "Date:   Sun, 12 Oct
+2003 13:35:33 +0100"]
 
-An update on this.
-After numerous experiments, I now suspect some code in userland. I managed to 
-find the traceback involved in the storm and every packet generated in the storm 
-repeats the whole of the patern:
+* Breno (brenosp@brasilsec.com.br) wrote:
+> What happen when stack increase more than 8mb ?
 
-...
-tg3_start_xmit
-qdisc_restart
-dev_queue_xmit
-ip_finish_output2
-ip_build_xmit
-udp_sendmsg
-inet_sendmsg
-sock_sendmsg
-sys_sendto
-sys_socketcall
-...
-
-This is a MOUNT req, not NFS, so we are using userland rpc?
-
-Now, just as a conformation, if I put a delay in sys_socketcall after each group 
-of 40 packets sent, my storm recovers after 40 packets!
-
-I was sidetracked by my ignorance of the fact that the MOUNT call does not go 
-through the kernel module nfs/sunrpc, which made me go off instrumenting, 
-debugging and tracing those modules that do not even get used :-((((((((!
-
-
-Marco
-
+Memory corruption.
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270229AbRIPKLg>; Sun, 16 Sep 2001 06:11:36 -0400
+	id <S270134AbRIPKKr>; Sun, 16 Sep 2001 06:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270464AbRIPKL1>; Sun, 16 Sep 2001 06:11:27 -0400
-Received: from [195.211.46.202] ([195.211.46.202]:13681 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S270229AbRIPKLN>;
-	Sun, 16 Sep 2001 06:11:13 -0400
-X-Spam-Filter: check_local@serv02.lahn.de by digitalanswers.org
-Date: Sun, 16 Sep 2001 09:49:50 +0200 (CEST)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: <pmhahn@titan.lahn.de>
-To: Linux USB Mailinglist <linux-usb-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] hiddev.c in 2.4.10-pre9
-Message-ID: <Pine.LNX.4.33.0109160933300.25119-100000@titan.lahn.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270229AbRIPKKg>; Sun, 16 Sep 2001 06:10:36 -0400
+Received: from cx730939-a.elcjn1.sdca.home.com ([24.5.14.11]:63411 "EHLO
+	highwind.timespace.dhs.org") by vger.kernel.org with ESMTP
+	id <S270134AbRIPKKR>; Sun, 16 Sep 2001 06:10:17 -0400
+Date: Sun, 16 Sep 2001 03:10:40 -0700
+From: Brian Bennett <bahamat@timespace.dhs.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x won't boot on sony vaio pcg-fx215
+Message-ID: <20010916031040.A17590@timespace.dhs.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello USB-ML, LKML!
+Ok, I've been trying to get some version of 2.4.x to boot on my laptop for
+some time now with no luck. I figure it's either my UBD, a bug, or my hardware
+just sucks, I'd like to figure out which.
 
-Since 2.4.10-pre9 includes part
- - Alan Cox: merge input/joystick layer differences...
-USB HID / non-input device driver support doesn't work anymore:
+Anyway, my specs:
+Sony VAIO PCG-FX215
+CPU AMD Duron 800
+MB is Via82c686
+128M ram
+distro is Debian sid, but I've tried others that come with 2.4 kernel such as
+Mandrake.
+I think that's all the relevant stuff(?) but I can get the details on any
+other hardware that might be relavent.
 
-linux-2.4.10-pre9/drivers/usb/Config.in:55
-dep_tristate '  USB HID / non-input device driver support' CONFIG_USB_HIDDEV $CONFIG_USB $CONFIG_USB_HID
+My errors:
+I don't have any specifics because with different configs I get different
+errors and I don't know how to get dumps of the errors, but the usual ones are
+along the lines of:
+unable to handle kernel paging request
+kernel panick: tried to kill init
+kernel panick: tried to kill the idle task
 
-linux-2.4.10-pre9/drivers/usb/Makefile:35
-ifeq ($(CONFIG_USB_HIDDEV),y)
-        hid-objs        += hiddev.o
-endif
+What I've tried:
+setting cpu choice to amd/duron, pentium, 386, 686
+enable/disable apm, acpi, pcmcia, usb, ieee1394 (and anything else that looked
+good at the time, but I don't remember all of them).
+passing mem=128M to the kernel (grasping at straws here)
 
-As soon as HID is compiled as a module CONFIG_USB_HIDDEV gets 'm' also and
-will not be compiled and included in the kernel build. The old patch had a
-simple line in drivers/usb/Makefile
-obj-$(CONFIG_USB_HIDDEV)        += hiddev.o
+Something else that may be helpful, I had to disable PCMCIA support to get the
+Install CD to boot, and I've never gotten it or USB to work (I'm not very
+concerned about those though, I don't have any PCMCIA cards or USB devices I
+want to use).
 
-As it looks to me, hiddev.o can't be compiled as a module any longer, thus
-drivers/usb/Config.in looks wrong and should be changed to:
+2.2.x kernels boot fine (without pcmcia or usb) and I've been using 2.2.19 for
+the past few months, but I have a DVD drive and I want to watch movies.
 
---- linux-2.4.10-pre9/drivers/usb/Config.in~	Sun Sep 16 09:44:53 2001
-+++ linux-2.4.10-pre9/drivers/usb/Config.in	Sun Sep 16 09:47:49 2001
-@@ -52,7 +52,9 @@
-          dep_tristate '  USB HIDBP Mouse (basic) support' CONFIG_USB_MOUSE $CONFIG_USB $CONFIG_INPUT
-       fi
-       dep_tristate '  Wacom Intuos/Graphire tablet support' CONFIG_USB_WACOM $CONFIG_USB $CONFIG_INPUT
--      dep_tristate '  USB HID / non-input device driver support' CONFIG_USB_HIDDEV $CONFIG_USB $CONFIG_USB_HID
-+      if [ "$CONFIG_USB_HID" != "n" ]; then
-+         bool '  USB HID / non-input device driver support' CONFIG_USB_HIDDEV
-+      fi
-    fi
+I read something rom ac a while back about AMD and VIA saying that it's just
+broken, it's VIA's fault and to not expect a fix any time soon. How can I
+verify that is/isn't me?
 
-    comment 'USB Imaging devices'
+Anyway, I guess the first step is how can I go about gathering more info so
+we can find out exactly what it is that's causing the problem?
 
-BYtE
-Philipp
+TIA for any help.
+
 -- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+Brian Bennett
+bahamat@timespace.dhs.org * http://timespace.dhs.org/
 
+On 16 July 2001, Russian programmer Dmitry Sklyarov was arrested by
+federal agents in Las Vegas, Nevada. His crime: pointing out major
+security flaws in Adobe PDF and eBook software.
+
+To see how you can help Dmitry visit http://www.freesklyarov.org/

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbTEMWSe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 18:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbTEMWSS
+	id S263713AbTEMWUu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 18:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTEMWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 18:18:18 -0400
-Received: from mailsrv.rollanet.org ([192.55.114.7]:47235 "HELO
-	mx.rollanet.org") by vger.kernel.org with SMTP id S263704AbTEMWQy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 18:16:54 -0400
-Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support only
-From: Nathan Neulinger <nneul@umr.edu>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       openafs-devel@openafs.org
-In-Reply-To: <20030513213759.A9244@infradead.org>
-References: <8943.1052843591@warthog.warthog>
-	 <20030513213759.A9244@infradead.org>
-Content-Type: text/plain
-Organization: University of Missouri - Rolla
-Message-Id: <1052864839.20037.2.camel@nneul-laptop>
+	Tue, 13 May 2003 18:20:48 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:27890 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263713AbTEMWSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 18:18:52 -0400
+Date: Tue, 13 May 2003 15:27:13 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm4 fails to boot
+Message-Id: <20030513152713.217aac7a.akpm@digeo.com>
+In-Reply-To: <20030513221435.GI32128@ca-server1.us.oracle.com>
+References: <20030513221435.GI32128@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 13 May 2003 17:27:20 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 May 2003 22:31:34.0265 (UTC) FILETIME=[68A51690:01C3199F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +static kmem_cache_t *vfs_token_cache;
-> > +static kmem_cache_t *vfs_pag_cache;
-> 
-> How many of those will be around for a typical AFS client?  I have the vague
-> feeling the slabs are overkill..
+Joel Becker <Joel.Becker@oracle.com> wrote:
+>
+> 	2.5.69-mm4 is failing to boot.  It completes init_rootfs() in
+> mnt_init() but does not complete init_mount_tree().  Call me dumb, but
+> nothing obvious jumps out at me, I don't see any diff(1) from -mm3, and
+> I don't really have time to actively debug it.  I can indeed build and
+> try kernels.
 
-What's a "typical client"?
+Could be a device driver or IO scheduler problem.  You may find that it's
+stuck waiting for a disk read to complete.
 
-I have machines that typically have 0 pags and tokens in kernel, and I
-have machines that typically have a few hundred to a thousand.
+Try using a different IO scheduler?
 
-Per pag on most clients will only have a single token, but number of
-pags will depend totally on the nature of the machine. 
+Does sysrq-T work?
 
-I also have machines that have a few hundred pags around that don't have
-any tokens in them, but could at any time.
+What device driver does an ML570 use?
 
--- Nathan
-
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-4841
-Computing Services                       Fax: (573) 341-4216
-
+Please share your .config.

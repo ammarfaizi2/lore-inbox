@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSBSB1q>; Mon, 18 Feb 2002 20:27:46 -0500
+	id <S289236AbSBSBpL>; Mon, 18 Feb 2002 20:45:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289210AbSBSB10>; Mon, 18 Feb 2002 20:27:26 -0500
-Received: from holomorphy.com ([216.36.33.161]:38799 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S289216AbSBSB1T>;
-	Mon, 18 Feb 2002 20:27:19 -0500
-Date: Mon, 18 Feb 2002 17:27:10 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
-        riel@surriel.com, davem@redhat.com, rwhron@earthlink.net
-Subject: Re: [PATCH] [rmap] operator-sparse Fibonacci hashing of waitqueues
-Message-ID: <20020219012710.GH3511@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	linux-kernel@vger.kernel.org, riel@surriel.com, davem@redhat.com,
-	rwhron@earthlink.net
-In-Reply-To: <20020217090111.GF832@holomorphy.com> <E16cwJZ-0000jZ-00@starship.berlin> <20020219003450.GF3511@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020219003450.GF3511@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S289234AbSBSBow>; Mon, 18 Feb 2002 20:44:52 -0500
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:12859 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S289236AbSBSBou>; Mon, 18 Feb 2002 20:44:50 -0500
+Message-ID: <092401c1b8e7$1d190660$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+        "Ben Collins" <bcollins@debian.org>
+Subject: readl/writel and memory barriers
+Date: Mon, 18 Feb 2002 20:45:29 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 18, 2002 at 04:34:50PM -0800, William Lee Irwin III wrote:
-> Now, there is something called the "spectrum" of a number, which for
-> a number x is the set of all the numbers of the form n * x, where n
-> is an integer. So we have {1*x}, {2*x}, {3*x}, and so on.
+Are the PCI memory access functions like readl() and writel() supposed to
+enforce ordering without explicit memory barriers?
 
-Argh! Spec(x) is the multiset [1*x], [2*x], [3*x] where [x] is the
-integer part of x.
+I've heard inconsistent reports - Benjamin Herrenschmidt pointed out that on
+PPC, the definitions of readl() and writel() include memory barriers. But
+the code example on page 229 of Rubini and Corbet's "Linux Device Drivers"
+2nd ed. suggests that an explicit wmb() is needed to preserve ordering of
+writel()s.
 
+In a quick survey of architectures that need explicit memory barriers to
+enforce ordering of PCI accesses, it seems that alpha and PPC include memory
+barriers inside readl() and writel(), whereas MIPS, sparc64, ia64, and s390
+do not include them. (I'm not intimately familiar with these architectures
+so forgive me if I got some wrong...). What is the official story here?
 
-Cheers,
-Bill
+Regards,
+Dan
+

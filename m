@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261942AbTC0POY>; Thu, 27 Mar 2003 10:14:24 -0500
+	id <S262997AbTC0PTy>; Thu, 27 Mar 2003 10:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbTC0POY>; Thu, 27 Mar 2003 10:14:24 -0500
-Received: from mail1-3.netinsight.se ([212.247.11.2]:7952 "HELO
-	ernst.netinsight.se") by vger.kernel.org with SMTP
-	id <S261942AbTC0POU>; Thu, 27 Mar 2003 10:14:20 -0500
-Message-ID: <3E831774.D494DAE7@netinsight.se>
-Date: Thu, 27 Mar 2003 16:23:32 +0100
-From: Stephane <stephane.tessier@netinsight.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-16mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Stephane Tessier <stephane.tessier@netinsight.se>
-Subject: Re: exit_mmap
-References: <3E830EC7.651EB9CE@netinsight.se>
+	id <S262998AbTC0PTy>; Thu, 27 Mar 2003 10:19:54 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:21905 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S262997AbTC0PTx>; Thu, 27 Mar 2003 10:19:53 -0500
+Date: Thu, 27 Mar 2003 16:30:54 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: zlib in the kernel?
+Message-ID: <20030327153054.GC25094@wohnheim.fh-wedel.de>
+References: <20030327150659.GC802@rdlg.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030327150659.GC802@rdlg.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually I was talking about 2.4.19 but I saw that this was solved in
-2.5,
-sorry for the disturbance
+On Thu, 27 March 2003 10:06:59 -0500, Robert L. Harris wrote:
+> 
+> Anyone have a good breakdown on what this is?  I have some wild theories
+> I'm hoping are right but don't need to start another day looking like an
+> idiot guessing blindly.
+> 
+> The Help section is empty and I'm not finding anything on kernel.org
+> (may have overlooked something, the site is slow for me today)..
 
-Stephane wrote:
-> 
-> I have a question about mmap and the close operation of a
-> vm_area_struct.
-> Is there a reason why in exit_mmap, when a process dies unexpectedly,
-> the vm_ops->close is called before zap_page_range is called?
-> 
-> The problem is that if you have allocated one or several kernel pages
-> for a vm_area_struct, you can not free them in the vm_ops->close
-> operation since the count field of the pages is not 0 because they are
-> still mapped. The count will be cleared when zap_page_range is called.
-> 
-> This means that exit_mmap calls vm_ops->close and zap_page_range in the
-> reverse order of a normal execution of the process, that is when the
-> process unmap the area before dying.
-> 
-> It would be more deterministic and simple if vm_ops->close was always
-> called when all the pages of the area was unmapped.
-> 
-> PS: please can you CC'ed the answer to stephane.tessier@netinsight.se
-> --
-> Stephane Tessier
-> Net Insight AB          stephane.tessier@netinsight.se
-> Västberga Allé 9        http://www.netinsight.se
-> SE-126 30 Hägersten     phone:+46-8-685 04 60
-> Sweden                  fax:  +46-8-685 04 20
+Zlib compression is used in many places in the kernel, cramfs, jffs2,
+squashfs, zisofs, cloop, ppp, maybe more.
+
+There used to be several copies of the code in the kernel tree, I
+still have a not-so-old compiled kernel with *three* copies of the
+zlib code in it. It's centralized now under lib/, which is a good
+thing (TM).
+
+When configuring the kernel, chances are you don't have to touch it.
+Anything else should be reported and get fixed. :)
+
+Jörn
 
 -- 
-Stephane Tessier
-Net Insight AB          stephane.tessier@netinsight.se
-Västberga Allé 9        http://www.netinsight.se
-SE-126 30 Hägersten     phone:+46-8-685 04 60
-Sweden                  fax:  +46-8-685 04 20
+Fancy algorithms are slow when n is small, and n is usually small.
+Fancy algorithms have big constants. Until you know that n is
+frequently going to be big, don't get fancy.
+-- Rob Pike

@@ -1,178 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUKPT6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKPT4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbUKPT6w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 14:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUKPT5t
+	id S261782AbUKPT4X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 14:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUKPTv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 14:57:49 -0500
-Received: from motgate8.mot.com ([129.188.136.8]:48518 "EHLO motgate8.mot.com")
-	by vger.kernel.org with ESMTP id S261787AbUKPTzf (ORCPT
+	Tue, 16 Nov 2004 14:51:28 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:42427 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261777AbUKPTtF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 14:55:35 -0500
-Date: Tue, 16 Nov 2004 13:55:27 -0600 (CST)
-From: Kumar Gala <galak@somerset.sps.mot.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org,
-       mporter@kernel.crashing.org
-Subject: [PATCH][PPC32] Refactor common book-e exception code
-Message-ID: <Pine.LNX.4.61.0411161353000.32505@blarg.somerset.sps.mot.com>
+	Tue, 16 Nov 2004 14:49:05 -0500
+Date: Tue, 16 Nov 2004 20:48:57 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Miklos Szeredi <miklos@szeredi.hu>, greg@kroah.com,
+       rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+In-Reply-To: <Pine.LNX.4.60.0411161941100.20464@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.53.0411162048140.8374@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+ <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com>
+ <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz>
+ <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com>
+ <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com>
+ <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu> <20041116175857.GA9213@kroah.com>
+ <E1CU8hS-0007U5-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.53.0411162023001.24131@yvahk01.tjqt.qr>
+ <E1CU94I-0007YH-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.60.0411161941100.20464@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+>If you didn't mistype above this means there is space for 115 and NOT just
+>15 dynamic devices and that ought to be plenty for you.
+no, but misunderstood. it's clear now.
+>
+>btw.  On a different subject, does fuse allow several user space
+>filesystems at the same time or only one?
 
-Moves common handling of InstructionStorage, Alignment, Program, and 
-Decrementer exceptions handlers for Book-E processors (44x & e500) into 
-common code.
+20:48 io:../fuse-1.9/util # df -Ta
+Filesystem    Type   1K-blocks      Used Available Use% Mounted on
+[...]
+lt-fusexmp    fuse    34337852  16626616  17711236  49% /mnt/fuji
+lt-fusexmp    fuse    34337852  16626616  17711236  49% /mnt/mmc
+lt-hello      fuse           0         0         0   -  /mnt/smc
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Yes, seems so.
 
---
 
-diff -Nru a/arch/ppc/kernel/head_44x.S b/arch/ppc/kernel/head_44x.S
---- a/arch/ppc/kernel/head_44x.S	2004-11-16 13:43:34 -06:00
-+++ b/arch/ppc/kernel/head_44x.S	2004-11-16 13:43:34 -06:00
-@@ -414,30 +414,16 @@
- 	b	data_access
- 
- 	/* Instruction Storage Interrupt */
--	START_EXCEPTION(InstructionStorage)
--	NORMAL_EXCEPTION_PROLOG
--	mr      r4,r12                  /* Pass SRR0 as arg2 */
--	li      r5,0                    /* Pass zero as arg3 */
--	EXC_XFER_EE_LITE(0x0400, handle_page_fault)
-+	INSTRUCTION_STORAGE_EXCEPTION
- 
- 	/* External Input Interrupt */
- 	EXCEPTION(0x0500, ExternalInput, do_IRQ, EXC_XFER_LITE)
- 
- 	/* Alignment Interrupt */
--	START_EXCEPTION(Alignment)
--	NORMAL_EXCEPTION_PROLOG
--	mfspr   r4,SPRN_DEAR            /* Grab the DEAR and save it */
--	stw     r4,_DEAR(r11)
--	addi    r3,r1,STACK_FRAME_OVERHEAD
--	EXC_XFER_EE(0x0600, AlignmentException)
-+	ALIGNMENT_EXCEPTION
- 
- 	/* Program Interrupt */
--	START_EXCEPTION(Program)
--	NORMAL_EXCEPTION_PROLOG
--	mfspr	r4,SPRN_ESR		/* Grab the ESR and save it */
--	stw	r4,_ESR(r11)
--	addi	r3,r1,STACK_FRAME_OVERHEAD
--	EXC_XFER_STD(0x700, ProgramCheckException)
-+	PROGRAM_EXCEPTION
- 
- 	/* Floating Point Unavailable Interrupt */
- 	EXCEPTION(0x2010, FloatingPointUnavailable, UnknownException, EXC_XFER_EE)
-@@ -451,12 +437,7 @@
- 	EXCEPTION(0x2020, AuxillaryProcessorUnavailable, UnknownException, EXC_XFER_EE)
- 
- 	/* Decrementer Interrupt */
--	START_EXCEPTION(Decrementer)
--	NORMAL_EXCEPTION_PROLOG
--	lis     r0,TSR_DIS@h            /* Setup the DEC interrupt mask */
--	mtspr   SPRN_TSR,r0		/* Clear the DEC interrupt */
--	addi    r3,r1,STACK_FRAME_OVERHEAD
--	EXC_XFER_LITE(0x1000, timer_interrupt)
-+	DECREMENTER_EXCEPTION
- 
- 	/* Fixed Internal Timer Interrupt */
- 	/* TODO: Add FIT support */
-diff -Nru a/arch/ppc/kernel/head_booke.h b/arch/ppc/kernel/head_booke.h
---- a/arch/ppc/kernel/head_booke.h	2004-11-16 13:43:34 -06:00
-+++ b/arch/ppc/kernel/head_booke.h	2004-11-16 13:43:34 -06:00
-@@ -303,4 +303,37 @@
- 	addi	r3,r1,STACK_FRAME_OVERHEAD;				      \
- 	EXC_XFER_TEMPLATE(DebugException, 0x2002, (MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE)), NOCOPY, crit_transfer_to_handler, ret_from_crit_exc)
- 
-+#define INSTRUCTION_STORAGE_EXCEPTION					      \
-+	START_EXCEPTION(InstructionStorage)				      \
-+	NORMAL_EXCEPTION_PROLOG;					      \
-+	mfspr	r5,SPRN_ESR;		/* Grab the ESR and save it */	      \
-+	stw	r5,_ESR(r11);						      \
-+	mr      r4,r12;                 /* Pass SRR0 as arg2 */		      \
-+	li      r5,0;                   /* Pass zero as arg3 */		      \
-+	EXC_XFER_EE_LITE(0x0400, handle_page_fault)
-+
-+#define ALIGNMENT_EXCEPTION						      \
-+	START_EXCEPTION(Alignment)					      \
-+	NORMAL_EXCEPTION_PROLOG;					      \
-+	mfspr   r4,SPRN_DEAR;           /* Grab the DEAR and save it */	      \
-+	stw     r4,_DEAR(r11);						      \
-+	addi    r3,r1,STACK_FRAME_OVERHEAD;				      \
-+	EXC_XFER_EE(0x0600, AlignmentException)
-+
-+#define PROGRAM_EXCEPTION						      \
-+	START_EXCEPTION(Program)					      \
-+	NORMAL_EXCEPTION_PROLOG;					      \
-+	mfspr	r4,SPRN_ESR;		/* Grab the ESR and save it */	      \
-+	stw	r4,_ESR(r11);						      \
-+	addi	r3,r1,STACK_FRAME_OVERHEAD;				      \
-+	EXC_XFER_STD(0x0700, ProgramCheckException)
-+
-+#define DECREMENTER_EXCEPTION						      \
-+	START_EXCEPTION(Decrementer)					      \
-+	NORMAL_EXCEPTION_PROLOG;					      \
-+	lis     r0,TSR_DIS@h;           /* Setup the DEC interrupt mask */    \
-+	mtspr   SPRN_TSR,r0;		/* Clear the DEC interrupt */	      \
-+	addi    r3,r1,STACK_FRAME_OVERHEAD;				      \
-+	EXC_XFER_LITE(0x0900, timer_interrupt)
-+
- #endif /* __HEAD_BOOKE_H__ */
-diff -Nru a/arch/ppc/kernel/head_e500.S b/arch/ppc/kernel/head_e500.S
---- a/arch/ppc/kernel/head_e500.S	2004-11-16 13:43:34 -06:00
-+++ b/arch/ppc/kernel/head_e500.S	2004-11-16 13:43:34 -06:00
-@@ -464,32 +464,16 @@
- 	b	data_access
- 
- 	/* Instruction Storage Interrupt */
--	START_EXCEPTION(InstructionStorage)
--	NORMAL_EXCEPTION_PROLOG
--	mfspr	r5,SPRN_ESR		/* Grab the ESR and save it */
--	stw	r5,_ESR(r11)
--	mr      r4,r12                  /* Pass SRR0 as arg2 */
--	li      r5,0                    /* Pass zero as arg3 */
--	EXC_XFER_EE_LITE(0x0400, handle_page_fault)
-+	INSTRUCTION_STORAGE_EXCEPTION
- 
- 	/* External Input Interrupt */
- 	EXCEPTION(0x0500, ExternalInput, do_IRQ, EXC_XFER_LITE)
- 
- 	/* Alignment Interrupt */
--	START_EXCEPTION(Alignment)
--	NORMAL_EXCEPTION_PROLOG
--	mfspr   r4,SPRN_DEAR            /* Grab the DEAR and save it */
--	stw     r4,_DEAR(r11)
--	addi    r3,r1,STACK_FRAME_OVERHEAD
--	EXC_XFER_EE(0x0600, AlignmentException)
-+	ALIGNMENT_EXCEPTION
- 
- 	/* Program Interrupt */
--	START_EXCEPTION(Program)
--	NORMAL_EXCEPTION_PROLOG
--	mfspr	r4,SPRN_ESR		/* Grab the ESR and save it */
--	stw	r4,_ESR(r11)
--	addi	r3,r1,STACK_FRAME_OVERHEAD
--	EXC_XFER_STD(0x0700, ProgramCheckException)
-+	PROGRAM_EXCEPTION
- 
- 	/* Floating Point Unavailable Interrupt */
- 	EXCEPTION(0x0800, FloatingPointUnavailable, UnknownException, EXC_XFER_EE)
-@@ -503,12 +487,7 @@
- 	EXCEPTION(0x2900, AuxillaryProcessorUnavailable, UnknownException, EXC_XFER_EE)
- 
- 	/* Decrementer Interrupt */
--	START_EXCEPTION(Decrementer)
--	NORMAL_EXCEPTION_PROLOG
--	lis     r0,TSR_DIS@h            /* Setup the DEC interrupt mask */
--	mtspr   SPRN_TSR,r0		/* Clear the DEC interrupt */
--	addi    r3,r1,STACK_FRAME_OVERHEAD
--	EXC_XFER_LITE(0x0900, timer_interrupt)
-+	DECREMENTER_EXCEPTION
- 
- 	/* Fixed Internal Timer Interrupt */
- 	/* TODO: Add FIT support */
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292402AbSB0P7q>; Wed, 27 Feb 2002 10:59:46 -0500
+	id <S292586AbSB0QDv>; Wed, 27 Feb 2002 11:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292595AbSB0P7g>; Wed, 27 Feb 2002 10:59:36 -0500
-Received: from mta.sara.nl ([145.100.16.144]:59539 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S292589AbSB0P7Z>;
-	Wed, 27 Feb 2002 10:59:25 -0500
-Message-Id: <200202271559.QAA01835@mailgate.sara.nl>
-X-Mailer: exmh version 2.3.1 01/18/2001 with version: MH 6.8.4 #7[UCI]
-From: Remco Post <r.post@sara.nl>
-To: paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Flash Back -- kernel 2.1.111 
-In-Reply-To: Your message of "Mon, 25 Feb 2002 10:26:26 +1100."
-             <15481.30370.4736.793688@argo.ozlabs.ibm.com> 
+	id <S292511AbSB0QDl>; Wed, 27 Feb 2002 11:03:41 -0500
+Received: from brev.stud.ntnu.no ([129.241.56.70]:32430 "EHLO
+	brev.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S292593AbSB0QDX>; Wed, 27 Feb 2002 11:03:23 -0500
+Date: Wed, 27 Feb 2002 17:03:21 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        linux-net@vger.kernel.org
+Subject: Re: [BETA] First test release of Tigon3 driver
+Message-ID: <20020227170321.B22422@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020227125611.A20415@stud.ntnu.no> <20020227.040653.58455636.davem@redhat.com> <20020227132454.B24996@stud.ntnu.no> <20020227.042845.54186884.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 27 Feb 2002 16:59:23 +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020227.042845.54186884.davem@redhat.com>; from davem@redhat.com on Wed, Feb 27, 2002 at 04:28:45AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Vojtech Pavlik writes:
-> 
-> > I'd guess most hotpluggable PCIs will have a bridge per slot ...
-> > hopefully.
-> 
-> That is certainly the case on all the IBM pSeries (RS/6000) machines
-> with hot-plug PCI that I know of.
-> 
-> Paul.
+David S. Miller:
+> At this point I'm mostly interested in if it works at all :-)
+> If the answer is yes, tell me that and then you can feel
+> free to experiment with jumbo frames et al. to discover
+> other bugs in the driver :-)
 
-IIRC this is not true on the p690, but then again, who has a p690 running linux ;)
+Just tested with MTU set at 1500 for now, but it seems to work fine, did a
+netcat between two boxes on the same switch and got around 80MB/sec.
 
+Any programs or anything that could do a serious stresstest?  (Both hosts
+are Dell PowerEdge 2550, RedHat Linux 7.2).
 
 -- 
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
+Thomas

@@ -1,91 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263404AbTJQLux (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 07:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTJQLux
+	id S263403AbTJQLtt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 07:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263404AbTJQLtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 07:50:53 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:11228 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263404AbTJQLut (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 07:50:49 -0400
-Date: Fri, 17 Oct 2003 13:50:47 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Message-ID: <20031017115047.GE20846@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl> <200310141733.h9EHXnYg002262@81-2-122-30.bradfords.org.uk> <20031015124314.GD20846@lug-owl.de> <3F8D46D7.1020105@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bcYi5jFlpxeIYd0E"
-Content-Disposition: inline
-In-Reply-To: <3F8D46D7.1020105@cyberone.com.au>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Fri, 17 Oct 2003 07:49:49 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:57728 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263403AbTJQLtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 07:49:47 -0400
+Date: Fri, 17 Oct 2003 12:51:13 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310171151.h9HBpDoJ000810@81-2-122-30.bradfords.org.uk>
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>,
+       "Hans Reiser" <reiser@namesys.com>,
+       "Wes Janzen" <superchkn@sbcglobal.net>,
+       "Rogier Wolff" <R.E.Wolff@BitWizard.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <126d01c3949f$91bdecc0$3eee4ca5@DIAMONDLX60>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
+ <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
+ <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
+ <20031014064925.GA12342@bitwizard.nl>
+ <3F8BA037.9000705@sbcglobal.net>
+ <3F8BBC08.6030901@namesys.com>
+ <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
+ <3F8FBADE.7020107@namesys.com>
+ <126d01c3949f$91bdecc0$3eee4ca5@DIAMONDLX60>
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Well, consider the two extremes we've seen in this thread now.  Mr. Bradford
+> felt that the entire drive should be discarded on account of having one bad
+> block.
 
---bcYi5jFlpxeIYd0E
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please don't spread blatently mis-leading information.
 
-On Wed, 2003-10-15 23:08:39 +1000, Nick Piggin <piggin@cyberone.com.au>
-wrote in message <3F8D46D7.1020105@cyberone.com.au>:
-> Jan-Benedict Glaw wrote:
-> >On Tue, 2003-10-14 18:33:49 +0100, John Bradford <john@grabjohn.com>
-> >wrote in message=20
-> ><200310141733.h9EHXnYg002262@81-2-122-30.bradfords.org.uk>:
+My position on this is that if a drive is _persistantly_ unable to
+_write_ to any LBA address, it should be binned.  Read errors are a
+separate concern.  If they occur, the drive should simply return an
+error.  The OS needs to do _NOTHING_.  No special re-writing to force
+a re-allocation should be done - we assume the drive is going to do
+that, and if it doesn't:
 
-> >Achtually, with HZ at around 100 (or oven 70..80), an old i386 or i486
-> >will *start* just fine, at least at 8MB. However, over some days /
-> >weeks, the machine gets slower and slower (my testdrive: my 90MHz
-> >P-Classic with 16MB). Even with that "much" RAM, I get hit by whatever
-> >slows down the machine. I *think* that it's the MM subsystem, but I'm
-> >really not skilled enough with it to blame it:)
-> >
->=20
-> Thats interesting. Its probably a memory leak I guess. Make sure to rule =
-out
-> memory leaks in userspace applications, then get /proc/meminfo,=20
-> /proc/slabinfo
-> on the box after it is getting slow, and also, after the box is newly=20
-> booted.
+1. DRIVE -> BIN
 
-Well, the box is still fine useable, but it's only rebooted some days
-ago. However, I see size-64 (non-DMA) is going sloooowly up... What do I
-do with the box? minicom (it's kind of a console server:), NATting, IPv6
-gw. No X11, normally no local access at all.
+2. Restore backup.
 
-On my Athlon (dual), I've already reached 319780 allocations in size-64,
-but it seems to be currently stable, though...
+> Mr. Machek feels that we should preserve the possibility of reusing
+> the bad block because in the future it might appear not to be bad.  I take
+> the middle road.  The drive should not be discarded until errors become more
+> frequent or numerous, but known bad blocks should be acted on so that those
+> physical blocks should not have a chance of being used again.
 
-I do _not_ see a leak in he size-4k region.
+You may consider that a responsible attitude towards people who are
+paying for consultancy, and value their data at more than the physical
+cost of the disk, but I do not.
 
-MfG, JBG
+> Suppose the block became readable when the temperature drops (this one
+> didn't but I believe some can).  What happens when the block becomes
+> readable, and then a program writes new data to that block, and the block
+> temporarily appears good?  At that time it will get written and will not get
+> reallocated, right?  And a few milliseconds later, what?  I do not want that
+> block reused.  I want it reallocated.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+1. Monitor drive.
 
---bcYi5jFlpxeIYd0E
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+2. Out of spec temperature?  If yes, remount R/O and page an operator.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+3. Go to 1
 
-iD8DBQE/j9eXHb1edYOZ4bsRAgHQAJ9YFgoPBKB4ioDa2lijT65b0GoUoACgjLBu
-WtKWYedrJ98OcrhX7GOSchM=
-=ZUMQ
------END PGP SIGNATURE-----
+> And when a drive doesn't guarantee reallocation, I want the driver to remove
+> the sector from the file system.
 
---bcYi5jFlpxeIYd0E--
+Such drives are no better in this regard than ST-506 drives in my
+opinion.  I have almost always started discussions with a phrase such
+as, "assuming we are talking about modern drives that do their own
+defect management".
+
+John.

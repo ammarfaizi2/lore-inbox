@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266564AbSLJFob>; Tue, 10 Dec 2002 00:44:31 -0500
+	id <S266626AbSLJFtl>; Tue, 10 Dec 2002 00:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266565AbSLJFob>; Tue, 10 Dec 2002 00:44:31 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:16061 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S266564AbSLJFoa>; Tue, 10 Dec 2002 00:44:30 -0500
-Date: Tue, 10 Dec 2002 05:52:15 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Joseph <jospehchan@yahoo.com.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Message-ID: <20021210055215.GA9124@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Joseph <jospehchan@yahoo.com.tw>, linux-kernel@vger.kernel.org
-References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
-User-Agent: Mutt/1.3.28i
+	id <S266627AbSLJFtl>; Tue, 10 Dec 2002 00:49:41 -0500
+Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:1154 "EHLO
+	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266626AbSLJFtk>; Tue, 10 Dec 2002 00:49:40 -0500
+Date: Mon, 9 Dec 2002 22:49:58 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Allan Duncan <allan.d@bigpond.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.51
+In-Reply-To: <3DF57FE0.7090300@bigpond.com>
+Message-ID: <Pine.LNX.4.33.0212092243260.2617-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 12:02:25PM +0800, Joseph wrote:
- > Hi all,
- >   I rebuilt the 2.4.20 kernel with C3 CPU and found it been downgraded to
- > i486.
- >   And I check the file, linux/arch/i386/Makefile, in both of 2.4.19 and
- > 2.4.20 kernels.
- >   In 2.4.19, the CFLAGS adds "-march=i586".
- >   But in 2.4.20, the CFLAGS adds
- > "-march=i486 -malign-functions=0 -malign-jumps=0 -malign-loops=0".
- >   Why do this? Could anybody explain this to me?
 
-I believe someone (Jeff Garzik?) benchmarked gcc code generation,
-and the C3 executed code scheduled for a 486 faster than it did for
--m586
-I'm not sure about the alignment flags. I've been meaning to look
-into that myself...
+> > The AGP reorg, fbdev merge, and the s390 updates also help make the patch
+>                   ^^^^^^^^^^^
+> > quite large.
+>
+> Unfortunately not all went well with this:
+>
+> drivers/video/matrox/matroxfb_base.h:52:25: video/fbcon.h: No such file or directory
+>
+> ... and downwards thereafter.
 
-        Dave
+The matrox driver hasn't be ported yet. About 1/2 are now ported to the
+final api. Over the following week I will porting a bunch of new drivers.
+This is the final changes in the api so drivers can now be ported!!!! If
+you need help porting them email me and I'm here to help.
+
+P.S
+   I even was donated a SPARC 10 station!!! Thanks Chris!!!
+
+P.S.S
+
+   What I really need is a Radeon card :-)
+
+
 

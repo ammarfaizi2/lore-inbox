@@ -1,74 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <156011-17165>; Thu, 3 Dec 1998 12:56:57 -0500
-Received: from cs.huji.ac.il ([132.65.16.10]:1699 "EHLO cs.huji.ac.il" ident: "SOCKWRITE-65") by vger.rutgers.edu with ESMTP id <156299-17165>; Thu, 3 Dec 1998 09:04:38 -0500
-Date: Thu, 3 Dec 1998 18:20:00 +0200 (IST)
-From: Oren Laadan <orenl@cs.huji.ac.il>
-Reply-To: Oren Laadan <orenl@cs.huji.ac.il>
-To: linux-kernel@vger.rutgers.edu, mj@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [BUG] arp replies with BOOTP [more info]
-In-Reply-To: <199812022036.WAA29482@mos220.cs.huji.ac.il>
-Message-ID: <Pine.BSI.3.96.981203180620.1405B-100000@mos220.cs.huji.ac.il>
+Received: by vger.rutgers.edu id <160396-17165>; Sun, 6 Dec 1998 02:44:17 -0500
+Received: from smtp4.nwnexus.com ([206.63.63.52]:3333 "EHLO smtp4.nwnexus.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160598-17165>; Sat, 5 Dec 1998 22:33:50 -0500
+Date: Sat, 5 Dec 1998 22:07:38 -0800 (PST)
+From: Tim Smith <tzs@tzs.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.rutgers.edu
+Subject: Re: atomicity
+In-Reply-To: <m0zmNHr-0007U1C@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.981205215727.29256C-100000@52-a-usw.rb1.blv.nwnexus.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi,
 
-> It appears that while the kenerl is waiting for a reply to a BOOTP
-> request sent earlier, it mishandles ARP requests. In particular,
-> it replies to every "arp who-has THIS_IP" with "THIS_IP is MY_NIC_ADDR":
-> that is, publish its own NIC address as matching EVERY local IP.
+On Sat, 5 Dec 1998, Alan Cox wrote:
+> With ext2fs you should never need a defragmenter
 
-A quick test showed that this problem does not occur on 2.0.X kernels.
-I'm not sure where exactly within 2.1.X history it appeared.
+Unless I've accidently run my portable (written in straight ANSI C...works on
+Unix, Windows, and Mac!) file system fragmenter on it.
 
-Also - a temporary, ugly and rude hack, but most importantly - that
-works for me. At least until there an "official" patch. It works by
-checking within arp_rcv() if the interface is even configured to some
-IP, and if not - just drop the packet. So here's a hack to the file
-/net/ipv4/arp.c:
+Basic algorithm to create a highly fragmented file on pretty much any
+file system:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*** /net/ipv4/arp.c	Thu Dec  3 18:12:56 1998
---- /net/ipv4/arp.c	Thu Dec  3 18:14:26 1998
-***************
-*** 550,555 ****
---- 550,567 ----
-  	    arp->ar_pln != 4)
-  		goto out;
-  
-+ #if 1
-+ 	/* XXX  rude hack to prevent ARP replies during BOOTP */
-+ 	{
-+ 		struct in_ifaddr *ifa = in_dev->ifa_list;
-+ 		for ( ; ifa; ifa = ifa->ifa_next)
-+ 			if (ifa->ifa_local || ifa->ifa_address)
-+ 				break;
-+ 		if (!ifa)
-+ 			goto out;
-+ 	}
-+ #endif
-+ 
-  	switch (dev_type) {
-  	default:	
-  		if (arp->ar_pro != __constant_htons(ETH_P_IP))
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	while file system not full
+		create random small files
+	delete one of them
+	open target file for writing
+	while target file not fully written
+		write until error
+		delete one of the small files at random
+	close target file
+	delete all of the small random files that remain
 
-I am not sure, though, whether maybe I should put this piece of code
-actually in icmp_rcv(), which is logically correct, however - I wasn't
-sure if there were any other *bad* side effects.
+Are there any file systems around that will manage to resist fragmentation
+if subjected to that?
 
-I welcome all comments :-)
+(No, I'm not insane.  I wrote a fragmenter so I could test a Mac background
+defragmenter I wrote).
 
-Oren.
-__________________________________________________________________________
-                         ______   ____   ___  ___  _  __                  \
-MOSIX Development Group  )  )  )  )   ) (  '   )   \ /      Oren Laadan    \
- The Hebrew University  /  /  /  /   /   \    /     /   orenl@cs.huji.ac.il \
- of Jerusalem,  Israel (     (  (___(  ___) _(_  __/ \_______________________)
-
-     http://www.mosix.cs.huji.ac.il     
-
+--Tim Smith
 
 
 -

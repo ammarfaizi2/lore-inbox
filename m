@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQKUXsI>; Tue, 21 Nov 2000 18:48:08 -0500
+	id <S130115AbQKUXss>; Tue, 21 Nov 2000 18:48:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130115AbQKUXr6>; Tue, 21 Nov 2000 18:47:58 -0500
-Received: from [209.143.110.29] ([209.143.110.29]:30473 "HELO
-	mail.the-rileys.net") by vger.kernel.org with SMTP
-	id <S129325AbQKUXri>; Tue, 21 Nov 2000 18:47:38 -0500
-Message-ID: <3A1B028B.94F3A221@the-rileys.net>
-Date: Tue, 21 Nov 2000 18:17:48 -0500
-From: David Riley <oscar@the-rileys.net>
-X-Mailer: Mozilla 4.74 (Macintosh; U; PPC)
-X-Accept-Language: en,pdf
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <Pine.LNX.4.30.0011212330130.3193-100000@toor.thn.htu.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S131181AbQKUXsi>; Tue, 21 Nov 2000 18:48:38 -0500
+Received: from jalon.able.es ([212.97.163.2]:49397 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130115AbQKUXsX>;
+	Tue, 21 Nov 2000 18:48:23 -0500
+Date: Wed, 22 Nov 2000 00:18:13 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+Message-ID: <20001122001813.A1356@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <20001121235529.E925@werewolf.able.es> <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet>; from tigran@veritas.com on Wed, Nov 22, 2000 at 00:04:53 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Torkar wrote:
-> 
-> Well David, there is such a "manual".
-> 
-> http://ftp.sunet.se/LDP/FAQ/faqs/GCC-SIG11-FAQ
 
-Yes.  And if you ask the average new Linux user if they've read it, I
-doubt you'll get a "yes".  My question boils down to this, and this I
-suppose is a personal/informational request for comments, so don't
-clutter the list with responses directed at me:  What (in your opinion)
-is the most commonly read Linux user-land document?
+On Wed, 22 Nov 2000 00:04:53 Tigran Aivazian wrote:
+> On Tue, 21 Nov 2000, J . A . Magallon wrote:
+> 
+> Quite the contrary. The patch seems correct and useful to me. What do you
+> think is wrong with it? (Linus accepted megabytes worth of the above in
+> the past...)
+> 
+
+Sorry, i should look at the rest of the code. Seeing only that, is seems like
+that variables have to hold an initial value of zero, and the patch relies
+on the ANSI behaviour of the compiler that auto-initializes them to 0.
+I have seen many compilers break ANSI rules in optimized mode. Typical
+runs-fine-in-debug-mode-but-breaks-on-production-release.
+One other point for info would be gcc specs.
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux 2.2.18-pre22-vm #7 SMP Sun Nov 19 03:29:20 CET 2000 i686 unknown
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

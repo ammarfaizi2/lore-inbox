@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131484AbRC0TWK>; Tue, 27 Mar 2001 14:22:10 -0500
+	id <S131483AbRC0TUa>; Tue, 27 Mar 2001 14:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131485AbRC0TVx>; Tue, 27 Mar 2001 14:21:53 -0500
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:24589
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S131484AbRC0TVj>; Tue, 27 Mar 2001 14:21:39 -0500
-Date: Tue, 27 Mar 2001 14:20:50 -0500
-From: Chris Mason <mason@suse.com>
-To: Christoph Lameter <christoph@lameter.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS phenomenon with 2.4.2 ac24/ac12
-Message-ID: <393460000.985720850@tiny>
-In-Reply-To: <Pine.LNX.4.21.0103271113410.7500-100000@home.lameter.com>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+	id <S131484AbRC0TUU>; Tue, 27 Mar 2001 14:20:20 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:7695 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S131483AbRC0TUM>;
+	Tue, 27 Mar 2001 14:20:12 -0500
+Message-ID: <3AC0E4D9.E157D407@evision-ventures.com>
+Date: Tue, 27 Mar 2001 21:07:05 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: Jonathan Morton <chromi@cyberspace.org>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: OOM killer???
+In-Reply-To: <l03130332b6e632432b9f@[192.168.239.101]> <3AC09480.E8317507@evision-ventures.com> <20010327200830.C8133@nightmaster.csn.tu-chemnitz.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tuesday, March 27, 2001 11:14:57 AM -0800 Christoph Lameter
-<christoph@lameter.com> wrote:
-
-> On Tue, 27 Mar 2001, Chris Mason wrote:
+Ingo Oeser wrote:
 > 
->> Just to make sure I understand, you had the exact same errors before
->> running fsck?  Same files could not be deleted?
-> Correct.
+> On Tue, Mar 27, 2001 at 03:24:16PM +0200, Martin Dalecki wrote:
+> > > @@ -93,6 +95,10 @@
+> > >                                 p->uid == 0 || p->euid == 0)
+> > >                 points /= 4;
+> > >
+> > > +       /* Much the same goes for processes with low UIDs */
+> > > +       if(p->uid < 100 || p->euid < 100)
+> > > +         points /= 2;
+> > > +
+> >
+> > Plase change to 100 to 500 - this would make it consistant with
+> > the useradd command, which starts adding new users at the UID 500
 > 
->> > I think this is a problem with the reiserfs code in the kernel. I never
->> > ran reiserfsck before this problem surfaced. The problem arose in the
->> > netscape cache directory with lots of small files. Guess the tail
->> > handling is not that stable yet?
->> 
->> I wish I could blame it on the tail code ;-)  None of the bugs fixed
->> there would have caused this, and they should be completely unrelated.
->> I'll try some tests in oom situations to try and reproduce.  It could
->> also be caused by hashing errors.  If you formatted with r5 hash, was
->> the partition ever incorrectly detected as tea hash?
+> No, useradd reads usally the /etc/login.defs to select the range.
+> The oom-killer should have configurables for that, to allow the
+> policy decisions in USER space -- where it belongs -- not in KERNEL space
+
+OK sysctl would be more appripriate.
+
+> If we use my OOM killer API, this patch would be a module and
+> could have module parameters to select that.
 > 
-> No idea. I never got that deep into reiser.
-
-I should have been more clear.  Everyt ime you mount the filesystem, a it
-prints the hash used.  This is probably recorded in your log files, either
-'Using r5 hash to sort names' or 'Using tea hash to sort names'.  For any
-given filesystem, it should never switch from one to the other.
-
+> Johnathan: I URGE you to apply my patch before adding OOM killer
+>    stuff. What's wrong with it, that you cannot use it? ;-)
 > 
->> > How do I get rid of the /a/yy directory now?
->> 
->> With fsck.  I'll grab the latest today and make sure it can fix this bug.
->> Until then, mv /a/yy /a/yy.broken and mkdir /a/yy.
+> It is easy to add configurables to a module and play with them
+> WITHOUT recompiling.
+
+It's total overkill and therefore not a good design.
+
+> Dynamic sysctl tables would also be possible, IF we had an value
+> that is DEFINED to be invalid for sysctrl(2) and only valid for /proc.
 > 
-> /a/yy is already a "broken" dir moved out of the way.
+> It is also better to include the egid into the decision. There
+> are deamons, that I defintely want to be killed on a workstation,
+> but not on a server.
 > 
+> e.g. My important matlab calculation, which runs in user mode
+> should not be killed. But killing a local webserver, which serves
+> my help system is ok (because I will not loose work, and might
+> get it over the net, if there is a problem).
+> 
+> So as Rik stated: The OOM killer cannot suit all people, so it
+> has to be configurable, to be OOM kill, not overkill ;-)
 
-Ok, I'll get back to you later on fsck.
-
--chris
-
-
-
-
+Irony: Why then not store this information permanently - inside
+the UID of the application?

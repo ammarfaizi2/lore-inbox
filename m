@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbULVSuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbULVSyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbULVSuE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 13:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbULVSuE
+	id S262018AbULVSyR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 13:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbULVSyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 13:50:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4109 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262014AbULVSt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 13:49:58 -0500
-Date: Wed, 22 Dec 2004 18:49:54 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       matthew@wil.cx
-Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
-Message-ID: <20041222184954.A10968@flint.arm.linux.org.uk>
-Mail-Followup-To: Patrick Gefre <pfg@sgi.com>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-	matthew@wil.cx
-References: <200412220028.iBM0SB3d299993@fsgi900.americas.sgi.com> <20041222134423.GA11750@infradead.org> <20041222140348.A1130@flint.arm.linux.org.uk> <41C990CA.20208@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Dec 2004 13:54:17 -0500
+Received: from data.tikom.at ([193.108.212.253]:39818 "EHLO
+	idefix1.limbo.tikom.at") by vger.kernel.org with ESMTP
+	id S262018AbULVSyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 13:54:11 -0500
+From: Simon Roscic <simon.roscic@chello.at>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6] ethertap and af_inet.c assertion failures
+Date: Wed, 22 Dec 2004 19:53:48 +0100
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Message-Id: <200412221953.48971.simon.roscic@chello.at>
+X-MIMETrack: Itemize by SMTP Server on Adam/Mpreis(Release 5.0.11 |September 30, 2002) at
+ 22.12.2004 19:53:57,
+	Serialize by Router on Adam/Mpreis(Release 5.0.11 |September 30, 2002) at
+ 22.12.2004 19:53:58,
+	Serialize complete at 22.12.2004 19:53:58
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41C990CA.20208@sgi.com>; from pfg@sgi.com on Wed, Dec 22, 2004 at 09:20:42AM -0600
+Content-Type: text/plain;
+  charset="utf-8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 09:20:42AM -0600, Patrick Gefre wrote:
-> Russell King wrote:
-> > You want to register with the serial core before you register with PCI.
-> > Then add each port when you find it via the PCI driver ->probe method.
-> > 
-> > Removal is precisely the reverse order - remove each port in ->remove
-> > method first, then unregister from serial core.
-> 
-> How do I know how many ports I have when I register with serial core ?
-> I use the info I got when i probed to fill in .nr
+(please cc me, as i´m not subscribed to lkml - thanks)
 
-You need to decide on a maximum number of ports and always use that.
-You only need to add the ports that you actually have in reality
-though.
+hi,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+today i upgraded my kernel from 2.6.9-rc2 to 2.6.10-rc3-bk12, now i get the
+following assertion failures while using the (closed source) phion vpn client,
+the vpn client uses ethertap, there are no closed source kernel modules or the 
+like:
+
+KERNEL: assertion (!atomic_read(&sk->sk_wmem_alloc)) failed at 
+net/ipv4/af_inet.c (150)
+
+when the kernel prints out the above message the connection for the program 
+using the vpn gets stuck - it happens very often if i use rdesktop, but it 
+also happens when i just use ssh, so the bug may be triggered more often when 
+there is more traffic over the vpn tunnel.
+
+i tried with some other 2.6 kernel releases:
+
+up to and including 2.6.9-rc2: no problem
+2.6.9-rc3      does not boot on my machine
+2.6.9-rc4      assertion failed as explained above
+2.6.9        assertion failed as explained above
+
+so it seems ethertap got broken somewhere post 2.6.9-rc2.
+any ideas what got changed post 2.6.9-rc2 wich might cause this?
+
+thanks for looking at this problem, if i can provide more information, just 
+contact me.
+
+bye,
+ simon.

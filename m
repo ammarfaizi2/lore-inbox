@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318711AbSHLE5N>; Mon, 12 Aug 2002 00:57:13 -0400
+	id <S318710AbSHLEy5>; Mon, 12 Aug 2002 00:54:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318712AbSHLE5N>; Mon, 12 Aug 2002 00:57:13 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.27]:39010 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S318711AbSHLE5L>; Mon, 12 Aug 2002 00:57:11 -0400
-Message-ID: <001c01c241bd$37fbabe0$0200010a@jennifer>
+	id <S318711AbSHLEy5>; Mon, 12 Aug 2002 00:54:57 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.17]:43291 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S318710AbSHLEy4>; Mon, 12 Aug 2002 00:54:56 -0400
+Message-ID: <001401c241bc$e6eaf490$0200010a@jennifer>
 Reply-To: "Dhr N. Van Alphen" <mastex@servicez.org>
 From: "Dhr N. Van Alphen" <mastex@servicez.org>
-To: "Jim Roland" <jroland@roland.net>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
 Cc: <linux-kernel@vger.kernel.org>
-References: <027104643010c82DTVMAIL11@smtp.cwctv.net> <5.1.0.14.2.20020812064112.00b6b9c0@pop.gmx.net> <004e01c241bb$816847e0$2102a8c0@gespl2k1>
-Subject: Re: Re: The spam problem.
-Date: Mon, 12 Aug 2002 07:00:46 +0200
+References: <20020811175252.GB755@gallifrey>
+Subject: Re: 2.4.19 eat my disc (contents)
+Date: Mon, 12 Aug 2002 06:58:26 +0200
 Organization: Genetics BV
 MIME-Version: 1.0
 Content-Type: text/plain;
@@ -26,52 +26,69 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cause there would be many non-members who wanna post bugs but can't because
-they dont have access maybe?
+go install again and boot after each little step wich might been the
+problem,
+then u should know what caused it, and post the real bug here.
+There are too many possibilities now.
 
-I suggest too block every email adres wich sends crap, easy done.
+Niek van alphen.
+MasteX@servicez.org
 
-Niek van alphen
-mastex@servicez.org
 
 ----- Original Message -----
-From: "Jim Roland" <jroland@roland.net>
-To: "Mike Galbraith" <efault@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, August 12, 2002 6:48 AM
-Subject: Re: The spam problem.
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: <axp-list@redhat.com>; <debian-alpha@lists.debian.org>
+Sent: Sunday, August 11, 2002 7:52 PM
+Subject: 2.4.19 eat my disc (contents)
 
 
-> Why would this kill bug reports?
+> Hi,
+>   I've just lost the contents of my disc on my Alpha to 2.4.19 - be
+> careful! (luckily there wasn't anything important on it...or at least if
+> there was I can't remember what....)
 >
+> Some details:
+> 2.4.19 straight
+> Alpha 21164A on LX164 board
+> Compiled for LX164 architecture
+> Hard drive is an IBM 34GB Deathstar connected to the on board CMD646
+> controller.
 >
+> It has been running Linux/Debian happily for ages; booted into 2.4.17,
+> compiled 2.4.19, booted into that and saw two problems;
+>   1) RTL8139 network card was identified but would not connect.  I got
+> giant packet errors - it spitted out a 32 bit identifier which looked
+> like it might have got some ASCII where some value should have lived.
+> (It is an RTL8139 prior to the -c)
 >
-> ----- Original Message -----
-> From: "Mike Galbraith" <efault@gmx.de>
-> To: "Jim Roland" <jroland@roland.net>
-> Sent: Sunday, August 11, 2002 11:44 PM
-> Subject: Re: The spam problem.
+> 2) I tried to go into the directory which I'd built the kernel in and
+> found it didn't actually agree that it was a directory; but thought it
+> was a file of many GB with odd permissions.  I unmounted the partition
+> and fsck'd - lots of errors; most complaining of invalid blocks.
+> debugfs seemed to indicate that lots of things in the inode had been
+> cleared to -1 (size, uid, gid, pretty much everything).
 >
+> 3) I hit reset and the AlphaBIOS came to the conclusion there was no
+> OS and it looks like the partition table has gone to the great block
+> in the sky.
 >
-> > At 11:41 PM 8/11/2002 -0500, you wrote:
-> >
-> > >I want to suggest to the listserver admin (again) that this list and
-> others
-> > >on vger.kernel.org be restricted so that you can only post to the list
-if
-> > >you are a member.
-> >
-> > That would kill too many valuable bug reports.  This (bad idea) has been
-> > suggested and rejected several times in the past.
-> >
-> >          -Mike
-> >
-> >
-> >
-> >
-> >
-> >
+> All tools were from Debian/unstable; updated immediatly prior to the
+> kernel build.
 >
+> I'd give you a log and .config if it weren't for the fact that it has
+> just wiped itself from the disc. hdparm looked OK from the brief look;
+> I think it got the drive size right.  I had seen some DMA negotiation
+> alike errors go past during the boot.
+>
+> Oh well - time to try the Debian/Woody install process on Alpha....
+>
+> Dave
+>
+>  ---------------- Have a happy GNU millennium! ----------------------
+> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \
+> \ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+>  \ _________________________|_____ http://www.treblig.org   |_______/
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

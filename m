@@ -1,54 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTLUKzH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 05:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTLUKzH
+	id S262687AbTLUKx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 05:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLUKx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 05:55:07 -0500
-Received: from slimnet.xs4all.nl ([194.109.194.192]:14236 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S262694AbTLUKy7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 05:54:59 -0500
-Subject: 2.6.0: SBP2 trouble (cont'd)
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1072004166.11257.15.camel@paragon.slim>
+	Sun, 21 Dec 2003 05:53:57 -0500
+Received: from mail.shareable.org ([81.29.64.88]:36999 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262687AbTLUKxy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 05:53:54 -0500
+Date: Sun, 21 Dec 2003 10:53:33 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
+Message-ID: <20031221105333.GC3438@mail.shareable.org>
+References: <1071969177.1742.112.camel@cube>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 21 Dec 2003 11:56:06 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071969177.1742.112.camel@cube>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I reported SBP-2 problems with 2.6.0-test11 (somewhere around 28
-November). With 2.6.0 the problem still persists. I just tried it again
-with the latest IEEE1394 drivers (r1088 / SBP2 r1085) but I still get
-logging time out errors on my CD-RW drive.
+Albert Cahalan wrote:
+> What about the obvious Kconfig option?
+> 
+> config PATENT_1234567890
+>         bool "Patent 1234567890"
+>         default n
+>         help
+>           Say Y here if you have the right to use
+>           patent 1234567890 (the foo patent). Some
+>           countries do not recognise this patent, an
+>           educational or research exemption may apply,
+>           you may be the patent holder, the patent
+>           may have expired, or you may have aquired
+>           rights via licensing. Seek legal help if you
+>           need advice concerning your rights. If unsure,
+>           say N.
 
-With 2.4 it just works as it should and I get both my CD-RW drive and my
-MO drive.
+I expect this was said in jest, but it would be delightful to see this
+done for real.  To the best of my knowlege it's uncharted territory,
+so perhaps what you suggest _would_ be upheld in a court of law as
+permissible?
 
-Under 2.6 SBP2 just somehow does not want to play ball with my CD-RW
-drive.
- 
-Jurgen
+    1. You seggragate code using the feature so that if it is not
+       explicitly activated, then the patented method will not be used.
 
-Dec 21 11:29:42 paragon kernel: ohci1394: fw-host0: OHCI-1394 1.0 (PCI):
-IRQ=[20]  MMIO=[feaff800-feafffff]  Max Packet=[2048]
-Dec 21 11:29:42 paragon kernel: ohci1394: fw-host1: OHCI-1394 1.1 (PCI):
-IRQ=[20]  MMIO=[feaff000-feaff7ff]  Max Packet=[2048]
-Dec 21 11:29:42 paragon kernel: sbp2: $Rev: 1085 $ Ben Collins
-<bcollins@debian.org>
-Dec 21 11:29:42 paragon kernel: scsi2 : SCSI emulation for IEEE-1394
-SBP-2 Devices
+    2. You are clearly informing the recipient of the software of their
+       need to determine for themselves whether they are permitted to
+       use the feature, and suggest how they can go about this.
 
-The missing drive (from 2.4):
+    3. Using the patented method requires a clear, explicit step by
+       the recipient of the software, with no potential for
+       misunderstanding.  It is just as clear as those disclaimer
+       buttons, ensuring that a user knows their rights and duties and
+       agrees to them before they are allowed access to something.
 
-Dec 21 11:36:28 paragon kernel: scsi singledevice 2 0 0 0
-Dec 21 11:36:28 paragon kernel:   Vendor: PLEXTOR   Model: CD-R  
-PX-W2410A  Rev: 1.04
-Dec 21 11:36:28 paragon kernel:   Type:  
-CD-ROM                             ANSI SCSI revision: 02
 
+Closed source commercial software already does this sort of thing.
+Was it not the case that if you purchased the appropriate license from
+Unisys, you were then permitted to activate the GIF writing support of
+Photoshop or some similar product, and that was done with an
+activation code that you typed in to the program.
+
+CONFIG_PATENT_nnnnnnnnn is the same thing, yet we are wary of
+distributing open source software like that.  Is the significant
+difference that it's too easy to enable without a license?  That may
+well prove to be the determining factor in clarifying the legal
+boundary of of who is liable - the sender of disabled code, or the
+recipient who enables it without permission.
+
+Certainly it cannot be justified under law that, even as closed source
+implementations are distributed using activation code methods, the
+open source implementations are not distributable solely because they
+can be read by anyone.  Patent holders do not have the power, at least
+not in law, to prevent sharing written explanations of a method, do
+they?  I thought it had something to do with _using_ the methods,
+although it continues to be a bit ambiguous what a patent holder may
+restrict and what they have no legal right to restrict in this field.
+
+-- Jamie
 

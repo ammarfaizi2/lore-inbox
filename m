@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTD3K6C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 06:58:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTD3K6C
+	id S261570AbTD3Kz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 06:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTD3Kz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 06:58:02 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:52355 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262013AbTD3K6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 06:58:01 -0400
-Subject: Re: [CFT] Fix PCMCIA deadlock (rev. 2)
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030429151750.B13439@flint.arm.linux.org.uk>
-References: <20030429151750.B13439@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1051701006.597.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
-Date: 30 Apr 2003 13:10:06 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Apr 2003 06:55:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20536 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S261570AbTD3Kz2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 06:55:28 -0400
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andi Kleen <ak@suse.de>, joe briggs <jbriggs@briggsmedia.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: software reset
+References: <200304291037.13598.jbriggs@briggsmedia.com.suse.lists.linux.kernel>
+	<p73vfwx2uw8.fsf@oldwotan.suse.de>
+	<20030430075004.GB13859@mail.jlokier.co.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 30 Apr 2003 05:04:59 -0600
+In-Reply-To: <20030430075004.GB13859@mail.jlokier.co.uk>
+Message-ID: <m1llxsfdpg.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-29 at 16:17, Russell King wrote:
-> Ok, I think everyone ignored my last email about the updated pcmcia
-> deadlock patch.  I've done a little more work on it since then, so
-> here it is again.  Feedback welcome.
+Jamie Lokier <jamie@shareable.org> writes:
 
-I did not ignore your mail ;-)
-I'm now testing 2.5.68-mm3 which includes your latest PCMCIA fix. It's
-working pretty well for me, as did previous versions.
--- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
+> Andi Kleen wrote:
+> > The most reliable way is to force a triple fault; load zero into
+> > the IDT register and then trigger an exception. The linux kernel 
+> > does that in fact for reboot and so far I haven't seen any machine failing
+> > to reset yet.
+> 
+> There are some 486s which don't boot on triple fault, nor on asking
+> the keyboard controller to pulse the reset line.  Hence the 3rd option,
+> "reboot=bios".
 
+And as an interesting data point all a triple fault does on a modern
+system is to put the cpu in a weird stopped state.  Some hardware
+usually the southbridge then detects this and if properly configured
+will trigger the reset line.
+
+I believe this may actually go back into history as far as the 486 but
+I have not done the researched to see how far back this behavior goes.
+
+Eric

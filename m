@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271809AbRIVQ23>; Sat, 22 Sep 2001 12:28:29 -0400
+	id <S271844AbRIVQaj>; Sat, 22 Sep 2001 12:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271818AbRIVQ2U>; Sat, 22 Sep 2001 12:28:20 -0400
-Received: from server1200.net ([209.239.42.69]:23558 "EHLO server1200.net")
-	by vger.kernel.org with ESMTP id <S271809AbRIVQ2J>;
-	Sat, 22 Sep 2001 12:28:09 -0400
-Date: Sat, 22 Sep 2001 12:33:24 -0400
-From: "Ian D . Stewart" <idstewart@compuvative.com>
-To: Stephen Torri <storri@ameritech.net>
-Cc: "D . Stimits" <stimits@idcomm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serial Ports
-Message-ID: <20010922123324.A4677@localhost.ameritech.net>
-In-Reply-To: <3B96C783.8BC8E29B@idcomm.com> <Pine.LNX.4.33.0109061624320.1443-100000@base.torri.linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33.0109061624320.1443-100000@base.torri.linux>; from storri@ameritech.net on Thu, Sep 06, 2001 at 16:27:06 -0400
-X-Mailer: Balsa 1.1.0
+	id <S271841AbRIVQaa>; Sat, 22 Sep 2001 12:30:30 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50700 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271818AbRIVQaQ>; Sat, 22 Sep 2001 12:30:16 -0400
+Subject: Re: Linux Kernel 2.2.20-pre10 Initial Impressions
+To: jlmales@softhome.net
+Date: Sat, 22 Sep 2001 17:35:44 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BA7D82D.21744.63CF95@localhost> from "John L. Males" at Sep 18, 2001 11:26:37 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kpkm-0003dx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ok, I finially had a chance to compile the 2.2.20-pre10 Kernel and
+> run it though some basic paces.  I need to do more specific A vs b
+> (against the 2.2.19 Kernel), but it seems there are some performance
+> issues.  It is seems especially obvious with Netscape 4.78.  I also
+> had a odd Xfree error, that may have had some relationship to the
+> performance issue.  I have to say at this point the issue seems
+> selective and not a general one, but I need to do a bit more
+> checking.  I cannot forsee this checking happening until this
+> weekend.
 
-On 2001.09.06 16:27:06 -0400 Stephen Torri wrote:
-
-> 
-> I have noticed that serial ports change IRQ to either 3 or 4. There is no
-> reason for this behavior. I have created a perl script to create a log
-> containing the irqs assigned and their ioports. Is there anything else I
-> could log that might unmask the problem?
-> 
-> So far if the serials are assigned to IRQ 4 then the sync with the palm
-> pilot doesn't work (/dev/pilot = /dev/ttyS0). If its IRQ 3 then it does.
-
-As I understand it, /dev/ttyS0-3 are set to industry standard values on
-startup (they are not probed).  The values can be changed using the
-command-line utility setserial.  You can specify non-standard values in an
-rc.serial conf file which will be read on startup.
-
-The setserial manpage covers this is some detail.
-
-
-HTH,
-Ian
-
--- 
-"God may have mercy.  We will not."
---Senator John S. McCain (R-AZ)
-
+There are to all intents no VM changes of any kind between 2.2.19 and
+2.2.20pre10, so it would be interesting to compare configure options
+and see what else might be different

@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbULVLwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbULVLwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbULVLwz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 06:52:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbULVLwN
+	id S261964AbULVLwx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 06:52:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbULVLv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 06:52:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62993 "HELO
+	Wed, 22 Dec 2004 06:51:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60177 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261971AbULVLuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 06:50:21 -0500
-Date: Wed, 22 Dec 2004 12:50:18 +0100
+	id S261968AbULVLuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 06:50:10 -0500
+Date: Wed, 22 Dec 2004 12:50:08 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/n_tty.: make two functions static (fwd)
-Message-ID: <20041222115018.GR5217@stusta.de>
+Cc: vojtech@suse.cz, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/keyboard.c: misc cleanups (fwd)
+Message-ID: <20041222115008.GO5217@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,41 +31,81 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Sun, 5 Dec 2004 18:08:01 +0100
+Date:	Sun, 5 Dec 2004 18:00:15 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/n_tty.: make two functions static
+To: vojtech@suse.cz
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/keyboard.c: misc cleanups
 
-The patch below makes two needlessly global functions static.
+The patch below contains the following changes:
+- make four needlessly global functions static
+- remove the unused global function register_leds
 
 
 diffstat output:
- drivers/char/n_tty.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/keyboard.c |   20 ++++----------------
+ 1 files changed, 4 insertions(+), 16 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/char/n_tty.c.old	2004-11-07 00:33:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/n_tty.c	2004-11-07 00:34:05.000000000 +0100
-@@ -152,7 +152,7 @@
-  *	lock_kernel() still.
+--- linux-2.6.10-rc1-mm3-full/drivers/char/keyboard.c.old	2004-11-07 00:20:09.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/keyboard.c	2004-11-07 00:21:52.000000000 +0100
+@@ -330,7 +330,7 @@
+  * in utf-8 already. UTF-8 is defined for words of up to 31 bits,
+  * but we need only 16 bits here
   */
-  
--void n_tty_flush_buffer(struct tty_struct * tty)
-+static void n_tty_flush_buffer(struct tty_struct * tty)
+-void to_utf8(struct vc_data *vc, ushort c) 
++static void to_utf8(struct vc_data *vc, ushort c) 
  {
- 	/* clear everything and unthrottle the driver */
- 	reset_buffer_flags(tty);
-@@ -174,7 +174,7 @@
-  *	at this instant in time. 
+ 	if (c < 0x80)
+ 		/*  0******* */
+@@ -392,7 +392,7 @@
+  * Otherwise, conclude that DIACR was not combining after all,
+  * queue it and return CH.
   */
-  
--ssize_t n_tty_chars_in_buffer(struct tty_struct *tty)
-+static ssize_t n_tty_chars_in_buffer(struct tty_struct *tty)
+-unsigned char handle_diacr(struct vc_data *vc, unsigned char ch)
++static unsigned char handle_diacr(struct vc_data *vc, unsigned char ch)
  {
- 	unsigned long flags;
- 	ssize_t n = 0;
+ 	int d = diacr;
+ 	int i;
+@@ -853,18 +853,6 @@
+ 	set_leds();
+ }
+ 
+-void register_leds(struct kbd_struct *kbd, unsigned int led,
+-		   unsigned int *addr, unsigned int mask)
+-{
+-	if (led < 3) {
+-		ledptrs[led].addr = addr;
+-		ledptrs[led].mask = mask;
+-		ledptrs[led].valid = 1;
+-		kbd->ledmode = LED_SHOW_MEM;
+-	} else
+-		kbd->ledmode = LED_SHOW_FLAGS;
+-}
+-
+ static inline unsigned char getleds(void)
+ {
+ 	struct kbd_struct *kbd = kbd_table + fg_console;
+@@ -925,7 +913,7 @@
+ /*
+  * This allows a newly plugged keyboard to pick the LED state.
+  */
+-void kbd_refresh_leds(struct input_handle *handle)
++static void kbd_refresh_leds(struct input_handle *handle)
+ {
+ 	unsigned char leds = ledstate;
+ 
+@@ -1027,7 +1015,7 @@
+ }
+ #endif
+ 
+-void kbd_rawcode(unsigned char data)
++static void kbd_rawcode(unsigned char data)
+ {
+ 	struct vc_data *vc = vc_cons[fg_console].d;
+ 	kbd = kbd_table + fg_console;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

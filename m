@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262702AbRFGSNQ>; Thu, 7 Jun 2001 14:13:16 -0400
+	id <S262715AbRFGSXT>; Thu, 7 Jun 2001 14:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262705AbRFGSNG>; Thu, 7 Jun 2001 14:13:06 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1545 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262702AbRFGSMt>; Thu, 7 Jun 2001 14:12:49 -0400
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-To: yakker@alacritech.com (Matt D. Robinson)
-Date: Thu, 7 Jun 2001 19:10:55 +0100 (BST)
-Cc: davem@redhat.com (David S. Miller),
-        piggy@em.cig.mot.com (La Monte H.P. Yarroll),
-        linux-kernel@vger.kernel.org, sctp-developers-list@cig.mot.com,
-        yakker@alacritech.com
-In-Reply-To: <3B1EBB13.34721ED9@alacritech.com> from "Matt D. Robinson" at Jun 06, 2001 04:21:55 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262719AbRFGSXJ>; Thu, 7 Jun 2001 14:23:09 -0400
+Received: from penguins-world.pcsystems.de ([212.63.44.200]:33006 "HELO
+	schottelius.org") by vger.kernel.org with SMTP id <S262715AbRFGSW6>;
+	Thu, 7 Jun 2001 14:22:58 -0400
+Message-ID: <3B1FC660.D958CB6C@pcsystems.de>
+Date: Thu, 07 Jun 2001 20:22:25 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Khalid Aziz <khalid@fc.hp.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: scsi disk defect or kernel driver defect ?
+In-Reply-To: <3B1FAA63.130E556A@pcsystems.de> <3B1FAF79.DF86DA0A@fc.hp.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1584FE-0001hM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And I will never in my lifetime allow such a facility to be added to
-> > the Linux kernel.
-> 
-> Who's to say you will always own the stack in the Linux kernel, or
-> have the right to make such a statement?
+> >  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> >  I/O error: dev 08:01, sector 127304
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 8000002
+> > [valid=0] Info fld=0x0, Current sd08:01: sns = 70  b
+> > ASC=47 ASCQ= 0
+> > Raw sense data:0x70 0x00 0x0b 0x00 0x00 0x00 0x00 0x18 0x00 0x00 0x00 0x00 0x47 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> >  I/O error: dev 08:01, sector 127312
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 8000002
+> > [valid=0] Info fld=0x0, Current sd08:01: sns = 70  b
+> > ASC=47 ASCQ= 0
+>
+> You are seeing lots of parity errors (ASC=47 ASCQ=0). I would suggest
+> checking cabling and terminator.
 
-Its called being a copyright holder. Or better known as 'having done much of
-the work you intend to freeload onto'
+There is in fact no terminator, the scsi disc should terminate the bus
+itself. It is directly connected to the onboard aix7880 scsi controller.
+I will use another cable in about half an hour (when my friend arrives..)
 
-> And if as Joe User I don't want Linux TCP, but Joe's TCP, they can't
-> do that (in a supportable way)?  Are you saying Linux is, "do it my
-> way, or it's the highway"?
+Thanks for the hint!
 
-No. The GPL says do it the free way, any vendor, any author, but free. It 
-doesnt say 'One snowboard nutter in california'. Very different to the MS way
+Nico
 

@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVCXSO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262893AbVCXSPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263141AbVCXSO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 13:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbVCXSO1
+	id S262893AbVCXSPN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 13:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVCXSOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 13:14:27 -0500
-Received: from byterapers.com ([195.156.109.210]:6602 "EHLO byterapers.com")
-	by vger.kernel.org with ESMTP id S263141AbVCXSOO (ORCPT
+	Thu, 24 Mar 2005 13:14:51 -0500
+Received: from funkmunch.net ([202.173.190.158]:32426 "EHLO mail.funkmunch.net")
+	by vger.kernel.org with ESMTP id S262893AbVCXSOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 13:14:14 -0500
-Date: Thu, 24 Mar 2005 20:13:59 +0200 (EET)
-From: Jakemuksen spammiosote <jhroska@byterapers.com>
-To: David Brownell <david-b@pacbell.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] usbnet.c, buf.overrun crash-bugfix, Kernel 2.6.12-rc1
-In-Reply-To: <200503240857.28594.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.61.0503242006160.767@byterapers.com>
-References: <Pine.LNX.4.61.0503241722160.30661@byterapers.com>
- <200503240857.28594.david-b@pacbell.net>
+	Thu, 24 Mar 2005 13:14:41 -0500
+Message-ID: <42430439.6090102@funkmunch.net>
+Date: Fri, 25 Mar 2005 04:17:29 +1000
+From: Triffid Hunter <triffid_hunter@funkmunch.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050321)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: redoubtable <redoubtable@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fork()
+References: <4242EEC3.2000605@netcabo.pt>
+In-Reply-To: <4242EEC3.2000605@netcabo.pt>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005, David Brownell wrote:
-> On Thursday 24 March 2005 8:05 am, Jakemuksen spammiosote wrote:
->> Atleast versions 2.6.5 - 2.6.12-rc1 crash if an USB device using usbnet
->> sends oversized packet. Such packets occur most likely with broken
-> Care to mention what device(s) you saw this with?   And what HCD?
+you can limit the max number of processes by putting the following into /etc/security/limits.conf (on my distro, and quite a number of others according to google too)
 
-I can't tell about the device(NDA), and don't remember the HCD and I can 
-check it only after holidays.
+*	hard	nproc	<max # processes>
 
->> +       if (unlikely((skb->tail + urb->actual_length) > skb->end)) {
-> This logic looks wrong.  If that ever happens, surely the problem is
-> that the rx_submit() code submitted an urb with transfer_size that
-> mismatched the SKB.  The host controller isn't allowed to overrun the
+you can also limit quite a number of other things in this file, and other files in that directory.
 
-Sounds reasonable. So, I'll go thru the HCD code instead if the 
-responsibility is there. Am i the first one to run into such crash 
-situation? If so, perhaps it's not ever worthy to fix in mainstream 
-kernel, as the device causes the crash under very specific - 
-'abusing' one might say, situation only.
-
+redoubtable wrote:
+> Hey,
+> 
+> I read a document on securityfocus about fork bombinb a linux system. 
+> Although they didn't speak about the effectiveness of resource limits I 
+> guess that should be discussed because it's possible to make a linux 
+> machine extremely slow (compared to FreeBSD for instance) even with well 
+> configured resource limits.
+> I revised kernel/fork.c and I found a way to prevent this problem by 
+> removing all associated processes with the parent, but that's far from 
+> portable and should not be used for the sake of compatibilities. I guess 
+> the function fork() should be revised.
+> And what about creating a 'maxprocs' sysctl var (even if left high) when 
+> the resource limits problem is fixed? It would help security when it is 
+> needed and wouldn't bother other applications. RLIMITs on login are not 
+> trustworthy. It should exist a global limit in case someone could spawn 
+> a shell without limits through some flawed application.
+> 
+> Thanks, and please advise.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132699AbRAYRxU>; Thu, 25 Jan 2001 12:53:20 -0500
+	id <S132985AbRAYR7V>; Thu, 25 Jan 2001 12:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRAYRxL>; Thu, 25 Jan 2001 12:53:11 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:27895 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S130507AbRAYRxF>; Thu, 25 Jan 2001 12:53:05 -0500
-Date: Thu, 25 Jan 2001 11:53:01 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Jeff Hartmann <jhartmann@valinux.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3A7066A1.5030608@valinux.com>
-In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
-	<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600 <20010125155345Z131181-221+38@kanga.kvack.org> 
-	<20010125165001Z132264-460+11@vger.kernel.org> <E14LpvQ-0008Pw-00@mail.valinux.com>
-Subject: Re: ioremap_nocache problem?
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
-Message-Id: <20010125175308Z130507-460+45@vger.kernel.org>
+	id <S132699AbRAYR7B>; Thu, 25 Jan 2001 12:59:01 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:13578 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S132577AbRAYR7A>; Thu, 25 Jan 2001 12:59:00 -0500
+Date: Thu, 25 Jan 2001 13:03:56 -0500
+From: Chris Mason <mason@suse.com>
+To: Ondrej Sury <ondrej@globe.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre10 slowdown at boot.
+Message-ID: <20130000.980445836@tiny>
+In-Reply-To: <87d7dby0yi.fsf@ondrej.office.globe.cz>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Jeff Hartmann <jhartmann@valinux.com> on Thu, 25 Jan
-2001 10:47:13 -0700
 
 
-> As in an MMIO aperture?  If its MMIO on the bus you should be able to 
-> just call ioremap with the bus address.  By nature of it being outside 
-> of real ram, it should automatically be uncached (unless you've set an 
-> MTRR over that region saying otherwise).
+On Thursday, January 25, 2001 06:51:33 PM +0100 Ondrej Sury
+<ondrej@globe.cz> wrote:
 
-It's not outside of real RAM.  The device is inside real RAM (it sits on the
-DIMM itself), but I need to poke through the entire 4GB range to see how it
-responds.
+> Chris Mason <mason@suse.com> writes:
+>> > reiserfs: checking transaction log (device 03:04) ...
+>> > Warning, log replay starting on readonly filesystem
+>> > 
+>> 
+>> Here, reiserfs is telling you that it has started replaying transactions
+>> in the log.  You should also have a reiserfs message telling you how many
+>> transactions it replayed, and how long it took.  Do you have that
+>> message?
+> 
+> Nope.  I rebooted with Alt-SysRQ+B after some while (aprox more than 30
+> sec, normally reiserfs replay is taking ~5 sec (pre9)).  I wasn't so
+> patient.  I could test it before I'll go from work to home.
+> 
 
-> Look at the functions agp_generic_free_gatt_table and 
-> agp_generic_create_gatt_table in agpgart_be.c (drivers/char/agp).  They 
-> do the ioremap_nocache on real ram for the GATT/GART table.
+Ok, depending on the metadata load before the crash, replay can take 30
+seconds or more.  You usually have to try to generate that many metadata
+changes, something like creating 100,000 tiny files or directories.
+Compiling with CONFIG_REISERFS_CHECK turned on will give you more details
+about the log replay.
 
-Unfortunately, the memory they remap is allocated:
+Or, perhaps DMA is now off on your IDE drive, making everything slower.
 
-table = (char *) __get_free_pages(GFP_KERNEL, page_order);
+Regardless, rebooting in the middle of log replay is safe.  Those
+transactions will just be replayed again on the next boot.
 
-...
-
-CACHE_FLUSH();
-agp_bridge.gatt_table = ioremap_nocache(virt_to_phys(table), (PAGE_SIZE * (1 <<
-page_order)));
-CACHE_FLUSH();
-
-I've searched high and low for examples of code that does what I do, and I
-can't find any.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

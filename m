@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVDFGqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVDFHBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVDFGqh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 02:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVDFGqh
+	id S262124AbVDFHBx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 03:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDFHBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 02:46:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:13765 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262039AbVDFGqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 02:46:14 -0400
-Date: Wed, 6 Apr 2005 08:45:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Paul Jackson <pj@engr.sgi.com>, torvalds@osdl.org, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db benchmark result on recent 2.6 kernels]
-Message-ID: <20050406064550.GA6367@elte.hu>
-References: <20050405030447.GA13590@elte.hu> <200504060333.j363XFg23271@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Apr 2005 03:01:53 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:64209 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262124AbVDFHBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 03:01:51 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: AMD64 Machine hardlocks when using memset
+Date: Wed, 6 Apr 2005 09:02:11 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <3Ojst-4kX-19@gated-at.bofh.it> <3PxjH-812-3@gated-at.bofh.it> <42535FFF.4080503@shaw.ca>
+In-Reply-To: <42535FFF.4080503@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200504060333.j363XFg23271@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200504060902.12066.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
-
-> > tested on x86, the calibration results look ok there.
+On Wednesday, 6 of April 2005 06:05, Robert Hancock wrote:
+> Alan Cox wrote:
+> > On Sad, 2005-04-02 at 05:50, Robert Hancock wrote:
+> > 
+> >>I'm wondering if one does a ton of these cache-bypassing stores whether 
+> >>something gets hosed because of that. Not sure what that could be 
+> >>though. I don't imagine the chipset is involved with any of that on the 
+> >>Athlon 64 - either the CPU or RAM seems the most likely suspect to me
+> > 
+> > 
+> > The glibc version is essentially the "perfect" copy function for the
+> > CPU. If you have any bus/memory problems or chipset bugs it will bite
+> > you.
 > 
-> Calibration result on ia64 (1.5 GHz, 9 MB), somewhat smaller in this 
-> version compare to earlier estimate of 10.4ms.  The optimal setting 
-> found by a db workload is around 16 ms.
+> Anyone have any suggestions on how to track this further? It seems 
+> fairly clear what circumstances are causing it, but as for figuring out 
+> what's at fault..
 
-with idle time in the system i'd first concentrate on getting rid of the 
-idle time, and then re-measuring the sweet spot. 9.3 msec is certainly a 
-correct ballpark figure.
+Well, I would start from changing memory modules.
 
-There will also be workload related artifacts: you may speculatively 
-delay migration to another CPU, in the hope of the currently executing 
-task scheduling away soon. (I have played with that in the past - the 
-scheduler has some idea about how scheduling-happy a task is, based on 
-the interactivity estimator.)
+Greets,
+Rafael
 
-The cost matrix on the other hand measures the pure cache-related 
-migration cost, on a quiet system. There can be an up to factor 2 
-increase in the 'effective migration cost', depending on the average 
-length of the scheduling atom of the currently executing task. Further 
-increases may happen if the system does not scale and interacting 
-migrations slow down each other. So with the 9.3msec estimate, the true 
-migration factor might be between 9.3 and 18.6 msecs. The bad news would 
-be if the estimator gave a higher value than your sweet spot.
 
-once we have a good estimate of the migration cost between domains 
-(ignoring permanent penalties such as NUMA), there's a whole lot of 
-things we can do with that, to apply it in a broader sense.
-
-> ---------------------
-> | migration cost matrix (max_cache_size: 9437184, cpu: -1 MHz):
-> ---------------------
->           [00]    [01]    [02]    [03]
-> [00]:     -     9.3(0)  9.3(0)  9.3(0)
-> [01]:   9.3(0)    -     9.3(0)  9.3(0)
-> [02]:   9.3(0)  9.3(0)    -     9.3(0)
-> [03]:   9.3(0)  9.3(0)  9.3(0)    -
-> --------------------------------
-> | cacheflush times [1]: 9.3 (9329800)
-> | calibration delay: 16 seconds
-> --------------------------------
-
-ok, the delay of 16 secs is alot better. Could you send me the full 
-detection log, how stable is the curve?
-
-	Ingo
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

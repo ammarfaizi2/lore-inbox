@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269255AbUI3NXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269276AbUI3NYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269255AbUI3NXf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 09:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269259AbUI3NXf
+	id S269276AbUI3NYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 09:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269265AbUI3NX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 09:23:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53399 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269255AbUI3NXd (ORCPT
+	Thu, 30 Sep 2004 09:23:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12696 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269256AbUI3NXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 09:23:33 -0400
-Date: Thu, 30 Sep 2004 14:23:10 +0100
-Message-Id: <200409301323.i8UDNAR3004753@sisko.scot.redhat.com>
+	Thu, 30 Sep 2004 09:23:53 -0400
+Date: Thu, 30 Sep 2004 14:23:24 +0100
+Message-Id: <200409301323.i8UDNOSw004765@sisko.scot.redhat.com>
 From: Stephen Tweedie <sct@redhat.com>
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
        ext2-devel@lists.sourceforge.net
 Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 0/10]: Cleanup online reservations for 2.6.9-rc2-mm4.
+Subject: [Patch 2/10]: ext3 online resize: printk debug level
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patches to follow clean up a lot of the ext3 online reservation
-code in 2.6.9-rc2-mm4.  There are a few minor fixes for things like
-loglevels of printks and correcting some error returns, plus
-refactoring a bit of existing ext3 code to allow resize to avoid dummy
-on-stack inodes. 
+Emit debugging printks at KERN_DEBUG loglevel.
 
-There's also a review of the whole SMP locking of the resize.  Locking
-is minimised: the impact on the hot path consists of nothing more than
-an smp_rmb() before we test sb->s_groups_count.  That's a noop on x86,
-but is a bit expensive on archs with a weak memory order; I've tried to
-minimise that by reading it just once where previously it was read each
-time round a loop, but I don't see how to avoid the cost entirely.
+Signed-off-by: Stephen Tweedie <sct@redhat.com>
 
-Finally, sb->s_debts is nuked from ext3.  It's broken already, as per my
-email a week or two ago --- the per-group s_debt[] counts never get
-modified.  We could probably do with nuking it from ext2 too, as it's
-(differently) broken there (performs unlocked byte inc/dec operations on
-a shared array and is vulnerable to word-tearing problems.)
-
-This should address all of the points akpm had in his review of resize
-a while back, except for the documentation/user space side of things
-and the lack of error checking in certain ext3_journal_dirty_metadata
-calls: I'm still fixing those up (I'll try to push out a working
-user-space for this later today.)
-
-
+--- linux-2.6.9-rc2-mm4/fs/ext3/resize.c.=K0001=.orig
++++ linux-2.6.9-rc2-mm4/fs/ext3/resize.c
+@@ -44,7 +44,7 @@ static int verify_group_input(struct sup
+ 		input->blocks_count - 2 - overhead - sbi->s_itb_per_group;
+ 
+ 	if (test_opt(sb, DEBUG))
+-		printk("EXT3-fs: adding %s group %u: %u blocks "
++		printk(KERN_DEBUG "EXT3-fs: adding %s group %u: %u blocks "
+ 		       "(%d free, %u reserved)\n",
+ 		       ext3_bg_has_super(sb, input->group) ? "normal" :
+ 		       "no-super", input->group, input->blocks_count,
+@@ -373,7 +373,8 @@ static int add_new_gdb(handle_t *handle,
+ 	int err;
+ 
+ 	if (test_opt(sb, DEBUG))
+-		printk("EXT3-fs: ext3_add_new_gdb: adding group block %lu\n",
++		printk(KERN_DEBUG 
++		       "EXT3-fs: ext3_add_new_gdb: adding group block %lu\n",
+ 		       gdb_num);
+ 
+ 	/*
+@@ -851,7 +852,7 @@ int ext3_group_extend(struct super_block
+ 	o_groups_count = EXT3_SB(sb)->s_groups_count;
+ 
+ 	if (test_opt(sb, DEBUG))
+-		printk("EXT3-fs: extending last group from %lu to %lu blocks\n",
++		printk(KERN_DEBUG "EXT3-fs: extending last group from %lu to %lu blocks\n",
+ 		       o_blocks_count, n_blocks_count);
+ 
+ 	if (n_blocks_count == 0 || n_blocks_count == o_blocks_count)
+@@ -940,7 +941,7 @@ int ext3_group_extend(struct super_block
+ 	if ((err = ext3_journal_stop(handle)))
+ 		goto exit_put;
+ 	if (test_opt(sb, DEBUG))
+-		printk("EXT3-fs: extended group to %u blocks\n",
++		printk(KERN_DEBUG "EXT3-fs: extended group to %u blocks\n",
+ 		       le32_to_cpu(es->s_blocks_count));
+ 	update_backups(sb, inode, EXT3_SB(sb)->s_sbh->b_blocknr, (char *)es,
+ 		       sizeof(struct ext3_super_block));

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbUKRMWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbUKRM2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbUKRMWk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 07:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUKRMWk
+	id S262751AbUKRM2z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 07:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbUKRM2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 07:22:40 -0500
-Received: from pop.gmx.de ([213.165.64.20]:39137 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262752AbUKRMWi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 07:22:38 -0500
-X-Authenticated: #4399952
-Date: Thu, 18 Nov 2004 13:23:40 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-1
-Message-ID: <20041118132340.5b995dcb@mango.fruits.de>
-In-Reply-To: <20041118123521.GA29091@elte.hu>
-References: <20041106155720.GA14950@elte.hu>
-	<20041108091619.GA9897@elte.hu>
-	<20041108165718.GA7741@elte.hu>
-	<20041109160544.GA28242@elte.hu>
-	<20041111144414.GA8881@elte.hu>
-	<20041111215122.GA5885@elte.hu>
-	<20041116125402.GA9258@elte.hu>
-	<20041116130946.GA11053@elte.hu>
-	<20041116134027.GA13360@elte.hu>
-	<20041117124234.GA25956@elte.hu>
-	<20041118123521.GA29091@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Nov 2004 07:28:55 -0500
+Received: from plus.ds14.agh.edu.pl ([149.156.124.14]:39577 "EHLO
+	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S262751AbUKRM2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 07:28:53 -0500
+Date: Thu, 18 Nov 2004 13:28:51 +0100 (CET)
+From: Pawel Sikora <pld@pld-linux.org>
+X-X-Sender: pld@plus.ds14.agh.edu.pl
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Valdis.Kletnieks@vt.edu, A M <alim1993@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Accessing program counter registers from within C or Aseembler.
+In-Reply-To: <Pine.LNX.4.53.0411181127510.26614@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.60.0411181311390.12746@plus.ds14.agh.edu.pl>
+References: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+ <200411162133.iAGLXn7v018578@turing-police.cc.vt.edu>
+ <Pine.LNX.4.53.0411181127510.26614@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004 13:35:21 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+On Thu, 18 Nov 2004, Jan Engelhardt wrote:
 
-> 
-> i have released the -V0.7.28-1 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
-> 
-> 	http://redhat.com/~mingo/realtime-preempt/
-> 
-> this should fix the lockup bug reported by Florian Schmidt.
+>>> Does anybody know how to access the address of the
+>>> current executing instruction in C while the program
+>>> is executing?
+>>
+>> In other words, are you trying to answer "Where in memory am *I*?"
+>> or "Where in memory is <that very recent code I want to look at>?"
+>>
+>> (Hint - for the former, you can probably get very good approximations
+>> by just looking at the entry point address for the function:
+>>
+>> 	(void *) where = &__FUNCTION__;
+>
+> Well, that's only the function in which you are (i.e. it's an approximation to
+> EIP)
 
-great news! did you find any sleep at all? anyways, built and booted fine.
-putting load on the system since 15 minutes. If it locks up again, i'll write
-another mail.
+Is this good enough ?
 
-flo
+(gdb) disassemble __next_eip
+0x08048380 <__next_eip+0>:      mov    (%esp),%eax
+0x08048383 <__next_eip+3>:      ret
+
+(gdb) disassemble test1
+0x08048390 <test1+0>:   call   0x8048380 <__next_eip>
+0x08048395 <test1+5>:   mov    %eax,0x80495ec
+0x0804839a <test1+10>:  ret
+
+(gdb) c
+Continuing.
+eip = 0x8048395
+
+*** src ***
+
+void* eip;
+register unsigned* __esp asm("esp");
+void* __attribute__((noinline)) __next_eip() { return (void *)(*__esp); }
+void test1() { eip = __next_eip(); }

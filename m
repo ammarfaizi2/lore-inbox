@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263118AbUB0VHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 16:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbUB0VHw
+	id S263101AbUB0VJr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 16:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUB0VJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 16:07:52 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:57104 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S263118AbUB0VHr
+	Fri, 27 Feb 2004 16:09:47 -0500
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:48092 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP id S263101AbUB0VJg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 16:07:47 -0500
-X-BrightmailFiltered: true
-Date: Fri, 27 Feb 2004 22:08:01 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.3] Mouse loosing sync (again)
-Message-ID: <20040227210801.GA26589@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040227201441.GA19946@dreamland.darkstar.lan> <20040227210057.GA924@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040227210057.GA924@ucw.cz>
-User-Agent: Mutt/1.4i
+	Fri, 27 Feb 2004 16:09:36 -0500
+To: Ben Collins <bcollins@debian.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Using physical extents instead of logical ones for NEC USB HID
+ gamepads
+References: <86y8vcygar.fsf@notus.ireton.fremlin.de>
+	<20031023001850.GB9808@phunnypharm.org>
+	<87ptgolq69.fsf@bayu.ireton.fremlin.de>
+From: John Fremlin <john@fremlin.de>
+In-Reply-To: <87ptgolq69.fsf@bayu.ireton.fremlin.de> (John Fremlin's message
+ of "Thu, 23 Oct 2003 01:05:02 +0000")
+X-Home-Page: http://john.fremlin.de
+Date: Fri, 27 Feb 2004 11:49:30 +0000
+Message-ID: <87y8qo4u9h.fsf_-_@bayu.ireton.fremlin.de>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Security Through
+ Obscurity, i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Fri, Feb 27, 2004 at 10:00:57PM +0100, Vojtech Pavlik ha scritto: 
-> On Fri, Feb 27, 2004 at 09:14:41PM +0100, Kronos wrote:
-> > Hi,
-> > I still have troubles with mouse, it keeps jumping here and there and I
-> > see lots of messages in logs:
-> > 
-> > Feb 27 20:49:55 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-> > Feb 27 20:50:42 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-> > Feb 27 20:51:11 dreamland kernel: psmouse.c: bad data from KBC - bad parity
-> > Feb 27 20:51:11 dreamland kernel: psmouse.c: bad data from KBC - bad parity
-> > Feb 27 20:51:12 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-> > Feb 27 20:55:32 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
-> > Feb 27 20:58:38 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-> > 
-> > These happened while surfing web with little activity on eth0 and while disks
-> > were almost idle (-u1 is set on both of them). Using vmstat I see that
-> > I'm getting around 1300 interrupts per second while moving mouse (less
-> > than 1100 while doing nothing), so I don't think that there's something 
-> > spinning in ISR for too long.
-> > 
-> > Problem first appeared in 2.6.2, 2.6.1 is unaffected. I see that in
-> > 2.6.3 there's a patch which is supposed to fix this, but it still
-> > happens for me.
-> > 
-> > Any clue?
-> 
-> The bad parity messages definitely suggest a problem with the mouse
-> cable - either too long or broken.
+--=-=-=
 
-Hum, but why does it work with older kernels? If I boot with 2.6.1 it
-works without problems.
+This patch for 2.4.22 (which applied cleanly to 2.4.25-pre) adds the
+ID 073e:0301 NEC, Inc. Game Pad to the list of quirky USB joypads which
+mix up logical and physical extents.
 
-thanks,
-Luca
--- 
-Home: http://kronoz.cjb.net
-Se non sei parte della soluzione, allora sei parte del problema.
+Please apply as the joypad obviously does not work without it. I've
+tested it.
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment;
+  filename=linux-2.4.22-nec-usb-badpad.patch
+
+--- drivers/usb/hid-core.c.~1~	2003-09-03 10:27:13.000000000 +0000
++++ drivers/usb/hid-core.c	2003-10-23 00:57:04.000000000 +0000
+@@ -1182,7 +1182,10 @@ void hid_init_reports(struct hid_device 
+ #define USB_VENDOR_ID_MGE		0x0463
+ #define USB_DEVICE_ID_MGE_UPS		0xffff
+ #define USB_DEVICE_ID_MGE_UPS1		0x0001
+- 
++
++#define USB_VENDOR_ID_NEC		0x073e
++#define USB_DEVICE_ID_NEC_USB_GAME_PAD	0x0301
++
+ struct hid_blacklist {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+@@ -1237,6 +1240,7 @@ struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_HIDDEV },
+ 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1, HID_QUIRK_HIDDEV },
++	{ USB_VENDOR_ID_NEC, USB_DEVICE_ID_NEC_USB_GAME_PAD, HID_QUIRK_BADPAD },
+ 	{ 0, 0 }
+ };
+ 
+
+--=-=-=--
+

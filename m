@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264516AbTFKWVN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 18:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTFKWVM
+	id S264611AbTFKWXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 18:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264618AbTFKWXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 18:21:12 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:22448 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S264516AbTFKWVC
+	Wed, 11 Jun 2003 18:23:16 -0400
+Received: from fronta-d.sezampro.yu ([194.106.188.51]:57868 "HELO
+	fronta-d.sezampro.yu") by vger.kernel.org with SMTP id S264611AbTFKWWR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 18:21:02 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Artemio" <artemio@artemio.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: SMP question
-Date: Wed, 11 Jun 2003 15:34:44 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEKNDJAA.davids@webmaster.com>
+	Wed, 11 Jun 2003 18:22:17 -0400
+From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@sezampro.yu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Via KT400 and AGP 8x Support
+Date: Thu, 12 Jun 2003 00:36:21 +0200
+User-Agent: KMail/1.5.1
+References: <20030611212654.61150.qmail@web11307.mail.yahoo.com>
+In-Reply-To: <20030611212654.61150.qmail@web11307.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200306112313.30903.artemio@artemio.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200306120036.21691.toptan@sezampro.yu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dana sreda 11. jun 2003. 23:26, Alex Deucher je napisao/la:
+> Although I don't know that anyone has actually tried it in 8x mode.
+> does anyone know if the radeon driver even has an AGPMode "8x" option?
+> I haven't looked myself...
 
-> Hello!
-
-> > > How much performance will I loose this way? Is SMP *THAT* critical?
-> >
-> > 	You will lose about half your CPU power.
-
-> Hmmm... So, you mean uni-processor Linux kernel can't see two
-> processors as
-> one "big" processor?
-
-	Don't we wish. No, two processors is two processors.
-
-> > > Also, if I turn hyperthreading off, how will it influence the
-> > > system with SMP
-> > > support? Without SMP support?
-
-> > 	In a system with more than one physical CPU, hyperthreading
-> > is not that
-> > big of a performance boost.
-
-> Okay, I will try turning hyperthreding off and see if RTLinux
-> keeps hanging
-> the machine.
-
-	It sounds like you're experiencing a bug. You can do this kind of testing
-to help determine the 'envelope' of the bug (that is, under what
-circumstances it appears and under what circumstances it doesn't appear),
-however this is not a substitute for fixing the bug. ;)
-
-	Even if you find a configuration that doesn't show the bug, you still
-should work with the RTLinux guys to track down the bug and get it fixed.
-If, for example, it's due to unreliable hardware, turning off hyperthreading
-might hide it but it will still be lurking there.
-
-	RTLinux might be hanging because of problems with the code you're running.
-Thinks like deadlock and priority inversion can become much more obvious in
-an SMP machine, but can definitely still happen in a UP machine, just much
-less often.
-
-	DS
-
+	Nope, 4x max.
+-- 
+Pozdrav,
+Tanasković Toplica
 

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311228AbSCLPJg>; Tue, 12 Mar 2002 10:09:36 -0500
+	id <S311229AbSCLPLq>; Tue, 12 Mar 2002 10:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311229AbSCLPJQ>; Tue, 12 Mar 2002 10:09:16 -0500
-Received: from p508879CE.dip.t-dialin.net ([80.136.121.206]:28545 "EHLO
-	darkside.22.kls.lan") by vger.kernel.org with ESMTP
-	id <S311228AbSCLPJM>; Tue, 12 Mar 2002 10:09:12 -0500
-Date: Tue, 12 Mar 2002 16:08:58 +0100
-From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] ACPI: kbd-pw-on/WOL don't work anymore since 2.4.14
-Message-ID: <20020312150858.GB1108@darkside.ddts.net>
-In-Reply-To: <20020310180526.GA1135@darkside.ddts.net> <20020311203438.GD332@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S311230AbSCLPLg>; Tue, 12 Mar 2002 10:11:36 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25916 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S311229AbSCLPL0>; Tue, 12 Mar 2002 10:11:26 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Kurt Garloff <garloff@suse.de>,
+        Linux kernel list <linux-kernel@vger.kernel.org>,
+        "S. Chandra Sekharan" <sekharan@us.ibm.com>
+Subject: Re: [PATCH] Support for assymmetric SMP
+In-Reply-To: <20020311043421.D2346@nbkurt.etpnet.phys.tue.nl>
+	<20020311052954.R8949@dualathlon.random>
+	<20020311122549.I2346@nbkurt.etpnet.phys.tue.nl>
+	<20020311132053.G10413@dualathlon.random>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 12 Mar 2002 08:05:51 -0700
+In-Reply-To: <20020311132053.G10413@dualathlon.random>
+Message-ID: <m13cz5zv00.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020311203438.GD332@elf.ucw.cz>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 09:34:39PM +0100, Pavel Machek wrote:
-> I guess this needs to be runtime-configurable at least. It is probably
-> bug. Introducing the config option is not right fix.
+Andrea Arcangeli <andrea@suse.de> writes:
 
-Yes, you are right.
-But as I told: It was the least invasive method for me.
+> On Mon, Mar 11, 2002 at 12:25:49PM +0100, Kurt Garloff wrote:
+> > Hi Andrea,
+> > 
+> > On Mon, Mar 11, 2002 at 05:29:54AM +0100, Andrea Arcangeli wrote:
+> > > the only problem is if you happen to get the timer irq always in the
+> > > same cpu for a few seconds, then the last_tsc_low will wrap around and
+> > > gettimeofday will be wrong. And even if you snapshot the full 64bit of the
+> > > tsc you'll run into some trouble if the timer irq will be delivered only
+> > > to the same cpu for a long time (for example if you use irq bindings).
+> > > you'd lose precision and you'll run into the measuration errors of
+> > > fast_gettimeoffset_quotient. The right support for asynchronous TSC
+> > > handling is a bit more complicated unfortunately.
+> > 
+> > If your APIC works, your CPUs should get the timer IRQs in alternating order.
+> 
+> Maybe I remeber wrong, but AFIK the io-apic isn't required to scale the
+> irq load in alternating order, it is perfectly allowed to deliver the
+> irq always to the same cpu for several seconds. I know the probability
+> for that to happen is low but it can happen.
 
-Applying it as a config option, would include adding a MODULE_PARM
-section, which doesn't exist yet (not for me, I have ACPI compiled
-into the kernel, but to keep it consistent even if compiled as
-module). I'm not *that* proof with linux kernel source to guarantee
-side-effect-freeness and so on.
+Actually I know of at least one dual P4 Xeon board where I haven't seen anything
+except IPI go to the second cpu.
 
-This part I'd like to leave for developers knowing better, what
-they're doing :)
-
-However, if someone of the ACPI developers or someone of the
-patch-acceptors (:)) tells me 'do it, we'll patch it in', I'll do
-it.
-If it has no chance to get in, I wont do it - for me myself, my
-patch is quite enough :)
-
-
-thanks for your response & regards,
-   Mario
--- 
-Mario 'BitKoenig' Holbe <Mario.Holbe@RZ.TU-Ilmenau.DE>
-
-"Why are we hiding from the police, daddy?"      | J. E. Guenther
-"Because we use SuSE son, they use SYSVR4."      | de.alt.sysadmin.recovery
+Eric

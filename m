@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263192AbVCDXVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263243AbVCDXnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263192AbVCDXVY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbVCDXTQ
+	id S263243AbVCDXnh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbVCDXVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:19:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44450 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263192AbVCDUy7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:59 -0500
-Cc: dlsy@snoqualmie.dp.intel.com
-Subject: [PATCH] PCI Hotplug: Fix OSHP calls in shpchp and pciehp drivers
-In-Reply-To: <11099696372884@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:53:57 -0800
-Message-Id: <1109969637954@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 4 Mar 2005 18:21:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:56986 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263236AbVCDVRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 16:17:23 -0500
+Message-Id: <200503042117.j24LHHhN017970@shell0.pdx.osdl.net>
+Subject: [patch 3/5] ppc32: Compilation fixes for Ebony, Luan and Ocotea
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mporter@kernel.crashing.org,
+       gjaeger@sysgo.com
+From: akpm@osdl.org
+Date: Fri, 04 Mar 2005 13:16:56 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1998.11.17, 2005/02/17 15:05:32-08:00, dlsy@snoqualmie.dp.intel.com
 
-[PATCH] PCI Hotplug: Fix OSHP calls in shpchp and pciehp drivers
+From: Matt Porter <mporter@kernel.crashing.org>
 
-Here is a patch to fix a problem in OSHP calls in shpchp and pciehp
-drivers that was detected in 2.6.11-rc3. In this kernel, calls to
-acpi_evaluate_object() to evaluate OSHP returned AE_BUFFER_OVERFLOW
-with the existing code.  Earlier kernels didn't return this error
-code.  The correct fix should be making return_buffer pointer NULL
-for no value is returned from this method.
+this patch fixes the problem, that the current kernel (linux-2.6.11-rc5)
+could not be compiled, when "support for early boot texts over serial port"
+(CONFIG_SERIAL_TEXT_DEBUG=y) is active.
 
-Signed-off-by: Dely Sy <dely.l.sy@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Gerhard Jaeger <gjaeger@sysgo.com>
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
+ 25-akpm/arch/ppc/platforms/4xx/ebony.h  |    4 ++--
+ 25-akpm/arch/ppc/platforms/4xx/luan.h   |    6 +++---
+ 25-akpm/arch/ppc/platforms/4xx/ocotea.h |    4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
- drivers/pci/hotplug/pciehprm_acpi.c |    3 +--
- drivers/pci/hotplug/shpchprm_acpi.c |    3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
-
-
-diff -Nru a/drivers/pci/hotplug/pciehprm_acpi.c b/drivers/pci/hotplug/pciehprm_acpi.c
---- a/drivers/pci/hotplug/pciehprm_acpi.c	2005-03-04 12:42:18 -08:00
-+++ b/drivers/pci/hotplug/pciehprm_acpi.c	2005-03-04 12:42:18 -08:00
-@@ -254,10 +254,9 @@
- {
- 	acpi_status		status;
- 	u8			*path_name = acpi_path_name(ab->handle);
--	struct acpi_buffer	ret_buf = { 0, NULL};
+diff -puN arch/ppc/platforms/4xx/ebony.h~ppc32-compilation-fixes-for-ebony-luan-and-ocotea arch/ppc/platforms/4xx/ebony.h
+--- 25/arch/ppc/platforms/4xx/ebony.h~ppc32-compilation-fixes-for-ebony-luan-and-ocotea	2005-03-04 13:16:17.000000000 -0800
++++ 25-akpm/arch/ppc/platforms/4xx/ebony.h	2005-03-04 13:16:17.000000000 -0800
+@@ -61,8 +61,8 @@
+  */
  
- 	/* run OSHP */
--	status = acpi_evaluate_object(ab->handle, METHOD_NAME_OSHP, NULL, &ret_buf);
-+	status = acpi_evaluate_object(ab->handle, METHOD_NAME_OSHP, NULL, NULL);
- 	if (ACPI_FAILURE(status)) {
- 		err("acpi_pciehprm:%s OSHP fails=0x%x\n", path_name, status);
- 		oshp_run_status = (status == AE_NOT_FOUND) ? OSHP_NOT_EXIST : OSHP_RUN_FAILED;
-diff -Nru a/drivers/pci/hotplug/shpchprm_acpi.c b/drivers/pci/hotplug/shpchprm_acpi.c
---- a/drivers/pci/hotplug/shpchprm_acpi.c	2005-03-04 12:42:18 -08:00
-+++ b/drivers/pci/hotplug/shpchprm_acpi.c	2005-03-04 12:42:18 -08:00
-@@ -242,10 +242,9 @@
- {
- 	acpi_status		status;
- 	u8			*path_name = acpi_path_name(ab->handle);
--	struct acpi_buffer	ret_buf = { 0, NULL};
+ /* OpenBIOS defined UART mappings, used before early_serial_setup */
+-#define UART0_IO_BASE	(u8 *) 0xE0000200
+-#define UART1_IO_BASE	(u8 *) 0xE0000300
++#define UART0_IO_BASE	0xE0000200
++#define UART1_IO_BASE	0xE0000300
  
- 	/* run OSHP */
--	status = acpi_evaluate_object(ab->handle, METHOD_NAME_OSHP, NULL, &ret_buf);
-+	status = acpi_evaluate_object(ab->handle, METHOD_NAME_OSHP, NULL, NULL);
- 	if (ACPI_FAILURE(status)) {
- 		err("acpi_pciehprm:%s OSHP fails=0x%x\n", path_name, status);
- 	} else
-
+ /* external Epson SG-615P */
+ #define BASE_BAUD	691200
+diff -puN arch/ppc/platforms/4xx/luan.h~ppc32-compilation-fixes-for-ebony-luan-and-ocotea arch/ppc/platforms/4xx/luan.h
+--- 25/arch/ppc/platforms/4xx/luan.h~ppc32-compilation-fixes-for-ebony-luan-and-ocotea	2005-03-04 13:16:17.000000000 -0800
++++ 25-akpm/arch/ppc/platforms/4xx/luan.h	2005-03-04 13:16:17.000000000 -0800
+@@ -47,9 +47,9 @@
+ #define RS_TABLE_SIZE	3
+ 
+ /* PIBS defined UART mappings, used before early_serial_setup */
+-#define UART0_IO_BASE	(u8 *) 0xa0000200
+-#define UART1_IO_BASE	(u8 *) 0xa0000300
+-#define UART2_IO_BASE	(u8 *) 0xa0000600
++#define UART0_IO_BASE	0xa0000200
++#define UART1_IO_BASE	0xa0000300
++#define UART2_IO_BASE	0xa0000600
+ 
+ #define BASE_BAUD	11059200
+ #define STD_UART_OP(num)					\
+diff -puN arch/ppc/platforms/4xx/ocotea.h~ppc32-compilation-fixes-for-ebony-luan-and-ocotea arch/ppc/platforms/4xx/ocotea.h
+--- 25/arch/ppc/platforms/4xx/ocotea.h~ppc32-compilation-fixes-for-ebony-luan-and-ocotea	2005-03-04 13:16:17.000000000 -0800
++++ 25-akpm/arch/ppc/platforms/4xx/ocotea.h	2005-03-04 13:16:17.000000000 -0800
+@@ -56,8 +56,8 @@
+ #define RS_TABLE_SIZE	2
+ 
+ /* OpenBIOS defined UART mappings, used before early_serial_setup */
+-#define UART0_IO_BASE	(u8 *) 0xE0000200
+-#define UART1_IO_BASE	(u8 *) 0xE0000300
++#define UART0_IO_BASE	0xE0000200
++#define UART1_IO_BASE	0xE0000300
+ 
+ #define BASE_BAUD	11059200/16
+ #define STD_UART_OP(num)					\
+_

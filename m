@@ -1,103 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbUKFFYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUKFF3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbUKFFYb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 00:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUKFFYa
+	id S261321AbUKFF3m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 00:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUKFF3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 00:24:30 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:37078 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261320AbUKFFYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 00:24:10 -0500
-Date: Fri, 5 Nov 2004 21:18:48 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, anil.s.keshavamurthy@intel.com,
-       tokunaga.keiich@jp.fujitsu.com, motoyuki@soft.fujitsu.com,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       rml@novell.com, linux-kernel@vger.kernel.org, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
-Message-ID: <20041105211848.A21098@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <20041105164523.GC1295@stusta.de> <20041105180513.GA32007@kroah.com> <20041105201012.GA24063@vrfy.org> <20041105204209.GA1204@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Nov 2004 00:29:41 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:31186 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261321AbUKFF3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 00:29:39 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Gerd Knorr <kraxel@bytesex.org>
+Subject: [patch] bttv: MODULE_PARM() broke TV
+Date: Sat, 6 Nov 2004 14:32:17 +0900
+User-Agent: KMail/1.5.4
+Cc: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041105204209.GA1204@kroah.com>; from greg@kroah.com on Fri, Nov 05, 2004 at 12:42:09PM -0800
+Message-Id: <200411061432.17861.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 12:42:09PM -0800, Greg KH wrote:
-> On Fri, Nov 05, 2004 at 09:10:12PM +0100, Kay Sievers wrote:
-> > On Fri, Nov 05, 2004 at 10:05:13AM -0800, Greg KH wrote:
-> > > On Fri, Nov 05, 2004 at 05:45:23PM +0100, Adrian Bunk wrote:
-> > > > The following error (compin from Linus' tree) is caused by the fact that 
-> > > > hotplug_path is no longer EXPORT_SYMBOL'ed:
-> > > > 
-> > > > 
-> > > > <--  snip  -->
-> > > > 
-> > > > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.10-rc1-mm3; fi
-> > > > WARNING: /lib/modules/2.6.10-rc1-mm3/kernel/drivers/acpi/container.ko needs unknown symbol hotplug_path
-> > > > 
-> > > > <--  snip  -->
-> > > 
-> > > Hm, must be an -mm specific change that is causing this.  I don't see
-> > > this in the current tree.
-> > > 
-> > > Len, why would any ACPI code be wanting to get access to hotplug_path
-> > > directly?
-> > 
-> > 
-> > I've found it. This wants to introduce a new direct /sbin/hotplug call,
-> > with "add" and "remove" events, without sysfs support.
-> > 
-> > It should use class support or kobject_hotplug() instead.  Nobody should
-> > fake hotplug events anymore, cause every other notification transport
-> > will not get called (currently uevent over netlink).
-> >   http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/broken-out/bk-acpi.patch
-> > 
-> > +static int
-> > +container_run_sbin_hotplug(struct acpi_device *device, char *action)
-> > +{
-> > ...
-> > +	argv[i++] = hotplug_path;
-> > +	argv[i++] = "container";
-> > +	argv[i] = NULL;
-> > ...
-> > +	i = 0;
-> > +	envp[i++] = "HOME=/";
-> > +	envp[i++] = "PATH=/sbin;/bin;/usr/sbin;/usr/bin";
-> > +	envp[i++] = action_str;
-> > +	envp[i++] = container_str;
-> > +	envp[i++] = "PLATFORM=ACPI";
-> > +	envp[i] = NULL;
-> > ...
-> 
-> Good catch.  Yeah, that code is just wrong.
-> 
-> Anil, your name is on this file.  Care to fix it up to use the proper
-> driver core hotplug functionality instead of rolling your own?
-> 
-> Or is there some reason you are wanting to do this kind of notification
-> that the driver core is not providing for you?
-Greg,
-	Yes, I agree what you say, we need to use class support or kobject_hotplug().
-But in this case "a container object" gets added and this container object has
-no direct representation in sysfs. So in this case can you please tell me 
-what is the best thing to notify user.agent. Sorry I had looked some really old examples when I
-wrote this driver.
+Hello,
 
-Also, since you have brought this, I have one another question to you.
-Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
-an "ADD" notification is sent. why is this? I would like to call
-kobject_hotplug(kobj, ADD) later.
+Using both module_param() and MODULE_PARM() in one module broke my
+bttv options.
 
-thanks,
-Anil
-> 
-> thanks,
-> 
-> greg k-h
+	bttv: Unknown parameter `card'
+	bttv: Ignoring new-style parameters in presence of obsolete ones
+	...
+
+This patch fixes it, and now I'm watching TV as usual fine.
+
+--- 2.6-mm/drivers/media/video/bttv-cards.c.orig	2004-11-06 13:37:46.000000000 +0900
++++ 2.6-mm/drivers/media/video/bttv-cards.c	2004-11-06 13:42:09.000000000 +0900
+@@ -2973,7 +2973,7 @@ static int __devinit pvr_altera_load(str
+ /* old 2.4.x way -- via soundcore's mod_firmware_load */
+ 
+ static char *firm_altera = "/usr/lib/video4linux/hcwamc.rbf";
+-MODULE_PARM(firm_altera,"s");
++module_param(firm_altera, charp, 0);
+ MODULE_PARM_DESC(firm_altera,"WinTV/PVR firmware "
+ 		 "(driver CD => unzip pvr45xxx.exe => hcwamc.rbf)");
+ 
+--- 2.6-mm/drivers/media/video/bttv-i2c.c.orig	2004-11-06 13:37:53.000000000 +0900
++++ 2.6-mm/drivers/media/video/bttv-i2c.c	2004-11-06 13:53:17.000000000 +0900
+@@ -47,9 +47,9 @@ static int detach_inform(struct i2c_clie
+ static int i2c_debug = 0;
+ static int i2c_hw = 0;
+ static int i2c_scan = 0;
+-MODULE_PARM(i2c_debug,"i");
+-MODULE_PARM(i2c_hw,"i");
+-MODULE_PARM(i2c_scan,"i");
++module_param(i2c_debug, int, 0);
++module_param(i2c_hw, int, 0);
++module_param(i2c_scan, int, 0);
+ MODULE_PARM_DESC(i2c_scan,"scan i2c bus at insmod time");
+ 
+ /* ----------------------------------------------------------------------- */
+
+

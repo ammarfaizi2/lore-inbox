@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbTKMXOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 18:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTKMXOR
+	id S264446AbTKMXK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 18:10:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTKMXK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 18:14:17 -0500
-Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.114.37]:10003 "EHLO
-	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S261217AbTKMXOQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 18:14:16 -0500
-Date: Fri, 14 Nov 2003 00:14:07 +0100
-Message-ID: <3FA537D70002A717@mk-cpfrontend-3.mail.uk.tiscali.com>
-From: colawhite@tiscali.co.uk
-Subject: HELLO FRIEND
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 13 Nov 2003 18:10:56 -0500
+Received: from law12-f49.law12.hotmail.com ([64.4.19.49]:21004 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264446AbTKMXKy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 18:10:54 -0500
+X-Originating-IP: [24.82.225.198]
+X-Originating-Email: [justformoonie@hotmail.com]
+From: "kirk bae" <justformoonie@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: So, Poll is not scalable... what to do?
+Date: Thu, 13 Nov 2003 17:10:50 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law12-F49kTQUM6H2Ht000057a3@hotmail.com>
+X-OriginalArrivalTime: 13 Nov 2003 23:10:53.0638 (UTC) FILETIME=[62F2D660:01C3AA3B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FROM THE DESK OF DR CHRISTOFER OLA-WHITE
+>Kirk Bae wrote:
+>>If poll is not scalable, which method should I use when writing 
+>>multithreaded socket server?
+>
+>People who write multithreaded servers tend to use thread pools
+>and never need to use poll().  (Well, ok, I've written multithreaded
+>servers that used poll(), but the threads were there for disk I/O,
+>not networking.)
 
-DEAR FRIEND
-
-I am Dr CHRISTOPHER OLA-WHITE, THE DIRECTOR OF BROWNAMAJ
-ALUMINIUM ENGINEERING COMPANY, WEST AFRICA ,BUYER AND SELLER OF ALUMINUIM
-SLIDING DOORS AND WINDOWS ,OFFICE PARTITIONING AND CASHIER CUBICLES e.t.c
-
-SIR,A CONTRACT OF $5.6,000,000 (FIVE MILLION SIX HUNDRED THOUSAND
-DOLLAS) WAS AWARDED TO ME TO INSTALL ALUMINIUM SLIDING WINDOWS AND DOORS
-IN SAN PEDRO (A CONTRACT OF THE WORLD BANK PROJECT) AND THE MONEY WILL BE
-PAID INTO A FOREIGN ACCOUNT , OF WHICH I DONT HAVE BECAUSE I HAVE NOT DONE
-AN INTERNATIONAL BUSINESS BEFORE BEEN A FRIEND TO THE PRESENT ADMINISTRATION
-(THE STATE GOVERNOR).THIS CONTRACT WAS AWARDED TO ME AND I DONT HAVE A FOREIGN
-ACCOUNT THIS IS WHY I WANT YOU TO ASISST ME SO THAT THIS MONEY CAN BE PAID
-INTO YOUR ACCOUNT AND PART OF THIS MONEY WILL BE USED TO BUY ALUMINNIUM
-PROFILE AND ACCESSORIES FROM YOUR COMPANY , I ALSO WANT TO INVEST MY PROFIT
-THROUGH
-YOU IN YOUR COUNTRY AND I WILL CONPENSATE YOU FOR YOUR HELP ,I WANT THIS
-BUSINESS TO BE DONE BY YOU AND ME I WANT YOU TO SEND ME
-A REPLY MAIL AS SOON AS YOU RECEIVE THIS MAIL.PLEASE NOTE THAT YOU ARE NOT
-TO PAY ANY UPFRONT TO ME OR ANY SECURITY COMPANIES JUST INDICATE YOUR WILLINESS
-AND I SHALL BRIEF YOU ON WHAT NEXT.
-
-YOURS FAITHFULLY
-CHRISTOPHER OLA-WHITE
+By thread pool, do you mean, one thread per socket?, or a work-crew model 
+where a specified number of threads handle many sockets?
 
 
+>>What is the most efficient model to use?
+>>
+>>Is there a "standard" model to use when writing a scalable multithreaded 
+>>socket serve such as "io completion ports" on windows?
+>
+>Depends on your definition of efficient.
+>
+>If by 'efficient' you mean 'runs like a bat out of hell,
+>and I don't care how long it takes to write', and
+>you're willing to write all the code from scratch, and
+>you're handy with state machines, the right way to go is
+>an edge-triggered readiness notification method (sys_epoll or kqueue,
+>if available, else sigio).
 
+My definition of "efficient" is a method that is most widely used or 
+accepted for writing a robust scalable server. So I guess, "'runs like a bat 
+out of hell, and I don't care how long it takes to write'" is close.
 
+Would it be thread pool or epoll? Is it uncommon to mix these two?
+
+Currently, I have a thread-1 calling poll, and dispatching its workload to 
+thread-2 and thread-3 in blocking sockets. I dispatch the workload to worker 
+threads because some of the operations take considerable time.
+
+Is mixing threads with poll uncommon? Is this a bad design? any comments 
+would be appreciated.
+
+_________________________________________________________________
+Great deals on high-speed Internet access as low as $26.95.  
+https://broadband.msn.com (Prices may vary by service area.)
 

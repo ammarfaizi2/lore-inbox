@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289096AbSA3OQb>; Wed, 30 Jan 2002 09:16:31 -0500
+	id <S289117AbSA3OUl>; Wed, 30 Jan 2002 09:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289100AbSA3OQW>; Wed, 30 Jan 2002 09:16:22 -0500
-Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:10503 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP
-	id <S289096AbSA3OQE>; Wed, 30 Jan 2002 09:16:04 -0500
-X-Authentication: eba3790f0669ee5808dd844cb245cbe2012a97d2
-Date: Wed, 30 Jan 2002 08:15:38 -0600
-From: Charles Cazabon <charlesc@discworld.dyndns.org>
+	id <S289100AbSA3OUb>; Wed, 30 Jan 2002 09:20:31 -0500
+Received: from smtp02.smtphost.com ([196.38.110.4]:51981 "EHLO
+	smtp02.smtphost.com") by vger.kernel.org with ESMTP
+	id <S289117AbSA3OUV>; Wed, 30 Jan 2002 09:20:21 -0500
+From: "Kobus Jooste" <kuberkoos@mighty.co.za>
+Subject: anyone working on Promise ATA133 PDC20276?
 To: linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130081538.C4464@twoflower.internal.do>
-In-Reply-To: <Pine.GSO.4.21.0201292321390.11157-100000@weyl.math.psu.edu> <E16Vp2w-0000CA-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Jan 30, 2002 at 08:20:41AM +0100
+X-Mailer: CommuniGate Pro Web Mailer v.3.4.8
+Date: Wed, 30 Jan 2002 16:20:14 +0200
+Message-ID: <web-42246555@mail01.infosat.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> wrote:
-> 
-> Linus just called you the ext2 maintainer.
+The PDC20276 is embedded on my Athlon motherboard and
+supposedly offers ATA133 & (software) RAID.
 
-Did he?  I only saw him call Al Viro the de-facto VFS maintainer.
+I can offer testing support and whatever information I can
+gather from the hardware itself and the accompanying windoze
+drivers for anyone working on this.  
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                         <charlesc@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
------------------------------------------------------------------------
+I tried 2.4.18pre3-ac2 (ie. with andre hedrick patches)
+without success and grepping the source turns up references
+to  the 2026x and 20270.
+
+the lkml and ata-raid archives and google's groups doesn't
+turn up anything.
+
+please CC me in replies.
+
+cheers,
+kobus
+ 
+==
+Brought to you by Ananzi Mail
+[http://mail.ananzi.co.za]
+

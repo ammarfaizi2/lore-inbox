@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131185AbRAKTZH>; Thu, 11 Jan 2001 14:25:07 -0500
+	id <S131541AbRAKTZr>; Thu, 11 Jan 2001 14:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbRAKTY6>; Thu, 11 Jan 2001 14:24:58 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13841 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S131185AbRAKTYw>; Thu, 11 Jan 2001 14:24:52 -0500
-Message-ID: <3A5E0886.4389692E@Hell.WH8.TU-Dresden.De>
-Date: Thu, 11 Jan 2001 20:24:54 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac6 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <Pine.GSO.4.21.0101111337250.17363-100000@weyl.math.psu.edu>
+	id <S132063AbRAKTZe>; Thu, 11 Jan 2001 14:25:34 -0500
+Received: from host156.207-175-42.redhat.com ([207.175.42.156]:24069 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131541AbRAKTZX>; Thu, 11 Jan 2001 14:25:23 -0500
+Date: Thu, 11 Jan 2001 14:25:10 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Matthew D. Pitts" <mpitts@suite224.net>, "Robert M. Love" <rml@tech9.net>,
+        Giacomo Catenazzi <cate@student.ethz.ch>, linux-kernel@vger.kernel.org
+Subject: Re: Compile error: DRM without AGP in 2.4.0
+Message-ID: <20010111142510.A6464@devserv.devel.redhat.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Matthew D. Pitts" <mpitts@suite224.net>,
+	"Robert M. Love" <rml@tech9.net>,
+	Giacomo Catenazzi <cate@student.ethz.ch>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <001101c07bfa$daf36ac0$0100a8c0@pittscomp.com> <E14GmNo-0002lE-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14GmNo-0002lE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 11, 2001 at 06:23:31PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> /dev/hdb1: Inode 522901, i_blocks is 64, should be 8. FIXED
+Alan Cox (alan@lxorguk.ukuu.org.uk) said: 
+> > What if your motherboard doesn't have an AGP slot? I'm running an older
+> > Micro Star pentium with a ATI All-in-Wonder with the Rage 128 chipset.
+> 
+> Then I believe you cant use direct render right now
 
-Ok, culprit identified: /var/spool/lpd/lpd.lock
+In 4.0.1 r128 DRM sort of worked with a PCI card in an agpgart-supported
+motherboard. But not well.
 
-On another partition I had the same problem with httpd's
-error_log.
-
-Since both of those seem to be log- and lock-files, maybe
-there's something wrong with file locking?
-
-Anyway, disabled both lpd and httpd from the startup scripts
-and now the bug is triggered *every* time. I cannot reboot
-a single time without partitions being busy. When neither
-lpd nor httpd run, fsck finds nothing wrong.
-
-The very strange stuff is umount at reboot:
-
-umount: none busy - remounted read-only
-umount: /: device is busy
-Remounting root-filesystem read-only
-mount: / is busy
-Rebooting.
-
-*fsck*
-
-The "none" bit puzzles me the most. /etc/fstab and /etc/mtab
-look perfectly ok.
-
-Has anyone got an idea? Everything worked well with 2.4.0 and
-Alan's tree up to -ac4, didn't try ac5, and ac6 is what messes
-up now.
-
--Udo.
+Bill
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

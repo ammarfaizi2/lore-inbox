@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265872AbUA2K6y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 05:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265892AbUA2K6y
+	id S265502AbUA2K4b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 05:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUA2K4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 05:58:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47273 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265872AbUA2K6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 05:58:47 -0500
-Date: Thu, 29 Jan 2004 11:58:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE questions [kernel: 2.6.1-rc1]
-Message-ID: <20040129105845.GA11683@suse.de>
-References: <20040129112821.27b59313@phoebee>
+	Thu, 29 Jan 2004 05:56:30 -0500
+Received: from 213-84-216-119.adsl.xs4all.nl ([213.84.216.119]:51594 "EHLO
+	morannon.frodo.local") by vger.kernel.org with ESMTP
+	id S265502AbUA2K43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 05:56:29 -0500
+From: Frodo Looijaard <frodol@dds.nl>
+Date: Thu, 29 Jan 2004 11:56:24 +0100
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH to access old-style FAT fs
+Message-ID: <20040129105624.GA1072@frodo.local>
+References: <20040126173949.GA788@frodo.local> <bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp> <4016B316.4060304@zytor.com> <87ad4987ti.fsf@devron.myhome.or.jp> <20040128115655.GA696@arda.frodo.local> <87y8rr7s5b.fsf@devron.myhome.or.jp> <20040128202443.GA9246@frodo.local> <87bron7ppd.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040129112821.27b59313@phoebee>
+In-Reply-To: <87bron7ppd.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29 2004, Martin Zwickel wrote:
-> Hi there,
-> 
-> 2 questions about IDE:
-> 
-> 1.: with my machine:
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> SIS5513: IDE controller at PCI slot 0000:00:02.5
-> SIS5513: chipset revision 0
-> SIS5513: not 100% native mode: will probe irqs later
-> SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
->     ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: WDC WD800BB-00CAA1, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hdc: IDE DVD-ROM 16X, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: max request size: 128KiB
-> hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
->  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 >
-> cdrom: : unknown mrw mode page
->       ^ no cdi->name?
->         is this for the hda device or hdc?
+Hi,
 
-hdc - it's a debug message, it has been removed in newer kernels.
+I have run a small test in MS-DOS 5.00:
 
-> hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.20
-> 
-> 
-> 2.: with another machine: I have a disk that has some bad sectors
-> (that says the drive fitness test from ibm). and I think one of the
-> sectors is where the partition table is.  on kernel boot the kernel
-> stops when it tries to detect the partitions and gives some "dma
-> timeout"s.  can I disable the partition table probe? is the
-> "hdx=noprobe" argument the right one?
+  1) Create a new directory
+  2) Create five files in it
+  3) Change the first character of the second filename to 0x00 with an editor
+  4) Do a DIR listing: only one file is seen
+     Linux shows four files!
+  5) Create a new file
+  6) Do a DIR listing: there are five files
 
-If you want to completely ignore the drive, yes.
+So MS-DOS 5.00 at least does stop when a 0x00 marker is found, but does
+not write new 0x00 markers when a 0x00 marker is overwritten. 
+
+Thanks,
+  Frodo
 
 -- 
-Jens Axboe
-
+Frodo Looijaard <frodol@dds.nl>  PGP key and more: http://huizen.dds.nl/~frodol
+Defenestration n. (formal or joc.):
+  The act of removing Windows from your computer in disgust, usually followed
+  by the installation of Linux or some other Unix-like operating system.

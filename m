@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266512AbSKGMKg>; Thu, 7 Nov 2002 07:10:36 -0500
+	id <S266523AbSKGMd7>; Thu, 7 Nov 2002 07:33:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266516AbSKGMKg>; Thu, 7 Nov 2002 07:10:36 -0500
-Received: from almesberger.net ([63.105.73.239]:17162 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S266512AbSKGMKf>; Thu, 7 Nov 2002 07:10:35 -0500
-Date: Thu, 7 Nov 2002 09:17:10 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021107091710.G10679@almesberger.net>
-References: <20021105221050.A10679@almesberger.net> <Pine.GSO.4.21.0211052017320.6521-100000@steklov.math.psu.edu> <20021105230505.D10679@almesberger.net> <m18z05ewzj.fsf@frodo.biederman.org>
+	id <S266525AbSKGMd7>; Thu, 7 Nov 2002 07:33:59 -0500
+Received: from surf.cadcamlab.org ([156.26.20.182]:3993 "EHLO
+	surf.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S266523AbSKGMd6>; Thu, 7 Nov 2002 07:33:58 -0500
+Date: Thu, 7 Nov 2002 06:37:53 -0600
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
+Message-ID: <20021107123753.GN4182@cadcamlab.org>
+References: <20021106185230.GD5219@pasky.ji.cz> <20021106212952.GB1035@mars.ravnborg.org> <20021106220347.GE5219@pasky.ji.cz> <20021107100021.GL4182@cadcamlab.org> <Pine.LNX.4.44.0211071149200.13258-100000@serv> <20021107114747.GM4182@cadcamlab.org> <Pine.LNX.4.44.0211071258550.13258-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m18z05ewzj.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Wed, Nov 06, 2002 at 11:04:48PM -0700
+In-Reply-To: <Pine.LNX.4.44.0211071258550.13258-100000@serv>
+User-Agent: Mutt/1.4i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-[ Al's FS-based kexec interface ]
 
-> For the record my opinion is there is extra code bloat but it is ok
-> if it is built as kexecfs.  Any other way of getting a magic file
-> to work with seems currently insane.
+  [Peter Samuelson]
+> > Huh?  I don't get it.  How is a shared library any better than a static
+> > library in this regard?  I'm pondering the traditional advantages of
+> > shared libraries, and I cannot think of a single one that matters here.
 
-Yes, such an interface change would only make sense if you couldn't
-get the system call, or if there would actually be a useful way for
-setting up kexec using "third party" programs. But it seems unlikely
-to me that somebody could get all the magic right just by using dd.
+[Roman Zippel]
+> Shared libraries can be loaded dynamically, this means distribution can 
+> package the graphical front ends and the user doesn't need to install 
+> huge development packages.
 
-- Werner
+I still don't get it.  Why can't the distribution vendor just link
+/usr/bin/qconf against $(LINUX)/scripts/kconfig/libkconfig.a?
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Peter

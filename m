@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268282AbTB1XLe>; Fri, 28 Feb 2003 18:11:34 -0500
+	id <S268410AbTB1XN3>; Fri, 28 Feb 2003 18:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268291AbTB1XLd>; Fri, 28 Feb 2003 18:11:33 -0500
-Received: from lmail.actcom.co.il ([192.114.47.13]:17870 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S268282AbTB1XLR>; Fri, 28 Feb 2003 18:11:17 -0500
-Date: Sat, 1 Mar 2003 01:11:50 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] trident 1/1 fix operator precedence bug
-Message-ID: <20030228231150.GE32006@actcom.co.il>
+	id <S268469AbTB1XN2>; Fri, 28 Feb 2003 18:13:28 -0500
+Received: from adsl-67-121-154-32.dsl.pltn13.pacbell.net ([67.121.154.32]:2528
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S268410AbTB1XNP>; Fri, 28 Feb 2003 18:13:15 -0500
+Date: Fri, 28 Feb 2003 15:23:05 -0800
+To: Alex Riesen <alexander.riesen@synopsys.COM>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-ck4
+Message-ID: <20030228232305.GA10477@triplehelix.org>
+References: <200302281545.01222.kernel@kolivas.org> <20030228124314.GS5239@riesen-pc.gr05.synopsys.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RpqchZ26BWispMcB"
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
+In-Reply-To: <20030228124314.GS5239@riesen-pc.gr05.synopsys.com>
 User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---RpqchZ26BWispMcB
+--C7zPtVaVf+AK4Oqc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Fix an operator precedence bug that caused a comparison to always
-return false. Patch from John Levon <levon@movementarian.org>. Tested,
-works fine.=20
+On Fri, Feb 28, 2003 at 01:43:14PM +0100, Alex Riesen wrote:
+> You do not include ALSA anymore. Is that just because of lack of time,
+> or did i miss some serious problem with it?
 
---- a/sound/oss/trident.c	Sat Mar  1 01:14:13 2003
-+++ b/sound/oss/trident.c	Sat Mar  1 01:14:13 2003
-@@ -3059,7 +3059,7 @@
-         ncount =3D 10;
- 	while(1) {
- 		wcontrol =3D inw(TRID_REG(card, ALI_AC97_WRITE));
--		if(!wcontrol & 0x8000)
-+		if(!(wcontrol & 0x8000))
- 			break;
- 		if(ncount <=3D 0)
- 			break;
+I believe Con did it because the ALSA in his patchset was woefully=20
+outdated and it was more useful to just point people to alsa-project.org=20
+;) The ALSA in -ck2 was 0.9.0rc2; at the time, rc4 was out, for example.
+
+HTH,
+Josh
 
 --=20
-Muli Ben-Yehuda
-http://www.mulix.org
+New PGP public key: 0x27AFC3EE
 
-
---RpqchZ26BWispMcB
+--C7zPtVaVf+AK4Oqc
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+X+y2KRs727/VN8sRAqRQAJ4zIOhS/wYXIJIuVHthzogyqIUVUQCfQljk
-wh9eP6+NveIDH3aaq/bpHMA=
-=UGe8
+iD8DBQE+X+9ZT2bz5yevw+4RAoG2AJ0Se5tJwtFg+W9iGjcnmYBtpIY60wCgpIZ+
+Kjh5TSzYHwv0mTI5Zgho7F4=
+=YZsz
 -----END PGP SIGNATURE-----
 
---RpqchZ26BWispMcB--
+--C7zPtVaVf+AK4Oqc--

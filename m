@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316080AbSFJUTj>; Mon, 10 Jun 2002 16:19:39 -0400
+	id <S316127AbSFJUcI>; Mon, 10 Jun 2002 16:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316127AbSFJUTi>; Mon, 10 Jun 2002 16:19:38 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:38623 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S316080AbSFJURi>; Mon, 10 Jun 2002 16:17:38 -0400
-Message-ID: <3D050841.4070306@drugphish.ch>
-Date: Mon, 10 Jun 2002 22:12:49 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Bonin <kernel@bonin.ca>
-Cc: root@chaos.analogic.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire Disks. (fwd)
-In-Reply-To: <Pine.LNX.3.95.1020610141042.17451B-100000@chaos.analogic.com> <3D04EDC1.8010402@drugphish.ch> <3D04F704.5090202@bonin.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S316158AbSFJUcH>; Mon, 10 Jun 2002 16:32:07 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:23165 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S316127AbSFJUcG>; Mon, 10 Jun 2002 16:32:06 -0400
+Date: Mon, 10 Jun 2002 22:28:10 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: David Ford <david+cert@blue-labs.org>
+Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: -ac series won't compile without fix
+Message-Id: <20020610222810.14c88a1e.kristian.peters@korseby.net>
+In-Reply-To: <3D05089D.6030604@blue-labs.org>
+X-Mailer: Sylpheed version 0.7.6claws (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.19-pre10-ac1
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+David Ford <david+cert@blue-labs.org> wrote:
+> So in other words...
+> 
+> $ tar zxf linux.tar.bz2
+> $ patch -p1 < patch
+> $ cp /boot../.config .
+> $ make oldconfig
+> $ make dep clean
+> $ make -j3 bzImage
+> $ make dep
+> $ make -j3 bzImage
+> 
+> That about cover it?  Still doesn't work.  I'm using -ac2.
 
-> A lot of caddies that wrap hd's have started coming out and, as you may 
-> know, USB 2.0 supports 480mbps x-fer rate (ideal).  So it's pretty 
-> intreguing.
+I must do a "make mrproper" after applying the patch or after a failed "make dep". (saving the .config is important ;) Then it works for me..
 
-Yeah, I know but ieee1394 with 400Mbps is fast enough for my laptop and 
-honestly I doubt that either one, be it USB2.0 or ieee1394, can really 
-sustain this high transfer rate for a reasonable amount of time. And for 
-most applications it is simply not needed. Maybe if you do TCP/IP over 
-those technologies. But YMMV and I accept that. For me it was the 
-cheapest alternative (450 bucks) to buying another harddisk for my laptop.
+*Kristian
 
-> Does the SCSI layer via sbp2 provide functionality for USB 2.0 (EHCI) 
-> disks?
-
-Please read the first 150 lines of [1]. If you want USB2.0 (wrapped) 
-devices support you need to check out [2]. It's a 'glue' with the SCSI 
-subsystem, but Greg KH can tell you much more about it.
-
-[1] ../linux/drivers/ieee1394/sbp2.c
-[2] ../linux/drivers/usb/storage/*, specially transport.c
-
-Best regards,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ :: http://gsmp.sf.net         _\_V
+  :.........................:

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318642AbSHUSmc>; Wed, 21 Aug 2002 14:42:32 -0400
+	id <S318635AbSHUSpL>; Wed, 21 Aug 2002 14:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318635AbSHUSmc>; Wed, 21 Aug 2002 14:42:32 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:50635 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S318642AbSHUSma>;
-	Wed, 21 Aug 2002 14:42:30 -0400
-Date: Wed, 21 Aug 2002 11:46:33 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: phillips@arcor.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lock assertion macros for 2.5.31
-Message-ID: <20020821184633.GA62396@sgi.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>, phillips@arcor.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020808172335.GA29509@sgi.com> <Pine.LNX.4.44L.0208081435400.2589-100000@duckman.distro.conectiva> <20020808173933.GA29474@sgi.com> <E17czxG-0000e8-00@starship> <20020812210336.GA40112@sgi.com> <3D5829B9.D281B855@zip.com.au> <20020812223645.GB40343@sgi.com> <3D5840E9.89C8680C@zip.com.au> <20020821182627.GA62297@sgi.com> <3D63DE8A.9F139B42@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S318643AbSHUSpL>; Wed, 21 Aug 2002 14:45:11 -0400
+Received: from tufnell.london1.poggs.net ([193.109.194.18]:4074 "EHLO
+	tufnell.london1.poggs.net") by vger.kernel.org with ESMTP
+	id <S318635AbSHUSpK>; Wed, 21 Aug 2002 14:45:10 -0400
+Message-ID: <3D63E0E8.1080202@POGGS.CO.UK>
+Date: Wed, 21 Aug 2002 19:50:16 +0100
+From: Peter Hicks <Peter.Hicks@POGGS.CO.UK>
+Organization: Poggs Computer Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-gb, en-us, en-au, en-ie, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: kernel BUG in buffer.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 21, 2002 at 11:40:10AM -0700, Andrew Morton wrote:
-> Well I added checks just to kmalloc, kmem_cache_alloc, __alloc_pages
-> and saw a shower of bloopers during bootup.  Such as drivers/ide/probe.c:init_irq()
-> calling request_irq() inside ide_lock.
+Hi everyone
 
-Wow.  Sounds like some good code to have around.
+I've come across a BUG() in buffer.c, line 2497. I'm running 2.4.19 on a 
+Pentium III, with no other problems. I'd finished making a backup of an 
+IRIX installation CD, was mounting the freshly burnt CD, and was greeted 
+with a hung 'mount' and the following in dmesg:
 
-> > Anyway, here's an updated version of the lock assertion patch.
-> 
-> Well I like it.  It's unintrusive, imparts useful info to the reader
-> and checks stuff at runtime.
+EFS: 1.0a - http://aeschi.ch.eu.org/efs/
+kernel BUG at buffer.c:2497!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0135e12>]    Not tainted
+EFLAGS: 00010206
+eax: 000007ff   ebx: 0000000b   ecx: 00000800   edx: d3cb58c0
+esi: 00000000   edi: 00000b00   ebp: 00000000   esp: d7c9fe44
+ds: 0018   es: 0018   ss: 0018
+Process mount (pid: 1244, stackpage=d7c9f000)
+Stack: 00000b00 00000200 00000000 00000000 00004000 c01340a7 00000b00 
+00000000
+       00000200 c02349b4 c1bf2e00 c1bf2ecc c0134294 00000b00 00000000 
+00000200
+       00000000 e089b219 00000b00 00000000 00000200 c02349b4 c1bf2e00 
+c15c71e0
+Call Trace:    [<c01340a7>] [<c0134294>] [<e089b219>] [<c0136fe0>] 
+[<e089c900>]
+  [<e089c900>] [<c01457b6>] [<c013719b>] [<e089c900>] [<c0146699>] 
+[<c0146962>]
+  [<c01467b4>] [<c0146ce4>] [<c010856f>]
 
-Great!
+Code: 0f 0b c1 09 20 21 20 c0 8b 44 24 20 05 00 fe ff ff 3d 00 0e
 
-> These things are self-evident and even self-checking.  They don't need
-> supporting documentation.   I'll put out a test tree RSN, include this
-> in it.
+Line 2497 of buffer.c is in grow_buffers, and the code is as follows:
 
-Excellent.  Thanks a lot for your feedback.
+   2495:       /* Size must be multiple of hard sectorsize */
+   2496:        if (size & (get_hardsect_size(dev)-1))
+   2497:                BUG();
 
-Jesse
+This is the first time its happened. Can anybody confirm that this is, 
+as I suspect, a problem with the CD-ROM and not with the kernel? Do I 
+need to provide any more information to help somebody with troubleshooting?
+
+Best wishes,
+
+
+Peter (not currently subscribed to the list, please cc: in to replies!)
+

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbUDPR1y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 13:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbUDPR1y
+	id S261169AbUDPRey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 13:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUDPRey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 13:27:54 -0400
-Received: from web13907.mail.yahoo.com ([216.136.175.70]:45064 "HELO
-	web13907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263472AbUDPRR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 13:17:57 -0400
-Message-ID: <20040416171755.7965.qmail@web13907.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Fri, 16 Apr 2004 10:17:55 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: NFS_ALL patchsets updated for Linux-2.4.26...
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1082135439.2581.77.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Apr 2004 13:34:54 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:9147 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261169AbUDPRex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 13:34:53 -0400
+Subject: Re: Huge iowait on 2.6.4 - not on 2.4.20 !
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: alandpearson@yahoo.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082128366.849.60.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Apr 2004 11:12:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alan pearson writes:
 
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > 
-> > PS: Did I tell you to check your "DEC Links" on your home page :-)
-> 
-> You mean they're stale already? It's only been 4 or 5 years since I
-> turned off our last Alpha... ;-)
-> 
-> Cheers,
->   Trond
-> 
+> On 2.6 the iowait jumps to around 70%, while 2.4 on
+> both tests it is firmly zero.
 
- Yup. Actually I only looked because it is nowadays hard to find people
- who know that HP actually is just DEC-renamed :-)
+The 2.4 kernel lumps iowait into idle, so you
+won't see iowait on a 2.4 kernel.
 
-Martin
+> On disk read, I'm loosing 30 Mb/sec of bandwidth PER
+> DISK, compared to 2.4.20.
+> I've tried using both the deadline and as ioschedulers
+> but no difference.
+>
+>
+> Under real conditions (ie our application running
+> which reads from all the disks simultaneously) on
+> 2.6.4, the system performance is around 1/3 of 2.4.20)
+>
+> Summary MB/Sec :
+>
+>         dd if=x         dd if=/dev/zero
+> 2.4     64              35.6
+> 2.6     30.34           35.9
 
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+Well, that looks serious, but unfortunately you
+can't tell what the iowait was on the 2.4 kernel.
+Only the 2.6 kernel provides this information.
+
+

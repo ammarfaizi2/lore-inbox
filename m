@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314330AbSD0STr>; Sat, 27 Apr 2002 14:19:47 -0400
+	id <S314101AbSD0SZe>; Sat, 27 Apr 2002 14:25:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314339AbSD0STq>; Sat, 27 Apr 2002 14:19:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47889 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314330AbSD0STp>; Sat, 27 Apr 2002 14:19:45 -0400
-Subject: Re: linux-2.5.x-dj and SCSI error handling.
-To: Andries.Brouwer@cwi.nl
-Date: Sat, 27 Apr 2002 19:38:23 +0100 (BST)
-Cc: davej@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <UTC200204271630.g3RGUgF04840.aeb@smtp.cwi.nl> from "Andries.Brouwer@cwi.nl" at Apr 27, 2002 06:30:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S314206AbSD0SZd>; Sat, 27 Apr 2002 14:25:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39435 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314101AbSD0SZd>; Sat, 27 Apr 2002 14:25:33 -0400
+Date: Sat, 27 Apr 2002 19:25:26 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFF TOPIC] BK license change
+Message-ID: <20020427192526.A26394@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0204271103290.5887-100000@k2-400.lameter.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E171X5T-0000Fi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> device resets, bus resets making the machine entirely
-> unusable during this time, and often causing an oops
-> in the end, killing off the machine entirely.
-> However, I have no recent experiences here.)
+On Sat, Apr 27, 2002 at 11:13:35AM -0700, Christoph Lameter wrote:
+> I do not even know how BK works and I am not interested ...
+> just offended by ppl making access to development kernel source code
+> difficult and offended by someone with a star status apparently being
+> able to abuse the system.
 
-The old scsi eh code is dire, the new scsi eh code is currently merely
-bad. However the interface for the newer scsi_eh is probably right, which 
-is the important bit
+*BEFORE* we start yet another flame war.  TAKE IT OFF THIS MAILING LIST.
+
+I'm sick and tired of this BK/anti-BK crap advocates keep bring up.
+Create a new list to argue the toss, please.  Don't distract the people
+actually trying to get some useful kernel work done.
+
+Thanks.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUI0NJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUI0NMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUI0NJn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 09:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUI0NJn
+	id S264954AbUI0NMo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 09:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUI0NMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 09:09:43 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:33998 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S265805AbUI0NJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 09:09:40 -0400
-Date: Mon, 27 Sep 2004 15:09:19 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: heap-stack-gap for 2.6
-Message-ID: <20040927130919.GE28865@dualathlon.random>
-References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com>
+	Mon, 27 Sep 2004 09:12:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:18318 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264953AbUI0NMe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 09:12:34 -0400
+Message-ID: <35fb2e590409270612524c5fb9@mail.gmail.com>
+Date: Mon, 27 Sep 2004 14:12:26 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Thomas Habets <thomas@habets.pp.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040927125441.GG3934@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096272553.6572.3.camel@laptop.fenrus.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200409230123.30858.thomas@habets.pp.se>
+	 <20040923234520.GA7303@pclin040.win.tue.nl>
+	 <1096031971.9791.26.camel@localhost.localdomain>
+	 <200409242158.40054.thomas@habets.pp.se>
+	 <1096060549.10797.10.camel@localhost.localdomain>
+	 <20040927104120.GA30364@logos.cnet>
+	 <20040927125441.GG3934@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 10:09:13AM +0200, Arjan van de Ven wrote:
-> 
-> > I didn't check the topdown model, in theory it should be extended to
-> > cover that too, this is only working for the legacy model right now
-> > because those apps aren't going to use topdown anyways.
-> 
-> which "those apps" ?
+Hi all,
 
-those apps that wants to allocate as close as possible to the stack.
-They're already using /proc/self/mapped_base, the gap of topdown isn't
-configurable.
+Just out of interest then...suppose we've got a loopback swap device
+and that we can extend this by creating a new file or extending
+somehow the existing one.
 
-Also topdown may screwup some MAP_FIXED usage below the 1G mark, no?
+What would be wrong with having the page reclaim algorithms use one of
+the low memory watermarks as a trigger to call in to userspace to
+extend the swap available if possible? This is probably what Microsoft
+et al do with their "Windows is extending your virtual memory, yada
+yada blah blah". Comments? Already done?
+
+Jon.

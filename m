@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTEVGSq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 02:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTEVGRi
+	id S262530AbTEVGfH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 02:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTEVGfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 02:17:38 -0400
-Received: from dp.samba.org ([66.70.73.150]:12704 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262513AbTEVGRc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 02:17:32 -0400
-Date: Thu, 22 May 2003 16:26:03 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Squash implicit declaration warning in ppc64 align.c
-Message-ID: <20030522062603.GD14009@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Anton Blanchard <anton@samba.org>, trivial@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
+	Thu, 22 May 2003 02:35:07 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:60687 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262530AbTEVGfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 02:35:06 -0400
+Date: Thu, 22 May 2003 08:47:46 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: bk15 build fails with modular apm (undefined reference to MODULE_OWNER)
+Message-ID: <20030522064746.GA5202@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton, please apply.
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=
+version -DKBUILD_MODNAME=version -c -o init/version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/mounts.o init/initramfs.o
+        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o --start-gro
+up  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/bu
+ilt-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o
+sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.init.text+0x5744): In function `apm_init':
+: undefined reference to `SET_MODULE_OWNER'
+make: *** [.tmp_vmlinux1] Error 1
+:
 
-diff -urN for-linus-ppc64/arch/ppc64/kernel/align.c linux-congo/arch/ppc64/kernel/align.c
---- for-linus-ppc64/arch/ppc64/kernel/align.c	2003-05-07 15:10:18.000000000 +1000
-+++ linux-congo/arch/ppc64/kernel/align.c	2003-05-22 15:50:22.000000000 +1000
-@@ -21,6 +21,8 @@
- #include <asm/system.h>
- #include <asm/cache.h>
- 
-+void disable_kernel_fp(void); /* asm function from head.S */
-+
- struct aligninfo {
- 	unsigned char len;
- 	unsigned char flags;
+Is SET_MODULE_OWNER needed or not?
+Browsing the source it seems it is defined as a nop in some places
+(include/linux/netdevice.h) which is where it is mostly used...
 
-
+Jurriaan
 -- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+Don't ever trust the needle
+It lies
+        Queensryche - Operation Mindcrime
+Debian (Unstable) GNU/Linux 2.5.69-bk11 4104 bogomips load av: 0.29 0.48 0.31

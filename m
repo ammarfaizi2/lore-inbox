@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261394AbSIXPQz>; Tue, 24 Sep 2002 11:16:55 -0400
+	id <S261693AbSIXPZc>; Tue, 24 Sep 2002 11:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261418AbSIXPQz>; Tue, 24 Sep 2002 11:16:55 -0400
-Received: from [202.64.97.34] ([202.64.97.34]:5386 "EHLO main.coppice.org")
-	by vger.kernel.org with ESMTP id <S261394AbSIXPQz>;
-	Tue, 24 Sep 2002 11:16:55 -0400
-Message-ID: <3D90831A.7060709@coppice.org>
-Date: Tue, 24 Sep 2002 23:22:02 +0800
-From: Steve Underwood <steveu@coppice.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020911
-X-Accept-Language: en, en-us
+	id <S261694AbSIXPZc>; Tue, 24 Sep 2002 11:25:32 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:50608 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S261693AbSIXPZc>; Tue, 24 Sep 2002 11:25:32 -0400
+Date: Tue, 24 Sep 2002 11:30:37 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: UP IO-APIC
+In-Reply-To: <Pine.LNX.4.44.0209240331280.20792-100000@montezuma.mastecende.com>
+Message-ID: <Pine.GSO.4.33.0209241119500.11624-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: USB IEEE1284 gadgets and ppdev
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 24 Sep 2002, Zwane Mwaikambo wrote:
+>> Would someone kindly remove that from the configuration possibilities?  It
+>> doesn't work -- and hasn't worked for, what, a year.
+>
+>Worked for me on 2.4.19-pre and 2.5 (haven't tried recent), and still
+>thats a bad reason to remove it.
 
-Can the USB driver for USB to IEEE1284 gadgets be used with the ppdev 
-interface? I looked through the documentation and couldn't find a 
-mention of this one way or the other. The structures used by parport and 
-the USB stuff look similar, but I couldn't see how to get ppdev to play 
-with the USB driver.
+It works in 2.4, but I've never seen it work in 2.5 -- but I've not compiled
+every 2.5.X.  Neither the local APIC or IO APIC work in non-SMP configurations
+due to dependencies on things in mpparse.c (read: SMP functions.)  The local
+APIC makes perfect sense albeit rare.  Single processor IO APICs are very
+rare and are usually MP systems with only one processor.
 
-The documentation tells you how to do this using the special driver for 
-those USB to IEEE1284 devices using the USS720 chip, but I have yet to 
-see anything using that available for sale in these parts.
+APIC support in 2.5 is very closely tied to SMP. (and technically, ACPI.)
 
-Regards,
-Steve
+--Ricky
+
 

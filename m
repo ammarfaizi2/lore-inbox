@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAEPXe>; Fri, 5 Jan 2001 10:23:34 -0500
+	id <S129183AbRAEP0o>; Fri, 5 Jan 2001 10:26:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131749AbRAEPXY>; Fri, 5 Jan 2001 10:23:24 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:17882 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S129401AbRAEPXT>;
-	Fri, 5 Jan 2001 10:23:19 -0500
-Date: Fri, 5 Jan 2001 16:23:13 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200101051523.QAA26873@harpo.it.uu.se>
-To: jgarzik@mandrakesoft.com, mea@nic.funet.fi
-Subject: 2.4.0 tulip bug (was: And oh, btw..)
-Cc: linux-kernel@vger.kernel.org
+	id <S129523AbRAEP0e>; Fri, 5 Jan 2001 10:26:34 -0500
+Received: from columba.EUR.3Com.COM ([161.71.169.13]:59542 "EHLO
+	columba.eur.3com.com") by vger.kernel.org with ESMTP
+	id <S129183AbRAEP0Y>; Fri, 5 Jan 2001 10:26:24 -0500
+X-Lotus-FromDomain: 3COM
+From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+To: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+cc: Andrew Morton <andrewm@uow.edu.au>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Lee Hetherington <ilh@sls.lcs.mit.edu>
+Message-ID: <802569CB.005567CF.00@notesmta.eur.3com.com>
+Date: Fri, 5 Jan 2001 15:26:00 +0000
+Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Linus Torvalds wrote:
 
->Changes since the prerelease:
->...
->Matti Aarnio:
-> - teach tulip driver about media types 5 and 6
 
-This part of the patch introduces a bug in 2.4.0, as noticed by gcc:
+What is the output of 'lspci -v'? If it says that the chip revision is '78' then
+this is one of the new 3C905CX (note the CX) NIC's or ASIC on the motherboard.
+I've seen a problem with the 3c59x.c driver and this chip, it can send packets
+but not receive any. The 3Com 3c90x-1.0.0i.tgz driver at
+http://support.3com.com/infodeli/tools/nic/linux.htm should work with this chip.
 
-media.c: In function `tulip_select_media':
-media.c:268: warning: unused variable `csr15val'
-media.c:268: warning: unused variable `csr15dir'
-media.c:268: warning: unused variable `csr14val'
-media.c:268: warning: unused variable `csr13val'
-media.c:151: warning: `new_csr6' might be used uninitialized in this function
+There has been some discussion of this NIC on the vortex mailing list at
+http://www.scyld.com/network/vortex.html , with a patched driver to make for
+this chip available for testing at Andrew's web site
+http://www.uow.edu.au/~andrewm/linux/#3c59x-bc (see the '2.2.19pre2 driver for
+testing').
 
-The last warning indicates a real problem. The patch adds a new
-control flow path in which new_csr6 is _not_ assigned a value,
-which causes the procedure's second last statement
+     Jon
 
-	tp->csr6 = new_csr6 | (tp->csr6 & 0xfdff) | (tp->full_duplex ? 0x0200 : 0);
 
-to 'or' random bits into tp->csr6.
-
-The patch also adds four unused variables, which looks rather fishy.
-
-/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317392AbSFCO4J>; Mon, 3 Jun 2002 10:56:09 -0400
+	id <S317385AbSFCOzn>; Mon, 3 Jun 2002 10:55:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317390AbSFCO4I>; Mon, 3 Jun 2002 10:56:08 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:30609 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317387AbSFCO4G>;
-	Mon, 3 Jun 2002 10:56:06 -0400
-Date: Mon, 3 Jun 2002 16:55:49 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Derek Vadala <derek@cynicism.com>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org, Tedd Hansen <tedd@konge.net>,
-        Christian Vik <christian@konge.net>,
-        Lars Christian Nygaard <lars@snart.com>
-Subject: Re: RAID-6 support in kernel?
-Message-ID: <20020603165549.A27667@ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv> <Pine.GSO.4.21.0206030213510.23709-100000@gecko.roadtoad.net> <20020603113128.C13204@ucw.cz> <3CFB82A0.EB2062AE@daimi.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317387AbSFCOzm>; Mon, 3 Jun 2002 10:55:42 -0400
+Received: from dsl-213-023-039-253.arcor-ip.net ([213.23.39.253]:30114 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317385AbSFCOzl>;
+	Mon, 3 Jun 2002 10:55:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: If you want kbuild 2.5, tell Linus
+Date: Mon, 3 Jun 2002 16:54:41 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3434.1023112731@ocs3.intra.ocs.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17EtEH-0000vY-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 04:52:16PM +0200, Kasper Dupont wrote:
-
-> > He was thinking "mirror", not "stripe". Mirror of 2 RAID-5 arrays (would
-> > be probably called RAID-15 (when there is a RAID-10 for mirrored stripe
-> > arrays)), can withstand any two disks failing anytime.
+On Monday 03 June 2002 15:58, Keith Owens wrote:
+> Q07.  Why is [b]zImage part of the config?
+> A07.  In the current system, installation is a poor relation of the
+>       build system.  Each architecture has their own install targets
+>       with their own special rules.  None of the install targets check
+>       that what is being installed was built correctly.
 > 
-> It can actually withstand any *three* disks failing anytime.
+>       In kbuild 2.5 the install target is a fully supported part of the
+>       build.  Not only is [b]zImage (and all the other targets) part of
+>       the config, the config also supports installation to somewhere
+>       other than /, plus optional rules for installing the config and
+>       System.map at the same time as the kernel and modules.  This
+>       significantly improves support for cross compilation.
+> 
+>       A nice side effect of putting all the install information in
+>       .config is that building a new kernel is as simple as
+> 
+>         cp previous_config .config
+>         make ... defconfig installable && sudo make install
 
-Yes, you're right.
+That simplification is appreciated, but I think that
 
-> > Even more for
-> > certain combinations. But it is terribly inefficient.
+   make -f Makefile-2.5 bzImage
+
+should still be allowed, call it compatibility glue if you like.
+
+For what it's worth, I find it quite natural to have the build
+information in the .config and I was able to find my way to it
+without reading the docs.  Still - when Makefile-2.5 becomes just
+plain Makefile, a lot of fingers are still going to want to type
+"make bzImage".
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Daniel

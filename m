@@ -1,88 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUGWXdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUGWXp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUGWXdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 19:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268178AbUGWXdM
+	id S268182AbUGWXp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 19:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUGWXp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 19:33:12 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:56965 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S268177AbUGWXdH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 19:33:07 -0400
-Message-ID: <4101A08D.4080008@blue-labs.org>
-Date: Fri, 23 Jul 2004 19:34:37 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040721
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [OOPS] 2.6.8-rc2, USB HID
-Content-Type: multipart/mixed;
- boundary="------------080308090102050908070509"
+	Fri, 23 Jul 2004 19:45:57 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:43670 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S268182AbUGWXpy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 19:45:54 -0400
+Date: Sat, 24 Jul 2004 01:45:02 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Robert Wisniewski <bob@watson.ibm.com>
+Cc: zanussi@us.ibm.com, linux-kernel@vger.kernel.org, karim@opersys.com,
+       richardj_moore@uk.ibm.com, michel.dagenais@polymtl.ca
+Subject: Re: LTT user input
+Message-ID: <20040723234502.GA12631@k3.hellgate.ch>
+Mail-Followup-To: Robert Wisniewski <bob@watson.ibm.com>,
+	zanussi@us.ibm.com, linux-kernel@vger.kernel.org, karim@opersys.com,
+	richardj_moore@uk.ibm.com, michel.dagenais@polymtl.ca
+References: <16640.10183.983546.626298@tut.ibm.com> <20040723100101.GA22440@k3.hellgate.ch> <16641.19483.708016.320557@tut.ibm.com> <20040723191900.GA2817@k3.hellgate.ch> <16641.36290.751769.126111@k42.watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16641.36290.751769.126111@k42.watson.ibm.com>
+X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080308090102050908070509
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 23 Jul 2004 18:40:26 -0400, Robert Wisniewski wrote:
+>  > Looking for a common base was certainly easier before one tracing
+>  > framework got merged. I don't claim to know if a common basic framework
+>  > would be beneficial, but I am somewhat amazed that not more effort has
+>  > gone into exploring this.
+> 
+> Argh.  I had up to this point been passively following this thread because
+> a while ago, prior to dtrace and other such work I, Karim, and others
+> invested quite of bit of effort and time responding to this group pointing
+> out the benefits of performance monitoring via tracing and
+> 
+> IN FACT this was exactly one of the points I ardently made.  Having each
+> subsystem set up their own monitoring was not only counter productive in
+> terms of time and implementation effort, but prevented a unified view of
+> performance from being achieved.  Nevertheless, it appears that some
 
-Unplugged my UPS to tidy up the cables, this is what happened:
+This may be somewhat of a misunderstanding: You seem to be talking about
+a unified framework for performance monitoring -- something I silently
+assumed should be the case, while the discussion here was about various
+forms of logging -- with performance monitoring being one of them.
 
-usb 2-1.1: USB disconnect, address 3
-Unable to handle kernel paging request at 00000002dbd9c158 RIP:
-<ffffffff803d3fed>{hiddev_cleanup+29}
-PML4 1ab71067 PGD 0
-Oops: 0002 [1] PREEMPT
-CPU 0
-Modules linked in: ipt_MASQUERADE iptable_nat ip_conntrack 
-iptable_mangle ipt_TCPMSS ipt_REJECT iptable_filter ip_tables
-Pid: 6152, comm: apcupsd Tainted: P   2.6.8-rc2
-RIP: 0010:[<ffffffff803d3fed>] <ffffffff803d3fed>{hiddev_cleanup+29}
-RSP: 0018:000001001cd55ed8  EFLAGS: 00010246
-RAX: ffffffff807e6900 RBX: 000001001f84abb0 RCX: 0000000000000000
-RDX: 000000006b6b6b6b RSI: ffffffff80732160 RDI: 000001001f84abb0
-RBP: 000001001f84ac00 R08: 0000007fbffff6d0 R09: ffffffff00000000
-R10: 0000000000000008 R11: 0000000000000206 R12: 000001001a2025f8
-R13: 000001001e850660 R14: 0000000000000001 R15: 0000007fbffff8f0
-FS:  0000002a95e8a920(0000) GS:ffffffff80806a40(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00000002dbd9c158 CR3: 0000000000101000 CR4: 00000000000006e0
-Process apcupsd (pid: 6152, threadinfo 000001001cd54000, task 
-000001001dc22cb0)
-Stack: 000001001f84abb0 ffffffff803d40ad 000001001e7c5200 000001001fefb258
-       000001001de7ab08 ffffffff80192312 000000000000009f 000001001e7c5200
-       0000000000000000 000001001fecb890
-Call Trace:<ffffffff803d40ad>{hiddev_release+141} 
-<ffffffff80192312>{__fput+98}
-       <ffffffff8019041e>{filp_close+126} <ffffffff801905db>{sys_close+411}
-       <ffffffff80110e56>{system_call+126}
+So the question is (again, this is an issue that has been raised at the
+kernel summit as well): Is there some overlap between those various
+frameworks? Or do we really need completely separate frameworks for
+logging time stamps (performance), auditing information, etc.?
 
-Code: 48 c7 84 d0 00 fd ff ff 00 00 00 00 48 8b 47 48 48 8b b8 80
-RIP <ffffffff803d3fed>{hiddev_cleanup+29} RSP <000001001cd55ed8>
-CR2: 00000002dbd9c158
- <6>usb 2-1.1: new low speed USB device using address 7
-hiddev97: USB HID v1.10 Device [APC Back-UPS ES 350 FW:1.e2.D USB FW:e2] 
-on usb-0000:00:10.0-1.1
+> proclaimed by dtrace.  As Karim has pointed out in previous posts, though
+> the technical concerns that were raised were addressed, it didn't seem to
+> help as other nits would crop up appearing to imply that something else was
+> happening.
 
+My postings were motivated by my personal interest in better tracing
+and monitoring facilities. However, I'm getting LKCD flashbacks when
+reading your arguments. Which doesn't bode well.
 
---------------080308090102050908070509
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
+> If indeed the remaining issue is whether there is a benefit to
+> a performance monitoring infrastructure, then I wonder how you would
+> interpret reactions to dtrace.
 
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
+DTrace is not a performance monitoring infrastructure, so what's your
+point? -- But let's assume for the sake of argument that LTT, dprobes
+& Co.  provide something comparable to DTrace, and we just disagree on
+what "performance monitoring" means: The chance of getting such a pile
+of complexity into mainline are virtually zero (unless it's called ACPI
+and required to boot some machines :-/).
 
+So what you can push for inclusion is bound to be a subset, and the
+question remains: What does such a subset, which is clearly nothing
+like DTrace, offer?
 
---------------080308090102050908070509--
+Roger

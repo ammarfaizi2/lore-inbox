@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131742AbRDWUok>; Mon, 23 Apr 2001 16:44:40 -0400
+	id <S131809AbRDWUqk>; Mon, 23 Apr 2001 16:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131806AbRDWUob>; Mon, 23 Apr 2001 16:44:31 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:40789 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S131742AbRDWUo1>; Mon, 23 Apr 2001 16:44:27 -0400
-Message-ID: <3AE49402.BB093022@mvista.com>
-Date: Mon, 23 Apr 2001 13:43:46 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>,
-        high-res-timers-discourse@lists.sourceforge.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: high-res-timers start code.
-In-Reply-To: <3AE45D01.F7B91E73@mvista.com> <01042319085701.01113@calvin> <3AE46A37.A0AF78BC@mvista.com> <01042320013203.01113@calvin>
+	id <S131820AbRDWUqa>; Mon, 23 Apr 2001 16:46:30 -0400
+Received: from t2.redhat.com ([199.183.24.243]:57847 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S131809AbRDWUqY>; Mon, 23 Apr 2001 16:46:24 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E14rmF9-0000Ii-00@the-village.bc.nu> 
+In-Reply-To: <E14rmF9-0000Ii-00@the-village.bc.nu> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rmk@arm.linux.org.uk (Russell King), papadako@csd.uoc.gr (mythos),
+        linux-kernel@vger.kernel.org,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Subject: Re: Can't compile 2.4.3 with agcc 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Apr 2001 21:46:09 +0100
+Message-ID: <2250.988058769@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Robert H. de Vries" wrote:
-> 
-> On Monday 23 April 2001 19:45, you wrote:
-> 
-> > By the way, is the user land stuff the same for all "arch"s?
-> 
-> Not if you plan to handle the CPU cycle counter in user space. That is at
-> least what I would propose.
 
-Just got interesting, lets let the world look in.
 
-What did you have in mind here?  I suspect that on some archs the cycle
-counter is not available to user code.  I know that on parisc it is
-optionally available (kernel can set a bit to make it available), but by
-it self it is only good for intervals.  You need to peg some value to a
-CLOCK to use it to get timeofday, for instance.
+alan@lxorguk.ukuu.org.uk said:
+> At least make the final printk a panic.. 
 
-On the other hand, if there is an area of memory that both users and
-system can read but only system can write, one might put the soft clock
-there.  This would allow gettimeofday (with the cycle counter) to work
-without a system call.  To the best of my knowledge the system does not
-have such an area as yet.
+ingo.oeser@informatik.tu-chemnitz.de said:
+> replace this with panic() please.
 
-comments?
+I considered this, but in the end decided to copy the method from a few 
+lines above, which triggers in the case of no FPU and no FPE. I wasn't sure 
+if there was a reason why we shouldn't panic() here.
 
-George
+RCS file: /inst/cvs/linux/include/asm-i386/bugs.h,v
+retrieving revision 1.2.2.16
+diff -u -r1.2.2.16 bugs.h
+--- include/asm/bugs.h	2001/01/18 13:56:53	1.2.2.16
++++ include/asm/bugs.h	2001/04/23 20:40:57
+@@ -80,8 +80,9 @@
+ 	 * Verify that the FXSAVE/FXRSTOR data will be 16-byte aligned.
+ 	 */
+ 	if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
+-		extern void __buggy_fxsr_alignment(void);
+-		__buggy_fxsr_alignment();
++		printk(KERN_EMERG "FXSAVE data are not 16-byte aligned in task_struct.\n");
++		printk(KERN_EMERG "This is usually caused by a buggy compiler (perhaps pgcc?)\n");
++		panic("Cannot continue.");
+ 	}
+ 	if (cpu_has_fxsr) {
+ 		printk(KERN_INFO "Enabling fast FPU save and restore... ");
 
-> System call stuff, yes. There may be gotcha's in the area of 32/64
-> interfaces. Almost all 64 bit archs also support 32 bit interfaces (check out
-> the stuff in my patch regarding the SPARC, kindly donated by Jakub Jelinek).
-> 
->         Robert
-> 
-> --
-> Robert de Vries
-> rhdv@rhdv.cistron.nl
+
+--
+dwmw2
+
+

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287134AbSBRVJD>; Mon, 18 Feb 2002 16:09:03 -0500
+	id <S287045AbSBRVIm>; Mon, 18 Feb 2002 16:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287289AbSBRVIg>; Mon, 18 Feb 2002 16:08:36 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:40395 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S287045AbSBRVGi>; Mon, 18 Feb 2002 16:06:38 -0500
-Date: Mon, 18 Feb 2002 22:06:48 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: linux-kernel@vger.kernel.org
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Olaf Kirch <okir@caldera.de>
-Subject: [patches] RFC: Export inode generations to the userland
-Message-ID: <Pine.GSO.3.96.1020218204630.13485Q-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287134AbSBRVIY>; Mon, 18 Feb 2002 16:08:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41733 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S287449AbSBRVII>; Mon, 18 Feb 2002 16:08:08 -0500
+Date: Mon, 18 Feb 2002 22:08:03 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre9-mjc2
+Message-ID: <20020218210803.GF14521@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020218205806.GD14521@atrey.karlin.mff.cuni.cz> <E16cv8m-0006po-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16cv8m-0006po-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
- As you may know, there are serious problems with creating unique file
-handles in the userland NFS server.  They exist because the inode
-generation number, which allows to determine if an inode was deleted and
-recreated, is currently only available to the kernel -- it's by no means
-exported to user programs[1].  I've been working to remove this limitation
-recently and here I am presenting the results. 
+> > Someone should buy thinkpad, destroy it (preferably with CD labeled
+> > Virus 98 or soemthing like that), return, destroy next, return,
+> > destroy next, request money back.
+> 
+> If you want to get arrested it sounds a great idea. Thats up to you
 
-1. Linux was modified to add another member of "struct stat" and "struct
-stat64".  The member provides the value of the inode generation at the
-time one of the stat syscalls is invoked.  It is named "st_gen" as it is
-the name other systems give it (it seems DEC OSF/1 and IBM AIX define this
-member currently).  New syscalls have been defined wherever spare space
-was not available in "struct stat" or "struct stat64", otherwise only the
-semantics of old ones was extended.  Due to its moderate size the patch is
-not attached. It's available at:
-'ftp://ftp.ds2.pg.gda.pl/pub/macro/st_gen/patches/patch-2.4.16-stat-st_gen-26.gz'. 
+Huh? They are shipping faulty products. Unless their manual say "you
+are only allowed to run windows 95 release 1, Word version 3.71 and
+Outlook 17.32 and nothing else, you have handled your computer
+properly and its *their* problem.
 
-2. Glibc was updated to make the Linux change usable.  This is an example
-implementation and may seriously differ from what might go into glibc
-finally.  The patch is available at: 
-'ftp://ftp.ds2.pg.gda.pl/pub/macro/st_gen/patches/glibc-2.2.5-stat-st_gen.patch.gz'. 
+> > Alternatively make a virus that destroys thinkpads -- should make them
+> > some bad press, too.
+> 
+> A virus to destroy any PC is trivial. Just be thankful nobody has crossed
+> the really infectious ones with stuff like chernobyl and disk firmware
+> erasers.
 
-3. The userland NFS server was changed to embed the inode generation into
-file handles.  The patch is available at: 
-'ftp://ftp.ds2.pg.gda.pl/pub/macro/st_gen/patches/nfs-server-2.2beta50-stat.patch.gz'. 
-
- Patches were tested against versions embedded in their names.  Tests were
-successful on an i386 and a mipsel system.  Additionally the Linux patch
-was tested as is with Linux 2.4.17 (a 2.4.17 snapshot take on Jan 29th
-from oss.sgi.com for mipsel; a slightly modified patch is available at the
-site well).  Glibc and nfs-server RPM packages are available at the site
-as well.
-
- I'm looking forward to any constructive comments, whether positive or
-critical.  The destined target of the changes is obviously Linux 2.6 and
-glibc 2.3; testing of such changes is better with stable versions, though. 
-I believe the changes may be useful to other software dealing with
-filesystems as well, not only to the NFS server. 
-
-  Maciej
-
-[1] There is that weird EXT2_IOC_GETVERSION ioctl, but it's neither
-portable nor usable for anything but maybe debugging.
-
+What did chernobyl do? I've never seen PC damaged beyond
+repair. Everyone with a clue has jumper on stuff like flashing, and I
+can imagine that opening the case can void your warranty.
+								Pavel
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

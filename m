@@ -1,147 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129229AbQJ0WmT>; Fri, 27 Oct 2000 18:42:19 -0400
+	id <S129552AbQJ0WnJ>; Fri, 27 Oct 2000 18:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129552AbQJ0WmK>; Fri, 27 Oct 2000 18:42:10 -0400
-Received: from boss.staszic.waw.pl ([195.205.163.66]:56581 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
-	id <S129229AbQJ0WmF>; Fri, 27 Oct 2000 18:42:05 -0400
-Date: Sat, 28 Oct 2000 00:45:03 +0200 (CEST)
-From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+	id <S129951AbQJ0WnA>; Fri, 27 Oct 2000 18:43:00 -0400
+Received: from mail5.doit.wisc.edu ([144.92.9.76]:60166 "EHLO
+	mail5.doit.wisc.edu") by vger.kernel.org with ESMTP
+	id <S129552AbQJ0Wmh>; Fri, 27 Oct 2000 18:42:37 -0400
+Message-Id: <200010272242.RAA61014@mail5.doit.wisc.edu>
+Date: Fri, 27 Oct 2000 17:42:34 -0500
+From: Erik Paulson <epaulson@cs.wisc.edu>
 To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com, andre@linux-ide.org
-Subject: [PATCH] add __init to some IDE drivers
-Message-ID: <Pine.LNX.4.21.0010280042390.9440-200000@tricky>
+Subject: linux-kernel people at Supercomputing 2000? (sc00)
+Reply-To: epaulson@cs.wisc.edu
+X-Mailer: Spruce 0.7.2 for X11 w/smtpio 0.9.0
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1151541092-972686703=:9440"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hello,
+	Sorry for the somewhat off-topic post, but I was wondering if anyone 
+from l-k will be at Supercomputing next month (www.sc2000.org)
 
---8323328-1151541092-972686703=:9440
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+If so, would anyone be interested in having a BoF session? I'd be
+particularly interested in knowing if any of the people working on big
+iron machines are going to be there, and would maybe be interested
+in making a short presentation.
 
+If there's any interest, please respond to me off the list. I'll drop one
+more note to linux-kernel if anything becomes of it, but otherwise this
+will be the last message I subject most of you to.
 
-for 240t10p6, should be safe, please apply
+Thanks!
 
---
-Bartlomiej Zolnierkiewicz
-<bkz@linux-ide.org>
-
---8323328-1151541092-972686703=:9440
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="240t10p6-ide_init.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0010280045030.9440@tricky>
-Content-Description: 
-Content-Disposition: attachment; filename="240t10p6-ide_init.diff"
-
-ZGlmZiAtdU5yIGxpbnV4LTI0MHQxMHA2L2RyaXZlcnMvaWRlL2FsaW0xNXgz
-LmMgbGludXgvZHJpdmVycy9pZGUvYWxpbTE1eDMuYw0KLS0tIGxpbnV4LTI0
-MHQxMHA2L2RyaXZlcnMvaWRlL2FsaW0xNXgzLmMJVGh1IE9jdCAxOSAyMjow
-NTowMSAyMDAwDQorKysgbGludXgvZHJpdmVycy9pZGUvYWxpbTE1eDMuYwlG
-cmkgT2N0IDI3IDIzOjQwOjI0IDIwMDANCkBAIC02OTEsNyArNjkxLDcgQEAN
-CiAJfQ0KIH0NCiANCi12b2lkIGlkZV9kbWFjYXBhYmxlX2FsaTE1eDMgKGlk
-ZV9od2lmX3QgKmh3aWYsIHVuc2lnbmVkIGxvbmcgZG1hYmFzZSkNCit2b2lk
-IF9faW5pdCBpZGVfZG1hY2FwYWJsZV9hbGkxNXgzIChpZGVfaHdpZl90ICpo
-d2lmLCB1bnNpZ25lZCBsb25nIGRtYWJhc2UpDQogew0KIAlpZiAoKGRtYWJh
-c2UpICYmIChtNTIyOV9yZXZpc2lvbiA8IDB4MjApKSB7DQogCQlyZXR1cm47
-DQpkaWZmIC11TnIgbGludXgtMjQwdDEwcDYvZHJpdmVycy9pZGUvYW1kNzQw
-OS5jIGxpbnV4L2RyaXZlcnMvaWRlL2FtZDc0MDkuYw0KLS0tIGxpbnV4LTI0
-MHQxMHA2L2RyaXZlcnMvaWRlL2FtZDc0MDkuYwlUdWUgT2N0ICAzIDAwOjEz
-OjE3IDIwMDANCisrKyBsaW51eC9kcml2ZXJzL2lkZS9hbWQ3NDA5LmMJRnJp
-IE9jdCAyNyAyMzo0MDo1MCAyMDAwDQpAQCAtNDY0LDcgKzQ2NCw3IEBADQog
-I2VuZGlmIC8qIENPTkZJR19CTEtfREVWX0lERURNQSAqLw0KIH0NCiANCi12
-b2lkIGlkZV9kbWFjYXBhYmxlX2FtZDc0MDkgKGlkZV9od2lmX3QgKmh3aWYs
-IHVuc2lnbmVkIGxvbmcgZG1hYmFzZSkNCit2b2lkIF9faW5pdCBpZGVfZG1h
-Y2FwYWJsZV9hbWQ3NDA5IChpZGVfaHdpZl90ICpod2lmLCB1bnNpZ25lZCBs
-b25nIGRtYWJhc2UpDQogew0KIAlpZGVfc2V0dXBfZG1hKGh3aWYsIGRtYWJh
-c2UsIDgpOw0KIH0NCmRpZmYgLXVOciBsaW51eC0yNDB0MTBwNi9kcml2ZXJz
-L2lkZS9oZC5jIGxpbnV4L2RyaXZlcnMvaWRlL2hkLmMNCi0tLSBsaW51eC0y
-NDB0MTBwNi9kcml2ZXJzL2lkZS9oZC5jCVR1ZSBPY3QgIDMgMDA6MTQ6MjQg
-MjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvaWRlL2hkLmMJRnJpIE9jdCAyNyAy
-Mzo1NTo1OCAyMDAwDQpAQCAtNzIzLDcgKzcyMyw3IEBADQogICogV2UgZW5h
-YmxlIGludGVycnVwdHMgaW4gc29tZSBvZiB0aGUgcm91dGluZXMgYWZ0ZXIg
-bWFraW5nIHN1cmUgaXQncw0KICAqIHNhZmUuDQogICovDQotc3RhdGljIHZv
-aWQgaGRfZ2VuaW5pdCh2b2lkKQ0KK3N0YXRpYyB2b2lkIF9faW5pdCBoZF9n
-ZW5pbml0KHZvaWQpDQogew0KIAlpbnQgZHJpdmU7DQogDQpkaWZmIC11TnIg
-bGludXgtMjQwdDEwcDYvZHJpdmVycy9pZGUvaHB0MzY2LmMgbGludXgvZHJp
-dmVycy9pZGUvaHB0MzY2LmMNCi0tLSBsaW51eC0yNDB0MTBwNi9kcml2ZXJz
-L2lkZS9ocHQzNjYuYwlUdWUgT2N0ICAzIDAwOjE2OjA4IDIwMDANCisrKyBs
-aW51eC9kcml2ZXJzL2lkZS9ocHQzNjYuYwlGcmkgT2N0IDI3IDIzOjQwOjI5
-IDIwMDANCkBAIC02OTgsNyArNjk4LDcgQEANCiAjZW5kaWYgLyogQ09ORklH
-X0JMS19ERVZfSURFRE1BICovDQogfQ0KIA0KLXZvaWQgaWRlX2RtYWNhcGFi
-bGVfaHB0MzY2IChpZGVfaHdpZl90ICpod2lmLCB1bnNpZ25lZCBsb25nIGRt
-YWJhc2UpDQordm9pZCBfX2luaXQgaWRlX2RtYWNhcGFibGVfaHB0MzY2IChp
-ZGVfaHdpZl90ICpod2lmLCB1bnNpZ25lZCBsb25nIGRtYWJhc2UpDQogew0K
-IAlieXRlIG1hc3RlcmRtYSA9IDAsIHNsYXZlZG1hID0gMDsNCiAJYnl0ZSBk
-bWFfbmV3ID0gMCwgZG1hX29sZCA9IGluYihkbWFiYXNlKzIpOw0KZGlmZiAt
-dU5yIGxpbnV4LTI0MHQxMHA2L2RyaXZlcnMvaWRlL2ljc2lkZS5jIGxpbnV4
-L2RyaXZlcnMvaWRlL2ljc2lkZS5jDQotLS0gbGludXgtMjQwdDEwcDYvZHJp
-dmVycy9pZGUvaWNzaWRlLmMJVHVlIE9jdCAgMyAxNDoyNzozMSAyMDAwDQor
-KysgbGludXgvZHJpdmVycy9pZGUvaWNzaWRlLmMJRnJpIE9jdCAyNyAyMzo1
-Mzo0MCAyMDAwDQpAQCAtMTYzLDcgKzE2Myw3IEBADQogICogUHVycG9zZSAg
-OiBpZGVudGlmeSBJREUgaW50ZXJmYWNlIHR5cGUNCiAgKiBOb3RlcyAgICA6
-IGNoZWNrcyB0aGUgZGVzY3JpcHRpb24gc3RyaW5nDQogICovDQotc3RhdGlj
-IGlmdHlwZV90IGljc2lkZV9pZGVudGlmeWlmIChzdHJ1Y3QgZXhwYW5zaW9u
-X2NhcmQgKmVjKQ0KK3N0YXRpYyBpZnR5cGVfdCBfX2luaXQgaWNzaWRlX2lk
-ZW50aWZ5aWYgKHN0cnVjdCBleHBhbnNpb25fY2FyZCAqZWMpDQogew0KIAl1
-bnNpZ25lZCBpbnQgYWRkcjsNCiAJaWZ0eXBlX3QgaWZ0eXBlOw0KQEAgLTUw
-NSw3ICs1MDUsNyBAQA0KIAlyZXR1cm4gaHdpZjsNCiB9DQogDQotc3RhdGlj
-IGludCBpY3NpZGVfcmVnaXN0ZXJfdjUoc3RydWN0IGV4cGFuc2lvbl9jYXJk
-ICplYywgaW50IGF1dG9kbWEpDQorc3RhdGljIGludCBfX2luaXQgaWNzaWRl
-X3JlZ2lzdGVyX3Y1KHN0cnVjdCBleHBhbnNpb25fY2FyZCAqZWMsIGludCBh
-dXRvZG1hKQ0KIHsNCiAJdW5zaWduZWQgbG9uZyBzbG90X3BvcnQ7DQogCWlk
-ZV9od2lmX3QgKmh3aWY7DQpAQCAtNTI3LDcgKzUyNyw3IEBADQogCXJldHVy
-biBod2lmID8gMCA6IC0xOw0KIH0NCiANCi1zdGF0aWMgaW50IGljc2lkZV9y
-ZWdpc3Rlcl92NihzdHJ1Y3QgZXhwYW5zaW9uX2NhcmQgKmVjLCBpbnQgYXV0
-b2RtYSkNCitzdGF0aWMgaW50IF9faW5pdCBpY3NpZGVfcmVnaXN0ZXJfdjYo
-c3RydWN0IGV4cGFuc2lvbl9jYXJkICplYywgaW50IGF1dG9kbWEpDQogew0K
-IAl1bnNpZ25lZCBsb25nIHNsb3RfcG9ydCwgcG9ydDsNCiAJaWRlX2h3aWZf
-dCAqaHdpZiwgKm1hdGU7DQpAQCAtNTg1LDcgKzU4NSw3IEBADQogCXJldHVy
-biBod2lmIHx8IG1hdGUgPyAwIDogLTE7DQogfQ0KIA0KLWludCBpY3NpZGVf
-aW5pdCh2b2lkKQ0KK2ludCBfX2luaXQgaWNzaWRlX2luaXQodm9pZCkNCiB7
-DQogCWludCBhdXRvZG1hID0gMDsNCiANCmRpZmYgLXVOciBsaW51eC0yNDB0
-MTBwNi9kcml2ZXJzL2lkZS9vcHRpNjIxLmMgbGludXgvZHJpdmVycy9pZGUv
-b3B0aTYyMS5jDQotLS0gbGludXgtMjQwdDEwcDYvZHJpdmVycy9pZGUvb3B0
-aTYyMS5jCVR1ZSBKdW4gMTMgMjA6MzI6MDAgMjAwMA0KKysrIGxpbnV4L2Ry
-aXZlcnMvaWRlL29wdGk2MjEuYwlGcmkgT2N0IDI3IDIzOjUwOjQ1IDIwMDAN
-CkBAIC0zMDgsNyArMzA4LDcgQEANCiAvKg0KICAqIGlkZV9pbml0X29wdGk2
-MjEoKSBpcyBjYWxsZWQgb25jZSBmb3IgZWFjaCBod2lmIGZvdW5kIGF0IGJv
-b3QuDQogICovDQotdm9pZCBpZGVfaW5pdF9vcHRpNjIxIChpZGVfaHdpZl90
-ICpod2lmKQ0KK3ZvaWQgX19pbml0IGlkZV9pbml0X29wdGk2MjEgKGlkZV9o
-d2lmX3QgKmh3aWYpDQogew0KIAlod2lmLT5kcml2ZXNbMF0uZHJpdmVfZGF0
-YSA9IFBJT19ET05UX0tOT1c7DQogCWh3aWYtPmRyaXZlc1sxXS5kcml2ZV9k
-YXRhID0gUElPX0RPTlRfS05PVzsNCmRpZmYgLXVOciBsaW51eC0yNDB0MTBw
-Ni9kcml2ZXJzL2lkZS9zbDgyYzEwNS5jIGxpbnV4L2RyaXZlcnMvaWRlL3Ns
-ODJjMTA1LmMNCi0tLSBsaW51eC0yNDB0MTBwNi9kcml2ZXJzL2lkZS9zbDgy
-YzEwNS5jCVR1ZSBKdW4gMTMgMjA6Mjk6NTEgMjAwMA0KKysrIGxpbnV4L2Ry
-aXZlcnMvaWRlL3NsODJjMTA1LmMJRnJpIE9jdCAyNyAyMzo0MzoyNCAyMDAw
-DQpAQCAtOTEsNyArOTEsNyBAQA0KIH0NCiAjZW5kaWYNCiANCi12b2lkIGlk
-ZV9kbWFjYXBhYmxlX3NsODJjMTA1KGlkZV9od2lmX3QgKmh3aWYsIHVuc2ln
-bmVkIGxvbmcgZG1hYmFzZSkNCit2b2lkIF9faW5pdCBpZGVfZG1hY2FwYWJs
-ZV9zbDgyYzEwNShpZGVfaHdpZl90ICpod2lmLCB1bnNpZ25lZCBsb25nIGRt
-YWJhc2UpDQogew0KIAl1bnNpZ25lZCBjaGFyIHJldjsNCiANCkBAIC0xMDcs
-NyArMTA3LDcgQEANCiAJaWRlX3NldHVwX2RtYShod2lmLCBkbWFiYXNlLCA4
-KTsNCiB9DQogDQotdm9pZCBpZGVfaW5pdF9zbDgyYzEwNShpZGVfaHdpZl90
-ICpod2lmKQ0KK3ZvaWQgX19pbml0IGlkZV9pbml0X3NsODJjMTA1KGlkZV9o
-d2lmX3QgKmh3aWYpDQogew0KIAlzdHJ1Y3QgcGNpX2RldiAqZGV2ID0gaHdp
-Zi0+cGNpX2RldjsNCiANCmRpZmYgLXVOciBsaW51eC0yNDB0MTBwNi9kcml2
-ZXJzL2lkZS92aWE4MmN4eHguYyBsaW51eC9kcml2ZXJzL2lkZS92aWE4MmN4
-eHguYw0KLS0tIGxpbnV4LTI0MHQxMHA2L2RyaXZlcnMvaWRlL3ZpYTgyY3h4
-eC5jCUZyaSBPY3QgMjcgMTY6MzQ6NTMgMjAwMA0KKysrIGxpbnV4L2RyaXZl
-cnMvaWRlL3ZpYTgyY3h4eC5jCUZyaSBPY3QgMjcgMjM6NDE6MDEgMjAwMA0K
-QEAgLTYxMSw3ICs2MTEsNyBAQA0KICAqIFdlIGFsbG93IHRoZSBCTS1ETUEg
-ZHJpdmVyIG9ubHkgd29yayBvbiBlbmFibGVkIGludGVyZmFjZXMuDQogICov
-DQogDQotdm9pZCBpZGVfZG1hY2FwYWJsZV92aWE4MmN4eHgoaWRlX2h3aWZf
-dCAqaHdpZiwgdW5zaWduZWQgbG9uZyBkbWFiYXNlKQ0KK3ZvaWQgX19pbml0
-IGlkZV9kbWFjYXBhYmxlX3ZpYTgyY3h4eChpZGVfaHdpZl90ICpod2lmLCB1
-bnNpZ25lZCBsb25nIGRtYWJhc2UpDQogew0KIAlpZiAoKHZpYV9lbmFibGVk
-ID4+IGh3aWYtPmNoYW5uZWwpICYgMSkNCiAJCWlkZV9zZXR1cF9kbWEoaHdp
-ZiwgZG1hYmFzZSwgOCk7DQo=
---8323328-1151541092-972686703=:9440--
+-Erik
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

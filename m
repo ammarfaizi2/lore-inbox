@@ -1,170 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbTILAJD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 20:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbTILAJD
+	id S261668AbTILA3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 20:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbTILA3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 20:09:03 -0400
-Received: from brokedown.net ([24.107.146.40]:21764 "EHLO brokedown.net")
-	by vger.kernel.org with ESMTP id S261628AbTILAI5 (ORCPT
+	Thu, 11 Sep 2003 20:29:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41942 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261668AbTILA3v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 20:08:57 -0400
-Subject: Unable to mount root, sparc64, esp scsi
-From: Josh Grebe <josh@brokedown.net>
-To: linux-kernel@vger.kernel.org
-Organization: 
-Message-Id: <1063325296.1144.10.camel@localhost>
+	Thu, 11 Sep 2003 20:29:51 -0400
+Date: Thu, 11 Sep 2003 17:23:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kjo <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.0-test5-kj1 patchset
+Message-Id: <20030911172357.5522f44c.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 11 Sep 2003 19:08:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-I've been tyring the last few -test kernels with no luck at all. it
-properly detects my scsi drives, but gives me:
-Cannot open root device "802" or sda2
-Running 2.4.21 now. Have tried root=0802,
-root=/dev/scsi/host0/bus0/target0/lun0/part2
-root=/dev/sda2
-etc. 
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.0-test5/patch-2.6.0-test5-kj1.bz2  [2003-09-11]
 
-It may be unrelated, but it doesn't allow me to stop-A back to a prom
-prompt as it seems to think it should. This is on an Ultra2, dual
-200mhz, 1g ram, type 6 keyboard. Root filesystem is ext3.
+description is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.0-test5/desc.txt
 
-Please CC me in any responses.
 
-Below is my .config (grep -v ^# .config)
+FYI:  I'm still reviewing some of the patches in this patchset,
+but I didn't want to delay it any longer.
 
-CONFIG_64BIT=y
-CONFIG_MMU=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=15
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=4
-CONFIG_SPARC64=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_SBUS=y
-CONFIG_SBUSCHAR=y
-CONFIG_SUN_AUXIO=y
-CONFIG_SUN_IO=y
-CONFIG_SUN_OPENPROMFS=m
-CONFIG_SPARC32_COMPAT=y
-CONFIG_COMPAT=y
-CONFIG_BINFMT_ELF32=y
-CONFIG_BINFMT_ELF=y
-CONFIG_FB=y
-CONFIG_FB_SBUS=y
-CONFIG_FB_FFB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_SUN8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_SUN_CLUT224=y
-CONFIG_SERIAL_SUNCORE=y
-CONFIG_SERIAL_SUNZILOG=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SUN_MOSTEK_RTC=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_SUNESP=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_HAPPYMEAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_DRM=y
-CONFIG_DRM_FFB=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_SUNKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_SERIAL=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_SUNRPC=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SUN_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_BIT32_EMUL=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_SUN_CS4231=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_HAVE_DEC_LOCK=y
-
+--
+~Randy

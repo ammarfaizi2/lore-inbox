@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275836AbRJBGc7>; Tue, 2 Oct 2001 02:32:59 -0400
+	id <S275843AbRJBGuT>; Tue, 2 Oct 2001 02:50:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275838AbRJBGcu>; Tue, 2 Oct 2001 02:32:50 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:31249 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S275836AbRJBGcn>; Tue, 2 Oct 2001 02:32:43 -0400
-Message-ID: <3BB95F9F.3029ACD@zip.com.au>
-Date: Mon, 01 Oct 2001 23:33:03 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
+	id <S275841AbRJBGuJ>; Tue, 2 Oct 2001 02:50:09 -0400
+Received: from fw.sthlm.cendio.se ([213.212.13.67]:65264 "EHLO
+	jarlsberg.sthlm.cendio.se") by vger.kernel.org with ESMTP
+	id <S275843AbRJBGtx>; Tue, 2 Oct 2001 02:49:53 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.LNX.4.33.0110012305350.3280-200000@localhost.localdomain>
+From: Marcus Sundberg <marcus@cendio.se>
+Date: 02 Oct 2001 08:50:19 +0200
+In-Reply-To: <Pine.LNX.4.33.0110012305350.3280-200000@localhost.localdomain>
+Message-ID: <ve8zeuy1qs.fsf@inigo.sthlm.cendio.se>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [BUG-2.4.10] deadlock in do_truncate() and shmem_getpage()
-In-Reply-To: <vghy1sci.wl@nisaaru.dvs.cs.fujitsu.co.jp>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tachino Nobuhiro wrote:
-> 
-> Hello,
-> 
-> I found a a deadlock bug in v2.4.10 due to invert locking order between
-> inode->i_truncate_sem and inode->i_sem.
-> Sequence is following.
-> 
-> do_truncate()
->         down(&inode->i_sem);
->         down_write(&inode->i_truncate_sem);
-> 
-> do_no_page()
->         down_read(&inode->i_truncate_sem);
-> 
->         shmem_nopage();
->                 shmem_getpage();
->                         down(&inode->i_sem);
-> 
+mingo@elte.hu (Ingo Molnar) writes:
 
-i_truncate_sem is introduced in the ext3 patch - it's not in
-the standard 2.4.10.
+> (note that in case of shared interrupts, another 'innocent' device might
+> stay disabled for some short amount of time as well - but this is not an
+> issue because this mitigation does not make that device inoperable, it
+> just delays its interrupt by up to 10 msecs. Plus, modern systems have
+> properly distributed interrupts.)
 
-> Following patch works for me.
-> 
-> diff -r -u -N linux.org/fs/open.c linux/fs/open.c
-> --- linux.org/fs/open.c Tue Oct  2 11:35:47 2001
-> +++ linux/fs/open.c     Tue Oct  2 11:45:33 2001
-> @@ -81,13 +81,13 @@
->         if (length < 0)
->                 return -EINVAL;
-> 
-> -       down(&inode->i_sem);
->         down_write(&inode->i_truncate_sem);
-> +       down(&inode->i_sem);
->         newattrs.ia_size = length;
->         newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
->         error = notify_change(dentry, &newattrs);
-> -       up_write(&inode->i_truncate_sem);
->         up(&inode->i_sem);
-> +       up_write(&inode->i_truncate_sem);
->         return error;
->  }
+Guess my P3-based laptop doesn't count as modern then:
 
-Indeed.  That's been there for months!  Thanks.
+  0:    7602983          XT-PIC  timer
+  1:      10575          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          1          XT-PIC  rtc
+ 11:    1626004          XT-PIC  Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support, Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (#2), usb-uhci, eth0, BreezeCom Card, Intel 440MX, irda0
+ 12:       1342          XT-PIC  PS/2 Mouse
+ 14:      23605          XT-PIC  ide0
 
--
+I can't even imagine why they did it like this...
+
+//Marcus
+-- 
+---------------------------------+---------------------------------
+         Marcus Sundberg         |      Phone: +46 707 452062
+   Embedded Systems Consultant   |     Email: marcus@cendio.se
+        Cendio Systems AB        |      http://www.cendio.com

@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbTEAOtW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 10:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbTEAOtW
+	id S261355AbTEAOt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 10:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbTEAOt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 10:49:22 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:58259 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261350AbTEAOtU
+	Thu, 1 May 2003 10:49:28 -0400
+Received: from mbox2.netikka.net ([213.250.81.203]:12012 "EHLO
+	mbox2.netikka.net") by vger.kernel.org with ESMTP id S261355AbTEAOtY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 10:49:20 -0400
-Date: Thu, 1 May 2003 08:01:10 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Willy TARREAU <willy@w.ods.org>, Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel source tree splitting
-Message-ID: <20030501150110.GA13282@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Willy TARREAU <willy@w.ods.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200305010756_MC3-1-36E1-623@compuserve.com> <11850000.1051797996@[10.10.2.4]> <20030501142041.GD308@pcw.home.local> <13900000.1051799746@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 May 2003 10:49:24 -0400
+From: Thomas Backlund <tmb@iki.fi>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Date: Thu, 1 May 2003 18:01:38 +0300
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EB0413D.2050200@superonline.com> <b8r26l$he0$1@main.gmane.org> <1051790876.21546.10.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051790876.21546.10.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <13900000.1051799746@[10.10.2.4]>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Message-Id: <200305011801.39014.tmb@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 07:35:48AM -0700, Martin J. Bligh wrote:
-> just chmod, and I have a lot of views ... 1689 all linked together ;-)
-> 
-> -r--r--r--  1689 fletch   fletch      18691 Nov 17 20:29 COPYING
+Viestissä Torstai 1. Toukokuuta 2003 15:07, Alan Cox kirjoitti:
+> On Iau, 2003-05-01 at 13:00, Thomas Backlund wrote:
+> > but there are programs that benefits from the "extra" memory...
+> > this according to Antonino Daplas...
+> > (AFAIK double/triple buffering is one thing...)
+>
+> I've actually looke through the traces  for some situations
+> and the "how much memory" case is reporting banked RAM on some
+> cards so you don't know that RAM exists.
+>
+> The change proposed is definitely correct for the default. Whether
+> you want to support overriding it I don't know - I'm not worried
+> either way.
 
-That's a bunch.  Who's fletch?  
+You mean the patch that only looks at videomode, dont you...
 
-And more importantly, how do you keep track of what is in each of those?
-I can see having 20, 100, whatever, and keeping it straight in your head
-but 1600?  
+Well maybe it's best to use it as default, to avoid this bug 
+"out of the box"...
 
-> Oh, and diff of views takes < 1s (diff understands hardlinks too, it seems).
-> Any SCM can kiss my ass ;-)
+But I will remake a patch to ovverride it so that the users who 
+need/want the extra memory to be able to allocate it...
+since I like the idea of giving the user the choice...
 
-Kiss, kiss :)
+The next thing that comes to mind is of course that
+it need to be done so that you can't kill the system with the
+vram setting... but that should not be to hard...
 
-Ted T'so made us support hard links for the revision control files for the
-same reasons and it works pretty well.  We haven't extended that to the
-checked out files because I'm nervous about tools which don't break the
-links.
+Thomas
 
-On the other hand, we could hard link the checked out files if they
-were checked out read-only which mimics what you are doing with the
-chmod...  That's a thought.
-
-We'll still never be as fast as a pure hardlinked tree, that's balls to
-the wall as fast as you can go as far as I can tell.
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Thomas Backlund
+
+tmb@iki.fi
+www.iki.fi/tmb
+

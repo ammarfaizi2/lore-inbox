@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbTILVT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTILVRt
+	id S261863AbTILVOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTILVOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:17:49 -0400
-Received: from imap.gmx.net ([213.165.64.20]:2977 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261898AbTILVR2 (ORCPT
+	Fri, 12 Sep 2003 17:14:09 -0400
+Received: from gprs144-244.eurotel.cz ([160.218.144.244]:1408 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261863AbTILVOG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:17:28 -0400
-References: <200309102303.34095.adq_dvb@lidskialf.net> <873cf3w03h.fsf@snail.pool> <200309112142.55460.adq_dvb@lidskialf.net>
-Cc: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org, franck@nenie.org,
-       eric@lammerts.org
-In-Reply-To: <200309112142.55460.adq_dvb@lidskialf.net> (message from Andrew de Quincey on Thu, 11 Sep 2003 21:42:55 +0100)
-To: adq_dvb@lidskialf.net
-Subject: Re: [linux-dvb] Re: Possible kernel thread related crashes on 2.4.x
-From: David Kuehling <dvdkhlng@gmx.de>
-Date: 12 Sep 2003 23:09:19 +0200
-Message-ID: <87y8wt4su8.fsf@snail.pool>
-MIME-Version: 1.0
+	Fri, 12 Sep 2003 17:14:06 -0400
+Date: Fri, 12 Sep 2003 23:13:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Raphael Assenat <raph@raphnet.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ioctl entries for joystick in compat_ioctl.h
+Message-ID: <20030912211306.GA444@elf.ucw.cz>
+References: <20030912112557.C10099@raphnet.net> <20030912184145.GB5805@elf.ucw.cz> <20030912200148.GA7711@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030912200148.GA7711@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew de Quincey <adq_dvb@lidskialf.net> writes:
+Hi!
 
->> This would explain why my system hangs/crashes especially when
->> zapping a lot (it never crashed during continuous playback, only when
->> zapping).  I'm using MPlayer, which always re-opens the device for a
->> new channel.
+> > > I wanted to use a joystick on my sparc64 workstation, and discovered that the
+> > > joystick driver uses simple ioclt that are safe to pass from 32bit user space
+> > > to 64bit kernel space. My patch adds the necessary entries in compat_ioctl.h.
+> > > 
+> > > There is only one missing ioctl in the patch. The ioctl is defined like this:
+> > > #define JSIOCGNAME(len)         _IOC(_IOC_READ, 'j', 0x13, len)
+> > > so the command does not have a fixed value. I dont know how to handle this one,
+> > > but it is only used to get the joystick name, all the applications I tried work
+> > > well even if this ioctl fails.
+> > 
+> > Well, whoever invented that JSIOCGNAME should be shot. That is not
+> > single ioctl, its 2^14 of them!
+> 
+> Well, who could ever have known that this will be a problem in 1998?
+> It's not the only ioctl done this way.
 
-> Yeah, I think the problem is exacerbated for me by the fact the
-> streaming boxes have 5 cards each... so thats 5 kernel threads, so
-> five times more likely for it to happen. As you say, it only occurs
-> when starting/stopping streaming. Normal playback is rock solid.
+So it was you? :-)
 
-> Please let me know if it fixes it.. be good to know if this is
-> definitely the issue.
+I believe ultrasparcs were around in '98. Anyway, what are other
+ioctls doing this? They look pretty problematic from compat_ioctl
+perspective.
 
-Seems to fix it.  Just zapped for 1h+ without problems.  Great.  With
-all those recent updates to MPlayers DVB-support, I can now use my
-Nova-t as full-featured DVB receiver :-)
-
-David
+We could do better by pushing compat handler down to the drivers for
+ugly cases like this...
+									Pavel
 -- 
-GnuPG public key: http://user.cs.tu-berlin.de/~dvdkhlng/dk.gpg
-Fingerprint: B17A DC95 D293 657B 4205  D016 7DEF 5323 C174 7D40
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278194AbRJRXAc>; Thu, 18 Oct 2001 19:00:32 -0400
+	id <S278199AbRJRXBM>; Thu, 18 Oct 2001 19:01:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278187AbRJRXAW>; Thu, 18 Oct 2001 19:00:22 -0400
-Received: from [200.47.148.193] ([200.47.148.193]:25607 "EHLO core.domain")
-	by vger.kernel.org with ESMTP id <S278197AbRJRXAH>;
-	Thu, 18 Oct 2001 19:00:07 -0400
-Date: Tue, 16 Oct 2001 14:00:41 -0300
-From: martin sepulveda <msepulveda@joydivision.com.ar>
-To: linux-kernel@vger.kernel.org
-Subject: Re: load 1 at idle, 2.4.12-ac3
-Message-Id: <20011016140041.2f26c95c.msepulveda@joydivision.com.ar>
-In-Reply-To: <20011016135322.02ed0f97.martin@joydivision.com.ar>
-In-Reply-To: <20011016135322.02ed0f97.martin@joydivision.com.ar>
-X-Mailer: Sylpheed version 0.6.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux for the whole world
+	id <S278197AbRJRXAx>; Thu, 18 Oct 2001 19:00:53 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46329
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278187AbRJRXAm>; Thu, 18 Oct 2001 19:00:42 -0400
+Date: Thu, 18 Oct 2001 16:01:09 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Brian C. Thomas" <bcthomas@nature.Berkeley.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: severe performance degradation on serverworks with high mem
+Message-ID: <20011018160109.C2467@mikef-linux.matchmail.com>
+Mail-Followup-To: "Brian C. Thomas" <bcthomas@nature.Berkeley.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011018125714.A360@nature.Berkeley.edu> <20011018144504.B134@nature.Berkeley.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011018144504.B134@nature.Berkeley.edu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-forget it!
-i've found what it was, and it is certainly *not* the kernel :)
+On Thu, Oct 18, 2001 at 02:45:05PM -0700, Brian C. Thomas wrote:
+> Hi
+> 
+> I don't know if this helps, but I seem to have stumbled onto a
+> possible "fix" for this...
+> 
+> With 64GB high memory enabled in kernel 2.4.12-ac3, and mtrr turned
+> on, I was able to see all 8GB RAM on my machine by using the old
+> 'append="mem=8000M"' command in my lilo.conf file... AND WITH NO LOSS
+> OF PERFORMANCE!
+> 
+> Does that help anyone with defining where this problem is coming from?
+> 
 
-thanks anyway, and sorry
+The real question is how to reproduce the > 2hr kernel compiles.
 
-M.
+Are there any certain steps that would reliably create the problem, and if
+so what are they?

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbTJET4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbTJET4J
+	id S263840AbTJET6L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTJET6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:56:09 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:49391 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263850AbTJET4G
+	Sun, 5 Oct 2003 15:58:11 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:43438 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S263840AbTJET6H
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:56:06 -0400
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: David Woodhouse <dwmw2@infradead.org>, Andre Hedrick <andre@linux-ide.org>,
-       Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0310052120440.12277-100000@gaia.cela.pl>
-References: <Pine.LNX.4.44.0310052120440.12277-100000@gaia.cela.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Fr7SS3gziCdos6HzPOA8"
-Organization: Red Hat, Inc.
-Message-Id: <1065383677.5032.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
-Date: Sun, 05 Oct 2003 21:54:37 +0200
+	Sun, 5 Oct 2003 15:58:07 -0400
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Organization: {M:U} IT Consulting
+Subject: Re: Horribly overdue update to unicode.txt
+Date: Sun, 05 Oct 2003 16:35:33 +0200
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Message-Id: <pan.2003.10.05.14.35.33.621062@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+References: <blnptv$mnn$1@cesium.transmeta.com>
+X-Pan-Internal-Attribution: Hi, H. Peter Anvin wrote:
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+X-Pan-Internal-Post-Server: smurf
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: recipient list not shown:;
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, H. Peter Anvin wrote:
+> <http://locke.ccil.org/~cowan/csur/>
+This page redirects to <http://www.evertype.com/standards/csur/index.html>.
 
---=-Fr7SS3gziCdos6HzPOA8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2003-10-05 at 21:32, Maciej Zenczykowski wrote:
->=20
-> On the other hand any running program on linux dynamically links (via=20
-> syscalls) against the kernel... I think everyone agrees that dynamically=20
-> linking against the kernel in this manner should be allowed and not a=20
-> violation of the GPL of the kernel source...
-
-"linking" is a bit tricky here. Traditionally linking involves resolving
-addresses of symbols from the other part; system calls don't have any of
-this, they are hard coded, documented and fixed numbers... numbers that
-also work on BSD and AIX (in the linux personality).
-
-
---=-Fr7SS3gziCdos6HzPOA8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/gHb9xULwo51rQBIRAlrLAJ9/tIzK4KtY5ptY/X6aCgAfxyc5JQCffrro
-CWPxTrK0tu02jxnSMdFhUGI=
-=QwOY
------END PGP SIGNATURE-----
-
---=-Fr7SS3gziCdos6HzPOA8--
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+The great creative individual ... is capable of more wisdom and virtue than
+collective man ever can be.
+					-- John Stuart Mill

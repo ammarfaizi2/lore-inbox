@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265902AbUAKPWd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 10:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAKPWc
+	id S265912AbUAKP0t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 10:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265914AbUAKP0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 10:22:32 -0500
-Received: from mail.gmx.net ([213.165.64.20]:20390 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265907AbUAKPV4 (ORCPT
+	Sun, 11 Jan 2004 10:26:49 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:22289 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S265912AbUAKP0r convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 10:21:56 -0500
-X-Authenticated: #7370606
-Message-ID: <40016A11.90605@gmx.at>
-Date: Sun, 11 Jan 2004 16:21:53 +0100
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>, dm-devel@sistina.com
-CC: Arjan van de Ven <arjanv@redhat.com>
-Subject: kernel 2.6 biosraid via device mapper - partition support
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 10:26:47 -0500
+Date: Sun, 11 Jan 2004 16:28:39 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>
+Subject: [PATCH 2.4] i2c cleanups, third wave (8/8)
+Message-Id: <20040111162839.5324314b.khali@linux-fr.org>
+In-Reply-To: <20040111144214.7a6a4e59.khali@linux-fr.org>
+References: <20040111144214.7a6a4e59.khali@linux-fr.org>
+Reply-To: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+This last patch fixes missing spaces in an error message in i2c-core.c.
+Original patch by Kyösti Mälkki.
 
-i just started to investigate how biosraid support for the HPT37X 
-IDE-chipsets can be implemented in the 2.6 kernel. implementing the 
-basic raid levels (0, 1, 0+1, JBOD) seems to be pretty straight forward. 
-this can be done by reading the raid signatures of the disks and then 
-pipeing the configuration through dmsetup or using the libdevmapper 
-library directly. what bothers me is the partition support. the number 
-of minor device nodes that are registered per mapped block device is 1. 
-this means that there is no way that the kernel does the 
-partition-handling by itself. the alternative is to do the partition 
-scanning in userspace and to use another device mapper layer to create 
-the partition device nodes. it appears that this was already suggested 
-by Christophe Varoqui ( http://lwn.net/Articles/13958/ ) but this 
-project is now idle. this also has the disadvantage that any changes in 
-the partitioning of the raid volume (e.g. by using *fdisk, distribution 
-installers, ...) require a manual re-invocation of the biosraid setup 
-tool. plus the whole code under linux/fs/partitions/... has to be 
-duplicated so that not only the dos partitioning scheme is supported, 
-but also BSD slices, x86 solaris, windows dynamic disks, ...
+Thanks!
 
-which way to go? is there another solution that i have missed?
+--- linux-2.4.25-pre4-k7/drivers/i2c/i2c-core.c	Sun Jan 11 10:33:12 2004
++++ linux-2.4.25-pre4-k8/drivers/i2c/i2c-core.c	Sun Jan 11 13:51:11 2004
+@@ -359,8 +359,8 @@
+ 						       "unregistering driver "
+ 						       "`%s', the client at "
+ 						       "address %02x of "
+-						       "adapter `%s' could not"
+-						       "be detached; driver"
++						       "adapter `%s' could not "
++						       "be detached; driver "
+ 						       "not unloaded!",
+ 						       driver->name,
+ 						       client->addr,
 
-regards,
-Wilfried
+
+
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132221AbRCVXEB>; Thu, 22 Mar 2001 18:04:01 -0500
+	id <S132228AbRCVXCt>; Thu, 22 Mar 2001 18:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132234AbRCVXDt>; Thu, 22 Mar 2001 18:03:49 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:50436 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S132231AbRCVXDh>;
-	Thu, 22 Mar 2001 18:03:37 -0500
-Date: Fri, 23 Mar 2001 00:02:54 +0100
-From: Frank de Lange <frank@unternet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2-ac21
-Message-ID: <20010323000254.A25375@unternet.org>
-Mime-Version: 1.0
+	id <S132231AbRCVXCb>; Thu, 22 Mar 2001 18:02:31 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25866 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132228AbRCVXCP>; Thu, 22 Mar 2001 18:02:15 -0500
+Subject: Re: supermount ?
+To: gerry@c64.org (Gerry)
+Date: Thu, 22 Mar 2001 23:03:55 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01032223210703.00829@localhost.localdomain> from "Gerry" at Mar 22, 2001 11:21:07 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14gE7b-0003VP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops...
+> Supermount sounds to me like a very important part of linux, at least for us 
+> who like our cds/dvds/etc. to work as easily as in fx. windows. For linux to 
+> be popular among "normal" users, it should be present at every system with 
+> local removable drives. So, my question is; why isn't supermount a standard 
+> part of the kernel, or at least a module ?
 
-Linux 2.4.2-ac21 does not like my box, or the other way around:
+Because it wants rewriting as a clean file system using the 2.4 dcache and
+layering itself above the real fs. In theory the infrastructure for this is
+all there. 
 
-loading the agpgart module (MGA G400 AGP) -> system hangs
-loading the SCSI module (53c875) -> system hangs
+Alan
 
-In both cases, the magic SysRq sequence does not work, but it is still possible
-to ping the box from the outside. Connecting to it (ssh) does not work,
-however. I backed out both the SCSI driver patches as well as the agpgart
-patches, but this did not fix the symptoms. Looks more like a module-loading
-related issue, but I have not found it yet.
-
-All this on an SMP (Abit BP6) box by the way...
-
-The changes which introduced these symptoms have occured somewhere between -ac7
-and -ac21, since -ac7 DID run on the same hardware.
-
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]

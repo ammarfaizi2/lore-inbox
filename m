@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316605AbSFUODJ>; Fri, 21 Jun 2002 10:03:09 -0400
+	id <S316606AbSFUOEx>; Fri, 21 Jun 2002 10:04:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316606AbSFUODJ>; Fri, 21 Jun 2002 10:03:09 -0400
-Received: from mta3.snet.net ([204.60.203.69]:59587 "EHLO mta3.snet.net")
-	by vger.kernel.org with ESMTP id <S316605AbSFUODH>;
-	Fri, 21 Jun 2002 10:03:07 -0400
-From: "Taavo Raykoff" <traykoff@snet.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.18 IDE channels block each other under load?
-Date: Fri, 21 Jun 2002 10:03:41 -0400
-Message-ID: <000801c2192c$72e37580$ad0aa8c0@trws>
+	id <S316609AbSFUOEw>; Fri, 21 Jun 2002 10:04:52 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:6910 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S316606AbSFUOEt>;
+	Fri, 21 Jun 2002 10:04:49 -0400
+Message-ID: <3D13326C.E2383356@mvista.com>
+Date: Fri, 21 Jun 2002 07:04:28 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "David S. Miller" <davem@redhat.com>
+CC: rml@tech9.net, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+References: <1024539334.917.110.camel@sinai>
+		<20020619.192342.128398093.davem@redhat.com>
+		<3D126B28.16C88E2B@mvista.com> <20020620.180358.33292945.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone tell me what is going on here?
+"David S. Miller" wrote:
+> 
+>    From: george anzinger <george@mvista.com>
+>    Date: Thu, 20 Jun 2002 16:54:16 -0700
+> 
+>    Is the only network issue?  Is it possible that the network code
+>    uses bh_locking to protect against timers?  Moveing timers to
+>    softirqs would invalidate this sort of protection.  Is this an
+>    issue?
+> 
+> It is the whole issue.  We have to stop all timers while we run the
+> non-SMP safe protocol code.
 
-dd if=/dev/zero of=/dev/hda bs=1024 count=1000000
+Thanks.  I think this can be done much the same way it is now.  I will modify the patch accordingly.
 
-then in another vt:
-fdisk /dev/hdc, then immediately press "q".
-
-fdisk "hangs" for a long, long time.
-ps -aux says state of dd and fdisk are both "D"
-strace says fdisk is hanging on the close()
-/proc/interrupts tell me that ide1 (/dev/hdc) is getting no 
- int activity for a long, long time. ide0 is very busy.
-
-It is not just dd/fdisk.  Any intensive writes on one IDE 
-channel (direct to the hd? device) seem to block any IO on 
-the other device. 
-
-Intel SAI2 MB, ServerWorks IDE chipset, 2.4.18, two IDE 
-hard drives /dev/hda and /dev/hdc, 1024MB RAM, RH73 kernel
-build.
-
-Also seen on Promise PDCx IDE controllers hanging off the PCI.
-
-hdparm settings appear to have no influence on this behavior.
-
-Thanks,
-TR.
-
-
-
+At the same time, I must say that stoping the timers is, IMNSHO, NOT a good thing for the kernel.  It can cause unexpected timer latencies which can impact most any task on the system.  (But you already knew this :)  I understand that it is not seldom used, but still... 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

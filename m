@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275565AbRIZUGc>; Wed, 26 Sep 2001 16:06:32 -0400
+	id <S275573AbRIZUMm>; Wed, 26 Sep 2001 16:12:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275567AbRIZUGW>; Wed, 26 Sep 2001 16:06:22 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:37645 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S275565AbRIZUGN>;
-	Wed, 26 Sep 2001 16:06:13 -0400
-Date: Wed, 26 Sep 2001 13:01:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Crispin Cowan <crispin@wirex.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-security-module@wirex.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <20010926130156.B19819@kroah.com>
-In-Reply-To: <E15lfKE-00047d-00@the-village.bc.nu> <3BB10E8E.10008@wirex.com> <20010925202417.A16558@kroah.com> <3BB229D1.10401@wirex.com>
+	id <S275572AbRIZUMc>; Wed, 26 Sep 2001 16:12:32 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:41207
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S275570AbRIZUML>; Wed, 26 Sep 2001 16:12:11 -0400
+Date: Wed, 26 Sep 2001 13:12:32 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove ext2_notify_change()
+Message-ID: <20010926131232.A28690@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SUN.3.96.1010926145958.8988A-100000@grex.cyberspace.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BB229D1.10401@wirex.com>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+In-Reply-To: <Pine.SUN.3.96.1010926145958.8988A-100000@grex.cyberspace.org>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 12:17:37PM -0700, Crispin Cowan wrote:
-> Greg KH wrote:
+On Wed, Sep 26, 2001 at 03:09:52PM -0400, KVK wrote:
+> ext2_notify_change() is no longer used by anyone. I think it can be 
+> safely removed. Patch against 2.4.10 follows.
 > 
-> >If you were to include a GPL licensed user space header file in a closed
-> >source program, of course you would be violating that license.
-> >
-> That is not clear to me. I have been unable to find a definitive 
-> reference that states that is the case.  If so, it is problematic, 
-> because then every user-land program that ever #include'd errno.h from 
-> glibc is GPL'd, because glibc #include's errno.h, among other GPL'd 
-> kernel header files. Are you sure you want to declare nearly all 
-> proprietary Linux applications to be in violation of the GPL?
 
-That is an issue to take up with the glibc authors, not me.  If
-something like this bothers you, then use a libc that does not include
-kernel header files (which has been pointed out by the kernel authors
-that they should not be doing.)  dietLibc [1] works for me quite well
-and does not contain any kernel header files.
+This isn't the code that samba uses to get the kernel to report when a
+directory has changed is it?
 
-> If you (Greg, Alan) are confident that your interpretation of the GPL is 
-> correct, then just marking the files as GPL should be sufficient. What 
-> purpose is served by saying anything else?
+If so, I think you should check to make sure that it won't break samba.
 
-As Alan stated, to reduce confusion as to the wishes of the copyright
-holders of the file.  3 out of the 4 current holders agree to this
-wording, and as the dissenting party, you are free to disagree and keep
-that wording from the file (however a small note in it detailing this
-disagreement might be a nice thing to do.)
+If I'm wrong, please ignore...
 
-thanks,
-
-greg k-h
-
- [1] http://www.fefe.de/dietlibc/
+Mike

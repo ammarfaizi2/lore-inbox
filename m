@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVAYVGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVAYVMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbVAYVGV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVAYVDs
+	id S262149AbVAYVMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVAYVDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:03:48 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:19606 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262117AbVAYU7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:59:50 -0500
-Subject: Re: ATI drivers working under realtime-preempt linux
-From: Lee Revell <rlrevell@joe-job.com>
-To: John Gilbert <jgilbert@biomail.ucsd.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41F5CF5D.4060807@biomail.ucsd.edu>
-References: <41F5CF5D.4060807@biomail.ucsd.edu>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 15:59:46 -0500
-Message-Id: <1106686786.10845.58.camel@krustophenia.net>
+	Tue, 25 Jan 2005 16:03:24 -0500
+Received: from waste.org ([216.27.176.166]:4486 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262142AbVAYVBa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:01:30 -0500
+Date: Tue, 25 Jan 2005 13:01:05 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/12] random pt4: Cleanup SHA interface
+Message-ID: <20050125210105.GN12076@waste.org>
+References: <5.314297600@selenic.com> <200501252244.10612.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501252244.10612.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-24 at 20:47 -0800, John Gilbert wrote:
-> Xv isn't supported. DRI isn't supported.
-> ATI (and NVIDIA) should be all over the hard-realtime kernel, as this 
-> has the potential of making video and games frame accurate (never 
-> missing frames, no page tears).
-> The documentation from Linux user's web pages are better than ATI's.
+On Tue, Jan 25, 2005 at 10:49:01PM +0200, Denis Vlasenko wrote:
+> On Friday 21 January 2005 23:41, Matt Mackall wrote:
+> > +static void sha_transform(__u32 digest[5], const char *data, __u32 W[80])
+> >  {
+> > -	__u32 A, B, C, D, E;     /* Local vars */
+> > +	__u32 A, B, C, D, E;
+> >  	__u32 TEMP;
+> >  	int i;
+> > -#define W (digest + HASH_BUFFER_SIZE)	/* Expanded data array */
+> >  
+> > +	memset(W, 0, sizeof(W));
 > 
-> Making this work should have been someone at ATI's job, not mine. I'm 
-> working blind here.
+> Hmm..... Parameter decays into pointer, sizeof(W) != 80*4. See:
 
-Be patient, this stuff is very new and vendors are rightfully
-conservative.  They are probably just waiting for the development to
-settle down a bit before committing resources to supporting the RT
-kernel.
+Good spotting.
 
-Once some distros start to offer the RT kernel as an option I would
-expect a lot of interest from hardware vendors as it really allows the
-hardware pushed to its limits.  For example pro audio interfaces are
-heavily marketed based on the lowest achievable latency, this will let
-them put better numbers on the box, and will probably improve Linux
-support a lot, because the marketing will have to be "FooAudio5000, now
-featuring 0.6 ms*** usable latency (***Linux RT kernel required, 2.6 ms
-under Windows/MacOS)" :-).
+> In light of this, if your sha1 passed regression tests,
+> I conclude that we don't need that memset at all.
 
-Lee
+Indeed, I noticed it was superfluous when I was benchmarking it. The
+entire function is replaced a couple patches later.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,81 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269770AbUICUdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269754AbUICUnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269770AbUICUdx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 16:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269754AbUICUdw
+	id S269754AbUICUnM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 16:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269788AbUICUnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 16:33:52 -0400
-Received: from trantor.org.uk ([213.146.130.142]:63441 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S269782AbUICUbd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 16:31:33 -0400
-Subject: Re: Userspace framework (was: Re: silent semantic changes with
-	reiser4)
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Luca Ferroni <fferroni@cs.unibo.it>
-Cc: linux-kernel@vger.kernel.org, miklos@szeredi.hu, renzo@cs.unibo.it,
-       frederik@a5.repetae.net
-In-Reply-To: <20040903112435.0d754fac.fferroni@cs.unibo.it>
-References: <rlrevell@joe-job.com>
-	 <1094079071.1343.25.camel@krustophenia.net>
-	 <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
-	 <1535878866.20040902214144@tnonline.net>
-	 <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
-	 <1094155277.11364.92.camel@krustophenia.net>
-	 <20040902204351.GE8653@atrey.karlin.mff.cuni.cz>
-	 <1094158060.1347.16.camel@krustophenia.net>
-	 <20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
-	 <1094164385.6163.4.camel@localhost.localdomain>
-	 <1094181768.9282.27.camel@sherbert>
-	 <20040903112435.0d754fac.fferroni@cs.unibo.it>
-Content-Type: text/plain
-Date: Fri, 03 Sep 2004 21:31:22 +0100
-Message-Id: <1094243482.6632.66.camel@sherbert>
+	Fri, 3 Sep 2004 16:43:11 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:18889 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S269807AbUICUjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 16:39:10 -0400
+Message-Id: <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: =?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?= <ks@cs.aau.dk>
+Cc: umbrella-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks 
+In-Reply-To: Your message of "Fri, 03 Sep 2004 22:05:03 +0200."
+             <4138CE6F.10501@cs.aau.dk> 
+From: Valdis.Kletnieks@vt.edu
+References: <41385FA5.806@cs.aau.dk> <1094220870.7975.19.camel@localhost.localdomain>
+            <4138CE6F.10501@cs.aau.dk>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+Content-Type: multipart/signed; boundary="==_Exmh_318214536P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 03 Sep 2004 16:39:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-03 at 11:24 +0200, Luca Ferroni wrote:
-> Il Fri, 03 Sep 2004 04:22:48 +0100,  Gianni Tedesco <gianni@scaramanga.co.uk> ha scritto:
-> 
-> > On Thu, 2004-09-02 at 23:33 +0100, Alan Cox wrote:
-> > > On Iau, 2004-09-02 at 21:58, Pavel Machek wrote:
-> > > > Uservfs.sf.net.
-> > > > 
-> > > > Unlike alan, I do not think that "do it all in library" is good
-> > > > idea. I put it in the userspace as "codafs" server, and let
-> > > > applications see it as a regular filesystem.
-> > > 
-> > > That works for me too, providing someone has fixed all the user mode fs
-> > > deadlocks with paging
-> > 
-> > Aren't the deadlock scenarios only applicable for read/write mounted
-> > filesystems ?
-> > 
-> 
-> AFAIK deadlock arises when kernel manages buffers:
-> it has to free a buffer ==> choose a dirty one ==> if cleaning
-> requires to make a call to
-> network server and this last is waiting for a buffer (cleaning
-> accomplished) ==>
-> ==> deadlock.
+--==_Exmh_318214536P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-so during page launder, we need to write to the filesystem, but if thats
-in userspace there is the possibility the page launder could have been
-caused in order that the filesystem daemon may run. AFAICS this problem
-only arises when file is being written.
+On Fri, 03 Sep 2004 22:05:03 +0200, =3D?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?=
+=3D said:
 
-The only deadlock I can think of for read-only filesystems is if the
-demon inadvertantly accesses one of the files that it is handling. That
-could be avoided quite simply by preventing the demon from doing that in
-the kernel.
+> Also simple bufferoverflows in suid-root programs may be avoided. The=20
+> simple way would to set the restriction =22no fork=22, and thus if an=20
+> attacker tries to fork a (root) shell, this would be denied.
 
-I'm sure I'm missing something, I'd just like to know what ;)
+All this does is stop fork().  I'm not sure, but most shellcodes I've see=
+n
+don't bother forking, they just execve() a shell....
 
--- 
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+It doesn't stop a buffer overflow that does this:
 
+	f1 =3D open(=22/bin/bash=22);
+	f2 =3D open(=22/tmp/bash=22, O_CREAT);
+	while ((bytes =3D read(f1,buffer,sizeof(buffer))) > 0)
+		write(f2,buffer,bytes);
+	fchmod(f2,4775);
+	close(f1); close(f2);
+
+Papering over *that* one by restricting fchmod just means the exploit nee=
+ds to
+append a line to /etc/passwd, or create a trojan inetd.conf or crontab en=
+try,
+or any of the other myriad ways a program can leave a backdoor (there's a=
+
+*reason* SELinux ends up with all those rules - this isn't an easy task).=
+..
+
+Remember - just papering over the fact that most shellcodes just execve()=
+ a
+shell doesn't fix the fundemental problem, which is that the attacker is =
+able
+to run code of his choosing as root.
+
+
+--==_Exmh_318214536P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBONZkcC3lWbTT17ARAuU0AKC1jqxeO2a56R+pua/T0eVEBIPFLwCgrYO7
+u1L+9ZwDN+WVHGQYifTSNao=
+=EP/G
+-----END PGP SIGNATURE-----
+
+--==_Exmh_318214536P--

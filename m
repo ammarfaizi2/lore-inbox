@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUJ3BiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbUJ3B6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUJ3BiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUJ2Tgk
+	id S261633AbUJ3B6m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 21:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbUJ3ByP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:36:40 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:9090 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S263439AbUJ2SkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:40:12 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Fri, 29 Oct 2004 20:37:15 +0200
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-os@analogic.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-Message-ID: <20041029183715.GA31244@iram.es>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <1098218286.8675.82.camel@mentorng.gurulabs.com> <41757478.4090402@drdos.com> <20041020034524.GD10638@michonline.com> <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net> <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com> <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com> <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 29 Oct 2004 21:54:15 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:54224 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S263462AbUJ3Bn2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 21:43:28 -0400
+From: james4765@verizon.net
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, james4765@verizon.net
+Message-Id: <20041030014323.12427.23460.52196@localhost.localdomain>
+In-Reply-To: <20041030014310.12427.89090.67655@localhost.localdomain>
+References: <20041030014310.12427.89090.67655@localhost.localdomain>
+Subject: [PATCH 2/2] computone: MAINTAINERS update
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.211.53] at Fri, 29 Oct 2004 20:43:23 -0500
+Date: Fri, 29 Oct 2004 20:43:23 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 07:46:06AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 29 Oct 2004, linux-os wrote:
-> > 
-> > Linus, please check this out.
-> 
-> Yes, I concur. However, I'd suggest changing the "addl $4,%esp" into a 
-> "popl %ecx", which is smaller and apparently faster on some CPU's (ecx 
-> obviously gets immediately overwritten by the next popl).
+Description: update status of Computone Intelliport driver in MAINTAINERS.
 
-Rather popl %eax or popl %edx then, a basic and MMX Pentium 
-cannot pair:
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-	popl %ecx
-	popl %ecx
-
-for the simple reason that two instructions that have the
-same destination register can't be paired.
-
-OTOH, the other argument about reading or not memory in
-this thread are a red herring. An additional memory read 
-is cheap for data that is guaranteed to be in a cache line 
-used by adjacent (in time) instructions.
-
-Otherwise regparm(1) might even be better, movl %ecx,%eax is
-the same size as push+pop, is faster, and may even reduce
-stack usage by 4 bytes.
-
+diff -urN --exclude='*~' linux-2.6.9-original/MAINTAINERS linux-2.6.9/MAINTAINERS
+--- linux-2.6.9-original/MAINTAINERS	2004-10-18 17:54:37.000000000 -0400
++++ linux-2.6.9/MAINTAINERS	2004-10-29 20:44:19.844465685 -0400
+@@ -531,10 +531,9 @@
+ COMPUTONE INTELLIPORT MULTIPORT CARD
+ P:	Michael H. Warfield
+ M:	Michael H. Warfield <mhw@wittsend.com>
+-W:	http://www.computone.com/
+ W:	http://www.wittsend.com/computone.html
+ L:	linux-computone@lazuli.wittsend.com
+-S:	Supported
++S:	Orphaned
+ 
+ COSA/SRP SYNC SERIAL DRIVER
+ P:	Jan "Yenya" Kasprzak

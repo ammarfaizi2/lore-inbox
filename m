@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbTJ2XZw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 18:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTJ2XZw
+	id S261973AbTJ2XbT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 18:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTJ2XbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 18:25:52 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:51854 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S261967AbTJ2XZv (ORCPT
+	Wed, 29 Oct 2003 18:31:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:22172 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261973AbTJ2XbS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 18:25:51 -0500
-Subject: Re: Things that Longhorn seems to be doing right
-From: Dax Kelson <dax@gurulabs.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3FA0475E.2070907@namesys.com>
-References: <3F9F7F66.9060008@namesys.com>
-	 <20031029224230.GA32463@codepoet.org>  <3FA0475E.2070907@namesys.com>
-Content-Type: text/plain
-Message-Id: <1067466349.3077.274.camel@mentor.gurulabs.com>
+	Wed, 29 Oct 2003 18:31:18 -0500
+Date: Wed, 29 Oct 2003 15:30:19 -0800
+From: Greg KH <greg@kroah.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6] fix bug in pci_setup_bridge()
+Message-ID: <20031029233018.GA1707@kroah.com>
+References: <20031022182537.A5277@jurassic.park.msu.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
-Date: Wed, 29 Oct 2003 15:25:49 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031022182537.A5277@jurassic.park.msu.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-29 at 16:03, Hans Reiser wrote:
+On Wed, Oct 22, 2003 at 06:25:37PM +0400, Ivan Kokshaysky wrote:
+> This bug prevents Alphas with older firmware from booting if there
+> is a card with PCI-PCI bridge that supports 32-bit IO.
 
-> If they have a beta today, and we are not doing anything today in that 
-> area, they are probably going to beat us to shipping something in that 
-> area unless we make a real effort.  That means well-earned advantage for 
-> them.
+Thanks, I've applied this and will send it to Linus in a bit.
 
-Except, they didn't release a beta.
-
-They released a developer preview (not even alpha), mostly to show off
-the APIs.
-
-AFAIK the developer preview has no WinFS bits in it at all.
-
-Dax Kelson
-Guru Labs
-
+greg k-h

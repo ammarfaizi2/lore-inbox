@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266091AbTAOKCk>; Wed, 15 Jan 2003 05:02:40 -0500
+	id <S266100AbTAOKNS>; Wed, 15 Jan 2003 05:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbTAOKCk>; Wed, 15 Jan 2003 05:02:40 -0500
-Received: from web21006.mail.yahoo.com ([216.136.227.60]:65122 "HELO
-	web21006.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266091AbTAOKCk>; Wed, 15 Jan 2003 05:02:40 -0500
-Message-ID: <20030115101133.10886.qmail@web21006.mail.yahoo.com>
-Date: Wed, 15 Jan 2003 07:11:33 -0300 (ART)
-From: =?iso-8859-1?q?ednei=5Fgp?= <ednei_gp@yahoo.com.br>
-Subject: Kernel patch
-To: linux-kernel@vger.kernel.org
+	id <S266114AbTAOKNS>; Wed, 15 Jan 2003 05:13:18 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:31708 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S266100AbTAOKNR>;
+	Wed, 15 Jan 2003 05:13:17 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15909.13901.284523.220804@harpo.it.uu.se>
+Date: Wed, 15 Jan 2003 11:22:05 +0100
+To: voytech@ucw.cz
+Subject: Dell Latitude CPi keyboard problems since 2.5.42
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm testing the devel kernel 2.5.52 but I've a problem
-if framebuffer , so I'll use a patch to uptade my
-kernel but I'dont know if to me use the patch 2.5.58 I
-need to install the other patchs before, like patch
-2.5.53,2.5.54,2.5.55...
-Because if I'll need do this I'll download the last
-version than use all that patchs...
-Thanks!!!
-Ah!! Sorry about my english... I'm brasilian :o)
+Vojtech,
 
-=====
-------------------------------------------
-#####(Dark_M@n1X)#####
-Ednei Gonçalves Pereira
-Técnico em Telecomunicações
-Certificação CCNA | CCNP (estudando)
-Linux user 282184 | ICQ:157953794
-------------------------------------------
+On October 17, I wrote to LKML:
+>Dell Latitude CPi laptop. Boot 2.5.42 or .43, then reboot.
+>Shortly after the screen is blanked and the BIOS starts, it
+>prints a "keyboard error" message and requests an F1 or F2
+>response (continue or go into SETUP). Never happened with any
+>other kernel on that machine.
 
-_______________________________________________________________________
-Busca Yahoo!
-O melhor lugar para encontrar tudo o que você procura na Internet
-http://br.busca.yahoo.com/
+(see http://marc.theaimsgroup.com/?t=103484432100001&r=1&w=2
+for the full thread)
+
+This problem is still present in 2.5.58. Any ideas what might
+be causing it? I've tried a few obvious tweaks (forcing
+atkbd_reset=1, making atkbd_cleanup() do nothing), but none
+has helped.
+
+Kernel 2.5.41 and older, and current 2.4/2.2 kernels, don't
+cause this problem, so obviously the input driver must be doing
+_something_ the HW or BIOS doesn't like.
+
+I have CONFIG_{SERIO_I8042,KEYBOARD_ATKBD,INPUT_MOUSEDEV_PSAUX,
+MOUSE_PS2,INPUT_PCSKR} enabled.
+
+/Mikael

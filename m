@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267010AbSLPSot>; Mon, 16 Dec 2002 13:44:49 -0500
+	id <S267015AbSLPSu4>; Mon, 16 Dec 2002 13:50:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267013AbSLPSot>; Mon, 16 Dec 2002 13:44:49 -0500
-Received: from rivmkt61.wintek.com ([206.230.0.61]:1408 "EHLO comcast.net")
-	by vger.kernel.org with ESMTP id <S267010AbSLPSor>;
-	Mon, 16 Dec 2002 13:44:47 -0500
-Date: Mon, 16 Dec 2002 13:54:21 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Melchior FRANZ <mfranz@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.52 and modules (lots of unresolved symbols)?
-In-Reply-To: <200212161813.gBGIDuHv029134@server.lan>
-Message-ID: <Pine.LNX.4.50L0.0212161352240.1154-100000@dust.ebiz-gw.wintek.com>
-References: <20021216094514.GA735@ulima.unil.ch>
- <Pine.LNX.4.50L0.0212161114360.1154-100000@dust.ebiz-gw.wintek.com>
- <20021216171703.GD13198@ulima.unil.ch> <Pine.LNX.4.50L0.0212161207430.1154-100000@dust.ebiz-gw.wintek.com>
- <200212161813.gBGIDuHv029134@server.lan>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	id <S267013AbSLPSur>; Mon, 16 Dec 2002 13:50:47 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:7125 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266993AbSLPSuR> convert rfc822-to-8bit; Mon, 16 Dec 2002 13:50:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: Where is this printk?
+Date: Mon, 16 Dec 2002 19:57:54 +0100
+User-Agent: KMail/1.4.3
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>
+References: <Pine.LNX.4.33L2.0212161049090.5099-100000@dragon.pdx.osdl.net>
+In-Reply-To: <Pine.LNX.4.33L2.0212161049090.5099-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212161957.54808.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002, Melchior FRANZ wrote:
+On Monday 16 December 2002 19:49, Randy.Dunlap wrote:
 
-> * Alex Goddard -- Monday 16 December 2002 19:32:
-> > Huh.  Like I said, reinstalling the mod tools and doing a rebuild after a
-> > make clean cleared it up for me.
-> > 
-> > Weird.
-> 
-> Not really. The problem is, that the kernel Makefile contains
-> an absolute path for depmod (/sbin/depmod) which doesn't seem
-> like a good idea. I you are installing the module-init-tools
-> to /usr/local/sbin, they don't take precedence over the old
-> depmod et al.
-> 
-> Why doesn't the Makefile simply define "DEPMOD = depmod"
-> instead of "DEPMOD = /sbin/depmod" (and likewise for
-> genksyms)? 
+Hi Randy,
 
-Ah.  That makes sense.  Your question is the same as mine, then.  Why 
-define an absolute path for depmod?
+> Nope, it's in linux/init/main.c, line 357 in 2.4.20:
+> 	printk(linux_banner);
+> and linux_banner is in linux/init/version.c.
+perfect! Thnx :)
 
-One suggestion for the person who started this thread, then, is to make 
-sure that /sbin/depmod is, or is pointing to, a version of depmod that 
-won't freak out over the modules.
-
--- 
-Alex Goddard
-agoddard@purdue.edu
+ciao, Marc

@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272504AbTHKLfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 07:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272508AbTHKLfQ
+	id S272503AbTHKLpk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 07:45:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272508AbTHKLpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 07:35:16 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33504 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272504AbTHKLfI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 07:35:08 -0400
-Date: Mon, 11 Aug 2003 13:34:33 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: <ak@suse.de>, <kwijibo@zianet.com>, Dave Jones <davej@redhat.com>,
-       <richard.brunner@amd.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Machine check expection panic
-In-Reply-To: <20030811101522.GA8080@vana.vc.cvut.cz>
-Message-ID: <Pine.SOL.4.30.0308111330550.11836-100000@mion.elka.pw.edu.pl>
+	Mon, 11 Aug 2003 07:45:40 -0400
+Received: from lidskialf.net ([62.3.233.115]:60291 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S272503AbTHKLpj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 07:45:39 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [BUG mm-tree of test2/test3] nforce2-acpi-fixes breaks via ide controller
+Date: Mon, 11 Aug 2003 12:45:40 +0100
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>, Benjamin Weber <shawk@gmx.net>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.SOL.4.30.0308111326150.11836-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0308111326150.11836-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308111245.40154.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Just "me too".
-
-MCE: The hardware reports a non fatal, correctable incident occurred on
-CPU 0.
-Bank 0: 8000000000002140
-
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(tm) XP 1700+
-stepping        : 1
-cpu MHz         : 1467.033
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov
-pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 2883.58
-
---bartlomiej
-
-On Mon, 11 Aug 2003, Petr Vandrovec wrote:
-
-> Out of curiosity, I never got MCE on my system at home (last kernel
-> before one below was 2.6.0-test2, and it did not complain for
-> different kernels at least since November 2001), yet after recent MCE
-> changes I got during fsck:
+On Monday 11 August 2003 12:28, Bartlomiej Zolnierkiewicz wrote:
+> On Mon, 11 Aug 2003, Andrew de Quincey wrote:
+> > > > I do not know why it should interfere with my via stuff, but it does.
+> > > > A vanilla test3 kernel is working fine as well, whereas test3-mm1
+> > > > shows the same error as before with test2-mmX.
+> > >
+> > > Me either.  Unfortunately that patch does five different things so we
+> > > cannot easily narrow it down further.
+> >
+> > Yeah, I know. My next patch is likely to have to do even more
+> > unfortunately. Found quite a number more issues with IRQs.
 >
-> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-> Bank 0: f65980000000baff
+> Split it on logical changes if its possible.
+
+I will attempt to as much as possible, but many of the changes rely on each 
+other. Yuck.
 

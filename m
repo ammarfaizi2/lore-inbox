@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272634AbSISTpi>; Thu, 19 Sep 2002 15:45:38 -0400
+	id <S272682AbSIST7i>; Thu, 19 Sep 2002 15:59:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272635AbSISTpi>; Thu, 19 Sep 2002 15:45:38 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:20866 "EHLO
+	id <S272723AbSIST7i>; Thu, 19 Sep 2002 15:59:38 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:22658 "EHLO
 	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S272634AbSISTph>; Thu, 19 Sep 2002 15:45:37 -0400
-Date: Thu, 19 Sep 2002 15:53:24 -0400 (EDT)
+	id <S272682AbSIST7h>; Thu, 19 Sep 2002 15:59:37 -0400
+Date: Thu, 19 Sep 2002 16:07:45 -0400 (EDT)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 Reply-To: root@chaos.analogic.com
-To: Richard Henderson <rth@twiddle.net>
-cc: Brian Gerst <bgerst@didntduck.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-In-Reply-To: <20020919124117.A22720@twiddle.net>
-Message-ID: <Pine.LNX.3.95.1020919154730.16046A-100000@chaos.analogic.com>
+To: Martin Mares <mj@ucw.cz>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+In-Reply-To: <20020919192758.GA430@ucw.cz>
+Message-ID: <Pine.LNX.3.95.1020919155422.16070A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Richard Henderson wrote:
+On Thu, 19 Sep 2002, Martin Mares wrote:
 
-> On Thu, Sep 19, 2002 at 03:40:52PM -0400, Richard B. Johnson wrote:
-> > Well it's not modifying those values.
+> Hello, world!\n
 > 
-> It's not modifying "a", true, but it _is_ modifying the parameter
-> area.  Which is exactly the kernel bug in question.
+> > nevertheless we do lock up for 32 seconds if there are 32K PIDs allocated
+> > in a row and last_pid hits that range - regardless of pid_max. (Depending
+> > on the cache architecture it could take significantly more.)
 > 
+> What about randomizing the PID selection a bit? I.e., allocate PIDs
+> consecutively as long as they are free; if you hit an already used
+> PID, roll dice to find a new position where the search should be
+> continued. As long as the allocated fraction of PID space is reasonably
+> small, this algorithm should be very quick in average case.
+> 
+> Another possible solution: Divide PID space to blocks and for each
+> block, keep a counter of PID's available in this block and when
+> allocating, just skip blocks which are full. Runs in O(sqrt(PID space
+> size)) in the worst case.
+> 
+> 				Have a nice fortnight
 
-Yep. This can't be found by the compiler. The parameter area is
-writable so it looks like somebody needs to do some 'code inspection'
-and some additional testing.
+I remember something like the pid problem a few years ago when
+somebody needed to get a unique 'key' value. The 'key' value was
+used by a lock manager. It was not random, it just needed to be
+unique, sort of like a pid. As I recall, the selection went something
+like this:
 
-> > It's really bad code because it could have done:
-> > 
-> > 	incl	$0x04(%esp)
-> > 	incl	$0x08(%esp)
-> > 	incl	$0x1c(%esp)
-> > 	jmp	bar
-> 
-> Yes, I know.
-> 
+(1)	When keys were given up (released), the key value was compared
+with the last, lowest-key value given up. If this was lower, the last
+lowest key-value was substituted.
 
-It's a problem with a 'general purpose' compiler that wants to
-be "all things" to all people. If somebody made a gcc-compatible
-compiler, tuned to the ix86 characteristics, I think we could
-cut the extra instructions by at least 1/2, maybe more.
+(2)	When keys were allocated, the last lowest key-value was used.
+Upon its use, the next available highest key-value was substituted.
+
+(3)	Somehow, I don't remember the alogrithm, the highest key-
+value became the lowest key-value when all the higher keys were
+released. At this time, everything was free.
+
+Nobody ever had to scan anything to get the next-available key.
+So what was saved in memory was, the highest key-value allocated, and
+the lowest key-value allocated.
+
+Anybody here work on the Cluster Lock Manager for DEC?  That's what
+used the keys.
+
 
 Cheers,
 Dick Johnson

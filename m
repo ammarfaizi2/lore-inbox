@@ -1,84 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266078AbUAFG2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 01:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266077AbUAFG1s
+	id S266077AbUAFGjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 01:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266080AbUAFGjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 01:27:48 -0500
-Received: from mail-02.iinet.net.au ([203.59.3.34]:56490 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S266076AbUAFG1q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 01:27:46 -0500
-Message-ID: <3FFA553F.3040202@cyberone.com.au>
-Date: Tue, 06 Jan 2004 17:27:11 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Osterlund <petero2@telia.com>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>,
-       linux-kernel@vger.kernel.org, efault@gmx.de
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>	<200401041242.47410.kernel@kolivas.org>	<slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>	<200401041658.57796.kernel@kolivas.org> <m2ptdxq3vf.fsf@telia.com>	<3FFA1149.5030009@cyberone.com.au> <m2ekudq080.fsf@telia.com>
-In-Reply-To: <m2ekudq080.fsf@telia.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jan 2004 01:39:10 -0500
+Received: from unthought.net ([212.97.129.88]:25311 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S266077AbUAFGjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 01:39:08 -0500
+Date: Tue, 6 Jan 2004 07:39:06 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Bastiaan Spandaw <lkml@becobaf.com>
+Cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1 affected?
+Message-ID: <20040106063906.GB27889@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Bastiaan Spandaw <lkml@becobaf.com>,
+	Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+References: <1073320318.21198.2.camel@midux> <Pine.LNX.4.58.0401050840290.21265@home.osdl.org> <1073326471.21338.21.camel@midux> <Pine.LNX.4.58.0401051027430.2115@home.osdl.org> <20040105193817.GA4366@lsc.hu> <20040105224855.GC4987@louise.pinerecords.com> <1073348624.1790.43.camel@louise3.void.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073348624.1790.43.camel@louise3.void.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 06, 2004 at 01:23:44AM +0100, Bastiaan Spandaw wrote:
+...
+> Not sure if this works or not.
+> According to a slashdot comment this is proof of concept code.
+> 
+> http://linuxfromscratch.org/~devine/mremap_poc.c
 
+A few tests, all on IA32, all as non-root user:
 
-Peter Osterlund wrote:
+RedHat 5.2, (vanilla 2.0.39) = no effect
+RedHat 6.2, (vanilla 2.4.18) = instant reboot
+RedHat 7.2, (redhat 2.4.9-7) = instant reboot
+Debian 2.2, (vanilla 2.2.19) = no effect
+SuSE 7.3, (suse 2.4.10-4GB) = instant reboot
 
->Nick Piggin <piggin@cyberone.com.au> writes:
->
->
->>Peter Osterlund wrote:
->>
->>
->>>But the scheduler is also far from fair in this situation. If I run
->>>
->>snip a good analysis...
->>
->>... but fairness is not about a set of numbers the scheduler gives to
->>each process, its about the amount of CPU time processes are given.
->>
->>In this case I don't know if I find it objectionable that X and xterm
->>are considered interactive and perl considered a CPU hog. What is the
->>actual problem?
->>
->
->The problem is that if perl would get only slightly more cpu time, it
->would get ahead of xterm, which would make this test case run
->something like 10 times faster than it currently does. (Because xterm
->switches to jump scrolling when it can't keep up.)
->
->I guess it would be possible to fix this by introducing a
->usleep(10000) at some strategic place in the xterm source code, but I
->still find it strange that two tasks eating 40% cpu time each are
->considered interactive, while a task eating 4% is considered a cpu
->hog, especially since the 4% task never got a chance to prove that it
->didn't want to steal all cpu time. All that was proven was that it
->wanted more than 4% of the cpu.
->
->Also, while my test case runs, other tasks (such as running "ps" from
->a network login) are very slow, at least until the extra load makes
->the scheduler realize that the two tasks eating most of the cpu time
->should not have maximum priority bonus.
->
+Cheers,
 
-This is what top looks like with my (now fixed) scheduler
-(priorities go from 0 to 59). In theory I guess it looks like what
-you want.
-
-  920 root      21 -10 88156  17m  79m S 50.8  7.0  11:08.47 XFree86
-16762 npiggin   40   0  4804 2396 4356 R 37.9  0.9   0:07.76 xterm
-16784 npiggin   23   0  3128 1212 2664 S  9.3  0.5   0:01.93 perl
-
-xterm is a CPU hog, XFree86 is half and half, perl is at close to highest
-priority (which is 20 for a nice 0 process). When using xterm without jump
-scrolling, it seems to mess up X's scheduler by flooding it with so many
-small requests.
-
+ / jakob
 

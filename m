@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317205AbSFRAuK>; Mon, 17 Jun 2002 20:50:10 -0400
+	id <S317219AbSFRAzG>; Mon, 17 Jun 2002 20:55:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317209AbSFRAuK>; Mon, 17 Jun 2002 20:50:10 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:52424 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317205AbSFRAuI>; Mon, 17 Jun 2002 20:50:08 -0400
-Date: Tue, 18 Jun 2002 02:50:02 +0200
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Make CONFIG_ISA a choice for i386
-Message-ID: <20020618025002.A10804@averell>
+	id <S317232AbSFRAzF>; Mon, 17 Jun 2002 20:55:05 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38644 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317219AbSFRAzD>; Mon, 17 Jun 2002 20:55:03 -0400
+Subject: Re: Question about sched_yield()
+From: Robert Love <rml@tech9.net>
+To: David Schwartz <davids@webmaster.com>
+Cc: mgix@mgix.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020618004630.AAA28082@shell.webmaster.com@whenever>
+References: <20020618004630.AAA28082@shell.webmaster.com@whenever>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Jun 2002 17:55:02 -0700
+Message-Id: <1024361703.924.176.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-06-17 at 17:46, David Schwartz wrote:
 
-Now that most driver dirs honour CONFIG_ISA it makes sense to offer it 
-as a user visible choice for i386.  Most users of modern PCs will 
-define this as off. Also disables the old style CDROM support when
-ISA support is not defined.
+> 	You seem to have a misconception about what sched_yield is for.
+> It is not a  replacement for blocking or a scheduling priority
+> adjustment. It simply lets other ready-to-run tasks be scheduled
+before returning to the current task.
+> 
+> 	Here's a quote from SuS3:
+> 
+> "The sched_yield() function shall force the running thread to relinquish the 
+> processor until it again becomes the head of its thread list. It takes no 
+> arguments."
+> 
+> 	This neither says nor implies anything about CPU usage. It simply says
+> that  the current thread will yield and be put at the end of the list.
 
--Andi
+And you seem to have a misconception about sched_yield, too.  If a
+machine has n tasks, half of which are doing CPU-intense work and the
+other half of which are just yielding... why on Earth would the yielding
+tasks get any noticeable amount of CPU use?
 
---- linux/arch/i386/config.in	Mon Jun 10 14:31:20 2002
-+++ linux-2.5.22-work/arch/i386/config.in	Tue Jun 18 02:46:39 2002
-@@ -5,7 +5,6 @@
- mainmenu_name "Linux Kernel Configuration"
- 
- define_bool CONFIG_X86 y
--define_bool CONFIG_ISA y
- define_bool CONFIG_SBUS n
- 
- define_bool CONFIG_UID16 y
-@@ -259,7 +258,9 @@
- 
- source drivers/pci/Config.in
- 
--bool 'EISA support' CONFIG_EISA
-+bool 'ISA support' CONFIG_ISA
-+
-+dep_bool 'EISA support' CONFIG_EISA $CONFIG_ISA
- 
- if [ "$CONFIG_VISWS" != "y" ]; then
-    bool 'MCA support' CONFIG_MCA
-@@ -357,7 +358,10 @@
- 
- source drivers/isdn/Config.in
- 
-+if [ "$CONFIG_ISA" != "n" ]; then
-+
- mainmenu_option next_comment
-+
- comment 'Old CD-ROM drivers (not SCSI, not IDE)'
- 
- bool 'Support non-SCSI/IDE/ATAPI CDROM drives' CONFIG_CD_NO_IDESCSI
-@@ -365,6 +369,8 @@
-    source drivers/cdrom/Config.in
- fi
- endmenu
-+
-+fi
- 
- #
- # input before char - char/joystick depends on it. As does USB.
+Seems to me the behavior of sched_yield is a bit broken.  If the tasks
+are correctly returned to the end of their runqueue, this should not
+happen.  Note, for example, you will not see this behavior in 2.5.
+
+Quite frankly, even if the supposed standard says nothing of this... I
+do not care: calling sched_yield in a loop should not show up as a CPU
+hog.
+
+	Robert Love
+

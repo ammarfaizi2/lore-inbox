@@ -1,117 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267425AbTBUMvp>; Fri, 21 Feb 2003 07:51:45 -0500
+	id <S267426AbTBUM54>; Fri, 21 Feb 2003 07:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267426AbTBUMvp>; Fri, 21 Feb 2003 07:51:45 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:37579 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S267425AbTBUMvn>; Fri, 21 Feb 2003 07:51:43 -0500
-Message-Id: <200302211301.h1LD1jZ05730@rumms.uni-mannheim.de>
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: [PATCH][2.5] add some missing gloabl_flush_tlb() calls
-Date: Fri, 21 Feb 2003 13:58:58 +0100
+	id <S267427AbTBUM54>; Fri, 21 Feb 2003 07:57:56 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:18255 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S267426AbTBUM5y>; Fri, 21 Feb 2003 07:57:54 -0500
+From: Bob Johnson <livewire@gentoo.org>
+Reply-To: livewire@gentoo.org
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] TIObench 2.5.60 performance
+Date: Fri, 21 Feb 2003 08:05:39 -0500
 User-Agent: KMail/1.5
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <94F20261551DC141B6B559DC4910867217CCBE@blr-m3-msg.wipro.com>
+In-Reply-To: <94F20261551DC141B6B559DC4910867217CCBE@blr-m3-msg.wipro.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_TKiV+Ny/J8k7qdc";
-  charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302210805.39508.livewire@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My Tiobenchs on raid0 are quite a bit slower with 2.5.62 then 2.4.20 vanilla  
+:(
+average 50m/sec on 2.4
+average 28m/sec on 2.5.62 
+hdparm shows similiar results.
 
---Boundary-03=_TKiV+Ny/J8k7qdc
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_SKiV+0051hNYPu/"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
-
---Boundary-01=_SKiV+0051hNYPu/
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Description: body text
-Content-Disposition: inline
-
-I found some places where change_page_attr() is called without the corresponding global_flush_tlb(). This patch should fix it...
-
-  Thomas Schlichter
-
-P.S.: I hope this fix is correct at the first try...
---Boundary-01=_SKiV+0051hNYPu/
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="missing_global_flush_tlb.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="missing_global_flush_tlb.patch"
-
-=2D-- linux-2.5.62/arch/i386/mm/ioremap.c.orig	Fri Feb 21 12:26:36 2003
-+++ linux-2.5.62/arch/i386/mm/ioremap.c	Fri Feb 21 12:28:44 2003
-@@ -205,6 +205,7 @@
- 			iounmap(p);=20
- 			p =3D NULL;
- 		}
-+		global_flush_tlb();
- 	}=20
-=20
- 	return p;				=09
-@@ -226,6 +227,7 @@
- 		change_page_attr(virt_to_page(__va(p->phys_addr)),
- 				 p->size >> PAGE_SHIFT,
- 				 PAGE_KERNEL); 				=20
-+		global_flush_tlb();
- 	}=20
- 	kfree(p);=20
- }
-=2D-- linux-2.5.62/arch/x86_64/mm/ioremap.c.orig	Fri Feb 21 12:25:54 2003
-+++ linux-2.5.62/arch/x86_64/mm/ioremap.c	Fri Feb 21 12:27:58 2003
-@@ -205,6 +205,7 @@
- 			iounmap(p);=20
- 			p =3D NULL;
- 		}
-+		global_flush_tlb();
- 	}=20
-=20
- 	return p;				=09
-@@ -226,6 +227,7 @@
- 		change_page_attr(virt_to_page(__va(p->phys_addr)),
- 				 p->size >> PAGE_SHIFT,
- 				 PAGE_KERNEL); 				=20
-+		global_flush_tlb();
- 	}=20
- 	kfree(p);=20
- }
-=2D-- linux-2.5.62/arch/x86_64/kernel/pci-gart.c.orig	Fri Feb 21 12:39:40 2=
-003
-+++ linux-2.5.62/arch/x86_64/kernel/pci-gart.c	Fri Feb 21 12:43:13 2003
-@@ -437,6 +437,7 @@
- 	}
- 	flush_gart();=20
- =09
-+	global_flush_tlb();
- 	=09
- 	printk("PCI-DMA: aperture base @ %x size %u KB\n", aper_base, aper_size>>=
-10);=20
- 	return 0;
-
---Boundary-01=_SKiV+0051hNYPu/--
-
---Boundary-03=_TKiV+Ny/J8k7qdc
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+ViKTYAiN+WRIZzQRAiSTAKDBT/iY0temEjipahbcpFkkzYSoXQCgyuI/
-/vkJQkpqqmCw6oxbYR/PZ4w=
-=Cra3
------END PGP SIGNATURE-----
-
---Boundary-03=_TKiV+Ny/J8k7qdc--
+On Friday 21 February 2003 05:43 am, Aniruddha M Marathe wrote:
+> Here is TIObench performance of 2.5.62. Comparison of 2.5.62 and 2.5.60 is
+> given below.
+>
+>
+>
+> ---------------------------------------------------------------------------
+>-------------------------------------- test					2.5.62 (as compared to
+> 					2.5.60) APPROXIMATE % change
+> ---------------------------------------------------------------------------
+>------------------------------------- rate (megabytes per second)		less than
+> 5% increase
+> CPU % utilization			less than 5% increase
+> Average Latency			5 % decrease
+> Maximum latency			5-10 % increase
+> CPU efficiency				less than 5% increase
+> ---------------------------------------------------------------------------
+>--------------------------------------
+>
+>
+> ************************************************************
+> 		TIObench for kernel 2.5.62
+> ************************************************************
+> No size specified, using 252 MB
+>
+> Unit information
+> ================
+> File size = megabytes
+> Blk Size  = bytes
+> Rate      = megabytes per second
+> CPU%      = percentage of CPU used during the test
+> Latency   = milliseconds
+> Lat%      = percent of requests that took longer than X seconds
+> CPU Eff   = Rate divided by CPU% - throughput per cpu load
+>
+> Sequential Reads
+>                               File  Blk   Num                   Avg     
+> Maximum      Lat%     Lat%    CPU Identifier                    Size  Size 
+> Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+> ---------------------------- ------ ----- ---  ------ ------ ---------
+> -----------  -------- -------- ----- 2.5.62                        252  
+> 4096   10    7.93 4.271%    12.438     2841.36   0.00000  0.00000   186
+>
+> Random Reads
+>                               File  Blk   Num                   Avg     
+> Maximum      Lat%     Lat%    CPU Identifier                    Size  Size 
+> Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+> ---------------------------- ------ ----- ---  ------ ------ ---------
+> -----------  -------- -------- ----- 2.5.62                        252  
+> 4096   10    0.47 0.552%   213.629     1301.68   0.00000  0.00000    84
+>
+> Sequential Writes
+>                               File  Blk   Num                   Avg     
+> Maximum      Lat%     Lat%    CPU Identifier                    Size  Size 
+> Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+> ---------------------------- ------ ----- ---  ------ ------ ---------
+> -----------  -------- -------- ----- 2.5.62                        252  
+> 4096   10   12.39 21.14%     6.214    37150.05   0.10157  0.00782    59
+>
+> Random Writes
+>                               File  Blk   Num                   Avg     
+> Maximum      Lat%     Lat%    CPU Identifier                    Size  Size 
+> Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+> ---------------------------- ------ ----- ---  ------ ------ ---------
+> -----------  -------- -------- ----- 2.5.62                        252  
+> 4096   10    0.73 0.891%     0.762     1761.34   0.00000  0.00000    81 No
+> size specified, using 252 MB
+>
+> Aniruddha Marathe
+> WIPRO Technologies, India.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

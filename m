@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314156AbSDLXCz>; Fri, 12 Apr 2002 19:02:55 -0400
+	id <S314159AbSDMASe>; Fri, 12 Apr 2002 20:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314157AbSDLXCy>; Fri, 12 Apr 2002 19:02:54 -0400
-Received: from firewall.ill.fr ([193.49.43.1]:61323 "HELO out.esrf.fr")
-	by vger.kernel.org with SMTP id <S314156AbSDLXCx>;
-	Fri, 12 Apr 2002 19:02:53 -0400
-Date: Sat, 13 Apr 2002 01:02:29 +0200
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/zero
-Message-ID: <20020413010229.B11097@pcmaftoul.esrf.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
+	id <S314160AbSDMASd>; Fri, 12 Apr 2002 20:18:33 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:13771 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S314159AbSDMASc>; Fri, 12 Apr 2002 20:18:32 -0400
+Date: Fri, 12 Apr 2002 17:16:49 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: usbnet: prolific fails reset
+To: Kurt Garloff <kurt@garloff.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <0b7901c1e280$81b07140$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <20020412224832.D1832@nbkurt.etpnet.phys.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12, 2002 at 05:12:06PM +0200, Guillaume Gimenez wrote:
-> Samuel Maftoul a écrit:
->     Samuel> It's just zeroes, so it allows you to test raw write speed on any
->     Samuel> device:
->     Samuel> dd if=/dev/zero of=/dev/hda to test your performances of hda ...
->     Samuel> normally if I get it well, /dev/zero can't be you're bottleneck.
->     Samuel>         Sam
-oops really sorry, It will really earase your disk.
-This morning I was really sleepy and wanted to write something other:
-time dd if=/dev/zero of=/mnt/ bs=1024 count=100000 
-and so you can know what's the speed not of your ide or scsi (or
-something other) which is given by hdparm but it will give you the speed
-through the used filesystem.
-Sorry about that.
-        Sam
+Hi Kurt --
 
-> 
-> Just to save Samuel's soul ;-)
-> the dd command supplied above will erase your primary hard drive
-> 
-> To see hard drive performances, hdparm -tT /dev/hda is better.
-> 
-> PS: Pas sympa Samuel
-> 
-> -- 
-> Guillaume Gimenez
+Thanks for the patch, I'll check it out.  "-32" should be a protocol
+stall (Intel <asm/errno.h> I assume) that could be retried ... it'd
+be better done in device-specific code (pl_reset) than in the
+generic layer though.  I'll look at providing a "real" fix, and may
+ask you to check out a different patch.
+
+Those Prolific chips are perhaps not as finely crafted as I'd like
+to see, there are a bunch of "gotchas" ... this could be a good
+way to work around one of them, but I suspect you'll still find that
+under load testing, you'll be glad the TX watchdog is so good
+at barking (sometimes every few seconds)!
+
+- Dave
+
+
+
+----- Original Message ----- 
+From: "Kurt Garloff" <kurt@garloff.de>
+To: "David Brownell" <dbrownell@users.sourceforge.net>
+Cc: "Linux kernel list" <linux-kernel@vger.kernel.org>
+Sent: Friday, April 12, 2002 1:48 PM
+Subject: usbnet: prolific fails reset
+
+
+Hi David,
+
+got a USB network cable and was happy to see that it's supported by usbnet.
+Good job, thanks!
+usb0: register usbnet 001/004, Prolific PL-2301/PL-2302
+
+However:
+Upon ifconfig,
+usb-uhci.c: interrupt, status 3, frame# 922
+usb0: open reset fail (-32) usbnet 001/004, Prolific PL-2301/PL-2302
+
+The ifconfig fails to up the interface, consequently.
+
+Attached patch prevents the driver from returning the reset failure.
+Guess what: The networking worked just fine then.
+Probably the real solution is different ...
+
+Patch is against 2.4.16.
+
+Regards,
+-- 
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
+
+

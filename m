@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVAUIoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVAUIoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbVAUIoq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 03:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVAUIoq
+	id S262319AbVAUIoW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVAUIoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 03:44:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6542 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262321AbVAUIoc (ORCPT
+	Fri, 21 Jan 2005 03:44:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:63117 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262319AbVAUIoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 03:44:32 -0500
-Date: Fri, 21 Jan 2005 00:42:04 -0800
+	Fri, 21 Jan 2005 03:44:14 -0500
+Date: Fri, 21 Jan 2005 00:36:50 -0800
 From: Greg KH <greg@kroah.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: John Mock <kd6pag@qsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1 vs. PowerMac 8500/G3 (and VAIO laptop) [usb-storage oops]
-Message-ID: <20050121084204.GA20397@kroah.com>
-References: <E1CrPQ4-0000pW-00@penngrove.fdns.net> <1106210408.6932.27.camel@localhost.localdomain> <20050121000822.GA14580@kroah.com> <1106293748.783.31.camel@baythorne.infradead.org> <20050121075833.GA19995@kroah.com> <1106295136.783.47.camel@baythorne.infradead.org>
+To: Alexander Fieroch <Fieroch@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb storage device bug in kernel module - I/O error
+Message-ID: <20050121083650.GA20115@kroah.com>
+References: <csp6oq$pld$1@sea.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106295136.783.47.camel@baythorne.infradead.org>
+In-Reply-To: <csp6oq$pld$1@sea.gmane.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 08:12:16AM +0000, David Woodhouse wrote:
-> On Thu, 2005-01-20 at 23:58 -0800, Greg KH wrote:
-> > Well, we should be byteswapping all of the fields that need to be
-> > swapped, right?  I'm guessing that userspace is expecting the fields
-> > to be in cpu endian, correct?
+On Thu, Jan 20, 2005 at 10:10:49PM +0100, Alexander Fieroch wrote:
+> Hello kernel list,
 > 
-> Userspace varies in that. Nobody expects _all_ the fields to be swapped;
-> the kernel only ever swapped those four. And in fact lsusb from the
-> stock usbutils expects it to be consistently little-endian. John's
-> version seems to be hacked to expect just those four fields to be host-
-> endian, while the rest remains little-endian.
-> 
-> We have a choice here -- we can preserve the ABI by continuing to be
-> stupidly inconsistent about endianness, or you can revert my patch and
-> stock usbutils can be correct.
+> I don't know if this is the right list for problems with kernel modules
+> and bugs - if not please tell me where I can find the kernel development
+> mailing list to report this.
 
-Let's preserve the ABI, that's the safest thing to do.
+This is the right list, but you might want to post this to the
+linux-usb-devel mailing list, where the usb-storage driver authors are.
+They should be able to help you out.
 
-> > But if you want, I'll gladly revert your patch, as I don't have a ppc
-> > box to test this out on.
-> 
-> I'd revert it.
-
-Done.
-
-thanks,
+good luck,
 
 greg k-h

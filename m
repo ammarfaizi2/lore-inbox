@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312208AbSDCQio>; Wed, 3 Apr 2002 11:38:44 -0500
+	id <S312248AbSDCQsg>; Wed, 3 Apr 2002 11:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312248AbSDCQij>; Wed, 3 Apr 2002 11:38:39 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33332 "EHLO
+	id <S312219AbSDCQsa>; Wed, 3 Apr 2002 11:48:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34356 "EHLO
 	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312208AbSDCQia>; Wed, 3 Apr 2002 11:38:30 -0500
+	id <S312212AbSDCQsY>; Wed, 3 Apr 2002 11:48:24 -0500
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86 Boot enhancements, build enhancements 6/9
+Subject: [PATCH] x86 Boot enhancements, boot protocol 2.04 7/9
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Apr 2002 09:32:01 -0700
-Message-ID: <m1sn6cspz2.fsf@frodo.biederman.org>
+Date: 03 Apr 2002 09:41:55 -0700
+Message-ID: <m1ofh0spik.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,833 +20,603 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus, please apply
 
-When building a zImage or a bzImage there is currently an enormous
-amount of data loss.  In particular we lose all information about how
-much memory the loaded kernel actually uses during bootstrap.  This
-makes understanding the boot process quite difficult, and it makes
-implementing a ramdisk that loads immediately after the kernel in
-memory impossible.  
+This patch is what my earlier patches were building to.  In this
+patch I upgrade the linux boot protocol to version 2.04 and export a
+32bit entry point, and the which memory the kernel uses during bootup.
+In imitation of the arm and ppc ports a CONFIG_CMDLINE option is also
+implemented.
 
-Rework the actual build/link step for kernel images.  
-- remove the need for objcopy
-- Kill the ROOT_DEV Makefile variable, the implementation
-  was only half correct and there are much better ways
-  to specify your root device than modifying the kernel.
-- Don't loose information when the executable is built
+While the 32bit entry point allows us to avoid 16bit BIOS calls this
+is not the only reason people to use it.  So if we come in the 32bit
+entry point with too little information we drop back to real mode query
+the BIOS and then do the normal kernel startup.  The policy decision
+for this is implemented in setup.c
 
-Except for a few extra fields in setup.S the binary image
-is unchanged.
+
+Update the boot protocol to include:
+   - A compiled in command line
+   - A 32bit entry point
+   - File and memory usage information enabling a 1 to 1 
+     conversion between the bzImage format and the static ELF
+     executable file format.
+   - In setup.c split the variables between those that
+     are private to linux and those that are exported to bootloaders.
+
 
 Eric
 
-diff -uNr linux-2.5.7.boot2.heap/Makefile linux-2.5.7.boot3.build/Makefile
---- linux-2.5.7.boot2.heap/Makefile	Tue Apr  2 11:52:04 2002
-+++ linux-2.5.7.boot3.build/Makefile	Tue Apr  2 22:26:28 2002
-@@ -93,15 +93,6 @@
- AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
+diff -uNr linux-2.5.7.boot3.build/Documentation/i386/boot.txt linux-2.5.7.boot3.proto/Documentation/i386/boot.txt
+--- linux-2.5.7.boot3.build/Documentation/i386/boot.txt	Sun Mar 10 20:05:16 2002
++++ linux-2.5.7.boot3.proto/Documentation/i386/boot.txt	Wed Apr  3 02:06:43 2002
+@@ -127,7 +127,18 @@
+ 0224/2	2.01+	heap_end_ptr	Free memory after setup end
+ 0226/2	N/A	pad1		Unused
+ 0228/4	2.02+	cmd_line_ptr	32-bit pointer to the kernel command line
+-022C/4	2.03+	initrd_addr_max	Highest legal initrd address
++022C/4	2.03+	ramdisk_max	Highest legal initrd address
++0230/2	2.04+	entry32_off	offset of 32bit entry point
++0230/2	2.04+	internal_cmdline_off	offset of compiled in command line
++0234/4	2.04+	low_base	0x1000
++0238/4	2.04+	low_memsz	Memory used @ 0x1000
++023C/4	2.04+	low_filesz	Precomputed data for 0x1000
++0240/4	2.04+	real_base	0x90000
++0244/4	2.04+	real_memsz	Memory used @ 0x90000
++0248/4	2.04+	real_filesz	Precomputed data for @ 0x90000
++024C/4	2.04+	high_memsz	Memory used @ 0x100000
++0250/4	2.04+	high_base	0x100000
++0254/4	2.04+	high_filesz	Amount of file used for the compressed kernel
  
- #
--# ROOT_DEV specifies the default root-device when making the image.
--# This can be either FLOPPY, CURRENT, /dev/xxxx or empty, in which case
--# the default of FLOPPY is used by 'build'.
--# This is i386 specific.
--#
--
--export ROOT_DEV = CURRENT
--
--#
- # If you want to preset the SVGA mode, uncomment the next line and
- # set SVGA_MODE to whatever number you want.
- # Set it to -DSVGA_MODE=NORMAL_VGA if you just want the EGA/VGA mode.
-diff -uNr linux-2.5.7.boot2.heap/arch/i386/boot/Makefile linux-2.5.7.boot3.build/arch/i386/boot/Makefile
---- linux-2.5.7.boot2.heap/arch/i386/boot/Makefile	Sun Aug  5 14:13:19 2001
-+++ linux-2.5.7.boot3.build/arch/i386/boot/Makefile	Tue Apr  2 22:26:28 2002
-@@ -12,13 +12,11 @@
- 		$(TOPDIR)/include/linux/autoconf.h \
- 		$(TOPDIR)/include/asm/boot.h
+ For backwards compatibility, if the setup_sects field contains 0, the
+ real value is 4.
+@@ -198,7 +209,7 @@
+ 	The initrd should typically be located as high in memory as
+ 	possible, as it may otherwise get overwritten by the early
+ 	kernel initialization sequence.	 However, it must never be
+-	located above the address specified in the initrd_addr_max
++	located above the address specified in the ramdisk_max
+ 	field.	The initrd should be at least 4K page aligned.
  
--zImage: $(CONFIGURE) bootsect setup compressed/vmlinux tools/build
--	$(OBJCOPY) compressed/vmlinux compressed/vmlinux.out
--	tools/build bootsect setup compressed/vmlinux.out $(ROOT_DEV) > zImage
--
--bzImage: $(CONFIGURE) bbootsect bsetup compressed/bvmlinux tools/build
--	$(OBJCOPY) compressed/bvmlinux compressed/bvmlinux.out
--	tools/build -b bbootsect bsetup compressed/bvmlinux.out $(ROOT_DEV) > bzImage
-+zImage: $(CONFIGURE) tools/build $(TOPDIR)/vmlinux realmode compressed/vmlinux 
-+	tools/build $(TOPDIR)/vmlinux realmode compressed/vmlinux zImage
+   cmd_line_ptr:
+@@ -219,6 +230,76 @@
+ 	if your ramdisk is exactly 131072 bytes long and this field is
+ 	0x37FFFFFF, you can start your ramdisk at 0x37FE0000.)
+ 
++  entry32_off:
++	The offset of the 32bit entry point from the real mode kernel.
++	For boot protocols 2.03 or earlier, this field is not present,
++	and there is no 32bit entry point.
 +
-+bzImage: $(CONFIGURE) tools/build $(TOPDIR)/vmlinux brealmode compressed/bvmlinux 
-+	tools/build -b $(TOPDIR)/vmlinux brealmode compressed/bvmlinux bzImage
- 
- compressed/vmlinux: $(TOPDIR)/vmlinux
- 	@$(MAKE) -C compressed vmlinux
-@@ -39,49 +37,43 @@
- install: $(CONFIGURE) $(BOOTIMAGE)
- 	sh -x ./install.sh $(KERNELRELEASE) $(BOOTIMAGE) $(TOPDIR)/System.map "$(INSTALL_PATH)"
- 
--tools/build: tools/build.c
-+tools/build: tools/build.c $(TOPDIR)/include/linux/version.h $(TOPDIR)/include/linux/compile.h $(TOPDIR)/include/asm-i386/boot.h
- 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $< -I$(TOPDIR)/include
- 
--bootsect: bootsect.o
--	$(LD) -Ttext 0x0 -s --oformat binary -o $@ $<
--
- bootsect.o: bootsect.s
- 	$(AS) -o $@ $<
- 
- bootsect.s: bootsect.S Makefile $(BOOT_INCL)
- 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
--bbootsect: bbootsect.o
--	$(LD) -Ttext 0x0 -s --oformat binary $< -o $@
--
- bbootsect.o: bbootsect.s
- 	$(AS) -o $@ $<
- 
- bbootsect.s: bootsect.S Makefile $(BOOT_INCL)
- 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
--setup: setup.o
--	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
--
- setup.o: setup.s
- 	$(AS) -o $@ $<
- 
- setup.s: setup.S video.S Makefile $(BOOT_INCL) $(TOPDIR)/include/linux/version.h $(TOPDIR)/include/linux/compile.h
- 	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
--bsetup: bsetup.o
--	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
--
- bsetup.o: bsetup.s
- 	$(AS) -o $@ $<
- 
- bsetup.s: setup.S video.S Makefile $(BOOT_INCL) $(TOPDIR)/include/linux/version.h $(TOPDIR)/include/linux/compile.h
- 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -D__ASSEMBLY__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
-+realmode: bootsect.o setup.o
-+	$(LD) -T realmode.lds -o $@ $^
++  internal_cmdline_off:
++	The offset of the null terminated compiled in command line
++	from the real mode kernel.   For boot protocols 2.03 or
++	earlier this field is not present, and there is no built in
++	command line.  The memory from internal_cmdline_off to
++	real_filesz is reserved for the compiled in command_line.  An
++	external utility may modify this command line.
 +
-+brealmode: bbootsect.o bsetup.o
-+	$(LD) -T realmode.lds -o $@ $^
++	To change the maximum size of the compiled in command line several
++	variables need to be modified.  real_filesz to indicate the
++	new maximum size.  setup_sects to indicate if the number of
++	sectors needed for the realmode kernel changes.  
 +
- dep:
- 
- clean:
- 	rm -f tools/build
--	rm -f setup bootsect zImage compressed/vmlinux.out
--	rm -f bsetup bbootsect bzImage compressed/bvmlinux.out
-+	rm -f realmode zImage
-+	rm -f brealmode bzImage
- 	@$(MAKE) -C compressed clean
-diff -uNr linux-2.5.7.boot2.heap/arch/i386/boot/bootsect.S linux-2.5.7.boot3.build/arch/i386/boot/bootsect.S
---- linux-2.5.7.boot2.heap/arch/i386/boot/bootsect.S	Tue Apr  2 11:50:27 2002
-+++ linux-2.5.7.boot3.build/arch/i386/boot/bootsect.S	Tue Apr  2 22:26:28 2002
-@@ -54,7 +54,7 @@
- #endif
- 
- .code16
--.text
-+.section ".bootsect", "ax", @progbits
- 
- .global _start
- _start:
-diff -uNr linux-2.5.7.boot2.heap/arch/i386/boot/realmode.lds linux-2.5.7.boot3.build/arch/i386/boot/realmode.lds
---- linux-2.5.7.boot2.heap/arch/i386/boot/realmode.lds	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.7.boot3.build/arch/i386/boot/realmode.lds	Tue Apr  2 22:26:28 2002
-@@ -0,0 +1,20 @@
-+OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
-+ENTRY(_start)
-+OUTPUT_ARCH(i386)
-+SECTIONS
-+{
-+	. = 0x90000;
-+	.bootsect : {
-+		*(.bootsect)
-+	}
-+	. = 0x90200;
-+	.setup : {
-+		*(.setup)
-+	}
-+	.setup.heap : {
-+		*(.setup.heap)
-+	}
-+	/DISCARD/ : {
-+		*(*)
-+	}
-+}
-diff -uNr linux-2.5.7.boot2.heap/arch/i386/boot/setup.S linux-2.5.7.boot3.build/arch/i386/boot/setup.S
---- linux-2.5.7.boot2.heap/arch/i386/boot/setup.S	Tue Apr  2 11:52:04 2002
-+++ linux-2.5.7.boot3.build/arch/i386/boot/setup.S	Tue Apr  2 22:26:28 2002
-@@ -80,7 +80,7 @@
- .code16
- .globl _setup, _esetup
- 
--.text
-+.section ".setup", "ax", @progbits
- _setup:	
- 
- start:
-@@ -138,7 +138,7 @@
- bootsect_kludge:
- 		.word	bootsect_helper - start, SETUPSEG
- 
--heap_end_ptr:	.word	_esetup + MIN_HEAP_SIZE  - start
-+heap_end_ptr:	.word	_esetup_heap - start
- 					# (Header version 0x0201 or later)
- 					# space from here (exclusive) down to
- 					# heap_start can be used by setup
-@@ -165,7 +165,18 @@
- 					# the contents of an initrd
- 
- # variables private to setup.S (not for bootloaders)
--real_filesz:	.long (_esetup - start) + (DELTA_INITSEG << 4)
-+pad2:		.long 0
-+low_base:	.long	LOW_BASE	# low buffer base 0x1000
-+low_memsz:	.long	0x00000000	# Size of low buffer  @ 0x1000
-+low_filesz:	.long	0x00000000	# Size of precomputed data @ 0x1000
-+real_base:	.long	REAL_BASE	# Location of real mode kernel
-+real_memsz:				# Memory usage of real mode kernel @ 0x90000
-+		.long	(_esetup_heap - start) + (DELTA_INITSEG << 4)
-+real_filesz:				# Datasize of real mode kernel @ 0x90000
-+		.long	(_esetup - start) + (DELTA_INITSEG << 4)
-+high_base:	.long	HIGH_BASE	# high buffer base 0x100000
-+high_memsz:	.long	0x00000000	# Size of high buffer @	0x100000
-+high_filesz:	.long	0x00000000	# Datasize of the linux kernel
- trampoline:	call	start_of_setup
- 		# Don't let the E820 map overlap code
- 		. = (0x2d0 - 0x200) + (E820MAX * E820ENTRY_SIZE)
-@@ -1045,3 +1056,7 @@
- # handling code to store the temporary mode table (not used by the kernel).
- 
- _esetup:
-+.section ".setup.heap", "a", @nobits
-+_setup_heap:
-+. = MIN_HEAP_SIZE
-+_esetup_heap:
-diff -uNr linux-2.5.7.boot2.heap/arch/i386/boot/tools/build.c linux-2.5.7.boot3.build/arch/i386/boot/tools/build.c
---- linux-2.5.7.boot2.heap/arch/i386/boot/tools/build.c	Mon Jul  2 14:56:40 2001
-+++ linux-2.5.7.boot3.build/arch/i386/boot/tools/build.c	Tue Apr  2 22:27:55 2002
-@@ -1,19 +1,24 @@
++	A heap is maintained between real_filesz and real_memsz/heap_end_ptr.
++	Increasing the size of the heap is not a problem, decreasing
++	it is.  So when changing the real_filesz, real_memsz and
++	heap_end_ptr should also be changed.  real_memsz and
++	heap_end_ptr should always indicate the same maximum except
++	at runtime when a bootloader may indicate a larger heap is
++	present.
 +
- /*
-  *  $Id: build.c,v 1.5 1997/05/19 12:29:58 mj Exp $
++  low_base, low_memsz, low_filesz, 
++  real_base, real_memsz, real_filesz, 
++  high_base, high_memsz, high_filesz:
++	Up to this point building a zImage or a bzImage has been a very lossy
++	process.  The introduction of these six variables attempts to
++	rectify that situation.  They document exactly which pieces
++	of memory, the kernel uses during the boot process, and they
++	indicate exactly how large the various data segments of the
++	kernel are.  It is now possible to create a lossless
++	transformation to and from a static ELF executable.
++
++	For a bzImage the low program segment describes the memory
++	from 4KB - 572KB the kernel decompressors uses as a temorary
++	buffer.  For a zImage the low program segment describes the
++	memory from 4KB - 572KB where the compressed kernel is loaded. 
++
++	For a bzImage the high program segment describes the memory
++	from 1MB on where the compressed kernel is loaded, where
++	decompression takes place, where the kernel initially runs,
++	and where the kernels bss segment is.  For a zImage the high
++	program segment describes the memory from 1MB on where the
++	kernel is decompressed to, where the kernel initial runs, and
++	where the kernels bss segment is located.
++
++	The real program segment describes the memory from 572KB
++	(0x90000) to 640KB (0xa0000) that the real mode kernel uses.
++	This region may be moved lower in memory if the BIOS has
++	reserved region for some other purpose.  When doing so
++	the following considerations should be applied.
++	
++		For a zImage you may move the real mode kernel now
++		lower than low_base + low_memsz.
++
++		For a bzImage if you move real_base below (low_base +
++		low_memsz) the following are the values of the other
++		variables.
++			low_memsz -= (low_base + low_memsz) - real_base
++			high_memsz += (low_base + low_memsz) - real_base
++		
++	
++	With this information it becomes safe to to statically
++	relocate the real mode kernel as well as dynamically relocate
++	it.  real_base should not be > 0x90000.
++
+ 
+ **** THE KERNEL COMMAND LINE
+ 
+@@ -247,6 +328,11 @@
+ 	The kernel command line *must* be within the memory region
+ 	covered by setup_move_size, so you may need to adjust this
+ 	field.
++
++If the protocol version is 2.04 or higher a compiled in command line
++may be present.  If this is the case the passed command line is
++appended onto the tail of the compiled command line.  Assuming
++there is room.
+ 
+ 
+ **** SAMPLE BOOT CONFIGURATION
+diff -uNr linux-2.5.7.boot3.build/arch/i386/Config.help linux-2.5.7.boot3.proto/arch/i386/Config.help
+--- linux-2.5.7.boot3.build/arch/i386/Config.help	Wed Mar 20 07:18:31 2002
++++ linux-2.5.7.boot3.proto/arch/i386/Config.help	Wed Apr  3 02:06:43 2002
+@@ -797,6 +797,12 @@
+   a work-around for a number of buggy BIOSes. Switch this option on if
+   your computer crashes instead of powering off properly.
+ 
++CONFIG_CMDLINE
++  Generally it is best to pass command line parameters via the
++  bootloader but there are times it is convinient not to do this.
++  This allows you to hard code a default kernel command line, whatever
++  the bootloader passes will be appended to it.
++
+ CONFIG_TOSHIBA
+   This adds a driver to safely access the System Management Mode of
+   the CPU on Toshiba portables with a genuine Toshiba BIOS. It does
+diff -uNr linux-2.5.7.boot3.build/arch/i386/boot/realmode.lds linux-2.5.7.boot3.proto/arch/i386/boot/realmode.lds
+--- linux-2.5.7.boot3.build/arch/i386/boot/realmode.lds	Tue Apr  2 22:26:28 2002
++++ linux-2.5.7.boot3.proto/arch/i386/boot/realmode.lds	Wed Apr  3 02:06:43 2002
+@@ -1,5 +1,5 @@
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+-ENTRY(_start)
++ENTRY(entry32)
+ OUTPUT_ARCH(i386)
+ SECTIONS
+ {
+diff -uNr linux-2.5.7.boot3.build/arch/i386/boot/setup.S linux-2.5.7.boot3.proto/arch/i386/boot/setup.S
+--- linux-2.5.7.boot3.build/arch/i386/boot/setup.S	Tue Apr  2 22:26:28 2002
++++ linux-2.5.7.boot3.proto/arch/i386/boot/setup.S	Wed Apr  3 02:06:43 2002
+@@ -42,6 +42,12 @@
+  * if CX/DX have been changed in the e801 call and if so use AX/BX .
+  * Michael Miller, April 2001 <michaelm@mjmm.org>
   *
-  *  Copyright (C) 1991, 1992  Linus Torvalds
-  *  Copyright (C) 1997 Martin Mares
-+ *  Copyright (C) 2002 Eric Biederman
++ * Update boot protocol to version 2.04
++ * - Add support for a compiled in command line.
++ * - Add support for a 32bit kernel entry point
++ * - Stop information loss when bzImage is created
++ * Eric Biederman 29 March 2002 <ebiederm@xmission.com>
 + *
   */
  
- /*
-  * This file builds a disk-image from three different files:
-  *
-- * - bootsect: exactly 512 bytes of 8086 machine code, loads the rest
-- * - setup: 8086 machine code, sets up system parm
-+ * - vmlinux: kernel before compression
-+ * - realmode: composed of:
-+ *    - bootsect: exactly 512 bytes of 8086 machine code, loads the rest
-+ *    - setup: 8086 machine code, sets up system parm
-  * - system: 80386 code for actual system
-  *
-  * It does some checking that all files are of the correct type, and
-- * just writes the result to stdout, removing headers and padding to
-+ * just writes the result, removing headers and padding to
-  * the right amount. It also writes some system data to stderr.
-  */
+ #include <linux/config.h>
+@@ -89,7 +95,7 @@
+ # This is the setup header, and it must start at %cs:2 (old 0x9020:2)
  
-@@ -22,32 +27,91 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  * Cross compiling fixes by Gertjan van Wingerde, July 1996
-  * Rewritten by Martin Mares, April 1997
-+ * Rewriten by Eric Biederman to remove the need for objcopy and
-+ *   to stop losing information. 29 Mary 2002
-  */
+ 		.ascii	"HdrS"		# header signature
+-		.word	0x0203		# header version number (>= 0x0105)
++		.word	0x0204		# header version number (>= 0x0105)
+ 					# or else old loadlin-1.5 will fail)
+ realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
+ start_sys_seg:				# pointing to kernel version string
+@@ -164,8 +170,14 @@
+ 					# The highest safe address for
+ 					# the contents of an initrd
  
- #include <stdio.h>
- #include <string.h>
- #include <stdlib.h>
- #include <stdarg.h>
-+#include <stddef.h>
- #include <sys/types.h>
- #include <sys/stat.h>
--#include <sys/sysmacros.h>
- #include <unistd.h>
- #include <fcntl.h>
-+#include <inttypes.h>
-+#include <errno.h>
-+#include <elf.h>
-+/* To stay in sync with the kernel we must include these headers */
-+#include <linux/version.h>
-+#include <linux/compile.h>
- #include <asm/boot.h>
- 
--typedef unsigned char byte;
--typedef unsigned short word;
--typedef unsigned long u32;
--
- #define DEFAULT_MAJOR_ROOT 0
- #define DEFAULT_MINOR_ROOT 0
- 
- /* Minimal number of setup sectors (see also bootsect.S) */
- #define SETUP_SECTS 4
- 
--byte buf[1024];
--int fd;
--int is_big_kernel;
-+/* Segments of the output file */
-+#define SREAL 0
-+#define SLOW  1
-+#define SHIGH 2
-+#define SEGS  3
+-# variables private to setup.S (not for bootloaders)
+-pad2:		.long 0
++entry32_off:	.word	entry32 - start + (DELTA_INITSEG << 4)
++					# offset of the 32bit entry point
++					# relative to the start of
++					# the real mode kernel
 +
-+struct boot_params {
-+	uint8_t  reserved1[0x1f1];			/* 0x000 */
-+	uint8_t  setup_sects;			/* 0x1f1 */
-+	uint16_t mount_root_rdonly;		/* 0x1f2 */
-+	uint16_t syssize;				/* 0x1f4 */
-+	uint16_t swapdev;				/* 0x1f6 */
-+	uint16_t ramdisk_flags;			/* 0x1f8 */
-+#define RAMDISK_IMAGE_START_MASK  	0x07FF
-+#define RAMDISK_PROMPT_FLAG		0x8000
-+#define RAMDISK_LOAD_FLAG		0x4000	
-+	uint16_t vid_mode;				/* 0x1fa */
-+	uint16_t root_dev;				/* 0x1fc */
-+	uint8_t  reserved9[1];			/* 0x1fe */
-+	uint8_t  aux_device_info;			/* 0x1ff */
-+	/* 2.00+ */
-+	uint8_t  reserved10[2];			/* 0x200 */
-+	uint8_t  header_magic[4];			/* 0x202 */
-+	uint16_t protocol_version;			/* 0x206 */
-+	uint8_t  reserved11[8];			/* 0x208 */
-+	uint8_t  loader_type;			/* 0x210 */
-+#define LOADER_TYPE_LOADLIN         1
-+#define LOADER_TYPE_BOOTSECT_LOADER 2
-+#define LOADER_TYPE_SYSLINUX        3
-+#define LOADER_TYPE_ETHERBOOT       4
-+#define LOADER_TYPE_UNKNOWN         0xFF
-+	uint8_t  loader_flags;			/* 0x211 */
-+	uint8_t  reserved12[2];			/* 0x212 */
-+	uint32_t code32_start;			/* 0x214 */
-+	uint32_t initrd_start;			/* 0x218 */
-+	uint32_t initrd_size;			/* 0x21c */
-+	uint8_t  reserved13[4];			/* 0x220 */
-+	/* 2.01+ */
-+	uint16_t heap_end_ptr;			/* 0x224 */
-+	uint8_t  reserved14[2];			/* 0x226 */
-+	/* 2.02+ */
-+	uint32_t cmd_line_ptr;			/* 0x228 */
-+	/* 2.03+ */
-+	uint32_t ramdisk_max;			/* 0x22c */
-+	/* 2.04+ */
-+	uint16_t entry32_off;			/* 0x230 */
-+	uint16_t internal_cmdline_off;		/* 0x232 */
-+	uint32_t low_base;			/* 0x234 */
-+	uint32_t low_memsz;			/* 0x238 */
-+	uint32_t low_filesz;			/* 0x23c */
-+	uint32_t real_base;			/* 0x240 */
-+	uint32_t real_memsz;			/* 0x244 */
-+	uint32_t real_filesz;			/* 0x248 */
-+	uint32_t high_base;			/* 0x24C */
-+	uint32_t high_memsz;			/* 0x250 */
-+	uint32_t high_filesz;			/* 0x254 */
-+						/* 0x258 */
-+};
- 
- void die(const char * str, ...)
- {
-@@ -58,132 +122,366 @@
- 	exit(1);
- }
- 
--void file_open(const char *name)
-+int checked_open(const char *pathname, int flags, mode_t mode)
- {
--	if ((fd = open(name, O_RDONLY, 0)) < 0)
--		die("Unable to open `%s': %m", name);
-+	int result;
-+	result = open(pathname, flags, mode);
-+	if (result < 0) {
-+		die("Cannot open %s : %s", 
-+			pathname,
-+			strerror(errno));
-+	}
-+	return result;
-+}
-+void checked_read(int fd, void *buf, size_t count, const char *pathname)
-+{
-+	ssize_t result;
-+	result = read(fd, buf, count);
-+	if (result != count) {
-+		die("Cannot read %d bytes from %s: %s",
-+			count, 
-+			pathname,
-+			strerror(errno));
-+	}
- }
- 
--void usage(void)
-+void checked_write(int fd, void *buf, size_t count, const char *pathname)
- {
--	die("Usage: build [-b] bootsect setup system [rootdev] [> image]");
-+	ssize_t result;
-+	result = write(fd, buf, count);
-+	if (result != count) {
-+		die("Cannot write %d bytes from %s: %s",
-+			count, 
-+			pathname,
-+			strerror(errno));
-+	}
- }
- 
--int main(int argc, char ** argv)
-+off_t checked_lseek(int fd, off_t offset, int whence, const char *pathname)
- {
--	unsigned int i, c, sz, setup_sectors;
--	u32 sys_size;
--	byte major_root, minor_root;
--	struct stat sb;
-+	off_t result;
-+	result = lseek(fd, offset, whence);
-+	if (result == (off_t)-1) {
-+		die("lseek failed on %s: %s",
-+			pathname, strerror(errno));
-+	}
-+	return result;
-+}
- 
--	if (argc > 2 && !strcmp(argv[1], "-b"))
--	  {
--	    is_big_kernel = 1;
--	    argc--, argv++;
--	  }
--	if ((argc < 4) || (argc > 5))
--		usage();
--	if (argc > 4) {
--		if (!strcmp(argv[4], "CURRENT")) {
--			if (stat("/", &sb)) {
--				perror("/");
--				die("Couldn't stat /");
-+static void *checked_malloc(size_t size)
-+{
-+	void *result;
-+	result = malloc(size);
-+	if (result == 0) {
-+		die("malloc of %d bytes failed: %s",
-+			size, strerror(errno));
-+	}
-+	return result;
-+}
++internal_cmdline_off:			# offset of compiled in	command line
++		.word	internal_command_line - start + (DELTA_INITSEG << 4)
 +
-+static void check_ehdr(Elf32_Ehdr *ehdr, char *name)
-+{
-+	/* Do some basic to ensure it is an ELF image */
-+	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
-+		die("%s is not an ELF binary", name);
-+	}
-+	if (ehdr->e_ident[EI_CLASS] != ELFCLASS32) {
-+		die("%s is not a 32bit ELF object", name);
-+	}
-+	if (ehdr->e_ident[EI_DATA] != ELFDATA2LSB) {
-+		die("%s does not have little endian data", name);
-+	}
-+	if ((ehdr->e_ident[EI_VERSION] != EV_CURRENT) ||
-+		ehdr->e_version != EV_CURRENT) {
-+		die("%s has invalid ELF version", name);
-+	}
-+	if (ehdr->e_type != ET_EXEC) {
-+		die("%s is not an ELF executable", name);
-+	}
-+	if (ehdr->e_machine != EM_386) {
-+		die("%s is not for x86", name);
-+	}
-+	if ((ehdr->e_phoff == 0) || (ehdr->e_phnum == 0)) {
-+		die("%s has no program header", name);
-+	}
-+	if (ehdr->e_phentsize != sizeof(Elf32_Phdr)) {
-+		die("%s has invalid program header size", name);
-+	}
-+}
+ low_base:	.long	LOW_BASE	# low buffer base 0x1000
+ low_memsz:	.long	0x00000000	# Size of low buffer  @ 0x1000
+ low_filesz:	.long	0x00000000	# Size of precomputed data @ 0x1000
+@@ -177,6 +189,17 @@
+ high_base:	.long	HIGH_BASE	# high buffer base 0x100000
+ high_memsz:	.long	0x00000000	# Size of high buffer @	0x100000
+ high_filesz:	.long	0x00000000	# Datasize of the linux kernel
++# variables private to the kernel (not for bootloaders)
++entry32_used:	.long 0x00000000
++entry32_16_off:	.long protected_to_real - start + (DELTA_INITSEG << 4)
++eax:		.long 0x00000000
++ebx:		.long 0x00000000
++ecx:		.long 0x00000000
++edx:		.long 0x00000000
++esi:		.long 0x00000000
++edi:		.long 0x00000000
++esp:		.long 0x00000000
++ebp:		.long 0x00000000
+ trampoline:	call	start_of_setup
+ 		# Don't let the E820 map overlap code
+ 		. = (0x2d0 - 0x200) + (E820MAX * E820ENTRY_SIZE)
+@@ -1019,29 +1042,174 @@
+ 	outb	%al,$0x80
+ 	ret
+ 
++	.code32
++	.globl entry32
++entry32:
++	testl	%esp, %esp
++	jnz	1f
++	/* If there isn't a valid stack pointer
++	 * Assume setup.S is loaded at INITSEG,
++	 * and setup a stack pointer just below that.
++	 */
++	movl	%esp, ((INITSEG << 4) - 4)
++	movl	$((INITSEG << 4) - 4), %esp
++	jmp	2f
++1:	pushl	%esp
++2:	pushl	%esi
++	call	3f
++3:	popl	%esi
++	subl	$(3b - start), %esi
++	movl	%eax, eax - start(%esi)
++	movl	%ebx, ebx - start(%esi)
++	movl	%ebx, ebx - start(%esi)
++	movl	%ecx, ecx - start(%esi)
++	movl	%edx, edx - start(%esi)
++	popl	%eax
++	movl	%eax, esi - start(%esi)
++	movl	%edi, edi - start(%esi)
++	movl	%ebp, ebp - start(%esi)
++	popl	%esp
++	movl	%esp, esp - start(%esi)
 +
-+struct file_seg
-+{
-+	size_t mem_addr;
-+	size_t mem_size;
-+	size_t data_size;
-+	off_t  file_offset;
-+	size_t entry;
-+	unsigned char *data;
-+};
++	/* Magic to indicate 32bit entry */
++	movl	$ENTRY32, %ebp
++	movl	%ebp, entry32_used - start(%esi)
 +
-+static Elf32_Phdr *read_sorted_phdr(char *name, int fd, 
-+	Elf32_Ehdr *ehdr, struct file_seg *seg)
-+{
-+	int i, j;
-+	Elf32_Phdr *phdr, *plow, *phigh;
-+	size_t phdr_size;
-+	seg->mem_addr = 0;
-+	seg->mem_size = 0;
-+	seg->data_size = 0;
-+	seg->file_offset = 0;
-+	seg->entry = ehdr->e_entry;
-+	seg->data = 0;
++	/* Pointer to real mode code */
++	subl	$(DELTA_INITSEG << 4), %esi
 +
-+	phdr_size = ehdr->e_phnum * sizeof(*phdr);
-+	phdr = checked_malloc(phdr_size);
-+	checked_lseek(fd, ehdr->e_phoff, SEEK_SET, name);
-+	checked_read(fd, phdr, phdr_size, name);
++	/* Start address for 32-bit code */
++	movl	$KERNEL_START, %ebx
++	jmpl	*%ebx
 +
-+	plow = 0;
-+	phigh = 0;
-+	/* Do an insertion sort on the program headers */
-+	for(i = 0; i < ehdr->e_phnum; i++) {
-+		Elf32_Phdr *least;
-+		least = phdr +i;
-+		for(j = i+1; j < ehdr->e_phnum; j++) {
-+			if (phdr[j].p_type != PT_LOAD) {
-+				continue;
- 			}
--			major_root = major(sb.st_dev);
--			minor_root = minor(sb.st_dev);
--		} else if (strcmp(argv[4], "FLOPPY")) {
--			if (stat(argv[4], &sb)) {
--				perror(argv[4]);
--				die("Couldn't stat root device.");
-+			if ((least->p_type != PT_LOAD) || 
-+				(phdr[j].p_paddr < least->p_paddr)) {
-+				least = phdr + j;
- 			}
--			major_root = major(sb.st_rdev);
--			minor_root = minor(sb.st_rdev);
--		} else {
--			major_root = 0;
--			minor_root = 0;
- 		}
--	} else {
--		major_root = DEFAULT_MAJOR_ROOT;
--		minor_root = DEFAULT_MINOR_ROOT;
-+		if (least != phdr +i) {
-+			Elf32_Phdr tmp;
-+			tmp = phdr[i];
-+			phdr[i] = *least;
-+			*least = tmp;
-+		}
-+	}
-+	plow = phdr;
-+	phigh = 0;
-+	for(i = 0; i < ehdr->e_phnum; i++) {
-+		if (phdr[i].p_type != PT_LOAD)
-+			break;
-+		phigh = phdr +i;
-+	}
-+	if (phigh) {
-+		size_t start, middle, end;
-+		start = plow->p_paddr;
-+		middle = phigh->p_paddr + phigh->p_filesz;
-+		end = phigh->p_paddr + phigh->p_memsz;
-+		seg->mem_addr = start;
-+		seg->mem_size = end - start;
-+		seg->data_size = middle - start;
- 	}
--	fprintf(stderr, "Root device is (%d, %d)\n", major_root, minor_root);
-+	return phdr;
++protected_to_real:
++	cli
++	/* Get pointer to start */
++	call	1f
++1:	popl	%esi
++	subl	$(1b - start), %esi
++
++	/* Fixup my real mode segment */
++	movl	%esi, %eax
++	shrl	$4, %eax
++	movw	%ax, 2 + realptr - start(%esi)
++
++	/* Compute the gdt fixup */
++	movl	%esi, %eax
++	shll	$16, %eax			# Base low
++
++	movl	%esi, %ebx
++	shrl	$16, %ebx
++	andl	$0xff, %ebx
++
++	movl	%esi, %edx
++	andl	$0xff000000, %edx
++	orl	%edx, %ebx			# Base high
++
++	/* Fixup the gdt */
++	andl	$0x0000ffff, (gdt - start + __SETUP_REAL_CS)(%esi)
++	orl	%eax,        (gdt - start + __SETUP_REAL_CS)(%esi)
++	andl	$0x00ffff00, (gdt - start + __SETUP_REAL_CS + 4)(%esi)
++	orl	%ebx,        (gdt - start + __SETUP_REAL_CS + 4)(%esi)
++	andl	$0x0000ffff, (gdt - start + __SETUP_REAL_DS)(%esi)
++	orl	%eax,        (gdt - start + __SETUP_REAL_DS)(%esi)
++	andl	$0x00ffff00, (gdt - start + __SETUP_REAL_DS + 4)(%esi)
++	orl	%ebx,        (gdt - start + __SETUP_REAL_DS + 4)(%esi)
++
++	/* Fixup gdt_48 */
++	leal	gdt - start(%esi), %eax		# Compute gdt_base
++	movl	%eax, gdt_48 +2 - start(%esi)	# Store gdt_base
++
++	/* Setup the classic BIOS interrupt table at 0x0 */
++	lidt	idt_real - start(%esi)
 +	
-+}
++	/* Load 16bit segments we can use */
++	lgdt	gdt_48 - start(%esi)
++
++	/* Don't disable the a20 line, (this shouldn't be required) */
++
++	/* Load 16bit data segments, to ensure the segment limits are set */
++	movl	$__SETUP_REAL_DS, %ebx
++	movl	%ebx, %ds
++	movl	%ebx, %es
++	movl	%ebx, %ss
++	movl	%ebx, %fs
++	movl	%ebx, %gs
++
++	/* switch to 16bit mode */
++	ljmp	$__SETUP_REAL_CS, $1f - start
++1:
++	.code16
++	/* Disable Paging and protected mode */
++	/* clear the PG & PE bits of CR0 */
++	movl	%cr0,%eax
++	andl	$~((1 << 31)|(1<<0)),%eax
++	movl	%eax,%cr0
++
++	/* make intersegment jmp to flush the processor pipeline
++	 * and reload %cs:%eip (to clear upper 16 bits of %eip).
++	 */
++	ljmp	*(realptr - start)
++2:
++	/* we are in real mode now
++	 * set up the real mode segment registers : %ds, %ss, %es, %gs, %fs
++	 */
++	movw	%cs, %ax
++	/* Put the data segments in INITSEG */
++	subw	$DELTA_INITSEG, %ax
++	movw	%ax, %ds
++	movw	%ax, %es
++	movw	%ax, %fs
++	movw	%ax, %gs
++	/* Put ss:sp just below INITSEG */
++	subw	$0x800, %ax
++	movw	%ax, %ss
++	movw	$0x8000, %sp
++	jmp	start
++	
++realptr:
++	.word	2b - start
++	.word	0x0000
++
+ # Descriptor tables
+ gdt:
+ 	.word	0, 0, 0, 0			# dummy
+ 	.word	0, 0, 0, 0			# unused
  
--	file_open(argv[1]);
--	i = read(fd, buf, sizeof(buf));
--	fprintf(stderr,"Boot sector %d bytes.\n",i);
--	if (i != 512)
--		die("Boot block must be exactly 512 bytes");
--	if (buf[510] != 0x55 || buf[511] != 0xaa)
--		die("Boot block hasn't got boot flag (0xAA55)");
--	buf[508] = minor_root;
--	buf[509] = major_root;
--	if (write(1, buf, 512) != 512)
--		die("Write call failed");
--	close (fd);
+-	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
++	.word	0xFFFF				# 32bit 4GB - (0x100000*0x1000 = 4GB)
+ 	.word	0				# base address = 0
+-	.word	0x9A00				# code read/exec
+-	.word	0x00CF				# granularity = 4096, 386
++	.byte	0x00, 0x9B			# code read/exec/accessed
++	.byte	0xCF, 0x00			# granularity = 4096, 386
+ 						#  (+5th nibble of limit)
+ 
+-	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
++	.word	0xFFFF				# 32bit 4GB - (0x100000*0x1000 = 4GB)
+ 	.word	0				# base address = 0
+-	.word	0x9200				# data read/write
+-	.word	0x00CF				# granularity = 4096, 386
++	.byte	0x00, 0x93			# data read/write/accessed
++	.byte	0xCF, 0x00			# granularity = 4096, 386
+ 						#  (+5th nibble of limit)
++
++	.word	0xFFFF				# 16bit 64KB - (0x10000*1 = 64KB)
++	.word	0				# base address = SETUPSEG
++	.byte	0x00, 0x9b			# code read/exec/accessed
++	.byte	0x00, 0x00			# granularity = bytes
++
++
++	.word	0xFFFF				# 16bit 64KB - (0x10000*1 = 64KB)
++	.word	0				# base address = SETUPSEG
++	.byte	0x00, 0x93			# data read/write/accessed
++	.byte	0x00, 0x00			# granularity = bytes
++gdt_end:
++	
+ idt_48:
+ 	.word	0				# idt limit = 0
+ 	.word	0, 0				# idt base = 0L
+-gdt_48:
+-	.word	0x8000				# gdt limit=2048,
+-						#  256 GDT entries
+ 
++idt_real:
++	.word	0x400 - 1			# idt limit ( 256 entries)
++	.word	0, 0				# idt base = 0L
++	
++gdt_48:
++	.word	gdt_end - gdt - 1		# gdt limit
+ 	.word	0, 0				# gdt base (filled in later)
+ 
+ # Include video setup & detection code
+@@ -1054,7 +1222,8 @@
+ 
+ # After this point, there is some free space which is used by the video mode
+ # handling code to store the temporary mode table (not used by the kernel).
 -
--	file_open(argv[2]);				    /* Copy the setup code */
--	for (i=0 ; (c=read(fd, buf, sizeof(buf)))>0 ; i+=c )
--		if (write(1, buf, c) != c)
--			die("Write call failed");
--	if (c != 0)
--		die("read-error on `setup'");
--	close (fd);
--
--	setup_sectors = (i + 511) / 512;	/* Pad unused space with zeros */
--	/* for compatibility with ancient versions of LILO. */
--	if (setup_sectors < SETUP_SECTS)
--		setup_sectors = SETUP_SECTS;
--	fprintf(stderr, "Setup is %d bytes.\n", i);
--	memset(buf, 0, sizeof(buf));
--	while (i < setup_sectors * 512) {
--		c = setup_sectors * 512 - i;
--		if (c > sizeof(buf))
--			c = sizeof(buf);
--		if (write(1, buf, c) != c)
--			die("Write call failed");
--		i += c;
++internal_command_line:
++	.asciz CONFIG_CMDLINE
+ _esetup:
+ .section ".setup.heap", "a", @nobits
+ _setup_heap:
+diff -uNr linux-2.5.7.boot3.build/arch/i386/config.in linux-2.5.7.boot3.proto/arch/i386/config.in
+--- linux-2.5.7.boot3.build/arch/i386/config.in	Wed Mar 20 07:18:31 2002
++++ linux-2.5.7.boot3.proto/arch/i386/config.in	Wed Apr  3 02:06:43 2002
+@@ -279,6 +279,7 @@
+    bool '    Use real mode APM BIOS call to power off' CONFIG_APM_REAL_MODE_POWER_OFF
+ fi
+ 
++string 'Initial kernel command line' CONFIG_CMDLINE ""
+ endmenu
+ 
+ source drivers/mtd/Config.in
+diff -uNr linux-2.5.7.boot3.build/arch/i386/kernel/setup.c linux-2.5.7.boot3.proto/arch/i386/kernel/setup.c
+--- linux-2.5.7.boot3.build/arch/i386/kernel/setup.c	Tue Apr  2 11:46:18 2002
++++ linux-2.5.7.boot3.proto/arch/i386/kernel/setup.c	Wed Apr  3 02:06:43 2002
+@@ -101,6 +101,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/seq_file.h>
+ #include <linux/console.h>
++#include <linux/smp_lock.h>
+ #include <asm/processor.h>
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+@@ -665,34 +666,31 @@
+ 	screen_info.orig_video_points = 16;
+ }
+ 
+-static void read_entry16_params(struct boot_params *params)
++static void read_entry32_params(struct boot_params *params)
+ {
+ 	char *cmdline;
++	int cmdline_off;
+ 	/*
+-	 * These values are set up by the setup-routine at boot-time
++	 * These values are set a compile time or set by the bootloader
+ 	 */
+  	ROOT_DEV = to_kdev_t(params->root_dev);
+- 	drive_info = params->drive_info;
+- 	screen_info = params->screen.info;
+-	apm_info.bios = params->apm_bios_info;
+-	if( params->sys_desc_table.length != 0 ) {
+-		MCA_bus = params->sys_desc_table.table[3] &0x2;
+-		machine_id = params->sys_desc_table.table[0];
+-		machine_submodel_id = params->sys_desc_table.table[1];
+-		BIOS_revision = params->sys_desc_table.table[2];
 -	}
--
--	file_open(argv[3]);
--	if (fstat (fd, &sb))
--		die("Unable to stat `%s': %m", argv[3]);
--	sz = sb.st_size;
--	fprintf (stderr, "System is %d kB\n", sz/1024);
--	sys_size = (sz + 15) / 16;
--	/* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
--	if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
--		die("System is too big. Try using %smodules.",
--			is_big_kernel ? "" : "bzImage or ");
--	if (sys_size > 0xefff)
--		fprintf(stderr,"warning: kernel is too big for standalone boot "
--		    "from floppy\n");
--	while (sz > 0) {
--		int l, n;
--
--		l = (sz > sizeof(buf)) ? sizeof(buf) : sz;
--		if ((n=read(fd, buf, l)) != l) {
--			if (n < 0)
--				die("Error reading %s: %m", argv[3]);
--			else
--				die("%s: Unexpected EOF", argv[3]);
--		}
--		if (write(1, buf, l) != l)
--			die("Write failed");
--		sz -= l;
-+static void get_elf_sizes(char *name, size_t pstart, struct file_seg *sizes)
-+{
-+	int fd;
-+	Elf32_Ehdr ehdr;
-+	Elf32_Phdr *phdr;
-+	fd = checked_open(name, O_RDONLY, 0);
-+	checked_read(fd, &ehdr, sizeof(ehdr), name);
-+	check_ehdr(&ehdr, name);
+-	aux_device_present = params->aux_device_info;
 +
-+	phdr = read_sorted_phdr(name, fd, &ehdr, sizes);
-+	if (sizes->mem_addr != pstart) {
-+		die("Low PHDR in %s not at 0x%08x", name, pstart);
++	if (!params->mount_root_rdonly)
++		root_mountflags &= ~MS_RDONLY;
+ 
+ #ifdef CONFIG_BLK_DEV_RAM
+ 	rd_image_start = params->ramdisk_flags & RAMDISK_IMAGE_START_MASK;
+ 	rd_prompt = ((params->ramdisk_flags & RAMDISK_PROMPT_FLAG) != 0);
+ 	rd_doload = ((params->ramdisk_flags & RAMDISK_LOAD_FLAG) != 0);
+ #endif
+-	setup_memory_region(params);
+ 
+-	if (!params->mount_root_rdonly)
+-		root_mountflags &= ~MS_RDONLY;
++	/* The compiled in command line */
++	cmdline = (char *)params;
++	cmdline += params->internal_cmdline_off;
++	strncpy(command_line, cmdline, COMMAND_LINE_SIZE);
++	command_line[COMMAND_LINE_SIZE -1] = '\0';
+ 
++	/* The bootloader passed command line */
+ 	cmdline = "";
+ 	if (params->cmd_line_ptr) {
+ 		/* New command line protocol */
+@@ -701,33 +699,73 @@
+ 	else if (*((unsigned short *)OLD_CL_MAGIC_ADDR) == OLD_CL_MAGIC) {
+ 		cmdline = (char *)OLD_CL_BASE + *((unsigned short *)OLD_CL_OFFSET_ADDR);
  	}
-+
-+	free(phdr);
- 	close(fd);
-+	return;
-+}
+-	memcpy(command_line, cmdline, COMMAND_LINE_SIZE);
++	cmdline_off = strlen(command_line);
++	memcpy(command_line + cmdline_off, cmdline, COMMAND_LINE_SIZE - cmdline_off);
+ 	command_line[COMMAND_LINE_SIZE -1] = '\0';
  
--	if (lseek(1, 497, SEEK_SET) != 497)		    /* Write sizes to the bootsector */
--		die("Output: seek failed");
--	buf[0] = setup_sectors;
--	if (write(1, buf, 1) != 1)
--		die("Write of setup sector count failed");
--	if (lseek(1, 500, SEEK_SET) != 500)
--		die("Output: seek failed");
--	buf[0] = (sys_size & 0xff);
--	buf[1] = ((sys_size >> 8) & 0xff);
--	if (write(1, buf, 2) != 2)
--		die("Write of image length failed");
-+static void read_elf(char *name, size_t pstart, struct file_seg *seg)
-+{
-+	int src_fd;
-+	Elf32_Ehdr ehdr;
-+	Elf32_Phdr *phdr;
-+	size_t last_paddr;
-+	size_t loc;
-+	int i;
-+
-+	src_fd = checked_open(name, O_RDONLY, 0);
-+	checked_read(src_fd, &ehdr, sizeof(ehdr), name);
-+	check_ehdr(&ehdr, name);
-+
-+	phdr = read_sorted_phdr(name, src_fd, &ehdr, seg);
-+	if (seg->mem_addr != pstart) {
-+		die("Low PHDR in %s not at 0x%08x", name, pstart);
-+	}
-+	
-+	last_paddr = phdr[0].p_paddr;
-+	seg->data = checked_malloc(seg->data_size);
-+	loc = 0;
-+	for(i = 0; i < ehdr.e_phnum; i++) {
-+		size_t size;
-+		if (phdr[i].p_type != PT_LOAD) {
-+			break;
-+		}
-+		if (last_paddr != phdr[i].p_paddr) {
-+			size = phdr[i].p_paddr - last_paddr;
-+			memset(seg->data + loc, 0, size);
-+			loc += size;
-+		}
-+		last_paddr = phdr[i].p_paddr + phdr[i].p_filesz;
- 
--	return 0;					    /* Everything is OK */
-+		size = phdr[i].p_filesz;
-+		checked_lseek(src_fd, phdr[i].p_offset, SEEK_SET, name);
-+		checked_read(src_fd, seg->data + loc, size, name);
-+		loc += size;
-+	}
-+	free(phdr);
-+	close(src_fd);
-+	return;
-+}
-+
-+struct image_info {
-+	size_t entry32;
-+	size_t setup_sectors;
-+	size_t sys_size;
-+	size_t root_dev;
-+	struct boot_params *param;
-+};
-+
-+static void update_image(struct file_seg *seg, struct image_info *info)
-+{
-+	struct boot_params *param = info->param;
-+	info->setup_sectors &= 0xff;
-+	info->sys_size &= 0xffff;
-+	info->root_dev &= 0xffff;
-+	param->setup_sects  = info->setup_sectors;
-+	param->syssize      = info->sys_size;
-+	param->root_dev     = info->root_dev;
-+	param->low_memsz    = seg[SLOW].mem_size;
-+	param->low_filesz   = seg[SLOW].data_size;
-+	param->high_memsz   = seg[SHIGH].mem_size;
-+	param->high_filesz  = seg[SHIGH].data_size;
-+}
-+
-+static void usage(void)
-+{
-+	die("Usage: build [-b] vmlinux realmode compressed/vmlinux image");
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int is_big_kernel;
-+	char *kernel;
-+	char *realmode;
-+	char *zkernel;
-+	char *image;
-+	int image_fd;
-+	size_t major_root, minor_root;
-+	struct image_info info;
-+	struct file_seg kernel_sz;
-+	struct file_seg seg[SEGS];
-+	struct stat st;
-+	int i;
-+
-+	memset(seg, 0, sizeof(seg));
-+	is_big_kernel = 0;
-+	if (argc > 2 && (strcmp(argv[1], "-b") == 0)) {
-+		is_big_kernel = 1;
-+		argc--;
-+		argv++;
-+	}
-+	if (argc != 5) {
-+		usage();
-+	}
-+	kernel = argv[1];
-+	realmode = argv[2];
-+	zkernel = argv[3];
-+	image = argv[4];
-+
-+	/* Compute the current root device */
-+	major_root = DEFAULT_MAJOR_ROOT;
-+	minor_root = DEFAULT_MINOR_ROOT;
-+	if (stat("/", &st) == 0) {
-+		major_root = major(st.st_dev);
-+		minor_root = minor(st.st_dev);
-+	}
-+	major_root &= 0xff;
-+	minor_root &= 0xff;
-+	info.root_dev = (major_root << 8) | minor_root;
-+	printf("Root device is (%d, %d)\n", major_root, minor_root);
-+
-+	/* Read in the file information */
-+	get_elf_sizes(kernel, 0x100000, &kernel_sz);
-+	read_elf(realmode, 0x90000, &seg[SREAL]);
-+	if (!is_big_kernel) {
-+		/* zImage */
-+		read_elf(zkernel, LOW_BASE, &seg[SLOW]);
-+		seg[SLOW].mem_size += HEAP_SIZE;
-+		if ((seg[SLOW].mem_addr + seg[SLOW].mem_size) > LOW_BUFFER_MAX) {
-+			seg[SLOW].mem_size = LOW_BUFFER_MAX - seg[SLOW].mem_addr;
-+		}
-+		seg[SHIGH].mem_addr = HIGH_BASE;
-+		seg[SHIGH].mem_size = kernel_sz.mem_size;
-+	} else {
-+		/* bzImage */
-+		size_t data_size = 0;
-+		read_elf(zkernel, HIGH_BASE, &seg[SHIGH]);
-+		seg[SLOW].mem_addr = LOW_BASE;
-+		seg[SLOW].mem_size = kernel_sz.mem_size;
-+		if (kernel_sz.data_size > (LOW_BUFFER_MAX - LOW_BUFFER_START)) {
-+			seg[SLOW].mem_size = LOW_BUFFER_MAX - LOW_BUFFER_START;
-+			data_size = kernel_sz.data_size - seg[SLOW].mem_size;
-+		}
-+		seg[SLOW].mem_size += LOW_BUFFER_START - seg[SLOW].mem_addr;
-+		seg[SHIGH].mem_size +=  HEAP_SIZE;
-+		if (kernel_sz.mem_size > seg[SHIGH].mem_size) {
-+			seg[SHIGH].mem_size = kernel_sz.mem_size;
-+		}
-+	}
-+	info.param = (struct boot_params *)seg[SREAL].data;
-+
-+	/* Compute the file offsets */
-+	info.setup_sectors = (seg[SREAL].data_size - 512 + 511)/512;
-+	if (info.setup_sectors < SETUP_SECTS)
-+		info.setup_sectors = SETUP_SECTS;
-+
-+	seg[SLOW].file_offset  = seg[SREAL].file_offset + (info.setup_sectors +1)*512;
-+	seg[SHIGH].file_offset = seg[SLOW].file_offset + seg[SLOW].data_size;
-+
-+	/* Check and print the values to write back. */
-+	info.entry32 = seg[SREAL].mem_addr + info.param->entry32_off;
-+	printf("Setup is %d bytes\n", seg[SREAL].data_size);
-+
-+	info.sys_size = (seg[is_big_kernel?2:0].data_size + 15)/16;
-+	if (!is_big_kernel && (info.sys_size > DEF_SYSSIZE)) {
-+		die("System is to big. Try using bzImage or modules.");
-+	}
-+	if ((seg[SHIGH].mem_addr + seg[SHIGH].mem_size) >= INITIAL_PAGE_TABLE_SIZE) {
-+		die("System is to big.  Try using modules.");
-+	}
-+	if (info.sys_size > 0xefff) {
-+		fprintf(stderr, "warning: kernel is too big for standalone boot " 
-+			"from floppy\n");
-+	}
-+	printf("System is %d KB\n", (info.sys_size*16)/1024);
-+	printf("entry32: 0x%x\n", info.entry32);
-+	printf("low_memsz= %5d kB  low_filesz= %5d kB\n", 
-+		seg[SLOW].mem_size/1024, seg[SLOW].data_size/1024);
-+	printf("real_memsz=%5d B   real_filesz=%5d B\n",
-+		seg[SREAL].mem_size, seg[SREAL].data_size);
-+	printf("high_memsz=%5d kB  high_filesz=%5d KB\n", 
-+		seg[SHIGH].mem_size/1024, seg[SHIGH].data_size/1024);
-+
-+	/* Write the values back */
-+	update_image(seg, &info);
-+
-+	/* Write destination file */
-+	image_fd = checked_open(image, O_RDWR | O_CREAT | O_TRUNC, 0666);
-+	for(i = 0; i < SEGS; i++) {
-+		checked_lseek(image_fd, seg[i].file_offset, SEEK_SET, image);
-+		checked_write(image_fd, seg[i].data, seg[i].data_size, image);
-+	}
-+	close(image_fd);
-+	return 0;
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (params->loader_type && params->initrd_start) {
+ 		initrd_start = params->initrd_start ?
+-		     params->initrd_start + PAGE_OFFSET : 0;
++			params->initrd_start + PAGE_OFFSET : 0;
+ 		initrd_end = initrd_start + params->initrd_size;
+ 	}
+ #endif	
  }
-diff -uNr linux-2.5.7.boot2.heap/arch/x86_64/boot/Makefile linux-2.5.7.boot3.build/arch/x86_64/boot/Makefile
---- linux-2.5.7.boot2.heap/arch/x86_64/boot/Makefile	Sun Mar 10 20:08:39 2002
-+++ linux-2.5.7.boot3.build/arch/x86_64/boot/Makefile	Tue Apr  2 22:26:28 2002
-@@ -14,11 +14,11 @@
++
++static void read_entry16_params(struct boot_params *params)
++{
++	/*
++	 * These values are set up by the setup-routine at boot-time
++	 */
++ 	drive_info = params->drive_info;
++ 	screen_info = params->screen.info;
++	apm_info.bios = params->apm_bios_info;
++	if( params->sys_desc_table.length != 0 ) {
++		MCA_bus = params->sys_desc_table.table[3] &0x2;
++		machine_id = params->sys_desc_table.table[0];
++		machine_submodel_id = params->sys_desc_table.table[1];
++		BIOS_revision = params->sys_desc_table.table[2];
++	}
++	aux_device_present = params->aux_device_info;
++
++	setup_memory_region(params);
++}
++
+ static void parse_params(char **cmdline_p)
+ {
+ 	struct boot_params *params;
+-	int entry16;
++	int entry16, entry32;
+ 	
+ 	params = (struct boot_params *)initial_regs.esi;
+ 	entry16 = initial_regs.ebp == ENTRY16;
++	entry32 = (initial_regs.ebp == ENTRY32) && (params->entry32_used);
  
- zImage: $(CONFIGURE) bootsect setup compressed/vmlinux tools/build
- 	$(OBJCOPY) compressed/vmlinux compressed/vmlinux.out
--	tools/build bootsect setup compressed/vmlinux.out $(ROOT_DEV) > zImage
-+	tools/build bootsect setup compressed/vmlinux.out CURRENT > zImage
+ 	init_settings();
  
- bzImage: $(CONFIGURE) bbootsect bsetup compressed/bvmlinux tools/build
- 	$(OBJCOPY) compressed/bvmlinux compressed/bvmlinux.out
--	tools/build -b bbootsect bsetup compressed/bvmlinux.out $(ROOT_DEV) > bzImage
-+	tools/build -b bbootsect bsetup compressed/bvmlinux.out CURRENT > bzImage
++	/* Get compiled in and bootloader parameters */
++	if (entry16 || entry32) {
++		read_entry32_params(params);
++	}
++
++	/* Get parameters from the 16bit BIOS */
+ 	if (entry16) {
+ 		read_entry16_params(params);
+ 	}
  
- bzImage-padded: bzImage
- 	dd if=/dev/zero bs=1k count=70 >> bzImage
+ 	/* Read user specified params */
+ 	parse_mem_cmdline(cmdline_p);
++
++	if ((e820.nr_map == 0) && entry32) {
++		/* If we came in via the 32bit entry point and don't
++		 * have a memory size we need help.
++		 * So go out and come back in the 16bit entry point.
++		 */
++		void (*entry32_16)(void);
++		printk(KERN_INFO "No memory size information so reentering 16bit mode\n");
++		entry32_16 = (void (*)(void))(initial_regs.esi + params->entry32_16_off);
++		unlock_kernel();
++		entry32_16();
++	}
+ 
+ 	if (e820.nr_map == 0) {
+ 		panic("Unknown memory size\n");
+diff -uNr linux-2.5.7.boot3.build/include/asm-i386/boot_param.h linux-2.5.7.boot3.proto/include/asm-i386/boot_param.h
+--- linux-2.5.7.boot3.build/include/asm-i386/boot_param.h	Tue Apr  2 11:46:18 2002
++++ linux-2.5.7.boot3.proto/include/asm-i386/boot_param.h	Wed Apr  3 02:06:43 2002
+@@ -76,7 +76,23 @@
+ 	__u32 cmd_line_ptr;			/* 0x228 */
+ 	/* 2.03+ */
+ 	__u32 ramdisk_max;			/* 0x22c */
+-	__u8  reserved15[0x2d0 - 0x230];	/* 0x230 */
++	/* 2.04+ */
++	__u16 entry32_off;			/* 0x230 */
++	__u16 internal_cmdline_off;		/* 0x232 */
++	__u32 low_base;				/* 0x234 */
++	__u32 low_memsz;			/* 0x238 */
++	__u32 low_filesz;			/* 0x23c */
++	__u32 real_base;			/* 0x240 */
++	__u32 real_memsz;			/* 0x244 */
++	__u32 real_filesz;			/* 0x248 */
++	__u32 high_base;			/* 0x24C */
++	__u32 high_memsz;			/* 0x250 */
++	__u32 high_filesz;			/* 0x254 */
++	/* entry32 values (for internal kernel use only) */
++	__u32 entry32_used;			/* 0x258 */
++	__u32 entry32_16_off;			/* 0x25c */
++	struct initial_regs32 regs;		/* 0x260 */
++	__u8  reserved15[0x2d0 - 0x280];	/* 0x280 */
+ 	struct e820entry e820_map[E820MAX];	/* 0x2d0 */
+ 						/* 0x550 */
+ } __attribute__((packed));

@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265596AbSJXSdt>; Thu, 24 Oct 2002 14:33:49 -0400
+	id <S265589AbSJXS0J>; Thu, 24 Oct 2002 14:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265597AbSJXSdt>; Thu, 24 Oct 2002 14:33:49 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:17976 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265596AbSJXSdq>; Thu, 24 Oct 2002 14:33:46 -0400
-Date: Thu, 24 Oct 2002 20:40:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: chrisl@vmware.com
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       chrisl@gnuchina.org
-Subject: Re: writepage return value check in vmscan.c
-Message-ID: <20021024184005.GT3354@dualathlon.random>
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024113106.GE3354@dualathlon.random> <20021024183024.GC1398@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021024183024.GC1398@vmware.com>
-User-Agent: Mutt/1.3.27i
+	id <S265590AbSJXS0J>; Thu, 24 Oct 2002 14:26:09 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:31765 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S265589AbSJXS0I>;
+	Thu, 24 Oct 2002 14:26:08 -0400
+Message-ID: <3DB83CC8.7070607@mvista.com>
+Date: Thu, 24 Oct 2002 13:32:40 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Levon <levon@movementarian.org>
+CC: dipankar@gamebox.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release, version 5 - I think this one's ready
+References: <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB83156.5000402@mvista.com> <20021024180435.GB8915@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 11:30:24AM -0700, chrisl@vmware.com wrote:
-> On Thu, Oct 24, 2002 at 01:31:06PM +0200, Andrea Arcangeli wrote:
-> > On Thu, Oct 24, 2002 at 01:36:43AM -0700, Andrew Morton wrote:
-> > 
-> > you need to preallocate the file, then to mmap it. If you do, the kernel
-> > won't throw the data away. So the fix for vmware is to preallocate the
-> > file and later to mmap it. This way you will be notified by -ENOSPC if
-> > you run out of disk/shmfs space.  Other than this I'm not so against the
-> > MAP_SHARED like Andrew, the reason the API is not so clean is that we
-> > cannot have an API at all inside a page fault to notify userspace that
-> > the ram modifications cannot be written to disk. the page fault must be
-> > transparent, there's no retvalue, so if you run out of disk space during
-> > the page fault, the page fault cannot easily tell userspace. As said the
-> > fix is very easy and consists in preallocating the space on disk (I
-> > understand that on shmfs it may not be extremely desiderable since you
-> > may prefer to defer allocation lazily to when you will need the memory
-> > but assuming your allocations are worthwhile it won't make difference
-> > after a few minutes/hours of usage and this way you will trap the -ENOSPC).
-> 
-> But preallocate the vmware ram file on disk is too expensive. It will slow
-> down the guest OS boot up a lot. Many user measure how fast vmware is by
-> counting how many seconds it takes to boot a windows guest for example.
-> For those virtual machine which have 2G or ram, how long does it take
-> to write a file with 2G of data?
+John Levon wrote:
 
-unfortunately I see no way around it and patching the kernel to loop
-forever on dirty pages that may never be possible to write doesn't look
-safe. You could check the free space on the fs and bug the user if it
-has less than 2G free (still it's not 100% reliable, it's a racy check,
-but you could also add a 100% reliable option that slowdown the startup
-of the vm but that guarantees no corruption can happen).
+>On Thu, Oct 24, 2002 at 12:43:50PM -0500, Corey Minyard wrote:
+>  
+>
+>>There's a comment in do_nmi() that says that the NMI is edge triggered. 
+>>    
+>>
+>
+>So there is. Darn. You could special case default_do_nmi, only printing
+>out "Unknown NMI" iff the reason inb() check fails, /and/ no previous
+>handlers set handled. Theoretically we have to take the cost of the
+>inb() every time otherwise we can lose one of the NMISC-based things in
+>default_do_nmi ... I can always see if this makes a noticable practical
+>difference for oprofile under high interrupt load
+>
+>(I also need to be able to remove the NMI watchdog handler, but that's
+>an oprofile-specific problem).
+>
+>Perhaps things will end being best to leave the current fast-path thing,
+>but we should make sure that we've explored the possibilities of
+>removing it first ;)
+>
+This also means that the current code is actually wrong, since the 
+current code just returns at the first thing it finds.
 
-Furthmore if your machine has 2G of data you're likely to have >2G of
-ram and shmfs should be quick allocating 2G in such case, maybe 2/3
-seconds?
+I'll work on redoing this all in one list.
 
-Andrea
+Do you know if nmi_shutdown in oprofile/nmi_int.c can be called from 
+interrupt context?  Because nmi_release() can block, so I couldn't use 
+it as-is if it ran in interrupt context.
+
+-Corey
+
+

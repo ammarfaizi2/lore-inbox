@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263226AbUEGHUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263229AbUEGHXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUEGHUO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 03:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUEGHUO
+	id S263229AbUEGHXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 03:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbUEGHXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 03:20:14 -0400
-Received: from smtp1.BelWue.de ([129.143.2.12]:61919 "EHLO smtp1.BelWue.DE")
-	by vger.kernel.org with ESMTP id S263226AbUEGHUG (ORCPT
+	Fri, 7 May 2004 03:23:40 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:60671 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263229AbUEGHXh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 03:20:06 -0400
-Date: Fri, 7 May 2004 09:19:58 +0200 (CEST)
-From: Oliver Tennert <tennert@science-computing.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH [NFSd] NFSv3/TCP
-In-Reply-To: <16539.12572.90447.543633@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.44.0405070910440.5030-100000@picard.science-computing.de>
+	Fri, 7 May 2004 03:23:37 -0400
+Message-ID: <409B3930.9B0C9659@melbourne.sgi.com>
+Date: Fri, 07 May 2004 17:22:24 +1000
+From: Greg Banks <gnb@melbourne.sgi.com>
+Organization: SGI Australian Software Group
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Oliver Tennert <tennert@science-computing.de>,
+       linux-kernel@vger.kernel.org,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>
+Subject: Re: PATCH [NFSd] NFSv3/TCP
+References: <Pine.LNX.4.44.0405070834001.4547-100000@picard.science-computing.de> <16539.12572.90447.543633@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 May 2004, Neil Brown wrote:
-
-> On Friday May 7, tennert@science-computing.de wrote:
-> > Hi Neil (and others),
-> >
-> > is there any reason why current 2.4 kernels do not allow for
-> > NFSSVC_MAXBLKSIZE to become as large as 32k?
->
-> Yes.
-> At server thread creation, you need to be able to
->    kmalloc(NFSSVC_MAXBLKSIZE+1024)
-> (or close to that) once per thread.  On most architectures this is a
-> high-order alloc_pages and can often fail.
-> Also, on every UDP write request, the server needs to 'kmalloc' a buffer
-> to hold the whole request (actually on every request that is
-> fragmented, but write is most common).  On most architectures, this
-> kmalloc will again require allocative several contiguous pages, which
-> can fail.
->
-> So this patch is only safe if you have a large-patch arch or only use
-> NFS over TCP.
-
-So isn't it unsafe either with the NFSSVC_MAXBLKSIZE set to the original
-8k? Or is it just less unsafe, then?
-
-Anyway, I assure you the lockups occurred exactly when
-server-side NFSv3/TCP got into the vanilla kernel at 2.4.19, and the only
-significant difference I could see was this. I always used NFSv3/TCP
-before then, and had no problems whatsoever. After that, I had to switch
-to UDP.
-
-
->
+Neil Brown wrote:
+> 
 > There was once a patch floating around which allowed a larger
 > NFSSVC_MAXBLKSIZE on architectures with large page sizes, but it never
 > got properly submitted I think.
->
->
-> >
-> > The problem is when I use NFSv3/TCP with a 2.4.25, say, on the server
-> > side, as well as on the client side, I am experiencing lockups when
-> > copying medium-sized or large files from the NFS fs to a local fs.
->
-> There must be some other cause.  Increasing the NFSSVC_MAXBLKSIZE is
-> just hiding a real problem I suspect.
->
 
-If only the coincidence was not so clear.
+Then please consider this a resend.  I'll appreciate any guidance
+about proper submission.
 
-Best regards and thanks
+This patch has been in SGI's ProPack kernel for 6 months and resulted
+in a significant improvement in NFS throughput at a number of customer
+sites.
 
-Oliver
+--- /usr/tmp/TmpDir.16250-0/linux/linux/include/linux/nfsd/const.h_1.5	Fri May  7
+17:20:22 2004
++++ /usr/tmp/TmpDir.16250-0/linux/linux/include/linux/nfsd/const.h	Fri May  7
+17:20:22 2004
+@@ -12,6 +12,7 @@
+ #include <linux/nfs.h>
+ #include <linux/nfs2.h>
+ #include <linux/nfs3.h>
++#include <asm/page.h>
+ 
+ /*
+  * Maximum protocol version supported by knfsd
+@@ -19,9 +20,16 @@
+ #define NFSSVC_MAXVERS		3
+ 
+ /*
+- * Maximum blocksize supported by daemon currently at 8K
++ * Maximum blocksize supported by daemon.  We want the largest
++ * value which 1) fits in a UDP datagram less some headers
++ * 2) is a multiple of page size 3) can be successfully kmalloc()ed
++ * by each nfsd.   
+  */
+-#define NFSSVC_MAXBLKSIZE	(8*1024)
++#if PAGE_SIZE > (16*1024)
++#define NFSSVC_MAXBLKSIZE	(32*1024)
++#else
++#define NFSSVC_MAXBLKSIZE	(2*PAGE_SIZE)
++#endif
+ 
+ #ifdef __KERNEL__
+ 
 
-__
-________________________________________creating IT solutions
 
-Dr. Oliver Tennert			science + computing ag
-phone   +49(0)7071 9457-598		Hagellocher Weg 71-75
-fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
-O.Tennert@science-computing.de		www.science-computing.de
-
-
-
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

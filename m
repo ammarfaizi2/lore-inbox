@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263553AbRFFQZt>; Wed, 6 Jun 2001 12:25:49 -0400
+	id <S263546AbRFFQ0I>; Wed, 6 Jun 2001 12:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263540AbRFFQZi>; Wed, 6 Jun 2001 12:25:38 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:24056 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263546AbRFFQZX>; Wed, 6 Jun 2001 12:25:23 -0400
-Date: Wed, 6 Jun 2001 17:22:09 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrej Borsenkow <Andrej.Borsenkow@mow.siemens.ru>,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: NULL characters in file on ReiserFS again.
-Message-ID: <20010606172209.A3362@redhat.com>
-In-Reply-To: <000201c0e9c5$7643d540$21c9ca95@mow.siemens.ru> <3B16780F.D5FF04D8@namesys.com>
+	id <S263540AbRFFQZ7>; Wed, 6 Jun 2001 12:25:59 -0400
+Received: from sun.plan9.de ([213.69.218.222]:44959 "EHLO mailout.plan9.de")
+	by vger.kernel.org with ESMTP id <S263546AbRFFQZo>;
+	Wed, 6 Jun 2001 12:25:44 -0400
+Date: Wed, 6 Jun 2001 18:24:36 +0200
+From: Marc Lehmann <pcg@goof.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        John R Lenton <john@grulic.org.ar>
+Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
+Message-ID: <20010606182436.A9439@cerebro.laendle>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Axel Thimm <Axel.Thimm@physik.fu-berlin.de>, Au-Ja <doelf@au-ja.de>,
+	Yiping Chen <YipingChen@via.com.tw>, support@msi.com.tw,
+	info@msi-computer.de, support@via-cyrix.de,
+	John R Lenton <john@grulic.org.ar>
+In-Reply-To: <20010519110721.A1415@pua.nirvana> <20010601171848.F467@cerebro.laendle> <3B17B4B0.9A805766@mandrakesoft.com> <20010601221637.B13797@cerebro.laendle> <3B1AB5BA.8060805@humboldt.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B16780F.D5FF04D8@namesys.com>; from reiser@namesys.com on Thu, May 31, 2001 at 09:57:51AM -0700
+In-Reply-To: <3B1AB5BA.8060805@humboldt.co.uk>; from adrian@humboldt.co.uk on Sun, Jun 03, 2001 at 11:10:02PM +0100
+X-Operating-System: Linux version 2.4.5 (root@cerebro) (gcc version 2.95.2.1 19991024 (release)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jun 03, 2001 at 11:10:02PM +0100, Adrian Cox <adrian@humboldt.co.uk> wrote:
+> > data corruption was easily detectable, one couldn't even write 500megs
+> > without altered bytes).
+> 
+> 
+> Wrong way round. You're right that the pci master is supposed to handle 
+> delayed transactions, but during data transfer the pdc is the pci master 
+> and the northbridge is the PCI target.
 
-On Thu, May 31, 2001 at 09:57:51AM -0700, Hans Reiser wrote:
+Ok, so it could be the promise controller (the controller, however, worked
+for a long time in another board with no via chipset and pci delayed
+transactions enabled, so I guess it is not only dependnet on the promise
+controller).
 
-> > /etc/hosts (or anywhere). As a tesult, startx hung starting X server; it was
-> > not possible to switch to alpha console or kill X server. I pressed reset
-> > and after reboot looked into /var/log/XFree86*log - and there were a bunch
-> > of ^@ there.
+and this means that there is no automatic workaround, since not all
+systems seem to have this problem.
 
-> this is the nature of metadata journaling filesystems.
+I *do* hate silent data corruption :()
 
-Umm, no, it isn't.  Ext3 would never allow that to happen in ordered
-metadata-journaling mode, and Chris Mason is already working to remove
-that window in reiserfs.  It is by no means a necessary consequence of
-doing metadata-only journaling.
-
---Stephen
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbUBRJ72 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 04:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUBRJ71
+	id S264095AbUBRJnD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 04:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUBRJnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 04:59:27 -0500
-Received: from mail.shareable.org ([81.29.64.88]:28293 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263909AbUBRJ70
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 04:59:26 -0500
-Date: Wed, 18 Feb 2004 09:59:15 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior
-Message-ID: <20040218095915.GC28599@mail.shareable.org>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040216062152.GB5192@pegasys.ws> <20040216155534.GA17323@mail.shareable.org> <20040217064755.GC9466@pegasys.ws> <20040217213714.GI24311@mail.shareable.org> <Pine.LNX.4.58.0402171400540.2154@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402171400540.2154@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Feb 2004 04:43:03 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:19329 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S264233AbUBRJnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 04:43:01 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EISA & sysfs.
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20040217235431.GF6242@redhat.com>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Wed, 18 Feb 2004 10:42:49 +0100
+Message-ID: <wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
+In-Reply-To: <20040217235431.GF6242@redhat.com> (Dave Jones's message of
+ "Tue, 17 Feb 2004 23:54:31 +0000")
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Doesn't "screen" already do this? I don't think you want to have the
-> locale handling in the kernel, along with translation of multi-key
-> characters (and from things like CJK terminals? I don't know what format
-> they send).  Sounds like you should use a user-mode thing that knows about
-> locales...
+>>>>> "Dave" == Dave Jones <davej@redhat.com> writes:
 
-Yes.  I was thinking in a rather DEC VT100/Putty/xterm- centric way
-for a moment; please excuse the slip.
+Dave> Wouldn't it make sense to have eisa_driver_register() check that the
+Dave> root EISA bus actually got registered, and if not, -ENODEV
+Dave> immediately ?
 
-It's irritating that logging in from the wrong kind of terminal
-doesn't just provide the right "user experience" for the command line
-automatically.  It's also a pain that ssh doesn't inform the remote
-end whether the local terminal is UTF-8, so everything seem to be
-working fine until one day you discover typing "£" in an editor just
-beeps.  Grr..  Oh well.
+Most of the time, the bus driver kicks in *after* the device driver is
+registered to the EISA framework (eisa is second to last in the driver
+list, so if the driver is built-in, it is guaranted to init before the
+root driver has a chance to discover the bus).
 
-These are all solvable in userspace.  Then again, so were most of the
-other stty options; didn't stop them from being implemented in the kernel :)
+So, returning -ENODEV immediatly in this case prevents you from using
+any built-in EISA driver. A possible solution to this problem would be
+to move eisa just after the pci init (and even that would cause some
+trouble, because the virtual_root driver would register before the
+parisc root driver has a chance to be probed...).
 
--- Jamie
+So yes, this sucks, but I can't come up with a better solution...
+
+Regards,
+
+	M.
+-- 
+Places change, faces change. Life is so very strange.

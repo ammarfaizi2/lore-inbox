@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263194AbUCYPRO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 10:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbUCYPRO
+	id S263199AbUCYPTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUCYPTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 10:17:14 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53376 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263194AbUCYPRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 10:17:09 -0500
-Date: Thu, 25 Mar 2004 15:56:39 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Pavel Machek <pavel@ucw.cz>, Arjan van de Ven <arjanv@redhat.com>,
-       Cameron Patrick <cameron@patrick.wattle.id.au>,
-       Michael Frank <mhf@linuxmail.org>, Pavel Machek <pavel@suse.cz>,
+	Thu, 25 Mar 2004 10:19:52 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:38060 "EHLO
+	mailout.schmorp.de") by vger.kernel.org with ESMTP id S263199AbUCYPSP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 10:18:15 -0500
+Date: Thu, 25 Mar 2004 16:18:02 +0100
+From: Marc Lehmann <pcg@schmorp.de>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Pavel Machek <pavel@suse.cz>,
        Software Suspend - Mailing Lists 
 	<swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] lzf license
-Message-ID: <20040325145639.GH1505@openzaurus.ucw.cz>
-References: <1079948988.5296.8.camel@laptop.fenrus.com> <20040322182121.GA21521@schmorp.de> <1080166848.2628.3.camel@calvin.wpcb.org.au> <20040325114736.GA300@elf.ucw.cz> <opr49atvpk4evsfm@smtp.pacific.net.th> <20040322094053.GO16890@patrick.wattle.id.au> <1079948988.5296.8.camel@laptop.fenrus.com> <20040322182121.GA21521@schmorp.de> <1080166848.2628.3.camel@calvin.wpcb.org.au> <20040325142654.GA11633@schmorp.de>
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] (no subject)
+Message-ID: <20040325151802.GD11633@schmorp.de>
+Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
+	Pavel Machek <pavel@suse.cz>,
+	Software Suspend - Mailing Lists <swsusp-devel@lists.sourceforge.net>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <opr49atvpk4evsfm@smtp.pacific.net.th>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040325142654.GA11633@schmorp.de>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <opr49atvpk4evsfm@smtp.pacific.net.th>
+X-Operating-System: Linux version 2.6.4 (root@cerebro) (gcc version 3.3.3 20040125 (prerelease) (Debian)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Mar 22, 2004 at 05:18:57PM +0800, Michael Frank <mhf@linuxmail.org> wrote:
+> Also, as Pavel mentioned, LZF code should be put in /lib and cleaned up. 
 
-> > Linking BSD w/o advertising with kernel is okay, but it would taint
-> > the kernel, and is bad idea w.r.t. patents, anyway. Dual BSD/GPL is
-> > better way to go.
-> 
-> Well, if there is any problem with relicensing the code as GPL, let me
-> know. I offered to change the license to make this smoother, but lots of
-> kernel code came from a bsd license and was relicensed before.
-> 
-> If there are problems with that, I'd like to hear. I see no point in
-> keeping the code out just because it isn't gpl, but I don't see a point
-> in making the original distribution dual licensed for no reason. (and, as
-> I said, there is lots of bsd-derived code in the kernel and I am _really_
-> keen on getting rid of any problems that forbid relicensing).
+I fully agree. Unfortunately, I have about zero time for any such project
+in the foreseeable future (It'd need more time since my knowledge about
+integration issues is extremely scarce, and I am swamped with other work).
 
-So if Nigel takes the BSD license out and replaces it with GPL,
-thats okay with you?
+The code in the kernel required a few features not available with earlier
+lzf releases (e.g. passing the the hash table via args instead of
+allocating it on the stack).
+
+The standard 1.3 release is configurable via defines in this respect
+(-DAVOID_ERRNO -DLZF_STATE_ARG), and would be better suited for inclusion
+in the kernel (the code would be byte-identical in the userspace and
+kernel version), but making a patch would require some testing, to make
+sure the new code compiles etc.
+
+Also, as used in software-suspend2, the user must #define symbols (see
+the beginning of kernel/power/lzfcompress.c) and include the c files
+directly. When making them library functions one would need to choose
+a reasonable default. Copying lzfP.h into include/linux and editing it
+should be enough, though.
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

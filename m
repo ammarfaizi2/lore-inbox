@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319124AbSIJOBn>; Tue, 10 Sep 2002 10:01:43 -0400
+	id <S319125AbSIJOCI>; Tue, 10 Sep 2002 10:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319125AbSIJOBn>; Tue, 10 Sep 2002 10:01:43 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:22545 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S319124AbSIJOBm> convert rfc822-to-8bit; Tue, 10 Sep 2002 10:01:42 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ? 
-Date: Tue, 10 Sep 2002 09:06:21 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E1064012814A8@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [RFC] Multi-path IO in 2.5/2.6 ? 
-Thread-Index: AcJY0z3ARLDNg0PRTxujdTdQlRy1Ag==
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Sep 2002 14:06:22.0745 (UTC) FILETIME=[3E5D7090:01C258D3]
+	id <S319127AbSIJOCH>; Tue, 10 Sep 2002 10:02:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61606 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319125AbSIJOCF>;
+	Tue, 10 Sep 2002 10:02:05 -0400
+Date: Tue, 10 Sep 2002 16:06:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, andre@linux-ide.org
+Subject: Re: 2.5.34 BUG at kernel/sched.c:944 (partitions code related?)
+Message-ID: <20020910140622.GX8719@suse.de>
+References: <20020910175639.A830@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020910175639.A830@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+On Tue, Sep 10 2002, Oleg Drokin wrote:
+> Hello!
+> 
+>     Starting with yesterday I am seeing kernel BUG at sched.c:944 
+>     on 2.5.3[34], I've seen similar report for 2.5.31 in the list with no
+>     responces, however 2.5.31 was working fine for me.
+> 
+>     Stack trace for the BUG was entirely within idle task (default_idle,
+>     rest_init, cpu_idle, ...)
+> 
+>     It explodes immediatelly after printing:
+>  hda: hda1 hda2 hda3 hda4 < hda5
+> 
+>     Then panics trying to kill interrupt handler.
+> 
+>     On 2.4 this partition layout looks like this:
+>  hda: [PTBL] [7476/255/63] hda1 hda2 hda3 hda4 < hda5 hda6 >
+> 
+>    Box itself is Dual Athlon MP 1700+. IDE only, 1G RAM, highmem enabled.
+> 
+>    Other strange thing that caught my attention is this, if in 2.5.31 I had
+>    this order or disk detection:
+> <4>hda: IC35L060AVER07-0, ATA DISK drive
+> <4>hdb: IC35L060AVER07-0, ATA DISK drive
+> <4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> <4>hda: host protected area => 1
+> <6>hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> <4>hdb: host protected area => 1
+> <6>hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> <6> hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+> <6> hdb: hdb1
+> 
+>    Now it does it in reverse like this:
+> hdb: host protected area => 1
+> hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> hdb: hdb1
+> hda: host protected area => 1
+> hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> hda: hda1 hda2 hda3 hda4 < hda5PANIC
 
->Answer me this question:
->- In the forseeable future does multi-path have uses other than SCSI?
+Kernel compiled with preempt support or not?
 
-We (HP) would like to use multipath i/o with the cciss driver.
-(which is a block driver).
+-- 
+Jens Axboe
 
-We can use the md driver for this.  However, we cannot boot from
-such a multipath device.  Lilo and grub do not understand md multipath
-devices, nor do anaconda or other installers.  (Enhancing all of those,
-I'd like to avoid.  Cramming multipath i/o into the low level driver
-would accomplish that, but, too yucky.) 
-
-If there is work going on to enhance the multipath support in linux
-it would be nice if you could boot from and install to such devices.
-
--- steve

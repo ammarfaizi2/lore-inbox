@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVBTRTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVBTRYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVBTRTa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 12:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVBTRTa
+	id S261897AbVBTRYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 12:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVBTRYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 12:19:30 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:41648 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261896AbVBTRTY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 12:19:24 -0500
-Message-ID: <4218C692.9040106@tiscali.de>
-Date: Sun, 20 Feb 2005 18:19:14 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Sun, 20 Feb 2005 12:24:09 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52677 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261897AbVBTRYE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 12:24:04 -0500
+Date: Sun, 20 Feb 2005 09:23:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
+ interrupts. Fish. Please report.]
+In-Reply-To: <20050220082226.A7093@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0502200905060.2378@ppc970.osdl.org>
+References: <1108858971.8413.147.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org>
+ <1108863372.8413.158.camel@localhost.localdomain> <20050220082226.A7093@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-References: <20050220155600.GD5049@vanheusden.com> <20050220164010.GA17806@ime.usp.br>
-In-Reply-To: <20050220164010.GA17806@ime.usp.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito wrote:
 
->On Feb 20 2005, Folkert van Heusden wrote:
->  
->
->>My linux laptop says:
->>irq 5: nobody cared!
->>    
->>
->(...)
->  
->
->>Does anyone care? :-)
->>    
->>
->
->Well, I'm getting similar stack traces with my system and those are sure
->scary, but it seems that my e-mails to the list are simply ignored,
->unfortunately.
->
->I am willing to test any patch and configuration (let's call me a "guinea
->pig"), but I don't know what I should do. I have, OTOH, reported my problem
->many times in the past few days. :-(
->
->I will retry sending my message to the list once again, with the details
->(in my case, the message I get is "irq 10: nobody cared!" and it is
->regarding my primary HD on my secondary Promise PDC20265 controller).
->
->
->Thanks for any help, Rogério.
->
->P.S.: I have already bought an 80-pin cable just for this drive in the hope
->that the message would go away, but it didn't.
->  
->
-Report it to http://bugzilla.kernel.org/. Maybe you'll get help there. 
-But "bugs" are _very_ hardware specific, so just a few people will have 
-a similar problem and most of this people are just "normal" users -- not 
-Linux Kernel developers. The developer (people who are familiar with the 
-kernel code and who are maybe able to fix this problem) aren't able to 
-reproduce this error and test code to get it working. So they're maybe 
-(without knowing anything about the hardware (maybe it's broken 
-hardware?)) not able to say something specific about the hardware -- 
-they can just guess.
-You see it's very difficult to fix such irq problems because some 
-factors can cause such an error.
-Maybe contacting specific malinglists (e.g. for "broken" pci cards the 
-pci mailinglist, etc.), maintainers or developers would be more 
-efficient (cc the lkml) and solve your problem (faster), because this 
-people are specialists are this type of hardware (e.g. pci).
 
-What hardware is connect through irq 5?
+On Sun, 20 Feb 2005, Russell King wrote:
+> On Sat, Feb 19, 2005 at 08:36:12PM -0500, Steven Rostedt wrote:
+> >  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+> >  BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+> >  BIOS-e820: 00000000000d0000 - 00000000000d4000 (reserved)
+> >  BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
+> >  BIOS-e820: 0000000000100000 - 000000000f6f0000 (usable)
+> >  BIOS-e820: 000000000f6f0000 - 000000000f700000 (reserved)
+> >  BIOS-e820: 000000000f700000 - 000000003fef0000 (usable)
+> >  BIOS-e820: 000000003fef0000 - 000000003fef8000 (ACPI data)
+> >  BIOS-e820: 000000003fef8000 - 000000003fefa000 (ACPI NVS)
+> >  BIOS-e820: 000000003ff00000 - 0000000040000000 (reserved)
+> 
+> Your BIOS is broken.  You probably have 1GB of RAM which extends from
+> 0x00000000 to 0x40000000.  However, there's a hole in the ACPI map
+> between 0x3fefa000 and 0x3ff00000.
 
-Matthias-Christian Ott
+Good point. And dammit, we've had that problem too many times before.
+
+And I think the reason for that bug is that we use "max_low_pfn" to 
+determine where we should start allocating PCI memory. We actually round 
+it up to the next megabyte, which _should_ have made us not allocate in 
+that small region (the last usable page is 0x3fef0000, rounded up to the 
+nearest megabyte is 0x3ff00000, which is marked as "reserved", so we 
+_should_ have allocated above that quite nicely).
+
+However, we are screwed by the fact that "max_low_pfn" is actually limited
+by MAXMEM_PFN, which is the kernel _mappable_ memory, so MAXMEM is
+actually much less than one megabyte (it's one megabyte minus
+"VMALLOC_RESERVE", which defaults to 128MB).
+
+But the PCI allocations are not at all limited by MAXMEM - they want to be 
+in the low 4GB, but that's the only real limit. So using "max_low_pfn" to 
+determine where to start PCI allocations is pretty bogus.
+
+I'll try to write something that actually looks at the e820 memory map 
+properly.
+
+		Linus

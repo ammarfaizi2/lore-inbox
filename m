@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbUCDSwh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 13:52:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbUCDSuT
+	id S262075AbUCDS4W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 13:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUCDSw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 13:50:19 -0500
-Received: from mail.kroah.org ([65.200.24.183]:3228 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262073AbUCDSuJ (ORCPT
+	Thu, 4 Mar 2004 13:52:57 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:11757 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262076AbUCDSuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 13:50:09 -0500
-Date: Thu, 4 Mar 2004 10:46:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] udev 021 release
-Message-ID: <20040304184602.GI13907@kroah.com>
-References: <20040303000957.GA11755@kroah.com> <1078422507.3614.20.camel@nosferatu.lan>
+	Thu, 4 Mar 2004 13:50:18 -0500
+Subject: Re: [ANNOUNCE] kpatchup 0.02 kernel patching script
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040304183516.GN3883@waste.org>
+References: <20040303022444.GA3883@waste.org>
+	 <1078420922.19701.1362.camel@nighthawk>  <20040304183516.GN3883@waste.org>
+Content-Type: text/plain
+Message-Id: <1078426209.19701.1382.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1078422507.3614.20.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 10:50:10 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 07:48:27PM +0200, Martin Schlemmer wrote:
-> On Wed, 2004-03-03 at 02:09, Greg KH wrote:
-> > I've released the 021 version of udev.  It can be found at:
-> >  	kernel.org/pub/linux/utils/kernel/hotplug/udev-021.tar.gz
-> > 
-> 
-> Is the issue that causes missing events with udevsend (and udev in
-> some cases - like alsa and it seems the -mm tree) with slower machines
-> known yet?
+On Thu, 2004-03-04 at 10:35, Matt Mackall wrote:
+> I skimmed latest-kernel-version, is it doing something my -s option
+> doesn't do yet?
 
-No, this is not really known.  I've heard rumors of it, but been unable
-to duplicate it here.   Some solid error reports would be greatly
-appreciated...
+$ ./kpatchup-0.03 -s 2.6-bk
+2.6.4-rc1-bk4
+$ ./kpatchup-0.03 -s 2.6
+2.6.3
+$ ./kpatchup-0.03 -s 2.6-pre
+2.6.4-rc2
+$ latest-kernel-version --probe
+2.6.4-rc2
 
-thanks,
+I might be misunderstanding the options, but 'kpatchup -s' I think is
+limited to giving the latest version of a single tree, while
+'latest-kernel-version' will look at several different trees.  This is a
+tiny problem for kpatchup because it treats 2.6, 2.6-bk, and 2.6-pre as
+separate trees.  For my use, I just want the latest snapshot, whether
+it's a bk snapshot, or one of the real point releases.  
 
-greg k-h
+What I'm doing to work around it is this:
+kpatchup `latest-kernel-version --probe`
+
+-- dave
+

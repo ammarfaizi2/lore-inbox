@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293076AbSDMRsV>; Sat, 13 Apr 2002 13:48:21 -0400
+	id <S293092AbSDMSFH>; Sat, 13 Apr 2002 14:05:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293092AbSDMRsU>; Sat, 13 Apr 2002 13:48:20 -0400
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:40205 "EHLO
-	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
-	id <S293076AbSDMRsT>; Sat, 13 Apr 2002 13:48:19 -0400
-Date: Sat, 13 Apr 2002 13:48:19 -0400
-Message-Id: <200204131748.g3DHmJS26868@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: link() security
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+	id <S293119AbSDMSFG>; Sat, 13 Apr 2002 14:05:06 -0400
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:30173 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S293092AbSDMSFG>;
+	Sat, 13 Apr 2002 14:05:06 -0400
+Message-ID: <3CB87347.7000603@candelatech.com>
+Date: Sat, 13 Apr 2002 11:04:55 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Marc Haber <mh+linux-kernel@zugschlus.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tulip and VLAN tagging - accepting larger frames without affecting higher layers?
+In-Reply-To: <E16veWm-00052F-00@janet.int.toplink-plannet.de> <20020411152327.GA600@stingr.net> <20020413135430.A5521@torres.ka0.zugschlus.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-04-13, xystrus <xystrus@haxm.com> wrote:
 
-> On Sat, Apr 13, 2002 at 05:59:54PM +0100, Alan Cox wrote:
-> > > http://openwall.com.  Work based on Solar Designer's Openwall patch
-> > > has been brought forward to more recent 2.4 and 2.5 kernels.  Both
-> > > the following projects implement the Openwall secure link feature:
-> > > 
-> > > http://grsecurity.net
-> > > http://lsm.immunix.org
-> > > 
-> > > This can break some applications that make assumptions wrt. link(2)
-> > > (Courier MTA for example).
-> > 
-> > How practical is it to make this a mount option and to do so cleanly ?
 
-...I like the mount option idea, will explore for my next patch... ;)
+Marc Haber wrote:
 
-> Perhaps two options: one to allow creation of the link only when the
-> UIDs match; and the other to allow the link when GIDs match, to keep
-> Courier happy?
+> On Thu, Apr 11, 2002 at 07:23:27PM +0400, Paul P Komkoff Jr wrote:
+> 
+>>It contains (following) (rediffed) working tulip mtu patch :)
+>>
+> 
+> That patch solved my problem.
+> 
+> With that driver, the MTU still shows as 1500 bytes, while I thought
+> that patch would cause the MTU to go up to 1504 bytes.
 
-Well, if UIDs match there's no problem.  From Openwall (2.2.20 fs/namei.c
-at/near line 1312):
-        if (current->fsuid != inode->i_uid &&
-		...other tests
 
-I've been using a modification[1] of the Openwall patch to allow the GID
-case just as you describe, for some in-house secure drop-directory where
-multiple daemons share a GID to play in their queue directory.  I've never
-used courier but it sounds like that may work w/this change as well.  From
-2.2.20-hap-5 fs/namei.c line 1318:
-#ifdef CONFIG_SECURE_NOTSOMUCH
-	/*
-	 * Let users hard link to files in their group.
-	 */
-	    current->fsgid != inode->i_gid &&
-#endif
+The ethX MTU should remain 1500 to not break non-vlan traffic.  Secretly,
+though, the NIC should pass frames that are 4 bytes bigger.
 
-This works well, but the CONFIG_ option name is chosen for a reason; this
-has some side effects which may not be desirable.  Allowing GID matches
-will often result in users being able to hard link to each others files, on
-systems where users are all in group 'users' by default (and users have
-files in non-0700 directories).
 
-I know the grsecurity guys have ported most of both Openwall and HAP to
-2.4, not positive if they carried over the NOTSOMUCH option but it'd be
-simple to add.  Keep in mind all this violates POSIX standards so isn't
-likely to ever be in-kernel, but the patches should be maintained for some
-reasonably large value of $forever.
+> Will this patch be in the mainstream kernel soon? Or could it have
+> negative effects?
 
-[1] http://www.theaimsgroup.com/~hlein/hap-linux/, the patch has many
-    other things, just search for CONFIG_SECURE_NOTSOMUCH.
 
---
-Hank Leininger <hlein@progressive-comp.com> 
-  
+I wonder if we could somehow make the changes a module option even
+if Jeff won't allow it in by default....
+
+Most other drivers have the same issues....
+
+Ben
+
+
+> 
+> Greetings
+> Marc
+> 
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

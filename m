@@ -1,62 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTIYRpo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbTIYRoF
+	id S261601AbTIYRbU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbTIYR3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:44:05 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:2244 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261718AbTIYRnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:43:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Shmulik Hen <shmulik.hen@intel.com>
-Reply-To: shmulik.hen@intel.com
-Organization: Intel corp.
-To: Jay Vosburgh <fubar@us.ibm.com>
-Subject: Re: [Bonding-announce] [PATCH SET][bonding] cleanup
-Date: Thu, 25 Sep 2003 20:43:40 +0300
-User-Agent: KMail/1.4.3
-Cc: "Chad N. Tindel" <chad@tindel.net>, bonding-devel@lists.sourceforge.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       "Noam, Amir" <amir.noam@intel.com>,
-       "Mendelson, Tsippy" <tsippy.mendelson@intel.com>,
-       "Noam, Marom" <noam.marom@intel.com>
-References: <200309251733.h8PHXWpV013559@death.ibm.com>
-In-Reply-To: <200309251733.h8PHXWpV013559@death.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309252043.40608.shmulik.hen@intel.com>
+	Thu, 25 Sep 2003 13:29:25 -0400
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:38024 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S261429AbTIYRX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:23:26 -0400
+Date: Thu, 25 Sep 2003 19:22:44 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390 (18/19): documentation.
+Message-ID: <20030925172244.GS2951@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 September 2003 08:33 pm, Jay Vosburgh wrote:
->
-> 	Separately, recent ifenslaves have compatibility code within
-> them to cover the great "ifenslave calling sequence change" from
-> April or so.  As much as I love the sleek new slimmed down
-> ifenslave, I'm not absolutely sure we can nuke that compatibility
-> stuff within ifenslave.  I really, really wanna, but I'm not sure
-> if it will cause problems for end users.  This is the upgrade
-> scenario that prompted the creation of the whole "ABI version" and
-> compat stuff in the first place; if we don't have to worry about
-> that, then the simpler ifenslave can be used, and I think the
-> ethtool ABI version hack can go away (since we wouldn't need an ABI
-> version if there's only one).
->
-> 	Comments?
->
+s390 documentation changes.
 
-I think I better leave this for Amir to answer. He's our ABI expert 
-and this needs carefull consideration, especially now that he's 
-working on enhancing ifenslave's capabilities for the hot operation 
-stuff. However, he won't be able to do that before Monday since we're 
-going out on a long weekend - it's holiday season over here.
+diffstat:
+ Documentation/s390/CommonIO         |   46 ++----------------------------------
+ Documentation/s390/driver-model.txt |   21 ++++++++++------
+ 2 files changed, 16 insertions(+), 51 deletions(-)
 
--- 
-| Shmulik Hen   Advanced Network Services  |
-| Israel Design Center, Jerusalem          |
-| LAN Access Division, Platform Networking |
-| Intel Communications Group, Intel corp.  |
-
+diff -urN linux-2.6/Documentation/s390/CommonIO linux-2.6-s390/Documentation/s390/CommonIO
+--- linux-2.6/Documentation/s390/CommonIO	Mon Sep  8 21:50:32 2003
++++ linux-2.6-s390/Documentation/s390/CommonIO	Thu Sep 25 18:33:34 2003
+@@ -45,25 +45,6 @@
+ /proc entries
+ -------------
+ 
+-* /proc/subchannels
+-
+-  This entry shows information on a per-subchannel basis.
+-
+-  The data is ordered in the following way:
+-
+-  - device number 
+-  - subchannel number 
+-  - device type/model (if applicable; if not, this is empty) and control unit 
+-    type/model
+-  - whether the device is in use (i. e. a device driver has requested ownership 
+-    and registered an interrupt handler)
+-  - path installed mask (PIM), as reflected by last store subchannel
+-  - path available mask (PAM), as reflected by last store subchannel
+-  - path operational mask (POM), as reflected by last store subchannel
+-  - the channel path IDs (CHPIDs)
+-
+-  All fields are separated by spaces, the chpids are in blocks of four chpids.
+-
+ * /proc/cio_ignore
+ 
+   Lists the ranges of device numbers which are ignored by common I/O.
+@@ -116,27 +97,6 @@
+   /proc/s390dbf/cio_*/level a number between 0 and 6; see the documentation on
+   the S/390 debug feature (Documentation/s390/s390dbf.txt) for details.
+ 
+-* /proc/irq_count
+-
+-  This entry counts how many times s390_process_IRQ has been called for each 
+-  CPU. This info is in /proc/interrupts on other architectures.
+-
+-* /proc/chpids
+-
+-  This entry serves a dual purpose:
+- 
+-  - show which chpids are currently known to Linux and their status (online,
+-    logically offline),
+-
+-  - toggling known chpids logically online/offline.
+-
+-  To toggle a known chpid logically offline, do an
+-	echo off <chpid> > /proc/chpids
+-  <chpid> is interpreted as hex, even if you omit the '0x'.
+-  The chpid will be treated by Linux as if it were not online, which can mean 
+-  some devices will become unavailable.
+-
+-  You can toggle a logically offline chpid online again by
+-	echo on <chpid> > /proc/chpids
+-  If devices became unavailable by toggling the chpid logically offline, they 
+-  will become available again after you toggle the chpid online again.
++* For some of the information present in the /proc filesystem in 2.4 (namely,
++  /proc/subchannels and /proc/chpids), see driver-model.txt.
++  Information formerly in /proc/irq_count is now in /proc/interrupts.
+diff -urN linux-2.6/Documentation/s390/driver-model.txt linux-2.6-s390/Documentation/s390/driver-model.txt
+--- linux-2.6/Documentation/s390/driver-model.txt	Mon Sep  8 21:49:51 2003
++++ linux-2.6-s390/Documentation/s390/driver-model.txt	Thu Sep 25 18:33:34 2003
+@@ -14,19 +14,18 @@
+      - sys
+      - legacy
+      - css0/
+-           - 0:0000/0:0815/
+-	   - 0:0001/0:4711/
+-	   - 0:0002/
++           - 0.0.0000/0.0.0815/
++	   - 0.0.0001/0.0.4711/
++	   - 0.0.0002/
+ 	   ...
+ 
+ In this example, device 0815 is accessed via subchannel 0, device 4711 via 
+ subchannel 1, and subchannel 2 is a non-I/O subchannel.
+ 
+-You should address a ccw device via its bus id (e.g. 0:4711); the device can
++You should address a ccw device via its bus id (e.g. 0.0.4711); the device can
+ be found under bus/ccw/devices/.
+ 
+-All ccw devices export some data via sysfs additional to the standard 'name'
+-and 'power' entries.
++All ccw devices export some data via sysfs.
+ 
+ cutype:	    The control unit type / model.
+ 
+@@ -177,6 +176,10 @@
+ possible). This ccwgroup device can be set online or offline just like a normal
+ ccw device.
+ 
++Each ccwgroup device also provides an 'ungroup' attribute to destroy the device
++again (only when offline). This is a generic ccwgroup mechanism (the driver does
++not need to implement anything beyond normal removal routines).
++
+ To implement a ccwgroup driver, please refer to include/asm/ccwgroup.h. Keep in
+ mind that most drivers will need to implement both a ccwgroup and a ccw driver
+ (unless you have a meta ccw driver, like cu3088 for lcs and ctc).
+@@ -186,7 +189,7 @@
+ -----------------
+ 
+ Channel paths show up, like subchannels, under the channel subsystem root (css0)
+-and are called 'chp<chpid>'. They have no driver and do not belong to any bus.
++and are called 'chp0.<chpid>'. They have no driver and do not belong to any bus.
+ 
+ status - Can be 'online', 'logically offline' or 'n/a'.
+ 	 Piping 'on' or 'off' sets the chpid logically online/offline.
+@@ -215,7 +218,9 @@
+ 
+ Netiucv connections show up under devices/iucv/ as "netiucv<ifnum>". The interface
+ number is assigned sequentially to the connections defined via the 'connection'
+-attribute. 'name' shows the connection partner.
++attribute.
++
++user			  - shows the connection partner.
+ 
+ buffer			  - maximum buffer size.
+ 			    Pipe to it to change buffer size.

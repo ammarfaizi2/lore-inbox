@@ -1,66 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261598AbREURPT>; Mon, 21 May 2001 13:15:19 -0400
+	id <S261594AbREURM7>; Mon, 21 May 2001 13:12:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbREURPJ>; Mon, 21 May 2001 13:15:09 -0400
-Received: from waste.org ([209.173.204.2]:61960 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S261598AbREURPE>;
-	Mon, 21 May 2001 13:15:04 -0400
-Date: Mon, 21 May 2001 12:16:18 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.GSO.4.21.0105191933280.7162-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.30.0105211155530.17263-100000@waste.org>
+	id <S261596AbREURMt>; Mon, 21 May 2001 13:12:49 -0400
+Received: from supelec.supelec.fr ([160.228.120.192]:17415 "EHLO
+	supelec.supelec.fr") by vger.kernel.org with ESMTP
+	id <S261594AbREURMh>; Mon, 21 May 2001 13:12:37 -0400
+Message-ID: <3B094CBF.A1F36F3D@supelec.fr>
+Date: Mon, 21 May 2001 19:13:35 +0200
+From: francois.cami@supelec.fr
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: 3C905C and error e401 : problem solved
+In-Reply-To: <20010521090946.D769@ipex.cz> <3B08C15E.264AE074@uow.edu.au>,
+			<3B08C15E.264AE074@uow.edu.au> <20010521140443.C8397@ipex.cz> <3B090645.9D54574F@uow.edu.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001, Alexander Viro wrote:
 
-> Let's distinguish between per-fd effects (that's what name in
-> open(name, flags) is for - you are asking for descriptor and telling
-> what behaviour do you want for IO on it) and system-wide side effects.
->
-> IMO encoding the former into name is perfectly fine, and no write on
-> another file can be sanely used for that purpose. For the latter, though,
-> we need to write commands into files and here your miscdevices (or procfs
-> files, or /dev/foo/ctl - whatever) is needed.
+Hi Mr Morton and all linux-kernel,
 
-I'm a little skeptical about the necessity of these per-fd effects in the
-first place - after all, Plan 9 does without them.  There's only one
-floppy drive, yes? No concurrent users of serial ports? The counter that
-comes to mind is sound devices supporting multiple opens, but I think
-esound and friends are a better solution to that problem.
+I have been experimenting with the 3C905C, trying
+to get rid of the annoying e401 error (too much work
+in interrupt).
 
-What I'd like to see:
+I've tried using 64 as max_interrupt_work 
+and it solves completely
+the e401 problem on this particular machine :
 
-- An interface for registering an array of related devices (almost always
-two: raw and ctl) and their legacy device numbers with a single userspace
-callout that does whatever /dev/ creation needs to be done. Thus, naming
-and permissions live in user space. No "device node is also a directory"
-weirdness which is overkill in the vast majority of cases. No kernel names
-or permissions leaking into userspace.
+- yoda.rez-gif.supelec.fr (dns/proxy for 500 clients,
+  on a 10Mbits/s direct Internet connexion, local
+  network is 100Mbits/s)
+	ASUS P2B-DS
+	dual PII-350
+	512MB RAM (2*128+1*256)
+	3*IBM 18GB 10KT U2W SCSI 
+	3C905C
+	S3 Virge
+Linux Slackware-current, 2.2.19 or 2.4.4 both built for smp
+with APIC. 
 
-- An unregister_devices that does the same, giving userspace a
-chance to persist permissions, etc.
+Before setting max_interrupt_work at 64, the e401 error
+could occur 20 times a day.
+Now it doesn't occur anymore.
 
-- A userspace program that keeps a mapping of kernel names to /dev/ names,
-permissions, etc.
+I have waited for a long time to test that on the
+SMP PC because it is critical for our network.
+I have tried to link these e401 messages with another
+activity on the PC, like heavy I/O, to no avail. The
+3C905C does 10 times as many interruptions as the SCSI
+controller does. Lowering the max_interrupt_work creates
+a lot more errors in the logs (all are e401).
 
-- An autofs hook that does the reverse mapping for running with modules
-(possibly calling modprobe directly)
 
-Possible future extension:
+On that second PC, the message still appears (very rarely though,
+about once in two or three days. I cannot relate those
+occurences to anything). It used to appear very often
+(about 40 times a day).
+I have tried to put the machine under stress (4 heavy FTP
+transfers at once, each 400MB long, with 4 different
+clients, connected in 100 MBits FD). The e401 message
+has not appeared... I'm a bit at a loss here.
 
-- Allow exporting proc as a large collection of devices. Manage /proc in
-userspace on a tmpfs.
+- lando.rez-gif.supelec.fr (FTP for the same network)
+	ABIT LX6
+	PII300
+	128MB RAM
+	IBM 8.4GB IDE (1st Master) 
+         + Maxtor 60GB IDE (2nd Master)
+	3C905C
+	S3 Virge
+Linux Slackware-current, 2.4.4, ProFTPD
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+All our network is 100MBits Full Duplex, switched
+with 3COM switches.
 
+Best regards, thanks for all your work
+
+François Cami

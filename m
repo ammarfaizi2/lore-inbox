@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269659AbSIRXoz>; Wed, 18 Sep 2002 19:44:55 -0400
+	id <S269677AbSIRXuV>; Wed, 18 Sep 2002 19:50:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269665AbSIRXoy>; Wed, 18 Sep 2002 19:44:54 -0400
-Received: from packet.digeo.com ([12.110.80.53]:50562 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S269659AbSIRXoy> convert rfc822-to-8bit;
-	Wed, 18 Sep 2002 19:44:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: CDCether.c
-Date: Wed, 18 Sep 2002 16:49:52 -0700
-Message-ID: <4C568C6A13479744AA1EA3E97EEEB3231B7DDC@schumi.digeo.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CDCether.c
-Thread-Index: AcJfbhTmSrSJRxBTQMmBzdyScc2T1g==
-From: "Michael Duane" <Mike.Duane@digeo.com>
-To: <linux-kernel@vger.kernel.org>
+	id <S269681AbSIRXuV>; Wed, 18 Sep 2002 19:50:21 -0400
+Received: from [12.36.124.2] ([12.36.124.2]:42737 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S269677AbSIRXuU>; Wed, 18 Sep 2002 19:50:20 -0400
+Mime-Version: 1.0
+Message-Id: <p05111a08b9aec118552d@[10.2.2.25]>
+In-Reply-To: <3D88F2D7.DD8519E6@digeo.com>
+References: <1032360386.3d8891c2bc3d3@kolivas.net>
+ <3D88ACB6.6374E014@digeo.com> <1032383868.3d88ed7c4cf2d@kolivas.net>
+ <3D88F2D7.DD8519E6@digeo.com>
+Date: Wed, 18 Sep 2002 16:55:13 -0700
+To: Andrew Morton <akpm@digeo.com>
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: NMI watchdog stability
+Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who is the maintainer of CDCEther.c?  I am having a problem
-with packets getting "wedged" somewhere on the way out
-and need to know if others have reported this problem.
+Back in March 2001, Keith Owens wrote and Andrew Morton replied:
+At 4:47pm -0700 9/18/02, Jonathan Lundell wrote:
+>  >
+>>  Am I the only person who is annoyed that nmi watchdog is now off by
+>>  default and the only way to activate it is by a boot parameter? You
+>>  cannot even patch the kernel to build a version that has nmi watchdog
+>>  on because the startup code runs out of the __setup routine, no boot
+>>  parameter, no watchdog.
+>
+>It was causing SMP boxes to crash mysteriously after
+>several hours or days. Quite a lot of them. Nobody
+>was able to explain why, so it was turned off.
 
-I'm running the 2.4.17 kernel and using a Broadcom DOCSIS
-modem based around a 3345.
+This was in the context of 2.4.2-ac21. More of the thread,with no 
+conclusive result, can be found at 
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0103.2/0906.html
 
-Mike
+Was there any resolution? Was the problem real, did it get fixed, and 
+is it safe to turn on the local-APIC-based NMI ticker on a 2.4.9 SMP 
+system? (I'm stuck with 2.4.9, actually Red Hat's 2.4.9-31, for 
+external reasons.) What was the nature of the mysterious crashes?
+
+Thanks.
+-- 
+/Jonathan Lundell.

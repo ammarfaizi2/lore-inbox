@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270928AbTGVRWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 13:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270932AbTGVRWq
+	id S270934AbTGVRXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 13:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270936AbTGVRXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 13:22:46 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:48413 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S270928AbTGVRWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 13:22:45 -0400
-Date: Tue, 22 Jul 2003 13:37:48 -0400 (EDT)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp64-178.boston.redhat.com
-To: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-cc: vda@port.imtp.ilyichevsk.odessa.ua, <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-In-Reply-To: <3F1CDE99.6000505@gibraltar.at>
-Message-ID: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>
+	Tue, 22 Jul 2003 13:23:35 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:43433 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270934AbTGVRXd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 13:23:33 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 22 Jul 2003 10:31:37 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: asm (lidt) question
+In-Reply-To: <20030722172722.GC3267@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
+ <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
+ <20030722172722.GC3267@mail.jlokier.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Jul 2003, Jamie Lokier wrote:
+
+> Davide Libenzi wrote:
+> > IMHO, since "var" is really an output parameter.
+>
+> "var" is read, not written.
+> I think you are confusing "lidt" with "sidt".
+
+Actually I don't even know what I was confusing, since L and S are not
+there for nothing ;) And yes, the form with =m as input parameter should
+be corrected, even if it generates the same code.
 
 
-> I tell init to re-execute itself (after pivot_root and thus from the new 
-> root fs), which causes init to close its old fds and open new ones from 
-> the new root fs with. This is necessary because init already runs as pid 
-> 1 when I start the root fs switching. Maybe something changed with the 
-> kernel process fds from 2.4.21-rc2 to 2.4.21-ac4 ?
-> 
 
-yes, see the addition of the unshare_files function in kernel/fork.c
-
--Jason 
+- Davide
 

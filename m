@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbRGDVOA>; Wed, 4 Jul 2001 17:14:00 -0400
+	id <S266290AbRGDV0V>; Wed, 4 Jul 2001 17:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266208AbRGDVNv>; Wed, 4 Jul 2001 17:13:51 -0400
-Received: from femail16.sdc1.sfba.home.com ([24.0.95.143]:56062 "EHLO
-	femail16.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S266200AbRGDVNk>; Wed, 4 Jul 2001 17:13:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Swanson <swansma@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: loop device corruption in 2.4.6
-Date: Wed, 4 Jul 2001 17:14:02 -0400
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01070417140200.03178@test.home2.mark>
-Content-Transfer-Encoding: 7BIT
+	id <S266554AbRGDV0K>; Wed, 4 Jul 2001 17:26:10 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:5126 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266290AbRGDVZ5>; Wed, 4 Jul 2001 17:25:57 -0400
+Date: Wed, 4 Jul 2001 16:24:46 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-users@lists.sourceforge.net
+Subject: Re: 2.4.6 keyspan driver
+Message-ID: <20010704162446.A1943@glitch.snoozer.net>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-usb-users@lists.sourceforge.net
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010703103800.B28180@kroah.com> <20010703171953.A16664@glitch.snoozer.net> <20010703174950.A593@glitch.snoozer.net> <20010703191655.A1714@glitch.snoozer.net> <20010704003233.A30960@kroah.com> <20010704120404.A529@glitch.snoozer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010704120404.A529@glitch.snoozer.net>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.6 #1 Wed Jul 4 12:33:47 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Something else which may or may not help... I hooked my modem up to the
+Keyspan USA-19 adapter to see if that would make any difference.  pppd
+wasn't able to dial out (no response from the modem), but the following
+was logged during the attempt:
 
-I get repeatable errors with 2.4.6 patched with the international encryption 
-patch patch-int-2.4.3.1.bz2 when building loop device filesystems on top of 
-Reiserfs.
-
-All I have to do is:
-
-1. dd if=/dev/zero of=testfs bs=1024 count=100000
-2. losetup -e aes /dev/loop0 ./testfs
-3. mke2fs /dev/loop0
-4. mount /dev/loop0 ./test
-5. cd test ; touch m ; cd ..
-6. umount ./test
-7. losetup -d /dev/loop0
-8. losetup -e aes /dev/loop0 ./testfs
-9. e2fsck /dev/loop0  *** All heck breaks loose.
-
-The thing is, I can still mount previously created AES loopback filesystems 
-but I can't e2fsck them. Well, if I do I get the following:
-
-e2fsck 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-Group descriptors look bad... trying backup blocks...
-Inode count in superblock is 27112, should be 25064.
-Fix? yes
-
-Block bitmap for group 0 is not in group.  (block 1569951131)
-Relocate? yes
-
-Inode bitmap for group 0 is not in group.  (block 1258458187)
-Relocate? yes
-
-Inode table for group 0 is not in group.  (block 865539952)
-WARNING: SEVERE DATA LOSS POSSIBLE.
-Relocate?
-
-
-
-
+----- <SNIP> -----
+Jul  4 16:13:50 glitch kernel: keyspan_usa19_calc_baud 9600 ff
+b2.keyspan_usa28_send_setup already writingkeyspan_usa28_send_setup
+already writingkeyspan_usa28_send_setup already
+writingusa28_outcont_callback sending setupkeyspan_usa19_calc_baud 9600
+ff b2.keyspan_usa19_calc_baud 9600 ff b2.keyspan_usa19_calc_baud 9600
+ff b2.keyspan_usa19_calc_baud 9600 ff b2.usa28_indat_callbacknonzero
+status: fffffffe on endpoint
+----- <SNIP> -----

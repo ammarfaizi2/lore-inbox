@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEVlE>; Fri, 5 Jan 2001 16:41:04 -0500
+	id <S129183AbRAEVpY>; Fri, 5 Jan 2001 16:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129790AbRAEVky>; Fri, 5 Jan 2001 16:40:54 -0500
-Received: from mercury.eng.emc.com ([168.159.40.77]:55053 "EHLO
-	mercury.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S129183AbRAEVkt>; Fri, 5 Jan 2001 16:40:49 -0500
-Message-ID: <276737EB1EC5D311AB950090273BEFDD979E4C@elway.lss.emc.com>
-From: "chen, xiangping" <chen_xiangping@emc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: boot up problem 
-Date: Fri, 5 Jan 2001 16:31:38 -0500 
+	id <S129267AbRAEVpO>; Fri, 5 Jan 2001 16:45:14 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:41992 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S129183AbRAEVpB>;
+	Fri, 5 Jan 2001 16:45:01 -0500
+Message-ID: <3A560FDA.ABB3EF08@goingware.com>
+Date: Fri, 05 Jan 2001 18:18:02 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-prerelease-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to Power off with ACPI/APM?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Folks
+> Silly question, but have you realized that you don't have to enable 
+> SMP in kernel to do multithreading ? 
 
-Another problem I meet in boot up is that the root filesystem
-can be mount as readonly at first, but it fails to be mounted 
-as read/write during boot up, the error reported as:
-	The superblock can not be read or does not describe a correct
-	ext2 filesystem. ...
+Lest anyone think me completely clueless, yes, I'm well aware of that.  It's
+just that I wanted to have that warm fuzzy feeling the comes from pretending I
+had the cash to buy a dual processor machine when I bought this PC.
 
-	fsck.ext2 no such file or directory when trying to open LABEL=/
+I had planned too, but my laptop died and I needed a new box in a hurry so I had
+to get what I could get.  It's a decent motherboard though, for being single
+processor.
 
-When I tried to fix it using fsck, it reports clean.
+On the other hand, I did identify that you can't power off with smp enabled
+unless (as someone helpfully posted) you give this parameter in lilo or grub:
 
-But the original root filesystem still exists, I can still boot up
-using kernel image 2.2.16-22.	
+apm=power-off
 
-Any help is greatly appreciated!
+While the SMP config option says APM doesn't work if you have SMP enabled (so I
+should have known), it would be helpful to mention that you can still power off
+this way.
 
-Xiangping
+Mike
+-- 
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVBGOwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVBGOvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVBGOwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVBGOwW
+	id S261444AbVBGOvf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVBGOtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:52:22 -0500
-Received: from gate.corvil.net ([213.94.219.177]:15114 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S261438AbVBGOtL (ORCPT
+	Mon, 7 Feb 2005 09:49:16 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:25992 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261440AbVBGOoj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:49:11 -0500
-Message-ID: <42077FD1.1070605@draigBrady.com>
-Date: Mon, 07 Feb 2005 14:48:49 +0000
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
+	Mon, 7 Feb 2005 09:44:39 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
+Date: Mon, 7 Feb 2005 15:45:27 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Hu Gang <hugang@soulinfo.com>
+References: <200501310019.39526.rjw@sisk.pl> <200502071208.50001.rjw@sisk.pl> <20050207142706.GD8040@elf.ucw.cz>
+In-Reply-To: <20050207142706.GD8040@elf.ucw.cz>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] support of motherboards with ICH6]
-References: <20050207142141.GF1561@edu.joroinen.fi>
-In-Reply-To: <20050207142141.GF1561@edu.joroinen.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502071545.27613.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pasi Kärkkäinen wrote:
-> On Mon, Feb 07, 2005 at 10:00:03AM +0100, P.O. Gaillard wrote:
-> 
->>Hi,
->>
->>I am replying to myself so that people googling for similar problems can 
->>find the answer.
->>
->>Supermicro says that the internal driver of the southbridge (and also the 
->>W83627HF chip) are not useable because the necessary support hardware is 
->>missing. They say that the P8SCi board has a working watchdog.
->>
->>	hope this can help somebody someday,
->>
->>	P.O. Gaillard
->>
-> 
-> 
+Hi,
+
+On Monday, 7 of February 2005 15:27, Pavel Machek wrote:
 > Hi!
 > 
-> I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
-> 
-> I loaded w83627hf_wdt driver, and the watchdog was detected:
-> 
-> WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
-> w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
+> > > The following patch is (yet) an(other) attempt to eliminate the need for using higher
+> > > order memory allocations on resume.  It accomplishes this by replacing the array
+> > > of page backup entries with a list, so it is only necessary to allocate individual
+> > > memory pages.  This approach makes it possible to avoid relocating many memory
+> > > pages on resume (as a result, much less memory is used) and to simplify
+> > > the assembly code that restores the image.
+> > 
+> > I have updated the resume patch to apply to the 2.6.11-rc3-mm1 kernel that
+> > contains the suspend part and the x86_64-Speed-up-suspend patch.  The patch
+> > is only for x86-64 and i386.
+> > 
+> > [Note: without this patch the resume process fails on my box ("out of memory")
+> > during every 7th - 8th suspend/resume cycle, on the average.]
 
-Note there is no detection. It just writes to a particular IO port
-(2E by default).
+Well, this doesn't depend on the previous patch, apparently. ;-)
+ 
+> Pssst. At this point, solution would be to revert the first part,
+> too. 2.6.11 is too near to do anything else.
 
-> But it is not working. I tried setting the timeout to 1 minute, and to
-> 8 minute in the BIOS, but the machine reboots after the delay no matter what
-> the delay is.. the watchdog driver is loaded before the timeout of course.
-> 
-> For some reason, the driver is not working.
-> 
-> I mailed supermicro support about this, and they told me one of their
-> customers is using watchdog with Debian 2.6.10 kernel. 
-> So it should work, but..
+Oh, I didn't mean changing anything now (eg because of the missing ppc
+assembly part).  However, the patch is useful for me so I thought I'd post it
+in case someone else (using the -mm kernels) needed it.
 
-You need to ask them what watchdog they use exactly.
-I've seen motherboards that have w83637hf chips but
-actually wire the intel watchdog up so you need the i8xx_tco driver
+Greets,
+Rafael
 
-If they are using the w83726hf chip you need to ask
-what IO port they're using.
 
-Pádraig.
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

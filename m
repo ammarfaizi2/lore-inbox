@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310737AbSCMQDP>; Wed, 13 Mar 2002 11:03:15 -0500
+	id <S310695AbSCMQEf>; Wed, 13 Mar 2002 11:04:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310703AbSCMQDF>; Wed, 13 Mar 2002 11:03:05 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64018 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310695AbSCMQCx>; Wed, 13 Mar 2002 11:02:53 -0500
-Subject: Re: [PATCH] Support for assymmetric SMP
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 13 Mar 2002 16:17:52 +0000 (GMT)
-Cc: andrea@suse.de (Andrea Arcangeli), garloff@suse.de (Kurt Garloff),
-        linux-kernel@vger.kernel.org (Linux kernel list),
-        sekharan@us.ibm.com (S. Chandra Sekharan)
-In-Reply-To: <m13cz5zv00.fsf@frodo.biederman.org> from "Eric W. Biederman" at Mar 12, 2002 08:05:51 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310703AbSCMQEZ>; Wed, 13 Mar 2002 11:04:25 -0500
+Received: from ns1.advfn.com ([212.161.99.144]:32008 "EHLO mail.advfn.com")
+	by vger.kernel.org with ESMTP id <S310695AbSCMQEX>;
+	Wed, 13 Mar 2002 11:04:23 -0500
+Message-Id: <200203131604.g2DG4Ls23185@mail.advfn.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Kay <timk@advfn.com>
+Reply-To: timk@advfn.com
+Organization: Advfn.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IO-APIC reports this may help?
+Date: Wed, 13 Mar 2002 16:05:58 +0000
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lBRo-0006jU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > irq always to the same cpu for several seconds. I know the probability
-> > for that to happen is low but it can happen.
-> 
-> Actually I know of at least one dual P4 Xeon board where I haven't seen anything
-> except IPI go to the second cpu.
+Hello,
+	just a quickie, our Dell Poweredge boxes - Serverworks motherboard - are 
+continually pumping out IO-APIC errors as I've reported here before, we have 
+three of the same boxes running FreeBSD (limitless file descriptors per 
+process - sorry, we need it!) and I've just noticed that dmesg on these says 
+that:
 
-Expect that to occur. The random distribution stuff doesn't seem to be a
-feature of all pentium IV systems. Ie this bug does want fixing
+IO APIC - APIC_IO: Testing 8254 interrupt delivery
+APIC_IO: Broken MP table detected: 8254 is not connected to IOAPIC #0 intpin 
+2 
+APIC_IO: routing 8254 via 8259 and IOAPIC #0 intpin 0 
+
+Does this help anyone diagnose the error??
+
+Best of luck,
+
+Tim
+
+-- 
+----------------
+Tim Kay
+systems administrator
+Advfn.com Plc - http://www.advfn.com/
+timk@advfn.com
+Tel: 020 7070 0941
+Fax: 020 7070 0959

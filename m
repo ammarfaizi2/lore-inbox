@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbUCXKRW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 05:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbUCXKRW
+	id S263271AbUCXKTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 05:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbUCXKTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 05:17:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39844 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263214AbUCXKRU (ORCPT
+	Wed, 24 Mar 2004 05:19:14 -0500
+Received: from gprs214-213.eurotel.cz ([160.218.214.213]:26497 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263271AbUCXKTI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 05:17:20 -0500
-Date: Wed, 24 Mar 2004 11:17:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: slindber@uiuc.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Problem]: "access beyond end" of DVD-R
-Message-ID: <20040324101717.GL3377@suse.de>
-References: <21ddee39.25333f6f.81c3b00@expms3.cites.uiuc.edu>
+	Wed, 24 Mar 2004 05:19:08 -0500
+Date: Wed, 24 Mar 2004 11:17:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
+Message-ID: <20040324101704.GA512@elf.ucw.cz>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21ddee39.25333f6f.81c3b00@expms3.cites.uiuc.edu>
+In-Reply-To: <opr5ci61g54evsfm@smtp.pacific.net.th>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22 2004, slindber@uiuc.edu wrote:
-> attempt to access beyond end of device
-> hdc: rw=0, want=8174536, limit=8123200
-> Buffer I/O error on device hdc, logical block 2043633
+Hi!
+
+> >>So why aren't you arguing against bootsplash too? That definitely
+> >>obscures such an error :> Of course we could argue that such an error
+> >>shouldn't happen and/or will be obvious via other means (assuming it
+> >>indicates hardware failure).
+> >
+> >Of course I *am* against bootsplash. Unfortunately I've probably lost
+> >that war already. But at least it is not in -linus tree (and that's
+> >what I use anyway) => I gave up with bootsplash-equivalents, as long
+> >as they don't come to linus.
+> >
+> >[And I believe Linus would shoot down bootsplash-like code, anyway.]
 > 
-> There are more attempt to "access beyond end of device" messages, but
-> they are similar so I've snipped them.
-> 
-> I've had this problem on every kernel I've used (2.4.22 and 2.6.3 from
-> gentoo, and 2.6.4-rc1-mm1).  I've had it with three different discs,
-> ISO, ISO/UDF, and UDF only (the output comes from the last disc).  The
-> entire disc is readable in Windows.
+> Solution: Auto switch to non-swsusp VT on error showing the error message.
 
-Does this make a difference for you (2.6 patch)?
-
-===== drivers/ide/ide-cd.c 1.75 vs edited =====
---- 1.75/drivers/ide/ide-cd.c	Tue Mar 16 09:39:41 2004
-+++ edited/drivers/ide/ide-cd.c	Wed Mar 24 11:16:22 2004
-@@ -2372,7 +2372,7 @@
- 
- 	/* Now try to get the total cdrom capacity. */
- 	stat = cdrom_get_last_written(cdi, &last_written);
--	if (!stat && last_written) {
-+	if (!stat && (last_written > toc->capacity)) {
- 		toc->capacity = last_written;
- 		set_capacity(drive->disk, toc->capacity * sectors_per_frame);
- 	}
-
+Hmm, at that point you loose context, like now you know what error
+happened, but do not know at which phase of suspend. That's pretty bad
+too.
+								Pavel
 -- 
-Jens Axboe
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

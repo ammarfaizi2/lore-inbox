@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUC1A5N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 19:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUC1A5N
+	id S262042AbUC1BDE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 20:03:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUC1BDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 19:57:13 -0500
-Received: from mxsf02.cluster1.charter.net ([209.225.28.202]:6153 "EHLO
-	mxsf02.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262041AbUC1A5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 19:57:12 -0500
-Subject: 2.6.5-rc2-mm[34] causes drop in DRI FPS
-From: Glenn Johnson <glennpj@charter.net>
-To: Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1080435375.8280.1.camel@gforce.johnson.home>
+	Sat, 27 Mar 2004 20:03:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26338 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262042AbUC1BDB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 20:03:01 -0500
+Date: Sat, 27 Mar 2004 17:02:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: nickpiggin@yahoo.com.au, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] speed up SATA
+Message-Id: <20040327170257.24c82915.akpm@osdl.org>
+In-Reply-To: <40662108.40705@pobox.com>
+References: <4066021A.20308@pobox.com>
+	<40661049.1050004@yahoo.com.au>
+	<406611CA.3050804@pobox.com>
+	<406616EE.80301@pobox.com>
+	<4066191E.4040702@yahoo.com.au>
+	<40662108.40705@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 27 Mar 2004 18:56:15 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last two iterations of -mm kernels have caused my FPS count via
-glxgears to drop from about 2000 fps to about 180 fps. I rebuilt X11 to
-see if that would help but it did not.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+>  TCQ-on-write for ATA disks is yummy because you don't really know what 
+>  the heck the ATA disk is writing at the present time.  By the time the 
+>  Linux disk scheduler gets around to deciding it has a nicely merged and 
+>  scheduled set of requests, it may be totally wrong for the disk's IO 
+>  scheduler.  TCQ gives the disk a lot more power when the disk integrates 
+>  writes into its internal IO scheduling.
 
-This is with a Radeon 9100 AGP card and an Intel 865PE based
-motherboard.
+Slightly beneficial for throughput, disastrous for latency.
 
+It appears the only way we'll ever get this gross misdesign fixed is to add
+a latency test to winbench.
 

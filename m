@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319546AbSILVMq>; Thu, 12 Sep 2002 17:12:46 -0400
+	id <S317387AbSILVFX>; Thu, 12 Sep 2002 17:05:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319552AbSILVMq>; Thu, 12 Sep 2002 17:12:46 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:39651 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319546AbSILVMp>; Thu, 12 Sep 2002 17:12:45 -0400
-Date: Thu, 12 Sep 2002 18:17:26 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Andrew Morton <akpm@digeo.com>,
-       "Hanumanthu. H" <hanumanthu.hanok@wipro.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pid_max hang again...
-In-Reply-To: <20020912202314.GA12775@win.tue.nl>
-Message-ID: <Pine.LNX.4.44L.0209121817130.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317329AbSILVFX>; Thu, 12 Sep 2002 17:05:23 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:11916 "HELO gherkin.frus.com")
+	by vger.kernel.org with SMTP id <S318778AbSILVFO>;
+	Thu, 12 Sep 2002 17:05:14 -0400
+Message-Id: <m17pbDY-0005khC@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy)
+Subject: Re: 2.5.34: IR __FUNCTION__ breakage
+In-Reply-To: <Pine.LNX.4.44.0209121414570.10048-100000@hawkeye.luckynet.adm>
+ "from Thunder from the hill at Sep 12, 2002 02:16:49 pm"
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Date: Thu, 12 Sep 2002 16:09:40 -0500 (CDT)
+CC: dag@brattli.net, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002, Andries Brouwer wrote:
+Thunder from the hill wrote:
+> (good suggestion)
 
-> Once people stand up and say that they need Linux machines with 10^6
-> processes, or with 10^4 processes and real time guarantees, then we
-> must have a discussion about data structures, and a discussion about
-> standards.
+so the revised definition expands from two+ to three+ arguments and
+becomes
 
-IIRC that happened last month.
+#define DERROR(dbg, fmt, args...) \
+    {if(DEBUG_##dbg) \
+    	printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, args);}
 
-Rik
+in the style of the original code.  There aren't all that many source
+files that depend on irnet.h, so this shouldn't be too painful.
+
+TO DO: under linux/net/irda, there's a *lot* of cli(), restore_flags(),
+save_flags() cleanup work, which I'll happily leave to Jean and/or
+Dag :-).
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

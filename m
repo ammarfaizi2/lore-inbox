@@ -1,1134 +1,420 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVARPpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVARPqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVARPpF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVARPpE
+	id S261327AbVARPqf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 10:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVARPqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:45:04 -0500
-Received: from de01egw02.freescale.net ([192.88.165.103]:17048 "EHLO
-	de01egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S261326AbVARPfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:35:25 -0500
-Date: Tue, 18 Jan 2005 09:35:07 -0600 (CST)
+	Tue, 18 Jan 2005 10:46:34 -0500
+Received: from az33egw01.freescale.net ([192.88.158.102]:14555 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261327AbVARPfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 10:35:36 -0500
+Date: Tue, 18 Jan 2005 09:35:19 -0600 (CST)
 From: Kumar Gala <galak@freescale.com>
 X-X-Sender: galak@blarg.somerset.sps.mot.com
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: [PATCH 2/4] ppc32: platform_device conversion from OCP
-Message-ID: <Pine.LNX.4.61.0501180929160.11311@blarg.somerset.sps.mot.com>
+To: torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
+cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org,
+       netdev@oss.sgi.com
+Subject: [PATCH 4/4] ppc32: platform_device conversion from OCP
+Message-ID: <Pine.LNX.4.61.0501180933150.11311@blarg.somerset.sps.mot.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Infrastructure changes to MPC85xx sub-arch from OCP to platform_device:
-
-* Described all devices available on current MPC85xx CPUs (mem & irq) 
-* Added cpu descriptions for the MPC8540, MPC8541, MPC8541, MPC8555, 
-MPC8555E, and MPC8560. 
-* Removed OCP usage from MPC85xx sub-arch
+Convert gianfar ethernet driver from using an OCP to platform_device.
 
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 ---
-diff -Nru a/arch/ppc/Kconfig b/arch/ppc/Kconfig
---- a/arch/ppc/Kconfig	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/Kconfig	2005-01-17 22:31:44 -06:00
-@@ -678,7 +678,7 @@
- 
- config CPM2
- 	bool
--	depends on 8260 || MPC8560
-+	depends on 8260 || MPC8560 || MPC8555
- 	default y
- 	help
- 	  The CPM2 (Communications Processor Module) is a coprocessor on
-diff -Nru a/arch/ppc/platforms/85xx/Kconfig b/arch/ppc/platforms/85xx/Kconfig
---- a/arch/ppc/platforms/85xx/Kconfig	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/platforms/85xx/Kconfig	2005-01-17 22:31:44 -06:00
-@@ -62,11 +62,6 @@
- 	depends on MPC8555_CDS
- 	default y
- 
--config FSL_OCP
--	bool
--	depends on 85xx
--	default y
--
- config PPC_GEN550
- 	bool
- 	depends on MPC8540 || SBC8560 || MPC8555
-diff -Nru a/arch/ppc/platforms/85xx/Makefile b/arch/ppc/platforms/85xx/Makefile
---- a/arch/ppc/platforms/85xx/Makefile	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/platforms/85xx/Makefile	2005-01-17 22:31:44 -06:00
-@@ -1,12 +1,9 @@
- #
- # Makefile for the PowerPC 85xx linux kernel.
- #
-+obj-$(CONFIG_85xx)		+= mpc85xx_sys.o mpc85xx_devices.o
- 
- obj-$(CONFIG_MPC8540_ADS)	+= mpc85xx_ads_common.o mpc8540_ads.o
- obj-$(CONFIG_MPC8555_CDS)	+= mpc85xx_cds_common.o
- obj-$(CONFIG_MPC8560_ADS)	+= mpc85xx_ads_common.o mpc8560_ads.o
- obj-$(CONFIG_SBC8560)		+= sbc85xx.o sbc8560.o
--
--obj-$(CONFIG_MPC8540)		+= mpc8540.o
--obj-$(CONFIG_MPC8555)		+= mpc8555.o
--obj-$(CONFIG_MPC8560)		+= mpc8560.o
-diff -Nru a/arch/ppc/platforms/85xx/mpc8540.c b/arch/ppc/platforms/85xx/mpc8540.c
---- a/arch/ppc/platforms/85xx/mpc8540.c	2005-01-17 22:31:44 -06:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,97 +0,0 @@
--/*
-- * arch/ppc/platforms/85xx/mpc8540.c
-- *
-- * MPC8540 I/O descriptions
-- *
-- * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-- *
-- * Copyright 2004 Freescale Semiconductor Inc.
-- *
-- * This program is free software; you can redistribute  it and/or modify it
-- * under  the terms of  the GNU General  Public License as published by the
-- * Free Software Foundation;  either version 2 of the  License, or (at your
-- * option) any later version.
-- */
--
--#include <linux/init.h>
--#include <linux/module.h>
--#include <asm/mpc85xx.h>
--#include <asm/ocp.h>
--
--/* These should be defined in platform code */
--extern struct ocp_gfar_data mpc85xx_tsec1_def;
--extern struct ocp_gfar_data mpc85xx_tsec2_def;
--extern struct ocp_gfar_data mpc85xx_fec_def;
--extern struct ocp_mpc_i2c_data mpc85xx_i2c1_def;
--
--/* We use offsets for paddr since we do not know at compile time
-- * what CCSRBAR is, platform code should fix this up in
-- * setup_arch
-- *
-- * Only the first IRQ is given even if a device has
-- * multiple lines associated with ita
-- */
--struct ocp_def core_ocp[] = {
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_IIC,
--          .index        = 0,
--          .paddr        = MPC85xx_IIC1_OFFSET,
--          .irq          = MPC85xx_IRQ_IIC1,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_i2c1_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_16550,
--          .index        = 0,
--          .paddr        = MPC85xx_UART0_OFFSET,
--          .irq          = MPC85xx_IRQ_DUART,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_16550,
--          .index        = 1,
--          .paddr        = MPC85xx_UART1_OFFSET,
--          .irq          = MPC85xx_IRQ_DUART,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 0,
--          .paddr        = MPC85xx_ENET1_OFFSET,
--          .irq          = MPC85xx_IRQ_TSEC1_TX,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_tsec1_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 1,
--          .paddr        = MPC85xx_ENET2_OFFSET,
--          .irq          = MPC85xx_IRQ_TSEC2_TX,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_tsec2_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 2,
--          .paddr        = MPC85xx_ENET3_OFFSET,
--          .irq          = MPC85xx_IRQ_FEC,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_fec_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_DMA,
--          .index        = 0,
--          .paddr        = MPC85xx_DMA_OFFSET,
--          .irq          = MPC85xx_IRQ_DMA0,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_PERFMON,
--          .index        = 0,
--          .paddr        = MPC85xx_PERFMON_OFFSET,
--          .irq          = MPC85xx_IRQ_PERFMON,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_INVALID
--        }
--};
-diff -Nru a/arch/ppc/platforms/85xx/mpc8555.c b/arch/ppc/platforms/85xx/mpc8555.c
---- a/arch/ppc/platforms/85xx/mpc8555.c	2005-01-17 22:31:44 -06:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,95 +0,0 @@
--/*
-- * arch/ppc/platform/85xx/mpc8555.c
-- *
-- * MPC8555 I/O descriptions
-- *
-- * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-- *
-- * Copyright 2004 Freescale Semiconductor Inc.
-- *
-- * This program is free software; you can redistribute  it and/or modify it
-- * under  the terms of  the GNU General  Public License as published by the
-- * Free Software Foundation;  either version 2 of the  License, or (at your
-- * option) any later version.
-- */
--
--#include <linux/init.h>
--#include <linux/module.h>
--#include <asm/mpc85xx.h>
--#include <asm/ocp.h>
--
--/* These should be defined in platform code */
--extern struct ocp_gfar_data mpc85xx_tsec1_def;
--extern struct ocp_gfar_data mpc85xx_tsec2_def;
--extern struct ocp_mpc_i2c_data mpc85xx_i2c1_def;
--
--/* We use offsets for paddr since we do not know at compile time
-- * what CCSRBAR is, platform code should fix this up in
-- * setup_arch
-- *
-- * Only the first IRQ is given even if a device has
-- * multiple lines associated with ita
-- */
--struct ocp_def core_ocp[] = {
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_IIC,
--          .index        = 0,
--          .paddr        = MPC85xx_IIC1_OFFSET,
--          .irq          = MPC85xx_IRQ_IIC1,
--          .pm           = OCP_CPM_NA,
--	  .additions	= &mpc85xx_i2c1_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_16550,
--          .index        = 0,
--          .paddr        = MPC85xx_UART0_OFFSET,
--          .irq          = MPC85xx_IRQ_DUART,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_16550,
--          .index        = 1,
--          .paddr        = MPC85xx_UART1_OFFSET,
--          .irq          = MPC85xx_IRQ_DUART,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 0,
--          .paddr        = MPC85xx_ENET1_OFFSET,
--          .irq          = MPC85xx_IRQ_TSEC1_TX,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_tsec1_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 1,
--          .paddr        = MPC85xx_ENET2_OFFSET,
--          .irq          = MPC85xx_IRQ_TSEC2_TX,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_tsec2_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_DMA,
--          .index        = 0,
--          .paddr        = MPC85xx_DMA_OFFSET,
--          .irq          = MPC85xx_IRQ_DMA0,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_SEC2,
--          .index        = 0,
--          .paddr        = MPC85xx_SEC2_OFFSET,
--          .irq          = MPC85xx_IRQ_SEC2,
--          .pm           = OCP_CPM_NA,
--	},
--	{ .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_PERFMON,
--          .index        = 0,
--          .paddr        = MPC85xx_PERFMON_OFFSET,
--          .irq          = MPC85xx_IRQ_PERFMON,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_INVALID
--        }
--};
-diff -Nru a/arch/ppc/platforms/85xx/mpc8560.c b/arch/ppc/platforms/85xx/mpc8560.c
---- a/arch/ppc/platforms/85xx/mpc8560.c	2005-01-17 22:31:44 -06:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,74 +0,0 @@
--/*
-- * arch/ppc/platforms/85xx/mpc8560.c
-- * 
-- * MPC8560 I/O descriptions
-- * 
-- * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-- *
-- * Copyright 2004 Freescale Semiconductor Inc.
-- * 
-- * This program is free software; you can redistribute  it and/or modify it
-- * under  the terms of  the GNU General  Public License as published by the
-- * Free Software Foundation;  either version 2 of the  License, or (at your
-- * option) any later version.
-- */
--
--#include <linux/init.h>
--#include <linux/module.h>
--#include <asm/mpc85xx.h>
--#include <asm/ocp.h>
--
--/* These should be defined in platform code */
--extern struct ocp_gfar_data mpc85xx_tsec1_def;
--extern struct ocp_gfar_data mpc85xx_tsec2_def;
--extern struct ocp_mpc_i2c_data mpc85xx_i2c1_def;
--
--/* We use offsets for paddr since we do not know at compile time
-- * what CCSRBAR is, platform code should fix this up in
-- * setup_arch
-- *
-- * Only the first IRQ is given even if a device has
-- * multiple lines associated with ita
-- */
--struct ocp_def core_ocp[] = {
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_IIC,
--          .index        = 0,
--          .paddr        = MPC85xx_IIC1_OFFSET,
--          .irq          = MPC85xx_IRQ_IIC1,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_i2c1_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 0,
--          .paddr        = MPC85xx_ENET1_OFFSET,
--          .irq          = MPC85xx_IRQ_TSEC1_TX,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_tsec1_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_GFAR,
--          .index        = 1,
--          .paddr        = MPC85xx_ENET2_OFFSET,
--          .irq          = MPC85xx_IRQ_TSEC2_TX,
--          .pm           = OCP_CPM_NA,
--          .additions    = &mpc85xx_tsec2_def,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_DMA,
--          .index        = 0,
--          .paddr        = MPC85xx_DMA_OFFSET,
--          .irq          = MPC85xx_IRQ_DMA0,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_FREESCALE,
--          .function     = OCP_FUNC_PERFMON,
--          .index        = 0,
--          .paddr        = MPC85xx_PERFMON_OFFSET,
--          .irq          = MPC85xx_IRQ_PERFMON,
--          .pm           = OCP_CPM_NA,
--        },
--        { .vendor       = OCP_VENDOR_INVALID
--        }
--};
-diff -Nru a/arch/ppc/platforms/85xx/mpc85xx_devices.c b/arch/ppc/platforms/85xx/mpc85xx_devices.c
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/arch/ppc/platforms/85xx/mpc85xx_devices.c	2005-01-17 22:31:44 -06:00
-@@ -0,0 +1,531 @@
-+/*
-+ * arch/ppc/platforms/85xx/mpc85xx_devices.c
-+ *
-+ * MPC85xx Device descriptions
-+ *
-+ * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-+ *
-+ * Copyright 2005 Freescale Semiconductor Inc.
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
+diff -Nru a/drivers/net/gianfar.c b/drivers/net/gianfar.c
+--- a/drivers/net/gianfar.c	2005-01-17 22:31:44 -06:00
++++ b/drivers/net/gianfar.c	2005-01-17 22:31:44 -06:00
+@@ -26,7 +26,7 @@
+  *  controllers on the Freescale 8540/8560 integrated processors,
+  *  as well as the Fast Ethernet Controller on the 8540.  
+  *  
+- *  The driver is initialized through OCP.  Structures which
++ *  The driver is initialized through platform_device.  Structures which
+  *  define the configuration needed by the board are defined in a
+  *  board structure in arch/ppc/platforms (though I do not
+  *  discount the possibility that other architectures could one
+@@ -85,6 +85,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
 +#include <linux/device.h>
-+#include <linux/fsl_devices.h>
-+#include <asm/mpc85xx.h>
-+#include <asm/irq.h>
-+#include <asm/ppc_sys.h>
-+
-+/* We use offsets for IORESOURCE_MEM since we do not know at compile time
-+ * what CCSRBAR is, will get fixed up by mach_mpc85xx_fixup
-+ */
-+
-+static struct gianfar_platform_data mpc85xx_tsec1_pdata = {
-+	.device_flags = FSL_GIANFAR_DEV_HAS_GIGABIT |
-+	    FSL_GIANFAR_DEV_HAS_COALESCE | FSL_GIANFAR_DEV_HAS_RMON |
-+	    FSL_GIANFAR_DEV_HAS_MULTI_INTR,
-+	.phy_reg_addr = MPC85xx_ENET1_OFFSET,
-+};
-+
-+static struct gianfar_platform_data mpc85xx_tsec2_pdata = {
-+	.device_flags = FSL_GIANFAR_DEV_HAS_GIGABIT |
-+	    FSL_GIANFAR_DEV_HAS_COALESCE | FSL_GIANFAR_DEV_HAS_RMON |
-+	    FSL_GIANFAR_DEV_HAS_MULTI_INTR,
-+	.phy_reg_addr = MPC85xx_ENET1_OFFSET,
-+};
-+
-+static struct gianfar_platform_data mpc85xx_fec_pdata = {
-+	.phy_reg_addr = MPC85xx_ENET1_OFFSET,
-+};
-+
-+static struct fsl_i2c_platform_data mpc85xx_fsl_i2c_pdata = {
-+	.device_flags = FSL_I2C_DEV_SEPARATE_DFSRR,
-+};
-+
-+struct platform_device ppc_sys_platform_devices[] = {
-+	[MPC85xx_TSEC1] = {
-+		.name = "fsl-gianfar",
-+		.id	= 1,
-+		.dev.platform_data = &mpc85xx_tsec1_pdata,
-+		.num_resources	 = 4,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_ENET1_OFFSET,
-+				.end	= MPC85xx_ENET1_OFFSET +
-+						MPC85xx_ENET1_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.name	= "tx",
-+				.start	= MPC85xx_IRQ_TSEC1_TX,
-+				.end	= MPC85xx_IRQ_TSEC1_TX,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+			{
-+				.name	= "rx",
-+				.start	= MPC85xx_IRQ_TSEC1_RX,
-+				.end	= MPC85xx_IRQ_TSEC1_RX,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+			{
-+				.name	= "error",
-+				.start	= MPC85xx_IRQ_TSEC1_ERROR,
-+				.end	= MPC85xx_IRQ_TSEC1_ERROR,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_TSEC2] = {
-+		.name = "fsl-gianfar",
-+		.id	= 2,
-+		.dev.platform_data = &mpc85xx_tsec2_pdata,
-+		.num_resources	 = 4,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_ENET2_OFFSET,
-+				.end	= MPC85xx_ENET2_OFFSET +
-+						MPC85xx_ENET2_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.name	= "tx",
-+				.start	= MPC85xx_IRQ_TSEC2_TX,
-+				.end	= MPC85xx_IRQ_TSEC2_TX,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+			{
-+				.name	= "rx",
-+				.start	= MPC85xx_IRQ_TSEC2_RX,
-+				.end	= MPC85xx_IRQ_TSEC2_RX,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+			{
-+				.name	= "error",
-+				.start	= MPC85xx_IRQ_TSEC2_ERROR,
-+				.end	= MPC85xx_IRQ_TSEC2_ERROR,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_FEC] =	{
-+		.name = "fsl-gianfar",
-+		.id	= 3,
-+		.dev.platform_data = &mpc85xx_fec_pdata,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_ENET3_OFFSET,
-+				.end	= MPC85xx_ENET3_OFFSET +
-+						MPC85xx_ENET3_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_FEC,
-+				.end	= MPC85xx_IRQ_FEC,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_IIC1] = {
-+		.name = "fsl-i2c",
-+		.id	= 1,
-+		.dev.platform_data = &mpc85xx_fsl_i2c_pdata,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_IIC1_OFFSET,
-+				.end	= MPC85xx_IIC1_OFFSET +
-+						MPC85xx_IIC1_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_IIC1,
-+				.end	= MPC85xx_IRQ_IIC1,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_DMA0] = {
-+		.name = "fsl-dma",
-+		.id	= 0,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_DMA0_OFFSET,
-+				.end	= MPC85xx_DMA0_OFFSET +
-+						MPC85xx_DMA0_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_DMA0,
-+				.end	= MPC85xx_IRQ_DMA0,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_DMA1] = {
-+		.name = "fsl-dma",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_DMA1_OFFSET,
-+				.end	= MPC85xx_DMA1_OFFSET +
-+						MPC85xx_DMA1_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_DMA1,
-+				.end	= MPC85xx_IRQ_DMA1,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_DMA2] = {
-+		.name = "fsl-dma",
-+		.id	= 2,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_DMA2_OFFSET,
-+				.end	= MPC85xx_DMA2_OFFSET +
-+						MPC85xx_DMA2_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_DMA2,
-+				.end	= MPC85xx_IRQ_DMA2,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_DMA3] = {
-+		.name = "fsl-dma",
-+		.id	= 3,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_DMA3_OFFSET,
-+				.end	= MPC85xx_DMA3_OFFSET +
-+						MPC85xx_DMA3_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_DMA3,
-+				.end	= MPC85xx_IRQ_DMA3,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_PERFMON] = {
-+		.name = "fsl-perfmon",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_PERFMON_OFFSET,
-+				.end	= MPC85xx_PERFMON_OFFSET +
-+						MPC85xx_PERFMON_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_PERFMON,
-+				.end	= MPC85xx_IRQ_PERFMON,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_SEC2] = {
-+		.name = "fsl-sec2",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= MPC85xx_SEC2_OFFSET,
-+				.end	= MPC85xx_SEC2_OFFSET +
-+						MPC85xx_SEC2_SIZE - 1,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= MPC85xx_IRQ_SEC2,
-+				.end	= MPC85xx_IRQ_SEC2,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+#ifdef CONFIG_CPM2
-+	[MPC85xx_CPM_FCC1] = {
-+		.name = "fsl-cpm-fcc",
-+		.id	= 1,
-+		.num_resources	 = 3,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91300,
-+				.end	= 0x9131F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= 0x91380,
-+				.end	= 0x9139F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_FCC1,
-+				.end	= SIU_INT_FCC1,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_FCC2] = {
-+		.name = "fsl-cpm-fcc",
-+		.id	= 2,
-+		.num_resources	 = 3,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91320,
-+				.end	= 0x9133F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= 0x913A0,
-+				.end	= 0x913CF,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_FCC2,
-+				.end	= SIU_INT_FCC2,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_FCC3] = {
-+		.name = "fsl-cpm-fcc",
-+		.id	= 3,
-+		.num_resources	 = 3,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91340,
-+				.end	= 0x9135F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= 0x913D0,
-+				.end	= 0x913FF,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_FCC3,
-+				.end	= SIU_INT_FCC3,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_I2C] = {
-+		.name = "fsl-cpm-i2c",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91860,
-+				.end	= 0x918BF,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_I2C,
-+				.end	= SIU_INT_I2C,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SCC1] = {
-+		.name = "fsl-cpm-scc",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91A00,
-+				.end	= 0x91A1F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SCC1,
-+				.end	= SIU_INT_SCC1,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SCC2] = {
-+		.name = "fsl-cpm-scc",
-+		.id	= 2,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91A20,
-+				.end	= 0x91A3F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SCC2,
-+				.end	= SIU_INT_SCC2,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SCC3] = {
-+		.name = "fsl-cpm-scc",
-+		.id	= 3,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91A40,
-+				.end	= 0x91A5F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SCC3,
-+				.end	= SIU_INT_SCC3,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SCC4] = {
-+		.name = "fsl-cpm-scc",
-+		.id	= 4,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91A60,
-+				.end	= 0x91A7F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SCC4,
-+				.end	= SIU_INT_SCC4,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SPI] = {
-+		.name = "fsl-cpm-spi",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91AA0,
-+				.end	= 0x91AFF,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SPI,
-+				.end	= SIU_INT_SPI,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_MCC1] = {
-+		.name = "fsl-cpm-mcc",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91B30,
-+				.end	= 0x91B3F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_MCC1,
-+				.end	= SIU_INT_MCC1,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_MCC2] = {
-+		.name = "fsl-cpm-mcc",
-+		.id	= 2,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91B50,
-+				.end	= 0x91B5F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_MCC2,
-+				.end	= SIU_INT_MCC2,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SMC1] = {
-+		.name = "fsl-cpm-smc",
-+		.id	= 1,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91A80,
-+				.end	= 0x91A8F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SMC1,
-+				.end	= SIU_INT_SMC1,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_SMC2] = {
-+		.name = "fsl-cpm-smc",
-+		.id	= 2,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91A90,
-+				.end	= 0x91A9F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_SMC2,
-+				.end	= SIU_INT_SMC2,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+	[MPC85xx_CPM_USB] = {
-+		.name = "fsl-cpm-usb",
-+		.id	= 2,
-+		.num_resources	 = 2,
-+		.resource = (struct resource[]) {
-+			{
-+				.start	= 0x91B60,
-+				.end	= 0x91B7F,
-+				.flags	= IORESOURCE_MEM,
-+			},
-+			{
-+				.start	= SIU_INT_USB,
-+				.end	= SIU_INT_USB,
-+				.flags	= IORESOURCE_IRQ,
-+			},
-+		},
-+	},
-+#endif /* CONFIG_CPM2 */
-+};
-+
-+static int __init mach_mpc85xx_fixup(struct platform_device *pdev)
-+{
-+	ppc_sys_fixup_mem_resource(pdev, CCSRBAR);
-+	return 0;
-+}
-+
-+static int __init mach_mpc85xx_init(void)
-+{
-+	ppc_sys_device_fixup = mach_mpc85xx_fixup;
-+	return 0;
-+}
-+
-+postcore_initcall(mach_mpc85xx_init);
-diff -Nru a/arch/ppc/platforms/85xx/mpc85xx_sys.c b/arch/ppc/platforms/85xx/mpc85xx_sys.c
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/arch/ppc/platforms/85xx/mpc85xx_sys.c	2005-01-17 22:31:44 -06:00
-@@ -0,0 +1,118 @@
-+/*
-+ * arch/ppc/platforms/85xx/mpc85xx_sys.c
-+ *
-+ * MPC85xx System descriptions
-+ *
-+ * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-+ *
-+ * Copyright 2005 Freescale Semiconductor Inc.
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <asm/ppc_sys.h>
-+
-+struct ppc_sys_spec *cur_ppc_sys_spec;
-+struct ppc_sys_spec ppc_sys_specs[] = {
-+	{
-+		.ppc_sys_name	= "MPC8540",
-+		.mask 		= 0xFFFF0000,
-+		.value 		= 0x80300000,
-+		.num_devices	= 9,
-+		.device_list	= (enum ppc_sys_devices[])
-+		{
-+			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_FEC, MPC85xx_IIC1,
-+			MPC85xx_DMA0, MPC85xx_DMA1, MPC85xx_DMA2, MPC85xx_DMA3,
-+			MPC85xx_PERFMON,
-+		},
-+	},
-+	{
-+		.ppc_sys_name	= "MPC8560",
-+		.mask 		= 0xFFFF0000,
-+		.value 		= 0x80700000,
-+		.num_devices	= 19,
-+		.device_list	= (enum ppc_sys_devices[])
-+		{
-+			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-+			MPC85xx_DMA0, MPC85xx_DMA1, MPC85xx_DMA2, MPC85xx_DMA3,
-+			MPC85xx_PERFMON,
-+			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
-+			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3, MPC85xx_CPM_SCC4,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
-+			MPC85xx_CPM_MCC1, MPC85xx_CPM_MCC2,
-+		},
-+	},
-+	{
-+		.ppc_sys_name	= "MPC8541",
-+		.mask 		= 0xFFFF0000,
-+		.value 		= 0x80720000,
-+		.num_devices	= 12,
-+		.device_list	= (enum ppc_sys_devices[])
-+		{
-+			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-+			MPC85xx_DMA0, MPC85xx_DMA1, MPC85xx_DMA2, MPC85xx_DMA3,
-+			MPC85xx_PERFMON,
-+			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2,
-+		},
-+	},
-+	{
-+		.ppc_sys_name	= "MPC8541E",
-+		.mask 		= 0xFFFF0000,
-+		.value 		= 0x807A0000,
-+		.num_devices	= 13,
-+		.device_list	= (enum ppc_sys_devices[])
-+		{
-+			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-+			MPC85xx_DMA0, MPC85xx_DMA1, MPC85xx_DMA2, MPC85xx_DMA3,
-+			MPC85xx_PERFMON, MPC85xx_SEC2,
-+			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2,
-+		},
-+	},
-+	{
-+		.ppc_sys_name	= "MPC8555",
-+		.mask 		= 0xFFFF0000,
-+		.value 		= 0x80710000,
-+		.num_devices	= 19,
-+		.device_list	= (enum ppc_sys_devices[])
-+		{
-+			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-+			MPC85xx_DMA0, MPC85xx_DMA1, MPC85xx_DMA2, MPC85xx_DMA3,
-+			MPC85xx_PERFMON,
-+			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
-+			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
-+			MPC85xx_CPM_SMC1, MPC85xx_CPM_SMC2,
-+			MPC85xx_CPM_USB,
-+		},
-+	},
-+	{
-+		.ppc_sys_name	= "MPC8555E",
-+		.mask 		= 0xFFFF0000,
-+		.value 		= 0x80790000,
-+		.num_devices	= 20,
-+		.device_list	= (enum ppc_sys_devices[])
-+		{
-+			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-+			MPC85xx_DMA0, MPC85xx_DMA1, MPC85xx_DMA2, MPC85xx_DMA3,
-+			MPC85xx_PERFMON, MPC85xx_SEC2,
-+			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
-+			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
-+			MPC85xx_CPM_SMC1, MPC85xx_CPM_SMC2,
-+			MPC85xx_CPM_USB,
-+		},
-+	},
-+	{	/* default match */
-+		.ppc_sys_name	= "",
-+		.mask 		= 0x00000000,
-+		.value 		= 0x00000000,
-+	},
-+};
-diff -Nru a/arch/ppc/syslib/ppc85xx_common.c b/arch/ppc/syslib/ppc85xx_common.c
---- a/arch/ppc/syslib/ppc85xx_common.c	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/syslib/ppc85xx_common.c	2005-01-17 22:31:44 -06:00
-@@ -20,7 +20,6 @@
  
- #include <asm/mpc85xx.h>
- #include <asm/mmu.h>
--#include <asm/ocp.h>
+ #include <asm/io.h>
+ #include <asm/irq.h>
+@@ -130,8 +131,8 @@
+ static void adjust_link(struct net_device *dev);
+ static void init_registers(struct net_device *dev);
+ static int init_phy(struct net_device *dev);
+-static int gfar_probe(struct ocp_device *ocpdev);
+-static void gfar_remove(struct ocp_device *ocpdev);
++static int gfar_probe(struct device *device);
++static int gfar_remove(struct device *device);
+ void free_skb_resources(struct gfar_private *priv);
+ static void gfar_set_multi(struct net_device *dev);
+ static void gfar_set_hash_for_addr(struct net_device *dev, u8 *addr);
+@@ -148,45 +149,27 @@
+ MODULE_DESCRIPTION("Gianfar Ethernet Driver");
+ MODULE_LICENSE("GPL");
  
- /* ************************************************************************ */
- /* Return the value of CCSRBAR for the current board */
-@@ -29,18 +28,6 @@
- get_ccsrbar(void)
+-/* Called by the ocp code to initialize device data structures
+- * required for bringing up the device
+- * returns 0 on success */
+-static int gfar_probe(struct ocp_device *ocpdev)
++static int gfar_probe(struct device *device)
  {
-         return BOARD_CCSRBAR;
--}
+ 	u32 tempval;
+-	struct ocp_device *mdiodev;
+ 	struct net_device *dev = NULL;
+ 	struct gfar_private *priv = NULL;
+-	struct ocp_gfar_data *einfo;
++	struct platform_device *pdev = to_platform_device(device);
++	struct gianfar_platform_data *einfo;
++	struct resource *r;
+ 	int idx;
+ 	int err = 0;
+ 	int dev_ethtool_ops = 0;
+ 
+-	einfo = (struct ocp_gfar_data *) ocpdev->def->additions;
++	einfo = (struct gianfar_platform_data *) pdev->dev.platform_data;
+ 
+ 	if (einfo == NULL) {
+ 		printk(KERN_ERR "gfar %d: Missing additional data!\n",
+-		       ocpdev->def->index);
++		       pdev->id);
+ 
+ 		return -ENODEV;
+ 	}
 -
--/* ************************************************************************ */
--/* Update the 85xx OCP tables paddr field */
--void
--mpc85xx_update_paddr_ocp(struct ocp_device *dev, void *arg)
--{
--	phys_addr_t ccsrbar;
--	if (arg) {
--		ccsrbar = *(phys_addr_t *)arg;
--		dev->def->paddr += ccsrbar;
+-	/* get a pointer to the register memory which can
+-	 * configure the PHYs.  If it's different from this set,
+-	 * get the device which has those regs */
+-	if ((einfo->phyregidx >= 0) && 
+-			(einfo->phyregidx != ocpdev->def->index)) {
+-		mdiodev = ocp_find_device(OCP_ANY_ID,
+-					  OCP_FUNC_GFAR, einfo->phyregidx);
+-
+-		/* If the device which holds the MDIO regs isn't
+-		 * up, wait for it to come up */
+-		if (mdiodev == NULL)
+-			return -EAGAIN;
+-	} else {
+-		mdiodev = ocpdev;
 -	}
+-
++	
+ 	/* Create an ethernet device instance */
+ 	dev = alloc_etherdev(sizeof (*priv));
+ 
+@@ -198,9 +181,19 @@
+ 	/* Set the info in the priv to the current info */
+ 	priv->einfo = einfo;
+ 
++	/* fill out IRQ fields */
++	if (einfo->device_flags & FSL_GIANFAR_DEV_HAS_MULTI_INTR) {
++		priv->interruptTransmit = platform_get_irq_byname(pdev, "tx");
++		priv->interruptReceive = platform_get_irq_byname(pdev, "rx");
++		priv->interruptError = platform_get_irq_byname(pdev, "error");
++	} else {
++		priv->interruptTransmit = platform_get_irq(pdev, 0);
++	}
++
+ 	/* get a pointer to the register memory */
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	priv->regs = (struct gfar *)
+-		ioremap(ocpdev->def->paddr, sizeof (struct gfar));
++		ioremap(r->start, sizeof (struct gfar));
+ 
+ 	if (priv->regs == NULL) {
+ 		err = -ENOMEM;
+@@ -209,7 +202,7 @@
+ 
+ 	/* Set the PHY base address */
+ 	priv->phyregs = (struct gfar *)
+-	    ioremap(mdiodev->def->paddr, sizeof (struct gfar));
++	    ioremap(einfo->phy_reg_addr, sizeof (struct gfar));
+ 
+ 	if (priv->phyregs == NULL) {
+ 		err = -ENOMEM;
+@@ -218,7 +211,7 @@
+ 
+ 	spin_lock_init(&priv->lock);
+ 
+-	ocp_set_drvdata(ocpdev, dev);
++	dev_set_drvdata(device, dev);
+ 
+ 	/* Stop the DMA engine now, in case it was running before */
+ 	/* (The firmware could have used it, and left it running). */
+@@ -255,7 +248,7 @@
+ 	dev->base_addr = (unsigned long) (priv->regs);
+ 
+ 	SET_MODULE_OWNER(dev);
+-	SET_NETDEV_DEV(dev, &ocpdev->dev);
++	SET_NETDEV_DEV(dev, device);
+ 
+ 	/* Fill in the dev structure */
+ 	dev->open = gfar_enet_open;
+@@ -274,10 +267,10 @@
+ 
+ 	/* Index into the array of possible ethtool
+ 	 * ops to catch all 4 possibilities */
+-	if((priv->einfo->flags & GFAR_HAS_RMON) == 0)
++	if((priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_RMON) == 0)
+ 		dev_ethtool_ops += 1;
+ 
+-	if((priv->einfo->flags & GFAR_HAS_COALESCE) == 0)
++	if((priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_COALESCE) == 0)
+ 		dev_ethtool_ops += 2;
+ 
+ 	dev->ethtool_ops = gfar_op_array[dev_ethtool_ops];
+@@ -332,18 +325,21 @@
+ 	return -ENOMEM;
  }
  
- EXPORT_SYMBOL(get_ccsrbar);
-diff -Nru a/arch/ppc/syslib/ppc85xx_common.h b/arch/ppc/syslib/ppc85xx_common.h
---- a/arch/ppc/syslib/ppc85xx_common.h	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/syslib/ppc85xx_common.h	2005-01-17 22:31:44 -06:00
-@@ -18,12 +18,8 @@
+-static void gfar_remove(struct ocp_device *ocpdev)
++static int gfar_remove(struct device *device)
+ {
+-	struct net_device *dev = ocp_get_drvdata(ocpdev);
++	struct net_device *dev = dev_get_drvdata(device);
+ 	struct gfar_private *priv = netdev_priv(dev);
  
- #include <linux/config.h>
- #include <linux/init.h>
--#include <asm/ocp.h>
+-	ocp_set_drvdata(ocpdev, NULL);
++	dev_set_drvdata(device, NULL);
  
- /* Provide access to ccsrbar for any modules, etc */
- phys_addr_t get_ccsrbar(void);
--
--/* Update the 85xx OCP tables paddr field */
--void mpc85xx_update_paddr_ocp(struct ocp_device *dev, void *ccsrbar);
- 
- #endif /* __PPC_SYSLIB_PPC85XX_COMMON_H */
-diff -Nru a/arch/ppc/syslib/ppc85xx_setup.c b/arch/ppc/syslib/ppc85xx_setup.c
---- a/arch/ppc/syslib/ppc85xx_setup.c	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/syslib/ppc85xx_setup.c	2005-01-17 22:31:44 -06:00
-@@ -27,7 +27,6 @@
- #include <asm/mpc85xx.h>
- #include <asm/immap_85xx.h>
- #include <asm/mmu.h>
--#include <asm/ocp.h>
- #include <asm/kgdb.h>
- 
- #include <syslib/ppc85xx_setup.h>
-diff -Nru a/include/asm-ppc/irq.h b/include/asm-ppc/irq.h
---- a/include/asm-ppc/irq.h	2005-01-17 22:31:44 -06:00
-+++ b/include/asm-ppc/irq.h	2005-01-17 22:31:44 -06:00
-@@ -199,6 +199,7 @@
- #define	SIU_INT_RISC		((uint)0x03+CPM_IRQ_OFFSET)
- #define	SIU_INT_SMC1		((uint)0x04+CPM_IRQ_OFFSET)
- #define	SIU_INT_SMC2		((uint)0x05+CPM_IRQ_OFFSET)
-+#define	SIU_INT_USB		((uint)0x0b+CPM_IRQ_OFFSET)
- #define	SIU_INT_TIMER1		((uint)0x0c+CPM_IRQ_OFFSET)
- #define	SIU_INT_TIMER2		((uint)0x0d+CPM_IRQ_OFFSET)
- #define	SIU_INT_TIMER3		((uint)0x0e+CPM_IRQ_OFFSET)
-diff -Nru a/include/asm-ppc/mpc85xx.h b/include/asm-ppc/mpc85xx.h
---- a/include/asm-ppc/mpc85xx.h	2005-01-17 22:31:44 -06:00
-+++ b/include/asm-ppc/mpc85xx.h	2005-01-17 22:31:44 -06:00
-@@ -103,6 +103,14 @@
- #define MPC85xx_CPM_SIZE	(0x40000)
- #define MPC85xx_DMA_OFFSET	(0x21000)
- #define MPC85xx_DMA_SIZE	(0x01000)
-+#define MPC85xx_DMA0_OFFSET	(0x21100)
-+#define MPC85xx_DMA0_SIZE	(0x00080)
-+#define MPC85xx_DMA1_OFFSET	(0x21180)
-+#define MPC85xx_DMA1_SIZE	(0x00080)
-+#define MPC85xx_DMA2_OFFSET	(0x21200)
-+#define MPC85xx_DMA2_SIZE	(0x00080)
-+#define MPC85xx_DMA3_OFFSET	(0x21280)
-+#define MPC85xx_DMA3_SIZE	(0x00080)
- #define MPC85xx_ENET1_OFFSET	(0x24000)
- #define MPC85xx_ENET1_SIZE	(0x01000)
- #define MPC85xx_ENET2_OFFSET	(0x25000)
-@@ -138,6 +146,34 @@
- #else
- #define CCSRBAR BOARD_CCSRBAR
- #endif
+ 	iounmap((void *) priv->regs);
+ 	iounmap((void *) priv->phyregs);
+ 	free_netdev(dev);
 +
-+enum ppc_sys_devices {
-+	MPC85xx_TSEC1,
-+	MPC85xx_TSEC2,
-+	MPC85xx_FEC,
-+	MPC85xx_IIC1,
-+	MPC85xx_DMA0,
-+	MPC85xx_DMA1,
-+	MPC85xx_DMA2,
-+	MPC85xx_DMA3,
-+	MPC85xx_DUART,
-+	MPC85xx_PERFMON,
-+	MPC85xx_SEC2,
-+	MPC85xx_CPM_SPI,
-+	MPC85xx_CPM_I2C,
-+	MPC85xx_CPM_USB,
-+	MPC85xx_CPM_SCC1,
-+	MPC85xx_CPM_SCC2,
-+	MPC85xx_CPM_SCC3,
-+	MPC85xx_CPM_SCC4,
-+	MPC85xx_CPM_FCC1,
-+	MPC85xx_CPM_FCC2,
-+	MPC85xx_CPM_FCC3,
-+	MPC85xx_CPM_MCC1,
-+	MPC85xx_CPM_MCC2,
-+	MPC85xx_CPM_SMC1,
-+	MPC85xx_CPM_SMC2,
-+};
++	return 0;
+ }
  
- #endif /* CONFIG_85xx */
- #endif /* __ASM_MPC85xx_H__ */
-
++
+ /* Configure the PHY for dev.
+  * returns 0 if success.  -1 if failure
+  */
+@@ -470,7 +466,7 @@
+ 	gfar_write(&priv->regs->rctrl, 0x00000000);
+ 
+ 	/* Zero out the rmon mib registers if it has them */
+-	if (priv->einfo->flags & GFAR_HAS_RMON) {
++	if (priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_RMON) {
+ 		memset((void *) &(priv->regs->rmon), 0,
+ 		       sizeof (struct rmon_mib));
+ 
+@@ -536,7 +532,7 @@
+ 	tempval &= ~(MACCFG1_RX_EN | MACCFG1_TX_EN);
+ 	gfar_write(&regs->maccfg1, tempval);
+ 
+-	if (priv->einfo->flags & GFAR_HAS_PHY_INTR) {
++	if (priv->einfo->board_flags & FSL_GIANFAR_BRD_HAS_PHY_INTR) {
+ 		/* Clear any pending interrupts */
+ 		mii_clear_phy_interrupt(priv->mii_info);
+ 
+@@ -548,15 +544,15 @@
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+ 	/* Free the IRQs */
+-	if (priv->einfo->flags & GFAR_HAS_MULTI_INTR) {
+-		free_irq(priv->einfo->interruptError, dev);
+-		free_irq(priv->einfo->interruptTransmit, dev);
+-		free_irq(priv->einfo->interruptReceive, dev);
++	if (priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_MULTI_INTR) {
++		free_irq(priv->interruptError, dev);
++		free_irq(priv->interruptTransmit, dev);
++		free_irq(priv->interruptReceive, dev);
+ 	} else {
+-		free_irq(priv->einfo->interruptTransmit, dev);
++		free_irq(priv->interruptTransmit, dev);
+ 	}
+ 
+-	if (priv->einfo->flags & GFAR_HAS_PHY_INTR) {
++	if (priv->einfo->board_flags & FSL_GIANFAR_BRD_HAS_PHY_INTR) {
+ 		free_irq(priv->einfo->interruptPHY, dev);
+ 	} else {
+ 		del_timer_sync(&priv->phy_info_timer);
+@@ -727,41 +723,41 @@
+ 
+ 	/* If the device has multiple interrupts, register for
+ 	 * them.  Otherwise, only register for the one */
+-	if (priv->einfo->flags & GFAR_HAS_MULTI_INTR) {
++	if (priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_MULTI_INTR) {
+ 		/* Install our interrupt handlers for Error, 
+ 		 * Transmit, and Receive */
+-		if (request_irq(priv->einfo->interruptError, gfar_error,
++		if (request_irq(priv->interruptError, gfar_error,
+ 				0, "enet_error", dev) < 0) {
+ 			printk(KERN_ERR "%s: Can't get IRQ %d\n",
+-			       dev->name, priv->einfo->interruptError);
++			       dev->name, priv->interruptError);
+ 
+ 			err = -1;
+ 			goto err_irq_fail;
+ 		}
+ 
+-		if (request_irq(priv->einfo->interruptTransmit, gfar_transmit,
++		if (request_irq(priv->interruptTransmit, gfar_transmit,
+ 				0, "enet_tx", dev) < 0) {
+ 			printk(KERN_ERR "%s: Can't get IRQ %d\n",
+-			       dev->name, priv->einfo->interruptTransmit);
++			       dev->name, priv->interruptTransmit);
+ 
+ 			err = -1;
+ 
+ 			goto tx_irq_fail;
+ 		}
+ 
+-		if (request_irq(priv->einfo->interruptReceive, gfar_receive,
++		if (request_irq(priv->interruptReceive, gfar_receive,
+ 				0, "enet_rx", dev) < 0) {
+ 			printk(KERN_ERR "%s: Can't get IRQ %d (receive0)\n",
+-			       dev->name, priv->einfo->interruptReceive);
++			       dev->name, priv->interruptReceive);
+ 
+ 			err = -1;
+ 			goto rx_irq_fail;
+ 		}
+ 	} else {
+-		if (request_irq(priv->einfo->interruptTransmit, gfar_interrupt,
++		if (request_irq(priv->interruptTransmit, gfar_interrupt,
+ 				0, "gfar_interrupt", dev) < 0) {
+ 			printk(KERN_ERR "%s: Can't get IRQ %d\n",
+-			       dev->name, priv->einfo->interruptError);
++			       dev->name, priv->interruptError);
+ 
+ 			err = -1;
+ 			goto err_irq_fail;
+@@ -815,9 +811,9 @@
+ 	return 0;
+ 
+ rx_irq_fail:
+-	free_irq(priv->einfo->interruptTransmit, dev);
++	free_irq(priv->interruptTransmit, dev);
+ tx_irq_fail:
+-	free_irq(priv->einfo->interruptError, dev);
++	free_irq(priv->interruptError, dev);
+ err_irq_fail:
+ rx_skb_fail:
+ 	free_skb_resources(priv);
+@@ -1490,7 +1486,7 @@
+ 		adjust_link(dev);
+ 
+ 	/* Reenable interrupts, if needed */
+-	if (priv->einfo->flags & GFAR_HAS_PHY_INTR)
++	if (priv->einfo->board_flags & FSL_GIANFAR_BRD_HAS_PHY_INTR)
+ 		mii_configure_phy_interrupt(priv->mii_info,
+ 				MII_INTERRUPT_ENABLED);
+ }
+@@ -1547,7 +1543,7 @@
+ 	del_timer_sync(&priv->phy_info_timer);
+ 
+ 	/* Grab the PHY interrupt, if necessary/possible */
+-	if (priv->einfo->flags & GFAR_HAS_PHY_INTR) {
++	if (priv->einfo->board_flags & FSL_GIANFAR_BRD_HAS_PHY_INTR) {
+ 		if (request_irq(priv->einfo->interruptPHY, 
+ 					phy_interrupt,
+ 					SA_SHIRQ, 
+@@ -1758,7 +1754,7 @@
+ 	/* Hmm... */
+ #if defined (BRIEF_GFAR_ERRORS) || defined (VERBOSE_GFAR_ERRORS)
+ 	printk(KERN_DEBUG "%s: error interrupt (ievent=0x%08x imask=0x%08x)\n",
+-	       dev->name, events, gfar_read(priv->regs->imask));
++	       dev->name, events, gfar_read(&priv->regs->imask));
+ #endif
+ 
+ 	/* Update the error counters */
+@@ -1829,36 +1825,23 @@
+ }
+ 
+ /* Structure for a device driver */
+-static struct ocp_device_id gfar_ids[] = {
+-	{.vendor = OCP_ANY_ID,.function = OCP_FUNC_GFAR},
+-	{.vendor = OCP_VENDOR_INVALID}
+-};
+-
+-static struct ocp_driver gfar_driver = {
+-	.name = "gianfar",
+-	.id_table = gfar_ids,
+-
++static struct device_driver gfar_driver = {
++	.name = "fsl-gianfar",
++	.bus = &platform_bus_type,
+ 	.probe = gfar_probe,
+ 	.remove = gfar_remove,
+ };
+ 
+ static int __init gfar_init(void)
+ {
+-	int rc;
+-
+-	rc = ocp_register_driver(&gfar_driver);
+-	if (rc != 0) {
+-		ocp_unregister_driver(&gfar_driver);
+-		return -ENODEV;
+-	}
+-
+-	return 0;
++	return driver_register(&gfar_driver);
+ }
+ 
+ static void __exit gfar_exit(void)
+ {
+-	ocp_unregister_driver(&gfar_driver);
++	driver_unregister(&gfar_driver);
+ }
+ 
+ module_init(gfar_init);
+ module_exit(gfar_exit);
++
+diff -Nru a/drivers/net/gianfar.h b/drivers/net/gianfar.h
+--- a/drivers/net/gianfar.h	2005-01-17 22:31:44 -06:00
++++ b/drivers/net/gianfar.h	2005-01-17 22:31:44 -06:00
+@@ -37,6 +37,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
++#include <linux/fsl_devices.h>
+ 
+ #include <asm/io.h>
+ #include <asm/irq.h>
+@@ -47,7 +48,6 @@
+ #include <linux/workqueue.h>
+ #include <linux/ethtool.h>
+ #include <linux/netdevice.h>
+-#include <asm/ocp.h>
+ #include "gianfar_phy.h"
+ 
+ /* The maximum number of packets to be handled in one call of gfar_poll */
+@@ -510,7 +510,10 @@
+ 	unsigned int rxclean;
+ 
+ 	/* Info structure initialized by board setup code */
+-	struct ocp_gfar_data *einfo;
++	unsigned int interruptTransmit;
++	unsigned int interruptReceive;
++	unsigned int interruptError;
++	struct gianfar_platform_data *einfo;
+ 
+ 	struct gfar_mii_info *mii_info;
+ 	int oldspeed;
+diff -Nru a/drivers/net/gianfar_ethtool.c b/drivers/net/gianfar_ethtool.c
+--- a/drivers/net/gianfar_ethtool.c	2005-01-17 22:31:44 -06:00
++++ b/drivers/net/gianfar_ethtool.c	2005-01-17 22:31:44 -06:00
+@@ -186,9 +186,11 @@
+ {
+ 	struct gfar_private *priv = netdev_priv(dev);
+ 	uint gigabit_support = 
+-		priv->einfo->flags & GFAR_HAS_GIGABIT ? SUPPORTED_1000baseT_Full : 0;
++		priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_GIGABIT ?
++			SUPPORTED_1000baseT_Full : 0;
+ 	uint gigabit_advert = 
+-		priv->einfo->flags & GFAR_HAS_GIGABIT ? ADVERTISED_1000baseT_Full: 0;
++		priv->einfo->device_flags & FSL_GIANFAR_DEV_HAS_GIGABIT ?
++			ADVERTISED_1000baseT_Full: 0;
+ 
+ 	cmd->supported = (SUPPORTED_10baseT_Half
+ 			  | SUPPORTED_100baseT_Half

@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276552AbRJKQrK>; Thu, 11 Oct 2001 12:47:10 -0400
+	id <S276576AbRJKQsu>; Thu, 11 Oct 2001 12:48:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276562AbRJKQrB>; Thu, 11 Oct 2001 12:47:01 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:7697 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S276547AbRJKQqp>; Thu, 11 Oct 2001 12:46:45 -0400
-Date: Thu, 11 Oct 2001 12:46:57 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11 loses sda9
-In-Reply-To: <01101111415700.05168@lithium>
-Message-ID: <Pine.LNX.4.33.0110111245490.25209-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S276562AbRJKQsb>; Thu, 11 Oct 2001 12:48:31 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:28722 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S276558AbRJKQsW>; Thu, 11 Oct 2001 12:48:22 -0400
+Date: Thu, 11 Oct 2001 18:47:48 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Oleg A. Yurlov" <kris@spylog.com>
+Cc: Cliff Albert <cliff@oisec.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11aa1 and AIC7XXX
+Message-ID: <20011011184748.S714@athlon.random>
+In-Reply-To: <13522687985.20011011173954@spylog.com> <20011011163105.A18508@oisec.net> <58528703605.20011011192009@spylog.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58528703605.20011011192009@spylog.com>; from kris@spylog.com on Thu, Oct 11, 2001 at 07:20:09PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 arvest@orphansonfire.com wrote:
+On Thu, Oct 11, 2001 at 07:20:09PM +0400, Oleg A. Yurlov wrote:
+> 
+>         Hi, Cliff and all,
+> 
+> Thursday, October 11, 2001, 6:31:05 PM, you wrote:
+> 
+> CA> On Thu, Oct 11, 2001 at 05:39:54PM +0400, Oleg A. Yurlov wrote:
+> 
+> >> Oct 10 20:35:31 samson kernel: (scsi0:A:2:0): Locking max tag count at 128
+> >> Oct 10 21:06:31 samson kernel: (scsi1:A:0:0): Locking max tag count at 64                                                           
+> >> Oct 11 05:33:09 samson kernel: (scsi0:A:3:0): Locking max tag count at 128       
+> >> 
+> >>         Hardware   -  SMP 2 CPU, 1GB RAM, M/B Intel L440GX, 5 SCSI HDD, Software
+> >> RAID5 (3 disks) and RAID1.
+> >> 
+> >>         I found in dmesg:
+> >> 
+> >>  *** Possibly defective BIOS detected (irqtable)
+> >>  *** Many BIOSes matching this signature have incorrect IRQ routing tables.
+> >>  *** If you see IRQ problems, in paticular SCSI resets and hangs at boot
+> >>  *** contact your vendor and ask about updates.
+> >>  *** Building an SMP kernel may evade the bug some of the time.
+> >> Starting kswapd
+> >> 
+> >>         It's  normal or not ? What I can do to fix problem with locking max tag
+> >> count ?
+> 
+> CA> Looks normal, it's that the new aic7xxx driver utilizes a maximum tag queue depth of 255 tags. Your devices are supporting only a maximum tag count of 128, 64 and 128 so it's perfectly normal.
+> CA> Also these 'error' messages should only appear once and no more (until a reboot)
+> 
+>         Thanks a lot !
 
-> On Thursday 11 October 2001 01:08, Andreas Dilger wrote:
-> > On Oct 11, 2001  00:45 -0500, arvest@orphansonfire.com wrote:
-> > > > On Thu, 11 Oct 2001 arvest@orphansonfire.com wrote:
-> > > > >   I can get the system booted enough to work on (and totaly up) with
-> > > > > this partition failing.  I dont know what more information from fdisk
-> > > > > I can give you, sda9 is there with .10, and gone with .11  It even
-> > > > > allowed me to add a new partition (i didnt save)  I tried sfdisk but
-> > > > > it gave me these errors.
-> > >
-> > > Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> > > SCSI device sda: 17783250 512-byte hdwr sectors (9105 MB)
-> > >  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
-> > > omitting empty partition (9)
-> > >
-> > > /dev/sda1   *         1       501    513008   83  Linux
-> > > /dev/sda2           502      3698   3273728   83  Linux
-> > > /dev/sda3          3699      4199    513024   83  Linux
-> > > /dev/sda4          4200      8683   4591616    5  Extended
-> > > /dev/sda5          4200      4700    513008   83  Linux
-> > > /dev/sda6          4701      5725   1049584   83  Linux
-> > > /dev/sda7          5726      5918    197616   82  Linux swap
-> > > /dev/sda8          5919      6419    513008   83  Linux
-> >
-> > You probably need to go into fdisk and change the partition type of
-> > sda9 from "0" to "83" (or any other non-zero type).  There is a
-> > reason that it is saying "omitting empty partition (9)" at boot,
-> > and "fdisk -l" doesn't list it - because type "0" means "I don't exist".
-> >
-> > In fdisk, use the "t" option to set the type of sda9.
->
->   sda9 doesnt show in fdisk.  Cylinders 6420-8683 are shown free.
+But of course be careful with 2.4.11aa1, like vanilla 2.4.11 it can eat
+your filesystem. An urgent upgrade to 2.4.12 is recommended (2.4.12aa1
+is out and it seems it fixes the oom faliures on the 8g boxes properly
+now)
 
-Ouch. You may have to use partedit from PartitionMagic (or some other
-low-level partition editor) to manually change the partition type.
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
+Andrea

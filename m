@@ -1,63 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbUDXT5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbUDXTz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUDXT5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 15:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUDXT5Q
+	id S261744AbUDXTz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 15:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUDXTz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 15:57:16 -0400
-Received: from mail-relay-2.tiscali.it ([212.123.84.92]:42374 "EHLO
-	mail-relay-2.tiscali.i") by vger.kernel.org with ESMTP
-	id S261756AbUDXT5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 15:57:12 -0400
-Date: Sat, 24 Apr 2004 21:47:27 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: Pat LaVarre <p.lavarre@ieee.org>
-Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: Unable to read UDF fs on a DVD
-Message-ID: <20040424194727.GA3353@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040423195004.GA1885@dreamland.darkstar.lan> <1082751675.3163.106.camel@patibmrh9>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1082751675.3163.106.camel@patibmrh9>
-User-Agent: Mutt/1.4i
+	Sat, 24 Apr 2004 15:55:27 -0400
+Received: from maximus.kcore.de ([213.133.102.235]:50482 "EHLO
+	maximus.kcore.de") by vger.kernel.org with ESMTP id S261744AbUDXTzP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 15:55:15 -0400
+From: Oliver Feiler <kiza@gmx.net>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: CONFIG_ATALK cannot be compiled as a module (2.4.24)
+Date: Sat, 24 Apr 2004 21:55:06 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200403281401.18489.kiza@gmx.net> <20040424182347.GF146@fs.tum.de>
+In-Reply-To: <20040424182347.GF146@fs.tum.de>
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey
+X-Species: Snow Leopard
+X-Operating-System: Linux
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_aYsiAF3B9gvUkuD"
+Message-Id: <200404242155.06101.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Fri, Apr 23, 2004 at 02:21:15PM -0600, Pat LaVarre ha scritto: 
-> P.S. Five postscripts:
-> 
-> 1)
-> 
-> > even with ide-scsi, though.
-> 
-> Whoa.  You weren't engaging in the taboo act of running ide-scsi in 2.6
-> back when ls failed, were you?
 
-No, I wasn't. I'm aware that ide-scsi is not needed with 2.6. I had to
-recompile the kernel with ide-scsi to make Philips fsck happy.
+--Boundary-00=_aYsiAF3B9gvUkuD
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> 3)
-> 
-> I can't now rapidly reproduce the collection of file lengths you report,
-> because sparse files in UDF, even when the underlying volume is not
-> sparse, as yet crash my Linux-2.6.5.
+Hi Adrian,
 
-Well, Ben Fennema said that he has identified the issue. If it can be
-usefull I can have my friend burn another DVD (with less data) with Easy
-CD and upload the image somewhere.
+On Saturday 24 April 2004 20:23, Adrian Bunk wrote:
 
-> 5)
-> 
-> > http://web.tiscali.it/kronoz/ucf_test.log
-> 
-> Any chance this link will still work, a year from now?
+> > when selecting CONFIG_ATALK as a module the symbols register_snap_client
+> > and unregister_snap_client will be unresolved. As I understand it they
+> > are in net/802/psnap.c which does not get compiled when Appletalk is
+> > selected as a module. Compiling into the kernel works fine.
+> >...
+>
+> thanks for this report and sorry for the late answer.
+>
+> I wasn't able to reproduce your problem.
+>
+> Please send your .config.
 
-Yup, no problem.
+Attached. Upgraded the server to 2.4.26 in the meantime and threw out 
+appletalk again since we didn't need it in the end.
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-Alcuni pensano che io sia una persona orribile, ma non e` vero. Ho il
-cuore di un ragazzino - in un vaso sulla scrivania.
+A quick test with compiling it as a module produced the same unresolved 
+symbols. Unless I missed another config option to set?
+
+I don't need to set CONFIG_DEV_APPLETALK as well, right? Regardless, just 
+tried, same effect.
+
+Btw, I think I didn't mention earlier, the kernel is patched with i2c-2.8.3. 
+Patch generated with mkpatch from the package and applied.
+
+Thanks!
+
+	Oliver
+
+
+--Boundary-00=_aYsiAF3B9gvUkuD
+Content-Type: application/x-gzip;
+  name="config-2.4.26.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config-2.4.26.gz"
+
+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
+
+--Boundary-00=_aYsiAF3B9gvUkuD--
+

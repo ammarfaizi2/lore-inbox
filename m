@@ -1,54 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268323AbRHHTNL>; Wed, 8 Aug 2001 15:13:11 -0400
+	id <S268566AbRHHTQB>; Wed, 8 Aug 2001 15:16:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268399AbRHHTNC>; Wed, 8 Aug 2001 15:13:02 -0400
-Received: from [213.4.23.178] ([213.4.23.178]:7674 "HELO
-	correo.interno.andago.com") by vger.kernel.org with SMTP
-	id <S268323AbRHHTMp>; Wed, 8 Aug 2001 15:12:45 -0400
-Date: Wed, 8 Aug 2001 00:51:55 +0200
-From: Eric Van Buggenhaut <ericvb@debian.org>
-To: Thierry Laronde <thierry@cri74.org>
-Cc: Debian boot mailing list <debian-boot@lists.debian.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PCI] building PCI IDs/drivers DB from Linux kernel sources
-Message-ID: <20010808005155.A831@femto.eric.ath.cx>
-Reply-To: Eric.VanBuggenhaut@AdValvas.be
-In-Reply-To: <20010730113319.A24939@pc04.cri.cur-archamps.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010730113319.A24939@pc04.cri.cur-archamps.fr>
-User-Agent: Mutt/1.3.18i
-X-Echelon: FBI CIA NSA Handgun Assault Atomic Bomb Heroin Drug Terrorism
+	id <S268567AbRHHTPv>; Wed, 8 Aug 2001 15:15:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:51941 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S268566AbRHHTPj>;
+	Wed, 8 Aug 2001 15:15:39 -0400
+Importance: Normal
+Subject: Re: [RFC][PATCH] Scalable Scheduling
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF7B546FB4.1BE75E02-ON85256AA2.0069D89C@pok.ibm.com>
+From: "Hubertus Franke" <frankeh@us.ibm.com>
+Date: Wed, 8 Aug 2001 15:16:45 -0400
+X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 08/08/2001 03:15:44 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 30, 2001 at 11:33:19AM +0200, Thierry Laronde wrote:
 
-[...]
+I thought, Linus's suggestion is pretty straight forward and clear, like
+you do it.
+We fix it and resubmit ASAP.
 
-> PROBLEMS
-> --------
-> 
-> Macro definitions:
-> 
-> I have found two macros not defined anywhere (sorry, this is for 2.4.6; I
-> haven't try for later):
-> 
-> PCI_DEVICE_ID_PHILIPS_SAA9730
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
 
-Still not defined in 2.4.7 ...
 
-> PCI_DEVICE_ID_V3_SEMI_V370PDC
 
-defined in 2.4.7 in include/linux/mtd/pmc551.h:51
+Daniel Phillips <phillips@bonn-fries.net>@vger.kernel.org on 08/08/2001
+03:06:01 PM
 
-#ifndef PCI_DEVICE_ID_V3_SEMI_V370PDC
-#define PCI_DEVICE_ID_V3_SEMI_V370PDC     0x0200
-#endif
+Sent by:  linux-kernel-owner@vger.kernel.org
 
--- 
-Eric VAN BUGGENHAUT
 
-Eric.VanBuggenhaut@AdValvas.be
+To:   Mike Kravetz <mkravetz@beaverton.ibm.com>, Linus Torvalds
+      <torvalds@transmeta.com>
+cc:   Hubertus Franke/Watson/IBM@IBMUS, linux-kernel@vger.kernel.org
+Subject:  Re: [RFC][PATCH] Scalable Scheduling
+
+
+
+On Wednesday 08 August 2001 20:28, Mike Kravetz wrote:
+> Yes we have, we'll provide those numbers with the updated patch.
+> One challenge will be maintaining the same level of performance
+> for UP as in the current code.  The current code has #ifdefs to
+> separate some of the UP/SMP code paths and we will try to eliminate
+> these.
+
+Does it help if I clarify what Linus was suggesting?  Instead of:
+
+         #ifdef CONFIG_SMP
+                 .. use nr_running() ..
+         #else
+                 .. use nr_running ..
+         #endif
+
+write:
+
+     inline int nr_running(void)
+     {
+     #ifdef CONFIG_SMP
+          int i = 0, tot=nt_running(REALTIME_RQ);
+          while (i < smp_num_cpus) {
+               tot += nt_running(cpu_logical_map(i++));
+          }
+          return(tot);
+     #else
+          return nr_running;
+     #endif
+     }
+
+Then see if you can make the #ifdef's go away from that too.  (If that's
+too hard, well, at least the #ifdef's are now reduced.)
+
+--
+Daniel
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

@@ -1,64 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132681AbRC2MAe>; Thu, 29 Mar 2001 07:00:34 -0500
+	id <S132720AbRC2MGE>; Thu, 29 Mar 2001 07:06:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132721AbRC2MAZ>; Thu, 29 Mar 2001 07:00:25 -0500
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:41992 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S132681AbRC2MAL>; Thu, 29 Mar 2001 07:00:11 -0500
-Date: Thu, 29 Mar 2001 13:02:38 +0100
-From: Sean Hunter <sean-lk@dev.sportingbet.com>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM killer???
-Message-ID: <20010329130238.G10301@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean-lk@dev.sportingbet.com>,
-	Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <200103282138.f2SLcT824292@webber.adilger.int> <Pine.A32.3.95.1010329111147.63156A-100000@werner.exp-math.uni-essen.de> <20010329130154.A8701@win.tue.nl>
-Mime-Version: 1.0
+	id <S132722AbRC2MFy>; Thu, 29 Mar 2001 07:05:54 -0500
+Received: from tango.SoftHome.net ([204.144.231.49]:3813 "HELO
+	tango.SoftHome.net") by vger.kernel.org with SMTP
+	id <S132720AbRC2MFo>; Thu, 29 Mar 2001 07:05:44 -0500
+Message-ID: <3AC324FA.7E7F6919@softhome.net>
+Date: Thu, 29 Mar 2001 07:05:14 -0500
+From: "Todd M. Roy" <toddroy@softhome.net>
+Reply-To: toddroy@softhome.net
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Wayne Whitney <whitney@math.berkeley.edu>, linux-kernel@vger.kernel.org
+Subject: re: 2.4.3-p8 pci_fixup_vt8363 + ASUS A7V "Optimal" = IDE disk corruption
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010329130154.A8701@win.tue.nl>; from dwguest@win.tue.nl on Thu, Mar 29, 2001 at 01:01:54PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 29, 2001 at 01:01:54PM +0200, Guest section DW wrote:
-> [Never use planes where the company's engineers spend their
-> time designing algorithms for selecting which passenger
-> must be thrown out when the plane is overloaded.]
+Wayne,
+  I have also been seeing disk corruption with my ASUS A7V with both
+2.4.3-pre7 and pre8.
 
-This is (as far as I can see) a fantastically specious argument.  A plane is
-designed to function in an entirely constrained mode of operation and in an
-entirely well-understood and circumscribed problem space, whereas a linux host
-is a general-purpose device which can be used for many different applications.
+-- todd --
 
-The reason the aero engineers don't need to select a passanger to throw out
-when the plane is overloaded is simply that the plane operators do not allow
-the plane to become overloaded.  If I put a 100 people in a trilander it may
-take off, but won't fly, and will probably crash.  The plane's designers don't
-have to do anything about that- we do.
+Hi,
 
-Furthermore, why do you suppose an aeroplane has more than one altimeter,
-artifical horizon and compass?  Do you think it's because they are unable to
-make one of each that is reliable?  Or do you think its because they are
-concerned about what happens if one fails _however unlikely that is_.
+I'm running kernel 2.4.3-pre8 on an ASUS A7V (BIOS 1007) motherboard and
+recently noticed that it sometimes corrupts my hard disk, an IBM 75GXP
+on
+the onboard PDC20265 IDE controller.  The corruption is detectable with
+a
+simple 'dd if=/dev/urandom of=test bs=16384 count=32768; cp test test2 ;
+diff test test2'.
 
-In fact, aeroplane engineers do design in ways of mitigating the effects of all
-kinds of failures, including lessening the impact of a crash (directly
-analogous to our OOM killer).  For example, they provide means of jettisonning
-fuel prior to crash landing to attempt to minimise explosions.
+I traced the problem to a combination of choosing "Optimal" for the
+System
+Permorfance Setting in the BIOS and the the new pci_fixup_vt8363 added
+to
+arch/i386/kernel/pci-pc.c in kernel 2.4.3-pre3.  So I did a bunch of
+tests
+using no pci_fixup function, the pci_fixup_vt8363 function, and the
+following subset of pci_fixup_vt8363:
 
-Risk management is about lessening impact as well as lessening probability.  If
-something is important, you don't only make it work as well as you can, you
-mitigate the effect of failure.  A reliable system is not just a strong belt,
-it is belt, braces, suspenders and bicycle clips.
+        pci_read_config_byte(d, 0x54, &tmp);
+        if(tmp & (1<<2)) {
+                printk("PCI: Bus master Pipeline request disabled\n");
+                pci_write_config_byte(d, 0x54, tmp & ~(1<<2));
+        }
+        pci_read_config_byte(d, 0x70, &tmp);
+        if(tmp & (1<<2)) {
+                printk("PCI: Disabled Master Read Caching\n");
+                pci_write_config_byte(d, 0x70, tmp & ~(1<<2));
+        }
 
-I have seen the OOM killer in operation three times on our production servers.
-In each case it kept the machine alive in the face of hostile runaway
-processes.  I don't want to see things killed, but if that is the only way to
-keep the host alive, I vote to keep it alive.
+The results for me:
+				Normal		Optimal
+				------		-------
+no pci_fixup			no corruption	no corruption
+pci_fixup_vt8363 subset		corruption	corruption
+pci_fixup_vt8363		no corruption	corruption
 
-When I'm on a plane, I want more than one engine _and_ lifejackets.
+At this point my skills and perseverance gave out, but if someone would
+like me to do a few more specific tests, I could.
 
-Sean
+Below is the output of 'lspci -xxx -s 0:0' on this hardware, with no
+pci_fixup, for both the Normal and Optimal BIOS settings, in the form of
+a
+unified diff.  Hopefully this will shed some light on what the BIOS is
+doing, as we don't see to have pci_fixup_vt8363 quite right yet.
+
+Cheers,
+Wayne
+
+
+-- 
+  .~.  Todd Roy, Senior Database Administrator  .~.
+  /V\     Holstein Association, U.S.A. Inc.     /V\         
+ // \\           troy@holstein.com             // \\  
+/(   )\         1-802-254-4551x4230           /(   )\
+ ^^-^^                                         ^^-^^

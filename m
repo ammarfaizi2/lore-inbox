@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267687AbTBUUcr>; Fri, 21 Feb 2003 15:32:47 -0500
+	id <S267686AbTBUU3N>; Fri, 21 Feb 2003 15:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267688AbTBUUcr>; Fri, 21 Feb 2003 15:32:47 -0500
-Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:6294
-	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
-	id <S267687AbTBUUcq>; Fri, 21 Feb 2003 15:32:46 -0500
-Date: Fri, 21 Feb 2003 15:42:35 -0500 (EST)
-From: Ion Badulescu <ionut@badula.org>
-X-X-Sender: ion@guppy.limebrokerage.com
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: UP local APIC is deadly on SMP Athlon
-In-Reply-To: <Pine.LNX.4.44.0302210959090.17290-100000@guppy.limebrokerage.com>
-Message-ID: <Pine.LNX.4.44.0302211535510.17290-100000@guppy.limebrokerage.com>
+	id <S267687AbTBUU3N>; Fri, 21 Feb 2003 15:29:13 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5896 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S267686AbTBUU3M>; Fri, 21 Feb 2003 15:29:12 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
+Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+To: Valdis.Kletnieks@vt.edu
+Date: Fri, 21 Feb 2003 20:40:45 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200302212013.h1LKD6Cu014437@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Feb 21, 2003 03:13:06 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003, Ion Badulescu wrote:
+> RFC3168 section 6.1.1.1 says this:
+> 
+>    A host that receives no reply to an ECN-setup SYN within the normal
+>    SYN retransmission timeout interval MAY resend the SYN and any
+>    subsequent SYN retransmissions with CWR and ECE cleared.  To overcome
+>    normal packet loss that results in the original SYN being lost, the
+>    originating host may retransmit one or more ECN-setup SYN packets
+>    before giving up and retransmitting the SYN with the CWR and ECE bits
+>    cleared.
+> 
+> Supporting this would make using ECN a lot less painful - currently, if
+> I want to use ECN by default, I get to turn it off anytime I find an
+> ECN-hostile site that I'd like to communicate with.
 
-> Anyway, I'll keep on digging.
+Linux shouldn't encourage the use of equipment that violates RFCs, in
+this case, RFC 739.
 
-And this is what I found: eliminating two lines from 
-APIC_init_uniprocessor() makes the problem go away.
+The correct way to deal with it, is to contact the maintainers of the
+site, and ask them to fix the non conforming equipment.
 
-diff -urNX diff_kernel_excludes linux-2.4.10-pre12/arch/i386/kernel/apic.c linux-2.4.10-pre11++/arch/i386/kernel/apic.c
---- linux-2.4.10-pre12/arch/i386/kernel/apic.c	Wed Feb 19 23:53:15 2003
-+++ linux-2.4.10-pre11++/arch/i386/kernel/apic.c	Fri Feb 21 15:37:06 2003
-@@ -1087,9 +1087,6 @@
- 
- 	connect_bsp_APIC();
- 
--	phys_cpu_present_map = 1;
--	apic_write_around(APIC_ID, boot_cpu_id);
--
- 	apic_pm_init2();
- 
- 	setup_local_APIC();
+If the problem is caused upstream, by equipment out of the
+site's maintainers' control, it is their responsibility to contact the
+relevant maintainers, or change their upstream provider.
 
-[patch against 2.4.10-pre12, but 2.4.21-pre4 is reasonably similar]
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+John.

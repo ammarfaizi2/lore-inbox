@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266495AbUALWMr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266521AbUALWMr
+	id S265576AbUALWNm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 17:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265617AbUALWNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:12:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47787 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266495AbUALWMo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:12:44 -0500
-Date: Mon, 12 Jan 2004 14:13:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH(s)][RFC] variable size and signedness issues in ldt.c -
- potential problem?
-Message-Id: <20040112141350.085d32dc.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.56.0401122243270.2130@jju_lnx.backbone.dif.dk>
-References: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
-	<Pine.LNX.4.58.0401090440180.27298@devserv.devel.redhat.com>
-	<Pine.LNX.4.56.0401110300080.13633@jju_lnx.backbone.dif.dk>
-	<Pine.LNX.4.56.0401122243270.2130@jju_lnx.backbone.dif.dk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jan 2004 17:13:42 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:20365 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265576AbUALWNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 17:13:37 -0500
+Subject: Re: [PATCH] Intel Alder IOAPIC fix
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+References: <1073876117.2549.65.camel@mulgrave> 
+	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 12 Jan 2004 17:13:31 -0500
+Message-Id: <1073945612.2105.67.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
->
-> 
-> >
-> > -static int read_ldt(void __user * ptr, unsigned long bytecount)
-> > +static int read_ldt(void __user *ptr, unsigned long bytecount)
-> >  {
-> >  	int err, i;
-> >  	unsigned long size;
-> > +	unsigned long bytes;
-> >  	struct mm_struct * mm = current->mm;
-> >
-> >  	if (!mm->context.size)
-> > @@ -144,7 +145,7 @@ static int read_ldt(void __user * ptr, u
-> >  	__flush_tlb_global();
-> >
-> >  	for (i = 0; i < size; i += PAGE_SIZE) {
-> > -		int nr = i / PAGE_SIZE, bytes;
-> > +		int nr = i / PAGE_SIZE;
-> >  		char *kaddr = kmap(mm->context.ldt_pages[nr]);
-> >
-> >  		bytes = size - i;
-> >
+On Mon, 2004-01-12 at 16:24, Linus Torvalds wrote:
+> What are the BAR contents? In particular, maybe the right fix is to add a 
+> flag to say "don't touch" - but leave the BAR contents there, so that 
+> the resource manager can actually see what the resources actually are..
 
-There is no additional overhead with the original code and it has the
-advantage that the scope of `bytes' covers the minimum amount of code.  I
-see no need to change this.
+The bar contents seem to be real:
 
-Well.  There is a little bit of overhead of the code does:
+00:0f.0 Class ff00: Intel Corp. Extended Express System Support
+Controller
+        Subsystem: Unknown device 0008:2000
+        Flags: fast devsel
+        Memory at 20000000 (32-bit, prefetchable) [size=1K]
+        Memory at 20000400 (32-bit, prefetchable) [size=1K]
+        Memory at 20000800 (32-bit, prefetchable) [size=1K]
+        Memory at 20000c00 (32-bit, prefetchable) [size=1K]
+        Memory at 20001000 (32-bit, prefetchable) [size=1K]
+        Memory at 20001400 (32-bit, prefetchable) [size=1K]
+        Expansion ROM at fffff800 [disabled] [size=2K]
 
-foo()
-{
-	...
-	{
-		int i;
-		...
-	}
-	...
-	{
-		int i;
-		...
-	}
-	...
-}
 
-because the compiler (some versions, at least) will use eight bytes of
-stack rather than four.  But this is rarely a problem.
+That sits just on top of my available memory.
 
-> After creating the initial cleanup patch I've noticed several more
-> instances of this 'bad style'. If there's any interrest in cleaning them
-> up I'll be happy to create a patch.  Is this wanted?
+However, the resource allocation code produces this on boot (this is
+what kills the second IO APIC)
 
-I'd say that this and the whitespace adjustments are far too trivial to be
-raising patches at this time.
+PCI: Cannot allocate resource region 0 of device 00:0f.0
+PCI: Cannot allocate resource region 1 of device 00:0f.0
+PCI: Cannot allocate resource region 2 of device 00:0f.0
+PCI: Cannot allocate resource region 3 of device 00:0f.0
+PCI: Cannot allocate resource region 4 of device 00:0f.0
+PCI: Cannot allocate resource region 5 of device 00:0f.0
+PCI: Error while updating region 00:0f.0/1 (20000408 != 20000008)
+PCI: Error while updating region 00:0f.0/2 (20000808 != 20000008)
+PCI: Error while updating region 00:0f.0/3 (20000c08 != 20000008)
+PCI: Error while updating region 00:0f.0/4 (20001008 != 20000008)
+PCI: Error while updating region 00:0f.0/5 (20001408 != 20000008)
+
+I'll poke and find a flag to keep the range.
+
+James
+
 

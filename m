@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269445AbUJSPAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269448AbUJSPEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269445AbUJSPAO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 11:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269449AbUJSPAO
+	id S269448AbUJSPEW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 11:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269449AbUJSPEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 11:00:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33927 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269445AbUJSO7k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 10:59:40 -0400
-Date: Mon, 18 Oct 2004 13:04:44 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: akpm@osdl.org, linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] change pagevec counters back to unsigned long and cacheline align
-Message-ID: <20041018150444.GD2403@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+	Tue, 19 Oct 2004 11:04:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61133 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269448AbUJSPEQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 11:04:16 -0400
+Date: Tue, 19 Oct 2004 08:04:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: Delete drivers/pci/syscall.c?
+In-Reply-To: <20041019124850.GM16153@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0410190801250.2317@ppc970.osdl.org>
+References: <20041019124850.GM16153@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Change pagevec "nr" and "cold" back to "unsigned long", 
-because 4 byte accesses can be slow on architectures < Pentium III 
-(additional "data16" operand on instruction).
+On Tue, 19 Oct 2004, Matthew Wilcox wrote:
+> 
+> Linus, I noticed you touching drivers/pci/syscall.c which made me look
+> a bit more carefully at that file.  It is broken for machines with
+> overlapping PCI bus numbers in separate domains.  There's basically no
+> way to fix this unless we encode the domain into the upper bits of the
+> bus number.
+> 
+> The information is already available through /proc and /sys.  It's hooked
+> into the syscall tables of alpha, arm, ia64, ppc, ppc64, sparc and
+> sparc64.  Whatever's using those syscalls must have some kind of backup
+> strategy for grovelling around in files.
 
-This still honours the cacheline alignment, making the size
-of "pagevec" structure a power of two (either 64 or 128 bytes).
+While the system calls may be broken in theory (multiple domains) they are 
+not broken in practice (single-domain workstations), and they _were_ used 
+by X, at least on alpha last time I looked.
 
-Haven't been able to see any significant change on performance on my 
-limited testing.
+And no, expectign X to have a fallback and to understand multiple domains 
+is likely not a valid expectation.
 
+So right now X may work only on single-domain setups, or on setups where 
+the video card has a unique address when ignoring the domnain number. 
+That's pretty much all of the affected machines, so no, I don't think we 
+can/should remove it.
 
+Will X eventually learn about multiple domains? Maybe. 
 
---- rc4-mm1.orig/include/linux/pagevec.h	2004-10-15 01:02:39.209481760 -0300
-+++ rc4-mm1/include/linux/pagevec.h	2004-10-15 01:17:58.853674592 -0300
-@@ -5,14 +5,15 @@
-  * pages.  A pagevec is a multipage container which is used for that.
-  */
- 
--#define PAGEVEC_SIZE	15
-+/* 14 pointers + two long's align the pagevec structure to a power of two */
-+#define PAGEVEC_SIZE	14
- 
- struct page;
- struct address_space;
- 
- struct pagevec {
--	unsigned short nr;
--	unsigned short cold;
-+	unsigned long nr;
-+	unsigned long cold;
- 	struct page *pages[PAGEVEC_SIZE];
- };
- 
-
------ End forwarded message -----
+			Linus

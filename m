@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276831AbRJKUPb>; Thu, 11 Oct 2001 16:15:31 -0400
+	id <S276839AbRJKURA>; Thu, 11 Oct 2001 16:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276842AbRJKUPV>; Thu, 11 Oct 2001 16:15:21 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:60225 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S276831AbRJKUPN>; Thu, 11 Oct 2001 16:15:13 -0400
-Date: Thu, 11 Oct 2001 15:15:34 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Unconditional include of <linux/module.h> in aic7xxx driver
-In-Reply-To: <200110112001.f9BK0vY99173@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.3.96.1011011150946.5934C-100000@mandrakesoft.mandrakesoft.com>
+	id <S276842AbRJKUQu>; Thu, 11 Oct 2001 16:16:50 -0400
+Received: from anime.net ([63.172.78.150]:7 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S276839AbRJKUQn>;
+	Thu, 11 Oct 2001 16:16:43 -0400
+Date: Thu, 11 Oct 2001 13:16:51 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: "Matthew S. Hallacy" <poptix@techmonkeys.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 /
+ 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
+In-Reply-To: <200110112008.f9BK8dP20700@buggy.badula.org>
+Message-ID: <Pine.LNX.4.30.0110111316150.355-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001, Justin T. Gibbs wrote:
-> So, in theory I could nuke many of the remaining "#ifdef MODULE"'s?
+On Thu, 11 Oct 2001, Ion Badulescu wrote:
+> Umm, no, that's actually an 82558 rev B. pci.ids should be updated to
+> have "Intel Corporation 8255[7-9]" for this id, because Intel can't make
+> up their minds to change the PCI id when they release a new product.
+> rev 1-3 are 82557, rev 4-5 are 82558, rev 6-8 are 82559.
 
-yes.  most if not all.
+lspci should be changed to take in account rev numbers...
 
-
-> This wasn't done in the aic7xxx driver for 2.4.12.  My only concern with
-> doing this is having the driver still work on older kernel versions.
-
-Define "older" :)  Even 2.2 kernels have worked this way for a while, so
-it really depends on how far you want to go back.  I think this policy
-started in late 2.1.xx days IIRC.
-
-Also, WRT older kernel compatibility, look at drivers/net/acenic.c or
-the kcompat24 toolkit.  These, and other code, illustrate how to be
-compatible with older kernels without loading the source code down with
-ifdefs.  The basic idea is to provide a 2.4-like API on older kernels,
-using macros and inline functions hidden in a compatibility header.
-
-	Jeff
-
-
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

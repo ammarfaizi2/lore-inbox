@@ -1,109 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUHSHwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUHSH5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUHSHwV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 03:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHSHwU
+	id S263743AbUHSH5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUHSH5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 03:52:20 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:55996 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263735AbUHSHuu convert rfc822-to-8bit (ORCPT
+	Thu, 19 Aug 2004 03:57:25 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:1931 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263743AbUHSH5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 03:50:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.8.1-mm1 and Asus L3C : problematic change found, can be reverted. Real fix still missing
-Date: Thu, 19 Aug 2004 15:50:13 +0800
-Message-ID: <B44D37711ED29844BEA67908EAF36F039A1877@pdsmsx401.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.8.1-mm1 and Asus L3C : problematic change found, can be reverted. Real fix still missing
-Thread-Index: AcSFvIrYEaGLpgoDSGG9okmv37HDWgAA2nnQ
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: <eric.valette@free.fr>
-Cc: "Karol Kozimor" <sziwan@hell.org.pl>, "Brown, Len" <len.brown@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Greg KH" <greg@kroah.com>,
-       <linux@brodo.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Aug 2004 07:50:14.0621 (UTC) FILETIME=[2997C0D0:01C485C1]
+	Thu, 19 Aug 2004 03:57:22 -0400
+Date: Thu, 19 Aug 2004 09:57:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Roger Luethi <rl@hellgate.ch>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+Message-ID: <20040819075752.GA2360@elte.hu>
+References: <1092382825.3450.19.camel@mindpipe> <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe> <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu> <1092612264.867.9.camel@krustophenia.net> <20040816080745.GA18406@k3.hellgate.ch> <1092696835.13981.61.camel@krustophenia.net> <20040817205255.GA32252@k3.hellgate.ch> <1092776417.1297.4.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092776417.1297.4.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
-The patch for bug 3049 has been in 2.6.8.1 and should fix the IO port
-problem. If the Asus quirk is just because of IO port problem, I'd like
-to remove it. Note PNP driver also reserves the IO port for the SMBus
-and lets SMBus driver to use it. ACPI motherboard driver behaves the
-same as PNP driver.
 
-Thanks,
-Shaohua
->-----Original Message-----
->From: Eric Valette [mailto:eric.valette@free.fr]
->Sent: Thursday, August 19, 2004 3:17 PM
->To: Karol Kozimor
->Cc: Brown, Len; Wang, Zhenyu Z; Andrew Morton; Greg KH; linux@brodo.de;
->linux-kernel@vger.kernel.org; Li, Shaohua
->Subject: Re: 2.6.8.1-mm1 and Asus L3C : problematic change found, can
-be
->reverted. Real fix still missing
->
->Karol Kozimor wrote:
->> Okay, so I think I've finally got what's happening here.
->> Enabling the SMBus device (00:1f.3) seems to mess up the resource
->> reservation code, specifically the 0xe800 port region. Here's the
-diff
->> between 2.6.8.1-mm1 acpi=off and the same kernel with no arguments:
->
->Hi Karol,
->
->This is the same problem on every asus motherboard including very old
->ones like my A7V : the ACPI pre-allocates the ioport region for the SMB
->bus because the DTSD contain indication to do so and special care
-should
->be used in order to reuse the IO port range already owned by ACPI
->(motherboard).
->
->See :
-><http://lkml.org/lkml/2004/8/3/160>
->
->And especially the end of /proc/oprots current one (before ACPI fix, I
->was forced to avoid/not fail ioport reservation for SMB in
-i2c-viapro.c)
->
->e800-e80f : 0000:00:04.4	<===============
->    e800-e80f : motherboard
->
->But with the shaohua li proposed fix for
-><http://bugme.osdl.org/show_bug.cgi?id=3049>, i2c-viapro.c becomes
-owner
->of part of this ioport range:
->
->e800-e80f : 0000:00:04.4
->   e800-e80f : motherboard
->     e800-e807 : viapro-smbus    <========
->
->So in other words, it is possible either to force reallocation of an
->ioport range already owned by ACPI now (at least in some configuration)
->or to avoid this io port allocation has it is already mapped like my
->proposed kludge to make A7V work...
->
->However :
->	1) I have no clue however of the correct way to do this,
->	2) I do not know if the fix for
-><http://bugme.osdl.org/show_bug.cgi?id=3049> is also valid for this
-ASUS
->motherboard/laptop,
->	3) I still would like to know what you want to do with the SMB
-bus...
->
->-- eric
->
->
->
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
+> > > What do you think of Ingo's solution of trying to move the problematic
+> > > call to mdio_read out of the spinlocked section?  It does seem that the
+> > 
+> > Can't comment on that, I missed it. I am aware that locking in via-rhine
+> > needs work, though, it's one of the things I haven't touched.
+> > 
+> > > awfully long time.  In a live audio setting you would actually get lots
+> > > of media events.
+> > 
+> > Don't trip over the network cables. Duh.
+> > 
+> 
+> You might want to intentionally plug or unplug them.  Live music != a
+> server room.  Think laptop DJs.  It would be bad if plugging into the
+> network caused a click in your sound output - this could be VERY loud
+> depnding on the setting!
+
+right now the mdio_read() latency causes a latency of 140 usecs which
+isnt that bad. But looking at it in isolation, mdio_read() is 70 usecs a
+pop which is excessive for a kernel function.
+
+	Ingo

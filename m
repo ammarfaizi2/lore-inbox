@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269056AbUHMKT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269049AbUHMKRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269056AbUHMKT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269054AbUHMKTZ
+	id S269049AbUHMKRw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUHMKRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:19:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:44725 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269057AbUHMKTP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:19:15 -0400
-Date: Fri, 13 Aug 2004 12:19:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: lkml@lpbproduction.scom, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-Message-ID: <20040813101928.GE8135@elte.hu>
-References: <20040726082330.GA22764@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <200408122149.41490.lkml@lpbproductions.com> <1092390820.6815.11.camel@twins>
+	Fri, 13 Aug 2004 06:17:52 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12745 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269049AbUHMKRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 06:17:24 -0400
+Date: Fri, 13 Aug 2004 12:17:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let W1 select NET
+Message-ID: <20040813101717.GS13377@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092390820.6815.11.camel@twins>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+W1=y and Net=n fails with the following compile error:
 
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+<--  snip  -->
 
-> > arch/i386/kernel/traps.c: In function `do_nmi':
-> > arch/i386/kernel/traps.c:539: error: syntax error before "do"
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x5efa38): In function `w1_alloc_dev':
+: undefined reference to `netlink_kernel_create'
+drivers/built-in.o(.text+0x5efac1): In function `w1_alloc_dev':
+: undefined reference to `sock_release'
+drivers/built-in.o(.text+0x5efb31): In function `w1_free_dev':
+: undefined reference to `sock_release'
+drivers/built-in.o(.text+0x5f0014): In function `w1_netlink_send':
+: undefined reference to `alloc_skb'
+drivers/built-in.o(.text+0x5f00cd): In function `w1_netlink_send':
+: undefined reference to `netlink_broadcast'
+drivers/built-in.o(.text+0x5f0131): In function `w1_netlink_send':
+: undefined reference to `skb_over_panic'
+make: *** [.tmp_vmlinux1] Error 1
 
-> This fixes it.
-> 
-> --- ./include/asm-i386/hardirq.h~       2004-08-13 11:17:38.668333125 +0200
-> +++ ./include/asm-i386/hardirq.h        2004-08-13 11:51:40.835968747 +0200
-> @@ -73,7 +73,7 @@
->  #define hardirq_endlock()      do { } while (0)
->  
->  #define irq_enter()            add_preempt_count(HARDIRQ_OFFSET)
-> -#define nmi_enter()            (irq_enter())
-> +#define nmi_enter()            irq_enter()
+<--  snip  -->
 
-yep - thx, this fix too will be in -O7. It seems this compilation error
-only happens with older gcc and i'm using 3.3.
 
-	Ingo
+The patch below fixes this issue by letting W1 select NET.
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-rc4-mm1-full-3.4/drivers/w1/Kconfig.old	2004-08-13 12:00:05.000000000 +0200
++++ linux-2.6.8-rc4-mm1-full-3.4/drivers/w1/Kconfig	2004-08-13 12:11:31.000000000 +0200
+@@ -2,6 +2,7 @@
+ 
+ config W1
+ 	tristate "Dallas's 1-wire support"
++	select NET
+ 	---help---
+ 	  Dallas's 1-wire bus is usefull to connect slow 1-pin devices 
+ 	  such as iButtons and thermal sensors.
+

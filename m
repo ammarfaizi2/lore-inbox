@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVAHBzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVAHB4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVAHBzR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 20:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVAHBzR
+	id S261761AbVAHB4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 20:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVAHB4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 20:55:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52953 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261695AbVAHBzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 20:55:11 -0500
-Date: Fri, 7 Jan 2005 20:54:33 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.x features log
-Message-ID: <20050108015433.GC3210@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <41DEC82C.4040502@osdl.org>
+	Fri, 7 Jan 2005 20:56:24 -0500
+Received: from imf23aec.mail.bellsouth.net ([205.152.59.71]:8168 "EHLO
+	imf23aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261761AbVAHB4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 20:56:17 -0500
+Date: Fri, 7 Jan 2005 20:49:17 -0500
+From: David Meybohm <dmeybohmlkml@bellsouth.net>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: where to put kernel code to run on exec?
+Message-ID: <20050108014917.GA2629@localhost>
+Mail-Followup-To: Chris Friesen <cfriesen@nortelnetworks.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41DEAFE2.1030001@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41DEC82C.4040502@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41DEAFE2.1030001@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 09:34:36AM -0800, Randy.Dunlap wrote:
- > 
- > I think that people really like the Dave Jones
- > 2.5/2.6 halloween information/update.  It contained a lot
- > of useful info in one place, with pointers to more details.
- > 
- > What I'm seeing (and getting a little concerned about,
- > although I dislike PR with a passion) is that the 2.6.x
- > continuous development cycle will cause us (the Linux
- > community) to miss logging some of these important new
- > features (outside of bk).  Has anyone kept a track of new
- > features that are being added in 2.6?
- > 
- > I'll keep a list (or someone else can -- DaveJ ?) if anyone
- > is interested in feeding items into it.  Or do distros
- > already keep such a running list of new features?
+On Fri, Jan 07, 2005 at 09:50:58AM -0600, Chris Friesen wrote:
+> 
+> I've added a field to the task struct to keep track of whether or not 
+> the process wants to be notified of various events.  On exec() I'd like 
+> to clear this field.
+> 
+> I'm having problems finding a nice clean place to put the code to clear 
+> it.  The obvious choice would be in the last bit of the success path in 
+> do_execve(), but there's nothing similar there already, so I'm probably 
+> missing something.
+> 
+> Is there some standard place to put code to run on a successful call to 
+> exec()?
 
-I don't really have the time right now to maintain it,
-but if you want to take anything from the doc I wrote,
-or push it for inclusion in the tree so others can
-modify it at will, feel free.
+What about in flush_old_exec()?  Any place after exec_mmap() looks good.
+If the exec fails after that point, the process has to be killed,
+because all the old memory space is gone.  In that case you don't have
+to worry about clearing the field because the process is gone.
 
-		Dave
-
+Dave

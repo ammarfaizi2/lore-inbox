@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270577AbRHNLxW>; Tue, 14 Aug 2001 07:53:22 -0400
+	id <S270576AbRHNLxV>; Tue, 14 Aug 2001 07:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270586AbRHNLwi>; Tue, 14 Aug 2001 07:52:38 -0400
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:33043 "EHLO
+	id <S270577AbRHNLwg>; Tue, 14 Aug 2001 07:52:36 -0400
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:6404 "EHLO
 	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S270576AbRHNLvJ>; Tue, 14 Aug 2001 07:51:09 -0400
-Date: Sat, 11 Aug 2001 01:36:28 +0000
+	id <S270581AbRHNLwN>; Tue, 14 Aug 2001 07:52:13 -0400
+Date: Sat, 11 Aug 2001 12:06:04 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'Pavel Machek'" <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
-        suse-linux@suse.com, suse-linux-e@suse.com
-Subject: Re: [Acpi] Re: shutdown on pressing the ATX power button
-Message-ID: <20010811013628.F55@toy.ucw.cz>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE03A@orsmsx35.jf.intel.com> <Pine.LNX.4.33.0108101103430.785-100000@fb07-calculator.math.uni-giessen.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Mike Black <mblack@csihq.com>, tridge@valinux.com,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: 2.4.8preX VM problems
+Message-ID: <20010811120604.C35@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva> <20010801105419.8F078424A@lists.samba.org> <020001c11a803297110@csihq.com> <01080120392200.00933@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0108101103430.785-100000@fb07-calculator.math.uni-giessen.de>; from Sergei.Haller@math.uni-giessen.de on Fri, Aug 10, 2001 at 11:22:50AM +0200
+In-Reply-To: <01080120392200.00933@starship>; from phillips@bonn-fries.net on Wed, Aug 01, 2001 at 08:39:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> The shutdown script on my system (SuSE 7.2) looks for /proc/apm or
-> /proc/sys/acpi and calls 'halt -p' in both casese, else 'halt'.
+> > I have come to the opinion that kswapd needs to be a little smarter
+> > -- if it doesn't find anything to swap shouldn't it go to sleep a
+> > little longer before trying again?  That way it could gracefully
+> > degrade itself when it's not making any progress.
+> >
+> > In my testing (on a dual 1Ghz/2G machine) the machine "locks up" for
+> > long periods of time while kswapd runs around trying to do it's
+> > thing. If I could disable kswapd I would just to test this.
+> 
+> Your wish is my command.  This patch provides a crude-but-effective 
+> method of disabling kswapd, using:
+> 
+>   echo 1 >/proc/sys/kernel/disable_kswapd
+> 
+> I tested this with dbench and found it runs about half as fast, but 
+> runs.  This is reassuring because kswapd is supposed to be doing 
+> something useful.
 
-That's just plain stupid. halt -p should be called. Always.
+Why not just killall -STOP kswapd?
+
+What is expected state of system without kswapd, BTW? Without kflushd, 
+I give up guaranteed time to get data safely to disk [and its usefull
+for spindown]. What happens without kswapd?
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

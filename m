@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269400AbTGOSeh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 14:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269412AbTGOSeg
+	id S269290AbTGOSjv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269268AbTGOSju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 14:34:36 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57287
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S269400AbTGOSdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 14:33:49 -0400
-Subject: Re: [patch] vesafb fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Jamie Lokier <jamie@shareable.org>, Gerd Knorr <kraxel@suse.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>
-In-Reply-To: <20030715182253.GG15505@suse.de>
-References: <20030715141023.GA14133@bytesex.org>
-	 <20030715173557.GB1491@mail.jlokier.co.uk> <20030715175358.GB15505@suse.de>
-	 <1058292400.3845.59.camel@dhcp22.swansea.linux.org.uk>
-	 <20030715182253.GG15505@suse.de>
-Content-Type: text/plain
+	Tue, 15 Jul 2003 14:39:50 -0400
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:14763
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id S269324AbTGOSiI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 14:38:08 -0400
+Message-ID: <3F144D88.8000401@tupshin.com>
+Date: Tue, 15 Jul 2003 11:52:56 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030618
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: "Ranga Reddy M - CTD ,Chennai." <rangareddym@ctd.hcltech.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: setting year to 2094 casuing Error.
+References: <EF836A380096D511AD9000B0D021B5270153C968@narmada.techmas.hcltech.com>            <3F13A0B7.6050103@tupshin.com> <200307151417.h6FEHkMQ010873@turing-police.cc.vt.edu>
+In-Reply-To: <200307151417.h6FEHkMQ010873@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058294762.3857.63.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Jul 2003 19:46:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-15 at 19:22, Dave Jones wrote:
-> I can't see how you can cover an not-a-powerof2 size area of memory
-> without doing too little/too much. The winchip code was written with
-> RAM in mind, which is always a power of 2 unless you boot with
-> mem=fooMB
+Valdis.Kletnieks@vt.edu wrote:
 
-RAM is never power of two, a few bits always vanish off the ends.
-The trick is that you start at a power of 2 boundary then build up/down
-if you have to do power of two ranges
+>On Mon, 14 Jul 2003 23:35:35 PDT, Tupshin Harper said:
+>  
+>
+>>Ranga Reddy M - CTD ,Chennai. wrote:
+>>    
+>>
+>>>I have set the system time from BIOS to 17/03/2094.After setting this
+>>>,booted with linux O.S. 
+>>>
+>>>Now its showing system date as year=1994.I did not get how this happend.
+>>>      
+>>>
+>
+>  
+>
+>>http://www.howstuffworks.com/question75.htm
+>>    
+>>
+>
+>Yes, but if it was a 2038 problem, you'd expect a date in 2094 to roll over to 2026 (as
+>2094 is 56 years past 2038, and 2026 is 56 past 1970).
+>
+>I suspect he has a crippled clock chip that only keeps 2 digits of year.
+>  
+>
+Agreed...I didn't do the math to verify that was his only problem, but 
+he seemed unaware that there are *any* known problems with dates in the 
+future, and the URL i sent was merely designed to point out that such 
+dates are unsupported for now.
+
+-Tupshin
 

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313492AbSFQNic>; Mon, 17 Jun 2002 09:38:32 -0400
+	id <S313698AbSFQNiw>; Mon, 17 Jun 2002 09:38:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313537AbSFQNib>; Mon, 17 Jun 2002 09:38:31 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:2822 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S313492AbSFQNiZ>;
-	Mon, 17 Jun 2002 09:38:25 -0400
-Date: Mon, 17 Jun 2002 17:36:32 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager (3/4/5xxx series)
-Message-ID: <20020617133632.GA3270@pazke.ipt>
-Mail-Followup-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-References: <davej@suse.de> <200206140013.g5E0DQR25561@localhost.localdomain> <20020614024547.H16772@suse.de> <20020614134152.GA1293@pazke.ipt> <20020614154945.M16772@suse.de> <20020614135229.GA313@pazke.ipt> <20020614161627.O16772@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-In-Reply-To: <20020614161627.O16772@suse.de>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.5.21 
+	id <S313628AbSFQNiv>; Mon, 17 Jun 2002 09:38:51 -0400
+Received: from ns3.maptuit.com ([204.138.244.3]:48145 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S313537AbSFQNir>;
+	Mon, 17 Jun 2002 09:38:47 -0400
+Message-ID: <3D0DE42C.E2F8C328@torque.net>
+Date: Mon, 17 Jun 2002 09:29:16 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jason Straight <jason@blazeconnect.net>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: constants.c fix for 2.5.22 compile error
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jason Straight wrote:
+> line 997 in /drivers/scsi/constants.c tries to use 
+> i without declaring it.
+> add i to the int declaration in 910 seems to fix.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This occurs when CONFIG_SCSI_CONSTANTS is not set in
+the .config file.
 
-On =D0=9F=D1=82=D0=BD, =D0=98=D1=8E=D0=BD 14, 2002 at 04:16:27 +0200, Dave =
-Jones wrote:
-> On Fri, Jun 14, 2002 at 05:52:29PM +0400, Andrey Panin wrote:
->=20
->  > >  > "Latest" (2.4.17) visws patch which i'm planning to convert for 2=
-5, uses
->  > >  > function MP_processor_info() from generic mpparse.c. May be it ma=
-kes sence
->  > >  > to move to some generic file ?
->  > > Is that the one from the visws sourceforge project ?
->  > Yes it is.
->=20
-> Ah good. *cross item off TODO list*
-=20
-Does it make sense to submit it right now before i386 arch split will
-be completed ?
+BTW Defining CONFIG_SCSI_CONSTANTS adds about 30KB to
+the size of the kernel (not 12 KB as indicated during
+configuration).
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Doug Gilbert
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+--- linux/drivers/scsi/constants.c	Mon Jun 17 08:44:48 2002
++++ linux/drivers/scsi/constants.c2522fix	Mon Jun 17 09:20:48 2002
+@@ -993,10 +993,14 @@
+ 	}
+     
+ #if !(CONSTANTS & CONST_SENSE)
+-	printk("Raw sense data:");
+-	for (i = 0; i < s; ++i) 
+-		printk("0x%02x ", sense_buffer[i]);
+-	printk("\n");
++	{
++		int i;
++
++		printk("Raw sense data:");
++		for (i = 0; i < s; ++i) 
++			printk("0x%02x ", sense_buffer[i]);
++		printk("\n");
++	}
+ #endif
+ }
+ 
 
-iD8DBQE9DeXgBm4rlNOo3YgRApefAJ4tZ1O94T3oiXcQA2gsIrPmbALyRwCbBCOm
-vs6gKqHcaJd2iQsXuDikLlg=
-=gqi0
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--

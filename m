@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUL1Hd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbUL1Hd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUL1Hd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 02:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUL1HXx
+	id S261774AbUL1Hd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 02:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbUL1HYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 02:23:53 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:49490 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262103AbUL1F7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 00:59:10 -0500
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       openib-general@openib.org
-In-Reply-To: <200412272151.S29WkrmlJifc5kHZ@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Mon, 27 Dec 2004 21:51:20 -0800
-Message-Id: <200412272151.hCBo2fMh4Io7Xy87@topspin.com>
+	Tue, 28 Dec 2004 02:24:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60617 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262105AbUL1GCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 01:02:46 -0500
+Date: Tue, 28 Dec 2004 01:01:48 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@davemloft.net>, Patrick McHardy <kaber@trash.net>,
+       torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: PATCH: kmalloc packet slab
+Message-ID: <20041228060148.GB5481@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Patrick McHardy <kaber@trash.net>, torvalds@osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	netdev@oss.sgi.com
+References: <1104156983.20944.25.camel@localhost.localdomain> <41D043AC.2070203@trash.net> <20041227142350.1cf444fe.davem@davemloft.net> <1104195085.20898.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-To: davem@davemloft.net
-From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v5][24/24] InfiniBand MAINTAINERS entry
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 28 Dec 2004 05:51:21.0204 (UTC) FILETIME=[41DBF340:01C4ECA1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104195085.20898.62.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add OpenIB maintainers information to MAINTAINERS.
+On Tue, Dec 28, 2004 at 12:51:28AM +0000, Alan Cox wrote:
+ > On Llu, 2004-12-27 at 22:23, David S. Miller wrote:
+ > > If we are really going to do something like this, it should
+ > > be calculated properly and be determined per-interface
+ > > type as netdevs are registered.
+ > 
+ > Fine by me, I'm just going through plausible looking changes in the Red
+ > Hat tree. You might want to slightly injure someone internally until
+ > they drop that too 8)
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Internal injuries unnecessary. Regardless of outcome of this patch,
+Fedora will pick up whatever happens upstream instead of carrying
+this any longer. This and a few other patches have been stagnating
+in our tree for far longer than they should have been.
 
-
---- linux-bk.orig/MAINTAINERS	2004-12-27 21:47:44.140300651 -0800
-+++ linux-bk/MAINTAINERS	2004-12-27 21:48:28.966702428 -0800
-@@ -1081,6 +1081,17 @@
- L:	linux-fbdev-devel@lists.sourceforge.net
- S:	Maintained
- 
-+INFINIBAND SUBSYSTEM
-+P:	Roland Dreier
-+M:	roland@topspin.com
-+P:	Sean Hefty
-+M:	mshefty@ichips.intel.com
-+P:	Hal Rosenstock
-+M:	halr@voltaire.com
-+L:	openib-general@openib.org
-+W:	http://www.openib.org/
-+S:	Supported
-+
- INPUT (KEYBOARD, MOUSE, JOYSTICK) DRIVERS
- P:	Vojtech Pavlik
- M:	vojtech@suse.cz
+		Dave
 

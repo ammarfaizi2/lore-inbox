@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312308AbSDCV57>; Wed, 3 Apr 2002 16:57:59 -0500
+	id <S312326AbSDCV4j>; Wed, 3 Apr 2002 16:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312314AbSDCV5t>; Wed, 3 Apr 2002 16:57:49 -0500
+	id <S312314AbSDCV43>; Wed, 3 Apr 2002 16:56:29 -0500
 Received: from [195.39.17.254] ([195.39.17.254]:8329 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312308AbSDCV5e>;
-	Wed, 3 Apr 2002 16:57:34 -0500
-Date: Wed, 3 Apr 2002 23:54:01 +0200
+	by vger.kernel.org with ESMTP id <S312305AbSDCV4V>;
+	Wed, 3 Apr 2002 16:56:21 -0500
+Date: Wed, 3 Apr 2002 23:54:57 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>
 Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Trivial docs patch
-Message-ID: <20020403215400.GA1040@elf.ucw.cz>
+Subject: Warn users about machines with non-working WP bit
+Message-ID: <20020403215457.GA1050@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,22 +22,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-I'm sorry if I submitted it already, but it is still needed for 2.5.7:
+This might be good idea, as those machines are not safe for multiuser
+systems.
 
-								Pavel
-
---- clean.2.5/Documentation/SubmittingDrivers	Mon Aug 27 17:59:16 2001
-+++ linux/Documentation/SubmittingDrivers	Thu Oct 25 13:26:15 2001
-@@ -3,7 +3,7 @@
+--- clean.2.5/arch/i386/mm/init.c	Sun Mar 10 20:06:31 2002
++++ linux/arch/i386/mm/init.c	Mon Mar 11 21:49:14 2002
+@@ -383,7 +383,7 @@
+ 	local_flush_tlb();
  
- This document is intended to explain how to submit device drivers to the
- Linux 2.2 and 2.4 kernel trees. Note that if you are interested in video
--card drivers you should probably talk to XFree86 (http://wwww.xfree86.org) 
-+card drivers you should probably talk to XFree86 (http://www.xfree86.org) 
- instead.
- 
- Also read the Documentation/SubmittingPatches document.
+ 	if (!boot_cpu_data.wp_works_ok) {
+-		printk("No.\n");
++		printk("No (that's security hole).\n");
+ #ifdef CONFIG_X86_WP_WORKS_OK
+ 		panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
+ #endif
 
+									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
 no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

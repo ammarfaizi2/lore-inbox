@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbTDESFk (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 13:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbTDESFk (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 13:05:40 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:5098 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261727AbTDESFj (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 13:05:39 -0500
-Subject: Re: Route cache performance under stress
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       bert hubert <ahu@ds9a.nl>
-In-Reply-To: <8765pshpd4.fsf@deneb.enyo.de>
-References: <8765pshpd4.fsf@deneb.enyo.de>
-Content-Type: text/plain
+	id S261903AbTDESWx (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 13:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbTDESWx (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 13:22:53 -0500
+Received: from smtp02.web.de ([217.72.192.151]:46105 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261903AbTDESWw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 13:22:52 -0500
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: Anant Aneja <anantaneja@rediffmail.com>
+Subject: Re: poweroff problem
+Date: Sat, 5 Apr 2003 20:31:52 +0200
+User-Agent: KMail/1.5
+References: <20030405060804.31946.qmail@webmail5.rediffmail.com> <1049561277.25758.10.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1049561277.25758.10.camel@dhcp22.swansea.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049566629.25170.203.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 05 Apr 2003 20:17:09 +0200
+Content-Disposition: inline
+Message-Id: <200304052031.52289.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-04-05 at 18:37, Florian Weimer wrote:
+> On Sad, 2003-04-05 at 07:08, Anant Aneja wrote:
+> > also i cant give u the complete listing of the cpu
+> > registers since it occurs at the last stage
+> > of shutdown and i cant copy it to a file
+> > and am too lazy to write it down
 
-> Netfilter ip_conntrack support might have similar issues, but you
-> can't use it in a uncooperative environment anyway, at least in my
-> experience.  (Note that there appears to be no way to disable
-> connection tracking while the code is in the kernel.)
+Documentation/serial-console.txt
+... but if you're too lazy to read... :)
 
-It's correct that ip_conntrack has similar issues. There's been some
-work on the hashalgorithm used but no patch has been made yet.
-And yes it doesn't scale well at all (especially on SMP), I'm about to
-start working on this a bit. Hopefully I can improve it somewhat.
+On Saturday 05 April 2003 18:47, Alan Cox wrote:
+> We are too lazy to help you.
+> Goodbye
+:) *grin*
 
-If you've compiled ip_conntrack into your kernel there's only two ways
-to disable it and both needs code-modifications :)
-
-Install a netfilter-module that gets the packets before conntrack and
-steal the packets, the downside is that you will bypass the rest of
-iptables as well.
-
-Apply a patch from patch-o-matic that adds a NOTRACK target that
-instructs conntrack to not look at the packets marked by that target.
+Regards
+Michael Buesch.
 
 -- 
-/Martin
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
+

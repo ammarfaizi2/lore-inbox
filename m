@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVBVUy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVBVU4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVBVUy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 15:54:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVBVUy0
+	id S261243AbVBVU4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVBVU4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 15:54:26 -0500
-Received: from rain.plan9.de ([193.108.181.162]:2720 "EHLO rain.plan9.de")
-	by vger.kernel.org with ESMTP id S261241AbVBVUyX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 15:54:23 -0500
-Date: Tue, 22 Feb 2005 21:54:19 +0100
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: Alex Adriaanse <alex.adriaanse@gmail.com>
-Cc: Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Odd data corruption problem with LVM/ReiserFS
-Message-ID: <20050222205419.GA12797@schmorp.de>
-Mail-Followup-To: Alex Adriaanse <alex.adriaanse@gmail.com>,
-	Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <93ca3067050220212518d94666@mail.gmail.com> <4219C811.5070906@domdv.de> <20050222190149.GB9590@schmorp.de> <421B8A69.8000903@domdv.de> <20050222194900.GB10968@schmorp.de> <93ca306705022212461f9e0d81@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <93ca306705022212461f9e0d81@mail.gmail.com>
-X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
-       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
+	Tue, 22 Feb 2005 15:56:55 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:31941 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261243AbVBVU4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:56:48 -0500
+Message-ID: <421B9C86.8090800@nortel.com>
+Date: Tue, 22 Feb 2005 14:56:38 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Anthony DiSante <theant@nodivisions.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com> <421B9018.7020007@nodivisions.com> <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl>
+In-Reply-To: <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 22, 2005 at 02:46:44PM -0600, Alex Adriaanse <alex.adriaanse@gmail.com> wrote:
-> On Tue, 22 Feb 2005 20:49:00 +0100, Marc A. Lehmann <pcg@goof.com> wrote:
-> > Well, I do use reiserfs->aes-loop->lvm/dm->md5/raid5, and it never failed
-> > for me, except once, and the error is likely to be outside reiserfs, and
-> > possibly outside lvm.
+Horst von Brand wrote:
+> Anthony DiSante <theant@nodivisions.com> said:
+
+>>That's one of the things I asked a few messages ago.  Some people on the 
+>>list were saying that it'd be "really hard" and would "require a lot of 
+>>bookkeeping" to "fix" permanently-D-stated processes... which is completely 
+>>different than "impossible."
 > 
-> Marc, what about you, were you using dm-snapshot when you experienced
-> temporary corruption?
+> Most people here have little clue. It can't be done.
 
-No snapshots either.
+I realize it would be extremely difficult if not impossible to do in the 
+current linux architecture, but I find it hard to believe that it is 
+technically impossible if one were allowed to design the system from 
+scratch.
 
--- 
-                The choice of a
-      -----==-     _GNU_
-      ----==-- _       generation     Marc Lehmann
-      ---==---(_)__  __ ____  __      pcg@goof.com
-      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
-      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE
+Maybe I'm on crack, but would it not be technically possible to have all 
+resource usage be tracked so that when a task tries to do something and 
+hangs, eventually it gets cleaned up?
+
+We already handle cleaning up stuff for userspace (memory, file 
+descriptors, sockets, etc.).  Why not enforce a design that says "all 
+entities taking a lock must specify a maximum hold time".  After that 
+time expires, they are assumed to be hung, and all their resources 
+(which were being tracked by some system) get cleaned up.
+
+It would probably be complicated, slow, and generally not worth the 
+effort.  But it seems at least technically possible.
+
+Chris

@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbUFBSvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263824AbUFBSxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbUFBSvk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUFBStk
+	id S263824AbUFBSxC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUFBSxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:49:40 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:52870 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263815AbUFBSsY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:48:24 -0400
-Message-Id: <200406021848.i52Im0Xn000958@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: mitya@school.ioffe.ru (Dmitry Baryshkov)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2: open() hangs on ReiserFS with SELinux enabled 
-In-Reply-To: Your message of "Wed, 02 Jun 2004 21:48:10 +0400."
-             <20040602174810.GA31263@school.ioffe.ru> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040602174810.GA31263@school.ioffe.ru>
+	Wed, 2 Jun 2004 14:53:02 -0400
+Received: from holomorphy.com ([207.189.100.168]:39577 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263824AbUFBSwO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 14:52:14 -0400
+Date: Wed, 2 Jun 2004 11:52:05 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       suparna@in.ibm.com, linux-aio@kvack.org
+Subject: Re: [1/2] use const in time.h unit conversion functions
+Message-ID: <20040602185205.GX21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, suparna@in.ibm.com,
+	linux-aio@kvack.org
+References: <20040601021539.413a7ad7.akpm@osdl.org> <20040602012429.GV2093@holomorphy.com> <20040602184335.GC5414@waste.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1380173504P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Jun 2004 14:48:00 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602184335.GC5414@waste.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1380173504P
-Content-Type: text/plain; charset=us-ascii
+On Wed, Jun 02, 2004 at 01:43:35PM -0500, Matt Mackall wrote:
+> This is the second const-correctness patch I've seen in a couple days,
+> and I'd like to point out that while it's a noble cause, retrofitting
+> const decls onto interfaces is notorious for causing ripple effects in
+> APIs.
 
-On Wed, 02 Jun 2004 21:48:10 +0400, mitya@school.ioffe.ru (Dmitry Baryshkov)  said:
-> Hello,
-> 
-> I tried enabling SELinux on my Linux-box, using ReiserFS as /, kernel
-> 2.6.7-rc2.
-> 
-> After relabeling and rebooting in non-enforcing mode everything worked
-> well, exept the fact, that new files on reiserfs filesystems don't get
-> security attributes.
-> 
-> So I added 'fs_use_xattr reiserfs system_u:object_r:fs_t;' to the policy,
-> rebooted and found, that mount hangs during opening of /etc/mtab~<pid>
-> (even in non-enforcing mode).
+There's a point to this one. A warning got tripped when const stuff was
+passed to it in patch #2, hence this as a preparatory cleanup.
 
-Does your .config include CONFIG_REISERFS_FS_XATTR?  Very Bad Things
-are likely to happen if not.....
 
---==_Exmh_1380173504P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAviDgcC3lWbTT17ARAjUfAJ9V7/h0DZuUq5+nGueDtmn8epHI4QCgluwh
-YhAP6svfKBitmGK6knw06YI=
-=VWGH
------END PGP SIGNATURE-----
-
---==_Exmh_1380173504P--
+-- wli

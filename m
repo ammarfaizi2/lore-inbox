@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbTHaQge (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 12:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbTHaQge
+	id S262430AbTHaQqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 12:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTHaQqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 12:36:34 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64211
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262465AbTHaQg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 12:36:28 -0400
-Date: Sun, 31 Aug 2003 18:36:51 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry McVoy <lm@bitmover.com>, Pascal Schmidt <der.eremit@email.de>,
+	Sun, 31 Aug 2003 12:46:47 -0400
+Received: from mx15.sac.fedex.com ([199.81.197.54]:35346 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S262613AbTHaQqd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 12:46:33 -0400
+Date: Mon, 1 Sep 2003 00:44:56 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: jchua@silk.corp.fedex.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jeff Chua <jeff89@silk.corp.fedex.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030831163651.GZ24409@dualathlon.random>
-References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831162337.GD18767@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030831162337.GD18767@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Subject: Re: [BUG] hda:end_request: I/O error, dev 03:00 (hda), sector 0
+In-Reply-To: <1062335526.31332.41.camel@dhcp23.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.42.0309010040380.1441-100000@silk.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/01/2003
+ 12:46:28 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/01/2003
+ 12:46:30 AM,
+	Serialize complete at 09/01/2003 12:46:30 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 09:23:37AM -0700, Larry McVoy wrote:
-> On Sun, Aug 31, 2003 at 04:31:32PM +0100, Alan Cox wrote:
-> > > what's the difference of rejecting packets in software, or because the
-> > > link can't handle them? Assume the guaranteed bandwidth is much lower
-> > 
-> > It doesn't work when you dont control incoming. As a simple extreme
-> > example if I pingflood you from a fast site then no amount of shaping
-> > your end of the link will help, it has to be shaped at the ISP end.
-> 
-> HTTP traffic is enough to simulate this, the connections are all small,
-> short lived, and there are a lot of them.
 
-it's much harder to throttle http, but it should work too. you may need
-bigger margin due the higher percentage of unthrottable packets like
-syns.
+On Sun, 31 Aug 2003, Alan Cox wrote:
 
-Andrea
+> On Sul, 2003-08-31 at 05:24, Jeff Chua wrote:
+> > end_request: I/O error, dev 03:00 (hda), sector 2
+>
+> You don't have IDE hard disk support included so the kernel finds
+> it has no way to read the partition table.
+
+You're right. After recompiling with CONFIG_BLK_DEV_IDEDISK=y instead of
+"m" (module), the error went away.
+
+But, that means IDE still can't be compile as a module. I would like to
+be able to load and unload ide from ramdisk. Is there a patch to make ide
+modular?
+
+Thanks,
+Jeff
+
+
+

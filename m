@@ -1,46 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUIGVHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268660AbUIGVJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268602AbUIGVHt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 17:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUIGVHt
+	id S268660AbUIGVJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUIGVI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:07:49 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:9542 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S268634AbUIGVCu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:02:50 -0400
-Subject: 
-From: Paul Fulghum <paulkf@microgate.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1094590965.2531.6.camel@deimos.microgate.com>
+	Tue, 7 Sep 2004 17:08:28 -0400
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:15861 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S268646AbUIGVHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 17:07:03 -0400
+Date: Tue, 7 Sep 2004 14:06:59 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update arch/ppc/defconfig
+Message-ID: <20040907210659.GI20951@smtp.west.cox.net>
+References: <20040907200013.GA14330@suse.de> <20040907202218.GH20951@smtp.west.cox.net> <20040907204135.GA14700@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Sep 2004 16:02:46 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040907204135.GA14700@suse.de>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-07 at 15:03, Bjorn Helgaas wrote:
-> Thanks for the report.  Figures that it would be an HP machine ;-)
-> Can you apply the following patch on top of 2.6.9-rc1-mm4, boot
-> with "i8042.lsacpi", and post the resulting dmesg?
+On Tue, Sep 07, 2004 at 10:41:35PM +0200, Olaf Hering wrote:
+>  On Tue, Sep 07, Tom Rini wrote:
+> 
+> > Is it all that common for pmacs to be using a serial console?
+> 
+> It cant hurt.
+> 
+> > If that's working again, we should enable it, Mot PRePs have those
+> > cards.
+> 
+> It doesnt work for me right now.
 
-Nothing is output with i8042.lsacpi=1.
-I tried it with both i8042.noacpi=1 and 0.
+Doesn't compile or doesn't work on your prep board?
 
-I did notice the following:
+> > Er, is there a good reason to have only the 16color one?
+> 
+> Why have all 3 enabled?
 
-Sep  7 15:53:57 deimos kernel: ACPI: Unable to locate RSDP
-<snip>...
-Sep  7 15:53:58 deimos kernel: ACPI: Subsystem revision 20040816
-Sep  7 15:53:58 deimos kernel: ACPI: Interpreter disabled.
+Because that's the way they are.  And I always pick CLUT244 for my
+machiens :)
 
- 
---
-Paul Fulghum
-paulkf@microgate.com
+> > > +CONFIG_JOLIET=y
+> > > +CONFIG_ZISOFS=y
+> > > +CONFIG_ZISOFS_FS=y
+> > 
+> > Ick, please no.
+> 
+> Why not?
 
+Because this is a basic config.
 
+> > > +CONFIG_CRAMFS=m
+> > 
+> > Why?
+> 
+> Why not?
+
+It's not needed or required.
+
+> > > +#
+> > >  # Kernel hacking
+> > >  #
+> > > -# CONFIG_DEBUG_KERNEL is not set
+> > > +CONFIG_DEBUG_KERNEL=y
+> > 
+> > Why?
+> 
+> having sysrq is always a win.
+
+Only when you can see the output.  Or do you mean SysRq-S-U-B? :)
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

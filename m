@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271040AbUJUW4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270809AbUJUXGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271040AbUJUW4R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 18:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271045AbUJUWq5
+	id S270809AbUJUXGF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271032AbUJUXFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 18:46:57 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:57742 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S271048AbUJUWnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 18:43:37 -0400
-Date: Thu, 21 Oct 2004 15:43:31 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RESEND][PATCH 2.6.9] ppc32: Fix building for Motorola Sandpoint with O=
-Message-ID: <20041021224331.GC1532@smtp.west.cox.net>
-References: <20041021220036.GB1532@smtp.west.cox.net> <20041021154517.72b0bc66.akpm@osdl.org>
+	Thu, 21 Oct 2004 19:05:09 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:39783 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S271067AbUJUW6A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 18:58:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Jt+zaLUfOLYNEGFvRZxbKwy09Uk4cRVetDoY7LCrJgSArIoZujQmZOxxZN0iW9Lkbn32sMcTk/9EB2H2pcsB/Tb0kBYCcdJHRhlvkfiguYiiTAvr9ZkMDA0phYaNuTJiZyrmI156b5UOdA1nejiw757Nags4AayuKcXTM+jbXRA=
+Message-ID: <58cb370e04102115572e992d75@mail.gmail.com>
+Date: Fri, 22 Oct 2004 00:57:56 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Mark Lord <lkml@rtr.ca>
+Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE CF adaptor
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <41783CDF.80007@rtr.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041021154517.72b0bc66.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41780393.3000606@rtr.ca>
+	 <58cb370e041021121317083a3a@mail.gmail.com>
+	 <1098394354.17096.174.camel@localhost.localdomain>
+	 <41783CDF.80007@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 03:45:17PM -0700, Andrew Morton wrote:
-> Tom Rini <trini@kernel.crashing.org> wrote:
-> >
-> > [ Resend since I still don't see it, Andrew can you pick this up please?
-> > Thanks ]
-> > 
-> > Since we directly -include $(clear_L2_L3) when needed, we need to point
-> > to the full path of it.
-> 
-> yup, I'll back out ppc-fix-build-with-o=output_dir.patch and push this one.
+On Thu, 21 Oct 2004 18:49:03 -0400, Mark Lord <lkml@rtr.ca> wrote:
 
-OK.  Just so we're clear, these are different issues.
+> I'll pull down your (Alan) latest tree and re-post a 2.6 patch against it.
+> But I would really like to see Marcelo pick up the 2.4 version as well,
+> since that is what people are using today.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Therefore 2.4 version is OK with me.

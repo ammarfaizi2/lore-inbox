@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265898AbTA2NJu>; Wed, 29 Jan 2003 08:09:50 -0500
+	id <S265987AbTA2N2j>; Wed, 29 Jan 2003 08:28:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265909AbTA2NJu>; Wed, 29 Jan 2003 08:09:50 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:42254 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S265898AbTA2NJt>; Wed, 29 Jan 2003 08:09:49 -0500
-Subject: Re: Scaring the non-geeks (was Bootscreen)
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
-       Raphael_Schmid@CUBUS.COM, rob@r-morris.co.uk,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200301291409.57213.roy@karlsbakk.net>
-References: <200301281440.h0SEeBS8001126@darkstar.example.net> 
-	<200301291409.57213.roy@karlsbakk.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 29 Jan 2003 08:19:08 -0500
-Message-Id: <1043846348.11513.2.camel@oubop4.bursar.vt.edu>
+	id <S266038AbTA2N2j>; Wed, 29 Jan 2003 08:28:39 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:18590 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S265987AbTA2N2i>; Wed, 29 Jan 2003 08:28:38 -0500
+Date: Tue, 28 Jan 2003 20:24:26 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Bootscreen
+Message-ID: <20030128202426.E646@nightmaster.csn.tu-chemnitz.de>
+References: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2> <1529810000.1043776134@titus>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <1529810000.1043776134@titus>; from mbligh@aracnet.com on Tue, Jan 28, 2003 at 09:48:55AM -0800
+X-Spam-Score: -3.1 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18dsPe-0004aV-00*s0Mab7MyL6o*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-29 at 08:09, Roy Sigurd Karlsbakk wrote:
-> > Hmmm, I think the traditional text diagnostic messages are best kept
-> > as they are, otherwise we'll end up with bug reports like this:
-> >
-> > Date: Jan 28 14:39:29 2006
-> > Subject: Kernel 3.6.2 boot failiure
-> > To: linux-kernel@vger.kernel.org
-> >
-> > Hi,
-> >
-> > I just upgraded from 3.6.1, which booted fine, to 3.6.2, which stops
-> > after Tux has waved twice, and winked his left eye.
-> 
-> The point is that Linux should allow for a user-friendly image (yes! possibly 
-> with Tux winking with the eyes or something - in a Mac sorta way). This will 
-> allow for higher user-friendlyness, but should be turned off by default. That 
-> way, SuSE, RedHat and the rest can turn it on if they want to do support 
-> without the verbose messaging. Perhaps do it like 'if splash screen's active, 
-> one can disable it by holding SHIFT or something pressed down'.
-> 
-> I don't know about you, but most non-technical people DO NOT LIKE verbose 
-> messages they can't understand. My father was scared by the linux bootup when 
-> I installed Linux on their PC.
+Hi there,
 
-How do positive terms such as OK or YES scare people? 
+On Tue, Jan 28, 2003 at 09:48:55AM -0800, Martin J. Bligh wrote:
+[Linux and Bootscreens]
 
+> I think it's a better plan to justify new features with an explantion
+> of why we should have something, rather than than saying there's no
+> reason we shouldn't. 
+
+Ok, I would say there are several reasons:
+
+   - People like themes and this makes the theme madness more
+     complete
+
+   - Some people get nervous, if they see text (esp. slow
+     readers for obvious reasons)
+
+   - Other people consider graphics archaic and "uncool"
+
+The last 2 apply to kids as well.
+
+So there are usability concerns and the boot might be the right
+place to implement that kind bootscreen retainment.
+
+Showing the dmesg log buffer on panic or BUG would be a nice
+thing, to retain usability in that case as well.
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

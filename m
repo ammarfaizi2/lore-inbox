@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265290AbRGJIDw>; Tue, 10 Jul 2001 04:03:52 -0400
+	id <S265592AbRGJIPd>; Tue, 10 Jul 2001 04:15:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265592AbRGJIDm>; Tue, 10 Jul 2001 04:03:42 -0400
-Received: from L0184P16.dipool.highway.telekom.at ([62.46.86.240]:64934 "EHLO
-	mannix") by vger.kernel.org with ESMTP id <S265290AbRGJIDc>;
-	Tue, 10 Jul 2001 04:03:32 -0400
-Date: Tue, 10 Jul 2001 10:07:45 +0200
-To: sendhil kumar <hello_linux@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Regarding the make module_install.
-Message-ID: <20010710100745.A29258@aon.at>
+	id <S265913AbRGJIPY>; Tue, 10 Jul 2001 04:15:24 -0400
+Received: from jalon.able.es ([212.97.163.2]:18878 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S265592AbRGJIPI>;
+	Tue, 10 Jul 2001 04:15:08 -0400
+Date: Tue, 10 Jul 2001 10:16:05 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: problems with lo and AF_NETLINK
+Message-ID: <20010710101605.A3984@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010709234259.42707.qmail@web14903.mail.yahoo.com>
-User-Agent: Mutt/1.3.18i
-From: Alexander Griesser <tuxx@aon.at>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 09, 2001 at 04:42:59PM -0700, you wrote:
-> Can any one update me about, what make module and make
-> module_install do?
+Hi.
 
-That's a FAQ!
-make modules compiles the modules
-make modules_install copies the modules to /lib/modules/$(uname -r)
+With latest 2.4.6-ac2, my lo interface setup looks like broken.
+Initscripts use /sbin/ip (it is a Mandrake Cooker box) to query the interface,
+and it only gets 'refused connections'. I think it worked with previous
+kernels.
 
-> What is the difference between the insmod command and
-> module_install?
+This is an strace of the problem:
+werewolf:~# strace ip -o link
+...
+socket(PF_NETLINK, SOCK_RAW, 0)         = 3
+bind(3, {sin_family=AF_NETLINK, {sa_family=16, sa_data="\0\0\0\0\0\0\0\0\0\0\353\215\5\10"}, 12) = 0
+getsockname(3, {sin_family=AF_NETLINK, {sa_family=16, sa_data="\0\0\215\17\0\0\0\0\0\0\353\215\5\10"}, [12]) = 0
+time(NULL)                              = 994752488
+sendto(3, "\24\0\0\0\22\0\1\3\351\267J;\0\0\0\0\21\362\5\10", 20, 0, {sin_family=AF_NETLINK, {sa_family=16, sa_data="\0\0\0\0\0\0\0\0\0\0`d\5\10"}, 12) = -1 ECONNREFUSED (Connection refused)
+write(2, "Cannot send dump request: Connec"..., 45Cannot send dump request: Connection refused
+) = 45
+_exit(1)                                = ?
 
-The two things are completely different.
-insmod/modprobe is a tool for loading modules dynamically into a running
-kernel and modules_install is a makefile-target, user for copying the
-precompiled modules to a certain destination.
+I saw that NETLINK support has changed a bit in ac series:
 
-Please don't post such questions in here, check for a local linux
-newsgroup or discussionforum.
+Netlink device emulation
+CONFIG_NETLINK_DEV
+  This option will be removed soon. Any programs that want to use
+  character special nodes like /dev/tap0 or /dev/route (all with major
+  number 36) need this option, and need to be rewritten soon to use
+  the real netlink socket.
+  This is a backward compatibility option, choose Y for now.
 
-regards, alexx
+I have activated it, but nothing changes. Any idea ?
+
+Thanks.
+
 -- 
-|    .-.    |   CCNAIA Alexander Griesser <tuxx@aon.at>  |   .''`.  |
-|    /v\    |  http://www.tuxx-home.at -=- ICQ:63180135  |  : :' :  |
-|  /(   )\  |    echo "K..?f{1,2}e[nr]böck" >>~/.score   |  `. `'   |
-|   ^^ ^^   |    Linux Version 2.4.6 - Debian Unstable   |    `-    |
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.1 (Cooker) for i586
+Linux werewolf 2.4.6-ac2 #1 SMP Sun Jul 8 23:57:11 CEST 2001 i686

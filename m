@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317681AbSGRJo1>; Thu, 18 Jul 2002 05:44:27 -0400
+	id <S316848AbSGRJ6P>; Thu, 18 Jul 2002 05:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317685AbSGRJo0>; Thu, 18 Jul 2002 05:44:26 -0400
-Received: from [213.225.90.118] ([213.225.90.118]:28174 "HELO
-	lexx.infeline.org") by vger.kernel.org with SMTP id <S317681AbSGRJoZ>;
-	Thu, 18 Jul 2002 05:44:25 -0400
-Date: Thu, 18 Jul 2002 11:48:27 +0200 (CEST)
-From: Ketil Froyn <ketil-kernel@froyn.net>
-X-X-Sender: ketil@ketil.np
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-In-Reply-To: <ah4act$1n5$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40L0.0207181137190.10269-100000@ketil.np>
+	id <S317699AbSGRJ6P>; Thu, 18 Jul 2002 05:58:15 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:54279 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316848AbSGRJ6P>; Thu, 18 Jul 2002 05:58:15 -0400
+Date: Thu, 18 Jul 2002 12:01:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Daniel Phillips <phillips@arcor.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] new module format
+In-Reply-To: <E17UyWI-0004fQ-00@starship>
+Message-ID: <Pine.LNX.4.44.0207181124010.28515-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Linus Torvalds wrote:
+Hi,
 
-> >int ret;
-> >do {
-> >	ret = close(fd);
-> >} while(ret == -1 && errno != EBADF);
->
-> NO.
->
-> The above is
->  (a) not portable
->  (b) not current practice
->
-> The "not portable" part comes from the fact that (as somebody pointed
-> out), a threaded environment in which the kernel _does_ close the FD on
-> errors, the FD may have been validly re-used (by the kernel) for some
-> other thread, and closing the FD a second time is a BUG.
->
-> The "not practice" comes from the fact that applications do not do what
-> you suggest.
->
-> The fact is, what Linux does and has always done is the only reasonable
-> thing to do: the close _will_ tear down the FD, and the error value is
-> nothing but a warning to the application that there may still be IO
-> pending (or there may have been failed IO) on the file that the (now
-> closed) descriptor pointed to.
+On Thu, 18 Jul 2002, Daniel Phillips wrote:
 
-Is this what happens when EINTR is received as well? If so, is there any
-point to EINTR? Ie. close() was interrupted, but finished anyway. Would
-any application care?
+> But I don't see why this needs to be a two step process:
+>
+>        module support calls mod->cleanup
+>               module code checks number of users
+>               if none, unregister all interfaces
+>               otherwise return -EBUSY
+>        if return wasn't -EBUSY, free all resources
 
-If there is any pending IO when this happens, is it possible to find out
-when this is finished? If not, an MTA getting this would have to
-temporarily defer the mail it received and hope it doesn't get an EINTR on
-close() next time, I guess.
+So after you checked for users, someone starts using the module again,
+before you were able to remove all interfaces -> OOPS.
+This is exactly the reason why I prefer to make this explicit in the
+module interface - the chances are higher to get this right.
 
-Ketil
+> > It's possible to use the filesystem model, but it's unnecessary complex
+> > and inflexible.
+>
+> What is the complex and inflexible part?
 
+It has to work around the problem that cleanup_module() can't fail.
+
+> > Another problem is that the more interfaces a module has (e.g. proc), the
+> > harder it becomes to unload a module (or the easier it becomes to prevent
+> > the unloading of a module).
+>
+> I don't see that this makes any difference at all.
+
+It's currently impossible to force the unloading of a module, some user
+can always keep a reference to the module. Even if you kill the process,
+someone else can get a new reference, before you could unload the module.
+
+> I'm proposing to add a return code to mod->cleanup (and pick a better
+> name).  Yes, every module will have to be fixed to use this interface, but
+> why not?
+
+I don't disagree, but if we break the module interface anyway, why don't
+we clean it up properly?
+(Patches that do that will follow shortly.)
+
+> Anyway, you're proposing to do it backwards.  We need to first ensure
+> there are no users, then unregister the interfaces.
+
+That's broken (see above).
+
+bye, Roman
 

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265915AbUBGAGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 19:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUBGAGZ
+	id S266508AbUBGANa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 19:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUBGAN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 19:06:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265915AbUBGAGX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 19:06:23 -0500
-Date: Fri, 6 Feb 2004 16:00:02 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Steve Kieu <haiquy@yahoo.com>
+	Fri, 6 Feb 2004 19:13:29 -0500
+Received: from mail.shareable.org ([81.29.64.88]:18640 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266508AbUBGANX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 19:13:23 -0500
+Date: Sat, 7 Feb 2004 00:13:17 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andy Isaacson <adi@hexapodia.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need help about scanner (2.6.2-mm1)
-Message-Id: <20040206160002.6affbc82.rddunlap@osdl.org>
-In-Reply-To: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
-References: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Subject: Re: avoiding dirty code pages with fixups
+Message-ID: <20040207001317.GE12503@mail.shareable.org>
+References: <20040203225453.GB18320@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040203225453.GB18320@hexapodia.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004 10:57:49 +1100 (EST) Steve Kieu <haiquy@yahoo.com> wrote:
+Andy Isaacson wrote:
+> This is sorta like MAP_PRIVATE, but instead of writing the dirty
+> page out to the swapfile, I want the page never to leave RAM.  If
+> the kernel decides to evict the page, it should just drop it and
+> invalidate the virtual address range.  When my program faults it
+> back in, provide me with the contents of the page *as they exist in
+> the backing file*.
 
+That idea has come up about a thousand million times.  Well, three.
+It's a good one :)
 
-| Hi,
-| 
-| I noticed that 2.6.2-mm1, usb scanner is removed. With
-| vanilla 2.6.2, this modules always OOP and somebody
-| said we should use libusb instead. However after
-| googling for a while I can not find any documentation
-| how to use that even in the libusb homepage. Please
-| help me , or pinpoint some place I could have some
-| guides. Thank
-| you.
+It has lots of uses, not just the one you describe.  For example,
+cacheing generated image data.
 
-Some distros ship it.
-home page is http://libusb.sourceforge.net/
+It would also be nice for a memory allocator to be able to convert a
+region from MAP_PRIVATE to MAP_SCRATCH and back, so that freed blocks
+of memory can be reclaimed by the system but only when there is memory
+pressure.
 
-Use it with xsane for scanning.
+> The downside is the additional computation on page-in.
 
+> It is a function of how many fixups there are per page, and of how
+> much work ld.so does to satisfy a fixup.  I don't have a good feel
+> for how expensive ld.so's fixup mechanism is... any comments?
 
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+The other downside of your idea is that every instance of a program
+has more dirty pages.  While it is true that the pages do not require
+disk I/O, they still take up RAM that could be used for other page
+cache things.
+
+-- Jamie

@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284913AbRLFAz6>; Wed, 5 Dec 2001 19:55:58 -0500
+	id <S284911AbRLFA4S>; Wed, 5 Dec 2001 19:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284912AbRLFAzi>; Wed, 5 Dec 2001 19:55:38 -0500
-Received: from [63.193.79.18] ([63.193.79.18]:58610 "HELO mwg.inxservices.lan")
-	by vger.kernel.org with SMTP id <S284911AbRLFAzf>;
-	Wed, 5 Dec 2001 19:55:35 -0500
-Date: Wed, 5 Dec 2001 16:55:06 -0800
-From: George Garvey <tmwg-linuxknl@inxservices.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-ac5 D-Link GigE and MSWin transfer timeout (solved)
-Message-ID: <20011205165506.A6343@inxservices.com>
-Reply-To: tmwg@inxservices.com
-In-Reply-To: <20011103093445.A857@inxservices.com> <20011130035739.A31552@inxservices.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011130035739.A31552@inxservices.com>; from tmwg-linuxknl@inxservices.com on Fri, Nov 30, 2001 at 03:57:39AM -0800
-Organization: inX Services, Los Angeles, CA, USA
+	id <S284912AbRLFA4J>; Wed, 5 Dec 2001 19:56:09 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:20971 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284911AbRLFAzz>; Wed, 5 Dec 2001 19:55:55 -0500
+Message-ID: <3C0EC219.8010107@redhat.com>
+Date: Wed, 05 Dec 2001 19:55:53 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0EB1F2.7050007@optonline.net> <3C0EB46C.4010806@optonline.net> <3C0EBAEF.5090402@redhat.com> <3C0EC0ED.3000603@optonl!
+ ine.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Just switched back to the DGE550T. A kind person wrote me that there
-is an updated from D-Link in the works that solves the timeout problem,
-and sent a copy of the beta driver. It has solved the problem at this
-time. Wasn't just a problem with transfers with MSWin, apparently that
-was a red herring (it just triggered it for me).
+Nathan Bryant wrote:
 
-On Fri, Nov 30, 2001 at 03:57:39AM -0800, George Garvey wrote:
->    Almost a week ago I switch to a DGE500T instead of a DGE550T. All
-> problems went away.
+> Doug Ledford wrote:
+> 
+>> Nathan Bryant wrote:
+>>
+>> OK, on my site there is now a 0.10 version of the driver.  This one 
+>> stands a reasonable chance of working in mmap mode.  Please give it a 
+>> try and let me know what happens (see my comments in 
+>> __i810_update_lvi() to see what I think the actual problem is).
+>>
+>> http://people.redhat.com/dledford/i810_audio.c.gz
+>>
+>>
+>>
+>>
+> some fixes needed, attached
+
+
+Thanks, applied.  (I haven't been compile testing these patches because 
+I would have to set up another compile environment just to get it to 
+work, my current ones won't work for it)
+
+
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
+

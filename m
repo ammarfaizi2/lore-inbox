@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUEJXET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUEJXLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUEJXET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUEJXDN
+	id S263093AbUEJXLl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbUEJXLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:03:13 -0400
-Received: from finch.doc.ic.ac.uk ([146.169.1.194]:27048 "EHLO
-	finch.doc.ic.ac.uk") by vger.kernel.org with ESMTP id S263003AbUEJXBq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:01:46 -0400
-Message-ID: <40A009D9.9090404@bluetheta.com>
-Date: Tue, 11 May 2004 00:01:45 +0100
-From: Andre Ben Hamou <andre@bluetheta.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Multithread select() bug
-References: <409FF38C.7080902@bluetheta.com> <409FFADD.7050204@cosmosbay.com> <409FFE22.4050508@bluetheta.com> <40A002CE.4020906@cosmosbay.com>
-In-Reply-To: <40A002CE.4020906@cosmosbay.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 10 May 2004 19:11:33 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:20868 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S263028AbUEJXKI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:10:08 -0400
+Message-Id: <200405102310.i4ANA7Eh022394@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement 
+In-Reply-To: Your message of "Mon, 10 May 2004 15:52:58 PDT."
+             <Pine.LNX.4.58.0405101548230.1156@bigblue.dev.mdolabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org> <1084227460.28663.8.camel@vertex> <Pine.LNX.4.58.0405101521280.1156@bigblue.dev.mdolabs.com> <1084228900.28903.2.camel@vertex>
+            <Pine.LNX.4.58.0405101548230.1156@bigblue.dev.mdolabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1248512030P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 10 May 2004 19:10:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> So please how do you guarantee that thread 1 runs *before* thread 2)
-> 
-> Thread 1)
->        select( fd)
-> 
-> Thread 2)
->        close(fd)
-> 
-> Thats not possible.
-> 
+--==_Exmh_1248512030P
+Content-Type: text/plain; charset=us-ascii
 
-I see where you're coming from, in that there is a potential race 
-condition as to the socket being connected as I reach the select call.
+On Mon, 10 May 2004 15:52:58 PDT, Davide Libenzi said:
 
-This is an important concern but it is, I think, orthogonal to the 
-original problem as there are two possible socket states at the point at 
-which select gets called (as far as I can see)...
+> And it should not even be that much hard to do, since you can just 
+> backtrace the the point where the change happened to see if there are 
+> watchers on the parent directories.
 
-1. The socket is in its connected state
-2. The socket has already been closed by the parent thread
+Umm.. can you?  That sounds suspiciously like "given an inode, how
+do I find the pathname?".
 
-As I understand it, if 1 is true (which corresponds to my original 
-post), then select should return the moment the socket gets closed and, 
-if 2 is true (which I believe corresponds to your concern), then select 
-should return immediately anyway as the socket would not block if read from.
+How do you handle the case of a file that's hard-linked into 2 different
+directories a "long way" apart in the heirarchy?  It's easy enough to
+backtrack and find *A* path - the problem is if the watcher was on
+some *other* directory:
 
-Sorry to be a pest, but I'm trying to get this clear in my head. Is it 
-possible I've over-estimated the thread-safety of the select and close 
-calls?
+mkdir -p /tmp/a/foo/bar/baz
+mkdir -p /tmp/b/que/er/ty
+touch /tmp/a/foo/bar/baz/flag
+ln /tmp/a/foo/bar/baz/flag /tmp/b/qu/er/ty/flag
 
-Cheers,
+If you modify 'flag' again, how do you ensure that you find a watcher on
+/tmp/a/foo or /tmp/b/qu, given that either or both might be there?
 
-Andre Ben Hamou
-Imperial College London
 
--- 
+--==_Exmh_1248512030P
+Content-Type: application/pgp-signature
 
-...and, on the seventh day, God switched off his Mac.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAoAvPcC3lWbTT17ARAkGvAKDyyDdHWIIojh3kUgfZVJka1pE3RQCfdCnA
+eEyX48B7ZwTjRNFlBRNBcRo=
+=lGeO
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1248512030P--

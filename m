@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271217AbTGWS6B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271222AbTGWS5G
+	id S271220AbTGWS6A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271219AbTGWS5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:57:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61076 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271217AbTGWS4O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:56:14 -0400
-Date: Wed, 23 Jul 2003 12:09:01 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [bernie@develer.com: Kernel 2.6 size increase]
-Message-Id: <20030723120901.57746fd8.davem@redhat.com>
-In-Reply-To: <20030723200658.A27856@infradead.org>
-References: <20030723195355.A27597@infradead.org>
-	<20030723195504.A27656@infradead.org>
-	<20030723115858.75068294.davem@redhat.com>
-	<20030723200658.A27856@infradead.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Wed, 23 Jul 2003 14:57:25 -0400
+Received: from H-135-207-24-32.research.att.com ([135.207.24.32]:64139 "EHLO
+	mailman.research.att.com") by vger.kernel.org with ESMTP
+	id S271220AbTGWS4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:56:53 -0400
+Date: Wed, 23 Jul 2003 15:11:47 -0400 (EDT)
+From: Glenn Fowler <gsf@research.att.com>
+Message-Id: <200307231911.PAA35164@raptor.research.att.com>
+Organization: AT&T Labs Research
+X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+References: <200307231428.KAA15254@raptor.research.att.com>  <20030723074615.25eea776.davem@redhat.com>  <200307231656.MAA69129@raptor.research.att.com>  <20030723100043.18d5b025.davem@redhat.com>  <200307231724.NAA90957@raptor.research.att.com>  <20030723103135.3eac4cd2.davem@redhat.com>  <200307231814.OAA74344@raptor.research.att.com>  <20030723112307.5b8ae55c.davem@redhat.com>  <200307231854.OAA90112@raptor.research.att.com> <20030723120457.206dc02d.davem@redhat.com>
+To: davem@redhat.com, gsf@research.att.com
+Subject: Re: kernel bug in socketpair()
+Cc: dgk@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003 20:06:58 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
 
-> I know you absolutely disliked Andi's patch to make the xfrm subsystem
-> optional so we might need find other ways to make the code smaller
-> on those systems that need it.
+On Wed, 23 Jul 2003 12:04:57 -0700 David S. Miller wrote:
+> Is bash totally broken because of all this?  Or does the problem only
+> trigger when using (cmd) subprocesses in a certain way?
 
-I'm willing to reconsider it.
+bash uses pipe() so its ok
+using socketpair() instead of pipe() introduces the problem
+and we will now have to find an alternative to work around the
+linux /dev/fd/N implementation
 
-So basically we'd have a CONFIG_NET_XFRM, and things like
-AH/ESP/IPCOMP/AH6/ESP6/IPCOMP6 would say "select NET_XFRM"
-in the Kconfig where they are selected.
+thanks
 
-Then when CONFIG_NET_XFRM is not set all the xfrm interfaces
-called from non-ipsec non-xfrm source files get NOP versions.
-
-Is this exactly what Andi's patch did?  Just send it on
-so we can integrate this.
-
-We actually lost a lot of code in other areas of the networking, for
-example Andrew Morton and I made many bogus function inlines
-undone because they made the code too large.

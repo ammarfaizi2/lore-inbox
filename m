@@ -1,1085 +1,308 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVANDOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVANDRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVANDOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 22:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVANDOg
+	id S261876AbVANDRV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 22:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVANDPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 22:14:36 -0500
-Received: from opersys.com ([64.40.108.71]:55055 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261875AbVANC5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 21:57:05 -0500
-Message-ID: <41E736C4.3080806@opersys.com>
-Date: Thu, 13 Jan 2005 22:04:36 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH 4/4] relayfs for 2.6.10: headers
+	Thu, 13 Jan 2005 22:15:53 -0500
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:21187 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S261862AbVANDBi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 22:01:38 -0500
+Date: Fri, 14 Jan 2005 05:01:36 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-ac9
+Message-ID: <20050114030135.GA6032@m.safari.iki.fi>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1105636996.4644.70.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1105636996.4644.70.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 13, 2005 at 05:23:29PM +0000, Alan Cox wrote:
+> Arjan van de Ven is now building RPMS of the kernel and those can be found
+> in the RPM subdirectory and should be yum-able. Expect the RPMS to lag the
+> diff a little as the RPM builds and tests do take time.
+> 
+> 
+> Key:	o	- only in -ac
+> 	*	- already fixed upstream
+> 	X	- discarded later as wrong
+> 	+	- ac specific (fix not relevant to non -ac)
+> 
+> 2.6.10-ac9
+> *	2.6.10 variant of the stack race fix		(Alan Cox)
+> 	| Found by Paul Staretz
+> *	Stronger ELF validity checks			(Solar Designer)
+> *	Add ATI SATA identifiers			(Frederick Li)
+> o	Update ATI PATA/SATA support			(Frederick Li)
+> *	Audit fixups				(Steve Grubb, Roger Luethi)
+> *	FPU/signal handling fix				(Bodo Stroesser)
+> *	nForce2 APIC/LAPIC errata fixup			(Prakash Punnoor)
+> *	Swap aacraid fix in -ac with 2.6.11rc base fix	(Tom Coughlan)
+> *	Connnection track/rst fix			(Martin Josefsson)
+> o	Format ide printk's more nicely			(Gunther Mayer)
+> o	Stallion serial resurrection (part one)		(Wayne Meissner)
+> *	Fix nls_ascii					(Ogawa Hirofumi)
+> *	Count writeback pages in nr_scanned		(Rik van Riel)
+> 	| OOM fixing
+> o	Revert ac97_patch changes			(Jules Villard)
+> 	| with this change many users get no sound out
+> o	Correct handling of some module parameter	(Rusty Russell)
+> 	errors
 
-Signed-off-by: Karim Yaghmour (karim@opersys.com)
+with 2.6.10-ac7/ac8 I did not have problems with sound,
+but with ac9 I got these problems:
 
-Karim
+at boot, sometimes /dev/dsp and /dev/snd/pcm* do not get created,
+despite modules are loaded and /proc/interrupts shows IRQ 5 for
+Ensoniq AudioPCI (but count stays at 0).
+(I just upgraded to udev-0.50, too...)
 
---- linux-2.6.10/include/asm-alpha/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-alpha/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_ALPHA_RELAY_H
-+#define _ASM_ALPHA_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-arm/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-arm/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_ARM_RELAY_H
-+#define _ASM_ARM_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-arm26/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-arm26/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_ARM_RELAY_H
-+#define _ASM_ARM_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-cris/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-cris/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_CRIS_RELAY_H
-+#define _ASM_CRIS_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-generic/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-generic/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,76 @@
-+#ifndef _ASM_GENERIC_RELAY_H
-+#define _ASM_GENERIC_RELAY_H
-+/*
-+ * linux/include/asm-generic/relay.h
-+ *
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-+ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
-+ *
-+ * Architecture-independent definitions for relayfs
-+ */
-+
-+#include <linux/relayfs_fs.h>
-+
-+/**
-+ *	get_time_delta - utility function for getting time delta
-+ *	@now: pointer to a timeval struct that may be given current time
-+ *	@rchan: the channel
-+ *
-+ *	Returns the time difference between the current time and the buffer
-+ *	start time.
-+ */
-+static inline u32
-+get_time_delta(struct timeval *now, struct rchan *rchan)
-+{
-+	u32 time_delta;
-+
-+	do_gettimeofday(now);
-+	time_delta = calc_time_delta(now, &rchan->buf_start_time);
-+
-+	return time_delta;
-+}
-+
-+/**
-+ *	get_timestamp - utility function for getting a time and TSC pair
-+ *	@now: current time
-+ *	@tsc: the TSC associated with now
-+ *	@rchan: the channel
-+ *
-+ *	Sets the value pointed to by now to the current time. Value pointed to
-+ *	by tsc is not set since there is no generic TSC support.
-+ */
-+static inline void
-+get_timestamp(struct timeval *now,
-+	      u32 *tsc,
-+	      struct rchan *rchan)
-+{
-+	do_gettimeofday(now);
-+}
-+
-+/**
-+ *	get_time_or_tsc: - Utility function for getting a time or a TSC.
-+ *	@now: current time
-+ *	@tsc: current TSC
-+ *	@rchan: the channel
-+ *
-+ *	Sets the value pointed to by now to the current time.
-+ */
-+static inline void
-+get_time_or_tsc(struct timeval *now,
-+		u32 *tsc,
-+		struct rchan *rchan)
-+{
-+	do_gettimeofday(now);
-+}
-+
-+/**
-+ *	have_tsc - does this platform have a useable TSC?
-+ *
-+ *	Returns 0.
-+ */
-+static inline int
-+have_tsc(void)
-+{
-+	return 0;
-+}
-+#endif
---- linux-2.6.10/include/asm-h8300/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-h8300/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_H8300_RELAY_H
-+#define _ASM_H8300_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-i386/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-i386/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,101 @@
-+#ifndef _ASM_I386_RELAY_H
-+#define _ASM_I386_RELAY_H
-+/*
-+ * linux/include/asm-i386/relay.h
-+ *
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-+ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
-+ *
-+ * i386 definitions for relayfs
-+ */
-+
-+#include <linux/relayfs_fs.h>
-+
-+#ifdef CONFIG_X86_TSC
-+#include <asm/msr.h>
-+
-+/**
-+ *	get_time_delta - utility function for getting time delta
-+ *	@now: pointer to a timeval struct that may be given current time
-+ *	@rchan: the channel
-+ *
-+ *	Returns either the TSC if TSCs are being used, or the time and the
-+ *	time difference between the current time and the buffer start time
-+ *	if TSCs are not being used.
-+ */
-+static inline u32
-+get_time_delta(struct timeval *now, struct rchan *rchan)
-+{
-+	u32 time_delta;
-+
-+	if ((using_tsc(rchan) == 1) && cpu_has_tsc)
-+		rdtscl(time_delta);
-+	else {
-+		do_gettimeofday(now);
-+		time_delta = calc_time_delta(now, &rchan->buf_start_time);
-+	}
-+
-+	return time_delta;
-+}
-+
-+/**
-+ *	get_timestamp - utility function for getting a time and TSC pair
-+ *	@now: current time
-+ *	@tsc: the TSC associated with now
-+ *	@rchan: the channel
-+ *
-+ *	Sets the value pointed to by now to the current time and the value
-+ *	pointed to by tsc to the tsc associated with that time, if the
-+ *	platform supports TSC.
-+ */
-+static inline void
-+get_timestamp(struct timeval *now,
-+	      u32 *tsc,
-+	      struct rchan *rchan)
-+{
-+	do_gettimeofday(now);
-+
-+	if ((using_tsc(rchan) == 1) && cpu_has_tsc)
-+		rdtscl(*tsc);
-+}
-+
-+/**
-+ *	get_time_or_tsc - utility function for getting a time or a TSC
-+ *	@now: current time
-+ *	@tsc: current TSC
-+ *	@rchan: the channel
-+ *
-+ *	Sets the value pointed to by now to the current time or the value
-+ *	pointed to by tsc to the current tsc, depending on whether we're
-+ *	using TSCs or not.
-+ */
-+static inline void
-+get_time_or_tsc(struct timeval *now,
-+		u32 *tsc,
-+		struct rchan *rchan)
-+{
-+	if ((using_tsc(rchan) == 1) && cpu_has_tsc)
-+		rdtscl(*tsc);
-+	else
-+		do_gettimeofday(now);
-+}
-+
-+/**
-+ *	have_tsc - does this platform have a useable TSC?
-+ *
-+ *	Returns 1 if this platform has a useable TSC counter for
-+ *	timestamping purposes, 0 otherwise.
-+ */
-+static inline int
-+have_tsc(void)
-+{
-+	if (cpu_has_tsc)
-+		return 1;
-+	else
-+		return 0;
-+}
-+
-+#else /* No TSC support (#ifdef CONFIG_X86_TSC) */
-+#include <asm-generic/relay.h>
-+#endif /* #ifdef CONFIG_X86_TSC */
-+#endif
---- linux-2.6.10/include/asm-ia64/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-ia64/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_IA64_RELAY_H
-+#define _ASM_IA64_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-m68k/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-m68k/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_M68K_RELAY_H
-+#define _ASM_M68K_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-m68knommu/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-m68knommu/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_M68KNOMMU_RELAY_H
-+#define _ASM_M68KNOMMU_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-mips/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-mips/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_RELAY_H
-+#define _ASM_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-mips64/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-mips64/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_RELAY_H
-+#define _ASM_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-parisc/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-parisc/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_PARISC_RELAY_H
-+#define _ASM_PARISC_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-ppc/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-ppc/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_PPC_RELAY_H
-+#define _ASM_PPC_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-ppc64/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-ppc64/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_PPC64_RELAY_H
-+#define _ASM_PPC64_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-s390/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-s390/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_S390_RELAY_H
-+#define _ASM_S390_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-sh/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-sh/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_SH_RELAY_H
-+#define _ASM_SH_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-sparc/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-sparc/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_SPARC_RELAY_H
-+#define _ASM_SPARC_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-sparc64/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-sparc64/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_SPARC64_RELAY_H
-+#define _ASM_SPARC64_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-v850/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-v850/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef __V850_RELAY_H
-+#define __V850_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/asm-x86_64/relay.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/asm-x86_64/relay.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_X86_64_RELAY_H
-+#define _ASM_X86_64_RELAY_H
-+
-+#include <asm-generic/relay.h>
-+#endif
---- linux-2.6.10/include/linux/klog.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/linux/klog.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,24 @@
-+/*
-+ * KLOG		Generic Logging facility built upon the relayfs infrastructure
-+ *
-+ * Authors:	Hubertus Frankeh  (frankeh@us.ibm.com)
-+ *		Tom Zanussi  (zanussi@us.ibm.com)
-+ *
-+ *		Please direct all questions/comments to zanussi@us.ibm.com
-+ *
-+ *		Copyright (C) 2003, IBM Corp
-+ *
-+ *
-+ *		This program is free software; you can redistribute it and/or
-+ *		modify it under the terms of the GNU General Public License
-+ *		as published by the Free Software Foundation; either version
-+ *		2 of the License, or (at your option) any later version.
-+ */
-+
-+#ifndef _LINUX_KLOG_H
-+#define _LINUX_KLOG_H
-+
-+extern int klog(const char *fmt, ...);
-+extern int klog_raw(const char *buf,int len);
-+
-+#endif	/* _LINUX_KLOG_H */
---- linux-2.6.10/include/linux/relayfs_fs.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.10-relayfs/include/linux/relayfs_fs.h	2005-01-13 10:40:25.000000000 -0800
-@@ -0,0 +1,689 @@
-+/*
-+ * linux/include/linux/relayfs_fs.h
-+ *
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-+ * Copyright (C) 1999, 2000, 2001, 2002 - Karim Yaghmour (karim@opersys.com)
-+ *
-+ * RelayFS definitions and declarations
-+ *
-+ * Please see Documentation/filesystems/relayfs.txt for more info.
-+ */
-+
-+#ifndef _LINUX_RELAYFS_FS_H
-+#define _LINUX_RELAYFS_FS_H
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/list.h>
-+#include <linux/fs.h>
-+
-+/*
-+ * Tracks changes to rchan struct
-+ */
-+#define RELAYFS_CHANNEL_VERSION		1
-+
-+/*
-+ * Maximum number of simultaneously open channels
-+ */
-+#define RELAY_MAX_CHANNELS		256
-+
-+/*
-+ * Relay properties
-+ */
-+#define RELAY_MIN_BUFS			2
-+#define RELAY_MIN_BUFSIZE		4096
-+#define RELAY_MAX_BUFS			256
-+#define RELAY_MAX_BUF_SIZE		0x1000000
-+#define RELAY_MAX_TOTAL_BUF_SIZE	0x8000000
-+
-+/*
-+ * Lockless scheme utility macros
-+ */
-+#define RELAY_MAX_BUFNO(bufno_bits) (1UL << (bufno_bits))
-+#define RELAY_BUF_SIZE(offset_bits) (1UL << (offset_bits))
-+#define RELAY_BUF_OFFSET_MASK(offset_bits) (RELAY_BUF_SIZE(offset_bits) - 1)
-+#define RELAY_BUFNO_GET(index, offset_bits) ((index) >> (offset_bits))
-+#define RELAY_BUF_OFFSET_GET(index, mask) ((index) & (mask))
-+#define RELAY_BUF_OFFSET_CLEAR(index, mask) ((index) & ~(mask))
-+
-+/*
-+ * Flags returned by relay_reserve()
-+ */
-+#define RELAY_BUFFER_SWITCH_NONE	0x0
-+#define RELAY_WRITE_DISCARD_NONE	0x0
-+#define RELAY_BUFFER_SWITCH		0x1
-+#define RELAY_WRITE_DISCARD		0x2
-+#define RELAY_WRITE_TOO_LONG		0x4
-+
-+/*
-+ * Relay attribute flags
-+ */
-+#define RELAY_DELIVERY_BULK		0x1
-+#define RELAY_DELIVERY_PACKET		0x2
-+#define RELAY_SCHEME_LOCKLESS		0x4
-+#define RELAY_SCHEME_LOCKING		0x8
-+#define RELAY_SCHEME_ANY		0xC
-+#define RELAY_TIMESTAMP_TSC		0x10
-+#define RELAY_TIMESTAMP_GETTIMEOFDAY	0x20
-+#define RELAY_TIMESTAMP_ANY		0x30
-+#define RELAY_USAGE_SMP			0x40
-+#define RELAY_USAGE_GLOBAL		0x80
-+#define RELAY_MODE_CONTINUOUS		0x100
-+#define RELAY_MODE_NO_OVERWRITE		0x200
-+#define RELAY_MODE_START_AT_ZERO	0x400
-+
-+/*
-+ * Flags for needs_resize() callback
-+ */
-+#define RELAY_RESIZE_NONE	0x0
-+#define RELAY_RESIZE_EXPAND	0x1
-+#define RELAY_RESIZE_SHRINK	0x2
-+#define RELAY_RESIZE_REPLACE	0x4
-+#define RELAY_RESIZE_REPLACED	0x8
-+
-+/*
-+ * Values for fileop_notify() callback
-+ */
-+enum relay_fileop
-+{
-+	RELAY_FILE_OPEN,
-+	RELAY_FILE_CLOSE,
-+	RELAY_FILE_MAP,
-+	RELAY_FILE_UNMAP
-+};
-+
-+/*
-+ * Data structure returned by relay_info()
-+ */
-+struct rchan_info
-+{
-+	u32 flags;		/* relay attribute flags for channel */
-+	u32 buf_size;		/* channel's sub-buffer size */
-+	char *buf_addr;		/* address of channel start */
-+	u32 alloc_size;		/* total buffer size actually allocated */
-+	u32 n_bufs;		/* number of sub-buffers in channel */
-+	u32 cur_idx;		/* current write index into channel */
-+	u32 bufs_produced;	/* current count of sub-buffers produced */
-+	u32 bufs_consumed;	/* current count of sub-buffers consumed */
-+	u32 buf_id;		/* buf_id of current sub-buffer */
-+	int buffer_complete[RELAY_MAX_BUFS];	/* boolean per sub-buffer */
-+	int unused_bytes[RELAY_MAX_BUFS];	/* count per sub-buffer */
-+};
-+
-+/*
-+ * Relay channel client callbacks
-+ */
-+struct rchan_callbacks
-+{
-+	/*
-+	 * buffer_start - called at the beginning of a new sub-buffer
-+	 * @rchan_id: the channel id
-+	 * @current_write_pos: position in sub-buffer client should write to
-+	 * @buffer_id: the id of the new sub-buffer
-+	 * @start_time: the timestamp associated with the start of sub-buffer
-+	 * @start_tsc: the TSC associated with the timestamp, if using_tsc
-+	 * @using_tsc: boolean, indicates whether start_tsc is valid
-+	 *
-+	 * Return value should be the number of bytes written by the client.
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+	int (*buffer_start) (int rchan_id,
-+			     char *current_write_pos,
-+			     u32 buffer_id,
-+			     struct timeval start_time,
-+			     u32 start_tsc,
-+			     int using_tsc);
-+
-+	/*
-+	 * buffer_end - called at the end of a sub-buffer
-+	 * @rchan_id: the channel id
-+	 * @current_write_pos: position in sub-buffer of end of data
-+	 * @end_of_buffer: the position of the end of the sub-buffer
-+	 * @end_time: the timestamp associated with the end of the sub-buffer
-+	 * @end_tsc: the TSC associated with the end_time, if using_tsc
-+	 * @using_tsc: boolean, indicates whether end_tsc is valid
-+	 *
-+	 * Return value should be the number of bytes written by the client.
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+	int (*buffer_end) (int rchan_id,
-+			   char *current_write_pos,
-+			   char *end_of_buffer,
-+			   struct timeval end_time,
-+			   u32 end_tsc,
-+			   int using_tsc);
-+
-+	/*
-+	 * deliver - called when data is ready for the client
-+	 * @rchan_id: the channel id
-+	 * @from: the start of the delivered data
-+	 * @len: the length of the delivered data
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+	void (*deliver) (int rchan_id, char *from, u32 len);
-+
-+	/*
-+	 * user_deliver - called when data has been written from userspace
-+	 * @rchan_id: the channel id
-+	 * @from: the start of the delivered data
-+	 * @len: the length of the delivered data
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+	void (*user_deliver) (int rchan_id, char *from, u32 len);
-+
-+	/*
-+	 * needs_resize - called when a resizing event occurs
-+	 * @rchan_id: the channel id
-+	 * @resize_type: the type of resizing event
-+	 * @suggested_buf_size: the suggested new sub-buffer size
-+	 * @suggested_buf_size: the suggested new number of sub-buffers
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+	void (*needs_resize)(int rchan_id,
-+			     int resize_type,
-+			     u32 suggested_buf_size,
-+			     u32 suggested_n_bufs);
-+
-+	/*
-+	 * fileop_notify - called on open/close/mmap/munmap of a relayfs file
-+	 * @rchan_id: the channel id
-+	 * @filp: relayfs file pointer
-+	 * @fileop: which file operation is in progress
-+	 *
-+	 * The return value can direct the outcome of the operation.
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+        int (*fileop_notify)(int rchan_id,
-+			     struct file *filp,
-+			     enum relay_fileop fileop);
-+
-+	/*
-+	 * ioctl - called in ioctl context from userspace
-+	 * @rchan_id: the channel id
-+	 * @cmd: ioctl cmd
-+	 * @arg: ioctl cmd arg
-+	 *
-+	 * The return value is returned as the value from the ioctl call.
-+	 *
-+	 * See Documentation/filesystems/relayfs.txt for details.
-+	 */
-+	int (*ioctl) (int rchan_id, unsigned int cmd, unsigned long arg);
-+};
-+
-+/*
-+ * Lockless scheme-specific data
-+ */
-+struct lockless_rchan
-+{
-+	u8 bufno_bits;		/* # bits used for sub-buffer id */
-+	u8 offset_bits;		/* # bits used for offset within sub-buffer */
-+	u32 index;		/* current index = sub-buffer id and offset */
-+	u32 offset_mask;	/* used to obtain offset portion of index */
-+	u32 index_mask;		/* used to mask off unused bits index */
-+	atomic_t fill_count[RELAY_MAX_BUFS];	/* fill count per sub-buffer */
-+};
-+
-+/*
-+ * Locking scheme-specific data
-+ */
-+struct locking_rchan
-+{
-+	char *write_buf;		/* start of write sub-buffer */
-+	char *write_buf_end;		/* end of write sub-buffer */
-+	char *current_write_pos;	/* current write pointer */
-+	char *write_limit;		/* takes reserves into account */
-+	char *in_progress_event_pos;	/* used for interrupted writes */
-+	u16 in_progress_event_size;	/* used for interrupted writes */
-+	char *interrupted_pos;		/* used for interrupted writes */
-+	u16 interrupting_size;		/* used for interrupted writes */
-+	spinlock_t lock;		/* channel lock for locking scheme */
-+};
-+
-+struct relay_ops;
-+
-+/*
-+ * Offset resizing data structure
-+ */
-+struct resize_offset
-+{
-+	u32 ge;
-+	u32 le;
-+	int delta;
-+};
-+
-+/*
-+ * Relay channel data structure
-+ */
-+struct rchan
-+{
-+	u32 version;			/* the version of this struct */
-+	char *buf;			/* the channel buffer */
-+	union
-+	{
-+		struct lockless_rchan lockless;
-+		struct locking_rchan locking;
-+	} scheme;			/* scheme-specific channel data */
-+
-+	int id;				/* the channel id */
-+	struct rchan_callbacks *callbacks;	/* client callbacks */
-+	u32 flags;			/* relay channel attributes */
-+	u32 buf_id;			/* current sub-buffer id */
-+	u32 buf_idx;			/* current sub-buffer index */
-+
-+	atomic_t mapped;		/* map count */
-+
-+	atomic_t suspended;		/* channel suspended i.e full? */
-+	int half_switch;		/* used internally for suspend */
-+
-+	struct timeval  buf_start_time;	/* current sub-buffer start time */
-+	u32 buf_start_tsc;		/* current sub-buffer start TSC */
-+	
-+	u32 buf_size;			/* sub-buffer size */
-+	u32 alloc_size;			/* total buffer size allocated */
-+	u32 n_bufs;			/* number of sub-buffers */
-+
-+	u32 bufs_produced;		/* count of sub-buffers produced */
-+	u32 bufs_consumed;		/* count of sub-buffers consumed */
-+	u32 bytes_consumed;		/* bytes consumed in cur sub-buffer */
-+	u32 read_start;			/* start VFS readers here */
-+
-+	int initialized;		/* first buffer initialized? */
-+	int finalized;			/* channel finalized? */
-+
-+	u32 start_reserve;		/* reserve at start of sub-buffers */
-+	u32 end_reserve;		/* reserve at end of sub-buffers */
-+	u32 rchan_start_reserve;	/* additional reserve sub-buffer 0 */
-+	
-+	struct dentry *dentry;		/* channel file dentry */
-+
-+	wait_queue_head_t read_wait;	/* VFS read wait queue */
-+	wait_queue_head_t write_wait;	/* VFS write wait queue */
-+	struct work_struct wake_readers; /* reader wake-up work struct */
-+	struct work_struct wake_writers; /* reader wake-up work struct */
-+	atomic_t refcount;		/* channel refcount */
-+
-+	struct relay_ops *relay_ops;	/* scheme-specific channel ops */
-+
-+	int unused_bytes[RELAY_MAX_BUFS]; /* unused count per sub-buffer */
-+
-+	struct semaphore resize_sem;	/* serializes alloc/repace */
-+	struct work_struct work;	/* resize allocation work struct */
-+
-+	struct list_head open_readers;	/* open readers for this channel */
-+	rwlock_t open_readers_lock;	/* protection for open_readers list */
-+
-+	char *init_buf;			/* init channel buffer, if non-NULL */
-+	
-+	u32 resize_min;			/* minimum resized total buffer size */
-+	u32 resize_max;			/* maximum resized total buffer size */
-+	char *resize_buf;		/* for autosize alloc/free */
-+	u32 resize_buf_size;		/* resized sub-buffer size */
-+	u32 resize_n_bufs;		/* resized number of sub-buffers */
-+	u32 resize_alloc_size;		/* resized actual total size */
-+	int resizing;			/* is resizing in progress? */
-+	int resize_err;			/* resizing err code */
-+	int resize_failures;		/* number of resize failures */
-+	int replace_buffer;		/* is the alloced buffer ready?  */
-+	struct resize_offset resize_offset; /* offset change */
-+	struct timer_list shrink_timer;	/* timer used for shrinking */
-+	int resize_order;		/* size of last resize */
-+	u32 expand_buf_id;		/* subbuf id expand will occur at */
-+
-+	struct page **buf_page_array;	/* array of current buffer pages */
-+	int buf_page_count;		/* number of current buffer pages */
-+	struct page **expand_page_array;/* new pages to be inserted */
-+	int expand_page_count;		/* number of new pages */
-+	struct page **shrink_page_array;/* old pages to be freed */
-+	int shrink_page_count;		/* number of old pages */
-+	struct page **resize_page_array;/* will become current pages */
-+	int resize_page_count;		/* number of resize pages */
-+	struct page **old_buf_page_array; /* hold for freeing */
-+} ____cacheline_aligned;
-+
-+/*
-+ * Relay channel reader struct
-+ */
-+struct rchan_reader
-+{
-+	struct list_head list;		/* for list inclusion */
-+	struct rchan *rchan;		/* the channel we're reading from */
-+	int auto_consume;		/* does this reader auto-consume? */
-+	u32 bufs_consumed;		/* buffers this reader has consumed */
-+	u32 bytes_consumed;		/* bytes consumed in cur sub-buffer */
-+	int offset_changed;		/* have channel offsets changed? */
-+	int vfs_reader;			/* are we a VFS reader? */
-+	int map_reader;			/* are we an mmap reader? */
-+
-+	union
-+	{
-+		struct file *file;
-+		u32 f_pos;
-+	} pos;				/* current read offset */
-+};
-+
-+/*
-+ * These help make union member access less tedious
-+ */
-+#define channel_buffer(rchan) ((rchan)->buf)
-+#define idx(rchan) ((rchan)->scheme.lockless.index)
-+#define bufno_bits(rchan) ((rchan)->scheme.lockless.bufno_bits)
-+#define offset_bits(rchan) ((rchan)->scheme.lockless.offset_bits)
-+#define offset_mask(rchan) ((rchan)->scheme.lockless.offset_mask)
-+#define idx_mask(rchan) ((rchan)->scheme.lockless.index_mask)
-+#define bulk_delivery(rchan) (((rchan)->flags & RELAY_DELIVERY_BULK) ? 1 : 0)
-+#define packet_delivery(rchan) (((rchan)->flags & RELAY_DELIVERY_PACKET) ? 1 : 0)
-+#define using_lockless(rchan) (((rchan)->flags & RELAY_SCHEME_LOCKLESS) ? 1 : 0)
-+#define using_locking(rchan) (((rchan)->flags & RELAY_SCHEME_LOCKING) ? 1 : 0)
-+#define using_tsc(rchan) (((rchan)->flags & RELAY_TIMESTAMP_TSC) ? 1 : 0)
-+#define using_gettimeofday(rchan) (((rchan)->flags & RELAY_TIMESTAMP_GETTIMEOFDAY) ? 1 : 0)
-+#define usage_smp(rchan) (((rchan)->flags & RELAY_USAGE_SMP) ? 1 : 0)
-+#define usage_global(rchan) (((rchan)->flags & RELAY_USAGE_GLOBAL) ? 1 : 0)
-+#define mode_continuous(rchan) (((rchan)->flags & RELAY_MODE_CONTINUOUS) ? 1 : 0)
-+#define fill_count(rchan, i) ((rchan)->scheme.lockless.fill_count[(i)])
-+#define write_buf(rchan) ((rchan)->scheme.locking.write_buf)
-+#define read_buf(rchan) ((rchan)->scheme.locking.read_buf)
-+#define write_buf_end(rchan) ((rchan)->scheme.locking.write_buf_end)
-+#define read_buf_end(rchan) ((rchan)->scheme.locking.read_buf_end)
-+#define cur_write_pos(rchan) ((rchan)->scheme.locking.current_write_pos)
-+#define read_limit(rchan) ((rchan)->scheme.locking.read_limit)
-+#define write_limit(rchan) ((rchan)->scheme.locking.write_limit)
-+#define in_progress_event_pos(rchan) ((rchan)->scheme.locking.in_progress_event_pos)
-+#define in_progress_event_size(rchan) ((rchan)->scheme.locking.in_progress_event_size)
-+#define interrupted_pos(rchan) ((rchan)->scheme.locking.interrupted_pos)
-+#define interrupting_size(rchan) ((rchan)->scheme.locking.interrupting_size)
-+#define channel_lock(rchan) ((rchan)->scheme.locking.lock)
-+
-+
-+/**
-+ *	calc_time_delta - utility function for time delta calculation
-+ *	@now: current time
-+ *	@start: start time
-+ *
-+ *	Returns the time delta produced by subtracting start time from now.
-+ */
-+static inline u32
-+calc_time_delta(struct timeval *now,
-+		struct timeval *start)
-+{
-+	return (now->tv_sec - start->tv_sec) * 1000000
-+		+ (now->tv_usec - start->tv_usec);
-+}
-+
-+/**
-+ *	recalc_time_delta - utility function for time delta recalculation
-+ *	@now: current time
-+ *	@new_delta: the new time delta calculated
-+ *	@cpu: the associated CPU id
-+ */
-+static inline void
-+recalc_time_delta(struct timeval *now,
-+		  u32 *new_delta,
-+		  struct rchan *rchan)
-+{
-+	if (using_tsc(rchan) == 0)
-+		*new_delta = calc_time_delta(now, &rchan->buf_start_time);
-+}
-+
-+/**
-+ *	have_cmpxchg - does this architecture have a cmpxchg?
-+ *
-+ *	Returns 1 if this architecture has a cmpxchg useable by
-+ *	the lockless scheme, 0 otherwise.
-+ */
-+static inline int
-+have_cmpxchg(void)
-+{
-+#if defined(__HAVE_ARCH_CMPXCHG)
-+	return 1;
-+#else
-+	return 0;
-+#endif
-+}
-+
-+/**
-+ *	relay_write_direct - write data directly into destination buffer
-+ */
-+#define relay_write_direct(DEST, SRC, SIZE) \
-+do\
-+{\
-+   memcpy(DEST, SRC, SIZE);\
-+   DEST += SIZE;\
-+} while (0);
-+
-+/**
-+ *	relay_lock_channel - lock the relay channel if applicable
-+ *
-+ *	This macro only affects the locking scheme.  If the locking scheme
-+ *	is in use and the channel usage is SMP, does a local_irq_save.  If the
-+ *	locking sheme is in use and the channel usage is GLOBAL, uses
-+ *	spin_lock_irqsave.  FLAGS is initialized to 0 since we know that
-+ *	it is being initialized prior to use and we avoid the compiler warning.
-+ */
-+#define relay_lock_channel(RCHAN, FLAGS) \
-+do\
-+{\
-+   FLAGS = 0;\
-+   if (using_locking(RCHAN)) {\
-+      if (usage_smp(RCHAN)) {\
-+         local_irq_save(FLAGS); \
-+      } else {\
-+         spin_lock_irqsave(&(RCHAN)->scheme.locking.lock, FLAGS); \
-+      }\
-+   }\
-+} while (0);
-+
-+/**
-+ *	relay_unlock_channel - unlock the relay channel if applicable
-+ *
-+ *	This macro only affects the locking scheme.  See relay_lock_channel.
-+ */
-+#define relay_unlock_channel(RCHAN, FLAGS) \
-+do\
-+{\
-+   if (using_locking(RCHAN)) {\
-+      if (usage_smp(RCHAN)) {\
-+         local_irq_restore(FLAGS); \
-+      } else {\
-+         spin_unlock_irqrestore(&(RCHAN)->scheme.locking.lock, FLAGS); \
-+      }\
-+   }\
-+} while (0);
-+
-+/*
-+ * Define cmpxchg if we don't have it
-+ */
-+#ifndef __HAVE_ARCH_CMPXCHG
-+#define cmpxchg(p,o,n) 0
-+#endif
-+
-+/*
-+ * High-level relayfs kernel API, fs/relayfs/relay.c
-+ */
-+extern int
-+relay_open(const char *chanpath,
-+	   int bufsize,
-+	   int nbufs,
-+	   u32 flags,
-+	   struct rchan_callbacks *channel_callbacks,
-+	   u32 start_reserve,
-+	   u32 end_reserve,
-+	   u32 rchan_start_reserve,
-+	   u32 resize_min,
-+	   u32 resize_max,
-+	   int mode,
-+	   char *init_buf,
-+	   u32 init_buf_size);
-+
-+extern int
-+relay_close(int rchan_id);
-+
-+extern int
-+relay_write(int rchan_id,
-+	    const void *data_ptr,
-+	    size_t count,
-+	    int td_offset,
-+	    void **wrote_pos);
-+
-+extern ssize_t
-+relay_read(struct rchan_reader *reader,
-+	   char *buf,
-+	   size_t count,
-+	   int wait,
-+	   u32 *actual_read_offset,
-+	   u32 *new_offset);
-+
-+extern int
-+relay_discard_init_buf(int rchan_id);
-+
-+extern struct rchan_reader *
-+add_rchan_reader(int rchan_id, int autoconsume);
-+
-+extern int
-+remove_rchan_reader(struct rchan_reader *reader);
-+
-+extern struct rchan_reader *
-+add_map_reader(int rchan_id);
-+
-+extern int
-+remove_map_reader(struct rchan_reader *reader);
-+
-+extern int
-+relay_info(int rchan_id, struct rchan_info *rchan_info);
-+
-+extern void
-+relay_buffers_consumed(struct rchan_reader *reader, u32 buffers_consumed);
-+
-+extern void
-+relay_bytes_consumed(struct rchan_reader *reader, u32 bytes_consumed, u32 read_offset);
-+
-+extern ssize_t
-+relay_bytes_avail(struct rchan_reader *reader);
-+
-+extern int
-+relay_realloc_buffer(int rchan_id, u32 new_nbufs, int in_background);
-+
-+extern int
-+relay_replace_buffer(int rchan_id);
-+
-+extern int
-+rchan_empty(struct rchan_reader *reader);
-+
-+extern int
-+rchan_full(struct rchan_reader *reader);
-+
-+extern void
-+update_readers_consumed(struct rchan *rchan, u32 bufs_consumed, u32 bytes_consumed);
-+
-+extern int
-+__relay_mmap_buffer(struct rchan *rchan, struct vm_area_struct *vma);
-+
-+extern struct rchan_reader *
-+__add_rchan_reader(struct rchan *rchan, struct file *filp, int auto_consume, int map_reader);
-+
-+extern void
-+__remove_rchan_reader(struct rchan_reader *reader);
-+
-+/*
-+ * Low-level relayfs kernel API, fs/relayfs/relay.c
-+ */
-+extern struct rchan *
-+rchan_get(int rchan_id);
-+
-+extern void
-+rchan_put(struct rchan *rchan);
-+
-+extern char *
-+relay_reserve(struct rchan *rchan,
-+	      u32 data_len,
-+	      struct timeval *time_stamp,
-+	      u32 *time_delta,
-+	      int *errcode,
-+	      int *interrupting);
-+
-+extern void
-+relay_commit(struct rchan *rchan,
-+	     char *from,
-+	     u32 len,
-+	     int reserve_code,
-+	     int interrupting);
-+
-+extern u32
-+relay_get_offset(struct rchan *rchan, u32 *max_offset);
-+
-+extern int
-+relay_reset(int rchan_id);
-+
-+/*
-+ * VFS functions, fs/relayfs/inode.c
-+ */
-+extern int
-+relayfs_create_dir(const char *name,
-+		   struct dentry *parent,
-+		   struct dentry **dentry);
-+
-+extern int
-+relayfs_create_file(const char * name,
-+		    struct dentry *parent,
-+		    struct dentry **dentry,
-+		    void * data,
-+		    int mode);
-+
-+extern int
-+relayfs_remove_file(struct dentry *dentry);
-+
-+extern int
-+reset_index(struct rchan *rchan, u32 old_index);
-+
-+
-+/*
-+ * klog functions, fs/relayfs/klog.c
-+ */
-+extern int
-+create_klog_channel(void);
-+
-+extern int
-+remove_klog_channel(void);
-+
-+/*
-+ * Scheme-specific channel ops
-+ */
-+struct relay_ops
-+{
-+	char * (*reserve) (struct rchan *rchan,
-+			   u32 slot_len,
-+			   struct timeval *time_stamp,
-+			   u32 *tsc,
-+			   int * errcode,
-+			   int * interrupting);
-+	
-+	void (*commit) (struct rchan *rchan,
-+			char *from,
-+			u32 len,
-+			int deliver,
-+			int interrupting);
-+
-+	u32 (*get_offset) (struct rchan *rchan,
-+			   u32 *max_offset);
-+	
-+	void (*resume) (struct rchan *rchan);
-+	void (*finalize) (struct rchan *rchan);
-+	void (*reset) (struct rchan *rchan,
-+		       int init);
-+	int (*reset_index) (struct rchan *rchan,
-+			    u32 old_index);
-+};
-+
-+#endif /* _LINUX_RELAYFS_FS_H */
-+
-+
-+
-+
-+
+first, full lspci output:
+
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+00: 86 80 90 71 06 00 10 22 03 00 00 06 00 40 00 00
+10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 0000d000-0000dfff
+	Memory behind bridge: e4000000-e7ffffff
+	Prefetchable memory behind bridge: e8000000-e8ffffff
+	Secondary status: 66Mhz+ FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ <SERR- <PERR-
+	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
+00: 86 80 91 71 07 01 20 02 03 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 40 d0 d0 a0 22
+20: 00 e4 f0 e7 00 e8 f0 e8 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
+
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 4: I/O ports at f000 [size=16]
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin D routed to IRQ 11
+	Region 4: I/O ports at e000 [size=32]
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 e0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
+
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+00: 86 80 13 71 03 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+	Subsystem: Surecom Technology EP-320X-R
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at e400 [size=256]
+	Region 1: Memory at e9000000 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: ec 10 39 81 07 00 90 02 10 00 00 02 00 40 00 00
+10: 01 e4 00 00 00 00 00 e9 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 bd 10 20 03
+30: 00 00 00 00 50 00 00 00 00 00 00 00 0b 01 20 40
+
+00:0b.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 02)
+	Subsystem: Hauppauge computer works Inc. WinTV Series
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 10000ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e9001000 (32-bit, prefetchable) [size=4K]
+00: 9e 10 6e 03 06 00 80 02 02 00 00 04 00 40 80 00
+10: 08 10 00 e9 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
+30: 00 00 00 00 00 00 00 00 00 00 00 00 09 01 10 28
+
+00:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 02)
+	Subsystem: Hauppauge computer works Inc. WinTV Series
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e9002000 (32-bit, prefetchable) [size=4K]
+00: 9e 10 78 08 06 00 80 02 02 00 80 04 00 40 80 00
+10: 08 20 00 e9 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
+30: 00 00 00 00 00 00 00 00 00 00 00 00 09 01 04 ff
+
+00:0d.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+	Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (3000ns min, 32000ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at e800 [size=64]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 74 12 71 13 05 00 10 04 06 00 01 04 00 40 00 00
+10: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 74 12 71 13
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 05 01 0c 80
+
+00:0f.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at ec00 [size=256]
+	Region 1: Memory at e9003000 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: ec 10 39 81 07 00 90 02 10 00 00 02 00 40 00 00
+10: 01 ec 00 00 00 30 00 e9 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 ec 10 39 81
+30: 00 00 00 00 50 00 00 00 00 00 00 00 0a 01 20 40
+
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01) (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc. Millennium G200 AGP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 8000ns max), Cache Line Size 08
+	Interrupt: pin A routed to IRQ 0
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=16M]
+	Region 1: Memory at e4000000 (32-bit, non-prefetchable) [size=16K]
+	Region 2: Memory at e5000000 (32-bit, non-prefetchable) [size=8M]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [f0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=32 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x2
+00: 2b 10 21 05 07 00 90 02 01 00 00 03 08 40 00 00
+10: 08 00 00 e8 00 00 00 e4 00 00 00 e5 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 2b 10 03 ff
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 ff 01 10 20
+
+
+at this spot I have no /dev/dsp etc.
+then I reload snd_ens1371:
+
+ 00:0d.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+        Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+-       Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
++       Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort+ <MAbort- >SERR- <PERR-
+        Latency: 64 (3000ns min, 32000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at e800 [size=64]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+-00: 74 12 71 13 05 00 10 04 06 00 01 04 00 40 00 00
++00: 74 12 71 13 05 00 10 14 06 00 01 04 00 40 00 00
+ 10: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 20: 00 00 00 00 00 00 00 00 00 00 00 00 74 12 71 13
+ 30: 00 00 00 00 dc 00 00 00 00 00 00 00 05 01 0c 80
+
+I have /dev/dsp but no /dev/snd/control* so no sound.
+
+then I remove every module related to sound.
+
+ 
+ 00:0d.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+        Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+-       Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+-       Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort+ <MAbort- >SERR- <PERR-
+-       Latency: 64 (3000ns min, 32000ns max)
++       Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
++       Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at e800 [size=64]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold-)
+-               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+-00: 74 12 71 13 05 00 10 14 06 00 01 04 00 40 00 00
++               Status: D3 PME-Enable- DSel=0 DScale=0 PME-
++00: 74 12 71 13 01 00 10 34 06 00 01 04 00 40 00 00
+ 10: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 20: 00 00 00 00 00 00 00 00 00 00 00 00 74 12 71 13
+ 30: 00 00 00 00 dc 00 00 00 00 00 00 00 05 01 0c 80
+
+
+then I run "modprobe snd_ens1371".
+I now get dsp and control, all works.
+
+ 
+ 00:0d.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+        Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+-       Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
++       Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
++       Latency: 64 (3000ns min, 32000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at e800 [size=64]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold-)
+-               Status: D3 PME-Enable- DSel=0 DScale=0 PME-
+-00: 74 12 71 13 01 00 10 34 06 00 01 04 00 40 00 00
++               Status: D0 PME-Enable- DSel=0 DScale=0 PME-
++00: 74 12 71 13 05 00 10 34 06 00 01 04 00 40 00 00
+ 10: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 20: 00 00 00 00 00 00 00 00 00 00 00 00 74 12 71 13
+ 30: 00 00 00 00 dc 00 00 00 00 00 00 00 05 01 0c 80
+
+
+
+also, with 2.6.10 I can't disable write cache...
+I could do it in 2.6.9.
+
+# hdparm -I /dev/hda | grep "Write cache" ; hdparm -W0 /dev/hda ; hdparm -I /dev/hda | grep "Write cache" 
+           *    Write cache
+
+/dev/hda:
+ setting drive write-caching to 0 (off)
+           *    Write cache
+
+
+-- 

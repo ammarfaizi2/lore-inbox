@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbTK0Urt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 15:47:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTK0Urt
+	id S261190AbTK0UmD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 15:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbTK0UmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 15:47:49 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:41992 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S261217AbTK0Urr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 15:47:47 -0500
-Date: Fri, 28 Nov 2003 05:47:24 +0900 (JST)
-Message-Id: <20031128.054724.116712136.yoshfuji@linux-ipv6.org>
-To: rmk+lkml@arm.linux.org.uk
-Cc: felipe_alfaro@linuxmail.org, davem@redhat.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20031127200041.B25015@flint.arm.linux.org.uk>
-References: <20031127194602.A25015@flint.arm.linux.org.uk>
-	<20031128.045413.133305490.yoshfuji@linux-ipv6.org>
-	<20031127200041.B25015@flint.arm.linux.org.uk>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Nov 2003 15:42:03 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:23017 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261190AbTK0UmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 15:42:00 -0500
+Date: Thu, 27 Nov 2003 21:41:59 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG (non-kernel), can hurt developers.
+In-Reply-To: <Pine.LNX.4.58.0311261021400.1524@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0311272133540.21573@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.53.0311261153050.10929@chaos>
+ <Pine.LNX.4.58.0311261021400.1524@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031127200041.B25015@flint.arm.linux.org.uk> (at Thu, 27 Nov 2003 20:00:41 +0000), Russell King <rmk+lkml@arm.linux.org.uk> says:
 
-> The thing that worries me is that an incorrect strlcpy() conversion
-> gives the impression that someone has thought about buffer underruns
-> as well as overruns, and, unless someone /has/ actually thought about
-> it, there could well still be a security problem lurking there.
 
-Hmm, what do you actually mean by "buffer underruns?"
+On Wed, 26 Nov 2003, Linus Torvalds wrote:
 
-(If I'm correct) do you suggest that we should zero-out rest of 
-destination buffer?
+>
+> On Wed, 26 Nov 2003, Richard B. Johnson wrote:
+> >
+> > Note  to hackers. Even though this is a lib-c bug
+>
+> It's not.
+>
+> It's a bug in your program.
+>
+> You can't just randomly use library functions in signal handlers. You can
+> only use a very specific "signal-safe" set.
+>
+> POSIX lists that set in 3.3.1.3 (3f), and says
+>
+> 	"All POSIX.1 functions not in the preceding table and all
+> 	 functions defined in the C standard {2} not stated to be callable
+> 	 from a signal-catching function are considered to be /unsafe/
+> 	 with respect to signals. .."
+>
+> typos mine.
+>
+> The thing is, they have internal state that makes then non-reentrant (and
+> note that even the re-entrant ones might not be signal-safe, since they
+> may have deadlock issues: being thread-safe is _not_ the same as being
+> signal-safe).
+>
+> In other words, if you want to do complex things from signals, you should
+> really just set a flag (of type "sigatomic_t") and have your main loop do
+> them. Or you have to be very very careful and only use stuff that is
+> defined to be signal-safe (mainly core system calls - stuff like <stdio.h>
+> is right out).
 
-if so, we may want to have a function, say strlcpy0(), like this:
+Just curious --- what happens when these functions are interrupted by
+signal and signal handler does siglongjmp out of signal?
 
-size_t strlcpy0(char *dst, const char *src, size_t maxlen)
-{
-  size_t len = strlcpy(dst, src, maxlen);
-  if (maxlen && len < maxlen - 1)
-    memset(dst + len + 1, 0, maxlen - len - 1);
-  return len;
-}
+According to this assumption siglongjmp should not work. Does it handle
+these situations specially? I don't understand why is it in specification
+if it doesn't work.
 
---yoshfuji
+Mikulas

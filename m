@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271149AbRHVLBn>; Wed, 22 Aug 2001 07:01:43 -0400
+	id <S271985AbRHVLQY>; Wed, 22 Aug 2001 07:16:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271909AbRHVLBe>; Wed, 22 Aug 2001 07:01:34 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:39691 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S271149AbRHVLBO>;
-	Wed, 22 Aug 2001 07:01:14 -0400
-Date: Wed, 22 Aug 2001 13:01:06 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Memory Problem in 2.4.9 ?
-Message-Id: <20010822130106.0c4d4bf1.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33.0108220729380.280-100000@mikeg.weiden.de>
-In-Reply-To: <20010822010649Z16145-32383+774@humbolt.nl.linux.org>
-	<Pine.LNX.4.33.0108220729380.280-100000@mikeg.weiden.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S271984AbRHVLQO>; Wed, 22 Aug 2001 07:16:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:28432 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271986AbRHVLQG>;
+	Wed, 22 Aug 2001 07:16:06 -0400
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-kernel@vger.kernel.org, set@pobox.com, alan@lxorguk.ukuu.org.uk,
+        Wilfried.Weissmann@gmx.at
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
+In-Reply-To: <20010819004703.A226@squish.home.loc.suse.lists.linux.kernel> <3B831CDF.4CC930A7@didntduck.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Aug 2001 13:16:16 +0200
+In-Reply-To: Brian Gerst's message of "22 Aug 2001 04:54:51 +0200"
+Message-ID: <oupn14sny4f.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001 07:33:38 +0200 (CEST)
-Mike Galbraith <mikeg@wen-online.de> wrote:
+Brian Gerst <bgerst@didntduck.org> writes:
 
->> HAHAHA.. I was right, hurried whack with my little hammer _did_ bust
-> it all to pieces :)
-> 
-> This is also (very!) hurried and _lightly_ tested, but still cures my
-> problem..  what do you think?
-> 
-> 	-Mike
-> 
-> 
-> --- linux-2.4.9/mm/vmscan.c.org	Sun Aug 19 08:55:24 2001
-> +++ linux-2.4.9/mm/vmscan.c	Wed Aug 22 05:03:50 2001
-> @@ -506,11 +506,17 @@
->  		}
-[...]
-> +			if (++page->age > PAGE_AGE_START) {
+> > 
+> > CPU:    0
+> > EIP:    0010:[<c0180a18>]
+> > Using defaults from ksymoops -t elf32-i386 -a i386
+> > EFLAGS: 00010002
+> > eax: 00001000   ebx: c4562368   ecx: 00000000   edx: 00000001
+> > esi: c4562368   edi: c4a954d4   ebp: 00000001   esp: c6887d88
+> > ds: 008   es: 0000   ss: 0018
+>                 ^^^^
+> Here is your problem.  %es is set to the null segment.  I had my
+> suspicions about the segment reload optimisation in the -ac kernels, and
+> this proves it.  Try backing out the changes to arch/i386/kernel/entry.S
+> and include/asm-i386/hw_irq.h and see if that fixes the problem.
 
-I am not very experienced with the aging algorithm, but can this statement be false at all? I mean if I get that right page->age starts with PAGE_AGE_START, doesn't it?
+This patch should fix the problem. One assumption coded into the reload
+optimization is violated by vm86 mode. Please test.
 
-> +				del_page_from_inactive_dirty_list(page);
-> +				add_page_to_active_list(page);
-> +				page->age = PAGE_AGE_START;
-> +				continue;
-> +			}
-> +			list_del(page_lru);
-> +			list_add(page_lru, &inactive_dirty_list);
->  			continue;
->  		}
-> 
-> @@ -927,7 +933,7 @@
->  			recalculate_vm_stats();
->  		}
-> 
-> -		if (!do_try_to_free_pages(GFP_KSWAPD, 1)) {
-> +		if (!do_try_to_free_pages(GFP_KSWAPD, 0)) {
->  			if (out_of_memory())
->  				oom_kill();
->  			continue;
-> --- linux-2.4.9/mm/filemap.c.org	Mon Aug 20 17:25:20 2001
-> +++ linux-2.4.9/mm/filemap.c	Wed Aug 22 05:07:35 2001
-> @@ -980,12 +980,9 @@
->  static inline void check_used_once (struct page *page)
->  {
->  	if (!PageActive(page)) {
-> -		if (page->age)
-> +		if (++page->age > PAGE_AGE_START)
+--- linux-2.4.8-ac7-work/include/asm-i386/hw_irq.h-SEG2	Mon Aug 20 02:54:53 2001
++++ linux-2.4.8-ac7-work/include/asm-i386/hw_irq.h	Wed Aug 22 13:02:16 2001
+@@ -114,8 +114,10 @@
+ 	"cmpl %eax,7*4(%esp)\n\t"  \
+ 	"je 1f\n\t"  \
+ 	"movl %eax,%ds\n\t" \
++	"1: cmpl %eax,8*4(%esp)\n\t" \
++	"je 2f\n\t" \
+ 	"movl %eax,%es\n\t" \
+-	"1:\n\t"
++	"2:\n\t"
+ 
+ #define IRQ_NAME2(nr) nr##_interrupt(void)
+ #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
 
-same here. Am I missing something?
 
->  			activate_page(page);
-> -		else {
-> -			page->age = PAGE_AGE_START;
-> -			ClearPageReferenced(page);
-> -		}
-> +		ClearPageReferenced(page);
->  	}
->  }
-> 
-> 
-> 
+-Andi

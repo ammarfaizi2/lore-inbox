@@ -1,68 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVBTAZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVBTA7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVBTAZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 19:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVBTAZq
+	id S262333AbVBTA7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 19:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVBTA7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 19:25:46 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:29081 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262333AbVBTAXP (ORCPT
+	Sat, 19 Feb 2005 19:59:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:31398 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262333AbVBTA7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 19:23:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=TEgvZxSYSIVM/sU5cFpDddaHhSIwm8oFZ43miVa7eWX0P+J8LU1nCumDyz8+4zsXUbuQhdujSYTk0RdepARP8u3sIF+G5Qe62psSzuXVg2ydkzSPwNjUKUCOCIcoD8cH5B+MsnbSFHE/lBY0OUyAxsR1xfZX31zO9LFvyYklVvo=
-Message-ID: <d14685de05021916231b02c08a@mail.gmail.com>
-Date: Sun, 20 Feb 2005 01:23:14 +0100
-From: sylvanino b <sylvanino@gmail.com>
-Reply-To: sylvanino b <sylvanino@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: I wrote a kernel tool for monitoring / web page
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1108858638.11675.1.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <d14685de050218164127828b06@mail.gmail.com>
-	 <1108774916.6040.4.camel@krustophenia.net>
-	 <d14685de05021817333c563cc9@mail.gmail.com>
-	 <20050220005022.64a6c9ea@mango.fruits.de> <4217D41F.6000805@osdl.org>
-	 <1108858638.11675.1.camel@krustophenia.net>
+	Sat, 19 Feb 2005 19:59:33 -0500
+Date: Sat, 19 Feb 2005 16:59:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
+ interrupts. Fish. Please report.]
+In-Reply-To: <1108858971.8413.147.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org>
+References: <1108858971.8413.147.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-sorry, the host had poor advertisement.  I opened a SF project and am
-waiting for its validation.
 
-In the meantimes, I changed host, this one has no ad: 
-http://slvn.free.fr/kernelanalyzer/index.php
+On Sat, 19 Feb 2005, Steven Rostedt wrote:
+> 
+> 0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81) (prog-if 00 [Normal decode])
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+>         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+>         Latency: 0
+>         Bus: primary=00, secondary=02, subordinate=08, sec-latency=168
+>         I/O behind bridge: 00003000-00006fff
+>         Memory behind bridge: c2000000-cfffffff
+>         Prefetchable memory behind bridge: f0000000-f7ffffff
+>         BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
 
-I'm going to put more explanation on the site too.
+This is the bridge that your cardbus controller is behind:
 
-sylvain
+> 0000:02:01.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller (rev 01)
+>         Subsystem: IBM ThinkPad T30/T40
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 168, Cache Line Size: 0x20 (128 bytes)
+>         Interrupt: pin A routed to IRQ 177
+>         Region 0: Memory at 3fefb000 (32-bit, non-prefetchable) [size=4K]
+>         Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
+>         Memory window 0: 40000000-403ff000 (prefetchable)
+>         Memory window 1: 40400000-407ff000
+>         I/O window 0: 00004000-000040ff
+>         I/O window 1: 00004400-000044ff
+>         BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+>         16-bit legacy interface ports at 0001
+> 
+> 0000:02:01.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller (rev 01)
+>         Subsystem: IBM ThinkPad T30/T40
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 168, Cache Line Size: 0x20 (128 bytes)
+>         Interrupt: pin B routed to IRQ 185
+>         Region 0: Memory at 3fefc000 (32-bit, non-prefetchable) [size=4K]
+>         Bus: primary=02, secondary=07, subordinate=0a, sec-latency=176
+>         Memory window 0: 40800000-40bff000 (prefetchable)
+>         Memory window 1: 40c00000-40fff000
+>         I/O window 0: 00004800-000048ff
+>         I/O window 1: 00004c00-00004cff
+>         BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt- PostWrite+
+>         16-bit legacy interface ports at 0001
 
-On Sat, 19 Feb 2005 19:17:18 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Sat, 2005-02-19 at 16:04 -0800, Randy.Dunlap wrote:
-> > >
-> > > For some reason all i ever get to see is the front page.. Any link just
-> > > leads to an empty page like this [screenshot]:
-> >
-> > That's also what I saw with firefox, but konqueror worked OK.
-> >
-> 
-> I saw it at first with Firefox but then when I tried again it worked.
-> 
-> > > http://affenbande.org/~tapas/kernelanalyzer_web.png
-> > >
-> > > I second lee's idea to move the project to sf.net or berlios.
-> >
-> 
-> This wasn't my idea but it's a good one.
-> 
-> Lee
-> 
->
+And quite frankly, their "Region 0:" things look broken: the bridge is a 
+"Normal decode" bridge, which means that anything behind that bridge 
+should only map things _within_ the IO windows of the bridge, ie all IO 
+mappings on the cardbus bridge should be inside the IO mappings of the 
+parent bridge.  But they aren't. 
+
+Now, your interrupts are a bit insane too, but they may actually be 
+correct for all I know. The Yenta code will just decide that interrupts 
+can't be working, since when it tries to trigger an interrupt it won't 
+come in: but that is quite possibly not due to broken interrupts, but 
+because the whole controller IO-MEM region has been mapped at the wrong 
+place, so the controller simply never _sees_ our writes.
+
+The parent bridge has IO port mappings at 00003000-00006fff, and IO memory 
+mappings at c2000000-cfffffff and f0000000-f7ffffff. The cardbus stuff 
+_should_ all be behind those regions, but instead they are at 3fefb000 and 
+40000000-40fff000 (memory-mapped) and 00004000-00004cff (IO mapped).
+
+So something is seriously broken.
+
+That's a PCI layer brokenness, btw, not a PCMCIA brokenness. 
+
+Can you enable debugging in arch/i386/pci/pci.h and post the whole bootup 
+dmesg. Also, can you show what /proc/iomem looks like, and what 
+
+	ls -R /sys/devices/pci*
+
+says (that cardbus controller should be properly nested _inside_ that PCI 
+bridge, dammit!).
+
+Greg, any ideas?
+
+		Linus

@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUHYS2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268204AbUHYS3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268186AbUHYS2s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 14:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUHYS2s
+	id S268204AbUHYS3M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 14:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUHYS3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 14:28:48 -0400
-Received: from mail.tmr.com ([216.238.38.203]:49669 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268186AbUHYS2p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 14:28:45 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Wed, 25 Aug 2004 14:29:18 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cgilcs$21o$1@gatekeeper.tmr.com>
-References: <200408232101.i7NL1c26024662@falcon10.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093458141 2104 192.168.12.100 (25 Aug 2004 18:22:21 GMT)
-X-Complaints-To: abuse@tmr.com
+	Wed, 25 Aug 2004 14:29:12 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:687 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268197AbUHYS3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 14:29:01 -0400
+Message-ID: <412CDA68.7050702@namesys.com>
+Date: Wed, 25 Aug 2004 11:28:56 -0700
+From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
-In-Reply-To: <200408232101.i7NL1c26024662@falcon10.austin.ibm.com>
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com> <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk> <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Maxey wrote:
-> On Mon, 23 Aug 2004 16:25:17 EDT, Bill Davidsen wrote:
-> 
->>permission to open. This allows the admin to put in any filter desired,
->>know about vendor commands, etc. It also allows various security
->>setups,  the group can be on the user (trusted users) or on a setgid
->>program  (which limits the security issues).
-> 
-> 
->   Down such path lies madness :)   This list would have to be maintained for
->   most every model, of every drive, for every manufacturer.  The list could
->   conceivably change weekly, if not sooner.  This could change, of course, if
->   the use of linux would become as ubiquitous as the dominant redmond produnt, 
->   and the manufacturers would supply the "mini-port" driver bits, as it were.
-> 
->   The theory is wonderful.  Until there is enough "clout" to change the 
->   manufacturers participation, it is probably futile. :-/
+I allowed myself to get talked out of a final top to bottom code audit, 
+and obviously that was a mistake.
 
-But you don't need magic vendor commands to read and write disk (or 
-tape), you can do it with the base commands defined in SCSI-II. You only 
-need filter lists for special cases where (a) you really do want vendor 
-commands and (b) there's some reason to allow this to normal users.
+It will probably take about 6 weeks.  Apologies for wasting your time 
+before that was done.
 
-I doubt that you need magic for any of the other obvious devices like 
-SCSI scanners, ZIP and LS120 drives using ATA access rather than 
-ide-floppy or ide-scsi, etc. I could be wrong on scanners, the setup 
-commands may be more dangerous than I think.
+Hans
 
-To write CD unfortunately does seem to take more than I want the average 
-user to do.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+
+>On Tue, Aug 24, 2004 at 09:53:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+>  
+>
+>>Feh.  That's far from the worst parts of the mess introduced by "hybrid"
+>>crap - trivial sys_link(2) deadlocks triggerable by any user rate a bit
+>>higher on the suckitude scale, IMO.
+>>    
+>>
+>
+>While we are at it - consider these hybrids vetoed until
+>	a) sys_link()/sys_link() deadlock is fixed
+>	b) sys_link()/sys_rename() deadlock is fixed
+>	c) correctness proof of the locking scheme (in
+>Documentation/filesystems/directory-locking) is updated to match the
+>presense of the file/directory hybrids.
+>
+>Rationale: (a) and (b) - immediately exploitable by any user, (c) - "convince
+>us that there's no more crap of that kind".  IMO a reasonable request, seeing
+>that the first look at the patches in -mm4 had turned up two exploits in
+>that area, despite the *YEARS* of warnings about potential trouble and need
+>to be careful there (actually, I've given Hans too much credit and assumed
+>that link/link never happens since nobody would be dumb enough to provide
+>->link() method for non-directory inodes; turns out that somebody is dumb
+>enough and link/link is as exploitable as link/rename).
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130779AbQKRBqE>; Fri, 17 Nov 2000 20:46:04 -0500
+	id <S130870AbQKRBu2>; Fri, 17 Nov 2000 20:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130870AbQKRBpy>; Fri, 17 Nov 2000 20:45:54 -0500
-Received: from jalon.able.es ([212.97.163.2]:662 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130783AbQKRBpt>;
-	Fri, 17 Nov 2000 20:45:49 -0500
-Date: Sat, 18 Nov 2000 02:15:41 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reproducable oops in 2.2.17 and 2.2.18pre21
-Message-ID: <20001118021541.A726@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <20001117144938.F12733@jaquet.dk>
+	id <S131010AbQKRBuS>; Fri, 17 Nov 2000 20:50:18 -0500
+Received: from cp912944-a.mtgmry1.md.home.com ([24.18.149.178]:40839 "EHLO
+	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S130870AbQKRBuK>;
+	Fri, 17 Nov 2000 20:50:10 -0500
+Date: Fri, 17 Nov 2000 20:20:09 -0500
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VGA PCI IO port reservations
+Message-ID: <20001117202009.B2472@zalem.puupuu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200011172002.UAA01918@raistlin.arm.linux.org.uk> <Pine.LNX.3.95.1001117150349.23529A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20001117144938.F12733@jaquet.dk>; from rasmus@jaquet.dk on Fri, Nov 17, 2000 at 14:49:38 +0100
-X-Mailer: Balsa 1.0.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.3.95.1001117150349.23529A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Nov 17, 2000 at 03:27:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 17, 2000 at 03:27:28PM -0500, Richard B. Johnson wrote:
+> Then, you read the port as a WORD (16 bits). If nothing responds,
+> you get the value of 0xffff. If somebody is responding, you will
+> read something if it's enabled for writes by devices (reads by the CPU).
 
-On Fri, 17 Nov 2000 14:49:38 Rasmus Andersen wrote:
-> Hi.
-> 
-> I get an oops reproducably with 2.2.17 and 2.2.18pre21 on a stock RH 6.2
-> system. I cannot trigger it with the RH supplied kernel (2.2.14-5.0).
-> I also got it with 2.2.17pre10 which prompted me to upgrade the kernel.
-> I initially suspected bad RAM but have exchanged the RAM with memtest86'ed
-> RAM for no improvement.
-> 
-> What I do: I try to back the system up with tar zcvf /var/backup.tar.gz 
-> -X exclude /lib /sbin /var /bin /etc /boot /home /root /usr
-> (the exclude file contains the path of the file itself, i.e., 
-> /var/ backup.tar.gz).
-> 
+What guarantees you that:
+1- No device will respond 0xffff for an address it decodes
+2- No device will crap up on you simply because you've read one
+particular address
 
-Exclude /dev and /proc also, /lost+found if you have it, and /mnt if you 
-only want that drive. Perhaps things like /proc/kcore make trouble...
+If any of these if true for any device out there (I think I have one
+in my computer that does the 1/ part in some cases), your code is
+unsafe.
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+  OG.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

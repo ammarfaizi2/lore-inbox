@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272315AbTHNMH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 08:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272316AbTHNMH4
+	id S272314AbTHNMHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 08:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272315AbTHNMHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 08:07:56 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S272315AbTHNMHy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 08:07:54 -0400
-Date: Thu, 14 Aug 2003 08:07:53 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Simon Haynes <simon@baydel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: File access
-In-Reply-To: <67597854DA5@baydel.com>
-Message-ID: <Pine.LNX.4.53.0308140803430.179@chaos>
-References: <67597854DA5@baydel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Aug 2003 08:07:38 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:24513 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S272314AbTHNMHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 08:07:37 -0400
+Date: Thu, 14 Aug 2003 13:06:57 +0100
+From: Dave Jones <davej@redhat.com>
+To: Nicolai Haehnle <prefect_@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AGPv3 command parsing
+Message-ID: <20030814120657.GL12953@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Nicolai Haehnle <prefect_@gmx.net>, linux-kernel@vger.kernel.org
+References: <200308080321.10691.prefect_@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308080321.10691.prefect_@gmx.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Aug 2003, Simon Haynes wrote:
+On Fri, Aug 08, 2003 at 03:21:04AM +0200, Nicolai Haehnle wrote:
 
-> I am currently developing a module which I would like to configure
-> via a simple text file.
->
-> I cannot seem to find any information on accessing files via a kernel module.
->
-> Is this possible and if so how is it done ?
->
-> Many Thanks
->
-> Simon.
+ > there's a trivial but fatal typo in agp/generic.c:agp_v3_parse_one() that 
+ > completely messes up the command generation.
+ > 
+ > I'll let the attached patch against 2.6.0 explain the rest...
 
-This has become a FAQ. You make your module accept parameters
-from an ioctl(). Then you use a user-mode task to read file(s)
-and configure your module.
+Already applied to agpgart repository last week, and Linus pulled
+a few hours ago. Thanks again.
 
+		Dave
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

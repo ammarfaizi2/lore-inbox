@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263669AbUDGOHy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 10:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbUDGOHx
+	id S263226AbUDGONl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 10:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUDGONl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 10:07:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55944 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263669AbUDGOHl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 10:07:41 -0400
-Subject: Re: panic when adding root=/LABEL=/  in grub.conf - newbie
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: sting sting <zstingx@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Sea2-F121U1x4ykaaEv0001bc59@hotmail.com>
-References: <Sea2-F121U1x4ykaaEv0001bc59@hotmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-78p8GY5AzLqdPgyEvAgi"
-Organization: Red Hat UK
-Message-Id: <1081346855.4680.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 07 Apr 2004 16:07:35 +0200
+	Wed, 7 Apr 2004 10:13:41 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:21424 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263226AbUDGONk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 10:13:40 -0400
+Message-ID: <40740C90.3060005@yahoo.com.au>
+Date: Thu, 08 Apr 2004 00:13:36 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: vda@port.imtp.ilyichevsk.odessa.ua, colpatch@us.ibm.com,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 17/23] mask v2 = [6/7] nodemask_t_ia64_changes
+References: <20040401122802.23521599.pj@sgi.com>	<20040401131240.00f7d74d.pj@sgi.com>	<20040406043732.6fb2df9f.pj@sgi.com>	<200404070855.03742.vda@port.imtp.ilyichevsk.odessa.ua>	<20040406235000.6c06af9a.pj@sgi.com> <20040407004437.3a078f28.pj@sgi.com>
+In-Reply-To: <20040407004437.3a078f28.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Jackson wrote:
+> Several architectures have this large version of find_next_bit() code.
+> 
+> It may well make sense for the O(1) scheduler to be inlining this.
+> 
 
---=-78p8GY5AzLqdPgyEvAgi
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+No, the schedule() fastpath doesn't use find_next_bit. That is
+only used to traverse the runqueues when moving tasks from one
+to another. No problem uninlining it there.
 
-On Wed, 2004-04-07 at 15:37, sting sting wrote:
-> Hello,
->=20
-> I am working with kenel 2.4.20 on Intel x86.
-> Now I Had downloaded a kernel source to a different folder and build it.
-> I added an entry in grub.conf
-> When I choose to load that kernel everything is OK.
-> It works wth no problem.
-> But under /boot I see nothing of the original files (there is only one fi=
-le=20
-> there , kernel.h).
+If the function is more than a cacheline or two big, you'll
+probably get better performance through better cache utilisation
+anyway, and you'll be able to use a slightly larger, faster
+version if you have one, which is probably a good thing.
 
-
-you need to use an initrd if you want mount-by-label to work for your
-root filesystem.
-on a RHL or Fedora system (and I suspect other distros too but I don't
-know for sure) just doing a "make install" in the kernel source will
-make one for you and put the kernel you just build into the grub config
-etc etc etc.
-
-
---=-78p8GY5AzLqdPgyEvAgi
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAdAsmxULwo51rQBIRAhlxAJwPGp5IrMJaoDPlDrOp6pCua6MUPgCgpTOC
-SJH2UfUmUUwt0w/J0oo/Zbc=
-=fxKL
------END PGP SIGNATURE-----
-
---=-78p8GY5AzLqdPgyEvAgi--
-
+Unless there is something specific that I'm not aware of?

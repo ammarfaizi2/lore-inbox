@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbUKEOaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbUKEOmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbUKEOaG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 09:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbUKEOaG
+	id S261629AbUKEOmr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 09:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbUKEOmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 09:30:06 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27147 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262702AbUKEOaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 09:30:02 -0500
-Date: Fri, 5 Nov 2004 14:29:53 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: remy.gauguey@mindspeed.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: non_linear memory on ARM
-Message-ID: <20041105142953.A22402@flint.arm.linux.org.uk>
-Mail-Followup-To: remy.gauguey@mindspeed.com, linux-kernel@vger.kernel.org
-References: <OFC878058C.F34D3F6A-ONC1256F43.004C88F3-C1256F43.004DDB20@nice.mindspeed.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Nov 2004 09:42:47 -0500
+Received: from host18.201-252-6.telecom.net.ar ([201.252.6.18]:54180 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261629AbUKEOmp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 09:42:45 -0500
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
+Date: Fri, 5 Nov 2004 11:42:43 -0300
+User-Agent: KMail/1.7.1
+Cc: Ingo Molnar <mingo@elte.hu>, Amit Shah <amitshah@gmx.net>
+References: <200411051837.02083.amitshah@gmx.net> <20041105134639.GA14830@elte.hu>
+In-Reply-To: <20041105134639.GA14830@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OFC878058C.F34D3F6A-ONC1256F43.004C88F3-C1256F43.004DDB20@nice.mindspeed.com>; from remy.gauguey@mindspeed.com on Fri, Nov 05, 2004 at 03:10:12PM +0100
+Message-Id: <200411051142.43394.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 03:10:12PM +0100, remy.gauguey@mindspeed.com wrote:
-> I've tried to use the CONFIG_DISCONTIGMEM, but it seems that the large gap
-> of 2,5 Gb is a problem.
+Ingo Molnar wrote:
+> * Amit Shah <amitshah@gmx.net> wrote:
+> > I'm trying out the RT preempt patch on a P4 HT machine, I get the
+> > following message:
+> >
+> hm, does this happen with -V0.7.13 too? (note that it's against
+> 2.6.10-rc1-mm3, a newer -mm tree.)
 
-What problem are you seeing?
+But it doesn't -cleanly- apply. 
 
-PS, Do NOT cross post between linux-kernel and linux-arm-kernel.  Strictly
-one or the other please, never both.
+Hunk #2 FAILED at 1545.
+1 out of 2 hunks FAILED -- saving rejects to file mm/mmap.c.rej
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Regards,
+Norberto

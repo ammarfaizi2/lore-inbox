@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268813AbRHWXPS>; Thu, 23 Aug 2001 19:15:18 -0400
+	id <S270705AbRHWXS6>; Thu, 23 Aug 2001 19:18:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270705AbRHWXPJ>; Thu, 23 Aug 2001 19:15:09 -0400
-Received: from smtp-out.hamburg.pop.de ([195.222.210.86]:18449 "EHLO
-	smtp-out.hamburg.pop.de") by vger.kernel.org with ESMTP
-	id <S268813AbRHWXOx>; Thu, 23 Aug 2001 19:14:53 -0400
-Message-ID: <3B858F62.AD7CED14@gmx.net>
-Date: Fri, 24 Aug 2001 01:18:58 +0200
-From: Andrew Cannon <ajc@gmx.net>
-Organization: Fairlight ESP R&D Europe
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
+	id <S270724AbRHWXSs>; Thu, 23 Aug 2001 19:18:48 -0400
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:39943 "EHLO
+	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S270705AbRHWXSd>;
+	Thu, 23 Aug 2001 19:18:33 -0400
+Message-ID: <3B858F58.1000606@nothing-on.tv>
+Date: Fri, 24 Aug 2001 00:18:48 +0100
+From: Tony Hoyle <tmh@nothing-on.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010817
+X-Accept-Language: en-gb, en-us
 MIME-Version: 1.0
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: macro conflict
-In-Reply-To: <20010823143440.G20693@mindspring.com> <3B85615A.58920036@timesn.com> <03fc01c12c10$8155b060$020a0a0a@totalmef>
-Content-Type: text/plain; charset=us-ascii
+To: Fred <fred@arkansaswebs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File System Limitations
+In-Reply-To: <01082316383301.12104@bits.linuxball> <9m41qd$290$1@sisko.my.home> <01082318132000.12319@bits.linuxball>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-"Magnus Naeslund(f)" wrote:
+Fred wrote:
+> so why dos my filesystem have a 2 GB limit?
+> Must I specify a large block size or some such when i format?
 > 
-> From: <raybry@timesn.com>
-> > Without digging through the archives to see if this has already
-> > been suggested (if so, I apologize), why can't the following be done:
-> >
-> > min(x,y) = ({typeof((x)) __x=(x), __y=(y); (__x < __y) ? __x : __y})
-> >
-> > That gets you the correct "evaluate the args once" semantics and gives
-> > you control over typing (the comparison is done in the type of the
-> > first argument) and we don't have to change a zillion drivers.
-> >
-> > (typeof() is a gcc extension.)
-> >
+> i run 2.4.9 on redhat7.1 out of the box
 > 
-> But then again, how do you know it's the type of x we want, maybe we want
-> type of y, that is and signed char (not an int like x).
-> Talk about hidden buffer overflow stuff :)
+Does it?  Unless RH are using a seriously old glibc (which I doubt) 
+there's no 2GB limit any more.
 
+Some older applications don't work with it AFAIK... anything bundled 
+with a modern distro shouldn't have any problems.
 
-What about this then:
+Tony
 
-#define min(x,y) ({typeof(x) __x=(x); typeof(y) __y=(y); (__x < __y) ?
-__x : __y})
-
-This is guaranteed to work the same as the old min/max in all cases but
-without side effects. You can still force the comparison to be done with
-a certain type by casting the arguments first:
-
-#define typed_min(type, x, y) (min((type)(x), (type)(y)))
-
-...although, if the type used for the comparison is so critical you
-maybe shouldn't be hiding it in a macro anyway.
-
-Andrew

@@ -1,112 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVCGIOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVCGIR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVCGIOi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 03:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVCGIOh
+	id S261680AbVCGIR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 03:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVCGIR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 03:14:37 -0500
-Received: from faye.voxel.net ([69.9.164.210]:43460 "EHLO faye.voxel.net")
-	by vger.kernel.org with ESMTP id S261679AbVCGIOX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 03:14:23 -0500
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-From: Andres Salomon <dilinger@voxel.net>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050306235027.268da803.pj@sgi.com>
-References: <20050304222146.GA1686@kroah.com>
-	 <20050305104305.GB7671@pclin040.win.tue.nl>
-	 <pan.2005.03.06.17.10.41.114607@voxel.net>
-	 <20050306235027.268da803.pj@sgi.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-M5moWGaLEOAKX7TSOi2y"
-Date: Mon, 07 Mar 2005 03:14:23 -0500
-Message-Id: <1110183263.7581.16.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Mon, 7 Mar 2005 03:17:56 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:13572 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261680AbVCGIRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 03:17:46 -0500
+Date: Mon, 7 Mar 2005 16:15:18 +0800 (WST)
+From: raven@themaw.net
+To: Jeff Moyer <jmoyer@redhat.com>
+cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: autofs4 patch: autofs4_wait can leak memory
+In-Reply-To: <16936.33587.974061.237160@segfault.boston.redhat.com>
+Message-ID: <Pine.LNX.4.62.0503071612570.23607@donald.themaw.net>
+References: <16936.33587.974061.237160@segfault.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-100.1, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, RCVD_IN_ORBS,
+	RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
+	USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Mar 2005, Jeff Moyer wrote:
 
---=-M5moWGaLEOAKX7TSOi2y
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Hi,
+>
+> There is a memory in the autofs4_wait function, if multiple processes are
+> waiting on the same queue:
+>
 
-On Sun, 2005-03-06 at 23:50 -0800, Paul Jackson wrote:
-> Andres wrote:
-> > An obvious fix is an obvious fix.
->=20
-> Perhaps in theory.  But in practice, any fix bears some risk.
->=20
+Well done Jeff.
 
-Of course; no one's arguing that (things that depend on broken behavior,
-corner cases, etc).  In practice, however; an obvious fix is still an
-obvious fix.  :)
+I'll update my retrospective patch set.
 
-What I mean is, if there's an unknown (ie, due to hardware behavior,
-user input, etc), and it's not adding sanity checking or somehow
-ensuring that the data it's dealing with is of a certain form, then it's
-not really an obvious fix.
-
-Of course, part of the problem is that "obvious" is subjective.  I know
-what *I* consider obvious; someone who works for a hardware company, and
-has access to hardware, specifications, and errata would have different
-criteria for what they consider obvious.  Here's where that
-signed-off-by-5-people thing comes into play.
-
-
-> They have nothing against "obvious" fixes.  But unless additional
-> criteria are also met, such fixes are for someone else to apply.
->=20
-
-That's fine; I agree w/ the additional criteria of "it must be a build,
-oops, hang, or race fix". =20
-
-> > >>  - It can not contain any "trivial" fixes in it (spelling changes,
-> > >>    whitespace cleanups, etc.)
-> >=20
-> > This and the "it must fix a problem" are basically saying the same thin=
-g.
->=20
-> Not at all.  Let me put it this way.
->=20
-> If a change that fixes a problem is included in a patch with another
-> change that makes trivial changes (typo fix, say), the patch will
-> be rejected.
->=20
-
-That's fine as well; that's covered by the "it must only fix one thing"
-rule, which I also agree w/.  The "no trivial fixes" thing is still
-redundant; a) a patch must contain only one fix, and b) a patch may only
-fix a build error, oops, hang, or race.
-
-
-> The statement:
->=20
->     "It must fix a problem and it must _not_ contain anything else,
->      such as 'trivial' fixes."
->=20
-> is _obviously_ not the same as:
->=20
->     "It must fix a problem."
->=20
-> (Notice how quickly even the obvious becomes unobvious ...;).
->=20
-
-
---=20
-Andres Salomon <dilinger@voxel.net>
-
---=-M5moWGaLEOAKX7TSOi2y
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCLA1e78o9R9NraMQRAna2AJ92nbyOjneL4WSoL83I5fDhYS3UwQCeOmsr
-l40DYj2VhFa7jQgdDXpVbQ8=
-=u9K9
------END PGP SIGNATURE-----
-
---=-M5moWGaLEOAKX7TSOi2y--
+Ian
 

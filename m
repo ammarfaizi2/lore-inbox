@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264771AbUEaUHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264766AbUEaUNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264771AbUEaUHE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 16:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUEaUHD
+	id S264766AbUEaUNK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 16:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUEaUNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 16:07:03 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:7693 "HELO mail-ext.curl.com")
-	by vger.kernel.org with SMTP id S264772AbUEaUGz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 16:06:55 -0400
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-References: <40BA2213.1090209@pobox.com>
-	<20040530183609.GB5927@pclin040.win.tue.nl>
-	<40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl>
-	<s5g8yf9ljb3.fsf@patl=users.sf.net>
-	<20040531180821.GC5257@louise.pinerecords.com>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gaczonzej.fsf@patl=users.sf.net>
-Date: 31 May 2004 16:06:54 -0400
-In-Reply-To: <20040531180821.GC5257@louise.pinerecords.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Mon, 31 May 2004 16:13:10 -0400
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:55975 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP id S264766AbUEaUNI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 16:13:08 -0400
+Date: Mon, 31 May 2004 14:12:53 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: Ian Kent <raven@themaw.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to use floating point in a module?
+Message-ID: <20040531141253.A18246@mail.harddata.com>
+References: <200405310250.i4V2ork05673@mailout.despammed.com> <Pine.LNX.4.58.0405311340450.4198@wombat.indigo.net.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0405311340450.4198@wombat.indigo.net.au>; from raven@themaw.net on Mon, May 31, 2004 at 01:44:40PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe <szepe@pinerecords.com> writes:
-
-> > This is really very simple.  If you move a disk from a machine with a
-> > different BIOS and you preserve the partition table geometry, you will
-> > NEVER be able to install Windows on the drive.  If you partition a
-> > blank drive and use the wrong geometry, you will NEVER be able to
-> > install Windows on the drive.
+On Mon, May 31, 2004 at 01:44:40PM +0800, Ian Kent wrote:
 > 
-> I don't quite believe this.  AFAICT the Windows 2000/XP install
-> program will succeed no matter what, the only problem is with
-> getting the dirty thing to boot AFTER install has completed.  If it
-> craps out, boot off the install CD to the repair console prompt, run
-> fixboot/fixmbr and all should be swell.  If you need dual boot, you
-> can go ahead and reinstall lilo/grub at this point.
+> Why not scaled longs (or bigger), scalled to number of significant 
+> digits. The Taylor series for the trig functions might be a painfull.
 
-Well, sure.  You could also erase the entire disk and start over.  I
-did not literally mean "never"; sorry if that was not obvious.
+Taylor series usually are painful for anything you want to calculate
+by any practical means.  Slow convergence but, for a change, quickly
+growing roundup errors and things like that.  An importance and uses
+of Taylor series lie elsewhere.
 
-The point is, if you use the wrong geometry in the partition table,
-Windows will not boot.  You could always fix it later, either from
-Linux (sfdisk hack) or from the Windows recovery console or with a hex
-editor or whatever.  The topic of discussion was how to get it right
-to begin with.
+OTOH polynomial approximations, or rational ones (after all division
+is quite quick on modern processors), can be fast and surprisingly
+precise; especially if you know bounds for your arguments and that
+that range is not too wide.  Of course when doing that in a fixed
+point one needs to pay attention to possible overflows and
+structuring calculations to guard against a loss of precision is
+always a good idea.
 
- - Pat
+My guess is that finding some fixed-point libraries, at least to use
+as a starting point, should be not too hard.
+
+  Michal

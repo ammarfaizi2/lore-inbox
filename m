@@ -1,133 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261523AbSLZA0v>; Wed, 25 Dec 2002 19:26:51 -0500
+	id <S261530AbSLZAmI>; Wed, 25 Dec 2002 19:42:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbSLZA0v>; Wed, 25 Dec 2002 19:26:51 -0500
-Received: from mailproxy1.netcologne.de ([194.8.194.222]:32993 "EHLO
+	id <S261593AbSLZAmH>; Wed, 25 Dec 2002 19:42:07 -0500
+Received: from mailproxy1.netcologne.de ([194.8.194.222]:55021 "EHLO
 	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
-	id <S261523AbSLZA0t> convert rfc822-to-8bit; Wed, 25 Dec 2002 19:26:49 -0500
+	id <S261530AbSLZAmG> convert rfc822-to-8bit; Wed, 25 Dec 2002 19:42:06 -0500
 Content-Type: text/plain;
   charset="iso-8859-15"
 From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
 Reply-To: joergprante@netcologne.de
-To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] 2.4.21-pre2-jp15
-Date: Thu, 26 Dec 2002 01:33:54 +0100
+Subject: 2.4.21pre2 + preempt + xfs BUG?
+Date: Thu, 26 Dec 2002 01:49:11 +0100
 User-Agent: KMail/1.4.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200212260133.54856.joergprante@netcologne.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-xfs@oss.sgi.com, rml@tech9.net
+Message-Id: <200212260149.11718.joergprante@netcologne.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-here is my christmas present for you!
+in my 2.4.21-pre2 based -jp15 kernel patch set I can't boot with XFS and 
+preemptive kernel enabled.
 
-Linux kernel patch set 2.4.21-pre2-jp15
+I use:
+ - 2.4.21pre2
+ - preempt 2.4.20-ac1 
+ - XFS snapshot 2.4.20-2002-11-29_01:21_UTC
+ - and a lot of other patches, see http://infolinux.de/jp15
 
-This is the fifteenth release of the -jp patch set.
+The kernel boots ok for a long time, but when it enters the init process run 
+level 5, it throws a kernel BUG in the O(1) scheduler code in schedule() at 
+the first statement when it checks for interrupt code. 
 
-Status: 25 Dec 2002 22:00 CEST
+I guess it performs a sync on the XFS root file system for the first time. You 
+can find a ksymoops message below. 
 
-What is it?
+Here are my observations after several changes in the configuration:
 
-The -jp kernel patch sets are development kernels for testing purpose only. 
-They provide a service for developers who want keep up to date with the 
-latest kernels and interesting patches. If you like to test interesting new 
-features of patches and evaluate bleeding-edge enhancements not to be 
-expected for inclusion into the standard 2.4 kernel in the near future, the 
--jp kernel patch set is the one for you.
+- if preemptive kernel is disabled, XFS can boot successfully. So, the bug is 
+triggered by the preemptive kernel patch.
 
-The patches are selected under performance improvement criterias and increased 
-stability under load, with an eye on better file system support and security. 
-Each patch is carefully evaluated, compiled and adapted to fit into the 
-collection. The patch set should compile; but it can't be guarantueed that it 
-successfully boots on every machine.
+- with preemptive kernel enabled and reiserfs, booting is no problem. So, the 
+bug is specific to the combination XFS and preempt.
 
-Before being released, the -jp kernel is tested for successful booting into 
-SuSE Linux 8.1 on a test machine with the Elitegroup K7S5A board, Duron 1 
-Ghz, 256 MB, 40 GB IDE drive, SCSI 4.3 GB drive, Geforce 2 graphics card. It 
-will be released if a -jp kernel self-compile and reboot on an XFS file 
-system partition succeeds.
+Is it just me with this BUG or can it be reproduced? 
 
-The -jp patch sets will appear regularly, depending on the progress of 2.4 
-kernel releases. The 2.6 kernel is scheduled for second quarter of 2003, and 
--jp patch sets will be continued for 2.6 kernels.
+A release of the patch set is available at
+http://infolinux.de/jp15/patchset-2.4.21-pre2-jp15.tar.bz2
 
-Download
+Best regards,
 
-http://infolinux.de/jp15
+    Jörg
 
-The patch set is provided as a single archive where you will find all patches 
-as separate files. Please take care if you split the set and try to use parts 
-of it. The recommended method is downloading the set, unpacking the archive, 
-and apply the patches with the applypatches shell script provided in the 
-archive.
+-----------------------snip-----------------------
+kernel BUG at sched.c:811!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0116660>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000001   ebx: c1a42000   ecx: 00000001   edx: 00000001
+esi: c051cac0   edi: fffffffe   ebp: c1a43e50   esp: c1a43e34
+ds: 0018   es: 0018   ss: 0018
+Process init (pid: 1, stackpage=c1a43000)
+Stack: c01204b0 c1a0a580 c0534a0c c0534a0c c1a42000 c051cac0 fffffffe c1a43e5c
+       c0116694 c0525200 00000046 c0120296 00000001 00000001 c01200dd c051cac0
+       c1a42000 c0518900 00000000 c04a5df0 c010a8ff 00000000 c1a43eac c04a5df0
+Call Trace:    [<c01204b0>] [<c0116694>] [<c0120296>] [<c01200dd>] 
+[<c010a8ff>]
+  [<c010d153>] [<c021f614>] [<c021c1db>] [<c0116694>] [<c0130c2d>] 
+[<c021f479>]
+  [<c0235cec>] [<c014dccf>] [<c014976b>] [<c014989f>] [<c01090cf>]
+Code: 0f 0b 2b 03 bf 72 43 c0 e9 23 fd ff ff 90 89 f6 55 89 e5 53
 
-Content
 
-001_intermezzo-fix                 038_i2c
-002_parport-fix                    039_i2c-fix
-003_ncpfs-fix                      040_lmsensors
-004_i8k-fix                        041_h323-netmeeting-nat-fix
-005_ide-fix                        042_talk-nat-fix
-006_ide-hack                       043_net-khttpd-remove
-007_aic7xx-trivialdb               044_net-tux2
-008_scx200-fix                     045_nfs-all
-009_variable-hz-rml                046_xfs
-010_amd-cool                       047_xfs-kernel
-011_cpufreq                        048_xfs-quota32
-012_cpufreq-coppermine             049_xfs-dmapi
-013_via-northbridge-fixup          050_xfs-misc
-014_TIOCGDEV                       051_xfs-acl
-015_vm-rmap                        052_xfs-ia64
-016_vm-rmap-fix                    053_ntfs
-017_vm-strict-overcommit-rml       054_ftpfs
-018_vm-strict-overcommit-rml-fix   055_cdfs
-019_sched-O1-rml                   056_ftpfs-fix
-020_sched-O1-bluetooth-bnep-fix    057_njbfs
-021_sched-hyperthreading           058_evms
-021_sched-tunables-rml             059_evms-common
-022_preempt-kernel-rml             060_evms-xfs-vfs-lock
-022_preempt-log-rml                061_lvm2-devmapper-ioctl
-022_preempt-stats-rml              062_lvm2-mempool-alloc-slab-fix
-023_preempt-lock-break             063_driver-console-unicon
-024_preempt-lowlatency             064_grsecurity
-025_read-latency2-rmap             065_patch-int
-026_pagecache-radixtree-lockbreak  066_loop-jari
-027_driver-scsi-dc395x             067_alsa-kernel
-028_driver-net-3c59x               068_alsa-kernel-stubs
-029_driver-usbd-net                069_alsa-config
-030_driver-usbd-net-fix            070_alsa-doc
-031_driver-pdc202xx-pci            071_alsa-pde-airo-fix
-032_driver-ide-cd-audio-dma        072_alsa-sb16-fix
-033_driver-cdrw-packet-write       073_alsa-devfs-fix
-034_supermount                     074_ieee1394-fix
-035_supermount-fix                 075_freeswan-nodebug-fix
-036_ipsec-freeswan                 100_VERSION
-037_acpi
+>>EIP; c0116660 <schedule+310/320>   <=====
 
-Known Issues
+>>ebx; c1a42000 <_end+14e4170/16a21d0>
+>>esi; c051cac0 <softirq_vec+0/100>
+>>edi; fffffffe <END_OF_CODE+301054e3/????>
+>>ebp; c1a43e50 <_end+14e5fc0/16a21d0>
+>>esp; c1a43e34 <_end+14e5fa4/16a21d0>
 
-* XFS with preemptive kernel can't sync, a kernel BUG is thrown. Please don't 
-use XFS with preemptive kernel.
+Trace; c01204b0 <__run_task_queue+60/80>
+Trace; c0116694 <preempt_schedule+24/40>
+Trace; c0120296 <tasklet_hi_action+46/70>
+Trace; c01200dd <do_softirq+bd/c0>
+Trace; c010a8ff <do_IRQ+cf/e0>
+Trace; c010d153 <call_do_IRQ+5/a>
+Trace; c021f614 <xfs_syncsub+194/e60>
+Trace; c021c1db <xfs_trans_unlocked_item+3b/60>
+Trace; c0116694 <preempt_schedule+24/40>
+Trace; c0130c2d <filemap_fdatawait+ed/130>
+Trace; c021f479 <xfs_sync+29/30>
+Trace; c0235cec <linvfs_write_super+3c/40>
+Trace; c014dccf <sync_supers+df/170>
+Trace; c014976b <fsync_dev+4b/a0>
+Trace; c014989f <sys_sync+f/20>
+Trace; c01090cf <system_call+33/38>
 
-* Kernel panic: VFS: Unable to mount root fs on ... Please build your root 
-fs into the kernel, not as a module.
+Code;  c0116660 <schedule+310/320>
+00000000 <_EIP>:
+Code;  c0116660 <schedule+310/320>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0116662 <schedule+312/320>
+   2:   2b 03                     sub    (%ebx),%eax
+Code;  c0116664 <schedule+314/320>
+   4:   bf 72 43 c0 e9            mov    $0xe9c04372,%edi
+Code;  c0116669 <schedule+319/320>
+   9:   23 fd                     and    %ebp,%edi
+Code;  c011666b <schedule+31b/320>
+   b:   ff                        (bad)
+Code;  c011666c <schedule+31c/320>
+   c:   ff 90 89 f6 55 89         call   *0x8955f689(%eax)
+Code;  c0116672 <preempt_schedule+2/40>
+  12:   e5 53                     in     $0x53,%eax
 
-* The variable 'CONFIG_SOUND' is shared between Alsa and OSS. This is not very 
-elegant. Kernel will be bigger than necessary.
-
-* mkinitrd might fail with:
-xfs: failed to add module "/lib/modules/2.4.21-pre2-jp15/kernel/fs/xfs/xfs.o"
-initrd too small
-Please don't switch on xfs debugging. It will bloat xfs.o over 22 MB.
-    
-* building a "Jumbo Kernel" with *all* possible configuration options selected 
-to 'y' will build, but it fails at vmlinux link time due to limitations in 
-binutils-2.12.90 (SuSE 8.1).
-
-Have fun!
-
-            Jörg Prante <joerg@infolinux.de> 
+ <0>Kernel panic: Aiee, killing interrupt handler!

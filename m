@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319699AbSIMP4N>; Fri, 13 Sep 2002 11:56:13 -0400
+	id <S319701AbSIMQQK>; Fri, 13 Sep 2002 12:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319704AbSIMP4N>; Fri, 13 Sep 2002 11:56:13 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:42761 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S319699AbSIMP4L>;
-	Fri, 13 Sep 2002 11:56:11 -0400
-Message-ID: <3D820BC9.5080207@domdv.de>
-Date: Fri, 13 Sep 2002 18:01:13 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thunder from the hill <thunder@lightweight.ods.org>
-CC: Bob_Tracy <rct@gherkin.frus.com>, dag@brattli.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.34: IR __FUNCTION__ breakage
-References: <Pine.LNX.4.44.0209121414570.10048-100000@hawkeye.luckynet.adm>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S319703AbSIMQQK>; Fri, 13 Sep 2002 12:16:10 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:36861
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319701AbSIMQQJ>; Fri, 13 Sep 2002 12:16:09 -0400
+Subject: Re: kernel module and X
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Femitha Majeed <m_femitha@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F257qNI4lQ5tX60LUDA0000eb84@hotmail.com>
+References: <F257qNI4lQ5tX60LUDA0000eb84@hotmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 13 Sep 2002 17:22:12 +0100
+Message-Id: <1031934132.9991.6.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-09-13 at 17:05, Femitha Majeed wrote:
+> I have a kernel module that reads the files in the /proc directory. It works 
+> fine when I am not using X. But when I use X, it gives me the follwoing 
+> error in the log:
 
+You don't give enough information. Look at "dmesg" and then debug your
+module from the ksymoops data.
 
-Thunder from the hill wrote:
-> Hi,
-> 
-> On Thu, 12 Sep 2002, Bob_Tracy wrote:
-> 
->>define DERROR(dbg, args...) \
->>	{if(DEBUG_##dbg){\
->>		printk(KERN_INFO "irnet: %s(): ", __FUNCTION__);\
->>		printk(KERN_INFO args);}}
->>
->>which strikes me as not quite what the author intended, although it
->>should work.
-> 
-> 
-> Why not
-> 
-> #define DERROR(dbg, fmt, args...) \
-> 	do { if (DEBUG_##dbg) \
-> 		printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION, args); \
-> 	} while(0)
-> 
-> ?
-> 
-> 			Thunder
+> XFree86 Version 4.1.0 (Red Hat Linux release: 4.1.0-3) / X Window System
+> (protocol Version 11, revision 0, vendor release 6510)
+> Release Date: 2 June 2001
+> 	If the server is older than 6-12 months, or if your card is
+> 	newer than the above date, look for a newer version before
+> 	reporting problems.  (See http://www.XFree86.Org/FAQ)
 
-At least for gcc 3.2 this would be better:
-
-#define DERROR(dbg, fmt, args...) \
-     do { if (DEBUG_##dbg) \
-         printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args); \
-     } while(0)
-
-Unfortunately this doesn't work with gcc 2.95.3.
-
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+          Also for X stuff ^^^^^^^^^^^^^^^^^^^^^^
 

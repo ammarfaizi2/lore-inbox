@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289336AbSAVSgU>; Tue, 22 Jan 2002 13:36:20 -0500
+	id <S289328AbSAVSgU>; Tue, 22 Jan 2002 13:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289328AbSAVSgQ>; Tue, 22 Jan 2002 13:36:16 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:25082 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289336AbSAVSf6>; Tue, 22 Jan 2002 13:35:58 -0500
-Date: Tue, 22 Jan 2002 10:35:48 -0800 (PST)
+	id <S289338AbSAVSgL>; Tue, 22 Jan 2002 13:36:11 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8633 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289328AbSAVSfx>;
+	Tue, 22 Jan 2002 13:35:53 -0500
+Date: Tue, 22 Jan 2002 10:34:09 -0800 (PST)
 From: Dave Olien <oliendm@us.ibm.com>
-Message-Id: <200201221835.g0MIZm108426@eng2.beaverton.ibm.com>
+Message-Id: <200201221834.g0MIY9s08359@eng2.beaverton.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.2 pthread support for SEM_UNDO in semop()
-Cc: torvalds@transmeta.co
+Subject: [PATCH] 2.4.17 pthread support for SEM_UNDO in semop()
+Cc: marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH] 2.5.2 pthread support for SEM_UNDO in semop()
+[PATCH] 2.4.17 pthread support for SEM_UNDO in semop()
 
-I apologize, I neglected to include the patch in my last submission.
+My apologies.  I neglected to include the patch in my last submission.
 
 The Linux semop() System V semaphore SEM_UNDO should perform SEM_UNDO cleanup
 during "process" exit, not during "pthread" exit.  Following is a brief
@@ -169,12 +169,13 @@ void * poster(void * foo)
     pthread_exit(0);
 }
 
-------------------------Begin Patch for linux 2.5.2-------------------------
+------------------------Begin Patch for linux 2.4.17-------------------------
 
-diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/include/linux/sched.h linux-2.5.2_SEMUNDO/linux/include/linux/sched.h
---- linux-2.5.2_original/linux/include/linux/sched.h	Mon Jan 14 13:27:08 2002
-+++ linux-2.5.2_SEMUNDO/linux/include/linux/sched.h	Mon Jan 21 19:23:53 2002
-@@ -372,7 +372,7 @@
+
+diff -urN --exclude-from=/usr/src/dontdiff linux-2.4.17_original/linux/include/linux/sched.h linux-2.4.17_SEMUNDO/linux/include/linux/sched.h
+--- linux-2.4.17_original/linux/include/linux/sched.h	Fri Dec 21 09:42:03 2001
++++ linux-2.4.17_SEMUNDO/linux/include/linux/sched.h	Mon Jan 21 19:12:35 2002
+@@ -381,7 +381,7 @@
  	struct tty_struct *tty; /* NULL if no tty */
  	unsigned int locks; /* How many file locks are being held */
  /* ipc stuff */
@@ -183,9 +184,9 @@ diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/include/li
  	struct sem_queue *semsleeping;
  /* CPU-specific state of this task */
  	struct thread_struct thread;
-diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/include/linux/sem.h linux-2.5.2_SEMUNDO/linux/include/linux/sem.h
---- linux-2.5.2_original/linux/include/linux/sem.h	Mon Jan 14 13:27:06 2002
-+++ linux-2.5.2_SEMUNDO/linux/include/linux/sem.h	Mon Jan 21 19:23:53 2002
+diff -urN --exclude-from=/usr/src/dontdiff linux-2.4.17_original/linux/include/linux/sem.h linux-2.4.17_SEMUNDO/linux/include/linux/sem.h
+--- linux-2.4.17_original/linux/include/linux/sem.h	Thu Nov 22 11:46:18 2001
++++ linux-2.4.17_SEMUNDO/linux/include/linux/sem.h	Mon Jan 21 19:12:35 2002
 @@ -121,6 +121,18 @@
  	short *			semadj;		/* array of adjustments, one per semaphore */
  };
@@ -205,9 +206,9 @@ diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/include/li
  asmlinkage long sys_semget (key_t key, int nsems, int semflg);
  asmlinkage long sys_semop (int semid, struct sembuf *sops, unsigned nsops);
  asmlinkage long sys_semctl (int semid, int semnum, int cmd, union semun arg);
-diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/ipc/sem.c linux-2.5.2_SEMUNDO/linux/ipc/sem.c
---- linux-2.5.2_original/linux/ipc/sem.c	Sun Sep 30 12:26:42 2001
-+++ linux-2.5.2_SEMUNDO/linux/ipc/sem.c	Mon Jan 21 19:08:40 2002
+diff -urN --exclude-from=/usr/src/dontdiff linux-2.4.17_original/linux/ipc/sem.c linux-2.4.17_SEMUNDO/linux/ipc/sem.c
+--- linux-2.4.17_original/linux/ipc/sem.c	Sun Sep 30 12:26:42 2001
++++ linux-2.4.17_SEMUNDO/linux/ipc/sem.c	Mon Jan 21 19:08:05 2002
 @@ -788,12 +788,75 @@
  	}
  }
@@ -568,9 +569,9 @@ diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/ipc/sem.c 
  }
  
  #ifdef CONFIG_PROC_FS
-diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/ipc/util.c linux-2.5.2_SEMUNDO/linux/ipc/util.c
---- linux-2.5.2_original/linux/ipc/util.c	Sun Aug 12 17:37:53 2001
-+++ linux-2.5.2_SEMUNDO/linux/ipc/util.c	Mon Jan 21 19:08:40 2002
+diff -urN --exclude-from=/usr/src/dontdiff linux-2.4.17_original/linux/ipc/util.c linux-2.4.17_SEMUNDO/linux/ipc/util.c
+--- linux-2.4.17_original/linux/ipc/util.c	Sun Aug 12 17:37:53 2001
++++ linux-2.4.17_SEMUNDO/linux/ipc/util.c	Mon Jan 21 19:08:05 2002
 @@ -340,6 +340,17 @@
   * Dummy functions when SYSV IPC isn't configured
   */
@@ -589,10 +590,10 @@ diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/ipc/util.c
  void sem_exit (void)
  {
      return;
-diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/kernel/fork.c linux-2.5.2_SEMUNDO/linux/kernel/fork.c
---- linux-2.5.2_original/linux/kernel/fork.c	Wed Jan  9 16:16:28 2002
-+++ linux-2.5.2_SEMUNDO/linux/kernel/fork.c	Mon Jan 21 19:19:10 2002
-@@ -27,6 +27,9 @@
+diff -urN --exclude-from=/usr/src/dontdiff linux-2.4.17_original/linux/kernel/fork.c linux-2.4.17_SEMUNDO/linux/kernel/fork.c
+--- linux-2.4.17_original/linux/kernel/fork.c	Wed Nov 21 10:18:42 2001
++++ linux-2.4.17_SEMUNDO/linux/kernel/fork.c	Mon Jan 21 19:08:05 2002
+@@ -26,6 +26,9 @@
  #include <asm/uaccess.h>
  #include <asm/mmu_context.h>
  
@@ -601,8 +602,8 @@ diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/kernel/for
 +
  /* The idle threads do not count.. */
  int nr_threads;
- 
-@@ -662,8 +665,10 @@
+ int nr_running;
+@@ -653,8 +656,10 @@
  
  	retval = -ENOMEM;
  	/* copy all the process information */
@@ -614,15 +615,15 @@ diff -urN --exclude-from=/usr/src/dontdiff linux-2.5.2_original/linux/kernel/for
  	if (copy_fs(clone_flags, p))
  		goto bad_fork_cleanup_files;
  	if (copy_sighand(clone_flags, p))
-@@ -675,7 +680,6 @@
+@@ -664,7 +669,6 @@
  	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
  	if (retval)
- 		goto bad_fork_cleanup_namespace;
+ 		goto bad_fork_cleanup_mm;
 -	p->semundo = NULL;
  	
  	/* Our parent execution domain becomes current domain
  	   These must match for thread signalling to apply */
-@@ -773,6 +777,8 @@
+@@ -738,6 +742,8 @@
  	exit_fs(p); /* blocking */
  bad_fork_cleanup_files:
  	exit_files(p); /* blocking */

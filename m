@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVAEQu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVAEQ46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbVAEQu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 11:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVAEQu0
+	id S261788AbVAEQ46 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 11:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVAEQ46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 11:50:26 -0500
-Received: from pop.gmx.de ([213.165.64.20]:34755 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262489AbVAEQuP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 11:50:15 -0500
-X-Authenticated: #4512188
-Message-ID: <41DC1AD7.7000705@gmx.de>
-Date: Wed, 05 Jan 2005 17:50:31 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050103)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Martin Drab <drab@kepler.fjfi.cvut.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 5 Jan 2005 11:56:58 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:60564 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S261788AbVAEQ44
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 11:56:56 -0500
+Date: Wed, 5 Jan 2005 17:56:44 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: APIC/LAPIC hanging problems on nForce2 system.
+In-Reply-To: <Pine.LNX.4.61.0501050904430.6858@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.60.0501051756010.25946@kepler.fjfi.cvut.cz>
 References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
-In-Reply-To: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1E8E68FE78320462700FBB62"
-X-Y-GMX-Trusted: 0
+ <Pine.LNX.4.61.0501050904430.6858@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1E8E68FE78320462700FBB62
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Martin Drab schrieb:
-> Hi,
->
-> I'm witnessing a total freeze on my system when the APIC and LAPIC are
-> enabled in kernel 2.6.10-bk7.
-
-Do you know whether your bios already contains the C1 halt disconnect
-fix? I couldn't find this line in your dmesg:
 
 
-PCI: nForce2 C1 Halt Disconnect fixup
+On Wed, 5 Jan 2005, Zwane Mwaikambo wrote:
 
-Did it occur with earlier kernels? If yes, this is a regression.
+> On Wed, 5 Jan 2005, Martin Drab wrote:
+> 
+> > I'm witnessing a total freeze on my system when the APIC and LAPIC are 
+> > enabled in kernel 2.6.10-bk7.
+> > 
+> > The feeze seems to occur whenever there is some heavy interrupt occurance, 
+> > usually high network communication load, or high HDD activity. The freeze 
+> > does not occur after constant time during the heavy interrupt load, but it 
+> > ALLWAYS occurs, and allways after quite a short time. The freeze is total, 
+> > I mean nothing reacts, then, even the cursor on the HW text console stops 
+> > blinking. Only cold reset helps.
+> > 
+> > The problem disappears when I turn off APIC and LAPIC (by the "noapic 
+> > nolapic" commands at the kernel boot command line). I tried to turn off 
+> > only APIC (i.e., only "noapic"), at first it seemd to be working, but it 
+> > frozen anyway, only a bit later. I also tried to turn off only the LAPIC 
+> > (i.e.,  only "nolapic"), but then my HDD was loosing interrupts, so the 
+> > system didn't even boot.
+> > 
+> > I also tried the native kernel from MDK 10.1 i586, i.e. 2.6.8.1-12mdk and 
+> > it works without any problem with both APIC and LAPIC enabled.
+> > 
+> > Does anybody have a clue what could be wrong? 
+> 
+> I'm assuming that 2.6.10 is ok?
 
-Try as workaround if
+If I remember correctly it is not working as well.
 
-athcool off
+Martin
 
-makes your system stable. If yes, you need above fix activated.
-
-Cheers,
-
-Prakash
-
---------------enig1E8E68FE78320462700FBB62
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFB3BrXxU2n/+9+t5gRAoJLAJ93sSkpQG4sEpdsg3z+25eKEH3CrQCfUpQt
-V77IsSpKD4rhdLhm9MYBQaA=
-=zdQL
------END PGP SIGNATURE-----
-
---------------enig1E8E68FE78320462700FBB62--

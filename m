@@ -1,51 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263497AbTKKN46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 08:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTKKN46
+	id S263524AbTKKOLd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 09:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTKKOLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 08:56:58 -0500
-Received: from 30.Red-80-36-33.pooles.rima-tde.net ([80.36.33.30]:65516 "EHLO
-	linalco.com") by vger.kernel.org with ESMTP id S263497AbTKKN45
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 08:56:57 -0500
-Date: Tue, 11 Nov 2003 14:59:48 +0100
-From: Ragnar Hojland Espinosa <ragnar@linalco.com>
-To: Philippe <rouquier.p@wanadoo.fr>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs 3.6 problem with test9
-Message-ID: <20031111135948.GA5229@linalco.com>
-References: <1068553197.1018.43.camel@Genesyme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1068553197.1018.43.camel@Genesyme>
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
-User-Agent: Mutt/1.5.4i
+	Tue, 11 Nov 2003 09:11:33 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:6870 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S263524AbTKKOL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 09:11:28 -0500
+Message-ID: <3FB0EE0E.6090103@softhome.net>
+Date: Tue, 11 Nov 2003 15:11:26 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <Qvw7.5Qf.9@gated-at.bofh.it> <QH4e.eV.3@gated-at.bofh.it>
+In-Reply-To: <QH4e.eV.3@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 01:19:57PM +0100, Philippe wrote:
-> Hello,
-> recently I noticed some annoying problems whenever I try to access some
-> files on my harddrive (reiserfs filesystem). I get "permission denied"
-> even if I am the owner or if I try as root. dmesg answers the following
-> for every file (so it's repeated):
+Rogier Wolff wrote:
+> On Mon, Nov 10, 2003 at 08:05:11PM -0500, Albert Cahalan wrote:
 > 
-> is_tree_node: node level 30065 does not match to the expected one 1
-> vs-5150: search_by_key: invalid format found in block 2554621. Fsck?
-> vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to
-> find stat data of [1000086 2592 0x0 SD]
+> 	long copy_fd_to_fd (int src, int dst, int len)
 > 
-> I rebuilt my filesystem with reiserfsck (3.6.11) and it worked, I could
-> read and write again these files. but soon after the rebuilt some other
-> files (they were not concerned by this problem before) appeared to have
-> the same problem and their number kept growing until I rebuilt again the
-> filesystem ... but again new ones appeared after an hour or two ...
+> The kernel then becomes something
+> 
+> 	if (islocalfile (src) && issocket (dst)) 
+> 		/* Call the old sendfile */ 
+> 		return sendfile (....);
+> 
+> 	if (isCIFS (src), isCIFS(dst))
+> 		/* Tell remote host to copy the file. */
+> 		return CIFS_copy_file (....); 
+> 
 
-Last time I had a box with similar problems it was memory.  I'd put
-your system through a memtest.
+   B.S.
+
+> 
+> But alas, last time Linus didn't agree with me and decided we should
+> do something like "sendfile", which is IMHO just a special case of
+> this one.
+> 
+
+   I will reply on behalf of Linus: "Send patch!"
+
+   I beleive you are not developer - so you even cannot estimate what 
+you are proposing.
+
+   This kind of patch will never be accepted.
+
+   Just try to imagine: 20 file systems, so 20*20 == 400 ifs?
+
+   So I beleive you will get more more positive responses, If you will 
+start improveing vfs, e.g. adding generic routines for optimized move of 
+file from one file system to another, with API which allow it to 
+extrapolate nicely to networked file systems.
+   Since right now there is no way to pass file from one fs to another - 
+so basicly this thread is already, well, over ;-)
+
+> 
+> If we implement this in kernel (at first just the copy_fd_fd and the
+> default implementation), then we can get "cp" to use this, and then
+> suddenly whenever we upgrade the kernel, cp can use the newly
+> optimized copying mechanism. (e.g. whenever we manage to specify a
+> socket as the destination, cp would suddenly start to use
+> "sendfile"!!)
+> 
+
+    Silly. cp is least frequent application I use.
+    And cvs I beleive already uses sendfile().
+    So all your /arguments/ go directly into /dev/null, since if file is 
+not in cvs - you know - it just doesn't exist ;-)))
+
+> 
+> 		Roger. 
+> 
+
+
 -- 
-Ragnar Hojland - Project Manager
-Linalco "Specialists in Linux and Free Software"
-http://www.linalco.com  Tel: +34-91-4561700
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  "... and for $64000 question, could you get yourself       |_|*|_|
+    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
+                                 -- Al Viro @ LKML           |*|*|*|
+

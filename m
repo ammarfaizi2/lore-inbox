@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVCAXqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVCAXyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVCAXqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCAXqp
+	id S262126AbVCAXyc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbVCAXyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:46:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:3232 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262129AbVCAXqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:46:24 -0500
-To: Bernd Schubert <bernd-schubert@web.de>
-Cc: Andi Kleen <ak@muc.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       nfs@lists.sourceforge.net
-Subject: Re: x86_64: 32bit emulation problems
-References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
-	<200503012207.02915.bernd-schubert@web.de>
-	<jewtsruie9.fsf@sykes.suse.de>
-	<200503020019.20256.bernd-schubert@web.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Hello, GORRY-O!!  I'm a GENIUS from HARVARD!!
-Date: Wed, 02 Mar 2005 00:46:23 +0100
-In-Reply-To: <200503020019.20256.bernd-schubert@web.de> (Bernd Schubert's
- message of "Wed, 2 Mar 2005 00:19:19 +0100")
-Message-ID: <jebra3udyo.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 1 Mar 2005 18:54:32 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:38598 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262126AbVCAXyb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 18:54:31 -0500
+Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: torvalds@osdl.org, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050228192001.GA14221@apps.cwi.nl>
+References: <20050228192001.GA14221@apps.cwi.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1109721162.15795.47.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 01 Mar 2005 23:52:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Schubert <bernd-schubert@web.de> writes:
+On Llu, 2005-02-28 at 19:20, Andries Brouwer wrote:
+> One such case is the mtrr code, where struct mtrr_ops has an
+> init field pointing at __init functions. Unless I overlook
+> something, this case may be easy to settle, since the .init
+> field is never used.
 
-> Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But why does 
-> it work without this option on a 32bit kernel, but not on a 64bit kernel?
+The failure to invoke the ->init operator appears to be the bug.
 
-See nfs_fileid_to_ino_t for why the inode number is different between
-32bit and 64bit kernels.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261531AbSJQPbC>; Thu, 17 Oct 2002 11:31:02 -0400
+	id <S261455AbSJQPr1>; Thu, 17 Oct 2002 11:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261532AbSJQPbC>; Thu, 17 Oct 2002 11:31:02 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:63366 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261531AbSJQPbA>; Thu, 17 Oct 2002 11:31:00 -0400
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Posix capabilities
-References: <20021016154459.GA982@TK150122.tuwien.teleweb.at>
-	<20021017032619.GA11954@think.thunk.org>
-	<874rblcpw5.fsf@goat.bogus.local> <200210171302.25413.agruen@suse.de>
-	<20021017121213.GA13573@think.thunk.org>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Thu, 17 Oct 2002 17:36:40 +0200
-In-Reply-To: <20021017121213.GA13573@think.thunk.org> ("Theodore Ts'o"'s
- message of "Thu, 17 Oct 2002 08:12:13 -0400")
-Message-ID: <87y98x84c7.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S261481AbSJQPr1>; Thu, 17 Oct 2002 11:47:27 -0400
+Received: from mail-gw.kns.com ([199.171.180.150]:22182 "EHLO mail-gw.kns.com")
+	by vger.kernel.org with ESMTP id <S261455AbSJQPr0>;
+	Thu, 17 Oct 2002 11:47:26 -0400
+Message-ID: <3DAEDBFA.6A8A169B@kns.com>
+Date: Thu, 17 Oct 2002 11:49:14 -0400
+From: Kevin Brosius <kbrosius@kns.com>
+X-Mailer: Mozilla 4.74 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dave Olien <dmo@osdl.org>, kernel <linux-kernel@vger.kernel.org>
+CC: Kevin Brosius <cobra@compuserve.com>
+Subject: Re: [2.5.43] (DAC960 compile failure)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Theodore Ts'o" <tytso@mit.edu> writes:
-> On Thu, Oct 17, 2002 at 01:02:25PM +0200, Andreas Gruenbacher wrote:
->> With capabilities the kernel ensures that
->> applications cannot exceed their capabilities.
+Hi Dave,
+  I'll give it a shot tonight.  Did you post the patch to the
+linux-kernel mailing list?  I can't find it in the archives.  If not,
+would you mail a copy to my home address (compuserve, or have you posted
+it on a web location?)  If you'd like me to put up copies of the patch
+for general consumption I'll make space available on a web page.
 
-Which is a _big_ plus.
+Kevin
 
-> as compared
-> to having every single individual administrator have make this
-> determination by his or herself.
 
-I don't see this. It's a distribution issue. There will be
-administrators, who want to do it on their own, but those will be a
-minority.
-
-> Each additional thing which the system administrator has to do, is an
-> additional thing that he/she can *get* *wrong*.  System administators
-> aren't stupid, just over-loaded, and often asked to administer
-> something that's too complicated.
-
-Once the distributions have taken care of this, there's nothing too
-complicated left.
-
-> Millions and millions of knobs and dials are not necessarily a good
-> thing.  If there is basically only one correct answer for how the
-> knobs can be set up, sure, you can have a complex database for
-> applications to determine what sort of capability masks they should
-> have, and you can run that database against your database every night
-> (otherwise, you might miss someone quietly modifying one or two
-> capability masks to leave him/herself a back door).  
->
-> But why go through all that effort?
-
-Because it's easier, than patching millions and millions of programs?
-
-Regards, Olaf.
+> 
+> I just posted a DAC960 patch for 2.5.42.  Tomorrow, I'll post
+> a 2.5.43 patch. There are some minor changes needed (about three
+> lines) for 2.5.43.  See the patch posting regarding ACPI
+> interactions.
+> 
+> I'd love to hear any good or bad results you have with these
+> patches.
+> 
+> Thanks!
+> 
+> Dave Olien
+> Open Source Developement Lab
+> 
+> On Wed, Oct 16, 2002 at 07:28:07PM -0400, Kevin Brosius wrote:
+> > > 
+> > > looking at that i realise that DAC960 code in 2.5.43
+> > > is not supposed to be tested:
+> > > ======
+> > > #error I am a non-portable driver, please convert me to use the \
+> > > Documentation/DMA-mapping.txt interfaces ======
+> > > am i right?
+> > > 
+> > > the following weirdo appears in both gcc-3.1 and 3.2 (also in 2.5.42)
+> > > ======
+> > > drivers/block/DAC960.c: In function `DAC960_DetectControllers':
+> > > drivers/block/DAC960.c:2465: `Controller' undeclared (first use in this function)
+> > > drivers/block/DAC960.c:2465: (Each undeclared identifier is reported only once
+> > > drivers/block/DAC960.c:2465: for each function it appears in.)
+> > > 
+> > 
+> > Yes, 2.5.42 did this also.  It looks like gcc 3.2 doesn't like goto's
+> > which reference variables outside their native scope.  You can move the
+> > Controller definition to full function scope to fix that error.
+> > 
+> > The DAC960 doesn't seem usable out of the stock kernel build though. 
+> > You'll need to try patches previously posted to the list.  (Which don't
+> > fully work for me either...)
+> > 
+> > -- 
+> > Kevin

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283222AbRLDSfe>; Tue, 4 Dec 2001 13:35:34 -0500
+	id <S281505AbRLDSOM>; Tue, 4 Dec 2001 13:14:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281647AbRLDSPe>; Tue, 4 Dec 2001 13:15:34 -0500
-Received: from dsl-213-023-038-097.arcor-ip.net ([213.23.38.97]:40461 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S281533AbRLDSOu>;
-	Tue, 4 Dec 2001 13:14:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux/Pro  -- clusters
-Date: Tue, 4 Dec 2001 19:16:42 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), becker@scyld.com (Donald Becker),
-        davidel@xmailserver.org (Davide Libenzi),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <E16BJvR-0002uc-00@the-village.bc.nu>
-In-Reply-To: <E16BJvR-0002uc-00@the-village.bc.nu>
+	id <S281547AbRLDSMx>; Tue, 4 Dec 2001 13:12:53 -0500
+Received: from ns.suse.de ([213.95.15.193]:14610 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S283191AbRLDRnU>;
+	Tue, 4 Dec 2001 12:43:20 -0500
+Date: Tue, 4 Dec 2001 18:43:17 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@caldera.de>,
+        Keith Owens <kaos@ocs.com.au>, <kbuild-devel@lists.sourceforge.net>,
+        <torvalds@transmeta.com>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <20011204120305.A16578@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16BK7Y-0000Rk-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 4, 2001 07:04 pm, Alan Cox wrote:
-> > Single additional alloc -> twice as many allocs, two slabs, more cachelines
-> > dirty.  This was hashed out on fsdevel, though apparently not to everyone's
-> > satisfaction.
-> 
-> Al Viro's NFS in generic_ip saved me something like 130K of memory.
+On Tue, 4 Dec 2001, Eric S. Raymond wrote:
 
-Yes, all of these proposals would do that, by getting away from all inodes
-being the same size (basically the size of the ext2 inode).
+> After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
+> and lobby for him accepting it into 2.4, on the grounds that doing so
+> will simplify his maintainance task no end.
+> ...
+> I'm just going to say "Today's problems, today's tools."
 
---
-Daniel
+So anyone perfectly happy with an older distro that didn't
+ship python2-and-whatever-else gets screwed when they want to
+build a newer kernel. Nice.
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

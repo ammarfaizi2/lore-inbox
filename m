@@ -1,164 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261314AbRERSIl>; Fri, 18 May 2001 14:08:41 -0400
+	id <S261316AbRERSOl>; Fri, 18 May 2001 14:14:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261316AbRERSIb>; Fri, 18 May 2001 14:08:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:59406 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S261314AbRERSIW>; Fri, 18 May 2001 14:08:22 -0400
-Date: Fri, 18 May 2001 15:08:17 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        virii <virii@gcecisp.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: cmpci sound chip lockup
-Message-ID: <20010518150817.O1414@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	virii <virii@gcecisp.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010517135808.G754@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.33.0105181501590.5251-100000@duckman.distro.conectiva>
+	id <S261388AbRERSOb>; Fri, 18 May 2001 14:14:31 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:31465 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S261335AbRERSO1>; Fri, 18 May 2001 14:14:27 -0400
+Date: Fri, 18 May 2001 18:42:27 +0200
+From: Andreas Bergen <andreas.bergen@online.de>
+To: linux-kernel@vger.kernel.org
+Subject: Oops
+Message-ID: <20010518184227.A1068@erde.erde.bergen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0105181501590.5251-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, May 18, 2001 at 03:02:18PM -0300
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, May 18, 2001 at 03:02:18PM -0300, Rik van Riel escreveu:
-> On Thu, 17 May 2001, Ingo Oeser wrote:
-> > On Wed, May 16, 2001 at 08:02:06PM -0300, Rik van Riel wrote:
-> > > I'm seeing a similar thing on 2.4.4-pre[23], but in a far less
-> > > serious way. Using xmms the music stops after anything between
-> > > a few seconds and a minute, I suspect a race condition somewhere.
-> > >
-> > > Using mpg123 everything works fine...
-> >
-> > Your xmms uses esd[1]?
-> 
-> Nope. I also get this with xmms directly to /dev/dsp.
 
-Can you try this patch? some parts are just some cleanups, but there are
-two bugs fixed, this was just a quick look, maybe there are other bugs.
+--3uo+9/B/ebqu+fSQ
+Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
 
-- Arnaldo
 
---- linux-2.4.4-ac11/drivers/sound/cmpci.c	Fri May 18 00:04:23 2001
-+++ linux-2.4.4-ac11.acme/drivers/sound/cmpci.c	Fri May 18 01:03:22 2001
-@@ -70,6 +70,12 @@
-  *                     (8738 only)
-  *                     Fix bug cause x11amp cannot play.
-  *
-+ *    Fixes:
-+ *    Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-+ *    18/05/2001 - .bss nitpicks, fix a bug in set_dac_channels where it
-+ *    		   was calling prog_dmabuf with s->lock held, call missing
-+ *    		   unlock_kernel in cm_midi_release
-+ *
-  */
- 
- /*****************************************************************************/
-@@ -335,9 +341,9 @@
- 
- /* --------------------------------------------------------------------- */
- 
--static struct cm_state *devs = NULL;
--static struct cm_state *devaudio = NULL;
--static unsigned long wavetable_mem = 0;
-+static struct cm_state *devs;
-+static struct cm_state *devaudio;
-+static unsigned long wavetable_mem;
- 
- /* --------------------------------------------------------------------- */
- 
-@@ -862,8 +868,10 @@
- 		maskb(s->iobase + CODEC_CMI_MISC_CTRL + 2, ~0, 0xC0);
- 		s->status |= DO_DUAL_DAC;
- 		// prepare secondary buffer
-+		spin_unlock_irqrestore(&s->lock, flags);
- 		ret = prog_dmabuf(s, 1);
- 		if (ret) return ret;
-+		spin_lock_irqsave(&s->lock, flags);
- 		// copy the hw state
- 		fmtm &= ~((CM_CFMT_STEREO | CM_CFMT_16BIT) << CM_CFMT_DACSHIFT);
- 		fmtm &= ~((CM_CFMT_STEREO | CM_CFMT_16BIT) << CM_CFMT_ADCSHIFT);
-@@ -2578,6 +2586,7 @@
- 			if (file->f_flags & O_NONBLOCK) {
- 				remove_wait_queue(&s->midi.owait, &wait);
- 				set_current_state(TASK_RUNNING);
-+				unlock_kernel();
- 				return -EBUSY;
- 			}
- 			tmo = (count * HZ) / 3100;
-@@ -2710,10 +2719,8 @@
- 		outb(5, s->iosynth+2);
- 		outb(arg & 1, s->iosynth+3);
- 		return 0;
--
--	default:
--		return -EINVAL;
- 	}
-+	return -EINVAL;
- }
- 
- static int cm_dmfm_open(struct inode *inode, struct file *file)
-@@ -2859,22 +2866,22 @@
- #ifdef CONFIG_SOUND_CMPCI_MIDI
- static	int	mpu_io = CONFIG_SOUND_CMPCI_MPUIO;
- #else
--static	int	mpu_io = 0;
-+static	int	mpu_io;
- #endif
- #ifdef CONFIG_SOUND_CMPCI_FM
- static	int	fm_io = CONFIG_SOUND_CMPCI_FMIO;
- #else
--static	int	fm_io = 0;
-+static	int	fm_io;
- #endif
- #ifdef CONFIG_SOUND_CMPCI_SPDIFINVERSE
- static	int	spdif_inverse = 1;
- #else
--static	int	spdif_inverse = 0;
-+static	int	spdif_inverse;
- #endif
- #ifdef CONFIG_SOUND_CMPCI_SPDIFLOOP
- static	int	spdif_loop = 1;
- #else
--static	int	spdif_loop = 0;
-+static	int	spdif_loop;
- #endif
- #ifdef CONFIG_SOUND_CMPCI_SPEAKERS
- static	int	speakers = CONFIG_SOUND_CMPCI_SPEAKERS;
-@@ -2884,17 +2891,17 @@
- #ifdef CONFIG_SOUND_CMPCI_LINE_REAR
- static	int	use_line_as_rear = 1;
- #else
--static	int	use_line_as_rear = 0;
-+static	int	use_line_as_rear;
- #endif
- #ifdef CONFIG_SOUND_CMPCI_LINE_BASS
- static	int	use_line_as_bass = 1;
- #else
--static	int	use_line_as_bass = 0;
-+static	int	use_line_as_bass;
- #endif
- #ifdef CONFIG_SOUND_CMPCI_JOYSTICK
- static	int	joystick = 1;
- #else
--static	int	joystick = 0;
-+static	int	joystick;
- #endif
- MODULE_PARM(mpu_io, "i");
- MODULE_PARM(fm_io, "i");
-@@ -2935,7 +2942,8 @@
- 			return;
- 		if (pcidev->irq == 0)
- 			return;
--		if (!(s = kmalloc(sizeof(struct cm_state), GFP_KERNEL))) {
-+		s = kmalloc(sizeof(*s), GFP_KERNEL);
-+		if (!s) {
- 			printk(KERN_WARNING "cm: out of memory\n");
- 			return;
- 		}
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi, this is an oops-file I "created" today.
+
+Attached is the original version as found in /var/log/messages as well
+as the ksymoops-ed version.
+
+Hope, it helps. If you need further info, don't hesitate to contact me.
+
+My machine is a Cyrix 6x68 166+; 96 MB RAM.
+
+Yours
+  Andreas Bergen
+--=20
+Andreas Bergen
+E-Mail: andreas.bergen@online.de
+PGP-Key on keyservers.
+"Freuet euch in dem Herrn allewege, und abermals sage ich: Freuet euch!" Ph=
+i 4,4
+
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="oops.txt"
+
+May 18 17:27:20 erde kernel: Unable to handle kernel paging request at virtual address 0696f974
+May 18 17:27:20 erde kernel: current->tss.cr3 = 044e0000, %cr3 = 044e0000
+May 18 17:27:20 erde kernel: *pde = 00000000
+May 18 17:27:20 erde kernel: Oops: 0000
+May 18 17:27:20 erde kernel: CPU:    0
+May 18 17:27:20 erde kernel: EIP:    0010:[ext2_getblk+30/540]
+May 18 17:27:20 erde kernel: EFLAGS: 00010246
+May 18 17:27:20 erde kernel: eax: c5f95a00   ebx: fffffff4   ecx: c1a5be60   edx: 00000400
+May 18 17:27:20 erde kernel: esi: 00000000   edi: c2a6ecc0   ebp: c2a6ecc0   esp: c1a5bdfc
+May 18 17:27:20 erde kernel: ds: 0018   es: 0018   ss: 0018
+May 18 17:27:20 erde kernel: Process ksysguard (pid: 6625, process nr: 91, stackpage=c1a5b000)
+May 18 17:27:20 erde kernel: Stack: c2a6ecc0 c5a897c0 c2bbb000 00100000 00000014 00000400 00000001 00000001
+May 18 17:27:20 erde kernel:        c027363c c0145e09 c2a6ecc0 00000000 00000000 c1a5be60 fffffff4 c4546340
+May 18 17:27:20 erde kernel:        c2a6ecc0 c5a897c0 c1ea1ef8 c1a5be68 c1a5be84 00000000 00000000 00001000
+May 18 17:27:20 erde kernel: Call Trace: [ext2_find_entry+129/784] [process_timeout+14/20] [timer_bh+644/928] [ext2_lookup+48/140] [do_IRQ+65/72] [real_lookup+91/180] [common_interrupt+24/32]
+May 18 17:27:20 erde kernel:        [lookup_dentry+304/504] [getname+95/156] [__namei+49/104] [do_8259A_IRQ+143/156] [sys_access+143/268] [system_call+52/64] [startup_32+43/285]
+May 18 17:27:20 erde kernel: Code: 24 1c 8b 98 08 01 00 00 c7 01 fb ff ff ff 85 f6 7d 0c 83 c4
+
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ksymoops-oops.txt"
+
+ksymoops 0.7c on i586 2.2.17.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.2.17/ (default)
+     -m /boot/System.map.2.2.17 (specified)
+
+May 18 17:27:20 erde kernel: Unable to handle kernel paging request at virtual address 0696f974
+May 18 17:27:20 erde kernel: current->tss.cr3 = 044e0000, %cr3 = 044e0000
+May 18 17:27:20 erde kernel: *pde = 00000000
+May 18 17:27:20 erde kernel: Oops: 0000
+May 18 17:27:20 erde kernel: CPU:    0
+May 18 17:27:20 erde kernel: EIP:    0010:[ext2_getblk+30/540]
+May 18 17:27:20 erde kernel: EFLAGS: 00010246
+May 18 17:27:20 erde kernel: eax: c5f95a00   ebx: fffffff4   ecx: c1a5be60   edx: 00000400
+May 18 17:27:20 erde kernel: esi: 00000000   edi: c2a6ecc0   ebp: c2a6ecc0   esp: c1a5bdfc
+May 18 17:27:20 erde kernel: ds: 0018   es: 0018   ss: 0018
+May 18 17:27:20 erde kernel: Process ksysguard (pid: 6625, process nr: 91, stackpage=c1a5b000)
+May 18 17:27:20 erde kernel: Stack: c2a6ecc0 c5a897c0 c2bbb000 00100000 00000014 00000400 00000001 00000001
+May 18 17:27:20 erde kernel:        c027363c c0145e09 c2a6ecc0 00000000 00000000 c1a5be60 fffffff4 c4546340
+May 18 17:27:20 erde kernel:        c2a6ecc0 c5a897c0 c1ea1ef8 c1a5be68 c1a5be84 00000000 00000000 00001000
+May 18 17:27:20 erde kernel: Call Trace: [ext2_find_entry+129/784] [process_timeout+14/20] [timer_bh+644/928] [ext2_lookup+48/140] [do_IRQ+65/72] [real_lookup+91/180] [common_interrupt+24/32]
+May 18 17:27:20 erde kernel: Code: 24 1c 8b 98 08 01 00 00 c7 01 fb ff ff ff 85 f6 7d 0c 83 c4
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   24 1c                     and    $0x1c,%al
+Code;  00000002 Before first symbol
+   2:   8b 98 08 01 00 00         mov    0x108(%eax),%ebx
+Code;  00000008 Before first symbol
+   8:   c7 01 fb ff ff ff         movl   $0xfffffffb,(%ecx)
+Code;  0000000e Before first symbol
+   e:   85 f6                     test   %esi,%esi
+Code;  00000010 Before first symbol
+  10:   7d 0c                     jge    1e <_EIP+0x1e> 0000001e Before first symbol
+Code;  00000012 Before first symbol
+  12:   83 c4 00                  add    $0x0,%esp
+
+
+--BOKacYhQ+x31HxR3--
+
+--3uo+9/B/ebqu+fSQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE7BVDz/28tHYzewY8RAg2CAKCuKxbVwhvm5ne+Q8jPWGLCS9ObQQCggYqL
+pRitZfv/ZZqpH8HDlfXIQ/8=
+=bjwn
+-----END PGP SIGNATURE-----
+
+--3uo+9/B/ebqu+fSQ--

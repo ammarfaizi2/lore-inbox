@@ -1,41 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUHGI7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUHGJ57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUHGI7m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 04:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUHGI7m
+	id S261169AbUHGJ57 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 05:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUHGJ57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 04:59:42 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:23938
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S261159AbUHGI7l convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 04:59:41 -0400
-Subject: Re: [PATCH] implement in-kernel keys & keyring management
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Howells <dhowells@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjanv@redhat.com, dwmw2@infradead.org,
-       jmorris@redhat.com, greg@kroah.com, Chris Wright <chrisw@osdl.org>,
-       sfrench@samba.org, mike@halcrow.us, Kyle Moffett <mrmacman_g4@mac.com>
-In-Reply-To: <6453.1091838705@redhat.com>
-References: <6453.1091838705@redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1091869155.4373.28.camel@lade.trondhjem.org>
+	Sat, 7 Aug 2004 05:57:59 -0400
+Received: from s-und-t-linnich.de ([217.160.180.132]:40941 "HELO
+	s-und-t-linnich.de") by vger.kernel.org with SMTP id S261169AbUHGJ55
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 05:57:57 -0400
+Date: Sat, 7 Aug 2004 13:57:10 +0200
+From: Seabastian <admin@wodkahexe.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with OOMKiller 2.6.8-rc3
+Message-Id: <20040807135710.0a6475c4.admin@wodkahexe.de>
+In-Reply-To: <20040806220351.5e2b69b0.akpm@osdl.org>
+References: <20040806195709.160722fa.admin@wodkahexe.de>
+	<20040806220351.5e2b69b0.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 07 Aug 2004 01:59:15 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 06/08/2004 klokka 17:31, skreiv David Howells:
->  - Two std keyrings per user: per-user and default-user-session
+On Fri, 6 Aug 2004 22:03:51 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-So what *is* the reason for the "per-user" and "default-user-session"
-keys?
+> "admin@wodkahexe.de" <admin@wodkahexe.de> wrote:
+> >
+> > today i tried to burn a cd (bin+cue image) that was located on an
+> >  nfs share.
+> > 
+> >  - boot 2.6.8-rc3
+> >  - startx
+> >  - start k3b
+> >  - burn image
+> > 
+> >  after ~50% of burning the mouse stopped moving over the screen. the
+> >  keyboard was dead.
+> 
+> What sort of CD was it?  Audio?  Judging by k3b.org, I'd say it was.
 
-In a strong authentication model, a setuid process should not normally
-find itself automatically authenticated to a new set of keys.
+it was an svcd
 
-Cheers,
-  Trond
+> 
+> >  the maschine was reachable via network, so i ssh'd and saw the
+> >  following in dmesg:
+> > 
+> >  laptop oom-killer: gfp_mask=0x1d2
+> >  laptop DMA per-cpu:
+> >  laptop cpu 0 hot: low 2, high 6, batch 1 
+> >  laptop cpu 0 cold: low 0, high 2, batch 1 
+> >  laptop Normal per-cpu:
+> >  laptop cpu 0 hot: low 32, high 96, batch 16
+> >  laptop cpu 0 cold: low 0, high 32, batch 16
+> >  laptop HighMem per-cpu: empty
+> >  laptop  
+> >  laptop Free pages:        2192kB (0kB HighMem)
+> >  laptop Active:2113 inactive:643 dirty:0 writeback:0 unstable:0 free:548 slab:2233 mapped:1518 pagetables:210
+> >  laptop DMA free:1376kB min:20kB low:40kB high:60kB active:0kB inactive:0kB present:16384kB
+> >  laptop protections[]: 10 354 354 
+> >  laptop Normal free:816kB min:688kB low:1376kB high:2064kB active:8452kB inactive:2572kB present:491456kB
+> 
+> All your memory seems to have gone away.  There's a memory leak associated
+> with audio writing which we haven't yet tracked down - it's probably that.
+> 
+
+since it was an svcd, it may not be this one.
+
+i tried to burn the image again, while not being on an nfs share.
+but i got the same problem again.
+
+with 2.6.8-rc2 i can burn this image. (from nfs share or local)
+-> no problem.
+
+so it may be 2.6.8-rc3 related.
+
+thanks
+
+sebastian

@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUHXIVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUHXIlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUHXIVh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 04:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHXIVh
+	id S266703AbUHXIlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 04:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHXIlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 04:21:37 -0400
-Received: from [203.178.140.15] ([203.178.140.15]:48396 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S266758AbUHXIVW
+	Tue, 24 Aug 2004 04:41:24 -0400
+Received: from host-ip82-243.crowley.pl ([62.111.243.82]:40465 "HELO
+	software.com.pl") by vger.kernel.org with SMTP id S266703AbUHXIlC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 04:21:22 -0400
-Date: Tue, 24 Aug 2004 17:22:07 +0900 (JST)
-Message-Id: <20040824.172207.109934952.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com, jgarzik@pobox.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: IPv6 oops on ifup in latest BK
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040823235123.71f18c04.davem@redhat.com>
-References: <412ADB20.5000901@pobox.com>
-	<20040823235123.71f18c04.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 24 Aug 2004 04:41:02 -0400
+From: Karol Kozimor <kkozimor@aurox.org>
+Organization: Aurox Sp. z o.o.
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+Date: Tue, 24 Aug 2004 10:42:04 +0200
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>
+References: <1093286089538@kroah.com>
+In-Reply-To: <1093286089538@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408241042.04501.kkozimor@aurox.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040823235123.71f18c04.davem@redhat.com> (at Mon, 23 Aug 2004 23:51:23 -0700), "David S. Miller" <davem@redhat.com> says:
+On Monday 23 of August 2004 20:34, Greg KH wrote:
+> ChangeSet 1.1807.56.42, 2004/08/09 16:39:49-07:00, sziwan@hell.org.pl
+>
+> [PATCH] PCI: ASUS L3C SMBus fixup
+>
+> Following the notes on bug #2976, here's the patch to add ASUS L3C
+> notebook to the list of machines hiding SMBus chip. The patch is against
+> 2.6.8-rc3-mm1.
 
-> > Attached minicom.cap.txt gives the ksymoops output and dmesg output. 
-> > Appears to die in ipv6_get_hoplimit.
-> 
-> Yoshifuji-san, it is rt6i_dev changes.  The problem is that
-> ipv6_get_hoplimit() gets called with NULL dev.
-:
-> It is this piece of code in ip6_route_add():
-> 
-> 		if (dev && dev != &loopback_dev) {
-> 
-> It does not handle the case where dev == NULL correctly.
-> Original code did do the right thing:
-> 
-> 		if (dev)
-> 			dev_put(dev);
-> 		dev = &loopback_dev;
-> 		dev_hold(dev);
-
-Good catch and spotting.  Please try this patch.
-Thank you.
-
-===== net/ipv6/route.c 1.88 vs edited =====
---- 1.88/net/ipv6/route.c	2004-08-17 11:25:06 +09:00
-+++ edited/net/ipv6/route.c	2004-08-24 17:09:10 +09:00
-@@ -820,9 +820,12 @@
- 	 */
- 	if ((rtmsg->rtmsg_flags&RTF_REJECT) ||
- 	    (dev && (dev->flags&IFF_LOOPBACK) && !(addr_type&IPV6_ADDR_LOOPBACK))) {
--		if (dev && dev != &loopback_dev) {
--			dev_put(dev);
--			in6_dev_put(idev);
-+		/* hold loopback dev/idev if we haven't done so. */
-+		if (dev != &loopback_dev) {
-+			if (dev) {
-+				dev_put(dev);
-+				in6_dev_put(idev);
-+			}
- 			dev = &loopback_dev;
- 			dev_hold(dev);
- 			idev = in6_dev_get(dev);
-
+This patch (and possibly all similar) breaks ACPI thermal zone handling, 
+there's a patch by Eric Valette to address that (see bugzilla #3191).
+Best regards,
 
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUGLRN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUGLRVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUGLRN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 13:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUGLRN2
+	id S265248AbUGLRVK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 13:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUGLRVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 13:13:28 -0400
-Received: from hera.kernel.org ([63.209.29.2]:34511 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266891AbUGLRN0 (ORCPT
+	Mon, 12 Jul 2004 13:21:10 -0400
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:4561 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S265248AbUGLRVH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 13:13:26 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: question about ramdisk
-Date: Mon, 12 Jul 2004 17:13:02 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ccugqu$tun$1@terminus.zytor.com>
-References: <1089651469.40f2c30d44364@core.ece.northwestern.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1089652382 30680 127.0.0.1 (12 Jul 2004 17:13:02 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 12 Jul 2004 17:13:02 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Mon, 12 Jul 2004 13:21:07 -0400
+Message-ID: <40F2C882.7070406@isg.de>
+Date: Mon, 12 Jul 2004 19:21:06 +0200
+From: Lutz Vieweg <lkv@isg.de>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
+X-Accept-Language: de, German, en
+MIME-Version: 1.0
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to find out which pages were copied-on-write?
+References: <40EACC0C.6060606@isg.de> <20040709113125.GA8897@lnx-holt.americas.sgi.com> <40EF0346.4040407@isg.de> <40EFA4C8.1050409@metaparadigm.com>
+In-Reply-To: <40EFA4C8.1050409@metaparadigm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1089651469.40f2c30d44364@core.ece.northwestern.edu>
-By author:    lya755@ece.northwestern.edu
-In newsgroup: linux.dev.kernel
->
-> Hi all,
+Michael Clark wrote:
+> HPAs library LPSM sounds like what you're looking for.
 > 
-> I am learning linux kernel and have a question about ramdisk. When loading an 
-> executable in ramdisk, is the kernel loading the code all at a time to memory 
-> and then execute, or is it loading only a page at one time and generating a 
-> page fault to fetch another page?
+> http://freshmeat.net/projects/lpsm/
 > 
-> Thanks for any comments! Waiting desprately for your help.
-> 
+> Or you can do what you want the hard way using mprotect and a SEGV handler.
 
-Neither.  The code is already in RAM.  It's mapped into the process
-address space and run in place.
+Certainly a valid idea to consider - doing all those things in userspace... so
+thanks for the hint!
 
-	-hpa
+But wouldn't that introduce a significant overhead and undermine all of the
+nice advantages the kernel might have in scheduling I/O operations?
+
+However, I shall really consider and profile the mprotect/sighandler approach...
+
+Regards,
+
+Lutz Vieweg
+
+PS: I'm using my own allocator already, so using the C-library implementation
+     wouldn't gain me much...
+
+

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129258AbRBMKLx>; Tue, 13 Feb 2001 05:11:53 -0500
+	id <S129267AbRBMKMc>; Tue, 13 Feb 2001 05:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRBMKLn>; Tue, 13 Feb 2001 05:11:43 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:24772 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129258AbRBMKLY>;
-	Tue, 13 Feb 2001 05:11:24 -0500
-Date: Tue, 13 Feb 2001 10:08:37 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: george anzinger <george@mvista.com>
-Cc: Rasmus Andersen <rasmus@jaquet.dk>, Rik van Riel <riel@conectiva.com.br>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
-Message-ID: <20010213100837.O20696@redhat.com>
-In-Reply-To: <20010129222337.F603@jaquet.dk> <Pine.LNX.4.21.0101291929120.1321-100000@duckman.distro.conectiva> <20010129224311.H603@jaquet.dk> <3A88A6ED.6B51BCA9@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A88A6ED.6B51BCA9@mvista.com>; from george@mvista.com on Mon, Feb 12, 2001 at 07:15:57PM -0800
+	id <S129837AbRBMKMW>; Tue, 13 Feb 2001 05:12:22 -0500
+Received: from comunit.de ([195.21.213.33]:13898 "HELO comunit.de")
+	by vger.kernel.org with SMTP id <S129267AbRBMKMI>;
+	Tue, 13 Feb 2001 05:12:08 -0500
+Date: Tue, 13 Feb 2001 11:12:01 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: <haegar@space.comunit.de>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: lkml subject line
+In-Reply-To: <Pine.LNX.4.33.0102130341580.1123-100000@asdf.capslock.lan>
+Message-ID: <Pine.LNX.4.32.0102131107400.21378-100000@space.comunit.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 13 Feb 2001, Mike A. Harris wrote:
 
-On Mon, Feb 12, 2001 at 07:15:57PM -0800, george anzinger wrote:
-> Excuse me if I am off base here, but wouldn't an atomic operation be
-> better here.  There are atomic inc/dec and add/sub macros for this.  It
-> just seems that that is all that is needed here (from inspection of the
-> patch).
+[cc-list trimmed]
 
-The counter-argument is that we already hold the page table lock in
-the vast majority of places where the rss is modified, so overall it's
-cheaper to avoid the extra atomic update.
+> That said, and while we're on the topic.. Does anyone have a
+> *PERFECT* recipe for procmail to REMOVE the stupid [Dummy] things
+> most GNU mailman lists and others prepend to the subject?
 
-Cheers,
- Stephen
+I am using the following to sort the suse-security-list (for example, I do
+the same on all lists that tag something into the subject):
+
+:0 fhw
+* ^TO_suse-security@suse.com
+| sed -e '/^Subject:/s/\[suse-security\] //'
+:0 A:
+SuSE-Security$MONTH
+
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+

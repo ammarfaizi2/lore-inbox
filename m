@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSKRTQj>; Mon, 18 Nov 2002 14:16:39 -0500
+	id <S263968AbSKRTX4>; Mon, 18 Nov 2002 14:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbSKRTQj>; Mon, 18 Nov 2002 14:16:39 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35087 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262506AbSKRTQi>; Mon, 18 Nov 2002 14:16:38 -0500
+	id <S264620AbSKRTX4>; Mon, 18 Nov 2002 14:23:56 -0500
+Received: from 86.195.27.24.cfl.rr.com ([24.27.195.86]:8845 "EHLO
+	www.compucrew.com") by vger.kernel.org with ESMTP
+	id <S263968AbSKRTX4>; Mon, 18 Nov 2002 14:23:56 -0500
+Message-ID: <1037649307.3dd9459b8997b@www2.compucrew.com>
+Date: Mon, 18 Nov 2002 14:55:07 -0500
+From: Lee Nash <lee@compucrew.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: tco/rng support for Intel chipsets other than the i810?
-Date: 18 Nov 2002 11:23:32 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <arbenk$7ct$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0211181410000.16963-100000@light.webcon.net> <3DD93CD2.10100@pobox.com>
+Subject: mk712 driver patch
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3DD93CD2.10100@pobox.com>
-By author:    Jeff Garzik <jgarzik@pobox.com>
-In newsgroup: linux.dev.kernel
-> 
-> >
-> > Do you think I can just add an entry into the rng_pci_tbl[] for my 845PE
-> > (8086, 2560) and have it work?
-> 
-> I don't have the docs, so I'm guessing here, but it's entirely possible.
-> 
+Hey,
+  I think this is a typo in the mk712 device driver.  It would always
+fail even though the region appears in /proc/ioports.  
 
-FWIW, the Intel RNG isn't really in the chipset proper, but rather in
-the "firmware hub", the glorified BIOS ROM.  The detection mechanism
-is interesting, to say the least.
+After this patch, the device works correctly.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Thanks,
+-lee
+
+diff -ur linux-2.4.19.orig/drivers/char/mk712.c linux-
+2.4.19/drivers/char/mk712.c
+--- linux-2.4.19.orig/drivers/char/mk712.c	Fri Aug  2 20:39:43 2002
++++ linux-2.4.19/drivers/char/mk712.c	Mon Nov 18 13:09:59 2002
+@@ -439,7 +439,7 @@
+                 mk712_irq = irq;
+ #endif
+ 
+-	if(request_region(mk712_io, 8, "mk712_touchscreen"))
++	if(!request_region(mk712_io, 8, "mk712_touchscreen"))
+ 	{
+ 		printk("mk712: unable to get IO region\n");
+ 		return -ENODEV;

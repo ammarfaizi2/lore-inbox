@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVCBQ4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVCBQ62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVCBQ4n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 11:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVCBQye
+	id S262358AbVCBQ62 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 11:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVCBQxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 11:54:34 -0500
-Received: from alog0675.analogic.com ([208.224.223.212]:24504 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262376AbVCBQxE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 11:53:04 -0500
-Date: Wed, 2 Mar 2005 11:51:43 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Patch Linux-2.6.11 jiffies.h uses shadowed variable names.
-Message-ID: <Pine.LNX.4.61.0503021146180.5511@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-1760998023-1109782303=:5511"
+	Wed, 2 Mar 2005 11:53:55 -0500
+Received: from pat.uio.no ([129.240.130.16]:52695 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262378AbVCBQxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 11:53:20 -0500
+Subject: Re: x86_64: 32bit emulation problems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: Andi Kleen <ak@muc.de>, Andreas Schwab <schwab@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503021233.57341.bernd-schubert@web.de>
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
+	 <20050302081858.GA7672@muc.de>
+	 <1109754818.10407.48.camel@lade.trondhjem.org>
+	 <200503021233.57341.bernd-schubert@web.de>
+Content-Type: text/plain
+Date: Wed, 02 Mar 2005 08:53:07 -0800
+Message-Id: <1109782387.9667.11.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.333, required 12,
+	autolearn=disabled, AWL 1.67, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+on den 02.03.2005 Klokka 12:33 (+0100) skreiv Bernd Schubert:
 
---1879706418-1760998023-1109782303=:5511
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+> > I can see no good reason for truncating inode number values on platforms
+> > that actually do support 64-bit inode numbers, but I can see several
+> 
+> Well, at least we would have a reason ;)
 
-
-The attached patch was sent for 2.6.10 but the kernel was
-never updated. The kernel used to be compiled with -Wshadow
-and would catch these problems. It no longer is (and it
-should be).
-
-I attached it so the M$ mail-sender doesn't dork with
-white-space.
-
-Signed Off By: rjohnson@analogic.com
+A 32-bit emulation mode is clearly a "platform" which does NOT support
+64-bit inode numbers, however there is (currently) no way for the kernel
+to detect that you are running that. Any extra truncation should
+therefore ideally be done by the emulation layer rather than the kernel
+itself.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-1760998023-1109782303=:5511
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="jiffies.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.61.0503021151430.5511@chaos.analogic.com>
-Content-Description: 
-Content-Disposition: attachment; filename="jiffies.patch"
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-LS0tIGxpbnV4LTIuNi4xMS9pbmNsdWRlL2xpbnV4L2ppZmZpZXMuaC5vcmln
-CTIwMDUtMDMtMDIgMTE6Mjk6MjcuMDAwMDAwMDAwIC0wNTAwDQorKysgbGlu
-dXgtMi42LjExL2luY2x1ZGUvbGludXgvamlmZmllcy5oCTIwMDUtMDMtMDIg
-MTE6MzY6MDUuMDAwMDAwMDAwIC0wNTAwDQpAQCAtMzI4LDEzICszMjgsMTMg
-QEANCiB9DQogDQogc3RhdGljIF9faW5saW5lX18gdm9pZA0KLWppZmZpZXNf
-dG9fdGltZXNwZWMoY29uc3QgdW5zaWduZWQgbG9uZyBqaWZmaWVzLCBzdHJ1
-Y3QgdGltZXNwZWMgKnZhbHVlKQ0KK2ppZmZpZXNfdG9fdGltZXNwZWMoY29u
-c3QgdW5zaWduZWQgbG9uZyBqaWYsIHN0cnVjdCB0aW1lc3BlYyAqdmFsdWUp
-DQogew0KIAkvKg0KIAkgKiBDb252ZXJ0IGppZmZpZXMgdG8gbmFub3NlY29u
-ZHMgYW5kIHNlcGFyYXRlIHdpdGgNCiAJICogb25lIGRpdmlkZS4NCiAJICov
-DQotCXU2NCBuc2VjID0gKHU2NClqaWZmaWVzICogVElDS19OU0VDOw0KKwl1
-NjQgbnNlYyA9ICh1NjQpamlmICogVElDS19OU0VDOw0KIAl2YWx1ZS0+dHZf
-c2VjID0gZGl2X2xvbmdfbG9uZ19yZW0obnNlYywgTlNFQ19QRVJfU0VDLCAm
-dmFsdWUtPnR2X25zZWMpOw0KIH0NCiANCkBAIC0zNjYsMTMgKzM2NiwxMyBA
-QA0KIH0NCiANCiBzdGF0aWMgX19pbmxpbmVfXyB2b2lkDQotamlmZmllc190
-b190aW1ldmFsKGNvbnN0IHVuc2lnbmVkIGxvbmcgamlmZmllcywgc3RydWN0
-IHRpbWV2YWwgKnZhbHVlKQ0KK2ppZmZpZXNfdG9fdGltZXZhbChjb25zdCB1
-bnNpZ25lZCBsb25nIGppZiwgc3RydWN0IHRpbWV2YWwgKnZhbHVlKQ0KIHsN
-CiAJLyoNCiAJICogQ29udmVydCBqaWZmaWVzIHRvIG5hbm9zZWNvbmRzIGFu
-ZCBzZXBhcmF0ZSB3aXRoDQogCSAqIG9uZSBkaXZpZGUuDQogCSAqLw0KLQl1
-NjQgbnNlYyA9ICh1NjQpamlmZmllcyAqIFRJQ0tfTlNFQzsNCisJdTY0IG5z
-ZWMgPSAodTY0KWppZiAqIFRJQ0tfTlNFQzsNCiAJdmFsdWUtPnR2X3NlYyA9
-IGRpdl9sb25nX2xvbmdfcmVtKG5zZWMsIE5TRUNfUEVSX1NFQywgJnZhbHVl
-LT50dl91c2VjKTsNCiAJdmFsdWUtPnR2X3VzZWMgLz0gTlNFQ19QRVJfVVNF
-QzsNCiB9DQo=
-
---1879706418-1760998023-1109782303=:5511--

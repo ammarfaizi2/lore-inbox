@@ -1,181 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261972AbSJJT0z>; Thu, 10 Oct 2002 15:26:55 -0400
+	id <S262104AbSJJT3a>; Thu, 10 Oct 2002 15:29:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSJJT0z>; Thu, 10 Oct 2002 15:26:55 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:40576 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261972AbSJJT0s>; Thu, 10 Oct 2002 15:26:48 -0400
-Date: Thu, 10 Oct 2002 14:32:18 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.41-mm2+] Shared page table bugfix for mprotect
-Message-ID: <167610000.1034278338@baldur.austin.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1014540887=========="
+	id <S262110AbSJJT3a>; Thu, 10 Oct 2002 15:29:30 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:52233 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262104AbSJJT31>;
+	Thu, 10 Oct 2002 15:29:27 -0400
+Date: Thu, 10 Oct 2002 21:34:40 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: [PATCH] Distributed clean
+Message-ID: <20021010213440.A508@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1014540887==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Here is a set of patches to implement distributed clean.
+A cleanup of Documentation/DocBook is included as well.
+
+See diffstat and changeset descriptions below.
+Can be pulled from http://linux-sam.bkbits.net/kbuild2
+Regular patches will follow this one.
 
 
-I discovered I hadn't done the right things for mprotect, so here's a patch
-that fixes it.  It goes on top of the #ifdef cleanup I sent earlier today.
+The whole purpose with this is to move out the centralised list
+of files that today is present in the top-level makefile
+to the individual makefile where they originally are created.
 
-Dave McCracken
+During a make clean, all makefile are traversed recursively,
+and for each makfile all files listed with
+clean-files := file file
+are deleted.
+Furthermore all *.oas, .*.tmp .*.d files are deleted in all
+directories looked into.
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+The list of directories are build upon the normal obj-$(CONFIG_XX)
+rules, with the addition of empty "obj-" and negative "obj-n" directories
+are searched as well.
 
---==========1014540887==========
-Content-Type: text/plain; charset=iso-8859-1; name="shpte-2.5.41-mm2-2.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="shpte-2.5.41-mm2-2.diff"; size=4158
+The first patch implements the infrastructure only, and therefore Rules.make
+is touched.
+The subsequent patches introduce the usage in the kernel tree, and the
+net result is that CLEAN_FILES is down to one line, and MRPROPER_FILES
+is several lines shorter.
 
---- 2.5.41-mm2-shsent/./include/linux/mm.h	2002-10-10 10:34:58.000000000 =
--0500
-+++ 2.5.41-mm2-shpte/./include/linux/mm.h	2002-10-10 13:23:30.000000000 =
--0500
-@@ -360,6 +360,7 @@
-=20
- extern void zap_page_range(struct vm_area_struct *vma, unsigned long =
-address, unsigned long size);
- #ifdef CONFIG_SHAREPTE
-+extern pte_t *pte_unshare(struct mm_struct *mm, pmd_t *pmd, unsigned long =
-address);
- extern int share_page_range(struct mm_struct *dst, struct mm_struct *src, =
-struct vm_area_struct *vma, pmd_t **prev_pmd);
- #else
- extern int copy_page_range(struct mm_struct *dst, struct mm_struct *src, =
-struct vm_area_struct *vma);
---- 2.5.41-mm2-shsent/./include/asm-i386/pgtable.h	2002-10-10 =
-10:17:55.000000000 -0500
-+++ 2.5.41-mm2-shpte/./include/asm-i386/pgtable.h	2002-10-10 =
-13:14:48.000000000 -0500
-@@ -212,6 +212,7 @@
- static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |=3D _PAGE_RW; =
-return pte; }
- static inline int pmd_write(pmd_t pmd)		{ return (pmd).pmd & _PAGE_RW; }
- static inline pmd_t pmd_wrprotect(pmd_t pmd)	{ (pmd).pmd &=3D ~_PAGE_RW; =
-return pmd; }
-+static inline pmd_t pmd_mkwrite(pmd_t pmd)	{ (pmd).pmd |=3D _PAGE_RW; =
-return pmd; }
-=20
- static inline  int ptep_test_and_clear_dirty(pte_t *ptep)	{ return =
-test_and_clear_bit(_PAGE_BIT_DIRTY, &ptep->pte_low); }
- static inline  int ptep_test_and_clear_young(pte_t *ptep)	{ return =
-test_and_clear_bit(_PAGE_BIT_ACCESSED, &ptep->pte_low); }
---- 2.5.41-mm2-shsent/./mm/mprotect.c	2002-10-10 10:17:57.000000000 -0500
-+++ 2.5.41-mm2-shpte/./mm/mprotect.c	2002-10-10 13:31:14.000000000 -0500
-@@ -16,6 +16,7 @@
- #include <linux/fs.h>
- #include <linux/highmem.h>
- #include <linux/security.h>
-+#include <linux/rmap-locking.h>
-=20
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-@@ -24,10 +25,11 @@
- #include <asm/tlbflush.h>
-=20
- static inline void
--change_pte_range(pmd_t *pmd, unsigned long address,
-+change_pte_range(struct vm_area_struct *vma, pmd_t *pmd, unsigned long =
-address,
- 		unsigned long size, pgprot_t newprot)
- {
- 	pte_t * pte;
-+	struct page *ptepage;
- 	unsigned long end;
-=20
- 	if (pmd_none(*pmd))
-@@ -37,11 +39,32 @@
- 		pmd_clear(pmd);
- 		return;
- 	}
--	pte =3D pte_offset_map(pmd, address);
-+	ptepage =3D pmd_page(*pmd);
-+	pte_page_lock(ptepage);
- 	address &=3D ~PMD_MASK;
- 	end =3D address + size;
- 	if (end > PMD_SIZE)
- 		end =3D PMD_SIZE;
-+
-+#ifdef CONFIG_SHAREPTE
-+	if (page_count(ptepage) > 1) {
-+		if ((address =3D=3D 0) && (end =3D=3D PMD_SIZE)) {
-+			pmd_t	pmdval =3D *pmd;
-+
-+			if (vma->vm_flags & VM_MAYWRITE)
-+				pmdval =3D pmd_mkwrite(pmdval);
-+			else
-+				pmdval =3D pmd_wrprotect(pmdval);
-+			set_pmd(pmd, pmdval);
-+			pte_page_unlock(ptepage);
-+			return;
-+		}
-+		pte =3D pte_unshare(vma->vm_mm, pmd, address);
-+		ptepage =3D pmd_page(*pmd);
-+	} else
-+#endif
-+		pte =3D pte_offset_map(pmd, address);
-+
- 	do {
- 		if (pte_present(*pte)) {
- 			pte_t entry;
-@@ -56,11 +79,12 @@
- 		address +=3D PAGE_SIZE;
- 		pte++;
- 	} while (address && (address < end));
-+	pte_page_unlock(ptepage);
- 	pte_unmap(pte - 1);
- }
-=20
- static inline void
--change_pmd_range(pgd_t *pgd, unsigned long address,
-+change_pmd_range(struct vm_area_struct *vma, pgd_t *pgd, unsigned long =
-address,
- 		unsigned long size, pgprot_t newprot)
- {
- 	pmd_t * pmd;
-@@ -79,7 +103,7 @@
- 	if (end > PGDIR_SIZE)
- 		end =3D PGDIR_SIZE;
- 	do {
--		change_pte_range(pmd, address, end - address, newprot);
-+		change_pte_range(vma, pmd, address, end - address, newprot);
- 		address =3D (address + PMD_SIZE) & PMD_MASK;
- 		pmd++;
- 	} while (address && (address < end));
-@@ -98,7 +122,7 @@
- 		BUG();
- 	spin_lock(&current->mm->page_table_lock);
- 	do {
--		change_pmd_range(dir, start, end - start, newprot);
-+		change_pmd_range(vma, dir, start, end - start, newprot);
- 		start =3D (start + PGDIR_SIZE) & PGDIR_MASK;
- 		dir++;
- 	} while (start && (start < end));
---- 2.5.41-mm2-shsent/./mm/memory.c	2002-10-10 10:35:34.000000000 -0500
-+++ 2.5.41-mm2-shpte/./mm/memory.c	2002-10-10 13:22:29.000000000 -0500
-@@ -218,7 +218,7 @@
-  * held.
-  */
-=20
--static pte_t *pte_unshare(struct mm_struct *mm, pmd_t *pmd, unsigned long =
-address)
-+pte_t *pte_unshare(struct mm_struct *mm, pmd_t *pmd, unsigned long =
-address)
- {
- 	pte_t	*src_ptb, *dst_ptb;
- 	struct page *oldpage, *newpage, *tmppage;
+The only new behaviour introduced are that firmware files are now deleted
+during make clean, as any other generated files.
 
---==========1014540887==========--
+Based on a concept originally by Kai Germaschewski.
+
+Please apply,
+
+	Sam
+
+ Documentation/DocBook/Makefile           |   52 ++++++++++++-------------------
+ Makefile                                 |   40 +----------------------
+ drivers/atm/Makefile                     |    6 ++-
+ drivers/char/Makefile                    |    3 +
+ drivers/net/hamradio/soundmodem/Makefile |    6 +++
+ drivers/pci/Makefile                     |    3 +
+ drivers/scsi/Makefile                    |    6 ++-
+ drivers/scsi/aic7xxx/Makefile            |   14 ++++++--
+ drivers/scsi/aic7xxx/aicasm/Makefile     |    2 -
+ drivers/video/Makefile                   |    3 +
+ drivers/zorro/Makefile                   |    3 +
+ init/Makefile                            |   10 ++++-
+ sound/oss/Makefile                       |    4 ++
+ 13 files changed, 74 insertions(+), 78 deletions(-)
+
+ChangeSet@1.748.1.1, 2002-10-10 20:24:45+02:00, sam@mars.ravnborg.org
+  kbuild: Distributed clean infrastructure
+    
+  Today there is a huge list of files in the top-level Makefile that is
+  deleted during make clean and make mrproper.
+  This patch add infrastructure to get rid of this centralised list.
+  
+  Within a makefile simply use:
+  clean-files := files-to-be-deleted
+  or eventually
+  clean-rule := command to be executed to delete files
+    
+  Files specified by host-progs and EXTRA_TARGETS are deleted during cleaning,
+  and the same is all *.[oas] .*.cmd .*.tmp .*.d in the visited directories.
+    
+  Deleting core files is moved down to mrporper time
+  
+  Patches utilising this and the centralised list will dismiss.
+  
+  Based on a concept originally made by Kai Germaschewski
+
+ChangeSet@1.748.1.2, 2002-10-10 20:44:28+02:00, sam@mars.ravnborg.org
+  scsi+aic7xxx: Utilise distributed clean
+  List files to be deleted during make clean where they are created
+
+ChangeSet@1.748.1.3, 2002-10-10 20:50:19+02:00, sam@mars.ravnborg.org
+  drivers/{atm,char,pci,video,zorro}: ditributed clean
+  Move list of files to be deleted during make clean out where
+  they are made. host-progs files taken care of automagically
+
+ChangeSet@1.748.1.4, 2002-10-10 20:52:41+02:00, sam@mars.ravnborg.org
+  drivers/net/hamradio/soundmodem: distributed clean
+  Move list of files out where it belongs
+
+ChangeSet@1.748.1.5, 2002-10-10 20:57:03+02:00, sam@mars.ravnborg.org
+  kbuild: Distributed clean, misc.
+  o Move sound/oss file list to sound/oss/Makefile
+  o Remove files non-existing in the tree (khttp,net/802/submenu)
+  o scripts/* are handled by scripts makefile
+  o Do not delete .config*, be more explicit
+  o Add MC* - files generated by Menuconfig in toplevel dir
+
+ChangeSet@1.748.1.6, 2002-10-10 21:04:21+02:00, sam@mars.ravnborg.org
+  docbook: Makefile cleanup
+  o Removed special rules for JBD, covered by the general mechanishm
+  o Use $(obj)/ instead of Documentation/DocBook
+  o Introduced usage of Distributed clean
+  o No longer delete *~ files in top-level directory during clean
 

@@ -1,137 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbUAZDKg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 22:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUAZDKg
+	id S265442AbUAZDNA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 22:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbUAZDM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 22:10:36 -0500
-Received: from mail.cyberus.ca ([209.197.145.21]:55478 "EHLO mail.cyberus.ca")
-	by vger.kernel.org with ESMTP id S265431AbUAZDK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 22:10:29 -0500
-Subject: Re: [RFC/PATCH] IMQ port to 2.6
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20040126001102.GA12303@usr.lcm.msu.ru>
-References: <20040125152419.GA3208@penguin.localdomain>
-	 <20040125164431.GA31548@louise.pinerecords.com>
-	 <1075058539.1747.92.camel@jzny.localdomain>
-	 <20040125202148.GA10599@usr.lcm.msu.ru>
-	 <1075074316.1747.115.camel@jzny.localdomain>
-	 <20040126001102.GA12303@usr.lcm.msu.ru>
-Content-Type: text/plain
-Organization: jamalopolis
-Message-Id: <1075086588.1732.221.camel@jzny.localdomain>
+	Sun, 25 Jan 2004 22:12:59 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:2545 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S265442AbUAZDMq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 22:12:46 -0500
+Date: Sun, 25 Jan 2004 22:22:42 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040125222242.A24443@mail.kroptech.com>
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <microsoft-free.877jzfoc5h.fsf@eicq.dnsalias.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 25 Jan 2004 22:09:48 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <microsoft-free.877jzfoc5h.fsf@eicq.dnsalias.org>; from sryoungs@bigpond.net.au on Mon, Jan 26, 2004 at 09:12:58AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-01-25 at 19:11, Vladimir B. Savkin wrote:
-> On Sun, Jan 25, 2004 at 06:45:16PM -0500, jamal wrote:
-[..]
+On Mon, Jan 26, 2004 at 09:12:58AM +1000, Steve Youngs wrote:
+> * Linus Torvalds <torvalds@osdl.org> writes:
 > 
-> With typical internet traffic patterns, policing will drop many packets,
-> and shaping will not.
-
-What is typical internet traffic? I guess you mean TCP (thats what 90%
-of the traffic is)
-In that case, the effect of dropping or delaying on throughput is
-similar. Studies i have seen indicate that throughput is directly
-proportional to the square root of the drop probability
-(drop is what you get when you police).
-It is also influenced by the delay (which is what you introduce when you
-shape). I have not seen anything in favor of shaping; i could be wrong
-(so if you know of something or have experimented pass the data).
-For detailed analysis at least fro RENO, this would be a good reference:
-http://citeseer.nj.nec.com/padhye98modeling.html
-
+>   >  - doing proper refcounting of modules is _really_ really
+>   >    hard. The reason is that proper refcounting is a "local"
+>   >    issue: you reference count a single data structure. It's
+>   >    basically impossible to make a "global" reference count
+>   >    without jumping through hoops.
 > 
-> > OR
-> > b) Why cant you achieve the same results by marking on ingress and
-> > shaping on egress? 
+> Please understand that I coming from an _extremely_ naive perspective,
+> but why do refcounting at all?  Couldn't the refcount be a simple
+> boolean?
+
+A boolean is just a one-bit reference count. If the maximum number of
+simultaneous 'users' for a given module is one, then a boolean will work.
+If there is potential for more than one simultaneous user then you need
+more bits.
+
+Either way, it doesn't simplify the problem.
+
+> I see the process working along these lines: When a module is loaded
+> into the kernel it (the module) exports a symbol (a function) that the
+> kernel can use for determining whether or not the module is still in
+> use.
+
+And how will the module know when it is or is not "in use"? By keeping
+a count of the number of current users, of course.
+
+>   >  - lack of testing. 
 > 
-> Well, as I understand it, there's no "real" ingress and "real" egress.
+> A moot point once the kernel can safely and efficiently do module
+> unloading. 
 
-There is essentially only egress.
+I don't follow your logic. Once it works we don't have to test it so 
+therefore we never need to test it? I don't buy the premise or the
+conclusion.
 
-> Look at this:
-> Any forwarded packet
->   1) comes from one interface
->   2) receives some treatment (filtering, routing decision, maybe
->     delaying if we shape, mangling etc.)
->   and
->   3) goes away via some other interface
->
-> step (1) is "ingress"
-
-There is no ingress perse. Separation of ingress and egress is typically
-a switch fabric or even a bus. So in this case, since you already
-have crossed the bus you are in ingress teritory.
-There is an ingress qdisc, but it is fake. The major value it adds
-is to drop early when there is need to (no point in making forwarding
-decision when you know you will drop the packet i.e no point in wasting
-those processor cycles)- and therefore the ingress qdisc act as a 
-holder of filters.
-
-> step (3) is "egress"
-> qdiscs work at step (2), so all of them are intermediate in this sense
+>   >    Unloading a module happens once in a blue moon, if even then.
 > 
->
->
-> Well, ok, if a qdisc receives a feedback from egress interface
-> on when to dequeue a packet (when interface is ready to send),
-> we can say that it is an egress qdisc.
+> We get an awful lot of blue moons here.
+
+This moon's not worth barking at.
+
+>   > But it basically boils down to: don't think of module unload as a "normal
+>   > event". It isn't. Getting it truly right is (a) too painful and (b) would
+>   > be too slow, so we're not even going to try.
 > 
+> Now there's a cop out if ever I saw one.  Surely, Linus, you've
+> overcome _much_ bigger problems than this at different times.
 
-Look at my explanation above. 
+Linus can of course speak for himself but from my perspective it's just
+a simple cost/benefit analysis. This one's just not worth any more toil.
+Several extremely bright people have tackled the problem and eventually
+concluded it's extremely hard to solve and generally not worth the
+trouble. It's time to let go.  
 
-> But in my case, PPP connections are really PPTP or PPPoE.
-> Internal network bandwidth is not a premium, so all internal
-> interfaces are always ready to send.
-> 
-> So, I don't shape at ingress or at egress, I shape passing-through
-> traffic.
-> 
-
-The noun is not important. You crossed the bus already, you are in
-processor land. 
-The value is being able to drop as early as possible when you need to.
-If you are not dropping and desire only to delay the packets, then do it
-at the proper egress device.
-
-> > > htb class, so using qdisc on each ppp interface is out of
-> > > question. It seems to me that IMQ is the only way to achieve my goals.
-> > 
-> > By multiple clients i believe you mean you want to say "-i ppp+"?
-> > We had a long discussion on this a while back (search netdev) 
-> > and i think it is a valid point for dynamic devices like ppp. 
-> 
-> Well, I don't really care whether those interfaces are dynamic or
-> static. They could be multiple vlans, and nothing would
-> change in marking or shaping. I use clients' IPs for marking,
-> and routing table cares about interfaces.
-> 
-
-Maybe i am misunderstanding what you are after.
-couldnt you use -i ppp+ -j mark --set-mark x in the ingress/prerouting
-and use the fwmark to shape on the egress?
-Post your script examples. 
-
-> > We need to rethink how we do things. Theres a lot of valu in having per
-> > device tables (scalability being one).
-> > IMO, this alone does not justify the existence of IMQ. 
-> 
-> I just can't think of a better abstraction that would handle my case.
-
-I think it is time we came with a single solution for how packets are
-managed. Your needs should be met, the problem is we may be having too
-many cooks creating the same meal.
-
-cheers,
-jamal
+--Adam
 

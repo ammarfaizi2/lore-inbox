@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264366AbTLETNA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 14:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTLETNA
+	id S264367AbTLETON (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 14:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTLETOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 14:13:00 -0500
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:48133 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S264366AbTLETM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 14:12:58 -0500
-Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F877@mail-sc-6.nvidia.com>
-From: Allen Martin <AMartin@nvidia.com>
-To: "'Mikael Pettersson'" <mikpe@csd.uu.se>,
-       Josh McKinney <forming@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Catching NForce2 lockup with NMI watchdog
-Date: Fri, 5 Dec 2003 11:11:39 -0800 
+	Fri, 5 Dec 2003 14:14:12 -0500
+Received: from mail.scitechsoft.com ([63.195.13.67]:23424 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S264367AbTLETOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 14:14:06 -0500
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Jesse Pollard <jesse@cats-chateau.net>
+Date: Fri, 05 Dec 2003 11:15:11 -0800
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Subject: Re: Linux GPL and binary module exception clause?
+CC: <linux-kernel@vger.kernel.org>
+Message-ID: <3FD068BF.29544.481E7373@localhost>
+References: <MDEHLPKNGKAHNMBLJOLKAEJHIHAA.davids@webmaster.com>
+In-reply-to: <03120508594500.21696@tabby>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
-> Sent: Friday, December 05, 2003 4:15 AM
->
->  > So does this confirm that the lockups with nforce2 
-> chipsets and apic
->  > is actually a hardware problem after all? 
+Jesse Pollard <jesse@cats-chateau.net> wrote:
+
+> It is if you are referring to the Kernel. Look at the include
+> files. They are licened under GPL. 
 > 
-> Confirm with very high probability. There may be quirks in nVidia's
-> chipset that we (unlike their Windoze drivers) don't know about.
-> 
-> Ask nVidia for detailed chipset documentation. Then maybe we 
-> can fix this.
+> Look at the include files for applications. They are licenced
+> under LGPL. 
 
-NVIDIA doesn't provide a windows driver to setup APIC interrupts.  APIC
-functionality is exported through the ACPI methods and MP table in the
-system BIOS which the motherboard vendors supply.
+Really? Have you looked at the include files for Linux? The standard C 
+include files that nearly every program uses will end up also *including* 
+Linux kernel header files in order to build programs for Linux. Not all 
+programs will end up including those files, but a very large portion 
+will.
 
-Likely the root of the problem has to do with the way the Linux kernel is
-using the ACPI methods to setup the interrupts which is different from win
-9x/2k/XP.  I can help track this down, unfortunately so far I've been unable
-to reproduce the hangs on any of the boards I have.
+If you don't believe me, do a grep under /usr/include/sys on your machine 
+for 'linux', and see how many of the header files include stuff from 
+/usr/include/linux. All the files under /usr/include/linux are part of 
+the kernel, so theoretically under the pure GPL, not LGPL.
 
--Allen
+Then again I say 'theoretically' because once again there is nary a 
+kernel header file in sight that actually *has* a GPL license header 
+attached! So who knows what license those files are *really* under.
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+

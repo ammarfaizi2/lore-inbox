@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283500AbRLDVAl>; Tue, 4 Dec 2001 16:00:41 -0500
+	id <S283480AbRLDVEK>; Tue, 4 Dec 2001 16:04:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283489AbRLDVAe>; Tue, 4 Dec 2001 16:00:34 -0500
-Received: from andromeda.veritel.com.br ([200.230.193.1]:18841 "HELO
-	veritel.com.br") by vger.kernel.org with SMTP id <S281267AbRLDRA0>;
-	Tue, 4 Dec 2001 12:00:26 -0500
-Message-ID: <3C0D021F.5070800@veritel.com.br>
-Date: Tue, 04 Dec 2001 15:04:31 -0200
-From: "William N. Zanatta" <william@veritel.com.br>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S281180AbRLDVDp>; Tue, 4 Dec 2001 16:03:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29959 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281225AbRLDVCW>; Tue, 4 Dec 2001 16:02:22 -0500
+Subject: Re: hints at modifying kswapd params in 2.4.16
+To: sven@research.nj.nec.com (Sven Heinicke)
+Date: Tue, 4 Dec 2001 21:11:24 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        sven@research.nj.nec.com (Sven Heinicke), linux-kernel@vger.kernel.org
+In-Reply-To: <15373.13379.382015.406274@abasin.nj.nec.com> from "Sven Heinicke" at Dec 04, 2001 03:38:27 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Ville Herva <vherva@niksula.hut.fi>
-CC: gdf <gdf@gsource.org>, linux-kernel@vger.kernel.org
-Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
-In-Reply-To: <Pine.LNX.4.33.0112032331490.11129-100000@ns1.knerd.com> <20011204145949.H21566@niksula.cs.hut.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16BMqa-0003V2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I don't know how much they care about it, but they have a drivers list 
-including drivers for SuSE, RH, Caldera and Turbolinux...
-
-http://www.highpoint-tech.com/
-
-William
-
-PS: Also don't know whether they do or not work. No disks to test, sorry!
-
+> The first system I tried was Red Hat 7.1, it never used more then 2G
+> of cache memory leaving the other 2G free.
 > 
-> Can someone shed some light on how much the Highpoint bios actually matters
-> under linux?
+> The other system, Mandrake 8.0, sucks up all the 4G of memory with
+> cache but has not yet shown any signs of thrashing.  Though the code
+> has only been running a few hours.
 
-
+The RH 7.1 tree is 2.4.2-ac based and certainly wont behave well under some
+loads.

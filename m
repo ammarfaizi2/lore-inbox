@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263196AbTH0Izy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 04:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTH0Izy
+	id S263212AbTH0JTY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 05:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTH0JTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 04:55:54 -0400
-Received: from holomorphy.com ([66.224.33.161]:60085 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263196AbTH0Izw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 04:55:52 -0400
-Date: Wed, 27 Aug 2003 01:56:56 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
-Message-ID: <20030827085656.GZ4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <20030827051853.181C92C0C1@lists.samba.org> <Pine.LNX.4.44.0308270846580.2063-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Aug 2003 05:19:23 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:61445 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263212AbTH0JTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 05:19:23 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: "Marcelo E. Magallon" <mmagallo@debian.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH,BACKPORT] AGPGART support for Intel 7205/7505 chipsets
+Date: Wed, 27 Aug 2003 11:18:47 +0200
+User-Agent: KMail/1.5.3
+References: <20030826122611.GA26314@informatik.uni-stuttgart.de> <20030827091040.GA5935@informatik.uni-stuttgart.de>
+In-Reply-To: <20030827091040.GA5935@informatik.uni-stuttgart.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308270846580.2063-100000@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308271118.47879.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 09:37:25AM +0100, Hugh Dickins wrote:
-> But I disagree over move_to/from_swap_cache: nothing should
-> be done there at all.  Once you have mapping,index in struct
-> futex_q, it's irrelevant what tmpfs might be doing to the
-> page->mapping,page->index of the unmapped page.
-> I dare not think what locking may be necessary, to manage
-> the switch from hashing by struct page * to hashing by
-> swapper_space,index.
+On Wednesday 27 August 2003 11:10, Marcelo E. Magallon wrote:
 
-PG_locked and mapping->page_lock held for writing are needed to
-switch in general AIUI; adding the vcache/futex locks into the mix
-sounds like some deep hierarchy, especially since the page is
-meant to go away in the middle of this process. move_to_swap_cache()
-has mapping->page_lock held for writing, as is needed; PG_locked is
-required to add_to_swap() and some other callers are from call chains
-not checking BUG_ON(!PageLocked(page)) so it sounds as if things are
-partly there, assuming vcache_lock/futex_lock stay at the bottom.
+Hi Marcelo,
 
-I think it's worth coming up with an answer to in order to remove
-the DoS scenario and/or resource scalability limitations.
+>  >  Ok, here's the patch again against what's current in the BK tree.  I
+>  >  just checked that it still applies and works with 2.4.22.
+>  I am sorry, I just noticed I omitted the diff of the include/linux
+>  directory.  The missing bits are attached.  The whole patch is
+>  available from:
+>            http://people.debian.org/~mmagallo/agp-i7x05.diff
 
+you know that your patch is already in? ;-)
 
--- wli
+http://linux.bkbits.net:8080/linux-2.4/cset@1.1065.1.37?nav=index.html|ChangeSet@-2d
+
+ciao, Marc
+

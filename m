@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264202AbTGKQeb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264197AbTGKQe3
+	id S264192AbTGKQi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTGKQi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:34:29 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:3591 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264192AbTGKQeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:34:22 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.22-pre4] rmap15j + all BK fixes/adds
-Date: Fri, 11 Jul 2003 18:48:31 +0200
-User-Agent: KMail/1.5.2
-Cc: Rik van Riel <riel@redhat.com>
+	Fri, 11 Jul 2003 12:38:26 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:34457 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S264192AbTGKQiP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:38:15 -0400
+Message-ID: <013901c347cd$44586f60$602fa8c0@henrique>
+From: "Henrique Oliveira" <henrique2.gobbi@cyclades.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>,
+       "Kevin Curtis" <kevin.curtis@farsite.co.uk>,
+       "lkml" <linux-kernel@vger.kernel.org>
+References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk> <Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva> <003101c34712$a9b8f480$602fa8c0@henrique> <1057914760.8028.27.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+Date: Fri, 11 Jul 2003 09:55:43 -0700
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200307111747.57211.m.c.p@wolk-project.de>
 Content-Type: text/plain;
-  charset="iso-8859-15"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hello !!!
+No offence here but the generic hdlc layer's been always confusing. I will
+write here what I believe is going on.
+Until version 2.4.20 we had the old hdlc layer, with only one source file
+hdlc.c. People that wanted to use the new hdlc layer had to apply a patch
+provided by Halasa or by the WAN cards vendors. The kernel 2.4.21 came out
+with the new hdlc layer, that includes a couple of files: hdlc_generic.c,
+hdlc_fr.c, hdlc_ppp.c, hdlc_raw.c, etc. I don't know the status of the -ac
+tree but I can say that the kernel 2.4.21 has the new code.
+The new hdlc layer really needs new tools. This new tool can (supposedly) be
+found at Halasa's web site. I don't know if someone has tested these tools
+but I am about to run a test this afternoon. If someone is interested on the
+results, just drop me a line.
+regards
+Henrique
 
-at the link below you can find rmap15j + all BK fixes/adds for 2.4.22-pre4. 
-I've done this because rmap is my favorite VM and I want to support it where 
-I can, and this is just a "Tons of users want to use bleeding edge -pre's so 
-give them a very good VM" ;)
-
-Have fun.
-
-P.S.: The only part I was unsure about is the s390x init.c stuff.
-      I've also included .22-BK mainline cset 1.1086 which is a showstopper.
-      I've not attached the patch to this mail because it's kinda large.
-
-Compiles, boots, works [tm] on my x86 machine :)
-
-- Linux codeman 2.4.22-pre4-rmap15j #1 Fri Jul 11 18:16:38 CEST 2003 i686
-- gcc version 3.3.1 20030626 (Debian prerelease)
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Henrique Oliveira" <henrique2.gobbi@cyclades.com>
+Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>; "Kevin Curtis"
+<kevin.curtis@farsite.co.uk>; "lkml" <linux-kernel@vger.kernel.org>
+Sent: Friday, July 11, 2003 2:12 AM
+Subject: Re: Why is generic hldc beig ignored? RE:Linux 2.4.22-pre4
 
 
-URL:
-----
-http://wolk.sf.net/tmp/linux-2.4.22-pre4-rmap15j+bkfixes.patch
-
-md5sum:
--------
-0c39e54f1b3af8f076fdbe7669439e40
-
-ciao, Marc
+> On Iau, 2003-07-10 at 19:39, Henrique Oliveira wrote:
+> > Hi,
+> > The patch for the generic HDLC layer was included on the kernel 2.4.21.
+Thus
+> > this layer is already on the main tree (unless, of course, someone has
+> > removed it, I havent checked 2.4.22 yet). This layer provides data link
+> > protocol (ppp, hdlc, raw-hdlc, x25, frame-relay, cisco-hdlc) for the
+kernel.
+> > It's mainly used by synchronous cards drivers (Cyclades, Moxa, SDL,
+Farsite,
+> > etc, etc, etc).
+>
+> 2.4.21 has much older code than the current stuff (which has been in -ac
+> for a while). As I understand it the new hdlc layer needs newer tools ?
 

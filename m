@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVABXVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVABXas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVABXVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 18:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVABXVG
+	id S261344AbVABXas (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 18:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVABXas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 18:21:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12217 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261343AbVABXVE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 18:21:04 -0500
-Date: Sun, 2 Jan 2005 23:21:02 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: William Lee Irwin III <wli@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050102232102.GN26717@gallifrey>
-References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de>
+	Sun, 2 Jan 2005 18:30:48 -0500
+Received: from colin2.muc.de ([193.149.48.15]:28178 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261344AbVABXal (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 18:30:41 -0500
+Date: 3 Jan 2005 00:30:39 +0100
+Date: Mon, 3 Jan 2005 00:30:39 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] disallow modular capabilities
+Message-ID: <20050102233039.GB71343@muc.de>
+References: <20050102200032.GA8623@lst.de> <m1mzvry3sf.fsf@muc.de> <20050102203005.GA9491@lst.de> <m1is6fy2vm.fsf@muc.de> <20050102223650.GA5818@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050102221534.GG4183@stusta.de>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.5 (i686)
-X-Uptime: 23:08:07 up 8 days, 10:43,  1 user,  load average: 0.00, 0.00, 0.00
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050102223650.GA5818@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For me, as someone who very rarely actually changes any code in
-the kernel, I have always found the stable series useful for
-two reasons:
+On Sun, Jan 02, 2005 at 05:36:50PM -0500, David Meybohm wrote:
+> On Sun, Jan 02, 2005 at 09:47:41PM +0100, Andi Kleen wrote:
+> > Christoph Hellwig <hch@lst.de> writes:
+> > >
+> > > At least Debian currently inserts the capabilities module on boot.
+> > 
+> > That is fine as long as they control all code executed before
+> > that module loading.  And if they do not it is their own fault
+> > and they have to fix that in user space or compile the capability in.
+> > Unix policy is to not stop root from doing stupid things because
+> > that would also stop him from doing clever things.
+> 
+> But if the module system creates security holes in the security system,
+> shouldn't that be avoided?  Isn't this is a fundamental problem because
 
-  1) It encourages me to test the kernel; if I have a kernel
-  that is generally thought to be stable then I will try it on
-  my home machine and report problems - this lets the kernel
-  get tested on a wide range of hardware and situations; if there
-  is no kernel that is liable to be stable changes will get much
-  less testing on a smaller range of hardware.
+A kernel module is by definition a security hole. It can do everything,
+including setting the uids of all processes to 0.
 
-  2) If I have a bug in a vendor kernel everyone just tells
-  me to go and speak to the vendor - so at least having a stable
-  base to go back to can let me report a bug that isn't due
-  to any vendors patches.
+> the new security module that is being loaded has no idea what state all
+> processes are in when the module gets loaded?
 
-  3) In some cases the commercial vendors don't seem to release
-  source to some of the kernels except to people who have bought
-  the packages, so those vendor kernel fixes aren't 'publically'
-  visible.
-  
-I think (1) is very important - getting large numbers of people
-to test OSS is its greatest asset.
-  
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+This can still be fine if you don't care about the security of 
+everything that runs before (e.g. because it is controlled early
+startup code). If you care about their security don't do it when
+it hurts. 
+
+> What do you think about only allowing init to load LSM modules i.e.
+> check in {mod,}register_security that current->pid == 1.  Then init can
+> load the policy from some file in /etc changeable by the administrator
+> before starting any other processes.  Then you don't have to recompile
+> the kernel to change policies, but you still need to reboot and can't
+> get into funky states.
+
+I think it's a bad idea. Such policy should be left to user space.
+
+-Andi

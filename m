@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbUJYPYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbUJYPXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbUJYPYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUJYPYC
+	id S261922AbUJYPXX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUJYPUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:24:02 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:21992 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S261959AbUJYPWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:22:19 -0400
-Date: Mon, 25 Oct 2004 11:21:56 -0400
+	Mon, 25 Oct 2004 11:20:04 -0400
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:49290 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S261922AbUJYPPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:15:46 -0400
+Date: Mon, 25 Oct 2004 11:15:34 -0400
 From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [PATCH 25/28] VFS: statfs(64) shouldn't follow last component
- symlink
-In-reply-to: <20041025151405.GA1740@infradead.org>
+Subject: Re: [PATCH 12/28] VFS: Remove (now bogus) check_mnt
+In-reply-to: <20041025150941.GA1682@infradead.org>
 To: Christoph Hellwig <hch@infradead.org>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        raven@themaw.net
-Message-id: <417D1A14.5010601@sun.com>
+Message-id: <417D1896.4080901@sun.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=ISO-8859-1
 Content-transfer-encoding: 7BIT
@@ -25,8 +24,8 @@ X-Accept-Language: en-us, en
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
 X-Enigmail-Version: 0.86.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <10987158413464@sun.com> <10987158711277@sun.com>
- <20041025151405.GA1740@infradead.org>
+References: <1098715442105@sun.com> <10987154731896@sun.com>
+ <20041025150941.GA1682@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,29 +33,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Hash: SHA1
 
 Christoph Hellwig wrote:
-> On Mon, Oct 25, 2004 at 10:51:11AM -0400, Mike Waychison wrote:
+> On Mon, Oct 25, 2004 at 10:44:33AM -0400, Mike Waychison wrote:
 > 
->>Mount-related userspace tools will require the ability to detect whether what
->>looks like a regular directory is actually a autofs trigger.  To handle this,
->>tools can statfs a given directory and check to see if statfs->f_type ==
->>AUTOFSNG_SUPER_MAGIC before walking into the directory (and causing the a
->>filesystem to automount).
->>
->>To make this happen, we cannot allow statfs to follow_link.
->>
->>NOTE: This may break any userspace that assumes it can statfs across a
->>last-component symlink.  I can't think of any real world breakage however, as
->>mount(8) will drop the real path in /etc/mtab and /proc/mounts will always
->>show the true path.
+>>check_mnt used to be used to see if a mountpoint was actually grafted or not
+>>to a namespace.  This was done because we didn't support mountpoints being
+>>attached to one another if they weren't associated with a namespace. We now
+>>support this, so all check_mnt calls are bogus.  The only exception is that
+>>pivot_root still requires all participants to exist within the same
+>>namespace.
 > 
 > 
-> Which means it's vetoed.  It's a big change in syscall semantics.  And
-> propabably breaks SuS (for statvfs(3) which requires full symlink
-> resolution when it just refers to a path on the filesystem.
+> did you audit the namespace code that it doesn't allow attachign to other
+> namespaces than the current?
 > 
 
-Ya, I figured that would be the case.   What do folks think about a
-lstatfs(64)?
+So, I don't see how that is possible, other than through relative
+resolution from a cwd in the other namespace.  Arguably, you aren't
+buying any security by denying the mountpoint if you already let other
+processes in your namespace.
+
+Auditting the original code, it appeared that doing such a thing was a
+no-no only because the locking semantics of current->namespace->sem made
+this difficult.
+
 
 - --
 Mike Waychison
@@ -72,7 +71,7 @@ and may not represent the views of Sun Microsystems, Inc.
 Version: GnuPG v1.2.5 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBfRoUdQs4kOxk3/MRAgHoAKCApqvkE2hgLAJKXDkLWWJE7BqevgCfQlh9
-BxBlFSMUPoo1VyOcntae7Y0=
-=rR8G
+iD8DBQFBfRiVdQs4kOxk3/MRAmC2AJ93Dqcf1hNFjmjKESxsfuBeUqZ+nQCffEZX
+Ej3a3wyhQAwTg+amwHqn1v0=
+=se6H
 -----END PGP SIGNATURE-----

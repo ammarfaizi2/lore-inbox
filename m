@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269372AbRGaREA>; Tue, 31 Jul 2001 13:04:00 -0400
+	id <S269364AbRGaRB3>; Tue, 31 Jul 2001 13:01:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269375AbRGaRDu>; Tue, 31 Jul 2001 13:03:50 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:14838 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S269371AbRGaRDi>; Tue, 31 Jul 2001 13:03:38 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107311639.f6VGdciQ020335@webber.adilger.int>
-Subject: Re: Support for serial console on legacy free machines
-In-Reply-To: <000701c119cd$ebf0c720$294b82ce@connecttech.com>
- "from Stuart MacDonald at Jul 31, 2001 10:34:35 am"
-To: Stuart MacDonald <stuartm@connecttech.com>
-Date: Tue, 31 Jul 2001 10:39:38 -0600 (MDT)
-CC: Khalid Aziz <khalid@fc.hp.com>,
-        Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S269371AbRGaRBT>; Tue, 31 Jul 2001 13:01:19 -0400
+Received: from armitage.toyota.com ([63.87.74.3]:55314 "EHLO
+	armitage.toyota.com") by vger.kernel.org with ESMTP
+	id <S269364AbRGaRBG>; Tue, 31 Jul 2001 13:01:06 -0400
+Message-ID: <3B66E452.419B5C16@lexus.com>
+Date: Tue, 31 Jul 2001 10:01:06 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Anders Eriksson <aer-list@mailandnews.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <200107311024.f6VAOkP08959@milou.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Stuart MacDonald writes:
-> From: "Khalid Aziz" <khalid@fc.hp.com>
-> > AFAIK, you can not have console on a PCI serial port at this time. I
-> > looked at it few months back and found out that PCI initialization
-> > happens much too late for a serial console. It would take quite a bit of
-> 
-> That's very odd. That implies that serial consoles don't use the serial
-> driver at all then, as the pci serial port setup is done at the same
-> time as the regular serial port setups.
-> 
-> A) Serial console support is mutually exclusive with the serial driver
-> being a module.
+Anders Eriksson wrote:
 
-Yes, because you want console support long before you get the root fs
-mounted and have access to modules.
+> Side note. I vaguely recall a distribution who's name has escaped me since.
+> Thier selling point was "It's harder to install" and they claimed not to patch
+> any source. "If it's good enough for the author, it's good enough for us".
+> Might be worth checking out. If someone has a disro name for it, please...
+>
 
-> C) serial.c contains a completely separate serial console driver,
-> complete with its own init routine. Which meshes with the current
-> suggestion that the "serial driver" isn't used, and pci init happens
-> too late.
+Rock Linux IIRC -
 
-It _may_ be that Keith Owens (I think) will change this in 2.5.  He has
-talked about a big reorg of the serial layer to separate out the tty
-handling from the serial I/O handling.  Maybe at that point my idea of
-having a console on a parallel port will work.  I guess that it is just
-not that easy right now.
+cu
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+jjs
 

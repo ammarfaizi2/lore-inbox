@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271394AbTHHPCm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 11:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271395AbTHHPCm
+	id S271365AbTHHPXo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 11:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271378AbTHHPXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 11:02:42 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:3077 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S271394AbTHHPCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 11:02:40 -0400
-Message-ID: <3F33BB2A.94599C5C@SteelEye.com>
-Date: Fri, 08 Aug 2003 11:00:58 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>, Lou Langholtz <ldl@aros.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
-References: <3F2FE078.6020305@aros.net> <3F300760.8F703814@SteelEye.com> <3F303430.1080908@aros.net> <3F30510A.E918924B@SteelEye.com> <3F30AF81.4070308@aros.net> <3F332ED7.712DFE5D@SteelEye.com> <3F334396.7030008@aros.net> <20030808065908.GB18823@suse.de>
+	Fri, 8 Aug 2003 11:23:44 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:63135 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S271365AbTHHPXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 11:23:43 -0400
+Date: Fri, 8 Aug 2003 08:23:37 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initrd problem with 2.6 kernel
+Message-ID: <20030808152337.GA11088@lucon.org>
+References: <20030807223019.GA27359@lucon.org> <E19l4o8-0001Jv-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E19l4o8-0001Jv-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Fri, Aug 08, 2003 at 08:49:16PM +1000, Herbert Xu wrote:
+> H. J. Lu <hjl@lucon.org> wrote:
+> > There is a chicken and egg problem with initrd on 2.6. When
+> > root=/dev/xxx is passed to kernel, kernel will call try_name, which
+> > uses /sys/block/drive/dev, to find out the device number for ROOT_DEV.
+> > The problem is /sys/block/drive may not exist if the driver is loaded
+> > by /linuxrc in initrd. As the result, /linuxrc can't use
+> > /proc/sys/kernel/real-root-dev to determine the root device number.
 > 
-> On Fri, Aug 08 2003, Lou Langholtz wrote:
-> > >@@ -499,12 +508,14 @@ static void do_nbd_request(request_queue
-> > >                                     lo->disk->disk_name);
-> > >                     spin_lock(&lo->queue_lock);
-> > >                     list_del_init(&req->queuelist);
-> > >+                    req->ref_count--;
-> > >                     spin_unlock(&lo->queue_lock);
-> > >                     nbd_end_request(req);
-> > >                     spin_lock_irq(q->queue_lock);
-> > >                     continue;
-> > >             }
-> > >
-> > >+            req->ref_count--;
-> > >             spin_lock_irq(q->queue_lock);
-> > >
-> > Since ref_count isn't atomic, shouldn't ref_count only be changed while
-> > the queue_lock is held???
-> 
-> Indeed, needs to be done after regrabbing the lock.
+> You can replicate the sysfs probing in userspace.  I did that in
+> Debian initrd-tools 0.1.51.
 
-But req is pulled off of nbd's main request queue at this point, so I
-don't think anyone else could be touching it, could they?
+It sounds a good idea. I will give it a try.
 
---
-Paul
+Thanks.
+
+H.J.

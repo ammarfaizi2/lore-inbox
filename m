@@ -1,301 +1,400 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276344AbRJCOyE>; Wed, 3 Oct 2001 10:54:04 -0400
+	id <S276348AbRJCO5m>; Wed, 3 Oct 2001 10:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276343AbRJCOxy>; Wed, 3 Oct 2001 10:53:54 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:43784 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S276344AbRJCOxo>;
-	Wed, 3 Oct 2001 10:53:44 -0400
-Date: Wed, 3 Oct 2001 16:51:47 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Arjan van de Ven <arjanv@redhat.com>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>
-Subject: [patch] auto-limiting IRQ load take #2, irq-rewrite-2.4.11-F4
-In-Reply-To: <Pine.LNX.4.33.0110022122310.2328-101000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0110031625330.7342-101000@localhost.localdomain>
+	id <S276345AbRJCO5e>; Wed, 3 Oct 2001 10:57:34 -0400
+Received: from mail.gmx.net ([213.165.64.20]:58988 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S276343AbRJCO5Z>;
+	Wed, 3 Oct 2001 10:57:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Schroeder <c-h.schroeder@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with Kernel 2.4.10 on SMP
+Date: Wed, 3 Oct 2001 16:56:51 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-2125670340-1002120707=:7342"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011003145729Z276343-760+20191@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
---8323328-2125670340-1002120707=:7342
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+since I've been experisnsing large problems with my linux box crashing and 
+crashing again, I want to give you this bug report, maybe someone else has 
+the same problem. I used the bug report format in explained in the kernel 
+sources.
+
+Best Regards,
+Christian Schroeder
+
+[1.]	
+The system seams to hang for a while, sometimes recovers and sometimes not
+
+[2.]
+I've been using version 2.4.4 from SuSE and 2.4.9/2.4.10 from kernel.org.
+2.4.4 runs with no problems on my 2-way machine. 
+2.4.9 had some hangs which normally recovered after about 15 seconds.
+2.4.10 crashed the machine completely. I had to a reset.
+
+Regarding 2.4.9 I allways had the impression that the problem came up when 
+using very large applications like StarOffice. After using the software for a 
+moment, it hang and I could see the following line in the syslog afterwards:
+
+"Sep 25 21:33:50 tepui kernel: __alloc_pages: 0-order allocation failed."
+
+This problem disappeard after I switch to 2.4.10.
+
+Regarding 2.4.10 I haven't had the chance to get an output, since as I said,
+the machine hangs completely. What I can say is, that normaly just before the
+crash, right after e.g. the desktop manager didn't react anymore, the LED of
+my SCSI controller was signaling great activity on the drives. Then the LED 
+turn off and the system didn't move a bit.
+
+I checked by SCSI hardware setup, but nothing that made my nervous. 
+Especially I now using 2.4.4 and it works without any problem. No crash, no 
+halting.
+
+What I also had the impression was, that always near to the last crash, the 
+logfiles contained the sequence:
+
+"Oct  2 18:16:22 tepui kernel: (scsi0:A:0:0): Locking max tag count at 64"
+
+This was not always the case, but I browsed my logfile and found at least 4
+insidents at which this message showed up close to the next syslog restart
+message.
+
+[3.]
+Hmpf... SCSI?
+
+[4.]
+Linux version 2.4.10 (root@tepui) (gcc version 2.95.3 20010315 (SuSE)) #1 SMP 
+Tue Oct 2 19:14:23 CEST 2001
+
+[5.]
+No Ooops in the syslog.
+
+[6.]
+Sorry, no script.
+
+[7.1]
+Linux tepui 2.4.10 #1 SMP Tue Oct 2 19:14:23 CEST 2001 i686 unknown
+
+Gnu C			2.95.3
+Gnu make		3.79.1
+binutils			2.10.91.0.4
+util-linux			2.11b
+mount			2.11b
+modutils			2.4.5
+e2fsprogs		1.19
+reiserfsprogs		3.x.0j
+pcmcia-cs		3.1.25
+isdn4k-utils		3.1pre1a
+Linux C Library        x    1 root     root      1343073 May 11 16:50c 
+/lib/libc.so.6
+Dynamic linker (ldd)	2.2.2
+Procps			2.0.7
+Net-tools		1.60
+Kbd			1.04
+Sh-utils			2.0
+Modules Loaded         snd-pcm-oss snd-pcm-plugin snd-mixer-oss NVdriver 
+parport_pc lp parport wacom evdev snd-seq-midi snd-seq-midi-event snd-seq 
+snd-card-ens1370 snd-ens1370 snd-pcm snd-timer snd-rawmidi snd-seq-device 
+snd-ak4531-codec snd-mixer snd soundcore mousedev hid input uhci usbcore 
+8139too ipchains
+
+[7.2]
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 7
+model name      : Pentium III (Katmai)
+stepping        : 3
+cpu MHz         : 501.148
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov
+pat pse36 mmx fxsr sse
+bogomips        : 999.42
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 7
+model name      : Pentium III (Katmai)
+stepping        : 3
+cpu MHz         : 501.148
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov
+pat pse36 mmx fxsr sse
+bogomips        : 999.42
+
+[7.3]
+snd-pcm-oss            18816   1 (autoclean)
+snd-pcm-plugin         14256   0 (autoclean) [snd-pcm-oss]
+snd-mixer-oss           5280   0 (autoclean) [snd-pcm-oss]
+NVdriver              723872  14 (autoclean)
+parport_pc             19600   1 (autoclean)
+lp                      5440   0 (autoclean)
+parport                26240   1 (autoclean) [parport_pc lp]
+wacom                   4016   0 (unused)
+evdev                   4192   1
+snd-seq-midi            3376   0 (unused)
+snd-seq-midi-event      3296   0 [snd-seq-midi]
+snd-seq                44800   0 [snd-seq-midi snd-seq-midi-event]
+snd-card-ens1370        1952   1
+snd-ens1370             8464   0 [snd-card-ens1370]
+snd-pcm                33152   0 [snd-pcm-oss snd-pcm-plugin snd-ens1370]
+snd-timer               9968   0 [snd-seq snd-pcm]
+snd-rawmidi            11040   0 [snd-seq-midi snd-ens1370]
+snd-seq-device          4032   0 [snd-seq-midi snd-seq snd-rawmidi]
+snd-ak4531-codec       15552   0 [snd-ens1370]
+snd-mixer              28768   0 [snd-mixer-oss snd-ens1370 snd-ak4531-codec]
+snd                    35184   1 [snd-pcm-oss snd-pcm-plugin snd-mixer-oss 
+snd-seq-midi snd-seq-midi-event snd-seq snd-card-ens1370 snd-ens1370 snd-pcm 
+snd-timer snd-rawmidi snd-seq-device snd-ak4531-codec snd-mixer]
+soundcore               3856   5 [snd]
+mousedev                3904   0 (unused)
+hid                    12576   0 (unused)
+input                   3456   0 [wacom evdev mousedev hid]
+uhci                   23808   0 (unused)
+usbcore                49152   1 [wacom hid uhci]
+8139too                12608   1 (autoclean)
+ipchains               32080   0
+
+[7.4.1]
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+02f8-02ff : serial(auto)
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f8-03ff : serial(auto)
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+b400-b43f : Ensoniq ES1370 [AudioPCI]
+  b400-b43f : Ensoniq AudioPCI
+b800-b8ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  b800-b8ff : 8139too
+d000-d0ff : Adaptec AHA-2940U2/W / 7890
+d400-d41f : Intel Corporation 82371AB PIIX4 USB
+  d400-d41f : usb-uhci
+d800-d80f : Intel Corporation 82371AB PIIX4 IDE
+e400-e43f : Intel Corporation 82371AB PIIX4 ACPI
+e800-e81f : Intel Corporation 82371AB PIIX4 ACPI
+
+[7.4.2]
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+02f8-02ff : serial(auto)
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f8-03ff : serial(auto)
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+b400-b43f : Ensoniq ES1370 [AudioPCI]
+  b400-b43f : Ensoniq AudioPCI
+b800-b8ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  b800-b8ff : 8139too
+d000-d0ff : Adaptec AHA-2940U2/W / 7890
+d400-d41f : Intel Corporation 82371AB PIIX4 USB
+  d400-d41f : usb-uhci
+d800-d80f : Intel Corporation 82371AB PIIX4 IDE
+e400-e43f : Intel Corporation 82371AB PIIX4 ACPI
+e800-e81f : Intel Corporation 82371AB PIIX4 ACPI
+tepui:/usr/src/linux-2.4.10/scripts # cat /proc/iomem
+00000000-0009f7ff : System RAM
+0009f800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000cd3ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-23ffcfff : System RAM
+  00100000-00219cfd : Kernel code
+  00219cfe-0026feff : Kernel data
+23ffd000-23ffefff : ACPI Tables
+23fff000-23ffffff : ACPI Non-volatile Storage
+e0000000-e00000ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  e0000000-e00000ff : 8139too
+e0800000-e0800fff : Adaptec AHA-2940U2/W / 7890
+  e0800000-e0800fff : aic7xxx
+e1000000-e2dfffff : PCI Bus #01
+  e1000000-e1ffffff : nVidia Corporation Riva TnT 128 [NV04]
+e2f00000-e3ffffff : PCI Bus #01
+  e3000000-e3ffffff : nVidia Corporation Riva TnT 128 [NV04]
+e4000000-e7ffffff : Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge
+fec00000-fec00fff : reserved
+fee00000-fee00fff : reserved
+ffff0000-ffffffff : reserved
+
+[7.5]
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 
+02)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 64
+        Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [a0] AGP version 1.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP+ 64bit- FW- Rate=x2
+
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 
+02) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+        I/O behind bridge: 0000e000-0000dfff
+        Memory behind bridge: e1000000-e2dfffff
+        Prefetchable memory behind bridge: e2f00000-e3ffffff
+        BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
+
+00:04.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:04.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 
+80 [Master])
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Region 4: I/O ports at d800 [disabled] [size=16]
+
+00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 
+00 [UHCI])
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64
+        Interrupt: pin D routed to IRQ 15
+        Region 4: I/O ports at d400 [size=32]
+
+00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin ? routed to IRQ 9
+
+00:06.0 SCSI storage controller: Adaptec AHA-2940U2/W / 7890
+        Subsystem: Adaptec 2940U2W SCSI Controller
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (9750ns min, 6250ns max)
+        Interrupt: pin A routed to IRQ 15
+        BIST result: 00
+        Region 0: I/O ports at d000 [disabled] [size=256]
+        Region 1: Memory at e0800000 (64-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at b800 [size=256]
+        Region 1: Memory at e0000000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
+PME(D0-,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0c.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+        Subsystem: Unknown device 4942:4c4c
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
+<TAbort+
+<MAbort+ >SERR- <PERR-
+        Latency: 64 (3000ns min, 32000ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at b400 [size=64]
+
+01:00.0 VGA compatible controller: nVidia Corporation Riva TnT 128 [NV04] 
+(rev 04) (prog-if 00 [VGA])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 248 (1250ns min, 250ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e1000000 (32-bit, non-prefetchable) [size=16M]
+        Region 1: Memory at e3000000 (32-bit, prefetchable) [size=16M]
+        Expansion ROM at e2ff0000 [disabled] [size=64K]
+        Capabilities: [60] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [44] AGP version 1.0
+                Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=15 SBA- AGP+ 64bit- FW- Rate=x2
+
+[7.6]
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: IBM      Model: DDRS-34560D      Rev: DC1B
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS_V_18_WLS   Rev: 0230
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: IBM      Model: DNES-309170W     Rev: SA30
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+  Vendor: PIONEER  Model: DVD-ROM DVD-303  Rev: 1.09
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 06 Lun: 00
+  Vendor: PLEXTOR  Model: CD-R   PX-W1210S Rev: 1.01
+  Type:   CD-ROM                           ANSI SCSI revision: 02
 
 
-the attached patch contains a cleaned up version of IRQ auto-mitigation.
-
-- i've removed the max_rate limit and have streamlined the impact of the
-  load-estimator on do_IRQ() to this piece of code:
-
-        desc->total_contexts++;
-        if (unlikely(in_interrupt()))
-                goto mitigate_irqload;
-
-  i dont think we can get much cheaper than this. (We could perhaps avoid
-  the total_contexts counter by saving a 'snapshot' of the existing
-  kstat.irqs array of counters in every timer tick and comparing the
-  snapshot to the current kstat.irqs values. That looked pretty unclean
-  though.)
-
-- the per-cpu irq counting in -D9 was incorrect as it collapsed all irq
-  handlers into a single counter.
-
-- i've removed the net-polling hacks - they are unrelated to this problem.
-
-the patch is against 2.4.11-pre2. (the eepro100.c fixes from the -ac tree
-are already included in -pre2, i only included them in this patch to make
-patching & testing against 2.4.10 easier.).
-
-(i'd like to stress the point again that the goal of this approach is
-*not* to be nice. This is an airbag mechanizm, it can and will hurt
-performance. But my box does not lock up anymore.)
-
-	Ingo
-
---8323328-2125670340-1002120707=:7342
-Content-Type: APPLICATION/x-bzip2; name="irq-rewrite-2.4.11-F4.bz2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0110031651470.7342@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="irq-rewrite-2.4.11-F4.bz2"
-
-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
-
---8323328-2125670340-1002120707=:7342--

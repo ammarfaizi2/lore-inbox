@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVBEPCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267206AbVBEPTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVBEPCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 10:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVBEPCh
+	id S267206AbVBEPTY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 10:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267203AbVBEPTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 10:02:37 -0500
-Received: from animx.eu.org ([216.98.75.249]:36272 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S263398AbVBEPCa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 10:02:30 -0500
-Date: Sat, 5 Feb 2005 10:11:15 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: jerome lacoste <jerome.lacoste@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Huge unreliability - does Linux have something to do with it?
-Message-ID: <20050205151115.GA3013@animx.eu.org>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	jerome lacoste <jerome.lacoste@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <5a2cf1f605020401037aa610b9@mail.gmail.com> <20050204121817.GA7721@animx.eu.org> <20050205122709.GD1850@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050205122709.GD1850@alpha.home.local>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 5 Feb 2005 10:19:24 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:61453 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S267103AbVBEPTN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 10:19:13 -0500
+Date: Sat, 5 Feb 2005 10:19:08 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.11-rc[23]: swsusp & usb regression
+In-Reply-To: <20050204231649.GA1057@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L0.0502051006150.31778-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please keep me CCd
+On Sat, 5 Feb 2005, Pavel Machek wrote:
 
-Willy Tarreau wrote:
-> On Fri, Feb 04, 2005 at 07:18:17AM -0500, Wakko Warner wrote:
-> > I have this exact same laptop.  It works perfectly for me with linux. 
-> > Originally started with a 2.4 kernel and recently went to 2.6.10.  The modem
-> > works well, the video card works well even with 3D accel.  I replaced the
-> > original 30gb hdd with a 40gb (for space reasons).  The only complaint about
-> > this thing I have is the fact they used an nvidia video chip.  I have seen
-> > more than 4 months uptime on it (I used to use it as a desktop)
+> Hi!
 > 
-> I think it does not like being moved. A friend of mine had his one repaired
-> several times because of either hard disk failures, backlight failure and
-> the machine refusing to boot at all. I've never seen such unreliable hardware!
+> In 2.6.11-rc[23], I get problems after swsusp resume:
+> 
+> Feb  4 23:54:39 amd kernel: Restarting tasks...<3>hub 3-0:1.0:
+> over-current change on port 1
+> Feb  4 23:54:39 amd kernel:  done
+> Feb  4 23:54:39 amd kernel: hub 3-0:1.0: connect-debounce failed, port
+> 1 disabled
+> Feb  4 23:54:39 amd kernel: hub 3-0:1.0: over-current change on port 2
+> Feb  4 23:54:39 amd kernel: usb 3-2: USB disconnect, address 2
+> 
+> After unplugging usb bluetooth key, machine hung. Sysrq still
+> responded with help but I could not get any usefull output.
 
-Mine didn't have that problem.  At the time it was the fastest machine I
-had.  I got away from it though with my nice xeon box =)
+Your logs don't indicate which host controller driver is bound to each of 
+your hubs.  /proc/bus/usb/devices will contain that information.  Without 
+it, it's hard to diagnose what happened.
 
-I have never heard of a machine that if you move it it'd quit working. 
-That's bad.  I have heard of a machine quit working because someone looked
-at it the wrong way.
+At the moment usbcore is undergoing a lengthy, and not terribly rapid,
+series of changes to the generic bus glue layer, as are the host
+controller drivers themselves.  Part of this change will involve the way
+suspend/resume is handled.  (Not to the mention the fact that the power
+management core itself is in the midst of change!)
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+As the uhci-hcd maintainer, I can safely say that the suspend/resume 
+support in that driver is badly out of date.  Fixing it up is one of the 
+ingredients planned for this series of changes.
+
+As things stand now, however, there's likely to be lots of problems in the 
+coordination of suspend/resume activities among the HCDs, the glue layer, 
+and the hub driver.  One thing you could try is to turn on 
+CONFIG_USB_SUSPEND.  It's likely to change things, although not 
+necessarily for the better.  :-)
+
+Alan Stern
+

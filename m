@@ -1,46 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVCNLCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVCNLLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbVCNLCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 06:02:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCNLCP
+	id S261449AbVCNLLD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 06:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVCNLLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 06:02:15 -0500
-Received: from dunaweb1.euroweb.hu ([195.184.0.6]:17335 "EHLO
-	szolnok.dunaweb.hu") by vger.kernel.org with ESMTP id S262118AbVCNLCA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 06:02:00 -0500
-Message-ID: <42357118.9060005@freemail.hu>
-Date: Mon, 14 Mar 2005 12:10:16 +0100
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; hu; rv:1.7.3) Gecko/20041020
-X-Accept-Language: hu, en-us
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] x86: fix ESP corruption CPU bug
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 14 Mar 2005 06:11:03 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:34215 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261449AbVCNLKw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 06:10:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=p2rGNCBvptR/bx/JYr9EM3dWJQVI36W3jxOw8txSrdOJ3hL9DwQnzU7BtTiwwQdJLcO2chUCQWLTWOasP01UDSBQkctksGSIB/5OnIlXcugE9sfL+0GFIeOreW/vDGgjjXey6JrMNjVt4MAjgDfQi1HKqXapHNVdk7A0iRX2Zrc=
+Message-ID: <84144f0205031403105351abf5@mail.gmail.com>
+Date: Mon, 14 Mar 2005 13:10:46 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: A new 10GB Ethernet Driver by Chelsio Communications
+Cc: Christoph Lameter <christoph@graphe.net>, linux-kernel@vger.kernel.org,
+       mark@chelsio.com, netdev@oss.sgi.com, Jeff Garzik <jgarzik@pobox.com>,
+       penberg@cs.helsinki.fi
+In-Reply-To: <20050311112132.6a3a3b49.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0503110356340.14213@server.graphe.net>
+	 <20050311112132.6a3a3b49.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Stas Sergeev <stsp@aknet.ru> writes:
->>
->>> Another way of saying the same thing: I absolutely hate seeing
->>> patches that fix some theoretical issue that no Linux apps will ever
->>> care about.
->> No, it is not theoretical, but it is mainly
->> about a DOS games and an MS linker, as for
->> me. The things I'd like to get working, but
->> the ones you may not care too much about:)
->> The particular game I want to get working,
->> is "Master of Orion 2" for DOS.
-> 
-> How about you just run it in dosbox instead of dosemu ?
-> 
-> -Andi
+Some of my usual coding style comments...
 
-Nah, don't insult a DOSemu developer. ;-) Stas is one of them...
+On Fri, 11 Mar 2005 11:21:32 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> diff -puN /dev/null drivers/net/chelsio/osdep.h
+> --- /dev/null	2003-09-15 06:40:47.000000000 -0700
+> +++ 25-akpm/drivers/net/chelsio/osdep.h	2005-03-11 11:13:06.000000000 -0800
+> +static inline void *t1_malloc(size_t len)
+> +{
+> +	void *m = kmalloc(len, GFP_KERNEL);
+> +	if (m)
+> +		memset(m, 0, len);
+> +	return m;
+> +}
+> +
+> +static inline void t1_free(void *v, size_t len)
+> +{
+> +	kfree(v);
+> +}
 
-Best regards,
-Zoltán Böszörményi
+Please do not introduce subsystem specific wrappers to kmalloc and kfree.
 
+> +/*
+> + * Allocates basic RX resources, consisting of memory mapped freelist Qs and a
+> + * response Q.
+> + */
+> +static int alloc_rx_resources(struct sge *sge, struct sge_params *p)
+> +{
+> +	struct pci_dev *pdev = sge->adapter->pdev;
+> +	unsigned int size, i;
+> +
+> +	for (i = 0; i < SGE_FREELQ_N; i++) {
+> +		struct freelQ *Q = &sge->freelQ[i];
+> +
+> +		Q->genbit = 1;
+> +		Q->entries_n = p->freelQ_size[i];
+> +		Q->dma_offset = SGE_RX_OFFSET - sge->rx_pkt_pad;
+> +		size = sizeof(struct freelQ_e) * Q->entries_n;
+> +		Q->entries = (struct freelQ_e *)
+> +			      pci_alloc_consistent(pdev, size, &Q->dma_addr);
+> +		if (!Q->entries)
+> +			goto err_no_mem;
+> +		memset(Q->entries, 0, size);
+> +		size = sizeof(struct freelQ_ce) * Q->entries_n;
+> +		Q->centries = (struct freelQ_ce *) kmalloc(size, GFP_KERNEL);
+> +		if (!Q->centries)
+> +			goto err_no_mem;
+> +		memset(Q->centries, 0, size);
+
+Please drop the redundant casts and use kcalloc() here and in various
+other places as
+well.
+
+Also, the patch has some whitespace damage (spaces instead of tabs).
+
+				Pekka

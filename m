@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSEQEIL>; Fri, 17 May 2002 00:08:11 -0400
+	id <S315414AbSEQEW1>; Fri, 17 May 2002 00:22:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSEQEIK>; Fri, 17 May 2002 00:08:10 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:63206 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S315413AbSEQEIK>;
-	Fri, 17 May 2002 00:08:10 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Kbuild Devel <kbuild-devel@lists.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: Kernel Build for 2.5, Release 2.4 is available 
-In-Reply-To: Your message of "Wed, 15 May 2002 23:20:38 +1000."
-             <22794.1021468838@ocs3.intra.ocs.com.au> 
-Mime-Version: 1.0
+	id <S315415AbSEQEW0>; Fri, 17 May 2002 00:22:26 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:16396 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S315414AbSEQEW0>;
+	Fri, 17 May 2002 00:22:26 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200205170422.g4H4M5q295551@saturn.cs.uml.edu>
+Subject: Re: Htree directory index for Ext2, updated
+To: phillips@bonn-fries.net (Daniel Phillips)
+Date: Fri, 17 May 2002 00:22:04 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E178Vhr-0008Vj-00@starship> from "Daniel Phillips" at May 17, 2002 02:34:51 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 May 2002 14:07:46 +1000
-Message-ID: <8230.1021608466@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 May 2002 23:20:38 +1000, 
-Keith Owens <kaos@ocs.com.au> wrote:
->On 14 May 2002 20:46:38 -0700, 
->Thomas Duffy <tduffy@directvinternet.com> wrote:
->>I have only tested x86 as of this moment.  If anyone is dying for a
->>clean kbuild-2.5-common-2.4.19-pre8-1, let me know and I can turn those
->>wheels.
->
->I have uploaded common-2.4.18-7 and common-2.5.15-4 to sourceforge.
->http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
->release 2.4.  This cross syncs the 2.4.18 and 2.5.15 architecture
->independent code, where the two kernels have similar requirements.  I
->will take Tom Duffy's 2.4.19-pre8 patch, add it to common-2.4.18-7 and
->issue common-2.4.19-pre8-1 tomorrow.
+> After learning to my horror that gnu patch will, if a patch was made to be 
+> applied with option -p0, sometimes apply patches to your 'clean' tree (the 
+> one with the ---'s) instead of the target tree (the one with the +++'s) I 
+> decided to switch to -p1, and that is how this patch is to be applied.
 
-kbuild-2.5-common-2.4.19-pre8-1.bz2, kbuild-2.5-i386-2.4.19-pre8-1.bz2
-are available.  Use with core-14.
+The worst thing is that gnu patch will make
+this decision on a per-file basis, so you
+can't then back out the changes with -R.
 
-I built these from common-2.4.18-7, i386-2.4.18-2 plus some previous
-work on 2.4.19-pre6 then updated to -pre8.  A cross check against Tom
-Duffy's 19-pre8 patch found errors in my patches and Tom's, which have
-been reconciled.
+Do like this:
+
+diff -Naurd old new
+
+IMPORTANT: the directory names should have
+the same number of characters in them.
+Do not try something like:
+
+diff -Naurd bad idea
+diff -Naurd doomed 2fail
+
+Don't use "linux" for a name. Don't use
+anything Linus might use. Pick your own
+equal-length directory names, and don't
+distribute tarballs containing them.
+This prevents source-destroying disasters.
+
+Then to apply:
+
+(cd my-linux && bzip2 -dc ../foo.bz2 | patch -p1 -s -E)
 

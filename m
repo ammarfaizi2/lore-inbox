@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292262AbSBBKVe>; Sat, 2 Feb 2002 05:21:34 -0500
+	id <S292263AbSBBKZy>; Sat, 2 Feb 2002 05:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292263AbSBBKV0>; Sat, 2 Feb 2002 05:21:26 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:31449 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S292262AbSBBKVI>; Sat, 2 Feb 2002 05:21:08 -0500
-Date: 02 Feb 2002 10:54:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8I54PTF1w-B@khms.westfalen.de>
-In-Reply-To: <20020201152829.A2497@havoc.gtf.org>
-Subject: Re: Continuing /dev/random problems with 2.4
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+	id <S292264AbSBBKZo>; Sat, 2 Feb 2002 05:25:44 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:63238 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S292263AbSBBKZd>; Sat, 2 Feb 2002 05:25:33 -0500
+Message-ID: <3C5BBE96.1080408@namesys.com>
+Date: Sat, 02 Feb 2002 13:25:26 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <3C5AF6B5.5080105@zytor.com> <a3enf3$93p$1@cesium.transmeta.com> <20020201124300.G763@lynx.adilger.int> <3C5AF6B5.5080105@zytor.com> <20020201152829.A2497@havoc.gtf.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+To: Chris Wedgwood <cw@f00f.org>
+CC: Steve Lord <lord@sgi.com>, Andrew Morton <akpm@zip.com.au>,
+        Ricardo Galli <gallir@uib.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Chris Mason <mason@suse.com>, green@thebsh.namesys.com
+Subject: Re: O_DIRECT fails in some kernel and FS
+In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au> <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-garzik@havoc.gtf.org (Jeff Garzik)  wrote on 01.02.02 in <20020201152829.A2497@havoc.gtf.org>:
+Chris Wedgwood wrote:
 
-> The userspace tools for i810 RNG specifically are available at the
-> website URL mentioned in the source code.  So if somebody cannot find
-> them, feel free to laugh.
+>On Fri, Feb 01, 2002 at 03:05:38PM -0600, Steve Lord wrote:
+>
+>    > ext2 is the only filesystem which has O_DIRECT support.
+>
+>    And XFS ;-)
+>
+>I sent reiserfs O_DIRECT support patches to someone a while ago.  I
+>can look to ressurect these (assuming I can find them!)
+>
+>Chris Mason is always going to be a better source for these anyhow, he
+>certainly understands any complex nuances there may be.  Chris, do you
+>have any cycles to comment on this please?
+>
+>
+>
+>
+>  --cw
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+You might try sending them to me if you want them to be reviewed and 
+hopefully go in.
 
-I'm sure you didn't mean the URL to the tools is in the source of the  
-tools, right?
+Cc green@namesys.com if you do, because I will be away until the 24th.
 
-So then, which other sources do you mean? "The Linux kernel", for example,  
-is an awful lot of source. And in any case, why would you expect anyone  
-(who probably hasn't heard that the i810 *has* a RNG) to look at it just  
-to find out if possibly there was a tool that could be helpful for  
-something?
+Hans
 
-What am I missing here? I hope I *am* missing something here ...
 
-MfG Kai

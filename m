@@ -1,88 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUERNbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUERNdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbUERNbV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 09:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUERNbV
+	id S262007AbUERNdW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 09:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUERNdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 09:31:21 -0400
-Received: from mail.gmx.net ([213.165.64.20]:58041 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261981AbUERNbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 09:31:18 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Daniele Venzano <webvenza@libero.it>
-Subject: Re: [PATCH] Sis900 bug fixes 0/4
-Date: Tue, 18 May 2004 15:39:32 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040518120237.GC23565@picchio.gall.it>
-In-Reply-To: <20040518120237.GC23565@picchio.gall.it>
-MIME-Version: 1.0
+	Tue, 18 May 2004 09:33:22 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:21040 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262007AbUERNdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 09:33:18 -0400
+Date: Tue, 18 May 2004 08:33:05 -0500
+From: Jack Steiner <steiner@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, paulmck@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: RCU scaling on large systems
+Message-ID: <20040518133305.GA4848@sgi.com>
+References: <20040501120805.GA7767@sgi.com> <20040502182811.GA1244@us.ibm.com> <20040503184006.GA10721@sgi.com> <20040507205048.GB1246@us.ibm.com> <20040507220654.GA32208@sgi.com> <20040507163235.11cd94ce.akpm@osdl.org> <20040517211834.GI3044@dualathlon.random> <20040517144228.7172d681.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405181539.32595.dominik.karall@gmx.net>
+In-Reply-To: <20040517144228.7172d681.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 May 2004 14:02, Daniele Venzano wrote:
-> I have prepared 4 patches that fix various issues with the sis900 driver
-> in Linux 2.6.6, two of them had some discussion on lkml. The entire
-> patchset has been tested by me, but patches 2 and 3 require testing from
-> the people who reported the bugs (they are CCed).
->
-> Patches 2,3,4 are incremental and need to be applied in that order.
->
-> Patch summary:
-> 1. change of maintainership for the sis900 driver
-> 2. Add new ISA bridge PCI ID
-> 3. Fix PHY transceiver detection code to fall back to known PHY and not
->    to the last detected.
-> 4. Small cleanup and spelling fixes of sis900.h (much more needed, also
->    in sis900.c, will go through trivial).
->
-> Any comment is highly appreciated.
+On Mon, May 17, 2004 at 02:42:28PM -0700, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > On Fri, May 07, 2004 at 04:32:35PM -0700, Andrew Morton wrote:
+> > > Jack Steiner <steiner@sgi.com> wrote:
+> > > >
+> > > > The calls to RCU are coming from here:
+> > > > 
+> > > > 	[11]kdb> bt
+> > > > 	Stack traceback for pid 3553
+> > > > 	0xe00002b007230000     3553     3139  1   11   R  0xe00002b0072304f0 *ls
+> > > > 	0xa0000001000feee0 call_rcu
+> > > > 	0xa0000001001a3b20 d_free+0x80
+> > > > 	0xa0000001001a3ec0 dput+0x340
+> > > > 	0xa00000010016bcd0 __fput+0x210
+> > > > 	0xa00000010016baa0 fput+0x40
+> > > > 	0xa000000100168760 filp_close+0xc0
+> > > > 	0xa000000100168960 sys_close+0x180
+> > > > 	0xa000000100011be0 ia64_ret_from_syscall
+> > > > 
+> > > > I see this same backtrace from numerous processes.
+> > > 
+> > > eh?  Why is dput freeing the dentry?  It should just be leaving it in cache.
+> > > 
+> > > What filesystem is being used?  procfs?
+> > 
+> > deleting entries from dcache can be a frequent operation, even rename()
+> > triggers d_free.
+> 
+> This issue has gone all quiet.  Is anyone doing aything?
 
-I applied all 4 patches, but the wrong PHY transceiver is used now again.
-Here is the dmesg output:
+I plan to look into the RCU scaling issues (unless someone beats me to
+it) but it will be a couple of weeks before I can start.
 
-sis900.c: v1.08.07 11/02/2003
-eth0: Unknown PHY transceiver found at address 0.
-eth0: Realtek RTL8201 PHY transceiver found at address 1.
-eth0: Unknown PHY transceiver found at address 2.
-eth0: Unknown PHY transceiver found at address 3.
-eth0: Unknown PHY transceiver found at address 4.
-eth0: Unknown PHY transceiver found at address 5.
-eth0: Unknown PHY transceiver found at address 6.
-eth0: Unknown PHY transceiver found at address 7.
-eth0: Unknown PHY transceiver found at address 8.
-eth0: Unknown PHY transceiver found at address 9.
-eth0: Unknown PHY transceiver found at address 10.
-eth0: Unknown PHY transceiver found at address 11.
-eth0: Unknown PHY transceiver found at address 12.
-eth0: Unknown PHY transceiver found at address 13.
-eth0: Unknown PHY transceiver found at address 14.
-eth0: Unknown PHY transceiver found at address 15.
-eth0: Unknown PHY transceiver found at address 16.
-eth0: Unknown PHY transceiver found at address 17.
-eth0: Unknown PHY transceiver found at address 18.
-eth0: Unknown PHY transceiver found at address 19.
-eth0: Unknown PHY transceiver found at address 20.
-eth0: Unknown PHY transceiver found at address 21.
-eth0: Unknown PHY transceiver found at address 22.
-eth0: Unknown PHY transceiver found at address 23.
-eth0: Unknown PHY transceiver found at address 24.
-eth0: Unknown PHY transceiver found at address 25.
-eth0: Unknown PHY transceiver found at address 26.
-eth0: Unknown PHY transceiver found at address 27.
-eth0: Unknown PHY transceiver found at address 28.
-eth0: Unknown PHY transceiver found at address 29.
-eth0: Unknown PHY transceiver found at address 30.
-eth0: Unknown PHY transceiver found at address 31.
-eth0: Using transceiver found at address 31 as default
-eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 19, 00:10:dc:8f:a9:ac.
 
-greets,
-dominik
+
+> 
+> > note that I changed my tree to free all negative entries that are
+> > currently generated by unlink. I find useless to leave negative dentries
+> > after "unlink". I leave them of course after a failed lookup (that's the
+> > fundamental usage of the negative dentries for the PATHs userspace
+> > lookups), but not after unlink.
+> 
+> Sounds sensible.  Could you please send out the patch?
+> 
+> > RCU basically trades mugh higher performance for reader, with much lower
+> > performance for the writer.
+> 
+> If the writer wants synchronous-removal semantics, yes.
+> 
+> The problem here and, I believe, in the route cache is in finding a balance
+> between the amount of storage and the frequency of RCU callback runs.
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+

@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262152AbSJNU51>; Mon, 14 Oct 2002 16:57:27 -0400
+	id <S262296AbSJNVFL>; Mon, 14 Oct 2002 17:05:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbSJNU51>; Mon, 14 Oct 2002 16:57:27 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:15982 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S262152AbSJNU5Z>;
-	Mon, 14 Oct 2002 16:57:25 -0400
-Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submissi
-	on
-From: Austin Gonyou <austin@coremetrics.com>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: linux-lvm@sistina.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021014175608.GA14963@fib011235813.fsnet.co.uk>
-References: <20021014175608.GA14963@fib011235813.fsnet.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NWjd/4Jn1xyGjCaNQwKx"
-Organization: Coremetrics, Inc.
-Message-Id: <1034629393.30834.55.camel@UberGeek.coremetrics.com>
+	id <S262310AbSJNVFL>; Mon, 14 Oct 2002 17:05:11 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:27631 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262296AbSJNVFK>; Mon, 14 Oct 2002 17:05:10 -0400
+Subject: Re: [BUG] Compile failure (gcc 2.96 bug?). 2.5.42 raid0.c
+From: Arjan van de Ven <arjanv@fenrus.demon.nl>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: David Mansfield <lkml@dm.cobite.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1034628849.3038.23.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0210141622460.2876-100000@admin> 
+	<1034628849.3038.23.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-jNyoDj4GFF5/0Z6jQegI"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Oct 2002 23:11:55 +0200
+Message-Id: <1034629916.2937.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 14 Oct 2002 16:03:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-NWjd/4Jn1xyGjCaNQwKx
+--=-jNyoDj4GFF5/0Z6jQegI
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2002-10-14 at 12:56, Joe Thornber wrote:
-> On Mon, Oct 14, 2002 at 11:59:17AM -0500, Austin Gonyou wrote:
-> > Just curious, but device-mapper and 2.5.42 do not seem to jive very
-> > well. Please advise.
->=20
-> Try the patches at:
->=20
-> http://people.sistina.com/~thornber/patches/2.5-unstable/
->=20
+On Mon, 2002-10-14 at 22:54, Arjan van de Ven wrote:
+> On Mon, 2002-10-14 at 22:27, David Mansfield wrote:
+> >
+> > -               sector_t x =3D block;
+> > +               volatile sector_t y =3D 0;
+> > +               sector_t x =3D block - y;
+> >                 sector_div(x, (unsigned long)conf->smallest->size);
+> >                 hash =3D conf->hash_table + x;
+> >         }
+> this appears to be a bad code bug; do_div() requires the first argument
+> to be an u64 and we cast it to unsigned long here....
 
+ehm ignore me I'm blind
 
-Thanks Joe, I will. I will let you know ASAP.
---=20
-Austin Gonyou <austin@coremetrics.com>
-Coremetrics, Inc.
-
---=-NWjd/4Jn1xyGjCaNQwKx
+--=-jNyoDj4GFF5/0Z6jQegI
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQA9qzEQ94g6ZVmFMoIRAmJtAJ4ypiQcKAog5F1cp0mM1qLOhADSjACg8O3C
-KwRk/kGG/feUiiyHKOyoRLM=
-=n2O2
+iD8DBQA9qzMbxULwo51rQBIRAt6bAKCLME3E/5/Ufo/+nHlmqOFwVQLjxACfe9w1
+RTNyOKsbzzpK+eX4w0SwlME=
+=IWYb
 -----END PGP SIGNATURE-----
 
---=-NWjd/4Jn1xyGjCaNQwKx--
+--=-jNyoDj4GFF5/0Z6jQegI--
+

@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291645AbSBAJtI>; Fri, 1 Feb 2002 04:49:08 -0500
+	id <S291654AbSBAJts>; Fri, 1 Feb 2002 04:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291655AbSBAJsv>; Fri, 1 Feb 2002 04:48:51 -0500
-Received: from fc.capaccess.org ([151.200.199.53]:18697 "EHLO fc.Capaccess.org")
-	by vger.kernel.org with ESMTP id <S291645AbSBAJsa>;
-	Fri, 1 Feb 2002 04:48:30 -0500
-Message-id: <fc.00858412002c684900858412002c6849.2c684d@Capaccess.org>
-Date: Fri, 01 Feb 2002 04:47:30 -0500
-Subject: www.kernel.org/hierarchy
-To: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@Capaccess.org>
+	id <S291656AbSBAJtj>; Fri, 1 Feb 2002 04:49:39 -0500
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:30140 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S291655AbSBAJtc>; Fri, 1 Feb 2002 04:49:32 -0500
+Date: Fri, 1 Feb 2002 09:49:28 +0000 (GMT)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: <alastair@gurney>
+To: <linux-kernel@vger.kernel.org>
+Subject: O(1) scheduler observations
+Message-ID: <Pine.GSO.4.33.0202010940320.12546-100000@gurney>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Welcome to www.kernel.org/hierarchy
+Hi Ingo & others....
 
-www.kernel.org/hierarchy/index.html is by Linus. It looks like this...
+Just a brief observation on the O(1) scheduler. I'm using 2.4.18-pre7 +
+J7 scheduler patch (haven't had a chance to try J9 yet), on a
+bog-standard Celeron 500MHz / 384Mb / IDE desktop machine under Red Hat
+7.2.
 
+I'm blasting along in Tuxracer (discovery of the week!) and then
+"updatedb" kicks in. Tuxracer crawls and jerks for about 15 seconds,
+and then turns wonderfully smooth again, whilst the drive continues to
+thrash a while longer.
 
+Forgive me if this isn't a relevant scheduler effect, but it struck me
+that it might be worth commenting on.
 
-Send Linux kernel patches to the best fit you can find for what you patch
-is about in the web pages starting here...
+OTOH, using 2.4.17-J6 on a dual Athlon server here, it works great. The
+server gets occasionally hammered by fat single-threaded (WINE) jobs,
+and the CPU affinity is really working. No more jumping between
+processors as it does on stock kernels.
 
+Cheers
+Alastair
 
-area                    contact
-.......                 ...............         ....................
-ext2                    Ted T'so
-
-VFS                     Al the Virile
-
-linux/kernel/           Linus Torvalds
-                        Ingo Molnar
-
-not 2.5                 Alan Cox
-.                       David Wienhall
-.
-.
-.
-
-
-
-        or whatever the map in the mind of the Unit Penguin looks like.
-Each area links to another page. Linus sets up the permissions to edit
-that page to the people he affiliates with that area. He emails them thier
-passwords. All 10-20 of them. This causes them to have analagous authority
-over the people and subpages they assign/create. <Submit> buttons are
-LAAETTR (left as an excercise...). Down that road lies CVS. The perms
-aspect is recursive root on a webserver, also LAAETTR. (that's actually
-where a human patch penguin comes in, probably.) Another handy thing would
-be for the page to deadman-ping "maintainers" roughly monthly, and trim
-the dead ones.
-
-It is also, in contradiction to what the Unit Penguin says, strictly
-militaristically hierarchical, as far as perms. It probably won't stay a
-true tree, but... But it's just about where to send patches if you're not
-a Single-Digit Penguin. The US military is a 5-branch tree. The Romans
-used a 10-branch tree. The wonders of the Internet and his manifest genius
-seem to enable Torvalds to better the Romans by about 1.5. Caesar gone
-hexadecimal. Oh well, politics are unavoidable.
-
-The page itself can be dynamic. It can also become a MAINTAINERS directory
-in the sources, at about the same size as MAINTAINERS, with a lynx -dump
-or a wget or something in Linus's pack-it-all-up script.
-
-Torvalds talks about his cliq^H^H^H^H main advisors in terms of trust. Who
-trusts the trunk of the tree might benefit from better documentation. The
-Internet won't eliminate hierarchies. Just documenting them is plenty.
-
-Rick Hohensee
+o o o o o o o o o o o o o o o o o o o o o o o o o o o o
+Alastair Stevens           \ \
+MRC Biostatistics Unit      \ \___________ 01223 330383
+Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
 

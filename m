@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUFUUYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266451AbUFUU1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUFUUYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 16:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFUUYf
+	id S266451AbUFUU1K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 16:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFUU1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 16:24:35 -0400
-Received: from prosun.first.gmd.de ([194.95.168.2]:37005 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266454AbUFUUYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 16:24:24 -0400
-Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, netdev@oss.sgi.com,
-       jgarzik@pobox.com
-In-Reply-To: <20040621130316.GA2661@gondor.apana.org.au>
-References: <1087568322.4455.22.camel@localhost>
-	 <E1BcNzi-0000eh-00@gondolin.me.apana.org.au>
-	 <20040621130316.GA2661@gondor.apana.org.au>
-Content-Type: text/plain
-Message-Id: <1087849459.4146.3.camel@localhost>
-Mime-Version: 1.0
-Date: Mon, 21 Jun 2004 22:24:20 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 16:27:10 -0400
+Received: from web90107.mail.scd.yahoo.com ([66.218.94.78]:59788 "HELO
+	web90107.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S266451AbUFUU1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 16:27:03 -0400
+Message-ID: <20040621202702.91926.qmail@web90107.mail.scd.yahoo.com>
+Date: Mon, 21 Jun 2004 17:27:02 -0300 (ART)
+From: =?iso-8859-1?q?so=20usp?= <so_usp@yahoo.com.br>
+Subject: returning text from a system call
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-21 at 15:03, Herbert Xu wrote:
-> On Mon, Jun 21, 2004 at 10:33:50PM +1000, Herbert Xu wrote:
-> > 
-> > Does this patch fix your problems?
-> 
-> Oops, I had a thinko about min vs. max.  I've also decided to make the
-> bigger MTU useful by adjusting the arguments to skb_put() as well.
-> Please try this one instead.
-> 
-> Cheers,
+Hi,
 
-yes that one works nicely... I tested several mtu's ranging from 1000 to
-1500 while the interface was up... no oops.
+I'm implementing a system call, and I want to return
+information (text data) to the user without using the
+/var/log/messages (using the printk function). I've
+been thinking about writing in a file, but I really
+don't know how to manipulate files in kernel mode. The
+text could be returned to the command line as well,
+but I either don't know how to do that. Does anybody
+could help me how to return text (both ways would be
+good) from a system call?
 
-thanks,
-Soeren.
+Thanks, and sorry for the English.
+so_usp 
 
+______________________________________________________________________
+
+Yahoo! Mail - agora com 100MB de espaço, anti-spam e antivírus grátis!
+http://br.info.mail.yahoo.com/

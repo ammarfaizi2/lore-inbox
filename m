@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284584AbRLPMVT>; Sun, 16 Dec 2001 07:21:19 -0500
+	id <S284607AbRLPNTu>; Sun, 16 Dec 2001 08:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284608AbRLPMVJ>; Sun, 16 Dec 2001 07:21:09 -0500
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:61378 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S284584AbRLPMU6>; Sun, 16 Dec 2001 07:20:58 -0500
-Date: Sun, 16 Dec 2001 07:20:57 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: the name "framebuffer"
-In-Reply-To: <20011214225559.GA9889@vega.digitel2002.hu>
-Message-ID: <Pine.LNX.4.33.0112160713300.25837-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S284608AbRLPNTk>; Sun, 16 Dec 2001 08:19:40 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:55819 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S284607AbRLPNT0>; Sun, 16 Dec 2001 08:19:26 -0500
+Subject: Alpha  - how to fill the PC
+From: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 16 Dec 2001 18:49:56 +0530
+Message-Id: <1008508796.18634.8.camel@satan.xko.dec.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 14, 2001 at 04:40:35PM -0500, Mihai Cartoaje wrote:
-> As you may recall from chemistry classes, a buffer is a solutee that
-> reduces pH  variations. Since the initials VGA in IBM's display
-> adapter stand for, "video graphics array," I recommend changing the
-> name of the devices from "framebuffer" to "video array." I shall
-> like to know what other people think.
+Hi, 
 
-Other people think that "buffer" is one of those words which have been
-used for similar meanings in many disciplines.  In computing it is a
-region of storage used to reduce data rate variations.  In materials
-handling it is a machine for rubbing away surface imperfections in leather
-or metal (reducing surface variations).  In railroading it's a
-spring-loaded piston used to absorb the energy of low-speed impacts
-(reducing speed discrepancies).  It could be applied to any mechanism
-designed to mitigate unwanted differences.
+ 	I am trying to do  process migration between nodes  using alpha
+architecture. For explaining what is happening I will take the process
+getting migrated from node1 to node2. I am using struct pt_regs  for
+rebuilding the process on  node2.I am getting the same  value of struct
+pt_regs on node1 and on node2 ( I print is using dik_show_regs) Now I
+want to set the value of registers including the program counter with
+the value i got from node1. Right now I am doing
+ret_from_sys_call(&regs). But then i am getting a Oops . The Oops
+message contain all the register values same as that I got from node1
+except pc and ra 
 
--- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Our lives are forever changed.  But *that* is exactly as it always was.
+	Any idea where I went wrong ? 
+
+ -aneesh 
+
+
 

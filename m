@@ -1,40 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287111AbSA1LZR>; Mon, 28 Jan 2002 06:25:17 -0500
+	id <S287003AbSA1LYy>; Mon, 28 Jan 2002 06:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287148AbSA1LZF>; Mon, 28 Jan 2002 06:25:05 -0500
-Received: from sushi.toad.net ([162.33.130.105]:18079 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S287111AbSA1LZC>;
-	Mon, 28 Jan 2002 06:25:02 -0500
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-From: Thomas Hood <jdthood@mail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-In-Reply-To: <E16V8oV-0004FV-00@the-village.bc.nu>
-In-Reply-To: <E16V8oV-0004FV-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 28 Jan 2002 06:25:05 -0500
-Message-Id: <1012217107.746.5.camel@thanatos>
-Mime-Version: 1.0
+	id <S287111AbSA1LYo>; Mon, 28 Jan 2002 06:24:44 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:59378 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S287003AbSA1LYf>; Mon, 28 Jan 2002 06:24:35 -0500
+Date: Mon, 28 Jan 2002 12:24:29 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@hades.uni-trier.de
+To: Disconnect <lkml@sigkill.net>
+cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [right one][patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <1011977347.1788.5.camel@oscar>
+Message-ID: <Pine.LNX.4.40.0201281219460.21970-100000@hades.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-28 at 05:14, Alan Cox wrote:
-> Suppose vmware decides to switch between running Linux and its virtualised
-> Windows OS. Can it do this during an interrupt - if so what ensures that
-> vmware isnt switched to after we have done APM idle calls and slowed the
-> CPU right down ?
-> 
-> If so then I suspect vmware should be issuing APM cpu busy calls itself
+On 25 Jan 2002, Disconnect wrote:
 
-Do you see a difference between VMware and other processes
-in their susceptibility to this problem?  If VMware runs
-slowly because it gets scheduled in while the CPU is idle
-and the apm driver fails to busyize the CPU, won't the same
-thing happen for other processes?  If so, then our idle 
-handling is fundamentally broken.  If not, then what makes
-VMware special?
+> On suggestions from a few people, I tried underclocking the system to
+> 1200 mhz (x12 instead of x13) and most of the problems went away.
 
+ hmmm ... interesting ... maybe it has to do with the errata 11 bug ...
+
+> The usb keyboard problems went away (that could relate to other things
+> I've been messing with - X seems happier w/ 2 usb keyboards than with
+> just 1 for some reason.)
+
+good :)
+
+>
+> Testing sound and such, no skips or other issues from xmms, even when
+> top reports 70-80% idle.
+>
+> CPU states:  22.2% user,  10.9% system,  24.7% nice,  42.2% idle
+> CPU Temp: +35.8 C     (limit = +51 C,  hysteresis = +49 C)
+>
+> So I'm about 10C lower than before. Yay :)
+>
+> Any way to selectively enable/disable this from userspace? (Such that,
+> eg, when I'm not watching tv I can enable, when I fire up xawtv and/or
+> high-load apps I can disable..)
+
+hmmm .. .someone said it before: you could do this with the setpci
+command. i tested it this morning:
+
+kt133/133a and kx133:
+
+enable: setpci -v -H1 -s 0:0.0 52=EB
+disable: setpci -v -H1 -s 0:0.0 52=6B
+
+kt266/266a:
+
+enable: setpci -v -H1 -s 0:0.0 92=EB
+disable: setpci -v -H1 -s 0:0.0 92=6B
+
+remember: this is without my patch ... if my patch is compiled in and
+active, the first "enable" is allready done at startup :)
+
+> Maybe (eventually) base it off load average..? (So load >.8 its
+> disabled, below that its selectively enabled - daemon to handle it could
+> be taught to check process lists, etc..)
+
+maybee ... i will think about it ...
+
+daniel
+
+
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
 

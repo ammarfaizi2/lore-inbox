@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVBVDyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVBVEmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVBVDyB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 22:54:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVBVDyB
+	id S262202AbVBVEmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 23:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVBVEmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 22:54:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:17884 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262198AbVBVDx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 22:53:58 -0500
-Date: Tue, 22 Feb 2005 03:53:38 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       adaplas@pol.net, dri-devel@lists.sourceforge.net,
-       xorg@lists.freedesktop.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Resource management.
-In-Reply-To: <9e473391050221170111610521@mail.gmail.com>
-Message-ID: <Pine.LNX.4.56.0502220319330.20949@pentafluge.infradead.org>
-References: <Pine.LNX.4.56.0502211908520.14500@pentafluge.infradead.org> 
- <200502220653.01286.adaplas@hotpop.com>  <Pine.LNX.4.56.0502212313160.18148@pentafluge.infradead.org>
- <9e473391050221170111610521@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Mon, 21 Feb 2005 23:42:14 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:60133 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262202AbVBVEmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 23:42:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=RduWI06Nn9XmgPHbB8PB/65S38aMydR+m8C05KUDcjrA2eBymt+zr8BZv01uT6s6EVjzf0zPItOpFg7gAsFzTNl+BXlX6aOtcl40JlQxKdZBf8E3E+c87MwVw3dlPniEWENLiluk5fy6j6ilwnMRkQRlpVUrI+qZ060jBlU0OMU=
+Message-ID: <9e473391050221204215a079e1@mail.gmail.com>
+Date: Mon, 21 Feb 2005 23:42:09 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
+Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       xorg@lists.freedesktop.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1109041968.5412.63.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0502201049480.18753@skynet>
+	 <4218BAF0.3010603@tungstengraphics.com>
+	 <21d7e997050220150030ea5a68@mail.gmail.com>
+	 <9e4733910502201542afb35f7@mail.gmail.com>
+	 <1108973275.5326.8.camel@gaston>
+	 <9e47339105022111082b2023c2@mail.gmail.com>
+	 <1109019855.5327.28.camel@gaston>
+	 <9e4733910502211717116a4df3@mail.gmail.com>
+	 <1109041968.5412.63.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Feb 2005 14:12:48 +1100, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> It's up to each driver to detect wether it's card need to be POSTed or
+> not. Anything else would mean infinite breakage.
 
-> > Do you see any other solution to this then?
-> 
-> You could build this inside of the DRM framework which already
-> supports DMA and memory management. DRM doesn't really know anything
-> about 3D, it just knows how to send commands to the graphics hardware.
-> It's the mesa layer in user space that knows about 3D.
-> 
-> There is a lot of code inside DRM to stop a DRM user from using the
-> DMA hardware to play with kernel memory and gain root priv. fbdev will
-> need the same protection if it starts using DMA.
+Your approach is that it is a per driver problem. I was taking a
+different tack and looking at it as a BIOS deficiency that should be
+compensated for. There is already code in the kernel for identifying
+the boot video device. I was working on the assumption that all PCI
+based, VGA class hardware that is not the boot device needs to be
+posted. And that the posting should occur before the drivers are
+loaded. In order words the BIOS should have provided initialized
+hardware but since it didn't we can apply a fixup in the PCI driver. I
+also suspect there may be SCSI disk controller cards that need the
+same procedure.
 
-I have CC the dri list to discuss the issues. I have looked at the DRI 
-code. I know merging dri and fbdev infrastructres has been discussed
-before. There are a few issues that have always prevented this. Now
-I'm going to go over the issues.
+I have no strong opinions on how to fix the post problem, I just want
+to make sure the problem is fully discussed by the relevant people and
+a consensus solution is achieved. I'm not sure that all of the core
+kernel developers that might be impacted by this have considered all
+of the options. I would like to try and get a consensus design and
+avoid reimplementing everything ten times.
 
-1. Lots of work that would take lots of time. To my knowledge all fbdev 
-   developers work in there spare free time. No one does this for a 
-   living.
-
-2. Sharing of headers. The dri headers are isolated in the drm directory.
-   I totally understand why :-) It makes merging easier for them. The
-   disadvantage is no one in the fbdev can use them easily :-(
-
-3. DRM has way to much functionality for most embedded devices. I have 
-   talked to embedded guys before and they want a simple api to work with.
-   By default DRM builds in everything. A simple api mean alot to those 
-   guys. Plus the extra built in code bloat takes up to much space which 
-   is precious on embedded devices. If a devices doesn't support dma then 
-   the dma code doesn't need to be built in.
-
-4. Which comes to the next point. The code is not modular enough. Take 
-   drm_bufs.c. Everything is a ioctl function. This has a few disadvantages.
-   One is the fbdev layer couldn't just link into it so fbcon could use 
-   it. The second is it's not easy to take advantage of things like sysfs.
-   If you could untangle the code somewhat it would make life so much 
-   easier. That would include making life easier for OS ports.
-
-5. The license issue. The DRI code is GPL and additional rights. What is that? 
-
-For the fbdev layer we would need a layer on top of the drm data 
-structures because we need to know things in the kernel to draw images
-for font characters i.e how much byte padding is need for images.
+-- 
+Jon Smirl
+jonsmirl@gmail.com

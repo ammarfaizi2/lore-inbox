@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270222AbRHGXXJ>; Tue, 7 Aug 2001 19:23:09 -0400
+	id <S270218AbRHGX3w>; Tue, 7 Aug 2001 19:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270219AbRHGXW7>; Tue, 7 Aug 2001 19:22:59 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:23526 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S270218AbRHGXWs>;
-	Tue, 7 Aug 2001 19:22:48 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Exporting kernel memory to application
-Date: Tue, 7 Aug 2001 15:24:03 -0700
-Message-ID: <003501c11f8f$aa9d6270$6401a8c0@IMRANPC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <23793.997222354@ocs3.ocs-net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S270219AbRHGX3m>; Tue, 7 Aug 2001 19:29:42 -0400
+Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:10003
+	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S270218AbRHGX3a>; Tue, 7 Aug 2001 19:29:30 -0400
+Date: Tue, 7 Aug 2001 16:29:39 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: using mount from SUID scripts?
+Message-ID: <20010807162939.A26249@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am in a situation where it is required to export a kernel memory
-(allocated by kmalloc in the device driver) to the user application. I would
-really appreciate any guidance or suggestion.
+I've got an SUID perl script (yes, it's EUID is really 0) which I'd like to
+use mount from to mount a file via loopback...
 
-Thanks,
-Imran Badr.
+Unfortunately, it looks like mount refuses to actually mount anything if
+the EUID and UID aren't the same....
 
+Does anyone happen to know a way around this?  Yes, I know this isn't the
+most secure thing in the world... but I'm basically trying to build a
+filesystem image and put stuff on it using dd, mkfs, mount, and cp.  It all
+works great when run as root, but it really needs to be useable as a
+typical user.
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+It was a new hope.
+					-- Dust Puppy
+User Friendly, 12/25/1998
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7cHnjz64nssGU+ykRAmhZAKDIMIx5M8fUk5AkT+EeIRHCOCLd9ACgnkDz
+mgMYY1cXwHFyvZaWem+W3p4=
+=JJ+P
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--

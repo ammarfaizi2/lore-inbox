@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUHFTJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUHFTQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268230AbUHFTJk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268234AbUHFTJk
+	id S266124AbUHFTQV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUHFTQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:09:40 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:30314 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268230AbUHFTJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:09:38 -0400
-Message-ID: <4113D76E.9060906@yahoo.com.au>
-Date: Sat, 07 Aug 2004 05:09:34 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
+	Fri, 6 Aug 2004 15:16:21 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:43531 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S266124AbUHFTQT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 15:16:19 -0400
+Message-ID: <4113D8AF.5030803@lougher.demon.co.uk>
+Date: Fri, 06 Aug 2004 20:14:55 +0100
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-CC: linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
 Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
-References: <Pine.LNX.4.44.0408052104420.2241-100000@dyn319181.beaverton.ibm.com> <411322E8.4000503@yahoo.com.au> <4113BA65.8050901@lougher.demon.co.uk>
-In-Reply-To: <4113BA65.8050901@lougher.demon.co.uk>
+References: <41127371.1000603@lougher.demon.co.uk> <4112D6FD.4030707@yahoo.com.au> <4112EAAB.8040005@yahoo.com.au> <4113B8A2.4050609@lougher.demon.co.uk> <4113D4CD.5080109@yahoo.com.au>
+In-Reply-To: <4113D4CD.5080109@yahoo.com.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Lougher wrote:
-> Nick Piggin wrote:
+Nick Piggin wrote:
+> Phillip Lougher wrote:
 > 
->> Ram Pai wrote:
+>> Nick Piggin wrote:
 >>
->>>
->>> there is a check in __do_page_cache_readahead()  that validates this.
->>> But it is still not guaranteed to work correctly against races.
->>> The filesystem has to handle such out-of-bound requests gracefully.
->>>
->>> However with Nick's fix in do_generic_mapping_read() the filesystem 
->>> is gauranteed to be called with out-of-bound index, if the file size 
->>> is a multiple of 4k. Without the fix, the filesystem might get
->>> called with out-of-bound index only in racy conditions.
->>>
+>>> On second thought, maybe not. I think your filesystem is at fault.
 >>
->> How's this?
+>>
+>>
+>> No I'm not wrong here. With a read-only filesystem i_size can
+>> never change, there are no possible race conditions.  If a too
+>> large index is passed it is a VFS bug.  Are you suggesting I should
+>> start to code assuming the VFS is broken?
 >>
 > 
-> It doesn't work.  It correctly handles the case where *ppos is equal
-> to i_size on entry to the function (and this does work for files 0, 4k
-> and n * 4k in length), but it doesn't handle readahead inside the for
-> loop.  The check needs to be in the for loop.
-> 
+> No, I suggest you start to code assuming this interface does
+> what it does. I didn't say there is no bug here, but nobody
+> else's filesystem breaks.
 > 
 
-I don't quite follow. What is i_size, *ppos, and desc->count
-required for your problem to trigger?
+Point one: The interface didn't do this UNTIL you changed the code
+Point two: Just because no one has reported other filesystem
+breakage, it doesn't mean other filesystems have not broken.
+
+Perhaps I should have the check in my code.  However, it is
+still stupid to fix an occasional race by ensuring readpage() is
+always called with an out of bounds index when files are 0 or a
+4K multiple.  The filesystem check may prevent a crash, but it
+is needlessly wasteful by design, not through any inadvertant
+race condition.
+
+think is it stupid to fix an o.  However, I it
+stupid to fix a race co
+ll think it stupid to fix a race you en
+

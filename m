@@ -1,94 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268487AbUHQWh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUHQWik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268487AbUHQWh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 18:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268486AbUHQWh1
+	id S268486AbUHQWik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 18:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUHQWij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 18:37:27 -0400
-Received: from gprs214-177.eurotel.cz ([160.218.214.177]:12416 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268487AbUHQWhY (ORCPT
+	Tue, 17 Aug 2004 18:38:39 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:34183 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268486AbUHQWiM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 18:37:24 -0400
-Date: Wed, 18 Aug 2004 00:37:00 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
-       benh@kernel.crashing.org, david-b@pacbell.net
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-ID: <20040817223700.GA15046@elf.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz> <20040817212510.GA744@elf.ucw.cz> <20040817152742.17d3449d.akpm@osdl.org>
+	Tue, 17 Aug 2004 18:38:12 -0400
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Andrew Morton <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       david+powerix@blue-labs.org
+In-Reply-To: <412285A5.9080003@mvista.com>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
+	 <412285A5.9080003@mvista.com>
+Content-Type: text/plain
+Message-Id: <1092782243.2429.254.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817152742.17d3449d.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 17 Aug 2004 15:37:24 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-
-> > I'd like this to be applied, so I can start fixing the drivers...
+On Tue, 2004-08-17 at 15:24, George Anzinger wrote:
+> Tim Schmielau wrote:
+> > On Mon, 16 Aug 2004, Andrew Morton wrote:
+> > 
+> > 
+> >>OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+> >>
+> >>>Albert Cahalan <albert@users.sf.net> writes:
+> >>>
+> >>>
+> >>>>Even with the 2.6.7 kernel, I'm still getting reports of process
+> >>>>start times wandering. Here is an example:
+> >>>>
+> >>>>   "About 12 hours since reboot to 2.6.7 there was already a
+> >>>>   difference of about 7 seconds between the real start time
+> >>>>   and the start time reported by ps. Now, 24 hours since reboot
+> >>>>   the difference is 10 seconds."
+> >>>>
+> >>>>The calculation used is:
+> >>>>
+> >>>>   now - uptime + time_from_boot_to_process_start
+> >>>
+> >>>Start-time and uptime is using different source. Looks like the
+> >>>jiffies was added bogus lost counts.
+> >>>
+> >>>quick hack. Does this change the behavior?
+> >>
+> >>Where did this all end up?  Complaints about wandering start times are
+> >>persistent, and it'd be nice to get some fix in place...
+> >>
+> >>Thanks.
+> >>
+> > 
+> > 
+> > Seems my analysis of the problem wasn't perceived as such.
+> > 
+> > The problem is that in the above calculation 
+> > 
+> >   now - uptime + time_from_boot_to_process_start
+> > 
+> > "uptime" currently is an ntp-corrected precise time, while 
+> > "time_from_boot_to_process_start" just is the free-running "jiffies"
+> > value.
 > 
-> Sure, let's try to get this done.
+> I see you think you have the solution, but I guess I am just dense here.  May be 
+> you could help me to see the error of my ways.  Here is my thinking:
 > 
-> > +static inline enum pci_state to_pci_state(suspend_state_t state)
-> > +{
-> > +	if (SUSPEND_EQ(state, PM_SUSPEND_ON))
-> > +		return PCI_D0;
-> > +	if (SUSPEND_EQ(state, PM_SUSPEND_STANDBY))
-> > +		return PCI_D1;
-> > +	if (SUSPEND_EQ(state, PM_SUSPEND_MEM))
-> > +		return PCI_D3hot;
-> > +	if (SUSPEND_EQ(state, PM_SUSPEND_DISK))
-> > +		return PCI_D3cold;
-> > +	BUG();
-> > +	return PCI_D0;	/* akpm complained about warnings? */
-> > +}
-> > +
-> > ...
-> > +/*
-> > + * For now, drivers only get system state. Later, this is going to become
-> > + * structure or something to enable runtime power managment.
-> > + */
-> > +typedef enum system_state suspend_state_t;
-> > +
-> > +#define SUSPEND_EQ(a, b) (a == b)
-> > +
-> >  enum {
-> >  	PM_DISK_FIRMWARE = 1,
-> >  	PM_DISK_PLATFORM,
-> 
-> This is a bit ugly, and I don't think it actually works.
+> "now" is from gettimeofday() and as such is ntp corrected.
+> "uptime" is also corrected.  In fact it is "now" + "wall_to_monotonic".  And 
+> "wall_to_monotonic" is _only_ changed by do_settime() when the clock is set.
+> "time_from_boot_to_process_start" is the same as "start_time" restated in 
+> seconds, i.e. it is a constant.  So, either one or more of the above assumtions 
+> is wrong, or  somebody is twiddling the clock.  Otherwise I don't see how the 
+> start time can move at all.
 
-I agree about the ugly bit :-(.
+The problem is start time is derived from task->start_time which is the
+jiffies value at the time the process started. Thus interval calculated
+by: (start_time = p->start_time - INITIAL_JIFFIES) or (run_time =
+get_jiffies_64() - p->start_time) is not NTP adjusted. 
 
-> If, at some time in the future you change the suspend state to a struct
-> then you will want to pass that thing around by reference, not by
-> value. 
+So both (uptime - run_time) or (boot_time + start_time) will have
+problems. 
 
-Actually I expect it to become struct of two members, system-state and
-bus-specific state. That seems small enough to pass by value.
+What needs to happen is task->start_time is changed to a timespec which
+is set at fork time to be do_posix_clock_monotonic_gettime(). Then in
+proc_pid_stat() we can calculate the appropriate user-jiffies value.
 
-> Hence your new suspend_state_t will need to be typecast to a pointer to
-> struct, and not a struct.  And that's not a thing which we do in-kernel
-> much at all.  (There's nothing wrong with the practice per-se, but in the
-> kernel it does violate the principle of least surprise).
-> 
-> So if you really do intend to add more things to the suspend state I'd
-> suggest that you set the final framework in place immediately.  Do:
-> 
-> struct suspend_state {
-> 	enum system_state state;
-> }
 
-I can do that... but it will break compilation of every driver in the
-tree. I can fix drivers I use and try to fix some more will sed, but
-it will be painfull (and pretty big diff, and I'll probably miss some).
+task->start_time is used at the following lines:
 
-Should I do that?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+include/linux/sched.h: 460
+kernel/fork.c: 964
+fs/proc/array.h: 359
+kernel/acct.c: 404
+mm/oom_kill.c: 64
+
+I'm stuck trying to fix the last two files at the moment. Please let me
+know if you see any other uses.
+
+thanks
+-john
+
+

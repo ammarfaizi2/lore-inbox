@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314417AbSEFOBB>; Mon, 6 May 2002 10:01:01 -0400
+	id <S314444AbSEFOEp>; Mon, 6 May 2002 10:04:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314444AbSEFOBA>; Mon, 6 May 2002 10:01:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:40206 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S314417AbSEFOBA>; Mon, 6 May 2002 10:01:00 -0400
-Date: Mon, 6 May 2002 11:00:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@zip.com.au>
-cc: bert hubert <ahu@ds9a.nl>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.14..
-In-Reply-To: <3CD62BAE.BABF3831@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0205061100030.32261-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314446AbSEFOEo>; Mon, 6 May 2002 10:04:44 -0400
+Received: from unthought.net ([212.97.129.24]:56517 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S314444AbSEFOEo>;
+	Mon, 6 May 2002 10:04:44 -0400
+Date: Mon, 6 May 2002 16:04:43 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IO stats in /proc/partitions
+Message-ID: <20020506160443.P26111@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBCEAOEMAA.znmeb@aracnet.com> <Pine.LNX.4.33.0205041718290.4175-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002, Andrew Morton wrote:
-> bert hubert wrote:
+On Sat, May 04, 2002 at 05:25:53PM -0400, Mark Hahn wrote:
+> > I'm with Andries on this one! Linux can't survive if anyone can change it
+> > and break all the supporting software in user space that reads stuff from
+> 
+> there is no serious breakage issue, since the extra fields would
+> not break any competent parsing code.
 
-> > I parsed this 'dirty state' sentence all wrong at first :-) Andrew, Linus -
-> > where does the current VM lie in between rmap-vm and aa-vm?
+That is ridiculous. Parsers parse a grammar, and fails when the input doesn't
+obey the grammar.  Creating grammars that will satisfy *anything* that people
+might think of putting into /proc files late saturday nights (take a look at
+the ASCII art in /proc/mdstat for example !!) is not just something you can do
+with any certainty.
 
-> I made minimal changes in there to teach the page allocator that
-> all dirty memory is written back via pages and not sometimes-pages,
-> sometimes-buffers.  Also to add support for the new `clustering
-> writeback' which address_spaces can perform.
+You may think that you will be parsing a list of partitions - next week someone
+felt that drawing a flowchart with ISO-8859-8 characters would be cooler, and
+then you're stuck fixing your parser.
 
-> So it's all page-oriented now.
+This was why we had a very long thread about creating an API for getting this
+information out, something like kstat or pstat from some real 'NIX systems.
 
-Nice, this will make it possible to have much cleaner page
-replacement code.
+Let's not bring that thread up again - it's besides the point of this argument.
+Read on.
 
-regards,
+> 
+> > Linux has *got* to mature to the point where the documentation is *accurate*
+> > and *available* and the APIs don't wobble under the feet of their users. I
+> 
+> nah.  changing APIs and internals is exactly the reason Linux wins.
 
-Rik
+No.  Changing APIs *when* and *where* it makes sense, is why Linux is winning.
+
+There is a world of difference.
+
+Disk statistics should *NOT* go into a partition-table-listing file.  Put the
+statistics in a file for, say, *statistics*.    How hard can this be ?
+
+It is
+1)  Simple
+2)  No more change than the original change
+3)  Doesn't break parsers (neither the good or the bad ones)
+4)  Logical.  Think of files as "name spaces", statistics in the statistics
+    files, partitions in the partition files
+
+What is the downside ?
+
+Think about the BSD Socket API - sendfile() wasn't hacked into send() either. It could
+have been - anything could have been hacked into send, but it was saner not to.
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

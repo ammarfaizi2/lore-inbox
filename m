@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVAWBDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVAWBcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbVAWBDl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 20:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVAWBDl
+	id S261175AbVAWBcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 20:32:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVAWBcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 20:03:41 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:31668 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261172AbVAWBDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 20:03:37 -0500
-Message-ID: <41F2F7C1.70404@kolivas.org>
-Date: Sun, 23 Jan 2005 12:02:57 +1100
+	Sat, 22 Jan 2005 20:32:23 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:25815 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261175AbVAWBcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 20:32:17 -0500
+Message-ID: <41F2FE81.7020002@kolivas.org>
+Date: Sun, 23 Jan 2005 12:31:45 +1100
 From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
@@ -28,36 +28,16 @@ X-Enigmail-Version: 0.89.5.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig6AD52CF3754AF51EDB84051E"
+ boundary="------------enig768F33D329CA6F353B9011BA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6AD52CF3754AF51EDB84051E
+--------------enig768F33D329CA6F353B9011BA
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Jack O'Quin wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
-> 
-> 
->>So let's try again, sorry about the noise:
->>
->>==> jack_test4-2.6.11-rc1-mm2-fifo.log <==
->>*********************************************
->>XRUN Count  . . . . . . . . . :     3
->>Delay Maximum . . . . . . . . : 20161   usecs
->>*********************************************
->>
->>==> jack_test4-2.6.11-rc1-mm2-iso.log <==
->>*********************************************
->>XRUN Count  . . . . . . . . . :     6
->>Delay Maximum . . . . . . . . :  4604   usecs
->>*********************************************
->>
->>Pretty pictures:
->>http://ck.kolivas.org/patches/SCHED_ISO/iso2-benchmarks/
-> 
 > 
 > Neither run exhibits reliable audio performance.  There is some low
 > latency performance problem with your system.  Maybe ReiserFS is
@@ -66,15 +46,21 @@ Jack O'Quin wrote:
 > 
 > Until you solve this problem, beware of drawing conclusions.
 
-Sigh.. I guess you want me to do all the benchmarking. Well it's easy 
-enough to get good results. I'll simply turn off all services and not 
-run a desktop. This is all on ext3 on a fully laden desktop by the way, 
-but if you want to get the results you're looking for I can easily drop 
-down to a console and get perfect results.
+The idea is to get equivalent performance to SCHED_FIFO. The results 
+show that much, and it is 100 times better than unprivileged 
+SCHED_NORMAL. The fact that this is an unoptimised normal desktop 
+environment means that the conclusion we _can_ draw is that SCHED_ISO is 
+as good as SCHED_FIFO for audio on the average desktop. I need someone 
+with optimised hardware setup to see if it's as good as SCHED_FIFO in 
+the critical setup.
 
+I'm actually not an audio person and have no need for such a setup, but 
+I can see how linux would benefit from such support... ;)
+
+Cheers,
 Con
 
---------------enig6AD52CF3754AF51EDB84051E
+--------------enig768F33D329CA6F353B9011BA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -83,9 +69,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.4 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFB8vfFZUg7+tp6mRURAggwAJ4mX02HL339gbiOBzqNpCeWvrkI5gCfaS0J
-3G+8xq6A9rJmeL9gNFNXun4=
-=C7j7
+iD8DBQFB8v6GZUg7+tp6mRURAtMPAJ9H1UZDGWOr0d39kBj15OjGPzUBawCePTJo
+G1gR4t3obb5BoBVEWXBFccc=
+=sRTU
 -----END PGP SIGNATURE-----
 
---------------enig6AD52CF3754AF51EDB84051E--
+--------------enig768F33D329CA6F353B9011BA--

@@ -1,57 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276098AbRI1O52>; Fri, 28 Sep 2001 10:57:28 -0400
+	id <S276095AbRI1OzI>; Fri, 28 Sep 2001 10:55:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276103AbRI1O5N>; Fri, 28 Sep 2001 10:57:13 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:45840 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S276099AbRI1O4V>; Fri, 28 Sep 2001 10:56:21 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S276090AbRI1Oyy>; Fri, 28 Sep 2001 10:54:54 -0400
+Received: from [217.6.75.131] ([217.6.75.131]:55532 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S276094AbRI1OyJ>; Fri, 28 Sep 2001 10:54:09 -0400
+Message-ID: <3BB4912A.414B809A@internetwork-ag.de>
+Date: Fri, 28 Sep 2001 17:03:06 +0200
+From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Reply-To: tip@prs.de
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [BUG]: 2.4.10 lockup using ppp on SMP
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15284.36676.918419.684442@beta.reiserfs.com>
-Date: Fri, 28 Sep 2001 18:55:00 +0400
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-Cc: <linux-kernel@vger.kernel.org>,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: weirdness in reiserfs
-In-Reply-To: <Pine.LNX.4.33.0109281509080.10065-100000@nick.dcs.qmul.ac.uk>
-In-Reply-To: <Pine.LNX.4.33.0109281509080.10065-100000@nick.dcs.qmul.ac.uk>
-X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Bernstein writes:
- > I have a 240GB reiserfs ataraid partition on one of my servers (2.4.9-ac10
- > + ext3 0.9.9 + ext3 speedup + ext3 "experimental VM patch" + jfs 1.0.4),
- > which I had populated with lots of little files, probably huge amounts of
- > tail-packing going on.
- > 
- > I deleted a tarball of one of my directories; I forget how big the file
- > was, but I reckon it was of the order of 25GB. It took long enough (over
- > an hour) that I went to the pub with fingers crossed instead of nursing
- > it. While it was deleting vmstat 1 was showing bi= ~ 2000 and bo= ~ 20000,
- > so it was hammering away. Fine, I thought, it's a big file; I don't do
- > this sort of thing often, maybe the stuff needed to delete such a big file
- > is bigger than the journal size or something. But.. the partition was
- > otherwise inaccessible with processes just blocking. Oddly df worked
- > though, so I could watch my use of the filesystem going down!
+Hi,
 
-Were there reiserfs-related messages in the kernel log?
+2.4.10 (and all its 2.4.x predecessors) lock up in ppp_destroy_interface. Thanks
+to the kdb I got the two tracebacks below - the all_ppp_lock interferes with
+some other (socket?!) lock...
+Any help is VERY much appreciated!
+Thanks
 
- > 
- > So.. I came back in this morning and things had recovered. Weird. Could
- > the "experimental VM patch" mentioned on the ext3 for 2.4 page be a little
- > too experimental? Sorry to be so vague...
- > 
- > Matt
+Immanuel
 
-Nikita.
+output from kdb:
 
- > 
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
+    EBP       EIP         Function(args)
+           0xc02ed78a stext_lock+0x4bce
+                               kernel .text.lock 0xc02e8bbc 0xc02e8bbc 0xc02f20e
+
+0
+0xf63edf3c 0xc0205698 ppp_destroy_interface+0x38 (0xf63f1800)
+                               kernel .text 0xc0100000 0xc0205660 0xc0205b28
+0xf63edf94 0xc02018f0 ppp_ioctl+0x2e8 (0xf6c34100, 0xf64025e0, 0x4004743c, 0x22)
+
+                               kernel .text 0xc0100000 0xc0201608 0xc0202304
+0xf63edfbc 0xc0154e39 sys_ioctl+0x239 (0x4, 0x4004743c, 0x22, 0xbffff6e4, 0x804d
+
+f40)
+                               kernel .text 0xc0100000 0xc0154c00 0xc0154ed0
+           0xc01076ef system_call+0x33
+                               kernel .text 0xc0100000 0xc01076bc 0xc01076f4
+[0]kdb> cpu 1
+
+Entering kdb (current=0xf61a0000, pid 525) on processor 1 due to cpu switch
+[1]kdb> bt
+    EBP       EIP         Function(args)
+           0xc02eeae0 stext_lock+0x5f24
+                               kernel .text.lock 0xc02e8bbc 0xc02e8bbc 0xc02f20e
+
+0
+0xf61a1f94 0xc0276157 sock_ioctl+0xe3 (0xf61da760, 0xf61a2da0, 0x8914, 0xbffff42
+
+c)
+                               kernel .text 0xc0100000 0xc0276074 0xc0276170
+0xf61a1fbc 0xc0154e39 sys_ioctl+0x239 (0x5, 0x8914, 0xbffff42c, 0x4, 0xbffff44c)
+
+                               kernel .text 0xc0100000 0xc0154c00 0xc0154ed0
+           0xc01076ef system_call+0x33
+                               kernel .text 0xc0100000 0xc01076bc 0xc01076f4
+
+
+--
+Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+interNetwork AG                         Phone:  +49-(0)611-1731-121
+Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
+
+
+

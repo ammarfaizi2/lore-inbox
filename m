@@ -1,103 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265953AbUBQDvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 22:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265954AbUBQDvN
+	id S265955AbUBQEOP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 23:14:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUBQEOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 22:51:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62666 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265953AbUBQDvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 22:51:10 -0500
-Date: Mon, 16 Feb 2004 19:51:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.3-rc4
-Message-ID: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
+	Mon, 16 Feb 2004 23:14:15 -0500
+Received: from c-67-169-7-208.client.comcast.net ([67.169.7.208]:50304 "EHLO
+	beeble.homelinux.net") by vger.kernel.org with ESMTP
+	id S265955AbUBQEON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 23:14:13 -0500
+Message-ID: <4031950F.2040406@lbl.gov>
+Date: Mon, 16 Feb 2004 20:14:07 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix make rpm in 2.6 when using RH9 or Fedora..
+References: <402BD507.2040201@lbl.gov> <402EE151.4000807@tmr.com> <403008C0.1070806@lbl.gov> <20040216210121.GD2977@mars.ravnborg.org>
+In-Reply-To: <20040216210121.GD2977@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sam Ravnborg wrote:
+>
+> Please forward the original patch to Andrew for inclusion.
+> 
+> 	Sam
 
-Ok,
- I'm planning on doing the final 2.6.3 tomorrow, so please test this 
-final -rc.
+Andrew; Sam asked me to forward this to you for inclusion into the next 2.6 kernel.
 
-Most notably, this should support ppc/ppc64 out-of-the-box, complete with
-G5 support (64-bit). Special thanks to BenH who made sure the new radeonfb
-driver works on a wide variety of hardware (a number of the fixes here
-relative to -rc3 was making sure the driver works on regular x86 laptops).
+thanks!
 
-Apart from the radeon updates, there's some IDE oops fixes (and cleanups), 
-and a SELinux update.
+Short description:
 
-And yes, document the fact that sparc is no longer f*cked up (both atomics 
-and irq save/restore now work the way they always did everywhere else).
+Doing a 'make rpm' with any linux-2.6 (or probably, even linux-2.4 kernel) will fail with the current RH9/Fedora RPM macros.
 
-		Linus
+The failure message is this:
 
-----
+Processing files: kernel-debuginfo-2.6.3rc1mm1-12
+error: Could not open %files file /usr/src/redhat/BUILD/kernel-2.6.3rc1mm1/debugfiles.list: No such file or directory
 
-Summary of changes from v2.6.3-rc3 to v2.6.3-rc4
-============================================
 
-Andrew Morton:
-  o SELinux: context mount support - LSM/FS
-  o SELinux: context mount support - NFS
-  o SELinux: context mount support - SELinux changes
-  o devfs do_mount fix
-  o selinux: Allow non-root processes to read selinuxfs enforce node
-  o selinux: mark avc_init with __init
-  o SELinux: Fix error handling bug
-  o ppc32: Fix MPC82xx thinko
-  o ppc32: Fix MPC82xx UARTs
+RPM build errors:
+   Could not open %files file /usr/src/redhat/BUILD/kernel-2.6.3rc1mm1/debugfiles.list: No such file or directory
+make: *** [rpm] Error 1
 
-Anton Blanchard:
-  o fix ppc64 LPAR
 
-Bartlomiej Zolnierkiewicz:
-  o fix OOPS on non-DMA IDE hosts with CONFIG_BLK_DEV_IDEDMA=y
-  o ide-tape: fix "sleeping function called from invalid context"
-  o ide-tape: warn about soon to be removed OnStream support
-  o remove ide_dma_{good,bad}_drive from ide_hwif_t
-  o remove __ide_dma_count() and ide_hwif_t->ide_dma_count
-  o make __ide_dma_off() generic and remove ide_hwif_t->ide_dma_off
+The fix is this patch:
 
-Benjamin Herrenschmidt:
-  o Remove debug cruft from via-pmu.c driver
-  o Fix Oops & warning on PPC in rivafb
-  o shield fbdev operations with console semaphore
-  o Fix fbdev pixmap locking
-  o Update aty128fb video driver
-  o fbdev state management
-  o fbcon notified of suspend/resume
-  o fix radeonfb "noaccel" command line
-  o radeonfb: limit ioremap size & debug output
-  o Update platinumfb driver
-  o Small typo in aty128fb
-  o Fix rtasd zombie on PowerMac G5
-  o Fix building both old & new radeonfb's
-  o Fix ppc compile problem with gcc 3.4
-
-Jeff Garzik:
-  o Update mac network drivers
-
-Linus Torvalds:
-  o Fix new radeon clock calculation
-  o Fix user-visible typo in printk
-  o Fix radeonfb to use the proper BIOS reference divider for
-    flat-panel displays.
-  o Fix link error with RADEON_DEBUG and !RADEON_I2C
-  o Revert the dodgy ia64 serial console changeset by Bjorn Helgaas
-  o Linux 2.6.3-rc4
-
-Marcel Holtmann:
-  o [Bluetooth] Revert reference counting fixes
-
-Peter Osterlund:
-  o Missing initialization code for old radeon driver
-
-Rusty Russell:
-  o Sparc no longer F*cked Up
+--- linux-2.6/scripts/mkspec    2004-01-08 22:59:04.000000000 -0800
++++ linux-2.6.3-rc1-mm1/scripts/mkspec  2004-02-12 00:02:55.000000000 -0800
+@@ -37,6 +37,7 @@
+ echo "BuildRoot: /var/tmp/%{name}-%{PACKAGE_VERSION}-root"
+ echo "Provides: $PROVIDES"
+ echo "%define __spec_install_post /usr/lib/rpm/brp-compress || :"
++echo "%define debug_package %{nil}"
+ echo ""
+ echo "%description"
+ echo "The Linux Kernel, the operating system core itself"
 

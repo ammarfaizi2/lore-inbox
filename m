@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVC3NFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVC3NM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVC3NFR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 08:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVC3NFR
+	id S261856AbVC3NM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 08:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVC3NM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 08:05:17 -0500
-Received: from main.gmane.org ([80.91.229.2]:1211 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261885AbVC3NFK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 08:05:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Call chain analysis
-Date: Wed, 30 Mar 2005 15:04:28 +0200
-Organization: {M:U} IT-Consulting
-Message-ID: <pan.2005.03.30.13.04.25.128572@smurf.noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4E   G?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Wed, 30 Mar 2005 08:12:27 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:36111 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261856AbVC3NMX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 08:12:23 -0500
+To: =?iso-8859-1?q?Xu=E2n_Baldauf?= 
+	<xuan--2004.03.29--linux-kernel--vger.kernel.org@baldauf.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vfat: why is shortname=lower the default?
+References: <4249BB5C.5000102@baldauf.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 30 Mar 2005 22:12:01 +0900
+In-Reply-To: <4249BB5C.5000102@baldauf.org> (
+ =?iso-8859-1?q?Xu=E2n_Baldauf's_message_of?= "Tue, 29 Mar 2005 22:32:28
+ +0200")
+Message-ID: <871x9xs2fy.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Xuân Baldauf <xuan--2004.03.29--linux-kernel--vger.kernel.org@baldauf.org> writes:
 
-I'm running into an IRQ problem while removing USB adapters (e.g., when
-pulling a PCMCIA card with an OHCI on it).
+> Why is shortname=lower the default mount option for vfat filesystems?
+> Because, with "shortname=lower", copying one FAT32 filesystem tree to
+> another FAT32 filesystem tree using Liux results in semantically
+> different filesystems. (E.g.: Filenames which were once "all
+> uppercase" are now "all lowercase").
 
-Specifically, this call chain
-  usb_hcd_pci_remove -> hcd_buffer_destroy -> dma_pool_destroy
-    -> pool_free_page -> free_hot_cold_page -> IRQ -> usb_hcd_irq
-results in a crash. That's not the immediate problem, though.
+The reason is only it's very long-standing behavior.  When this
+behavior was changed before, it seems an one user was confused at
+least.
 
-The problem is that wrapping usb_hcd_pci_remove() in a local_irq_save/
-/restore *still* allows that interrupt to happen. I suspect that something
-in that call chain sometimes calls the scheduler ..?
+    http://marc.theaimsgroup.com/?t=97041869500002&r=1&w=2
 
-I assume that there are nice tools which find that call for me, and save
-me from plowing through a lot of kernel code ..? I've never needed one of
-those before. :-/
+Personally I agree that "winnt" or "mixed" is proper.
 
+However, if we want to change the default behavior, it would need to
+be tested for some months, and if anyone has no objection it can
+change I think.
+
+Thanks.
 -- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314446AbSD0UE5>; Sat, 27 Apr 2002 16:04:57 -0400
+	id <S314457AbSD0UG3>; Sat, 27 Apr 2002 16:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSD0UEy>; Sat, 27 Apr 2002 16:04:54 -0400
-Received: from gjs.xs4all.nl ([213.84.2.78]:23561 "EHLO mail.gjs.cc")
-	by vger.kernel.org with ESMTP id <S314446AbSD0UEJ>;
-	Sat, 27 Apr 2002 16:04:09 -0400
+	id <S314459AbSD0UFA>; Sat, 27 Apr 2002 16:05:00 -0400
+Received: from host213-122-210-220.in-addr.btopenworld.com ([213.122.210.220]:17795
+	"EHLO Wasteland") by vger.kernel.org with ESMTP id <S314451AbSD0UEX>;
+	Sat, 27 Apr 2002 16:04:23 -0400
+Message-Id: <m171YQJ-000GQtC@Wasteland>
 Content-Type: text/plain; charset=US-ASCII
-From: GertJan Spoelman <kl@gjs.cc>
+From: Matthew M <matthew.macleod@btinternet.com>
 To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 Subject: Re: Microcode update driver
-Date: Sat, 27 Apr 2002 22:04:06 +0200
-X-Mailer: KMail [version 1.4]
+Date: Sat, 27 Apr 2002 21:01:35 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.44.0204272150130.2833-100000@mustard.heime.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204272141010.2833-100000@mustard.heime.net>
+X-Operating-System: Debian GNU/Linux
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200204272204.06592.kl@gjs.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 April 2002 21:42, Roy Sigurd Karlsbakk wrote:
-> On Sat, 27 Apr 2002, Matthew M wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > On Saturday 27 April 2002 7:57 pm, Roy Sigurd Karlsbakk wrote:
-> > > Sorry if this is a FAQ, but where's the microcode.dat supposed to be
-> > > placed? I can't find any information about that in the doc.
-> >
-> > /usr/share/misc/microcode.dat
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Saturday 27 April 2002 8:51 pm, RS wrote:
+> ok
 >
-> hm... but... Isn't the microcode update being done during kernel boot?
-> I rarely have a system set up with /usr on the same fs as /
+> running redhat, I have no microcode_ctl. but still, the kernel tells me
+> 'IA-32 Microcode Update Driver: v1.09 <tigran@veritas.com>' during boot.
+>
+> where can i find it? Do I need it?
 
-On my system it lives in /etc, but you can place it anywhere you want, see the 
-part below which I copied from the microcode README
+microcode_ctl is the userland utility which actually soed the uploading of 
+microcode. You will need to get the appropriate package, and this will come 
+with microcode.dat - then you should actually be able to update your 
+microcode. The message in your kernel log is just the driver initialisation.
 
-***************************************************************************
->>> updating every system boot
-***************************************************************************
+*MatthewM*
+- -- 
+ 
+Sometimes love ain't nothing but a misunderstanding between two fools.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-A simple script has been included for systems to apply the microcode
-update on boot. The script is a good illustration on how to use the
-utility but it may be useful to run through some basic usage.
-
-Without using the provided startup script, to update your microcode and
-free the internal buffer on every system boot you'll need to add a line
-like the following to /etc/rc.d/rc.local (where prefix indicates the
-location of the binary)
-
-prefix/microcode_ctl -iu
-
-or to specify another microcode file
-
-prefix/microcode_ctl -if /etc/microcode.dat
-
-Simple as that. Problems? Contact either myself at simon@veritas.com or
-Tigran at tigran@veritas.com
-
-
+iD8DBQE8ywOfoVQMDIAmueURAvGVAJ95OFzC163RQ0veUPfndUqy7QzuWQCeOTKS
+J9hy4k+y8O67Fnk5vPn9R6s=
+=z/wB
+-----END PGP SIGNATURE-----

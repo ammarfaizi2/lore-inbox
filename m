@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263489AbTKFJh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 04:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTKFJh7
+	id S263466AbTKFJdE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 04:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTKFJdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 04:37:59 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:27407 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263489AbTKFJho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 04:37:44 -0500
-Date: Thu, 6 Nov 2003 09:36:00 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Message-ID: <20031106093600.A14526@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Linux-SCSI <linux-scsi@vger.kernel.org>
-References: <B179AE41C1147041AA1121F44614F0B060ED62@AVEXCH02.qlogic.org>
+	Thu, 6 Nov 2003 04:33:04 -0500
+Received: from tarantel.rz.fh-muenchen.de ([129.187.244.239]:15614 "HELO
+	mailserv.rz.fh-muenchen.de") by vger.kernel.org with SMTP
+	id S263466AbTKFJdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 04:33:02 -0500
+Date: Thu, 6 Nov 2003 10:36:21 +0100
+From: Daniel Egger <degger@tarantel.rz.fh-muenchen.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Daniel Egger <degger@fhm.edu>, Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Re:No backlight control on PowerBook G4
+Message-ID: <20031106103621.D18367@tarantel.rz.fh-muenchen.de>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca> <1067820334.692.38.camel@gaston> <1067878624.7695.15.camel@sonja> <1067896476.692.36.camel@gaston> <1067976347.945.4.camel@sonja> <1068078504.692.175.camel@gaston> <20031106090132.B18367@tarantel.rz.fh-muenchen.de> <1068107179.692.200.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B060ED62@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Tue, Nov 04, 2003 at 05:15:33PM -0800
+X-Mailer: Mutt 1.0pre2us
+In-Reply-To: <1068107179.692.200.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	o Slab cache allocations for driver SRBs.
+On Thu, Nov 06, 2003 at 07:26:19PM +1100, Benjamin Herrenschmidt wrote:
 
-this one is broken.  You kall kmem_cache_alloc and kmem_cache_free
-under a spinlock which is not wrong (at least with GFP_ATOMIC) but useless.
-You don't have a mempool so you will deadlock under load.
-You have a kmem_cache_t per host which is unessecary, one in the driver is
-enough.
+> For PowerMac in general, you'd rather use my tree, at least until maybe
+> around 2.6.1, and even then... Especially for such very new machine for
+> which the proper support is only getting in now.
 
-> the source-type tarball format.  It's not worth the extra effort of
-> building a separate drop-in kernel tarball, given the varying release
-> periods of the driver.  Similar drop-in-kernel-tarball results can be
-> had by:
+While your tree is about a mac can get I had several troubles in the past
+on other architectures and unfortunately I have to run them as well. Since
+bandwidth is not as cheap as one might think I do *not* have the ressources
+to keep several trees up-to-date. 
 
-
-Would be nice to unpack into a directory instead of CWD, like almost any
-tarball does..
-
-> Failover functionality is present in this distribution, at this time I
-> do not foresee a policy change regarding its presence in the 8.x
-> series driver.  The next beta release of 8.x will be failover-feature
-> resync'd with our latest 6.x beta (6.07.xx).
-
-So it won't get merged into 2.6.x.  Not that it would be likely given your
-complete ignorance of the other TODO items.  Sometimes I really wish to
-get some funding to work on a mergeable qla2xxx driver as it seems impossible
-to get one from qlogic..
+However I'm diffing your tree against a recent Linus version right now and will
+retry.
 
 --
-Christoph Hellwig <hch@lst.de>		-	Freelance Hacker
-Contact me for driver hacking and kernel development consulting
+Servus,
+       Daniel

@@ -1,79 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbUKXIUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbUKXIWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262428AbUKXIUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 03:20:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUKXIOG
+	id S262534AbUKXIWo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 03:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUKXIUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 03:14:06 -0500
-Received: from mail.gmx.net ([213.165.64.20]:32921 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262486AbUKXIKt (ORCPT
+	Wed, 24 Nov 2004 03:20:43 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:45619 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262531AbUKXITe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 03:10:49 -0500
-X-Authenticated: #4512188
-Message-ID: <41A44071.9040101@gmx.de>
-Date: Wed, 24 Nov 2004 09:04:01 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041114)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, Jan De Luyck <lkml@kcore.org>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [2.6.10-rc2] XFS filesystem corruption
-References: <200411221530.30325.lkml@kcore.org> <20041122155106.GG2714@holomorphy.com> <41A30D3E.9090506@gmx.de> <20041124082736.E6205230@wobbly.melbourne.sgi.com>
-In-Reply-To: <20041124082736.E6205230@wobbly.melbourne.sgi.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7FC9CFB6AB2257070C9636CC"
+	Wed, 24 Nov 2004 03:19:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=HKJCctGlvOAbDvYu+mhjVc7YOvkK27BSMLWiyhwcUheiYvwbkico9JkjKT+LjOWKfgvwDMyLsPiDIG39DkXxDlA/SQeBEgsT3V16P2L2IV9VXoBdylULIgyyb0+P/mLFz2VKAAsvZ86pxOnoMX1rv6tF11yck5WrqqPhvtOpRA8=
+Message-ID: <432beae0411240012519e976d@mail.gmail.com>
+Date: Wed, 24 Nov 2004 00:12:53 -0800
+From: Justin Patrin <papercrane@gmail.com>
+Reply-To: papercrane@reversefold.com
+To: Norbert van Nobelen <norbert@edusupport.nl>
+Subject: Re: Compact Flash - simulating a card
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200411240642.14660.Norbert@edusupport.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <432beae04112313344fb4a5f9@mail.gmail.com>
+	 <200411240642.14660.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7FC9CFB6AB2257070C9636CC
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 24 Nov 2004 06:42:14 +0100, Norbert van Nobelen
+<norbert@edusupport.nl> wrote:
+> This is actually not really of topic, so so much for getting shunted.
+> 
+> Anyway:
+> If you edit the modules part (manuals enough on the internet, watch your
+> kernel version, because modules changed a bit between 2.4 and 2.6 kernels),
+> you can force the identifier of your card to be matched with a CF device.
+> Take the best matching device.
+> If you don't have any match at all, you have a problem, i.e. it will not work.
+> 
 
-Nathan Scott schrieb:
-> On Tue, Nov 23, 2004 at 11:13:18AM +0100, Prakash K. Cheemplavam wrote:
->>using ck's preemp big kernel lock?) I got following using a raid0 setup 
->>with xfs. I thought it would be a driver issue, but reformatting to ext3 
->>the stripe array runs now w/o probs for a few days. (xfs crapped out 
->>after a few hours on heavy disk activity.)
->>...
->>Nov 21 10:10:45 tachyon end_request: I/O error, dev sdb, sector 10480855
->>Nov 21 10:10:45 tachyon I/O error in filesystem ("md0") meta-data dev 
->>md0 block 0x13fd990       ("xfs_trans_read_buf") error 5 buf count 8192
+Well, it should be a storage device...
+
+> I don't know the Zaurus (except from a nice picture), so I don't know what
+> kind of port is used for the CF card (IDE? PCMCIA? other?). If it is an IDE
+> port, it should work at once. It does not need any other information.
+
+It's got a normal CF slot with (I think) a PCMCIA bridge. You can plug
+in CF memory crad and microdrives as well as CF Wifi cards.
+
+Basically I would want to connect the CF card as an IDE device (I have
+no idea how to expose one device as another, although I think the
+current CF storage device driver does this).
+
+> 
+> For the rest it sounds to me like you are doing a hardware hack.
+
+So you think that I could force the kernel to assume that a device is
+present? Meaning that there's no hardware-level stuff that has to
+happen?
+
+Of course the hard part is *where* I would edit the kernel for
+this...probably in the PCMCIA stuff. I know that that's where the
+timout message I was seeing was coming from.
+
+> 
+> Regards,
+> 
+> Norbert
 > 
 > 
-> This looks like your driver passed an error back up to the
-> filesystem while it was doing metadata IO and XFS chose to
-> shut it down to prevent further damage.  It's unlikely to
-> be a preempt/xfs problem.  Possibly hardware.  Did you see
-> any of those device errors since switching to ext3?
+> 
+> On Tuesday 23 November 2004 22:34, Justin Patrin wrote:
+> > I am not currently subscribed to this list as I figure I'll be shunted
+> > to another anyway. Please CC me on replies to this thread. If I should
+> > be asking "someone else" whether it be another list or group, let me
+> > know.
+> >
+> > I currently have a Sharp Zaurus with OpenZaurus on it. I'm trying to
+> > connect a device to the CF slot. Would is be possible to fake the CF
+> > "startup"? I.e. connect a dumb device (which does not understand the
+> > CF spec itself) but have the kernel able to pass certain requests on
+> > to it? I have tried connecting the device and it sees it (as I've
+> > hooked up the detection pins) but something times out. Sorry, I don't
+> > have the exact message at the moment.
+> 
+> 
 
-No. That's why I am wondering. I read about such errors like I got 
-before in lkml and usually they were not fs related but libata siimage 
-driver related. It could be just a coincidence that it came up with xfs, 
-but till now (I guess 5 days now, though not 24/7 running) ext3 is 
-behaving nicely.
-
-bye,
-
-Prakash
-
---------------enig7FC9CFB6AB2257070C9636CC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBpEB2xU2n/+9+t5gRAi1gAKCZLobZpb3aMGDJYpUOfHMNvqm6uACgtOIq
-+Zu7qGCu65ya/DFiwMFrdbo=
-=kpOx
------END PGP SIGNATURE-----
-
---------------enig7FC9CFB6AB2257070C9636CC--
+-- 
+Justin Patrin

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261758AbTCZQLs>; Wed, 26 Mar 2003 11:11:48 -0500
+	id <S261754AbTCZQIA>; Wed, 26 Mar 2003 11:08:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261759AbTCZQLs>; Wed, 26 Mar 2003 11:11:48 -0500
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:26844 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261758AbTCZQLr>; Wed, 26 Mar 2003 11:11:47 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] s390 update (1/9): s390 arch fixes.
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF80FD93D6.AA8C5DBA-ONC1256CF5.00589668@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Wed, 26 Mar 2003 17:20:39 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 26/03/2003 17:22:10
+	id <S261755AbTCZQIA>; Wed, 26 Mar 2003 11:08:00 -0500
+Received: from Mail1.KONTENT.De ([81.88.34.36]:46521 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id <S261754AbTCZQH7> convert rfc822-to-8bit;
+	Wed, 26 Mar 2003 11:07:59 -0500
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: Jeremy Jackson <jerj@coplanar.net>
+Subject: Re: Preferred way to load non-free firmware
+Date: Wed, 26 Mar 2003 17:19:07 +0100
+User-Agent: KMail/1.5
+Cc: Nick Craig-Wood <ncw1@axis.demon.co.uk>, Greg KH <greg@kroah.com>,
+       Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com> <200303261347.27137.oliver@neukum.org> <1048686722.1248.6.camel@contact.skynet.coplanar.net>
+In-Reply-To: <1048686722.1248.6.camel@contact.skynet.coplanar.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200303261719.07959.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 26. März 2003 14:52 schrieb Jeremy Jackson:
+> Check the list archive, there was someone telling about support they
+> added for binary blobs in /proc (or was it sysfs?) for this (among
+> others) very purpose.
+>
+> Please don't make the situation any worse.  I'd like to have some hope
+> that Debian my publish their kernel-source package with a
+> linux-x.x.x.tar.bz2 that matches the md5sum of the one on kernel.org
+> some day.
 
-> It looks you do exactly the same changes to both s390 and s390x.  A
-closer
-> look at the arch directories shows that about 95% of the code is exactly
-> the same.  Can you remove the s390x dir and abstract out the few
-differences
-> into a config option?
+I am sure such a patch, if the Debian people would get it into the
+mainline kernel, would find its use.
+But failing that I see no reason why any coder should jump through
+hoops for the nontechnical concerns of any distribution, including Debian.
+Using procfs for this is messier than including it in a header file.
 
-s390 and s390x are similar at the first glance. But if you look in detail
-you will notice that there are a lot of small differences. A simple diff
-of the files that are present in both arch folger gives a patch of 5600
-lines. Compare this to the 11500 lines these files have in total. So the
-code is definitly NOT 95% the same. Further the arch folder is not the
-only place to look for s390 files. You need to consider include/asm
-as well. Overall it is not an easy task. You have a point though that it
-would be very nice to have common files for all s390/s390x files, not just
-for the device drivers. If I have lots of time someday I probably will
-try it but for now it way too much effort.
-
-blue skies,
-   Martin
-
+	Regards
+		Oliver
 

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSDUPxe>; Sun, 21 Apr 2002 11:53:34 -0400
+	id <S313472AbSDUP7K>; Sun, 21 Apr 2002 11:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313480AbSDUPxd>; Sun, 21 Apr 2002 11:53:33 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6152 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S313477AbSDUPxc>;
-	Sun, 21 Apr 2002 11:53:32 -0400
-Date: Sun, 21 Apr 2002 12:53:22 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Ian Molton <spyro@armlinux.org>, Russell King <rmk@arm.linux.org.uk>,
-        <phillips@bonn-fries.net>, <ebiederm@xmission.com>,
-        <linux-kernel@vger.kernel.org>
+	id <S313479AbSDUP7J>; Sun, 21 Apr 2002 11:59:09 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:18847 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313472AbSDUP7J>;
+	Sun, 21 Apr 2002 11:59:09 -0400
+Date: Sun, 21 Apr 2002 11:59:04 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Ian Molton <spyro@armlinux.org>, zippel@linux-m68k.org,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421155322.GA3958@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jochen Friedrich <jochen@scram.de>, Ian Molton <spyro@armlinux.org>,
-	Russell King <rmk@arm.linux.org.uk>, <phillips@bonn-fries.net>,
-	<ebiederm@xmission.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020421025654.GE2296@conectiva.com.br> <Pine.LNX.4.44.0204211123590.18496-100000@alpha.bocc.de>
+Message-ID: <20020421115904.G2301@havoc.gtf.org>
+In-Reply-To: <E16ya3u-0000RG-00@starship> <20020421033038.4bd1b9ec.spyro@armlinux.org> <20020421113312.C2301@havoc.gtf.org> <E16yx4j-0000ja-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Apr 21, 2002 at 11:28:36AM +0200, Jochen Friedrich escreveu:
-> > > We dont allow proprietary modules in the kernel, why should docs be any
-> > > different?
+On Sat, Apr 20, 2002 at 05:46:57PM +0200, Daniel Phillips wrote:
+> On Sunday 21 April 2002 17:33, Jeff Garzik wrote:
+> > On Sun, Apr 21, 2002 at 03:30:38AM +0100, Ian Molton wrote:
+> > > Jeff Garzik Awoke this dragon, who will now respond:
+> > > 
+> > > > > Maybe I was to subtle, but your censorship argument is simply bullshit.
+> > > > > A link to the information is completely sufficient.
+> > > > 
+> > > > What was Daniel's action?  Remove the text.  Nothing else.  Sure, he
+> > > > suggested other options, but he did attempt to implement them?  No.
+> > > 
+> > > Be realistic - how is he supposed to do that?
 > > 
-> > The documentation being discussed is not proprietary, it only talks about a non
-> > essential proprietary tool used now by lots of kernel hackers.
+> > It's really trivial to put a document up on a Web site, before
+> > submitting a patch to remove said document.  Or to contact someone, and
+> > get them to post the doc.
+> > 
+> > Did he even attempt to do that?  No.
 > 
-> So would Linus accept a document on how to run Linux/390 on hercules (yet 
-> another proprietary emulator)? This also was a FAQ on the linux-390 
+> You're wrong.  I suggested posting the documents on the bitkeeper site among
+> other things and Larry agreed to do that.  What do you think I should have done,
+> demanded that Larry do that?
 
-Don't know, tried to submit?
+Suggestion != doing
 
-Just checked, Hercules is not a proprietary emulator, in fact it is licensed
-under the QPL. http://www.conmicro.cx/hercules/herclic.html
+If Linus had applied your patch, there would be a lag time during which
+the doc would have no home at all.
 
-> mailing list until the documentation is available on the hercules home 
-> page...
+Anything _other_ than removal before re-posting, what you attempted to
+do, would have been far more palatable.  One doesn't create their
+fallback _after_ they nuke the primary.
 
-> Developing kernel stuff on 390 without emulator can be much fun as host 
-> operators tend to get very pissed if the IPL ratio comes near to 1/min ;-)
+	Jeff
 
-<joke>
-Another good question: does Linus cares about Linux S/390? ;)
-</joke>
 
-- Arnaldo
+
+

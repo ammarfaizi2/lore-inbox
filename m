@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269469AbUJFUtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUJFUti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269469AbUJFUtg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUJFUro
+	id S269470AbUJFUti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269394AbUJFUra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:47:44 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:45213 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S269469AbUJFUiB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:38:01 -0400
-Date: Wed, 6 Oct 2004 22:37:20 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, mingo@redhat.com, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       judith@osdl.org
-Subject: Re: new dev model (was Re: Default cache_hot_time value back to
- 10ms)
-In-Reply-To: <41644E6B.5070607@pobox.com>
-Message-ID: <Pine.GSO.4.61.0410062231290.738@waterleaf.sonytel.be>
-References: <200410060042.i960gn631637@unix-os.sc.intel.com>
- <20041005205511.7746625f.akpm@osdl.org> <416374D5.50200@yahoo.com.au>
- <20041005215116.3b0bd028.akpm@osdl.org> <41637BD5.7090001@yahoo.com.au>
- <20041005220954.0602fba8.akpm@osdl.org> <416380D7.9020306@yahoo.com.au>
- <20041005223307.375597ee.akpm@osdl.org> <41638E61.9000004@pobox.com>
- <20041005233958.522972a9.akpm@osdl.org> <41644A3D.4050100@pobox.com>
- <41644BF1.7030904@pobox.com> <41644E6B.5070607@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Oct 2004 16:47:30 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:24731 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S269470AbUJFUjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 16:39:02 -0400
+Message-Id: <200410062038.i96KcJ608221@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <nickpiggin@yahoo.com.au>, <mingo@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Default cache_hot_time value back to 10ms
+Date: Wed, 6 Oct 2004 13:38:34 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSr3Irr5GAaCeiRRhG4Prps7qnvLAAAzsqA
+In-Reply-To: <20041006123959.4cf20b3b.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, Jeff Garzik wrote:
-> Jeff Garzik wrote:
-> > So my own suggestions for increasing 2.6.x stability are:
-> 
-> And one more, that I meant to include in the last email,
-> 
-> 3) Release early, release often (official -rc releases, not just snapshots)
+Andrew Morton wrote on Wednesday, October 06, 2004 12:40 PM
+> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+> >  Andrew, can I safely interpret this response as you are OK with having
+> >  cache_hot_time set to 10 ms for now?
+>
+> I have a lot of scheduler changes queued up and I view this change as being
+> not very high priority.  If someone sends a patch to update -mm then we can
+> run with that, however Ingo's auto-tuning seems a far preferable approach.
+>
+> >  And you will merge this change for 2.6.9?
+>
+> I was not planning on doing so, but could be persuaded, I guess.
+>
+> It's very, very late for this and subtle CPU scheduler regressions tend to
+> take a long time (weeks or months) to be identified.
 
-I guess you mean official -pre releases as well?
 
-Gr{oetje,eeting}s,
+Let me try to persuade ;-).  First, it hard to accept the fact that we are
+leaving 11% of performance on the table just due to a poorly chosen parameter.
+This much percentage difference on a db workload is a huge deal.  It basically
+"unfairly" handicap 2.6 kernel behind competition, even handicap ourselves compare
+to 2.4 kernel.  We have established from various workloads that 10 ms works the
+best, from db to java workload.  What more data can we provide to swing you in
+that direction?
 
-						Geert
+Secondly, let me ask the question again from the first mail thread:  this value
+*WAS* 10 ms for a long time, before the domain scheduler.  What's so special
+about domain scheduler that all the sudden this parameter get changed to 2.5?
+I'd like to see some justification/prior measurement for such change when
+domain scheduler kicks in.
 
-P.S. I only track `real' (-pre and -rc) releases. I don't have the manpower
-     (what's in a word) to track daily snapshots (I do `read' bk-commits). If
-     m68k stuff gets broken in -rc, usually it means it won't get fixed before
-     2 full releases later.  Anyway, things shouldn't become broken in -rc,
-     IMHO that's what we (should) have -pre for...
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+- Ken
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+

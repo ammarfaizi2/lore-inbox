@@ -1,91 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264005AbTDJIf1 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 04:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTDJIf1 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 04:35:27 -0400
-Received: from [151.38.226.92] ([151.38.226.92]:47890 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S264005AbTDJIf0 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 04:35:26 -0400
-Date: Thu, 10 Apr 2003 10:46:50 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New radeonfb fork
-Message-ID: <20030410084650.GA728@renditai.milesteg.arr>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1049642954.550.41.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-In-Reply-To: <1049642954.550.41.camel@zion.wanadoo.fr>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.21-pre7
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
-User-Agent: Mutt/1.5.3i
+	id S264008AbTDJIvj (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 04:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbTDJIvj (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 04:51:39 -0400
+Received: from dial-ctb05177.webone.com.au ([210.9.245.177]:11013 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264008AbTDJIvi (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 04:51:38 -0400
+Message-ID: <3E953317.1090406@cyberone.com.au>
+Date: Thu, 10 Apr 2003 19:02:15 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Ansell <keitha@edp.fastfreenet.com>
+CC: Andrew Morton <akpm@digeo.com>, Andre Hedrick <andre@linux-ide.org>,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: bdflush flushing memory mapped pages.
+References: <007601c2fecd$12209070$230110ac@kaws><Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org> <20030409022726.1ec93a0f.akpm@digeo.com> <01bc01c2ff9d$0dc1aca0$230110ac@kaws>
+In-Reply-To: <01bc01c2ff9d$0dc1aca0$230110ac@kaws>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-I tried your patch for Radeon framebuffer on kernel 2.4.21-pre7, it
-works better than before, but still I have some problems:
+Keith Ansell wrote:
 
-the cursor is visible only at 8 bit depth, with 16 or 32 bit it just
-disappears, and at 8 bit it is a big full scale rectangular cursor
-(no underline).
+>Thank you for your prompt replies.
+>
+>I realise that Linux conforms to the letter of the specification, but maybe
+>not the spirit of the it.
+>
+>I am porting a Database solution to Linux from Unix SVR4, Sco OpenServer and
+>AIX, where all write required memory mapped files are flushed to disk with
+>the system flusher, my users have large systems (some in excess of 600
+>concurrent connections) flushing memory mapped files is a big part of are
+>systems performance.  This ensures that in the event of a catastrophic
+>system failure the customers vitual business data has been written to disk .
+>
+As Andrew mentioned, msync would do what you want. It seems
+to me though, that your database solution wants a stronger
+guarantee about the safety of the data than asynchronous
+writes will provide anyway.
 
-I couldn't find a way to set the resolution at boot time (I use the
-driver compiled in), I tried the following, all being ignored:
-radeonfb:1024x768-8@60
-radeon:1024x768-8@60
-
-I am using an ugly fbset in a random boot script, but it just changes the
-resolution for the first console. This is probably the biggest problem I
-saw until now...
-
-Finally dmesg says:
-
-PCI: Found IRQ 11 for device 01:00.0
-radeonfb: ref_clk=3D2700, ref_div=3D12, xclk=3D20000 from BIOS
-Console: switching to colour frame buffer device 80x30
-radeonfb: ATI Radeon 9000 If DDR SGRAM 64 MB
-radeonfb: DVI port no monitor connected
-radeonfb: CRT port CRT monitor connected
-                   ^^^
-But I have an LCD on the CRT port, I saw some LCD support in radeonfb.c,
-but perhaps it was only on DVI port.
-
-I have a:
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 If [Rad=
-eon 9000] (rev 01)
-
-with 64Mb DDR on a PIII 500Mhz, Asus P3C2000 (i820 chipset) motherboard.
-
-Thanks for your work.
-
---=20
-----------------------------------------
-Daniele Venzano
-Web: http://digilander.iol.it/webvenza/
-
-
---tKW2IUtsqtDRztdT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+lS962rmHZCWzV+0RAgNFAJ9M1aVWHF7bmwAMWGd/7Yf/cfi+jACdFKZF
-1zPL0rQoW2xciP+AsK0yKUQ=
-=UG2c
------END PGP SIGNATURE-----
-
---tKW2IUtsqtDRztdT--

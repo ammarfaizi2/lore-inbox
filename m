@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSAUAoB>; Sun, 20 Jan 2002 19:44:01 -0500
+	id <S288986AbSAUAtB>; Sun, 20 Jan 2002 19:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288984AbSAUAnw>; Sun, 20 Jan 2002 19:43:52 -0500
-Received: from mail3.home.nl ([213.51.129.227]:3052 "EHLO mail3.home.nl")
-	by vger.kernel.org with ESMTP id <S288980AbSAUAnk>;
-	Sun, 20 Jan 2002 19:43:40 -0500
-From: Frank van de Pol <fvdpol@home.nl>
-Date: Mon, 21 Jan 2002 00:20:41 +0100
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-Message-ID: <20020121002041.B1958@idefix.fvdpol.home.nl>
-In-Reply-To: <Pine.LNX.4.44.0201181632000.18867-100000@filesrv1.baby-dragons.com> <14160.1011396163@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14160.1011396163@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.13-ac4 i686
+	id <S288987AbSAUAsw>; Sun, 20 Jan 2002 19:48:52 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34057 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288986AbSAUAsf>;
+	Sun, 20 Jan 2002 19:48:35 -0500
+Date: Sun, 20 Jan 2002 22:47:39 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <3C4B60A1.3030302@namesys.com>
+Message-ID: <Pine.LNX.4.33L.0201202242240.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 Jan 2002, Hans Reiser wrote:
 
-On Sat, Jan 19, 2002 at 10:22:43AM +1100, Keith Owens wrote:
-> On Fri, 18 Jan 2002 17:20:02 -0500 (EST), 
-> "Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
-> >	Linux doesn't have a method to load encrypted & signed modules at
-> >	this time .
-> 
-> And never will.  Who loads the module - root.  Who maintains the list
-> of signatures - root.  Who controls the code that verifies the
-> signature - root.
-> 
-> Your task Jim, should you choose to accept it, is to make the kernel
-> distinguish between a good use of root and a malicious use by some who
-> has broken in and got root privileges.  When you can do that, then we
-> can add signed modules.
-> 
+> Suppose we do what you ask, and always write the page (as well as some
+> other pages) to disk.  This will result in the filesystem cache as a
+> whole receiving more pressure than other caches that only write one
+> page in response to pressure.  This is unbalanced, leads to some
+> caches having shorter average page lifetimes than others, and it is
+> therefor suboptimal.  Yes?
 
-If you want to secure your box, why don't you simply put a lock on it and
-throw away the key? Really, what might help the paranoid admins in this case
-is a setting in the kernel which basically disables the ability to load or
-unload modules. Of course once set this setting can not been turned with
-rebooting the box.
+If your ->writepage() writes pages to disk it just means
+that reiserfs will be able to clean its pages faster than
+the other filesystems.
 
-Frank.
+This means the VM will not call reiserfs ->writepage() as
+often as for the other filesystems, since more of the
+pages it finds will already be clean and freeable.
 
+I guess the only way to unbalance the caches is by actually
+freeing pages in ->writepage, but I don't see any real reason
+why you'd want to do that...
 
+regards,
+
+Rik
 -- 
-+---- --- -- -  -   -    - 
-| Frank van de Pol                  -o)    A-L-S-A
-| FvdPol@home.nl                    /\\  Sounds good!
-| http://www.alsa-project.org      _\_v
-| Linux - Why use Windows if we have doors available?
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

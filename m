@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264424AbUEaNfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUEaNhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbUEaNfX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 09:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUEaNfW
+	id S264625AbUEaNhn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 09:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUEaNfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 09:35:22 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47810 "EHLO
+	Mon, 31 May 2004 09:35:34 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48834 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264424AbUEaNfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S264526AbUEaNfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 31 May 2004 09:35:07 -0400
-Date: Thu, 27 May 2004 23:03:46 +0200
+Date: Sun, 30 May 2004 20:40:31 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Brian Gerst <bgerst@didntduck.org>, willy@w.ods.org, arjanv@redhat.com,
-       hch@lst.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: i486 emu in mainline?
-Message-ID: <20040527210346.GC997@openzaurus.ucw.cz>
-References: <40B0DB49.3090308@quark.didntduck.org> <E1BS5V8-0006d6-00@gondolin.me.apana.org.au>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Resume enhancement: restore pci config space
+Message-ID: <20040530184031.GF997@openzaurus.ucw.cz>
+References: <20040526203524.GF2057@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1BS5V8-0006d6-00@gondolin.me.apana.org.au>
+In-Reply-To: <20040526203524.GF2057@devserv.devel.redhat.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >> It was intentional for speed purpose. The areas are checked once with
-> >> verify_area() when we need to access memory, then data is copied directly
-> >> from/to memory. I don't think there's any risk, but I can be wrong.
-> > 
-> > Which will break with 4G/4G.  You must use at least __get_user().
-> 
-> A 386 with a 4G/4G split, I'd like to see that.
+> One can rightfully argue that the driver resume method should do this, and
+> yes that is right. So the patch only does it for devices that don't have a
+> resume method. Like the main PCI bridge on my testbox of which the bios so
+> nicely forgets to restore the bus master bit during resume.. With this patch
+> my testbox resumes just fine while it, well, wasn't all too happy as you can
+> imagine without a busmaster pci bridge.
+...
+> +/* 
+> + * Default resume method for devices that have no driver provided resume,
+> + * or not even a driver at all.
+> + */
+> +static void pci_default_resume(struct pci_dev *pci_dev)
+> +{
 
-I believe you could...
-
-1) some 586 class machines do not know 486 opcodes
-
-2) this is for rescue kernel. If you want to be able to rescue 64GB machine *and* rescue 486 too,
-this+4G/4G is right choice ;-)
-
+Perhaps this should not be static so that drivers don't
+need to duplicate this?
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

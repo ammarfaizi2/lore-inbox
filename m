@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261650AbSJNO14>; Mon, 14 Oct 2002 10:27:56 -0400
+	id <S261791AbSJNOkI>; Mon, 14 Oct 2002 10:40:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261663AbSJNO14>; Mon, 14 Oct 2002 10:27:56 -0400
-Received: from SCULLY.TRAFFORD.DEMENTIA.ORG ([128.2.100.230]:45530 "EHLO
-	scully.trafford.dementia.org") by vger.kernel.org with ESMTP
-	id <S261650AbSJNO1z>; Mon, 14 Oct 2002 10:27:55 -0400
-Date: Mon, 14 Oct 2002 10:31:41 -0400 (EDT)
-From: Derrick J Brashear <shadow@dementia.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: AFS system call registration function (was Re: Two fixes for 2.4.19-pre5-ac3)
-In-Reply-To: <20021014152353.A16334@infradead.org>
-Message-ID: <Pine.LNX.3.96L.1021014102625.5586G-100000@scully.trafford.dementia.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261807AbSJNOkI>; Mon, 14 Oct 2002 10:40:08 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:41485 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261791AbSJNOkH>; Mon, 14 Oct 2002 10:40:07 -0400
+Date: Mon, 14 Oct 2002 15:45:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Brian Jackson <brian-kernel-list@mdrx.com>
+Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+Subject: Re: Linux v2.5.42
+Message-ID: <20021014154555.A16859@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Brian Jackson <brian-kernel-list@mdrx.com>,
+	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org> <3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org> <20021013161151.29293.qmail@escalade.vistahp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021013161151.29293.qmail@escalade.vistahp.com>; from brian-kernel-list@mdrx.com on Sun, Oct 13, 2002 at 11:11:51AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Christoph Hellwig wrote:
+(full quote deleted, please try stop that)
 
-> On Sun, Oct 13, 2002 at 09:58:00PM -0400, Derrick J Brashear wrote:
-> > The version we have now uses long, so... (read on)
-> 
-> I know..
->
-> > we have people with deployed utilities which call the afs system call,
-> > because, well, it's the AFS system call. it would be good to maintain
-> > compatibility with those, which means we should
-> > a) keep using the same system call if we can
-> > b) if so, keep using "long".
-> 
-> 
-> AFS is currently not in mainline.  You request a new feature, in this
-> case an optional syscall that only was reserved previously.  
+> Good for you. Most people can't/won't wait for it. They will see that linux 
+> doesn't have a key feature for enterprises, and say that linux still isn't 
+> mature enough for them and at best only use linux on some dinky little 
+> webservers, like it has been used in the past.
 
-Well, given the previous commentary I would have expected the hook to have
-already existed, and if it had we would have changed to conform to it
-months ago. 
-
-> In
-> general we don|t merge random stuff asis in the kernel just because it
-> happens to exist.  There is no reason you can't add a sane API
-> for openafs 1.3
-
-No disagreement (on that). Do you propose we orphan old versions?  (Which
-isn't to say "Yes" is a wrong answer)
-
-Also, we're not ready for 1.3 yet. RedHat 8.0's kernel sort of forced the
-issue sooner than we would have liked to have dealt with this, and
-actually causes another problem; It means the "extra groups" encoding for
-PAGs breaks. That's certainly not the end of the world, but the obvious
-solution is a Linux Security Module, and at least as yet that's not in
-their kernel.
-
-
-
-
-
-
+Please stop trolling.  Linux ised used in many areas, and you can
+patch in whathever you want to feel "enteprise ready".  Beeing
+that is not a primary focus of the Linux Kernel developmen and won't be.
 

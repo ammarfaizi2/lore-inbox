@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVBTMXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVBTMfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVBTMXx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 07:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVBTMXx
+	id S261825AbVBTMfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 07:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVBTMfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 07:23:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:61872 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261822AbVBTMXu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 07:23:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:references:in-reply-to:organization:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=ABMasBnKDp093nXnZEy4//dsKmI7Js9B5Qa3aDM1O5euoQRL2cIl2td599G1dn7rpqMnrfctgu7DM9JuROkxpmOHAma2Nx8Ns0ZREo9TV+7LNo/2TWq38u13CDBZ9kiaedUoggnXkXcRvIZnMNqszgRFo3PTJ7RXvC6LvxrELOg=
-From: Vicente Feito <vicente.feito@gmail.com>
-To: Martin Drohmann <m_droh01@uni-muenster.de>
-Subject: Re: Why does printk helps PCMCIA card to initialise?
-Date: Sun, 20 Feb 2005 09:25:18 +0000
-User-Agent: KMail/1.7.1
-References: <42187819.5050808@uni-muenster.de>
-In-Reply-To: <42187819.5050808@uni-muenster.de>
-Organization: none
-Cc: linux-kernel@vger.kernel.org
+	Sun, 20 Feb 2005 07:35:37 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:65379 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261825AbVBTMf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 07:35:27 -0500
+Message-ID: <4218840D.6030203@yahoo.com.au>
+Date: Sun, 20 Feb 2005 23:35:25 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Andi Kleen <ak@suse.de>
+CC: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] page table iterators
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston> <20050217230342.GA3115@wotan.suse.de> <20050217153031.011f873f.davem@davemloft.net> <20050217235719.GB31591@wotan.suse.de>
+In-Reply-To: <20050217235719.GB31591@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502200925.19176.vicente.feito@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Andi Kleen wrote:
+> On Thu, Feb 17, 2005 at 03:30:31PM -0800, David S. Miller wrote:
+> 
+>>On Fri, 18 Feb 2005 00:03:42 +0100
+>>Andi Kleen <ak@suse.de> wrote:
+>>
+>>
+>>>And to be honest we only have about 6 or 7 of these walkers
+>>>in the whole kernel. And 90% of them are in memory.c
+>>>While doing 4level I think I changed all of them around several
+>>>times and it wasn't that big an issue.  So it's not that we
+>>>have a big pressing problem here... 
+>>
+>>It's super error prone.  A regression added by your edit of these
+> 
+> 
+> Actually it was in Nick's code (PUD layer ;-).  But I won't argue
+> that my code didn't have bugs too...
+> 
+> 
 
-On Sunday 20 February 2005 11:44 am, you wrote:
->  
-> diff -u -U 7 /linux-2.6.11-rc4.changed/drivers/pcmcia/rsrc_nonstatic.c 
-> ../linux-2.6.11-rc4/drivers/pcmcia/rsrc_nonstatic.c
-> --- /linux-2.6.11-rc4.changed/drivers/pcmcia/rsrc_nonstatic.c     
-> 2005-02-20 11:37:39.000000000 +0100
-> +++ ../linux-2.6.11-rc4/drivers/pcmcia/rsrc_nonstatic.c     2005-02-20 
-> 02:16:48.000000000 +0100
-> @@ -623,15 +623,14 @@
->         down(&rsrc_sem);
->  #ifdef CONFIG_PCI
->         if (s->cb_dev) {
->                 ret = pci_bus_alloc_resource(s->cb_dev->bus, res, num, 1,
->                                              min, 0, pcmcia_align, &data);
->         } else
->  #endif
-> -        printk("This line will never be printed, but it helps!!!");
->                 ret = allocate_resource(&ioport_resource, res, num, min, 
-What you're doing is forcing the execution of allocate_resource (&ioport... );
-Cause adding the printk you're adding it's changing this:
-else 
- ret = allocate_resource(...);
-up(...);
+I won't look back to see where the error came from :) But
+yeah it is equally (if not more) likely to have come from
+me. And it probably did happen because all the code is
+slightly different and hard to understand.
 
-by this:
+>>walkers for the 4level changes was only discovered and fixed
+>>yesterday by the ppc folks.
+>>
+>>I absolutely support any change which consolidates these things.
+> 
+> 
+> The problem is just that these walker macros when they
+> do all the lazy walking stuff will be quite complicated.
+> And I don't really want another uaccess.h-like macro mess.
+> 
+> Yes currently they look simple, but that will change.
+> 
 
-else
- printk(...);
-/*This is not executing inside the else clause no more,
- *so doesn't matter if s->cb_dev it's true or not, you're going with this*/
-ret = allocate_resource(...); 
-up(...);
+But even in that case, it will still be better to have the
+extra complexity once in the macro rather than throughout mm/
 
-You're changing the block inside the else clause.
-It's not about upsetting the sem afaik.
-I could be wrong though, and that'll be a terrible tragedy.
-Of course this is as long as CONFIG_PCI it's evaluating true, is it?
+> Open coding is probably the smaller evil.
+> 
+> And they're really not changed that often.
+> 
 
-Vicente.
+It is not so much a matter of changing, so much as having 10
+slightly different implementations.
+
+I think it should be easier to go from the iterators patch to
+perhaps more complex iterators, or some open coding, etc etc.
+rather than try to put a big complex pt walker on top of these
+10 different open coded implementations.
+
+But perhaps I'm missing something you're not - I'd need to see
+the lazy walking code I guess.
+
+Nick
+

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUHDMlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHDMmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbUHDMlu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 08:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUHDMlt
+	id S264098AbUHDMmF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 08:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUHDMmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 08:41:49 -0400
-Received: from users.linvision.com ([62.58.92.114]:22464 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262356AbUHDMko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 08:40:44 -0400
-Date: Wed, 4 Aug 2004 14:40:42 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.8-rc3
-Message-ID: <20040804124042.GA25969@harddisk-recovery.com>
-References: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org> <200408041407.39871.lkml@kcore.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Aug 2004 08:42:04 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:50863 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S263775AbUHDMlo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 08:41:44 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: The prune_dcache saga, truely epic proportions now
+Date: Wed, 4 Aug 2004 08:41:39 -0400
+User-Agent: KMail/1.6.82
+References: <200408031421.58487.gene.heskett@verizon.net> <20040804065752.GA3803@cox.net>
+In-Reply-To: <20040804065752.GA3803@cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200408041407.39871.lkml@kcore.org>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+Message-Id: <200408040841.39241.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [141.153.91.21] at Wed, 4 Aug 2004 07:41:40 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 02:07:20PM +0200, Jan De Luyck wrote:
-> On Wednesday 04 August 2004 00:09, Linus Torvalds wrote:
-> > It would be good if people only sent serious stuff for a while, and we can
-> > do a real 2.6.8, ok?
-> 
-> Works like a charm, only one comment:
-> 
-> Mounting my vfat partitions gave me this error:
-> 
-> FAT: codepage or iocharset option didn't specified
->      File name can not access proper (mounted as read-only)
-> 
-> which was easily fixed by supplying a iocharset= mount option. But according 
-> to the man page of mount:
-> 
->        iocharset=value
->               Character set to use for converting between 8 bit characters and
->               16 bit Unicode characters. The default is iso8859-1.  Long file-
->               names are stored on disk in Unicode format.
-> 
-> the default is iso8859-1. Has this default gone haywire somewhere?
+On Wednesday 04 August 2004 02:57, Chris Shoemaker wrote:
+>On Tue, Aug 03, 2004 at 02:21:58PM -0400, Gene Heskett wrote:
 
-Yes, it's in the hidden in the ChangeLog. You can find it if you know
-iocharset is the same as nls:
+>Gene,
+>	I haven't followed the whole thread, but have you tried turning
+>PREEMPT off?
+>
+>-chris
 
-  Hirofumi Ogawa:
-    o FAT: kill nls default
-
-
-Erik
+I've turned it off for this build of 2.6.8-rc3.  Uptime so far is 11 
+hours, not much of a test.
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbTIPROT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 13:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTIPROS
+	id S262007AbTIPROR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 13:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTIPROQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 13:14:18 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40421 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262002AbTIPROQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 16 Sep 2003 13:14:16 -0400
-Date: Fri, 12 Sep 2003 19:54:13 +0200
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39141 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262000AbTIPROP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 13:14:15 -0400
+Date: Fri, 12 Sep 2003 13:19:41 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: DervishD <raul@pleyades.net>
-Cc: jw schultz <jw@pegasys.ws>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardware supported by the kernel
-Message-ID: <20030912175413.GN3944@openzaurus.ucw.cz>
-References: <3F59DF81.8000407@bluewin.ch> <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk> <20030908152551.GB12162@DervishD> <200309101747.10972.insecure@mail.od.ua> <20030911101112.GF50@DervishD> <20030912002648.GF15833@pegasys.ws> <20030912093308.GA50@DervishD>
+To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test[45]: enable swsusp?
+Message-ID: <20030912111941.GM3944@openzaurus.ucw.cz>
+References: <20030911215113.GB28883@butterfly.hjsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030912093308.GA50@DervishD>
+In-Reply-To: <20030911215113.GB28883@butterfly.hjsoft.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I expect Alan
-> > writing his diary in Welsh is good practice so, Good Alan,
-> > good, good :)
-> 
->     You're right ;))) But I think Alan is a bad boy because I no
-> longer can read his diary, and I liked it a lot ;)) I'm planning
-> learning Gaelic (at some point in the future), and it's not very
-> different from welsh ;) Seriously, Alan has all the right to write,
+> what needs to be configured to get the /proc/power/state file i've
+> seen mentioned around here?  i'd like to try swsusp again.  the swsusp
+> docs seem a bit dated.
 
-Well, perhaps someone should step up and provide english translation
-for Alan's diary? :-)
-				Pavel
+Look for "revert swsusp to -test3" patch on lists, then use reboot() interface
+to trigger it.
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

@@ -1,119 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbUJ2TtC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbUJ2Tj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbUJ2TtC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:49:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUJ2TrR
+	id S261573AbUJ2Tj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 15:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbUJ2Tix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:47:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29115 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261967AbUJ2TXv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:23:51 -0400
-Date: Fri, 29 Oct 2004 14:37:34 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kswapd crashed 2.4.27
-Message-ID: <20041029163734.GA13445@logos.cnet>
-References: <clsnsh$6p0$1@pD9F8759B.dip0.t-ipconnect.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <clsnsh$6p0$1@pD9F8759B.dip0.t-ipconnect.de>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 29 Oct 2004 15:38:53 -0400
+Received: from hulk.vianw.pt ([195.22.31.43]:37573 "EHLO hulk.vianw.pt")
+	by vger.kernel.org with ESMTP id S261979AbUJ2THC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:07:02 -0400
+Message-ID: <418294CD.8000507@esoterica.pt>
+Date: Fri, 29 Oct 2004 20:06:53 +0100
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041005
+X-Accept-Language: pt, pt-br
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: K 2.6.9 - NFS: lstat causes "permission errors"
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 08:27:29AM +0200, Andreas Hartmann wrote:
-> Hello!
-> 
-> I had a hard crash this morning on a XSeries 235 with IBM Serveraid, 512
-> MB RAM and 1024 MB Swap during rsyncing datas to this machine. The datas
-> were copied to a drbd-device, which reported some seconds before:
-> 
-> Oct 29 05:30:20 FAGINTSC kernel: drbd16: Epoch set size wrong!!found=1061
-> reported=1060
-> 
-> 
-> ~> ksymoops -m /usr/src/linux-2.4.27/System.map oops
-> ksymoops 2.4.5 on i686 2.4.27.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.27/ (default)
->      -m /usr/src/linux-2.4.27/System.map (specified)
-> 
-> Oct 29 05:30:29 FAGINTSC kernel: CPU:    0
-> Oct 29 05:30:29 FAGINTSC kernel: EIP:    0010:[<c0135400>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> Oct 29 05:30:29 FAGINTSC kernel: EFLAGS: 00010002
-> Oct 29 05:30:29 FAGINTSC kernel: eax: ffffffff   ebx: dbcbd160   ecx:
-> 00000001   edx: dffed600
-> Oct 29 05:30:29 FAGINTSC kernel: esi: c158a37c   edi: 00001db7   ebp:
-> dffed6a4   esp: c15b9f30
-> Oct 29 05:30:29 FAGINTSC kernel: ds: 0018   es: 0018   ss: 0018
-> Oct 29 05:30:29 FAGINTSC kernel: Process kswapd (pid: 5, stackpage=c15b9000)
-> Oct 29 05:30:29 FAGINTSC kernel: Stack: 00000000 c1243108 c158a38c
-> c158a384 c15b8000 dffed600 00000000 00000008
-> Oct 29 05:30:29 FAGINTSC kernel:        00000000 00000000 00000000
-> 00000020 000001d0 c028f69c c028f69c c01368ac
-> Oct 29 05:30:29 FAGINTSC kernel:        c15b9f90 000001d0 0000003c
-> 00000020 c0136952 c15b9f90 00000246 00000000
-> Oct 29 05:30:29 FAGINTSC kernel: Call Trace:    [<c01368ac>] [<c0136952>]
-> [<c0136b0c>] [<c0136b78>] [<c0136cbd>]
-> Oct 29 05:30:29 FAGINTSC kernel:   [<c0105000>] [<c010745e>] [<c0136c20>]
-> Oct 29 05:30:29 FAGINTSC kernel: Code: 8b 00 47 3b 44 24 08 75 f7 8b 5e 2c
-> 89 fa 8b 46 4c 88 d9 d3
-> 
-> 
-> >>EIP; c0135400 <kmem_cache_reap+230/340>   <=====
-> 
-> >>eax; ffffffff <END_OF_CODE+1f701d74/????>
-> >>ebx; dbcbd160 <_end+1b96ee68/204b3d68>
-> >>edx; dffed600 <_end+1fc9f308/204b3d68>
-> >>esi; c158a37c <_end+123c084/204b3d68>
-> >>edi; 00001db7 Before first symbol
-> >>ebp; dffed6a4 <_end+1fc9f3ac/204b3d68>
-> >>esp; c15b9f30 <_end+126bc38/204b3d68>
-> 
-> Trace; c01368ac <shrink_caches+1c/60>
-> Trace; c0136952 <try_to_free_pages_zone+62/f0>
-> Trace; c0136b0c <kswapd_balance_pgdat+6c/b0>
-> Trace; c0136b78 <kswapd_balance+28/40>
-> Trace; c0136cbd <kswapd+9d/b7>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c010745e <arch_kernel_thread+2e/40>
-> Trace; c0136c20 <kswapd+0/b7>
-> 
-> Code;  c0135400 <kmem_cache_reap+230/340>
-> 00000000 <_EIP>:
-> Code;  c0135400 <kmem_cache_reap+230/340>   <=====
->    0:   8b 00                     mov    (%eax),%eax   <=====
-> Code;  c0135402 <kmem_cache_reap+232/340>
->    2:   47                        inc    %edi
-> Code;  c0135403 <kmem_cache_reap+233/340>
->    3:   3b 44 24 08               cmp    0x8(%esp,1),%eax
-> Code;  c0135407 <kmem_cache_reap+237/340>
->    7:   75 f7                     jne    0 <_EIP>
-> Code;  c0135409 <kmem_cache_reap+239/340>
->    9:   8b 5e 2c                  mov    0x2c(%esi),%ebx
-> Code;  c013540c <kmem_cache_reap+23c/340>
->    c:   89 fa                     mov    %edi,%edx
-> Code;  c013540e <kmem_cache_reap+23e/340>
->    e:   8b 46 4c                  mov    0x4c(%esi),%eax
-> Code;  c0135411 <kmem_cache_reap+241/340>
->   11:   88 d9                     mov    %bl,%cl
-> Code;  c0135413 <kmem_cache_reap+243/340>
->   13:   d3 00                     roll   %cl,(%eax)
-> 
-> 
-> Does anybody know what could be broken?
+I am getting several "permission errors" when using
+"lstat". So far I only found this on Directories.
+I changed a program to retry the "lstat" whenever
+a "permission error" occurs and it works successfully.
 
-You're using drbd right?
-
-What does this message mean
-
-Oct 29 05:30:20 FAGINTSC kernel: drbd16: Epoch set size wrong!!found=1061
-reported=1060
-
-Send the oops to the drbd people.

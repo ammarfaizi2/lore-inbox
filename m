@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVCYJk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVCYJtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVCYJk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 04:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVCYJk6
+	id S261568AbVCYJtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 04:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVCYJtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 04:40:58 -0500
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:19898 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261567AbVCYJk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 04:40:56 -0500
-Date: Fri, 25 Mar 2005 04:37:44 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: How's the nforce4 support in Linux?
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Asfand Yar Qazi <ay1204@qazi.f2s.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200503250440_MC3-1-99A2-B623@compuserve.com>
-MIME-Version: 1.0
+	Fri, 25 Mar 2005 04:49:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:30604 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261568AbVCYJtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 04:49:14 -0500
+Subject: Re: 2.6.12-rc1-mm2: crash in drm_agp_init
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Airlie <airlied@gmail.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20050325085306.GA1366@elf.ucw.cz>
+References: <20050325083035.GA1335@elf.ucw.cz>
+	 <21d7e99705032500434957cd97@mail.gmail.com>
+	 <20050325085306.GA1366@elf.ucw.cz>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 10:49:05 +0100
+Message-Id: <1111744146.6312.40.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005 at 10:34:12 +0100, Arjan van de Ven wrote:
+>  (Why does -mm2 kernel have
+> tendency to appear within hour from me downloading -mm1? It happened
+> two times now...)
 
-> probably just one of those things implemented in the binary drivers in
-> software, just like the "hardware" IDE raid is most of the time (3ware
-> being the positive exception there)
+you just need a faster internet link :)
 
- IT8212 is a real hardware ATA RAID controller.  Too bad it will never get
-merged from -ac into mainline with the HW RAID support intact...
-
---
-Chuck
-http://www.counterfeitmini.org

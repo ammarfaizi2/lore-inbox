@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288250AbSAHTPb>; Tue, 8 Jan 2002 14:15:31 -0500
+	id <S288256AbSAHTVb>; Tue, 8 Jan 2002 14:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288255AbSAHTPV>; Tue, 8 Jan 2002 14:15:21 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:1474 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S288250AbSAHTPM>;
-	Tue, 8 Jan 2002 14:15:12 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S288255AbSAHTVW>; Tue, 8 Jan 2002 14:21:22 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:10784 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S288256AbSAHTVK>; Tue, 8 Jan 2002 14:21:10 -0500
+Message-ID: <3C3B46A4.3020408@redhat.com>
+Date: Tue, 08 Jan 2002 14:21:08 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mario Mikocevic <mozgy@hinet.hr>
+CC: Thomas Gschwind <tom@infosys.tuwien.ac.at>,
+        Nathan Bryant <nbryant@allegientsystems.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: i810_audio
+In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com> <3C3A301A.2050501@redhat.com> <3C3AA6F9.5090407@redhat.com> <3C3AA9AD.6070203@redhat.com> <3C3AB5AB.2080102@redhat.com> <20020108161137.A6747@danielle.hinet.hr>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15419.17727.546185.257524@napali.hpl.hp.com>
-Date: Tue, 8 Jan 2002 19:15:11 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: [Linux-ia64] Re: can we make anonymous memory non-EXECUTABLE?
-In-Reply-To: <E16NwDj-0006LP-00@the-village.bc.nu>
-In-Reply-To: <200201080025.QAA26731@napali.hpl.hp.com>
-	<E16NwDj-0006LP-00@the-village.bc.nu>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 8 Jan 2002 13:23:15 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+Mario Mikocevic wrote:
 
-  Alan> We are borg of x86 is true for the near future, but codifying
-  Alan> an x86ism for all ports for ever seems unwise.
+> Hi,
+> 
+> 
+>>OK, various clean ups made, and enough of the SiS code included that I think 
+>>it should work, plus one change to the i810 interrupt handler that will 
+>>(hopefully) render the other change you made to get_dma_addr and drain_dac 
+>>unnecessary.  If people could please download and test the new 0.14 version 
+>>of the driver on my site, I would appreciate it.
+>>
+>>http://people.redhat.com/dledford/i810_audio.c.gz
+>>
+> 
+> Hmmm, maybe way too much cleanups !? :)
+> 
+> -->
+> 
+> i810_audio.c: In function `i810_get_dma_addr':
+> i810_audio.c:658: warning: unused variable `c'
+> i810_audio.c: In function `__stop_dac':
+> i810_audio.c:747: `PI_OR' undeclared (first use in this function)
+> i810_audio.c:747: (Each undeclared identifier is reported only once
+> i810_audio.c:747: for each function it appears in.)
+> make[2]: *** [i810_audio.o] Error 1
+> make[1]: *** [_modsubdir_sound] Error 2
+> make: *** [_mod_drivers] Error 2
+> 
 
-Glad to hear that.
 
-  Alan> For IA32 on IA64 binaries you would however need to keep the
-  Alan> executable data behaviour.
+Sorry.  Version that compiles is now on my web site.
 
-Yes.  I don't recall off hand whether the x86 emulation hardware (aka
-"IVE") automatically takes care of that.  I'll work on prototyping
-this.
 
-Thanks,
+> ps
+> 	just got a note from a friend that .13 has tendency to lockup with
+> 	heavy network traffic in the same time, no oops, nothing, ..
+> 
+> 
 
-	--david
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
+

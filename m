@@ -1,396 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312587AbSCZTJD>; Tue, 26 Mar 2002 14:09:03 -0500
+	id <S312616AbSCZTPd>; Tue, 26 Mar 2002 14:15:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312616AbSCZTIp>; Tue, 26 Mar 2002 14:08:45 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39049 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S312587AbSCZTId>; Tue, 26 Mar 2002 14:08:33 -0500
-Date: Tue, 26 Mar 2002 11:09:19 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: alan@lxorguk.ukuu.org.uk
-cc: linux-kernel@vger.kernel.org, hannal@us.ibm.com, viro@math.psu.edu
-Subject: [PATCH 2.4.19-pre4-ac1] path_lookup - precursor to fast_walk
-Message-ID: <10390000.1017169759@w-hlinder.des>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S312626AbSCZTPY>; Tue, 26 Mar 2002 14:15:24 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:16704 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312616AbSCZTPU>; Tue, 26 Mar 2002 14:15:20 -0500
+Date: Tue, 26 Mar 2002 20:15:02 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] mmap bug with drivers that adjust vm_start
+Message-ID: <20020326201502.J13052@dualathlon.random>
+In-Reply-To: <20020325230046.A14421@redhat.com> <20020326174236.B13052@dualathlon.random> <20020326135703.B25375@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 26, 2002 at 01:57:03PM -0500, Benjamin LaHaise wrote:
+> On Tue, Mar 26, 2002 at 05:42:36PM +0100, Andrea Arcangeli wrote:
+> > However if the patch is needed it means the ->mmap also must do the
+> > do_munmap stuff by hand internally, which is very ugly given we also did
+> > our own do_munmap in a completly different region (the one requested by
+> > the user).
+> 
+> At least my own code checks for that and fails if there is a mapping 
+> already placed at the fixed address it needs to use.  If we're paranoid, 
 
-Alan,
+Ok, so it's safe.
 
-I have run 2.4.19-pre4-ac1 with path_lookup on an 8-way SMP and
-it looks good. Here is the latest version of path_lookup for
-your recently announced pre4-ac1 kernel.
+> we could BUG() on getting a vma back from the new find_vma_prepare call.
 
-This is a cleanup precursor to a fast_walk patch I wrote based on
-suggestions from Al Viro to decrease cacheline bouncing of a global
-reference counter during path lookup of dentries in the cache.
-That patch has shown 50% reduction in BKL contention on an 8-way
-SMP running dbench. Incidentally, it has also shown a 90% reduction in
-dcache_lock contention on a 16-way NUMA-Q building the kernel.
-Results and patch coming soon.
+yes, it sounds a good idea to verify there's no other mapping in the way
+of the relocation (until a better fix is implemented), it's a slow path
+so we won't hurt performance.
 
-This patch included simply cleans up source code by changing the many calls
-of the form: if(path_init) error = path_walk to one function path_lookup.
-By wrapping path_init with path_lookup I will be able to control which
-filesystems use the fast_walk mechanism.
+> 
+> > Our do_munmap should not happen if we place the mapping
+> > elsewhere. If possible I would prefer to change those drivers to
+> > advertise their enforced vm_start with a proper callback, the current
+> > way is halfway broken still. BTW, which are those drivers, and why they
+> > needs to enforce a certain vm_start (also despite MAP_FIXED that they
+> > cannot check within the ->mmap callback)?
+> 
+> Video drivers, others that require specific alignment (4MB pages for 
+> example).  Historically, the mmap call has been the hook for doing this, 
+> hence the comment in do_mmap from davem.  Unless there's a really good 
+> reason for changing the hook, I don't see doing so as providing much 
+> benefit other than making source compatibility hard.
 
-Linus has already accepted this patch from Al Viro in 2.5.6, his comments:
-<viro@math.psu.edu> (02/03/02 1.375.1.84)
-	[PATCH] path_lookup()
-	
-		New helper:
-	path_lookup(name, flags, nd)
-	{
-		int err = 0;
-		if (path_init(name, flags, nd))
-			err = path_walk(name, nd);
-		return err;
-	}
-	
-	Places doing that by hand converted to calling it.
-	
-	Actually, quite a few of them were doing equivalent of __user_walk()
-	(getname() and if it was successful - call path_lookup() and putname()).
-	Converted to calling __user_walk().
+The good reason, is that currently we're literally corrupting the
+userspace with the senseless do_munmap call in the add<->addr+len area
+before the ->mmap lowlevel callback. And such an munmap is certainly not
+required to maintain source and binary compatibility (otherwise it would
+be insane in the first place :).
 
-
-Please consider this patch for inclusion in your 2.4.19 tree.
-
-Following is the linux-2.4.19-pre4-ac1 version. Also available at:
-http://prdownloads.sf.net/lse/path_lookupA5-2.4.19-pre4-ac1.patch
-
-Hanna Linder
-hannal@us.ibm.com
-IBM Linux Technology Center
-
-------
-diff -Nru -X dontdiff linux-2.4.19-pre4-ac1/fs/exec.c linux-path_lookup/fs/exec.c
---- linux-2.4.19-pre4-ac1/fs/exec.c	Tue Mar 26 10:38:34 2002
-+++ linux-path_lookup/fs/exec.c	Tue Mar 26 10:33:01 2002
-@@ -351,8 +351,7 @@
- 	struct file *file;
- 	int err = 0;
- 
--	if (path_init(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
--		err = path_walk(name, &nd);
-+	err = path_lookup(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
- 	file = ERR_PTR(err);
- 	if (!err) {
- 		inode = nd.dentry->d_inode;
-diff -Nru -X dontdiff linux-2.4.19-pre4-ac1/fs/namei.c linux-path_lookup/fs/namei.c
---- linux-2.4.19-pre4-ac1/fs/namei.c	Tue Mar 26 10:37:25 2002
-+++ linux-path_lookup/fs/namei.c	Tue Mar 26 10:33:01 2002
-@@ -739,6 +739,16 @@
- }
- 
- /* SMP-safe */
-+int path_lookup(const char *path, unsigned flags, struct nameidata *nd)
-+{
-+	int error = 0;
-+	if (path_init(path, flags, nd))
-+		error = path_walk(path, nd);
-+	return error;
-+}
-+
-+
-+/* SMP-safe */
- int path_init(const char *name, unsigned int flags, struct nameidata *nd)
- {
- 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
-@@ -844,8 +854,7 @@
- 	err = PTR_ERR(tmp);
- 	if (!IS_ERR(tmp)) {
- 		err = 0;
--		if (path_init(tmp, flags, nd))
--			err = path_walk(tmp, nd);
-+		err = path_lookup(tmp, flags, nd);
- 		putname(tmp);
- 	}
- 	return err;
-@@ -999,8 +1008,7 @@
- 	 * The simplest case - just a plain lookup.
- 	 */
- 	if (!(flag & O_CREAT)) {
--		if (path_init(pathname, lookup_flags(flag), nd))
--			error = path_walk(pathname, nd);
-+		error = path_lookup(pathname, lookup_flags(flag), nd);
- 		if (error)
- 			return error;
- 		dentry = nd->dentry;
-@@ -1010,8 +1018,7 @@
- 	/*
- 	 * Create - we need to know the parent.
- 	 */
--	if (path_init(pathname, LOOKUP_PARENT, nd))
--		error = path_walk(pathname, nd);
-+	error = path_lookup(pathname, LOOKUP_PARENT, nd);
- 	if (error)
- 		return error;
- 
-@@ -1263,8 +1270,7 @@
- 	if (IS_ERR(tmp))
- 		return PTR_ERR(tmp);
- 
--	if (path_init(tmp, LOOKUP_PARENT, &nd))
--		error = path_walk(tmp, &nd);
-+	error = path_lookup(tmp, LOOKUP_PARENT, &nd);
- 	if (error)
- 		goto out;
- 	dentry = lookup_create(&nd, 0);
-@@ -1332,8 +1338,7 @@
- 		struct dentry *dentry;
- 		struct nameidata nd;
- 
--		if (path_init(tmp, LOOKUP_PARENT, &nd))
--			error = path_walk(tmp, &nd);
-+		error = path_lookup(tmp, LOOKUP_PARENT, &nd);
- 		if (error)
- 			goto out;
- 		dentry = lookup_create(&nd, 1);
-@@ -1427,8 +1432,7 @@
- 	if(IS_ERR(name))
- 		return PTR_ERR(name);
- 
--	if (path_init(name, LOOKUP_PARENT, &nd))
--		error = path_walk(name, &nd);
-+	error = path_lookup(name, LOOKUP_PARENT, &nd);
- 	if (error)
- 		goto exit;
- 
-@@ -1496,8 +1500,7 @@
- 	if(IS_ERR(name))
- 		return PTR_ERR(name);
- 
--	if (path_init(name, LOOKUP_PARENT, &nd))
--		error = path_walk(name, &nd);
-+	error = path_lookup(name, LOOKUP_PARENT, &nd);
- 	if (error)
- 		goto exit;
- 	error = -EISDIR;
-@@ -1568,8 +1571,7 @@
- 		struct dentry *dentry;
- 		struct nameidata nd;
- 
--		if (path_init(to, LOOKUP_PARENT, &nd))
--			error = path_walk(to, &nd);
-+		error = path_lookup(to, LOOKUP_PARENT, &nd);
- 		if (error)
- 			goto out;
- 		dentry = lookup_create(&nd, 0);
-@@ -1639,25 +1641,18 @@
- asmlinkage long sys_link(const char * oldname, const char * newname)
- {
- 	int error;
--	char * from;
- 	char * to;
- 
--	from = getname(oldname);
--	if(IS_ERR(from))
--		return PTR_ERR(from);
- 	to = getname(newname);
- 	error = PTR_ERR(to);
- 	if (!IS_ERR(to)) {
- 		struct dentry *new_dentry;
- 		struct nameidata nd, old_nd;
- 
--		error = 0;
--		if (path_init(from, LOOKUP_POSITIVE, &old_nd))
--			error = path_walk(from, &old_nd);
-+		error = __user_walk(oldname, LOOKUP_POSITIVE, &old_nd);
- 		if (error)
- 			goto exit;
--		if (path_init(to, LOOKUP_PARENT, &nd))
--			error = path_walk(to, &nd);
-+		error = path_lookup(to, LOOKUP_PARENT, &nd);
- 		if (error)
- 			goto out;
- 		error = -EXDEV;
-@@ -1677,8 +1672,6 @@
- exit:
- 		putname(to);
- 	}
--	putname(from);
--
- 	return error;
- }
- 
-@@ -1857,14 +1850,11 @@
- 	struct dentry * old_dentry, *new_dentry;
- 	struct nameidata oldnd, newnd;
- 
--	if (path_init(oldname, LOOKUP_PARENT, &oldnd))
--		error = path_walk(oldname, &oldnd);
--
-+	error = path_lookup(oldname, LOOKUP_PARENT, &oldnd);
- 	if (error)
- 		goto exit;
- 
--	if (path_init(newname, LOOKUP_PARENT, &newnd))
--		error = path_walk(newname, &newnd);
-+	error = path_lookup(newname, LOOKUP_PARENT, &newnd);
- 	if (error)
- 		goto exit1;
- 
-diff -Nru -X dontdiff linux-2.4.19-pre4-ac1/fs/namespace.c linux-path_lookup/fs/namespace.c
---- linux-2.4.19-pre4-ac1/fs/namespace.c	Tue Mar 26 10:38:36 2002
-+++ linux-path_lookup/fs/namespace.c	Tue Mar 26 10:33:01 2002
-@@ -364,17 +364,9 @@
- asmlinkage long sys_umount(char * name, int flags)
- {
- 	struct nameidata nd;
--	char *kname;
- 	int retval;
- 
--	kname = getname(name);
--	retval = PTR_ERR(kname);
--	if (IS_ERR(kname))
--		goto out;
--	retval = 0;
--	if (path_init(kname, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &nd))
--		retval = path_walk(kname, &nd);
--	putname(kname);
-+	retval = __user_walk(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &nd);
- 	if (retval)
- 		goto out;
- 	retval = -EINVAL;
-@@ -501,8 +493,7 @@
- 		return err;
- 	if (!old_name || !*old_name)
- 		return -EINVAL;
--	if (path_init(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd))
--		err = path_walk(old_name, &old_nd);
-+	err = path_lookup(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
-@@ -568,8 +559,7 @@
- 		return -EPERM;
- 	if (!old_name || !*old_name)
- 		return -EINVAL;
--	if (path_init(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd))
--		err = path_walk(old_name, &old_nd);
-+	err = path_lookup(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
-@@ -726,8 +716,7 @@
- 	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
- 
- 	/* ... and get the mountpoint */
--	if (path_init(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
--		retval = path_walk(dir_name, &nd);
-+	retval = path_lookup(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
- 	if (retval)
- 		return retval;
- 
-@@ -826,7 +815,6 @@
- {
- 	struct vfsmount *tmp;
- 	struct nameidata new_nd, old_nd, parent_nd, root_parent, user_nd;
--	char *name;
- 	int error;
- 
- 	if (!capable(CAP_SYS_ADMIN))
-@@ -834,28 +822,14 @@
- 
- 	lock_kernel();
- 
--	name = getname(new_root);
--	error = PTR_ERR(name);
--	if (IS_ERR(name))
--		goto out0;
--	error = 0;
--	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd))
--		error = path_walk(name, &new_nd);
--	putname(name);
-+	error = __user_walk(new_root, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
- 	if (error)
- 		goto out0;
- 	error = -EINVAL;
- 	if (!check_mnt(new_nd.mnt))
- 		goto out1;
- 
--	name = getname(put_old);
--	error = PTR_ERR(name);
--	if (IS_ERR(name))
--		goto out1;
--	error = 0;
--	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd))
--		error = path_walk(name, &old_nd);
--	putname(name);
-+	error = __user_walk(put_old, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd);
- 	if (error)
- 		goto out1;
- 
-diff -Nru -X dontdiff linux-2.4.19-pre4-ac1/fs/open.c linux-path_lookup/fs/open.c
---- linux-2.4.19-pre4-ac1/fs/open.c	Tue Mar 26 10:38:36 2002
-+++ linux-path_lookup/fs/open.c	Tue Mar 26 10:33:01 2002
-@@ -384,17 +384,8 @@
- {
- 	int error;
- 	struct nameidata nd;
--	char *name;
- 
--	name = getname(filename);
--	error = PTR_ERR(name);
--	if (IS_ERR(name))
--		goto out;
--
--	error = 0;
--	if (path_init(name,LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY,&nd))
--		error = path_walk(name, &nd);
--	putname(name);
-+	error = __user_walk(filename,LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY,&nd);
- 	if (error)
- 		goto out;
- 
-@@ -444,17 +435,9 @@
- {
- 	int error;
- 	struct nameidata nd;
--	char *name;
--
--	name = getname(filename);
--	error = PTR_ERR(name);
--	if (IS_ERR(name))
--		goto out;
- 
--	path_init(name, LOOKUP_POSITIVE | LOOKUP_FOLLOW |
-+	error = __user_walk(filename, LOOKUP_POSITIVE | LOOKUP_FOLLOW |
- 		      LOOKUP_DIRECTORY | LOOKUP_NOALT, &nd);
--	error = path_walk(name, &nd);	
--	putname(name);
- 	if (error)
- 		goto out;
- 
-diff -Nru -X dontdiff linux-2.4.19-pre4-ac1/fs/super.c linux-path_lookup/fs/super.c
---- linux-2.4.19-pre4-ac1/fs/super.c	Tue Mar 26 10:38:36 2002
-+++ linux-path_lookup/fs/super.c	Tue Mar 26 10:33:01 2002
-@@ -575,8 +575,7 @@
- 	/* What device it is? */
- 	if (!dev_name || !*dev_name)
- 		return ERR_PTR(-EINVAL);
--	if (path_init(dev_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
--		error = path_walk(dev_name, &nd);
-+	error = path_lookup(dev_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
- 	if (error)
- 		return ERR_PTR(error);
- 	inode = nd.dentry->d_inode;
-diff -Nru -X dontdiff linux-2.4.19-pre4-ac1/include/linux/fs.h linux-path_lookup/include/linux/fs.h
---- linux-2.4.19-pre4-ac1/include/linux/fs.h	Tue Mar 26 10:38:37 2002
-+++ linux-path_lookup/include/linux/fs.h	Tue Mar 26 10:33:01 2002
-@@ -1348,6 +1348,7 @@
- extern int FASTCALL(__user_walk(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(path_init(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(path_walk(const char *, struct nameidata *));
-+extern int FASTCALL(path_lookup(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(link_path_walk(const char *, struct nameidata *));
- extern void path_release(struct nameidata *);
- extern int follow_down(struct vfsmount **, struct dentry **);
-
+Andrea

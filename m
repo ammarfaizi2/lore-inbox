@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268104AbUIKHS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUIKHUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268104AbUIKHS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 03:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUIKHS2
+	id S268122AbUIKHUh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 03:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUIKHUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 03:18:28 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:9628
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S268104AbUIKHSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 03:18:25 -0400
-Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: Lionel Bouton <Lionel.Bouton@inet6.fr>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Linux-IDE <linux-ide@vger.kernel.org>
-In-Reply-To: <200409102321.17042.bzolnier@elka.pw.edu.pl>
-References: <1094826555.7868.186.camel@thomas.tec.linutronix.de>
-	 <1094828803.13450.4.camel@thomas.tec.linutronix.de>
-	 <4141C8C6.1030307@inet6.fr>  <200409102321.17042.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1094886669.13571.3.camel@thomas.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 11 Sep 2004 09:11:09 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Sep 2004 03:20:37 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:9141 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268122AbUIKHUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 03:20:23 -0400
+Date: Sat, 11 Sep 2004 09:19:54 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
+In-Reply-To: <200409101328.57431.adaplas@hotpop.com>
+Message-ID: <Pine.GSO.4.58.0409110918001.17924@waterleaf.sonytel.be>
+References: <1094783022.2667.106.camel@gaston> <200409101328.57431.adaplas@hotpop.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-10 at 23:21, Bartlomiej Zolnierkiewicz wrote:
-> Yep. :/  Lionel, can I push this fix upstream?
-> 
-> Could somebody enlighten me what exactly 'remapping mode' does?
-> 
-> Bartlomiej
+On Fri, 10 Sep 2004, Antonino A. Daplas wrote:
+> On Friday 10 September 2004 10:23, Benjamin Herrenschmidt wrote:
+> > Recent changes upstream are breaking fbdev on pmacs.
+> >
+> > I haven't had time to go deep into that (but I suspect Linus sees it
+> > too on his own g5 unless he removed offb from his .config).
+> >
+> > From what I see, it seems that offb is kicking in by default, reserves
+> > the mmio regions, and then whatever chip driver loads can't access them.
+> >
+> > offb is supposed to be a "fallback" driver in case no fbdev is taking
+> > over, it should also be "forced" in with video=ofonly kernel command
+> > line. This logic has been broken.
+>
+> Actually, I was thinking about this problem with offb.  I was planning on
+> adding video=offb:off support for offb, and then place offb at the very top
+> drivers Makefile (the reason why I placed it there, but forgot to add the
+> setup support for offb).  So, without the 'off' option, offb becomes the
+> first driver that gets initialized by reason that it's at the top, and with
+> the 'off' option, it just exits initialization immediately, giving the other
+> drivers a chance to get through.
 
-The 5518 version of the IDE controller has a config bit which (re)maps
-the main config registers to 5513 compatible offsets. So the 5513 code
-can be used with some minor tweaks. If you don't use the remapping you
-have to modify / rewrite quite a portion of the code in order to get it
-working with the 5518 chip version.
+This is not suitable, since for dual-headed machines, you may want to have one
+card driven by its native driver, and the other by offb (as fallback, because
+no driver exists yet).
 
-tglx
+> The second method is not harder but will involve, again, changes to all
+> drivers.  The only sane method I can think of is to change fb_get_options so
+> it returns an error if:
+>
+> a. "off" option is enabled
+> b. "ofonly" is enabled but only if name != "offb"
+>
+> If fb_get_options returns an error, drivers will not proceed with their
+> initialization. The second method is more compatible with the
+> previous setup semantics.
 
+Yes, looks better (except that it's less clean, but I'm afraid we can't fix
+that easily).
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

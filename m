@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVAGQ2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVAGQ3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVAGQ2X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 11:28:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVAGQ2W
+	id S261494AbVAGQ3K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 11:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVAGQ3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 11:28:22 -0500
-Received: from nbn.com ([192.220.110.122]:34054 "EHLO nbn.com")
-	by vger.kernel.org with ESMTP id S261528AbVAGQ1m (ORCPT
+	Fri, 7 Jan 2005 11:29:10 -0500
+Received: from albireo.ucw.cz ([81.27.203.89]:60547 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261494AbVAGQ3B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 11:27:42 -0500
-Date: Fri, 7 Jan 2005 08:27:40 -0800 (PST)
-From: autoreply@nbn.com
-Message-Id: <200501071627.j07GReFV098995@nbn.com>
-To: linux-kernel@vger.kernel.org
-X-Request-Originator: linux-kernel@vger.kernel.org
-X-Info1: *****************************************************************
-X-Info2: This message was generated as an autoresponse to a mail request. 
-X-Info3: Please report abuse of this autoresponder promptly to the site   
-X-Info4: hostmaster.
-X-Info5: *****************************************************************
-Subject: Support Changes for NBN & TLG - PLEASE READ
+	Fri, 7 Jan 2005 11:29:01 -0500
+Date: Fri, 7 Jan 2005 17:29:02 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107162902.GA7097@ucw.cz>
+References: <20050107160808.GB6529@ucw.cz> <200501071614.j07GEgEC018705@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501071614.j07GEgEC018705@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Best Customer,
+Hello!
 
-The e-mail addresses @nbn.com and @tlg.net are no longer valid. 
-Please use one of the following addresses based on your service 
-and the nature of your request to receive the most appropriate 
-level of service.
+> i think this is true only if the kernel comes with capabilities
+> enabled.
+> 
+> various media-centric distributions (CCRMA, demudi, dyne:bolic and
+> others) enabled them for their 2.4 kernels, but not the major
+> desktop-centric ones. then the impression began to be received that in
+> 2.6, capabilities were even more questionable of a mechanism to use.
+> In addition, the LSM system appeared, and seemed to offer a much
+> better solution entirely: no need to patch the kernel at all, or at
+> least it appeared to be so in the beginning. Hence the "realtime" LSM.
 
-* Verio Web Sites Customers *
+Yes, but is there really some difference between people having to enable
+LSM and add a new LSM module, and people recompiling the kernel to include
+capabilities?
 
-Direct your Customer Service or Billing inquiries to:
-  service@veriowebsites.com
+Also, is somebody really shipping 2.4 kernels without capabilities?
+I'm unable to find any such config switch in 2.4.28 -- maybe it's because
+I'm almost sleeping now, but it doesn't seem to be there.
 
-Direct your Technical Support inquiries to:
-  support@veriowebsites.com
-
-* Verio Virtual Private Server Customers *
-
-Direct your Customer Service or Billing inquiries to:
-  service@veriohosting.com
-
-Direct your Technical Support inquiries to:
-  support@veriohosting.com
-
-
-Thank You,
-
-Verio Customer Support
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+return(ECRAY); /* Program exited before being run */

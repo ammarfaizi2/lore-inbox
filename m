@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266769AbUHCRtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266763AbUHCRu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266769AbUHCRtN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 13:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266778AbUHCRtN
+	id S266763AbUHCRu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 13:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266784AbUHCRu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 13:49:13 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:41618 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S266769AbUHCRsQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 13:48:16 -0400
-Message-ID: <410FCF9A.0@rtr.ca>
-Date: Tue, 03 Aug 2004 13:47:06 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, en-us
+	Tue, 3 Aug 2004 13:50:56 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:4829 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S266768AbUHCRtz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 13:49:55 -0400
+Message-ID: <410FD035.6080905@adaptec.com>
+Date: Tue, 03 Aug 2004 13:49:41 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tim.bird@am.sony.com, dsingleton@mvista.com
-Subject: Re: [PATCH] Configure IDE probe delays
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com> <1091226922.5083.13.camel@localhost.localdomain> <410AEDC8.6030901@pobox.com>
-In-Reply-To: <410AEDC8.6030901@pobox.com>
+To: arjanv@redhat.com
+CC: Nathan Bryant <nbryant@optonline.net>, Sam Ravnborg <sam@ravnborg.org>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, Adrian Bunk <bunk@fs.tum.de>,
+       James.Bottomley@HansenPartnership.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let AIC7{9,X}XX_BUILD_FIRMWARE depend on!PREVENT_FIRMWARE_BUILD
+References: <20040801185543.GB2746@fs.tum.de> <20040801191118.GA7402@mars.ravnborg.org> <410FA577.4040602@adaptec.com> <410FBDAA.4070907@optonline.net> <1091550985.2816.10.camel@laptop.fenrus.com>
+In-Reply-To: <1091550985.2816.10.camel@laptop.fenrus.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Aug 2004 17:49:49.0436 (UTC) FILETIME=[45A4E3C0:01C47982]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm the dude responsible for the infamous "50 milliseconds" here.
+Arjan van de Ven wrote:
+> On Tue, 2004-08-03 at 18:30, Nathan Bryant wrote:
+> 
+>>Luben Tuikov wrote:
+>>
+>>>Hi Sam,
+>>>
+>>>You can forward it to Linus and I'll also integrate it
+>>>to the latest version of the drivers, yet to be integrated
+>>>to the mainline kernel.
+>>
+>>Luben -
+>>
+>>Are the latest drivers going to be available in BitKeeper format before 
+>>they get merged?
+> 
+> 
+> I'm sure they'll be submitted in small incremental updates which can be
+> submitted and merged in smaller pieces to keep testability to a
+> maximum.... 
 
-I agree that (1) it is overkill, (2) it could be optimised,
-and (3) it is very very non-standard.
+Yes, no problem.  Whatever you guys want.
+I can provide small incremental patches (right out of
+perforce), and generate incremantal BKs (will have to look into
+that).
 
-But it also works extraordinarilly well.  I still am very active
-with ATA and SATA driver development, and the basic Linux IDE probe
-works for me on vendor hardware where their own standards-specific
-routines sometimes fail (even in their windows drivers).
-
-If possible, it would be best to let it be, and over time it will
-be less and less important as SATA and kin take over the universe.
-
-Every time I tried to tweak it to be faster, it seemed to break
-some system or another.
-
-One possibility here would be to augment it with reset signature probing,
-and/or a cyl-high read/write test.  These could speed things up for
-more mainstream cases.  But I'm not going to touch what's there myself!
-
-Cheers
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Luben
+
+

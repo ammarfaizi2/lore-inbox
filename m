@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267709AbUH1TvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUH1T5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267709AbUH1TvV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267671AbUH1TtW
+	id S267696AbUH1T5O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUH1T5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:49:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22400 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267666AbUH1Trx (ORCPT
+	Sat, 28 Aug 2004 15:57:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:57512 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266474AbUH1T5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:47:53 -0400
-Date: Sat, 28 Aug 2004 12:46:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
-       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
-       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040828194129.GA7713@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.58.0408281244340.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no>
- <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
- <20040828182954.GJ21964@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0408281132480.2295@ppc970.osdl.org>
- <20040828185613.GK21964@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0408281201290.2295@ppc970.osdl.org> <20040828194129.GA7713@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 28 Aug 2004 15:57:05 -0400
+Date: Sat, 28 Aug 2004 12:56:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
+Subject: Re: 2.6.9-rc1 bk-current v2 mount "stale file handle" problems
+Message-ID: <20040828195659.GQ5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	nfs@lists.sourceforge.net
+References: <4130E094.1010309@backtobasicsmgmt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4130E094.1010309@backtobasicsmgmt.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 28, 2004 at 12:44:20PM -0700, Kevin P. Fleming wrote:
+> I just upgraded two of my boxes here to 2.6.9-rc1 pulled from BitKeeper 
+> a few hours ago. One of them is my NFS server, using the kernel NFS 
+> daemon and serving XFS filesystems. The other is an NFS root client, 
+> using the kernel's autoconfiguration and NFS root mounting (using all 
+> default mount options).
+> After booting the NFS client, I had very strange behavior when creating 
+> symlinks on the NFS root if the link target path began with '.'. Just 
+> this sequence:
+> # mkdir foo
+> # cd foo
+> # ln -sf . test1
+> # ln -sf . test2
+> ...
+> Would result in a successfully created link but an error message from ln 
+> reporting "stale NFS file handle".
+> Switching the NFS root client's mount to v3 from v2 seems to have 
+> avoided the problem.
 
+I'm getting similar trouble, though I've not noticed the nfs version
+workaround.
 
-On Sat, 28 Aug 2004, Andries Brouwer wrote:
-> 
-> If I see it correctly, you want to group a file and some
-> ancillary files together.
-> 
-> The Unix way would be to make a directory and put them all there:
-> 	xterm/xterm
-> 	xterm/xterm.icon
-> 
-> But you are unsatisfied and want
-> 	xterm
-> 	xterm/xterm.icon
-> 
-> As long as we agree that the latter really means the former,
-> there are no problems in finding out what should happen.
-> 
-> The conclusion is, that a directory carries an additional bit
-> that says "if I am opened as a regular file then use the file
-> of the same name inside".
-> 
-> Now there is no attribute space, just a shorthand.
-
-It's more than a shorthand, though. _Much_ more.
-
-There's the small issue of atomicity and locking.
-
-There's the small issue of hardlinks.
-
-Both of those are why it would need special support.
-
-		Linus
+-- wli

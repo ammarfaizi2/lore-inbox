@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbUCJIX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 03:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbUCJIXZ
+	id S262547AbUCJI1S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 03:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUCJI1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 03:23:25 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:55170 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262528AbUCJIXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 03:23:15 -0500
-Date: Wed, 10 Mar 2004 13:54:17 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] call_usermodehelper needs to wait longer
-Message-ID: <20040310082416.GA5084@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040309135143.GB26645@in.ibm.com> <20040309133835.2343565c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040309133835.2343565c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Mar 2004 03:27:18 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:61448 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262547AbUCJI1O convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 03:27:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Dax Kelson <dax@gurulabs.com>,
+       James Ketrenos <jketreno@linux.co.intel.com>
+Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
+Date: Wed, 10 Mar 2004 10:15:19 +0200
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <404E27E6.40200@linux.co.intel.com> <1078866774.2925.15.camel@mentor.gurulabs.com>
+In-Reply-To: <1078866774.2925.15.camel@mentor.gurulabs.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 01:38:35PM -0800, Andrew Morton wrote:
-> I'm not so sure about this.  There are deadlock potentials if the usermode
-> application wants to perform some function which requires keventd services
-> to complete - the application cannot complete because keventd is itself
-> waiting for the application.
-> 
-> Can we think of any circumstances under which keventd _should_
-> synchronously wait for the userspace app?
+On Tuesday 09 March 2004 23:12, Dax Kelson wrote:
+> On Tue, 2004-03-09 at 13:24, James Ketrenos wrote:
+> > I am pleased to announce the launch of an open source development project
+> > for the Intel PRO/Wireless 2100 miniPCI network adapter. The project has
+> > been created and is hosted at http://ipw2100.sf.net.
+>
+> I applaud Intel for starting to plug this major hole. This looks
+> promising.
+>
+> I took a look at the website and see the GPL driver and the closed
+> firmware.
+>
+> Is it is really *firmware*, in that it loads and executes purely within
+> the Intel PRO/Wireless 2100 itself and not in the linux kernel on the
+> main CPU? If so, bravo!
 
-Honestly I don't know ..Would it be reasonable for somebody
-to call request_module from a work function (in which case the above
-bug is exposed)? I agree it is not a nice thing if we block keventd
-waiting for the app to exit. 
+*FLAME ALERT*
+/me is slowly getting mad about his prism54 11g hardware
+and its firmware, with neither firmware authors nor documentation
+for this pile of silicon crap nowhere in sight
 
-> 
-> btw: your patch had whitespace where the tabs should be (email client
-> problem), and `patch -p1' format is (much) preferred.
-
-Sorry abt that! The whitespace was because of cut-n-paste ..I have
-also downloaded your patch scripts and will start using that for 
-generating patches henceforth!
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+What's so cool about having binary firmware? Bugs are bugs,
+and you won't be able to even see bugs, less fix, in it.
+I don't like being at the mercy of firmware authors.
+--
+vda

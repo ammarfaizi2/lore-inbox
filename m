@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbTJNJb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 05:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbTJNJb0
+	id S262280AbTJNJ3R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 05:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTJNJ3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 05:31:26 -0400
-Received: from www.erfrakon.de ([193.197.159.57]:32263 "EHLO www.erfrakon.de")
-	by vger.kernel.org with ESMTP id S262283AbTJNJbZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 05:31:25 -0400
-From: Martin Konold <martin.konold@erfrakon.de>
-Organization: erfrakon
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: Silly BK statistics
-Date: Tue, 14 Oct 2003 11:31:59 +0200
-User-Agent: KMail/1.5.9
-References: <20031014025551.GA13675@work.bitmover.com>
-In-Reply-To: <20031014025551.GA13675@work.bitmover.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Tue, 14 Oct 2003 05:29:17 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:43663 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262280AbTJNJ3Q
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 14 Oct 2003 05:29:16 -0400
+Date: Tue, 14 Oct 2003 10:29:09 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
+Message-ID: <20031014092909.GB24812@mail.shareable.org>
+References: <JIEIIHMANOCFHDAAHBHOMEMEDAAA.alex_a@caltech.edu> <3F8B9324.8020005@namesys.com> <20031014064924.GP15809@pegasys.ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310141131.59310.martin.konold@erfrakon.de>
+In-Reply-To: <20031014064924.GP15809@pegasys.ws>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Tuesday 14 October 2003 04:55 am schrieb Larry McVoy:
+jw schultz wrote:
+> Of course if i had designed it in the first place with the
+> filesystem semantics that we have now there might be no
+> rename system call.  Renames would be done by link(oldpath,
+> newpath); unlink(oldpath);  A sequence that would cause
+> ctime to change as a result of nlink changes.  A sequence
+> that might be appropriate in some cases even inside the
+> filesystem code.
 
-Hi,
+Once upon a time, that's how renames were always done.
 
-just to add some more silly numbers:
+The rename() system call was added because (a) it provides the
+additional atomicity semantic, which link+unlink does not; (b) it is
+useful to allow directory renames, but directory hard links are
+dangerous so not allowed any more.
 
-> What that means is that in about a year, you've managed to create 65,337
-> changesets.  That's 179 per day, 7.4/hour, 24x7.  You guys are busy.
-
-> To put that in perspective, the most active project on sourceforge today,
-> Gaim, has 805 commits to its changelog.  Over 3.5 years.
-
-The KDE cvs repository counts 156836 from the 20020301 to 20030930. This is 
-roughly about  per 286 day or 12 per hour assuming 24x7x365.
-
-I expect GNOME, Mozilla and OOo to have similar numbers.....
-
-Regards,
--- martin
-
-Dipl.-Phys. Martin Konold
-e r f r a k o n
-Erlewein, Frank, Konold & Partner - Beratende Ingenieure und Physiker
-Nobelstrasse 15, 70569 Stuttgart, Germany
-fon: 0711 67400963, fax: 0711 67400959
-email: martin.konold@erfrakon.de
-
+-- Jamie

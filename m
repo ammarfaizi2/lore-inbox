@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312750AbSDBPzu>; Tue, 2 Apr 2002 10:55:50 -0500
+	id <S311900AbSDBQDU>; Tue, 2 Apr 2002 11:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312842AbSDBPzk>; Tue, 2 Apr 2002 10:55:40 -0500
-Received: from AMontpellier-201-1-4-206.abo.wanadoo.fr ([217.128.205.206]:18819
-	"EHLO awak") by vger.kernel.org with ESMTP id <S312750AbSDBPzb> convert rfc822-to-8bit;
-	Tue, 2 Apr 2002 10:55:31 -0500
-Subject: Re: power off
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Christian Schoenebeck <christian.schoenebeck@epost.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020328214032.4F55147B1@debian.heim.lan>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 02 Apr 2002 17:58:25 +0200
-Message-Id: <1017763106.5315.16.camel@bip>
-Mime-Version: 1.0
+	id <S312824AbSDBQDA>; Tue, 2 Apr 2002 11:03:00 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:55558 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S311900AbSDBQC4>;
+	Tue, 2 Apr 2002 11:02:56 -0500
+Date: Tue, 2 Apr 2002 18:02:54 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Ken Brownfield <ken@irridia.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of quotas on ext3 and reiser?
+In-Reply-To: <20020401211410.A9161@asooo.flowerfire.com>
+Message-ID: <Pine.LNX.4.44.0204021801490.17853-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le jeu 28-03-2002 à 23:04, Christian Schoenebeck a écrit :
-> (please cc me)
-> 
-> Hi everybody!
-> 
-> I've got a problem with a machine (using an Asus SP98AGP-X mainboard) that 
-> doesn't want to power off since moving from 2.2.x to 2.4.x kernel. As I 
-> haven't found any other solution, can I simply replace the new apm.c by the 
-> old one from 2.2.x or just a part of the unit or would that be fatal?
 
-I have to boot my 2.4 kernels with apm=power-off
+I am using quota with reiserFS and quota tool 3.04 from slackware-current,
+and no problems at all (kernel 2.4.18)
 
+
+On Mon, 1 Apr 2002, Ken Brownfield wrote:
+
+> I'm about to install a 2TB disk array, and I'd very strongly prefer to
+> use ext3 or possibly reiser to gain journaling.  Fscking 250GB is
+> already lethal.
+>
+> But I also need quotas.  I've noticed that quotas do not appear to be
+> supported by ext3, but I haven't tried reiser yet.  And I'm not sure
+> if I simply need new quota userspace tools -- the ones I found were 1994
+> vintage.  I'm on RH6.2 BTW for this case, and the builtin tools don't
+> appear to grok ext3.
+>
+> What is the current viability of quotas on ext3/reiser in a
+> conservative, production environment?  Is it waiting for the 32-bit UID
+> mods in 2.4.x, or has quota support been pushed off onto 2.5?  Am I
+> going to have to make the hard choice of journaling vs quotas? :-/
+>
+> I couldn't find a definitive answer in the archives; sorry if this is a
+> FAQ.  I'd bug poor Andrew Morton directly :), but I'm also interested in
+> the status or reiser vs quotas.
+>
+> Thanks,
+> --
+> Ken.
+> ken@irridia.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

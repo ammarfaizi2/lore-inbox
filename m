@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130335AbRA1Vei>; Sun, 28 Jan 2001 16:34:38 -0500
+	id <S144202AbRA1Vg1>; Sun, 28 Jan 2001 16:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143630AbRA1VeU>; Sun, 28 Jan 2001 16:34:20 -0500
-Received: from mail.inconnect.com ([209.140.64.7]:62855 "HELO
-	mail.inconnect.com") by vger.kernel.org with SMTP
-	id <S130335AbRA1Vd5>; Sun, 28 Jan 2001 16:33:57 -0500
-Date: Sun, 28 Jan 2001 14:33:56 -0700 (MST)
-From: Dax Kelson <dax@gurulabs.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: ECN fixes for Cisco gear
-In-Reply-To: <20010128151835.G13195@xi.linuxpower.cx>
-Message-ID: <Pine.SOL.4.30.0101281429140.6934-100000@ultra1.inconnect.com>
+	id <S143630AbRA1VgR>; Sun, 28 Jan 2001 16:36:17 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19979 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S144202AbRA1VgE>; Sun, 28 Jan 2001 16:36:04 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Renaming lost+found
+Date: 28 Jan 2001 13:35:44 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9523bg$7dc$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com> <3A73565B.6EBC7F77@ngforever.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <3A73565B.6EBC7F77@ngforever.de>
+By author:    Thunder from the hill <thunder@ngforever.de>
+In newsgroup: linux.dev.kernel
+>
+> > A file-system without a lost+found directory is like love without sex.
+> You mean, possible but leaving you unsatisfied? Well, I think a file
+> system without a lost+found is a lot worse.
+> 
 
-In Sept of 2000, I did a survey of 30,000 websites and found that 8% of
-them were unreachable from an ECN capable client.  Two major culprits were
-identified, the Cisco PIX and Local Director.  To Cisco's credit, fixes
-were released quickly.
+Hello people... the original question was: can lost+found be
+*renamed*, i.e. does the tools (e2fsck &c) use "/lost+found" by name,
+or by inode?  As far as I know it always uses the same inode number
+(11), but I don't know if that is anywhere enforced.
 
-Here is a message I sent with info about the Cisco updates:
+	-hpa
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0010.1/1205.html
-
-Here is the fix for PIX:
-
-
-(see
-http://www.cisco.com/cgi-bin/Support/Bugtool/onebug.pl?bugid=CSCds23698)
-    Bud ID: CSCds23698
-    Headline: PIX sends RSET in response to tcp connections with ECN
- bits set
-    Product: PIX
-    Component: fw
-    Severity: 2 Status: R [Resolved]
-    Version Found: 5.1(1) Fixed-in Version: 5.1(2.206) 5.1(2.207)
- 5.2(1.200)
-
-
-Here is the fix for Local Director:
-
-
-(see
-http://www.cisco.com/cgi-bin/Support/Bugtool/onebug.pl?bugid=CSCds40921)
-Bug Id : CSCds40921
- Headline: LD rejects syn with reserved bits set in flags field of TCP hdr
- Product: ld
- Component: rotor
- Severity: 3 Status: R [Resolved]
- Version Found: 3.3(3) Fixed-in Version: 3.3.3.107
-
-
-Dax Kelson
-Guru Labs
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

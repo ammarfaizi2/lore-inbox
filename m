@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUHTOB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267328AbUHTODC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUHTOB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267328AbUHTOB3
+	id S267328AbUHTODC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUHTODC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:01:29 -0400
-Received: from main.gmane.org ([80.91.224.249]:27098 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266884AbUHTOBS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:01:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Daniel Pittman <daniel@rimspace.net>
-Subject: Re: [RFC] IBM thinkpad Fn+Fx key driver
-Date: Fri, 20 Aug 2004 23:19:20 +1000
-Message-ID: <87pt5mueuf.fsf@enki.rimspace.net>
-References: <20040820122809.GA6167@linux.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 203-217-29-45.perm.iinet.net.au
-User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.4 (Security Through
-	Obscurity, linux)
-Cancel-Lock: sha1:0aCeB275P+UH2TRxgNxwBvEMbyQ=
+	Fri, 20 Aug 2004 10:03:02 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:1212 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S267328AbUHTOCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:02:54 -0400
+Date: Fri, 20 Aug 2004 16:02:50 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Jan Spitalnik <jan@spitalnik.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1 slews system clock
+In-Reply-To: <200408201527.07126.jan@spitalnik.net>
+Message-ID: <Pine.LNX.4.53.0408201601200.12519@gockel.physik3.uni-rostock.de>
+References: <200408201527.07126.jan@spitalnik.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Aug 2004, Erik Rigtorp wrote:
-> I've written a driver for some of the extra keys on the thinkpads. The
-> supported keys are: Fn+ F3, F4, F5, F7, F8, F9, F12. It has been tested on
-> two diffrent thinkpad x31, but I would like some feedback from testing on
-> other thinkpads. 
->
-> http://rigtorp.se/files/src/thinkpad-acpi.tar.gz
+On Fri, 20 Aug 2004, Jan Spitalnik wrote:
 
-Borislav Deianov (borislav@users.sourceforge.net) has recently posted a
-similar Thinkpad ACPI driver on the Thinkpad hardware list, and it has a
-number of success reports.
+> after updating kernel to 2.6.8.1 the system clock slews by 1 second every 10
+> seconds into future. I tried turning off ACPI, but that had no effect.
+> 
+> root@largo:~# ntpdate tik.cesnet.cz;sleep 10;ntpdate tik.cesnet.cz
+> 20 Aug 13:55:01 ntpdate[5315]: step time server 195.113.144.201 offset
+> -24.488611 sec
+> 20 Aug 13:55:13 ntpdate[5321]: step time server 195.113.144.201 offset
+> -1.042110 sec
+> 
+> on second machine the effect is opposite, ie the clock slews backwards.
+> Any ideas?
 
-He has apparently taken off on holiday, but you can find the code here:
-http://bkernel.sf.net/tmp/ibm-acpi-0.3.tar.gz
-
-Perhaps you should talk to him about merging the code, and then working
-together to get this into the kernel?
-
-I believe that he has also been in touch with the ACPI development list.
-
-
-Anyway, it is good to see Thinkpad specific ACPI support on the way --
-being able to software control my Bluetooth adapter would be nice. :)
-
-Regards,
-        Daniel
--- 
-Beware of all enterprises that require new clothes.
-        -- Henry David Thoreau
-
+Which was the last kernel that worked?

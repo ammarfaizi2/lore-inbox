@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267320AbTBPS0w>; Sun, 16 Feb 2003 13:26:52 -0500
+	id <S267321AbTBPSgS>; Sun, 16 Feb 2003 13:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbTBPS0w>; Sun, 16 Feb 2003 13:26:52 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:9398 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267320AbTBPS0v>; Sun, 16 Feb 2003 13:26:51 -0500
-Date: Sun, 16 Feb 2003 10:36:34 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: 2.5.61 oops running SDET
-Message-ID: <25340000.1045420594@[10.10.2.4]>
-In-Reply-To: <24190000.1045419985@[10.10.2.4]>
-References: <Pine.LNX.4.44.0302160952280.2619-100000@home.transmeta.com> <24190000.1045419985@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267322AbTBPSgS>; Sun, 16 Feb 2003 13:36:18 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:10431 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267321AbTBPSgS>;
+	Sun, 16 Feb 2003 13:36:18 -0500
+Message-ID: <3E4FDC61.8060301@colorfullife.com>
+Date: Sun, 16 Feb 2003 19:45:53 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       Anton Blanchard <anton@samba.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: Fw: 2.5.61 oops running SDET
+References: <Pine.LNX.4.44.0302161013560.2619-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0302161013560.2619-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The reason I'd _like_ to see the task lock held over _all_ of the fields
->> in the exit() path is:
->> 
->>  - right now we actually take it and drop it multiple times in exit. See 
->>    __exit_files(), __exit_fs(), __exit_mm(). Which all take it just to 
->>    serialize setting ot "mm/files/fs" to NULL.
->> 
->>  - task_lock is a nice local lock, no global scalability impact.
-> 
-> Don't we have to take tasklist_lock anyway for when task_state reads
-> p->real_parent->pid and p->parent->pid? Or should we have to grab
-> the task_lock for those too? If so, it sounds like it could get into 
-> rather horrible ordering dependencies to me. 
-> 
-> If we move exit under task_lock ... then tasklist_lock doesn't help us
-> any more there either (presumably we're trying to stop them exiting 
-> whilst we look at them) ... I've coded up the stupid approach for now, 
-> and will check that works first. Should have results very soon.
+Linus Torvalds wrote:
 
-Hmmmm ... I guess we could keep real_parent->pid and parent->pid inside
-the child's task_struct ... I can't see those change unless we're changing
-real_parent / parent task pointers anyway. Not sure how much that idea 
-will make people vomit, but it would seem to make it easier to get rid
-of the global locking, and it's probably nicer than trying to order the
-aquistion of other people's task locks ...
+>On Sun, 16 Feb 2003, Manfred Spraul wrote:
+>  
+>
+>>AFAICS both exec and exit rely on write_lock_irq(tasklist_lock) for 
+>>synchronization of changes to tsk->sig{,hand}.
+>>    
+>>
+>
+>Yeah, as I sent out in my last email this does seem to be true right now, 
+>but it's really not correct. It's disgusting that we use such a 
+>fundamental global lock to protect something so trivially local to the one 
+>process, where the local per-process lock really should be more than 
+>enough.
+>
+The difference between the tasklist_lock and task_lock is that task_lock 
+is not an interrupt lock.
+Think about signal delivery during exec.
 
-M.
+Do you want to replace tasklist_lock with task_lock in exit_sighand() 
+and during exec, or do you want to add task_lock to tasklist_lock?
+
+Hmm.
+Someone removed the read_lock(tasklist_lock) around 
+send_specific_sig_info() - which lock synchronizes exec and signal delivery?
+
+--
+    Manfred
 

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264568AbTL0VQW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 16:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbTL0VQW
+	id S264575AbTL0VfG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 16:35:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbTL0VfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 16:16:22 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:235 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264568AbTL0VQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 16:16:21 -0500
-Date: Sat, 27 Dec 2003 22:13:24 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Paul <paul@kbs.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: memory mapping help - oracle stack dumps
-Message-ID: <20031227221324.A21421@electric-eye.fr.zoreil.com>
-References: <E1AYl4w-0007A5-R3@O.Q.NET> <Pine.LNX.4.44.0312240005180.4342-100000@raven.themaw.net> <20031223173429.GA9032@mark.mielke.cc> <20031223220209.GB15946@kroah.com> <1072226715.6917.50.camel@nosferatu.lan> <20031224010728.GA20956@kroah.com> <03b201c3c9bc$5d977ef0$7301a8c0@internal.kbs.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <03b201c3c9bc$5d977ef0$7301a8c0@internal.kbs.net.au>; from paul@kbs.net.au on Wed, Dec 24, 2003 at 12:22:13PM +1100
-X-Organisation: Land of Sunshine Inc.
+	Sat, 27 Dec 2003 16:35:06 -0500
+Received: from 207-218-206-107.ev1.net ([207.218.206.107]:46477 "HELO
+	server3.pluginbox.com") by vger.kernel.org with SMTP
+	id S264575AbTL0VfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 16:35:01 -0500
+Message-ID: <3FEDFB09.5020903@ruttiger.com>
+Date: Sat, 27 Dec 2003 16:35:05 -0500
+From: Blake Caldwell <blake-lkml@ruttiger.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Blake Caldwell <blake-lkml@ruttiger.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: need 2.6.0 online development documentation (newbie)
+References: <3FEDE8E0.8070301@ruttiger.com>
+In-Reply-To: <3FEDE8E0.8070301@ruttiger.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul <paul@kbs.net.au> :
-[oracle9i listener crashing]
+nevermind - i think i found it in these articles:
+http://lwn.net/Articles/driver-porting/
 
-Run memtest on your computer. If you do not see any error (ECC support is
-enabled in your hardware setup, is not it ?), ask oracle to fix the bug.
+thanks,
+- Blake
 
-Segfault in chunk_free() _usually_ means double free/use after free or so.
-So far, this does not really look like a kernel related problem.
-
---
-Ueimor
+Blake Caldwell wrote:
+> I'm trying to get involved in kernel development, starting with 2.6 
+> modules.  i found some great stuff for 2.4, which had 'hello world' 
+> modules, but they're not compiling in 2.6
+> 
+> could anyone point me in the right direction for some online beginner's 
+> docs for 2.6 kernel & module programming?  I've ordered the book 
+> previously mentioned here, but am eager to get started.
+> 
+> thanks in advance,
+> 
+> - Blake
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

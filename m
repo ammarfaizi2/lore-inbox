@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbUC2IOC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 03:14:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUC2IOB
+	id S262775AbUC2IQn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 03:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUC2IOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 03:14:01 -0500
-Received: from ns.suse.de ([195.135.220.2]:42168 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262753AbUC2IMY (ORCPT
+	Mon, 29 Mar 2004 03:14:12 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59278 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262756AbUC2INs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 03:12:24 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc32: Fix sector_t definition with CONFIG_LBD
-References: <1080541934.1210.5.camel@gaston>
-	<20040328230351.1a0d0e9c.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Mar 2004 10:08:36 +0200
-In-Reply-To: <20040328230351.1a0d0e9c.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p7365co848r.fsf@nielsen.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Mon, 29 Mar 2004 03:13:48 -0500
+Date: Mon, 29 Mar 2004 10:13:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Wim Coekaerts <wim.coekaerts@oracle.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+Message-ID: <20040329081320.GS24370@suse.de>
+References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random> <20040329042912.GI18054@ca-server1.us.oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040329042912.GI18054@ca-server1.us.oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> >
-> >  sector_t depends on CONFIG_LBD but include/config.h may not be there
-> >  thus causing interesting breakage in some places...
+On Sun, Mar 28 2004, Wim Coekaerts wrote:
+> > In 2.4 reaching 512k DMA units that helped a lot, but going past 512k
+> > didn't help in my measurements.  1M maybe these days is needed (as Jens
+> > suggested) but >1M still sounds overkill and I completely agree with
+> > Jens about that.
 > 
-> Nasty.
-> 
-> >  Here's the fix for ppc32 (problem found by Roman Zippel, other archs
-> >  need a similar fix).
-> 
-> Three of them.
-> 
->  25-akpm/include/asm-s390/types.h   |    2 ++
->  25-akpm/include/asm-sh/types.h     |    2 ++
->  25-akpm/include/asm-x86_64/types.h |    2 ++
+> at least 1Mb... more than 1mb (I doubt 32mb is really necessarily
+> useful) is nice for flushing contiguous journal data to disk. between
+> 1-8mb in one io.
 
-Please use this change for x86-64 instead.
+'is nice' means what, in real numbers? :)
 
--Andi
+> at least 1mb is good when you have to process massive amounts of data,
+> just read huge chunks of files, we tend to do 1mb. anyway,
+> as you said, at some point it's a bit overkill . I thinkg 1-8mb makes
+> sense. 
 
-diff -u linux-2.6.5rc2-amd64/include/asm-x86_64/types.h-o linux-2.6.5rc2-amd64/include/asm-x86_64/types.h
---- linux-2.6.5rc2-amd64/include/asm-x86_64/types.h-o	2004-03-21 21:11:54.000000000 +0100
-+++ linux-2.6.5rc2-amd64/include/asm-x86_64/types.h	2004-03-29 04:44:24.000000000 +0200
-@@ -48,10 +48,8 @@
- typedef u64 dma64_addr_t;
- typedef u64 dma_addr_t;
- 
--#ifdef CONFIG_LBD
- typedef u64 sector_t;
- #define HAVE_SECTOR_T
--#endif
- 
- #endif /* __ASSEMBLY__ */
- 
+Yeah, that _range_ makes sense. 1MB is a lot more supportable than 8MB
+though, so the benefit needs to be something more than a feel good
+sensation.
+
+-- 
+Jens Axboe
+

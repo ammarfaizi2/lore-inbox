@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTJXH4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 03:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTJXH4V
+	id S262081AbTJXHw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 03:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTJXHw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 03:56:21 -0400
-Received: from gprs146-220.eurotel.cz ([160.218.146.220]:42113 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262106AbTJXH4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 03:56:15 -0400
-Date: Fri, 24 Oct 2003 09:56:00 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Voicu Liviu <pacman@mscc.huji.ac.il>, linux-kernel@vger.kernel.org
-Subject: Re: Wow.  Suspend to disk works for me in test8. :)
-Message-ID: <20031024075600.GC1519@elf.ucw.cz>
-References: <200310200225.11367.rob@landley.net> <200310201556.43520.rob@landley.net> <20031023135523.GE643@openzaurus.ucw.cz> <200310240209.18678.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310240209.18678.rob@landley.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 24 Oct 2003 03:52:29 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:59599 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262081AbTJXHw1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 03:52:27 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PM][ACPI] No ACPI interrupts after resume from S1
+Date: Fri, 24 Oct 2003 15:52:21 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720B63@pdsmsx403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PM][ACPI] No ACPI interrupts after resume from S1
+Thread-Index: AcOZonCyiqzcYDarSiqRH265fRV9mQAYQ5yg
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>, "M?ns Rullg?rd" <mru@users.sourceforge.net>,
+       <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Oct 2003 07:52:21.0943 (UTC) FILETIME=[C18E8C70:01C39A03]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Would you please try patch at http://bugme.osdl.org/show_bug.cgi?id=1409
+Thanks,
+Luming
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Pavel Machek
+Sent: 2003?10?23? 16:24
+To: M?ns Rullg?rd; acpi-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
+
+
 Hi!
 
-> > > A couple of down sides I've noticed: I have to run "hwclock --hctosys"
-> > > after a resume because the time you saved at is the time the system
-> > > thinks it is when you resume (ouch).  And because of that, things that
-> > > should time out and renew themselves (like dhcp leases) have to be
-> > > thumped manually.
-> >
-> > I sent fix for that yesterday... but you'd need to fix swsusp.c's
-> > sysdev handling and mtrr-s => better wait.
-> > 			Pavel
+
+> > working.  Normally, they will generate an ACPI event, that is
+> > processed by acpid etc.  After a suspend, each button will work once.
+> > If I then close and open the lid, they will work one more time, and so
+> > on.  Any way I can help?
 > 
-> It's largely working for me.  My laptop's backed up regularly, so I'm not 
-> risking too much data.  It reliably fails trying to suspend if I close the 
-> lid, and if I don't close the lid every once in a while the power down step 
-> won't power down immediately and the sucker will boot back up to the desktop 
-> and inform me that my dhcp lease file is corrupt, and then suddenly power 
-> down right from the desktop.  (I reboot and force a full fsck in this 
-> circumstance.)
+> Please specify the type of suspend. The situation I described only occurs
+> for S1 (or, echo -n standby, more specifically), and only in certain kernel
+> versions.
 
-Well, this looks like ACPI problems to me. You might want to set it to
-reboot and hit powerswitch manually.
-
-> I've also had it just hang there, on both suspend and resume, for upwards of 
-> 30 seconds doing nothing I can see until I start holding the power button 
-> down: after ten seconds it'll hard power off, but after two or three it 
-> suddenly wakes up and continues with the suspend or resume.  (Suspend usually 
-> hangs in "snapshotting memory" or something like that.  Resume hangs printing 
-> ........::::::::] at the end of the boot log, right before it would otherwise 
-> clear the screen and rerun the end of the power down phase.
-
-Not sure what is going on there.
-
-I have similar hangs on omnibook xe3 when I do not load ohci driver
-(but they happen during regular operation)....
-
-									Pavel
-
+Find out which versions break it, pay special atetion to
+hwsleep.c.
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

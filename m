@@ -1,88 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310468AbSCLHzG>; Tue, 12 Mar 2002 02:55:06 -0500
+	id <S310469AbSCLH7P>; Tue, 12 Mar 2002 02:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310469AbSCLHy4>; Tue, 12 Mar 2002 02:54:56 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:24330 "HELO
+	id <S310482AbSCLH7F>; Tue, 12 Mar 2002 02:59:05 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:29450 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S310468AbSCLHyv>; Tue, 12 Mar 2002 02:54:51 -0500
-Message-ID: <3C8DB449.3020309@namesys.com>
-Date: Tue, 12 Mar 2002 10:54:49 +0300
+	id <S310469AbSCLH6r>; Tue, 12 Mar 2002 02:58:47 -0500
+Message-ID: <3C8DB535.7080807@namesys.com>
+Date: Tue, 12 Mar 2002 10:58:45 +0300
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: elenstev@mesatop.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing (If you don't like the closed source nature of Bitkeeper, stop your whining and help out with reiserfs.)
-In-Reply-To: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu> <200203111755.KAA11787@tstac.esa.lanl.gov> <3C8D0260.8070700@namesys.com> <200203112048.NAA12104@tstac.esa.lanl.gov>
+To: James Antill <james@and.org>
+CC: Larry McVoy <lm@bitmover.com>, Tom Lord <lord@regexps.com>,
+        jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.GSO.4.21.0203110051500.9713-100000@weyl.math.psu.edu>	<3C8C4B8A.2070508@namesys.com> <nn4rjmoh02.fsf@code.and.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok guys, those of you who have been saying that somehow link, etc., will 
-break and Unix cannot handle version control, I am sorry, Clearcase does 
-all this stuff in the filesystem, and it more or less works, and their 
-primary disadvantages are that they don't have reiserfs levels of 
-performance, their software is not tight and clean which makes being a 
-Clearcase Admin so much work that it funded the creation of Namesys, and 
-they are an expensive closed source solution.  Once Josh's transactions 
-are in place, we can start convincing application writers that rename is 
-a sorry ass transactions API, and start thinking about coding basic 
-version control in the FS.  My sysadmin thinks that views are the best 
-security model for network service offering processes to run with, and I 
-think he is right (chroot just isn't convenient enough to get used a lot 
-in practice).
-
-If you don't like the closed source nature of Bitkeeper, stop your 
-whining and help out with reiserfs v5 (reiser5 development to start in 
-October, reiser4 is a prereq for reiser5 and feature freeze for reiser4 
-is in place).  In the meantime, give Larry a thank you for giving us 
-something we wouldn't otherwise have and sorely need.  
+Clearcase handles all of this in the filesystem, and it all works pretty 
+much reasonably.  Lots of details, but let's worry about them after we 
+have a patch, shall we?....
 
 Hans
 
+James Antill wrote:
 
-
-Steven Cole wrote:
-
->On Monday 11 March 2002 12:15 pm, Hans Reiser wrote:
+>Hans Reiser <reiser@namesys.com> writes:
 >
->>Steven Cole wrote:
+>>Alexander Viro wrote:
 >>
->>>I fiddled around a bit with VMS, and it looks like the following command
->>>set things up for me so that I only have one version for any new files I
->>>create:
+>>>On Mon, 11 Mar 2002, Hans Reiser wrote:
 >>>
->>>SET DIRECTORY/VERSION_LIMIT=1 SYS$SYSDEVICE:[USERS.STEVEN]
+>>>>So the problem was that it was not optional?
+>>>>
+>>>The problem is that it doesn't play well with other things.
 >>>
->>>This change was persistant across logins.  Hope this helps.
->>>
->>>Steven
->>>
->>This affects all directories and all files for user steven, or just one
->>directory?
+>>Your statement is information free so far, but could be the intro to
+>>an informative statement....;-)
 >>
 >
->The above example affected all subsequently created files and subsequently
->created directories under user steven, such as DKA300:[USERS.STEVEN.TESTTHIS].
->Previously created directories retain their previous version_limit setting, which
->I checked in DKA300:[USERS.STEVEN.HELLOWORLD].  Previously created files also
->retain their previous version_limit setting.
+> Think about what people want to do with SCM, think about how the
+>filesystem can help.
+> Just having a special flag to open() that enables versioning on close()
+>is useless to 99% of people IMO.
 >
->I also set the version_limit for the whole disk (as SYSTEM) with 
->SET DIRECTORY/VERSION_LIMIT=1 DKA300:[000000], but again this only affected
->subsequently created files and directories along with the files they contain.
+> For something like that to be worth it it'd need to support rename(),
+>symlink(), link(), unlink() and _importantly_ chmod()/chown() (you
+>don't want previous versions of a file becoming readable just because
+>you chmod() the final version).
 >
->I have not figured out how to set the version_limit retroactively; perhaps it is
->not possible with a simple command.  Obviously, you could do this with a DCL 
->script if you really wanted to.
+> Off the top of my head the places where I might find a use for it...
 >
->Steven
+>1. tar -x ... hack ... tell fs to generate diff
+>   (can be done via. cp -al now, but possibly easier with fs support)
 >
+>2. Version control my mail box (the good readers have the mark deleted
+>and then purge, which removes some of the need). Version control
+>might be clumsy (say you delete 3 mails, and want only one back), and
+>doesn't work with a mailer that does any caching on the mailbox.
+>
+>3. Putting an entire website under it.
+>
+>...and all but 3. are probably better done a different way (a shared
+>library might be nice ... and would also be fs/kernel independent) and
+>I'd imagine it's overkill for 3. as the biggest problem is saving over
+>the wrong filename so undelete is enough.
 >
 
-So it is fair to say that all those folks who were irritated by the VMS 
-version control feature were just not VMS sophisticates.   Thanks Steven.
+
 

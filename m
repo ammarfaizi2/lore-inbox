@@ -1,151 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318064AbSGWNjw>; Tue, 23 Jul 2002 09:39:52 -0400
+	id <S318066AbSGWOBS>; Tue, 23 Jul 2002 10:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318065AbSGWNjw>; Tue, 23 Jul 2002 09:39:52 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20175 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S318064AbSGWNju>; Tue, 23 Jul 2002 09:39:50 -0400
-Date: Tue, 23 Jul 2002 15:42:48 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <martin@dalecki.de>
-cc: Morten Helgesen <morten.helgesen@nextframe.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: please DON'T run 2.5.27 with IDE!
-In-Reply-To: <3D3D5355.40404@evision.ag>
-Message-ID: <Pine.SOL.4.30.0207231530450.29134-100000@mion.elka.pw.edu.pl>
+	id <S318067AbSGWOBS>; Tue, 23 Jul 2002 10:01:18 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:31492 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318066AbSGWOBR>; Tue, 23 Jul 2002 10:01:17 -0400
+Message-ID: <3D3D6122.5010207@evision.ag>
+Date: Tue, 23 Jul 2002 15:58:58 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: martin@dalecki.de, Morten Helgesen <morten.helgesen@nextframe.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: please DON'T run 2.5.27 with IDE!
+References: <Pine.SOL.4.30.0207231530450.29134-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
 
-On Tue, 23 Jul 2002, Marcin Dalecki wrote:
+> Martin why aren't you telling people all facts?
+> It was the default behaviour before your change in IDE 99.
+> This patch in practice reverts IDE 99 change.
+> 
+> You have INTRODUCED a bug and now you try to
+> pretend that it wasn't your fault and it was somehow broken before.
 
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Tue, 23 Jul 2002, Morten Helgesen wrote:
-> >
-> >
-> >>On Mon, Jul 22, 2002 at 09:37:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> >>
-> >>>IDE 99 which is included in 2.5.27 introduced really nasty bug.
-> >>>Possible lockups and data corruption. Please do not.
-> >>
-> >>Could you please elaborate a bit ?
-> >
-> >
-> > Bug is a result of Martin being careless and not sending patches for
-> > public review. It is easy to fix, but I won't, please excuse me.
-> > Also I wont go in technical details, lets see how quick it will be fixed.
->
-> The problem is of a somehow general nature.
-> Many of the block devices *need* a mechanism to run commands
-> asynchronously. The most preffered way to do this is
+Never said that. Sure it was my fault I looked in the wrong direction
+I looked at the ide-tcq code, becouse I still dont like the
+idea that we pass a pointer for a struct on the local stack down.
+(It's preventing the futile hope to make this thingee somehow 
+asynchronous form ever taking place.)
 
-Problem is of getting completion status of this commands
-asynchronously, they are all run synchronously through request queue.
+I should have looked at SCSI in first place instead indeed.
 
-> of course to go by the already present request queue.
-> However the generic queue handling layer
-> doesn't give us any mechanism to actually stuff
-> request from the driver and it doesn't behave well in boundary
-> conditions where the queues are nearly full.
->
-> So every single subsystem is (or at least should be) repeating something
-> along the lines of the following...
->
-> tatic void __scsi_insert_special(request_queue_t *q, struct request *rq,
-> 				  void *data, int at_head)
-> {
-> 	unsigned long flags;
->
-> 	ASSERT_LOCK(q->queue_lock, 0);
->
-> 	/*
-> 	 * tell I/O scheduler that this isn't a regular read/write (ie
-> 	 * must not attempt merges on this) and that it acts as a soft
-> 	 * barrier
-> 	 */
-> 	rq->flags &= REQ_QUEUED;
-> 	rq->flags |= REQ_SPECIAL | REQ_BARRIER;
->
-> 	rq->special = data;
->
-> 	spin_lock_irqsave(q->queue_lock, flags);
-> 	/* If command is tagged, release the tag */
-> 	if(blk_rq_tagged(rq))
-> 		blk_queue_end_tag(q, rq);
-> 	_elv_add_request(q, rq, !at_head, 0);
-> 	q->request_fn(q);
-> 	spin_unlock_irqrestore(q->queue_lock, flags);
-> }
->
->
-> int scsi_insert_special_req(Scsi_Request * SRpnt, int at_head)
-> {
-> 	request_queue_t *q = &SRpnt->sr_device->request_queue;
->
-> 	__scsi_insert_special(q, SRpnt->sr_request, SRpnt, at_head);
-> 	return 0;
-> }
->
-> Well actually the proper patch will be modelled after what
-> is done in SCSI. Or maybe even unifying both.
-> At least it is immediately "obvious" that __scsi_insert_request()
-> has a signature which doesn't have anything to do with the SCSI
-> subsystem.
-> Becouse it is clear from the above as well
-> that for example at least setting the rq->flags should
-> be common among every kind of subsystem and it shouldn't
-> be done inside the subsystems implementation of this
-> method, since the flags are of a generic nature and there
-> are changes in this area from time to time.
->
->
-> For now the following *should* do for IDE:
+> Before 2.5.27 code had the same functionality as scsi version.
 
-Martin why aren't you telling people all facts?
-It was the default behaviour before your change in IDE 99.
-This patch in practice reverts IDE 99 change.
+That's actually not true... At least the setting of the
+request rq->flags is significantly different here and there.
+However I think but I'm not sure that the fact aht we have rq->special 
+!= NULL here has the hidded side effect that we indeed accomplish the
+same semantics.
 
-You have INTRODUCED a bug and now you try to
-pretend that it wasn't your fault and it was somehow broken before.
-Before 2.5.27 code had the same functionality as scsi version.
-And yes it will be useful to move it to block layer.
+> And yes it will be useful to move it to block layer.
 
-Regards
---
-Bartlomiej
+Done. Just needs testing. I have at least an ZIP parport drive, which
+allows me to do some basic checks.
 
-> ===== drivers/ide/ide-taskfile.c 1.61 vs edited =====
-> --- 1.61/drivers/ide/ide-taskfile.c	Fri Jul 19 10:18:50 2002
-> +++ edited/drivers/ide/ide-taskfile.c	Tue Jul 23 12:12:55 2002
-> @@ -194,22 +194,16 @@
->   	request_queue_t *q = &drive->queue;
->   	struct list_head *queue_head = &q->queue_head;
->   	DECLARE_COMPLETION(wait);
-> +	struct request req;
->
->   #ifdef CONFIG_BLK_DEV_PDC4030
->   	if (ch->chipset == ide_pdc4030 && buf)
->   		return -ENOSYS;  /* special drive cmds not supported */
->   #endif
->
-> -	rq = __blk_get_request(&drive->queue, READ);
-> -	if (!rq)
-> -		rq = __blk_get_request(&drive->queue, WRITE);
-> -
-> -	/*
-> -	 * FIXME: Make sure there is a free slot on the list!
-> -	 */
-> -
-> -	BUG_ON(!rq);
-> -
-> +	memset(&req, 0, sizeof(req));
-> +	rq = &req;
-> +
->   	rq->flags = REQ_SPECIAL;
->   	rq->buffer = buf;
->   	rq->special = ar;
->
+
+BTW.> Having a fill up request queue trashing data transfers
+is indicating that there may be are bugs in the generic block layer too. 
+If it gets pushed to boundary conditions it's apparently not very 
+robust... BTW.> I never ever will understand why
+request_fn returns void instead of an status value.
+It could save many places where evry single driver
+has to call end_request explicitely.
+
+
+
+> Regards
+> --
+> Bartlomiej
+> 
+> 
+>>===== drivers/ide/ide-taskfile.c 1.61 vs edited =====
+>>--- 1.61/drivers/ide/ide-taskfile.c	Fri Jul 19 10:18:50 2002
+>>+++ edited/drivers/ide/ide-taskfile.c	Tue Jul 23 12:12:55 2002
+>>@@ -194,22 +194,16 @@
+>>  	request_queue_t *q = &drive->queue;
+>>  	struct list_head *queue_head = &q->queue_head;
+>>  	DECLARE_COMPLETION(wait);
+>>+	struct request req;
+>>
+>>  #ifdef CONFIG_BLK_DEV_PDC4030
+>>  	if (ch->chipset == ide_pdc4030 && buf)
+>>  		return -ENOSYS;  /* special drive cmds not supported */
+>>  #endif
+>>
+>>-	rq = __blk_get_request(&drive->queue, READ);
+>>-	if (!rq)
+>>-		rq = __blk_get_request(&drive->queue, WRITE);
+>>-
+>>-	/*
+>>-	 * FIXME: Make sure there is a free slot on the list!
+>>-	 */
+>>-
+>>-	BUG_ON(!rq);
+>>-
+>>+	memset(&req, 0, sizeof(req));
+>>+	rq = &req;
+>>+
+>>  	rq->flags = REQ_SPECIAL;
+>>  	rq->buffer = buf;
+>>  	rq->special = ar;
+>>
+> 
+> 
+> 
+
+
 

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267235AbTA0QoS>; Mon, 27 Jan 2003 11:44:18 -0500
+	id <S267229AbTA0QjF>; Mon, 27 Jan 2003 11:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267237AbTA0QoS>; Mon, 27 Jan 2003 11:44:18 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:50750 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S267235AbTA0QoR>; Mon, 27 Jan 2003 11:44:17 -0500
-Message-ID: <3E356403.9010805@google.com>
-Date: Mon, 27 Jan 2003 08:53:23 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre3 kernel crash
-References: <Pine.OSF.4.51.0301271632230.49659@tao.natur.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S267235AbTA0QjF>; Mon, 27 Jan 2003 11:39:05 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:28575 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267229AbTA0QjE>;
+	Mon, 27 Jan 2003 11:39:04 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 27 Jan 2003 17:48:12 +0100 (MET)
+Message-Id: <UTC200301271648.h0RGmCh27353.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, philipp.marek@bmlv.gv.at
+Subject: Re: [PATCH] fs/partitions/msdos.c Guard against negative sizes
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This looks like the same problem I ran into with IDE and highmem not 
-getting along.  Try compiling your kernel with out highmem enabled and 
-see what happenes.
+    u32 start = START_SECT(p)*sector_size;
+    u32 size = NR_SECTS(p)*sector_size;
+    And this looks as if it was calculated in bytes
 
-    Ross
+But it is not. It converts hardware sector size units
+to 512-byte units. For example, some MO disks use
+2048-byte sectors, and also have the partition tables
+in that unit.
 
-Martin MOKREJ© wrote:
+    What about overflow?
 
->  
->
->
->Trace; c024dfc1 <ide_build_sglist+181/1a0>
->Trace; c024e1b4 <ide_build_dmatable+54/1a0>
->Trace; c024e6df <__ide_dma_read+3f/150>
->
->  
->
+More detailed checking of the table is certainly possible.
 
+[But then, weird tables only occur when people fiddle with
+the partition table themselves. Or when an accident happened.
+I am not sure inhibiting access to partitions that look strange
+is useful. It might make rescue operations difficult or impossible.]
 
+    And btw, when can a partition that extends beyond the end
+    be "allowed or even necessary"?
+
+One reason is that "the end" is not well-defined. E.g.,
+disk manufacturers invent jumpers that make the disk appear
+smaller than it is in reality in order to avoid BIOS bugs.
+See http://www.win.tue.nl/~aeb/linux/Large-Disk-11.html#ss11.3
+
+In many cases the kernel option CONFIG_IDEDISK_STROKE will tell
+the kernel to automatically fix up fake lengths. If that doesn't
+work, a user mode utility may be needed to give the disk full size.
+Since that utility is run after the kernel does the partition detection,
+it is often easiest to let the last logical partition start just before
+the fake end.
+
+Andries

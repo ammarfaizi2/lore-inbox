@@ -1,82 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288793AbSAEM1R>; Sat, 5 Jan 2002 07:27:17 -0500
+	id <S288794AbSAEMaR>; Sat, 5 Jan 2002 07:30:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288799AbSAEM1J>; Sat, 5 Jan 2002 07:27:09 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64563 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S288793AbSAEM1C>; Sat, 5 Jan 2002 07:27:02 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: wingel@t1.ctrl-c.liu.se, hpa@zytor.com, robert@schwebel.de,
-        linux-kernel@vger.kernel.org, jason@mugwump.taiga.com,
-        anders@alarsen.net, rkaiser@sysgo.de
-Subject: Re: [RFC] Embedded X86 systems Was: [PATCH][RFC] AMD Elan patch
-In-Reply-To: <E16Lh1Z-0003Go-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Jan 2002 05:23:58 -0700
-In-Reply-To: <E16Lh1Z-0003Go-00@the-village.bc.nu>
-Message-ID: <m1sn9lt28x.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S288798AbSAEMaH>; Sat, 5 Jan 2002 07:30:07 -0500
+Received: from hal.astr.lu.lv ([195.13.134.67]:10627 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S288795AbSAEM3z> convert rfc822-to-8bit;
+	Sat, 5 Jan 2002 07:29:55 -0500
+Message-Id: <200201051229.g05CTej21415@hal.astr.lu.lv>
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
+To: Nathan Bryant <nbryant@optonline.net>
+Subject: Re: i810_audio driver version 0.13 still broken
+Date: Sat, 5 Jan 2002 14:29:39 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112271110.fBRBA5S00309@hal.astr.lu.lv> <3C2B9649.7090503@optonline.net>
+In-Reply-To: <3C2B9649.7090503@optonline.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thursday 27 December 2001 23:44, Nathan Bryant wrote:
+> Andris Pavenis wrote:
+> >It still hanged machine after playing KDE startup sound. Didn't tried much
+> >more and moved to my modified version of 0.12 which worked
+>
+> please send me your modified version again. full file would be best, not
+> patch.
+>
+> i can't reproduce any problems here, so far, so i'm stabbing in the
+> dark. if you can give more detailed information to reproduce, that would
+> be nice: hardware versions, version of KDE, kde settings, (mine doesn't
+> play a startup sound and artsd works fine for everything else i try),
+> artsd settings. if i can reproduce, i can analyze on my own machine, if
+> not, outlook is hazy ;-)
 
-> > There is the basic Cx5530 chipset, which could have support in the
-> > Linux kernel (IDE, graphics and sound).
-> 
-> It already does. Has done for ages. The non SB emulation mode of the audio
-> is not supported but that I don't think matters.
-> 
-> > for all chips, some are specific for a variant, such as the video
-> > input port and graphics overlay/genlock.
-> 
-> X11
-> 
-> In general if we want to support lots of weird crap then the ARM folks have
-> a very nice model and a lot of weird crap to have developed their ideas
-> against. Personal preference
-> 
-> 	Type of system	(PC, Embedded)
-> 
-> then for PC leave as is, for embedded
-> 	
-> 	Board type (blah, blah , blah)
-> 	Firmware (PC BIOS, LinuxBIOS, RedBoot)
+Seems that latest driver version from
+	http://www.infosys.tuwien.ac.at/Staff/tom/SiS7012/
+works for me (at least after some hours) with kernel 2.4.17
 
-A couple of thoughts on this. 
-
-With LinuxBIOS it is one of my design goals that you not need to know
-the board type.  Plus I frequently run kernels that allow me to boot
-with either LinuxBIOS or a PC BIOS, as that makes reverse engineering
-easier.
-
-Further in cases where we actually control the firmware (LinuxBIOS,
-RedBoot?) it makes sense to have the firmware pass us configuration
-values for places where it deviates from the norm.  This doesn't incur
-any extra firmware overhead as firmware is already board specific, and
-with flash chips it is easy enough to update.  The linux kernel then
-would just need to handle a new configuration option.
-
-For the truly weird, horrible or expedient cases we probably want to
-have the choice be 
-       Type of system (PC, Dedicated).  
-I believe dedicated describes the category better.  Embedded refers to
-computers in small hidden places.  Where dedicated just means a
-computer setup that doesn't need to handle the general case.  That
-plus I have trouble seeing a SGI workstation, or a 512 node cluster
-running LinuxBIOS as an embedded system :)
-
-Having Board type under dedicated/embedded sounds quite reasonable.
-And for weird things like LinuxBIOS it probably makes sense to at
-least develop their support under something like dedicated.  And only
-if it becomes more general purpose move it out of there.
-
-I'm thinking this through carefully as I'm getting close to doing
-figuring out what I need to do to get LinuxBIOS support into the
-kernel.  The structure is finally starting to look good enough that
-this is reasonable. 
-
-Eric
+Andris

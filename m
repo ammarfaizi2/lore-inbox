@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280622AbRKFWWi>; Tue, 6 Nov 2001 17:22:38 -0500
+	id <S280629AbRKFWXS>; Tue, 6 Nov 2001 17:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280628AbRKFWW3>; Tue, 6 Nov 2001 17:22:29 -0500
-Received: from codepoet.org ([166.70.14.212]:60970 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S280622AbRKFWWP>;
-	Tue, 6 Nov 2001 17:22:15 -0500
-Date: Tue, 6 Nov 2001 15:22:15 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: dank@trellisinc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011106152215.A31923@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	dank@trellisinc.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011105155955.A16505@codepoet.org> <20011106194923.D6AB1A3C19@fancypants.trellisinc.com>
+	id <S280630AbRKFWXK>; Tue, 6 Nov 2001 17:23:10 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:48708 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S280629AbRKFWW5>; Tue, 6 Nov 2001 17:22:57 -0500
+Date: Tue, 6 Nov 2001 21:45:56 +0000
+From: Stephen Tweedie <sct@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] disk throughput
+Message-ID: <20011106214556.M4137@redhat.com>
+In-Reply-To: <3BE647F4.AD576FF2@zip.com.au> <Pine.GSO.4.21.0111050904000.23204-100000@weyl.math.psu.edu> <3BE71131.59BA0CFC@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011106194923.D6AB1A3C19@fancypants.trellisinc.com>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BE71131.59BA0CFC@zip.com.au>; from akpm@zip.com.au on Mon, Nov 05, 2001 at 02:22:41PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Nov 06, 2001 at 02:49:23PM -0500, dank@trellisinc.com wrote:
-> In article <20011105155955.A16505@codepoet.org> Erik Anderson wrote:
-> > Come now, it really isn't that difficult: 
+Hi,
+
+On Mon, Nov 05, 2001 at 02:22:41PM -0800, Andrew Morton wrote:
+
+> For some workloads we want the subdirectories close to the
+> parent as well.  Failing to do so is horridly wrong.
+
+If you apply that recursively, then _all_ the directories in a
+filesystem end up in the same place.  ext2 has traditionally been
+extremely resistant to fragmentation degradation over time, and the
+spreading out of the directory tree over the filesystem is part of
+that.
+
+> What has changed since Kirk's design?
 > 
-> >    char name[80];
-> >    if (sscanf(line, "%4u %4u %llu %s", &major, &minor, &size, name) == 4)
-> 
-> if it's so easy to do, why do you have a great big buffer overflow here?
+> - The relative cost of seeks has increased.  Device caching
+>   and readahead and increased bandwidth make it more expensive
+>   to seek away.
 
+I'm not convinced about that.  Modern disks are so fast at streaming
+that _any_ non-sequential access is a major cost.  Track-to-track
+seeks are typically well under the average rotational cost.  It's not
+seeking to a distant location that's particularly expensive: any seek
+is, whether to the the same track or not.
 
-Sorry, no doughnut for you.  drivers/block/genhd.c:
+> I don't think I buy the fragmentation argument, really.
 
-    #ifdef CONFIG_PROC_FS
-    int get_partition_list(char *page, char **start, off_t offset, int count)
-    {
-	...
-	char buf[64];
+Recent experiments showed that reiserfs, which starts off allocating
+files quite close together, was significantly faster than ext2 on
+mostly-empty filesystems but got hugely slower as you approached 90%
+full or more.  I don't buy the argument that you can ignore
+fragmentation.  There must be a balance between short-term performance
+when allocating files and long-term performance when ensuring you've
+got enough free space inside a directory tree to cope with new files.
 
-	...
+Even kernel builds may show this up.  If you try to keep a directory
+tree compact, then you may get excellent performance when unpacking
+the kernel tarball.  But once you've applied a few large patch sets
+and set the kernel build going, your new files, .c.orig patch backups,
+and .o files will have nowhere nearby to get allocated in.
 
-	len += snprintf(page + len, 63, "%4d  %4d %10d %s\n", gp->major, n, 
-		gp->sizes[n], disk_name(gp, n, buf));
-
-so each /proc/partitions line maxes out at 63 bytes.  So not only
-is there no overflow, I am providing 16 extra bytes of padding.
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Cheers,
+ Stephen

@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVAaXr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVBABDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVAaXr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVAaXpX
+	id S261505AbVBABDf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 20:03:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVBABDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:45:23 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:6150 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261464AbVAaXmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:42:36 -0500
-Date: Tue, 1 Feb 2005 00:42:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: [2.6 patch] IDE: remove WAIT_READY dependency on APM
-Message-ID: <20050131234234.GU21437@stusta.de>
+	Mon, 31 Jan 2005 20:03:34 -0500
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:25067 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S261507AbVBABCU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 20:02:20 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <a0620074dbe24844b96fe@[129.98.90.227]>
+In-Reply-To: <41FC232E.2070202@osdl.org>
+References: <a0620073dbe21cf061aa6@[129.98.90.227]>
+ <41FC232E.2070202@osdl.org>
+Date: Mon, 31 Jan 2005 20:02:45 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: CONFIG_THERM_PM72 is missing from .config from recent kernels
+  (2.6.10, 2.6.11)
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the one hand APM isn't enabled on all laptops.
-On the other hand, this also affects regular PCs with APM support (or
-using a distribution kernel with APM support).
+>Maurice Volaski wrote:
+>>CONFIG_THERM_PM72 is required for thermal management in at least 
+>>Macs, most notably the PowerMac G5. Without it, the computer will 
+>>run its fans at the max and is very loud.
+>>
+>>It's missing from .config in at least a few releases of recent 
+>>kernels (2.6.10, 2.6.11).
+>>
+>>Does anyone know why?
+>
+>Did you enable/select it?
+>It's not on by default (in 2.6.11-rc2).
+>
+>First you need to enable this one:
+>config I2C_KEYWEST
+>	tristate "Powermac Keywest I2C interface"
+>	depends on I2C && PPC_PMAC
+>
+>and then this one:
+>config THERM_PM72
+>	tristate "Support for thermal management on PowerMac G5"
+>	depends on I2C && I2C_KEYWEST && PPC_PMAC64
+>
 
-The time for the !APM case was already increased from 30msec in 2.4 .
-Isn't there a timeout that is suitable for all cases?
+Thanks.
 
-Alan Cox answered:
-> The five seconds should be just fine for all cases. The smaller value
-> with no
-> power manglement should help speed up recovery however. It probably
-> doesn't belong CONFIG_APM now ACPI and friends are involved either.
+This is probably something for the config program designers, but 
+options like these shouldn't never be hidden. They should always be 
+available. If their prerequisites are not met, then it should reject 
+change and throw up an explanation message, namely, the above.
+-- 
 
-Until someone has a real good solution (consider e.g. that most PC users 
-might have ACPI support enabled), this patch unconditionally sets 
-WAIT_READY to 5 seconds.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch as already sent on:
-- 11 Dec 2004
-- 17 Jan 2005
-
---- linux-2.6.10-rc2-mm4-full/include/linux/ide.h.old	2004-12-11 18:11:20.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/ide.h	2004-12-11 18:11:32.000000000 +0100
-@@ -187,11 +187,7 @@
-  * Timeouts for various operations:
-  */
- #define WAIT_DRQ	(HZ/10)		/* 100msec - spec allows up to 20ms */
--#if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
- #define WAIT_READY	(5*HZ)		/* 5sec - some laptops are very slow */
--#else
--#define WAIT_READY	(HZ/10)		/* 100msec - should be instantaneous */
--#endif /* CONFIG_APM || CONFIG_APM_MODULE */
- #define WAIT_PIDENTIFY	(10*HZ)	/* 10sec  - should be less than 3ms (?), if all ATAPI CD is closed at boot */
- #define WAIT_WORSTCASE	(30*HZ)	/* 30sec  - worst case when spinning up */
- #define WAIT_CMD	(10*HZ)	/* 10sec  - maximum wait for an IRQ to happen */
-
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

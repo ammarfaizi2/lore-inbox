@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285831AbRLHFAo>; Sat, 8 Dec 2001 00:00:44 -0500
+	id <S285827AbRLHFWM>; Sat, 8 Dec 2001 00:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285830AbRLHFAf>; Sat, 8 Dec 2001 00:00:35 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:39881 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S285826AbRLHFAP>;
-	Sat, 8 Dec 2001 00:00:15 -0500
-Date: Sat, 8 Dec 2001 15:58:41 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: "Stephen C . Tweedie" <sct@redhat.com>,
-        Andreas Gruenbacher <ag@bestbits.at>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-xfs@oss.sgi.com
-Subject: Re: [PATCH] Revised extended attributes interface
-Message-ID: <20011208155841.A56289@wobbly.melbourne.sgi.com>
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011207202036.J2274@redhat.com>; from sct@redhat.com on Fri, Dec 07, 2001 at 08:20:36PM +0000
+	id <S285828AbRLHFWC>; Sat, 8 Dec 2001 00:22:02 -0500
+Received: from dsl081-242-114.sfo1.dsl.speakeasy.net ([64.81.242.114]:30856
+	"EHLO drscience.sciencething.org") by vger.kernel.org with ESMTP
+	id <S285827AbRLHFVm>; Sat, 8 Dec 2001 00:21:42 -0500
+Message-ID: <3C11A2E7.5070306@sciencething.org>
+Date: Fri, 07 Dec 2001 21:19:35 -0800
+From: Britt Park <britt@drscience.sciencething.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: The demise of notify_change.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 08:20:36PM +0000, Stephen C. Tweedie wrote:
-> Hi,
-> 
+Somewhen between 2.2.x and 2.4.x notify_change disappeared from 
+super_operations.  What is the accepted practice now for updating an 
+inode's persistent state?  Should one use write_inode for the same 
+purpose or should one rely on file_operations::setattr (excuse the 
+c++ism)? Or is there something entirely different that one should do?
 
-hi Stephen,
+With apologies for being behind the times (I'm trying to update a 
+filesystem I wrote for 2.0.x, which fact dates me accurately.),
 
-> This is looking OK as far as EAs go.  However, there is still no
-> mention of ACLs specifically, except an oblique reference to
-> "system.posix_acl_access".  
+Britt
 
-Yup - there's little mention of ACLs because they are only an
-optional, higher-level consumer of the API, & so didn't seem
-appropriate to document here.
+P.S. I promise to send REG amendments to his VFS doc when I get done.
 
-We have implemented POSIX ACLs above this interface - there
-is source to new versions of Andreas' user tools here:
-http://oss.sgi.com/cgi-bin/cvsweb.cgi/linux-2.4-xfs/cmd/acl2
-These have been tested with XFS and seem to work fine, so we
-are ready to transition over from our old implementation to
-this new one.
-
-In a way there's consensus wrt how to do POSIX ACLs on Linux
-now, as both the ext2/ext3 and XFS ACL projects will be using
-the same tools, libraries, etc.  In terms of other ACL types,
-I don't know of anyone actively working on any.
-
-The existence of a POSIX ACL implementation using attributes
-system.posix_acl_access and system.posix_acl_default doesn't
-preclude other types of ACLs from being implemented (obviously
-using different attributes) as well of course, if someone had
-an itch to scratch.
-
-cheers.
-
--- 
-Nathan

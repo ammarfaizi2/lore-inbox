@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291394AbSCOL6o>; Fri, 15 Mar 2002 06:58:44 -0500
+	id <S291547AbSCOMEG>; Fri, 15 Mar 2002 07:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291471AbSCOL6f>; Fri, 15 Mar 2002 06:58:35 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:64704 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291394AbSCOL63>;
-	Fri, 15 Mar 2002 06:58:29 -0500
-Date: Fri, 15 Mar 2002 17:37:48 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>
-Cc: Jeff Jenkins <jefreyr@pacbell.net>, linux-kernel@vger.kernel.org
-Subject: Re: Thread registers dumped to core-file
-Message-ID: <20020315173748.A3472@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-In-Reply-To: <HFEPKLGPJDEHEGCKLKCCMEDLCCAA.jefreyr@pacbell.net> <200203090636.g296aSV273332@westrelay01.boulder.ibm.com>
+	id <S291620AbSCOMD5>; Fri, 15 Mar 2002 07:03:57 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:51463 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S291547AbSCOMDr>;
+	Fri, 15 Mar 2002 07:03:47 -0500
+Date: Fri, 15 Mar 2002 13:03:38 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Sean Neakums <sneakums@zork.net>
+Cc: linux-kernel@vger.kernel.org, green@namesys.com,
+        trond.myklebust@fys.uio.no
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+Message-Id: <20020315130338.539c1118.skraw@ithnet.com>
+In-Reply-To: <6uofhq12rl.fsf@zork.zork.net>
+In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com>
+	<15499.64058.442959.241470@charged.uio.no>
+	<20020311091458.A24600@namesys.com>
+	<20020311114654.2901890f.skraw@ithnet.com>
+	<20020311135256.A856@namesys.com>
+	<20020311155937.A1474@namesys.com>
+	<20020315141328.A1879@namesys.com>
+	<20020315123008.14237953.skraw@ithnet.com>
+	<6uofhq12rl.fsf@zork.zork.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200203090636.g296aSV273332@westrelay01.boulder.ibm.com>; from vamsi_krishna@in.ibm.com on Sat, Mar 09, 2002 at 12:15:49PM +0530
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have posted this patch a few minutes back to the list.
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5262355 Extn: 3959
-Internet: vamsi@in.ibm.com
+On Fri, 15 Mar 2002 11:36:30 +0000
+Sean Neakums <sneakums@zork.net> wrote:
 
-On Sat, Mar 09, 2002 at 12:15:49PM +0530, Vamsi Krishna S. wrote:
-> [This is an email copy of a Usenet post to "mailinglists.external.linux-kernel"]
+> commence  Stephan von Krawczynski quotation:
 > 
-> We are working on dumping the register state (including FPU and SSE regs)
-> of all threads to the elf core file. We should release the patch fairly
-> soon.
+> > Another point to clarify, my client fstab entry looks like this:
+> >
+> > 192.168.1.2:/p2/backup  /backup                 nfs     timeo=20,dev,suid,rw,exec,user,rsize=8192,wsize=8192       0 0
+> >
+> > I cannot say anything about the second fs mounted via YaST.
 > 
-> Vamsi Krishna S.
-> Linux Technology Center
-> IBM Software Labs, Bangalore, India
-> 
-> On Fri, 08 Mar 2002 21:52:48 +0530, Jeff Jenkins wrote:
-> 
-> > I was chatting with the GDB folks, and they mentioned there is no code in the
-> > kernel which
-> > will dump *all* thread registers to a core file.  Anyone have such code that
-> > could be used in a patch?
-> > 
-> > Being able to get at the state of all threads in a process at core-dump time is
-> > invaluable!
-> > Anyone else been griping about this?
-> > 
-> > Rah!
-> > 
-> > -- jrj
+> Surely running mount from another window/console after starting YaST would
+> reveal this information?
+
+Sorry, weekend in sight ;-)
+
+admin:/p2/backup on /backup type nfs (rw,noexec,nosuid,nodev,timeo=20,rsize=8192,wsize=8192,addr=192.168.1.2)
+admin:/p3/suse/6.4 on /var/adm/mount type nfs (ro,intr,addr=192.168.1.2)
+
+BTW: another fs mounted from a different server on the same client is not affected at all from this troubles.
+Are there any userspace tools with problems involved? mount ? maybe I should replace something ...
+
+Regards,
+Stephan
 

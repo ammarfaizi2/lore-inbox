@@ -1,75 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265149AbUFVVs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUFVUHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUFVVs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 17:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266022AbUFVVr3
+	id S265170AbUFVUHR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUFVTbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:47:29 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:39352 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265149AbUFVVpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 17:45:52 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] ppc32: Support for new Apple laptop models
-Date: Tue, 22 Jun 2004 17:45:31 -0400
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1087934829.1832.3.camel@gaston>
-In-Reply-To: <1087934829.1832.3.camel@gaston>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_7hK2AtMMukNz/7C"
-Message-Id: <200406221745.31553.jbarnes@engr.sgi.com>
+	Tue, 22 Jun 2004 15:31:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14491 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265281AbUFVTYA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 15:24:00 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] (4/9) symlink patchkit (against -bk current)
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1Bcqs8-0003xW-K0@www.linux.org.uk>
+From: viro@www.linux.org.uk
+Date: Tue, 22 Jun 2004 20:23:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+        cases that can simply reuse ext2 helpers (page_follow_link_light()
+and page_put_link()).
 
---Boundary-00=_7hK2AtMMukNz/7C
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Tuesday, June 22, 2004 4:07 pm, Benjamin Herrenschmidt wrote:
-> This patch adds support for newer Apple laptop models. It adds the basic
-> identification for the new motherboards and the cpufreq support for models
-> using the new 7447A CPU from Motorola.
-
-And here's a patch to add sound support for some of the newer PowerBooks.  It 
-appears that this chip supports the AWACS sample rates, but has a 
-snapper-style mixer.  Tested and works on my PowerBook5,4.
-
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-
-Jesse
-
---Boundary-00=_7hK2AtMMukNz/7C
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="pmac-sound-aoakeylargo.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="pmac-sound-aoakeylargo.patch"
-
-===== sound/ppc/pmac.c 1.23 vs edited =====
---- 1.23/sound/ppc/pmac.c	2004-05-13 07:38:56 -04:00
-+++ edited/sound/ppc/pmac.c	2004-06-22 17:40:39 -04:00
-@@ -931,6 +931,13 @@
- 		chip->freq_table = tumbler_freqs;
- 		chip->control_mask = MASK_IEPC | 0x11; /* disable IEE */
- 	}
-+	if (device_is_compatible(sound, "AOAKeylargo")) {
-+		/* Seems to support the stock AWACS frequencies, but has
-+		   a snapper mixer */
-+		chip->model = PMAC_SNAPPER;
-+		// chip->can_byte_swap = 0; /* FIXME: check this */
-+		chip->control_mask = MASK_IEPC | 0x11; /* disable IEE */
-+	}
- 	prop = (unsigned int *)get_property(sound, "device-id", 0);
- 	if (prop)
- 		chip->device_id = *prop;
-
---Boundary-00=_7hK2AtMMukNz/7C--
+diff -urN RC7-bk5-trivial/fs/affs/symlink.c RC7-bk5-page/fs/affs/symlink.c
+--- RC7-bk5-trivial/fs/affs/symlink.c	Tue Mar 18 02:22:56 2003
++++ RC7-bk5-page/fs/affs/symlink.c	Tue Jun 22 15:13:10 2004
+@@ -78,7 +78,8 @@
+ };
+ 
+ struct inode_operations affs_symlink_inode_operations = {
+-	.readlink	= page_readlink,
+-	.follow_link	= page_follow_link,
++	.readlink	= generic_readlink,
++	.follow_link	= page_follow_link_light,
++	.put_link	= page_put_link,
+ 	.setattr	= affs_notify_change,
+ };
+diff -urN RC7-bk5-trivial/fs/coda/cnode.c RC7-bk5-page/fs/coda/cnode.c
+--- RC7-bk5-trivial/fs/coda/cnode.c	Sat Sep 27 22:04:56 2003
++++ RC7-bk5-page/fs/coda/cnode.c	Tue Jun 22 15:13:10 2004
+@@ -17,8 +17,9 @@
+ }
+ 
+ static struct inode_operations coda_symlink_inode_operations = {
+-	.readlink	= page_readlink,
+-	.follow_link	= page_follow_link,
++	.readlink	= generic_readlink,
++	.follow_link	= page_follow_link_light,
++	.put_link	= page_put_link,
+ 	.setattr	= coda_setattr,
+ };
+ 
+diff -urN RC7-bk5-trivial/fs/ext3/symlink.c RC7-bk5-page/fs/ext3/symlink.c
+--- RC7-bk5-trivial/fs/ext3/symlink.c	Thu Oct  9 17:34:47 2003
++++ RC7-bk5-page/fs/ext3/symlink.c	Tue Jun 22 15:13:10 2004
+@@ -20,24 +20,20 @@
+ #include <linux/fs.h>
+ #include <linux/jbd.h>
+ #include <linux/ext3_fs.h>
++#include <linux/namei.h>
+ #include "xattr.h"
+ 
+-static int
+-ext3_readlink(struct dentry *dentry, char __user *buffer, int buflen)
+-{
+-	struct ext3_inode_info *ei = EXT3_I(dentry->d_inode);
+-	return vfs_readlink(dentry, buffer, buflen, (char*)ei->i_data);
+-}
+-
+ static int ext3_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	struct ext3_inode_info *ei = EXT3_I(dentry->d_inode);
+-	return vfs_follow_link(nd, (char*)ei->i_data);
++	nd_set_link(nd, (char*)ei->i_data);
++	return 0;
+ }
+ 
+ struct inode_operations ext3_symlink_inode_operations = {
+-	.readlink	= page_readlink,
+-	.follow_link	= page_follow_link,
++	.readlink	= generic_readlink,
++	.follow_link	= page_follow_link_light,
++	.put_link	= page_put_link,
+ 	.setxattr	= ext3_setxattr,
+ 	.getxattr	= ext3_getxattr,
+ 	.listxattr	= ext3_listxattr,
+@@ -45,8 +41,8 @@
+ };
+ 
+ struct inode_operations ext3_fast_symlink_inode_operations = {
+-	.readlink	= ext3_readlink,	/* BKL not held.  Don't need */
+-	.follow_link	= ext3_follow_link,	/* BKL not held.  Don't need */
++	.readlink	= generic_readlink,
++	.follow_link	= ext3_follow_link,
+ 	.setxattr	= ext3_setxattr,
+ 	.getxattr	= ext3_getxattr,
+ 	.listxattr	= ext3_listxattr,
+diff -urN RC7-bk5-trivial/fs/minix/inode.c RC7-bk5-page/fs/minix/inode.c
+--- RC7-bk5-trivial/fs/minix/inode.c	Mon Nov 24 04:40:02 2003
++++ RC7-bk5-page/fs/minix/inode.c	Tue Jun 22 15:13:10 2004
+@@ -343,8 +343,9 @@
+ };
+ 
+ static struct inode_operations minix_symlink_inode_operations = {
+-	.readlink	= page_readlink,
+-	.follow_link	= page_follow_link,
++	.readlink	= generic_readlink,
++	.follow_link	= page_follow_link_light,
++	.put_link	= page_put_link,
+ 	.getattr	= minix_getattr,
+ };
+ 
+diff -urN RC7-bk5-trivial/fs/reiserfs/namei.c RC7-bk5-page/fs/reiserfs/namei.c
+--- RC7-bk5-trivial/fs/reiserfs/namei.c	Wed Jun 16 10:26:24 2004
++++ RC7-bk5-page/fs/reiserfs/namei.c	Tue Jun 22 15:13:10 2004
+@@ -1389,8 +1389,9 @@
+  * stuff added
+  */
+ struct inode_operations reiserfs_symlink_inode_operations = {
+-    .readlink       = page_readlink,
+-    .follow_link    = page_follow_link,
++    .readlink       = generic_readlink,
++    .follow_link    = page_follow_link_light,
++    .put_link       = page_put_link,
+     .setattr        = reiserfs_setattr,
+     .setxattr       = reiserfs_setxattr,
+     .getxattr       = reiserfs_getxattr,
+diff -urN RC7-bk5-trivial/fs/sysv/inode.c RC7-bk5-page/fs/sysv/inode.c
+--- RC7-bk5-trivial/fs/sysv/inode.c	Mon May 10 00:23:36 2004
++++ RC7-bk5-page/fs/sysv/inode.c	Tue Jun 22 15:13:10 2004
+@@ -142,8 +142,9 @@
+ }
+ 
+ static struct inode_operations sysv_symlink_inode_operations = {
+-	.readlink	= page_readlink,
+-	.follow_link	= page_follow_link,
++	.readlink	= generic_readlink,
++	.follow_link	= page_follow_link_light,
++	.put_link	= page_put_link,
+ 	.getattr	= sysv_getattr,
+ };
+ 

@@ -1,132 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266863AbUBRATU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUBRATQ
+	id S266965AbUBRAmE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUBRAmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:19:16 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:42138 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266863AbUBRAQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:16:42 -0500
-Content-Class: urn:content-classes:message
+	Tue, 17 Feb 2004 19:42:01 -0500
+Received: from mailbox8.ucsd.edu ([132.239.1.60]:8466 "EHLO mailbox8.ucsd.edu")
+	by vger.kernel.org with ESMTP id S266965AbUBRAk4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:40:56 -0500
+From: Athanasios Leontaris <aleontar@ucsd.edu>
+To: Thomas Weich <weicht@in.tum.de>
+Subject: Re: 2.6.2 Kernel Badness with 1.0-5336 NVIDIA driver
+Date: Tue, 17 Feb 2004 16:40:38 -0800
+User-Agent: KMail/1.6
+Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
+References: <200402170808.21530.aleontar@ucsd.edu> <200402170957.51875.aleontar@ucsd.edu> <200402172131.52993.weicht@in.tum.de>
+In-Reply-To: <200402172131.52993.weicht@in.tum.de>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3F5B4.75AE4C70"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Limit hash table size
-Date: Tue, 17 Feb 2004 16:16:31 -0800
-Message-ID: <B05667366EE6204181EABE9C1B1C0EB501F2AAE0@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Limit hash table size
-Thread-Index: AcP1rPz/B4fpIreiS+yKtuVaKwtRRAAA7bRg
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 18 Feb 2004 00:16:32.0025 (UTC) FILETIME=[76110090:01C3F5B4]
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-7"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402171640.39177.aleontar@ucsd.edu>
+X-MailScanner: PASSED (v1.2.8 32906 i1I0eg8x065275 mailbox8.ucsd.edu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Indeed it shows up on my /var/log/messages* on two other occasions without 
+hanging the system then. _But_ I had 5328 then. At least this badness shows 
+up through 5328 and 5336, if that could provide a pointer to somebody (NVIDIA 
+are you listening?)...
 
-------_=_NextPart_001_01C3F5B4.75AE4C70
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-> I think it would be better to leave things as they are,
-> with a boot option to scale the tables down.
-
-OK, here is one that adds boot time parameters only and leave everything
-else untouched.
-
-> The below patch addresses the inode and dentry caches.
-> Need to think a bit more about the networking ones.
-
-Don't know what happened to my mailer, the mailing list archive shows
-complete patch including the network part.  Hope this time you receive
-the whole thing.
-
-------_=_NextPart_001_01C3F5B4.75AE4C70
-Content-Type: application/octet-stream;
-	name="hash5.patch"
-Content-Transfer-Encoding: base64
-Content-Description: hash5.patch
-Content-Disposition: attachment;
-	filename="hash5.patch"
-
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4yLXJjMS9mcy9kY2FjaGUuYyBsaW51eC0yLjYuMi1yYzEua2Vu
-L2ZzL2RjYWNoZS5jCi0tLSBsaW51eC0yLjYuMi1yYzEvZnMvZGNhY2hlLmMJMjAwNC0wMS0yMCAx
-OTo0OToyNS4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi4yLXJjMS5rZW4vZnMvZGNhY2hl
-LmMJMjAwNC0wMi0xNyAxNTozMTozNS4wMDAwMDAwMDAgLTA4MDAKQEAgLTE1MjcsNiArMTUyNywx
-NiBAQAogCXJldHVybiBpbm87CiB9CiAKK3N0YXRpYyBfX2luaXRkYXRhIHVuc2lnbmVkIGxvbmcg
-ZGhhc2hfZW50cmllczsKK3N0YXRpYyBpbnQgX19pbml0IHNldF9kaGFzaF9lbnRyaWVzKGNoYXIg
-KnN0cikKK3sKKwlpZiAoIXN0cikKKwkJcmV0dXJuIDA7CisJZGhhc2hfZW50cmllcyA9IHNpbXBs
-ZV9zdHJ0b3VsKHN0ciwgJnN0ciwgMCk7CisJcmV0dXJuIDE7Cit9CitfX3NldHVwKCJkaGFzaF9l
-bnRyaWVzPSIsIHNldF9kaGFzaF9lbnRyaWVzKTsKKwogc3RhdGljIHZvaWQgX19pbml0IGRjYWNo
-ZV9pbml0KHVuc2lnbmVkIGxvbmcgbWVtcGFnZXMpCiB7CiAJc3RydWN0IGhsaXN0X2hlYWQgKmQ7
-CkBAIC0xNTUyLDExICsxNTYyLDEzIEBACiAJCiAJc2V0X3Nocmlua2VyKERFRkFVTFRfU0VFS1Ms
-IHNocmlua19kY2FjaGVfbWVtb3J5KTsKIAotI2lmIFBBR0VfU0hJRlQgPCAxMwotCW1lbXBhZ2Vz
-ID4+PSAoMTMgLSBQQUdFX1NISUZUKTsKLSNlbmRpZgotCW1lbXBhZ2VzICo9IHNpemVvZihzdHJ1
-Y3QgaGxpc3RfaGVhZCk7Ci0JZm9yIChvcmRlciA9IDA7ICgoMVVMIDw8IG9yZGVyKSA8PCBQQUdF
-X1NISUZUKSA8IG1lbXBhZ2VzOyBvcmRlcisrKQorCWlmICghZGhhc2hfZW50cmllcykgeworCQlk
-aGFzaF9lbnRyaWVzID0gUEFHRV9TSElGVCA8IDEzID8KKwkJCQltZW1wYWdlcyA+PiAoMTMgLSBQ
-QUdFX1NISUZUKSA6CisJCQkJbWVtcGFnZXMgPDwgKFBBR0VfU0hJRlQgLSAxMyk7CisJfQorCWRo
-YXNoX2VudHJpZXMgKj0gc2l6ZW9mKHN0cnVjdCBobGlzdF9oZWFkKTsKKwlmb3IgKG9yZGVyID0g
-MDsgKCgxVUwgPDwgb3JkZXIpIDw8IFBBR0VfU0hJRlQpIDwgZGhhc2hfZW50cmllczsgb3JkZXIr
-KykKIAkJOwogCiAJZG8gewpkaWZmIC1OdXIgbGludXgtMi42LjItcmMxL2ZzL2lub2RlLmMgbGlu
-dXgtMi42LjItcmMxLmtlbi9mcy9pbm9kZS5jCi0tLSBsaW51eC0yLjYuMi1yYzEvZnMvaW5vZGUu
-YwkyMDA0LTAxLTIwIDE5OjUwOjQxLjAwMDAwMDAwMCAtMDgwMAorKysgbGludXgtMi42LjItcmMx
-Lmtlbi9mcy9pbm9kZS5jCTIwMDQtMDItMTcgMTU6MzA6NTEuMDAwMDAwMDAwIC0wODAwCkBAIC0x
-MzI3LDYgKzEzMjcsMTYgQEAKIAkJd2FrZV91cF9hbGwod3EpOwogfQogCitzdGF0aWMgX19pbml0
-ZGF0YSB1bnNpZ25lZCBsb25nIGloYXNoX2VudHJpZXM7CitzdGF0aWMgaW50IF9faW5pdCBzZXRf
-aWhhc2hfZW50cmllcyhjaGFyICpzdHIpCit7CisJaWYgKCFzdHIpCisJCXJldHVybiAwOworCWlo
-YXNoX2VudHJpZXMgPSBzaW1wbGVfc3RydG91bChzdHIsICZzdHIsIDApOworCXJldHVybiAxOwor
-fQorX19zZXR1cCgiaWhhc2hfZW50cmllcz0iLCBzZXRfaWhhc2hfZW50cmllcyk7CisKIC8qCiAg
-KiBJbml0aWFsaXplIHRoZSB3YWl0cXVldWVzIGFuZCBpbm9kZSBoYXNoIHRhYmxlLgogICovCkBA
-IC0xMzQwLDkgKzEzNTAsMTMgQEAKIAlmb3IgKGkgPSAwOyBpIDwgQVJSQVlfU0laRShpX3dhaXRf
-cXVldWVfaGVhZHMpOyBpKyspCiAJCWluaXRfd2FpdHF1ZXVlX2hlYWQoJmlfd2FpdF9xdWV1ZV9o
-ZWFkc1tpXS53cWgpOwogCi0JbWVtcGFnZXMgPj49ICgxNCAtIFBBR0VfU0hJRlQpOwotCW1lbXBh
-Z2VzICo9IHNpemVvZihzdHJ1Y3QgaGxpc3RfaGVhZCk7Ci0JZm9yIChvcmRlciA9IDA7ICgoMVVM
-IDw8IG9yZGVyKSA8PCBQQUdFX1NISUZUKSA8IG1lbXBhZ2VzOyBvcmRlcisrKQorCWlmICghaWhh
-c2hfZW50cmllcykgeworCQlpaGFzaF9lbnRyaWVzID0gUEFHRV9TSElGVCA8IDE0ID8KKwkJCQlt
-ZW1wYWdlcyA+PiAoMTQgLSBQQUdFX1NISUZUKSA6CisJCQkJbWVtcGFnZXMgPDwgKFBBR0VfU0hJ
-RlQgLSAxNCk7CisJfQorCWloYXNoX2VudHJpZXMgKj0gc2l6ZW9mKHN0cnVjdCBobGlzdF9oZWFk
-KTsKKwlmb3IgKG9yZGVyID0gMDsgKCgxVUwgPDwgb3JkZXIpIDw8IFBBR0VfU0hJRlQpIDwgaWhh
-c2hfZW50cmllczsgb3JkZXIrKykKIAkJOwogCiAJZG8gewpkaWZmIC1OdXIgbGludXgtMi42LjIt
-cmMxL25ldC9pcHY0L3JvdXRlLmMgbGludXgtMi42LjItcmMxLmtlbi9uZXQvaXB2NC9yb3V0ZS5j
-Ci0tLSBsaW51eC0yLjYuMi1yYzEvbmV0L2lwdjQvcm91dGUuYwkyMDA0LTAxLTIwIDE5OjUwOjQx
-LjAwMDAwMDAwMCAtMDgwMAorKysgbGludXgtMi42LjItcmMxLmtlbi9uZXQvaXB2NC9yb3V0ZS5j
-CTIwMDQtMDItMTcgMTU6NDM6NTkuMDAwMDAwMDAwIC0wODAwCkBAIC0yNzE3LDYgKzI3MTcsMTYg
-QEAKICNlbmRpZiAvKiBDT05GSUdfUFJPQ19GUyAqLwogI2VuZGlmIC8qIENPTkZJR19ORVRfQ0xT
-X1JPVVRFICovCiAKK3N0YXRpYyBfX2luaXRkYXRhIHVuc2lnbmVkIGxvbmcgcmhhc2hfZW50cmll
-czsKK3N0YXRpYyBpbnQgX19pbml0IHNldF9yaGFzaF9lbnRyaWVzKGNoYXIgKnN0cikKK3sKKwlp
-ZiAoIXN0cikKKwkJcmV0dXJuIDA7CisJcmhhc2hfZW50cmllcyA9IHNpbXBsZV9zdHJ0b3VsKHN0
-ciwgJnN0ciwgMCk7CisJcmV0dXJuIDE7Cit9CitfX3NldHVwKCJyaGFzaF9lbnRyaWVzPSIsIHNl
-dF9yaGFzaF9lbnRyaWVzKTsKKwogaW50IF9faW5pdCBpcF9ydF9pbml0KHZvaWQpCiB7CiAJaW50
-IGksIG9yZGVyLCBnb2FsLCByYyA9IDA7CkBAIC0yNzQyLDggKzI3NTIsMTAgQEAKIAlpZiAoIWlw
-djRfZHN0X29wcy5rbWVtX2NhY2hlcCkKIAkJcGFuaWMoIklQOiBmYWlsZWQgdG8gYWxsb2NhdGUg
-aXBfZHN0X2NhY2hlXG4iKTsKIAotCWdvYWwgPSBudW1fcGh5c3BhZ2VzID4+ICgyNiAtIFBBR0Vf
-U0hJRlQpOwotCisJaWYgKCFyaGFzaF9lbnRyaWVzKQorCQlnb2FsID0gbnVtX3BoeXNwYWdlcyA+
-PiAoMjYgLSBQQUdFX1NISUZUKTsKKwllbHNlCisJCWdvYWwgPSAocmhhc2hfZW50cmllcyAqIHNp
-emVvZihzdHJ1Y3QgcnRfaGFzaF9idWNrZXQpKSA+PiBQQUdFX1NISUZUOwogCWZvciAob3JkZXIg
-PSAwOyAoMVVMIDw8IG9yZGVyKSA8IGdvYWw7IG9yZGVyKyspCiAJCS8qIE5PVEhJTkcgKi87CiAK
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4yLXJjMS9uZXQvaXB2NC90Y3AuYyBsaW51eC0yLjYuMi1yYzEu
-a2VuL25ldC9pcHY0L3RjcC5jCi0tLSBsaW51eC0yLjYuMi1yYzEvbmV0L2lwdjQvdGNwLmMJMjAw
-NC0wMS0yMCAxOTo0OTozNi4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi4yLXJjMS5rZW4v
-bmV0L2lwdjQvdGNwLmMJMjAwNC0wMi0xNyAxNTo0NToyNS4wMDAwMDAwMDAgLTA4MDAKQEAgLTI1
-NjksNiArMjU2OSwxNiBAQAogZXh0ZXJuIHZvaWQgX19za2JfY2JfdG9vX3NtYWxsX2Zvcl90Y3Ao
-aW50LCBpbnQpOwogZXh0ZXJuIHZvaWQgdGNwZGlhZ19pbml0KHZvaWQpOwogCitzdGF0aWMgX19p
-bml0ZGF0YSB1bnNpZ25lZCBsb25nIHRoYXNoX2VudHJpZXM7CitzdGF0aWMgaW50IF9faW5pdCBz
-ZXRfdGhhc2hfZW50cmllcyhjaGFyICpzdHIpCit7CisJaWYgKCFzdHIpCisJCXJldHVybiAwOwor
-CXRoYXNoX2VudHJpZXMgPSBzaW1wbGVfc3RydG91bChzdHIsICZzdHIsIDApOworCXJldHVybiAx
-OworfQorX19zZXR1cCgidGhhc2hfZW50cmllcz0iLCBzZXRfdGhhc2hfZW50cmllcyk7CisKIHZv
-aWQgX19pbml0IHRjcF9pbml0KHZvaWQpCiB7CiAJc3RydWN0IHNrX2J1ZmYgKnNrYiA9IE5VTEw7
-CkBAIC0yNjEwLDYgKzI2MjAsOCBAQAogCWVsc2UKIAkJZ29hbCA9IG51bV9waHlzcGFnZXMgPj4g
-KDIzIC0gUEFHRV9TSElGVCk7CiAKKwlpZiAodGhhc2hfZW50cmllcykKKwkJZ29hbCA9ICh0aGFz
-aF9lbnRyaWVzICogc2l6ZW9mKHN0cnVjdCB0Y3BfZWhhc2hfYnVja2V0KSkgPj4gUEFHRV9TSElG
-VDsKIAlmb3IgKG9yZGVyID0gMDsgKDFVTCA8PCBvcmRlcikgPCBnb2FsOyBvcmRlcisrKQogCQk7
-CiAJZG8gewo=
-
-------_=_NextPart_001_01C3F5B4.75AE4C70--
+On Tuesday 17 February 2004 12:31 pm, Thomas Weich wrote:
+> I had the same problems with NVidia 1.0-5336 but there was no hint
+> in /var/log/* that the NVidia driver caused the freeze. It wasn't necessary
+> that X  was running, loading the nvidia Module was sufficient to freeze the
+> complete system after an unspecified amount of time.
+>
+> For me, it worked to use the 1.0-5328 version with patches from
+> www.minion.de. Since then, everything is working without problems.
+>
+> I'm not on the list.
+>
+> Thomas
+>
+> > I checked it. "RenderAccel" is not set.
+> > Maybe FW and SBA have something to do with it, but that's just a guess.
+> > Thanks.
+> >
+> > On Tuesday 17 February 2004 09:54 am, Alistair John Strachan wrote:
+> > > On Tuesday 17 February 2004 16:08, you wrote:
+> > > > Hi to all,
+> > > >
+> > > > Pls cc me as I am not subscribing.
+> > > > I know that the kernel is tainted so pls don't flame ;)
+> > > > The kernel is 2.6.2 from www.kernel.org and I use AGPGART for AGP
+> > > > (_not_ NvAGP). Fast Writes and SBA are enabled. FC1 is the distro.
+> > > > The mobo is Abit KG7 and the video card an FX5600.
+> > > >
+> > > > X stopped responding out of the blue, at a KDE 3.2 desktop, and it
+> > > > could not be killed either. The following messages were uncovered in
+> > > > my /var/log/messages:
+> > >
+> > > [snip]
+> > >
+> > > Please first check to see if /etc/X11/XF86Config or
+> > > /etc/X11/XF86Config-4 contains the string:
+> > >
+> > > Option "RenderAccel" "1"
+> > >
+> > > If it does, either remove the line or replace it with:
+> > >
+> > > Option "RenderAccel" "0"
+> > >
+> > > Render acceleration is still not working with the proprietary driver.
+> > > I'm not saying it's definitely this, it just might not be related to
+> > > the messages in syslog.
+> > >
+> > > I occasionally see these badness messages in syslog, but my machine
+> > > never locks up. I was under the impression that these were only
+> > > warnings.
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/

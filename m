@@ -1,97 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129215AbQKGLdx>; Tue, 7 Nov 2000 06:33:53 -0500
+	id <S129232AbQKGMEQ>; Tue, 7 Nov 2000 07:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129505AbQKGLdo>; Tue, 7 Nov 2000 06:33:44 -0500
-Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:8521 "EHLO
-	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S129215AbQKGLdg>; Tue, 7 Nov 2000 06:33:36 -0500
-Message-ID: <000001c048ae$6132c340$6904883e@default>
-From: "Joe Woodward" <woodey@twasystems.fsnet.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: removable EIDE disks
-Date: Tue, 7 Nov 2000 11:12:00 -0000
+	id <S129246AbQKGMD4>; Tue, 7 Nov 2000 07:03:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61812 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129232AbQKGMDu>; Tue, 7 Nov 2000 07:03:50 -0500
+Subject: Re: Pentium 4 and 2.4/2.5
+To: fdavis112@juno.com (Frank Davis)
+Date: Tue, 7 Nov 2000 12:04:48 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001104.183646.-371331.1.fdavis112@juno.com> from "Frank Davis" at Nov 04, 2000 06:36:44 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0005_01C048AB.8CFEF320"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13t7Uh-0007JR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+>   I noticed that Pentium 4 isn't an config option in 2.4.0-test10. Is
+> someone working on a patch for the the kernel (if needed) to support the
+> Pentium 4 after 2.4.0 is released?
 
-------=_NextPart_000_0005_01C048AB.8CFEF320
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+And also for 2.2. 2.2.18pre18/19 should ident the CPU fine. A contributed patch
+should also report the caches correctly in 2.2.18pre20 once I release it.
 
-I am trying to use removable EIDE hard disks on a Red Hat Linux 6.1 =
-machine, for backup / walknet purposes.
+The big 2.4 issue is that 2.4 won't work with a CPU running at 2GHz or higher
+(2.2.18 will be the first 2.2 kernel handling this). The changes have yet to be
+pushed into 2.4. Thus judging by Intels noises so far it will only be early
+PIV processors that work ;)
 
-Issuing a BLKRRPART ioctl call immediately after changing the disk =
-works, but only if the new disk is no larger than the disk present at =
-boot time (smaller and equal capacity disks work OK).
-
-How do I get Linux to recognise that the media in /dev/hdc has changed?
-
-Bill Nottingham suggested that I ask you, as he is unsure if this is a =
-bug or if there is a technique that I am missing.
-
-
-Thanks
-
-Richard Stanton
-
-rich@twasystems.fsnet.co.uk
-
-
-------=_NextPart_000_0005_01C048AB.8CFEF320
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META content=3D"text/html; charset=3Diso-8859-1" =
-http-equiv=3DContent-Type>
-<META content=3D"MSHTML 5.00.2919.6307" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT color=3D#000000 size=3D2>I am trying to use removable EIDE =
-hard disks on=20
-a Red Hat Linux 6.1 machine, for backup / walknet purposes.</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT color=3D#000000 size=3D2>Issuing a BLKRRPART ioctl call =
-immediately after=20
-changing the disk works, but only if the new disk is no larger than the =
-disk=20
-present at boot time (smaller and equal capacity disks work =
-OK).</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT color=3D#000000 size=3D2>How do I get Linux to recognise that =
-the media=20
-in /dev/hdc has changed?</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT color=3D#000000 size=3D2>Bill Nottingham suggested that I ask =
-you, as he=20
-is unsure if this is a bug or if there is a technique that I am=20
-missing.</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT color=3D#000000 size=3D2>Thanks</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT color=3D#000000 size=3D2>Richard Stanton</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT color=3D#000000 size=3D2><A=20
-href=3D"mailto:rich@twasystems.fsnet.co.uk">rich@twasystems.fsnet.co.uk</=
-A></FONT></DIV>
-<DIV>&nbsp;</DIV></BODY></HTML>
-
-------=_NextPart_000_0005_01C048AB.8CFEF320--
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291453AbSBMJ0x>; Wed, 13 Feb 2002 04:26:53 -0500
+	id <S291471AbSBMJeX>; Wed, 13 Feb 2002 04:34:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291470AbSBMJ0o>; Wed, 13 Feb 2002 04:26:44 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:50101 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S291453AbSBMJ0Y>;
-	Wed, 13 Feb 2002 04:26:24 -0500
-Date: Wed, 13 Feb 2002 10:24:16 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Quick question on Software RAID support.
-Message-ID: <20020213102416.A15790@fafner.intra.cogenit.fr>
-In-Reply-To: <3C69C5A6.4020409@reviewboard.com> <Pine.LNX.3.96.1020212230521.8017E-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S291466AbSBMJeN>; Wed, 13 Feb 2002 04:34:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25869 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291463AbSBMJeA>;
+	Wed, 13 Feb 2002 04:34:00 -0500
+Message-ID: <3C6A32D2.77ED71F@zip.com.au>
+Date: Wed, 13 Feb 2002 01:33:06 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@uni-koblenz.de>
+Subject: Re: [patch] printk and dma_addr_t
+In-Reply-To: <3C6A2FCA.C4F49062@zip.com.au> from "Andrew Morton" at Feb 13, 2002 01:20:10 AM <E16avu8-0004lh-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1020212230521.8017E-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Feb 12, 2002 at 11:10:55PM -0500
-X-Organisation: Marie's fan club - II
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-
-Bill Davidsen <davidsen@tmr.com> :
-[...]
-> >From personal experience software RAID is quite fast, and very reliable
-> regarding failures while running. If a disk fails the system drops back to
-> recovery, and after a new drive is added and `raidhotadd' is run it is
-> rebuilt.
+Alan Cox wrote:
 > 
-> The dark side of the force is that is a drive fails on boot, I have had
+> > dma_addr_t type.   So the above usage will become
+> >
+> >       printk("stuff: " DMA_ADDR_T_FMT " %s", a, s);
+> 
+> Vomit.
 
-(raid1)
-- planned reboot;
-- spontaneous fsck;
-- rarely accessed part of a disk isn't happy
-- is it normal for an scsi error to take more than 10 minutes ?
-- LRB
-- removal of faulty drive;
-- reboot;
-- spontaneous fsck;
--> now there's a nice fs with a 3 months old content.
+See, I said I should have used j.r.hacker@hotmail.com for this one.
 
-Interesting experience for an otherwise usual sunday.
+> How about adding a dma_addr_t %code to the printk function ?
 
-Btw, this log entry is a bit terse:
+The compiler's printf arg checking will choke on that.
 
-http://www.kernel.org/pub/linux/kernel/v2.4/testing/patch-2.4.18.log
-[...]
-- Fix rare data loss case with RAID-1
-
--- 
-Ueimor
+-

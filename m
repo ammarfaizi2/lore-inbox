@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269050AbUHMKHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUHMKHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269050AbUHMKHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHMKHZ
+	id S265234AbUHMKHK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUHMKHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:07:25 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:37816 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265237AbUHMKGM (ORCPT
+	Fri, 13 Aug 2004 06:07:02 -0400
+Received: from holomorphy.com ([207.189.100.168]:15506 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265234AbUHMKFy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:06:12 -0400
-Date: Fri, 13 Aug 2004 12:07:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Paul Davis <paul@linuxaudiosystems.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-Message-ID: <20040813100736.GA8135@elte.hu>
-References: <1092210765.1650.3.camel@mindpipe> <20040811090639.GA8354@elte.hu> <20040811141649.447f112f@mango.fruits.de> <20040811124342.GA17017@elte.hu> <1092268536.1090.7.camel@mindpipe> <20040812072127.GA20386@elte.hu> <1092347654.11134.10.camel@mindpipe> <1092355488.1304.52.camel@mindpipe> <1092356877.1304.58.camel@mindpipe> <20040813025546.1372fbc6@mango.fruits.de>
+	Fri, 13 Aug 2004 06:05:54 -0400
+Date: Fri, 13 Aug 2004 03:05:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>, Keith Owens <kaos@ocs.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
+Message-ID: <20040813100540.GC11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+References: <Pine.LNX.4.58.0408111511380.1839@ppc970.osdl.org> <23701.1092268910@ocs3.ocs.com.au> <20040812010115.GY11200@holomorphy.com> <Pine.LNX.4.58.0408112133470.2544@montezuma.fsmlabs.com> <20040812020424.GB11200@holomorphy.com> <20040812072058.GH11200@holomorphy.com> <20040813080116.GY11200@holomorphy.com> <20040813091640.GZ11200@holomorphy.com> <20040813093002.GA11200@holomorphy.com> <20040813094614.GB11200@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040813025546.1372fbc6@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040813094614.GB11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 13, 2004 at 01:01:16AM -0700, William Lee Irwin III wrote:
+>>>>               text    data     bss     dec     hex filename
+>>>> mainline: 19973522        6607761 1878448 28459731        1b242d3 vmlinux
+>>>> cool:     19839487        6585707 1878448 28303642        1afe11a vmlinux
+>>>> C-func:   19923848        6582771 1878384 28385003        1b11eeb vmlinux
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+On Fri, Aug 13, 2004 at 02:16:40AM -0700, William Lee Irwin III wrote:
+>>> Reinlining spin_unlock() yields:
+>>> unlock:    19895498        6582746 1878384 28356628        1b0b014 vmlinux
 
-> i think that the mlockall and client/jackd startup xruns often do not
-> seem to correspond to a critical timing report.. Try the following:
-> turn off xrun_debug but leave the preempt-timing stuff on. On my
-> system, the mlockall_test provokes an xrun in jackd's output but i do
-> not get a preempt-timing report (thresh = 500). 
-> 
-> OTOH when the xrun_debug is on, the xrun_debug report actually seems
-> to trigger the preempt-timing report.
+On Fri, Aug 13, 2004 at 02:30:02AM -0700, William Lee Irwin III wrote:
+>> Reinlining spin_unlock_irq() also yields:
+>> unlock-irq: 19889858        6582721 1878384 28350963        1b099f3 vmlinux
 
-this later phenomenon is expected and unrelated: printk-ing to the
-console (as the ALSA xrun kernel message does) is quite expensive,
-especially with a full stack dump included. So this fact alone doesnt
-tell us much about why the xrun itself happened.
+On Fri, Aug 13, 2004 at 02:46:14AM -0700, William Lee Irwin III wrote:
+> Reinlining read_unlock() also yields:
+> read-unlock: 19883858        6582674 1878384 28344916        1b08254 vmlinux
 
-if there is no preempt-timing report when the ALSA xrun debugging is
-disabled it strongly suggests that whatever causes the xrun, it's not
-due to the length of a non-preemptible critical section, but some other
-phenomenon (either in userspace or in kernelspace) that causes an xrun.
+Reinlining spin_unlock_irqrestore() also yields:
+irqrestore:    19855759        6582442 1878384 28316585        1b013a9 vmlinux
 
-irqs being left disabled by accident is one such possibility - the
-preempt-timing patch does not (yet) track irqs-off sections.
 
-> I think many of the jackd xruns are really jacks business. But maybe i
-> misinterpret the symptom.
-
-either jack's or the kernel's - but it's less likely to be the classical
-non-preemptible sections we were focused on so far. (it could still be a
-bug in the preempt-timing patch producing a false negative - but the
-likelyhood is low i'd say.)
-
-	Ingo
+-- wli

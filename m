@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316880AbSILSQ7>; Thu, 12 Sep 2002 14:16:59 -0400
+	id <S316971AbSILSTH>; Thu, 12 Sep 2002 14:19:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316886AbSILSQ7>; Thu, 12 Sep 2002 14:16:59 -0400
-Received: from packet.digeo.com ([12.110.80.53]:63936 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S316880AbSILSQ6>;
-	Thu, 12 Sep 2002 14:16:58 -0400
-Message-ID: <3D80DB32.4BF9D644@digeo.com>
-Date: Thu, 12 Sep 2002 11:21:38 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Chuck Lever <cel@citi.umich.edu>, Daniel Phillips <phillips@arcor.de>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <Pine.BSO.4.33.0209091933150.6471-100000@citi.umich.edu> <15744.37092.812502.970281@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii
+	id <S316996AbSILSTH>; Thu, 12 Sep 2002 14:19:07 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:50181
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S316971AbSILSTG>; Thu, 12 Sep 2002 14:19:06 -0400
+Subject: Re: [PATCH] 2.4-ac task->cpu abstraction and optimization
+From: Robert Love <rml@tech9.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: alan@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <15744.14760.938667.636159@kim.it.uu.se>
+References: <1031782906.982.33.camel@phantasy> 
+	<15744.14760.938667.636159@kim.it.uu.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2002 18:21:40.0331 (UTC) FILETIME=[3D2F13B0:01C25A89]
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 12 Sep 2002 14:23:52 -0400
+Message-Id: <1031855035.2958.5.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> 
-> >>>>> " " == Chuck Lever <cel@citi.umich.edu> writes:
-> 
->      > rpciod must never call a function that sleeps.  if this
->      > happens, the whole NFS client stops working until the function
->      > wakes up again.  this is not really bogus -- it is similar to
->      > restrictions placed on socket callbacks.
-> 
-> I'm in France at the moment, and am therefore not really able to
-> follow up on this thread for the moment. I'll try to clarify the above
-> though:
-> 
-> 2 reasons why rpciod cannot block:
-> 
->   1) Doing so will slow down I/O for *all* NFS users.
->   2) There's a minefield of possible deadlock situations: waiting on a
->      locked page is the main no-no since rpciod itself is the process
->      that needs to complete the read I/O and unlock the page.
-> 
+On Thu, 2002-09-12 at 02:52, Mikael Pettersson wrote:
 
-Yes.  Both of these would indicate that rpciod is the wrong process
-to be performing the invalidation.
+> This is fairly similar to the "up-opt" patch I have been using for my
+> 2.4 standard (not -ac) kernels since last winter, available as
+> <http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-up-opt-2.4.20-pre6>.
+> It's not a direct substitute for yours, since -ac changes kernel/sched.c
+> quite a bit, and it has some unnecessary patches to SMP code, but other
+> than that, I totally agree with the intention of your patch.
 
-Is it not possible to co-opt a user process to perform the
-invalidation?  Just
+Good ;)
 
-	inode->is_kaput = 1;
+I should of added this is from 2.5; so it has been around for awhile.  I
+also took a look at your patch -- looks good, you should submit it to
+Marcelo... it cannot hurt for 2.4.
 
-in rpciod?
+One thing:
+
+    -	int processor;
+    +#ifdef CONFIG_SMP
+    +	int processor; /* keep old name to avoid upsetting all archs */
+    +#endif
+
+It is normally bad form to have conditionally entries in the
+task_struct... otherwise, looks good.
+
+	Robert Love
+

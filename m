@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269641AbUJMHXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269645AbUJMHYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269641AbUJMHXV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 03:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269643AbUJMHXV
+	id S269645AbUJMHYg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 03:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269647AbUJMHYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 03:23:21 -0400
-Received: from cantor.suse.de ([195.135.220.2]:48804 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269641AbUJMHXT (ORCPT
+	Wed, 13 Oct 2004 03:24:33 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:26257 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269645AbUJMHYX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 03:23:19 -0400
-Date: Wed, 13 Oct 2004 09:22:21 +0200
-From: Andi Kleen <ak@suse.de>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4level page tables for Linux II
-Message-Id: <20041013092221.471f7232.ak@suse.de>
-In-Reply-To: <1097638599.2673.9668.camel@cube>
-References: <1097638599.2673.9668.camel@cube>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 13 Oct 2004 03:24:23 -0400
+Date: Wed, 13 Oct 2004 17:23:53 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+Message-ID: <20041013172352.B4917536@wobbly.melbourne.sgi.com>
+References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org> <20041013063955.GA2079@frodo> <20041013000206.680132ad.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041013000206.680132ad.akpm@osdl.org>; from akpm@osdl.org on Wed, Oct 13, 2004 at 12:02:06AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Oct 2004 23:36:40 -0400
-Albert Cahalan <albert@users.sf.net> wrote:
-
-> Hmmm...
+On Wed, Oct 13, 2004 at 12:02:06AM -0700, Andrew Morton wrote:
 > 
-> pml4, pgd, pmd, pte  (kernel names)
-> PML4E, PDPE, PDE, PTE   (AMD hardware names)
+> Well something else if fishy: how can you possibly achieve only 4MB/sec? 
 
-No actually a PML4E is a PML4 _E_ntry in the AMD/Intel docs.
-PML4 is the official name for the fourth level page.
+These are 1K writes too remember, so it feels a bit like we
+write 'em out one at a time, sync (though no O_SYNC, or fsync,
+or such involved here).  This is on an i686, so 4K pages, and
+using 4K filesystem blocksizes (both xfs and ext2).
 
-> It's kind of a mess, isn't it? It was bad enough
-> with the "pmd" (page middle directory, ugh) being
-> some random invention and everything being generally
-> in conflict with real hardware naming. Now you've
-> come up with a fourth name.
-> 
-> Notice that you've resorted to using a number.
+And now that you mention, yes, this is multiple times below
+the direct IO numbers too (which on this box are ~30MB/sec
+for direct blkdev writes, IIRC, & XFS has similar numbers).
 
-I just followed AMD.
+> Using floppy disks or something?
 
-> Why not do that for the others too? It would
-> bring some order to this ever-growing collection
-> of arbitrary names. Like this:
+Heh, uh, no.  (and no, not "pencils" either ;)
 
-I don't think it makes sense to break code unnecessarily.
+> Does the same happen on ext2?
 
-And when you cannot remember the few names for the level you 
-better shouldn't touch VM at all.
+Yes.
 
--Andi
+> It's exactly a 500MB write on a 1000MB machine, yes?
+
+Thats correct.
+
+No slab/page/.. debug options enabled either - its the same
+.config that was performing ~10x better on 2.6.8.  I also
+verified that it wasn't any of the XFS changes either (they
+wouldn't have affected ext2 anyway, of course) - the same
+XFS code backported to 2.6.8 performs fine also.
+
+cheers.
+
+-- 
+Nathan

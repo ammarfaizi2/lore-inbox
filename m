@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271333AbRHQUbt>; Fri, 17 Aug 2001 16:31:49 -0400
+	id <S271348AbRHQUdt>; Fri, 17 Aug 2001 16:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271348AbRHQUbj>; Fri, 17 Aug 2001 16:31:39 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48657 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271333AbRHQUbU>; Fri, 17 Aug 2001 16:31:20 -0400
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-To: pavel@suse.cz (Pavel Machek)
-Date: Fri, 17 Aug 2001 21:33:23 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        manuel@mclure.org (Manuel McLure), linux-kernel@vger.kernel.org
-In-Reply-To: <20010816232814.A38@toy.ucw.cz> from "Pavel Machek" at Aug 16, 2001 11:28:15 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271559AbRHQUdj>; Fri, 17 Aug 2001 16:33:39 -0400
+Received: from toole.uol.com.br ([200.231.206.186]:50939 "EHLO
+	toole.uol.com.br") by vger.kernel.org with ESMTP id <S271348AbRHQUdc>;
+	Fri, 17 Aug 2001 16:33:32 -0400
+Message-ID: <3B7D7FA8.7E57F2AB@uol.com.br>
+Date: Fri, 17 Aug 2001 17:33:44 -0300
+From: "Michel A. S. Pereira - KIDMumU|ResolveBucha" 
+	<michelcultivo@uol.com.br>
+Organization: TECHS Provider
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Vmware and 2.4.9
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15XqJ1-00081w-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Oops while *using* the driver seem to be much less severe than random
-> lockups when *NOT* using driver. According to ESR, 2.4.7 is doing the 
-> latter.
+	Who has or have made a patch to vmware run on Kernel 2.4.9?
 
-And ESR is using a very early chipset with apic bugs out of the wazoo
-that locks up anyway. So at the time lets say that wasnt useful data.
-The 2.4.9 one seems to be better. The mixer is totally screwball but the
-SMP lock seems to have gone away
+Thanks
+-- 
+============================================
+|PIII 500MHz - 96MB RAM - HD 8.2GB - Savage4 
+|USR Sportster 56K Int Voice - Sb AWE 64
+|CL 6.0 - Kernel 2.4.5 - Snort 1.8
+|www.kidmumu.net - UIN 4553082 - LC 83522
+|Powered by Fanta Uva e suco de Acerola
+============================================

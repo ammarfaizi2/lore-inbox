@@ -1,86 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269590AbUICKov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269605AbUICKsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269590AbUICKov (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 06:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269599AbUICKou
+	id S269605AbUICKsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 06:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269589AbUICKsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 06:44:50 -0400
-Received: from [64.147.162.83] ([64.147.162.83]:38083 "EHLO
-	thunderbolt.ipaska.net") by vger.kernel.org with ESMTP
-	id S269590AbUICKos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 06:44:48 -0400
-Date: Fri, 3 Sep 2004 20:43:34 +1000
-From: Luke Yelavich <luke@audioslack.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, free78@tin.it
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-Message-ID: <20040903104334.GA17669@luke-laptop.yelavich.home>
-References: <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org> <1094198755.19760.133.camel@krustophenia.net> <20040903092547.GA18594@elte.hu> <20040903095031.GA22607@luke-laptop.yelavich.home> <20040903102948.GA23726@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Sep 2004 06:48:09 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:25985 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269599AbUICKrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 06:47:31 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+Date: Fri, 3 Sep 2004 20:41:18 +1000
+User-Agent: KMail/1.7
+Cc: Helge Hafting <helge.hafting@hist.no>, "Theodore Ts'o" <tytso@mit.edu>,
+       Jeremy Allison <jra@samba.org>, Jamie Lokier <jamie@shareable.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
+       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       flx@namesys.com, reiserfs-list@namesys.com
+References: <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <200409030045.20098.cef-lkml@optusnet.com.au> <413822FC.8090600@hist.no>
+In-Reply-To: <413822FC.8090600@hist.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040903102948.GA23726@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thunderbolt.ipaska.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - audioslack.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Message-Id: <200409032041.22128.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 08:29:48PM EST, Ingo Molnar wrote:
-> * Luke Yelavich <luke@audioslack.com> wrote:
-> > I am using a D-Link KVM here between my notebook and my desktop
-> > machine. It is the desktop I am currently testing these patches on,
-> > and the KVM requires a double-tap of the scroll lock key to switch
-> > between machines. With the latest R0 patch, something is not working
-> > when I attempt to change from my desktop to my notebook. The KVM
-> > usually lets out a beep when I can use the arrow keys to switch, but
-> > it isn't here. Adding to that, my console locks up totally for about
-> > 10 seconds, before allowing me to go on and type commands. [...]
-> 
-> i have a KVM too to two testsystems and unfortunately i cannot reproduce
-> your problems neither with KVM (key-based-)switching nor with scroll
-> lock. But this KVM uses a triple-key combination to switch, not
-> scroll-lock.
-> 
-> it's a PS2 keyboard, right?
+On Fri, 3 Sep 2004 17:53, Helge Hafting wrote:
+> Stuart Young wrote:
+> >On Thu, 2 Sep 2004 22:54, Theodore Ts'o wrote:
+> >>On Wed, Sep 01, 2004 at 01:51:40PM -0700, Jeremy Allison wrote:
+> >>>>So you're saying SCP, CVS, Subversion, Bitkeeper, Apache and rsyncd
+> >>>>will _all_ lose part of a Word document when they handle it on a
+> >>>>Window box?
+> >>>>
+> >>>>Ouch!
+> >>>
+> >>>Yep. It's the meta data that Word stores in streams that will get lost.
+> >>
+> >>And this is why I believe that using streams in application is well,
+> >>ill-advised.  Indeed, one of my concerns with providing streams
+> >>support is that application authors may make the mistake of using it,
+> >>and we will be back to the bad old days (when MacOS made this mistake)
+> >>where you will need to binhex files before you ftp them (and unbinhex
+> >>them on the otherside) --- and if you forget, the resulting file will
+> >>be useless.
+>
+> This is not a problem with multiple streams implemented right - as a
+> directory.
 
-Yes, that is correct.
+This works if you want (possibly editable) views of a single document. It 
+doesn't really work that well for other things. Even then, something has to 
+handle all the data translations and decoding, and that means you need to 
+store all the reference information somewhere so that the app knows what to 
+pass the original file to, so that it can be decoded for the user as they've 
+requested.
 
-> If yes then does:
-> 
-> 	echo 0 > /proc/irq/1/i8042/threaded
-> 	( maybe also: echo 0 > /proc/irq/12/i8042/threaded )
-> 
-> fix the problem? The PS2 driver has been a bit unrobust when hardirq
-> redirection is enabled.
+> You don't stay away from directories just because you have to tar
+> them in order to put them on ftp sites? ;-)
 
-I only had to turn off IRQ threading for 1, and all is well again.
+No, but I know a lot of people who don't understand that with a lot of ftp 
+servers that if you append .tar.gz to the directory name, you can fetch the 
+directory. Sure it's all user education, but you have to remember that users 
+don't generally want to be educated. They just want to get on with doing 
+whatever they are doing.
 
-> 
-> > [...] I also seem to get some debugging output or a trace of some sort
-> > when rebooting, and the kernel panics with the message: (0)Kernel
-> > Panic - not syncing: Failed exception in interrupt
-> 
-> hm. Would be nice to get a serial console capture of this, if possible.
+> Still, you're right that apps using streams jsut for the hell of it is bad.
+> That sort of thing happens all the time when something new shows up,
+> some people will use it without thinking.
 
-I am pretty sure I have a cable, however my desktop is the only computer in this
-room that has serial ports, and I also don't know how to set up a serial
-console. If you feel that this is important, I will see what I can do.
+Hence why I was suggesting the idea of disposable data in streams. As long as 
+people KNOW it's disposable, but useful to keep around as it cuts down the 
+time needed to do stuff, then apps will start to pick up transporting streams 
+properly. Least then (hopefully) no real information will get lost that is 
+important. Once transporting streams becomes commonplace, then perhaps 
+streams can be used for more useful things.
+
+> >At least currently (to my knowledge anyway) all stream support in Windows
+> > is data that is not important, and that can be either regenerated from
+> > filesystem metadata or (more usually) the main file stream itself.
+> >
+> >This sort of data is really where streams excel, by providing a way to
+> > access data that would otherwise take time/cpu to regenerate over and
+> > over, but that in itself is not indispensable.
+>
+> Streams as a cache.
+
+Almost exactly.
+
+> >Good examples of this are indexes of data
+> >within a document, details of who owns/created/modified the document,
+> > common views or reformatting of the data, etc. With audio/video/graphics,
+> > you could store lower quality transforms of data (eg: stereo to mono,
+> > resolution reduction, thumbnails, etc) in the streams for a file. With a
+> > word document, it could be things like an index (assuming it's
+> > auto-generated from section headings). With a database, it could be the
+> > indexes, and a few views that are expensive time-wise to generate. All of
+> > these are easily regenerated from the original data stream, but takes a
+> > while. And if you've got the disk, why not use it?
+>
+> Actually, some if this is bad examples of using streams.
+> Why can't that index be stored _in_ the document?
+> After all, the word processor is the one who knows the document's
+> internal format, how to generate the index, and how to use it.  Well,
+> this example is bad anyway as an index can be created so fast from
+> a well structured document that there is little need for storing one.
+> (Example - see how lyx keeps a live index in the "navigate" menu. . .)
+
+The point of such information in my examples is that a stream can store 
+information in a particular format (ie: an index) that is common to one 
+indexing app/library. Such an index can be used by ANY app that knows the 
+index format to search the document. This is almost exactly what MS will do 
+(if they haven't done it already) with the File Indexing Service. As it's ONE 
+library, then any new user app that creates data can add index creation by 
+adding one library. And any app that wants to search these indexes would need 
+only to add one library, not every library for every format that it wants to 
+search. It's essentially an n^2 vs 2n problem.
+
+> A document format may also contain fields specifying who made it, or
+> even a log of who modified it and when.
+
+Exactly, but then you need to:
+ 1. Read in the Document, and in some formats that are either compressed or 
+that do not have a fixed format, this may mean you end up reading most of or 
+even an entire file to get this data. This is expensive on CPU, disk cache, 
+disk access and transfer times with large files, particularly if it's a slow 
+data bus to the storage device.
+ 2. Parse out the information you want, which means that you need to 
+understand the format. With an index stream, in a fixed format, you only need 
+one library that can handle the format for you. Without streams, you use lots 
+of libraries. By using lots of libraries, you end up using lots of memory to 
+hold them, and disk access time/transfer speed to load them.
+
+> It seems to me that streams are more useful for stuff that the file's
+> main application don't deal with itself.  Such as attaching icons that
+> follow the file around.
+
+Icons themselves wouldn't be that good for multi-user environments. Attaching 
+an icon type designator that then allows the app that wants to display an 
+icon for the file to pull the appropriate icon from somewhere else (and 
+therefore can be matched to whatever theme or specific icon the user wants) 
+is probably a better idea.
+
+> >If streams were always to be considered volatile, then you could do all
+> > sorts of interesting things with them. Any disk cleanup mechanism you
+> > have could also reap old streams specifically if the disk gets below a
+> > certain amount free.
+>
+> That would limit streams to caching use _only_, disks fill occationally
+> and we can't have _useful_ stuff disappearing at random.
+
+If they transfer a file with streams on Windows using standard (Posix based) 
+tools at the moment then they lose this information anyway. And application 
+developers aren't all suddenly going to drop whatever it is they're doing to 
+implement stream support as soon as it appears. Things take time, and till 
+the majority of applications support it, it's useless to assume that the data 
+is not going to dissapear because of a user using a non-updated tool. By 
+limiting it to caching, at least in the short term, at least no one is going 
+to (hopefully!) get bitten by data loss. Later (and I'm guessing a LOT 
+later), who knows, streams could actually become useful for more than just 
+caching.
+
 -- 
-Luke Yelavich
-http://www.audioslack.com
-luke@audioslack.com
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

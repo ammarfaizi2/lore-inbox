@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269915AbRHJGRq>; Fri, 10 Aug 2001 02:17:46 -0400
+	id <S269923AbRHJGdM>; Fri, 10 Aug 2001 02:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269916AbRHJGRg>; Fri, 10 Aug 2001 02:17:36 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:5896 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S269915AbRHJGRa>; Fri, 10 Aug 2001 02:17:30 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Fri, 10 Aug 2001 08:17:08 +0200
+	id <S269924AbRHJGdB>; Fri, 10 Aug 2001 02:33:01 -0400
+Received: from ns1.austin.rr.com ([24.93.35.62]:34571 "EHLO ns1.austin.rr.com")
+	by vger.kernel.org with ESMTP id <S269923AbRHJGcv>;
+	Fri, 10 Aug 2001 02:32:51 -0400
+From: "Rob" <rwideman@austin.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: question on best "Linux" Internals book
+Date: Fri, 10 Aug 2001 01:35:29 -0500
+Message-ID: <LHEGJICMMCCGOHKDFALMIEOICAAA.rwideman@austin.rr.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.4: thread dumping core
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3B739883.8859.1BE32B@localhost>
-In-Reply-To: <3B72C08E.3800.1F80245@localhost> from "Ulrich Windl" at Aug 09, 2001 04:55:46 PM
-In-Reply-To: <E15UrQ3-0007Qq-00@the-village.bc.nu>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.9/3.47+2.4+2.03.072+02 July 2001+64930@20010810.061232Z
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Aug 2001, at 16:08, Alan Cox wrote:
+Please CC me.
+I am posting to this mailing list since it is Development related and it
+isnt a HOWTO question.
 
-> > I wonder whether the kernel does the right thing if a thread causes a 
-> > segmentation violation: Currently it seems the other LWPs just 
-> > continue. However in practice this means that the application does not 
-> 
-> This is a feature in most cases
-> 
-> > I suggest to terminate all LWPs if one receives a fatal signal.
-> 
-> So write some signal handlers. 
+I am looking for a book that is similar to The Design of the UNIX Operating
+System by Maurice J. Bach but also for the Linux OS.  Is this book still
+relevant to Linux even thought it isnt the "same"?  I have heard bad reviews
+of Linux Internals by Moshe Bar and was wondering what would be a better
+book for the deep internals of the OS....not exactly going over the code.
 
-Actually I'm using a wrapper library that is supposed to do that stuff 
-for me (libmilter from sendmail-8.12.0.Beta16).
-
-> 
-> In all cases the other threads will continue for some time, so you gain
-> nothing by pretending they dont. 
-
-Imagine you aquire a lock in one thread then that thread gets a 
-SIGSEGV. There are a lot of threads around, possibly consuming a lot of 
-CPU without getting any (a lot of) work done.
-
-Maybe the real problem is a simple a a binary incompatibility between 
-libpthread form SuSE 7.1 and SuSE 7.2 (which would be a very bad case).
-As for any real bug, the application works most of the time.
-
-Thanks for the statement.
-
-Ulrich
+Rob Wideman, rwideman@austin.rr.com
 

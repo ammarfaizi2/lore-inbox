@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281216AbRKLCUJ>; Sun, 11 Nov 2001 21:20:09 -0500
+	id <S281217AbRKLCWI>; Sun, 11 Nov 2001 21:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281217AbRKLCT7>; Sun, 11 Nov 2001 21:19:59 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:6622 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S281216AbRKLCTr>;
-	Sun, 11 Nov 2001 21:19:47 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC-ONT (on topic)] Modprobe enhancement (was Re: "Dance of the Trolls") 
-In-Reply-To: Your message of "Sun, 11 Nov 2001 16:49:46 PDT."
-             <004601c16b0b$8b04bb80$f5976dcf@nwfs> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Nov 2001 13:19:35 +1100
-Message-ID: <32224.1005531575@kao2.melbourne.sgi.com>
+	id <S281218AbRKLCV6>; Sun, 11 Nov 2001 21:21:58 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59396 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281217AbRKLCVs>; Sun, 11 Nov 2001 21:21:48 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [RFT] final cur of tr based current for -ac8
+Date: 11 Nov 2001 18:21:37 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9snbnh$dg6$1@cesium.transmeta.com>
+In-Reply-To: <20011110173331.F17437@redhat.com> <Pine.LNX.4.33.0111111119270.305-100000@mikeg.weiden.de> <20011111190114.A31746@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Nov 2001 16:49:46 -0700, 
-"Jeff V. Merkey" <jmerkey@timpanogas.org> wrote:
->Anton,
+Followup to:  <20011111190114.A31746@redhat.com>
+By author:    Benjamin LaHaise <bcrl@redhat.com>
+In newsgroup: linux.dev.kernel
 >
->This is a great suggestion.  You should ping Keith Owens (does he own
->modutils, I think so) and make it happen.  A much desireable change.
->----- Original Message -----
->From: "Anton Altaparmakov" <aia21@cus.cam.ac.uk>
->> I think we ought to do the same with closed source drivers. It's true
->> after all... The whole point of tainting the kernel is so we can just yell
->> at users to go and bug the vendor. So the modprobe executable could warn
->> the user "hey, you are loading a binary only module, it can break the
->> system, are you sure?". If the module is autoloaded we don't do jumping
->> through hoops asking questions so the systen runs smoothly.
+> On Sun, Nov 11, 2001 at 11:58:30AM +0100, Mike Galbraith wrote:
+> > The below seems to make flogging noises, but is likely too soggy.
+> 
+> Erk, the behaviour of str with your patch isn't quite compatible 
+> enough for a smooth transition.  What is really needed is to have 
+> "str" error out or generate the existing strl with a huge warning 
+> about unspecified type.  Either way the kernel has to work with 
+> both old and new tools for a brief period of time.
+> 
 
-Modutils 2.4.9 onwards gives a warning when loading tainted modules,
-including a reason why the tainting occurred.  I will not accept
-anything stronger than a warning, that is the Unix way(TM), give the
-user enough rope to hang themselves.
+The current behaviour is a bug, plain and simple.  The only way to
+make backwards-compatible behaviour is to make "strl %eax" and "strw
+%ax" behave properly while "str %ax" really does an "strl %eax" (the
+current, broken, behaviour.)
 
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

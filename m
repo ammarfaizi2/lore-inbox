@@ -1,204 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVBEAo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264139AbVBEA7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVBEAo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 19:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbVBEAnO
+	id S264139AbVBEA7z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 19:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbVBEAys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 19:43:14 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:6576 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266122AbVBEAkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 19:40:22 -0500
-Subject: Re: 2.6: USB disk unusable level of data corruption
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       David Brownell <david-b@pacbell.net>
-In-Reply-To: <20050204133726.7ba8944f@localhost.localdomain>
-References: <1107519382.1703.7.camel@localhost.localdomain>
-	 <20050204133726.7ba8944f@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 04 Feb 2005 19:40:13 -0500
-Message-Id: <1107564013.10471.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Fri, 4 Feb 2005 19:54:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:48088 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264326AbVBEAvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 19:51:47 -0500
+X-Authenticated: #26200865
+Message-ID: <420418C7.5010309@gmx.net>
+Date: Sat, 05 Feb 2005 01:52:23 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reliable video POSTing on resume
+References: <20050122134205.GA9354@wsc-gmbh.de>	 <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net>	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>	 <1107474198.5727.9.camel@desktop.cunninghams>	 <4202DF7B.2000506@gmx.net>	 <1107485504.5727.35.camel@desktop.cunninghams>	 <9e4733910502032318460f2c0c@mail.gmail.com>	 <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com>
+In-Reply-To: <9e473391050204093837bc50d3@mail.gmail.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if it's related, but -
-I have been using Maxtor OneTouch USB Drive,so far without problems, but
-today after upgrading to FC3 2.6.10-760 kernel I just recieved this in
-dmesg
+Jon Smirl schrieb:
+> On Fri, 4 Feb 2005 08:44:54 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+> 
+>>We already try to do that, but it hangs on 70% of machines. See
+>>Documentation/power/video.txt.
+> 
+> We know that all of these ROMs are run at power on so they have to
+> work. This implies that there must be something wrong with the
+> environment the ROM are being run in. Video ROMs make calls into the
+> INT vectors of the system BIOS. If these haven't been set up yet
+> running the VBIOS is sure to hang.  Has someone with ROM source and
+> the appropriate debugging tools tried to debug one of these hangs?
+> Alternatively code could be added to wakeup.S to try and set these up
+> or dump the ones that are there and see if they are sane.
 
-usb 1-1: USB disconnect, address 2
-scsi0 (0:0): rejecting I/O to device being removed
-scsi0 (0:0): rejecting I/O to device being removed
-Buffer I/O error on device sda2, logical block 6352
-lost page write due to I/O error on sda2
-Aborting journal on device sda2.
-journal commit I/O error
-scsi0 (0:0): rejecting I/O to device being removed
-Buffer I/O error on device sda2, logical block 15859714
-lost page write due to I/O error on sda2
-ext3_abort called.
-EXT3-fs error (device sda2): ext3_journal_start_sb: Detected aborted
-journal
-Remounting filesystem read-only
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-usb 1-1: new high speed USB device using ehci_hcd and address 5
-usb 1-1: device descriptor read/64, error -71
-scsi2 : SCSI emulation for USB Mass Storage devices
-usb-storage: device found at 5
-usb-storage: waiting for device to settle before scanning
-  Vendor: Maxtor    Model: OneTouch          Rev: 0201
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sdc: 398295040 512-byte hdwr sectors (203927 MB)
-sdc: assuming drive cache: write through
-SCSI device sdc: 398295040 512-byte hdwr sectors (203927 MB)
-sdc: assuming drive cache: write through
- sdc: sdc1 sdc2
-Attached scsi disk sdc at scsi2, channel 0, id 0, lun 0
-usb-storage: device scan complete
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-scsi0 (0:0): rejecting I/O to dead device
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs warning: maximal mount count reached, running e2fsck is
-recommended
-EXT3 FS on sdc2, internal journal
-EXT3-fs: recovery complete.
-EXT3-fs: mounted filesystem with ordered data mode.
-warning: many lost ticks.
-Your time source seems to be instable or some driver is hogging
-interupts
-rip acpi_processor_idle+0x10e/0x274
-usb 1-1: USB disconnect, address 5
-scsi2 (0:0): rejecting I/O to dead device
-Buffer I/O error on device sdc2, logical block 0
-lost page write due to I/O error on sdc2
-usb 1-1: new high speed USB device using ehci_hcd and address 6
-usb 1-1: device descriptor read/64, error -71
-scsi3 : SCSI emulation for USB Mass Storage devices
-usb-storage: device found at 6
-EXT3 FS on sdc2, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-scsi0 (0:0): rejecting I/O to dead device
-EXT3-fs error (device sda2): ext3_readdir: directory #6783511 contains a
-hole at offset 0
-scsi0 (0:0): rejecting I/O to dead device
-EXT3-fs error (device sda2): ext3_readdir: directory #6783511 contains a
-hole at offset 0
+My problem (Samsung P35) is that the BIOS wants to call code which
+is no longer mapped because the BIOS is too big to fit into the
+standard area. Since that additional area has been overwritten, we
+are out of luck. Maybe if we did something like backing up all
+untouched real mode memory immediately after switching to protected
+mode, it could work. But I don't know whether that is feasible on
+boot. Anyways, you don't want to run possibly buggy closed source
+bios code in an environment where a single random memory write
+may corrupt the kernel without debuggability.
+
+And sometimes there is BIOS code which is can't be run twice.
+Period.
+Don't believe that one? I have a machine where calling EDD code
+in the BIOS twice will hang the second time. See boot parameter
+edd=off for reference :-(
+
+So I agree that we could try to preserve the state better, but
+I also can guarantee you it won't help everywhere.
 
 
-On Fri, 2005-02-04 at 13:37 -0800, Pete Zaitcev wrote:
-> On Fri, 04 Feb 2005 23:16:22 +1100, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> 
-> > [...] I have since then had multiple
-> > ext3 and ext2 errors: 2.6.8, 2.6.9, 2.6.10 and 2.6.11-rc3 all exhibit
-> > the problem within an hour of stress (untarring a fresh kernel tree, cp
-> > -al'ing to apply patches repeatedly, my normal workload).
-> 
-> > I realize "ub" exists, but it doesn't seem to want to deal with a disk
-> > device.
-> 
-> In case your EHCI disconnects devices under load, ub won't help.
-> You probably heard my claims that ub helps against certain memory
-> pressure related lockups and against problems in the SCSI stack,
-> which my even be true. Jury is still out on those and your case
-> seems different anyway. Please work with David Brownell on the EHCI
-> issues. I applied a few patches of his to the 2.4 which made a difference
-> in similar circumstances.
-> 
-> Good luck,
-> -- Pete
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

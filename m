@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265097AbTBTPUV>; Thu, 20 Feb 2003 10:20:21 -0500
+	id <S265517AbTBTPbC>; Thu, 20 Feb 2003 10:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbTBTPUV>; Thu, 20 Feb 2003 10:20:21 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:10376 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265097AbTBTPUV> convert rfc822-to-8bit; Thu, 20 Feb 2003 10:20:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: filesystem access slowing system to a crawl
-Date: Thu, 20 Feb 2003 16:29:51 +0100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>, t.baetzler@bringe.com,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR> <200302191742.02275.m.c.p@wolk-project.de> <20030219174940.GJ14633@x30.suse.de>
-In-Reply-To: <20030219174940.GJ14633@x30.suse.de>
+	id <S265578AbTBTPbB>; Thu, 20 Feb 2003 10:31:01 -0500
+Received: from [202.41.99.9] ([202.41.99.9]:1488 "EHLO
+	mail-relay-vsat2.ernet.in") by vger.kernel.org with ESMTP
+	id <S265517AbTBTPbA>; Thu, 20 Feb 2003 10:31:00 -0500
+Date: Thu, 20 Feb 2003 21:15:12 +0500 (GMT)
+From: Sahani Himanshu <honeyuee@iitr.ernet.in>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Adaptec drivers causing problem in RHL 8.0
+In-Reply-To: <20030220152723.GA3146@gtf.org>
+Message-ID: <Pine.GSO.4.05.10302202111580.28156-100000@iitr.ernet.in>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302201629.51374.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 February 2003 18:49, Andrea Arcangeli wrote:
+On Thu, 20 Feb 2003, Jeff Garzik wrote:
 
-Hi Andrea,
+> On Thu, Feb 20, 2003 at 08:20:13AM -0700, Justin T. Gibbs wrote:
+> > > I recently installed RHL 8.0 on a SGI1200 server. The server has 
+> > > "Adaptec AIC-7896 SCSI BIOS v2.20S1B1" installed.
+> 
+> > Those messages point to an interrupt routing problem.  The driver is
+> > not able to see interrupts from the chip, so timeouts occur.  Have
+> > you tries some of the various "apic/noapic" kernel options to see if
+> > your interrupt routing improves?  Often switching between UP and
+> > SMP kernels will change how interrupt routing is performed too.
 
-> Marcelo please include this:
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.2
->1pre4aa3/10_inode-highmem-2
-great. Thanks. Now let's hope Marcelo use this :)
+I have tried the noapic option for the kernel without any result. However
+I reloaded RHL 6.2 on the m/c, and it is working properly. By the way what
+other options do I need to probe?
 
-> other fixes should be included too but they don't apply cleanly yet
-> unfortunately, I (or somebody else) should rediff them against mainline.
-Can you tell me what in special you mean? I'd do this.
+> 
+> Indeed, these are good avenues to poke.
+> 
+> FWIW, on Red Hat UP kernels, the "local IO-APIC" option is not even
+> compiled in.
 
-ciao, Marc
+That is surprising as the m/c is working perfectly under RHL 6.2 which is
+an older release, assuming that what works perfectly for an earlier
+release should work for the later release.
+
+Still waiting for a solution.
+
+With Best Regards
+HimS
+
+

@@ -1,56 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUBDHLM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 02:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266299AbUBDHLM
+	id S266299AbUBDHMU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 02:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUBDHMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 02:11:12 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:61060 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266296AbUBDHLL (ORCPT
+	Wed, 4 Feb 2004 02:12:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:28035 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266299AbUBDHMQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 02:11:11 -0500
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-From: Dave Hansen <haveblue@us.ibm.com>
-To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-Cc: Alok Mooley <rangdi@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <20040204065717.EFB277049E@sv1.valinux.co.jp>
-References: <20040204050915.59866.qmail@web9704.mail.yahoo.com>
-	 <1075874074.14153.159.camel@nighthawk>
-	 <20040204065717.EFB277049E@sv1.valinux.co.jp>
+	Wed, 4 Feb 2004 02:12:16 -0500
+Subject: [PATCH] PCI / OF linkage in sysfs
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1075878652.14155.416.camel@nighthawk>
+Message-Id: <1075878713.992.3.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 Feb 2004 23:10:52 -0800
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 04 Feb 2004 18:12:08 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-03 at 22:57, IWAMOTO Toshihiro wrote:
-> At 03 Feb 2004 21:54:34 -0800,
-> Dave Hansen wrote:
-> > Moving file-backed pages is mostly handled already.  You can do a
-> > regular page-cache lookup with find_get_page(), make your copy,
-> > invalidate the old one, then readd the new one.  The invalidation can be
-> > done in the same style as shrink_list().
-> 
-> Actually, it is a bit more complicated.
-> I have implemented similar functionality for memory hotremoval.
-> 
-> See my post about memory hotremoval
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107354781130941&w=2
-> for details.
-> remap_onepage() and remapd() in the patch are the main functions.
+Hi !
 
-remap_onepage() is quite a function.  300 lines.  It sure does cover a
-lot of ground. :)
+This patch adds a "devspec" property to all PCI entries in sysfs
+that provides the full "Open Firmware" path to each device on
+PPC and PPC64 platforms that have Open Firmware support.
 
-Defragmentation is a bit easier than removal because it isn't as
-mandatory.  Instead of having to worry about waiting on things like
-writeback, the defrag code can just bail.  
+For various reasons, the OF path is and will still be different than
+the sysfs path, and userland needs the OF path for various things,
+ranging from bootloader setup to XFree needing to access some OF
+properties provided by the graphic card F-Code driver, etc...
 
---dave
+The "devspec" name is what we already use for "macio" type devices,
+it doesn't clash with anything else.
+
+If you are happy with it, please apply (independently of the rest
+of the PowerMac patch), I need that to fix various things in XFree
+(among others), so it would be nice to have it in by 2.6.3 final
+
+Regards,
+Ben.
+
+diff -urN linux-2.5/drivers/pci/pci-sysfs.c linuxppc-2.5-benh/drivers/pci/pci-sysfs.c
+--- linux-2.5/drivers/pci/pci-sysfs.c	2004-02-02 13:09:08.000000000 +1100
++++ linuxppc-2.5-benh/drivers/pci/pci-sysfs.c	2004-02-04 17:57:05.000000000 +1100
+@@ -20,6 +20,24 @@
+ 
+ #include "pci.h"
+ 
++#ifdef CONFIG_PPC_OF
++#include <asm/prom.h>
++#include <asm/pci-bridge.h>
++
++static ssize_t pci_show_devspec(struct device *dev, char *buf)
++{
++	struct pci_dev *pdev;
++	struct device_node *np;
++
++	pdev = to_pci_dev (dev);
++	np = pci_device_to_OF_node(pdev);
++	if (np == NULL || np->full_name == NULL)
++		return 0;
++	return sprintf(buf, "%s", np->full_name);
++}
++static DEVICE_ATTR(devspec, S_IRUGO, pci_show_devspec, NULL);
++#endif /* CONFIG_PPC_OF */
++
+ /* show configuration fields */
+ #define pci_config_attr(field, format_string)				\
+ static ssize_t								\
+@@ -179,5 +197,8 @@
+ 	device_create_file (dev, &dev_attr_class);
+ 	device_create_file (dev, &dev_attr_irq);
+ 	device_create_file (dev, &dev_attr_resource);
++#ifdef CONFIG_PPC_OF
++	device_create_file (dev, &dev_attr_devspec);
++#endif
+ 	sysfs_create_bin_file(&dev->kobj, &pci_config_attr);
+ }
+
 

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSHBNt2>; Fri, 2 Aug 2002 09:49:28 -0400
+	id <S314829AbSHBN5b>; Fri, 2 Aug 2002 09:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSHBNtD>; Fri, 2 Aug 2002 09:49:03 -0400
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:29170 "HELO
-	dardhal.mired.net") by vger.kernel.org with SMTP id <S313687AbSHBNsz>;
-	Fri, 2 Aug 2002 09:48:55 -0400
-Date: Fri, 2 Aug 2002 15:52:18 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: What does this error mean? "local symbols in discarded section .text.exit"
-Message-ID: <20020802135218.GA15211@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020802.012040.105531210.davem@redhat.com> <008701c23a28$958ca300$6a01a8c0@wa1hco>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008701c23a28$958ca300$6a01a8c0@wa1hco>
-User-Agent: Mutt/1.3.28i
+	id <S314835AbSHBN5b>; Fri, 2 Aug 2002 09:57:31 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:51345 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S314829AbSHBN5a>; Fri, 2 Aug 2002 09:57:30 -0400
+Date: Fri, 2 Aug 2002 16:00:32 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Nick Orlov <nick.orlov@mail.ru>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pdc20265 problem.
+In-Reply-To: <20020802125204.GA4729@nikolas.hn.org>
+Message-ID: <Pine.SOL.4.30.0208021557410.3612-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 02 August 2002, at 09:29:09 -0400,
-jeff millar wrote:
 
-> I need some help debugging this kernel build problem.
-> 
-> drivers/built-in.o(.data+0x80f4): undefined reference to `local symbols in
-> discarded section .te
-> xt.exit'
-> make: *** [vmlinux] Error 1
-> 
-A know problem with some combinations of binutils and kernel sources. As
-Debian bintuils package says:
+On Fri, 2 Aug 2002, Nick Orlov wrote:
 
-x You may experience problems linking older (and some newer) kernels with  x 
-x this version of binutils.  This is not because of a bug in the linker,   x 
-x but rather a bug in the kernel source.  This is being worked out and     x 
-x fixed by the upstream kernel group in newer kernels, but not all of the  x 
-x problems may have been fixed at this time.  Older kernel versions will   x 
-x almost always exhibit the problem, however, and no attempts are being    x 
-x made to fix those that we know of.                                       x 
-x                                                                          x 
-x There are a few work-arounds, but the most reliable is to edit the       x 
-x linker script for your architecture (e.g. arch/i386/vmlinux.lds) and     x 
-x remove the '*(.text.exit)' entry from the 'DISCARD' line.  It will       x 
-x bloat the kernel somewhat, but it should link properly.                  x 
+> On Fri, Aug 02, 2002 at 01:27:25PM +0100, Alan Cox wrote:
+> > On Fri, 2002-08-02 at 02:47, Nick Orlov wrote:
+> > >
+> > > > <marcelo@plucky.distro.conectiva> (02/07/19 1.646)
+> > > > 	Fix wrong #ifdef in ide-pci.c: Was causing problems with FastTrak
+> > >
+> > > Because of this fix my Promise 20265 became ide0 instead of ide2.
+> > > Is there any reason to mark pdc20265 as ON_BOARD controller?
+> >
+> > How about because it can be and it should be checked. I don't know what
+> > is going on with the ifdef in your case to cause this but its not as
+> > simple as it seems
+>
+> Why pdc20265 is so special ? All other Promises marked as OFF_BOARD...
+>
+> And what determines how id will be assigned to controllers if both of
+> them are ON_BOARD ?
 
-Regards,
+AFAIR problem is that some vendors included onboard 20265 as primary
+device (playing tricks for that) and to be consistent we have to treat it as
+onboard, we have right now no way to check if it is on or offboard.
+EDD support will probably help here.
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)
+Regards
+--
+Bartlomiej
+
+> --
+> With best wishes,
+> 	Nick Orlov.
+

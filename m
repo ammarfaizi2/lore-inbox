@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263389AbUERUDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUERUIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263389AbUERUDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 16:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUERUDm
+	id S263448AbUERUIE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 16:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUERUIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 16:03:42 -0400
-Received: from bay8-f43.bay8.hotmail.com ([64.4.27.43]:48145 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S263389AbUERUDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 16:03:40 -0400
-X-Originating-IP: [217.94.148.70]
-X-Originating-Email: [v_atanaskovik@hotmail.com]
-From: "Vladimir Atanaskovik" <v_atanaskovik@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with UDF and 2.6.5 kernel
-Date: Tue, 18 May 2004 20:03:39 +0000
+	Tue, 18 May 2004 16:08:04 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:30198 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263448AbUERUIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 16:08:02 -0400
+Date: Tue, 18 May 2004 13:07:42 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Danny Cox <Danny.Cox@ECWeb.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Trivial Comment Patch: 2.6.6-mm3
+Message-ID: <20040518200742.GA20835@taniwha.stupidest.org>
+References: <1084885737.17460.3.camel@vom>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY8-F43FOTC5M1KZUU00029f6b@hotmail.com>
-X-OriginalArrivalTime: 18 May 2004 20:03:39.0755 (UTC) FILETIME=[364793B0:01C43D13]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1084885737.17460.3.camel@vom>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Tue, May 18, 2004 at 09:08:57AM -0400, Danny Cox wrote:
 
-when I try to access rewritable media (CD-RW, DVD+RW, DVD-RW) created with
-DirectCD under Windows XP, then I experience the same problems like
-described in:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108273859430365&w=2
-(Subject: Unable to read UDF fs on a DVD)
+> This fixes a comment in the stack overflow check that's wrong with
+> 4K stacks.
 
-However, if I try to access CD-R, DVD+R, DVD-R created by DirectCD and 
-closed
-in the way that new recording is not possible then at the first glance 
-everything lokks fine.
-The directory contens get's displayed when issuing the ls command. It is 
-also
-possible to cd to a directory on the media. However there are problems
-when I attempt to copy files from a CD-R and DVD+/- R to the hard disc.
+>  #ifdef CONFIG_DEBUG_STACKOVERFLOW
+> -	/* Debugging check for stack overflow: is there less than 1KB free? */
+> +	/* Debugging check for stack overflow: is there less than 512B free? */
+>  	{
+>  		long esp;
 
-If the files size is <= 15 MB everything is OK! However with larger files
-tehre is always an I/O error. I performed the tests with a NEC 1300 DVD 
-writer
-and a Samsung DVD ROM but the results were the same. It may be that the
-"critical" file size differs on different systems.
+akpm, how about just yank the line? the comment's sanity depends on a
+CONFIG option and also a value in another file from a far off land.
 
-In order to verify the media, I have performed the copy operation
-under Windows XP and 2.4 kernel with an older UDF driver version.
-There everything worked fine.
 
-My kernel version is 2.6.5 and UDF V 0.9.8.1
-
-Any idea, what may be wrong ?
-
-Regards,
-Vlad
-
-_________________________________________________________________
-Add photos to your messages with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
-
+  --cw

@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUJTO4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUJTO4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUJTO4u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 10:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUJTO4h
+	id S267504AbUJTO4V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 10:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUJTO4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 10:56:37 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:29968 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261474AbUJTO4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 10:56:18 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: X does not start. vm86old returns ENOSYS??
-Date: Wed, 20 Oct 2004 17:56:06 +0300
-User-Agent: KMail/1.5.4
-Cc: Stas Sergeev <stsp@aknet.ru>, linux-kernel@vger.kernel.org
-References: <200410201653.33233.vda@port.imtp.ilyichevsk.odessa.ua> <417672B3.4030801@didntduck.org>
-In-Reply-To: <417672B3.4030801@didntduck.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 10:56:05 -0400
+Received: from colin2.muc.de ([193.149.48.15]:49938 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261474AbUJTOzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 10:55:33 -0400
+Date: 20 Oct 2004 16:55:32 +0200
+Date: Wed, 20 Oct 2004 16:55:32 +0200
+From: Andi Kleen <ak@muc.de>
+To: Espen Fjellv?r Olsen <espenfjo@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1 amd64 Computer crashes on "Freeing unused kernel memory: 200k"
+Message-ID: <20041020145532.GA9689@muc.de>
+References: <2QMVB-2nB-13@gated-at.bofh.it> <m3wtxn67h2.fsf@averell.firstfloor.org> <7aaed09104101908174a9e430a@mail.gmail.com> <7aaed09104101914093ff72736@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410201756.06694.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <7aaed09104101914093ff72736@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 October 2004 17:14, Brian Gerst wrote:
-> Denis Vlasenko wrote:
-> > How can vm86old from X return ENOSYS??
-> > I have no more ideas how to proceed from here.
-> 
-> Are you trying to run a 32-bit X server on a 64-bit kernel?  x86-64 does 
-> not support vm86 mode.
+On Tue, Oct 19, 2004 at 11:09:10PM +0200, Espen Fjellv?r Olsen wrote:
+> I'm sending my dmesg and lspci output, and my .config files.
 
-x86-64 with i845 chipset?! You must be kidding.
---
-vda
+Does it work with "noapic" or "nolapic" or "acpi=off" or 
+"noapic acpi_irq_balance" ? 
 
+-Andi

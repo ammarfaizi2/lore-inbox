@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272215AbTG2VV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 17:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272136AbTG2VSy
+	id S272148AbTG2VSn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 17:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272069AbTG2VSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 17:18:54 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:26533 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S272215AbTG2VPM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 17:15:12 -0400
-Date: Tue, 29 Jul 2003 23:15:21 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: ROOT NFS fixes ...
-Message-ID: <20030729211521.GA19594@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
+	Tue, 29 Jul 2003 17:18:43 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:38286 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S272148AbTG2VLL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 17:11:11 -0400
+Date: Tue, 29 Jul 2003 17:11:09 -0400
+From: Yaroslav Halchenko <yoh@onerussian.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
+Message-ID: <20030729211108.GA6500@washoe.rutgers.edu>
+References: <20030729153114.GA30071@washoe.rutgers.edu> <20030729135025.335de3a0.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030729135025.335de3a0.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you Andrew for replying
 
-Hi Marcelo!
+On Tue, Jul 29, 2003 at 01:50:25PM -0700, Andrew Morton wrote:
 
-just verified that the NFS root bug-fix was not
-included in 2.4.22-pre9, unfortunately I have 
-to ask you again, why you do not want to fix 
-this issue in 2.4.22 ...
+> > Buffer I/O error on device hda2, logical block 3861506
+> Odd.
+> What filesystem types are in use?
+ext3 only 
 
-I do not understand why Trond obviously is
-ignoring my mails, regarding this particular
-issue, maybe he is just too busy to look at 
-four twoline changes, and more, I do not 
-understand why this isn't accepted into the 
-marcelo kernel tree, as it obviously fixes a
-misbehaviour?
+> Are you using some sort of initrd setup?
+not to my knowledge :-)
 
-please explain!
-
-It is okay for me, if your argumentation goes 
-like "I don't like you, that's reason enough
-for me to not include your patches ...", but I
-would like to know ...
-
-best,
-Herbert
+> Could you please run with this patch, send the traces?
+sure - will be done
 
 
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263309AbTDCGxT>; Thu, 3 Apr 2003 01:53:19 -0500
+	id <S263303AbTDCG7o>; Thu, 3 Apr 2003 01:59:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263311AbTDCGxS>; Thu, 3 Apr 2003 01:53:18 -0500
-Received: from AMarseille-201-1-3-158.abo.wanadoo.fr ([193.253.250.158]:13863
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263309AbTDCGxR>; Thu, 3 Apr 2003 01:53:17 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>
-In-Reply-To: <1049352298.579.23.camel@zion.wanadoo.fr>
-References: <Pine.LNX.4.44.0304022245520.2488-100000@phoenix.infradead.org>
-	 <1049330578.1029.38.camel@localhost.localdomain>
-	 <1049352298.579.23.camel@zion.wanadoo.fr>
-Content-Type: text/plain
+	id <S263305AbTDCG7o>; Thu, 3 Apr 2003 01:59:44 -0500
+Received: from ns.conceptual.net.au ([203.190.192.15]:60068 "EHLO
+	conceptual.net.au") by vger.kernel.org with ESMTP
+	id <S263303AbTDCG7n>; Thu, 3 Apr 2003 01:59:43 -0500
+Message-ID: <3E8BDDA9.2080508@seme.com.au>
+Date: Thu, 03 Apr 2003 15:07:21 +0800
+From: Brad Campbell <brad@seme.com.au>
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org
+Subject: Re: Synaptics Touchpad loses sync 2.5.66
+References: <3E8BCB4F.5080900@seme.com.au> <18037.130.194.13.164.1049353252.squirrel@127.0.0.1>
+In-Reply-To: <18037.130.194.13.164.1049353252.squirrel@127.0.0.1>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049353552.579.45.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 03 Apr 2003 09:05:52 +0200
+X-SFilter: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Just define an ioctl for that and let each driver that support EDID
-> return something seem to be the simplest way.
-
-Replying to myself... and definitely not the best way for 2.5
-(would be ok for 2.4 but do we care at this point ?)
-
-Instead, we'd rather add the EDID as an attribute of the fb
-to sysfs.
-
-Actually, I suggest that each fbdev driver defines ones or more
-nodes in sysfs below the actual driver node, representing the
-various heads. Each head would then have attributes representing
-the various display properties, one beeing the EDID block.
-
-> If we really want to make EDID a generic thing, then we can eventually
-> have the EDID block attached to each fb_info and then a generic
-> fbmem.c ioctl to read it, but then make sure that EDID block isn"t
-> mandatory (it has no sense to some specific HW like some embedded
-> stuffs) and I always prefer when drivers are the real target of
-> the calls like this ioctl, eventually using fbdev "tools" as helpers
-> instead of having fbdev do something directly as a "mid-mayer".
+Stewart Smith wrote:
+> Brad Campbell said:
 > 
-> Ben.
+>>G'day all,
+>>This is the show stopper for me using 2.5.x
+>>I have seen this since the first 2.5.x kernel I tried which was around
+>>2.5.42.
+>>Under X 4.2.0 (Happened under 4.1.x also) the Touchpad loses sync quite
+>> frequently causing the mouse to go haywire, jumping all over the
+>>screen  and sending button presses that I have not made.
+>>The exact same configuration works perfectly under 2.4.x
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> I would argue that their is something marjorly funny with the synaptics
+> touchpads themselves (in some scenareos at least). I have seen this
+> *exact* behaviour not only on linux (2.4, mandrake) but in Win98 and
+> Win2k. This was a Dell Inspiron 4000 which my gf of the time had. She's
+
+Yep, I had a similar problem on my old Gateway Solo 2150 that was 
+rectified by a bios upgrade. Under windows it would happen rarely, but 
+it did occur, under Linux it was unusable. A bios upgrade for the 
+keyboard controller fixed both :p)
+In this case, it is caused by polling ACPI status. Only under 2.5 
+though, 2.4 works perfectly.
+
+
 -- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Brad....
+  /"\
+  \ /     ASCII RIBBON CAMPAIGN
+   X      AGAINST HTML MAIL
+  / \
+

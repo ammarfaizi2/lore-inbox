@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282135AbRKWM5i>; Fri, 23 Nov 2001 07:57:38 -0500
+	id <S282139AbRKWNJv>; Fri, 23 Nov 2001 08:09:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282139AbRKWM53>; Fri, 23 Nov 2001 07:57:29 -0500
-Received: from t2.redhat.com ([199.183.24.243]:60659 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S282135AbRKWM5K>; Fri, 23 Nov 2001 07:57:10 -0500
-Message-ID: <3BFE47A5.94E10E69@redhat.com>
-Date: Fri, 23 Nov 2001 12:57:09 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+	id <S282140AbRKWNJm>; Fri, 23 Nov 2001 08:09:42 -0500
+Received: from mta05ps.bigpond.com ([144.135.25.137]:18892 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S282139AbRKWNJc>; Fri, 23 Nov 2001 08:09:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: hari <harisri@bigpond.com>
+To: Samium Gromoff <_deepfire@mail.ru>
+Subject: Re: Heavy disk IO stalls ftp/http downloads
+Date: Sat, 24 Nov 2001 00:12:41 +0000
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which gcc version?
-In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200111231132.fANBWbk11468@vegae.deep.net>
+In-Reply-To: <200111231132.fANBWbk11468@vegae.deep.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011123130935Z282139-17408+17818@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> 
-> hi all
-> 
-> I just wonder...
-> With a clean rh72 install, I've got two gcc versions installed in parllel,
-> 2.96 and 3.0.2. Which one should I use to compile the kernel?
+On Fri, 23 Nov 2001 11:32, Samium Gromoff wrote:
+>         does hdparm -u1 fixes the problem?
+>        -u1 == unmasq irq during its handling
+>     the problem is that serial port need its interrupt to be served with
+> minimal latency, and the drives makes that impossible, unless irqs are
+> unmasked...
+Hello Samium,
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks a lot for your response.
 
-See this last line.
-That URL has a nice description..... Also just see Documentation/Changes
+Yes, I have -u1 support enabled for both the hard drives (in fact it is 
+/sbin/hdparm -m16 -c3 -u1 -X66 -d1 -W1 /dev/hda and /dev/hdc). But, 
+unfortunately it does not fix the problem.
+
+Here is the 'hdparm' output from the hard drives:
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  3 (32-bit w/sync)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1247/255/63, sectors = 20044080, start = 0
+
+/dev/hdc:
+ multcount    = 16 (on)
+ I/O support  =  3 (32-bit w/sync)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1240/255/63, sectors = 19931184, start = 0
+-- 
+Hari.
+harisri@bigpond.com

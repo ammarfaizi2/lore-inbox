@@ -1,58 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265940AbUGEEad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUGEEjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265940AbUGEEad (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 00:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUGEEad
+	id S265943AbUGEEjl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 00:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUGEEjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 00:30:33 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:41736 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265940AbUGEEab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 00:30:31 -0400
-To: Zinx Verituse <zinx@epicsol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too in 2.6.x tx timeout
-References: <20040626222304.GA31195@bliss>
-	<87hdsoghdv.fsf@devron.myhome.or.jp> <20040704194009.GA2029@bliss>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 05 Jul 2004 13:30:22 +0900
-In-Reply-To: <20040704194009.GA2029@bliss>
-Message-ID: <873c4713fl.fsf@ibmpc.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Mon, 5 Jul 2004 00:39:41 -0400
+Received: from twin.uoregon.edu ([128.223.214.27]:25296 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S265943AbUGEEjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 00:39:36 -0400
+Date: Sun, 4 Jul 2004 21:39:36 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Fawad Lateef <fawad_lateef@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Need help in creating 8GB RAMDISK
+In-Reply-To: <20040705031812.4571.qmail@web20809.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0407042134510.9532-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zinx Verituse <zinx@epicsol.org> writes:
+sorry, butI don't think you're going to get there.  appending two 4GB 
+rammdisks using linux software raidraid might work. but creating one 
+single ramdisk larger won't work cleanly.
 
-> Up with some other files:
-> http://zinx.xmms.org/misc/tmp/8139too/
-> linux-2.6.7-mobius-dotconfig (.config being used for the kernel)
 
-Probably this isn't fix the problem, but can you try the following?
+On Sun, 4 Jul 2004, Fawad Lateef wrote:
 
-CONFIG_8139TOO_PIO=n
-CONFIG_8139TOO_TUNE_TWISTER=n
+> Dear Joel 
+> 
+> Can you please tell me the way of using more than 4GB
+> of RAM in a single process or module ???? I tried to
+> solve that problem using threads, but it isn't working
+> tooo, there might be the problem in my thread
+> implementation but can it be done using threads ???
+> Please do tell me way of doing this ......... 
+> 
+> I also tried to make 2 different modules each for 4GB
+> and then made another module which is just receiving
+> the request changes its bh->b_rdev to the
+> corresponding drive and returns 1. So kernel will try
+> to call the request function of the module related to
+> bh->b_rdev. but this is also not working .!!!!
+> 
+> Please help me ..... I m working on Linux-2.4.23
+> 
+> Thanks and Regards,
+> 
+> Fawad Lateef
+> 
+> 
+> 
+> 
+> > On Sun, 4 Jul 2004, Fawad Lateef wrote:
+> > 
+> > > Hello
+> > > 
+> > > I am creating a RAMDISK of 7GB (from 1GB to 8GB).
+> > I
+> > > reserved the RAM by changing the code in
+> > > arch/i386/mm/init.c .......... 
+> > > 
+> > > But I am not able to access the RAM from 1GB to
+> > 8GB in
+> > > a kernel module ........ after crossing the 4GB
+> > RAM,
+> > > the system goes into standby state. But if I
+> > insert
+> > > the same module 2 times means one for 1GB to 4GB
+> > and
+> > > other for 4GB to 8GB. and mount them seprately
+> > both
+> > > works fine ............ 
+> > 
+> > on a non-64bit intel architecture you can only grab
+> > 4GB of ram per 
+> > process because that's how big the page table is.
+> > There are 16 4GB page 
+> > tables for the 64GB ram that intel machines are
+> > capable of addressing.
+> >  
+> > > Can any one tell me the reason behind this ??? I
+> > think
+> > > that in a single module we can't access more than
+> > 4GB
+> > > RAM ...... If this is the reason then what to do
+> > ??? I
+> > > need 7GB RAMDISK as a single drive ....
+> > > 
+> > > Thanks and Regards,
+> > > 
+> > > Fawad Lateef
+> > > 
+> > > 
+> > > 		
+> > > __________________________________
+> > > Do you Yahoo!?
+> > > Yahoo! Mail - You care about security. So do we.
+> > > http://promotions.yahoo.com/new_mail
+> > > -
+> > > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > 
+> > -- 
+> >
+> --------------------------------------------------------------------------
+> > 
+> > Joel Jaeggli  	       Unix Consulting 	      
+> > joelja@darkwing.uoregon.edu    
+> > GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3
+> > C38B F000 35AB B67F 56B2
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> 
+> 
+> 		
+> __________________________________
+> Do you Yahoo!?
+> Yahoo! Mail - 50x more storage than other providers!
+> http://promotions.yahoo.com/new_mail
+> 
 
-(both config to "n")
-
-> On the ping -c1: several pings made it, then it didn't reply for one,
-> but also reported no timeout in the messages.  Another ping caused it
-> to not reply _and_ to timeout/reset.
-
-This may not be the problem of 8139too driver, because 2.4.24's
-driver didn't fix.
-
-Umm.. possible of cable or hub problem, but 2.4.24 is work...
-Do you know lastest worked version?
-
-> By the way, I downloaded the specs for the 8139C and noticed immediately
-> it claims writing to the ISR has no effect and that reading it clears it.
-> The drivers appear to indicate this documentation is entirely wrong --
-> Is there any real documentation for this chipset?
-
-Indeed. I think you are reading the same document with me. Docs says it,
-however, the interrupt status wasn't cleared by read.
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
+
+

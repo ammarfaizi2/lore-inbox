@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287933AbSANIkc>; Mon, 14 Jan 2002 03:40:32 -0500
+	id <S287984AbSANInm>; Mon, 14 Jan 2002 03:43:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287984AbSANIkW>; Mon, 14 Jan 2002 03:40:22 -0500
-Received: from mail.nmskb.cz ([213.151.92.16]:26809 "EHLO sam.nmskb.cz")
-	by vger.kernel.org with ESMTP id <S287933AbSANIkR>;
-	Mon, 14 Jan 2002 03:40:17 -0500
-Message-ID: <3C429977.5000902@nmskb.cz>
-Date: Mon, 14 Jan 2002 09:40:23 +0100
-From: Marian Jancar <jancar@nmskb.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: cs, en-us
-MIME-Version: 1.0
+	id <S288058AbSANInc>; Mon, 14 Jan 2002 03:43:32 -0500
+Received: from moutng0.kundenserver.de ([212.227.126.170]:35522 "EHLO
+	moutng0.schlund.de") by vger.kernel.org with ESMTP
+	id <S287984AbSANInV> convert rfc822-to-8bit; Mon, 14 Jan 2002 03:43:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain> <3C3F5C43.7060300@wanadoo.fr> <200201112150.g0BLoESr004177@svr3.applink.net>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jan 2002 08:46:57.0963 (UTC) FILETIME=[068987B0:01C19CD8]
+Subject: IDE-Patches
+Date: Mon, 14 Jan 2002 09:41:18 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: andre@linux-ide.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Q2hl-0003im-00@mrvdom02.kundenserver.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Covell wrote:
-...
+Sometimes I got the impression, that we missed a patch.....
 
->
->But, given the above case, what happens when you have Sendmail on
->the first CPU and Squid is sharing the second CPU?  This is not optimal
->either, or am I missing something?
->
+;-)
 
-It will not happen (unless you have ligth speed disks and nics) in this 
-scenario, both squid and sendmail are io-hogs, not cpu.
+<cynism>
 
+--- linux/MAINTAINERS   Fri Dec 21 18:41:53 2001
++++ neu/MAINTAINERS     Mon Jan 14 09:36:56 2002
+@@ -704,14 +704,14 @@
+ S:      Supported
 
+ IDE DRIVER [GENERAL]
+-P:     Andre Hedrick
+-M:     andre@linux-ide.org
+-M:     andre@aslab.com
+-M:     andre@suse.com
+-L:     linux-kernel@vger.kernel.org
+-W:     http://www.kernel.org/pub/linux/kernel/people/hedrick/
+-W:     http://www.linux-ide.org/
+-S:     Supported
++P:     Linus, Marcello
++M:     /dev/null
++M:     /dev/null
++M:     /dev/null
++L:     /dev/null
++W:     empty
++W:     empty
++S:     Ignored
+
+ IDE/ATAPI CDROM DRIVER
+ P:     Jens Axboe
+
+</cynism>

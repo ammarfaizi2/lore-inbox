@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264314AbTKZT7M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264319AbTKZT7M
+	id S264286AbTKZTxF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTKZTxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:59:12 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58885
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264314AbTKZT7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:59:10 -0500
-Date: Wed, 26 Nov 2003 11:59:04 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Diego Calleja Garc?a <aradorlinux@yahoo.es>
-Cc: john@grabjohn.com, ak@suse.de, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-ID: <20031126195904.GC1566@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Diego Calleja Garc?a <aradorlinux@yahoo.es>,
-	john@grabjohn.com, ak@suse.de, davem@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <200311261135.hAQBZ3Ku000202@81-2-122-30.bradfords.org.uk> <20031126185028.GA1566@mis-mike-wstn.matchmail.com> <20031126201903.1f4a278a.aradorlinux@yahoo.es>
+	Wed, 26 Nov 2003 14:53:05 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:17025 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264286AbTKZTxD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 14:53:03 -0500
+Date: Wed, 26 Nov 2003 19:52:45 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Bruce Perens <bruce@perens.com>, Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Never mind. Re: Signal left blocked after signal handler.
+Message-ID: <20031126195245.GF14383@mail.shareable.org>
+References: <20031126173953.GA3534@perens.com> <Pine.LNX.4.58.0311260945030.1524@home.osdl.org> <3FC4ED5F.4090901@perens.com> <3FC4EF24.9040307@perens.com> <3FC4F248.8060307@perens.com> <Pine.LNX.4.58.0311261037370.1524@home.osdl.org> <3FC4F94F.6030801@perens.com> <Pine.LNX.4.58.0311261108350.1524@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031126201903.1f4a278a.aradorlinux@yahoo.es>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.58.0311261108350.1524@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 26, 2003 at 08:19:03PM +0100, Diego Calleja Garc?a wrote:
-> El Wed, 26 Nov 2003 10:50:28 -0800 Mike Fedyk <mfedyk@matchmail.com> escribi?:
-> 
-> > > http://bulk.fefe.de/scalability/
-> > 
-> > No such file or directory.
-> 
-> It works here. I don't know if those numbers represent anything for networking.
-> Some of the benchmarks look more like "vm benchmarking". And the ones which
-> are measuring latency are valid, considering that BSDs are lacking "preempt"?
-> (shooting in the dark)
+Linus Torvalds wrote:
+> I personally think it is "good taste" to actually set the SA_NODEFER flag
+> if you know you depend on the behaviour, but if there are lots of existing
+> applications that actually depend on the "forced punch-through" behaviour,
+> then I'll obviously have to change the 2.6.x behaviour (a stable
+> user-level ABI is a lot more important than my personal preferences).
 
-Grr, that trailing "/" made the difference. :-/
+I also have a program which depends on the behaviour of nesting
+SIGSEGVs, however luckily I already set the SA_NODEFER flag :)
+
+-- Jamie

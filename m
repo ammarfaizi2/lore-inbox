@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVC2UEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVC2UFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVC2UEn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVC2UE1
+	id S261359AbVC2UFt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVC2UFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:04:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62385 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261343AbVC2UER (ORCPT
+	Tue, 29 Mar 2005 15:05:48 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:55433 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261369AbVC2UFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:04:17 -0500
-Date: Tue, 29 Mar 2005 22:04:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] new fifo I/O elevator that really does nothing at all
-Message-ID: <20050329200408.GZ16636@suse.de>
-References: <20050329080559.GD16636@suse.de> <200503291850.j2TIogg00494@unix-os.sc.intel.com>
+	Tue, 29 Mar 2005 15:05:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=GBK5eAFn32nQSS1iy72n6Zc9gCgQ1GhkZr1WEbHQYjKq3ETII/jT3k3J3Es5upw2Ipzr7oPIqSwrhRu7Dh91T3wgXG4n7yM/RAQTQzzXlOOn4kqzaJxcpdOhnwxM/APsslvsQRz84LRHndQ4SoR6E4p5eHMltAHmpuZoheVUemo=
+Message-ID: <d120d50005032912051fee6e91@mail.gmail.com>
+Date: Tue, 29 Mar 2005 15:05:15 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20050329192339.GE8125@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503291850.j2TIogg00494@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de>
+	 <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de>
+	 <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de>
+	 <d120d50005032908183b2f622e@mail.gmail.com>
+	 <20050329181831.GB8125@elf.ucw.cz>
+	 <d120d50005032911114fd2ea32@mail.gmail.com>
+	 <20050329192339.GE8125@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29 2005, Chen, Kenneth W wrote:
-> On Mon, Mar 28 2005, Chen, Kenneth W wrote:
-> > The noop elevator is still too fat for db transaction processing
-> > workload.  Since the db application already merged all blocks before
-> > sending it down, the I/O presented to the elevator are actually not
-> > merge-able anymore. Since I/O are also random, we don't want to sort
-> > them either.  However the noop elevator is still doing a linear search
-> > on the entire list of requests in the queue.  A noop elevator after
-> > all isn't really noop.
+On Tue, 29 Mar 2005 21:23:39 +0200, Pavel Machek <pavel@suse.cz> wrote:
+> Hi!
+> 
+> > > > If you look at Andy's second trace you will see that we are waiting
+> > > > for the disk I/O to get /sbin/hotplug from the disk. Pavel, do you
+> > > > know why IO does not complete? khelper is a kernel thread so it is
+> > > > marked with
+> > > > PF_NOFREEZE. Could it be that we managed to freeze kblockd?
+> > >
+> > > Uf, no idea about kblockd freezing -- we certainly should not.
+> > >
+> > > *But*, if we are doing execve while system is frozen, something is
+> > > very wrong. We should not be doing execve in the first place.
 > >
-> > We are proposing a true no-op elevator algorithm, no merge, no
-> > nothing. Just do first in and first out list management for the I/O
-> > request.  The best name I can come up with is "FIFO".  I also piggy
-> > backed the code onto noop-iosched.c.  I can easily pull those code
-> > into a separate file if people object.  Though, I hope Jens is OK with
-> > it.
+> > Well, there lies a problem - some devices have to do execve because
+> > they need firmware to operate. Also, again, some buses with
+> > hot-pluggable devices will attempt to clean up unsuccessful resume and
+> > this will cause hotplug events. The point is you either resume system
+> > or you don't. We probably need a separate "unfreeze" callback,
+> > although this is kind of messy.
 > 
+> There's a better solution for firmware: You should load your firmware
+> prior to suspend and store it in RAM. Anything else just plain does
+> not work. (Because your wireless firmware might be on NFS mounted over
+> that wireless card).
 > 
-> Jens Axboe wrote on Tuesday, March 29, 2005 12:06 AM
-> > It's not quite ok, because you don't honor the insertion point in
-> > fifo_add_request.
-> 
-> But it is FIFO!  Honoring insertion point will break the promises this
-> elevator made to the user: first in first out.
+> Hotplug... I guess udev just needs to hold that callbacks before
+> system is fully up... it has to do something similar on regular boot,
+> no?
 
-No such promise was ever made, noop just means it does 'basically
-nothing'. It never meant FIFO in anyway, we cannot break the semantics
-of block layer commands just for the hell of it.
+Well, I did not really look into udev but hotplug (which can iteract
+with udev) does not keep anything. If it fails its ok - that's why
+there are coldplug scripts that "recover" lost events. But here we
+block trying to start hotplug - we not getting an error - and this is
+bad. Unfortunately I am not familiar with block devices working to say
+why it hangs.
 
+Should we pull Jens into the discussion?
+ 
 -- 
-Jens Axboe
-
+Dmitry

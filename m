@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130063AbQLZIhi>; Tue, 26 Dec 2000 03:37:38 -0500
+	id <S131247AbQLZJT1>; Tue, 26 Dec 2000 04:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131497AbQLZIh3>; Tue, 26 Dec 2000 03:37:29 -0500
-Received: from queen.bee.lk ([203.143.12.182]:15113 "EHLO bee.lk")
-	by vger.kernel.org with ESMTP id <S130063AbQLZIhV>;
-	Tue, 26 Dec 2000 03:37:21 -0500
-Date: Tue, 26 Dec 2000 14:06:18 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: recommended gcc compiler version
-In-Reply-To: <7sSHKzAmw-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.4.21.0012261400290.23467-100000@bee.lk>
+	id <S131439AbQLZJTQ>; Tue, 26 Dec 2000 04:19:16 -0500
+Received: from fepout3.telus.net ([199.185.220.238]:12011 "EHLO
+	priv-edtnes11-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id <S131247AbQLZJTL>; Tue, 26 Dec 2000 04:19:11 -0500
+From: Owen Stampflee <owen@1320web.com>
+Organization: 1320webmedia
+To: linux-kernel@vger.kernel.org
+Subject: Linux History Documentation Project
+Date: Tue, 26 Dec 2000 00:44:04 -0800
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00122600505901.01454@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Everyone,
 
+I have a crazy idea, it popped into my mind while reading one of the many short
+History of Linux articles. I would like to document the complete history of
+Linux. In my opinion it would be best to have everything: opinions, quotes,
+original newsgroup postings. I have many ideas but would rather hear yours so
+please email them to me. My email address is owen@1320web.com. Also it would be
+greatly appreciated if you could forward this to your local LUGs, other mailing
+lists and what not.
 
-On 24 Dec 2000, Kai Henningsen wrote:
-
-> anuradha@gnu.org (Anuradha Ratnaweera)  wrote on 22.12.00 in <Pine.LNX.4.21.0012221746160.320-100000@bee.lk>:
-> 
-> > On Fri, 22 Dec 2000, Alan Cox wrote:
-> >
-> > > For i386
-> > >
-> > > 2.2.18
-> > > 	gcc 2.7.2 or egcs-1.1.2
-> >
-> > Just a remainder for debian users. There is a debian package gcc272 which
-> > is said to be the "GNU C compiler's C part", for "backword compatibility
-> > purposes". I recompiled my kernel after an
-> >
-> >   apt-get install gcc272
-> >
-> > and after setting
-> >
-> >   HOSTGCC = gcc272
-> >
-> > in kernel source tree Makerile.
-> 
-> I recently compiled 2.2.18 and noticed that make-kpkg (from kernel-package  
-> - don't compile kernels on Debian without it!) did that automatically.
-
-That is a very good thing. It would have been even better if the
-dependencies of the kernel-package does include gcc272 rather than giving
-a "command not found" error when make-kpkg is run without gcc272
-installed. It might leave a new user clueless.
-
-
-Anuradha
-
+Thanks In Advance,
+Owen Stampflee
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

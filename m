@@ -1,422 +1,684 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbUKXNwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbUKXNyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbUKXNwF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbUKXNup
+	id S262731AbUKXNyt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUKXNx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:50:45 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:35479 "HELO
+	Wed, 24 Nov 2004 08:53:57 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:28311 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262703AbUKXNaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:30:21 -0500
-Subject: Suspend 2 merge: 33/51: More documentation.
+	id S262701AbUKXN3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:29:10 -0500
+Subject: Suspend 2 merge: 22/51: Suspend2 lowlevel code.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101297714.5805.320.camel@desktop.cunninghams>
+Message-Id: <1101296166.5805.279.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 24 Nov 2004 23:59:59 +1100
+Date: Wed, 24 Nov 2004 23:58:45 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More documentation for suspend. The internals.txt file is still to be
-completed (and a bit out of date, too!).
+Lowlevel code for i386. This is the code responsible for saving and
+restoring CPU state, and for restoring the original kernel (except LRU
+pages, which are loaded afterwards).
 
-diff -ruN 821-docs-old/Documentation/power/internals.txt 821-docs-new/Documentation/power/internals.txt
---- 821-docs-old/Documentation/power/internals.txt	1970-01-01 10:00:00.000000000 +1000
-+++ 821-docs-new/Documentation/power/internals.txt	2004-11-04 16:27:41.000000000 +1100
-@@ -0,0 +1,364 @@
-+		Software Suspend 2.0 Internal Documentation.
-+				Version 1
+diff -ruN 700-suspend2-lowlevel-old/arch/i386/power/Makefile 700-suspend2-lowlevel-new/arch/i386/power/Makefile
+--- 700-suspend2-lowlevel-old/arch/i386/power/Makefile	2004-11-03 21:52:57.000000000 +1100
++++ 700-suspend2-lowlevel-new/arch/i386/power/Makefile	2004-11-04 16:27:40.000000000 +1100
+@@ -1,2 +1,4 @@
+-obj-$(CONFIG_PM)		+= cpu.o
++CFLAGS_suspend2.o = -O0
 +
-+1.  Introduction.
++obj-$(CONFIG_PM)		+= cpu.o suspend2.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
+diff -ruN 700-suspend2-lowlevel-old/arch/i386/power/suspend2.c 700-suspend2-lowlevel-new/arch/i386/power/suspend2.c
+--- 700-suspend2-lowlevel-old/arch/i386/power/suspend2.c	1970-01-01 10:00:00.000000000 +1000
++++ 700-suspend2-lowlevel-new/arch/i386/power/suspend2.c	2004-11-17 19:43:08.000000000 +1100
+@@ -0,0 +1,639 @@
++ /*
++  * Copyright 2003-2004 Nigel Cunningham <ncunningham@linuxmail.org>
++  * Based on code
++  * Copyright 2001-2002 Pavel Machek <pavel@suse.cz>
++  * Based on code
++  * Copyright 2001 Patrick Mochel <mochel@osdl.org>
++  */
++#include <linux/init.h>
++#include <linux/version.h>
++#include <linux/suspend.h>
++#include <linux/highmem.h>
++#include <linux/module.h>
++#include <linux/irq.h>
++#include <asm/desc.h>
++#include <asm/i387.h>
++#include <asm/apic.h>
++#include <asm/tlbflush.h>
++#include "../../../kernel/power/suspend.h"
 +
-+    Software Suspend 2.0 is an addition to the Linux Kernel, designed to
-+    allow the user to quickly shutdown and quickly boot a computer, without
-+    needing to close documents or programs. It is equivalent to the
-+    hibernate facility in some laptops. This implementation, however,
-+    requires no special BIOS or hardware support.
++extern volatile struct suspend2_core_ops * suspend2_core_ops;
++extern struct pagedir pagedir_resume;
++extern volatile int suspend_io_time[2][2];
++extern char __nosavedata swsusp_pg_dir[PAGE_SIZE]
++                  __attribute__ ((aligned (PAGE_SIZE)));
++#include <asm/processor.h>
++#undef inline
++#define inline	__inline__ __attribute__((always_inline))
 +
-+    The code in these files is based upon the original implementation
-+    prepared by Gabor Kuti and additional work by Pavel Machek and a
-+    host of others. This code has been substantially reworked by Nigel
-+    Cunningham, again with the help and testing of many others, not the
-+    least of whom is Michael Frank, At its heart, however, the operation is
-+    essentially the same as Gabor's version.
++#ifdef CONFIG_MTRR
++/* MTRR functions */
++extern int mtrr_save(void);
++extern int mtrr_restore_one_cpu(void);
++extern void mtrr_restore_finish(void);
++#else
++#define mtrr_save() do { } while(0)
++#define mtrr_restore_one_cpu() do { } while(0)
++#define mtrr_restore_finish() do { } while(0)
++#endif
++		  
++/* image of the saved processor states */
++struct suspend2_saved_context {
++	u32 eax, ebx, ecx, edx;
++	u32 esp, ebp, esi, edi;
++	u16 es, fs, gs, ss;
++	u32 cr0, cr2, cr3, cr4;
++	u16 gdt_pad;
++	u16 gdt_limit;
++	u32 gdt_base;
++	u16 idt_pad;
++	u16 idt_limit;
++	u32 idt_base;
++	u16 ldt;
++	u16 tss;
++	u32 tr;
++	u32 safety;
++	u32 return_address;
++	u32 eflags;
++} __attribute__((packed));
 +
-+2.  Overview of operation.
++#ifdef CONFIG_SMP
++static struct suspend2_saved_context suspend2_saved_contexts[NR_CPUS];
++#else
++#undef cpu_clear
++#define cpu_clear(a, b) do { } while(0)
++#endif
++static struct suspend2_saved_context suspend2_saved_context;	/* temporary storage */
 +
-+    The basic sequence of operations is as follows:
++#define loaddebug(thread,register) \
++               __asm__("movl %0,%%db" #register  \
++                       : /* no output */ \
++                       :"r" ((thread)->debugreg[register]))
 +
-+	a. Quiesce all other activity.
-+	b. Ensure enough memory and storage space are available, and attempt
-+	   to free memory/storage if necessary.
-+	c. Allocate the required memory and storage space.
-+	d. Write the image.
-+	e. Power down.
++ 
++/*
++ * save_processor_context
++ * 
++ * Save the state of the processor before we go to sleep.
++ *
++ * return_stack is the value of the stack pointer (%esp) as the caller sees it.
++ * A good way could not be found to obtain it from here (don't want to make _too_
++ * many assumptions about the layout of the stack this far down.) Also, the 
++ * handy little __builtin_frame_pointer(level) where level > 0, is blatantly 
++ * buggy - it returns the value of the stack at the proper location, not the 
++ * location, like it should (as of gcc 2.91.66)
++ * 
++ * Note that the context and timing of this function is pretty critical.
++ * With a minimal amount of things going on in the caller and in here, gcc
++ * does a good job of being just a dumb compiler.  Watch the assembly output
++ * if anything changes, though, and make sure everything is going in the right
++ * place. 
++ */
++static inline void save_processor_context(void)
++{
++	kernel_fpu_begin();
 +
-+    There are a number of complicating factors which mean that things are
-+    not as simple as the above would imply, however...
++	/*
++	 * descriptor tables
++	 */
++	asm volatile ("sgdt (%0)" : "=m" (suspend2_saved_context.gdt_limit));
++	asm volatile ("sidt (%0)" : "=m" (suspend2_saved_context.idt_limit));
++	asm volatile ("sldt (%0)" : "=m" (suspend2_saved_context.ldt));
++	asm volatile ("str (%0)"  : "=m" (suspend2_saved_context.tr));
 +
-+    o The activity of each process must be stopped at a point where it will
-+    not be holding locks necessary for saving the image, or unexpectedly
-+    restart operations due to something like a timeout and thereby make
-+    our image inconsistent.
++	/*
++	 * save the general registers.
++	 * note that gcc has constructs to specify output of certain registers,
++	 * but they're not used here, because it assumes that you want to modify
++	 * those registers, so it tries to be smart and save them beforehand.
++	 * It's really not necessary, and kinda fishy (check the assembly output),
++	 * so it's avoided. 
++	 */
++	asm volatile ("movl %%esp, (%0)" : "=m" (suspend2_saved_context.esp));
++	asm volatile ("movl %%eax, (%0)" : "=m" (suspend2_saved_context.eax));
++	asm volatile ("movl %%ebx, (%0)" : "=m" (suspend2_saved_context.ebx));
++	asm volatile ("movl %%ecx, (%0)" : "=m" (suspend2_saved_context.ecx));
++	asm volatile ("movl %%edx, (%0)" : "=m" (suspend2_saved_context.edx));
++	asm volatile ("movl %%ebp, (%0)" : "=m" (suspend2_saved_context.ebp));
++	asm volatile ("movl %%esi, (%0)" : "=m" (suspend2_saved_context.esi));
++	asm volatile ("movl %%edi, (%0)" : "=m" (suspend2_saved_context.edi));
 +
-+    o It is desirous that we sync outstanding I/O to disk before calculating
-+    image statistics. This reduces corruption if one should suspend but
-+    then not resume, and also makes later parts of the operation safer (see
-+    below).
++	/*
++	 * segment registers
++	 */
++	asm volatile ("movw %%es, %0" : "=r" (suspend2_saved_context.es));
++	asm volatile ("movw %%fs, %0" : "=r" (suspend2_saved_context.fs));
++	asm volatile ("movw %%gs, %0" : "=r" (suspend2_saved_context.gs));
++	asm volatile ("movw %%ss, %0" : "=r" (suspend2_saved_context.ss));
 +
-+    o We need to get as close as we can to an atomic copy of the data.
-+    Inconsistencies in the image will result inconsistent memory contents at
-+    resume time, and thus in instability of the system and/or file system
-+    corruption. This would appear to imply a maximum image size of one half of
-+    the amount of RAM, but we have a solution... (again, below).
++	/*
++	 * control registers 
++	 */
++	asm volatile ("movl %%cr0, %0" : "=r" (suspend2_saved_context.cr0));
++	asm volatile ("movl %%cr2, %0" : "=r" (suspend2_saved_context.cr2));
++	asm volatile ("movl %%cr3, %0" : "=r" (suspend2_saved_context.cr3));
++	asm volatile ("movl %%cr4, %0" : "=r" (suspend2_saved_context.cr4));
 +
-+    o In 2.6, we must play nicely with the other suspend-to-disk
-+    implementations.
++	/*
++	 * eflags
++	 */
++	asm volatile ("pushfl ; popl (%0)" : "=m" (suspend2_saved_context.eflags));
++}
 +
-+3.  Detailed description of internals.
++static void fix_processor_context(void)
++{
++	int nr = smp_processor_id();
++	struct tss_struct * t = &per_cpu(init_tss,nr);
 +
-+    a. Quiescing activity.
++	set_tss_desc(nr,t);	/* This just modifies memory; should not be neccessary. But... This is neccessary, because 386 hardware has concept of busy tsc or some similar stupidity. */
++        per_cpu(cpu_gdt_table,nr)[GDT_ENTRY_TSS].b &= 0xfffffdff;
 +
-+    Safely quiescing the system is achieved in a number of steps. First, we
-+    wait for existing activity to complete, while holding new activity until
-+    post-resume. Second, we sync unwritten buffers. Third, we send a
-+    'pseudo-signal' to all processes that have not yet entered the
-+    'refrigerator' but should be frozen, causing them to be refrigerated.
++	load_TR_desc();
 +
-+    Waiting for existing activity to complete is achieved by using hooks at
-+    the beginning and end of critical paths in the kernel code. When a process
-+    enters a section where it cannot be safely refrigerated, the process flag
-+    PF_FRIDGE_WAIT is set from the SWSUSP_ACTIVITY_STARTING macro. In the same
-+    routine, at completion of the critical region, a SWSUSP_ACTIVITY_END macro
-+    resets the flag. The _STARTING and _ENDING macros also atomically adjust
-+    the global counter swsusp_num_active. While the counter is non-zero, 
-+    Software Suspend's freezer will wait.
++	load_LDT(&current->active_mm->context);	/* This does lldt */
 +
-+    These macros serve two other additional purposes. Local variables are used
-+    to ensure that processes can safely pass through multiple  _STARTING and
-+    _ENDING macros, and checks are made to ensure that the freezer is not
-+    waiting for activity to finish. If a process wants to start on a critical
-+    path when Suspend is waiting for activity to finish, it will be held at the
-+    start of the critical path and refrigerated earlier than would normally be
-+    the case. It will be allowed to continue operation after the Suspend cycle
-+    is finished or aborted.
++	/*
++	 * Now maybe reload the debug registers
++	 */
++	if (current->thread.debugreg[7]){
++                loaddebug(&current->thread, 0);
++                loaddebug(&current->thread, 1);
++                loaddebug(&current->thread, 2);
++                loaddebug(&current->thread, 3);
++                /* no 4 and 5 */
++                loaddebug(&current->thread, 6);
++                loaddebug(&current->thread, 7);
++	}
 +
-+    A process in a critical path may also have a section where it releases
-+    locks and can be safely stopped until post-resume. For these cases, the
-+    SWSUSP_ACTIVITY_PAUSING and _RESTARTING macros may be used. They function
-+    in a similar manner to the _STARTING and _ENDING macros.
++}
 +
-+    Finally, we remember that some threads may be necessary for syncing data to
-+    storage. These threads have PF_SYNCTHREAD set, and may use the special macro
-+    SWSUSP_ACTIVITY_SYNCTHREAD_PAUSING to indicate that Suspend can safely
-+    continue, while not themselves entering the refrigerator.
++static void do_fpu_end(void)
++{
++        /* restore FPU regs if necessary */
++	/* Do it out of line so that gcc does not move cr0 load to some stupid place */
++        kernel_fpu_end();
++}
 +
-+    Once activity is stopped, Suspend will initiate a fsync of all devices.
-+    This aims to increase the integrity of the disk state, just in case
-+    something should go wrong.
++/*
++ * restore_processor_context
++ * 
++ * Restore the processor context as it was before we went to sleep
++ * - descriptor tables
++ * - control registers
++ * - segment registers
++ * - flags
++ * 
++ * Note that it is critical that this function is declared inline.  
++ * It was separated out from restore_state to make that function
++ * a little clearer, but it needs to be inlined because we won't have a
++ * stack when we get here (so we can't push a return address).
++ */
++static inline void restore_processor_context(void)
++{
++	/*
++	 * first restore %ds, so we can access our data properly
++	 */
++	asm volatile (".align 4");
++	asm volatile ("movw %0, %%ds" :: "r" ((u16)__KERNEL_DS));
 +
-+    During the initial stage, Suspend indicates its desire that processes be
-+    stopped by setting the FREEZE_NEW_ACTIVITY bit of swsusp_state.  Once the
-+    sync is complete, SYNCTHREAD processes no longer need to run. The
-+    FREEZE_UNREFRIGERATED bit is now set, causing them to be refrigerated as
-+    well, should they attempt to start new activity. (There should be nothing
-+    for them to do, but just-in-case).
 +
-+    Suspend can now put remaining processes in the refrigerator without fear
-+    of deadlocking or leaving dirty data unsynced. The refrigerator is a
-+    procedure where processes wait until the cycle is complete. While in there,
-+    we can be sure that they will not perform activity that will make our
-+    image inconsistent. Processes enter the refrigerator either by being
-+    caught at one of the previously mentioned hooks, or by receiving a 'pseudo-
-+    signal' from Suspend at this stage. I call it a pseudo signal because
-+    signal_wake_up is called for the process when it actually hasn't been
-+    signalled. A special hook in the signal handler then calls the refrigerator.
-+    The refrigerator, in turn, recalculates the signal pending status to
-+    ensure no ill effects result.
++	/*
++	 * control registers
++	 */
++	asm volatile ("movl %0, %%cr4" :: "r" (suspend2_saved_context.cr4));
++	asm volatile ("movl %0, %%cr3" :: "r" (suspend2_saved_context.cr3));
++	asm volatile ("movl %0, %%cr2" :: "r" (suspend2_saved_context.cr2));
++	asm volatile ("movl %0, %%cr0" :: "r" (suspend2_saved_context.cr0));
 +
-+    Not all processes are refrigerated. The Suspend thread itself, of course,
-+    is one such thread. Others are flagged by setting PF_NOFREEZE, usually
-+    because they are needed during suspend.
++	/*
++	 * segment registers
++	 */
++	asm volatile ("movw %0, %%es" :: "r" (suspend2_saved_context.es));
++	asm volatile ("movw %0, %%fs" :: "r" (suspend2_saved_context.fs));
++	asm volatile ("movw %0, %%gs" :: "r" (suspend2_saved_context.gs));
++	asm volatile ("movw %0, %%ss" :: "r" (suspend2_saved_context.ss));
 +
-+    In 2.4, the dosexec thread (Win4Lin) is treated specially. It does not
-+    handle us even pretending to send it a signal. This is worked-around by
-+    us adjusting the can_schedule() macro in schedule.c to stop the task from
-+    being scheduled during suspend. Ugly, but it works. The 2.6 version of
-+    Win4Lin has been made compatible.
++	/*
++	 * the other general registers
++	 *
++	 * note that even though gcc has constructs to specify memory 
++	 * input into certain registers, it will try to be too smart
++	 * and save them at the beginning of the function.  This is esp.
++	 * bad since we don't have a stack set up when we enter, and we 
++	 * want to preserve the values on exit. So, we set them manually.
++	 */
++	asm volatile ("movl %0, %%esp" :: "m" (suspend2_saved_context.esp));
++	asm volatile ("movl %0, %%ebp" :: "m" (suspend2_saved_context.ebp));
++	asm volatile ("movl %0, %%eax" :: "m" (suspend2_saved_context.eax));
++	asm volatile ("movl %0, %%ebx" :: "m" (suspend2_saved_context.ebx));
++	asm volatile ("movl %0, %%ecx" :: "m" (suspend2_saved_context.ecx));
++	asm volatile ("movl %0, %%edx" :: "m" (suspend2_saved_context.edx));
++	asm volatile ("movl %0, %%esi" :: "m" (suspend2_saved_context.esi));
++	asm volatile ("movl %0, %%edi" :: "m" (suspend2_saved_context.edi));
 +
-+    b. Ensure enough memory & storage are available.
-+    c. Allocate the required memory and storage space.
++	/*
++	 * now restore the descriptor tables to their proper values
++	 * ltr is done i fix_processor_context().
++	 */
 +
-+    These steps are merged together in the prepare_image function, found in
-+    prepare_image.c. The functions are merged because of the cyclical nature
-+    of the problem of calculating how much memory and storage is needed. Since
-+    the data structures containing the information about the image must
-+    themselves take memory and use storage, the amount of memory and storage
-+    required changes as we prepare the image. Since the changes are not large,
-+    only one or two iterations will be required to achieve a solution.
++	asm volatile ("lgdt (%0)" :: "m" (suspend2_saved_context.gdt_limit));
++	asm volatile ("lidt (%0)" :: "m" (suspend2_saved_context.idt_limit));
++	asm volatile ("lldt (%0)" :: "m" (suspend2_saved_context.ldt));
 +
-+    d. Write the image.
++	fix_processor_context();
 +
-+    We previously mentioned the need to create an atomic copy of the data, and
-+    the half-of-memory limitation that is implied in this. This limitation is
-+    circumvented by dividing the memory to be saved into two parts, called
-+    pagesets.
++	/*
++	 * the flags
++	 */
++	asm volatile ("pushl %0 ; popfl" :: "m" (suspend2_saved_context.eflags));
 +
-+    Pageset2 contains the page cache - the pages on the active and inactive
-+    lists. These pages are saved first and reloaded last. While saving these
-+    pages, the swapwriter plugin carefully ensures that the work of writing
-+    the pages doesn't make the image inconsistent. Pages added to the LRU
-+    lists are immediately shot down, and careful accounting for available
-+    memory aids debugging. No atomic copy of these pages needs to be made.
++	do_fpu_end();
++}
 +
-+    Writing the image requires memory, of course, and at this point we have
-+    also not yet suspended the drivers. To avoid the possibility of remaining
-+    activity corrupting the image, we allocate a special memory pool. Calls
-+    to __alloc_pages and __free_pages_ok are then diverted to use our memory
-+    pool. Pages in the memory pool are saved as part of pageset1 regardless of
-+    whether or not they are used.
++#if defined(CONFIG_SOFTWARE_SUSPEND2) || defined(CONFIG_SMP)
++volatile static int loop __nosavedata = 0;
++extern atomic_t suspend_cpu_counter __nosavedata;
++volatile unsigned char * my_saved_context __nosavedata;
++volatile static unsigned long c_loops_per_jiffy_ref[NR_CPUS] __nosavedata;
++#endif
 +
-+    Once pageset2 has been saved, we suspend the drivers and save the CPU
-+    context before making an atomic copy of pageset1, resuming the drivers
-+    and saving the atomic copy. After saving the two pagesets, we just need to
-+    save our metadata before powering down.
++#ifdef CONFIG_SOFTWARE_SUSPEND2
++/* Local variables for do_suspend2_lowlevel */
++volatile static int state1 __nosavedata = 0;
++volatile static int state2 __nosavedata = 0;
++volatile static int state3 __nosavedata = 0;
++volatile static struct range *origrange __nosavedata;
++volatile static struct range *copyrange __nosavedata;
++volatile static int origoffset __nosavedata;
++volatile static int copyoffset __nosavedata;
++volatile static unsigned long * origpage __nosavedata;
++volatile static unsigned long * copypage __nosavedata;
++volatile static int io_speed_save[2][2] __nosavedata;
++#ifndef CONFIG_SMP
++volatile static unsigned long cpu_khz_ref __nosavedata = 0;
++#endif
 +
-+    Having saved pageset2 pages, we can safely overwrite their contents with
-+    the atomic copy of pageset1. This is how we manage to overcome the half of
-+    memory limitation. Pageset2 is normally far larger than pageset1, and
-+    pageset1 is normally much smaller than half of the memory, with the result
-+    that pageset2 pages can be safely overwritten with the atomic copy of
-+    pageset1. This is where we need to be careful about syncing, however.
-+    Pageset2 will probably contain filesystem meta data. If this is overwritten
-+    with pageset1 and then a sync occurs, the filesystem will be corrupted -
-+    at least until resume time and another sync of the restored data. Since
-+    there is a possibility that the user might not resume or (may it never be!)
-+    that suspend might oops, we do our utmost to avoid syncing filesystems after
-+    copying pageset1.
++/* 
++ * APIC support: These routines save the APIC
++ * configuration for the CPU on which they are
++ * being executed
++ */
++extern void suspend_apic_save_state(void);
++extern void suspend_apic_reload_state(void);
 +
-+    e. Power down.
++#ifdef CONFIG_SMP
++/* ------------------------------------------------
++ * BEGIN Irq affinity code, based on code from LKCD.
++ *
++ * IRQ affinity support:
++ * Save and restore IRQ affinities, and set them
++ * all to CPU 0.
++ *
++ * Section between dashes taken from LKCD code.
++ * Perhaps we should be working toward a shared library
++ * of such routines for kexec, lkcd, software suspend
++ * and whatever other similar projects there are?
++ */
 +
-+    Powering down uses standard kernel routines. Prior to this, however, we
-+    suspend drivers again, ensuring that write caches are flushed.
++extern irq_desc_t irq_desc[];
++extern cpumask_t irq_affinity[];
++cpumask_t saved_affinity[NR_IRQS];
 +
-+4.  The method of writing the image.
++/*
++ * Routine to save the old irq affinities and change affinities of all irqs to
++ * the dumping cpu.
++ */
++static void save_and_set_irq_affinity(void)
++{
++	int i;
++	int cpu = smp_processor_id();
 +
-+    Software Suspend 2.0rc3 and later contain an internal API which is
-+    designed to simplify the implementation of new methods of transforming
-+    the image to be written and writing the image itself. Prior to rc3,
-+    compression support was inlined in the image writing code, and the data
-+    structures and code for managing swap were intertwined with the rest of
-+    the code. A number of people had expressed interest in implementing
-+    image encryption, and alternative methods of storing the image. This
-+    internal API makes that possible by implementing 'plugins'.
++	memcpy(saved_affinity, irq_affinity, NR_IRQS * sizeof(cpumask_t));
++	for (i = 0; i < NR_IRQS; i++) {
++		if (irq_desc[i].handler == NULL)
++			continue;
++		irq_affinity[i] = cpumask_of_cpu(cpu);
++		if (irq_desc[i].handler->set_affinity != NULL)
++			irq_desc[i].handler->set_affinity(i, irq_affinity[i]);
++	}
++}
 +
-+    A plugin is a single file which encapsulates the functionality needed
-+    to transform a pageset of data (encryption or compression, for example),
-+    or to write the pageset to a device. The former type of plugin is called
-+    a 'page-transformer', the later a 'writer'.
++/*
++ * Restore old irq affinities.
++ */
++static void reset_irq_affinity(void)
++{
++	int i;
 +
-+    Plugins are linked together in pipeline fashion. There may be zero or more
-+    page transformers in a pipeline, and there is always exactly one writer.
-+    The pipeline follows this pattern:
++	memcpy(irq_affinity, saved_affinity, NR_IRQS * sizeof(cpumask_t));
++	for (i = 0; i < NR_IRQS; i++) {
++		if (irq_desc[i].handler == NULL)
++			continue;
++		if (irq_desc[i].handler->set_affinity != NULL)
++			irq_desc[i].handler->set_affinity(i, irq_affinity[i]);
++	}
++}
 +
-+		---------------------------------
-+		|     Software Suspend Core     |
-+		---------------------------------
-+				|
-+				|
-+		---------------------------------
-+		|	Page transformer 1	|
-+		---------------------------------
-+				|
-+				|
-+		---------------------------------
-+		|	Page transformer 2	|
-+		---------------------------------
-+				|
-+				|
-+		---------------------------------
-+		|            Writer		|
-+		---------------------------------
++/*
++ * END of IRQ affinity code, based on LKCD code.
++ * -----------------------------------------------------------------
++ */
++#else
++#define save_and_set_irq_affinity() do { } while(0)
++#define reset_irq_affinity() do { } while(0)
++#endif
 +
-+    During the writing of an image, the core code feeds pages one at a time
-+    to the first plugin. This plugin performs whatever transformations it
-+    implements on the incoming data, completely consuming the incoming data and
-+    feeding output in a similar manner to the next plugin. A plugin may buffer
-+    its output.
++/*
++ * FIXME: This function should really be written in assembly. Actually
++ * requirement is that it does not touch stack, because %esp will be
++ * wrong during resume before restore_processor_context(). Check
++ * assembly if you modify this.
++ *
++ * SMP support:
++ * All SMP processors enter this routine during suspend. The one through
++ * which the suspend is initiated (which, for simplicity, is always CPU 0)
++ * sends the others here using an IPI during do_suspend2_suspend_1. They
++ * remain here until after the atomic copy of the kernel is made, to ensure
++ * that they don't mess with memory in the meantime (even just idling will
++ * do that). Once the atomic copy is made, they are free to carry on idling.
++ * Note that we must let them go, because if we're using compression, the
++ * vfree calls in the compressors will result in IPIs being called and hanging
++ * because the CPUs are still here.
++ *
++ * At resume time, we do a similar thing. CPU 0 sends the others in here using
++ * an IPI. It then copies the original kernel back, restores its own processor
++ * context and flushes local tlbs before freeing the others to do the same.
++ * They can then go back to idling while CPU 0 reloads pageset 2, cleans up
++ * and unfreezes the processes.
++ *
++ * (Remember that freezing and thawing processes also uses IPIs, as may
++ * decompressing the data. Again, therefore, we cannot leave the other processors
++ * in here).
++ * 
++ * At the moment, we do nothing about APICs, even though the code is there.
++ */
++void do_suspend2_lowlevel(int resume)
++{
++	int processor_id = smp_processor_id();
 +
-+    During reading, the pipeline works in the reverse direction. The core code
-+    calls the first plugin with the address of a buffer which should be filled.
-+    (Note that the buffer size is always PAGE_SIZE at this time). This plugin
-+    will in turn request data from the next plugin and so on down until the
-+    writer is made to read from the stored image.
++	if (!resume) {
++		/*
++		 * Save the irq affinities before we freeze the
++		 * other processors!
++		 */
++		save_and_set_irq_affinity();
++		mtrr_save();
 +
-+    Part of definition of the structure of a plugin thus looks like this:
++		suspend2_core_ops->suspend1();
++		save_processor_context();	/* We need to capture registers and memory at "same time" */
++		suspend2_core_ops->suspend2();		/* If everything goes okay, this function does not return */
++		return;
++	}
 +
-+	/* Writing the image proper */
-+	int (*write_init) (int stream_number);
-+	int (*write_chunk) (char * buffer_start);
-+	int (*write_cleanup) (void);
++	state1 = suspend_action;
++	state2 = suspend_debug_state;
++	state3 = console_loglevel;
++	for (loop = 0; loop < 4; loop++)
++		io_speed_save[loop/2][loop%2] = 
++			suspend_io_time[loop/2][loop%2];
 +
-+	/* Reading the image proper */
-+	int (*read_init) (int stream_number);
-+	int (*read_chunk) (char * buffer_start, int sync);
-+	int (*read_cleanup) (void);
-+
-+    It should be noted that the _cleanup routines may be called before the
-+    full stream of data has been read or written. While writing the image,
-+    the user may (depending upon settings) choose to abort suspending, and
-+    if we are in the midst of writing the last portion of the image, a portion
-+    of the second pageset may be reread.
-+
-+    In addition to the above routines for writing the data, all plugins have a
-+    number of other routines:
-+
-+    TYPE indicates whether the plugin is a page transformer or a writer.
-+    #define TRANSFORMER_PLUGIN 1
-+    #define WRITER_PLUGIN 2
-+
-+    NAME is the name of the plugin, used in generic messages.
-+
-+    PLUGIN_LIST is used to link the plugin into the list of all plugins.
-+
-+    MEMORY_NEEDED returns the number of pages of memory required by the plugin
-+    to do its work.
-+
-+    STORAGE_NEEDED returns the number of pages in the suspend header required
-+    to store the plugin's configuration data.
-+
-+    PRINT_DEBUG_INFO fills a buffer with information to be displayed about the
-+    operation or settings of the plugin.
-+
-+    SAVE_CONFIG_INFO returns a buffer of PAGE_SIZE or smaller (the size is the
-+    return code), containing the plugin's configuration info. This information
-+    will be written in the image header and restored at resume time. Since this
-+    buffer is allocated after the atomic copy of the kernel is made, you don't
-+    need to worry about the buffer being freed.
-+
-+    LOAD_CONFIG_INFO gives the plugin a pointer to the the configuration info
-+    which was saved during suspending. Once again, the plugin doesn't need to
-+    worry about freeing the buffer. The kernel will be overwritten with the
-+    original kernel, so no memory leak will occur.
-+
-+    OPS contains the operations specific to transformers and writers. These are
-+    described below.
-+
-+    The complete definition of struct swsusp_plugin_ops is:
-+
-+	struct swsusp_plugin_ops {
-+		/* Functions common to transformers and writers */
-+		int type;
-+		char * name;
-+		struct list_head plugin_list;
-+		unsigned long (*memory_needed) (void);
-+		unsigned long (*storage_needed) (void);
-+		int (*print_debug_info) (char * buffer, int size);
-+		int (*save_config_info) (char * buffer);
-+		void (*load_config_info) (char * buffer, int len);
++	/* Send all IRQs to CPU 0. We will replace the saved affinities
++	 * with the suspend-time ones when we copy the original kernel
++	 * back in place
++	 */
++	save_and_set_irq_affinity();
 +	
-+		/* Writing the image proper */
-+		int (*write_init) (int stream_number);
-+		int (*write_chunk) (char * buffer_start);
-+		int (*write_cleanup) (void);
-+
-+		/* Reading the image proper */
-+		int (*read_init) (int stream_number);
-+		int (*read_chunk) (char * buffer_start, int sync);
-+		int (*read_cleanup) (void);
-+
-+		union {
-+			struct swsusp_transformer_ops transformer;
-+			struct swsusp_writer_ops writer;
-+		} ops;
-+	};
-+
-+
-+	The operations specific to transformers are few in number:
-+
-+	struct swsusp_transformer_ops {
-+		int (*expected_compression) (void);
-+		struct list_head transformer_list;
-+	};
-+
-+	Expected compression returns the expected ratio between the amount of
-+	data sent to this plugin and the amount of data it passes to the next
-+	plugin. The value is used by the core code to calculate the amount of
-+	space required to write the image. If the ratio is not achieved, the
-+	writer will complain when it runs out of space with data still to
-+	write, and the core code will abort the suspend.
-+
-+	transformer_list links together page transformers, in the order in
-+	which they register, which is in turn determined by order in the
-+	Makefile.
++	c_loops_per_jiffy_ref[processor_id] = current_cpu_data.loops_per_jiffy;
++#ifndef CONFIG_SMP
++	cpu_khz_ref = cpu_khz;
++#endif
 +	
-+	There are many more operations specific to a writer:
++	/* We want to run from swsusp_pg_dir, since swsusp_pg_dir is stored in constant
++	 * place in memory 
++	 */
 +
-+	struct swsusp_writer_ops {
++        __asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swsusp_pg_dir)));
 +
-+		long (*storage_available) (void);
-+	
-+		unsigned long (*storage_allocated) (void);
++/*
++ * Final function for resuming: after copying the pages to their original
++ * position, it restores the register state.
++ *
++ * What about page tables? Writing data pages may toggle
++ * accessed/dirty bits in our page tables. That should be no problems
++ * with 4MB page tables. That's why we require have_pse.  
++ *
++ * This loops destroys stack from under itself, so it better should
++ * not use any stack space, itself. When this function is entered at
++ * resume time, we move stack to _old_ place.  This is means that this
++ * function must use no stack and no local variables in registers,
++ * until calling restore_processor_context();
++ *
++ * Critical section here: noone should touch saved memory after
++ * do_suspend2_resume_1; copying works, because nr_copy_pages,
++ * pagedir_resume, loop and loop2 are nosavedata.
++ *
++ * If we're running with DEBUG_PAGEALLOC, the boot and resume kernels both have
++ * all the pages we need mapped into kernel space, so we don't need to change
++ * page protections while doing the copy-back.
++ */
++
++	suspend2_core_ops->resume1();
++
++	origrange = pagedir_resume.origranges.first;
++	copyrange = pagedir_resume.destranges.first;
++	origoffset = origrange->minimum;
++	copyoffset = copyrange->minimum;
++	origpage = (unsigned long *) (lowmem_page_address(mem_map + origoffset));
++	copypage = (unsigned long *) (lowmem_page_address(mem_map + copyoffset));
++
++	BUG_ON(!irqs_disabled());
++
++	/* As of 2.0.0.51, pageset1 can include highmem pages. If
++	 * !CONFIG_HIGHMEM, highstart_pfn == 0, hence the #ifdef.
++	 */
++#ifdef CONFIG_HIGHMEM
++	while ((origrange) && (origoffset < highstart_pfn)) {
++#else
++	while (origrange) {
++#endif
++		for (loop=0; loop < (PAGE_SIZE / sizeof(unsigned long)); loop++) {
++			*(origpage + loop) = *(copypage + loop);
++			*(copypage + loop) = 0xb000b000;
++		}
 +		
-+		int (*release_storage) (void);
++		if (origoffset < origrange->maximum) {
++			origoffset++;
++			origpage += (PAGE_SIZE / sizeof(unsigned long));
++		} else {
++			origrange = origrange->next;
++			if (origrange) {
++				origoffset = origrange->minimum;
++				origpage = (unsigned long *) (lowmem_page_address(mem_map + origoffset));
++			}
++		}
 +
-+		long (*allocate_header_space) (unsigned long space_requested);
-+		int (*allocate_storage) (unsigned long space_requested);
++		if (copyoffset < copyrange->maximum) {
++			copyoffset++;
++			copypage += (PAGE_SIZE / sizeof(unsigned long));
++		} else {
++			copyrange = copyrange->next;
++			if (copyrange) {
++				copyoffset = copyrange->minimum;
++				copypage = (unsigned long *) (lowmem_page_address(mem_map + copyoffset));
++			}
++		}
++	}
++	
++	restore_processor_context();
++	cpu_clear(processor_id, per_cpu(cpu_tlbstate, processor_id).active_mm->cpu_vm_mask);
++	wbinvd();
++	__flush_tlb_all();
++	
++	BUG_ON(!irqs_disabled());
++	
++	/* Now we are running with our old stack, and with registers copied
++	 * from suspend time. Let's copy back those remaining Highmem pages. */
 +
-+		int (*write_header_init) (void);
-+		int (*write_header_chunk) (char * buffer_start, int buffer_size);
-+		int (*write_header_cleanup) (void);
++#ifdef CONFIG_HIGHMEM
++	while (origrange) {
++		unsigned long * origpage = (unsigned long *) kmap_atomic(mem_map + origoffset, KM_USER1);
++		for (loop=0; loop < (PAGE_SIZE / sizeof(unsigned long)); loop++) {
++			*(origpage + loop) = *(copypage + loop);
++			*(copypage + loop) = 0xb000b000;
++		}
++		kunmap_atomic(origpage, KM_USER1);
++		
++		if (origoffset < origrange->maximum)
++			origoffset++;
++		else {
++			origrange = origrange->next;
++			if (origrange)
++				origoffset = origrange->minimum;
++		}
 +
-+		int (*read_header_init) (void);
-+		int (*read_header_chunk) (char * buffer_start, int buffer_size);
-+		int (*read_header_cleanup) (void);
++		if (copyoffset < copyrange->maximum) {
++			copyoffset++;
++			copypage += (PAGE_SIZE / sizeof(unsigned long));
++		} else {
++			copyrange = copyrange->next;
++			if (copyrange) {
++				copyoffset = copyrange->minimum;
++				copypage = (unsigned long *) (page_address(mem_map + copyoffset));
++			}
++		}
++	}
++#endif
 +
-+		int (*prepare_save) (void);
-+		int (*post_load) (void);
++	suspend2_verify_checksums();
 +
-+		int (*parse_image_location) (char * buffer);
++	BUG_ON(!irqs_disabled());
 +
-+		int (*image_exists) (void);
++	cpu_clear(processor_id, per_cpu(cpu_tlbstate, processor_id).active_mm->cpu_vm_mask);
++	wbinvd();
++	__flush_tlb_all();
++	mtrr_restore_one_cpu();
 +
-+		int (*invalidate_image) (void);
++	/* Get other CPUs to restore their contexts and flush their tlbs. */
++	clear_suspend_state(SUSPEND_FREEZE_SMP);
++	
++	do {
++		cpu_relax();
++		barrier();
++	} while (atomic_read(&suspend_cpu_counter));
 +
-+		int (*wait_on_io) (int flush_all);
++	mtrr_restore_finish();
++	
++	BUG_ON(!irqs_disabled());
 +
-+		struct list_head writer_list;
-+	};
++	/* put the irq affinity tables back */
++	reset_irq_affinity();
++	
++	current_cpu_data.loops_per_jiffy = c_loops_per_jiffy_ref[processor_id];
++#ifndef CONFIG_SMP
++	loops_per_jiffy = c_loops_per_jiffy_ref[processor_id];
++	cpu_khz = cpu_khz_ref;
++#endif
++	suspend_action = state1;
++	suspend_debug_state = state2;
++	console_loglevel = state3;
 +
-+	STORAGE_AVAILABLE is 
-diff -ruN 821-docs-old/Documentation/power/todo.txt 821-docs-new/Documentation/power/todo.txt
---- 821-docs-old/Documentation/power/todo.txt	1970-01-01 10:00:00.000000000 +1000
-+++ 821-docs-new/Documentation/power/todo.txt	2004-11-04 16:27:41.000000000 +1100
-@@ -0,0 +1,19 @@
-+Suspend2 todo list
++	for (loop = 0; loop < 4; loop++)
++		suspend_io_time[loop/2][loop%2] =
++			io_speed_save[loop/2][loop%2];
 +
-+20041021
-+  2.1 known issues:
-+  ----------------
-+- NFS support missing
-+- Encryption support missing
-+- DRI support for 2.4 & 2.6
-+- USB support under 2.4 and 2.6
-+- Incomplete support in other drivers
-+- No support for discontig memory
-+- Currently requires PSE extension (/proc/cpuinfo)
-+- Highmem >4GB not supported
++	suspend2_core_ops->resume2();
++}
++EXPORT_SYMBOL(do_suspend2_lowlevel);
++#endif
 +
-+20040107
-+- Further cleaning up.
++#ifdef CONFIG_SMP
++/*
++ * Save and restore processor state for secondary processors.
++ * IRQs (and therefore preemption) are already disabled 
++ * when we enter here (IPI).
++ */
 +
-+20031216
-+- Include progress-bar-granularity in all_settings.
++void __smp_suspend_lowlevel(void * info)
++{
++	__asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swsusp_pg_dir)));
++
++	if (test_suspend_state(SUSPEND_NOW_RESUMING)) {
++		BUG_ON(!irqs_disabled());
++		kernel_fpu_begin();
++		c_loops_per_jiffy_ref[smp_processor_id()] = current_cpu_data.loops_per_jiffy;
++		atomic_inc(&suspend_cpu_counter);
++
++		/* Only image copied back while we spin in this loop. Our
++		 * task info should not be looked at while this is happening
++		 * (which smp_processor_id() will do( */
++		while (test_suspend_state(SUSPEND_FREEZE_SMP)) { 
++			cpu_relax();
++			barrier();
++		}
++
++		while (atomic_read(&suspend_cpu_counter) != smp_processor_id()) {
++			cpu_relax();
++			barrier();
++		}
++	       	my_saved_context = (unsigned char *) (suspend2_saved_contexts + smp_processor_id());
++		for (loop = sizeof(struct suspend2_saved_context); loop--; loop)
++			*(((unsigned char *) &suspend2_saved_context) + loop - 1) = *(my_saved_context + loop - 1);
++		restore_processor_context();
++		cpu_clear(smp_processor_id(), per_cpu(cpu_tlbstate, smp_processor_id()).active_mm->cpu_vm_mask);
++		load_cr3(swapper_pg_dir);
++		wbinvd();
++		__flush_tlb_all();
++		current_cpu_data.loops_per_jiffy = c_loops_per_jiffy_ref[smp_processor_id()];
++		mtrr_restore_one_cpu();
++		atomic_dec(&suspend_cpu_counter);
++	} else {	/* suspending */
++		BUG_ON(!irqs_disabled());
++		/* 
++		 *Save context and go back to idling.
++		 * Note that we cannot leave the processor
++		 * here. It must be able to receive IPIs if
++		 * the LZF compression driver (eg) does a
++		 * vfree after compressing the kernel etc
++		 */
++		while (test_suspend_state(SUSPEND_FREEZE_SMP) &&
++			(atomic_read(&suspend_cpu_counter) != (smp_processor_id() - 1))) {
++			cpu_relax();
++			barrier();
++		}
++		save_processor_context();
++		my_saved_context = (unsigned char *) (suspend2_saved_contexts + smp_processor_id());
++		for (loop = sizeof(struct suspend2_saved_context); loop--; loop)
++			*(my_saved_context + loop - 1) = *(((unsigned char *) &suspend2_saved_context) + loop - 1);
++		atomic_inc(&suspend_cpu_counter);
++		/* Now spin until the atomic copy of the kernel is made. */
++		while (test_suspend_state(SUSPEND_FREEZE_SMP)) {
++			cpu_relax();
++			barrier();
++		}
++		atomic_dec(&suspend_cpu_counter);
++		kernel_fpu_end();
++	}
++}
++
++EXPORT_SYMBOL(__smp_suspend_lowlevel);
++#endif  /* SMP */
 
 

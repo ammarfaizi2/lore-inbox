@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261700AbTCQOjF>; Mon, 17 Mar 2003 09:39:05 -0500
+	id <S261697AbTCQOkC>; Mon, 17 Mar 2003 09:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261694AbTCQOjF>; Mon, 17 Mar 2003 09:39:05 -0500
-Received: from [207.61.129.108] ([207.61.129.108]:11198 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S261700AbTCQOjE>; Mon, 17 Mar 2003 09:39:04 -0500
-From: Shawn Starr <shawn.starr@datawire.net>
-Organization: Datawire Communication Networks Inc.
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.5.6x][PROBLEMS] - Panics relating to IRQ mishandlings and Timer releases
-Date: Mon, 17 Mar 2003 09:51:55 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S261702AbTCQOkC>; Mon, 17 Mar 2003 09:40:02 -0500
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:29313 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S261697AbTCQOkB>; Mon, 17 Mar 2003 09:40:01 -0500
+From: jlnance@unity.ncsu.edu
+Date: Mon, 17 Mar 2003 09:50:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: NFS file consistency
+Message-ID: <20030317145054.GA7030@ncsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303170951.55517.shawn.starr@datawire.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone been having IRQ mishandling problems in the later 2.5.6x kernels? 
+Hello All,
+    I am trying to track down some file consistency problems I am seeing
+and I want to make sure my assumptions about NFS are correct.
+    Say I have 2 NFS clients, machine A and machine B.  Machine A does
+an open/write/close on a file.  After this machine B does an open/read on
+the file.  Is machine B guaranteed to read the same data that A wrote
+or is there a delay between the time A closes the file and the time B
+can expect to see valid data?  Also if the file already existed before
+A wrote it, and B had already read from it and closed it, does this
+affect anything?
 
-My poor IBM seems to be panicing randomly with system calls to irq functions. 
+Thanks,
 
-1) Panic on sending a 1.3GB file from other PC to the IBM while sound blaster 
-was playing some mp3s
-
-2) The IBM Panics when I turn on the PC next to it (NOT grounding problem) we 
-get a kernel panic with softirq and timers.
-
-I know timers changed alot from 2.4 -> 2.5 but this problem is a showstopper 
-at least for me.
-
-I first thought it was serial related but having the panic happen after 
-sending a large file makes me wonder if there's something broken with timers 
-and interrupt handling (whos not releasing that timer!).
-
-Thanks, 
-
-Shawn.
-
--- 
-Shawn Starr
-UNIX Systems Administrator, Operations
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
-shawn.starr@datawire.net
-"The power to Transact" - http://www.datawire.net
-
+Jim

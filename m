@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267757AbVBDDwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271679AbVBDEP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267757AbVBDDwz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 22:52:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267754AbVBDDwz
+	id S271679AbVBDEP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 23:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271703AbVBDEP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 22:52:55 -0500
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:50781 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267734AbVBDDwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 22:52:47 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Stephen Evanchik <evanchsa@gmail.com>
-Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
-Date: Thu, 3 Feb 2005 22:52:44 -0500
-User-Agent: KMail/1.7.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-References: <a71293c20502031443764fb4e5@mail.gmail.com> <200502031934.16642.dtor_core@ameritech.net>
-In-Reply-To: <200502031934.16642.dtor_core@ameritech.net>
+	Thu, 3 Feb 2005 23:15:29 -0500
+Received: from stinkfoot.org ([65.75.25.34]:22977 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S271679AbVBDEPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 23:15:17 -0500
+Message-ID: <4202F725.8040509@stinkfoot.org>
+Date: Thu, 03 Feb 2005 23:16:37 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: e1000, sshd, and the infamous "Corrupted MAC on input"
+References: <42019E0E.1020205@stinkfoot.org> <20050203070415.GC17460@waste.org>
+In-Reply-To: <20050203070415.GC17460@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502032252.45309.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 February 2005 19:34, Dmitry Torokhov wrote:
-> On Thursday 03 February 2005 17:43, Stephen Evanchik wrote:
-> > Vojtech,
-> > 
-> > Here is a patch that exposes the IBM TrackPoint's extended properties
-> > as well as scroll wheel emulation.
-> > 
-> > 
+Matt Mackall wrote:
+> On Wed, Feb 02, 2005 at 10:44:14PM -0500, Ethan Weinstein wrote:
+...
+>>Finally, I used a crossover cable between the two boxes, which resulted 
+>>in the same error from sshd again.
 > 
-> Hi,
 > 
-> Very nice although I have a couple of comments.
+> Well ssh isn't an especially good test as it's hard to debug.
 > 
-> >  /*
-> > + * Try to initialize the IBM TrackPoint
-> > + */
-> > +	if (max_proto > PSMOUSE_PS2 && trackpoint_init(psmouse) == 0) {
-> > +		psmouse->vendor = "IBM";
-> > +		psmouse->name = "TrackPoint";
-> > + 
-> > +		return PSMOUSE_PS2;
+> Try transferring large compressed files via netcat and comparing the
+> results. eg:
 > 
-> Why PSMOUSE_PS2? Reconnect will surely not like it.
->
+> host1# nc -l -p 2000 > foo.bz2
+> 
+> host2# nc host1 2000 < foo.bz2
+> 
+> If the md5sums differ, follow up with a cmp -bl to see what changed.
+> 
+> Then we can look at the failure patterns and determine if there's some
+> data or alignment dependence.
+> 
 
-OK, I have read the code once again, and saw that you have special
-handling within PS/2 protocol based on model constant. Please set
-psmouse type to PSMOUSE_TRACKPOINT instead of model and provide full
-protocol handler, like ALPS, Synaptics and Logitech do. Trackpoint
-is different and complex enough to warrant it.
+Excellent tip, thanks.  I was able to reprodce the problem several times 
+using this technique with nc, however the problem was intermittent (as 
+nasty problems like this often are).  I used a 1.3G gzipped tarball and 
+  experienced several botched transfers along with a few good ones.  To 
+be fair, I also switched back to 100Fdx and repeated; I didn't get a 
+single failure at this speed over 25 or so runs.
 
--- 
-Dmitry
+The results of two cmp's are here:
+
+http://www.stinkfoot.org/e1000tests.out
+
+What next?
+
+-Ethan

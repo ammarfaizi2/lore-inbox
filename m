@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbUKXF0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbUKXFgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbUKXF0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 00:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbUKXF0d
+	id S261793AbUKXFgv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 00:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUKXFgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 00:26:33 -0500
-Received: from siaag2ag.compuserve.com ([149.174.40.140]:37565 "EHLO
-	siaag2ag.compuserve.com") by vger.kernel.org with ESMTP
-	id S261721AbUKXF03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 00:26:29 -0500
-Date: Wed, 24 Nov 2004 00:23:23 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: x86_64 GPF handler (was: [PATCH] remove errornous semicolon)
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200411240026_MC3-1-8F47-CE27@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Wed, 24 Nov 2004 00:36:50 -0500
+Received: from waste.org ([209.173.204.2]:20619 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261793AbUKXFgs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 00:36:48 -0500
+Date: Tue, 23 Nov 2004 21:35:52 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
+Message-ID: <20041124053552.GD2460@waste.org>
+References: <20041118194959.3f1a3c8e.colin@colino.net> <87653wxqij.fsf@devron.myhome.or.jp> <20041124032017.GG8040@waste.org> <87pt237se1.fsf@devron.myhome.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <87pt237se1.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-
-> arch/i386/kernel/traps.c: In function `do_general_protection':
-> arch/i386/kernel/traps.c:506: warning: empty body in an if-statement
+On Wed, Nov 24, 2004 at 02:00:54PM +0900, OGAWA Hirofumi wrote:
+> Matt Mackall <mpm@selenic.com> writes:
 > 
-> upon inspecting the code I see what looks like a mistakenly placed ";"
+> > On Wed, Nov 24, 2004 at 05:24:36AM +0900, OGAWA Hirofumi wrote:
+> >> Colin Leroy <colin@colino.net> writes:
+> >> 
+> >> > It adds MS_SYNCHRONOUS support to FAT filesystem, so that less
+> >> > filesystem breakage happen when disconnecting an USB key, for 
+> >> > example. I'd like to have comments about it, because as it 
+> >> > seems to work fine here, I'm not used to fs drivers and could
+> >> > have made mistakes.
+> >> 
+> >> What cases should these patches guarantee that users can unplug the
+> >> USB key?  And can we guarantee the same cases by improving autofs or
+> >> the similar stuff?
+> >
+> > Well there can be no guarantees - there will always be a race between
+> > flush and hot unplug. If we're careful with write ordering, we can
+> > perhaps arrange to avoid the worst sorts of corruption, provided the
+> > device does the right thing when it's in the middle of an IO.
+> >
+> > But generally I think this is a good idea as it shrinks the window.
 > 
->         if (!fixup_exception(regs)) {
->                 if (notify_die(DIE_GPF, "general protection fault", regs,
->                                 error_code, 13, SIGSEGV) == NOTIFY_STOP);
->                         return;
->                 die("general protection fault", regs, error_code);
->         }
+> Things which I want to say here - do we really need the bogus
+> sync-mode?
 
+I'm not sure why you say it's bogus. Ext2 for instance has long had a
+mount option similar to this and it makes sense in volatile
+environments. Having the flag in the superblock seems a sensible way
+of doing it as well.
+ 
+> Current fatfs is not keeping the consistency of data on the disk at
+> all.  So, after all, the data on a disk is corrupting until all
+> syscalls finish, right?
 
-  Ouch.  No matter what the notifier chain returns it will be treated
-as if it returned NOTIFY_STOP, and no kernel-mode GPF will ever reach
-the die().
+This is to protect against usage patters like mv a b, oh look, it's
+done, unplug. Not lots of active readers/writers.
 
-  This bug was introduced 31 Aug 04 by prasanna@in.ibm.com during a
-kprobes update.  The comments say it was ported from x86_64, so I had
-a look:
+> If so, isn't this too slow? I doubt this is good solution for this
+> problem (USB key unplugging)...
 
-        /* kernel gp */
-        {
-                const struct exception_table_entry *fixup;
-                fixup = search_exception_tables(regs->rip);
-                if (fixup) {
-                        regs->rip = fixup->fixup;
-                        return;
-                }
-                notify_die(DIE_GPF, "general protection fault", regs, error_code,
-                           13, SIGSEGV); 
-                die("general protection fault", regs, error_code);
-        }
+Perhaps. I think the behavior should be to honor the superblock flag
+by default, overridable with -o sync|async at mount.
+ 
+> Well, it seems good as start of sync-mode though.
+> -- 
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-x86_64 never checks the result of notify_die() and unconditionally does a die().
-I don't know if this is a bug or not...
-
-Andi, if this is not a bug could you explain why not?
-
-
---Chuck Ebbert  24-Nov-04  00:23:50
+-- 
+Mathematics is the supreme nostalgia of our time.

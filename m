@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263509AbTIWT0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 15:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbTIWTY0
+	id S263498AbTIWTYH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 15:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTIWTXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 15:24:26 -0400
-Received: from itaqui.terra.com.br ([200.176.3.19]:27084 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S263504AbTIWTXk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 15:23:40 -0400
-Message-ID: <3F709B9F.8080607@terra.com.br>
-Date: Tue, 23 Sep 2003 16:14:39 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: dwmw2@infradead.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] memory leak in mtdblock.c found by checker
-Content-Type: multipart/mixed;
- boundary="------------090607070909000400060405"
+	Tue, 23 Sep 2003 15:23:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31708 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263490AbTIWTV4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 15:21:56 -0400
+Date: Tue, 23 Sep 2003 12:08:56 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andreas Schwab <schwab@suse.de>
+Cc: bcrl@kvack.org, tony.luck@intel.com, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
+       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+Message-Id: <20030923120856.3e538345.davem@redhat.com>
+In-Reply-To: <jer8275n8u.fsf@sykes.suse.de>
+References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
+	<20030923142925.A16490@kvack.org>
+	<jehe3372th.fsf@sykes.suse.de>
+	<20030923115200.1f5b44df.davem@redhat.com>
+	<je4qz3724k.fsf@sykes.suse.de>
+	<20030923120110.4a039808.davem@redhat.com>
+	<jer8275n8u.fsf@sykes.suse.de>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090607070909000400060405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 23 Sep 2003 21:16:33 +0200
+Andreas Schwab <schwab@suse.de> wrote:
 
-	Hi David,
+> Or the compiler generates code to take advantage of the fact that the
+> lower address bits are zero.
 
-	Patch against 2.6-test5, which checks the right variable if kmalloc 
-failed.
+The only place where I can se it doing this legally is for structure
+offsets.  For example where a "load 4 byte word" instruction takes an
+offsetable address composed of a reg and an integer offset where the
+integer offset must be a multiple of 4.
 
-	Please apply,
+This rule we do abide by in the kernel, because PARISC requires this.
 
-Felipe
-
---------------090607070909000400060405
-Content-Type: text/plain;
- name="mtdblock-leak.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mtdblock-leak.patch"
-
---- linux-2.6.0-test5/drivers/mtd/mtdblock.c.orig	2003-09-23 16:09:37.000000000 -0300
-+++ linux-2.6.0-test5/drivers/mtd/mtdblock.c	2003-09-23 16:10:50.000000000 -0300
-@@ -275,7 +275,7 @@
- 	
- 	/* OK, it's not open. Create cache info for it */
- 	mtdblk = kmalloc(sizeof(struct mtdblk_dev), GFP_KERNEL);
--	if (!mtdblks)
-+	if (!mtdblk)
- 		return -ENOMEM;
- 
- 	memset(mtdblk, 0, sizeof(*mtdblk));
-
---------------090607070909000400060405--
-
+Anything more is asking for trouble, I wouldn't want to use such a compiler
+in the real world :)

@@ -1,118 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTFJRa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 13:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTFJRa5
+	id S263738AbTFJRbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 13:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTFJRbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 13:30:57 -0400
-Received: from rdu26-81-149.nc.rr.com ([66.26.81.149]:1664 "EHLO
-	max.bungled.net") by vger.kernel.org with ESMTP id S263737AbTFJRay
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 13:30:54 -0400
-Date: Tue, 10 Jun 2003 17:44:36 -0400
-From: Nathan Conrad <conrad@bungled.net>
-To: Oleg Drokin <green@namesys.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 / reiserfs data corruption, 2.5-bk
-Message-ID: <20030610214436.GA6719@bungled.net>
-References: <20030609193541.GA21106@suse.de> <20030610084323.GA16435@namesys.com>
+	Tue, 10 Jun 2003 13:31:21 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:10244 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263738AbTFJRbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 13:31:17 -0400
+Date: Tue, 10 Jun 2003 19:44:29 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, gibbs@scsiguy.com,
+       marcelo@conectiva.com.br, green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030610194429.615c0e93.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.50.0306100949040.19137-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<20030605181423.GA17277@alpha.home.local>
+	<20030608131901.7cadf9ea.skraw@ithnet.com>
+	<20030608134901.363ebe42.skraw@ithnet.com>
+	<20030609171011.7f940545.skraw@ithnet.com>
+	<Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
+	<20030610123015.4242716e.skraw@ithnet.com>
+	<Pine.LNX.4.50.0306100847580.19137-100000@montezuma.mastecende.com>
+	<20030610153815.57f7a563.skraw@ithnet.com>
+	<Pine.LNX.4.50.0306100949040.19137-100000@montezuma.mastecende.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
-Content-Disposition: inline
-In-Reply-To: <20030610084323.GA16435@namesys.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Jun 2003 09:51:34 -0400 (EDT)
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Reading around the whole interrupt stuff I came across a very simple idea
+> > which I am going to test right now. See you in some hours ;-)
 
-I've been noticing a similar problem on my laptop. This may, or may
-not be related, but it did start somewhere within the past week (maybe
-the IDE taskfile conversion???, to throw out a guess). I wonder if
-Dave Jones is using IDE or SCSI. CONFIG_SMP and CONFIG_PREEMPT are
-disabled on my machine (Sony Vaio PCG-FXA49 laptop, Athlon4). I'm
-compiling the kernel with gcc 3.3 (Debian version).
+I now tried rc7+aic20030603 SMP apic _but_ interrupts from aic only bound to
+single cpu. I did this with help of irqbalance from Arjan.
 
-Anyway, certain directories get locked up on occasion and when I try
-to execute 'ls' or read from the directory, the process gets into a
-locked up state; ^C does not work to kill the process. The only way to
-make a directory "readable" is to restart the machine. I have not
-noticed any FS corruption, just the lack of being able to enter the
-directory.
+/proc/interrupts:
 
- At the same time, a kernel bug will be displayed:
+           CPU0       CPU1       
+  0:       5148     571297    IO-APIC-edge  timer
+  1:       9733         97    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+ 12:      43720       1271    IO-APIC-edge  PS/2 Mouse
+ 15:          4          4    IO-APIC-edge  ide1
+ 17:       1297    1336383   IO-APIC-level  3ware Storage Controller
+ 18:        344      16447   IO-APIC-level  eth0, eth1
+ 20:        570          3   IO-APIC-level  fcpcipnp
+ 21:      57292        340   IO-APIC-level  eth2
+ 22:     443161       2776   IO-APIC-level  aic7xxx
+ 23:         31    2005037   IO-APIC-level  aic7xxx
+ 26:          0          0   IO-APIC-level  EMU10K1
+NMI:     593524     582633 
+LOC:     576356     576330 
+ERR:          0
+MIS:          0
 
+The controller used is the second aic7xxx. The 31 interrupts on CPU0 have
+occured before the test. This setup fails during verify (data corruption).
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c016781a
-*pde =3D 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[find_inode_fast+26/96]    Not tainted
-EFLAGS: 00010286
-EIP is at find_inode_fast+0x1a/0x60
-eax: db0355c4   ebx: 0001859f   ecx: c3a69844   edx: 00000000
-esi: dfd60c00   edi: dff99340   ebp: dff99340   esp: cc6dde50
-ds: 007b   es: 007b   ss: 0068
-Process emacs20 (pid: 16508, threadinfo=3Dcc6dc000 task=3Dc6d0adc0)
-Stack: c4bca5b8 0001859f 0001859f dfd60c00 c0167d2e dfd60c00 dff99340 00018=
-59f=20
-       0001859f da191d40 dfd60c00 da191d40 c018e45b dfd60c00 0001859f db666=
-130=20
-       fffffff4 dca22aac dca22a44 c015cd60 dca22a44 da191d40 00000000 cc6dd=
-f48=20
-Call Trace:
- [iget_locked+78/160] iget_locked+0x4e/0xa0
- [ext3_lookup+107/208] ext3_lookup+0x6b/0xd0
- [real_lookup+192/240] real_lookup+0xc0/0xf0
- [do_lookup+158/176] do_lookup+0x9e/0xb0
- [link_path_walk+1066/2000] link_path_walk+0x42a/0x7d0
- [__user_walk+73/96] __user_walk+0x49/0x60
- [vfs_stat+31/96] vfs_stat+0x1f/0x60
- [sys_stat64+27/64] sys_stat64+0x1b/0x40
- [syscall_call+7/11] syscall_call+0x7/0xb
+I would say that the interrupt code of the aic in itself is therefore ok with
+SMP. If it were a SMP race condition inside the interrupt routine this test
+should have been ok (as only one CPU is used).
 
-Code: 0f 18 02 90 39 59 18 89 c8 74 0f 85 d2 89 d1 75 ed 31 c0 83=20
+Regards,
+Stephan
 
 
-On Tue, Jun 10, 2003 at 12:43:23PM +0400, Oleg Drokin wrote:
-> Hello!
->=20
-> On Mon, Jun 09, 2003 at 08:35:55PM +0100, Dave Jones wrote:
->=20
-> > 2.5 Bitkeeper tree as of last 24 hrs. Running a lot
-> > of disk IO stress (multiple fsstress, over 100 fsx instances,
-> > and random sync calling) produced failures on both reiserfs
-> > and ext3.
-> > Tests were done on seperate disks, but concurrently.
->=20
-> Do you have smp or preempt enabled?
->=20
-> Bye,
->     Oleg
 
--Nathan Conrad
 
---=20
-Nathan J. Conrad
-GPG: F4FC 7E25 9308 ECE1 735C  0798 CE86 DA45 9170 3112
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+5lFEzobaRZFwMRIRAiKLAKCE3RT51QweOi366sdqkdLaWijp5QCdF7ba
-0UCW3GMzdq/O7OvWlxXkXkU=
-=UhLT
------END PGP SIGNATURE-----
-
---zYM0uCDKw75PZbzx--

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263208AbTESWrb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTESWrb
+	id S263277AbTESWrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTESWrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:47:31 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:53393 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263208AbTESWr1 (ORCPT
+	Mon, 19 May 2003 18:47:48 -0400
+Received: from [65.198.37.67] ([65.198.37.67]:57266 "EHLO gghcwest.com")
+	by vger.kernel.org with ESMTP id S263275AbTESWrk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:47:27 -0400
-Date: Mon, 19 May 2003 15:55:36 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: akpm@digeo.com, ricklind@us.ibm.com, linux-kernel@vger.kernel.org,
-       lm@bitmover.com, cs@tequila.co.jp
-Subject: Re: [PATCH] Documentation for iostats
-Message-Id: <20030519155536.1ac2bcb6.rddunlap@osdl.org>
-In-Reply-To: <20030519225542.GE6096@werewolf.able.es>
-References: <200305192118.h4JLIu710201@owlet.beaverton.ibm.com>
-	<20030519154858.3b3e2677.akpm@digeo.com>
-	<20030519225542.GE6096@werewolf.able.es>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 19 May 2003 18:47:40 -0400
+Subject: Re: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+To: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030519222910.GG4757@louise.pinerecords.com>
+References: <785F348679A4D5119A0C009027DE33C102E0D3AB@mcoexc04.mlm.maxtor.com>
+	 <1053374646.10240.5.camel@heat>
+	 <1053373513.29226.25.camel@dhcp22.swansea.linux.org.uk>
+	 <20030519222910.GG4757@louise.pinerecords.com>
+Content-Type: text/plain
+Message-Id: <1053385232.10292.13.camel@heat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
+Date: 19 May 2003 16:00:33 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 May 2003 00:55:42 +0200 "J.A. Magallon" <jamagallon@able.es> wrote:
+On Mon, 2003-05-19 at 15:29, Tomas Szepe wrote:
+> > [alan@lxorguk.ukuu.org.uk]
+> > 
+> > On Llu, 2003-05-19 at 21:04, Jeffrey W. Baker wrote:
+> > > I was using Via IDE chipset and, yes, I had configured the kernel for
+> > > VIA support.  That's why it worked in 2.4.20.  But it stopped working in
+> > > 2.4.21-rc.
+> > 
+> > VIA IDE should be working reliably, my main test box is an EPIA series
+> > VIA system so the VIA IDE does get a fair beating
+> 
+> This person is running with CONFIG_BLK_DEV_VIA82CXXX unset.
 
-| 
-| On 05.20, Andrew Morton wrote:
-| > Rick Lindsley <ricklind@us.ibm.com> wrote:
-| > >
-| > > As promised, here is a file to add to the Documentation/ directory which
-| > > describes the disk statistics fields.
-| > 
-| > Could we have /proc/diskstats too?
-| > 
-| > > +Last modified 5/15/03
-| > 
-| > Pet peeve number 4,592: There is no fifteenth month.
-| > 
-| 
-| How about using ISO dates to avoid this confussions ?
-| Last modified: 20030515
+No, this person is not.  
 
-Hey, that's what I was going to suggest!  :)
+-jwb
 
-Yes, please use ISO date formats.
-
---
-~Randy

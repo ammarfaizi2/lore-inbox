@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbTEIMDO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTEIMDN
+	id S262488AbTEIMBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbTEIMBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:03:13 -0400
-Received: from pop.gmx.net ([213.165.64.20]:18222 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262486AbTEIMCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:02:52 -0400
-Message-ID: <3EBB9BD4.8070101@gmx.net>
-Date: Fri, 09 May 2003 14:15:16 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	Fri, 9 May 2003 08:01:34 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:61151 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262497AbTEIMBZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:01:25 -0400
+Message-Id: <200305091213.h49CDuO4029947@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: ioctl32_unregister_conversion & modules
+To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Date: Fri, 09 May 2003 14:10:31 +0200
+References: <20030509100039$6904@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem: strace -ff fails on 2.4.21-rc1
-References: <200305090513_MC3-1-3814-65C7@compuserve.com>
-In-Reply-To: <200305090513_MC3-1-3814-65C7@compuserve.com>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> Ingo Oeser wrote:
-> 
-> 
->>SUID binaries cannot be ptrace()d under Linux for security reasons.
-> 
-> 
->   I just found out minicom is spawing /sbin/lockdev which is setgrp
-> 'lock'.  Would that cause ptrace failure??
+Pavel Machek wrote:
 
-AFAIK that could have caused the failure. Please test 2.4.21-rc2 whcih
-has fixes for many ptrace problems.
+> ...what is the problem?
+> 
+> It seems that function pointers into modules do not need any special
+> treatmeant [I *know* there was talk about this on l-k; but I can't
+> find anything in Documentation/]:
+> 
+>                 if (!capable(CAP_SYS_ADMIN))
+>                         return -EACCES;
+>                 if (disk->fops->ioctl) {
+>                         ret = disk->fops->ioctl(inode, file, cmd, arg);
+>                         if (ret != -EINVAL)
+>                                 return ret;
+>                 }
 
+This is protected against unload by the reference counting done in 
+open()/release(). ->ioctl() can be called only for open devices,
+so you know the ioctl handler is not getting unloaded while it
+is running.
+ 
+> So... what's the problem with {un}register_ioctl32_conversion being
+> called from module_init/module_exit? Drivers in the tree do it
+> already...
 
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+The problem is that when the conversion handler is called, the reference
+counting is only done for the module listed as ->owner in the
+file operations. For example in the patch you submitted to add 
+register_ioctl32_conversion() to drivers/serial/core.c I see nothing
+stopping you from unloading core.ko while the handler is running
+on a device owned by drivers/char/cyclades.c or any other serial driver.
+It does not even have to be run on a serial driver, a user might try
+to do ioctl(TIOCGSERIAL, ...) on a regular file...
 
+        Arnd <><

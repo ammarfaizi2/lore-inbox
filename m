@@ -1,31 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSF3SJO>; Sun, 30 Jun 2002 14:09:14 -0400
+	id <S315388AbSF3SzD>; Sun, 30 Jun 2002 14:55:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSF3SJN>; Sun, 30 Jun 2002 14:09:13 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:21478 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S315372AbSF3SJN>; Sun, 30 Jun 2002 14:09:13 -0400
-Date: Sun, 30 Jun 2002 14:11:38 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Subject: Re: Thinkpad 560 suspend/hibernate requires floppy
-Message-ID: <20020630181138.GB26454@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-References: <E17OJdE-0000ne-00@coll.ra.phy.cam.ac.uk> <20020630175522.GA26454@ravel.coda.cs.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020630175522.GA26454@ravel.coda.cs.cmu.edu>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S315406AbSF3SzC>; Sun, 30 Jun 2002 14:55:02 -0400
+Received: from twinlark.arctic.org ([208.44.199.239]:21453 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S315388AbSF3SzB>; Sun, 30 Jun 2002 14:55:01 -0400
+Date: Sun, 30 Jun 2002 11:57:26 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: linux-raid@vger.rutgers.edu,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Can't boot from /dev/md0 (RAID-1)
+In-Reply-To: <200206301419.26254.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.44.0206301152150.1582-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 30, 2002 at 01:55:22PM -0400, Jan Harkes wrote:
-> I typically need to reload the cs4236 sound driver to avoid DMA timeouts
+my system has 4 disks, but /dev/md0 is a RAID1 for /boot.  (/dev/md1 is a
+RAID5 and LVM is on top of it...)  anyhow, this is what works for me.
+i've even pulled out a disk and it still boots.
 
-	     ehh, that should be cs4231
+btw, you really don't want to put two drives on an IDE controller.  not
+just for performance reasons -- if a master drive fails it can easily
+prevent access to the slave... so you'll have a two disk failure on your
+hands.  or maybe this is just urban legend and i'm spreading it further ;)
 
-Jan
+-dean
+
+lba32
+boot=/dev/md0
+root=/dev/arctic/root
+install=/boot/boot-text.b
+map=/boot/map
+prompt
+timeout=150
+raid-extra-boot=/dev/hde,/dev/hdg,/dev/hdi,/dev/hdk
+
+password=XXXXXXXX
+
+serial=0,38400n8
+append="console=tty0 console=ttyS0,38400n8"
+
+default=linux
+
+image=/boot/vmlinuz
+        initrd=/boot/initrd-lvm-2.4.19-pre3-ac1.gz
+        label=linux
+        restricted
+        read-only
+
+

@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbUKDOEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbUKDOFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbUKDOEN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 09:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUKDOEN
+	id S262224AbUKDOFj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 09:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUKDOFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 09:04:13 -0500
-Received: from pop.gmx.net ([213.165.64.20]:48068 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262222AbUKDOEJ (ORCPT
+	Thu, 4 Nov 2004 09:05:38 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48816 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262224AbUKDOFZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 09:04:09 -0500
-X-Authenticated: #21910825
-Message-ID: <418A36CD.2030600@gmx.net>
-Date: Thu, 04 Nov 2004 15:03:57 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC] randomized major and minor numbers
+	Thu, 4 Nov 2004 09:05:25 -0500
+Date: Thu, 4 Nov 2004 15:05:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Michael J. Cohen" <mjc@unre.st>
+Cc: "K.R. Foley" <kr@cybsft.com>, sboyce@blueyonder.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
+Message-ID: <20041104140528.GA16604@elte.hu>
+References: <4189108C.2050804@blueyonder.co.uk> <41892899.6080400@cybsft.com> <41897119.6030607@blueyonder.co.uk> <418988A6.4090902@cybsft.com> <20041104100634.GA29785@elte.hu> <1099563805.30372.2.camel@localhost> <1099567061.7911.4.camel@localhost> <20041104114545.GA3722@elte.hu> <1099573171.7876.0.camel@optie.uni.325i.org> <1099575262.8110.1.camel@optie.uni.325i.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1099575262.8110.1.camel@optie.uni.325i.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-IIRC it was debated during 2.5 development to make the kernel
-hand out randomized major/minor numbers to better test handling
-of dynamic major/minor numbers. Is there a patch available
-to test?
+* Michael J. Cohen <mjc@unre.st> wrote:
 
-Background: I want to make sure that userspace can handle
-arbitrary device numbers for disks in my quest for a unified
-/dev/diskXpY naming and numbering scheme. This would unify
-all the different naming schemes (hd*, sd*, ub*, etc.),
-remove arbitrary limits like 15 partitions max on SCSI disks
-and achieve most of this in userspace with udev.
+> I just managed to hardlock it reproducibly with no useful output on
+> serial.
 
-In the end, there would be only one block major number >256
-with dynamically allocated major numbers for all disks in the
-system if LANANA agrees with such a concept. Why would I
-want a major >256 registered? Because that way we can make
-sure the software accessing these devices can handle a large
-dev_t and it doesn't only work by luck.
+do you have APIC+IOAPIC enabled & nmi_watchdog=1?
 
-Comments?
+if you have KGDB enabled then i'd suggest to disable it, it's totally
+untested on PREEMPT_REALTIME.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+	Ingo

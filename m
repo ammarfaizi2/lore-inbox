@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVCHKme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVCHKnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbVCHKme (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVCHKme
+	id S261972AbVCHKnX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVCHKmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:42:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30700 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261966AbVCHKmc (ORCPT
+	Tue, 8 Mar 2005 05:42:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:14219 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261967AbVCHKmc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 8 Mar 2005 05:42:32 -0500
-Date: Tue, 8 Mar 2005 11:38:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: hugang@soulinfo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][3/3] swsusp: use non-contiguous memory
-Message-ID: <20050308103846.GA23640@elf.ucw.cz>
-References: <200503042051.54176.rjw@sisk.pl> <200503071232.32141.rjw@sisk.pl> <20050307033905.7efa259e.akpm@osdl.org> <200503071313.07679.rjw@sisk.pl>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=tHwSWvzCPXKkkpk9eXoJ8F78knygF1VgjpxzjFl5hsI7X9xrVyTgUnsirW/CE7tpo1lSklMSm9DjGMsNrN3ekoMM359tL0dI75b6CKyg/F21RFE9j26CXGluoD7FSD4WfXDRWl69rGiJ2YTQILbQ+esHpj796iZVfqIHxk/suQ0=
+Message-ID: <58cb370e050308024214400e1f@mail.gmail.com>
+Date: Tue, 8 Mar 2005 11:42:30 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] resync ATI PCI idents into base kernel
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110276929.28860.93.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503071313.07679.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200503072216.j27MGxtP024504@hera.kernel.org>
+	 <20050308053941.GA16450@kroah.com>
+	 <1110276929.28860.93.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 07-03-05 13:13:07, Rafael J. Wysocki wrote:
-> On Monday, 7 of March 2005 12:39, Andrew Morton wrote:
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > >
-> > > Yes, the Signed-off-by line was missing from the original patch.  Andrew,
-> > > should I resubmit it?
-> > > 
-> > 
-> > I dropped lots of those swsusp patches due to various bit of breakage. 
-> > Pavel will be redoing all of them sometime, hopefully.
+On Tue, 08 Mar 2005 10:15:30 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > Was there a reason you did this without using tabs, like the rest of the
+> > file?
 > 
-> These patches are a "redone version" of the patch that Pavel submitted
-> before and Pavel has acked them already.
+> No but I'll send Linus an update to fix that now.
 > 
-> I did my best not to break them, but if they are broken, could you please tell
-> me what's wrong with them so that I can fix it?
+> > Again, the maintainer chain is well documented...
+> 
+> Really - so does it go to the PCI maintainer, the IDE maintainer or the
+> DRI maintainer or someone else, or all of them, or in bits to different
+> ones remembering there are dependancies and I don't use bitcreeper ?
 
-Just bad timing, I guess. I sent wrong patches, and andrew reacted by
-simply waiting for me to catch up with right tree (which is okay, it
-was big and not critical).
-
-Now, akpm sent all (?) swsusp updates to Linus, so it should appear in
-bk tree later today. If you could regenerate the patches (1/3 will no
-longer be needed) and send them to me & l-k. I'll then forward them to
-akpm. [He seems to prefer patches to come from my email address :-)]
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+it should go to /dev/null because there are no users of these IDs ;-)

@@ -1,62 +1,211 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290822AbSAYWMr>; Fri, 25 Jan 2002 17:12:47 -0500
+	id <S290823AbSAYWQR>; Fri, 25 Jan 2002 17:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290825AbSAYWMm>; Fri, 25 Jan 2002 17:12:42 -0500
-Received: from smtp-server6.tampabay.rr.com ([65.32.1.43]:3493 "EHLO
-	smtp-server6.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S290822AbSAYWMd> convert rfc822-to-8bit; Fri, 25 Jan 2002 17:12:33 -0500
-Message-Id: <200201252212.g0PMCWt16931@smtp-server6.tampabay.rr.com>
-Content-Type: text/plain; charset=US-ASCII
-From: GNUOrder <gnuorder@tampabay.rr.com>
-Reply-To: gnuorder@tampabay.rr.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel newbie -- Compact Flash booting
-Date: Fri, 25 Jan 2002 17:11:34 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20020125065237.27862.qmail@web8104.in.yahoo.com> <20020125093733.D5808@mea-ext.zmailer.org>
-In-Reply-To: <20020125093733.D5808@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S290827AbSAYWQI>; Fri, 25 Jan 2002 17:16:08 -0500
+Received: from ns.suse.de ([213.95.15.193]:42758 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290823AbSAYWP4>;
+	Fri, 25 Jan 2002 17:15:56 -0500
+Date: Fri, 25 Jan 2002 23:15:55 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        John Levon <movement@marcelothewonderpenguin.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+Message-ID: <20020125231555.A22583@wotan.suse.de>
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de> <20020125133814.U763@lynx.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020125133814.U763@lynx.adilger.int>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What if the CF connects to the IDE bus with an adapter?  Whould the IDE-CS 
-still work or do you mean the IDE chipset itself doesn't support hot swapping 
-or removable drives?  Also what kind of support is there for USB CF 
-read/writers?
+On Fri, Jan 25, 2002 at 01:38:14PM -0700, Andreas Dilger wrote:
+> So, what exactly does the above do now (hint: p and pc are both local
+> so they cannot be referenced anywhere else)?  It used to check that you
+> weren't trying to add two caches with the same name.  This isn't
+> possible with caches from broken modules anymore as they have no name.
 
-GO
+I have fixed the loop now to check for names again.
 
-On Friday 25 January 2002 02:37, Matti Aarnio wrote:
-> On Thu, Jan 24, 2002 at 10:52:37PM -0800, Ramya Ravichandran wrote:
-> > Hi,
-> >
-> >    I am a newbie to Linux.I have to develop an
-> > embedded linux controller that boots from the Compact
-> > flash card instead of the HD and work from RAM. I have
-> > to have a bare minimum implementation of Linux kernel
-> > to do this.
-> >   I don't know where to start. Shud I start by writing
-> > the driver for the CF card? What background knowledge
-> > shud I have for implementing the kernel?
->
->   The compact flashes appear to PCMCIA as removable IDE drives.
->   Unless the PCMCIA-CF adapter is more than just two connectors
->   plus a set of wires in between, you should have no problems
->   at all.   Either IDE, or IDE_CS driver should do it.
->   (The IDE_CS will, of course, need the PCMCIA suite too to
->    support removable media.  IDE doesn't support removability.)
->
->   To boot from CF you need support in your boot-rom/flash
->   code.  Something which might not be true, unless you write
->   it yourself..
->
-> > Please Help.Thanks
->
-> /Matti Aarnio
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> When calling kmem_cache_destroy() on a non-empty slab we should just
+> malloc some memory with the old cache name + "_leaked" for the name
+> pointer.  At least then we have a sane chance of figuring out what caused
+> the problem, instead of having a bunch of "broken" entries in the table,
+> and remove the above "broken" check entirely (we will always have a name).
+
+I don't like this because it complicates the code too much. 
+"broken" should be enough to debug it. 
+
+New patch appended. Linus please apply if you didn't already. 
+
+-Andi
+
+
+Index: mm/slab.c
+===================================================================
+RCS file: /cvs/linux/mm/slab.c,v
+retrieving revision 1.66
+diff -u -u -r1.66 slab.c
+--- mm/slab.c	2002/01/08 16:00:20	1.66
++++ mm/slab.c	2002/01/25 22:14:40
+@@ -186,8 +186,6 @@
+  * manages a cache.
+  */
+ 
+-#define CACHE_NAMELEN	20	/* max name length for a slab cache */
+-
+ struct kmem_cache_s {
+ /* 1) each alloc & free */
+ 	/* full, partial first, then free */
+@@ -225,7 +223,7 @@
+ 	unsigned long		failures;
+ 
+ /* 3) cache creation/removal */
+-	char			name[CACHE_NAMELEN];
++	const char			*name;
+ 	struct list_head	next;
+ #ifdef CONFIG_SMP
+ /* 4) per-cpu data */
+@@ -335,6 +333,7 @@
+ 	kmem_cache_t	*cs_dmacachep;
+ } cache_sizes_t;
+ 
++/* These are the default caches for kmalloc. Custom caches can have other sizes. */
+ static cache_sizes_t cache_sizes[] = {
+ #if PAGE_SIZE == 4096
+ 	{    32,	NULL, NULL},
+@@ -353,6 +352,26 @@
+ 	{131072,	NULL, NULL},
+ 	{     0,	NULL, NULL}
+ };
++/* Must match cache_sizes above. Out of line to keep cache footprint low. */
++#define CN(x) { x, x ## "(DMA)" }
++static char cache_names[][2][18] = { 
++#if PAGE_SIZE == 4096
++	CN("size-32"),
++#endif
++	CN("size-64"),
++	CN("size-128"),
++	CN("size-256"),
++	CN("size-512"),
++	CN("size-1024"),
++	CN("size-2048"),
++	CN("size-4096"),
++	CN("size-8192"),
++	CN("size-16384"),
++	CN("size-32768"),
++	CN("size-65536"),
++	CN("size-131072")
++}; 
++#undef CN
+ 
+ /* internal cache of cache description objs */
+ static kmem_cache_t cache_cache = {
+@@ -437,7 +456,6 @@
+ void __init kmem_cache_sizes_init(void)
+ {
+ 	cache_sizes_t *sizes = cache_sizes;
+-	char name[20];
+ 	/*
+ 	 * Fragmentation resistance on low memory - only use bigger
+ 	 * page orders on machines with more than 32MB of memory.
+@@ -450,9 +468,9 @@
+ 		 * eliminates "false sharing".
+ 		 * Note for systems short on memory removing the alignment will
+ 		 * allow tighter packing of the smaller caches. */
+-		sprintf(name,"size-%Zd",sizes->cs_size);
+ 		if (!(sizes->cs_cachep =
+-			kmem_cache_create(name, sizes->cs_size,
++			kmem_cache_create(cache_names[sizes-cache_sizes][0], 
++					  sizes->cs_size,
+ 					0, SLAB_HWCACHE_ALIGN, NULL, NULL))) {
+ 			BUG();
+ 		}
+@@ -462,9 +480,10 @@
+ 			offslab_limit = sizes->cs_size-sizeof(slab_t);
+ 			offslab_limit /= 2;
+ 		}
+-		sprintf(name, "size-%Zd(DMA)",sizes->cs_size);
+-		sizes->cs_dmacachep = kmem_cache_create(name, sizes->cs_size, 0,
+-			      SLAB_CACHE_DMA|SLAB_HWCACHE_ALIGN, NULL, NULL);
++		sizes->cs_dmacachep = kmem_cache_create(
++		    cache_names[sizes-cache_sizes][1], 
++			sizes->cs_size, 0,
++			SLAB_CACHE_DMA|SLAB_HWCACHE_ALIGN, NULL, NULL);
+ 		if (!sizes->cs_dmacachep)
+ 			BUG();
+ 		sizes++;
+@@ -604,6 +623,11 @@
+  * Cannot be called within a int, but can be interrupted.
+  * The @ctor is run when new pages are allocated by the cache
+  * and the @dtor is run before the pages are handed back.
++ *
++ * @name must be valid until the cache is destroyed. This implies that
++ * the module calling this has to destroy the cache before getting 
++ * unloaded.
++ * 
+  * The flags are
+  *
+  * %SLAB_POISON - Poison the slab with a known test pattern (a5a5a5a5)
+@@ -632,7 +656,6 @@
+ 	 * Sanity checks... these are all serious usage bugs.
+ 	 */
+ 	if ((!name) ||
+-		((strlen(name) >= CACHE_NAMELEN - 1)) ||
+ 		in_interrupt() ||
+ 		(size < BYTES_PER_WORD) ||
+ 		(size > (1<<MAX_OBJ_ORDER)*PAGE_SIZE) ||
+@@ -797,8 +820,7 @@
+ 		cachep->slabp_cache = kmem_find_general_cachep(slab_size,0);
+ 	cachep->ctor = ctor;
+ 	cachep->dtor = dtor;
+-	/* Copy name over so we don't have problems with unloaded modules */
+-	strcpy(cachep->name, name);
++	cachep->name = name;
+ 
+ #ifdef CONFIG_SMP
+ 	if (g_cpucache_up)
+@@ -811,10 +833,11 @@
+ 
+ 		list_for_each(p, &cache_chain) {
+ 			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
+-
+-			/* The name field is constant - no lock needed. */
+-			if (!strcmp(pc->name, name))
+-				BUG();
++			char tmp;
++			if (get_user(tmp,pc->name)) 
++				continue; 
++			if (!strcmp(pc->name,name))
++				BUG(); 
+ 		}
+ 	}
+ 
+@@ -1878,6 +1901,7 @@
+ 		unsigned long	num_objs;
+ 		unsigned long	active_slabs = 0;
+ 		unsigned long	num_slabs;
++		const char *name; 
+ 		cachep = list_entry(p, kmem_cache_t, next);
+ 
+ 		spin_lock_irq(&cachep->spinlock);
+@@ -1906,8 +1930,15 @@
+ 		num_slabs+=active_slabs;
+ 		num_objs = num_slabs*cachep->num;
+ 
++		name = cachep->name; 
++		{
++		char tmp; 
++		if (get_user(tmp, name)) 
++			name = "broken"; 
++		} 	
++
+ 		len += sprintf(page+len, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
+-			cachep->name, active_objs, num_objs, cachep->objsize,
++			name, active_objs, num_objs, cachep->objsize,
+ 			active_slabs, num_slabs, (1<<cachep->gfporder));
+ 
+ #if STATS

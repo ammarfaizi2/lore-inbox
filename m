@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLNUI7>; Thu, 14 Dec 2000 15:08:59 -0500
+	id <S132854AbQLNUNU>; Thu, 14 Dec 2000 15:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132879AbQLNUIt>; Thu, 14 Dec 2000 15:08:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18958 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132854AbQLNUIb>;
-	Thu, 14 Dec 2000 15:08:31 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012141937.TAA02604@raistlin.arm.linux.org.uk>
-Subject: Re: linux ipv6 questions.  bugs?
-To: kuznet@ms2.inr.ac.ru
-Date: Thu, 14 Dec 2000 19:37:37 +0000 (GMT)
-Cc: pete@research.NETsol.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <200012141931.WAA03039@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Dec 14, 2000 10:31:58 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132868AbQLNUNJ>; Thu, 14 Dec 2000 15:13:09 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:38916 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132854AbQLNUM7>; Thu, 14 Dec 2000 15:12:59 -0500
+Date: Thu, 14 Dec 2000 20:43:18 +0100 (CET)
+From: eduard.epi@t-online.de (Peter Bornemann)
+To: Tim Waugh <twaugh@redhat.com>
+cc: Peter Bornemann <eduard.epi@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: parport1 gone in 2.2.18
+In-Reply-To: <20001213231332.P5918@redhat.com>
+Message-ID: <Pine.LNX.4.21.0012142026150.684-100000@eduard.t-online.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru writes:
-> > bash-2.04# ping6 fe80::a00:2bff:fe95:1d7b
-> > connect: Invalid argument
-> 
-> Yes, of course. Link local address without interface is invalid.
+On Wed, 13 Dec 2000, Tim Waugh wrote:
+ 
+> The reason it works for you with modules is probably because you have
+> an options line in /etc/modules.conf that tells parport_pc which
+> addresses your PCI card is using at the moment.
 
-Ok...
+Bad news: the old problem with lockups during insmoding parport is back! I
+recompiled 2.2.18, because there is a problem with the 8138too-driver vs. 
+modutils-2.3.22. Since then, the old problem was back! Unfortunately I
+did not save the old modules. So, for the moment I cannot use 2.2.18 at
+all and I have switched to the 2.4 series and modutils-2.3.14 (version of
+modprobe doesn´t matter for the lockups, however). 
 
-bash-2.04# strace ping6 -I fe80::800:2b95:1d7b fe80::800:2b95:1d7b
-...
-socket(PF_INET6, SOCK_RAW, 58)          = 3
-getuid()                                = 0
-setuid(0)                               = 0
-bind(3, {sin_family=AF_INET6, sin6_port=htons(0), inet_pton(AF_INET6, "fe80::800:2b95:1d7b", &sin6_addr), sin6_flowinfo=htonl(0)}}, 24) = -1 EINVAL (Invalid argument)
-write(2, "ping: bind icmp socket: Invalid "..., 41ping: bind icmp socket: Invalid argument) = 41
-_exit(1)                                = ?
-bash-2.04#
+Any hint is welcome, for I would prefer a really stable kernel for this
+machine.
 
-still no go.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Peter B
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

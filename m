@@ -1,31 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbTJDETB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 00:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbTJDETB
+	id S261817AbTJDEoe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 00:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbTJDEod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 00:19:01 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:34314 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261812AbTJDETA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 00:19:00 -0400
-Date: Sat, 4 Oct 2003 00:18:53 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic irq_vector allocation for 2.6.0-test6-mm
-In-Reply-To: <200310031807.20650.jamesclv@us.ibm.com>
-Message-ID: <Pine.LNX.4.53.0310040016490.18935@montezuma.fsmlabs.com>
-References: <200310031807.20650.jamesclv@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Oct 2003 00:44:33 -0400
+Received: from tomts15-srv.bellnexxia.net ([209.226.175.3]:64164 "EHLO
+	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261817AbTJDEoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 00:44:32 -0400
+From: "Microsoft Inet Storage Service" <emailengine@microsoft.com>
+To: " " <client@yourserver.net>
+Subject: {Virus?} Bug Advice
+Mime-Version: 1.0
+Content-type: multipart/mixed; boundary="bkaxvcpvld"
+Message-Id: <20031004044427.12A85908EE@stationcentrale.com>
+Date: Sat,  4 Oct 2003 04:44:27 +0000 (UTC)
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be infected
+X-MailScanner-SpamCheck: not spam,
+	SpamAssassin (Message larger than max testing size)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Oct 2003, James Cleverdon wrote:
+--bkaxvcpvld
+Content-Type: text/plain; charset="us-ascii"; name="VirusWarning.txt"
+Content-Disposition: inline; filename="VirusWarning.txt"
+Content-Transfer-Encoding: quoted-printable
 
-> irq_vector is indexed by a value that can be as large as the sum of all the 
-> RTEs in all the I/O APICs.  On a 32-way x445 or a 16-way x440 with PCI 
-> expansion boxes, the static array will overflow.
+Warning: This message has had one or more attachments removed
+Warning: (eksx.exe, msg-16941-870.html).
+Warning: Please read the "VirusWarning.txt" attachment(s) for more informat=
+ion.
 
-What is number of interrupt sources on that 32x?
+This is a message from the MailScanner E-Mail Virus Protection Service
+----------------------------------------------------------------------
+The original e-mail attachment "msg-16941-870.html"
+was believed to be infected by a virus and has been replaced by this warning
+message.
+
+If you wish to receive a copy of the *infected* attachment, please
+e-mail helpdesk and include the whole of this message
+in your request. Alternatively, you can call them, with
+the contents of this message to hand when you call.
+
+At Sat Oct  4 00:44:28 2003 the virus scanner said:
+   msg-16941-870.html contains Exploit.IFrame.Gen=20
+
+Note to Help Desk: Look on the MailScanner in /var/spool/MailScanner/quaran=
+tine/20031004 (message 12A85908EE).
+
+--bkaxvcpvld
+Content-Type: text/plain; charset="us-ascii"; name="VirusWarning.txt"
+Content-Disposition: inline; filename="VirusWarning.txt"
+Content-Transfer-Encoding: quoted-printable
+
+This is a message from the MailScanner E-Mail Virus Protection Service
+----------------------------------------------------------------------
+The original e-mail attachment "eksx.exe"
+was believed to be infected by a virus and has been replaced by this warning
+message.
+
+If you wish to receive a copy of the *infected* attachment, please
+e-mail helpdesk and include the whole of this message
+in your request. Alternatively, you can call them, with
+the contents of this message to hand when you call.
+
+At Sat Oct  4 00:44:28 2003 the virus scanner said:
+   eksx.exe contains Worm.Gibe.F=20
+   No programs allowed (eksx.exe)
+
+Note to Help Desk: Look on the MailScanner in /var/spool/MailScanner/quaran=
+tine/20031004 (message 12A85908EE).
+
+--bkaxvcpvld--
+

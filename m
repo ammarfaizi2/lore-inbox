@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317419AbSFXGaZ>; Mon, 24 Jun 2002 02:30:25 -0400
+	id <S317416AbSFXGn2>; Mon, 24 Jun 2002 02:43:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317418AbSFXGaY>; Mon, 24 Jun 2002 02:30:24 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37338 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317416AbSFXGaX>;
-	Mon, 24 Jun 2002 02:30:23 -0400
-Date: Sun, 23 Jun 2002 23:24:16 -0700 (PDT)
-Message-Id: <20020623.232416.65495397.davem@redhat.com>
-To: adam@yggdrasil.com
-Cc: akpm@zip.com.au, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC: turn scatterlist into a linked list, eliminate bio_vec
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206232358.QAA03027@adam.yggdrasil.com>
-References: <200206232358.QAA03027@adam.yggdrasil.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317421AbSFXGn1>; Mon, 24 Jun 2002 02:43:27 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:8412 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S317416AbSFXGn1>;
+	Mon, 24 Jun 2002 02:43:27 -0400
+Date: Mon, 24 Jun 2002 08:43:25 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24 : drivers/net/tlan.c
+Message-ID: <20020624084325.B22534@fafner.intra.cogenit.fr>
+References: <Pine.LNX.4.44.0206232229570.922-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0206232229570.922-100000@localhost.localdomain>; from fdavis@si.rr.com on Sun, Jun 23, 2002 at 10:34:37PM -0400
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Adam J. Richter" <adam@yggdrasil.com>
-   Date: Sun, 23 Jun 2002 16:58:20 -0700
+Re,
 
-   	/* Let's assume the new pci_map_sg will free unused scatterlists. */
-   	while (sg != NULL && count--) {
-   		sg->driver_priv = mempool_alloc(q->sgpriv_pool, GFP_KERNEL);
-   
-   		sg->driver_priv_dma =
-   			pci_map_single(req->dma_map_dev, sg->driver_priv, len,
-   				       PCI_DMA_TODEVICE);
-   			if (sg_dma->dma_add_priv == 0);
-   				failed = fail_value;
-   		}
-   	}
+Frank Davis <fdavis@si.rr.com> :
+> Hello all,
+>   This patch adds the check for 32-bit DMA capability for the tlan driver. 
+> This is the first step for Documentation/DMA-mapping.txt compliance. As 
+> for the preferred action if the driver fails on pci_set_dma_mask(), I plan 
+> to add that in a future patch. Please review. 
 
-Driver descriptors are not supposed to be done using pci_map_*()
-and friends.  You are supposed to use consistent DMA memory for
-this purpose.  Please read DMA-mapping.txt a few more times Adam :-)
+See comment regarding scsi drivers.
 
-Also, this while loop never terminates :-)
+I've done some work for this one and rrunner around 2.4.7. Give me 24h to
+dig the mail archive and see what the missing parts/problems were, ok ?
+
+Btw, you may Cc:jgarzik@mandrakesoft.com as well as the adequate maintainer
+if there's one.
+
+-- 
+Ueimor

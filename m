@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUGHPRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUGHPSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUGHPRc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUGHPRc
+	id S261685AbUGHPSG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 11:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUGHPSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:17:32 -0400
-Received: from [194.158.104.109] ([194.158.104.109]:6330 "EHLO
-	netc-relay-3m.netcourrier.com") by vger.kernel.org with ESMTP
-	id S263725AbUGHPRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:17:19 -0400
+	Thu, 8 Jul 2004 11:18:05 -0400
+Received: from netc-relay-1m.netcourrier.com ([194.158.104.107]:45261 "EHLO
+	netc-relay-1m.netcourrier.com") by vger.kernel.org with ESMTP
+	id S261685AbUGHPRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 11:17:38 -0400
 From: axel.azerty@netcourrier.com
 To: linux-kernel@vger.kernel.org
 Subject: ethernet support on ibook G4 differs from 2.4 to 2.6
-Date: Thu,  8 Jul 2004 17:06:52 CEST
+Date: Thu,  8 Jul 2004 17:07:28 CEST
 Mime-Version: 1.0
 X-Mailer: Medianet/v2.0
-Message-Id: <mnet1.1089299212.12400.axel.azerty@netcourrier.com>
-Content-Type: multipart/mixed; boundary="=====================_1089299212=_"
+Message-Id: <mnet2.1089299248.12400.axel.azerty@netcourrier.com>
+Content-Type: multipart/mixed; boundary="=====================_1089299248=_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_1089299212=_
+--=====================_1089299248=_
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
@@ -47,7 +47,7 @@ T=E9l=E9phone/Fax : 08 92 69 00 21 (0,34 =80 TTC/min)
 Minitel: 3615 NETCOURRIER (0,16 =80 TTC/min)
 
 
---=====================_1089299212=_
+--=====================_1089299248=_
 Content-Disposition: attachment; filename=".config"
 Content-Transfer-Encoding: base64
 
@@ -339,4 +339,4 @@ SUdfQ1JDMzI9eQpDT05GSUdfWkxJQl9JTkZMQVRFPXkKQ09ORklHX1pMSUJfREVGTEFURT15Cgoj
 CiMgS2VybmVsIGhhY2tpbmcKIwojIENPTkZJR19ERUJVR19LRVJORUwgaXMgbm90IHNldApDT05G
 SUdfQk9PVFhfVEVYVD15CkNPTkZJR19MT0dfQlVGX1NISUZUPTAK
 
---=====================_1089299212=_--
+--=====================_1089299248=_--

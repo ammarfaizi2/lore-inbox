@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbTAFA32>; Sun, 5 Jan 2003 19:29:28 -0500
+	id <S265567AbTAFA0N>; Sun, 5 Jan 2003 19:26:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbTAFA31>; Sun, 5 Jan 2003 19:29:27 -0500
-Received: from hell.ascs.muni.cz ([147.251.60.186]:8832 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S265477AbTAFA31>; Sun, 5 Jan 2003 19:29:27 -0500
-Date: Mon, 6 Jan 2003 01:38:02 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.54 - quota support
-Message-ID: <20030106003801.GA522@mail.muni.cz>
+	id <S265568AbTAFA0M>; Sun, 5 Jan 2003 19:26:12 -0500
+Received: from dp.samba.org ([66.70.73.150]:8675 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265567AbTAFA0M>;
+	Sun, 5 Jan 2003 19:26:12 -0500
+Date: Mon, 6 Jan 2003 11:29:36 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
+       grundler@cup.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
+Message-ID: <20030106002936.GA8584@krispykreme>
+References: <m17ke3m3gl.fsf@frodo.biederman.org> <Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> <15877.26255.524564.576439@argo.ozlabs.ibm.com> <1040569382.1966.11.camel@zion> <20021222222106.B30070@localhost.park.msu.ru> <15878.22747.913279.67149@argo.ozlabs.ibm.com> <20030105153735.A8532@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030105153735.A8532@jurassic.park.msu.ru>
 User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Is quota support currently broken?
+> Hopefully this patch should solve most problems with probing the BARs.
+> The changes are quite minimal as everything still is done in one pass.
+> - Added another level of fixups (PCI_FIXUP_EARLY), called with only
+>   device/vendor IDs and class code filled in, before sizing the BARs.
+> - pci_read_bases won't probe the BAR if the respective resource has
+>   non-zero flags.
+> 
+> This allows to implement numerous alternative probing methods for
+> particular architecture/device/BAR. Some of possible variants:
+> get information from firmware and don't touch the BAR at all;
 
-Under 2.5.54 I got:
-# quotaon /
-using //aquota.user on /dev/hda1: No such device
+This sounds useful on ppc64 where firmware does a good job of setting
+up the BARs.
 
-/dev/hda1 is ext3 and aquota.user exists on it.
-
-My config is:
-CONFIG_QUOTA=y
-# CONFIG_QFMT_V1 is not set
-CONFIG_QFMT_V2=y
-CONFIG_QUOTACTL=y
-
--- 
-Luká¹ Hejtmánek
+Anton

@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbTDWXKm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 19:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTDWXKm
+	id S264294AbTDWXOo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 19:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTDWXOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 19:10:42 -0400
-Received: from [12.47.58.232] ([12.47.58.232]:25778 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264299AbTDWXKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 19:10:42 -0400
-Date: Wed, 23 Apr 2003 16:20:41 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk,
-       andre@linux-ide.org, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (0/4)
-Message-Id: <20030423162041.1b7ee5b3.akpm@digeo.com>
-In-Reply-To: <20030423231353.GA21346@win.tue.nl>
-References: <Pine.SOL.4.30.0304231933360.10502-100000@mion.elka.pw.edu.pl>
-	<20030423153500.0d99b4d3.akpm@digeo.com>
-	<20030423231353.GA21346@win.tue.nl>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Apr 2003 19:14:44 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:16837 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264294AbTDWXOn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 19:14:43 -0400
+Date: Wed, 23 Apr 2003 16:15:54 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Pat Suwalski <pat@suwalski.net>, Pavel Machek <pavel@ucw.cz>
+cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <1579090000.1051139754@flay>
+In-Reply-To: <3EA71533.4090008@suwalski.net>
+References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423172120.GA12497@citd.de> <3EA6947D.9080106@suwalski.net> <20030423221749.GA9187@elf.ucw.cz> <3EA71533.4090008@suwalski.net>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Apr 2003 23:22:44.0742 (UTC) FILETIME=[3E87B260:01C309EF]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> wrote:
->
-> On Wed, Apr 23, 2003 at 03:35:00PM -0700, Andrew Morton wrote:
-> 
-> > What is special about the IDE ioctl approach?
-> 
-> Usually one wants to use the standard commands for I/O.
-> But if the purpose is to talk to the drive (set password,
-> set native max, eject, change ZIP drive from big floppy
-> mode to removable disk mode, etc. etc.) then one needs
-> a means to execute IDE commands "by hand".
+> The alternative approach is to set the volume very low, but still 
+> perceptible by default, say 10% or 20%, so that the user is aware 
+> of his device working, then can set the mixer to a level that is 
+> good, which the system remembers.
 
-Yes, but none of these are performance-critical and they don't involve
-large amnounts of data.  A copy is OK.
+I'd much prefer that ... seems much more user-friendly.
 
-If all the rework against bio_map_user() and friends is needed for other
-reasons then fine.  But it doesn't seem to be needed for the IDE taskfile
-ioctl.
+M.
 

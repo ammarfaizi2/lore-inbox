@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318189AbSG3C1j>; Mon, 29 Jul 2002 22:27:39 -0400
+	id <S318190AbSG3Cot>; Mon, 29 Jul 2002 22:44:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318190AbSG3C1j>; Mon, 29 Jul 2002 22:27:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:16109 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318189AbSG3C1i>;
-	Mon, 29 Jul 2002 22:27:38 -0400
-Date: Mon, 29 Jul 2002 19:19:31 -0700 (PDT)
-Message-Id: <20020729.191931.45561787.davem@redhat.com>
-To: rml@tech9.net
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] spinlock.h cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1027989220.1016.273.camel@sinai>
-References: <Pine.LNX.4.33.0207291725580.1722-100000@penguin.transmeta.com>
-	<1027989053.929.263.camel@sinai>
-	<1027989220.1016.273.camel@sinai>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S318192AbSG3Cot>; Mon, 29 Jul 2002 22:44:49 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:8901 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S318190AbSG3Cos>; Mon, 29 Jul 2002 22:44:48 -0400
+Subject: Re: [PATCH] automatic initcalls
+From: Keith Adamson <keith.adamson@attbi.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, torvalds@transmeta.com
+In-Reply-To: <20020729103912.A18765@nightmaster.csn.tu-chemnitz.de>
+References: <20020728033359.7B2A2444C@lists.samba.org>
+	<3D436A44.8080505@mandrakesoft.com> 
+	<20020729103912.A18765@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-3) 
+Date: 29 Jul 2002 22:49:15 -0400
+Message-Id: <1027997356.9786.38.camel@h00d0700074d1.ne.client2.attbi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Robert Love <rml@tech9.net>
-   Date: 29 Jul 2002 17:33:39 -0700
+On Mon, 2002-07-29 at 04:39, Ingo Oeser wrote:
+> On Sat, Jul 27, 2002 at 11:51:32PM -0400, Jeff Garzik wrote:
+> > I've always preferred a system where one simply lists dependencies [as 
+> > you describe above], and some program actually does the hard work of 
+> > chasing down all the initcall dependency checking and ordering.
+> 
+> So we just need to build a directed graph, detect edges without
+> existing nodes (someone changed the initcall, we depend on) and
+> cycles (someone messed up the ordering) as errors, sort the
+> resulting graph toplogically and dump it as a sequence.
+> 
+> This is no rocket science and we have two tools, which does this
+> all for us (make and tsort, which create a warning for both cases).
+> 
+> The hard part is to CREATE all the dependencies and check and
+> double check them with the maintainers.
+> 
 
-   On Mon, 2002-07-29 at 17:30, Robert Love wrote:
-   
-   > On Mon, 2002-07-29 at 17:26, Linus Torvalds wrote:
-   > 
-   > > Hmm.. Why did you remove the gcc workaround? Are all gcc's > 2.95 known to 
-   > > be ok wrt empty initializers?
-   > 
-   > If I recall correctly, the fix was for older egcs compilers.
-   
-   To better answer your question, I just checked and indeed it seems all
-   gcc's >= 2.95 are OK.
+I definitely agree the easy part is the algorithm and the hard part is
+creating the dependency list.  For instance, attached is a small
+algorithm that does the initcall sequencing at run time.
 
-Some platforms (sparc64) are still using things like egcs-2.92.x
-vintage compilers as their main supported kernel build compiler.
+The API is is simple, you just register your initcall with a list of
+critical initcalls you need to be run before yours (not all, just the
+ones you definitely need to be run first).  Then the ordering of the all
+the initcalls are sequenced at run time.  This way you don't have to
+worry about link ordering or code ordering of your initcalls during
+make/compile/link.  All initcall ordering is done during boot.  
 
-init/main.c allows 2.91 or greater to pass so that should be the rule
-enforced kernel wide.
+This really frees you from module inter-dependencies because is doesn't
+mater in what order you register you initcalls.  You only need register
+them with a list the critical modules that need to be initialized before
+yours.
 
-I don't remember when the empty initializer thing was fixed.
+The API also provides that you can register more than one initcall for
+your module with a different set of critical modules that must be run
+first.
+
+This should be relative easy to add to the kernel, as you don't have to
+modify any of the existing initcalls.  You do need to remove all
+existing calls to them and register them instead with the new API.
+
+Untar and "cd init; cc *.c; ./a.out"
+
+Four example modules register their initcalls, "foo1, foo2, foo3, foo4",
+and then the main routine sequences them at run time.  
+
+Regards, Keith
+
+
+

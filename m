@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbUKCUAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbUKCUFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbUKCUAv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 15:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUKCT55
+	id S261843AbUKCUFM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 15:05:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUKCUFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:57:57 -0500
-Received: from main.gmane.org ([80.91.229.2]:35724 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261833AbUKCT46 (ORCPT
+	Wed, 3 Nov 2004 15:05:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:45987 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261843AbUKCUDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:56:58 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Wed, 03 Nov 2004 20:56:27 +0100
-Message-ID: <yw1xy8hig104.fsf@ford.inprovide.com>
-References: <200411030751.39578.gene.heskett@verizon.net> <20041103143348.GA24596@outpost.ds9a.nl>
- <200411031124.19179.gene.heskett@verizon.net>
- <Pine.LNX.4.61.0411031133590.14117@chaos.analogic.com>
+	Wed, 3 Nov 2004 15:03:40 -0500
+Date: Wed, 3 Nov 2004 12:03:26 -0800
+From: Greg KH <greg@kroah.com>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: germano.barreiro@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: patch for sysfs in the cyclades driver
+Message-ID: <20041103200326.GA29718@kroah.com>
+References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D81B@minimail.digi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 200.80-202-166.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:3DDfO2zuPaAdOeThWNafp8tsils=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D81B@minimail.digi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@chaos.analogic.com> writes:
+On Wed, Nov 03, 2004 at 01:55:51PM -0600, Kilau, Scott wrote:
+> Hi Greg, all,
+> 
+> > What's wrong with the kobject in /sys/class/tty/ which has one object
+> > per port?  I think we might not be exporting that class_device
+> > structure, but I would not have a problem with doing that.
+> > greg k-h
+> 
+> Using the simple class tty kobject that tty_io.c keeps might work for my
+> needs.
+> 
+> However, there is one thing that stopped me from using it earlier...
+> 
+> The naming of the directory (tty name) in /sys/class/tty is forced to
+> be:
+> "sprintf(p, "%s%d", driver->name, index + driver->name_base);"
+> 
+> Is it possible we could change this to be more relaxed about the naming
+> scheme?
 
-> The fix is to fix the code. Your temporary fix is to use
-> Ctrl-Alt-backspace to kill the X11 server (the parent).
+Why?  That's the kernel name for this tty device, right?  Why would you
+want to change this?
 
-The X server is not the parent.  The desktop manager (or whatever
-those beasts are called) is more likely to be.
+> Maybe we can allow a "custom" name to be sent into the
+> tty_register_device() call?  Like add another option parameter called
+> "custom_name" that if non-NULL, is used instead of the derived name?
 
-> All these little windows and icons are the 'children' of the X
-> server.
+Why?  What would you call it that would be any different from what we
+use today?  I guess I don't understand why you don't like the kernel
+names.
 
-The X server manages a set of windows, arranged in a logical tree
-structure, with all windows ultimately descending from the root
-windows.  The parent-child relationships between windows should under
-no circumstance be confused, or compared, with that between processes.
-Any process, on any machine on the network, can, given enough
-privileges, create subwindows of any window on the X server.  Windows
-and process belong to different worlds, the only connection between
-which is that processes create windows, simply since anything that
-happens in the computer is done by a process (or interrupt handler).
+thanks,
 
-Am I really reading this on linux-kernel?
-
--- 
-Måns Rullgård
-mru@inprovide.com
-
+greg k-h

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317419AbSGOKdm>; Mon, 15 Jul 2002 06:33:42 -0400
+	id <S317422AbSGOKmm>; Mon, 15 Jul 2002 06:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317421AbSGOKdl>; Mon, 15 Jul 2002 06:33:41 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59199 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S317419AbSGOKdl>; Mon, 15 Jul 2002 06:33:41 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, andersen@codepoet.org,
+	id <S317423AbSGOKml>; Mon, 15 Jul 2002 06:42:41 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53254 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317422AbSGOKml>; Mon, 15 Jul 2002 06:42:41 -0400
+Date: Mon, 15 Jul 2002 06:39:30 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: dean-list-linux-kernel@arctic.org, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-References: <Pine.LNX.4.10.10207112158000.20499-100000@master.linux-ide.org>
-	<3D2E6506.7080006@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 15 Jul 2002 04:24:54 -0600
-In-Reply-To: <3D2E6506.7080006@zytor.com>
-Message-ID: <m165zhp9u1.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
+In-Reply-To: <20020714.224517.45499035.davem@redhat.com>
+Message-ID: <Pine.LNX.3.96.1020715062707.23142A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+On Sun, 14 Jul 2002, David S. Miller wrote:
 
-> Andre Hedrick wrote:
-> > Nice, so you still have to strip and export to the transport layer.
-> > Please expand on what you are going to talk to packetized and the associated
-> > transport protocol restricted to the scope of storage.
-> > Next count all the different personalitys associated with the discrete
-> > transport layer.
-> > If you are referring to Jens' pktcdvd interface out of block, it is no
-> > more than a bypass of dealing with scsi.  It would allow direct access to
-> > the physical transport without portions of OS mucking up things as it does
-> > now.
-> >
+>    From: Bill Davidsen <davidsen@tmr.com>
+>    Date: Sun, 14 Jul 2002 21:39:12 -0400 (EDT)
 > 
-> I'm talking specifically about ATAPI devices here.  As we have already covered,
-> not all ATA devices are ATAPI, but unless I'm completely off the wall, ATAPI is
-> SCSI over IDE, and should be able to be driven as such.  The lack of access to
-> that interface using the established interface mechanisms just bites.
+>    Clearly FAQ means frequently asked, not answered. I can't find the
+>    appropriate patch, clearly some people regard allowing source routing to
+>    be a benefit.
+>     
+> Source routing exists in every single 2.4.x kernel every released.
+> What are you talking about?  There is no patch to speak of, it's
+> already there.
 
-ATAPI is SCSI like C is C++.  There are strong similarities but they
-are regulated by different groups, and have slightly different semantics.
-Last I checked cdrecord already compensates for those differences but they
-are there.
+Um, many people who are being probed from the Internet would like very
+much to NOT have it there, certainly by default. And would like to send an
+arp request and in return get a valid mac address.
 
-Eric
+I totally miss why anyone would consider this behaviouracceptable, much
+less desirable. Perhaps you or someone could explain why either accepting
+source routing or sending out invalid arp responses are desirable at all,
+much less as default behaviour. One is a security hole, the other brings
+the network group to the door with arpwatch output.
+
+After some hours of reading the google results I see lots of questions, a
+few dubious workarounds, and zero people claiming that it's a good thing
+to work that way. 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131065AbRBARkY>; Thu, 1 Feb 2001 12:40:24 -0500
+	id <S130376AbRBARny>; Thu, 1 Feb 2001 12:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131265AbRBARkP>; Thu, 1 Feb 2001 12:40:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38159 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131065AbRBARkD>; Thu, 1 Feb 2001 12:40:03 -0500
-Subject: Re: 2.2.16 3c90x ?
-To: apark@cdf.toronto.edu
-Date: Thu, 1 Feb 2001 17:41:06 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.30.0102011220540.5429-100000@marvin.cdf> from "apark@cdf.toronto.edu" at Feb 01, 2001 12:33:49 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130463AbRBARnr>; Thu, 1 Feb 2001 12:43:47 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:5330 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130376AbRBARnf>;
+	Thu, 1 Feb 2001 12:43:35 -0500
+Date: Thu, 1 Feb 2001 17:41:20 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>, bsuparna@in.ibm.com,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201174120.A11607@redhat.com>
+In-Reply-To: <CA2569E6.0051970D.00@d73mta03.au.ibm.com> <20010201160953.A17058@caldera.de> <20010201161615.T11607@redhat.com> <20010201180515.B28007@caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ONjI-0004i6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010201180515.B28007@caldera.de>; from hch@ns.caldera.de on Thu, Feb 01, 2001 at 06:05:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just wondering...  How safe is it to switch from 10Mbit network to
-> 100Mbit network while the machine is up?
+Hi,
 
-Providing the driver is properly coded absolutely fine
-
-> from 10Mbit to 100Mbit while machine was up, it just froze solid.
-> I'm using 3Com 3c905C Tornado network card and the corresponding driver
-> is 3c90x.
+On Thu, Feb 01, 2001 at 06:05:15PM +0100, Christoph Hellwig wrote:
+> On Thu, Feb 01, 2001 at 04:16:15PM +0000, Stephen C. Tweedie wrote:
+> > > 
+> > > No, and with the current kiobufs it would not make sense, because they
+> > > are to heavy-weight.
+> > 
+> > Really?  In what way?  
 > 
+> We can't allocate a huge kiobuf structure just for requesting one page of
+> IO.  It might get better with VM-level IO clustering though.
 
-Use the standard kernel 3c59x.c driver instead. That one for me at least
-is happy doing 10/100 switches
+A kiobuf is *much* smaller than, say, a buffer_head, and we currently
+allocate a buffer_head per block for all IO.
 
+A kiobuf contains enough embedded page vector space for 16 pages by
+default, but I'm happy enough to remove that if people want.  However,
+note that that memory is not initialised, so there is no memory access
+cost at all for that empty space.  Remove that space and instead of
+one memory allocation per kiobuf, you get two, so the cost goes *UP*
+for small IOs.
+
+> > > With page,length,offsett iobufs this makes sense
+> > > and is IMHO the way to go.
+> > 
+> > What, you mean adding *extra* stuff to the heavyweight kiobuf makes it
+> > lean enough to do the job??
+> 
+> No.  I was speaking abou the light-weight kiobuf Linux & Me discussed on
+> lkml some time ago (though I'd much more like to call it kiovec analogous
+> to BSD iovecs).
+
+What is so heavyweight in the current kiobuf (other than the embedded
+vector, which I've already noted I'm willing to cut)?
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

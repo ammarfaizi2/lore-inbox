@@ -1,56 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCINRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVCINTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVCINRD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 08:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVCINRC
+	id S262357AbVCINTb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 08:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVCINTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 08:17:02 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49386 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261619AbVCINQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 08:16:57 -0500
-Subject: Re: Problem with DCE with Kernel Patch
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Singal, Manoj Kumar (STSD)" <manoj-kumar.singal@hp.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3EB96D97711EAA45B291A31082CC865601511595@bgeexc04.asiapacific.cpqcorp.net>
-References: <3EB96D97711EAA45B291A31082CC865601511595@bgeexc04.asiapacific.cpqcorp.net>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 14:16:48 +0100
-Message-Id: <1110374209.6280.102.camel@laptopd505.fenrus.org>
+	Wed, 9 Mar 2005 08:19:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:14840 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262176AbVCINSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 08:18:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=CE41MIRw79x9PVnavVNpIpmqYmmdr+AZauCjmhGDdPl2luQ9GkdR+uyk5fYs6bdLqKx1757PwqH4S6ENZqhN9h86LSFd44OcA4Q60hDoHJCVv+zNEMbZJkevVwUOS3iu3LjotLHeaKyDmxOxc7FMFakkFyptGsuqlTNcNG1W6Hc=
+Message-ID: <3f250c710503090518526d8b90@mail.gmail.com>
+Date: Wed, 9 Mar 2005 09:18:31 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Christian Kujau <evil@g-house.de>
+Subject: Re: oom with 2.6.11
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <422DC2F1.7020802@g-house.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <422DC2F1.7020802@g-house.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-09 at 18:21 +0530, Singal, Manoj Kumar (STSD) wrote:
-> Hello,
+Hi Christian,
+
+Could you check the mm/oom_kill.c for your kernel 2.6.11-rc3?
+
+During the 2.6.11-rc development, the oom killer was changed by Andrea
+Arcangeli. I do not remember exactly which was the version that this
+modification was included, perhaps in kernel 2.6.11-rc4.
+
+Now this oom killer modification is part of 2.6.11 vanilla kernel.
+
+Send the mm/oom_kill.c of 2.6.11-rc3 to me, please. Let me confirm my doubt.
+
+BR,
+
+Mauricio Lin. 
+
+On Tue, 08 Mar 2005 16:21:21 +0100, Christian Kujau <evil@g-house.de> wrote:
+> hallo list,
 > 
-> While installing DCE 0.1.13 on RH Linux AS 2.1 Kernel 2.4.18-e.54smp
-> running on Itanium, the system hangs and becomes unbootable. It then has
-> to be started in single user mode, the dce rpm has to be removed and
-> then booted. This happens with kernel patch 52/54. 
+> today my machine went out out memory and noticing it several hours after
+> the first OOM message in the log, i wonder
+>    1) why this happened at all and
+>    2) why almost every service was killed despite the clever algorithms
+>       documented in mm/oom_kill.c.
 > 
-> Has anyone faced a similar problem and resolved it ? . Any pointers in
-> this regard will be really *nice*
-
-you are probably better off using the support escalation person to RH
-inside HP for such issues; the 2.4.18 kernel is ancient and of little
-interest to lkml generally.
-
-
+> the first oom message went to the syslog at 01:27, i was away and no heavy
+> tasks were scheduled:
+> 
+> http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11.txt
+> 
+> mysqld got killed by the oom killer, so i have to suspect mysql for being
+> the reason for oom here, even that i know that mysqld is running all day
+> long. several other tasks got killed, but "Free swap" stays at 0kB and the
+> oom killer kills almost every other tasks, with no success in freeing ram.
+> 
+> the log stops at 03:21, perhaps syslog-ng got killed.
+> at around 07:31 i noticed the mess, did SYSRQ-E and now i was able to
+> login again. i pressed SYSRQ-M/T/P too, they are all in the log. at this
+> time loadavg was at 249 ;)
+> 
+> i went to runlevel 2, then up again to 3 and all services are up and
+> running again.
+> 
+> some 2.6.11-rc3 BK snapshot was running pretty stable (no OOM) for ~30
+> days before i switched to 2.6.11 (vanilla) a few days ago. i have to (not)
+> reproduce the problem the next night, i wonder if it will happen again.
+> 
+> do you vm-gurus have any idea to the points asked above?
+> 
+> more infos about the box here: http://nerdbynature.de/bits/sheep/2.6.11/oom/
+> 
+> thank you for your comments,
+> Christian.
+> --
+> BOFH excuse #281:
+> 
+> The co-locator cannot verify the frame-relay gateway to the ISDN server.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,93 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbTCIEQv>; Sat, 8 Mar 2003 23:16:51 -0500
+	id <S262417AbTCIEWC>; Sat, 8 Mar 2003 23:22:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbTCIEQv>; Sat, 8 Mar 2003 23:16:51 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:45696 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262408AbTCIEQn>; Sat, 8 Mar 2003 23:16:43 -0500
-Date: Sun, 9 Mar 2003 13:26:50 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (12/20) parport
-Message-ID: <20030309042650.GM1231@yuzuki.cinet.co.jp>
-References: <20030309035245.GA1231@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030309035245.GA1231@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+	id <S262428AbTCIEWC>; Sat, 8 Mar 2003 23:22:02 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:50445 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262417AbTCIEV7>; Sat, 8 Mar 2003 23:21:59 -0500
+Date: Sun, 9 Mar 2003 05:32:26 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Zack Brown <zbrown@tumblerings.org>, Larry McVoy <lm@work.bitmover.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+In-Reply-To: <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303090504140.32518-100000@serv>
+References: <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.64-ac3. (12/20)
+Hi,
 
-Parallel port support.
- - Change IO port and IRQ assign.
- - Add probing for PC98 parport.
+On Sat, 8 Mar 2003, Linus Torvalds wrote:
 
-Regards,
-Osamu Tomita
+> None of these are issues for broken systems like CVS or SVN, since they
+> have a central repository, so there _cannot_ be multiple concurrent
+> renames that have to be merged much later.
 
+It is possible, you only have to remember that the file foo.c doesn't have 
+to be called foo.c,v in the repository. SVN should be able to handle this, 
+it's just lacking important merging mechanisms.
+This is actually a key feature I want to see in a SCM system - the ability 
+to keep multiple developments within the same repository. I want to pull 
+other source tress into a branch and compare them with other branches and 
+merge them into new branches.
 
-diff -Nru linux-2.5.64-ac2/drivers/parport/parport_pc.c linux98-2.5.64-ac2/drivers/parport/parport_pc.c
---- linux-2.5.64-ac2/drivers/parport/parport_pc.c	2003-03-08 08:25:20.000000000 +0900
-+++ linux98-2.5.64-ac2/drivers/parport/parport_pc.c	2003-03-08 10:44:43.000000000 +0900
-@@ -1892,6 +1892,9 @@
- 			config & 0x80 ? "Level" : "Pulses");
- 
- 		configb = inb (CONFIGB (pb));
-+		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
-+			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
-+
- 		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
- 			pb->base, config, configb);
- 		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
-@@ -2032,6 +2035,9 @@
- 	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
- 
- 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
-+	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
-+		intrLine = 5; /* IRQ 14 */
-+
- 	irq = lookup[intrLine];
- 
- 	ECR_WRITE (pb, oecr);
-@@ -2248,7 +2254,7 @@
- 			parport_ECR_present(p);
- 	}
- 
--	if (base != 0x3bc) {
-+	if (!pc98 && base != 0x3bc) {
- 		EPP_res = request_region(base+0x3, 5, fake_name);
- 		if (EPP_res)
- 			if (!parport_EPP_supported(p))
-@@ -3022,6 +3028,26 @@
- {
- 	int count = 0;
- 
-+	if (pc98) {
-+		/* Set default settings for IEEE1284 parport */
-+		int	base = 0x140;
-+		int	base_hi = 0x14c;
-+		int	irq = 14;
-+		int	dma = PARPORT_DMA_NONE;
-+
-+		/* Check PC9800 old style parport */
-+		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
-+		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
-+			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
-+			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
-+				if (parport_pc_probe_port(base, base_hi,
-+							  irq, dma, NULL))
-+					count++;
-+			}
-+		}
-+
-+	}
-+
- 	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
- 		count++;
- 	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))
+> Sepoarate repostitories and SCCS file formats have nothing to do with the 
+> real problem. Distribution is key, not the repository format.
+
+I agree, what I was trying to say is that the SCCS format makes a few 
+things more complex than they had to be.
+
+bye, Roman
+

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbUKNNZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbUKNN1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbUKNNZm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 08:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUKNNZm
+	id S261305AbUKNN1M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 08:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbUKNN1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 08:25:42 -0500
-Received: from mail8.spymac.net ([195.225.149.8]:36563 "EHLO mail8")
-	by vger.kernel.org with ESMTP id S261298AbUKNNZg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 08:25:36 -0500
-Message-ID: <41976AE0.5090903@spymac.com>
-Date: Sun, 14 Nov 2004 15:25:36 +0100
-From: Gunther Persoons <gunther_persoons@spymac.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041113)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-References: <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <41951380.2080801@spymac.com> <20041112201936.GA15133@elte.hu> <41961C03.10607@spymac.com> <20041114124932.GB11042@elte.hu>
-In-Reply-To: <20041114124932.GB11042@elte.hu>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 14 Nov 2004 08:27:11 -0500
+Received: from mailfe10.tele2.se ([212.247.155.33]:34980 "EHLO
+	mailfe10.swip.net") by vger.kernel.org with ESMTP id S261300AbUKNN1A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 08:27:00 -0500
+X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
+Subject: [PATCH] x86_64: assign_irq_vector should not be marked __init
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: torvalds@osdl.org
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 14 Nov 2004 14:26:50 +0100
+Message-Id: <1100438810.717.12.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Hej Linus
 
->* Gunther Persoons <gunther_persoons@spymac.com> wrote:
->
->  
->
->>As i thought the init scripts were my problem. But i have an other
->>question. I recently started to use NFS. But with the mainline kernel
->>cpu usage is 100%, and when i look in top si shows bewteen 40 and 60%
->>cpu usage. With your kernel si is 0%, but ksoftriqd/0 shows around 38%
->>cpu usage and total cpu usage is around 52%. Is this normal? on my
->>server cpu usage is 2% but it uses a intel network card. My laptop is
->>using a wireless pcmcia card (cisco).
->>    
->>
->
->normally the RT kernel has higher system overhead (all IRQ traffic goes
->to separate thread contexts, involving context-switching, etc.) so a
->_reduction_ in system overhead looks a bit strange. Is there a
->difference in performance?
->
->	Ingo
->
->  
->
-With the mainline kernel i get speeds around 600-700kb/s and with the RT 
-kernel i get speeds around 550kb/s. No other differnces except the cpu 
-usage and that the RT kernel feels much more responsive.
+This box crashed at startup today and I noticed that some modules will 
+need to have assign_irq_vector() available although it is marked as __init. 
+Looks like it was done for i386 in but not x86_64...
+
+
+Signed off by: Alexander Nyberg <alexn@dsv.su.se>
+
+===== arch/x86_64/kernel/io_apic.c 1.38 vs edited =====
+--- 1.38/arch/x86_64/kernel/io_apic.c	2004-10-28 09:39:50 +02:00
++++ edited/arch/x86_64/kernel/io_apic.c	2004-11-14 14:03:50 +01:00
+@@ -654,11 +654,7 @@
+ /* irq_vectors is indexed by the sum of all RTEs in all I/O APICs. */
+ u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
+ 
+-#ifdef CONFIG_PCI_MSI
+ int assign_irq_vector(int irq)
+-#else
+-int __init assign_irq_vector(int irq)
+-#endif
+ {
+ 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
+ 
+
+

@@ -1,58 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbTENVDF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 17:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTENVDF
+	id S262918AbTENVF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 17:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbTENVF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 17:03:05 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:28873 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id S262903AbTENVDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 17:03:03 -0400
-Date: Wed, 14 May 2003 17:15:51 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
-       Andrew Morton <akpm@digeo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd@arndb.de>
-Subject: Re: 2.5.69 Interrupt Latency
-Message-ID: <20030514171551.E20401@sventech.com>
-References: <Pine.LNX.4.44L0.0305131117240.3274-100000@ida.rowland.org> <1052840106.2255.24.camel@diemos> <20030513173044.GB10284@kroah.com> <1052830860.1992.2.camel@diemos> <20030513180913.GA10752@kroah.com> <20030513181120.GA10790@kroah.com> <1052946393.2974.7.camel@diemos>
+	Wed, 14 May 2003 17:05:57 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:18074 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S262918AbTENVFz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 17:05:55 -0400
+Date: Wed, 14 May 2003 23:16:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Self-promotion and minor docs updates
+Message-ID: <20030514211644.GA3622@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052946393.2974.7.camel@diemos>; from paulkf@microgate.com on Wed, May 14, 2003 at 04:06:33PM -0500
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003, Paul Fulghum <paulkf@microgate.com> wrote:
-> I was looking over the PIIX3 datasheet and noticed
-> that the USBSTS_RD bit is only valid when the
-> device is in the suspended state.
-> 
-> This bit is being acted on regardless of the
-> suspend state of the controller in the ISR.
-> Could this be why the driver is detecting
-> false 'resume' signals and calling wakeup_hc()
-> when it shouldn't?
-> 
-> Maybe the code should be something like:
-> 
-> if (uhci->is_suspended && (status & USBSTS_RD))
-> 	wakeup_hc(uhci);
-> 
-> in the ISR to qualify acting on that status bit.
-> Alternatively, USBCMD_EGSM (BIT3) of the USBCMD
-> register could be tested to qualify action on
-> the state of USBSTS_RD
-> 
-> I'm going to test this now, but I wanted to
-> know what you think.
+Hi!
 
-Good eye. That may very well be the problem. Looking at the UHCI specs,
-it says the same thing, but I never really noticed it before.
+This fixes url in ioctls, fixes some kernel parameters, kills comment
+in tty that is 10+ years old and wrong, and adds me a little
+credits. [I'm not sure; I thought I submitted some of those already?]
 
-JE
+								Pavel
 
+%patch
+Index: linux/Documentation/ioctl-number.txt
+===================================================================
+--- linux.orig/Documentation/ioctl-number.txt	2003-05-06 19:31:10.000000000 +0200
++++ linux/Documentation/ioctl-number.txt	2003-04-25 00:43:28.000000000 +0200
+@@ -174,7 +174,7 @@
+ 0xA0	all	linux/sdp/sdp.h		Industrial Device Project
+ 					<mailto:kenji@bitgate.com>
+ 0xA2    00-0F   DVD decoder driver      in development:
+-                                        <http://linuxtv.org/dvd/api/>
++                                        <http://linuxtv.org/developer/dvdapi.html>
+ 0xA3	00-1F	Philips SAA7146 dirver	in development:
+ 					<mailto:Andreas.Beckmann@hamburg.sc.philips.com>
+ 0xA3	80-8F	Port ACL		in development:
+Index: linux/Documentation/kernel-parameters.txt
+===================================================================
+--- linux.orig/Documentation/kernel-parameters.txt	2003-05-06 19:31:10.000000000 +0200
++++ linux/Documentation/kernel-parameters.txt	2003-04-16 21:33:21.000000000 +0200
+@@ -361,9 +361,10 @@
+ 
+ 	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
+ 
+-	i8042_direct	[HW] Non-translated mode
+-	i8042_dumbkbd
+-	i8042_noaux
++	i8042_direct	[HW] Keyboard has been put into non-translated mode 
++			by BIOS
++	i8042_dumbkbd	[HW] Don't attempt to blink the leds
++	i8042_noaux	[HW] Don't check for auxiliary (== mouse) port
+ 	i8042_nomux
+ 	i8042_reset	[HW] Reset the controller during init and cleanup
+ 	i8042_unlock	[HW] Unlock (ignore) the keylock
+Index: linux/include/linux/tty.h
+===================================================================
+--- linux.orig/include/linux/tty.h	2003-05-06 19:31:10.000000000 +0200
++++ linux/include/linux/tty.h	2003-05-06 00:51:25.000000000 +0200
+@@ -252,9 +252,6 @@
+  * treatment, but (1) the default 80x24 is usually right and (2) it's
+  * most often used by a windowing system, which will set the correct
+  * size each time the window is created or resized anyway.
+- * IMPORTANT: since this structure is dynamically allocated, it must
+- * be no larger than 4096 bytes.  Changing TTY_FLIPBUF_SIZE will change
+- * the size of this structure, and it needs to be done with care.
+  * 						- TYT, 9/14/92
+  */
+ struct tty_struct {
+Index: linux/CREDITS
+===================================================================
+--- linux.orig/CREDITS	2003-04-21 22:40:51.000000000 +0200
++++ linux/CREDITS	2003-05-11 12:48:24.000000000 +0200
+@@ -1951,7 +1951,8 @@
+ E: pavel@ucw.cz
+ E: pavel@suse.cz
+ D: Softcursor for vga, hypertech cdrom support, vcsa bugfix, nbd
+-D: sun4/330 port, capabilities for elf, speedup for rm on ext2, USB
++D: sun4/330 port, capabilities for elf, speedup for rm on ext2, USB,
++D: work on suspend-to-ram/disk, killing duplicates from ioctl32
+ S: Volkova 1131
+ S: 198 00 Praha 9
+ S: Czech Republic
+
+
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

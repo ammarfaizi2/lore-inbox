@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbTFVOmR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 10:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTFVOmR
+	id S263866AbTFVOpe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 10:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTFVOpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 10:42:17 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56332 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263632AbTFVOmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 10:42:16 -0400
-Date: Sun, 22 Jun 2003 16:21:22 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rick A. Hohensee" <rickh@capaccess.org>
-Cc: linux-assembly@vger.kernel.org, lwn@lwn.net, linux-kernel@vger.kernel.org
-Subject: Re: Now that the 0 Penguin doesn't work for Microsoft
-Message-ID: <20030622142122.GB652@zaurus.ucw.cz>
-References: <fc.0010c7b20092aa700010c7b20092aa70.92aa79@capaccess.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fc.0010c7b20092aa700010c7b20092aa70.92aa79@capaccess.org>
-User-Agent: Mutt/1.3.27i
+	Sun, 22 Jun 2003 10:45:33 -0400
+Received: from deepthot.org ([216.19.203.209]:44203 "EHLO dent.deepthot.org")
+	by vger.kernel.org with ESMTP id S263866AbTFVOpc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 10:45:32 -0400
+Date: Sun, 22 Jun 2003 07:59:04 -0700 (MST)
+From: Jay Denebeim <denebeim@deepthot.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Redhat 2.4.20 kernel problems
+Message-ID: <Pine.LNX.4.44.0306220758290.29695-100000@hotblack.deepthot.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Now that the 0 Penguin doesn't work for TransMicrosoft perhaps Linux can
-> develop a wholesome interest in end-users. cLIeNUX is still on my webpage,
+On Sun, 22 Jun 2003, Aschwin Marsman wrote:
 
-Could you stop feeding l-k with crap^Wclibrokenux advertising?
-				Pavel
+> Have you already updated your system to the latest errata kernel and
+> packages?
+
+Yes, that's the one that has the problem.
+
+> You could try to send an email to a Red Hat mailing list:
+> http://www.redhat.com/support/forums/
+
+Ah, that sounds like a plan, thank you kindly.
+
+Jay
+
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
+* newsgroup submission address: b5mod@deepthot.org                *
+* moderator contact address:    b5mod-request@deepthot.org        *
+* personal contact address:     denebeim@deepthot.org             *
+
 

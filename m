@@ -1,117 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266223AbUHYWxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUHYXDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUHYWxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 18:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266303AbUHYWw1
+	id S266257AbUHYXDx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 19:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUHYXCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 18:52:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30875 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266218AbUHYWg5 convert rfc822-to-8bit
+	Wed, 25 Aug 2004 19:02:53 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:37575
+	"EHLO nocona.random") by vger.kernel.org with ESMTP id S266128AbUHYXAF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 18:36:57 -0400
-X-Donotread: and you are reading this why?
-Subject: [PATCH] Driver Core patches for 2.6.9-rc1
-In-Reply-To: <20040825223503.GA27072@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Wed, 25 Aug 2004 15:36:26 -0700
-Message-Id: <1093473386452@kroah.com>
+	Wed, 25 Aug 2004 19:00:05 -0400
+Date: Thu, 26 Aug 2004 00:59:33 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christophe Saout <christophe@saout.de>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825225933.GD5618@nocona.random>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <1093467601.9749.14.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093467601.9749.14.camel@leto.cs.pocnet.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1803.60.1, 2004/08/02 17:02:58-07:00, greg@kroah.com
+On Wed, Aug 25, 2004 at 11:00:00PM +0200, Christophe Saout wrote:
+> It should be completely forbidden to link into a meta-directory or out
+> of such a directory. [..]
 
-KREF: shrink the size of struct kref down to just a single atomic_t
+agreed.
 
-This was based on a patch from Kiran, but tweaked further by me.
+> Yes, I don't think it was a good idea either. Probably someone should
 
-Signed-off-by: Ravikiran Thirumalai <kiran@in.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+I personally would like plugins only if the API they use wouldn't allow
+them to corrupt the underlying fs, I'm not sure if this is the case with
+reiserfs4.
 
-
- include/linux/kref.h |    7 ++-----
- lib/kref.c           |   26 ++++++++++++--------------
- 2 files changed, 14 insertions(+), 19 deletions(-)
-
-
-diff -Nru a/include/linux/kref.h b/include/linux/kref.h
---- a/include/linux/kref.h	2004-08-25 14:58:17 -07:00
-+++ b/include/linux/kref.h	2004-08-25 14:58:17 -07:00
-@@ -18,15 +18,12 @@
- #include <linux/types.h>
- #include <asm/atomic.h>
- 
--
- struct kref {
- 	atomic_t refcount;
--	void (*release)(struct kref *kref);
- };
- 
--void kref_init(struct kref *kref, void (*release)(struct kref *));
-+void kref_init(struct kref *kref);
- struct kref *kref_get(struct kref *kref);
--void kref_put(struct kref *kref);
--
-+void kref_put(struct kref *kref, void (*release) (struct kref *kref));
- 
- #endif /* _KREF_H_ */
-diff -Nru a/lib/kref.c b/lib/kref.c
---- a/lib/kref.c	2004-08-25 14:58:17 -07:00
-+++ b/lib/kref.c	2004-08-25 14:58:17 -07:00
-@@ -11,23 +11,16 @@
-  *
-  */
- 
--/* #define DEBUG */
--
- #include <linux/kref.h>
- #include <linux/module.h>
- 
- /**
-  * kref_init - initialize object.
-  * @kref: object in question.
-- * @release: pointer to a function that will clean up the object
-- *	     when the last reference to the object is released.
-- *	     This pointer is required.
-  */
--void kref_init(struct kref *kref, void (*release)(struct kref *kref))
-+void kref_init(struct kref *kref)
- {
--	WARN_ON(release == NULL);
- 	atomic_set(&kref->refcount,1);
--	kref->release = release;
- }
- 
- /**
-@@ -44,15 +37,20 @@
- /**
-  * kref_put - decrement refcount for object.
-  * @kref: object.
-+ * @release: pointer to the function that will clean up the object when the
-+ *	     last reference to the object is released.
-+ *	     This pointer is required, and it is not acceptable to pass kfree
-+ *	     in as this function.
-  *
-- * Decrement the refcount, and if 0, call kref->release().
-+ * Decrement the refcount, and if 0, call release().
-  */
--void kref_put(struct kref *kref)
-+void kref_put(struct kref *kref, void (*release) (struct kref *kref))
- {
--	if (atomic_dec_and_test(&kref->refcount)) {
--		pr_debug("kref cleaning up\n");
--		kref->release(kref);
--	}
-+	WARN_ON(release == NULL);
-+	WARN_ON(release == (void (*)(struct kref *))kfree);
-+
-+	if (atomic_dec_and_test(&kref->refcount))
-+		release(kref);
- }
- 
- EXPORT_SYMBOL(kref_init);
-
+About the backwards compatibility, another option is to add a O_FILEDIR
+and have bash learn about it when you cd into a file. No magic with the
+slashes then.

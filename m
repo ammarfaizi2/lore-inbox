@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbULVA6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbULVBAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbULVA6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 19:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbULVA6L
+	id S261933AbULVBAT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 20:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbULVBAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 19:58:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18099 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261932AbULVA57 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 19:57:59 -0500
-Date: Tue, 21 Dec 2004 16:57:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-usb-devel@lists.sourcefoge.net.kroah.org,
-       linux-kernel@vger.kernel.org, laforge@gnumonks.org
-Subject: Re: My vision of usbmon
-Message-ID: <20041222005726.GA13317@kroah.com>
-References: <20041219230454.5b7f83e3@lembas.zaitcev.lan>
+	Tue, 21 Dec 2004 20:00:19 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:53002 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261933AbULVBAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 20:00:05 -0500
+Date: Wed, 22 Dec 2004 01:59:54 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Manfred Schwarb <manfred99@gmx.ch>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       trond.myklebust@fys.uio.no
+Subject: Re: 2.4.29-pre2 Oops at find_inode/reiserfs_find_actor
+Message-ID: <20041222005954.GL17946@alpha.home.local>
+References: <20041221164610.GC3596@logos.cnet> <1730.1103673365@www47.gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041219230454.5b7f83e3@lembas.zaitcev.lan>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1730.1103673365@www47.gmx.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 19, 2004 at 11:04:54PM -0800, Pete Zaitcev wrote:
-> Hi, Guys:
-> 
-> This is usbmon which I cooked up because I got tired from adding dbg()'s
-> and polluting my dmesg. I use it to hunt bugs in USB storage devices so
-> far, and it's useful, although limited at this stage.
-> 
-> I looked at the Harding's USBmon patch, and I think he got a few things right.
-> The main of them is that I underestimated the benefits of placing the special
-> files into the filesystem namespace. When we discussed it with Greg in the
-> airport, we decided that having some sort of Netlink-style socket would be
-> the best option. I decided to make a u-turn and attach those sockets into
-> the namespace (currently under /dbg, but it can change). What this buys us is:
-> 
->  1. cat(1): never bet against it. It's too handy. And netcat is just
->     not the same.
->  2. USBmon userland in Java. Just try to hack in JNI a little as I have
->     and you'll see.
+Hi,
 
-I agree, file interfaces are just too easy and simple to use.  Sorry for
-sending you down the wrong track with the socket stuff.
+On Wed, Dec 22, 2004 at 12:56:05AM +0100, Manfred Schwarb wrote:
+ 
+> No, not at all. This machine was running for 10 months with 2.4.xx 
+> kernels without any problems. Since this oops, I tried to reproduce
+> the particular situation (rsync over nfs, and some additional load),
+> put I had no success in crashing the box:
+> I mirrored the box (ca. 1 million files) 5 times, no problem.
+(...) 
+> Hardware issue: you mean memory? Last winter I ran memtest86
+> during a weekend, everything was fine. At the moment I can't
+> take this box offline for a longer period to test again, so I 
+> tend to belive memory is ok, and knock on wood...
 
-> The architecture to support various output formats is present. Obvious
-> candidates are Old USBmon format and a Binary format. But it's not done.
+Does this machine have ECC memory ? If so, have you tried to check the
+error counters ? And if not, well, it might be some random bit flips
+in memory.
 
-It looks great, thanks for doing this work.  Let me know when you want
-it added to the kernel tree.
+Last year, I encountered a really strange situation. During about one week,
+I had 3 or 4 machines that have panic'd several times each, and sometimes
+only some multi-threaded apps would freeze (eg: pdnsd). These machines
+were installed at different customers' in different locations, and at
+different times. They had never crashed before, nor did they after. Most
+other similar machines at other customer's, or some at the sames did not
+experience this. This was during the first week of november, when there
+were the very strong solar flares. I never told the customers about my
+thoughts on the subject, they would have definitely made fun of me. So
+we replaced the RAM sticks, to report something more believable...
 
-thanks,
+Regards,
+Willy
 
-greg k-h

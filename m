@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSGJNme>; Wed, 10 Jul 2002 09:42:34 -0400
+	id <S315171AbSGJNrF>; Wed, 10 Jul 2002 09:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315277AbSGJNmd>; Wed, 10 Jul 2002 09:42:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:47866 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315191AbSGJNmd>;
-	Wed, 10 Jul 2002 09:42:33 -0400
-Date: Wed, 10 Jul 2002 19:19:03 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: lse-tech@lists.sourceforge.net
-Subject: [OLS] RCU latency measurements
-Message-ID: <20020710191903.A1915@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
+	id <S315259AbSGJNrE>; Wed, 10 Jul 2002 09:47:04 -0400
+Received: from netlx010.civ.utwente.nl ([130.89.1.92]:44455 "EHLO
+	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S315171AbSGJNrD>; Wed, 10 Jul 2002 09:47:03 -0400
+Date: Wed, 10 Jul 2002 15:48:00 +0200
+From: Arjan Opmeer <a.d.opmeer@student.utwente.nl>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with kernel BUG at dcache.c:345
+Message-ID: <20020710134800.GA827@Ado.student.utwente.nl>
+References: <20020710054916.GA1800@Ado.student.utwente.nl> <3D2BCD38.8020504@si.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D2BCD38.8020504@si.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is again a summary of what was presented at the OLS 2002
-RCU paper.
+On Wed, Jul 10, 2002 at 01:59:20AM -0400, Frank Davis wrote:
 
-One other aspect of different RCU implementations that we have
-been investigating is the update latency. That is, how long
-it takes to complete the grace period and do the actual update.
-Long latencies could result in system running out of memory.
-I measured this for 3 different RCU implementations - rcu_poll,
-rcu_ltimer and rcu_sched against varying number of clients in
-dbench with the lockfree dcache lookup patch using RCU for dentries.
+>    The kernel version that you are using is always helpful when 
+> presenting issues/problems to linux-kernel.
 
-The results can be seen in the following graph -
-http://lse.sourceforge.net/locking/ols2002/rcu/results/latency/latency.png
-It is logscale on y axis, in case you don't notice it.
+Sorry, I forgot to include that information. Kernel version is 2.4.18.
 
-The patches are same as the ones used in overhead measurements -
-http://lse.sourceforge.net/locking/ols2002/rcu/patches/
 
-1. rcu_poll, with its forced reschedule and aggressive
-polling, shows the best latency.
-
-2. The latencies for all these RCU implementations remain
-reasonably flat under increased load.
-
-Comments/suggestions ?
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Arjan

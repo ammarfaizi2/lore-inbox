@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272291AbRH3PzU>; Thu, 30 Aug 2001 11:55:20 -0400
+	id <S272298AbRH3QIX>; Thu, 30 Aug 2001 12:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272292AbRH3PzK>; Thu, 30 Aug 2001 11:55:10 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:7180 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S272291AbRH3Py6>;
-	Thu, 30 Aug 2001 11:54:58 -0400
-Message-ID: <3B8E61E2.5030608@nyc.rr.com>
-Date: Thu, 30 Aug 2001 11:55:14 -0400
-From: John Weber <weber@nyc.rr.com>
-Organization: My House
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
-X-Accept-Language: en-us
+	id <S272304AbRH3QIN>; Thu, 30 Aug 2001 12:08:13 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S272298AbRH3QHz>; Thu, 30 Aug 2001 12:07:55 -0400
+Date: Thu, 30 Aug 2001 12:04:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+cc: Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
+Subject: Re: lcs ethernet driver source
+In-Reply-To: <OF598D8FCF.4FFE0C4C-ONC1256AB8.004CFE69@de.ibm.com>
+Message-ID: <Pine.LNX.3.95.1010830120141.3119A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ATAPI Floppy Problem
-In-Reply-To: <fa.c2tt6vv.1d7aebo@ifi.uio.no> <fa.oqtt0gv.1ikomhe@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ignacio Vazquez-Abrams wrote:
-> On Thu, 30 Aug 2001, John Weber wrote:
-> 
-> 
->>I get the following error on reboot...
->>
->>Aug 30 02:31:17 boolean kernel: ide-floppy: hdc: I/O error, pc = 5a, key
->>=  5, asc = 24, ascq =  0
->>
->>I have a ZIP 100, and am currently using ide-floppy driver 0.97
->>(included with linux 2.4.9).
->>
->>Suggestions?
->>
-> 
-> Do you have media in the drive? The only time I've ever seen that is with my
-> LS-120 when there's no disk in it. If that's the case then you can ignore it.
-> 
-> 
+On Thu, 30 Aug 2001, Ulrich Weigand wrote:
 
-Media in drive.
+> 
+> Arjan van de Ven wrote:
+> 
+> >I tried to find the source for the lcs and qeth ethernet drivers for IBM's
+> >S390 architecture, so I could recompile the kernel. However I seem to not
+> be
+> >able to find the source of these. Does anyone have a URL handy for this ?
+> >(I wonder why these aren't in Linus or Alan's tree like most of the other
+> >s390 patches)
+> 
+> Sorry, at this point we are not allowed to publish the source code of the
+> lcs and qeth drivers (due to the use of confidential hardware interface
+> specifications).  We make those modules available only in binary form
+> on our developerWorks web site.
+> 
+Gosh. I didn't know you guys were so advanced that you didn't use
+an electronic hardware interface! Your 'hardware interface specifications'
+use magnetohydrodynamics, and they are top-secret, right?
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSKJUQX>; Sun, 10 Nov 2002 15:16:23 -0500
+	id <S265154AbSKJUa4>; Sun, 10 Nov 2002 15:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262886AbSKJUQX>; Sun, 10 Nov 2002 15:16:23 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:44747 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262859AbSKJUQW>;
-	Sun, 10 Nov 2002 15:16:22 -0500
-Date: Sun, 10 Nov 2002 21:23:04 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Thor Kristoffersen <Thor.Kristoffersen@nr.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with VT8235 + DMA patch + PlexWriter W2410
-Message-ID: <20021110212304.A15619@ucw.cz>
-References: <200211101934.gAAJYZt09539@triumph.nr.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200211101934.gAAJYZt09539@triumph.nr.no>; from Thor.Kristoffersen@nr.no on Sun, Nov 10, 2002 at 08:34:35PM +0100
+	id <S265168AbSKJUa4>; Sun, 10 Nov 2002 15:30:56 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:16285 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S265154AbSKJUaz>; Sun, 10 Nov 2002 15:30:55 -0500
+Date: Sun, 10 Nov 2002 13:31:13 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Thomas Molina <tmolina@cox.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Problem Report Status for 10 Nov
+In-Reply-To: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina>
+Message-ID: <Pine.LNX.4.33.0211101328190.20751-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 10, 2002 at 08:34:35PM +0100, Thor Kristoffersen wrote:
 
-> I have tried, without success, to get a PlexWriter PX-W2410A (IDE/ATAPI CD
-> burner) to work with an MSI KT3 Ultra2 (KT333/VT8235) and Vojtech Pavlik's
-> DMA patch.  Any attempt to access the CD burner produces lots of messages
-> like these:
-> 
-> hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> hdc: drive not ready for command
-> hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> hdc: drive not ready for command
-> hdc: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> hdc: status error: error=0x54
-> hdc: drive not ready for command
-> 
-> The problem seems to be largely independent of the kernel version.  I have
-> tried 2.4.19, 2.4.20-preXX, and 2.5.46, with the same results.
-> 
-> Simply turning off DMA for the CD burner does not make it work: the
-> problem persists as long as the patch is present.  On the other hand, a
-> different CD burner (Sony CRX-140E) works just fine with the same
-> mainboard, with the patch present.
+> ------------------------------------------------------------------------
+>    open   04 Oct 2002 register_console() called in illegal context
+>    6. http://marc.theaimsgroup.com/?l=linux-kernel&m=103282695403237&w=2
 
-Does the drive work without the patch? If yes, please send me 'hdparm -i
-/edv/hdc', 'lspci -vvxxx' for both the cases with and without the patch,
-and 'cat /proc/ide/via' for the case with the patch. I'll check if all
-the timings programmed really are correct.
+Have to take a look.
 
-Maybe we have a candidate for drive PIO timing black list. 
+> ------------------------------------------------------------------------
+>    open   07 Oct 2002 bug related to virtual consoles
+>   20. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403138113853&w=2
 
-(check: no overclocking takes place on your machine, right?)
+Another one. Maybe I shoudl try to push my full console changes.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> ------------------------------------------------------------------------
+>    open   14 Oct 2002 fbcon oops
+>   33. http://marc.theaimsgroup.com/?l=linux-kernel&m=103458863514865&w=2
+
+Should be fixed in next fbdev update.
+
+> ------------------------------------------------------------------------
+>    open   17 Oct 2002 neofb oops on shutdown
+>   44. http://marc.theaimsgroup.com/?l=linux-kernel&m=103485950708944&w=2
+
+Fixed. I have updated this driver and it is fully working :-)
+
+> ------------------------------------------------------------------------
+>    open   18 Oct 2002 color problem with atyfb
+>   49. http://marc.theaimsgroup.com/?l=linux-kernel&m=103424151129857&w=2
+
+Should be also fixed.
+
+

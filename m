@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVBYA0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVBYATx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbVBYA0c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVBYAXA
+	id S262563AbVBYATx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVBYAPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:23:00 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:28465 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262624AbVBYAVD (ORCPT
+	Thu, 24 Feb 2005 19:15:35 -0500
+Received: from mail.kroah.org ([69.55.234.183]:57504 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262590AbVBYAMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:21:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Pvo6bHVyhxf33MstGAd1CI6BdHXhidFyVidAQYgu9MQ/wqAj8IqtfKC4+crGxM852pHewr3h4csT8rnS9s42bwSPFTsBFHV/X9nTrLg0c0Qk2fI8jN2hO2EFsL0ucXydtJdq59a+lilyijKhABv2Up5mpmH3AzkpJDicqH6IpDA=
-Message-ID: <6f6293f10502241620ec0477f@mail.gmail.com>
-Date: Fri, 25 Feb 2005 01:20:59 +0100
-From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-In-Reply-To: <20050223162539.2bd605b4.akpm@osdl.org>
+	Thu, 24 Feb 2005 19:12:08 -0500
+Date: Thu, 24 Feb 2005 16:11:50 -0800
+From: Greg KH <gregkh@suse.de>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] USB: fix bug in acm's open function
+Message-ID: <20050225001150.GA27481@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	 <421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org>
-	 <421CFF5E.4030402@mesatop.com> <421D09AE.4090100@mesatop.com>
-	 <20050223161653.7cb966c3.akpm@osdl.org>
-	 <20050223162539.2bd605b4.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Feb 2005 16:25:39 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Could someone try this?
-> 
-> Let's turn that into a real patch.
-> 
-> --- 25/drivers/ide/ide-probe.c~ide_init_disk-fix        Wed Feb 23 16:24:44 2005
-> +++ 25-akpm/drivers/ide/ide-probe.c     Wed Feb 23 16:24:55 2005
-> @@ -1269,7 +1269,7 @@ EXPORT_SYMBOL_GPL(ide_unregister_region)
->  void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
->  {
->         ide_hwif_t *hwif = drive->hwif;
-> -       unsigned int unit = drive->select.all & (1 << 4);
-> +       unsigned int unit = (drive->select.all >> 4) & 1;
-> 
->         disk->major = hwif->major;
->         disk->first_minor = unit << PARTN_BITS;
-> _
-> 
-> -
+Here's a patch for 2.6.11-rc5 that a lot of cdc-acm driver users are
+clammering for.
 
-Works for me.
-Thanks.
+
+There's a bug introduced in a cleanup which will lead
+to a race making reopenings fail. This fix is by Alexander Lykanov.
+
+Signed-off-by: Oliver Neukum <oliver@neukum.name>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+
+diff -Nru a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+--- a/drivers/usb/class/cdc-acm.c	2005-02-19 10:02:21 +01:00
++++ b/drivers/usb/class/cdc-acm.c	2005-02-19 10:02:21 +01:00
+@@ -278,15 +278,14 @@
+ 
+ 
+ 
+-	if (acm->used) {
++	if (acm->used++) {
+ 		goto done;
+         }
+ 
+ 	acm->ctrlurb->dev = acm->dev;
+ 	if (usb_submit_urb(acm->ctrlurb, GFP_KERNEL)) {
+ 		dbg("usb_submit_urb(ctrl irq) failed");
+-		rv = -EIO;
+-		goto err_out;
++		goto bail_out;
+ 	}
+ 
+ 	acm->readurb->dev = acm->dev;
+@@ -303,7 +302,6 @@
+ 	tty->low_latency = 1;
+ 
+ done:
+-	acm->used++;
+ err_out:
+ 	up(&open_sem);
+ 	return rv;
+@@ -312,6 +310,8 @@
+ 	usb_kill_urb(acm->readurb);
+ bail_out_and_unlink:
+ 	usb_kill_urb(acm->ctrlurb);
++bail_out:
++	acm->used--;
+ 	up(&open_sem);
+ 	return -EIO;
+ }
+
+

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTIJLxH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbTIJLxH
+	id S262641AbTIJMBc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTIJMBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:53:07 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:59848 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S262610AbTIJLxE
+	Wed, 10 Sep 2003 08:01:32 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:63162 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S262641AbTIJMBb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:53:04 -0400
-Date: Wed, 10 Sep 2003 13:52:59 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Luca Veraldi <luca.veraldi@katamail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Efficient IPC mechanism on Linux
-Message-ID: <20030910115259.GA28632@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Luca Veraldi <luca.veraldi@katamail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <015601c3777c$8c63b2e0$5aaf7450@wssupremo>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+	Wed, 10 Sep 2003 08:01:31 -0400
+Date: Wed, 10 Sep 2003 13:45:57 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net,
+       linux-acpi@intel.com
+Subject: Re: [PATCH] 2.4.23-pre3 ACPI fixes series (1/3)
+In-Reply-To: <200309060115.24340.adq_dvb@lidskialf.net>
+Message-ID: <Pine.LNX.4.56.0309101344420.20323@dot.kde.org>
+References: <200309051958.02818.adq_dvb@lidskialf.net>
+ <200309060016.16545.adq_dvb@lidskialf.net> <3F590E28.6090101@pobox.com>
+ <200309060115.24340.adq_dvb@lidskialf.net>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Veraldi, Wed, Sep 10, 2003 11:18:48 +0200:
-> > Will it be possible to base existing facilities on your approach?
-> > SVR5 messages (msg{get,snd,rcv}), for example?
-> 
-> Ah, ok. So let's continue to do ineffient things
-> only because it has always been so!
+On Sat, 6 Sep 2003, Andrew de Quincey wrote:
 
-It is because the interface is perfectly enough. You still can
-implement zero-copy local transfers for pipes for read and write
-calls.
-And for small amounts, where it is impossible to do zero-copy does not
-bring noticable advantages (as was already mentioned by Alan).
+> This patch allows ACPI to drop back to PIC mode if ACPI mode setup fails.
 
-> Compatibility is not a problem. Simply rewrite the write() and read()
-> for pipes in order to make them do the same thing done by zc_send()
-> and zc_receive().  Or, if you are not referring to pipes, rewrite the
-> support level of you anchient IPC primitives in order to make them do
-> the same thing done by zc_send() and zc_receive().
+Works nicely here, but causes an oops on startup if you specify acpi=off 
+on the command line.
 
-If it is possible, why new user-side interface?
-
--alex
+LLaP
+bero

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264592AbTK3Bve (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 20:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264594AbTK3Bvd
+	id S264595AbTK3CBG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 21:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264596AbTK3CBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 20:51:33 -0500
-Received: from mail.gmx.de ([213.165.64.20]:6633 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264592AbTK3Bvc (ORCPT
+	Sat, 29 Nov 2003 21:01:06 -0500
+Received: from pop.gmx.net ([213.165.64.20]:15584 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264595AbTK3CBC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 20:51:32 -0500
+	Sat, 29 Nov 2003 21:01:02 -0500
 X-Authenticated: #4512188
-Message-ID: <3FC94D20.6020007@gmx.de>
-Date: Sun, 30 Nov 2003 02:51:28 +0100
+Message-ID: <3FC94F5A.8020900@gmx.de>
+Date: Sun, 30 Nov 2003 03:00:58 +0100
 From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
 X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-To: Craig Bradney <cbradney@zip.com.au>
-CC: Julien Oster <frodoid@frodoid.org>, linux-kernel@vger.kernel.org
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       linux-kernel@vger.kernel.org, marcush@onlinehome.de
 Subject: Re: Silicon Image 3112A SATA trouble
-References: <3FC36057.40108@gmx.de> <3FC8BDB6.2030708@gmx.de>	 <frodoid.frodo.878ylzjfjm.fsf@usenet.frodoid.org> <1070125634.28187.11.camel@athlonxp.bradney.info>
-In-Reply-To: <1070125634.28187.11.camel@athlonxp.bradney.info>
+References: <3FC36057.40108@gmx.de> <3FC8BDB6.2030708@gmx.de> <20031129165648.GB14704@gtf.org>
+In-Reply-To: <20031129165648.GB14704@gtf.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Bradney wrote:
->>I can't find the Silicon Image driver under
+Jeff Garzik wrote:
+> On Sat, Nov 29, 2003 at 04:39:34PM +0100, Prakash K. Cheemplavam wrote:
+>>I just tried the libata driver and it ROCKSSSS! So far, at least.
 >>
->>"SCSI low-level drivers" -> "Serial ATA (SATA) support"
->>
->>under 2.6.0-test11. Just the following are there:
->>
->>ServerWorks Frodo
->>Intel PIIX/ICH
->>Promisa SATA
->>VIA SATA
->>
-> 
-> 
-> Try under ATA/ATAPI/MFM/RLL support
-> 
-> Silicon Image Chipset Support
-> CONFIG_BLK_DEV_SIIMAGE:                                                                           This driver adds PIO/(U)DMA support for the SI CMD680 and SII 3112 (Serial ATA) chips.
+>>I already wrote about the crappy SiI3112 ide driver, now with libata I 
+>>get >60mb/sec!!!! More then I get with windows.
 
-No, that is the ide driver that sucks big time.
+> Thanks :)
+
+Come on, we must thank you. You don't imagine how frustrated I became of 
+the SiI bugger. :-)
 
 Prakash
 

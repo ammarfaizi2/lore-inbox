@@ -1,66 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291320AbSBGVaR>; Thu, 7 Feb 2002 16:30:17 -0500
+	id <S291325AbSBGVeh>; Thu, 7 Feb 2002 16:34:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291321AbSBGVaG>; Thu, 7 Feb 2002 16:30:06 -0500
-Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:9618 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S291320AbSBGV30>;
-	Thu, 7 Feb 2002 16:29:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mike Touloumtzis <miket@bluemug.com>
-Subject: Re: How to check the kernel compile options ?
-Date: Thu, 7 Feb 2002 22:33:41 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16YvYs-00015d-00@starship.berlin> <20020207210823.GH26826@bluemug.com>
-In-Reply-To: <20020207210823.GH26826@bluemug.com>
+	id <S291329AbSBGVe2>; Thu, 7 Feb 2002 16:34:28 -0500
+Received: from colorfullife.com ([216.156.138.34]:30993 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S291325AbSBGVeO>;
+	Thu, 7 Feb 2002 16:34:14 -0500
+Date: Thu, 7 Feb 2002 22:34:10 +0100 (CET)
+From: Manfred Spraul <manfred@colorfullife.com>
+X-X-Sender: manfred@dbl.localdomain
+To: Andrew Morton <akpm@zip.com.au>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] VM_IO fixes
+In-Reply-To: <3C621B44.10C424B9@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0202072204150.6350-100000@dbl.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16YwAn-000169-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 7, 2002 10:08 pm, Mike Touloumtzis wrote:
-> On Thu, Feb 07, 2002 at 09:54:30PM +0100, Daniel Phillips wrote:
-> > On February 7, 2002 09:34 pm, Mike Touloumtzis wrote:
-> > > Some possible available avenues of argument for you are:
-> > 
-> > I think you're just arguing for the sake of argument, which basically sums
-> > up all the arguments we've seen against this.
+On Wed, 6 Feb 2002, Andrew Morton wrote:
+> This patch doesn't fix the PTRACE_PEEKUSR bug - for that we need
+> this patch as well as the patch Andrea, Manfred and I pieced
+> together - it's at http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre7aa2/00_get_user_pages-2
+> I understand that Manfred will be sending you a version of that patch.
 > 
-> Not at all.  I really believe that embedded unnecessary information in
-> the kernel is a bad idea.  I don't want my kernels to get any bigger
-> than they are now unless useful features are being added (I have no
-> problem with that).  I develop for embedded devices, so I'm particularly
-> sensitive to this issue.
+My patch is below.
+The only difference between my and Andrea's version is one indentation and 
+a new comment that warns about possible cache coherency problems.
 
-I've heard that one before, from people who should know better.  That's what 
-config options are for, or it's certainly a major reason for having config 
-options.  Heck, I'd be satisfied if it was off by default.  I'd *always* turn 
-it on, personally.
+Tested only on i386 with -pre9, the PTRACE_PEEKUSR oops is fixed (ok, I've 
+tested pread from /proc/pid/mem, but that's the same code)
 
-> My understanding is that "keep features out of the kernel if possible"
-> is the majority opinion, not a crackpot weirdo stance.
+--
+	Manfred
+<<<<<<<<<<<<<
+--- 2.4/mm/memory.c	Tue Dec 25 17:12:07 2001
++++ build-2.4/mm/memory.c	Thu Feb  7 21:53:32 2002
+@@ -442,6 +442,13 @@
+ 	return page;
+ }
+ 
++/*
++ * Please read Documentation/cachetlb.txt before using this function,
++ * accessing foreign memory spaces can cause cache coherency problems.
++ *
++ * Accessing a VM_IO area is even more dangerous, therefore the function
++ * fails if pages is != NULL and a VM_IO area is found.
++ */
+ int get_user_pages(struct task_struct *tsk, struct mm_struct *mm, unsigned long start,
+ 		int len, int write, int force, struct page **pages, struct vm_area_struct **vmas)
+ {
+@@ -453,6 +460,7 @@
+ 		vma = find_extend_vma(mm, start);
+ 
+ 		if ( !vma ||
++		    (pages && vma->vm_flags & VM_IO) ||
+ 		    (!force &&
+ 		     	((write && (!(vma->vm_flags & VM_WRITE))) ||
+ 		    	 (!write && (!(vma->vm_flags & VM_READ))) ) )) {
+@@ -486,8 +494,9 @@
+ 				/* FIXME: call the correct function,
+ 				 * depending on the type of the found page
+ 				 */
+-				if (pages[i])
+-					page_cache_get(pages[i]);
++				if (!pages[i])
++					goto bad_page;
++				page_cache_get(pages[i]);
+ 			}
+ 			if (vmas)
+ 				vmas[i] = vma;
+@@ -497,7 +506,19 @@
+ 		} while(len && start < vma->vm_end);
+ 		spin_unlock(&mm->page_table_lock);
+ 	} while(len);
++out:
+ 	return i;
++
++	/*
++	 * We found an invalid page in the VMA.  Release all we have
++	 * so far and fail.
++	 */
++bad_page:
++	spin_unlock(&mm->page_table_lock);
++	while (i--)
++		page_cache_release(pages[i]);
++	i = -EFAULT;
++	goto out;
+ }
+ 
+ /*
+<<<<<<<<<<
 
-Right, but would you buy a car without upholstery on the seats?  Wait, maybe 
-you would.
-
-> > Let me put it in simple terms: you've got an alarm clock, haven't you?  
-> > When you set the alarm, you don't need to have any little light on the 
-> > front that tells you the alarm is set, do you?  Because, after all you're 
-> > not stupid, you know you set it.  And you can always get out of bed and 
-> > look at the position of the switch, right?
-> 
-> I don't think this is a close enough analogy to illustrate anything.
-
-Right, it's tough to explain usability to someone who has no clue what that 
-is.
-
-OK, I'm out, I've made my point, you are welcome to attempt to demolish it 
-without fear of retaliation.
-
--- 
-Daniel

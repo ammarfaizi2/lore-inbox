@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUJEEqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268779AbUJEEta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268769AbUJEEqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 00:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268771AbUJEEqJ
+	id S268779AbUJEEta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 00:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268776AbUJEEta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 00:46:09 -0400
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:41189 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268769AbUJEEqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 00:46:06 -0400
-References: <200410050216.i952Gb620657@unix-os.sc.intel.com> <cone.1096943670.717018.10082.502@pc.kolivas.org> <416211A3.8060806@yahoo.com.au>
-Message-ID: <cone.1096951549.783170.10082.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Chen@bhhdoa.org.au,
-       Kenneth W <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: bug in sched.c:activate_task()
-Date: Tue, 05 Oct 2004 14:45:49 +1000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+	Tue, 5 Oct 2004 00:49:30 -0400
+Received: from wasp.net.au ([203.190.192.17]:58550 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S268771AbUJEEtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 00:49:02 -0400
+Message-ID: <416227E1.8020306@wasp.net.au>
+Date: Tue, 05 Oct 2004 08:49:37 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Knop <wknop@andrew.cmu.edu>
+CC: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: libata badness
+References: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu> <16737.54003.419130.575839@cse.unsw.edu.au> <Pine.LNX.4.60-041.0410042301510.22333@unix47.andrew.cmu.edu>
+In-Reply-To: <Pine.LNX.4.60-041.0410042301510.22333@unix47.andrew.cmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin writes:
-
-> Con Kolivas wrote:
+William Knop wrote:
 > 
->> Chen, Kenneth W writes:
+>> This code starts:
 >>
->>> Update p->timestamp to "now" in activate_task() doesn't look right
->>> to me at all.  p->timestamp records last time it was running on a
->>> cpu.  activate_task shouldn't update that variable when it queues
->>> a task on the runqueue.
->>>
->>> This bug (and combined with others) triggers improper load balancing.
+>>   0:   8b 55 04                  mov    0x4(%ebp),%edx
+>>   3:   83 c1 08                  add    $0x8,%ecx
 >>
->>
->> The updated timestamp was placed there by Ingo to detect on-runqueue 
->> time. If it is being used for load balancing then it is being used in 
->> error.
->>
+>> and as %ebp is 01000000, this oopses.
+>> It looks very much like a single-bit memory error (as has already been
+>> suggested as a possibility).
 > 
-> Load balancing wants to know if a task is considered cache hot.
+> 
+> Oh my. So, I ran memcheck again for a few hours, and it checked out 
+> fine. Just in case, though, I bought a replacement stick of ram. Well, 
+> the oopses went away, so it must have been the ram.
 
-Yes I know. It used to be performed based on jiffies which was adequate 
-resolution for cache warmth at the time. The timestamp was being used for on 
-runqueue length measurement before the load balancing was modified to use 
-that value.
+For future reference, I have had errors show up after 24-36 hours of memtest86. I usually find that 
+if it passes 48 hours of testing then things are looking pretty reliable. A couple of hours is 
+usually too small a sample to rely on.
 
-Con
-
+Brad

@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269308AbRHLPFQ>; Sun, 12 Aug 2001 11:05:16 -0400
+	id <S269312AbRHLPG4>; Sun, 12 Aug 2001 11:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269312AbRHLPE4>; Sun, 12 Aug 2001 11:04:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60173 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269308AbRHLPEx>; Sun, 12 Aug 2001 11:04:53 -0400
-Subject: Re: Gameport & esssolo1 2.4.8
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sun, 12 Aug 2001 16:03:02 +0100 (BST)
-Cc: moz@compsoc.man.ac.uk (John Levon), linux-kernel@vger.kernel.org,
-        sailer@ife.ee.ethz.ch
-In-Reply-To: <3592.997627375@ocs3.ocs-net> from "Keith Owens" at Aug 13, 2001 12:42:55 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S269313AbRHLPGg>; Sun, 12 Aug 2001 11:06:36 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:33478 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S269312AbRHLPG0>; Sun, 12 Aug 2001 11:06:26 -0400
+Date: Sun, 12 Aug 2001 15:56:33 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: David Woodhouse <dwmw2@infradead.org>, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
+Message-ID: <20010812155633.B12253@flint.arm.linux.org.uk>
+In-Reply-To: <21485.997626973@redhat.com> <3742.997627694@ocs3.ocs-net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Vwla-0005qP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3742.997627694@ocs3.ocs-net>; from kaos@ocs.com.au on Mon, Aug 13, 2001 at 12:48:14AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AFAIK this was fixed in the -ac trees some time ago.  I have no idea
-> why it is not in 2.4.8, maybe Alan Cox is waiting for the input and/or
-> joystick maintainer to push it.  No, I am not going to do a 2.4.8
-> version of the fix, that is up to the maintainer.
+On Mon, Aug 13, 2001 at 12:48:14AM +1000, Keith Owens wrote:
+> No.  The aim is for a user to look at the makefile in a directory and
+> know everything that is created in that directory.  If you allow
+> creation of a file in one directory but storing it in another then you
+> have to search all makefiles to find out what is created in any
+> directory.  Horrible!
 
-Yep. It depends on the new input devices
+Can we have a makefile in include/asm-$(ARCH) then please?
+
+I think stuff like:
+
+#include "../../../../arch/arm/constants.h"
+
+or
+
+#include "../../../../arch/arm/tools/mach-types.h"
+
+is even more disgusting.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

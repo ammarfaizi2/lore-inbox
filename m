@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUHQAtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUHQAt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268055AbUHQAtA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 20:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUHQAs7
+	id S268054AbUHQAt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 20:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUHQAt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 20:48:59 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:47261 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S268057AbUHQAsi
+	Mon, 16 Aug 2004 20:49:57 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:22418 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S268054AbUHQAtw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 20:48:38 -0400
-Date: Tue, 17 Aug 2004 01:48:13 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata: dma, io error messages
-In-Reply-To: <4113A684.8050302@pobox.com>
-Message-ID: <Pine.LNX.4.60.0408170133430.78577@fogarty.jakma.org>
-References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org>
- <1091795565.16307.14.camel@localhost.localdomain> <4113A684.8050302@pobox.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 16 Aug 2004 20:49:52 -0400
+Subject: Re: boot time, process start time, and NOW time
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Andrew Morton <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       david+powerix@blue-labs.org
+In-Reply-To: <41215334.7050203@mvista.com>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+	 <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
+	 <1092702077.2429.88.camel@cog.beaverton.ibm.com>
+	 <41215334.7050203@mvista.com>
+Content-Type: text/plain
+Message-Id: <1092703747.2429.111.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 16 Aug 2004 17:49:08 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+On Mon, 2004-08-16 at 17:37, George Anzinger wrote:
+> john stultz wrote:
+> > On Mon, 2004-08-16 at 16:08, Tim Schmielau wrote:
+> >>Simple fix: revert the patch below.
+> >>Complicated fix: correct process start times in fork.c (no patch provided, 
+> >>too complicated for me to do).
+> > 
+> > Hmm. While that patch fixed the uptime proc entry, I thought the issue
+> > was with process start times. I'm looking at fixing the start_time
+> > assignment in proc_pid_stat(). My suspicion is that we need to use ACTHZ
+> > in jiffies64_to_clock_t().
+> 
+> I really don't see how the start_time that proc_pid_stat() is producing could be 
+> anything but a constant.  The complaint is that it moves, not that it is 
+> incorrect, right?
 
-On Fri, 6 Aug 2004, Jeff Garzik wrote:
+My impression was that it was both. 
 
-> libata does not (yet) retry cable errors, for example.  Paul, don't 
-> automatically assume the disk is bad, try swapping cables.
+Regardless, your point stands, it would just be a constant. Good catch.
+I'll have to think about this some more. 
 
-FWIW:
+Let me look at procps to see how exactly it comes up w/ STIME. 
 
-- running dd in a while loop reading 1024k of data at a time from 
-about 1000 odd blocks before/after the block number mentioned in the 
-error messages did not cause any further errors
+thanks
+-john
 
-however:
 
-- when I tried to add the disk (well partition, spanning from 2GB to 
-end of disk at 160GB) back into its RAID-5 array, it errored out 
-every time when resyncing the array, but only when reaching somewhere 
-close to the end of the resync.
-
-(unfortunately, I couldnt get the error messages, it caused all 
-further IO to the RAID-5 to die too and effectively hang the box - i 
-think due to the MD layer not being at all happy with a disk failling 
-while resyncing, indeed, MD was not happy with state of play after 
-reboot and wouldnt bring the array back.[1])
-
-- Rogier Wolff reported to me in private mail that in his experience, 
-WD disks going 'slow' is a WD quirk and an imminent sign of failure 
-of WD disks.
-
-And indeed, the disk did die completely last friday.. it's now been 
-replaced.
-
-How much would it take to get SMART reporting working with libata 
-btw? I'd be very interested in this and helping out if possible.
-
-> 	Jeff
-
-1. NB: It would be nice if the Linux RAID superblock had per-drive 
-UUIDs in addition to the global array UUID. I hotadded the disk to 
-the array without first hotremoving it, and MD was rather confused by 
-the presence of '/dev/sda' twice, as a failed disk and as a spare. 
-Also, the failure of /dev/sda caused /dev/sdb and /dev/sdc to be 
-renamed, after reboot to /dev/sda and /dev/sdb, which further 
-confused matters. A per-component UUID might help MD discriminate and 
-prevent addition of disks which are already in array and also help it 
-recognise that the failed /dev/sda3 in the superblock is not the same 
-as the current (renamed due to discovery after disk failure), 
-/dev/sda3 existing on the system..
-
-It took a lot of touching of wood, checking and rechecking of 
-/etc/raidtab vs lsraid and mdadm -E before doing mkraid 
---dangerous-no-resync .... to rewrite the superblock and get the 
-array running again despite my mistake and the 
-not-very-friendly-to-fat-fingers properties of md.
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-If only God would give me some clear sign!  Like making a large deposit
-in my name at a Swiss Bank.
-- Woody Allen

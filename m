@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263440AbUDPQWx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUDPQWw
+	id S263308AbUDPQ1q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbUDPQ1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:22:52 -0400
-Received: from holomorphy.com ([207.189.100.168]:50566 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263372AbUDPQWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:22:50 -0400
-Date: Fri, 16 Apr 2004 09:22:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mikkel Christiansen <mixxel@cs.auc.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vfree in timerfunciton causes  kernel crash
-Message-ID: <20040416162243.GR743@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mikkel Christiansen <mixxel@cs.auc.dk>,
-	linux-kernel@vger.kernel.org
-References: <4080058A.8090607@cs.auc.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Apr 2004 12:27:45 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:33492 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263308AbUDPQ1o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 12:27:44 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: kgdboe: spinlock already locked
+Date: Fri, 16 Apr 2004 17:30:46 +0200
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4080058A.8090607@cs.auc.dk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200404161730.46655.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 06:10:50PM +0200, Mikkel Christiansen wrote:
-> Idea: a module allocates memory (vmalloc) for userspace program which 
-> then craches.
-> Due to lack of activity timer is  expires and free's the unused memory 
-> (vfree).
-> (see tc_core.c later in this mail for details)
-> Problem: when timer expires and vfree is called then kernel crashes -
-> or rather freezes silently.
-> Can anyone explain why this happens? a kernel bug?
-> Cheers
->    Mikkel
-> kernel 2.6.5
+I'm using kgdboe with kernel 2.6.5-rc3-mm4.
+After a while I got this:
 
-Use schedule_work() to do this from process context. It's a programming
-error (specifically a deadlock) to vfree() from interrupt context or with
-interrupts disabled.
+drivers/net/8139too.c:2098: spin_lock(drivers/net/8139too.c:c15c93a0) already locked by drivers/net/8139too.c/2098
+drivers/net/8139too.c:2120: spin_unlock(drivers/net/8139too.c:c15c93a0) not locked
+drivers/net/8139too.c:2098: spin_lock(drivers/net/8139too.c:c15c93a0) already locked by drivers/net/8139too.c/2098
+drivers/net/8139too.c:2120: spin_unlock(drivers/net/8139too.c:c15c93a0) not locked
+eth0: link down
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
 
+All the best,
 
--- wli
+Duncan.

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263556AbTIWUIu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 16:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTIWUIu
+	id S263396AbTIWU0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 16:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTIWU0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 16:08:50 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:6918 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S263556AbTIWUIt (ORCPT
+	Tue, 23 Sep 2003 16:26:15 -0400
+Received: from mail.kroah.org ([65.200.24.183]:63190 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263396AbTIWU0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 16:08:49 -0400
-Date: Tue, 23 Sep 2003 22:06:45 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Steven Cole <elenstev@mesatop.com>, "J.A. Magallon" <jamagallon@able.es>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: ATTACK TO MY SYSTEM
-Message-ID: <20030923200645.GG589@alpha.home.local>
-References: <5.2.1.1.2.20030923114213.01b36e78@pop.gmx.net> <20030923134023.GA3032@werewolf.able.es> <1064328224.1995.236.camel@spc9.esa.lanl.gov> <20030923115039.A30231@animx.eu.org>
+	Tue, 23 Sep 2003 16:26:11 -0400
+Date: Tue, 23 Sep 2003 13:25:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: David Yu Chen <dychen@stanford.edu>, linux-kernel@vger.kernel.org,
+       mc@cs.stanford.edu
+Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
+Message-ID: <20030923202554.GA5485@kroah.com>
+References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU> <20030923131350.D20572@osdlab.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030923115039.A30231@animx.eu.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030923131350.D20572@osdlab.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 11:50:39AM -0400, Wakko Warner wrote:
- 
-> I'm running my own mailserver and it's hard not to accept it.  I have
-> basically done checks in the from and to headers.  If it appears as a virus,
-> i lockout the smtp sender.  It's not permenant.  When the virus stops, i
-> unblock every one.
+On Tue, Sep 23, 2003 at 01:13:50PM -0700, Chris Wright wrote:
+> * David Yu Chen (dychen@stanford.edu) wrote:
+> > Leaks if devices == 0 ?  Error_end only frees mdevs if (devices > 0), 
+> > but for mdevs=kmalloc(0), the slab allocator may still actually return memory
+> > [FILE:  2.6.0-test5/drivers/usb/class/usb-midi.c]
+> > [FUNC:  alloc_usb_midi_device]
+> > [LINES: 1621-1772]
+> > [VAR:   mdevs]
+> > 1616:	devices = inDevs > outDevs ? inDevs : outDevs;
+> > 1617:	devices = maxdevices > devices ? devices : maxdevices;
+> > 1618:
+> > 1619:	/* obtain space for device name (iProduct) if not known. */
+> > 1620:	if ( ! u->deviceName ) {
+> > START -->
+> > 1621:		mdevs = (struct usb_mididev **)
+> > 1622:			kmalloc(sizeof(struct usb_mididevs *)*devices
+> > 1623:				+ sizeof(char) * 256, GFP_KERNEL);
+> <snip>
+> > GOTO -->
+> > 1715:			goto error_end;
+> <snip>
+> > END -->
+> > 1772:	return -ENOMEM;
+> > [FILE:  2.6.0-test5/drivers/usb/class/usb-midi.c]
+> > START -->
+> > 1625:		mdevs = (struct usb_mididev **)
+> > 1626:			kmalloc(sizeof(struct usb_mididevs *)*devices, GFP_KERNEL);
+> <snip>
+> > GOTO -->
+> > 1715:			goto error_end;
+> <snip>
+> > END -->
+> > 1772:	return -ENOMEM;
+> 
+> Yes, these are bugs.  Patch below.  Greg, this look ok?
 
-I've noticed that they *ALL* have their From:, To:, and Subject: written in
-uppercase. So it's really easy to filter them out depending on the tools used.
-If a mail header either matches ^FROM:, ^TO: or ^SUBJECT: then it has high
-chances to be a spam/virus. I checked all my recent mails and a few months
-back in LKML and did not found anything except spam/viruses which match this.
-At least, we should be lucky that these virus writers don't fully respect
-protocols...
+Don't know, Vojtech said he would fix these up already.  Try asking him
+:)
 
-HTH,
-Willy
+thanks,
 
+greg k-h

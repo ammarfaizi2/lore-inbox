@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286254AbRLTOGB>; Thu, 20 Dec 2001 09:06:01 -0500
+	id <S286259AbRLTOLB>; Thu, 20 Dec 2001 09:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286259AbRLTOFv>; Thu, 20 Dec 2001 09:05:51 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:55813 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S286258AbRLTOFi>; Thu, 20 Dec 2001 09:05:38 -0500
-Date: Thu, 20 Dec 2001 06:05:44 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: christian e <cej@ti.com>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: minimizing swap usage
-In-Reply-To: <3C21E7F1.3040406@ti.com>
-Message-ID: <Pine.LNX.4.33.0112200559350.8883-100000@shell1.aracnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286260AbRLTOKv>; Thu, 20 Dec 2001 09:10:51 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:40718 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286259AbRLTOKi>;
+	Thu, 20 Dec 2001 09:10:38 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Consistant complete deadlock with kernel 2.4.16 on an Abit VP6 with dual 1 Gig CPUs and an ICP GDT RAID card 
+In-Reply-To: Your message of "Wed, 19 Dec 2001 16:22:47 CDT."
+             <OE272TUSzbAUfKRfcjc00005359@hotmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 21 Dec 2001 01:10:26 +1100
+Message-ID: <24576.1008857426@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Dec 2001, christian e wrote:
+On Wed, 19 Dec 2001 16:22:47 -0500, 
+"T. A." <tkhoadfdsaf@hotmail.com> wrote:
+>    Anyone know how I could debug the cause of this problem?  Machine
+>deadlocks.  Not even an Ooops so I'm short on ideas on how to track the
+>problem down.  Please help.  8-(  My new SMP system sucks on Linux.  8-(
 
-> Hi,all
->
-> Can someone give me a pointer to how I can avoid somethign like this:
->
-> foo@bar]$ free -m
-> 	    total       used       free     shared    buffers     cached
-> Mem:           249        245          4          0          6       136
-> -/+ buffers/cache:        102        147
-> Swap:          243         89        153
->
-> What's with all the caching when my apps crawl because it's swapping so
-> much ? I've tried to adjust /proc/vm/kswapd parameters but that doesn't
-> seem to help..I'd like to postpone the swapping until its almost out of
-> physical memory..
+Compile for SMP and boot with nmi_watchdog=1.  If the problem is
+hardware that will not help.  If the problem is a software loop in
+kernel space (much more likely) then the nmi watchdog will trip after 5
+seconds.
 
-This may seem counterintuitive, but postponing swapping / cache flushing
-to disk till the last possible moment is counterproductive. It's a
-little like procrastination in the time management world -- when the
-time finally comes when you *have* to flush stuff out to disk, your poor
-daemons / kernel threads go catatonic trying to keep up, and you end up
-both CPU-bound and I/O bound. It is far better to have enough free
-memory available to satisfy the demand for pages, even if that means
-*raising* the watermarks, *more* swapping and smaller page caches.
---
-M. Edward Borasky
+You might also find the kernel debugger to be useful,
+ftp://oss.sgi.com/projects/kdb/download/ix86.  See Documentation/kdb
+for man pages.  Using the pause key on a PC keyboard or control-A on a
+serial console will drop into kdb, unless the kernel has stopped
+processing interuupts, in which case the nmi watchdog should trip and
+drop you into kdb.
 
-znmeb@borasky-research.net
-http://www.borasky-research.net
-
-When puns are outlawed, only inlaws will have gnus.
+For all low level debugging, I strongly recommend a serial console so
+you can capture the output on another system, see
+Documentation/serial-console.txt.
 

@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277529AbRJJXe7>; Wed, 10 Oct 2001 19:34:59 -0400
+	id <S277532AbRJJXf7>; Wed, 10 Oct 2001 19:35:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277530AbRJJXet>; Wed, 10 Oct 2001 19:34:49 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:50927 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S277529AbRJJXe2>; Wed, 10 Oct 2001 19:34:28 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 10 Oct 2001 17:34:49 -0600
-To: Doug McNaught <doug@wireboard.com>
-Cc: Lew Wolfgang <wolfgang@sweet-haven.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dump corrupts ext2?
-Message-ID: <20011010173449.Q10443@turbolinux.com>
-Mail-Followup-To: Doug McNaught <doug@wireboard.com>,
-	Lew Wolfgang <wolfgang@sweet-haven.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com> <m3elob3xao.fsf@belphigor.mcnaught.org>
+	id <S277530AbRJJXfu>; Wed, 10 Oct 2001 19:35:50 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:60176 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S277532AbRJJXfe>; Wed, 10 Oct 2001 19:35:34 -0400
+Date: Thu, 11 Oct 2001 00:36:02 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
+Message-ID: <20011011003602.B84467@compsoc.man.ac.uk>
+In-Reply-To: <3BC4E8AD.72F175E3@us.ibm.com> <Pine.GSO.4.33.0110101816320.22872-100000@sweetums.bluetronic.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3elob3xao.fsf@belphigor.mcnaught.org>
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.GSO.4.33.0110101816320.22872-100000@sweetums.bluetronic.net>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 10, 2001  19:11 -0400, Doug McNaught wrote:
-> Lew Wolfgang <wolfgang@sweet-haven.com> writes:
-> > I was looking for some scripts to backup ext2 partitions
-> > to multiple CDR's when I stumbled onto "cdbackup" at
-> > http://www.cableone.net/ccondit/cdbackup/.
-> > 
-> > Alas, there is a warning saying:
-> > 
-> > "WARNING! When using this program under Linux, be sure not to use
-> >  dump with kernels in the 2.4.x series. Using dump on an ext2
-> >  filesystem has a very high potential for causing filesystem
-> >  corruption.  As of kernel version 2.4.5, this has not been
-> >  resolved, and it may not be for some time."
+On Wed, Oct 10, 2001 at 06:21:01PM -0400, Ricky Beam wrote:
+
+> On Wed, 10 Oct 2001, Mingming cao wrote:
+> >I read the man page of
+> >rmdir(2).  It says in this case EBUSY error should be returned.  I
+> >suspected this is a bug and added a check in vfs_rmdir(). The following
+> >patch is against 2.4.10 and has been verified.  Please comment and
+> >apply.
 > 
-> I'm pretty sure this is because dump reads the block device directly
-> (which is cached in the buffer cache), while the file data for cached
-> files lives in the page cache, and the two caches are no longer
-> coherent (as of 2.4).
+> The bug is in the manpage.  This was discussed over a year ago (some time
 
-In Linus kernels 2.4.11+ the block devices and filesystems all use the
-page cache, so no more coherency issues.
+Well, the manpage only states what certain error nr. returns may mean, not what
+will be returned when. Do you have an improvement on :
 
-Also, I don't think this ever had the potential to corrupt the filesystem,
-but maybe make a slightly bad backup.
+       EBUSY  pathname is the current working directory or root directory of some process.
 
-> If you can find it, Linus has ranted on this list at least once about
-> why you should never use 'dump'...
+regards
+john
 
-Yes, but the only issue is if the filesystem is busy, you may get
-a bad backup for those files that have changed, but not for any files
-that have not changed during the backup.
-
-Reasons for not using tar or cpio include atime change and the fact
-that an "incremental" tar can't record the deletion of a file (AFAIK).
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+-- 
+"Beware of bugs in the above code; I have only proved it correct, not tried
+it."
+	- Donald Knuth

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265304AbRFVANl>; Thu, 21 Jun 2001 20:13:41 -0400
+	id <S264679AbRFVAXv>; Thu, 21 Jun 2001 20:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbRFVANb>; Thu, 21 Jun 2001 20:13:31 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:49424 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S265304AbRFVANV>; Thu, 21 Jun 2001 20:13:21 -0400
-Date: Fri, 22 Jun 2001 01:13:17 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Possibly stupid sysctl question
-Message-ID: <20010622011317.A26141@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: I Am Kloot - Natural History
-X-Toppers: N/A
+	id <S264734AbRFVAXl>; Thu, 21 Jun 2001 20:23:41 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1796 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264679AbRFVAXb>; Thu, 21 Jun 2001 20:23:31 -0400
+Date: Thu, 21 Jun 2001 21:23:22 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Jason McMullan <jmcmullan@linuxcare.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: What are the VM motivations??
+In-Reply-To: <20010621190103.A888@jmcmullan.resilience.com>
+Message-ID: <Pine.LNX.4.33L.0106212122190.4442-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Jun 2001, Jason McMullan wrote:
 
-If I am using a sysctl directory when the relevant unregister_sysctl_table()
-is called, the directory and parent directories will continue to exist. Fine.
+> 	Or heck, let's just make the VM a _real_ Neural Network,
+> that self trains itself to the load you put on the system.
+> Hideously complex and evil?
 
-However when I cd out of the dir, the directory does not disappear.
+Considering the amount of parameters the neural network
+would have to tune, and the fact that there are no easy
+parameters to tune, good luck...
 
-When/where do sysctl directories get collected ?
+> the floor, eating that stale cheese doodle. It can't do any
+> worse job on VM that some of the VM patches I've seen...
 
-thanks
-john
+You'd be surprised.
 
--- 
-"Euler's equation contains the five most important numbers in mathematics."
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

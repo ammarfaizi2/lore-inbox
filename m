@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311250AbSCLPl3>; Tue, 12 Mar 2002 10:41:29 -0500
+	id <S311252AbSCLPo6>; Tue, 12 Mar 2002 10:44:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311248AbSCLPlS>; Tue, 12 Mar 2002 10:41:18 -0500
-Received: from zero.tech9.net ([209.61.188.187]:43781 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S311243AbSCLPlA>;
-	Tue, 12 Mar 2002 10:41:00 -0500
-Subject: Re: Upgrading Headers?
-From: Robert Love <rml@tech9.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian S Queen <bqueen@nas.nasa.gov>, linux-kernel@vger.kernel.org
-In-Reply-To: <6468.1015927347@redhat.com>
-In-Reply-To: <1015895241.928.107.camel@phantasy> 
-	<200203120100.RAA00468@marcy.nas.nasa.gov>   <6468.1015927347@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 12 Mar 2002 10:41:17 -0500
-Message-Id: <1015947678.4804.12.camel@phantasy>
-Mime-Version: 1.0
+	id <S311253AbSCLPol>; Tue, 12 Mar 2002 10:44:41 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:27546 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S311252AbSCLPoW>;
+	Tue, 12 Mar 2002 10:44:22 -0500
+Date: Tue, 12 Mar 2002 16:43:39 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
+Message-ID: <Pine.GSO.4.21.0203121639340.23527-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-03-12 at 05:02, David Woodhouse wrote:
+On Mon, 11 Mar 2002, Marcelo Tosatti wrote:
+> Here goes -pre3, with the new IDE code. It has been stable enough time in
+> the -ac tree, in my and Alan's opinion.
+> 
+> The inclusion of the new IDE code makes me want to have a longer 2.4.19
+> release cycle, for stress-testing reasons.
 
-> No it may not be a symlink. That would be broken.
+It looks like {IN,OUT}_{BYTE,WORD}() are now the arch-specific routines to
+access the IDE registers, controlled by HAVE_ARCH_{IN,OUT}_BYTE?
 
-Well, I've seen it as a symlink, but then you are not supposed to
-recompile out of /usr/src/linux ... that was why, I assumed, Linus
-suggested everyone compile there kernels out of /home in the last
-discussion about this.
+If yes,
+  - Why not call them ide_{in,out}[bw]()?
+  - What about {in,out}s[wl]{,_swapw}()? Don't we need abstractions for those
+    as well?
+  - The old (ISA/PCI I/O only) {in,out}[bwl]() are still used in many places.
 
-Admittedly it should not be linked, but I think it is often enough - the
-same rule stands: don't change the src without recompiling glibc.
+Gr{oetje,eeting}s,
 
-	Robert Love
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

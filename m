@@ -1,87 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271154AbTG1WUI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 18:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbTG1WUI
+	id S271141AbTG1WHG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 18:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271146AbTG1WHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 18:20:08 -0400
-Received: from mx.laposte.net ([213.30.181.11]:48729 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S271154AbTG1WUC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 18:20:02 -0400
-Message-ID: <041201c35551$8af611c0$0a00a8c0@toumi>
-From: "Ghozlane Toumi" <gtoumi@laposte.net>
-To: <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
-References: <UTC200307281315.h6SDFOY08368.aeb@smtp.cwi.nl> <030201c3550f$dec61620$0a00a8c0@toumi>
-Subject: [PATCH] sgi partitionning fix (Was: 2.6.0-test1 on alpha : disk label numbering trouble)
-Date: Mon, 28 Jul 2003 23:45:12 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_040F_01C35562.49CF8A80"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	Mon, 28 Jul 2003 18:07:05 -0400
+Received: from CPE-65-29-19-166.mn.rr.com ([65.29.19.166]:42882 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S271141AbTG1WHB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 18:07:01 -0400
+Subject: Re: 2.6.0-test2-mm1: Can't mount root
+From: Shawn <core@enodev.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030728144704.49c433bc.akpm@osdl.org>
+References: <1059428584.6146.9.camel@localhost>
+	 <20030728144704.49c433bc.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1059430015.6146.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 28 Jul 2003 17:06:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-C'est un message de format MIME en plusieurs parties.
+Thank you, I didn't look very closely at the patch (really at all). 
 
-------=_NextPart_000_040F_01C35562.49CF8A80
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+The one thing making me think I had it right with "2105" was that the
+kernel did seem to grok it as (33,5).
 
-> quickly checking viro's changes in this area, it seems other partitions
-> schemes are touched by the same problem...
-
-I stand corrected. after looking a little bit deeper, the sun partition
-has been corrected, the other are not touched.
-However, I found out that sgi partitionning had this "renumbering"
-issue even before viro's patch.
-I don't know if this is correct, in any case this is an untested patch
-that changes this behaviour for sgi partitions.
-patch is attached because of dumb mailer.
-
-thanks, 
-ghoz
-
-
-
-
-------=_NextPart_000_040F_01C35562.49CF8A80
-Content-Type: application/octet-stream;
-	name="partition.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="partition.diff"
-
-diff -Nr -U4 -X dontdiff linux-2.6.0-test1.orig/fs/partitions/sgi.c =
-linux-2.6.0-test1/fs/partitions/sgi.c=0A=
---- linux-2.6.0-test1.orig/fs/partitions/sgi.c	Mon Jul 14 05:31:22 2003=0A=
-+++ linux-2.6.0-test1/fs/partitions/sgi.c	Mon Jul 28 23:58:23 2003=0A=
-@@ -29,9 +29,8 @@=0A=
- =0A=
- int sgi_partition(struct parsed_partitions *state, struct block_device =
-*bdev)=0A=
- {=0A=
- 	int i, csum, magic;=0A=
--	int slot =3D 1;=0A=
- 	unsigned int *ui, start, blocks, cs;=0A=
- 	Sector sect;=0A=
- 	struct sgi_disklabel *label;=0A=
- 	struct sgi_partition *p;=0A=
-@@ -67,9 +66,9 @@=0A=
- 	for(i =3D 0; i < 16; i++, p++) {=0A=
- 		blocks =3D be32_to_cpu(p->num_blocks);=0A=
- 		start  =3D be32_to_cpu(p->first_block);=0A=
- 		if (blocks)=0A=
--			put_partition(state, slot++, start, blocks);=0A=
-+			put_partition(state, i+1, start, blocks);=0A=
- 	}=0A=
- 	printk("\n");=0A=
- 	put_dev_sector(sect);=0A=
- 	return 1;=0A=
-
-------=_NextPart_000_040F_01C35562.49CF8A80--
-
+On Mon, 2003-07-28 at 16:47, Andrew Morton wrote:
+> Shawn <core@enodev.com> wrote:
+> >
+> > I'm using ide=reverse, and my root is on hde5. 2.6.0-test1-mm2 finds my
+> > root fs fine using the init/do_mounts.c patch posted recently.
+> > 
+> > 2.6.0-test2-mm1 (in which said patch seems to have been included),
+> > however, fails on all of the following root= options:
+> >       * 2105
+> >       * /dev/ide/host2/bus0/target0/lun0/part5
+> >       * /dev/hde5
+> > 
+> > I don't know what to try next. Can someone enlighten me as to what has
+> > been happening lately?
+> 
+> Beats me.  Tried "/dev/hde/5" and "21:05"?
+> 
+> Can you see what this says?
+> 
+>  25-akpm/init/do_mounts.c |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> diff -puN init/do_mounts.c~a init/do_mounts.c
+> --- 25/init/do_mounts.c~a	Mon Jul 28 14:44:37 2003
+> +++ 25-akpm/init/do_mounts.c	Mon Jul 28 14:44:53 2003
+> @@ -74,6 +74,7 @@ static dev_t __init try_name(char *name,
+>  	/*
+>  	 * The format of dev is now %u:%u -- see print_dev_t()
+>  	 */
+> +	printk("scanning `%s'\n", buf);
+>  	if (sscanf(buf, "%u:%u", &maj, &min) == 2)
+>  		res = MKDEV(maj, min);
+>  	else
+> 
+> _
+> 
+> Also take a close look at the dmesg output, make sure that all the devices
+> and partitions are appearing in the expected places.
+> 
+> 

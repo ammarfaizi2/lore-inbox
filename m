@@ -1,44 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUJISsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUJISxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267291AbUJISsb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 14:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267298AbUJISsb
+	id S267298AbUJISxv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 14:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUJISxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 14:48:31 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:30339 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267291AbUJISs3 (ORCPT
+	Sat, 9 Oct 2004 14:53:51 -0400
+Received: from findaloan.ca ([66.11.177.6]:50601 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S267298AbUJISxq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 14:48:29 -0400
-Message-ID: <35fb2e59041009114870056d7b@mail.gmail.com>
-Date: Sat, 9 Oct 2004 19:48:29 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "Yoshinori K. Okuji" <okuji@gnu.org>
-Subject: Re: possible GPL violation by Free
-Cc: linux-kernel@vger.kernel.org, videolan@videolan.org
-In-Reply-To: <200410091958.25251.okuji@gnu.org>
+	Sat, 9 Oct 2004 14:53:46 -0400
+Date: Sat, 9 Oct 2004 14:49:22 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: David Schwartz <davids@webmaster.com>
+Cc: martijn@entmoot.nl, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041009184922.GA8032@mark.mielke.cc>
+Mail-Followup-To: David Schwartz <davids@webmaster.com>,
+	martijn@entmoot.nl, linux-kernel@vger.kernel.org
+References: <000801c4ae35$3520ac90$161b14ac@boromir> <MDEHLPKNGKAHNMBLJOLKEEAPOOAA.davids@webmaster.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200410091958.25251.okuji@gnu.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEAPOOAA.davids@webmaster.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Oct 2004 19:58:25 +0200, Yoshinori K. Okuji <okuji@gnu.org> wrote:
+On Sat, Oct 09, 2004 at 11:28:28AM -0700, David Schwartz wrote:
+> > > Where, specifically, does the standard guarantee that a
+> > > subsequent call to
+> > > 'recvmsg' will not block?
+> > When using select() on a socket for reading, select will block until
+> > that socket is ready.
+> > According to POSIX:
+> >   A descriptor shall be considered ready for reading when a call to an
+> >   input function with O_NONBLOCK clear would not block, whether or not
+> >   the function would transfer data successfully.
+> Note that it says *would* not block, not *will* not block. The definition
+> of the word "would" is "an expression of probability or likelihood" (or a
+> "presumption or expectation"). This is *not* a guarantee.
 
-> The company Free reasons that they don't need to make the source code
-> available, because they don't sell Freebox but merely _rents_ Freebox
-> to customers. So the company thinks that customers do not own Freebox
-> legally, and so they have no right to claim that they can ask the
-> source code.
+Are you sure you aren't confusing 'would' with 'should'?
 
-Hi there,
+Would and will are the same, except in terms of time.
 
-Someone should then perhaps call them and find out whether it's
-possible to purchase one of these boxes - thereby trapping them in to
-not having this argument.
+This is ridiculous. Everybody in this discussion *knows* that the
+existing behaviour is broken. As another poster appeared to show, can
+be proven to be usable as a denial of service attack against any
+application that doesn't use O_NONBLOCK for UDP packets under Linux.
 
-Je le ferais, mais mon francais n'est pas tres bon, et je n'habite pas
-en France.
+Please - people who don't agree, just ensure that Linux is documented
+to not implement select() on sockets without O_NONBLOCK properly. No
+more silly excuses. 'Would' vs 'will' meaning 'probably'... sheesh...
 
-Jon.
+> >   If a descriptor refers to a socket, the implied input function is the
+> >   recvmsg() function with parameters requesting normal and ancillary data,
+> >   such that the presence of either type shall cause the socket to
+> >   be marked
+> >   as readable. The presence of out-of-band data shall be checked if the
+> >   socket option SO_OOBINLINE has been enabled, as out-of-band data is
+> >   enqueued with normal data. If the socket is currently listening, then it
+> >   shall be marked as readable if an incoming connection request has been
+> >   received, and a call to the accept() function shall complete without
+> >   blocking.
+> > Thus recvmsg() shouldn't in any case block after a select() on a socket.
+> I don't draw that conclusion from that paragraph. It does say the presence
+> of normal data shall mark the socket readable, but it doesn't require the
+> kernel to keep that data available, at least not as far as I can see.
+
+The data was *never* available. select() lied.
+
+> 	As far as I can tell, neither of these two excerpts prohibit an
+> implementation from, for example, discarding UDP data (say, to save memory)
+> after it triggered a read hit on a 'select' call.
+
+Your reading let's you have a broken system call interface, and declare that
+it is acceptable. Why? What is the purpose of this position? Who does it
+benefit?
+
+> Yes, the 'recvmsg' call
+> would not have blocked, had it been made at the time the data was available.
+
+Wrong. The data was never available. If the select() was replaced by
+recvmsg() it most certainly *would* have blocked. Therefore, select()
+should not have said 'data is ready'.
+
+If this understanding isn't clear, I begin to seriously worry about
+the competency of a few people...
+
+It's ok to say "we chose to leave it broken because we feel O_NONBLOCK
+should be mandatory". Nobody with any sort of authority seems to want
+to say this. They would prefer to talk about "POSIX compliancy" as if
+the issue was theoretical and irrelevant.
+
+It is disconcerting, to say the least.
+
+Cheers,
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

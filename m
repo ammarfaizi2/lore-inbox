@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266649AbSKGXwP>; Thu, 7 Nov 2002 18:52:15 -0500
+	id <S266640AbSKGXvX>; Thu, 7 Nov 2002 18:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266656AbSKGXwP>; Thu, 7 Nov 2002 18:52:15 -0500
-Received: from packet.digeo.com ([12.110.80.53]:34294 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266649AbSKGXwN>;
-	Thu, 7 Nov 2002 18:52:13 -0500
-Message-ID: <3DCAFE38.16DED3BF@digeo.com>
-Date: Thu, 07 Nov 2002 15:58:48 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
-References: <200211080953.22903.conman@kolivas.net> <1036712891.764.2055.camel@phantasy>
+	id <S266649AbSKGXvX>; Thu, 7 Nov 2002 18:51:23 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:28861 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S266640AbSKGXvW>; Thu, 7 Nov 2002 18:51:22 -0500
+Date: Thu, 7 Nov 2002 16:57:58 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Templates and tweaks (for size performance and more)
+Message-ID: <20021107235758.GG6164@opus.bloom.county>
+References: <20021107190910.GC6164@opus.bloom.county> <20021107210304.C11437@flint.arm.linux.org.uk> <20021107210808.D11437@flint.arm.linux.org.uk> <20021107221017.GB12151@opus.bloom.county>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2002 23:58:48.0069 (UTC) FILETIME=[9CFCF350:01C286B9]
+Content-Disposition: inline
+In-Reply-To: <20021107221017.GB12151@opus.bloom.county>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Thu, Nov 07, 2002 at 03:10:17PM -0700, Tom Rini wrote:
+> On Thu, Nov 07, 2002 at 09:08:08PM +0000, Russell King wrote:
+> > Oh, there's another problem built into this method as well.
+> > 
+> > Instead of one "tweak" depending on one configuration option, it suddenly
+> > depends on a whole load of configuration options.  You change one of these
+> > options, and you rebuild everything that uses the asm/tweaks.h (or whatever
+> > the filename was.)
+> > 
+> > IMHO this is a backward step. ;(
 > 
-> On Thu, 2002-11-07 at 17:53, Con Kolivas wrote:
-> 
-> > io_load:
-> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> > 2.5.44-mm6 [3]          284.1   28      20      10      3.98
-> > 2.5.46 [1]              600.5   13      48      12      8.41
-> > 2.5.46-mm1 [5]          134.3   58      6       8       1.88
-> >
-> > Big change here. IO load is usually the one we feel the most.
-> 
-> Nice.
+> That is annoying.  But I'm not quite sure how this doesn't happen for
+> <linux/config.h>.  Is it just the <linux/config.h> -> <linux/autoconf.h>
+> which is what is actually changed?  Or is there more magic to it?
 
-Mysterious.
+I've found fixdep and split-include (Thanks Kai!) and I'm going to try
+and figure out a clean way to do this.
 
-> > Unfortunately I've only run this with preempt enabled so far and I believe
-> > many of the improvements are showing this effect.
-> 
-> Since your aim is desktop performance, I would like it if you always ran
-> with kernel preemption enabled.  That is what we are targeting for
-> desktop performance.
-
-I'd be interested in average-of-five runs both with and without
-preemption.
-
-
-
-Preemption seemed to do odd things to process_load as well.  gcc gained
-10% and the "load" lost 40%.  But the %LCPU fell only 25%, which is
-probably dodgy accounting.  I wonder what's up with all that.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

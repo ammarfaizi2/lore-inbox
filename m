@@ -1,86 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbSLMT0u>; Fri, 13 Dec 2002 14:26:50 -0500
+	id <S265285AbSLMTYV>; Fri, 13 Dec 2002 14:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265368AbSLMT0u>; Fri, 13 Dec 2002 14:26:50 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:3571 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265339AbSLMT0t> convert rfc822-to-8bit;
-	Fri, 13 Dec 2002 14:26:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: Steffen Persvold <sp@scali.com>
-Subject: Re: [PATCH][2.5][RFC] Using xAPIC apic address space on !Summit
-Date: Fri, 13 Dec 2002 11:32:06 -0800
-User-Agent: KMail/1.4.3
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0212130644540.1053-100000@sp-laptop.isdn.scali.no>
-In-Reply-To: <Pine.LNX.4.44.0212130644540.1053-100000@sp-laptop.isdn.scali.no>
+	id <S265306AbSLMTYU>; Fri, 13 Dec 2002 14:24:20 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:19643 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S265285AbSLMTYT> convert rfc822-to-8bit; Fri, 13 Dec 2002 14:24:19 -0500
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Margit Schubert-While <margitsw@t-online.de>
+Subject: Re: Intel P6 vs P7 system call performance
+Date: Fri, 13 Dec 2002 20:32:00 +0100
+User-Agent: KMail/1.5
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212131132.06630.jamesclv@us.ibm.com>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200212132032.00505.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 December 2002 09:53 pm, Steffen Persvold wrote:
-> On Thu, 12 Dec 2002, James Cleverdon wrote:
-> > On Thursday 12 December 2002 07:26 pm, Zwane Mwaikambo wrote:
-> > > On Thu, 12 Dec 2002, Nakajima, Jun wrote:
-> > > > BTW, we are working on a xAPIC patch that supports more than 8 CPUs
-> > > > in a generic fashion (don't use hardcode OEM checking). We already
-> > > > tested it on two OEM systems with 16 CPUs.
-> > > > - It uses clustered mode. We don't want to use physical mode because
-> > > > it does not support lowest priority delivery mode.
-> > >
-> > > Wouldn't that only be for all including self? Or is the documentation
-> > > incorrect?
-> > >
-> > > Thanks,
-> > > 	Zwane
-> >
-> > I'm not sure I understand your question.  Lowest Priority delivery mode
-> > only works with logical interrupts.  (I've tried it with physical intrs. 
-> > It fails miserably.)  The "all including self" and "all excluding self"
-> > destination shorthands don't do lowest priority arbitration.  They always
-> > deliver the interrupt to the CPUs mentioned in the shortand.
-> >
-> > Lowest priority delivery mode isn't _too_ useful in Linux yet.  It would
-> > be nice to preferentially target idle CPUs with interrupts in real time. 
-> > That means changing each CPU's Task Priority Register (TPR) to represent
-> > how busy it is.  I've got some patches to do that, but haven't posted
-> > them as anything more than a RFC.
+> Well, in the 2.4.x kernels, the P4 gets compiled as a I686 with NO special
+> treatment :-) (Not even prefetch, because of an ifdef bug)
+> The P3 at least gets one level of prefetch and the AMD's get special compile
+> options(arch=k6,athlon), full prefetch and SSE.
 >
-> Hmm, I though the APIC routing patch found in the LSE project
-> (http://sourceforge.net/projects/lse/) did this already. Atleast I've
-> tested this patch on a couple of Dual E7500 Xeon boxes (kernel 2.4.20) and
-> it distributes interrupts nicely.
+> >From Mike Hayward
+> >Dual Pentium 4 Xeon 2.4Ghz 2.4.19 kernel 33661.9 lps (10 secs, 6 samples)
 >
-> However with the patch enabled, the interrupt latency on for example the
-> Intel GbE 82544GC devices increased a fraction with this patch (a
-> microsecond or two).
+> Hmm, P4 2.4Ghz , also gcc -O3 -march=i686
 >
-> Regards,
+> margit:/disk03/bytebench-3.1/src # ./hanoi 10
+> 576264 loops
+> margit:/disk03/bytebench-3.1/src # ./hanoi 10
+> 571001 loops
+> margit:/disk03/bytebench-3.1/src # ./hanoi 10
+> 571133 loops
+> margit:/disk03/bytebench-3.1/src # ./hanoi 10
+> 570517 loops
+> margit:/disk03/bytebench-3.1/src # ./hanoi 10
+> 571019 loops
+> margit:/disk03/bytebench-3.1/src # ./hanoi 10
+> 582688 loops
 
-Sure, Dave Olien's patch adjusted the TPR.  However, he wrote that for the 
-classic APIC; it does most of the priority adjustments in the lower nibble of 
-the TPR's value.  xAPIC routing is done via HW in the PCI-to-host bridge 
-chips.  There they keep a copy of each CPU's TPR value in eight XTPR 
-registers for lowest priority interrupt routing -- but only the TPR's upper 
-nibble.  So, Dave's patch is less useful on xAPIC systems.
+Apples and oranges? ;-)
 
-I came up with something simpler.   Just 2 lines added to idle_cpu() and 
-do_IRQ respectively.  It's a hack but it seemed useful.
+dual AMD Athlon MP 1900+, 1.6 GHz
+(but single threaded app)
+2.4.20-aa1
+gcc-2.95.3
 
-Interesting that it would be a microsecond slower.  Maybe that's the time it 
-takes to adjust the TPR.  One more reason to keep those adjustments as simple 
-as possible.
+unixbench-4.1.0/src> gcc -O -mcpu=k6 -march=i686 -fomit-frame-pointer 
+-mpreferred-stack-boundary=2 -malign-functions=4 -o hanoi hanoi.c
+unixbench-4.1.0/src> sync
+unixbench-4.1.0/src> ./hanoi 10                                                            
+565338 loops
+unixbench-4.1.0/src> ./hanoi 10
+565379 loops
+unixbench-4.1.0/src> ./hanoi 10
+565448 loops
+unixbench-4.1.0/src> ./hanoi 10
+565218 loops
+unixbench-4.1.0/src> ./hanoi 10
+565148 loops
+unixbench-4.1.0/src> ./hanoi 10
+565136 loops
 
+You should run "./Run hanoi"...
+
+Recursion Test--Tower of Hanoi            58404.5 lps   (19.3 secs, 3 samples)
+
+Regards,
+	Dieter
 -- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+Dieter Nützel
+Graduate Student, Computer Science
 
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel at hamburg.de (replace at with @)

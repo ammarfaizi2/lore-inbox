@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267328AbTACADI>; Thu, 2 Jan 2003 19:03:08 -0500
+	id <S267335AbTACAJC>; Thu, 2 Jan 2003 19:09:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbTACADH>; Thu, 2 Jan 2003 19:03:07 -0500
-Received: from holomorphy.com ([66.224.33.161]:47814 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267328AbTACADH>;
-	Thu, 2 Jan 2003 19:03:07 -0500
-Date: Thu, 2 Jan 2003 16:11:27 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: Question about Zone Allocation 2.4.X
-Message-ID: <20030103001127.GV9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-	linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-References: <20030102175517.A21471@vger.timpanogas.org> <20030102235147.GS9704@holomorphy.com> <20030102180849.A21498@vger.timpanogas.org> <20030103000034.GU9704@holomorphy.com> <20030102181554.A21643@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102181554.A21643@vger.timpanogas.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267338AbTACAJC>; Thu, 2 Jan 2003 19:09:02 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:12429 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267335AbTACAJA>;
+	Thu, 2 Jan 2003 19:09:00 -0500
+Date: Fri, 3 Jan 2003 01:22:37 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>
+Subject: Re: [PATCH,RFC] fix o(1) handling of threads
+In-Reply-To: <200301010802.06332.tomlins@cam.org>
+Message-ID: <Pine.LNX.4.44.0301030120410.2226-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 06:15:54PM -0700, Jeff V. Merkey wrote:
-> Looks like we simply jetisioned the concept of a PPL (Physical Pages
-> List) and went with a zone allocator instead.  I'm sure there was a
-> good reason for it historically.  Rolling a separate zone is exactly
-> what I was thinking when I reviewed the code intially.  Question,
-> which files will be affected so when I put this one in, I don't end
-> up breaking the VM and userspace balancing logic.  i.e.  Could you
-> point me to Jens' ZONE_DMA32 code as well.
 
-Adding new zone types is easy. Just add them to mmzone.h, avoid setting
-->virtual (which does not universally exist) in free_area_init_core()
-if it's not perma-mapped, stuff them in the fallback sequence in
-build_zonelists(), and detect them in arch/*/mm/init.c
+On Wed, 1 Jan 2003, Ed Tomlinson wrote:
 
+> Here is the scheduler-tunables patch updated to include USER_PENALTY and
+> THREAD_PENANTY.  This on top of ptg_B0.
 
-Bill
+there's no way we'll make the scheduler internal constants tunable in such
+a wide range. Such a patch has been submitted a couple of months ago
+already. I do use something like that to test tunings, but it's definitely
+not something we want to make tunable directly in the stock kernel.
+
+	Ingo
+

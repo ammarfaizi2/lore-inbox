@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284111AbRLAO2b>; Sat, 1 Dec 2001 09:28:31 -0500
+	id <S284118AbRLAOkv>; Sat, 1 Dec 2001 09:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284113AbRLAO2U>; Sat, 1 Dec 2001 09:28:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29450 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284111AbRLAO2J>; Sat, 1 Dec 2001 09:28:09 -0500
-Subject: Updated AACraid driver
-To: linux-kernel@vger.kernel.org, aacraid@adaptec.com,
-        linux-aacraid-devel@dell.com
-Date: Sat, 1 Dec 2001 14:37:01 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284119AbRLAOkk>; Sat, 1 Dec 2001 09:40:40 -0500
+Received: from mout03.kundenserver.de ([195.20.224.218]:33108 "EHLO
+	mout03.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S284118AbRLAOkd>; Sat, 1 Dec 2001 09:40:33 -0500
+Date: Sat, 1 Dec 2001 15:06:45 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-preX version ..
+Message-ID: <20011201140645.GA2957@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0112011517490.16903-100000@linux.kappa.ro>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ABGH-0007KB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0112011517490.16903-100000@linux.kappa.ro>
+User-Agent: Mutt/1.3.24-current-20011201i (Linux 2.5.1-pre1 i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've updated the cleaned up aacraid driver I released. Version 0.9.8 is now
-on ftp://ftp.linux.org.uk/pub/linux/alan
+On Sat Dec 01 2001, Teodor Iacob wrote:
 
-It has
-	-	SMP build fixes 		(Christoph Hellwig)
-	-	Move template into C file	(Christoph Hellwig)
-	-	Fix (void *) 32bit assumption	(me)
-	-	Add endian conversions		(me)
-	-	Use pci mapping API throughout	(me)
+> It seems like in the pre1 or pre2 patch of the kernel it doesn't update
+> the main Makefile for the version number, so the kernel it's still 2.4.16
 
-Alan
+Marcelo forgot to update the Makefile, so if you want the appropriate
+version number, just write the little changes to SUBLEVEL and EXTRAVERSION.
+
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

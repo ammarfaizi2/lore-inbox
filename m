@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268616AbRGYTLU>; Wed, 25 Jul 2001 15:11:20 -0400
+	id <S267227AbRGYTYN>; Wed, 25 Jul 2001 15:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268615AbRGYTLL>; Wed, 25 Jul 2001 15:11:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26886 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268613AbRGYTKw>; Wed, 25 Jul 2001 15:10:52 -0400
-Subject: Re: user-mode port 0.44-2.4.7
-To: jim@intra.blueskylabs.com (James W. Lake)
-Date: Wed, 25 Jul 2001 20:12:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "James W. Lake" at Jul 25, 2001 12:03:48 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15PU4j-0002Xw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S268614AbRGYTYD>; Wed, 25 Jul 2001 15:24:03 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:56730 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267227AbRGYTXx>;
+	Wed, 25 Jul 2001 15:23:53 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 25 Jul 2001 19:23:55 GMT
+Message-Id: <200107251923.TAA21053@vlet.cwi.nl>
+To: Andries.BRouwer@cwi.nl, kuznet@ms2.inr.ac.ru
+Subject: Re: ifconfig and SIOCSIFADDR
+Cc: linux-kernel@vger.kernel.org, net-tools@lina.inka.de, philb@gnu.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Should head and tail be volatile in the definition, or should they be
-> accessed with:
-> int head = (volatile)myqueue.head;
-> or with barrier() around the read/write?
+    From kuznet@mops.inr.ac.ru Wed Jul 25 18:37:10 2001
 
-The best way is to use barrier calls. It makes your assumptions about
-ordering absolutely explicit. However you should still be careful - you
-can't be sure that head will be read atomically or written atomically on
-all processors eg if it was
+    > and the last ioctl destroys the information set by the previous two.
 
-	struct
-	{
-		unsigned char head;
-		unsigned char tail;
-		char buf[256];
-	}
+    Exactly.
 
-you would get some suprisingly unpleasant suprises on SMP Alpha. Currently
-"int" is probably safe for all processors.
+    > I consider this a kernel bug,
 
-So unless this is a precision tuned fast path it is better to play safe with
-this and use atomic_t or locking. The spinlock cost on an Athlon or a later
-PIII is pretty good in most cases. Using the -ac prefetch stuff can make it
-good in almost all cases, but thats probably a 2.5 thing for the generic
-case.
+    No. And even not a feature, but just the only eligible way.
+    SIOCSIFADDR resets all previously set address information
 
-Basically locks are getting cheaper on x86, the suprises are getting more
-interesting on non-x86
+Yes. It didn't in 2.0. It does in 2.2 and 2.4.
 
-Alan
+    BTW, if no address was selected before, setting netmask
+    and broadcast etc. simply fails.
+    So that you had some address set on the interface before
+    you did the operation and that netmask is set for _that_ address_.
+
+Yes. I liked such logic thirty years ago. That is Unix.
+Today I am less sure that it is a good idea to expect users
+to read the kernel and ifconfig sources, but I did and know.
+
+Since you don't like changing the current behaviour, we should
+probably document it (say, in ifconfig(8)).
+
+Andries
+
+
+ifconfig(8):
+SYNOPSIS
+...
+       ifconfig interface [aftype] [address] options
+
+OPTIONS
+       Since options are read and transmitted to the kernel
+       in the order given, and since giving an address parameter
+       causes resetting address related information (such as
+       netmask and broadcast address) to a default, any non-default
+       such address related information should be given after the
+       address parameter (if any).

@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSBRV5e>; Mon, 18 Feb 2002 16:57:34 -0500
+	id <S288051AbSBRV7Z>; Mon, 18 Feb 2002 16:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288051AbSBRV5Z>; Mon, 18 Feb 2002 16:57:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64008 "EHLO
+	id <S288047AbSBRV7O>; Mon, 18 Feb 2002 16:59:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288019AbSBRV5M>; Mon, 18 Feb 2002 16:57:12 -0500
-Subject: Re: jiffies rollover, uptime etc.
-To: oh@novaville.de (Oliver Hillmann)
-Date: Mon, 18 Feb 2002 22:10:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10202182040260.11179-100000@rimini.novaville.de> from "Oliver Hillmann" at Feb 18, 2002 10:42:50 PM
+	id <S288040AbSBRV7F>; Mon, 18 Feb 2002 16:59:05 -0500
+Subject: Re: time goes backwards periodically on laptop if booted in low-power
+To: dank@kegel.com (Dan Kegel)
+Date: Mon, 18 Feb 2002 22:12:45 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        ncw@axis.demon.co.uk (Nick Craig-Wood),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3C717894.281D0BB4@kegel.com> from "Dan Kegel" at Feb 18, 2002 01:56:36 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16cvzs-0006y2-00@the-village.bc.nu>
+Message-Id: <E16cw1d-0006yP-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> counter, and I'm currently digging into that area... Stuff like a pc
-> speaker driver going wild bothers me a bit more...
+> DMI 2.3 present.
+> 44 structures occupying 1330 bytes.
+> DMI table at 0x17FF0000.
+> dmi: read: Illegal seek
 
-Fix the speaker driver I guess is the answer. It shouldnt have done that.
-
-> Could anybody perhaps tell me why he/she doesn't consider this a
-> problem? And is there a fundamental problem with solving this in
-> general? (I do see a problem with defining jiffies long long on x86,
-> because it might break a lot of things and probably wouldnt perform
-> as often as jiffies is touched... And you might sense I haven't
-> been into kernel hacking much...)
-
-Counting in long long is expensive and the drivers are meant to all use
-roll over safe compares
+Eep I don't deal with DMI tables that high in memory.

@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264916AbUELBqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUELBtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbUELBqI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 21:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbUELBoB
+	id S264929AbUELBtR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 21:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbUELBtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 21:44:01 -0400
-Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:15149
-	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
-	id S264916AbUELBmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 21:42:37 -0400
-thread-index: AcQ3wtdNL6ipXcOtRwGB4qRGA9IqQA==
-X-Sieve: Server Sieve 2.2
-Date: Wed, 12 May 2004 02:45:44 +0100
-From: "Matt Porter" <mporter@kernel.crashing.org>
-To: <Administrator@vger.kernel.org>
-Cc: "Matt Porter" <mporter@kernel.crashing.org>, <akpm@osdl.org>,
-       <benh@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
-       <linuxppc-dev@lists.linuxppc.org>
-Message-ID: <000201c437c2$d75017b0$d100000a@sbs2003.local>
-Subject: Re: [PATCH 1/2] PPC32: New OCP core support
-Content-Transfer-Encoding: 7bit
-References: <20040511170150.A4743@home.com> <200405120039.i4C0dHs0010426@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-X-Mailer: Microsoft CDO for Exchange 2000
+	Tue, 11 May 2004 21:49:16 -0400
+Received: from waste.org ([209.173.204.2]:50839 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264890AbUELBsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 21:48:15 -0400
+Date: Tue, 11 May 2004 20:47:30 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       randy.dunlap@osdl.org, Sam Ravnborg <sam@ravnborg.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Keith Owens <kaos@sgi.com>
+Subject: Re: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k
+Message-ID: <20040512014730.GP5414@waste.org>
+References: <1084252135.31802.312.camel@bach> <20040511080843.GB8751@colin2.muc.de> <1084317416.17692.29.camel@bach>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200405120039.i4C0dHs0010426@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Tue, May 11, 2004 at 08:39:17PM -0400
-X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
-X-Loop: linuxppc-dev@lists.linuxppc.org
-Content-Class: urn:content-classes:message
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
-X-me-spamlevel: not-spam
-X-me-spamrating: 7.721957
-X-OriginalArrivalTime: 12 May 2004 01:45:44.0906 (UTC) FILETIME=[D754D2A0:01C437C2]
+In-Reply-To: <1084317416.17692.29.camel@bach>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 12, 2004 at 09:16:56AM +1000, Rusty Russell wrote:
+> On Tue, 2004-05-11 at 18:08, Andi Kleen wrote:
+> > On Tue, May 11, 2004 at 03:08:55PM +1000, Rusty Russell wrote:
+> > > Admittedly, anyone who sets CONFIG_KALLSYMS doesn't care about space,
+> > > it's a fairly trivial change.
+> > 
+> > As long as nobody does binary search it's good. Wonder why I did not
+> > have this idea already with the original stem compression change ;-)
+> 
+> ISTR that someone (I thought you) mentioned doing this before.
+> 
+> In general this code was considered non-speed-critical, but Keith points
+> out its use in wchan.  A simple cache might make more sense there,
+> however.
+> 
+> A binary search as stands doesn't help much because we still need to
+> iterate through the names.  We could do "address, nameindex" pairs, but
+> with stem compression we need to at least wade back some way to decode
+> the name.
 
-On Tue, May 11, 2004 at 08:39:17PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 11 May 2004 17:01:50 PDT, Matt Porter said:
-> > New OCP infrastructure ported from 2.4 along with several
-> > enhancements. Please apply.
->
-> Big honking patch.  Wholesale removal of old code. Wholesale addition of new code.
+I'd like to delta compress the addresses as well. I think the way to
+do this is to change the address table to be sparsed by a factor of 16
+or 32 or so, with pointers into the stem table. The pointers are
+chosen to land us on stems of length 0 so we don't have to do any
+backtracking. Then in addition to stem length, we keep a 16-bit
+address delta. 
 
-Yep.
+So we do a binary (or linear) search on the reduced address table, hop
+into the stem table, and iterate along as before until we find our
+symbol. Even if we stick with linear search on the address table,
+we've sped up the search by 32x. So now we have nearly random access
+into the stem table and for 15000 symbols, we'll save on the order of
+30k (and 90k on 64-bit!).
 
-> And this is the closest to a hint of what an OCP in the old code:
+We can also drop the nulls from the end of the ascii strings and look
+for termination by finding the next stem code (hopefully always in the
+control character range). This should be worth another 15k.
 
-<snip>
-
-> I'm *guessing* that this is some all-in-one integrated north/south/PCI/east bridge
-> with an APIC or similar and some I/O controllers....  Or maybe it's a board-level
-> designator like 'ebony' seems to be.. or something..
->
-> It's a UART... or a Bus-level board.. or both.. ;)
-
-Actually, OCP stands for On-Chip Peripheral and is the basic system
-we've used in ppc32 for some time now to abstract dumb peripherals
-behind a standard API.  BenH did yet another rewrite of OCP in 2.4
-sometime ago and I picked up that work to port to 2.6 and the new
-device model.  It is a software abstraction, and easily allows us to
-plug in SoC descriptors when new chips come out and use standard
-apis to modify device entries on a per-board basis during
-"setup_arch() time". It used to be PPC4xx-specific, but now is being
-used by PPC85xx, MV64xxx, and MPC52xx based PPC systems. "Now", meaning
-that the respective developers for those parts are using the OCP
-working tree to base their 2.6 ports off of.
-
-> (Actually, other than the apparent lack of any comment that says what an OCP
-> in fact is, I didn't see any really big style problems while scrolling through it..)
-
-Ahh, good.
-
--Matt
-
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
-
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

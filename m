@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290809AbSARUkj>; Fri, 18 Jan 2002 15:40:39 -0500
+	id <S290810AbSARUm5>; Fri, 18 Jan 2002 15:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290810AbSARUkS>; Fri, 18 Jan 2002 15:40:18 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:59541 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290808AbSARUkI> convert rfc822-to-8bit;
-	Fri, 18 Jan 2002 15:40:08 -0500
-Date: Fri, 18 Jan 2002 12:38:37 -0800 (PST)
-Message-Id: <20020118.123837.21900127.davem@redhat.com>
-To: groudier@free.fr
-Cc: hozer@drgw.net, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        rmk@arm.linux.org.uk, dan@embeddededge.com, mattl@mvista.com
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020118210150.Q1937-100000@gerard>
-In-Reply-To: <20020118130209.J14725@altus.drgw.net>
-	<20020118210150.Q1937-100000@gerard>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S290815AbSARUms>; Fri, 18 Jan 2002 15:42:48 -0500
+Received: from mta3n.bluewin.ch ([195.186.1.212]:55251 "EHLO mta3n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S290810AbSARUma>;
+	Fri, 18 Jan 2002 15:42:30 -0500
+Message-ID: <3C4887F4.6B410959@bluewin.ch>
+Date: Fri, 18 Jan 2002 21:39:16 +0100
+From: Nicolas Aspert <Nicolas.Aspert@bluewin.ch>
+Reply-To: Nicolas.Aspert@epfl.ch
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Didier Moens <moensd@xs4all.be>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOPS in APM 2.4.18-pre4 with i830MP agpgart
+In-Reply-To: <3C487E68.1000404@xs4all.be>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gérard Roudier <groudier@free.fr>
-   Date: Fri, 18 Jan 2002 21:21:35 +0100 (CET)
+Hello again
 
-   I have noted that some ports may [ever] require pci_alloc_consistent not
-   to be called from interrupt context. Just I will look into this when time
-   will allow.
-   
-Do not bother Gerard, these ports really are broken and
-pci_alloc_consistent must work from interrupts.
-   
-   I am not going to ever use not cache coherent hardware, even if I am ready
-   to make the sym driver work reliably on such brain-dead things. Just it is
-   not high priority stuff for now.
+Here is a small patch (against 2.4.18-pre2 since I don't have the latest
+18-pre at hand) that should fix your the problem. It may not apply
+cleanly but that's all I can do at the moment.
+Sorry again for my mistake.
 
-Perhaps you misunderstand, it is not "lack of cache coherency" it is
-"cache needs flushing around DMA transfers" and this is handled
-perfectly by PCI DMA interfaces.  It is nothing you should be
-concerned about.
+Best regards
+
+Nicolas.
+
+--- agpgart_be.c        Fri Jan 18 21:37:43 2002
++++ agpgart_be.c_correct        Fri Jan 18 21:39:02 2002
+@@ -1400,7 +1400,6 @@
+        agp_bridge.free_by_type = intel_i810_free_by_type;
+        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
+        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
+-
+        agp_bridge.suspend = agp_generic_suspend;
+        agp_bridge.resume = agp_generic_resume;
+        agp_bridge.cant_use_aperture = 0;
+@@ -1857,7 +1856,10 @@
+        agp_bridge.free_by_type = agp_generic_free_by_type;
+        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
+        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
+-
++       agp_bridge.suspend = agp_generic_suspend;
++       agp_bridge.resume = agp_generic_resume;
++       agp_bridge.cant_use_aperture = 0;
++
+        return 0;
+ 
+        (void) pdev; /* unused */
+@@ -1887,7 +1889,9 @@
+        agp_bridge.free_by_type = agp_generic_free_by_type;
+        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
+        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
+-
++       agp_bridge.suspend = agp_generic_suspend;
++       agp_bridge.resume = agp_generic_resume;
++       agp_bridge.cant_use_aperture = 0;
+        return 0;
+ 
+        (void) pdev; /* unused */

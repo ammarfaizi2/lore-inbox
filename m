@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUHRVd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUHRVg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267826AbUHRVd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 17:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267796AbUHRVdy
+	id S267799AbUHRVg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 17:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUHRVfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 17:33:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56254 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267826AbUHRVdm (ORCPT
+	Wed, 18 Aug 2004 17:35:50 -0400
+Received: from holomorphy.com ([207.189.100.168]:51897 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267758AbUHRVfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 17:33:42 -0400
-Date: Wed, 18 Aug 2004 14:30:29 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org
+	Wed, 18 Aug 2004 17:35:42 -0400
+Date: Wed, 18 Aug 2004 14:35:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: Does io_remap_page_range() take 5 or 6 args?
-Message-Id: <20040818143029.23db8740.davem@redhat.com>
-In-Reply-To: <20040818210503.GG11200@holomorphy.com>
-References: <20040818133348.7e319e0e.pj@sgi.com>
-	<20040818205338.GF11200@holomorphy.com>
-	<20040818135638.4326ca02.davem@redhat.com>
-	<20040818210503.GG11200@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Message-ID: <20040818213538.GK11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, "David S. Miller" <davem@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20040818133348.7e319e0e.pj@sgi.com> <20040818135401.670f11bd.davem@redhat.com> <20040818141541.467e1e2d.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040818141541.467e1e2d.pj@sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004 14:05:03 -0700
-William Lee Irwin III <wli@holomorphy.com> wrote:
+Dave Miller wrote:
+>> Each platform needs different args, unfortunately.
 
-> We should pass 64-bit values to remap_page_range() also, then. Or
-> perhaps passing pfn's to both suffices, as it all has to be page
-> aligned anyway.
+On Wed, Aug 18, 2004 at 02:15:41PM -0700, Paul Jackson wrote:
+> Doesn't that make it kinda rough on the folks trying to write
+> arch-independent code, such as sound/core/pcm_native.c that I am
+> tripping over?
+> I can imagine a possible 'solution' something like (1) always passing
+> six args, and (2) providing arch-dependent macros to generate those last
+> two args, from some arch-generic value.
+> Just brainstorming ...
 
-Does not work on a system who has more physical address bits
-than 32 + PAGE_SHIFT
+This would not be useful. The extra argument is so that 64-bit values
+don't have to be passed. Keeping the minimal number of arguments and
+changing its meaning to be a pfn will suffice for the purposes here.
 
-Sparc32 does not fall into this category... but some other
-might.
+
+-- wli

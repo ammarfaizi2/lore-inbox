@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313563AbSDUQhq>; Sun, 21 Apr 2002 12:37:46 -0400
+	id <S313562AbSDUQpW>; Sun, 21 Apr 2002 12:45:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313558AbSDUQhn>; Sun, 21 Apr 2002 12:37:43 -0400
-Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:21907 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313563AbSDUQgj>;
-	Sun, 21 Apr 2002 12:36:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Sat, 20 Apr 2002 18:36:31 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S313564AbSDUQpV>; Sun, 21 Apr 2002 12:45:21 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43154 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313562AbSDUQpU>; Sun, 21 Apr 2002 12:45:20 -0400
+Date: Sun, 21 Apr 2002 10:45:18 -0600
+Message-Id: <200204211645.g3LGjIr20144@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Daniel Phillips <phillips@bonn-fries.net>
 Cc: Anton Altaparmakov <aia21@cantab.net>,
         Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020420170907.06e87550@pop.cus.cam.ac.uk> <E16yb92-0000Tk-00@starship> <200204211627.g3LGRR519595@vindaloo.ras.ucalgary.ca>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yxqh-0000k6-00@starship>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <E16yxqh-0000k6-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 April 2002 18:27, Richard Gooch wrote:
-> Daniel Phillips writes:
-> > On Saturday 20 April 2002 18:13, Anton Altaparmakov wrote:
-> > > Daniel,
+Daniel Phillips writes:
+> On Sunday 21 April 2002 18:27, Richard Gooch wrote:
+> > Daniel Phillips writes:
+> > > On Saturday 20 April 2002 18:13, Anton Altaparmakov wrote:
+> > > > Daniel,
+> > > > 
+> > > > This is not documentation for bitkeeper but how to use bitkeeper 
+> > > > effectively for kernel development. It happens to be DAMN USEFULL 
+> > > > documentation at that for anyone wanting to use bitkeeper for kernel 
+> > > > development so IMO it fully belongs in the kernel. Just like the 
+> > > > SubmittingPatches document does, too. Or are you going to remove that as well?
 > > > 
-> > > This is not documentation for bitkeeper but how to use bitkeeper 
-> > > effectively for kernel development. It happens to be DAMN USEFULL 
-> > > documentation at that for anyone wanting to use bitkeeper for kernel 
-> > > development so IMO it fully belongs in the kernel. Just like the 
-> > > SubmittingPatches document does, too. Or are you going to remove that as well?
+> > > By that logic, we should also include the lkml FAQ in the kernel
+> > > tree.  Should we?
 > > 
-> > By that logic, we should also include the lkml FAQ in the kernel
-> > tree.  Should we?
+> > No. A pointer to the lkml FAQ is sufficient.
 > 
-> No. A pointer to the lkml FAQ is sufficient.
+> Was that a hint?
 
-Was that a hint?  Then certainly, a pointer to the BK documentation would be
-sufficient, and save download bandwidth as well.
+Not really. I'm just answering your question about whether the lkml
+FAQ should be distributed with the kernel sources. As far as I know,
+there is a pointer, but I haven't looked. If there isn't feel free to
+send Linus and Marcelo a patch.
 
--- 
-Daniel
+> Then certainly, a pointer to the BK documentation would be
+> sufficient, and save download bandwidth as well.
+
+I wasn't talking about that. And I won't O:-) But I wonder if I added
+something to the lkml FAQ whether we might avoid some rounds of this
+repeat flamewar?
+
+Nah.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

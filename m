@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129629AbRBAE5M>; Wed, 31 Jan 2001 23:57:12 -0500
+	id <S130097AbRBAE6w>; Wed, 31 Jan 2001 23:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129715AbRBAE5D>; Wed, 31 Jan 2001 23:57:03 -0500
-Received: from goalkeeper.d2.com ([198.211.88.26]:60704 "HELO
-	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129629AbRBAE4y>;
-	Wed, 31 Jan 2001 23:56:54 -0500
-Date: Wed, 31 Jan 2001 20:51:37 -0800
-From: Greg from Systems <chandler@d2.com>
-To: John Jasen <jjasen1@umbc.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bummer...
-In-Reply-To: <Pine.SGI.4.31L.02.0101312218130.32454-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.SGI.4.10.10101311933320.29904-100000@hell.d2.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130099AbRBAE6m>; Wed, 31 Jan 2001 23:58:42 -0500
+Received: from mnh-1-14.mv.com ([207.22.10.46]:12816 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S130097AbRBAE61>;
+	Wed, 31 Jan 2001 23:58:27 -0500
+Message-Id: <200102010608.BAA05591@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Brian Ristuccia <brian@ristuccia.com>
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+        Alex Pennace <alex@osiris.978.org>,
+        Dennis Ristuccia <dennis@osiris.978.org>
+Subject: Re: [uml-devel] usermode linux hoses 2.2.18-SMP host machine when run 
+ from regular user account
+In-Reply-To: Your message of "Wed, 31 Jan 2001 23:29:44 EST."
+             <20010131232944.J16908@osiris.978.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 01 Feb 2001 01:08:35 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+brian@ristuccia.com said:
+> When run from a normal user account with its current working directory
+> on a NFS filesystem, usermode linux causes the host machine's kernel
+> to enter a hosed state. No processes (including UML) seem to respond,
+> and the machine becomes unusable. 
 
-This is the kind of problem I have been experiancing.
-It either hangs on boot, or in a compile...
-However I am using an NCR 810 and a scsi disk..
-My board is the Compaq PC164 {some nasty partnumber}
+Just to clarify what I think UML is doing that's causing the trouble: it is an 
+extensive user of mmap.  It creates several files (one 16 meg by default, but 
+possibly much larger) in $PWD, and mmaps them into all of its threads.  The 
+"physical memory" file also has individual pages mapped twice (or more) into 
+various threads.
 
-The Servers all have the Qlogic ISP controller for the main disk.
+I've seen this confuse an old version of reiserfs and NFS, although not so 
+much that the machine hung.  UML would just see stale data, get horribly 
+confused by it, and crash.
 
-both setups have only the boot disk on the boot controller, no other
-devices....
-
-On Wed, 31 Jan 2001, John Jasen wrote:
-
-> On Wed, 31 Jan 2001, Greg from Systems wrote:
-> 
-> > I've been playing with the 2.4.0 kernel scince you gave me the patch for
-> > the alphas...
-> >
-> > What I have found is that it tends to randomly hang...
-> > No Panic, no OOPs, no nothing...
-> > The machine is a PC164, Which falls under the EB164 class.
-> > It exhibits this behaviour on both the "generic" and "eb164" cpu types
-> > {compile option}  It doesn't even boot compiled as pc164..
-> > I'm also seeing this problem on my A/S 4100, "Rawhide"..
-> 
-> I've been having IDE problems under alpha (API UP1100 motherboard) with
-> the ALI M1535D pci-isa bridge/ide controller and the AIC7xxx drivers.
-> Under 2.4.0, any heavy disk access "dd if=/dev/hda of=/dev/null" will
-> immediately lock the system, and under 2.4.1, it won't finish booting ...
-> 
-> --
-> -- John E. Jasen (jjasen1@umbc.edu)
-> -- In theory, theory and practise are the same. In practise, they aren't.
-> 
-
-----------------------------------------------------------------------------
-
-IGNOTUM PER IGNOTIUS
-
-"Grasshopper always wrong in argument with chicken"
-
-The "socratic approach" is what you call starting an argument by
-asking questions.
-
-The human race will begin solving it's problems on the day that it 
-ceases taking itself so seriously.
-
-                                        PRINCIPIA DISCORDIA
-
-
-                Published by POEE Head Temple - San Francisco
-                      " On The Future Site of Beautiful
-                             San Andreas Canyon"
-
-
-                                                Please do not use this
-                                                document as toilet tissue
-Fnord
+				Jeff
 
 
 -

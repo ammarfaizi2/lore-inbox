@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267373AbTALR5i>; Sun, 12 Jan 2003 12:57:38 -0500
+	id <S267377AbTALSCQ>; Sun, 12 Jan 2003 13:02:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267376AbTALR5i>; Sun, 12 Jan 2003 12:57:38 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:32925 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S267373AbTALR5h>;
-	Sun, 12 Jan 2003 12:57:37 -0500
-Date: Sun, 12 Jan 2003 18:06:20 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Rob Wilkens <robw@optonline.net>
-Cc: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux VM Documentation - Draft 1
-In-Reply-To: <1042394092.3162.16.camel@RobsPC.RobertWilkens.com>
-Message-ID: <Pine.LNX.4.44.0301121804170.24444-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267379AbTALSCQ>; Sun, 12 Jan 2003 13:02:16 -0500
+Received: from [64.8.50.187] ([64.8.50.187]:36495 "EHLO mta5.adelphia.net")
+	by vger.kernel.org with ESMTP id <S267377AbTALSCP>;
+	Sun, 12 Jan 2003 13:02:15 -0500
+Subject: "make install" error: No module raid5 found for kernel 2.5.56
+From: jeff millar <wa1hco@adelphia.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Jan 2003 13:12:37 -0500
+Message-Id: <1042395158.19325.7.camel@maggie>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jan 2003, Rob Wilkens wrote:
+Any ideas about the following problem?
 
-> (labelled as page 9 on the top) which reads:
-> 	"the init code is quiet architecture dependent"
-> but should probably read
-> 	"the init code is quite architecture dependent"
-> It's a small thing, but whenever I read a technical document and see
-> small errors like that
+The following error shows up at the end of "make install" after a
+successful make and make modules_install.  I've tried making with raid5
+both modular and compiled in and with various combinations of other raid
+module options.  Same error each time.  Also tried after a make
+mrproper.
 
-A common complaint. I regret to say that even though English is my first
-language, my grammer and spelling leaves a lot to be desired at times so
-corrections are welcome. I've searched through both documents and have
-cleaned up all bad usage of quiet but I won't rerelease yet until I have a
-few significant changes together.
+This is with stock 2.5.56 on a Redhat 8.0 box with the 0.9.8
+module-init-tools
 
-Thanks
+============================================
+<....> 
+Kernel: arch/i386/boot/bzImage is ready
+sh arch/i386/boot/install.sh 2.5.56 arch/i386/boot/bzImage System.map ""
+No module raid5 found for kernel 2.5.56
+make[1]: *** [install] Error 1
+make: *** [install] Error 2
 
--- 
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
+
+
 
 

@@ -1,34 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUEOOam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbUEOOhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUEOOam (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 10:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUEOOam
+	id S262625AbUEOOhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 10:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUEOOhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 10:30:42 -0400
-Received: from mail0-105.ewetel.de ([212.6.122.105]:19886 "EHLO
-	mail0.ewetel.de") by vger.kernel.org with ESMTP id S262605AbUEOOal
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 10:30:41 -0400
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS & long symlinks = stack overflow
-In-Reply-To: <1W7S5-3Am-13@gated-at.bofh.it>
-References: <1W7yE-3lZ-13@gated-at.bofh.it> <1W7S5-3Am-13@gated-at.bofh.it>
-Date: Sat, 15 May 2004 16:30:28 +0200
-Message-Id: <E1BP0BI-0000lo-09@localhost>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Sat, 15 May 2004 10:37:02 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:14537 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262625AbUEOOhA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 10:37:00 -0400
+Date: Sat, 15 May 2004 16:36:51 +0200 (MEST)
+Message-Id: <200405151436.i4FEap0l001327@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: shai@ftcon.com
+Subject: RE: [PATCH][6/7] perfctr-2.7.2 for 2.6.6-mm2: global-mode counters
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 May 2004 16:00:21 +0200, you wrote in linux.kernel:
+On Fri, 14 May 2004 17:51:35 -0700, Shai Fultheim wrote:
+>Can you use DEFINE_PER_CPU instead of:
+>
+>+static struct gperfctr per_cpu_gperfctr[NR_CPUS] __cacheline_aligned;
+>
+>?
 
-> Lovely.  The real limit imposed by client (apparently not enforced, though)
-> is PAGE_CACHE_SIZE - 4 - 1.  What are the protocol limits?
+Yes, I will make that change.
 
-None. An NFSv3 server can enforce an arbitrary limit on filename length,
-advertised via PATHCONF, though.
+The driver used to be buildable as a module, and per_cpu()
+didn't (doesn't?) work in modules.
 
--- 
-Ciao,
-Pascal
+/Mikael

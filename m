@@ -1,103 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131466AbQLVF0L>; Fri, 22 Dec 2000 00:26:11 -0500
+	id <S131490AbQLVFhF>; Fri, 22 Dec 2000 00:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131490AbQLVF0B>; Fri, 22 Dec 2000 00:26:01 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:36874 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S131466AbQLVFZr>; Fri, 22 Dec 2000 00:25:47 -0500
-Date: Thu, 21 Dec 2000 23:55:02 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Mike OConnor <kernel@pineview.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: No more DoS
-Message-ID: <20001221235502.C18964@alcove.wittsend.com>
-Mail-Followup-To: Mike OConnor <kernel@pineview.net>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net>; from kernel@pineview.net on Fri, Dec 22, 2000 at 01:24:44PM +1100
+	id <S131707AbQLVFgq>; Fri, 22 Dec 2000 00:36:46 -0500
+Received: from fe2.rdc-kc.rr.com ([24.94.163.49]:63754 "EHLO
+	mail2.cinci.rr.com") by vger.kernel.org with ESMTP
+	id <S131490AbQLVFgm>; Fri, 22 Dec 2000 00:36:42 -0500
+Date: Fri, 22 Dec 2000 01:05:59 -0500 (EST)
+From: John Buswell <johnb@linuxcast.org>
+To: linux-kernel@vger.kernel.org
+cc: netfilter@us5.samba.org
+Subject: 2.4.0-test(4 - 11), iptables 1.1.2 and connect: invalid bug(?)
+Message-ID: <Pine.LNX.4.21.0012220045440.11130-100000@bloatfish.opaquenetworks.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 01:24:44PM +1100, Mike OConnor wrote:
-> Hi 
+i have a problem with two machines (one running 2.4.0-t4, and the other
+2.4.0-t11). The hardware in both machines is completely different (one is
+a 486dx4 and the other is a 533MHz celeron). i am starting to think that
+it is possibly a bug.
 
-> I would like to point who ever is in charge of the TCP stack for the linux 
-> kernel at a site which claims to have a method of eliminate denial of service 
-> (DoS) attacks
+The 2.4.0-t4 machine is running iptables v1.1.1 and the other is running
+1.1.2. The first box is doing masq, port fowarding and normal firewalling
+stuff. The 2.4.0-t11 box is just doing standard port allow/deny type
+stuff.
 
-> http://grc.com/r&d/nomoredos.htm
+The test11 box has been working fine for a few weeks, today I installed
+openssl, ntop and mrtg. I then went to add some new dns records, and when
+I restarted bind 9.0.1, I noticed this error:
 
-> With my limited unstanding of TCP and DoS attacks this would seem to be the 
-> answer, instead of a work around.
+Dec 22 03:00:44 avatar named[8079]: socket.c:921: unexpected error:
+Dec 22 03:00:44 avatar named[8079]: internal_send: Invalid argument
+Dec 22 03:00:44 avatar named[8079]: socket.c:921: unexpected error:
+Dec 22 03:00:44 avatar named[8079]: internal_send: Invalid argument
+Dec 22 03:00:44 avatar named[8079]: socket.c:921: unexpected error:
+Dec 22 03:00:44 avatar named[8079]: internal_send: Invalid argument
 
-	Obviously written by someone with no real world experience with
-DoS attacks.  He seems to think that the majority of DoS attacks are SYN
-floods and disregards all the rest by saying this will eliminate
-DoS attacks.  In fact, SYN floods have been largely ineffective for
-some time now and comprise a very small percentage of attacks now.
+repeated.. named stays as an active process but doesn't do anything.
 
-	From all appearances, his approach would have no effect on attacks
-like NAPTHA which try to take advantage of more advanced states in the TCP
-state machine.
+it appears that any kind of tcp/udp connection to any local interface on
+the server causes this problem. however, if you connect to the interface
+from a remote machine to the same service, it works fine..
 
-	He actually should take a look at the "Cookie Crumbs" attacks
-against ISAKMP/IKE (IPSec) which suffer from the same first packet
-saved state problem.  Those guys haven't solved that problem and that's
-even a security protocol!  Maybe he could be some help there (or learn
-something).
+local> telnet 65.27.144.37 80
+Trying 65.27.144.37...
+telnet: Unable to connect to remote host: Invalid argument
 
-	We probably see more incidents of TIES bombing (sending packets
-with "\r+++ATH0\r" in payloads) to hang up modems than we see SYN
-flooding lately (IMHO).  I recently helped and ISP that was virtually
-shut down by someone TIES bombing them with ping packets containing the
-TIES hangup sequence.  Once we got THEIR modems fixed, the TIES bombs
-were hanging up their customers modem's (the ICMP Echo Reply) and we
-had to design a TIES Bomb packet that would reset the vulnerable
-customer modems to a safe S register value...  Grrr...
+but if i try telnetting to the same ip on the same port from a remote
+machine, it works fine. 
 
-	Quite frankly...  My favorite DoS attack is NISNuke (which
-I researched and documented).  His approach would have exactly zero
-effect in mitigating an NISNuke attack and I can take out and entire
-network with it (all you need is NIS and finger on the same large network).
-So he can NOT claim to eliminate DoS attacks since I have a small arsenal
-of them which would be untouched by his approach.
+ping also yields the same error:
 
-	While some DDoS (Distributed Denial of Service) attacks do
-incorporate SYN flooding, their most profound effect is in the bulk
-attack areas such as Smurf flooding (ICMP echo to broadcast addresses
-while spoofing the return address as the targeted party) and UDP data
-overloads.  Those have other solutions (such as router filters which
-prevent spoofing) which we can't even get implimented, much less
-a tcp stack state machine redesign!
+local> ping 65.27.144.37
+connect: Invalid argument
+ 
+both machines behave exactly the same. both machines are using kernels
+without the use of modules (the 486dx4 with 64MB), one even boots from
+floppy. 
 
-	He's got a solution (and an ineffective one at that) that's
-really in search of a problem.  It's highly unlikely that it would even
-make a miniscule dent in the DoS problem.  That's even assuming that
-it would work (which others such as Dave Miller have stated that it
-wouldn't).
+occasionally (usually during compiles) both the test11 and test4 machines
+will hardware lock. i have another machine that will do something similar
+and its running test10 but i don't run iptables on it. the test10 machine
+is an AMD-k6 III 400MHz with a VIA chipset. The test11 is the 533Mhz with
+an ALI chipset.
 
-	He gets a "nice try" but in the long run it boils down to the
-expression in the IETF...  You vote with working code.  Let's see the
-code in operation and see how it works and stands up.  If it works and
-it more robust in the face of ongoing attacks, all hail!  Kudos for
-all around.  If not, then don't tell us how it should be.  Demonstrate
-with working code.  I didn't seen ANYTHING on that site but a description
-of how he thought it should work.  Vote with working code...
+i was wondering if anyone else had seen this connect: Invalid argument
+problem??
 
-> Cheers
->     Mike OConnor
+thanks
 
-	Mike
 -- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+John Buswell 
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,424 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319749AbSIMTLM>; Fri, 13 Sep 2002 15:11:12 -0400
+	id <S319748AbSIMTHd>; Fri, 13 Sep 2002 15:07:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319751AbSIMTLL>; Fri, 13 Sep 2002 15:11:11 -0400
-Received: from dexter.citi.umich.edu ([141.211.133.33]:1152 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S319749AbSIMTLG>; Fri, 13 Sep 2002 15:11:06 -0400
-Date: Fri, 13 Sep 2002 15:15:58 -0400 (EDT)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: [PATCH] (1/2) clean up RPC over TCP transport socket connect
-Message-ID: <Pine.LNX.4.44.0209131431260.1460-100000@dexter.citi.umich.edu>
+	id <S319749AbSIMTHd>; Fri, 13 Sep 2002 15:07:33 -0400
+Received: from gw-ipex.infonet.cz ([212.71.128.102]:28663 "EHLO
+	cimice.maxinet.cz") by vger.kernel.org with ESMTP
+	id <S319748AbSIMTHc>; Fri, 13 Sep 2002 15:07:32 -0400
+Message-ID: <001701c25b59$7756a820$4500a8c0@cybernet.cz>
+From: "=?iso-8859-2?B?VmxhZGlt7XIgVPhlYmlja/0=?=" <druid@mail.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: ALi M1543 on P200
+Date: Fri, 13 Sep 2002 21:12:13 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Linus-
+I cannot use DMA on my new disks. UDMA is enabled in BIOS in mode UDMA 2. It
+doesn't work even in auto mode. ide0=dma doesn't work either. hdparm -d 1
+/dev/hda causes "operation not permitted"
 
-this patch is against 2.5.34, and provides clean up and bug fixes for the
-RPC layer's TCP socket connection management logic.  Trond, Alexey, and
-DaveM have seen this patch.  i've been running it for several weeks here
-and feel it is ready for wider testing.  these two patches are
-prerequisites for further clean-ups and fixes for RPC over TCP.
+/dev/hda:
 
-bugs fixed:
-+  TCP connection establishment now times out after 60 seconds instead of
-   hanging for ten minutes.  60 seconds is more in line with how long a
-   server takes to reboot.
-+  on a soft-mounted file system, TCP reconnections now time out and fail 
-   the RPC request, like most other NFS clients, instead of hanging the
-   NFS client until the server comes back.
-+  on hard-mounted file systems, the RPC layer now delays 15 seconds
-   before retrying after a failed connection attempt instead of retrying
-   as soon as it can.
-+  TCP connection error recovery is now more verbose so users can see why
-   their NFS sessions are hung.  this can be tuned with future patches if
-   it is unreasonably noisy.
-+  the TCP connect logic is cleaned up so adding checks for new errnos 
-   is easier.
-+  the same code now handles both initial connection and reconnection.
-   the original initial connection code did not have comprehensive error
-   handling.
-+  some obscure design elements are now documented in comments.
-+  kfree was used by mistake in xprt_destroy.
+ Model=ST320413A, FwRev=3.39, SerialNo=7ED1R0TR
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=512kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39102336
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 *mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: device does not report version:  1 2 3 4 5
 
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ALI15X3: IDE controller at PCI slot 00:0b.0
+PCI: Assigned IRQ 10 for device 00:0b.0
+ALI15X3: chipset revision 32
+ALI15X3: not 100% native mode: will probe irqs later
+ALI15X3: simplex device with no drives: DMA disabled
+ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
+ALI15X3: simplex device with no drives: DMA disabled
+ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+hda: ST320413A, ATA DISK drive
+hdb: WDC WD300BB-00AUA1, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: host protected area => 1
+hda: 39102336 sectors (20020 MB) w/512KiB Cache, CHS=2434/255/63
+hdb: host protected area => 1
+hdb: 58633344 sectors (30020 MB) w/2048KiB Cache, CHS=3649/255/63
 
-diff -drN -U2 00-stock/include/linux/sunrpc/xprt.h 01-connect1/include/linux/sunrpc/xprt.h
---- 00-stock/include/linux/sunrpc/xprt.h	Mon Sep  9 13:35:14 2002
-+++ 01-connect1/include/linux/sunrpc/xprt.h	Fri Sep 13 14:56:29 2002
-@@ -45,4 +45,17 @@
- #define RPC_MAX_TCP_TIMEOUT	(600*HZ)
- 
-+/*
-+ * Wait duration for an RPC TCP connection to be established.  Solaris
-+ * NFS over TCP uses 60 seconds, for example, which is in line with how
-+ * long a server takes to reboot.
-+ */
-+#define RPC_CONNECT_TIMEOUT	(60*HZ)
-+
-+/*
-+ * Delay an arbitrary number of seconds before attempting to reconnect
-+ * after an error.
-+ */
-+#define RPC_REESTABLISH_TIMEOUT	(15*HZ)
-+
- /* RPC call and reply header size as number of 32bit words (verifier
-  * size computed separately)
-diff -drN -U2 00-stock/net/sunrpc/clnt.c 01-connect1/net/sunrpc/clnt.c
---- 00-stock/net/sunrpc/clnt.c	Mon Sep  9 13:35:08 2002
-+++ 01-connect1/net/sunrpc/clnt.c	Tue Sep 10 15:27:11 2002
-@@ -566,5 +566,5 @@
- 	if (!clnt->cl_port) {
- 		task->tk_action = call_reconnect;
--		task->tk_timeout = clnt->cl_timeout.to_maxval;
-+		task->tk_timeout = RPC_CONNECT_TIMEOUT;
- 		rpc_getport(task, clnt);
- 	}
-@@ -639,5 +639,4 @@
- {
- 	struct rpc_clnt	*clnt = task->tk_client;
--	struct rpc_xprt *xprt = clnt->cl_xprt;
- 	struct rpc_rqst	*req = task->tk_rqstp;
- 	int		status;
-@@ -662,23 +661,15 @@
- 	case -ECONNREFUSED:
- 	case -ENOTCONN:
--		req->rq_bytes_sent = 0;
--		if (clnt->cl_autobind || !clnt->cl_port) {
-+		if (clnt->cl_autobind)
- 			clnt->cl_port = 0;
--			task->tk_action = call_bind;
--			break;
--		}
--		if (xprt->stream) {
--			task->tk_action = call_reconnect;
--			break;
--		}
--		/*
--		 * Sleep and dream of an open connection
--		 */
--		task->tk_timeout = 5 * HZ;
--		rpc_sleep_on(&xprt->sending, task, NULL, NULL);
--	case -ENOMEM:
-+		task->tk_action = call_bind;
-+		break;
- 	case -EAGAIN:
- 		task->tk_action = call_transmit;
- 		break;
-+	case -EIO:
-+		/* shutdown or soft timeout */
-+		rpc_exit(task, status);
-+		break;
- 	default:
- 		if (clnt->cl_chatty)
-@@ -686,4 +677,5 @@
- 			       clnt->cl_protname, -status);
- 		rpc_exit(task, status);
-+		break;
- 	}
- }
-diff -drN -U2 00-stock/net/sunrpc/xprt.c 01-connect1/net/sunrpc/xprt.c
---- 00-stock/net/sunrpc/xprt.c	Mon Sep  9 13:35:14 2002
-+++ 01-connect1/net/sunrpc/xprt.c	Tue Sep 10 15:27:11 2002
-@@ -88,6 +88,8 @@
- static void	xprt_disconnect(struct rpc_xprt *);
- static void	xprt_reconn_status(struct rpc_task *task);
-+static struct rpc_xprt * xprt_setup(int proto, struct sockaddr_in *ap,
-+						struct rpc_timeout *to);
- static struct socket *xprt_create_socket(int, struct rpc_timeout *);
--static int	xprt_bind_socket(struct rpc_xprt *, struct socket *);
-+static void	xprt_bind_socket(struct rpc_xprt *, struct socket *);
- static int      __xprt_get_cong(struct rpc_xprt *, struct rpc_task *);
- 
-@@ -420,17 +422,15 @@
- 	int		status;
- 
--	dprintk("RPC: %4d xprt_reconnect %p connected %d\n",
--				task->tk_pid, xprt, xprt_connected(xprt));
--	if (xprt->shutdown)
--		return;
-+	dprintk("RPC: %4d xprt_reconnect xprt %p %s connected\n", task->tk_pid,
-+			xprt, (xprt_connected(xprt) ? "is" : "is not"));
- 
--	if (!xprt->stream)
-+	if (xprt->shutdown) {
-+		task->tk_status = -EIO;
- 		return;
--
-+	}
- 	if (!xprt->addr.sin_port) {
- 		task->tk_status = -EIO;
- 		return;
- 	}
--
- 	if (!xprt_lock_write(xprt, task))
- 		return;
-@@ -438,58 +438,85 @@
- 		goto out_write;
- 
--	if (sock && sock->state != SS_UNCONNECTED)
--		xprt_close(xprt);
--	status = -ENOTCONN;
--	if (!(inet = xprt->inet)) {
--		/* Create an unconnected socket */
--		if (!(sock = xprt_create_socket(xprt->prot, &xprt->timeout)))
--			goto defer;
--		xprt_bind_socket(xprt, sock);
--		inet = sock->sk;
-+	/*
-+	 * We're here because the xprt was marked disconnected.
-+	 * Start by resetting any existing state.
-+	 */
-+	xprt_close(xprt);
-+	if (!(sock = xprt_create_socket(xprt->prot, &xprt->timeout))) {
-+		/* couldn't create socket or bind to reserved port;
-+		 * this is likely a permanent error, so cause an abort */
-+		task->tk_status = -EIO;
-+		goto out_write;
- 	}
-+	xprt_bind_socket(xprt, sock);
-+	inet = sock->sk;
- 
--	/* Now connect it asynchronously. */
--	dprintk("RPC: %4d connecting new socket\n", task->tk_pid);
-+	/*
-+	 * Tell the socket layer to start connecting...
-+	 */
- 	status = sock->ops->connect(sock, (struct sockaddr *) &xprt->addr,
- 				sizeof(xprt->addr), O_NONBLOCK);
-+	dprintk("RPC: %4d  connect status %d connected %d sock state %d\n",
-+		task->tk_pid, -status, xprt_connected(xprt), inet->state);
- 
--	if (status < 0) {
--		switch (status) {
--		case -EALREADY:
--		case -EINPROGRESS:
--			status = 0;
--			break;
--		case -EISCONN:
--		case -EPIPE:
--			status = 0;
--			xprt_close(xprt);
--			goto defer;
--		default:
--			printk("RPC: TCP connect error %d!\n", -status);
--			xprt_close(xprt);
--			goto defer;
--		}
--
-+	switch (status) {
-+	case -EINPROGRESS:
-+	case -EALREADY:
- 		/* Protect against TCP socket state changes */
- 		lock_sock(inet);
--		dprintk("RPC: %4d connect status %d connected %d\n",
--				task->tk_pid, status, xprt_connected(xprt));
--
- 		if (inet->state != TCP_ESTABLISHED) {
--			task->tk_timeout = xprt->timeout.to_maxval;
--			/* if the socket is already closing, delay 5 secs */
--			if ((1<<inet->state) & ~(TCPF_SYN_SENT|TCPF_SYN_RECV))
--				task->tk_timeout = 5*HZ;
--			rpc_sleep_on(&xprt->pending, task, xprt_reconn_status, NULL);
-+			dprintk("RPC: %4d  waiting for connection\n",
-+					task->tk_pid);
-+			task->tk_timeout = RPC_CONNECT_TIMEOUT;
-+			/* if the socket is already closing, delay briefly */
-+			if ((1 << inet->state) & ~(TCPF_SYN_SENT|TCPF_SYN_RECV))
-+				task->tk_timeout = RPC_REESTABLISH_TIMEOUT;
-+			rpc_sleep_on(&xprt->pending, task, xprt_reconn_status,
-+									NULL);
- 			release_sock(inet);
-+			/* task status set when task wakes up again */
- 			return;
- 		}
- 		release_sock(inet);
--	}
--defer:
--	if (status < 0) {
--		rpc_delay(task, 5*HZ);
-+		task->tk_status = 0;
-+		break;
-+
-+	case 0:
-+	case -EISCONN:	/* not likely, but just in case */
-+		/* Half closed state.  No race -- this socket is dead. */
-+		if (inet->state != TCP_ESTABLISHED) {
-+			xprt_close(xprt);
-+			task->tk_status = -EAGAIN;
-+			goto out_write;
-+		}
-+
-+		/* Otherwise, the connection is already established. */
-+		task->tk_status = 0;
-+		break;
-+
-+	case -EPIPE:
-+		xprt_close(xprt);
- 		task->tk_status = -ENOTCONN;
-+		goto out_write;
-+
-+	default:
-+		/* Report myriad other possible returns.  If this file
-+		 * system is soft mounted, just error out, like Solaris.  */
-+		xprt_close(xprt);
-+		if (task->tk_client->cl_softrtry) {
-+			printk(KERN_WARNING
-+			"RPC: error %d connecting to server %s, exiting\n",
-+					-status, task->tk_client->cl_server);
-+			task->tk_status = -EIO;
-+		} else {
-+			printk(KERN_WARNING
-+			"RPC: error %d connecting to server %s\n",
-+					-status, task->tk_client->cl_server);
-+			rpc_delay(task, RPC_REESTABLISH_TIMEOUT);
-+			task->tk_status = status;
-+		}
-+		break;
- 	}
-+
-  out_write:
- 	xprt_release_write(xprt, task);
-@@ -505,7 +532,27 @@
- 	struct rpc_xprt	*xprt = task->tk_xprt;
- 
--	dprintk("RPC: %4d xprt_reconn_timeout %d\n",
--				task->tk_pid, task->tk_status);
-+	switch (task->tk_status) {
-+	case 0:
-+		dprintk("RPC: %4d xprt_reconn_status: connection established\n",
-+				task->tk_pid);
-+		goto out;
-+	case -ETIMEDOUT:
-+		dprintk("RPC: %4d xprt_reconn_status: timed out\n",
-+				task->tk_pid);
-+		/* prevent TCP from continuing to retry SYNs */
-+		xprt_close(xprt);
-+		break;
-+	default:
-+		printk(KERN_ERR "RPC: error %d connecting to server %s\n",
-+				-task->tk_status, task->tk_client->cl_server);
-+		xprt_close(xprt);
-+		rpc_delay(task, RPC_REESTABLISH_TIMEOUT);
-+		break;
-+	}
-+	/* if soft mounted, cause this RPC to fail */
-+	if (task->tk_client->cl_softrtry)
-+		task->tk_status = -EIO;
- 
-+ out:
- 	xprt_release_write(xprt, task);
- }
-@@ -1155,6 +1202,10 @@
- 	case -ECONNREFUSED:
- 	case -ENOTCONN:
--		if (!xprt->stream)
-+		if (!xprt->stream) {
-+			task->tk_timeout = RPC_REESTABLISH_TIMEOUT;
-+			rpc_sleep_on(&xprt->sending, task, NULL, NULL);
- 			return;
-+		}
-+		/* fall through */
- 	default:
- 		if (xprt->stream)
-@@ -1306,6 +1357,5 @@
-  */
- static struct rpc_xprt *
--xprt_setup(struct socket *sock, int proto,
--			struct sockaddr_in *ap, struct rpc_timeout *to)
-+xprt_setup(int proto, struct sockaddr_in *ap, struct rpc_timeout *to)
- {
- 	struct rpc_xprt	*xprt;
-@@ -1354,5 +1404,4 @@
- 	dprintk("RPC:      created transport %p\n", xprt);
- 	
--	xprt_bind_socket(xprt, sock);
- 	return xprt;
- }
-@@ -1382,5 +1431,5 @@
- }
- 
--static int 
-+static void
- xprt_bind_socket(struct rpc_xprt *xprt, struct socket *sock)
- {
-@@ -1388,5 +1437,5 @@
- 
- 	if (xprt->inet)
--		return -EBUSY;
-+		return;
- 
- 	sk->user_data = xprt;
-@@ -1414,5 +1463,5 @@
- 		rpciod_up();
- 
--	return 0;
-+	return;
- }
- 
-@@ -1458,6 +1507,8 @@
- 
- 	/* If the caller has the capability, bind to a reserved port */
--	if (capable(CAP_NET_BIND_SERVICE) && xprt_bindresvport(sock) < 0)
-+	if (capable(CAP_NET_BIND_SERVICE) && xprt_bindresvport(sock) < 0) {
-+		printk("RPC: can't bind to reserved port.\n");
- 		goto failed;
-+	}
- 
- 	return sock;
-@@ -1474,15 +1525,30 @@
- xprt_create_proto(int proto, struct sockaddr_in *sap, struct rpc_timeout *to)
- {
--	struct socket	*sock;
- 	struct rpc_xprt	*xprt;
- 
--	dprintk("RPC:      xprt_create_proto called\n");
--
--	if (!(sock = xprt_create_socket(proto, to)))
--		return NULL;
-+	xprt = xprt_setup(proto, sap, to);
-+	if (!xprt)
-+		goto out;
- 
--	if (!(xprt = xprt_setup(sock, proto, sap, to)))
--		sock_release(sock);
-+	if (!xprt->stream) {
-+		struct socket *sock = xprt_create_socket(proto, to);
-+		if (sock)
-+			xprt_bind_socket(xprt, sock);
-+		else {
-+			rpc_free(xprt);
-+			xprt = NULL;
-+		}
-+	} else
-+		/*
-+		 * Don't allow a TCP service user unless they have
-+		 * enough capability to bind a reserved port.
-+		 */
-+		if (!capable(CAP_NET_BIND_SERVICE)) {
-+			rpc_free(xprt);
-+			xprt = NULL;
-+		}
- 
-+ out:
-+	dprintk("RPC:      xprt_create_proto created xprt %p\n", xprt);
- 	return xprt;
- }
-@@ -1523,5 +1589,5 @@
- 	xprt_shutdown(xprt);
- 	xprt_close(xprt);
--	kfree(xprt);
-+	rpc_free(xprt);
- 
- 	return 0;
-
--- 
-
-corporate:	<cel at netapp dot com>
-personal:	<chucklever at bigfoot dot com>
 

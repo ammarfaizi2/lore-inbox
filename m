@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319344AbSHNVIL>; Wed, 14 Aug 2002 17:08:11 -0400
+	id <S319314AbSHNVDT>; Wed, 14 Aug 2002 17:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319342AbSHNVHB>; Wed, 14 Aug 2002 17:07:01 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:20156 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S319315AbSHNVFi>; Wed, 14 Aug 2002 17:05:38 -0400
-Subject: Re: Linux 2.4.20-pre2-ac1
-From: Steven Cole <elenstev@mesatop.com>
-To: Greg Louis <glouis@dynamicro.on.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020814162924.6a4203ef.glouis@dynamicro.on.ca>
-References: <200208141634.g7EGYGO29387@devserv.devel.redhat.com>
-	<1029346932.2045.128.camel@spc9.esa.lanl.gov> 
-	<20020814162924.6a4203ef.glouis@dynamicro.on.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 14 Aug 2002 15:06:32 -0600
-Message-Id: <1029359192.2051.155.camel@spc9.esa.lanl.gov>
+	id <S319342AbSHNVCJ>; Wed, 14 Aug 2002 17:02:09 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:3223 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S319331AbSHNVBL>;
+	Wed, 14 Aug 2002 17:01:11 -0400
+Date: Wed, 14 Aug 2002 23:04:50 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: GPG/PGP-signatures
+Message-ID: <20020814210449.GV259@khan.acc.umu.se>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-14 at 14:29, Greg Louis wrote:
-> On 14 Aug 2002 11:42:11 -0600,
->  Steven Cole <elenstev@mesatop.com> wrote:
-> 
-> > On Wed, 2002-08-14 at 10:34, Alan Cox wrote:
-> > 
-> > > 
-> > > Linux 2.4.20-pre2-ac1
-> > 
-> > With CONFIG_NFSD=y I got this:
-> > 
-> > fs/fs.o: In function `nfsd':
-> > fs/fs.o(.text+0x43fb1): undefined reference to `exp_readunlock'
-> > fs/fs.o: In function `sys_nfsservctl':
-> > fs/fs.o(.text+0x445e8): undefined reference to `exp_readunlock'
-> > fs/fs.o(.text+0x44692): undefined reference to `exp_readunlock'
-> > fs/fs.o(.data+0x261c): undefined reference to `exp_readunlock'
-> > make: *** [vmlinux] Error 1
-> > 
-> This looks as though it ought to work (though I'm not at all familiar
-> with the code), and seems to be working for me on one box where I've
-> run it:
-[patch snipped]
+I think that it is great that people GPG/PGP-sign their posts
+(and I intend to start doing so myself, as soon as I get proper
+connectivity at home, and thus don't have to send all e-mail via a
+remote server where I don't want to store my private key), but when the
+public keys are unavailable, hard to obtain, or invalid for one reason
+or another, the signing is useless.
 
-Yep, that allowed it to build with CONFIG_NFSD=y.  I just can't test
-it as I've got my test box busy doing other things for a while.
+I've monitored the use of signatures on the list the last few
+months, and have come up with this list of people whose signatures
+I've been unable to find (neither available on wwwkeys.pgp.net nor
+has a x-pgp or x-gpg header saying where to download the key):
 
-Thanks,
-Steven
+Justin Carlson		C1A06FBE
+Florent Chabaud		95C81C3C
+Thomas Duffy		38F3C1BC
+David Fries		CB1EE8F0
+Roger Gammans		88DE0B3E
+Austin Gonyou		59853282
+Josh Litherland		893D9228
+Brandon Low		1F012DC6
+John L. Males		99ED3565
+Brendan W. McAdams	82306710
+Solomon Peachy		2DBBE7D0
+Joe Radinger		F957E8F3
+Udo A. Steinberg	233B9D29
+Gianni Tedesco		8646BE7D
+Martin Waitz		DFE80FB2
+Derek James Witt	972FE938
+Wiktor Wodecki		A1559FE7
+Pete de Zwart		984AF710
+
+I've bcc:d all of the above.
+
+For those who who possibly don't know how to upload their public key
+to a public server, here's how:
+
+gpg --keyserver wwwkeys.pgp.net --send-keys <keyid>
 
 
+Regards: David Weinehall (0xdc47ca16)
+-- 
+ /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265049AbUFANdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265035AbUFANd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265049AbUFANdu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 09:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFANdq
+	id S265035AbUFANd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 09:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFANdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 09:33:46 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:17390 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S265049AbUFANdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 09:33:19 -0400
-Message-ID: <40BC84BC.6090207@ThinRope.net>
-Date: Tue, 01 Jun 2004 22:29:32 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
-MIME-Version: 1.0
-To: Marco Marabelli <mm@smrt.it>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: probls upgrading ram on a 2.4 linuxbox
-References: <20040601094948.20990.qmail@apollo.survival>
-In-Reply-To: <20040601094948.20990.qmail@apollo.survival>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jun 2004 09:33:25 -0400
+Received: from gprs214-153.eurotel.cz ([160.218.214.153]:12928 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265035AbUFANdS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 09:33:18 -0400
+Date: Tue, 1 Jun 2004 15:32:29 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040601133228.GB5926@elf.ucw.cz>
+References: <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com> <20040526164129.GA31758@wohnheim.fh-wedel.de> <20040601055616.GD15492@wohnheim.fh-wedel.de> <20040601060205.GE15492@wohnheim.fh-wedel.de> <20040601122013.GA10233@elf.ucw.cz> <20040601132712.GB14572@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040601132712.GB14572@wohnheim.fh-wedel.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Marabelli wrote:
-> 
-> 
-> 
-> 
-> On Tuesday 01 June 2004 12:19, Marco Marabelli wrote:
-> 
->> > Hi all!
->> > As subject I upgraded my box from 1GB ram to 2GB ram; bios sees all
->> >new memory but kernel doesn'load (error in memory stack).
-> 
-> 
->> Details??
-> 
-> 
->> > I have the kernel set with CONFIG_HIGHMEM4G.
->> > I googled everywhere but didn't find any similar problem.
->> > Anyone has a suggestion?
->> > linux 2.4.18 (slackware) on 2x1.6 athlon processor, ram266Mhz no ECC.
-Probably CONFIG_HIGHMEM4G is notrelated...
+Hi!
 
-> Unfortunately I didn't note exactly the error output, I will try tonight 
-> again (it's a server on production), but:
-> - with 2GB, after lilo black screen ...
-> - with 1.5GB, the kernel stops after detecting SCSI drive, with a long 
-> output that explaned a memory error in stack ...
-> - obviously, rebooting with 1GB everything works ...
-I bet it is faulty RAM (hardware bug). To be sure run memtest http://memtest.org/ for a few hours if possible
-Try running with 1GB, but with the new DIMM (t.e. just exchange the DIMMs).
-If this works, put now the old DIMM back, but on different DIMM slot and try memtest.
+> > Perhaps some other format of comment should be introduced? Will not
+> > this interfere with linuxdoc?
+> 
+> I'm open for suggestions. ;)
 
-Report back.
+/*! Recursion-count: 2 Whatever-else: 5 */
 
-> in a few hours I can report in ML the details ... (waiting for offices 
-> to close)
-> thanks in advice,
-> Marco Marabelli
-
-Kalin.
-
+?
+								Pavel
 -- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
-|||\/<" 
-|||\\ ' 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+934a471f20d6580d5aad759bf0d97ddc

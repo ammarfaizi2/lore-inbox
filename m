@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbTHUU4i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 16:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTHUU4i
+	id S262911AbTHUUw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 16:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbTHUUw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 16:56:38 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:8140 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S262888AbTHUU4g convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 16:56:36 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH][2.6][5/5]Support for HPET based timer
-Date: Thu, 21 Aug 2003 13:56:32 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1DF@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.6][5/5]Support for HPET based timer
-Thread-Index: AcNnwf2rqcojdBWfQXipgbK5SLhQSQAYcAbQ
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 21 Aug 2003 20:56:33.0044 (UTC) FILETIME=[B3C2CD40:01C36826]
+	Thu, 21 Aug 2003 16:52:29 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:10133 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262911AbTHUUwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 16:52:25 -0400
+Subject: [PATCH] Pentium Pro - sysenter - doublefault
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: linux-kernel@vger.kernel.org
+Cc: jim.houston@ccur.com
+Content-Type: text/plain; charset=UTF-8
+Organization: 
+Message-Id: <1061498486.3072.308.camel@new.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 21 Aug 2003 16:41:26 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Everyone,
+
+I upgraded my Pentium Pro system to Redhat 9, installed a
+linux-2.6.0-test3 kernel, and it fails with a double-fault when
+init starts.
+
+The code which decides if it is o.k. to use sysenter is broken for
+some Pentium Pro cpus ,in particular, this bit of code from
+arch/i386/kernel/cpu/intel.c:
+
+	/* SEP CPUID bug: Pentium Pro reports SEP but doesn't have it */
+	if ( c->x86 == 6 && c->x86_model < 3 && c->x86_mask < 3 )
+		clear_bit(X86_FEATURE_SEP, c->x86_capability);
+
+On my cpu model=1 and mask=9, it doesn't clear 86_FEATURE_SEP.
+This results in a double-fault when init starts.  The double-fault
+happens on the sysexit.  The new double-fault handler caught this
+nicely, and I was able to debug this with kgdb.
+
+The logic above is exactly what Intel says to do in "IA-32 Intel®
+Architecture Software Developer's Manual, Volume 2: Instruction Set
+Reference" on page 3-767.  It also says that sysenter was added to the
+Pentium II.
+
+I checked the Pentium Pro and Pentium II Specifications Update manuals
+hoping to find the details to justify the "mask < 3" portion of the test
+above. They both describe sysenter related errata but none which was
+fixed in mask 3.
+
+The attached patch avoids using sysenter on all Pentium Pro systems.
+
+Jim Houston - Concurrent Computer Corp.
+
+
+diff -urN linux-2.6.0-test3.orig/arch/i386/kernel/cpu/intel.c
+linux-2.6.0-test3.new/arch/i386/kernel/cpu/intel.c
+--- linux-2.6.0-test3.orig/arch/i386/kernel/cpu/intel.c	2003-08-20
+10:30:14.000000000 -0400
++++ linux-2.6.0-test3.new/arch/i386/kernel/cpu/intel.c	2003-08-21
+14:39:35.000000000 -0400
+@@ -246,7 +246,7 @@
+ 	}
+ 
+ 	/* SEP CPUID bug: Pentium Pro reports SEP but doesn't have it */
+-	if ( c->x86 == 6 && c->x86_model < 3 && c->x86_mask < 3 )
++	if ( c->x86 == 6 && c->x86_model < 3)
+ 		clear_bit(X86_FEATURE_SEP, c->x86_capability);
+ 	
+ 	/* Names for the Pentium II/Celeron processors 
 
 
 
-> -----Original Message-----
-> From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
-> Indeed. The main problem, however, for me was to decide which 
-> IRQ to use
-> for the HPET. The HPET has a big mask of allowable IRQs, the APIC has
-> many pins - so how to decide which one to use and if possible 
-> not share
-> it with a PCI device?
 
-This possibly can be done by selecting the pin that is not already
-programmed by 
-setup_IO_APIC_irqs(), and do a manual setup_IO_APIC_irqs() on that, for
-HPET
-usage.
-
-> That'd work probably. I don't believe there will ever be systems with
-> HPET and without a working IOAPIC. But, well, insane things do happen.
-> 
-> As for the user disabling it, we could disable HPET then, 
-> too. Anyway, I
-> agree with your proposal of first going for legacy mode and 
-> doing native
-> mode later. 
-
-Thanks for all the comments/suggestions. I will work on using early
-ioremap in 
-place of fixmap and resend the patch.
-
-> (PS. It's a pretty stupid thing in the HPET spec to only be able to
->  gobble up BOTH the PIT and RTC interrupts and not separately.)
-
-I totally agree with you. Just one additional bit would have solved the 
-these problems. Also, I do not understand why RTC interrupts were
-overridden 
-at all, when HPET cannot provide complete RTC functionality and it does
-not 
-know anything about RTC time.
-
-
-Thanks,
--Venkatesh
-
-
-
-> -- 
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
-> 

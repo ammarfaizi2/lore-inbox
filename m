@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbUJZPvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUJZPyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUJZPvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUJZPvQ
+	id S261235AbUJZPyw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUJZPyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:51:16 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:6161 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261188AbUJZPvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:51:14 -0400
-Message-ID: <417E7582.6050805@techsource.com>
-Date: Tue, 26 Oct 2004 12:04:18 -0400
-From: Timothy Miller <miller@techsource.com>
+	Tue, 26 Oct 2004 11:54:52 -0400
+Received: from fbxmetz.linbox.com ([81.56.128.63]:42760 "EHLO xiii.metz")
+	by vger.kernel.org with ESMTP id S261235AbUJZPyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:54:50 -0400
+Message-ID: <417E733C.2040204@linbox.com>
+Date: Tue, 26 Oct 2004 17:54:36 +0200
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE:
-   Open-Source-Friendly Graphics Cards -- Viable?]
-References: <417D21C8.30709@techsource.com> <417D6365.3020609@pobox.com> <MPG.1be854649d4829f8989704@news.gmane.org> <417E6CF3.503@techsource.com> <Pine.LNX.4.53.0410261118120.338@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.53.0410261118120.338@chaos.analogic.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 bug: linux logo not displayed in vga16fb (bug found)
+References: <4178CB95.7000505@linbox.com>
+In-Reply-To: <4178CB95.7000505@linbox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-linux-os wrote:
-> On Tue, 26 Oct 2004, Timothy Miller wrote:
+Ludovic Drolez wrote:
+> Hi !
 > 
+> I used to have a nice vga boot logo with my 2.6.7 kernel, but with the 
+> 2.6.9, my
+> boot logo has disappeared (same .config)...
+> It seems to switch to VGA, and some space is reserved for the logo, but 
+> it is not displayed.
+> The logo appears with vesafb.
 
->>For cost reasons, we likely wouldn't socket the chip, so you'd probably
->>have to send it in for an RMA.  We'd reprogram it, and send it back.  Or
->>if you have a friend with the right tools, they can do it.
->>
-> 
-> 
-> Normally you use a boundary-scan (JTAG) serial header so you can program,
-> reprogram, debug the chip. FPGA development tools expect (require)
-> this.
-> 
-> Check out http:/www.macraigor.com/full_gnu.htm for their GNU tools
-> and devices, designed for Linux (and M$).
+I made a few diffs between my old working 2.6.7 kernel and the 2.6.9 and found 
+something interesting in fbmem.c:
 
-Sounds cool.  The easier we can make it, the better.
+---------------
+@@ -723,7 +419,7 @@
+         if (fb_logo.logo == NULL || info->state != FBINFO_STATE_RUNNING)
+                 return 0;
 
+-       image.depth = fb_logo.depth;
++       image.depth = 8;
+         image.data = fb_logo.logo->data;
+
+         if (fb_logo.needs_cmapreset)
+---------------
+
+So, on my 2.6.9, I replaced the '8' by 'fb_logo.depth' and now the logo is 
+shown! (but the screen is still not cleared as before when the kernel boots).
+
+Where's the QA guy ? I want to see him now ! ;-)
+
+Cheers,
+
+-- 
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+152 rue de Grigy - Technopole Metz 2000                   57070 METZ
+tel : 03 87 50 87 90                            fax : 03 87 75 19 26

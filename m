@@ -1,180 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbVA1WjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVA1Wna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262812AbVA1WjY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 17:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVA1WiQ
+	id S262803AbVA1Wna (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 17:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVA1Wn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 17:38:16 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:25735 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262803AbVA1WgS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 17:36:18 -0500
-Subject: [RFC][PATCH] add driver matching priorities
-From: Adam Belay <abelay@novell.com>
-To: greg@kroah.com
-Cc: rml@novell.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 28 Jan 2005 17:30:04 -0500
-Message-Id: <1106951404.29709.20.camel@localhost.localdomain>
+	Fri, 28 Jan 2005 17:43:29 -0500
+Received: from cantor.suse.de ([195.135.220.2]:27026 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262805AbVA1WnS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 17:43:18 -0500
+Date: Fri, 28 Jan 2005 23:43:17 +0100
+From: Olaf Hering <olh@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] idle thread preemption fix
+Message-ID: <20050128224317.GA6197@suse.de>
+References: <200501082318.j08NI6Kg027877@hera.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200501082318.j08NI6Kg027877@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ On Sat, Jan 08, Linux Kernel Mailing List wrote:
 
-This patch adds initial support for driver matching priorities to the
-driver model.  It is needed for my work on converting the pci bridge
-driver to use "struct device_driver".  It may also be helpful for driver
-with more complex (or long id lists as I've seen in many cases) matching
-criteria. 
+> ChangeSet 1.2316, 2005/01/08 13:53:41-08:00, mingo@elte.hu
+> 
+> 	[PATCH] idle thread preemption fix
+> 	
+> 	The early bootup stage is pretty fragile because the idle thread is not yet
+> 	functioning as such and so we need preemption disabled.  Whether the bootup
+> 	fails or not seems to depend on timing details so e.g.  the presence of
+> 	SCHED_SMT makes it go away.
+> 	
+> 	Disabling preemption explicitly has another advantage: the atomicity check
+> 	in schedule() will catch early-bootup schedule() calls from now on.
+> 	
+> 	The patch also fixes another preempt-bkl buglet: interrupt-driven
+> 	forced-preemption didnt go through preempt_schedule() so it resulted in
+> 	auto-dropping of the BKL.  Now we go through preempt_schedule() which
+> 	properly deals with the BKL.
+> 	
+> 	Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
+> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-"match" has been added to "struct device_driver".  There are now two
-steps in the matching process.  The first step is a bus specific filter
-that determines possible driver candidates.  The second step is a driver
-specific match function that verifies if the driver will work with the
-hardware, and returns a priority code (how well it is able to handle the
-device).  The bus layer could override the driver's match function if
-necessary (similar to how it passes *probe through it's layer and then
-on to the actual driver).
+> diff -Nru a/init/main.c b/init/main.c
+> --- a/init/main.c	2005-01-08 15:18:18 -08:00
+> +++ b/init/main.c	2005-01-08 15:18:18 -08:00
+> @@ -373,6 +373,12 @@
+>  {
+>  	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
+>  	numa_default_policy();
+> +	/*
+> +	 * Re-enable preemption but disable interrupts to make sure
+> +	 * we dont get preempted until we schedule() in cpu_idle().
+> +	 */
+> +	local_irq_disable();
+> +	preempt_enable_no_resched();
+>  	unlock_kernel();
+>   	cpu_idle();
+>  } 
 
-The current priorities are as follows:
-
-enum {
-	MATCH_PRIORITY_FAILURE = 0,
-	MATCH_PRIORITY_GENERIC,
-	MATCH_PRIORITY_NORMAL,
-	MATCH_PRIORITY_VENDOR,
-};
-
-let me know if any of this would need to be changed.  For example, the
-"struct bus_type" match function could return a priority code.
-
-Of course this patch is not going to be effective alone.  We also need
-to change the init order.  If a driver is registered early but isn't the
-best available, it will be bound to the device prematurely.  This would
-be a problem for carbus (yenta) bridges.
-
-I think we may have to load all in kernel drivers first, and then begin
-matching them to hardware.  Do you agree?  If so, I'd be happy to make a
-patch for that too.
-
-Thanks,
-Adam
-
-
---- a/drivers/base/bus.c	2005-01-20 17:37:46.000000000 -0500
-+++ b/drivers/base/bus.c	2005-01-28 16:59:00.000000000 -0500
-@@ -286,6 +286,9 @@
- 	if (drv->bus->match && !drv->bus->match(dev, drv))
- 		return -ENODEV;
- 
-+	if (drv->match && !drv->match(dev))
-+		return -ENODEV;
-+
- 	dev->driver = drv;
- 	if (drv->probe) {
- 		int error = drv->probe(dev);
-@@ -299,6 +302,42 @@
- 	return 0;
- }
- 
-+/**
-+ *	driver_probe_device_priority - attempt to bind device & driver with a
-+ *				       given match level priority 
-+ *	@drv:		driver.
-+ *	@dev:		device.
-+ *	@priority	the match level priority
-+ */
-+
-+static int driver_probe_device_priority(struct device_driver * drv,
-+					struct device * dev, int priority)
-+{
-+	int matchp;
-+
-+	if (drv->bus->match && !drv->bus->match(dev, drv))
-+		return -ENODEV;
-+
-+	if (drv->match) {
-+		matchp = drv->match(dev);
-+	} else
-+		matchp = MATCH_PRIORITY_NORMAL;
-+
-+	if (matchp != priority)
-+		return -ENODEV;
-+
-+	dev->driver = drv;
-+	if (drv->probe) {
-+		int error = drv->probe(dev);
-+		if (error) {
-+			dev->driver = NULL;
-+			return error;
-+		}
-+	}
-+
-+	device_bind_driver(dev);
-+	return 0;
-+}
- 
- /**
-  *	device_attach - try to attach device to a driver.
-@@ -312,17 +351,20 @@
- {
-  	struct bus_type * bus = dev->bus;
- 	struct list_head * entry;
--	int error;
-+	int error, matchp = MATCH_PRIORITY_VENDOR;
- 
- 	if (dev->driver) {
- 		device_bind_driver(dev);
- 		return 1;
- 	}
- 
--	if (bus->match) {
-+	if (!bus->match)
-+		return 0;
-+		
-+	while (matchp > 0) {
- 		list_for_each(entry, &bus->drivers.list) {
- 			struct device_driver * drv = to_drv(entry);
--			error = driver_probe_device(drv, dev);
-+			error = driver_probe_device_priority(drv, dev, matchp);
- 			if (!error)
- 				/* success, driver matched */
- 				return 1;
-@@ -332,6 +374,7 @@
- 				    "%s: probe of %s failed with error %d\n",
- 				    drv->name, dev->bus_id, error);
- 		}
-+		matchp--;
- 	}
- 
- 	return 0;
---- a/include/linux/device.h	2005-01-20 17:37:26.000000000 -0500
-+++ b/include/linux/device.h	2005-01-28 16:40:22.000000000 -0500
-@@ -41,6 +41,13 @@
- 	RESUME_ENABLE,
- };
- 
-+enum {
-+	MATCH_PRIORITY_FAILURE = 0,
-+	MATCH_PRIORITY_GENERIC,
-+	MATCH_PRIORITY_NORMAL,
-+	MATCH_PRIORITY_VENDOR,
-+};
-+
- struct device;
- struct device_driver;
- struct class;
-@@ -108,6 +115,7 @@
- 
- 	struct module 		* owner;
- 
-+	int	(*match)	(struct device * dev);
- 	int	(*probe)	(struct device * dev);
- 	int 	(*remove)	(struct device * dev);
- 	void	(*shutdown)	(struct device * dev);
-
+Whats the purpose of local_irq_disable() here? Locks up my toys in
+atkbd_init or IP hash foo functions.
 
 

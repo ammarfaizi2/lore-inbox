@@ -1,100 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAXOAI>; Wed, 24 Jan 2001 09:00:08 -0500
+	id <S131239AbRAXOHN>; Wed, 24 Jan 2001 09:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129441AbRAXN76>; Wed, 24 Jan 2001 08:59:58 -0500
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:25314 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S129401AbRAXN7w>; Wed, 24 Jan 2001 08:59:52 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
-cc: Michael McLeod <michaelm@platypus.net>, Nicholas Dronen <ndronen@frii.com>,
-        linux-kernel@vger.kernel.org
-Message-ID: <802569DE.004CD659.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Wed, 24 Jan 2001 13:58:26 +0000
-Subject: Re: monitoring I/O
+	id <S132025AbRAXOG7>; Wed, 24 Jan 2001 09:06:59 -0500
+Received: from w240.z209220232.was-dc.dsl.cnc.net ([209.220.232.240]:4101 "EHLO
+	yendi.dmeyer.net") by vger.kernel.org with ESMTP id <S131239AbRAXOGu>;
+	Wed, 24 Jan 2001 09:06:50 -0500
+Date: Wed, 24 Jan 2001 09:06:45 -0500
+From: dmeyer@dmeyer.net
+To: linux-kernel@vger.kernel.org
+Subject: ACPI trouble with MS-6167 motherboard
+Message-ID: <20010124090645.A20129@jhereg.dmeyer.net>
+Reply-To: dmeyer@dmeyer.net
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2i
+Organization: dmeyer.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm still having ACPI difficulties with Linux-2.4.1-pre10 on my
+system.  Up to (and including) Linux-2.4.0, it worked fine; the kernel
+reported:
 
+Jan 14 22:53:05 jhereg kernel: ACPI: System description tables found
+Jan 14 22:53:05 jhereg kernel: ACPI: System description tables loaded
+Jan 14 22:53:05 jhereg kernel: ACPI: Subsystem enabled
+Jan 14 22:53:05 jhereg kernel: ACPI: System firmware supports: C2
+Jan 14 22:53:05 jhereg kernel: ACPI: System firmware supports: S0 S1
 
-I can offer the GKHI we put together to make kernel hooks easy to add an
-manage. If you know which code paths you need to peek then you can write
-you monitor as a kernel mod - user mod pair. The kernel mod will accumulate
-the stats, the user mod will extract and report the stats. See the web page
-below if you're interested - but note we're very shortly to release a new
-version of the GKHI.
+However, since Linux-2.4.1-pre8, I get:
 
-Another options is to use dynamic probes - this will require not kernel
-modificaitons - again to have to know exactly where you want to place the
-probes. Again see the web page below for details.
-
-Richard
-
-
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
-Daniel Kobras <kobras@tat.physik.uni-tuebingen.de> on 24/01/2001 11:57:45
-
-Please respond to Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
-
-To:   Michael McLeod <michaelm@platypus.net>
-cc:   Nicholas Dronen <ndronen@frii.com>, linux-kernel@vger.kernel.org
-Subject:  Re: monitoring I/O
+ACPI: System description tables found
+    ACPI-0191: *** Warning: Invalid table signature found
+    ACPI-0073: *** Error: Acpi_load_tables: Could not load RSDT: AE_BAD_SIGNATURE
+    ACPI-0101: *** Error: Acpi_load_tables: Could not load tables: AE_BAD_SIGNATURE
+ACPI: System description table load failed
 
 
 
+Excerpts from my boot log follow:
 
-On Tue, 23 Jan 2001, Nicholas Dronen wrote:
+BIOS Vendor: Award Software International, Inc.
+BIOS Version: 6.0 PG
+BIOS Release: 08/30/00
+Board Vendor: MICRO-STAR INTERNATIONAL CO., LTD.
+Board Name: MS-6167 (AMD751).
+Board Version: 1.X.
 
-> Check out the disk_io field in /proc/stat.
+BIOS-provided physical RAM map:
+ BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+ BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+ BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+ BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+ BIOS-e820: 000000000fef0000 @ 0000000000100000 (usable)
+ BIOS-e820: 000000000000d000 @ 000000000fff3000 (ACPI data)
+ BIOS-e820: 0000000000003000 @ 000000000fff0000 (ACPI NVS)
 
-Which unfortunately provides only some pieces of information Michael wants
-to gather. SCT's sard patches give you much improved statistics that
-should basically do what you want. I'm not sure of the current location of
-the sard patches but as RedHat puts sard in its kernel, it should be
-available somewhere on redhat.com, I suppose. Check out the sysstat
-package for userlevel tools. Earlier versions of sard can be found at
-ftp.uk.linux.org/pub/linux/sct/fs/profiling/
+I'd appreciate it if anyone can tell me what the deal is.
 
-> On Wed, Jan 24, 2001 at 11:52:36AM +1100, Michael McLeod wrote:
-> > I am hoping someone can give me a little information or point me in the
-> > right direction.  I would like to write an application that monitors
-I/O
-> > on a linux machine, but I need some help in determining where to get
-the
-> > information I'm looking for.  What I would like to do is 'hook' into
-the
-> > kernel and record information such as volume name, type of request
-(read
-> > or write), the amount of data being read or written, how long each
-> > transaction takes....
-
-Regards,
-
-Daniel.
-
---
-     GNU/Linux Audio Mechanics - http://www.glame.de
-              Cutting Edge Office - http://www.c10a02.de
-           GPG Key ID 89BF7E2B - http://www.keyserver.net
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
-
-
+-- 
+David M. Meyer
+dmeyer@dmeyer.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

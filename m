@@ -1,68 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262896AbTCSC1A>; Tue, 18 Mar 2003 21:27:00 -0500
+	id <S262886AbTCSCZ4>; Tue, 18 Mar 2003 21:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262908AbTCSC1A>; Tue, 18 Mar 2003 21:27:00 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1529 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262896AbTCSC06>;
-	Tue, 18 Mar 2003 21:26:58 -0500
-Message-ID: <3E77D7DE.6090004@mvista.com>
-Date: Tue, 18 Mar 2003 18:37:18 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: tim@physik3.uni-rostock.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix nanosleep() granularity bumps
-References: <Pine.LNX.4.33.0303182123510.30255-100000@gans.physik3.uni-rostock.de>	<3E77D107.30406@mvista.com> <20030318203125.054b2704.akpm@digeo.com>
-In-Reply-To: <20030318203125.054b2704.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262890AbTCSCZ4>; Tue, 18 Mar 2003 21:25:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37789 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262886AbTCSCZz>;
+	Tue, 18 Mar 2003 21:25:55 -0500
+Date: Wed, 19 Mar 2003 02:36:51 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix remaining references to tx_inuse
+Message-ID: <20030319023651.GP14520@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> george anzinger <george@mvista.com> wrote:
-> 
->>
->>
->>Here is a fix for the problem that eliminates the index from the 
->>structure.  The index ALWAYS depends on the current value of 
->>base->timer_jiffies in a rather simple way which is I exploit.  Either 
->>patch works, but this seems much simpler...
-> 
-> 
-> Seems to be a nice change.  I think it would be better to get Tim's fix into
-> Linus's tree and let your rationalisation bake for a while in -mm.
-> 
-> There is currently a mysterious timer lockup happening on power4 machines. 
-> I'd like to keep these changes well-separated in time so we can get an
-> understanding of what code changes correlate with changed behaviour.
 
-Tell me more...
-> 
-> There are timer changes in Linus's post-2.5.65 tree and your patch generates
-> zillions of rejects against everything.  Can you send me a diff against
-> Linus's latest sometime?
+3 files still use it:
 
-Sure, possibly even tonight.
-
--g
-
-
-
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+diff -urpNX ../dontdiff linux-2.5.65/drivers/atm/idt77252.c linux-2.5.65-atm/drivers/atm/idt77252.c
+--- linux-2.5.65/drivers/atm/idt77252.c	2002-11-17 23:29:45.000000000 -0500
++++ linux-2.5.65-atm/drivers/atm/idt77252.c	2003-03-18 14:22:53.000000000 -0500
+@@ -730,7 +730,7 @@ push_on_scq(struct idt77252_dev *card, s
+ 		struct atm_vcc *vcc = vc->tx_vcc;
+ 
+ 		vc->estimator->cells += (skb->len + 47) / 48;
+-		if (atomic_read(&vcc->tx_inuse) > (vcc->sk->sndbuf >> 1)) {
++		if (atomic_read(&vcc->sk->wmem_alloc) > (vcc->sk->sndbuf >> 1)) {
+ 			u32 cps = vc->estimator->maxcps;
+ 
+ 			vc->estimator->cps = cps;
+@@ -2025,7 +2025,7 @@ idt77252_send_oam(struct atm_vcc *vcc, v
+ 		atomic_inc(&vcc->stats->tx_err);
+ 		return -ENOMEM;
+ 	}
+-	atomic_add(skb->truesize + ATM_PDU_OVHD, &vcc->tx_inuse);
++	atomic_add(skb->truesize + ATM_PDU_OVHD, &vcc->sk->wmem_alloc);
+ 	ATM_SKB(skb)->iovcnt = 0;
+ 
+ 	memcpy(skb_put(skb, 52), cell, 52);
+diff -urpNX ../dontdiff linux-2.5.65/net/atm/pppoatm.c linux-2.5.65-atm/net/atm/pppoatm.c
+--- linux-2.5.65/net/atm/pppoatm.c	2002-11-17 23:29:50.000000000 -0500
++++ linux-2.5.65-atm/net/atm/pppoatm.c	2003-03-18 21:16:21.000000000 -0500
+@@ -231,7 +231,7 @@ static int pppoatm_send(struct ppp_chann
+ 		kfree_skb(skb);
+ 		return 1;
+ 	}
+-	atomic_add(skb->truesize, &ATM_SKB(skb)->vcc->tx_inuse);
++	atomic_add(skb->truesize, &ATM_SKB(skb)->vcc->sk->wmem_alloc);
+ 	ATM_SKB(skb)->iovcnt = 0;
+ 	ATM_SKB(skb)->atm_options = ATM_SKB(skb)->vcc->atm_options;
+ 	DPRINTK("(unit %d): atm_skb(%p)->vcc(%p)->dev(%p)\n",
+diff -urpNX ../dontdiff linux-2.5.65/net/sched/sch_atm.c linux-2.5.65-atm/net/sched/sch_atm.c
+--- linux-2.5.65/net/sched/sch_atm.c	2003-02-25 09:33:34.000000000 -0500
++++ linux-2.5.65-atm/net/sched/sch_atm.c	2003-03-18 21:25:11.000000000 -0500
+@@ -508,7 +508,7 @@ static void sch_atm_dequeue(unsigned lon
+ 			ATM_SKB(skb)->vcc = flow->vcc;
+ 			memcpy(skb_push(skb,flow->hdr_len),flow->hdr,
+ 			    flow->hdr_len);
+-			atomic_add(skb->truesize,&flow->vcc->tx_inuse);
++			atomic_add(skb->truesize,&flow->vcc->sk->wmem_alloc);
+ 			ATM_SKB(skb)->iovcnt = 0;
+ 			/* atm.atm_options are already set by atm_tc_enqueue */
+ 			(void) flow->vcc->send(flow->vcc,skb);
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKHLxh>; Wed, 8 Nov 2000 06:53:37 -0500
+	id <S129057AbQKHMG3>; Wed, 8 Nov 2000 07:06:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129057AbQKHLx1>; Wed, 8 Nov 2000 06:53:27 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:49397 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129050AbQKHLxS>; Wed, 8 Nov 2000 06:53:18 -0500
-Date: Wed, 8 Nov 2000 12:52:58 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian Gerst <bgerst@didntduck.org>, forop066@zaz.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: Calling module symbols from inside the kernel !
-Message-ID: <20001108125258.N7204@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3A070BEF.7712DEDB@didntduck.org> <200011061924.QAA31314@srv1-for.for.zaz.com.br> <3A070BEF.7712DEDB@didntduck.org> <13979.973608102@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <13979.973608102@redhat.com>; from dwmw2@infradead.org on Tue, Nov 07, 2000 at 02:41:42PM +0000
+	id <S129091AbQKHMGT>; Wed, 8 Nov 2000 07:06:19 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:60420 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129057AbQKHMGL>; Wed, 8 Nov 2000 07:06:11 -0500
+Message-Id: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4 
+In-Reply-To: Message from "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> 
+   of "Tue, 07 Nov 2000 21:41:47 PDT." <20001107214147.B8542@vger.timpanogas.org> 
+Date: Wed, 08 Nov 2000 09:05:56 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2000 at 02:41:42PM +0000, David Woodhouse wrote:
-> get_module_symbol() does this for you without having to use such a hook
-> 
-> /me runs
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> said:
 
-So I guess you know already, that it died in 2.4.0-test11-pre1
-and you are suggesting dead code? ;-)
+[...]
 
-Regards
+> Your way out in the weeds.  What started this thread was a customer who
+> ended up loading the wrong arch on a system and hanging.  I have to
+> post a kernel RPM for our release, and it's onerous to make customers
+> recompile kernels all the time and be guinea pigs for arch ports.  
 
-Ingo Oeser
+I'd prefer to be a guinea pig for one of 3 or 4 generic kernels distributed
+in binary than of one of the hundreds of possibilities of patching a kernel
+together at boot, plus the (presumamby rather complex and fragile)
+machinery to do so *before* the kernel is booted, thank you very much.
+
+Plus I'm getting pissed off by how long a boot takes as it stands today...
+
+> They just want it to boot, and run with the same level of ease of use
+> and stability they get with NT and NetWare and other stuff they are used
+> to.   This is an easy choice from where I'm sitting.
+
+Easy: i386. Or i486 (I very much doubt your customers run on less, and this
+should be geneic enough).
 -- 
-To the systems programmer, users and applications
-serve only to provide a test load.
-<esc>:x
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

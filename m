@@ -1,104 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267277AbTA0Snz>; Mon, 27 Jan 2003 13:43:55 -0500
+	id <S267275AbTA0SlF>; Mon, 27 Jan 2003 13:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267282AbTA0Sny>; Mon, 27 Jan 2003 13:43:54 -0500
-Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:21888 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id <S267277AbTA0Snv>;
-	Mon, 27 Jan 2003 13:43:51 -0500
-Date: Mon, 27 Jan 2003 10:52:28 -0800
-From: Jerry Cooperstein <coop@axian.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: no version magic, tainting kernel.
-Message-ID: <20030127185228.GA8820@p3.attbi.com>
-References: <200301231459.22789.schlicht@uni-mannheim.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267277AbTA0SlF>; Mon, 27 Jan 2003 13:41:05 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:58352 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S267275AbTA0SlE> convert rfc822-to-8bit; Mon, 27 Jan 2003 13:41:04 -0500
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] data logging patches available for 2.4.21-preX
+Date: Mon, 27 Jan 2003 19:49:57 +0100
+User-Agent: KMail/1.5
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Manuel Krause <manuel.krause@mb.tu-ilmenau.de>
+References: <200301271914.26312.Dieter.Nuetzel@hamburg.de> <1043692402.15680.58.camel@tiny.suse.com>
+In-Reply-To: <1043692402.15680.58.camel@tiny.suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200301231459.22789.schlicht@uni-mannheim.de>
-User-Agent: Mutt/1.4i
+Message-Id: <200301271949.57132.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The solution
+Am Montag, 27. Januar 2003 19:33 schrieb Chris Mason:
+> On Mon, 2003-01-27 at 13:14, Dieter Nützel wrote:
+> > Hello Chris,
+> >
+> > as always very nice work!
+> > I have it now running fine on top of 2.4.21-pre3-jam3 (2.4.21-pre3aa1).
+> > Some fiddling was necessary but went smooth after all.
+> > My /home partition is mounted with -o data=ordered and the performance is
+> > great. Sorry, no real benchmarks, yet.
+>
+> Thanks for trying them out.
+>
+> > But some question stay open:
+> > Where is 01-akpm-sync_fs-fix-2.diff
+>
+> 01-akpm-sync_fs-fix-2.diff is in the 2.4.21 data logging directory you
+> linked to below.
 
-make -C KERNEL_SOURCE SUBDIRS=$PWD modules
+It was and I have it but it isn't any longer...
+Both 01- are missing, now
 
-is fine, but you have to have a Makefile in the current directory,
-and that Makefile needs a somewhat different form for 2.4 and
-2.5 kernels.  Here is a quick and dirty script for generating
-a quick boilerplate for the sources in that directory.  Straightforward
-to customize and extend etc.  (You may have to change some whitespace
-to TABS for make...)
+> >  and 01-iput-deadlock-fix.diff?
+>
+> This is in the namesys pending directory, but doesn't apply cleanly
+> yet.
 
-======================================================================
- Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
- Axian, Inc., Software Consulting and Training
- 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
- http://www.axian.com/               
-======================================================================
+OK, you moved it;-)
 
-#!/bin/bash
+> I'm rediffing both the quota code and the data logging code on top
+> of 01-iput-deadlock-fix (or I might just steal Manuel's rediff, which is
+> still in my linuxworld backlog).
 
-# script for generating external Makefile for kernel modules
-# Jerry Cooperstein, Axian Inc 2003_01_27
-# Too trivial to GPL; use as desired.
+Manuel's version (33b) had some trouble with -pre3aa1 (-pre3-jam3), too.
 
-# do either "makeit"; assumes kernel source at /usr/src/linux-`uname -r`
-#    or     "makeit /usr/src/linux-2.5.59 or makeit /usr/src/linux-2.4.20" etc.
+> > Isn't it needed anylonger 'cause you merged them and SuSE's ftp isn't
+> > updated yet? All files are the "old" one's from 15. January.
+> > ftp://ftp.suse.com/pub/people/mason/patches/data-logging/2.4.21
+> >
+> > What about patch-2.4.20.rfs.06.05-transaction-overflow-fix-0.diff?
+> > Should I put it on top, too?
+>
+> That is included in 05-data-logging-33.
 
-# Should work on all 2.4, 2.5 kernels.
-# assumes all .c files in current directory are modules
+Nice, no recompile needed then ;-)
 
-if [ "$1" == "" ] ; then
-    KROOT=/usr/src/linux-`uname -r`
-else
-    KROOT="$1"
-fi
+I'll do some "normal" vs data=journal/ordered "time synctest -F -f -n 1 -t 100 
+dir_name" tests, now.
 
-if [ `echo $KROOT | grep 2.5` ] ; then
-    VERSION=2.5
-else
-    VERSION=2.4
-fi
+Maybe I integrate preemption...
 
-OBJS=""
-for names in *.c ; do 
-    OBJS=$OBJS" `basename $names .c`.o"
-done
-
-PHONYS="$OBJS"
-
-rm -f Makefile
-
-cat <<EOF > Makefile
-obj-m += $OBJS
-KROOT=$KROOT
-all: mmodules
-EOF
-
-if [ $VERSION == 2.5 ] ; then
-CLEANSTUFF="*.o *.ko .*cmd"
-
-cat <<EOF >> Makefile
-PHONYS=$PHONYS
-.PHONY:	 \$(PHONYS) clean
-EOF
-
-else
-
-CLEANSTUFF="*.o .*flags"
-
-cat <<EOF >> Makefile
-TOPDIR=\$(KROOT)
-include \$(TOPDIR)/Rules.make
-.PHONY:	 clean
-EOF
-fi
-
-cat <<EOF >> Makefile
-mmodules:
-	\$(MAKE) -C \$(KROOT) SUBDIRS=$PWD modules
-clean:
-	rm $CLEANSTUFF
-EOF
+-Dieter

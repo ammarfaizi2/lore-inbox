@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUHGW5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUHGXAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUHGW5B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 18:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUHGW5B
+	id S264571AbUHGXAE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUHGXAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 18:57:01 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:31428 "EHLO
+	Sat, 7 Aug 2004 19:00:04 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:32964 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264531AbUHGW5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 18:57:00 -0400
-Subject: Re: ide-cd problems
+	id S264571AbUHGXAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:00:01 -0400
+Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: dleonard@dleonard.net, Zinx Verituse <zinx@epicsol.org>,
+To: Stefan Meyknecht <sm0407@nurfuerspam.de>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091887453.18408.46.camel@localhost.localdomain>
-References: <20040806143258.GB23263@suse.de>
-	 <Pine.LNX.4.44.0408061020220.8255-100000@pooka.dleonard.net>
-	 <20040806224743.GA19131@suse.de>
-	 <1091887453.18408.46.camel@localhost.localdomain>
+In-Reply-To: <200408071412.17411.sm0407@nurfuerspam.de>
+References: <200408061833.30751.sm0407@nurfuerspam.de>
+	 <20040806220654.5e857bed.akpm@osdl.org> <20040807083835.GA24860@suse.de>
+	 <200408071412.17411.sm0407@nurfuerspam.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1091915668.19077.14.camel@localhost.localdomain>
+Message-Id: <1091915848.19077.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 07 Aug 2004 22:54:29 +0100
+Date: Sat, 07 Aug 2004 22:57:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually there is a seperate complication here for disks that probably
-makes the problem a bit more complex for anything with partitions - that
-is that SCSI commands are not per partition and I agree with you that we
-don't want to get into filtering on that basis. Probably
-that means CAP_SYS_RAWIO for anything not the true "whole device" node.
+On Sad, 2004-08-07 at 13:12, Stefan Meyknecht wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> > drive. If you could look into why that isn't set for your mo device
+> > and send a patch for that, it would be much better.
+> 
+> Assuming mo devices can do random writing, how about this patch:
 
-That leaves commands to one device that affect another "disk"  - eg a
-firmware upgrade on a big storage array but those are RAWIO things
-anyway
+They can do so. I ended up using verified writes on mine because I found
+MO devices pretty flakey and often needing retried reads or
+write/verifies.
+
+Maybe my drive just needs cleaning more.
 

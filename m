@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266645AbTAJTDX>; Fri, 10 Jan 2003 14:03:23 -0500
+	id <S266330AbTAJTPR>; Fri, 10 Jan 2003 14:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266930AbTAJTDT>; Fri, 10 Jan 2003 14:03:19 -0500
-Received: from mailout.nordcom.net ([213.168.202.90]:31696 "HELO
-	mailout.nordcom.net") by vger.kernel.org with SMTP
-	id <S266971AbTAJTCZ>; Fri, 10 Jan 2003 14:02:25 -0500
-Date: Fri, 10 Jan 2003 20:11:08 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-acpi: NMI received for unknown reason 2d/3d
-Message-ID: <Pine.LNX.4.44.0301102002160.1120-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266310AbTAJTPQ>; Fri, 10 Jan 2003 14:15:16 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:10113 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S266297AbTAJTPK>; Fri, 10 Jan 2003 14:15:10 -0500
+Message-Id: <200301101921.h0AJLFLK012541@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Manish Lachwani <m_lachwani@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, Michael.Knigge@set-software.de
+Subject: Re: FW: Fastest possible UDMA - how? 
+In-Reply-To: Your message of "Fri, 10 Jan 2003 11:04:03 PST."
+             <20030110190403.2127.qmail@web20510.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030110190403.2127.qmail@web20510.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-225802426P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 10 Jan 2003 14:20:34 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-225802426P
+Content-Type: text/plain; charset=us-ascii
 
-Hi all,
+On Fri, 10 Jan 2003 11:04:03 PST, Manish Lachwani <m_lachwani@yahoo.com>  said:
+> Take a look at the drive IDENTIFY data. From the ATA
+> spec, it can be seen that word# 88 in the IDENTIFY
+> data can help you find out the UDMA mode selected and
+> UDMA mode supported. 
+> 
+> The UDMA mode supported is the maximum supported by
+> the drive. 
 
-Kernel is 2.4.20 with akpm's ext3 fixes and acpi-20021212-2.4.20.diff.gz
-patched in.
+Will this DTRT if the IDE *controller* does UDMA-5 but the drives are UDMA-2
+at best?
 
-I just upgraded from a Duron 1 GHz processor to an Athlon XP 1700+. The
-only other change to the system is an updated BIOS to support the new
-processor.
+--==_Exmh_-225802426P
+Content-Type: application/pgp-signature
 
-Motherboard is a Soyo K7ADA, using the ALi Magik 1 chipset.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Since the CPU and BIOS upgrade, I get the following message(s) from
-the kernel:
+iD8DBQE+Hx0CcC3lWbTT17ARAsHzAJ4tsaZn3Q23EdI+Yt2qG5UKgPLyHgCfY1WK
+jsZZpd56L49J3VyxcXywMAM=
+=47CP
+-----END PGP SIGNATURE-----
 
-> Uhhuh. NMI received for unknown reason 2d.
-> Dazed and confused, but trying to continue
-> Do you have a strange power saving mode enabled?
-
-The reason is 2d most of the time, with a few 3d inbetween. About 8 of
-these messages pile up in dmesg until my system (Red Hat 7.2) is
-completely done running sysinit. After that, new messages only appear
-seldomly and minutes apart with no pattern I could regocnize.
-
-I don't think it's a memory problem because memtest86 (I only tried a
-single run since the memory worked fine before) doesn't show up errors
-and memory-related NMIs are not "unknown reason"s to the kernel as far
-as I know.
-
-Everything that shows up in the BIOS setup related to power management
-is turned off.
-
-Running with or without local APIC support does not change anything. Same 
-for ACPI support or not.
-
-What can this be? Do I have to worry or is this just some fancy power
-management stuff supported by the AthlonXP that the kernel does not know
-about?
-
-Again, this is an AthlonXP 1700+ (CPU family 6, model 8, stepping 0).
-
--- 
-Ciao,
-Pascal
-
+--==_Exmh_-225802426P--

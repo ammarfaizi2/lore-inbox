@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263038AbRFEAeu>; Mon, 4 Jun 2001 20:34:50 -0400
+	id <S263055AbRFEA6b>; Mon, 4 Jun 2001 20:58:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263039AbRFEAel>; Mon, 4 Jun 2001 20:34:41 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:10500 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S263038AbRFEAe1>; Mon, 4 Jun 2001 20:34:27 -0400
-Date: Mon, 4 Jun 2001 18:36:42 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: TRG vger.timpanogas.org hacked
-Message-ID: <20010604183642.A855@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S263058AbRFEA6V>; Mon, 4 Jun 2001 20:58:21 -0400
+Received: from mail08.voicenet.com ([207.103.0.34]:62869 "HELO
+	mail08.voicenet.com") by vger.kernel.org with SMTP
+	id <S263055AbRFEA6K>; Mon, 4 Jun 2001 20:58:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@voicenet.com>
+To: William Montgomery <william@opinicus.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: lowlatency 2.2.19
+Date: Mon, 4 Jun 2001 20:58:08 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1010604173410.5728A-100000@thing2.opinicus.com>
+In-Reply-To: <Pine.LNX.3.96.1010604173410.5728A-100000@thing2.opinicus.com>
+MIME-Version: 1.0
+Message-Id: <01060420580802.31206@psuedomode>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Our master server (vger.timpanogas.org) running 2.2.19 was hacked and 
-completely obliterated by someone using a Novell Proxy Cache via a kernel
-level exploit in [sys_wait+4].  They somehow created a segmentation fault 
-down inside the kernel, then gained access to the /lib directory and 
-relinked the libraries to a set of bogus libs, which gave them 
-access to the server.  Only public code and email is processed on 
-this server.  
-
-For those interested in reviewing this attack, I have the entire previous
-hard disk available and can mount it under the public ftp area if anyone 
-is curious as to how these folks did this.  They exploited BIND 8.2.3
-to get in and logs indicated that someone was using a "back door" in 
-Novell's NetWare proxy caches to perform the attack (since several 
-different servers were used as "blinds" to get in).  
-
-We are unable to determine just how they got in exactly, but they 
-kept trying and created an oops in the affected code which allowed 
-the attack to proceed.  
-
-Jeff
-
+this is just a general question about low latency patches on 2.2,   I 
+remember hearing about low latency patches for 2.4 not playing well with X 
+4.x, is this true for 2.2 low latency patches as well?   

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbUJ0HJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUJ0HdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbUJ0HJO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 03:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbUJ0HJF
+	id S261638AbUJ0HdB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 03:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbUJ0HdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 03:09:05 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:24450 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262319AbUJ0HEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 03:04:47 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Rusty Russell <rusty@rustcorp.com.au>, Dominik Brodowski <linux@brodo.de>
-Subject: Problem with module parameters and sysfs
-Date: Wed, 27 Oct 2004 01:43:54 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Wed, 27 Oct 2004 03:33:01 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:14096 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261638AbUJ0Hc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 03:32:59 -0400
+Date: Wed, 27 Oct 2004 09:38:56 +0200
+To: Hua Zhong <hzhong@cisco.com>
+Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+Message-ID: <20041027073856.GA24886@hh.idb.hist.no>
+References: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <00ba01c4bae4$892ec4f0$ca41cb3f@amer.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410270143.54852.dtor_core@ameritech.net>
+In-Reply-To: <00ba01c4bae4$892ec4f0$ca41cb3f@amer.cisco.com>
+User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 25, 2004 at 03:46:58PM -0700, Hua Zhong wrote:
+> 
+> But not everyone reads LKML or the annoucement..a lot of people may just
+> decide whether to try this out based on the name. They go to kernel.org from
+> time to time and say: I'll test the next rc release.
+> 
+> "RC" has a very well-known meaning. It would make people scared if they find
+> rc isn't stable, and lose a lot of potential testers. So why break it?
+> 
+I expect a "rc" to be a kind of beta - an attempt to get it right
+rather than experiment - but it may still be broken.  Someone
+who want stability should try the latest point release
+(2.6.9) or fix release (2.6.9.x with the current system)
 
-It seems that the following patch
-
-http://linux.bkbits.net:8080/linux-2.5/diffs/kernel/params.c%401.12?nav=index.html|ChangeSet@-3d|cset@1.2142
-
-broke module parameters in sysfs for the case when driver is built
-as a module:
-
-[root@core dtor]# ls -la /sys/module/i8042/
-total 0
-drwxr-xr-x    3 root     root            0 Oct 26 19:20 .
-drwxr-xr-x   54 root     root            0 Oct 27 00:28 ..
-drwxr-xr-x    2 root     root            0 Oct 26 19:20 parameters
-
-[root@core dtor]# ls -la /sys/module/psmouse/
-total 0
-drwxr-xr-x    3 root     root            0 Oct 27 00:21 .
-drwxr-xr-x   54 root     root            0 Oct 27 00:28 ..
--r--r--r--    1 root     root         4096 Oct 27 00:21 refcnt
-drwxr-xr-x    2 root     root            0 Oct 27 00:21 sections
-
-psmouse is built as a module while i8042 is compiled in.
-
--- 
-Dmitry
+Helge Hafting

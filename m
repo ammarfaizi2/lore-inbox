@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280074AbRJaFJo>; Wed, 31 Oct 2001 00:09:44 -0500
+	id <S280075AbRJaFGy>; Wed, 31 Oct 2001 00:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280076AbRJaFJe>; Wed, 31 Oct 2001 00:09:34 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:13572
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S280074AbRJaFJT>; Wed, 31 Oct 2001 00:09:19 -0500
-Message-Id: <5.1.0.14.2.20011030235723.022818d8@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 31 Oct 2001 00:06:57 -0500
+	id <S280074AbRJaFGo>; Wed, 31 Oct 2001 00:06:44 -0500
+Received: from 39.159.252.64.snet.net ([64.252.159.39]:640 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id <S280073AbRJaFGl>;
+	Wed, 31 Oct 2001 00:06:41 -0500
+Message-ID: <3BDF899D.7070503@stinkfoot.org>
+Date: Wed, 31 Oct 2001 00:18:21 -0500
+From: Ethan@stinkfoot.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Stevie O <stevie@qrpff.net>
-Subject: Local APIC option (CONFIG_X86_UP_APIC) locks up Inspiron 8100
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: PPC kernel ide modules failing
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just bought a Dell Inspiron 8100. <long story of what happened snipped>. 
-So after a few dozen kernel builds I've narrowed it down to this: When I 
-build the 2.4.13 kernel with Local APIC support (CONFIG_X86_UP_APIC=y), two 
-things happen (so far that i've noticed):
+Greetings,
 
-1) The power button stops working, as if the kernel was intercepting the 
-signal and ignoring it. I have to hold it for five seconds to turn off the 
-machine.
+I thought that I'd mention that on recent PPC kernels the ide modules 
+won't load:
+/lib/modules/2.4.14-pre3/kernel/drivers/ide/ide-mod.o: unresolved symbol 
+ppc_generic_ide_fix_driveid
 
-2) Anytime I change the plugged-in status of the AC adapter (if it wasn't 
-plugged in, if I plug it in; if it was plugged in, if I unplug it), the 
-machine locks up completely.
+/lib/modules/2.4.14-pre3/kernel/drivers/ide/ide-mod.o: unresolved symbol 
+ppc_generic_ide_fix_driveid
 
-As the help on this option has no warnings about it being dangerous to use, 
-I would really like to help find out what part of it is locking up. The 
-only problem, is... I have no idea where to start.
+This has been happening for quite some time, since around 2.4.2 or so. 
+ I'm using:
 
-One other thing: how would the kernel react to the "SpeedStep" feature of 
-changing the CPU speed while things are still running?
+gcc version 2.95.3 19991030 (prerelease/franzo/20001125)
+binutils 2.11.2
+glibc-2.2.4
 
+please cc me any replies as I don't subscribe to the list.
 
---
-Stevie-O
+thanks,
 
-Real programmers use COPY CON PROGRAM.EXE
+Ethan Weinstein
+
 

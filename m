@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272733AbTG3G3c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 02:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272782AbTG3G2P
+	id S272782AbTG3Gfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 02:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272785AbTG3Gfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 02:28:15 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57352 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S272779AbTG3G2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 02:28:10 -0400
-Date: Wed, 30 Jul 2003 07:08:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, zwane@arm.linux.org.uk,
-       linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       vortex@scyld.com, jgarzik@pobox.com, vojtech@suse.cz
-Subject: Re: another must-fix: major PS/2 mouse problem
-Message-ID: <20030730050857.GF2601@openzaurus.ucw.cz>
-References: <3EDCF47A.1060605@ifrance.com> <1054681254.22103.3750.camel@cube> <3EDD8850.9060808@ifrance.com> <1058921044.943.12.camel@cube> <20030724103047.31e91a96.akpm@osdl.org> <1059097601.1220.75.camel@cube> <20030725201914.644b020c.akpm@osdl.org> <Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com> <1059447325.3862.86.camel@cube> <20030728201459.78c8c7c6.akpm@osdl.org>
+	Wed, 30 Jul 2003 02:35:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35972 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272782AbTG3Gfm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 02:35:42 -0400
+Date: Tue, 29 Jul 2003 23:36:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linas@austin.ibm.com, linux-kernel@vger.kernel.org,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: PATCH: Race in 2.6.0-test2 timer code
+Message-Id: <20030729233603.21ad2409.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0307300733200.25010-100000@localhost.localdomain>
+References: <20030729135643.2e9b74bc.akpm@osdl.org>
+	<Pine.LNX.4.44.0307300733200.25010-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728201459.78c8c7c6.akpm@osdl.org>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Loosing too many ticks!
-> > TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-> > Falling back to a sane timesource.
-> > psmouse.c: Lost synchronization, throwing 3 bytes away.
-> > psmouse.c: Lost synchronization, throwing 1 bytes away.
-> > 
-> > Arrrrgh! The TSC is my only good time source!
+Ingo Molnar <mingo@elte.hu> wrote:
+>
 > 
-> Arrrgh!  More PS/2 problems!
+> On Tue, 29 Jul 2003, Andrew Morton wrote:
 > 
-> I think the lost synchronisation is the problem, would you agree?
+> > Andrea says that we need to take the per-timer lock in add_timer() and
+> > del_timer(), but I haven't yet got around to working out why.
 > 
-> The person who fixes this gets a Nobel prize.
+> this makes no sense - in 2.6 (and in 2.4) there's no safe add_timer() /
+> del_timer() use without using external SMP synchronization. (There's one
+> special timer use variant involving del_timer_sync() that was safe in 2.4
+> but is unsafe in 2.6, see below.)
+> 
 
+Well Andrea did mention a problem with the interval timers.  But I am not
+aware of the exact details of the race which he found, and I don't
+understand why del_timer() and add_timer() would be needing the per-timer
+locks.
 
-If you set ps/2 synchronization timeout to 20 seconds, you are going to make vojtech
-unhappy (he likes that code :-), but at least 2.6.0 will not be worse than 2.4.x...
+You need to export __mod_timer to modules btw.
 
-Do you want me to create a patch?
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+--- 25/kernel/ksyms.c~timer-race-fixes	2003-07-29 23:27:05.000000000 -0700
++++ 25-akpm/kernel/ksyms.c	2003-07-29 23:27:49.000000000 -0700
+@@ -405,8 +405,6 @@ EXPORT_SYMBOL(proc_doulongvec_ms_jiffies
+ EXPORT_SYMBOL(proc_doulongvec_minmax);
+ 
+ /* interrupt handling */
+-EXPORT_SYMBOL(add_timer);
+-EXPORT_SYMBOL(del_timer);
+ EXPORT_SYMBOL(request_irq);
+ EXPORT_SYMBOL(free_irq);
+ 
+@@ -433,7 +431,10 @@ EXPORT_SYMBOL(probe_irq_off);
+ #ifdef CONFIG_SMP
+ EXPORT_SYMBOL(del_timer_sync);
+ #endif
++EXPORT_SYMBOL(add_timer);
++EXPORT_SYMBOL(del_timer);
+ EXPORT_SYMBOL(mod_timer);
++EXPORT_SYMBOL(__mod_timer);
+ 
+ #ifdef HAVE_DISABLE_HLT
+ EXPORT_SYMBOL(disable_hlt);
+
+_
 

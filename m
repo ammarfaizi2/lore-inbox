@@ -1,193 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268891AbTBZXJb>; Wed, 26 Feb 2003 18:09:31 -0500
+	id <S268830AbTBZXIa>; Wed, 26 Feb 2003 18:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269030AbTBZXJb>; Wed, 26 Feb 2003 18:09:31 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:29585 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268891AbTBZXJZ>; Wed, 26 Feb 2003 18:09:25 -0500
-Date: Wed, 26 Feb 2003 15:19:37 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.63-mjb1 (scalability / NUMA patchset)
-Message-ID: <5880000.1046301577@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268891AbTBZXIa>; Wed, 26 Feb 2003 18:08:30 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:55980 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S268830AbTBZXI3> convert rfc822-to-8bit; Wed, 26 Feb 2003 18:08:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: filesystem access slowing system to a crawl
+Date: Thu, 27 Feb 2003 00:17:57 +0100
+User-Agent: KMail/1.4.3
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR> <200302191742.02275.m.c.p@wolk-project.de> <20030219174940.GJ14633@x30.suse.de>
+In-Reply-To: <20030219174940.GJ14633@x30.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302270017.36598.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+On Wednesday 19 February 2003 18:49, Andrea Arcangeli wrote:
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+Hi Marcelo,
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.63/patch-2.5.63-mjb
-1.bz2
+apply this, please!
 
-additional:
+> On Wed, Feb 19, 2003 at 05:42:34PM +0100, Marc-Christian Petersen wrote:
+> > On Wednesday 05 February 2003 10:39, Andrew Morton wrote:
+> >
+> > Hi Andrew,
+> >
+> > > > Running just "find /" (or ls -R or tar on a large directory) locally
+> > > > slows the box down to absolute unresponsiveness - it takes minutes
+> > > > to just run ps and kill the find process. During that time, kupdated
+> > > > and kswapd gobble up all available CPU time.
+> > >
+> > > Could be that your "low memory" is filled up with inodes.  This would
+> > > only happen in these tests if you're using ext2, and there are a *lot*
+> > > of directories.
+> > > I've prepared a lineup of Andrea's VM patches at
+> > > It would be useful if you could apply 10_inode-highmem-2.patch and
+> > > report back.  It applies to 2.4.19 as well, and should work OK there.
+> >
+> > is there any reason why this (inode-highmem-2) has never been submitted
+> > for inclusion into mainline yet?
 
-http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
 
-Since 2.5.62-mjb3 (~ = changed, + = added, - = dropped)
+Marcelo please include this:
+http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21pre4aa3/10_inode-highmem-2
+other fixes should be included too but they don't apply cleanly yet
+unfortunately, I (or somebody else) should rediff them against mainline.
+> Andrea
 
-Notes:
 
-Merged with Linus:
+ciao, Marc
 
-- fix_was_sched					Ingo / wli / Rick Lindsley
-- kirq_clustered_fix				Dave Hansen / Martin J. Bligh
-
-Dropped:
-
-- acpi_x440_hack (proper fix merged)		Anonymous Coward
-- auto_disable_tsc				John Stultz
-
-New:
-
-+ acpi_16way					John Stultz
-+ schedstat2					Rick Lindsley
-+ nfs_fix					Trond Myklebust
-+ nonzero_apicid				Martin J. Bligh
-+ objrmap_fix					Dave McCracken
-
-Pending:
-scheduler callers profiling (Anton)
-PPC64 NUMA patches (Anton)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Non-PAE aligned kernel splits (Dave Hansen)
-Update the lost timer ticks code
-Ingo scheduler updates
-
-Present in this patch:
-
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-local_pgdat					William Lee Irwin
-	Move the pgdat structure into the remapped space with lmem_map
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-notsc						Martin Bligh
-	Enable notsc option for NUMA-Q (new version for new config system)
-
-mpc_apic_id					Martin J. Bligh
-	Fix null ptr dereference (optimised away, but ...)
-
-doaction					Martin J. Bligh
-	Fix cruel torture of macros and small furry animals in io_apic.c
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
-
-ingosched					Ingo Molnar
-	Modify NUMA scheduler to have independant tick basis.
-
-schedstat					Rick Lindsley
-	Provide stats about the scheduler under /proc/stat
-
-schedstat2					Rick Lindsley
-	Provide more stats about the scheduler under /proc/stat
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-early_ioremap					Dave Hansen
-	Provide ioremap in very early boot when we only have 8Mb address space
-
-x440disco_A0					Pat Gaughen / IBM NUMA team
-	SLIT/SRAT parsing for x440 discontigmem
-
-acpi_16way					John Stultz
-	Make ACPI cope with multi-page something-or-others.
-
-numa_pci_fix					Dave Hansen
-	Fix a potential error in the numa pci code from Stanford Checker
-
-pfn_to_nid					William Lee Irwin
-	Turn pfn_to_nid into a macro
-
-kprobes						Vamsi Krishna S
-	Add kernel probes hooks to the kernel
-
-dmc_exit1					Dave McCracken
-	Speed up the exit path, pt 1.
-
-dmc_exit2					Dave McCracken
-	Speed up the exit path, pt 1.
-
-shpte						Dave McCracken
-	Shared pagetables (as a config option)
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-fix_kgdb					Dave Hansen
-	Fix interaction between kgdb and 4K stacks
-
-stacks_from_slab				William Lee Irwin
-	Take kernel stacks from the slab cache, not page allocation.
-
-thread_under_page				William Lee Irwin
-	Fix THREAD_SIZE < PAGE_SIZE case
-
-lkcd						LKCD team
-	Linux kernel crash dump support
-
-percpu_loadavg					Martin J. Bligh
-	Provide per-cpu loadaverages, and real load averages
-
-irq_affinity					Martin J. Bligh
-	Workaround for irq_affinity on clustered apic mode systems (eg x440)
-
-no_kirq						Martin J. Bligh
-	Allow disabling of kirq to work properly
-
-cleaner_inodes					Andrew Morton
-	Make noatime filesystems more efficient
-
-nfs_fix						Trond Myklebust
-	Fix some bug or other in NFS that seems to bite people as a race.
-
-nonzero_apicid					Martin J. Bligh
-	Cope with boot cpu != mpstable boot cpu.
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-objrmap_fix					Dave McCracken
-	Fix detection of anon pages
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
 

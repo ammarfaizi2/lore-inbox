@@ -1,117 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266363AbUGTXsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265974AbUGUAA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266363AbUGTXsR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 19:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUGTXsQ
+	id S265974AbUGUAA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 20:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUGUAA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 19:48:16 -0400
-Received: from dns.gardena.net ([213.21.177.18]:60644 "HELO dns.gardena.net")
-	by vger.kernel.org with SMTP id S266363AbUGTXsN (ORCPT
+	Tue, 20 Jul 2004 20:00:26 -0400
+Received: from mail.tdb.com ([216.99.214.4]:33181 "HELO mail.tdb.com")
+	by vger.kernel.org with SMTP id S265974AbUGUAAO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 19:48:13 -0400
-Message-ID: <40FDAF86.10104@gardena.net>
-Date: Wed, 21 Jul 2004 01:49:26 +0200
-From: Benno Senoner <sbenno@gardena.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040421
-X-Accept-Language: en-us, en
+	Tue, 20 Jul 2004 20:00:14 -0400
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Oops 2.6.8-rc1 doing an rsync to USB mass storage
+From: Russell Senior <seniorr@aracnet.com>
+Date: 20 Jul 2004 17:00:07 -0700
+Message-ID: <861xj62prs.fsf@coulee.tdb.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] Voluntary Kernel	Preemption Patch
-References: <20040712163141.31ef1ad6.akpm@osdl.org>	<1090306769.22521.32.camel@mindpipe> <20040720071136.GA28696@elte.hu>	<200407202011.20558.musical_snake@gmx.de> <1090353405.28175.21.camel@mindpipe>
-In-Reply-To: <1090353405.28175.21.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While locking a RT process to a CPU to achieve even lower latencies 
-might be useful to some
-the general userbase wants good latencies on simple UP, non HT-enabled 
-hardware too.
-(AMD is gaining marketshare and we cannot simply expect that good 
-multimedia performance (aka low latency)
-can be achieved only on those SMP/HT boxes where the truth is that 
-except in the case of really crappy hardware,
-those common UP  machines are actually capable to delives  latencies in 
-the range of dozen of usecs.
-(taking the RTLinux benchmarks as reference).
-Of course Linux != RTLinux and we never expect nor pretend Linux to 
-match the response time of RTLinux but
-as said earlier latencies at around 1msec should are doable on decent UP 
-boxes and this is more than
-adequate to run demanding real time audio applications like software 
-synthesizers, samples, real time effects etc.
-The only hope is that the hard work from Ingo, Andrew and all the others 
-gets soon integrated in the mainstream
-2.6 kernel so all Linux users can take run demanding multimedia 
-applications out of the box without going through
-the painful patching,kernel recompiling etc.
-Or is this still not realistic at this point ?
- (see the old issue with kernel 2.4,  low latency patches were too 
-unclean to make it into the
-ufficial kernel tree).
 
-Plus what's very important is that every kernel developer and driver 
-developer (even thirdparty, especially those
-that do closed source stuff like Nvidia etc) takes into account the 
-latency problems that code paths that run for
-too long time (or disable IRQs for too long etc) might create.
-While I'm not a kernel expert I assume the premptible kernel alleviates 
-this problem but I guess it still cannot
-completely get rid of low latency-unfriendly routines and drivers.
-Perhaps in upcoming Linux kernel/driver programming books this issue 
-should be stressed out and
-mentioned prominently in order to avoid the eternal:
-fixing latencies in kernel x.y.z -> new kernel versions with new 
-drivers/changes/enhancements comes out
--> latencies are bad again -> fix latencies in this new kernel version  
-.....  ( iterate at infinitum)
+I am rsyncing from over a network to a locally attached USB2 Mass
+Storage external 200gig IDE drive in an ADS Technologies enclosure.
+Locks up the box solid, can't ping, can't SysRq anything.  I've seen
+this on two different IDE drives and enclosures, and also a similar
+but uncaptured Oops under 2.6.7 (whereupon I tried 2.6.8-rc1).  It
+doesn't *always* happen, but about 5 out of 6 attempts so far if the
+rsync is big enough.
 
-cheers,
-Benno
-http://www.linuxsampler.org
+This is on a dual P3-1GHz with a gig of RAM on a debian box with a
+custom compiled kernel, config available at:
+
+  <http://www.aracnet.com/~seniorr/config-2.6.8-rc1>
+
+  $ uname -a
+  Linux celilo 2.6.8-rc1 #2 SMP Tue Jul 20 13:37:13 PDT 2004 i686 GNU/Linux
 
 
-Lee Revell wrote:
+Here is the ksymoops report:
 
->On Tue, 2004-07-20 at 14:11, Ralf Beck wrote:
->  
->
->>>it's an issue for all block IO drivers that do IO completions from IRQ
->>>context and that can do DMA - i.e. every block IO hardware that uses
->>>interrupts. This includes SCSI too. In fact for SCSI it's a norm to have
->>>      
->>>
->>I renew a question i asked earlier.
->>
->>To my understanding, on a SMP or hyperthreading system, disabling of
->>IRQs is always local to one (virtual on HT) cpu.
->>
->>So would it be possible to get ultralow latency by simply hardlock all irqs 
->>and processes to cpu1 and the irq triggering the audiothread (together with 
->>the audiothread) to cpu 2 using the sched_affinity and irq-affinity 
->>capabilites of the kernel?
->>
->>This would be an easy to use lowlatency hardware patch for  linux audio users
->>with SMP/HT systems. Anybody knows?
->>
->>I'm currently thinking about getting a new system and consider a dualsystem if 
->>this worked.
->>    
->>
->
->Should work.  For example, the RTLinux people report excellent results
->on SMP systems by binding all RT threads to one CPU and having the Linux
->part of the system run on the other.  This is just a "softer" version of
->that setup.  Even if there are cases where IRQs are disabled globally,
->it would be an improvement.  I suspect you are not getting much of a
->response because no one has actually tested it with an audio system.
->
->Lee
->
->
->  
->
+   ksymoops 2.4.9 on i686 2.6.8-rc1.  Options used
+        -V (default)
+        -k /proc/ksyms (default)
+        -l /proc/modules (default)
+        -o /lib/modules/2.6.8-rc1/ (default)
+        -m /boot/System.map-2.6.8-rc1 (default)
 
+   Warning: You did not tell me where to find symbol information.  I will
+   assume that the log matches the kernel and modules that are running
+   right now and I'll use the default options above for symbol resolution.
+   If the current kernel and/or modules do not match the log, you can get
+   more accurate output by telling me the kernel version and where to find
+   map, modules, ksyms etc.  ksymoops -h explains the options.
+
+   Error (regular_file): read_ksyms stat /proc/ksyms failed
+   No modules in ksyms, skipping objects
+   No ksyms, skipping lsmod
+   Unable to handle kernel paging request at virtual address 00100104
+   f8be21e5
+   *pde = 00000000
+   Oops: 0002 [#1]
+   CPU:    1
+   EIP:    0060:[<f8be21e5>]    Not tainted
+   Using defaults from ksymoops -t elf32-i386 -a i386
+   EFLAGS: 00010246   (2.6.8-rc1) 
+   eax: 00100100   ebx: 00001c00   ecx: f719c1b8   edx: 00200200
+   esi: f719c180   edi: f77eb500   ebp: f7f85ea0   esp: f7f85e60
+   ds: 007b   es: 007b   ss: 0068
+   Stack: f7196800 f77eb500 00001000 00001c00 f7f84000 f7b5814c 01000000 00000000 
+          00000001 00000000 f719c218 f719c5a0 00000000 f7b5814c f7f85f80 f7b58100 
+          f7f85ed0 f8be30b5 f7196800 f7b58100 f7f85f80 f7b58160 00000000 f7f85f80 
+   Call Trace:
+    [<c010538f>] show_stack+0x7f/0xa0
+    [<c010553f>] show_registers+0x15f/0x1c0
+    [<c0105702>] die+0xa2/0x120
+    [<c0115216>] do_page_fault+0x1f6/0x5ac
+    [<c0105009>] error_code+0x2d/0x38
+    [<f8be30b5>] scan_async+0xa5/0x170 [ehci_hcd]
+    [<f8be55c5>] ehci_work+0x35/0xd0 [ehci_hcd]
+    [<f8be5790>] ehci_irq+0x130/0x1c0 [ehci_hcd]
+    [<c02dd3f5>] usb_hcd_irq+0x35/0x70
+    [<c010696b>] handle_IRQ_event+0x3b/0x70
+    [<c0106d3d>] do_IRQ+0xbd/0x1a0
+    [<c0104f0c>] common_interrupt+0x18/0x20
+    [<c01024cb>] cpu_idle+0x3b/0x50
+    [<f7f82000>] 0xf7f82000
+    [<f7f85fbc>] 0xf7f85fbc
+   Code: 89 50 04 89 02 c7 41 04 00 02 20 00 c7 46 38 00 01 10 00 89 
+
+
+   >>EIP; f8be21e5 <__crc_fput+c379f/60892c>   <=====
+
+   >>ecx; f719c1b8 <__crc_net_ratelimit+2e017d/4bc3a6>
+   >>edx; 00200200 <__crc_smp_call_function+b422f/4c2795>
+   >>esi; f719c180 <__crc_net_ratelimit+2e0145/4bc3a6>
+   >>edi; f77eb500 <__crc_redraw_screen+47311f/4ea33e>
+   >>ebp; f7f85ea0 <__crc_unregister_netdev+1a44b8/260378>
+   >>esp; f7f85e60 <__crc_unregister_netdev+1a4478/260378>
+
+   Trace; c010538f <show_stack+7f/a0>
+   Trace; c010553f <show_registers+15f/1c0>
+   Trace; c0105702 <die+a2/120>
+   Trace; c0115216 <do_page_fault+1f6/5ac>
+   Trace; c0105009 <error_code+2d/38>
+   Trace; f8be30b5 <__crc_fput+c466f/60892c>
+   Trace; f8be55c5 <__crc_fput+c6b7f/60892c>
+   Trace; f8be5790 <__crc_fput+c6d4a/60892c>
+   Trace; c02dd3f5 <usb_hcd_irq+35/70>
+   Trace; c010696b <handle_IRQ_event+3b/70>
+   Trace; c0106d3d <do_IRQ+bd/1a0>
+   Trace; c0104f0c <common_interrupt+18/20>
+   Trace; c01024cb <cpu_idle+3b/50>
+   Trace; f7f82000 <__crc_unregister_netdev+1a0618/260378>
+   Trace; f7f85fbc <__crc_unregister_netdev+1a45d4/260378>
+
+   Code;  f8be21e5 <__crc_fput+c379f/60892c>
+   00000000 <_EIP>:
+   Code;  f8be21e5 <__crc_fput+c379f/60892c>   <=====
+      0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+   Code;  f8be21e8 <__crc_fput+c37a2/60892c>
+      3:   89 02                     mov    %eax,(%edx)
+   Code;  f8be21ea <__crc_fput+c37a4/60892c>
+      5:   c7 41 04 00 02 20 00      movl   $0x200200,0x4(%ecx)
+   Code;  f8be21f1 <__crc_fput+c37ab/60892c>
+      c:   c7 46 38 00 01 10 00      movl   $0x100100,0x38(%esi)
+   Code;  f8be21f8 <__crc_fput+c37b2/60892c>
+     13:   89 00                     mov    %eax,(%eax)
+
+    <0>Kernel panic: Fatal exception in interrupt
+
+   1 warning and 1 error issued.  Results may not be reliable.
+
+
+-- 
+Russell Senior         ``I have nine fingers; you have ten.''
+seniorr@aracnet.com

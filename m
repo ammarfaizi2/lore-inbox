@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTIUTeO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 15:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbTIUTeO
+	id S262544AbTIUTlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 15:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTIUTlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 15:34:14 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:28835 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262543AbTIUTeN (ORCPT
+	Sun, 21 Sep 2003 15:41:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3494 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262544AbTIUTlX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 15:34:13 -0400
-Date: Sun, 21 Sep 2003 21:34:00 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Broken synaptics mouse..
-Message-ID: <20030921193400.GA22743@ucw.cz>
-References: <Pine.LNX.4.44.0309110744030.28410-100000@home.osdl.org> <Pine.LNX.4.44.0309190129170.32637-100000@telia.com> <20030919114806.GD784@ucw.cz> <m2fziqukhi.fsf@p4.localdomain> <20030921172758.GA21014@ucw.cz> <m2u176rldl.fsf@p4.localdomain>
+	Sun, 21 Sep 2003 15:41:23 -0400
+Date: Sun, 21 Sep 2003 12:40:38 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, zwane@linuxpower.ca,
+       axboe@suse.de, arvidjaar@mail.ru, stoffel@lucent.com, barryn@pobox.com,
+       torvalds@osdl.org
+Subject: Re: [PATCH] floppy I/O error handling => Oops
+Message-Id: <20030921124038.33e44375.rddunlap@osdl.org>
+In-Reply-To: <20030921113930.4ce1f0a1.rddunlap@osdl.org>
+References: <20030921113930.4ce1f0a1.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2u176rldl.fsf@p4.localdomain>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 21, 2003 at 09:29:10PM +0200, Peter Osterlund wrote:
+On Sun, 21 Sep 2003 11:39:30 -0700 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-> OK, below is a new patch that splits the W value as has been suggested
-> before. The synaptics driver now reports BTN_TOOL_FINGER,
-> BTN_TOOL_DOUBLETAP and BTN_TOOL_TRIPLETAP for one, two and three
-> fingers respectively, and it reports ABS_TOOL_WIDTH for the finger
-> width value. These event types are also used by mousedev.c to decide
-> if it is dealing with a touchpad.
->
-> It should also gets the direction of the Y axis right.
+| 
+| bad_flp_intr() in floppy.c can cause an Oops if the I/O request is
+| freed but <errors> still points into the I/O request block.
+| 
+| bad_flp_intr() oopsen reports:
+| 
+| Andrey: http://marc.theaimsgroup.com/?l=linux-kernel&m=105837886921297&w=2
+| John:   http://marc.theaimsgroup.com/?l=linux-kernel&m=106303650007125&w=2
+| Barry:  http://bugme.osdl.org/show_bug.cgi?id=1033
 
-At first glance, patch looks OK.
+Here's an alternate patch.  Is it preferable?
+Still works for me.
 
-> One thing that it doesn't get right is the handling of invalid ABS_*
-> values. How is this supposed to be handled? The driver doesn't know
-> the exact limits for the X/Y values, and discarding values outside
-> some guessed limits will only have the effect that some parts of the
-> touchpad area becomes dead.
+--
+~Randy
 
-I think something like 'if the finger is lifted so much above surface
-that X and Y are unreliable, don't report X and Y'. Is that doable?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+patch_name:	flopio2_errors.patch
+patch_version:	2003-09-21.12:26:38
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	don't use <errors> pointer after calling cont->done();
+		the request block can become invalid;
+product:	Linux
+product_versions: 2.6.0-test5
+diffstat:	=
+ drivers/block/floppy.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+
+diff -Naur ./drivers/block/floppy.c~flopio ./drivers/block/floppy.c
+--- ./drivers/block/floppy.c~flopio	2003-09-08 12:49:53.000000000 -0700
++++ ./drivers/block/floppy.c	2003-09-21 12:25:01.000000000 -0700
+@@ -2152,18 +2152,20 @@
+ 
+ static void bad_flp_intr(void)
+ {
++	int errcount;
+ 	if (probing){
+ 		DRS->probed_format++;
+ 		if (!next_valid_format())
+ 			return;
+ 	}
+ 	(*errors)++;
++	errcount = *errors;
+ 	INFBOUND(DRWE->badness, *errors);
+-	if (*errors > DP->max_errors.abort)
++	if (errcount > DP->max_errors.abort)
+ 		cont->done(0);
+-	if (*errors > DP->max_errors.reset)
++	if (errcount > DP->max_errors.reset)
+ 		FDCS->reset = 1;
+-	else if (*errors > DP->max_errors.recal)
++	else if (errcount > DP->max_errors.recal)
+ 		DRS->track = NEED_2_RECAL;
+ }
+ 

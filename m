@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281118AbRKGXtn>; Wed, 7 Nov 2001 18:49:43 -0500
+	id <S281129AbRKGXyD>; Wed, 7 Nov 2001 18:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281129AbRKGXte>; Wed, 7 Nov 2001 18:49:34 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:7924
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281118AbRKGXtU>; Wed, 7 Nov 2001 18:49:20 -0500
-Date: Wed, 7 Nov 2001 15:49:13 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Re: ext3 vs resiserfs vs xfs
-Message-ID: <20011107154913.B560@mikef-linux.matchmail.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>, <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au> <20011107145229.A560@mikef-linux.matchmail.com> <20011107153805.B27157@thune.mrc-home.com>
-Mime-Version: 1.0
+	id <S281142AbRKGXxn>; Wed, 7 Nov 2001 18:53:43 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:45830 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S281129AbRKGXxl>;
+	Wed, 7 Nov 2001 18:53:41 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111072353.fA7Nrd271036@saturn.cs.uml.edu>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+To: r.post@sara.nl (Remco Post)
+Date: Wed, 7 Nov 2001 18:53:39 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mail List)
+In-Reply-To: <200111071235.NAA24809@zhadum.sara.nl> from "Remco Post" at Nov 07, 2001 01:35:14 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011107153805.B27157@thune.mrc-home.com>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 03:38:05PM -0800, Mike Castle wrote:
-> On Wed, Nov 07, 2001 at 02:52:29PM -0800, Mike Fedyk wrote:
-> > On Wed, Nov 07, 2001 at 02:00:53PM -0800, Andrew Morton wrote:
-> > > Try  adding `rootflags=data=journal' to your kernel boot
-> > > commandline.
-> > 
-> > adding that line to an ext2 only kernel will make it kernel panic when it
-> > tries to mount root because it doesn't understand the option!
-> 
-> 
-> So set that option only for ext3 enabled kernels.  If you're using lilo,
-> instead of using a global append= setting, use a local one for that ext3
-> kernel, and leave it off for the ext2-only kernel.
-> 
+Remco Post writes:
 
-Yep, I know how to work around the problem.
+> the nice thing about text interface as opposed to a struct is that
+> the userland can parse a "CPU_FAMILY=6" as good as 0x6, but if you
+> decide to change the format of the /proc entry, with a binary
+> interface, this means you MUST update the userland as well, while
+> with a text interface and some trivial error processing, adding a
+> field would in the worst case mean that the userland app will not
+> profit from the new info, but it will NOT BREAK.
 
-The question is: why do I *need* to have to do that???
+Add something to /proc/*/status between SigIgn and SigCgt.
+Stuff breaks because apps that use SigCgt must simply assume
+that it comes after SigIgn due to somebody changing the
+way SigCgt gets spelled. (it was SigCat maybe)
 
-One of the features of ext3 is the backwards compatibility with ext2, but if
-you choose to take advantage of ext3 (non default journal mode) to its full
-capabilities, ext2 borks on those settings.
+I'd expect many apps to have stack overflows if you add stuff.
+Sure, you could say that's bad user code, but it happens.
 
-With careful consideration, this problem can be avoided with everything the
-way it is now, but it is a bit of a hassle...
+For a binary format, you DO NOT need to update user apps any
+more than you would for text. I don't see why people think
+this is so hard. Let's design a /proc/*/foo file.
 
-Though, with non ext3 you wouldn't even have the possibility of mounting the
-FS without the correct FS driver loaded...
+#define FOO_PID 0
+#define FOO_PPID 1
+#define FOO_PGID 2
+#define FOO_SIG_IGN 3
+#define FOO_FILENAME 4
+#define FOO_STATE 5
+#define FOO_VM_LOCKED 6
 
-I think the easiest way to avoid this problem would be a compile time option
-to set the default journal mode.  But, that would add another question the ext3
-developers would have to ask... "what is your default journal mode"... But
-they probably already have to ask that since it's settable from kernel
-command line, and /etc/fstab...
+__u64 foo[7];
 
-Mike
+Now you want to expand things. Fine. If anything goes from 16 bits
+to 32 bits, well, we already have padding for it. Suppose Linus
+finally sees the light about signals, adding an extra 64. In that
+case, we just add FOO_SIG_IGN_HIGH for the top bits and increase
+the array size by one. Old apps don't read that and don't care.
+The same goes for FOO_FILENAME, with old apps getting truncation
+at 8 bytes and new apps getting truncation at 16 bytes. Now maybe
+we decide that FOO_STATE is obsolete -- we all have hyperthreaded
+processors that handle thousands of threads and nothing ever blocks.
+No problem, just have the kernel supply a dummy value to keep the
+old apps happy.

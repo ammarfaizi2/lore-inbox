@@ -1,39 +1,32 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154249-7494>; Fri, 23 Apr 1999 09:46:42 -0400
-Received: by vger.rutgers.edu id <154307-7494>; Fri, 23 Apr 1999 09:41:23 -0400
-Received: from dukat.scot.redhat.com ([195.89.149.246]:1740 "EHLO dukat.scot.redhat.com" ident: "sct") by vger.rutgers.edu with ESMTP id <154438-7495>; Fri, 23 Apr 1999 09:40:55 -0400
-From: "Stephen C. Tweedie" <sct@redhat.com>
+Received: by vger.rutgers.edu via listexpand id <154358-14823>; Sat, 24 Apr 1999 08:32:07 -0400
+Received: by vger.rutgers.edu id <154356-14821>; Sat, 24 Apr 1999 08:31:45 -0400
+Received: from 7dyn197.delft.casema.net ([195.96.122.197]:63001 "EHLO spaans-smp.ds9a.tudelft.nl" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <154350-14823>; Sat, 24 Apr 1999 08:30:51 -0400
+Date: Sat, 24 Apr 1999 15:01:29 +0200 (CEST)
+From: "C. Jasper Spaans" <spaans@vvtp.tn.tudelft.nl>
+To: linux-kernel@vger.rutgers.edu
+Subject: announce: virtual machines 
+Message-ID: <Pine.LNX.4.04.9904241459070.1663-100000@spaans-smp.ds9a.tudelft.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14112.32613.256851.905853@dukat.scot.redhat.com>
-Date: Fri, 23 Apr 1999 15:10:45 +0100 (BST)
-To: Illuminatus Primus <vermont@gate.net>
-Cc: linux-kernel@vger.rutgers.edu, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Large File Support (>2Gig)
-In-Reply-To: <19990420171808.M2652@oto.valueweb.net>
-References: <19990420171808.M2652@oto.valueweb.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi,
+I've started a new project, "virtual machines", with which it should be
+possible to do some funky things. I don't know if this is the 'on the lines
+of IBM/VM'-thing, but it seems to be very nice to have in the kernel, once
+completed.
 
-On Tue, 20 Apr 1999 17:18:09 -0400, Illuminatus Primus
-<vermont@gate.net> said:
+It's very preliminary, but everyone interested should come and take a look
+at http://www.lr.tudelft.nl/~lr788024/vmach/
 
-> I was looking to patch Linux to support > 2 Gig files, however Matti
-> Aarnio's patch that was on mea.tmt.tele.fi is currently unavailable.
+VrGr,
+-- 
+  __ ___ __  C. Jasper Spaans             <jasper@ds9a.cx>   -o)
+ /     //__                                                  /\\
+/__ __/ __/  Donkerstraat 9-A  2611 TE  DELFT  015-2133685  _\_v 
+                                                  join the penguin force!
+ 12:59pm  up  8102 days,  4:46,  1 user,  load average: 0.00, 0.00, 0.00
 
-I'm told it is currently being reconstructed for later kernels.
-
-> Does anyone have a copy of this patch?  
-
-I've put the last copy I saw up for ftp at
-
-	ftp://ftp.uk.linux.org/pub/linux/sct/fs/lfs64/
-
-for now.
-
---Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

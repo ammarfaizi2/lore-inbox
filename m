@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbVCQBWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVCQB0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbVCQBWd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 20:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbVCQBWd
+	id S262934AbVCQB0O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 20:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVCQB0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 20:22:33 -0500
-Received: from v-1635.easyco.net ([69.26.169.185]:17668 "EHLO
-	mail.intworks.biz") by vger.kernel.org with ESMTP id S262918AbVCQBQg
+	Wed, 16 Mar 2005 20:26:14 -0500
+Received: from v-1635.easyco.net ([69.26.169.185]:18692 "EHLO
+	mail.intworks.biz") by vger.kernel.org with ESMTP id S262934AbVCQBYF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 20:16:36 -0500
-Date: Wed, 16 Mar 2005 17:16:25 -0800
+	Wed, 16 Mar 2005 20:24:05 -0500
+Date: Wed, 16 Mar 2005 17:24:02 -0800
 From: jayalk@intworks.biz
-Message-Id: <200503170116.j2H1GPVr024354@intworks.biz>
+Message-Id: <200503170124.j2H1O2Ar024405@intworks.biz>
 To: gregkh@suse.de
 Subject: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
 Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
@@ -19,6 +19,10 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Greg, PCI folk,
+
+I updated this to change pirq_table_addr to a long, and to add a warning
+msg if the PIRQ table wasn't found at the specified address, as per thread
+with Matthew Wilcox. Let me know if it's okay. Thanks.
 
 In our hardware situation, the BIOS is unable to store or generate it's PIRQ
 table in the F0000h-100000h standard range. This patch adds a pci kernel
@@ -32,12 +36,12 @@ Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
 
 diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
 --- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-10 16:56:09.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-11 20:35:41.000000000 +0800
 @@ -25,6 +25,7 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
  
  int pci_routeirq;
  int pcibios_last_bus = -1;
-+unsigned int pirq_table_addr = 0;
++unsigned long pirq_table_addr = 0;
  struct pci_bus *pci_root_bus = NULL;
  struct pci_raw_ops *raw_pci_ops;
  
@@ -53,7 +57,7 @@ diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.1
  #ifdef CONFIG_PCI_DIRECT
 diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
 --- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-10 20:43:02.479487640 +0800
++++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-11 20:40:28.000000000 +0800
 @@ -58,6 +58,35 @@ struct irq_router_handler {
  int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
  
@@ -90,7 +94,7 @@ diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2
   *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
   */
  
-@@ -65,21 +94,16 @@ static struct irq_routing_table * __init
+@@ -65,21 +94,17 @@ static struct irq_routing_table * __init
  {
  	u8 *addr;
  	struct irq_routing_table *rt;
@@ -102,6 +106,7 @@ diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2
 +		if (rt) {
 +			return rt;
 +		}
++		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
 +	}
  	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
 -		rt = (struct irq_routing_table *) addr;
@@ -122,12 +127,12 @@ diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2
  	}
 diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
 --- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-10 16:52:09.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-11 20:35:55.000000000 +0800
 @@ -27,6 +27,7 @@
  #define PCI_ASSIGN_ALL_BUSSES	0x4000
  
  extern unsigned int pci_probe;
-+extern unsigned int pirq_table_addr;
++extern unsigned long pirq_table_addr;
  
  /* pci-i386.c */
  

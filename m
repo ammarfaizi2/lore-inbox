@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277337AbRJEJgY>; Fri, 5 Oct 2001 05:36:24 -0400
+	id <S277338AbRJEKUt>; Fri, 5 Oct 2001 06:20:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277338AbRJEJgN>; Fri, 5 Oct 2001 05:36:13 -0400
-Received: from my.nada.kth.se ([130.237.226.101]:40868 "EHLO my.nada.kth.se")
-	by vger.kernel.org with ESMTP id <S277337AbRJEJgC>;
-	Fri, 5 Oct 2001 05:36:02 -0400
-Date: Fri, 5 Oct 2001 11:36:28 +0200 (MET DST)
-Message-Id: <200110050936.LAA14156@my.nada.kth.se>
-From: "=?ISO-8859-1?Q?Mattias Engdeg=E5rd?=" <f91-men@nada.kth.se>
-To: pmenage@ensim.com
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <E15pFHM-0002H1-00@pmenage-dt.ensim.com> (message from Paul
-	Menage on Thu, 04 Oct 2001 13:39:36 -0700)
-Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <E15pFHM-0002H1-00@pmenage-dt.ensim.com>
+	id <S277339AbRJEKUj>; Fri, 5 Oct 2001 06:20:39 -0400
+Received: from fes2.whowhere.com ([209.185.123.102]:2610 "HELO mailcity.com")
+	by vger.kernel.org with SMTP id <S277338AbRJEKU3>;
+	Fri, 5 Oct 2001 06:20:29 -0400
+To: linux-kernel@vger.kernel.org
+Date: Fri, 05 Oct 2001 03:20:37 -0700
+From: "amit yajurvedi" <amit_ry@lycos.com>
+Message-ID: <DHDKADHBONOGEBAA@mailcity.com>
+Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: amit_ry@lycos.com
+X-Mailer: MailCity Service
+Subject: VIA chipset
+X-Sender-Ip: 203.197.185.70
+Organization: Lycos Mail  (http://mail.lycos.com:80)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage <pmenage@ensim.com> wrote:
->Except that this enhancement is not completely safe, as if you get more
->than 1024 children reaped (assuming you send two bytes of pid and two
->bytes of status) between checks of the pipe, you'll lose notifications.
+Hello,
+   I bought a new VIA Apollo Pro Plus mother board. I have Mandrake Linux 8.0(2.4.3) installed. Whenever I start X(KDE,GNOME,Bluefish) first or second click of mouse results in rebooting of the system. Please help me.
 
-Obviously, but the cases where the number of children is bounded below
-1024 are rather frequent
+Thank you,
+Amit
 
->At least if you're only using the pipe to stop select() from blocking,
->you don't care about overflowing the pipe as there's no important
->information in there anyway.
 
-sure, but then you have to put the pid/exit status somewhere else and
-do some signal blocking/unblocking. In either case, it's portable,
-which polling on /proc/pid isn't
-
+Make a difference, help support the relief efforts in the U.S.
+http://clubs.lycos.com/live/events/september11.asp

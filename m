@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266478AbSKLLVx>; Tue, 12 Nov 2002 06:21:53 -0500
+	id <S266480AbSKLLW3>; Tue, 12 Nov 2002 06:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266480AbSKLLVx>; Tue, 12 Nov 2002 06:21:53 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:23784 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S266478AbSKLLVw>; Tue, 12 Nov 2002 06:21:52 -0500
-Date: Tue, 12 Nov 2002 12:29:10 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
-In-Reply-To: <aqmait$tmb$1@forge.intermeta.de>
-Message-ID: <Pine.GSO.3.96.1021112122728.1317H-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S266487AbSKLLW3>; Tue, 12 Nov 2002 06:22:29 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:3083 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S266480AbSKLLWY>; Tue, 12 Nov 2002 06:22:24 -0500
+Message-ID: <3DD0E61D.7F24D978@aitel.hist.no>
+Date: Tue, 12 Nov 2002 12:29:33 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.47 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>, Xavier Bestel <xavier.bestel@free.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: devfs
+References: <Pine.GSO.4.21.0211120445570.29617-100000@steklov.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Nov 2002, Henning P. Schmiedehausen wrote:
-
-> > - a kernel compiled for TSC-only. This one simply will not _work_ without 
-> >   a TSC, since it is statically compiled for the TSC case. Here, "notsc"
-> >   simply cannot do anything, so it just prints a message saying that it 
-> >   doesn't work.
+Alexander Viro wrote:
 > 
-> IMHO, if you boot a "TSC-only" kernel on a machine without TSC, the correct
-> answer should be 
+> On 12 Nov 2002, Xavier Bestel wrote:
 > 
-> Panic: This kernel is compiled for TSC-only. No TSC found.
-> Machine halted.
+> > I'm wondering if a totally userspace solution could replace devs ?
+> > Something using hotplug + sysfs and creating directories/nodes as they
+> > appear on the system. This way, the policy (how do I name what) could be
+> > moved out of the kernel.
+> 
+>         Guys, may I remind you that Oct 31 had been more than a week ago?
+> Devfs *is* a race-ridden pile of crap, but we are in a goddamn feature
+> freeze, so let's get real.
+> 
+A kernel feature freeze don't apply to a pure userspace implemetation,
+so let him try.  :-)  It won't affect the current devfs code, it'll
+simply be configured out.
+/dev on tmpfs, populated by hotplug. Could be interesting to see.
 
- And that happens -- see check_config() in <asm-i386/bugs.h>.
+[...]
+>         Now, does somebody have technical comments on the proposed changes?
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Only the obvious - a cleanup is generally good and so is getting rid
+of unused parameters.
 
+Helge Hafting

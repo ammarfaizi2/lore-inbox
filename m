@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbUKKWgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbUKKWkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbUKKWgl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUKKWe5
+	id S262393AbUKKWkW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKKWhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:34:57 -0500
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:55820 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S262377AbUKKWcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 17:32:47 -0500
-Date: Thu, 11 Nov 2004 16:32:45 -0600
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: tripperda@nvidia.com
-Subject: [patch] VM accounting change
-Message-ID: <20041111223245.GA15759@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
+	Thu, 11 Nov 2004 17:37:09 -0500
+Received: from main.gmane.org ([80.91.229.2]:60291 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262401AbUKKWeq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 17:34:46 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: network interface to driver and pci slot mapping
+Date: Thu, 11 Nov 2004 23:34:41 +0100
+Message-ID: <yw1xhdnwnhfi.fsf@ford.inprovide.com>
+References: <8874763604111113281b1cf9a5@mail.gmail.com> <Pine.LNX.4.61.0411111640470.11012@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.7 
-X-OriginalArrivalTime: 11 Nov 2004 22:32:45.0869 (UTC) FILETIME=[5DB1FDD0:01C4C83E]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:1JtVyGJsC3DhdWnqAd8QwLph3z0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+linux-os <linux-os@chaos.analogic.com> writes:
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> If the eth0 device is a module, it's in /etc/modprobe.conf, previous
+> versions used /etc/modules.conf.
+> Once you have its module name you can use other resources like
+>
+> /sys/bus/pci/drivers/MODULENAME
 
-I apologize for not having more first hand info on this problem.
+On my systems, hotplug loads the modules automatically, so there is
+no mention of them anywhere.
 
-I've been told that recent changes in vm accounting in mmap have
-caused some problems with our driver during mmap.
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-the problem seems to stem from us oring vma->vm_flags w/ (VM_LOCKED 
-| VM_IO). we do this for agp and pci pages that are mapped to push
-buffers. VM_LOCKED since we don't want the pages to move and VM_IO so
-they are not dumped during a core dump.
-
-I've been told that the new vm accounting changes call
-make_pages_present() for all pages in a vma range marked VM_LOCKED and
-that this causes problems with our driver. the attached patch modifies
-this to not call make_pages_present() if VM_IO is also set.
-
-what I'm unclear on is if this is a valid fix. should
-make_pages_present work for memory ranges that are already mapped and
-locked down (via PG_reserved)? are we wrong in using (VM_IO |
-VM_LOCKED) for our pages? is this fix correct?
-
-Thanks,
-Terence
-
-
-
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.6.10-rc1-bk8-VM_IO.diff"
-
-diff -ru linux-2.6.10-rc1-bk8/mm/mmap.c linux-2.6.10-rc1-bk8-2/mm/mmap.c
---- linux-2.6.10-rc1-bk8/mm/mmap.c	2004-11-06 15:04:28.000000000 +0100
-+++ linux-2.6.10-rc1-bk8-2/mm/mmap.c	2004-11-06 15:39:47.000000000 +0100
-@@ -1011,7 +1011,8 @@
- 	__vm_stat_account(mm, vm_flags, file, len >> PAGE_SHIFT);
- 	if (vm_flags & VM_LOCKED) {
- 		mm->locked_vm += len >> PAGE_SHIFT;
--		make_pages_present(addr, addr + len);
-+		if (!(vm_flags & VM_IO))
-+			make_pages_present(addr, addr + len);
- 	}
- 	if (flags & MAP_POPULATE) {
- 		up_write(&mm->mmap_sem);
-
---qMm9M+Fa2AknHoGS--

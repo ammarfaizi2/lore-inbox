@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136059AbRDVMQq>; Sun, 22 Apr 2001 08:16:46 -0400
+	id <S136062AbRDVMSn>; Sun, 22 Apr 2001 08:18:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136061AbRDVMQd>; Sun, 22 Apr 2001 08:16:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29967 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136059AbRDVMQZ>; Sun, 22 Apr 2001 08:16:25 -0400
-Subject: Re: 2.4.3+ sound distortion
-To: marcel@mesa.nl
-Date: Sun, 22 Apr 2001 13:17:31 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        v.p.p.julien@let.rug.nl (Victor Julien), linux-kernel@vger.kernel.org
-In-Reply-To: <20010422095538.A16395@joshua.mesa.nl> from "Marcel J.E. Mol" at Apr 22, 2001 09:55:38 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S136063AbRDVMSk>; Sun, 22 Apr 2001 08:18:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34321 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S136062AbRDVMSX>;
+	Sun, 22 Apr 2001 08:18:23 -0400
+Date: Sun, 22 Apr 2001 13:18:03 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Manuel McLure <manuel@mclure.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12
+Message-ID: <20010422131803.C20807@flint.arm.linux.org.uk>
+In-Reply-To: <20010421211722.C976@ulthar.internal.mclure.org> <E14rIiE-0005h2-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rIo2-0005hi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14rIiE-0005h2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Apr 22, 2001 at 01:11:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed that X11 became teribly slow on screen updates using 2.4.3-ac11 on
-> an asus a7v133 (via686b).
-> Before that I ran an a7v (via686a): using ac6 worked
-> fine with X. X on ac9 also works fine, at least I did not notice any slowdown.
-> Unfortunately cannot test ac11 on the a7v anymore...
-> 
-> I thought ac9 does include the via workarounds.  Is there a significant
-> diff between ac9 and ac11, or between via686a and 686b to cause this?
+On Sun, Apr 22, 2001 at 01:11:31PM +0100, Alan Cox wrote:
+> This is from Linus tree. You currently need gcc 2.96 or higher to build
+> the 2.4.x kernel. 
 
-We are still playing with the VIA fixups, but this may also be VM related. I'm
-currently playing with several VM ideas, and potential fixes which might
-impact overall performance.
+Which goes back to the old argument that 2.96 is a redhat-ism and not a
+real compiler.
 
-Test 2.4.4pre6 that has the VIA fixes but does not have the VM changes
+To date, no 2.96 version of gcc works properly on ARM, and I for one don't
+have the expertise necessary to fix gcc myself.  Do you recommend that I
+stop all ARM work because of this? ;(
+
+Anyway, the work around is a trivial one that I've already posted to the
+list, including the necessary GCC version tests.  Additionally David
+Howells has posted a patch to remove the __builtin_expect stuff, so
+this is a non-issue now.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

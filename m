@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUIPBRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUIPBWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUIPBRz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 21:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUIPBPE
+	id S267401AbUIPBWb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 21:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUIPBW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 21:15:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17343 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267400AbUIOU0U (ORCPT
+	Wed, 15 Sep 2004 21:22:29 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:9183 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S267401AbUIPBVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:26:20 -0400
-Message-ID: <4148A561.5070401@redhat.com>
-Date: Wed, 15 Sep 2004 16:26:09 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-CC: Netdev <netdev@oss.sgi.com>, leonid.grossman@s2io.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The ultimate TOE design
-References: <4148991B.9050200@pobox.com> <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
-In-Reply-To: <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 21:21:05 -0400
+Date: Thu, 16 Sep 2004 03:21:04 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Robert Love <rml@novell.com>
+Cc: Tim Hockin <thockin@hockin.org>, Greg KH <greg@kroah.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+Message-ID: <20040916012104.GA21832@MAIL.13thfloor.at>
+Mail-Followup-To: Robert Love <rml@novell.com>,
+	Tim Hockin <thockin@hockin.org>, Greg KH <greg@kroah.com>,
+	Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <1095279985.23385.104.camel@betsy.boston.ximian.com> <20040915203133.GA18812@hockin.org> <1095280414.23385.108.camel@betsy.boston.ximian.com> <20040915204754.GA19625@hockin.org> <1095281358.23385.109.camel@betsy.boston.ximian.com> <20040915205643.GA19875@hockin.org> <20040915212322.GB25840@kroah.com> <1095283589.23385.117.camel@betsy.boston.ximian.com> <20040915213419.GA21899@hockin.org> <1095284320.23385.123.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095284320.23385.123.camel@betsy.boston.ximian.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
-> On Wed, 15 Sep 2004, Jeff Garzik wrote:
+On Wed, Sep 15, 2004 at 05:38:39PM -0400, Robert Love wrote:
+> On Wed, 2004-09-15 at 14:34 -0700, Tim Hockin wrote:
 > 
->> Put simply, the "ultimate TOE card" would be a card with network 
->> ports, a generic CPU (arm, mips, whatever.), some RAM, and some 
->> flash.  This card's "firmware" is the Linux kernel, configured to run 
->> as a _totally indepenent network node_, with IP address(es) all its own.
->>
->> Then, your host system OS will communicate with the Linux kernel 
->> running on the card across the PCI bus, using IP packets (64K fixed MTU).
+> > It's a can of worms, is what it is.  And I'm not sure what a good fix
+> > would be.  Would it just be enough to send a generic "mount-table changed"
+> > event, and let userspace figure out the rest?
 > 
-> 
->> My dream is that some vendor will come along and implement such a 
->> design, and sell it in enough volume that it's US$100 or less. There 
->> are a few cards on the market already where implementing this design 
->> _may_ be possible, but they are all fairly expensive.
-> 
-> 
-> The intel IXP's are like the above, XScale+extra-bits host-on-a-PCI card 
-> running Linux. Or is that what you were referring to with "<cards exist> 
-> but they are all fairly expensive."?
-> 
->>     Jeff
-> 
-> 
-> regards,
+> "Can of worms" is a tough description for something that there is no
+> practical security issue for, just a lot of hand waving.  No one even
+> uses name spaces.
 
-IBM's PowerNP chip was also very simmilar (a powerpc core with lots of 
-hardware assists for DMA and packet inspection in the extended register 
-area).  Don't know if they still sell it, but at one time I had heard 
-they had booted linux on it.
-Neil
+ah, sorry, that is wrong, we (linux-vserver)
+_do_ use namespaces extensively, and probably 
+other 'jail' solutions will use it too ...
 
--- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+best,
+Herbert
+
+> Anyhow, I already said that we could send out a generic kobject instead
+> of the one tied to the specific device.
+> 
+> > Or really, why is the kernel broadcasting a mount, which originated in
+> > userland.  Couldn't mount (or a mount wrapper) do that?  It's already
+> > running in the right namespace...
+> 
+> In practice stuff like that never works.  Besides, it is not mount(1)
+> that we want to wrap but the mount(2) system call.  And, uh, I'd rather
+> stab myself than try to get that patch by Uli.
+> 
+> 	Robert Love
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291927AbSBTPgK>; Wed, 20 Feb 2002 10:36:10 -0500
+	id <S291942AbSBTPlK>; Wed, 20 Feb 2002 10:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291930AbSBTPgA>; Wed, 20 Feb 2002 10:36:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50444 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S291927AbSBTPfw>; Wed, 20 Feb 2002 10:35:52 -0500
-Date: Wed, 20 Feb 2002 10:34:36 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: secure erasure of files?
-In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.3.96.1020220103146.23280B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291935AbSBTPkv>; Wed, 20 Feb 2002 10:40:51 -0500
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:39563 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id <S291934AbSBTPkn>; Wed, 20 Feb 2002 10:40:43 -0500
+Date: Wed, 20 Feb 2002 16:40:31 +0100
+From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Message-ID: <20020220154031.GU13774@os.inf.tu-dresden.de>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de> <E16dYbm-0003pu-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E16dYbm-0003pu-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Roy Sigurd Karlsbakk wrote:
+On Wed Feb 20, 2002 at 15:24:38 +0000, Alan Cox wrote:
+> > trying to boot a 2.4.18-rc1, 2.4.18-rc2-ac1 or 2.5.5pre1 on a dual P3
+> > with a VIA chipset hangs (randomly) at the "=====" signs, sometimes the
+> > screen is flickering:
+> Does 2.4.18pre8 work ? There is a small MP 1.4 change I tested and fed on
+> to Marcelo and it would be nice to know that wasnt the cause
 
-> Does anyone know if it'll be hard to enable a <em>secure</em> deletion of
-> files? What I mean is not merely overwriting it with NULLs, but rather
-> using a more sophisticated overwrite, like the IBAS ExpertEraser software
-> (http://www.ibas.com/erasure/)
-> 
-> Is this hard/possible/doable?
+No, same symptoms, hangs on several places and screen flickers
+sometimes.
 
-If you want to prevent casual reads with user tools which don't physically
-destroy the hardware, a single overwrite is probablt fine. If you think
-someone would want the info enough to take the drive apart, encrypt
-everything including swap and tmp, using DES3 or similar extremely hard
-code.
 
-You have to know your exposure, who will try to recover the data and how
-hard they will try.
 
+Adam
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Adam                 adam@os.inf.tu-dresden.de
+  Lackorzynski         http://a.home.dhs.org

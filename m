@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314034AbSDVCne>; Sun, 21 Apr 2002 22:43:34 -0400
+	id <S314035AbSDVCpN>; Sun, 21 Apr 2002 22:45:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314035AbSDVCnd>; Sun, 21 Apr 2002 22:43:33 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:12812 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S314034AbSDVCnc>;
-	Sun, 21 Apr 2002 22:43:32 -0400
-Date: Sun, 21 Apr 2002 18:41:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Kris Karas <ktk@enterprise.bidmc.harvard.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S314037AbSDVCpM>; Sun, 21 Apr 2002 22:45:12 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:39908 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S314035AbSDVCpL>; Sun, 21 Apr 2002 22:45:11 -0400
+Date: Sun, 21 Apr 2002 19:43:10 -0700
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: 2.4.19pre2++ USB EHCI-HCD -> auto-reboot
-Message-ID: <20020422014144.GA30434@kroah.com>
-In-Reply-To: <200204212348.g3LNmoG10576@enterprise.bidmc.harvard.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 24 Mar 2002 23:31:20 -0800
+To: Kris Karas <ktk@enterprise.bidmc.harvard.edu>
+Cc: linux-usb-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Message-id: <109b01c1e9a7$71ada460$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 07:49:52PM -0400, Kris Karas wrote:
-> Hello Greg, et al,
-> 
-> I need some tips on how to debug (or help others debug) a problem I am seeing 
-> with the EHCI-HCD driver introduced in 2.4.19-pre2.
+> I need some tips on how to debug (or help others debug) a problem
+> I am seeing with the EHCI-HCD driver introduced in 2.4.19-pre2.
 
-First thing would be to try 2.4.19-pre7.
-But this does look like a VIA controller, and I think David just sent me
-a patch to help fix some problems with this device, so you might be
-better off trying this patch against 2.4.19-pre7:
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-ehci-2.4.19-pre7.patch
+Hmm ... that "auto-reboot" has to stop before you can get
+much of anywhere!  I've not seen that kind of failure since
+ehci-hcd was first starting to enumerate devices.
 
-If that patch doesn't help you out, please let me (and the
-linux-usb-devel mailing list) know.
+I'd hope that running against 2.5.8 (which has a somewhat
+more current EHCI driver in any case), with lots of kernel
+debugging features (notably slab debugging, which also
+poisons the pci_pool memory used by the USB HCDs),
+would give you a more friendly failure mode.  Basically
+the same stuff exists on 2.4.19-pre, but you will need
+to tweak the PCIPOOL_DEBUG stuff in drivers/pci/pci.c
+to make the extra poisoning happen.  KDB can help too.
 
-thanks,
+Once a few more tidbits of info become available, I can
+help figure out what's up.  (To be honest, it's been quite a
+while since anyone has reported anything but success with
+ehci-hcd.  Some variety is perversely refreshing ... :)
 
-greg k-h
+- Dave
+
+
+

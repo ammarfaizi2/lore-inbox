@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287632AbSBGMg5>; Thu, 7 Feb 2002 07:36:57 -0500
+	id <S289321AbSBGMk1>; Thu, 7 Feb 2002 07:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287676AbSBGMgs>; Thu, 7 Feb 2002 07:36:48 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:46465 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S287632AbSBGMgc>;
-	Thu, 7 Feb 2002 07:36:32 -0500
-Date: Thu, 7 Feb 2002 13:36:30 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200202071236.NAA23606@harpo.it.uu.se>
-To: viro@math.psu.edu
-Subject: [PATCH] 2.5.4-pre2 PROC_I() compile warnings
+	id <S287710AbSBGMkR>; Thu, 7 Feb 2002 07:40:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:42759 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287681AbSBGMkB>;
+	Thu, 7 Feb 2002 07:40:01 -0500
+Date: Thu, 7 Feb 2002 13:39:33 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make ide-dma compile in 2.5.4-pre2, woops
+Message-ID: <20020207133933.K731@suse.de>
+In-Reply-To: <200202071235.NAA23592@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200202071235.NAA23592@harpo.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new PROC_I() and PDE() access functions for /proc
-inodes need to have their formal parameters declared "const",
-to avoid some compile warnings (in drivers/pci/ and possibly
-elsewhere).
+On Thu, Feb 07 2002, Mikael Pettersson wrote:
+> On Thu, 7 Feb 2002 09:45:12 +0100, Jens Axboe wrote:
+> >A minor slip up on my behalf broke ide-dma compile in 2.5.4-pre2 due to
+> >the scatterlist ->address removal. This patch should make it work again,
+> 
+> ide-dma, ide-scsi, and sg compile and work fine for me in 2.5.4-pre2.
+> It seems the ->address removal is only in your tree, not Linus'.
 
-/Mikael
+It's quite possible that there is some patch confusion atm, I haven't
+even read the 'regular' patch yet. Or maybe it just didn't make
+2.5.4-pre2 tag, it seems to be in there.
 
---- linux-2.5.4-pre2/include/linux/proc_fs.h.~1~	Thu Feb  7 12:51:22 2002
-+++ linux-2.5.4-pre2/include/linux/proc_fs.h	Thu Feb  7 12:53:00 2002
-@@ -217,12 +217,12 @@
- 	struct inode vfs_inode;
- };
- 
--static inline struct proc_inode *PROC_I(struct inode *inode)
-+static inline struct proc_inode *PROC_I(const struct inode *inode)
- {
- 	return list_entry(inode, struct proc_inode, vfs_inode);
- }
- 
--static inline struct proc_dir_entry *PDE(struct inode *inode)
-+static inline struct proc_dir_entry *PDE(const struct inode *inode)
- {
- 	return PROC_I(inode)->pde;
- }
+-- 
+Jens Axboe
+

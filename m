@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268663AbTGIWeV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268670AbTGIWeV
+	id S268680AbTGIWhY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbTGIWhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:34:21 -0400
-Received: from aneto.able.es ([212.97.163.22]:17580 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S268663AbTGIWeU (ORCPT
+	Wed, 9 Jul 2003 18:37:24 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:60565 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S268680AbTGIWhW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:34:20 -0400
-Date: Thu, 10 Jul 2003 00:48:56 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
+	Wed, 9 Jul 2003 18:37:22 -0400
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.22-pre4
-Message-ID: <20030709224856.GC2604@werewolf.able.es>
 References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jul 10, 2003 at 00:24:40 +0200
-X-Mailer: Balsa 2.0.11
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: Wed, 09 Jul 2003 15:51:54 -0700
+In-Reply-To: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva> (message
+ from Marcelo Tosatti on Wed, 9 Jul 2003 19:24:40 -0300 (BRT))
+Message-ID: <87k7ar2u0l.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-On 07.10, Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
 > Here goes -pre4. It contains a lot of updates and fixes.
-> 
 
-Uh ? What the h**l have you diffed ?
+patch-2.4.22-pre4.bz2 is reversed (it applies with -R). please upload
+a correct one.
 
-Ahhhh, is it reversed ???
-
-;)
+--alex--
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre2-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

@@ -1,100 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292815AbSCMI6B>; Wed, 13 Mar 2002 03:58:01 -0500
+	id <S292840AbSCMJBw>; Wed, 13 Mar 2002 04:01:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292840AbSCMI5w>; Wed, 13 Mar 2002 03:57:52 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:6569 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S292815AbSCMI5m>;
-	Wed, 13 Mar 2002 03:57:42 -0500
-Date: Wed, 13 Mar 2002 09:56:57 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Dave Jones <davej@suse.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] soft accels.
-In-Reply-To: <Pine.LNX.4.10.10203121439340.14022-100000@www.transvirtual.com>
-Message-ID: <Pine.GSO.4.21.0203130954160.17582-100000@vervain.sonytel.be>
+	id <S292847AbSCMJBl>; Wed, 13 Mar 2002 04:01:41 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47113
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292840AbSCMJBb>; Wed, 13 Mar 2002 04:01:31 -0500
+Date: Wed, 13 Mar 2002 01:00:25 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Karsten Weiss <knweiss@gmx.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <20020313080946.GC15877@suse.de>
+Message-ID: <Pine.LNX.4.10.10203130056210.18254-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Mar 2002, James Simmons wrote:
-> > > This code provides software accels to replace all the fbcon-cfb* stuff.
-> > > Gradually the fbdev drivers can be ported over to it. It is against
-> > > 2.5.5-dj3. Please apply the patch.
-> > 
-> > I'm still wondering whether it's a good idea to assume all color values (e.g.
-> > fb_fillrect.color) are palette indices. This means you cannot draw a rectangle
-> > with an arbitrary color using cfb_fillrect().
+
+Jens,
+
+Please try again because that is not the real problem.
+All you have shown is that we disagree on the method of page walking
+between BLOCK v/s IOCTL.  This is very minor and I agreed that it is
+reasonable to map the IOCTL buffer in to BH or BIO so this is a net zero
+of negative point.
+
+How about attempting to describe the differences between the atomic and
+what is violated by who and where.  I will help you later if you get
+stuck.
+
+Regards,
+
+Andre Hedrick
+
+On Wed, 13 Mar 2002, Jens Axboe wrote:
+
+> On Tue, Mar 12 2002, Marcelo Tosatti wrote:
+> > So, Jens, could you please explain the problem in the interrupt handlers
+> > in detail ?
 > 
-> Would we ever want to do that? Also using the color map regno is to a
-> advantage for non packed pixel modes. 
->  
-> > Furthermore this means that fillrect() and imageblit() (the color image case)
-> > expect different formats: the former expects a palette index, the latter
-> > expects the native frame buffer format (cfr. your comments in the code below).
+> Ok... It affects all the pio handlers in ide-taskfile.c,
+> multi-write/read as well. The address for pio transfers is calculated
+> like so:
 > 
-> I need to change that. I want to have the image blit function use the
-> color palette. The most we will ever use is 256 colors for the penguin.
-> Do we need to expand that more?  
-
-I don't know. I'm just thinking about one day we want to do more with it in the
-kernel.
-
-> > The 17-entry (16 colors + 1 XOR mask) pseudo palette is actually something
-> > related to the console, so I would not handle it in the low level drawing
-> > routines, but in the frame buffer console layer. Of course the pseudo palette
-> > still has to be initialized by the frame buffer device, since that is the part
-> > that knows about the mapping from console palette indices to native pixel
-> > values. This also means you'll have a pseudo palette for all modes, including
-> > pseudocolor[*].
-> > 
-> > What do you think?
+> va = rq->buffer + (rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE;
 > 
-> Hm. True pseudopalette is more a console thing. One of the reasons I made
-> pseudo_palette a void was so anything type of data could be indexed to a
-> color map regno. It really should be in a par struct for each driver.
-> Personally I don't care for it and like to see it go away. Instead we
-> could generate the color value from the fb_bitfields in struct
-> fb_var_screeninfo and the red, green, blue etc from struct fb_cmap. The
-> only thing preventing me from doing this is that it cost to generate those
-> vlaues whereas we have the values already saved in pseudo_palette. The
-> penalty tho only shows up when we draw each character.     
-
-Or you can precalculate them on each mode change and fill some tables. This is
-what I do in fbtest, to make things as generic as possible, without a too high
-speed penalty.
-
-> > [*] Or set pseudo_palette to NULL, and use
-> > 
-> >       pixval = pseudo_palette ? pseudo_palette[idx] : idx;
-> >       
-> >     and
-> > 
-> >       xormask = pseudo_palette ? pseudo_palette[16] : 15;
+> which is wrong for two reasons. First of all, rq->buffer cannot be
+> indexed for the entire nr_sectors range -- it's per definition only the
+> first segment in the request, and can as such only be indexed within the
+> first current_nr_sectors number of sectors. The above can be grossly out
+> of range... Second, nr_sectors and current_nr_sectors are indexing two
+> different things -- the former indexes the entire request (all segments)
+> while the latter indexes only the first segments. So
 > 
-> When we change from truecolor mode to pseudo color wouldn't we have to
-> NULL the pseudo_palette pointer then?
-
-Yes.
-
-> > Color images are not yet implemented?
+> 	foo = rq->nr_sectors - rq->current_nr_sectors;
 > 
-> Not yet. I wanted to have font support first.  
-
-OK.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> makes no sense _at all_ and can only be wrong.
+> 
+> So why does 2.4.19-pre3 work for pio at all? For the same reason that
+> Andre never found this problem in 2.5 either: the taskfile interrupt
+> handlers are _never_ used in pio mode. In 2.5 it was by accident, and
+> when the merge happened they did indeed get used. It ate disks, very
+> quickly. Take a look at drivers/ide/ide-disk.c, line 64:
+> 
+> #ifdef CONFIG_IDE_TASKFILE_IO
+> #  undef __TASKFILE__IO /* define __TASKFILE__IO */
+> #else /* CONFIG_IDE_TASKFILE_IO */
+> #  undef __TASKFILE__IO
+> #endif /* CONFIG_IDE_TASKFILE_IO */
+> 
+> It's a mess... This really should have been fixed prior to 2.4
+> inclusion. Oh well.
+> 
+> -- 
+> Jens Axboe
+> 
 

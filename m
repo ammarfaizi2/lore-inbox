@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbQLFDKE>; Tue, 5 Dec 2000 22:10:04 -0500
+	id <S130030AbQLFDV6>; Tue, 5 Dec 2000 22:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129909AbQLFDJy>; Tue, 5 Dec 2000 22:09:54 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37134 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129908AbQLFDJt>; Tue, 5 Dec 2000 22:09:49 -0500
-Message-ID: <3A2DA6BE.B233AEF6@transmeta.com>
-Date: Tue, 05 Dec 2000 18:38:54 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130312AbQLFDVs>; Tue, 5 Dec 2000 22:21:48 -0500
+Received: from br4.qld-remote.bigpond.net.au ([24.192.64.19]:37380 "EHLO
+	br4.qld-remote.bigpond.net.au") by vger.kernel.org with ESMTP
+	id <S130030AbQLFDVf>; Tue, 5 Dec 2000 22:21:35 -0500
+Date: Wed, 6 Dec 2000 12:53:29 -0500 (EST)
+From: Dave <djdave@bigpond.net.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.0-test12-3 - swap_free / Bad swap file messages
+Message-ID: <Pine.LNX.4.30.0012061230090.1074-100000@athlon.internal>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>,
-        Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: That horrible hack from hell called A20
-In-Reply-To: <Pine.LNX.4.10.10012051738310.967-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 5 Dec 2000, Linus Torvalds wrote:
-> >
-> > Right now this is my interim patch (to clean test11). The thing to note is
-> > that I decreased the keyboard controller timeout by a factor of about 167,
-> > while making the "delay" a bit longer.
-> 
-> Oh, btw, I forgot to ask people to give this a whirl. I assume it fixes
-> the APM problems for Kai.
-> 
-> It definitely won't fix the silly Olivetti M4 issue (we still touch bit #2
-> in 0x92). We'll need to fix that by testing A20 before bothering with the
-> 0x92 stuff. Alan, that should get fixed in 2.2.x too - clearly those
-> Olivetti machines can be considered buggy, but even so..
-> 
-> Who else had trouble with the keyboard controller?
-> 
 
-Some IBM Aptiva box...
+Got this last night while running 2.4.0-test12-pre3.  Not sure what I did
+to trigger it.  X4/keyboard hung shortly afterwards.  Had to ssh in to
+reboot.
 
-	-hpa
+Dec  6 01:16:04 athlon kernel: Bad swap file entry c17a1558
+Dec  6 01:16:04 athlon last message repeated 3 times
+Dec  6 01:16:05 athlon kernel: swap_free: Trying to free nonexistent swap-page
+Dec  6 01:16:05 athlon kernel: swap_free: Trying to free nonexistent swap-page
+Dec  6 01:16:07 athlon kernel: Bad swap file entry c17a1558
+Dec  6 01:16:07 athlon kernel: Bad swap file entry c17a1558
+Dec  6 01:16:07 athlon kernel: swap_free: Trying to free nonexistent swap-page
+Dec  6 01:16:07 athlon kernel: swap_free: Trying to free nonexistent swap-page
+Dec  6 01:16:08 athlon kernel: Bad swap file entry c17a1558
+Dec  6 01:16:37 athlon last message repeated 5 times
+Dec  6 01:16:37 athlon kernel: swap_free: Trying to free nonexistent swap-page
+Dec  6 01:16:52 athlon last message repeated 5 times
+...
+Dec  6 01:16:57 athlon kernel: swap_free: Trying to free nonexistent swap-page
+Dec  6 01:16:57 athlon last message repeated 3 times
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+It may not be relevent, but the NVidia module was loaded at the time.
+
+Any ideas?  Any further info required?
+
+David.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUHII3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUHIIdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266257AbUHII3q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266256AbUHII3q
+	id S266327AbUHIIdn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUHIIdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:29:46 -0400
-Received: from holomorphy.com ([207.189.100.168]:56285 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266257AbUHII3i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:29:38 -0400
-Date: Mon, 9 Aug 2004 01:29:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040809082926.GJ11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040808152936.1ce2eab8.akpm@osdl.org> <200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 9 Aug 2004 04:33:43 -0400
+Received: from mail.math.TU-Berlin.DE ([130.149.12.212]:52943 "EHLO
+	mail.math.TU-Berlin.DE") by vger.kernel.org with ESMTP
+	id S266327AbUHIIdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 04:33:21 -0400
+From: Thomas Richter <thor@math.TU-Berlin.DE>
+Message-Id: <200408090833.KAA26816@cleopatra.math.tu-berlin.de>
+Subject: [PATCH] Generic NetMOS supp. (experimental)
+In-Reply-To: <20040806114737.GA19822@logos.cnet>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Date: Mon, 9 Aug 2004 10:33:13 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 01:20:37AM -0700, Rick Lindsley wrote:
-> Got complaints from arch/i386/mm/discontig.c:
-[...]
-> arch/i386/mm/discontig.c:430: warning: passing arg 3 of `free_area_init_node' from incompatible pointer type
-> arch/i386/mm/discontig.c:430: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
-> arch/i386/mm/discontig.c:430: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
-> arch/i386/mm/discontig.c:430: too many arguments to function `free_area_init_node'
-> Looks like I can't get by with just deleting the third argument in the
-> second case.
 
-Initializing NODE_DATA(nid)->node_mem_map prior to calling it should do.
+Hi folks,
 
-Index: mm2-2.6.8-rc3/arch/i386/mm/discontig.c
-===================================================================
---- mm2-2.6.8-rc3.orig/arch/i386/mm/discontig.c	2004-08-08 15:39:24.000000000 -0700
-+++ mm2-2.6.8-rc3/arch/i386/mm/discontig.c	2004-08-09 01:17:17.815702160 -0700
-@@ -425,8 +425,8 @@
- 			lmem_map = (unsigned long)node_remap_start_vaddr[nid];
- 			lmem_map += sizeof(pg_data_t) + PAGE_SIZE - 1;
- 			lmem_map &= PAGE_MASK;
--			free_area_init_node(nid, NODE_DATA(nid), 
--				(struct page *)lmem_map, zones_size, 
-+			NODE_DATA(nid)->node_mem_map = (struct page *)lmem_map;
-+			free_area_init_node(nid, NODE_DATA(nid), zones_size, 
- 				start, zholes_size);
- 		}
- 	}
+here's another patch for NetMOS based parallel port adapters. It applies to
+drivers/parport/parport_pc.c of kernel 2.6.7, but since the parport_pc
+interface did not change much in this specific part, it should also apply
+to kernel 2.4.26 and all versions between. The earlier NetMOS patch for
+their 9805 chipset must be applied before.
+
+It adds support for all the NetMOS chips I could get hands
+on. However, note that this is *fairly* experimental as I don't have
+the hardware with this chips on, only the documentation - so some
+testing is required, and this is an EXPERIMENTAL patch.
+
+Specifically, I left parts of the PCI identification open (hopefully
+correctly by specifying PCI_ANY_ID), so please test.
+
+--- parport_pc.c.old	Sun Aug  8 17:50:16 2004
++++ parport_pc.c	Sun Aug  8 17:56:16 2004
+@@ -2627,6 +2627,11 @@
+ 	titan_010l,
+ 	titan_1284p1,
+ 	titan_1284p2,
++	netmos_9705,  /* thor: a couple of experimental netmos drivers follow... */
++	netmos_9735,
++	netmos_9715,
++	netmos_9835,
++	netmos_9755,  /* thor: netmos modifications end */
+ 	avlab_1p,
+ 	avlab_2p,
+ 	oxsemi_954,
+@@ -2695,6 +2700,13 @@
+ 	/* titan_010l */		{ 1, { { 3, -1 }, } },
+ 	/* titan_1284p1 */              { 1, { { 0, 1 }, } },
+ 	/* titan_1284p2 */		{ 2, { { 0, 1 }, { 2, 3 }, } },
++	/* thor: untested experimental netmos cards follow */
++	/* netmos 9705  */              { 1, { { 0, 1 }, } },
++	/* netmos 9735  */              { 1, { { 2, 3 }, } },
++	/* netmos 9715  */              { 2, { { 0, 1}, { 2, 3 },} },
++	/* netmos 9835  */              { 1, { { 2, 3 }, } },
++	/* netmos 9755  */              { 2, { { 0, 1}, { 2, 3 },} },
++	/* thor: netmos addons end */
+ 	/* avlab_1p		*/	{ 1, { { 0, 1}, } },
+ 	/* avlab_2p		*/	{ 2, { { 0, 1}, { 2, 3 },} },
+ 	/* The Oxford Semi cards are unusual: 954 doesn't support ECP,
+@@ -2763,6 +2775,13 @@
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, titan_010l },
+ 	{ 0x9710, 0x9805, 0x1000, 0x0010, 0, 0, titan_1284p1 },
+ 	{ 0x9710, 0x9815, 0x1000, 0x0020, 0, 0, titan_1284p2 },
++	/* thor: Untested, experimental netmos based cards follow */
++	{ 0x9710, 0x9705, PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9705 },
++	{ 0x9710, 0x9735, PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9735 },
++	{ 0x9710, 0x9715, PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9715 },
++	{ 0x9710, 0x9835, PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9835 },
++	{ 0x9710, 0x9755, PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9755 },
++	/* thor: netmos support end */
+ 	/* PCI_VENDOR_ID_AVLAB/Intek21 has another bunch of cards ...*/
+ 	{ 0x14db, 0x2120, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_1p}, /* AFAVLAB_TK9902 */
+ 	{ 0x14db, 0x2121, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2p},
+
+
+So long,
+	Thomas
+

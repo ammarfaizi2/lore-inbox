@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129305AbRAYVDi>; Thu, 25 Jan 2001 16:03:38 -0500
+	id <S129334AbRAYVFS>; Thu, 25 Jan 2001 16:05:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129334AbRAYVD2>; Thu, 25 Jan 2001 16:03:28 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:33930 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129305AbRAYVDV>;
-	Thu, 25 Jan 2001 16:03:21 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S135236AbRAYVFI>; Thu, 25 Jan 2001 16:05:08 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:23317 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S129334AbRAYVEx>; Thu, 25 Jan 2001 16:04:53 -0500
+Message-ID: <3A70957F.649C6A49@ngforever.de>
+Date: Thu, 25 Jan 2001 14:07:11 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
+X-Accept-Language: de,en-US
 MIME-Version: 1.0
+To: Daniel Phillips <phillips@innominate.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: named streams, extended attributes, and posix
+In-Reply-To: <Pine.LNX.4.30.0101182129050.1089-100000@nvws005.nv.london> <004701c081ef$e32dcb90$8501a8c0@gromit> <3A708F8F.17426D2@innominate.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14960.37982.739742.487042@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 13:02:22 -0800 (PST)
-To: Alexandre Hautequest <hquest@fesppr.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: non-random IP IDs
-In-Reply-To: <980451650.3a7081428753c@webmail.fesppr.br>
-In-Reply-To: <980451650.3a7081428753c@webmail.fesppr.br>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> Michael Rothwell wrote:
+> > Unfortunately, unix allows everything but "/" in filenames. This was
+> > probably a mistake, as it makes it nearly impossible to augment the
+> > namespace, but it is the reality.
+> 
+> For some reason totally beyond my comprehension // inside a file name is
+> taken to be the same as /, but if it wasn't it could be the stream
+> separator.  *sigh*
+It seems that you mix up forward and backward slashes. a // means //,
+but a \\ means a single \. So if you want a double backslash, you have
+to write \\\\. Thus, removing double backslashes from NETBIOS names via
+perl is: $name =~ s/\\\\//;
+So what...?
 
-Alexandre Hautequest writes:
- > I was playing a bit on some of my machines with Nessus (www.nessus.org), and it
- > told me the following text:
- > 
-
-Nessus is saying something bogus to you.
-
- > Is there some option to dinamically enable this random IP ID's, or I need to 
- > change something and recompile, or just "No way!"?
-
-Ip IDs only matter when packets can be fragmented.  If the packet
-cannot be fragmented, the Ip ID field serves no purpose.  Whatever the
-nessus thing did to test this, it used a IP packet to/from the linux
-box which had the "Don't Fragment" bit set in the IP header, which as
-a consequence means the ID field is meaningless.
-
-If the "don't fragment" bit were not set, and fragmentation was
-possible, Linux will use a randomized ID field.  The nessus folks
-need to fix their test.
-
-Later,
-David S. Miller
-davem@redhat.com
-
+Cheers!
+Thunder
+---
+I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard god...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268850AbUHLWtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268857AbUHLWxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268850AbUHLWtd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268864AbUHLWrO
+	id S268857AbUHLWxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUHLWxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:47:14 -0400
-Received: from mail5.tpgi.com.au ([203.12.160.101]:1159 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S268850AbUHLWqt
+	Thu, 12 Aug 2004 18:53:24 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:52472 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S268859AbUHLWv3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:46:49 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nathan Bryant <nbryant@optonline.net>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1092350198.24737.19.camel@laptop.cunninghams>
-References: <4119611D.60401@optonline.net>
-	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
-	 <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
-	 <1092314892.1755.5.camel@mulgrave> <20040812131457.GB1086@elf.ucw.cz>
-	 <1092328173.2184.15.camel@mulgrave>  <20040812191120.GA14903@elf.ucw.cz>
-	 <1092339247.1755.36.camel@mulgrave>
-	 <1092350198.24737.19.camel@laptop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1092350607.24776.24.camel@laptop.cunninghams>
+	Thu, 12 Aug 2004 18:51:29 -0400
+Date: Thu, 12 Aug 2004 15:51:18 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       James.Bottomley@SteelEye.com
+Subject: Re: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
+Message-ID: <20040812225118.GA20904@beaverton.ibm.com>
+References: <200408122137.i7CLbGU13688@ra.tuxdriver.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 13 Aug 2004 08:43:27 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408122137.i7CLbGU13688@ra.tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy again.
+We seem to be getting quite a few of these. In theory we could add a line
+like this for every multi-lun SCSI device.
 
-On Fri, 2004-08-13 at 08:36, Nigel Cunningham wrote:
-> I'm not pretending to understand the issues you're talking about, but I
-> do have a question that might possibly be helpful: Pages can be marked
-> with the Nosave flag, so that they're not saved in the image and not
-> overwritten when we copy the old kernel back. Would using Nosave help
-> here at all?
+Can you instead try booting with scsi_mod.max_luns=8 (or such) or build
+with SCSI_MULTI_LUN enabled?
 
-Having read the rest of the thread, I can see that's probably not
-helpful :>
+You can also use the scsi devinfo stuff, but the above is easier and
+should work fine, unless you have some device that hangs when IO is sent
+to a non-zero LUN.
 
-Nigel
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+The same for 2.4, but AFAIR the option name is max_scsi_luns (but there is
+no scsi devinfo imethod).
 
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
+-- Patrick Mansfield
 
+On Thu, Aug 12, 2004 at 05:37:16PM -0400, John W. Linville wrote:
+> Patch to add IOI Media Bay 4-in-1 media reader to the SCSI quirk list...
+> 
+> "It works for me!"  Pretty simple patch, really...
+> 
+> John
+> 
+> diff -urNp linux-2.6.5-1.358/drivers/scsi/scsi_devinfo.c linux/drivers/scsi/scsi_devinfo.c
+> --- linux-2.6.5-1.358/drivers/scsi/scsi_devinfo.c	2004-05-08 08:56:41.000000000 -0400
+> +++ linux/drivers/scsi/scsi_devinfo.c	2004-08-11 06:08:00.000000000 -0400
+> @@ -155,6 +155,7 @@ static struct {
+>  	{"HP", "C1557A", NULL, BLIST_FORCELUN},
+>  	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
+>  	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+> +	{"IOI", "Media Bay", NULL, BLIST_FORCELUN},
+>  	{"iomega", "jaz 1GB", "J.86", BLIST_NOTQ | BLIST_NOLUN},
+>  	{"IOMEGA", "Io20S         *F", NULL, BLIST_KEY},
+>  	{"INSITE", "Floptical   F*8I", NULL, BLIST_KEY},
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

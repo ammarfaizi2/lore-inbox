@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbTLWSz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTLWSye
+	id S262195AbTLWTCk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 14:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTLWTCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:54:34 -0500
-Received: from mail.zmailer.org ([62.78.96.67]:41356 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S262446AbTLWSwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:52:54 -0500
-Date: Tue, 23 Dec 2003 20:52:46 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Tue, 23 Dec 2003 14:02:40 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:59839 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S262195AbTLWTCh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 14:02:37 -0500
 Subject: Re: SCO's infringing files list
-Message-ID: <20031223185246.GV1343@mea-ext.zmailer.org>
-References: <Pine.LNX.4.58.0312221337010.6868@home.osdl.org> <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de> <3FE811E3.6010708@debian.org> <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch> <20031223160425.GB45620@gaz.sfgoth.com> <20031223163926.GC45620@gaz.sfgoth.com> <Pine.LNX.4.58.0312230914090.14184@home.osdl.org> <20031223124024.A30934@discworld.dyndns.org>
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
+References: <1072125736.1286.170.camel@duergar>
+	 <200312221519.04677.tcfelker@mtco.com>
+	 <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
+	 <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de>
+	 <3FE811E3.6010708@debian.org>
+	 <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
+	 <20031223160425.GB45620@gaz.sfgoth.com>
+	 <20031223174454.GD45620@gaz.sfgoth.com>
+	 <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1072206155.2947.56.camel@duergar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223124024.A30934@discworld.dyndns.org>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Dec 2003 14:02:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 12:40:24PM -0600, Charles Cazabon wrote:
-> [...]
-> > Can anybody find the actual libc _sources_? Not the kernel headers that
-> > hjl mentions (those are the old ones from _before_ the change), but the
-> > file "libc-2.2.2.tar.Z"?
-> 
-> Well, it's been recompressed with gzip, but it's here (among other places):
-> ftp://ftp.uni-kassel.de/Mirrors/prep.ai.mit.edu/pub/gnu/glibc/glibc-2.2.2.tar.gz
+On Tue, 2003-12-23 at 12:56, Linus Torvalds wrote:
 
-Nope.  That is something entirely different -- and 9 years latter..
-Nor can I find these bits in FUNET.FI's ancient archive branches.
-
-> I haven't checked the original GNU/MIT site it was apparently mirrored from,
-> but it might be there.
 > 
-> Charles
-> -- 
-> -----------------------------------------------------------------------
-> Charles Cazabon                            <linux@discworld.dyndns.org>
-> GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
+> Does anybody have old CD-ROM's lying around?
+> 
+> In particular, the Yggdrasil Linux/GNU/X alpha CD-ROM was apparently
+> released just a few months later. It would quite possibly contain the
+> libc-2.2.2 sources... Adam Richter is still active, and I added him to the
+> cc..
+> 
+> Who else was doing CD's back then? SLS? If nobody has the thing on a
+
+There are some old SLS versions lying around here:
+http://grumbeer.dyndns.org/ftp/linux/dist/SLS/
+
+and other places but they are all binary from what i can tell.  Anybody
+have any idea where a source tree for SLS might be?  I'm finding it very
+hard to track down this stuff (before my time).  Were there any distros
+that included source by default or were free that we could look to? 
+Anyone? Put on the way-back caps.
+
+-sb
+
+> web-site any more, maybe they exist in physical format on somebodys
+> bookshelf? The only reason that the really historic kernel archives still
+> exist is that people saved them, and even so we're missing versions 0.02
+> and 0.03, but by the latter half of -92 there were already CD-ROMs being 
+> manufactured...
+> 
+> Of course, maybe the CD's are unreadable by now.
+> 
+> 			Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

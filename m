@@ -1,97 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274944AbTHAB0b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 21:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274945AbTHAB0b
+	id S270647AbTHACJa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 22:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274953AbTHACJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 21:26:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37580 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274944AbTHAB03 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 21:26:29 -0400
-Date: Thu, 31 Jul 2003 18:27:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Bakos <bakhos@msi.umn.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile error for Opteron CPU with kernel 2.6.0-test2
-Message-Id: <20030731182705.5b4f2b33.akpm@osdl.org>
-In-Reply-To: <Pine.SGI.4.33.0307312008210.23301-100000@ir12.msi.umn.edu>
-References: <20030731145954.47d6247f.akpm@osdl.org>
-	<Pine.SGI.4.33.0307312008210.23301-100000@ir12.msi.umn.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 31 Jul 2003 22:09:30 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:24704 "EHLO
+	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
+	id S270647AbTHACJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 22:09:29 -0400
+Date: Fri, 1 Aug 2003 10:09:22 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Stefano Rivoir <s.rivoir@gts.it>
+Cc: Eugene Teo <eugene.teo@eugeneteo.net>,
+       Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+       ianh@iahastie.clara.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0t2 Hangs randomly
+Message-ID: <20030801020922.GA3298@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <3F27817A.8000703@gts.it> <200307302346.02989.ianh@iahastie.local.net> <3F28C124.9070004@gts.it> <20030731050104.1b61990d.vmlinuz386@yahoo.com.ar> <20030731111728.GB1591@eugeneteo.net> <3F28FFAF.80905@gts.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F28FFAF.80905@gts.it>
+X-Operating-System: Linux 2.6.0-test2-mm2-kj1
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Bakos <bakhos@msi.umn.edu> wrote:
->
-> In file included from include/linux/topology.h:35,
->                   from include/linux/mmzone.h:294,
->                   from include/linux/gfp.h:4,
->                   from include/linux/slab.h:15,
->                   from include/linux/percpu.h:4,
->                   from include/linux/sched.h:31,
->                   from arch/x86_64/kernel/asm-offsets.c:7:
->  include/asm/topology.h: In function `pcibus_to_cpumask':
->  include/asm/topology.h:24: error: invalid operands to binary &
->  make[1]: *** [arch/x86_64/kernel/asm-offsets.s] Error 1
->  make: *** [arch/x86_64/kernel/asm-offsets.s] Error 2
+<quote sender="Stefano Rivoir">
+> Eugene Teo wrote:
+> 
+> >One thing strange though.
+> 
+> [...]
+> 
+> Ok, I think I've found. It was very probably an old version of the
+> synaptics module for X4.3 (it was ...p3). With the new driver,
+> and with DRI too (along with test2-mm2 patch), it seems to be OK.
+> At least, I've seen no hangs so far.
 
-urgh, OK.  We're chasing around in circles here.  And the cpumask_t patch
-still isn't ready for merging.
+Hmm, can you explain the synaptics module? i experienced a hang again
+last night. about 5-6 hours of no activities, and i can't get my box
+back up again except with a hard reboot.
 
+Eugene
 
-This might fix it.
-
- arch/x86_64/kernel/mpparse.c  |    2 +-
- include/asm-x86_64/mpspec.h   |    2 +-
- include/asm-x86_64/topology.h |    7 +++++--
- 3 files changed, 7 insertions(+), 4 deletions(-)
-
-diff -puN include/asm-x86_64/topology.h~x86_64-cpumask_t-fix include/asm-x86_64/topology.h
---- 25/include/asm-x86_64/topology.h~x86_64-cpumask_t-fix	2003-07-31 18:20:51.000000000 -0700
-+++ 25-akpm/include/asm-x86_64/topology.h	2003-07-31 18:25:11.000000000 -0700
-@@ -19,9 +19,12 @@ extern cpumask_t cpu_online_map;
- #define node_to_cpu_mask(node)	(fake_node ? cpu_online_map : cpumask_of_cpu(node))
- #define node_to_memblk(node)		(node)
- 
--static inline unsigned long pcibus_to_cpumask(int bus)
-+static inline cpumask_t pcibus_to_cpumask(int bus)
- {
--	return mp_bus_to_cpumask[bus] & cpu_online_map;
-+	cpumask_t ret;
-+
-+	cpus_and(ret, mp_bus_to_cpumask[bus], cpu_online_map);
-+	return ret;
- }
- 
- #define NODE_BALANCE_RATE 30	/* CHECKME */ 
-diff -puN include/asm-x86_64/mpspec.h~x86_64-cpumask_t-fix include/asm-x86_64/mpspec.h
---- 25/include/asm-x86_64/mpspec.h~x86_64-cpumask_t-fix	2003-07-31 18:24:12.000000000 -0700
-+++ 25-akpm/include/asm-x86_64/mpspec.h	2003-07-31 18:24:35.000000000 -0700
-@@ -166,7 +166,7 @@ enum mp_bustype {
- };
- extern unsigned char mp_bus_id_to_type [MAX_MP_BUSSES];
- extern int mp_bus_id_to_pci_bus [MAX_MP_BUSSES];
--extern unsigned long mp_bus_to_cpumask [MAX_MP_BUSSES];
-+extern cpumask_t mp_bus_to_cpumask [MAX_MP_BUSSES];
- 
- extern unsigned int boot_cpu_physical_apicid;
- extern cpumask_t phys_cpu_present_map;
-diff -puN arch/x86_64/kernel/mpparse.c~x86_64-cpumask_t-fix arch/x86_64/kernel/mpparse.c
---- 25/arch/x86_64/kernel/mpparse.c~x86_64-cpumask_t-fix	2003-07-31 18:24:54.000000000 -0700
-+++ 25-akpm/arch/x86_64/kernel/mpparse.c	2003-07-31 18:25:45.000000000 -0700
-@@ -43,7 +43,7 @@ int acpi_found_madt;
- int apic_version [MAX_APICS];
- unsigned char mp_bus_id_to_type [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
- int mp_bus_id_to_pci_bus [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
--unsigned long mp_bus_to_cpumask [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1UL };
-+cpumask_t mp_bus_to_cpumask [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = CPU_MASK_ALL };
- 
- int mp_current_pci_id = 0;
- /* I/O APIC entries */
-
-_
-
+> 
+> Bye
+> 
+> -- 
+> Stefano RIVOIR
+> GTS Srl
+> 
+> 
+> 
+> 

@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVCISYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVCISYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVCISYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVCISYE
+	id S262160AbVCISYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVCISYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:24:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:51361 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262160AbVCISW1 (ORCPT
+	Wed, 9 Mar 2005 13:24:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:20769 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262167AbVCISXz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:22:27 -0500
-Date: Wed, 9 Mar 2005 10:24:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] keys: Discard key spinlock and use RCU for key payload
-In-Reply-To: <28092.1110391155@redhat.com>
-Message-ID: <Pine.LNX.4.58.0503091019060.2530@ppc970.osdl.org>
-References: <28092.1110391155@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Mar 2005 13:23:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=t0ogW0ArjSpdsh/Xuqu+0mMBkgFknffhudTJOc83SHta8f4jNO5MzqCEsEhHtQEe+ZtgAv70R/ycv69S9slZg4LZKjewir8J4W9X491xBKmftIUyLVV2YRcbkrc4rpiuv7sMRXrPYN/MCviFEg6yGmBRERFAKxtfkrd3XyHRUP4=
+Message-ID: <9e4733910503091023474eb377@mail.gmail.com>
+Date: Wed, 9 Mar 2005 13:23:49 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: current linus bk, error mounting root
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <422F2F7C.3010605@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339105030909031486744f@mail.gmail.com>
+	 <422F2F7C.3010605@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 9 Mar 2005, David Howells wrote:
+On Wed, 09 Mar 2005 12:16:44 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Jon Smirl wrote:
+> > Something in the last 24hrs in linus bk broke my ability to mount root:
+> >
+> > Creating root device
+> > Mounting root filesystem
+> > mount: error 6 mounting ext3
+> > mount: error 2 mounting none
+> > Switching to new root
+> > Switchroot: mount failed 22
+> > umount /initrd/dev failed: 2
+> >
+> > If I back off a day everything works again.
+> >
+> > Root is on Intel ICH5 SATA drive.
 > 
-> The attached patch changes the key implementation in a number of ways:
+> dmesg output?
 > 
->  (1) It removes the spinlock from the key structure.
+> Can you verify that -bk4 works, and -bk5 breaks?
+
+bk4 works. I don't have a serial port hooked up so there is no way to
+get dmesg, but I don't see anything obvious on the screen scrolling
+by.
+
+I'll check bk5 next.
+
+It would be much more convenient if the bkN releases were tagged in Linus bk.
+
 > 
->  (2) The key flags are now accessed using atomic bitops instead of
->      write-locking the key spinlock and using C bitwise operators.
+>         Jeff
+> 
+> 
 
-I'd suggest against using __set_bit() for the initialization. Either use
-the proper set_bit() (which is slow, but at least consistent), or just
-initialize it with (1ul << KEY_FLAG_IN_QUOTA). __set_bit is generally
-slower than setting a value (it's pretty guaranteed not to be faster, and
-at least on x86 is clearly slower), so using it as an "optimization" is
-misguided.
 
-RCU seems to fit the key model pretty well, but I still wonder whether the 
-conceptual complexity is worth it. Was this done on a whim, or was there 
-some real reason for it? I'd love for that to be documented while you're 
-at it..
-
-			Linus
+-- 
+Jon Smirl
+jonsmirl@gmail.com

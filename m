@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262144AbREPXmc>; Wed, 16 May 2001 19:42:32 -0400
+	id <S262146AbREPXom>; Wed, 16 May 2001 19:44:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262143AbREPXmW>; Wed, 16 May 2001 19:42:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37389 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262144AbREPXmM>; Wed, 16 May 2001 19:42:12 -0400
-Subject: Re: LVM 1.0 release decision
-To: Mauelshagen@sistina.com
-Date: Thu, 17 May 2001 00:38:48 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010516150312.B13039@sistina.com> from "Heinz J. Mauelshagen" at May 16, 2001 03:03:12 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262148AbREPXod>; Wed, 16 May 2001 19:44:33 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19717 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262146AbREPXoY>; Wed, 16 May 2001 19:44:24 -0400
+Message-ID: <3B0310A4.87138FB5@transmeta.com>
+Date: Wed, 16 May 2001 16:43:32 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+		<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
+		<200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
+		<3B02D6AB.E381D317@transmeta.com>
+		<200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
+		<3B02DD79.7B840A5B@transmeta.com>
+		<200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
+		<3B02F2EC.F189923@transmeta.com>
+		<20010517001155.H806@nightmaster.csn.tu-chemnitz.de>
+		<3B02FBA6.86969BDE@transmeta.com>
+		<200105162303.f4GN3n212178@vindaloo.ras.ucalgary.ca>
+		<3B030C76.40BB4558@transmeta.com>
+		<200105162337.f4GNb0j12743@vindaloo.ras.ucalgary.ca>
+		<3B030F86.EDA45D1A@transmeta.com> <200105162341.f4GNfvT12861@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150AsS-0004du-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > code and your new release _before_ you do that.
+Richard Gooch wrote:
 > 
-> The new code *can* automagically read and deal with 0.8 created VGDAs.
-> What are you refering too in detail here?
+> H. Peter Anvin writes:
+> > Richard Gooch wrote:
+> > >
+> > > Erm, let's start again. My central point is that you can use devfs
+> > > names to reliably figure out what kind of device a FD is, as a cleaner
+> > > alternative to comparing major numbers. Therefore, I'm challenging the
+> > > notion that you need to reserve magic major numbers in order to
+> > > distinguish devices.
+> >
+> > Noone in this tree has made that claim.  Everyone agree it's
+> > butt-ugly.  However, your solution is by and large just as
+> > butt-ugly.
+> 
+> So you'd prefer some kind of capability list?
+> 
 
-Yes. This is good
+Yes.
 
-The important thing is that the external interface and on disk format dont
-break - the code can be broken/mended repeatedly the ABI is rather harder
-to cure
+	-hpa
 
-> In the LV struct we can change it easily, because we just need the minor
-> number which will nicely fit into the 32 bit we have.
-
-Ok.  
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

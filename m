@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVATVTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVATVTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVATVTo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 16:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVATVTo
+	id S261956AbVATVTv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 16:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVATVTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 16:19:44 -0500
-Received: from modemcable240.48-200-24.mc.videotron.ca ([24.200.48.240]:43911
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261947AbVATVTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 16:19:42 -0500
-Date: Thu, 20 Jan 2005 16:19:12 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@localhost.localdomain
-To: Jean Delvare <khali@linux-fr.org>
-cc: LM Sensors <sensors@Stimpy.netroedge.com>,
-       lkml <linux-kernel@vger.kernel.org>, Jonas Munsin <jmunsin@iki.fi>,
-       Simone Piunno <pioppo@ferrara.linux.it>, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-In-Reply-To: <s62KuN6T.1106238493.8706410.khali@localhost>
-Message-ID: <Pine.LNX.4.61.0501201536240.5315@localhost.localdomain>
-References: <s62KuN6T.1106238493.8706410.khali@localhost>
+	Thu, 20 Jan 2005 16:19:51 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:54229 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261956AbVATVTq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 16:19:46 -0500
+Message-ID: <41F0206C.5040605@cosmosbay.com>
+Date: Thu, 20 Jan 2005 22:19:40 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: fr, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Something very strange on x86_64 2.6.X kernels
+References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>	<20050120162807.GA3174@stusta.de>	<20050120164829.GG450@wotan.suse.de>	<41F01A50.1040109@cosmosbay.com> <20050120130848.14a92990.akpm@osdl.org>
+In-Reply-To: <20050120130848.14a92990.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jan 2005, Jean Delvare wrote:
+Andrew Morton wrote:
 
-> > In the mean time I'm willing to try out things
-> > with isaset if you can suggest basic tests (easier than upgrading kernel
-> > for the time being).
+> Eric Dumazet <dada1@cosmosbay.com> wrote:
+
+>>
+>>Every time the crash occurs when one thread is using some ram located at 
+>>virtual address 0xffffe6xx
 > 
-> The best test I can think of is to switch your CPU fan to manual PWM
-> mode. To do that, write 0x40 to register 0x15. CPU fan should go to half
-> speed. Write 0x7F and if should go to full speed, except if the polarity
-> is not correct in which case 0x00 will do (and 0x7F will stop the fan
-> completely so you don't want to keep it that way).
+> 
+> What does "using" mean?  Is the program executing from that location?
 
-I confirm that 0x7f is full speed.
+No, the program text is located between 0x00100000 and 0x001c6000  (no 
+shared libs)
 
-> Once you know if the polarity is correct, you can try different values of
-> PWM between 0x00 and 0x7F and see how exactly your fan reacts to them.
+0xffffe6xx is READ|WRITE data, mapped on Hugetlb fs
 
-That's where things get really really interesting.  As mentioned above 
-0x7f drives the fan full speed (2596 RPM).  Now lowering that value 
-slows the CPU fan gradually down to a certain point.  With a value of 
-0x3f the fan turns at 1041 RPM.  But below 0x3f the fan starts speeding 
-up again to reach a peak of 2280 RPM with a value of 0x31, then it slows 
-down again toward 0 RPM as the register value is decreased down to 0.
+extract from /proc/pid/maps
+ff400000-100400000 rw-s 82000000 00:0b 12960938 
+    /huge/file
 
-Bit 3 of register 0x14, when set, only modifies the curve so the first 
-minimum is instead reached at 0x30 then the peak occurs at 0x1d before 
-dropping to 0.
+> 
+> Interesting.  IIRC, opterons will very occasionally (and incorrectly) take
+> a fault when performing a prefetch against a dud pointer.  The kernel will
+> fix that up.  At a guess, I'd say tha the fixup code isn't doing the right
+> thing when the faulting EIP is in the vsyscall page.
 
-Changing the PWM base clock select has no effect.
+Maybe, but I want to say that in this case, the address 'prefetched' is 
+valid (ie mapped read/write by the program, on a huge page too)
 
+Thanks
+Eric Dumazet
 
-Nicolas

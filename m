@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262497AbSJKPXt>; Fri, 11 Oct 2002 11:23:49 -0400
+	id <S262498AbSJKPZK>; Fri, 11 Oct 2002 11:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262498AbSJKPXt>; Fri, 11 Oct 2002 11:23:49 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:19141 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262497AbSJKPXs>;
-	Fri, 11 Oct 2002 11:23:48 -0400
-Date: Fri, 11 Oct 2002 08:27:59 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Steven Dake <scd@broked.org>
-cc: <linux-kernel@vger.kernel.org>, <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] [RFC] Advanced TCA Disk Hotswap support in Linux Kernel
- [core 1/2]
-In-Reply-To: <004401c270c4$4bbe2a50$0200000a@persist>
-Message-ID: <Pine.LNX.4.33L2.0210110814340.8007-100000@dragon.pdx.osdl.net>
+	id <S262506AbSJKPZK>; Fri, 11 Oct 2002 11:25:10 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:18610 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S262498AbSJKPZJ> convert rfc822-to-8bit; Fri, 11 Oct 2002 11:25:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
+Date: Fri, 11 Oct 2002 17:29:44 +0200
+User-Agent: KMail/1.4.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <200210111027.59589.efocht@ess.nec.de> <1711018324.1034322449@[10.10.2.3]>
+In-Reply-To: <1711018324.1034322449@[10.10.2.3]>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210111729.45129.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 11 October 2002 16:47, Martin J. Bligh wrote:
+> > Sorry, I thought the smp_tune_scheduling() call went lost during the
+> > transition to the new cpu boot scheme. But it's there. And the problem
+> > is indeed "notsc". So you'll have to fix it, I can't.
+>
+> Errrm ... not sure what you mean by this. notsc is a perfectly
+> valid thing to do, so if your patch panics with that option, I
+> suggest you make something conditional on notsc inside your patch?
+> Works just fine without your patch, or with Michael's patch ....
 
-On Thu, 10 Oct 2002, Steven Dake wrote:
+Martin,
 
-| I am developing the Linux kernel support required to support Advanced
-| TCA
-| (PICMG 3.0) architecture.  Advanced TCA is a technology where boards
-| exist
-| in a chassis and can either be processor nodes or storage nodes.  All
-| blades in the chassis are connected by FibreChannel and Ethernet.  The
-| blades can be hot added or hot removed while the Linux processor nodes
-| are
-| active, meaning that the SCSI subsystem must add devices on insertion
-| requests and remove devices on ejection requests.
-|
-| The following is the first public patch that I am posting that adds
-| support
-| for SCSI and FibreChannel hotswap via a programmatic kernel interface,
-| as well as userland access via ioctls.
+arch/i386/kernel/smpboot.c:smp_tune_scheduling() says:
 
-Thanks for letting us know about it.
-Does this project have a web page?
+       if (!cpu_khz) {
+                /*
+                 * this basically disables processor-affinity
+                 * scheduling on SMP without a TSC.
+                 */
+                cacheflush_time = 0;
+                return;
 
-| The second patch is a FibreChannel driver that is modified to support
-| SCSI hotswap.
-|
-| This mechanism is far superior to /proc/scsi/scsi because it:
-| 1) provides true FibreChannel hotswap support (at this point qlogic FC
-| HBAs)
-| 2) is programmatic such that errors can be reported from kernel to user
-|    without looking is /var/log/.
+If you boot with notsc, you won't have cache affinity on your machine.
+Which means that the load_balancer eventually selects cache hot tasks
+for stealing. The O(1) scheduler doesn't do that under normal conditions!
 
-so where does someone look for errors?
+Of course I'll add something to my patch such that it doesn't crash
+if cache_decay_ticks is unset. But you might be measuring wrong things
+right now if you leave cache_decay_ticks=0 as then the cache-affinity
+on NUMAQ is switched off with the vanilla O(1) and with Michael's patch.
+I want to say: you cannot evaluate the impact of Michael's patches if
+you don't fix that. This issue is independent of my patches.
 
-| 3) Provides superior response times vs opening a file and writing to
-| proc.
-| 4) Easier to control from kernel and user via C APIs vs using
-| open/write.
-
-Does this suggest adding yet another hotswap/hotplug mechanism
-to Linux?  It would be a good thing to unify them IMHO.
-
-Does this hotswap mechanism require userspace software to activate it?
-If so, is it available or being developed also?
-
--- 
-~Randy
-  "In general, avoiding problems is better than solving them."
-  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
-
+Regards,
+Erich
 

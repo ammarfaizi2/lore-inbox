@@ -1,77 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTKBSzu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 13:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTKBSzu
+	id S261777AbTKBSzm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 13:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTKBSzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 13:55:50 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:55559 "EHLO
+	Sun, 2 Nov 2003 13:55:42 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:29191 "EHLO
 	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S261779AbTKBSzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 13:55:46 -0500
+	id S261777AbTKBSzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 13:55:39 -0500
 From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6 - sysfs sensor nameing inconsistency
-Date: Sun, 2 Nov 2003 21:50:48 +0300
+To: DervishD <raul@pleyades.net>
+Subject: Re: /dev/input/mice doesn't work in test9?
+Date: Sun, 2 Nov 2003 20:45:41 +0300
 User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-References: <200307152214.38825.arvidjaar@mail.ru> <200308312025.41472.arvidjaar@mail.ru> <20030922222910.GA306@kroah.com>
-In-Reply-To: <20030922222910.GA306@kroah.com>
+Cc: Shawn Willden <shawn-lkml@willden.org>, linux-kernel@vger.kernel.org
+References: <E1AFUFz-0008jt-00.arvidjaar-mail-ru@f20.mail.ru> <200311021312.15902.arvidjaar@mail.ru> <20031102120820.GC206@DervishD>
+In-Reply-To: <20031102120820.GC206@DervishD>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200311022150.48638.arvidjaar@mail.ru>
+Content-Disposition: inline
+Message-Id: <200311022045.41928.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 September 2003 02:29, Greg KH wrote:
+On Sunday 02 November 2003 15:08, DervishD wrote:
+[...]
 >
-> Thanks, I've applied this and will send it off to Linus in a bit.
+> > You have input built-in which means there is no reason for kernel
+> > to try autoload driver for char-13 as it is already available.
 >
-
-thank you.
-
-> > it just arbitrarily (re-)names them. "min" is not hysteresis; name is
-> > badly chosen.
->
-> Do you have a proposed change to the current
-> Documentation/i2c/sysfs-interface document?  If you can think of better
-> names that make more sense, I'd be glad to change things to make it
-> easier.
+>     But not char-major-13-32, for example.
 >
 
-it is probably too late now to change sysfs names when some programs already 
-use it. I'll check sysfs-interface, thank you for pointer.
+for kernel device == major. It is assumed that complete major is handled by 
+single driver. In exception cases when there are different drivers either you 
+have one acting like dispatcher (input case) or one that simply requests more 
+specific driver (misc case). But again, mousedev is using range of minors and 
+there is currently no established way to construct aliases for that. Short of 
+defining
 
-> > > > 4. I do not have the slightest idea how ISA adapters look like in
-> > > > sysfs and where they are located. Anyone can give me example?
-> > >
-> > > They show up on the legacy bus:
-> > >
-> > > $ tree /sys/class/i2c-adapter/i2c-1/
-> > > /sys/class/i2c-adapter/i2c-1/
-> > >
-> > > |-- device -> ../../../devices/legacy/i2c-1
-> >
-> > This does not help much. Libsensors expects as adapter identification
-> > either "i2c-N" or "isa". If I set it to "isa" I do not have any way to
-> > determine sysfs path except by rescanning /sys/class/i2c-adapter every
-> > time. Having /sys/class/i2-adapter/isa/... would be better, apparently it
-> > is assumed that only one such adapter can exist.
+alias char-major-13-32 mousedev
+alias char-major-13-33 mousedev
+...
+alias char-major-13-63 mousedev
+
+looks rather weird.
+
+> > You may add explicit per-minor autoloading to input.c, see
+> > drivers/input/input.c:input_open_file()
 >
-> No, we internally do not differentiate between isa and non-isa adapters,
-> so why should we force that on the user?  They work the same as far as
-> users notice, and now we are consistant in our naming.
+>     But that code works with the 'input_table', and the
+> input_handlers. The handlers are registered by the modules when they
+> are already loaded. Do you mean that I should modify input_open_file
+> in order to autoload the appropriate module in the case of the
+> handler not being present? 
+
+yes with the caveats above.
+
+[...]
+>
+> > If you are using hotplug, both should be loaded by hotplug. IMHO it is
+> > also the right way to go.
+>
+>     The problem is that hotplug doesn't work for me in this case. I
+> mean, with hotplug in *this particular case*, since the mouse is
+> always connected, the modules will be loaded on bootup and unloaded
+> on shutdown, not when the mouse device is opened and closed,
+> respectively.
 >
 
-Well, I just tried to match what users get out of libsensors on 2.4. The 
-reason was compatibility with /etc/sensors.conf where "isa" can possibly be 
-used as part of chip name. But I'd like that someone from sensors developers 
-comment on this.
+that is what coldplug is for. Hotplug comes with initscript that (if enabled) 
+looks for devices already connected and emulates "connect" event for them. I 
+use it between other things to load mousedev for PS/2 mouse that is always 
+connected ... but I am running 2.6 in the first place (it won't work on 2.4) 
+and modified hotplug package that supports input handlers. So when it finds 
+any driver for input devices it automatically loads input handler for events 
+generated by those devices.
 
-thank you for your comments.
+>     I've tested with hotplug (well, I don't have hotplug utilities
+> installed, just a shell script that tells me if someone is calling
+> /sbin/hotplug and logs the parameters), and /sbin/hotplug is not
+> called when I try to open /dev/mouse (c 13 32).
+>
+
+of course not. It works differently. When you plug in USB mouse (or when 
+hotplug initscript emulates plugging in USB mouse) hotplug calls USB agent. 
+USB agent checks USB device ID and finds which modules to load. It is 
+possible that it finds several modules. One of them is hardcoded - it is 
+mousedev. Another one is hid that declares itself as driver for USB mouse. 
+That simple.
+
+[...]
+>
+>     Yes, I'm going to build in hid, but, should I do the same with
+> mousedev (or event, joystick, etc...) or will it work with hid loaded
+> when doing 'cat /dev/mouse'?
+>
+
+yes you should build it in. Or ensure it is loaded together with hid. 
 
 -andrey
 

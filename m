@@ -1,66 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261994AbSJDU2f>; Fri, 4 Oct 2002 16:28:35 -0400
+	id <S262388AbSJDUvY>; Fri, 4 Oct 2002 16:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261998AbSJDU2d>; Fri, 4 Oct 2002 16:28:33 -0400
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:53464 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S261994AbSJDU23> convert rfc822-to-8bit; Fri, 4 Oct 2002 16:28:29 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.40+: Sensors patch anyone? I think it is time for inclusion.
-Date: Fri, 4 Oct 2002 22:33:55 +0200
-User-Agent: KMail/1.4.7
-Cc: Josh McKinney <forming@charter.net>, Jan Dittmer <jan@jandittmer.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	id <S262298AbSJDUvY>; Fri, 4 Oct 2002 16:51:24 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:42767 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262707AbSJDUub>;
+	Fri, 4 Oct 2002 16:50:31 -0400
+Date: Fri, 4 Oct 2002 13:53:06 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
+Message-ID: <20021004205305.GC8346@kroah.com>
+References: <20021003224011.GA2289@kroah.com> <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com> <20021004165955.GC6978@kroah.com> <20021004205121.GA8346@kroah.com> <20021004205222.GB8346@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200210042233.55796.Dieter.Nuetzel@hamburg.de>
+In-Reply-To: <20021004205222.GB8346@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 4. Oktober 2002 18:52 schrieb Josh McKinney:
->On approximately Fri, Oct 04, 2002 at 07:30:15PM +0200, Jan Dittmer wrote:
-> > 
-> > Works without any problems. Patches for 2.5.33 from their website apply 
-> > cleanly on 2.5.40.
-> >
->
-> I found the patches, although the link from the site doesn't work.
-> "albert.html" doesn't exist anymore.  Do you know what all these patches
-> are/or which ones did you apply to get it working?
->
-> http://personal.atl.bellsouth.net/a/c/ac9410/albert/patches/
->
-> Thursday, September 05, 2002  1:23 AM       193318 2.5.33-i2c_sensors.tar.gz
-
-Unified tar all below included.
-
-> Thursday, September 05, 2002  1:23 AM         1904 2.5.33-i2c-2-patch
-
-Do not apply (because it is still in 2.5.40).
-
-> Thursday, September 05, 2002  1:23 AM        42919 2.5.33-i2c-3a-patch
-> Thursday, September 05, 2002  1:23 AM         8132 2.5.33-sensors-1-patch
-> Thursday, September 05, 2002  1:23 AM       192772 2.5.33-sensors-2-patch
-> Thursday, September 05, 2002  1:24 AM       817952 2.5.33-sensors-3-patch
-> Thursday, September 05, 2002  1:24 AM        27413 2.5.33-sensors-4-patch
-> Thursday, September 05, 2002  1:24 AM        17139 2.5.33-sensors-5-patch
-> Thursday, September 05, 2002  1:24 AM          863 2.5.33-sensors-6-patch
-
-Apply all in order on top of 2.5.40/2.5.40-acX/2.5.40-mcpX...
-
-Regards,
-	Dieter
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.674.3.4 -> 1.674.3.5
+#	drivers/net/wan/lmc/lmc_main.c	1.8     -> 1.9    
+#	drivers/net/aironet4500_card.c	1.9     -> 1.10   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/04	greg@kroah.com	1.674.3.5
+# PCI: remove usages of pcibios_find_class()
+# --------------------------------------------
+#
+diff -Nru a/drivers/net/aironet4500_card.c b/drivers/net/aironet4500_card.c
+--- a/drivers/net/aironet4500_card.c	Fri Oct  4 13:47:26 2002
++++ b/drivers/net/aironet4500_card.c	Fri Oct  4 13:47:26 2002
+@@ -70,9 +70,6 @@
+ MODULE_LICENSE("GPL");
+ 
+ 
+-static int reverse_probe;
+-
+-
+ static int awc_pci_init(struct net_device * dev, struct pci_dev *pdev,
+  			int ioaddr, int cis_addr, int mem_addr,u8 pci_irq_line) ;
+ 
+@@ -80,38 +77,29 @@
+ int awc4500_pci_probe(struct net_device *dev)
+ {
+ 	int cards_found = 0;
+-	static int pci_index;	/* Static, for multiple probe calls. */
+ 	u8 pci_irq_line = 0;
+ //	int p;
+-
+-	unsigned char awc_pci_dev, awc_pci_bus;
+-
++	struct pci_dev *pdev = NULL;
++		
+ 	if (!pci_present()) 
+ 		return -1;
+ 
+-	for (;pci_index < 0xff; pci_index++) {
+-		u16 vendor, device, pci_command, new_command;
++	while ((pdev = pci_find_class (PCI_CLASS_NETWORK_OTHER << 8, pdev))) {
++		u16 pci_command, new_command;
+ 		u32 pci_memaddr;
+ 		u32 pci_ioaddr;
+ 		u32 pci_cisaddr;
+-		struct pci_dev *pdev;
+ 
+-		if (pcibios_find_class	(PCI_CLASS_NETWORK_OTHER << 8,
+-			 reverse_probe ? 0xfe - pci_index : pci_index,
+-				 &awc_pci_bus, &awc_pci_dev) != PCIBIOS_SUCCESSFUL){
+-				if (reverse_probe){
+-					continue;
+-				} else {
+-					break;
+-				}
+-		}
+-		pdev = pci_find_slot(awc_pci_bus, awc_pci_dev);
+-		if (!pdev)
++		if (pdev->vendor != PCI_VENDOR_ID_AIRONET)
++			continue;
++		if ((pdev->device != PCI_DEVICE_AIRONET_4800_1) &&
++		    (pdev->device != PCI_DEVICE_AIRONET_4800) &&
++		    (pdev->device != PCI_DEVICE_AIRONET_4500))
+ 			continue;
++
+ 		if (pci_enable_device(pdev))
+ 			continue;
+-		vendor = pdev->vendor;
+-		device = pdev->device;
++
+ 	        pci_irq_line = pdev->irq;
+ 		pci_memaddr = pci_resource_start (pdev, 0);
+                 pci_cisaddr = pci_resource_start (pdev, 1);
+@@ -120,13 +108,6 @@
+ //		printk("\n pci capabilities %x and ptr %x \n",pci_caps,pci_caps_ptr);
+ 		/* Remove I/O space marker in bit 0. */
+ 
+-		if (vendor != PCI_VENDOR_ID_AIRONET)
+-			continue;
+-		if (device != PCI_DEVICE_AIRONET_4800_1 && 
+-				device != PCI_DEVICE_AIRONET_4800 &&
+-				device != PCI_DEVICE_AIRONET_4500 )
+-                        continue;
+-
+ //		if (check_region(pci_ioaddr, AIRONET4X00_IO_SIZE) ||
+ //			check_region(pci_cisaddr, AIRONET4X00_CIS_SIZE) ||
+ //			check_region(pci_memaddr, AIRONET4X00_MEM_SIZE)) {
+@@ -151,7 +132,7 @@
+ 
+ 		udelay(1000);
+ */
+-		if (device == PCI_DEVICE_AIRONET_4800)
++		if (pdev->device == PCI_DEVICE_AIRONET_4800)
+ 			pci_write_config_dword(pdev, 0x40, 0x40000000);
+ 
+ 		if (awc_pci_init(dev, pdev, pci_ioaddr,pci_cisaddr,pci_memaddr,pci_irq_line)){
+diff -Nru a/drivers/net/wan/lmc/lmc_main.c b/drivers/net/wan/lmc/lmc_main.c
+--- a/drivers/net/wan/lmc/lmc_main.c	Fri Oct  4 13:47:26 2002
++++ b/drivers/net/wan/lmc/lmc_main.c	Fri Oct  4 13:47:26 2002
+@@ -1045,8 +1045,8 @@
+     unsigned int pci_irq_line;
+     u16 vendor, subvendor, device, subdevice;
+     u32 foundaddr = 0;
+-    unsigned char pci_bus, pci_device_fn;
+     u8 intcf = 0;
++    struct pci_dev *pdev = NULL;
+ 
+     /* The card is only available on PCI, so if we don't have a
+      * PCI bus, we are in trouble.
+@@ -1057,21 +1057,7 @@
+         return -1;
+     }
+     /* Loop basically until we don't find anymore. */
+-    while (pci_index < 0xff){
+-    	struct pci_dev *pdev;
+-        /* The tulip is considered an ethernet class of card... */
+-        if (pcibios_find_class (PCI_CLASS_NETWORK_ETHERNET << 8,
+-                                pci_index, &pci_bus,
+-                                &pci_device_fn) != PCIBIOS_SUCCESSFUL) {
+-            /* No card found on this pass */
+-            break;
+-        }
+-        /* Read the info we need to determine if this is
+-         * our card or not
+-         */
+-	pdev = pci_find_slot (pci_bus, pci_device_fn);
+-	if (!pdev) break;
+-
++    while ((pdev = pci_find_class (PCI_CLASS_NETWORK_ETHERNET << 8, pdev))) {
+ 	if (pci_enable_device(pdev))
+ 		break;
+ 

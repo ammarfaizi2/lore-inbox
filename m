@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVBNIv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVBNIyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVBNIv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 03:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVBNIv2
+	id S261362AbVBNIyN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 03:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVBNIyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 03:51:28 -0500
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:63418 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261360AbVBNIvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 03:51:24 -0500
-Message-ID: <42106685.40307@arcor.de>
-Date: Mon, 14 Feb 2005 09:51:17 +0100
-From: Prakash Punnoor <prakashp@arcor.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050121)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Greg KH <gregkh@suse.de>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>	 <20050211011609.GA27176@suse.de>	 <1108354011.25912.43.camel@krustophenia.net> <4d8e3fd305021400323fa01fff@mail.gmail.com>
-In-Reply-To: <4d8e3fd305021400323fa01fff@mail.gmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8DB8A1884068E626037EF1D0"
+	Mon, 14 Feb 2005 03:54:13 -0500
+Received: from postman2.arcor-online.net ([151.189.20.157]:22461 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261362AbVBNIxN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 03:53:13 -0500
+Date: Mon, 14 Feb 2005 09:53:20 +0100
+From: Tino Keitel <tino.keitel@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: Droebbel <droebbel.melta@gmx.de>
+Subject: Re: [Problem] slow write to dvd-ram since 2.6.7-bk8
+Message-ID: <20050214085320.GA4910@dose.home.local>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Droebbel <droebbel.melta@gmx.de>
+References: <1108301794.9280.18.camel@localhost.localdomain> <20050213142635.GA2035@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050213142635.GA2035@animx.eu.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8DB8A1884068E626037EF1D0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Feb 13, 2005 at 09:26:35 -0500, Wakko Warner wrote:
+> Droebbel wrote:
+> > On recent kernels, writing to DVD-RAM is much slower than to be
+> > expected. A 3x Writer should do about 1.9MB/s including automatic
+> > verify. This is what I get with 2.6.7 up to bk7. However, from 2.6.7-bk8
+> > to 2.6.10 write speed is as low as 600 to 1000 kB/s. The drive's head
+> > jumps a lot more with these kernels. Reading is ok.
+> > 
+> > I tested UDF and ext2 filesystems,
+> > DMA is ok according to hdparm,
+> > I set taskfile-io on and off when building the kernels,
+> > and I compared the settings for the io-scheduler.
+> > 
+> > The drive is connected via onboard via82xx ide or usb2 external (both
+> > works perfectly with hd).
+> > 
+> > The drive is a LG GSA-4163B; a GSA-4120 had the same problem as far as I
+> > remember.
+> > 
+> > Medium: Panasonic 3x
+> > 
+> > Could not find any kernel error messages.
+> 
+> I have:
+> Host: scsi1 Channel: 00 Id: 00 Lun: 00
+>   Vendor: HL-DT-ST Model: DVDRAM GSA-4160B Rev: A300
+>   Type:   CD-ROM                           ANSI SCSI revision: 02
+> 
+> I also notice this with 2.6.10.  I think I also had it with 2.6.8.1 but I
+> don't remember, it's been a while.  The media I use is maxell DRM47 ver 2
 
-Paolo Ciarrocchi schrieb:
-> On Sun, 13 Feb 2005 23:06:51 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
->
->>On Thu, 2005-02-10 at 17:16 -0800, Greg KH wrote:
->>
->>>All distros are trying to reduce boot time.
->>
->>They certainly aren't all trying very hard.  Debian and Fedora (last
->>time I checked) do not even run the init scripts in parallel.
->
->
-> Is there any distro that is running the init scripts in parallel ?
+I also have low write performance (around 300 kb/s) with several 2.6
+kernels (2.6.7 to 2.6.9-mm1) and I can hear the head jump around when I
+use ext2 or UDF. It will be fast when written directly to the device
+without a file system using dd.  The drive is a LG GSA-4040B. I tried
+several media types from Panasonic and EMTEC.
 
-Gentoo.
+I'll try to test if the problem disappears with 2.6.6.
 
---
-Prakash Punnoor
-
-formerly known as Prakash K. Cheemplavam
-
---------------enig8DB8A1884068E626037EF1D0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCEGaJxU2n/+9+t5gRAq3JAJ9Z+yHxMjqxhst9qRoTFvJcYJw89ACgqrHV
-n1/Hc2Ju42G3+6gpw1wK82s=
-=JWGi
------END PGP SIGNATURE-----
-
---------------enig8DB8A1884068E626037EF1D0--
+Regards,
+Tino

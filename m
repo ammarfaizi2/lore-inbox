@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbUKEBLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbUKEA7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbUKEBLd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 20:11:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUKEBIP
+	id S262543AbUKEA7r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 19:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbUKEA4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 20:08:15 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:54993 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262541AbUKEBEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 20:04:33 -0500
-Date: Fri, 5 Nov 2004 02:04:27 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Patrick McHardy <kaber@trash.net>, matthias.andree@gmx.de,
-       netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps
-Message-ID: <20041105010427.GA2770@merlin.emma.line.org>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	Patrick McHardy <kaber@trash.net>,
-	netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20041104121522.GA16547@merlin.emma.line.org> <418A7B0B.7040803@trash.net> <20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net> <20041104160655.1c66b7ef.davem@davemloft.net>
+	Thu, 4 Nov 2004 19:56:54 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9951 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262534AbUKEAtc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 19:49:32 -0500
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] More Driver Core patches for 2.6.10-rc1
+In-Reply-To: <10996157051968@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Thu, 4 Nov 2004 16:48:25 -0800
+Message-Id: <10996157052061@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104160655.1c66b7ef.davem@davemloft.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Nov 2004, David S. Miller wrote:
+ChangeSet 1.2449.2.10, 2004/11/04 12:00:12-08:00, rml@novell.com
 
-> His patch isn't correct, even making a temporary change to
-> a shared SKB is illegal.
+[PATCH] kobject_uevent: fix init ordering
 
-So the original ip_conntrack_amanda was already illegal. If only such
-nonsense caused heavy kernel logging (let it oops or GPF or whatver),
-that's a much quicker way to pinpoint the bug than run amanda with a
-special devnull configuration some dozen times.
+Looks like kobject_uevent_init is executed before netlink_proto_init and
+consequently always fails.  Not cool.
 
-> Things like tcpdump could see corrupt SKB contents if they look during
-> that tiny window when the newline character has been changed to NULL
-> by the amanda conntrack module.
+Attached patch switches the initialization over from core_initcall (init
+level 1) to postcore_initcall (init level 2).  Netlink's initialization
+is done in core_initcall, so this should fix the problem.  We should be
+fine waiting until postcore_initcall.
 
-Where is the SKB stuff documented?
+Also a couple white space changes mixed in, because I am anal.
 
--- 
-Matthias Andree
+Signed-Off-By: Robert Love <rml@novell.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ lib/kobject_uevent.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+--- a/lib/kobject_uevent.c	2004-11-04 16:30:09 -08:00
++++ b/lib/kobject_uevent.c	2004-11-04 16:30:09 -08:00
+@@ -120,9 +120,8 @@
+ 		sprintf(attrpath, "%s/%s", path, attr->name);
+ 		rc = send_uevent(signal, attrpath, NULL, gfp_mask);
+ 		kfree(attrpath);
+-	} else {
++	} else
+ 		rc = send_uevent(signal, path, NULL, gfp_mask);
+-	}
+ 
+ exit:
+ 	kfree(path);
+@@ -148,7 +147,6 @@
+ {
+ 	return do_kobject_uevent(kobj, action, attr, GFP_ATOMIC);
+ }
+-
+ EXPORT_SYMBOL_GPL(kobject_uevent_atomic);
+ 
+ static int __init kobject_uevent_init(void)
+@@ -164,7 +162,7 @@
+ 	return 0;
+ }
+ 
+-core_initcall(kobject_uevent_init);
++postcore_initcall(kobject_uevent_init);
+ 
+ #else
+ static inline int send_uevent(const char *signal, const char *obj,
+

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268552AbTGNShs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270660AbTGNShs
+	id S270707AbTGNSme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270709AbTGNSme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:37:48 -0400
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:6340 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S268552AbTGNShp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:37:45 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: sizeof (siginfo_t) problem
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF52924CDC.2DF20D62-ONC1256D63.0066BE2A@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Mon, 14 Jul 2003 20:52:20 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 14/07/2003 20:52:25
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Mon, 14 Jul 2003 14:42:34 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:40899 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S270707AbTGNSlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:41:39 -0400
+Subject: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all needed rpms
+	installed)
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1058196612.3353.2.camel@aurora.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-2) 
+Date: 14 Jul 2003 14:56:26 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, I now get past the initialization of the 3c920.  However, now it
+hangs (sak enabled, sak doesn't work... completely dead) when eth0 tries
+to come up.  I have IPv6 enabled (the router does 6to4, this isn't the
+router), I don't believe I have any firewall stuff on this box, it does
+dhcp for IPv4 address and ntp time.
 
-Jakub Jelinek wrote:
+There was an oops earlier in the boot process.  It seems the sound card
+(irq 3) did an irq and the kernel wasn't ready to accept so it barfed. 
+There may have been more to it than that, I will check later today.  I
+have to get back to my studies for now.
 
->As I tried to write, we either can have all GCCs
->which will work properly only with new kernels (no pad added),
->or we can have new GCCs working with all kernels (if pad is added).
->Your choice...
-
-I'll discuss this with Martin tomorrow, but right now I'd tend to
-fixing the kernel, because this means you can fix an installed
-system by upgrading only the kernel itself (and this upgrade
-should not break anything).  The alternative would be not only
-to upgrade libgcc (and possibly glibc), but all programs statically
-linked with it as well as all programs that otherwise have the
-signal stack layout hardcoded ...
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
+Trever
 --
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+"My spelling is Wobbly. It's good spelling but it Wobbles, and the
+letters get in the wrong places." -- A. A. Milne (1882-1958)
 

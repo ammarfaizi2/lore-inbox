@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpP7DKBB5+wHKRbWnbOBISzVioA==
+thread-index: AcQVpP7rXz6ChwS6TS2gk1fytqlIpg==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Tue, 06 Jan 2004 06:22:36 +0000
-Message-ID: <048201c415a4$fec35310$d100000a@sbs2003.local>
+Delivery-date: Tue, 06 Jan 2004 06:08:23 +0000
+Message-ID: <049201c415a4$feebc2a0$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft CDO for Exchange 2000
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Subject: Re: ACPI battery problem with 2.6.1-rc1-mm2 kernel patch
-From: "Dax Kelson" <dax@gurulabs.com>
-To: <Administrator@smtp.paston.co.uk>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Yu, Luming" <luming.yu@intel.com>,
-        "Jean-Marc Valin" <Jean-Marc.Valin@USherbrooke.ca>,
-        <linux-kernel@vger.kernel.org>, <linux-acpi@intel.com>
-In-Reply-To: <200401060259.i062xrb3002240@turing-police.cc.vt.edu>
-References: <1073354003.4101.11.camel@idefix.homelinux.org> <20040105180859.7e20e87a.akpm@osdl.org> <200401060259.i062xrb3002240@turing-police.cc.vt.edu>
-Content-Type: text/plain;
-	charset="iso-8859-1"
-MIME-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
 Date: Mon, 29 Mar 2004 16:46:26 +0100
-Content-Transfer-Encoding: 7bit
+From: "Jakob Oestergaard" <jakob@unthought.net>
+To: <Administrator@smtp.paston.co.uk>
+Cc: "Mikael Pettersson" <mikpe@csd.uu.se>, <akpm@osdl.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Pentium M config option for 2.6
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200401041227.i04CReNI004912@harpo.it.uu.se> <20040104123358.GB24913@louise.pinerecords.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20040104123358.GB24913@louise.pinerecords.com>
+User-Agent: Mutt/1.3.28i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:46:27.0359 (UTC) FILETIME=[FF3352F0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:46:29.0171 (UTC) FILETIME=[0047D030:01C415A5]
 
-On Mon, 2004-01-05 at 19:59, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 05 Jan 2004 18:08:59 PST, Andrew Morton said:
+On Sun, Jan 04, 2004 at 01:33:58PM +0100, Tomas Szepe wrote:
+> On Jan-04 2004, Sun, 13:27 +0100
+> Mikael Pettersson <mikpe@csd.uu.se> wrote:
 > 
-> > Thanks, the acpi-20031203 patch seems to have introduced a handful of
-> > regressions.
+> > IOW, don't lie to the compiler and pretend P-M == P4
+> > with that -march=pentium4.
 > 
-> As suggested by Yu Luming, the patch at http://bugzilla.kernel.org/show_bug.cgi?id=1766
-> is confirmed to fix my issue.  2.6.1-rc1-mm2 with that patch gives me:
+> What do you recommend to use as march then?  There is
+> no pentiumm subarch support in gcc yet;  I was convinced
+> p4 was the closest match.
 
-Just confirming that the same patched fixed up the battery reporting
-problems on my laptop as well.
+Use the same as for P-III.
 
-Dax Kelson
-Guru Labs
+The P-M has the same instruction decoder (and execution unit) setup as
+the P-III, which is *very* different from P-IV (which has one decoder
+only, and then a trace cache for the decoded uops).  This is an
+important difference from a code generator point of view.
+
+>From reading Intel's optimization guides, it seems to me like the P-M is
+pretty much just a slightly enhanced P-III (more cache AFAIR) which
+happens to get shipped with a good mobile chipset - and that package
+together is called Centrino.
+
+That would also explain why Centrino leaves the P-IV based laptops in
+the dust ;)
+
+Cheers,
+
+ / jakob
 

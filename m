@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267558AbTBFTCX>; Thu, 6 Feb 2003 14:02:23 -0500
+	id <S267552AbTBFTBn>; Thu, 6 Feb 2003 14:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267562AbTBFTCX>; Thu, 6 Feb 2003 14:02:23 -0500
-Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:45834 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP
-	id <S267558AbTBFTCU>; Thu, 6 Feb 2003 14:02:20 -0500
-Date: Thu, 6 Feb 2003 13:14:34 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S267558AbTBFTBn>; Thu, 6 Feb 2003 14:01:43 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:33446 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S267552AbTBFTBn>; Thu, 6 Feb 2003 14:01:43 -0500
+Message-ID: <3E42B37E.2080202@kegel.com>
+Date: Thu, 06 Feb 2003 11:11:58 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: Monta Vista software license terms
-Message-ID: <20030206131434.A9263@discworld.dyndns.org>
-Reply-To: postmaster@localhost.dydns.org
-Mail-Followup-To: postmaster@localhost
-References: <Pine.LNX.4.10.10302060105570.11024-100000@master.linux-ide.org> <1044542246.10374.1.camel@irongate.swansea.linux.org.uk> <200302061841.h16Iflwj005365@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302061841.h16Iflwj005365@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Thu, Feb 06, 2003 at 01:41:47PM -0500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> 
-> The GPL prohibits such a restriction *IN THE DISTRIBUTION LICENSE*.  It
-> doesn't say squat about whether I agree to some restriction in some OTHER
-> agreement.
+My two bits:
 
->From the GPL version 2:
+1. I am eternally grateful for the contributions Montavista has
+made to the gnu tools.  Their recent contribution of a
+multithread cabable gdbserver to gdb-5.3 is invaluable.
 
-  6. Each time you redistribute the Program (or any work based on the
-  Program), the recipient automatically receives a license from the
-  original licensor to copy, distribute or modify the Program subject to
-  these terms and conditions.  You may not impose any further
-  restrictions on the recipients' exercise of the rights granted herein.
-  [...]
+2. I contantly see Montavista people feeding back improvements
+here and there, and they are quick to respond when I have
+questions about issues like the ppc405 erratum 77 workarounds.
+And I've never given them any money!
 
-The critical part being, of course, "You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.".  But
-this is offtopic.  MFT and Reply-To: set.
+Montavista *is* playing nice.  As far as I can
+tell, they obey the rules, and actively feed
+their improvements back to the community.
 
-Charles
+Yes, they could do more -- but they don't have to, and if
+they did, it might endanger their cash flow and thus the
+stream of improvements they're feeding back to the community.
+
+Please let them be.  I like what they're doing.
+- Dan
+
 -- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
------------------------------------------------------------------------
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+

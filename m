@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267632AbTAHTMf>; Wed, 8 Jan 2003 14:12:35 -0500
+	id <S267838AbTAHTWb>; Wed, 8 Jan 2003 14:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267912AbTAHTMf>; Wed, 8 Jan 2003 14:12:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29189 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267632AbTAHTMe>; Wed, 8 Jan 2003 14:12:34 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: tenth post about PCI code, need help
-Date: 8 Jan 2003 11:20:30 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <avhtlu$qr9$1@cesium.transmeta.com>
-References: <1042049372.850.921.camel@orca.madrabbit.org> <Pine.LNX.3.95.1030108132812.28791A-100000@chaos.analogic.com>
+	id <S267849AbTAHTWb>; Wed, 8 Jan 2003 14:22:31 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:19703 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267838AbTAHTWb>; Wed, 8 Jan 2003 14:22:31 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A10E@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Pavel Machek <pavel@ucw.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: RE: [ACPI] RE: kacpidpc needs to die
+Date: Wed, 8 Jan 2003 11:24:17 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.3.95.1030108132812.28791A-100000@chaos.analogic.com>
-By author:    "Richard B. Johnson" <root@chaos.analogic.com>
-In newsgroup: linux.dev.kernel
+> From: Grover, Andrew 
+> > From: Pavel Machek [mailto:pavel@ucw.cz] 
+> > For reasons discussed before [forking from timer is not 
+> safe, anyway],
+> > kacpidpc needs to die. Andrew, are you going to kill it or 
+> should I do
+> > it?
 > 
-> The problem is that he's discovered something that's not supposed
-> to be in the code. Only 32-bit accesses are supposed to be made to
-> the PCI controller ports. He has discovered that somebody has made
-> some 8-bit accesses that will not become configuration 'transactions'
-> because they are not 32 bits.
-> 
+> I can kill it...let me just verify with you --
+> acpi_os_queue_for_execution has a two block switch statement, just use
+> the first block (the case that uses schedule_work) and delete 
+> the rest,
+> yes?
 
-Right.  That's what the code is checking for.
+Oops, and combine acpi_os_schedule_exec and acpi_os_queue_exec, so that
+we call dpc->function() from the original thread. Anything else?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+-- Andy
+
+

@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUI1HTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267614AbUI1HTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUI1HTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 03:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUI1HTV
+	id S267614AbUI1HTv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 03:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUI1HTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 03:19:21 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:15972 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267601AbUI1HTT convert rfc822-to-8bit (ORCPT
+	Tue, 28 Sep 2004 03:19:51 -0400
+Received: from scanner2.mail.elte.hu ([157.181.151.9]:5591 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267614AbUI1HTq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 03:19:19 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [BUG: 2.6.9-rc2-bk11] input completely dead in X
-Date: Tue, 28 Sep 2004 02:19:16 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Micha Feigin <michf@post.tau.ac.il>,
-       Peter Osterlund <petero2@telia.com>
-References: <20040926210450.GA2960@luna.mooo.com> <200409280126.19919.dtor_core@ameritech.net> <20040928070107.GC1834@ucw.cz>
-In-Reply-To: <20040928070107.GC1834@ucw.cz>
-MIME-Version: 1.0
+	Tue, 28 Sep 2004 03:19:46 -0400
+Date: Tue, 28 Sep 2004 09:21:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, tytso@mit.edu
+Subject: Re: Stack traces in 2.6.9-rc2-mm4
+Message-ID: <20040928072123.GA15177@elte.hu>
+References: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net> <20040927085744.GA32407@elte.hu> <1096326753l.5222l.2l@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409280219.16976.dtor_core@ameritech.net>
+In-Reply-To: <1096326753l.5222l.2l@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 September 2004 02:01 am, Vojtech Pavlik wrote:
-> On Tue, Sep 28, 2004 at 01:26:19AM -0500, Dmitry Torokhov wrote:
-> > Resending as I forgot to CC Vojtech and Peter first time around...
-> > 
-> > On Monday 27 September 2004 10:46 pm, Micha Feigin wrote:
-> > > > Or better yet, use the auto-dev feature, which should work if you have
-> > > > a new enough X driver and kernel patch.
-> > > > 
-> > > 
-> > > auto-dev doesn't work for me and I don't have time to check it
-> > > out.
-> > 
-> > Addition of Kensington ThinkingMouse / ExpertMouse support caused Synaptics
-> > and ALPS protocol numbers to move to 8 and 9 respectively which broke Peter's
-> > auto-dev detection. 
-> 
-> Ouch. I suspected something bad will happen.
-> 
-> > Vojtech, we need to keep protcol numbers stable, I propose something like this:
-> > 
-> > enum psmouse_type {
-> >         PSMOUSE_PS2             = 0,
-> >         PSMOUSE_PS2PP,
-> >         PSMOUSE_THINKPS,
-> >         PSMOUSE_GENPS           = 64,   /* 4 byte protocol start */
-> >         PSMOUSE_IMPS,
-> >         PSMOUSE_IMEX,
-> >         PSMOUSE_SYNAPTICS       = 128,  /* 5+ byte protocols start */
-> >         PSMOUSE_ALPS,
-> > };
-> 
-> No, we really need to keep backwards compatibility with the numbering
-> here and solve the packetsize issue elsewhere. Probably the best would
-> be for each of the protocols to have its own packet collection routine,
-> like the Synaptics and ALPS already have. It could be shared among the
-> simpler protocols.
-> 
-> We'll need this anyway for a heuristic resynchronizer.
->
 
-Ok, for now I am killing PS2TPP which is not really useful and will allow
-THINKPS take it's spot moving SYNAPTICS and ALPS to their former numbers. 
+* J.A. Magallon <jamagallon@able.es> wrote:
 
--- 
-Dmitry
+> I got the same on another place...
+> 
+> Sep 28 00:48:51 werewolf kernel: using smp_processor_id() in preemptible 
+> code: X/4012
+> Sep 28 00:48:51 werewolf kernel:  [smp_processor_id+135/141] 
+> smp_processor_id+0x87/0x8d
+> Sep 28 00:48:51 werewolf kernel:  [add_timer_randomness+314/365] 
+> add_timer_randomness+0x13a/0x16d
+> Sep 28 00:48:51 werewolf kernel:  [<b0206733>] 
+> add_timer_randomness+0x13a/0x16d
+> Sep 28 00:48:51 werewolf kernel:  [input_event+85/999] 
+> input_event+0x55/0x3e7
+
+the one below should fix this: a certain codepath in the random driver
+relied on vt_ioctl() being under the BKL and implicitly disabling
+preemption. The code wasnt buggy upstream but it's slighly unrobust so i
+think we want the fix upstream too, independently of the remove-bkl
+patch. This change has been in the -VP patchset for some time so it
+should work fine.
+
+	Ingo
+
+--- linux/drivers/char/random.c.orig	
++++ linux/drivers/char/random.c	
+@@ -807,10 +807,11 @@ static void add_timer_randomness(struct 
+ 	long		delta, delta2, delta3;
+ 	int		entropy = 0;
+ 
++	preempt_disable();
+ 	/* if over the trickle threshold, use only 1 in 4096 samples */
+ 	if ( random_state->entropy_count > trickle_thresh &&
+ 	     (__get_cpu_var(trickle_count)++ & 0xfff))
+-		return;
++		goto out;
+ 
+ 	/*
+ 	 * Use get_cycles() if implemented, otherwise fall back to
+@@ -861,6 +862,8 @@ static void add_timer_randomness(struct 
+ 		entropy = int_ln_12bits(delta);
+ 	}
+ 	batch_entropy_store(num, time, entropy);
++out:
++	preempt_enable();
+ }
+ 
+ void add_keyboard_randomness(unsigned char scancode)

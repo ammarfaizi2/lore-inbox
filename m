@@ -1,62 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312859AbSDEOlh>; Fri, 5 Apr 2002 09:41:37 -0500
+	id <S313336AbSDERwU>; Fri, 5 Apr 2002 12:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312861AbSDEOl1>; Fri, 5 Apr 2002 09:41:27 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:17905 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312859AbSDEOlM>; Fri, 5 Apr 2002 09:41:12 -0500
-Message-Id: <5.1.0.14.2.20020405153618.01fefd20@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 05 Apr 2002 15:41:28 +0100
-To: "Arnvid Karstad" <arnvid@karstad.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Problems rebooting from linux to windows...
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020405130948.17108.qmail@nextgeneration.speedroad.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S312988AbSDERwK>; Fri, 5 Apr 2002 12:52:10 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:15261 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S312986AbSDERwD>;
+	Fri, 5 Apr 2002 12:52:03 -0500
+Date: Fri, 5 Apr 2002 19:52:00 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200204051752.TAA02715@harpo.it.uu.se>
+To: chris@jakdaw.org
+Subject: Re: P4/i845 Strange clock drifting
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:09 05/04/02, Arnvid Karstad wrote:
->recently I've seen a few problems with several laptops and if one are so 
->unfortunate that one needs to reboot into Windows after a session in linux.
->Normal restart of windows never have a problem on the same machines, but 
->if you go from Linux to for instance Windows by shutdown -r or reboot it 
->will freeze half way into the booting process.
->A power cycle will hower fix this.
->Anyone got an idea about where to start looking?
+On Fri, 5 Apr 2002 13:28:10 +0100, Chris Wilson wrote:
+>I've now tried a couple more kernels to no avail - nothing can find APICs.
+>Is it even possible for a P4 to not have a local APIC? System is a
+>supermicro 5012B*. 
+>
+>/proc/cpuinfo shows:
+>
+>flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+>
+>(notice no "apic"). Is this normal/correct? If just just removed the check
+>from apic.c and tried to enable the apic anyway then are bad things going
+>to happen? 
 
-The Microsoft Windows sourcecode would be a good start but oh wait you 
-can't get that. D'oh! You are fscked! Just power cycle and as you have seen 
-you will be fine.
+Your P4 does contain a local APIC, but your BIOS chose to disable it.
+The following patch should (re)enable it:
 
-The reason for the problems is that Windows is expecting the hardware to be 
-in a certain state at boot which is not present after Linux reboots because 
-it has initialized the devices differently.
+--- linux-2.5.7/arch/i386/kernel/apic.c.~1~	Sat Mar  9 12:53:12 2002
++++ linux-2.5.7/arch/i386/kernel/apic.c	Fri Apr  5 19:35:14 2002
+@@ -603,7 +603,7 @@
+ 		goto no_apic;
+ 	case X86_VENDOR_INTEL:
+ 		if (boot_cpu_data.x86 == 6 ||
+-		    (boot_cpu_data.x86 == 15 && cpu_has_apic) ||
++		    boot_cpu_data.x86 == 15 ||
+ 		    (boot_cpu_data.x86 == 5 && cpu_has_apic))
+ 			break;
+ 		goto no_apic;
+@@ -615,7 +615,7 @@
+ 		/*
+ 		 * Some BIOSes disable the local APIC in the
+ 		 * APIC_BASE MSR. This can only be done in
+-		 * software for Intel P6 and AMD K7 (Model > 1).
++		 * software for Intel P6/P4 and AMD K7 (Model > 1).
+ 		 */
+ 		rdmsr(MSR_IA32_APICBASE, l, h);
+ 		if (!(l & MSR_IA32_APICBASE_ENABLE)) {
 
-On my laptop the reverse is true. When rebooting from Windows to Linux 
-XFree86 no longer works (garbled display) but power cycling is fine. I 
-could look into this and force the hardware to reinitialize in Linux or I 
-could just power cycle. I chose the power cycle as I have better things to 
-do...
+This should work (and is known to work on many P6 and K7 boards),
+but your BIOS may have problems with the local APIC.
+- does apm --suspend work? does the resume afterwards work?
+- if you run something compute-intensive for a while, does it
+  continue working ok or does it hang suddenly?
+If your box remained stable, great!
 
-But in your case the way to fix this would be to make the windows driver 
-initialize the hardware properly and I doubt very much you would have much 
-success getting MS to do this for you. They will probably tell you to stop 
-using Linux and your problems will go away...
+If it experienced problems like unexpected hangs, then we'll need to
+prevent the local APIC from being enabled on this mainboard.
+In this case, please apply the patch below, reconfigure without
+local APIC support, rebuild and send me (not the list) the DMI strings
+printed during boot -- or the entire boot log if you're not certain
+which parts are the DMI strings.
 
-Best regards,
+/Mikael
 
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-IRC: #ntfs on irc.openprojects.net / ICQ: 8561279
-WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+--- linux-2.5.7/arch/i386/kernel/dmi_scan.c.~1~	Tue Mar 19 01:10:03 2002
++++ linux-2.5.7/arch/i386/kernel/dmi_scan.c	Fri Apr  5 19:35:33 2002
+@@ -21,8 +21,8 @@
+ 	u16	handle;
+ };
+ 
+-#define dmi_printk(x)
+-//#define dmi_printk(x) printk x
++//#define dmi_printk(x)
++#define dmi_printk(x) printk x
+ 
+ static char * __init dmi_string(struct dmi_header *dm, u8 s)
+ {

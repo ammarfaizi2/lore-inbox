@@ -1,99 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319082AbSHFM3g>; Tue, 6 Aug 2002 08:29:36 -0400
+	id <S319083AbSHFMfN>; Tue, 6 Aug 2002 08:35:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319083AbSHFM3g>; Tue, 6 Aug 2002 08:29:36 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:62983 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S319082AbSHFM3f>; Tue, 6 Aug 2002 08:29:35 -0400
-Message-ID: <3D4FC0DE.9050608@evision.ag>
-Date: Tue, 06 Aug 2002 14:28:14 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] 2.5.30 IDE 114
-Content-Type: multipart/mixed;
- boundary="------------040902050309030502050400"
+	id <S319094AbSHFMfN>; Tue, 6 Aug 2002 08:35:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64972 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319083AbSHFMfN>;
+	Tue, 6 Aug 2002 08:35:13 -0400
+Date: Tue, 06 Aug 2002 05:26:07 -0700 (PDT)
+Message-Id: <20020806.052607.73151005.davem@redhat.com>
+To: marcelo@conectiva.com.br
+Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre1
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0208060832090.6811-100000@freak.distro.conectiva>
+References: <3D4F164F.2070006@candelatech.com>
+	<Pine.LNX.4.44.0208060832090.6811-100000@freak.distro.conectiva>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040902050309030502050400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+   From: Marcelo Tosatti <marcelo@conectiva.com.br>
+   Date: Tue, 6 Aug 2002 08:32:59 -0300 (BRT)
+   
+   > Second:  Where is the patch?  I looked on kernel.org and didn't
+   > find it.  If it's going to be there shortly, that's fine, I'll
+   > keep checking back.
+   
+   Maybe at davem's CVS repo?
 
-- Fix allocation problem introduced in 113 as suggested by Jens.
-   (Thanks go to  Jens for providing info how to use properly
-    blk_get_request in  this case. Nevermind I just got confused by
-    __blk_get_request in TCQ  code, which made me worry about queue depth
-    strain.)
-   (Note: SCSI should propably be using the same mechanism instead of
-    sr_request. At least we should check the code in question there.)
-
---------------040902050309030502050400
-Content-Type: text/plain;
- name="ide-114.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-114.diff"
-
-diff -durNp -X /tmp/diff.WY9PFG linux-2.5.30/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
---- linux-2.5.30/drivers/ide/ide-taskfile.c	2002-08-06 14:15:07.000000000 +0200
-+++ linux/drivers/ide/ide-taskfile.c	2002-08-06 14:02:37.000000000 +0200
-@@ -188,18 +188,20 @@ static ide_startstop_t special_intr(stru
- 
- int ide_raw_taskfile(struct ata_device *drive, struct ata_taskfile *ar, char *buf)
- {
--	struct request *rq = &drive->srequest;
-+	struct request *rq;
-+	int errors;
- 	struct ata_channel *ch = drive->channel;
- 	request_queue_t *q = &drive->queue;
- 	DECLARE_COMPLETION(wait);
- 
- #ifdef CONFIG_BLK_DEV_PDC4030
-+	/* special drive cmds not supported */
- 	if (ch->chipset == ide_pdc4030 && buf)
--		return -ENOSYS;  /* special drive cmds not supported */
-+		return -ENOSYS;
- #endif
- 
-+	rq = blk_get_request(q, READ, __GFP_WAIT);
- 	memset(rq, 0, sizeof(*rq));
--
- 	rq->buffer = buf;
- 	rq->rq_status = RQ_ACTIVE;
- 	rq->waiting = &wait;
-@@ -208,9 +210,12 @@ int ide_raw_taskfile(struct ata_device *
- 	ar->command_type = IDE_DRIVE_TASK_NO_DATA;
- 
- 	blk_insert_request(q, rq, 1, ar);
--	wait_for_completion(&wait);	/* wait for it to be serviced */
-+	wait_for_completion(&wait);
- 
--	return rq->errors ? -EIO : 0;	/* return -EIO if errors */
-+	errors = rq->errors;
-+	blk_put_request(rq);
-+
-+	return errors ? -EIO : 0;
- }
- 
- EXPORT_SYMBOL(ata_read);
-diff -durNp -X /tmp/diff.WY9PFG linux-2.5.30/include/linux/ide.h linux/include/linux/ide.h
---- linux-2.5.30/include/linux/ide.h	2002-08-06 14:15:07.000000000 +0200
-+++ linux/include/linux/ide.h	2002-08-06 14:04:32.000000000 +0200
-@@ -763,7 +763,6 @@ struct ata_device {
- 
- 	request_queue_t	queue;		/* per device request queue */
- 	struct request *rq;		/* current request */
--	struct request srequest;	/* special requests */
- 
- 	u8	 retry_pio;		/* retrying dma capable host in pio */
- 	u8	 state;			/* retry state */
-
---------------040902050309030502050400--
-
+I don't use CVS anymore...

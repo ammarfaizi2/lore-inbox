@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSKCO0w>; Sun, 3 Nov 2002 09:26:52 -0500
+	id <S261946AbSKCOZK>; Sun, 3 Nov 2002 09:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbSKCO0w>; Sun, 3 Nov 2002 09:26:52 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:52229 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261894AbSKCO0u>; Sun, 3 Nov 2002 09:26:50 -0500
-Date: Sun, 3 Nov 2002 14:33:20 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NCR53C9x ESP: C99 designated initializers
-Message-ID: <20021103143320.A25170@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20021103131339.A22465@infradead.org> <Pine.GSO.4.21.0211031526050.12573-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0211031526050.12573-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Sun, Nov 03, 2002 at 03:28:55PM +0100
+	id <S261945AbSKCOZK>; Sun, 3 Nov 2002 09:25:10 -0500
+Received: from kuix.de ([217.160.75.209]:49423 "EHLO p10068181.pureserver.de")
+	by vger.kernel.org with ESMTP id <S261946AbSKCOZJ>;
+	Sun, 3 Nov 2002 09:25:09 -0500
+Message-ID: <3DC5333A.3090808@gmx.de>
+Date: Sun, 03 Nov 2002 15:31:22 +0100
+From: Kai Engert <kai.engert@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: james@cobaltmountain.com, alan@redhat.com
+Subject: Regression in 2.4.20 radeonfb.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 03:28:55PM +0100, Geert Uytterhoeven wrote:
-> On Sun, 3 Nov 2002, Christoph Hellwig wrote:
-> > On Sun, Nov 03, 2002 at 11:46:48AM +0100, Geert Uytterhoeven wrote:
-> > > NCR53C9x ESP: C99 designated initializers
-> > 
-> > Please move the host template to the C file instead of the header
-> > if you touch it.  Having them in the header and the methods exported
-> > was needed in 2.2, but that's long ago..
-> 
-> At your service :-)
-> Except for the MIPS JAZZ driver, since SCSI_JAZZ_ESP is not actually used
-> anymore, probably due to bit rot.
+In 2.4.19-rc3-ac2, Alan Cox / James Mayer added a modeline entry to 
+modedb.c that enables a 1280x600 console screen on Vaio C1M* devices. 
+The patch works fine for me in 2.4.19.
 
-The patch looks fine, thanks.  Now if all scsi host driver maintainers
-would do it this way.. :)
+In 2.4.20-pre* kernels, it does no longer work for me, the console 
+remains at the default setting.
+
+I identified the hunk below to be the culprit. That check was removed in 
+2.4.20-* kernels. When I revert the hunk below, adding back the null 
+check, my system again switches to full screen console mode.
+
+I propose to revert the hunk for 2.4.20.
+Tested with 2.4.20-rc1.
+
+Thanks,
+Kai
+
+(Please CC me on replys)
+
+
+diff -ru 2419/drivers/video/radeonfb.c 2420/drivers/video/radeonfb.c
+--- 2419/drivers/video/radeonfb.c       Sun Nov  3 14:44:07 2002
++++ 2420/drivers/video/radeonfb.c       Sun Nov  3 13:48:47 2002
+@@ -877,14 +871,6 @@
+         /* mem size is bits [28:0], mask off the rest */
+         rinfo->video_ram = tmp & CONFIG_MEMSIZE_MASK;
+
+-       /* According to XFree86 4.2.0, some production M6's return 0
+-          for 8MB. */
+-       if (rinfo->video_ram == 0 &&
+-           (pdev->device == PCI_DEVICE_ID_RADEON_LY ||
+-            pdev->device == PCI_DEVICE_ID_RADEON_LZ)) {
+-           rinfo->video_ram = 8192 * 1024;
+-         }
+-
+         /* ram type */
+         tmp = INREG(MEM_SDRAM_MODE_REG);
+         switch ((MEM_CFG_TYPE & tmp) >> 30) {
+
 

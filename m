@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276686AbRJQNhT>; Wed, 17 Oct 2001 09:37:19 -0400
+	id <S276768AbRJQNj3>; Wed, 17 Oct 2001 09:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276682AbRJQNhB>; Wed, 17 Oct 2001 09:37:01 -0400
-Received: from babel.apana.org.au ([202.12.88.4]:46596 "EHLO
-	babel.apana.org.au") by vger.kernel.org with ESMTP
-	id <S276642AbRJQNgr>; Wed, 17 Oct 2001 09:36:47 -0400
-Date: Wed, 17 Oct 2001 23:40:39 +1000
-From: John August <johna@babel.apana.org.au>
-To: linux-kernel@vger.kernel.org
-Subject: keyboard / shutdown problem on 2.4.10
-Message-ID: <20011017234039.D5068@babel.apana.org.au>
-Mime-Version: 1.0
+	id <S276682AbRJQNjU>; Wed, 17 Oct 2001 09:39:20 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:25104 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S276836AbRJQNjK>; Wed, 17 Oct 2001 09:39:10 -0400
+Message-ID: <3BCD8AC5.8FD733BC@loewe-komp.de>
+Date: Wed, 17 Oct 2001 15:42:29 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Steve Lord <lord@sgi.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: NFS related Oops in 2.4.[39]-xfs
+In-Reply-To: <200110170928.f9H9SsP07618@jen.americas.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using kernel 2.4.10 and am not aware of these issues being fixed
-for 2.4.12, based on jitterbug.  I'll upgrade to a 2.4.12 plus patches
-if there's a good chance of them being fixed.
+Steve Lord wrote:
+> 
+> Where did you get your kernel (the 2.4.9 version that is) this problem
+> sounds familiar, but I am pretty sure we fixed this case in XFS somewhere
+> between 2.4.3 and 2.4.9.
+> 
 
-I am using a 1.2 GHZ Athlon with a K7VZA mainboard. 
+The following diff was made in 2.4.4.
 
-When I issue a shutdown command, the computer halts but does not turn
-itself off. This functionality was present on a 2.4.2-2 kernel, where
-the computer turned itself off.
+diff -u --recursive --new-file v2.4.4/linux/fs/nfsd/nfsfh.c linux/fs/nfsd/nfsfh.c
+--- v2.4.4/linux/fs/nfsd/nfsfh.c        Fri Feb  9 11:29:44 2001
++++ linux/fs/nfsd/nfsfh.c       Sat May 19 17:47:55 2001
+@@ -244,6 +245,11 @@
+         */
+        pdentry = child->d_inode->i_op->lookup(child->d_inode, tdentry);
+        d_drop(tdentry); /* we never want ".." hashed */
++       if (!pdentry && tdentry->d_inode == NULL) {
++               /* File system cannot find ".." ... sad but possible */
++               dput(tdentry);
++               pdentry = ERR_PTR(-EINVAL);
++       }
 
-When I press the alt key in order to type in three digits to get keyboard
-codes above 128, this does not work. I also have problems in remapping
-the keyboard to get these high codes, but this could be operator error.
+But it would not prevent the code path 2.4.3-xfs hit.
+pdentry is !=NULL and tdentry->d_inode is always NULL after d_alloc():611
 
-This functionality was present on a 2.2.17 kernel. The keyboard was 
-munged by consolechars, but at least it started out working (again, this
-could be operator error).
+Does xfs' child->d_inode->i_op->lookup(child->d_inode, tdentry);
+change the contents of tdentry if the lookup("..") succeeds?
 
-I'm not on the list, please forward any replies.
+Then I suggest:
 
-Thanks,
+!       if (!pdentry || tdentry->d_inode == NULL) {
 
--- 
-John August
+What do you think?
+BTW, when does a lookup("..") fail? Even in "/", lookup("..") returns "."
 
-There are no bad blocks.
-There are only bad users.
+
+> > struct dentry *nfsd_findparent(struct dentry *child)
+> > {
+> >         struct dentry *tdentry, *pdentry;
+> >         tdentry = d_alloc(child, &(const struct qstr) {"..", 2, 0});
+> >         if (!tdentry)
+> >                 return ERR_PTR(-ENOMEM);
+> >
+> >         /* I'm going to assume that if the returned dentry is different, then
+> >          * it is well connected.  But nobody returns different dentrys do they?
+> >          */
+> >         pdentry = child->d_inode->i_op->lookup(child->d_inode, tdentry);
+> >         d_drop(tdentry); /* we never want ".." hashed */
++       if (!pdentry && tdentry->d_inode == NULL) {
++               /* File system cannot find ".." ... sad but possible */
++               dput(tdentry);
++               pdentry = ERR_PTR(-EINVAL);
++       }
+> >         if (!pdentry) {
+> >                 /* I don't want to return a ".." dentry.
+> >                  * I would prefer to return an unconnected "IS_ROOT" dentry,
+> >                  * though a properly connected dentry is even better
+> >                  */
+> >                 /* if first or last of alias list is not tdentry, use that
+> >                  * else make a root dentry
+> >                  */
+> >                 struct list_head *aliases = &tdentry->d_inode->i_dentry;
+> >                 spin_lock(&dcache_lock);
+> >                 if (aliases->next != aliases) {         <=========== CRASH
+> >                         pdentry = list_entry(aliases->next, struct dentry, d_

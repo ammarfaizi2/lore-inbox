@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUE1Szo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUE1TCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUE1Szo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 14:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263799AbUE1Szo
+	id S263802AbUE1TCu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 15:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUE1TCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 14:55:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:24307 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263770AbUE1Szm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 14:55:42 -0400
-Date: Fri, 28 May 2004 11:54:59 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-rc1-mm1: revert leave-runtime-suspended-devices-off-at-system-resume.patch
-Message-ID: <20040528185459.GG7176@slurryseal.ddns.mvista.com>
-References: <1085658551.1998.7.camel@teapot.felipe-alfaro.com> <20040527233432.GE7176@slurryseal.ddns.mvista.com> <1085742197.1684.0.camel@teapot.felipe-alfaro.com>
+	Fri, 28 May 2004 15:02:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10679 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263802AbUE1TCr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 15:02:47 -0400
+Date: Fri, 28 May 2004 21:01:29 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+Message-ID: <20040528190129.GF9898@devserv.devel.redhat.com>
+References: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com> <2750000.1085769212@flay> <20040528184411.GE9898@devserv.devel.redhat.com> <4160000.1085770644@flay>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
 Content-Disposition: inline
-In-Reply-To: <1085742197.1684.0.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <4160000.1085770644@flay>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch to fix my previous
-leave-runtime-suspended-devices-off-at-system-resume patch; the new
-changes save a copy of power.power_state in order to know whether to
-resume a device, independently of mods to that field by a driver suspend
-routine.  This fixes 2.6.7-rc1-mm1 in the same fashion as the updated
-2.6.6 patch sent previously.  Thanks -- Todd
 
---- linux-2.6.7-rc1-mm1.orig/drivers/base/power/suspend.c	2004-05-27 12:18:53.000000000 -0700
-+++ linux-2.6.7-rc1-mm1.pm/drivers/base/power/suspend.c	2004-05-28 11:08:10.486982568 -0700
-@@ -39,6 +39,8 @@
- {
- 	int error = 0;
- 
-+	dev->power.prev_state = dev->power.power_state;
-+
- 	if (dev->bus && dev->bus->suspend && !dev->power.power_state)
- 		error = dev->bus->suspend(dev,state);
- 
---- linux-2.6.7-rc1-mm1.orig/drivers/base/power/resume.c	2004-05-27 12:18:53.000000000 -0700
-+++ linux-2.6.7-rc1-mm1.pm/drivers/base/power/resume.c	2004-05-28 11:10:43.792676560 -0700
-@@ -36,7 +36,7 @@
- 		struct device * dev = to_device(entry);
- 		list_del_init(entry);
- 
--		if (!dev->power.power_state)
-+		if (!dev->power.prev_state)
- 			resume_device(dev);
- 
- 		list_add_tail(entry,&dpm_active);
---- linux-2.6.7-rc1-mm1.orig/include/linux/pm.h	2004-05-27 12:16:59.000000000 -0700
-+++ linux-2.6.7-rc1-mm1.pm/include/linux/pm.h	2004-05-28 11:11:50.792491040 -0700
-@@ -231,6 +231,7 @@
- struct dev_pm_info {
- 	u32			power_state;
- #ifdef	CONFIG_PM
-+	u32			prev_state;
- 	u8			* saved_state;
- 	atomic_t		pm_users;
- 	struct device		* pm_parent;
+--Pql/uPZNXIm1JCle
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, May 28, 2004 at 11:57:24AM -0700, Martin J. Bligh wrote:
+> >> Here's my start at a list ... I'm sure it's woefully incomplete.
+> >> 
+> >> 1. Utilize all CPUs roughly evenly for IRQ processing load (anything that's
+> >> not measured by the scheduler at least, because it's unfair to other 
+> >> processes).
+> > 
+> > yep; irqbalance approximates irq processing load by irq count, which seems
+> > to be ok-ish so far.
+> 
+
+> Isn't that exactly what the in-kernel one does though? which people were
+> complaining about (wrt network backend (softirq?) processing)? And some
+> interrupts are much heavier than others, surely?
+
+irqbalance uses class based balancing to try to balance the "some are
+heavier than others" thing. 
+
+>  
+> >> Also, we may well have more than 1 CPU's worth of traffic to
+> >> process in a large network server.
+> > 
+> > One NIC? I've yet to see that ;)
+> 
+> No, multiple NICs. but if I shove 8 gigabit adaptors in a machine, we need
+> more than 1 cpu to process it ... 
+
+yeah, and if you have more than 1 cpu, irqbalanced *will* spread them.
+
+> Is there actually any algorithmic difference between the user-space and
+> in-kernel ones? or is this just a philosophical debate about user vs kernel
+> placement of code? ;-)
+
+the userspace one is quite different and uses different level of information
+(for example it makes class groups of irq's, eg it groups all ethernet
+irq's, all storage irq's etc in separate classes and uses the class info in
+the balancing algorithm). That surely is beyond what you'd want to do inside
+the kernel, but it works great ;)
+
+
+
+--Pql/uPZNXIm1JCle
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAt4yJxULwo51rQBIRAsb6AKCpH7GMkxcklhBlSilY91xhvoZ52ACeJGNi
+vHBk3bPDkqaptaXltRjviB4=
+=3uHy
+-----END PGP SIGNATURE-----
+
+--Pql/uPZNXIm1JCle--

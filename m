@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSE2OIp>; Wed, 29 May 2002 10:08:45 -0400
+	id <S315338AbSE2OGl>; Wed, 29 May 2002 10:06:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315335AbSE2OIY>; Wed, 29 May 2002 10:08:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:33039 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315372AbSE2OG6>;
-	Wed, 29 May 2002 10:06:58 -0400
-Date: Wed, 29 May 2002 16:06:58 +0200
-From: Dave Jones <davej@suse.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        "J.A. Magallon" <jamagallon@able.es>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
-Message-ID: <20020529160658.K27463@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <20020527145420.GA6738@werewolf.able.es> <1022520676.11859.294.camel@irongate.swansea.linux.org.uk> <20020527215911.GC1848@werewolf.able.es> <20020528012925.GB20729@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315335AbSE2OGk>; Wed, 29 May 2002 10:06:40 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:9487 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S315338AbSE2OGh>; Wed, 29 May 2002 10:06:37 -0400
+Message-ID: <3CF4E0E0.9090001@loewe-komp.de>
+Date: Wed, 29 May 2002 16:08:32 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre9, still USB freeze
+In-Reply-To: <Pine.LNX.4.21.0205281905260.7798-100000@freak.distro.conectiva>	<20020529145010.21d01e80.skraw@ithnet.com>	<3CF4DDE8.1020305@loewe-komp.de> <20020529155849.357ee2b1.skraw@ithnet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 10:29:25PM -0300, Arnaldo Carvalho de Melo wrote:
- > 	Since you're working on this could I suggest that you use labeled
- > elements, this gccism make the initialization above way more cleaner, safer and
- > easy to read :-) This is being used in the kernel in places like the FSes, the
- > TCP/IP stack and lots of other places.
+Stephan von Krawczynski wrote:
+> On Wed, 29 May 2002 15:55:52 +0200
+> Peter Wächtler <pwaechtler@loewe-komp.de> wrote:
+> 
+> 
+>>Stephan von Krawczynski wrote:
+>>
+>>>Hello,
+>>>
+>>>as noted for pre8, pre9 freezes still, when connecting a sandisk SDDR-05 to
+>>>USB(only device attached), and trying to mount some compact-flash. Or, as
+>>>an alternative test, even with no compact flash inserted, when starting up
+>>>xcdroast. Both completely freezes the machine.
+>>>
+>>>pre6 was ok.
+>>>
+>>>
+>>Is that on a SMP machine?
+>>
+> 
+> Yes, this is SMP (Asus CUV4X-D, via chipset), dual PIII.
+> 
+> 
+>>I think usb-storage is not completely SMP safe.
+>>I had occasional lockups on SMP - since I connected the readers to UP
+>>I had no single lockup. At work I do write a lot of compactflashes.
+>>
+> 
+> Interestingly everything works well with pre6, whereas pre8 and pre9 _always_
+> freeze.
+> 
 
-Patrick Mochel already did it in his reworking of the arch/i386/kernel cruft
-It's already merged in my tree, and will hopefully turn up in Linus' tree
-sometime soon. So far, it's been dropped (probably because it rejected
-when someone else touched something there)
+I let my SMP box run overnight. WHEN there was a crash when writing CF
+(perhaps every 2 weeks or so), THEN I got sometimes BIG problems with
+writing even after a reboot - locked up again immediatly.
+IIRC my workaround was to remove the modules and load them again
+before using them. Yes, sounds weird.
+I tried to analyse the problem but gave up. I used usb-uhci on 2.4.9
+to 2.4.18-SuSE
 
-I'll push the resynced version later today
-
-    Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

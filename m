@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129379AbRBPJc7>; Fri, 16 Feb 2001 04:32:59 -0500
+	id <S129886AbRBPJet>; Fri, 16 Feb 2001 04:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129769AbRBPJct>; Fri, 16 Feb 2001 04:32:49 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:16043 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129379AbRBPJcl>; Fri, 16 Feb 2001 04:32:41 -0500
-Date: Fri, 16 Feb 2001 09:32:34 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139 full duplex?
-In-Reply-To: <200102160858.JAA02472@cave.bitwizard.nl>
-Message-ID: <Pine.SOL.4.21.0102160930050.26108-100000@orange.csi.cam.ac.uk>
+	id <S129887AbRBPJej>; Fri, 16 Feb 2001 04:34:39 -0500
+Received: from mx1.nameplanet.com ([213.203.30.51]:23311 "HELO
+	mx1.nameplanet.com") by vger.kernel.org with SMTP
+	id <S129886AbRBPJe0>; Fri, 16 Feb 2001 04:34:26 -0500
+Date: Fri, 16 Feb 2001 10:37:08 +0100 (CET)
+From: Ketil Froyn <ketil@froyn.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: out of memory?
+Message-ID: <Pine.LNX.4.30.0102161009230.829-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Feb 2001, Rogier Wolff wrote:
+Hi.
 
-> 
-> Hi All,
-> 
-> I have a bunch of computers with 8139 cards. When I moved the cables
-> over from my hub to my new switch all the "full duplex" lights came on
-> immediately.
+I'm getting lots of this on a computer:
+VM: do_try_to_free_pages failed for myprog.pl
+VM: do_try_to_free_pages failed for myprog.pl
+VM: do_try_to_free_pages failed for myprog.pl
+....
+VM: do_try_to_free_pages failed for kupdate (just saw this once)
 
-That's what you would expect: they will auto-negotiate full duplex, in the
-same way they would negotiate 10 or 100 Mbit/sec.
+myprog is basically making lots of directories, and is not using lots of
+memory. Here's the info from 'ps auxw':
 
-> Would this mean that the driver/card already were in full-duplex?
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+root       994 22.6  0.3  2568  364 tty1     R    Feb15 230:40 perl -w myprog.pl
 
-No, that's not possible. They just automatically configured for the
-best performance available - in this case, full duplex.
+It doesn't seem like I'm out of memory:
+$ cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  97730560 96149504  1581056  2125824  5447680  5115904
+Swap: 68083712 35213312 32870400
+MemTotal:     95440 kB
+MemFree:       1544 kB
+MemShared:     2076 kB
+Buffers:       5320 kB
+Cached:        4996 kB
+SwapTotal:    66488 kB
+SwapFree:     32100 kB
+$ uname -a
+Linux localhost.localdomain 2.2.18RAID #6 Wed Feb 14 19:15:49 CET 2001 \
+i586 unknown
 
-> That would explain me seeing way too many collisions on that old hub
-> (which obviously doesn't support full-duplex).
+The kernel is compiled with the rh-7.0 kgcc (egcs-2.91.66), and I've
+patched it to get raid 0.90 and reiserfs 3.5.29.
 
-No, it would just prevent your card working. Large numbers of collisions
-are normal during fast transfers across a hub.
+What's going on? How bad is this?
 
-
-James.
+Ketil Froyn
 

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273906AbTHKVhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 17:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274813AbTHKVhQ
+	id S274845AbTHKVlr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 17:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274863AbTHKVlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 17:37:16 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26381
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S273906AbTHKVhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 17:37:14 -0400
-Date: Mon, 11 Aug 2003 14:37:10 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Michael Buesch <fsdeveloper@yahoo.de>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+	Mon, 11 Aug 2003 17:41:47 -0400
+Received: from main.gmane.org ([80.91.224.249]:19617 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S274845AbTHKVlq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 17:41:46 -0400
+Mail-Followup-To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: ilmari@ilmari.org (=?utf-8?b?RGFnZmlubiBJbG1hcmkg?=
+	=?utf-8?b?TWFubnPDpWtlcg==?=)
 Subject: Re: [2.6 patch] add an -Os config option
-Message-ID: <20030811213710.GD1027@matchmail.com>
-Mail-Followup-To: Michael Buesch <fsdeveloper@yahoo.de>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Date: Mon, 11 Aug 2003 23:41:43 +0200
+Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
+Message-ID: <d8j65l3na7c.fsf@wirth.ping.uio.no>
 References: <20030811211145.GA569@fs.tum.de> <200308112319.43384.fsdeveloper@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308112319.43384.fsdeveloper@yahoo.de>
-User-Agent: Mutt/1.5.4i
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Adrian Bunk <bunk@fs.tum.de>
+Mail-Copies-To: never
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+Cancel-Lock: sha1:8GzT4WOh2Xl+brsu0inxkZoF7Ys=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 11:19:39PM +0200, Michael Buesch wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
+Michael Buesch <fsdeveloper@yahoo.de> writes:
+
 > On Monday 11 August 2003 23:11, Adrian Bunk wrote:
-> > +	  The resulting kernel might be significantly slower.
-> 
+>> +	  The resulting kernel might be significantly slower.
+>
 > With my poor english knowledge I would say it should be "significant".
 > Correct?
 
-No, the english in the patch is correct.
+Nope, it's an adverb (modifying the adjective "slower"), hence the -ly
+suffix.
+
+-- 
+ilmari
+

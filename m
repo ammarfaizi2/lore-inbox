@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUGOBZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264236AbUGOBiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUGOBZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 21:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUGOBYP
+	id S264236AbUGOBiA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 21:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUGOBh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 21:24:15 -0400
-Received: from mailgate2.mysql.com ([213.136.52.47]:22724 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S266005AbUGOAct
+	Wed, 14 Jul 2004 21:37:59 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:59589 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264236AbUGOBhz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:32:49 -0400
-Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
-From: Peter Zaitsev <peter@mysql.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20040714154427.14234822.akpm@osdl.org>
-References: <1089771823.15336.2461.camel@abyss.home>
-	 <20040714031701.GT974@dualathlon.random>
-	 <1089776640.15336.2557.camel@abyss.home>
-	 <20040713211721.05781fb7.akpm@osdl.org>
-	 <1089848823.15336.3895.camel@abyss.home>
-	 <20040714154427.14234822.akpm@osdl.org>
+	Wed, 14 Jul 2004 21:37:55 -0400
+Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
+	posix-timer functions to return higher accuracy)
+From: john stultz <johnstul@us.ibm.com>
+To: David Mosberger <davidm@hpl.hp.com>
+Cc: Christoph Lameter <clameter@sgi.com>, george anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
+In-Reply-To: <16629.56037.120532.779793@napali.hpl.hp.com>
+References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+	 <1089835776.1388.216.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
+	 <1089839740.1388.230.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
+	 <1089852486.1388.256.camel@cog.beaverton.ibm.com>
+	 <16629.56037.120532.779793@napali.hpl.hp.com>
 Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1089851451.15336.3962.camel@abyss.home>
+Message-Id: <1089855319.1388.295.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Jul 2004 17:30:52 -0700
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 14 Jul 2004 18:35:20 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 15:44, Andrew Morton wrote:
-
+On Wed, 2004-07-14 at 18:16, David Mosberger wrote:
+> >>>>> On Wed, 14 Jul 2004 17:48:06 -0700, john stultz <johnstul@us.ibm.com> said:
 > 
-> > To be honest I do not really understand this OOM without swap problem at
-> > all, why is it possible to move pages from ZONE_NORMAL to swap but not
-> > to other zones ? 
+>   John> Although you still have the issue w/ NTP adjustments being
+>   John> ignored, but last time I looked at the time_interpolator code,
+>   John> it seemed it was being ignored there too, so at least your not
+>   John> doing worse then the ia64 do_gettimeofday(). [If I'm doing the
+>   John> time_interpolator code a great injustice with the above,
+>   John> someone please correct me]
 > 
-> If the kernel has no swap there is nothing it can do with an anonymous page
-> (ie: the thing whcih malloc() gives you).  It is effectively pinned memory,
-> because there's nowhere we can write it to get rid of it.
+> The existing time-interpolator code for ia64 never lets time go
+> backwards (in the absence of a settimeofday(), of course).  There is
+> no need to special-case NTP.
 
-Why can't it be moved to other zone if there is a lot of place where ?
-In general I was not pushing system in some kind of stress mode - There
-was still a lot of cache memory available. Why it could not be instead
-shrunk to accommodate allocation ? 
+I guess I don't understand then, from my looking over it I didn't see
+where the time_interpolator_get_offset() is scaled back when NTP is
+slewing the clock. It seems that while the time-interpolator code does
+keep time from going backwards, it also inadvertently ends up
+compensating for NTP slow down. Thus the slewing is not visible to
+userspace. 
 
-As I understand in my case with 4G there is  Normal zone and HighMem
-zone where "user" anonymous memory can be located in any of these zones.
-Is this observation correct ? 
+In order for this to happen, time_interpolator_get_offset() would need
+to be scaled or capped as to that it would not return more then the
+length of the *NTP adjusted tick* during an actual tick interval.
 
- 
-> 
-> If you end up pinning all of your ZONE_NORMAL pages with anonymous memory,
-> further GFP_KERNEL allocation attempts will go oom.
+I may be missing something, so please let me know if I'm wrong.
 
-Aha I see. So user level memory allocations can't cause OOM only kernel
-level allocations can ?   In this case why do not you have some reserved
-amount of space for these types of allocations by default ? 
-
-In this case I also do not understand how swap space helps here ? If you
-can't move page to over zone or shrink cache because of allocation type
-how it happens you can however perform page swap ? 
-
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-
+thanks
+-john
 

@@ -1,151 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbTIVAQr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 20:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTIVAQr
+	id S262723AbTIVATG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 20:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTIVATG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 20:16:47 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:13453 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S262718AbTIVAQh (ORCPT
+	Sun, 21 Sep 2003 20:19:06 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:15757 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S262723AbTIVASg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 20:16:37 -0400
-Date: Sun, 21 Sep 2003 20:09:35 +0000
+	Sun, 21 Sep 2003 20:18:36 -0400
+Date: Sun, 21 Sep 2003 20:11:33 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP Fixes for 2.6.0-test5
-Message-ID: <20030921200935.GB24897@neo.rr.com>
+Subject: Re: [PATCH] PnP Fixes for 2.6.0-test5
+Message-ID: <20030921201133.GE24897@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	linux-kernel@vger.kernel.org
+References: <20030921200935.GB24897@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030921200935.GB24897@neo.rr.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 # --------------------------------------------
-# 03/09/21	ambx1@neo.rr.com	1.1354
-# [PNPBIOS] compilation fix for pnpbios without proc support
-#
-# Here's an updated patch that will correct the compile error when PROC
-# FS is disabled.  It also introduces better proc error recovery and
-# moves the local proc functions to the local include file.  Thanks to
-# Daniele Bellucci for finding the problem and contributing to this
-# patch.
-#
+# 03/09/21	ambx1@neo.rr.com	1.1357
+# [PNP] remove DMA 0 restrictions
+# 
+# The original argument for blocking DMA 0 was to avoid conflicts with
+# "memory refresh"  but such configurations are only found on very old
+# 8-bit systems that are likely not supported by the linux kernel. 
+# This patch allows dma 0 to be assigned to PnP devices by default.  If
+# for whatever reason dma 0 cannot be used, one can avoid allocating it
+# by setting the pnp_reserve_dma= kernel parameter.
 # --------------------------------------------
 #
-diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
---- a/drivers/pnp/pnpbios/core.c	Sun Sep 21 19:46:16 2003
-+++ b/drivers/pnp/pnpbios/core.c	Sun Sep 21 19:46:16 2003
-@@ -431,14 +431,15 @@
- 	}
- 
- 	/* register with the pnp layer */
--	pnp_register_protocol(&pnpbios_protocol);
-+	if (pnp_register_protocol(&pnpbios_protocol)) {
-+		printk(KERN_ERR "PnPBIOS: Unable to register driver.  Aborting.\n");
-+		return -EIO;
-+	}
- 
--#ifdef CONFIG_PROC_FS
- 	/* start the proc interface */
- 	ret = pnpbios_proc_init();
- 	if (ret)
--		return ret;
--#endif
-+		printk(KERN_ERR "PnPBIOS: Failed to create proc interface.\n");
- 
- 	/* scan for pnpbios devices */
- 	build_devlist();
-diff -Nru a/drivers/pnp/pnpbios/pnpbios.h b/drivers/pnp/pnpbios/pnpbios.h
---- a/drivers/pnp/pnpbios/pnpbios.h	Sun Sep 21 19:46:16 2003
-+++ b/drivers/pnp/pnpbios/pnpbios.h	Sun Sep 21 19:46:16 2003
-@@ -9,3 +9,13 @@
- 
- extern void pnpbios_print_status(const char * module, u16 status);
- extern int pnpbios_probe_installation(void);
-+
-+#ifdef CONFIG_PROC_FS
-+extern int pnpbios_interface_attach_device(struct pnp_bios_node * node);
-+extern int pnpbios_proc_init (void);
-+extern void pnpbios_proc_exit (void);
-+#else
-+static inline int pnpbios_interface_attach_device(struct pnp_bios_node * node) { return 0; }
-+static inline int pnpbios_proc_init (void) { return 0; }
-+static inline void pnpbios_proc_exit (void) { ; }
-+#endif /* CONFIG_PROC */
-diff -Nru a/drivers/pnp/pnpbios/proc.c b/drivers/pnp/pnpbios/proc.c
---- a/drivers/pnp/pnpbios/proc.c	Sun Sep 21 19:46:16 2003
-+++ b/drivers/pnp/pnpbios/proc.c	Sun Sep 21 19:46:16 2003
-@@ -31,6 +31,8 @@
- 
- #include <asm/uaccess.h>
- 
-+#include "pnpbios.h"
-+
- static struct proc_dir_entry *proc_pnp = NULL;
- static struct proc_dir_entry *proc_pnp_boot = NULL;
- 
-@@ -213,6 +215,9 @@
- 	struct proc_dir_entry *ent;
- 
- 	sprintf(name, "%02x", node->handle);
-+
-+	if (!proc_pnp)
-+		return -EIO;
- 	if ( !pnpbios_dont_use_current_config ) {
- 		ent = create_proc_entry(name, 0, proc_pnp);
- 		if (ent) {
-@@ -221,6 +226,9 @@
- 			ent->data = (void *)(long)(node->handle);
- 		}
- 	}
-+
-+	if (!proc_pnp_boot)
-+		return -EIO;
- 	ent = create_proc_entry(name, 0, proc_pnp_boot);
- 	if (ent) {
- 		ent->read_proc = proc_read_node;
-@@ -228,6 +236,7 @@
- 		ent->data = (void *)(long)(node->handle+0x100);
- 		return 0;
- 	}
-+
- 	return -EIO;
+diff -Nru a/drivers/pnp/quirks.c b/drivers/pnp/quirks.c
+--- a/drivers/pnp/quirks.c	Sun Sep 21 19:45:59 2003
++++ b/drivers/pnp/quirks.c	Sun Sep 21 19:45:59 2003
+@@ -111,28 +111,6 @@
+ 	return;
  }
  
-@@ -257,8 +266,9 @@
- {
- 	int i;
- 	char name[3];
--	
--	if (!proc_pnp) return;
-+
-+	if (!proc_pnp)
-+		return;
- 
- 	for (i=0; i<0xff; i++) {
- 		sprintf(name, "%02x", i);
-diff -Nru a/include/linux/pnpbios.h b/include/linux/pnpbios.h
---- a/include/linux/pnpbios.h	Sun Sep 21 19:46:16 2003
-+++ b/include/linux/pnpbios.h	Sun Sep 21 19:46:16 2003
-@@ -26,7 +26,7 @@
- #ifdef __KERNEL__
- 
- #include <linux/types.h>
--#include <linux/pci.h>
-+#include <linux/pnp.h>
- 
+-extern int pnp_allow_dma0;
+-static void quirk_opl3sax_resources(struct pnp_dev *dev)
+-{
+-	/* This really isn't a device quirk but isapnp core code
+-	 * doesn't allow a DMA channel of 0, afflicted card is an
+-	 * OPL3Sax where x=4.
+-	 */
+-	struct pnp_option *res;
+-	int max;
+-	res = dev->dependent;
+-	max = 0;
+-	for (; res; res = res->next) {
+-		if (res->dma->map > max)
+-			max = res->dma->map;
+-	}
+-	if (max == 1 && pnp_allow_dma0 == -1) {
+-		printk(KERN_INFO "pnp: opl3sa4 quirk: Allowing dma 0.\n");
+-		pnp_allow_dma0 = 1;
+-	}
+-	return;
+-}
+-
  /*
-  * Return codes
-@@ -135,9 +135,6 @@
- extern struct pnp_dev_node_info node_info;
- extern void *pnpbios_kmalloc(size_t size, int f);
- extern int pnpbios_init (void);
--extern int pnpbios_interface_attach_device(struct pnp_bios_node * node);
--extern int pnpbios_proc_init (void);
--extern void pnpbios_proc_exit (void);
+  *  PnP Quirks
+  *  Cards or devices that need some tweaking due to incomplete resource info
+@@ -153,7 +131,6 @@
+ 	{ "CTL0043", quirk_sb16audio_resources },
+ 	{ "CTL0044", quirk_sb16audio_resources },
+ 	{ "CTL0045", quirk_sb16audio_resources },
+-	{ "YMH0021", quirk_opl3sax_resources },
+ 	{ "" }
+ };
  
- extern int pnp_bios_dev_node_info (struct pnp_dev_node_info *data);
- extern int pnp_bios_get_dev_node (u8 *nodenum, char config, struct pnp_bios_node *data);
+@@ -170,4 +147,3 @@
+ 		i++;
+ 	}
+ }
+-
+diff -Nru a/drivers/pnp/resource.c b/drivers/pnp/resource.c
+--- a/drivers/pnp/resource.c	Sun Sep 21 19:45:59 2003
++++ b/drivers/pnp/resource.c	Sun Sep 21 19:45:59 2003
+@@ -21,8 +21,6 @@
+ #include <linux/pnp.h>
+ #include "base.h"
+ 
+-int pnp_allow_dma0 = -1;		        /* allow dma 0 during auto activation:
+-						 * -1=off (:default), 0=off (set by user), 1=on */
+ int pnp_skip_pci_scan;				/* skip PCI resource scanning */
+ int pnp_reserve_irq[16] = { [0 ... 15] = -1 };	/* reserve (don't use) some IRQ */
+ int pnp_reserve_dma[8] = { [0 ... 7] = -1 };	/* reserve (don't use) some DMA */
+@@ -426,7 +424,7 @@
+ 
+ int pnp_check_dma(struct pnp_dev * dev, int idx)
+ {
+-	int tmp, mindma = 1;
++	int tmp;
+ 	struct pnp_dev *tdev;
+ 	unsigned long * dma = &dev->res.dma_resource[idx].start;
+ 
+@@ -435,9 +433,7 @@
+ 		return 1;
+ 
+ 	/* check if the resource is valid */
+-	if (pnp_allow_dma0 == 1)
+-		mindma = 0;
+-	if (*dma < mindma || *dma == 4 || *dma > 7)
++	if (*dma < 0 || *dma == 4 || *dma > 7)
+ 		return 0;
+ 
+ 	/* check if the resource is reserved */
+@@ -487,16 +483,6 @@
+ EXPORT_SYMBOL(pnp_register_port_resource);
+ EXPORT_SYMBOL(pnp_register_mem_resource);
+ 
+-
+-/* format is: allowdma0 */
+-
+-static int __init pnp_allowdma0(char *str)
+-{
+-        pnp_allow_dma0 = 1;
+-	return 1;
+-}
+-
+-__setup("allowdma0", pnp_allowdma0);
+ 
+ /* format is: pnp_reserve_irq=irq1[,irq2] .... */
+ 

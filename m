@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264943AbSLFRtO>; Fri, 6 Dec 2002 12:49:14 -0500
+	id <S264931AbSLFRr1>; Fri, 6 Dec 2002 12:47:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265154AbSLFRtO>; Fri, 6 Dec 2002 12:49:14 -0500
-Received: from holomorphy.com ([66.224.33.161]:64655 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264943AbSLFRso>;
-	Fri, 6 Dec 2002 12:48:44 -0500
-Date: Fri, 6 Dec 2002 09:55:57 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Michael Hohnbaum <hohnbaum@us.ibm.com>
-Cc: Erich Focht <efocht@ess.nec.de>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: per cpu time statistics
-Message-ID: <20021206175557.GF11023@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Michael Hohnbaum <hohnbaum@us.ibm.com>,
-	Erich Focht <efocht@ess.nec.de>, Andrew Morton <akpm@zip.com.au>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	LSE <lse-tech@lists.sourceforge.net>
-References: <200212041343.39734.efocht@ess.nec.de> <1039195903.16948.85.camel@dyn9-47-17-164.beaverton.ibm.com>
+	id <S264938AbSLFRr1>; Fri, 6 Dec 2002 12:47:27 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:15123 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264931AbSLFRr0>;
+	Fri, 6 Dec 2002 12:47:26 -0500
+Date: Fri, 6 Dec 2002 09:54:39 -0800
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [BK PATCH] PCI Hotplug changes for 2.4.20
+Message-ID: <20021206175439.GI10444@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1039195903.16948.85.camel@dyn9-47-17-164.beaverton.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-04 at 04:43, Erich Focht wrote:
->> I had to learn from Michael Hohnbaum that you've eliminated the per
->> CPU time statistics in 2.5.50 (akpm changeset from Nov. 26).
-> ...
->> For those who miss this feature I'm attaching a patch doing what wli
->> suggested. The config option is CONFIG_CPUS_STAT and can be found in
->> the "Kernel Hacking" menu, as wli suggested. Just didn't like
->> DEBUG_SCHED, we want to monitor the statistics and this is not
->> necessarily related to bugs in the scheduler. Also added as last line
->> in /proc/pid/cpu the current CPU of the task. It's often needed and
->> /proc/pid/stat is much too cryptic.
+Hi,
 
-On Fri, Dec 06, 2002 at 09:31:43AM -0800, Michael Hohnbaum wrote:
-> I use a set of tests provided by Erich that use the cpu information from
-> the task.  This information is crucial for understanding how processes
-> are dispatched across CPUs (and nodes on NUMA boxes).  I've applied
-> Erich's patch and it restores this data, making his tests useful.  Could
-> this patch be considered for inclusion?  Please.
+Here is an update for the PCI Hotplug ACPI driver.
 
-We've already come to a resolution on this one (going with Erich's patch),
-or at least I got that impression.
+Please pull from:  bk://linuxusb.bkbits.net/pci_hp-2.4
 
-Bill
+The raw patch will follow.
+
+thanks,
+
+greg k-h
+
+ drivers/hotplug/Makefile       |    3 
+ drivers/hotplug/acpiphp.h      |   20 +--
+ drivers/hotplug/acpiphp_core.c |  215 ++++++++++++++++++++++---------------
+ drivers/hotplug/acpiphp_glue.c |  232 +++++++++++++++++++----------------------
+ drivers/hotplug/acpiphp_pci.c  |  148 +++++++-------------------
+ drivers/hotplug/acpiphp_res.c  |   59 ++++------
+ 6 files changed, 314 insertions(+), 363 deletions(-)
+-----
+
+ChangeSet@1.828, 2002-12-06 09:31:02-08:00, t-kouchi@mvf.biglobe.ne.jp
+  [PATCH] ACPI PCI hotplug updates
+  
+  These are updates of the acpiphp driver for 2.4
+  This is mainly for backporting of bugfixes in 2.5 to 2.4.
+  Please apply.
+    - backport of 2.5 changes & bugfixes
+    - whitespace cleanup
+    - message cleanup
+
+ drivers/hotplug/Makefile       |    3 
+ drivers/hotplug/acpiphp.h      |   20 +--
+ drivers/hotplug/acpiphp_core.c |  215 ++++++++++++++++++++++---------------
+ drivers/hotplug/acpiphp_glue.c |  232 +++++++++++++++++++----------------------
+ drivers/hotplug/acpiphp_pci.c  |  148 +++++++-------------------
+ drivers/hotplug/acpiphp_res.c  |   59 ++++------
+ 6 files changed, 314 insertions(+), 363 deletions(-)
+------
+

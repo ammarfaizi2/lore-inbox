@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264730AbTGKSJK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 14:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbTGKSJG
+	id S264647AbTGKRxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 13:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbTGKRw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:09:06 -0400
-Received: from web10001.mail.yahoo.com ([216.136.130.37]:49065 "HELO
-	web10001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264730AbTGKRzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:55:44 -0400
-Message-ID: <20030711181025.14633.qmail@web10001.mail.yahoo.com>
-Date: Fri, 11 Jul 2003 11:10:25 -0700 (PDT)
-From: Keyser Soze <keyser_soze2u@yahoo.com>
-Subject: RE: Geode GX1, video acceleration -> crash
-To: linux-kernel@vger.kernel.org
-Cc: ferenc@engard.hu
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Jul 2003 13:52:28 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:1412
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264700AbTGKRvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:51:41 -0400
+Date: Fri, 11 Jul 2003 19:05:29 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307111805.h6BI5T8c017230@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: isurf compile fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But the real problem is, that I wanted to benchmark
-> the system while the scrolling continues, and issued
-> a dd if=/dev/mem of=/dev/null bs=1024 count=32768
-> command. For the second go, the system freezed like
-> a good refrigerator. No kernel panic, nothing, just
-> freezed. 
-
-Try turning off ide dma and see if that helps.  You
-will lose very little by turning off udma on this
-system and I'll bet you end up being more stable.
-
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/drivers/isdn/hisax/isurf.c linux-2.5.75-ac1/drivers/isdn/hisax/isurf.c
+--- linux-2.5.75/drivers/isdn/hisax/isurf.c	2003-07-10 21:10:25.000000000 +0100
++++ linux-2.5.75-ac1/drivers/isdn/hisax/isurf.c	2003-07-11 13:05:43.000000000 +0100
+@@ -237,7 +237,7 @@
+ 		struct pnp_card *pb;
+ 		struct pnp_dev *pd;
+ 	
+-		cs->subtyp = 0;
++		card->cs->subtyp = 0;
+ 		if ((pb = pnp_find_card(
+ 			     ISAPNP_VENDOR('S', 'I', 'E'),
+ 			     ISAPNP_FUNCTION(0x0010), pnp_surf))) {

@@ -1,148 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUHATXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUHATyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266141AbUHATXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 15:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUHATXa
+	id S266139AbUHATyw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 15:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUHATyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 15:23:30 -0400
-Received: from mra04.ex.eclipse.net.uk ([212.104.129.139]:49374 "EHLO
-	mra04.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S266177AbUHATWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 15:22:49 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-Date: Sun, 1 Aug 2004 20:22:28 +0100
-User-Agent: KMail/1.6.2
-References: <20040731232227.GA28455@devserv.devel.redhat.com>
-In-Reply-To: <20040731232227.GA28455@devserv.devel.redhat.com>
-Cc: Alan Cox <alan@redhat.com>
-MIME-Version: 1.0
+	Sun, 1 Aug 2004 15:54:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:44196 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266139AbUHATyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 15:54:50 -0400
+Date: Sun, 1 Aug 2004 21:30:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, mingo@redhat.com,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: [patch] voluntary-preempt-2.6.8-rc2-O2
+Message-ID: <20040801193043.GA20277@elte.hu>
+References: <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408012022.42516.ianh@iahastie.local.net>
+In-Reply-To: <20040729222657.GA10449@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 Aug 2004 00:22, Alan Cox wrote:
-> There is a messy scsi faking vendor driver for this card but this instead
-> is a standard Linux IDE layer driver.
-> + *  Documentation available from
-> + *     http://www.ite.com.tw/pc/IT8212F_V04.pdf
 
-A newer version than the one I have.  Looks like there's at least one newer 
-chip revision than the 0x11 that I have too.
+here's the latest version of the voluntary-preempt patch:
+  
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
 
-Just need to add something like this to get it to compile.
+this patch is mainly a stabilization effort. I dropped the irq-threads
+code added in -M5 and rewrote it from scratch based on -L2 - it is
+simpler and should be more robust.
 
---- linux-2.6.8-rc2/include/linux/pci_ids.h.it8212	2004-08-01 
-18:44:08.000000000 +0100
-+++ linux-2.6.8-rc2/include/linux/pci_ids.h	2004-08-01 19:14:44.000000000 
-+0100
-@@ -1634,6 +1634,7 @@
- #define PCI_VENDOR_ID_ITE		0x1283
- #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
- #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
-+#define	PCI_DEVICE_ID_ITE_8212		0x8212
- #define PCI_DEVICE_ID_ITE_8872		0x8872
- #define PCI_DEVICE_ID_ITE_IT8330G_0	0xe886
- 
----
+The same /proc/irq/* configuration switches are still present, but i
+added the following additional rule: if _any_ handler of a given IRQ is
+marked as non-threaded then all handlers will be executed non-threaded
+as well.
 
-Some quick test results I just got.  My set up is a IT8212 PCI card running 
-two UDMA133 discs in software RAID0.  I'd like to test the smart RAID some 
-time, but that isn't really practical at the moment.
+E.g. if you have the following handlers on IRQ 10:
 
-    IT8212: IDE controller at PCI slot 0000:00:0c.0
-    ACPI: PCI interrupt 0000:00:0c.0[A] -> GSI 17 (level, low) -> IRQ 17
-    IT8212: chipset revision 17
-    IT8212: 100% native mode on irq 17
+ 10:      11584   IO-APIC-level  eth0, eth1, eth2
 
-That makes sense.
+and you change /proc/irq/16/eth1/threaded from 1 to 0 then the eth0 and
+eth2 handlers will be executed non-threaded as well. (This rule only
+enforces what the hardware enforces anyway, none of the previous patches
+allowed true separation of these handlers.)
 
-        ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
-    it8212: controller in RAID mode.
+i also changed the IO-APIC level-triggered code to be robust when
+redirection is done. The noapic workaround should not be necessary
+anymore.
 
-That doesn't.  I have no RAID sets defined in the IT8212 card BIOS.  BTW, the 
-BIOS is an old one and should be updated.  However when I tried the updater 
-claimed success, but on reboot it hadn't changed.
+the keyboard lockups are now hopefully all gone too - i've tested
+IO-APIC and non-IO-APIC setups as well and NumLock/ScrollLock works fine
+in all sorts of workloads.
 
-        ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:pio, hdh:pio
-    hde: Maxtor 6Y120P0, ATA DISK drive
-    it8212: selected 50MHz clock.
+Let me know if you still have any problems.
 
-Nor does this as it really should be using the 66MHz clock setting.
-
-    ide2 at 0xb000-0xb007,0xa802 on irq 17
-    hde: max request size: 128KiB
-    hde: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-    hde: recal_intr: error=0x04 { DriveStatusError }
-
-Any idea what could be causing this?  My hacked driver doesn't get this in 
-2.6.7, but then it could be a 2.6.8 problem.
-
-    hde: 240121728 sectors (122942 MB) w/7936KiB Cache, CHS=65535/16/63, 
-UDMA(33)
-
-Oddly my driver reports UDMA(33) too, but that's probably bad coding as it is 
-definitely running faster than that.
-
-     /dev/ide/host2/bus0/target0/lun0: p1 p2
-    hdg: Maxtor 6Y120P0, ATA DISK drive
-    it8212: selected 50MHz clock.
-    ide3 at 0xa400-0xa407,0xa002 on irq 17
-    hdg: max request size: 128KiB
-    hdg: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-    hdg: recal_intr: error=0x04 { DriveStatusError }
-    hdg: 240121728 sectors (122942 MB) w/7936KiB Cache, CHS=65535/16/63, 
-UDMA(33)
-     /dev/ide/host2/bus1/target0/lun0: p1 p2
-
-And the same speed problems again.
-
-Now some speed tests with hdparm
-
-# hdparm -Tt /dev/hd[eg] /dev/md[01]
-
-/dev/hde:
- Timing buffer-cache reads:   3016 MB in  2.00 seconds = 1505.97 MB/sec
- Timing buffered disk reads:   86 MB in  3.02 seconds =  28.49 MB/sec
-
-/dev/hdg:
- Timing buffer-cache reads:   3012 MB in  2.00 seconds = 1504.72 MB/sec
- Timing buffered disk reads:   86 MB in  3.02 seconds =  28.46 MB/sec
-
-/dev/md0:
- Timing buffer-cache reads:   2928 MB in  2.00 seconds = 1462.03 MB/sec
- Timing buffered disk reads:  156 MB in  3.01 seconds =  51.90 MB/sec
-
-/dev/md1:
- Timing buffer-cache reads:   2996 MB in  2.00 seconds = 1495.98 MB/sec
- Timing buffered disk reads:  156 MB in  3.01 seconds =  51.77 MB/sec
-
-So I guess it actually is running at 33MHz!
-
-Current results with my hack
-
-# hdparm -Tt /dev/hd[eg] /dev/md[01]
-
-/dev/hde:
- Timing buffer-cache reads:   2980 MB in  2.00 seconds = 1488.74 MB/sec
- Timing buffered disk reads:  172 MB in  3.02 seconds =  57.04 MB/sec
-
-/dev/hdg:
- Timing buffer-cache reads:   2988 MB in  2.00 seconds = 1493.48 MB/sec
- Timing buffered disk reads:  170 MB in  3.03 seconds =  56.15 MB/sec
-
-/dev/md0:
- Timing buffer-cache reads:   2964 MB in  2.00 seconds = 1480.74 MB/sec
- Timing buffered disk reads:  286 MB in  3.00 seconds =  95.25 MB/sec
-
-/dev/md1:
- Timing buffer-cache reads:   2924 MB in  2.00 seconds = 1460.03 MB/sec
- Timing buffered disk reads:  290 MB in  3.01 seconds =  96.33 MB/sec
-
--- 
-Ian.
+	Ingo

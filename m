@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUEDJsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUEDJxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUEDJsO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 05:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUEDJsO
+	id S263736AbUEDJxd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 05:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUEDJxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 05:48:14 -0400
-Received: from west-smtp1.trimble.com ([216.52.42.205]:51727 "EHLO
-	west-smtp1.trimble.com") by vger.kernel.org with ESMTP
-	id S264286AbUEDJsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 05:48:04 -0400
-Date: Tue, 04 May 2004 05:48:00 -0400
-From: trimble_support@trimble.com
-Subject: Re: RQST00000295292 ;  Mail Delivery (failure trimble_support@trimble.com)
+	Tue, 4 May 2004 05:53:32 -0400
+Received: from usergc137.dsl.pipex.com ([62.190.170.137]:2570 "EHLO
+	gateway.office.e-tv-interactive.com") by vger.kernel.org with ESMTP
+	id S263736AbUEDJxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 05:53:15 -0400
+Subject: Re: Possible permissions bug on NFSv3 kernel client
+From: Colin Paton <colin.paton@etvinteractive.com>
 To: linux-kernel@vger.kernel.org
-X-Mailer: <Remedy CRM NTMailx>
-Message-ID: <USD-AM-XCH-02rx5zAa00003886@usd-am-xch-02.am.trimblecorp.net>
-X-OriginalArrivalTime: 04 May 2004 09:48:00.0588 (UTC) FILETIME=[E30980C0:01C431BC]
+In-Reply-To: <1083357597.13656.37.camel@lade.trondhjem.org>
+References: <1QqNJ-4QH-37@gated-at.bofh.it> <1QqNJ-4QH-39@gated-at.bofh.it>
+	 <1QqNJ-4QH-35@gated-at.bofh.it> <1Qrhg-5hH-29@gated-at.bofh.it>
+	 <E1BJeSB-0000Gk-V2@localhost>
+	 <1083357597.13656.37.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: eTV Interactive Ltd
+Message-Id: <1083664520.4538.42.camel@colinp>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 04 May 2004 10:55:20 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Welcome to Trimble Support. This is an automated response. 
-Your request number is: RQST00000295292 
-IMPORTANT: Please include this number in the Subject line of all emails to Trimble regarding this issue. Please quote the number if you call Trimble about this issue. 
-If you have a new question, please send a new email with no RQST number in the subject line. 
+> So why do you think that is inconsistent with my statement: "the
+> permissions checking has to be done by the server, period"?
 
-Kind regards, 
+I agree that permission checking should be done by the server. However,
+I believe that in this case the client is requesting the wrong
+permissions. As writing to a char/block device does not perform a write
+operation *on the server* then the client should not be asking the
+server for modify/extend permission in the case of char/block devices.
 
-Trimble Support 
+> The read-only mount option does *not apply* to char/block devices such
+> as /dev/hd[a-z]*, /dev/tty*. Permission checks on open() for those
+> devices are done on the server *only* via the ACCESS rpc call.
 
-Willkommen bei Trimble Support. Dies ist eine automatische Antwort zu Ihrer Anfrage. 
-Ihre Anfragenummer lautet: RQST00000295292 
-WICHTIG: Bitte fügen Sie Ihre Anfragenummer in die Betreffzeile Ihrer Email ein, wenn Sie Rückfragen zu Ihrer Anfrage haben. Falls Sie Trimble bezügl. dieses Themas anrufen, nennen Sie bitte ebenfalls Ihre Anfragenummer. 
-Wenn Sie eine neue Anfrage haben, senden Sie Ihre Email bitte ohne Anfragenummer an Trimble Support. 
+Should vfs_permission() (as called from nfs_permission) be sufficient to
+perform this check?
 
-Freundliche Grüße 
+> 
+> This should be entirely consistent with local file behaviour.
 
-Trimble Support 
+I don't believe that it is... it is possible to write to a block device
+on a filesystem that is mounted read-only, but not to write to a block
+device on an NFS filesystem that is *exported* read-only. 
 
-Bienvenido a Trimble Support. Esto es una contestación automática. 
-El número de referencia para su caso es: RQST00000295292 
-IMPORTANTE: Para seguir su caso de forma eficiente, le pedimos que por favor incluya este número en el 'Asunto' (Subject) de los siguientes emails relacionados con el mismotema. Si llama por teléfono, por favor haga referencia a este número.
-Si quiere realizar alguna pregunta relacionada con otro asunto, por favor envíenos un nuevo email para asignarle un nuevo número RQST.
+I think that nfs_permission() may do sufficient checking - I believe the
+problem is in nfs3_proc_access() - where the client is asking the server
+for more permissions than it needs.
 
-Cordialmente 
-
-Trimble Support 
-
-Merci pour votre e-mail envoyé à Trimble.  Ceci est une résponse automatique. 
-Le numéro du dossier de votre cas est: RQST00000295292 
-Veuillez utiliser ce numéro pour toutes les correspondances concernant ce cas. Pour les réponses par e-mail, veuillez mettre le numéro dans le sujet. 
-Si vous avez une nouvelle demande, envoyez un e-mail sans le numéro du RQST. 
-
-Sinceres Salutations 
-
-Trimble Support 
+Colin
 
 
-From:linux-kernel@vger.kernel.org 
-Sent:5/4/2004 5:47:44 AM 
-To:trimble_support@trimble.com 
-Subject:Mail Delivery (failure trimble_support@trimble.com) 

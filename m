@@ -1,116 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266408AbSL1XHH>; Sat, 28 Dec 2002 18:07:07 -0500
+	id <S266384AbSL1XFe>; Sat, 28 Dec 2002 18:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266425AbSL1XHH>; Sat, 28 Dec 2002 18:07:07 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:19445 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S266408AbSL1XGd>; Sat, 28 Dec 2002 18:06:33 -0500
-Date: Sun, 29 Dec 2002 00:14:34 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com, davej@suse.de
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [PATCH 2.5.53] cpufreq: powernow-k6 cleanup
-Message-ID: <20021228231434.GC1310@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266406AbSL1XFe>; Sat, 28 Dec 2002 18:05:34 -0500
+Received: from nsinat.nsinoc.com ([208.34.42.193]:49070 "EHLO
+	exch-tmp.NetStandard.inc") by vger.kernel.org with ESMTP
+	id <S266384AbSL1XFW> convert rfc822-to-8bit; Sat, 28 Dec 2002 18:05:22 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: natsemi.c - Problems/Questions
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Sat, 28 Dec 2002 17:12:19 -0600
+Message-ID: <F2FB3991BE3CDF4DA44A432802BE339403AB87@exch-tmp.netstandard.inc>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: natsemi.c - Problems/Questions
+Thread-Index: AcKuxpHT/MbLXHdERm6pKlSuWFtgkQ==
+From: "Andrew Brink" <abrink@netstandard.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Christian North" <cnorth@netstandard.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up searching for best frequency, and add one safety check.
+I have a laptop here that has an onboard National Semiconductor
+DP8381[56] Ethernet Controller that I've been trying to get to work for
+several days now, I must now ask for outside help as this might be a bug
+in the driver, I'm not too sure.
 
-diff -ru linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k6.c linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2002-12-25 17:45:52.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2002-12-27 11:32:21.000000000 +0100
-@@ -144,6 +144,9 @@
- 
- 	policy->max = clock_ratio[j] * busfreq;
- 
-+	cpufreq_verify_within_limits(policy, (20 * busfreq),
-+				     (max_multiplier * busfreq));
-+
- 	return 0;
- }
- 
-@@ -156,53 +159,44 @@
-  */
- static int powernow_k6_setpolicy (struct cpufreq_policy *policy)
- {
--	unsigned int    number_states = 0;
--	unsigned int    i, j=4;
-+	unsigned int    i;
-+	unsigned int    optimal;
- 
--	if (!powernow_driver)
-+	if (!powernow_driver || !policy || policy->cpu)
- 		return -EINVAL;
- 
--	for (i=0; i<8; i++)
--		if ((policy->min <= (busfreq * clock_ratio[i])) &&
--		    (policy->max >= (busfreq * clock_ratio[i])))
--		{
--			number_states++;
--			j = i;
--		}
--
--	if (number_states == 1) {
--		/* if only one state is within the limit borders, it
--		   is easily detected and set */
--		powernow_k6_set_state(j);
--		return 0;
--	}
--
--	/* more than one state within limit */
--	switch (policy->policy) {
-+	switch(policy->policy) {
- 	case CPUFREQ_POLICY_POWERSAVE:
--		j = 6;
--		for (i=0; i<8; i++)
--		if ((policy->min <= (busfreq * clock_ratio[i])) &&
--		    (policy->max >= (busfreq * clock_ratio[i])) &&
--			    (clock_ratio[i] < clock_ratio[j]))
--				j = i;
-+		optimal = 6;
- 		break;
- 	case CPUFREQ_POLICY_PERFORMANCE:
--		j = 4;
--		for (i=0; i<8; i++)
--		if ((policy->min <= (busfreq * clock_ratio[i])) &&
--		    (policy->max >= (busfreq * clock_ratio[i])) &&
--			    (clock_ratio[i] > clock_ratio[j]))
--				j = i;
-+		optimal = max_multiplier;
- 		break;
- 	default:
- 		return -EINVAL;
- 	}
- 
--	if (clock_ratio[i] > max_multiplier)
--		return -EINVAL;
-+	for (i=0;i<8;i++) {
-+		unsigned int freq = busfreq * clock_ratio[i];
-+		if (clock_ratio[i] > max_multiplier)
-+			continue;
-+		if ((freq > policy->max) ||
-+		    (freq < policy->min))
-+			continue;
-+		switch(policy->policy) {
-+		case CPUFREQ_POLICY_POWERSAVE:
-+			if (freq < (clock_ratio[optimal] * busfreq))
-+				optimal = i;
-+			break;
-+		case CPUFREQ_POLICY_PERFORMANCE:
-+			if (freq > (clock_ratio[optimal] * busfreq))
-+				optimal = i;
-+			break;
-+		}
-+	}
-+
-+	powernow_k6_set_state(optimal);
- 
--	powernow_k6_set_state(j);
- 	return 0;
- }
- 
+I'm using kernel 2.4.20 with the default natsemi dp8381x driver, version
+1.07+LK1.0.17
+
+On boot it seems to recognize the interface:
+PCI: Found IRQ 5 for device 00:12.0
+eth0: NatSemi DP8381[56] at 0xe08000000, 00:c0:9f:15:0f:c1, IRQ 5.
+
+However, when I try to do 'ifconfig eth0 192.168.1.5' I get: "eth0: link
+up."
+That's when things go astray, for the link is not actually up, the link
+light on the up does not light up, and eth0 does nothing.
+
+I'm looking for suggestions on why this is, I can boot the laptop to XP
+Pro and the card works there.
+
+Additional Info From /proc/ioports:
+1c00-1cff : National Semiconductor Corporation DP83815 (MacPhyter)
+Ethernet Controller
+	1c00-1cff : eth0
+
+Any suggestions would be great, TIA.
+
+Andrew Brink, CCNA, WCSP 
+NetStandard, Inc. 
+913-262-3888 

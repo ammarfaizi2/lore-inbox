@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbRHKQO1>; Sat, 11 Aug 2001 12:14:27 -0400
+	id <S268560AbRHKQZT>; Sat, 11 Aug 2001 12:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbRHKQOT>; Sat, 11 Aug 2001 12:14:19 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:24212 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S268511AbRHKQOI>; Sat, 11 Aug 2001 12:14:08 -0400
-Date: Sat, 11 Aug 2001 17:14:16 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Philip Blundell <philb@gnu.org>
-Cc: Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
-Message-ID: <20010811171416.C2732@flint.arm.linux.org.uk>
-In-Reply-To: <1904.997542180@ocs3.ocs-net> <20010811162028.A2732@flint.arm.linux.org.uk> <rmk@arm.linux.org.uk> <E15VbJ2-0000y8-00@kings-cross.london.uk.eu.org>
+	id <S268564AbRHKQZA>; Sat, 11 Aug 2001 12:25:00 -0400
+Received: from lanm-pc.com ([64.81.97.118]:15350 "EHLO golux.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S268560AbRHKQYv>;
+	Sat, 11 Aug 2001 12:24:51 -0400
+Date: Sat, 11 Aug 2001 12:22:18 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel lockups on dual-Athlon board -- help wanted
+Message-ID: <20010811122218.E6024@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alex Buell <alex.buell@tahallah.demon.co.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010811062349.A1769@thyrsus.com> <Pine.LNX.4.33.0108111145530.4433-100000@tahallah.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15VbJ2-0000y8-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Sat, Aug 11, 2001 at 05:08:08PM +0100
+In-Reply-To: <Pine.LNX.4.33.0108111145530.4433-100000@tahallah.demon.co.uk>; from alex.buell@tahallah.demon.co.uk on Sat, Aug 11, 2001 at 11:46:14AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 11, 2001 at 05:08:08PM +0100, Philip Blundell wrote:
-> I should think it can be made to work in 2.95.4.
+Alex Buell <alex.buell@tahallah.demon.co.uk>:
+> On Sat, 11 Aug 2001, Eric S. Raymond wrote:
+> 
+> > 6. Here's a weird one.  When the kernel is running, the power switch
+> >    has to be pressed down for 4 seconds to power down the machine.  But
+> >    during a lockup it powers down the machine instantly.
+> >
+> > What we're seeing suggests some bad interaction between the SMP
+> > support and the hardware.  But item 7 hints that power management
+> > could be involved, even though we have it configured out.
+> 
+> You appear to be missing item 7.
 
-Amazing response to the problem here. ;)
+It was 0400 and I was fried.  I was referring to the item 6 you quoted.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-> Did you try the patch I sent you a few months ago?
-
-No - I've not had a need to rebuild gcc yet, and the patch is low priority
-since the kernel has to build with the compilers that people already have,
-not the bleeding edge.
-
-Sorry, I don't do gcc, as I've explained before.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Militias, when properly formed, are in fact the people themselves and
+include all men capable of bearing arms. [...] To preserve liberty it is
+essential that the whole body of the people always possess arms and be
+taught alike, especially when young, how to use them.
+        -- Senator Richard Henry Lee, 1788, on "militia" in the 2nd Amendment

@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129927AbQLYQVM>; Mon, 25 Dec 2000 11:21:12 -0500
+	id <S129749AbQLYQbg>; Mon, 25 Dec 2000 11:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131598AbQLYQVC>; Mon, 25 Dec 2000 11:21:02 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:12002 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129927AbQLYQUw>; Mon, 25 Dec 2000 11:20:52 -0500
-Message-ID: <3A476CC0.45AD0033@haque.net>
-Date: Mon, 25 Dec 2000 10:50:24 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Dave Gilbert <gilbertd@treblig.org>, linux-kernel@vger.kernel.org
+	id <S130397AbQLYQb0>; Mon, 25 Dec 2000 11:31:26 -0500
+Received: from cicero1.cybercity.dk ([212.242.40.4]:28939 "HELO
+	cicero1.cybercity.dk") by vger.kernel.org with SMTP
+	id <S129749AbQLYQbU>; Mon, 25 Dec 2000 11:31:20 -0500
+Date: Mon, 25 Dec 2000 17:01:32 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: Dave Gilbert <gilbertd@treblig.org>, linux-kernel@vger.kernel.org
 Subject: Re: css hang; somewhere between test12 and test13pre4ac2
-In-Reply-To: <Pine.LNX.4.10.10012242340530.666-100000@tardis.home.dave> <20001225121037.B303@suse.de>
+Message-ID: <20001225170132.E303@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10012242340530.666-100000@tardis.home.dave> <20001225121037.B303@suse.de> <3A476CC0.45AD0033@haque.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A476CC0.45AD0033@haque.net>; from mhaque@haque.net on Mon, Dec 25, 2000 at 10:50:24AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is confirmed. mounting css dics causes oops. non-css discs work
-fine. 
-
-oops coming soon.
-
-Jens Axboe wrote:
-> The most likely suspect (as someone else pointed out) is not at
-> all css (I'm not even sure what you mean by css hang?) but UDF.
-> Given the fs changes. Since sysrq still works, it would help a
-> lot if you could capture sysrq-p repeatedly and send it in.
+On Mon, Dec 25 2000, Mohammad A. Haque wrote:
+> This is confirmed. mounting css dics causes oops. non-css discs work
+> fine. 
 > 
-> Do you have any non-css discs to beat on UDF?
-> 
-> --
-> * Jens Axboe <axboe@suse.de>
-> * SuSE Labs
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> oops coming soon.
+
+Thanks. If it's the cdrom_log_sense oops, please try also with
+previously sent patch.
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,84 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbULKPXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbULKPZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbULKPXh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 10:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbULKPXh
+	id S261946AbULKPZL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 10:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbULKPZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 10:23:37 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7132 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261941AbULKPXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 10:23:34 -0500
-Subject: Re: VM86 interrupt emulation breakage and FIXes for 2.6.x kernel
-	series
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>, Ingo Molnar <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@rustcorp.com.au
-In-Reply-To: <Pine.LNX.4.58.0412102020190.31040@ppc970.osdl.org>
-References: <200412091459.51583.pisa@cmp.felk.cvut.cz>
-	 <1102712732.3264.73.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
-	 <1102723114.4774.9.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0412101722010.31040@ppc970.osdl.org>
-	 <1102726628.4948.1.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0412102020190.31040@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1102774756.7267.17.camel@localhost.localdomain>
+	Sat, 11 Dec 2004 10:25:11 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:29387 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261946AbULKPYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 10:24:04 -0500
+Date: Sat, 11 Dec 2004 15:24:03 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Export of generic_forget_inode()
+Message-ID: <20041211152403.GB11522@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>
+References: <41BAF7C1.4080800@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 11 Dec 2004 14:19:17 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BAF7C1.4080800@sw.ru>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-12-11 at 04:21, Linus Torvalds wrote:
-> Alan, what _are_ you arguing about? That "disable_irq()" is absolutely 
-> rquired, because:
->  - not having it locks up the machine if the irq happens to be level.
->  - not having it means that the "enable_irq()" that happens when the irq 
->    is reported to user space is unbalanced.
-
-That part I missed. 
-
-> > Putting a single disable_irq in doesn't change the fact it doesn't work
-> > because the IRQ is never re-enabled.
+On Sat, Dec 11, 2004 at 04:36:01PM +0300, Kirill Korotaev wrote:
+> This patch adds export of generic_forget_inode()
 > 
-> Did you actually test the code? Did you ever _look_ at it?
+> if sb->drop_inode method is set, than it's called in iput_final().
+> But it's impossible to call neither generic_drop_inode(), nor 
+> generic_forget_inode() inside this handler. Only generic_delete_inode() 
+> is accessiable.
 
-Yes I tested it. It worked in my test code, unfortunately the enable_irq
-part of it didn't show up because the other patches in that test set
-included ones for dynamically detecting interrupt routing errors and
-they hid it.
-
-Alan
-
-ps: Pavel - the X folks played with several ideas for handling
-interrupts
-from user space that could be shared, forwarded to user space and
-handled and it always came back to either a small kernel module or an
-interpretable set of
-descriptions of how to test for and mask the IRQ, and in some cases to
-save
-several values. Something like
-
-struct descriptor {
-	u8  type:2; /* 0 PCI cfg, 1 mem, 2 I/O */
-	u8  width:2;
-	u32 offset;
-	u32 mask;
-	u32 value;
-}
-
-struct irq_descriptor {
-	char name[16];			/* For request irq */
-	struct descriptor test;
-	struct descriptor mask;
-	struct descriptor save[4];
-};
-
-although nobody ever implemented it. This would also have been outside
-of just vm86 as the main user would be X.
-
+I don't see that this patch introduces any user for it.
 

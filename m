@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131936AbRAJJOZ>; Wed, 10 Jan 2001 04:14:25 -0500
+	id <S132171AbRAJJWT>; Wed, 10 Jan 2001 04:22:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133014AbRAJJOP>; Wed, 10 Jan 2001 04:14:15 -0500
-Received: from gw1-mi1-as3.esiway.net ([193.194.16.163]:20743 "EHLO
-	fuoco.tieffe.intranet") by vger.kernel.org with ESMTP
-	id <S131936AbRAJJOJ>; Wed, 10 Jan 2001 04:14:09 -0500
-Date: Wed, 10 Jan 2001 10:18:24 +0100
-From: Gabriele Turchi <turchi@tieffesistemi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS root doesn't work with 2.2.18.
-Message-ID: <20010110101824.A9912@tieffesistemi.com>
-Mime-Version: 1.0
+	id <S132937AbRAJJWK>; Wed, 10 Jan 2001 04:22:10 -0500
+Received: from pat.uio.no ([129.240.130.16]:59326 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S132171AbRAJJWB>;
+	Wed, 10 Jan 2001 04:22:01 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <14940.10672.413028.265595@charged.uio.no>
+Date: Wed, 10 Jan 2001 10:21:52 +0100 (CET)
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <200101092119.NAA05633@pizda.ninka.net>
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
+	<shs4rz8vnmf.fsf@charged.uio.no>
+	<200101091342.FAA02414@pizda.ninka.net>
+	<14939.11765.649805.239618@charged.uio.no>
+	<200101092119.NAA05633@pizda.ninka.net>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>>>>> " " == David S Miller <davem@redhat.com> writes:
 
-Some time ago I've done some tests with IP autoconfiguration. When
-switched to 2.2.18 kernel I've found a changed behaviour: apparently
-the new default is not to boot by network automatically, but to expect
-a kernel command-line parameter (like ip=dhcp I think). I've solved
-the problem in a more "brutal" way modifying the source
-(net/ipv4/ipconfig.c, if I remember correctly).
+     >    Date: Tue, 9 Jan 2001 16:27:49 +0100 (CET) From: Trond
+     >    Myklebust <trond.myklebust@fys.uio.no>
 
-Hope this helps.
+     >    OK, but can you eventually generalize it to non-stream
+     >    protocols (i.e. UDP)?
 
-Best wishes,
+     > Sure, this is what MSG_MORE is meant to accomodate.  UDP could
+     > support it just fine.
 
-	Gabriele Turchi
+Great! I've been waiting for something like this. In particular the
+knfsd TCP server code can get very buffer-intensive without it since
+you need to pre-allocate 1 set of buffers per TCP connection (else you
+get DOS due to buffer saturation when doing wait+retry for blocked
+sockets).
 
+If it all gets in to the kernel, I'll do the work of adapting the NFS
++ sunrpc stuff.
 
-P.S.: I'm sorry, my english is in alpha version...
-
--- 
-----------------------------------------------------------------------------
- Gabriele Turchi (Responsabile Tecnico)            turchi@tieffesistemi.com
- Tieffe Sistemi S.r.l.                                www.tieffesistemi.com
- V.le Piceno 21 - 20129 Milano - Italia             tel/fax +39 02 76115215
-----------------------------------------------------------------------------
-
+Cheers,
+  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

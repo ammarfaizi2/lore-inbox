@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272038AbRIQSm7>; Mon, 17 Sep 2001 14:42:59 -0400
+	id <S272062AbRIQSwU>; Mon, 17 Sep 2001 14:52:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271995AbRIQSmt>; Mon, 17 Sep 2001 14:42:49 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:11920
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S272038AbRIQSmj>; Mon, 17 Sep 2001 14:42:39 -0400
-Date: Mon, 17 Sep 2001 11:42:41 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Allan Sandfeld <linux@sneulv.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bzImage target for PPC
-Message-ID: <20010917114241.C23163@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <E15ivIz-00087v-00@wagner> <E15j1Jr-0002ci-00@Princess>
-Mime-Version: 1.0
+	id <S272465AbRIQSwK>; Mon, 17 Sep 2001 14:52:10 -0400
+Received: from smtp3.libero.it ([193.70.192.53]:6316 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S272062AbRIQSwD>;
+	Mon, 17 Sep 2001 14:52:03 -0400
+Message-ID: <3BA4B614.82E08CB@denise.shiny.it>
+Date: Sun, 16 Sep 2001 16:24:20 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.10-pre9 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roberto Ragusa <robertoragusa@technologist.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] A nicer nice scheduling
+In-Reply-To: <yam8658.2192.152344160@mail.inwind.it>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15j1Jr-0002ci-00@Princess>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 17, 2001 at 06:32:25PM +0200, Allan Sandfeld wrote:
+Roberto Ragusa wrote:
+> 
+> Hi,
+> 
+> please consider including this patch in the main kernel.
+> It was proposed on 11/04/2001 by Rik van Riel
+> ([test-PATCH] Re: [QUESTION] 2.4.x nice level)
+> 
+> This patch has been working great for me, I applied it to
+> every new kernel out.
+> 
+> Without this patch, a nice=19 busy-looping process is given
+> 15% of CPU cycles when there is a busy-looping nice=0 process. 
+> [...]
 
-> What is holding us back from deciding on a limited number of supported and 
-> implemented make targets and making these fast(e.g. moving install to top 
-> level)? This would then become a part of kbuild2.5
+I think it's simpler to change NICE_TO_TICKS() macro in sched.c
 
-Eh?  What kbuild2.5 does, last time I looked at it, is let the user pick from
-the list of targets for that arch, for 'installable'.  This looks great
-from the PPC side, which has ~6 targets for this right now.  No need to
-limit to some 'generic' names or limit the number.  For 2.4, I don't think
-we should bother to do anything, except _maybe_ change the text after
-oldconfig/whatnot to say 'zImage or bzImage and then install'  Or nuke
-it all together.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Bye.
+

@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbTILVGs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTILVGs
+	id S261883AbTILVMH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTILVMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:06:48 -0400
-Received: from hockin.org ([66.35.79.110]:12806 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S261899AbTILVGq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:06:46 -0400
-Date: Fri, 12 Sep 2003 13:55:51 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Timothy Miller <miller@techsource.com>
-Cc: root@chaos.analogic.com, James Clark <jimwclark@ntlworld.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030912135551.A23062@hockin.org>
-References: <1062637356.846.3471.camel@cube> <200309042114.45234.jimwclark@ntlworld.com> <Pine.LNX.4.53.0309041723090.9557@chaos> <3F5F8E90.4020701@techsource.com> <Pine.LNX.4.53.0309101640550.18999@chaos> <3F6231D7.6040702@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3F6231D7.6040702@techsource.com>; from miller@techsource.com on Fri, Sep 12, 2003 at 04:51:35PM -0400
+	Fri, 12 Sep 2003 17:12:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62366 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261883AbTILVME
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:12:04 -0400
+Message-ID: <3F623696.1080703@pobox.com>
+Date: Fri, 12 Sep 2003 17:11:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "David S. Miller" <davem@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix ifdown/ifup bug
+Content-Type: multipart/mixed;
+ boundary="------------090302040002090106050308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 04:51:35PM -0400, Timothy Miller wrote:
-> Why?  Because there are some advantages to being able to say that this 
-> one module can be dropped into any box running, for instance, 2.6.12 
-> through 2.6.16, while the next module is used for 2.6.17 thru 2.6.22, etc.
+This is a multi-part message in MIME format.
+--------------090302040002090106050308
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-There are a SLEW of options that make this hard.
+Marcelo,
 
-CONFIG_SMP - spinlocks get compiled in or not
+If you haven't gotten this patch from somebody else, please make sure 
+this is applied.  It fixes a bug I introduced in -pre3 when moving some 
+helpers from tg3 to netdevice.h.
 
-CONFIG_SPINLOCK_DEBUGGING - changes the size of a spinlock and the behavior
-of spin_lock() and friend
+	Jeff
 
-All the HIGHMEM and various kernel/user split option - change the kernel
-virtual addresses and offsets
 
-And these are just a few.  The thing is, there isn't any way to catalog them
-all, because at any point, someone can add a CONFIG_FOO_DEBUG which changes
-the size of a struct foo and foo_op().  Then any module which uses a foo has
-to ALSO have FOO_DEBUG on.  Modules and kernels must match up on ALL the
-options (or at least, all the ones that cross the kernel-module boundary).
 
-This actually bit me just last week.  I turn on spinlock debugging, and a
-module Oopses.  I didn't recompile modules.
+--------------090302040002090106050308
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
-It sucks.  I agree.  Maybe there is an elegant way to checksum each
-functional interface and each datatype and typedef and each argument to each
-funtion and make it such that IFF they are all the same, the module will
-load.  It's just not pretty.
+diff -Nru a/net/core/dev.c b/net/core/dev.c
+--- a/net/core/dev.c	Fri Sep 12 17:10:03 2003
++++ b/net/core/dev.c	Fri Sep 12 17:10:03 2003
+@@ -851,7 +851,11 @@
+ 	 * engine, but this requires more changes in devices. */
+ 
+ 	smp_mb__after_clear_bit(); /* Commit netif_running(). */
+-	netif_poll_disable(dev);
++	while (test_bit(__LINK_STATE_RX_SCHED, &dev->state)) {
++		/* No hurry. */
++		current->state = TASK_INTERRUPTIBLE;
++		schedule_timeout(1);
++	}
+ 
+ 	/*
+ 	 *	Call the device specific close. This cannot fail.
 
--- 
-Notice that as computers are becoming easier and easier to use,
-suddenly there's a big market for "Dummies" books.  Cause and effect,
-or merely an ironic juxtaposition of unrelated facts?
+--------------090302040002090106050308--
 

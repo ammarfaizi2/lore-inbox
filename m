@@ -1,1452 +1,1624 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262085AbSI3OS7>; Mon, 30 Sep 2002 10:18:59 -0400
+	id <S262093AbSI3N60>; Mon, 30 Sep 2002 09:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262380AbSI3OSb>; Mon, 30 Sep 2002 10:18:31 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:36331 "EHLO
+	id <S262112AbSI3N5V>; Mon, 30 Sep 2002 09:57:21 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:51179 "EHLO
 	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S262085AbSI3NoB> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:44:01 -0400
+	id <S262093AbSI3NoN> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:44:13 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.39 s390 (7/26): dasd driver.
-Date: Mon, 30 Sep 2002 14:53:10 +0200
+Subject: [PATCH] 2.5.39 s390 (24/26): boot sequence.
+Date: Mon, 30 Sep 2002 15:05:27 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200209301453.10728.schwidefsky@de.ibm.com>
+Message-Id: <200209301505.27303.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate gendisk structure per dasd device, replace kdev_t by a bdev pointer
-where possible and remove option CONFIG_DASD_DYNAMIC.
+Rework boot sequence on s390:
 
-diff -urN linux-2.5.39/drivers/s390/block/dasd.c linux-2.5.39-s390/drivers/s390/block/dasd.c
---- linux-2.5.39/drivers/s390/block/dasd.c	Fri Sep 27 23:49:53 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd.c	Mon Sep 30 13:25:48 2002
-@@ -203,20 +203,24 @@
- dasd_alloc_device(dasd_devmap_t *devmap)
- {
- 	dasd_device_t *device;
-+	struct gendisk *gdp;
- 	int rc;
- 
--	/* Make sure the gendisk structure for this device exists. */
--	while (dasd_gendisk_from_devindex(devmap->devindex) == NULL) {
--		rc = dasd_gendisk_new_major();
--		if (rc)
--			return ERR_PTR(rc);
--	}
--
- 	device = kmalloc(sizeof (dasd_device_t), GFP_ATOMIC);
- 	if (device == NULL)
- 		return ERR_PTR(-ENOMEM);
- 	memset(device, 0, sizeof (dasd_device_t));
- 
-+	/* Get devinfo from the common io layer. */
-+	rc = get_dev_info_by_devno(devmap->devno, &device->devinfo);
-+	if (rc) {
-+		kfree(device);
-+		return ERR_PTR(rc);
-+	}
-+	DBF_EVENT(DBF_NOTICE, "got devinfo CU-type %04x and dev-type %04x",
-+		  device->devinfo.sid_data.cu_type,
-+		  device->devinfo.sid_data.dev_type);
-+
- 	/* Get two pages for normal block device operations. */
- 	device->ccw_mem = (void *) __get_free_pages(GFP_ATOMIC | GFP_DMA, 1);
- 	if (device->ccw_mem == NULL) {
-@@ -231,17 +235,15 @@
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
--	/* Get devinfo from the common io layer. */
--	rc = get_dev_info_by_devno(devmap->devno, &device->devinfo);
--	if (rc) {
-- 		free_page((unsigned long) device->erp_mem);
-+	/* Allocate gendisk structure for device. */
-+	gdp = dasd_gendisk_alloc(device->name, devmap->devindex);
-+	if (IS_ERR(gdp)) {
-+		free_page((unsigned long) device->erp_mem);
- 		free_pages((unsigned long) device->ccw_mem, 1);
- 		kfree(device);
--		return ERR_PTR(rc);
-+		return (dasd_device_t *) gdp;
- 	}
--	DBF_EVENT(DBF_NOTICE, "got devinfo CU-type %04x and dev-type %04x",
--		  device->devinfo.sid_data.cu_type,
--		  device->devinfo.sid_data.dev_type);
-+	device->gdp = gdp;
- 
- 	dasd_init_chunklist(&device->ccw_chunks, device->ccw_mem, PAGE_SIZE*2);
- 	dasd_init_chunklist(&device->erp_chunks, device->erp_mem, PAGE_SIZE);
-@@ -268,6 +270,7 @@
- 		kfree(device->private);
- 	free_page((unsigned long) device->erp_mem);
- 	free_pages((unsigned long) device->ccw_mem, 1);
-+	dasd_gendisk_free(device->gdp);
- 	kfree(device);
- }
- 
-@@ -278,21 +281,22 @@
- dasd_state_new_to_known(dasd_device_t *device)
- {
- 	char buffer[5];
--	struct gendisk *gdp;
- 	dasd_devmap_t *devmap;
- 	umode_t devfs_perm;
- 	devfs_handle_t dir;
--	int minor, rc;
-+	int major, minor, rc;
- 
- 	devmap = dasd_devmap_from_devno(device->devinfo.devno);
- 	if (devmap == NULL)
- 		return -ENODEV;
--	gdp = dasd_gendisk_from_devindex(devmap->devindex);
--	if (gdp == NULL)
-+	major = dasd_gendisk_index_major(devmap->devindex);
-+	if (major < 0)
- 		return -ENODEV;
--	/* Set kdev and the device name. */
--	device->kdev = mk_kdev(gdp->major, gdp->first_minor);
--	strcpy(device->name, gdp->major_name);
-+	minor = devmap->devindex % DASD_PER_MAJOR;
-+
-+	/* Set bdev and the device name. */
-+	device->bdev = bdget(MKDEV(major, minor << DASD_PARTN_BITS));
-+	strcpy(device->name, device->gdp->major_name);
- 
- 	/* Find a discipline for the device. */
- 	rc = dasd_find_disc(device);
-@@ -302,14 +306,13 @@
- 	/* Add a proc directory and the dasd device entry to devfs. */
- 	sprintf(buffer, "%04x", device->devinfo.devno);
- 	dir = devfs_mk_dir(dasd_devfs_handle, buffer, device);
--	gdp->de = dir;
-+	device->gdp->de = dir;
- 	if (devmap->features & DASD_FEATURE_READONLY)
- 		devfs_perm = S_IFBLK | S_IRUSR;
- 	else
- 		devfs_perm = S_IFBLK | S_IRUSR | S_IWUSR;
- 	device->devfs_entry = devfs_register(dir, "device", DEVFS_FL_DEFAULT,
--					     major(device->kdev),
--					     minor(device->kdev),
-+					     major, minor << DASD_PARTN_BITS,
- 					     devfs_perm,
- 					     &dasd_device_operations, NULL);
- 	device->state = DASD_STATE_KNOWN;
-@@ -322,17 +325,25 @@
- static inline void
- dasd_state_known_to_new(dasd_device_t * device)
- {
--	dasd_devmap_t *devmap = dasd_devmap_from_devno(device->devinfo.devno);
--	struct gendisk *gdp = dasd_gendisk_from_devindex(devmap->devindex);
--	if (gdp == NULL)
--		return;
-+	dasd_devmap_t *devmap;
-+	struct block_device *bdev;
-+	int minor;
-+
-+	devmap = dasd_devmap_from_devno(device->devinfo.devno);
-+	minor = devmap->devindex % DASD_PER_MAJOR;
-+
- 	/* Remove device entry and devfs directory. */
- 	devfs_unregister(device->devfs_entry);
--	devfs_unregister(gdp->de);
-+	devfs_unregister(device->gdp->de);
- 
- 	/* Forget the discipline information. */
- 	device->discipline = NULL;
- 	device->state = DASD_STATE_NEW;
-+
-+	/* Forget the block device */
-+	bdev = device->bdev;
-+	device->bdev = NULL;
-+	bdput(bdev);
- }
- 
- /*
-@@ -419,21 +430,29 @@
- }
- 
- /*
-+ * get the kdev_t of a device 
-+ * FIXME: remove this when no longer needed
-+ */
-+static inline kdev_t
-+dasd_partition_to_kdev_t(dasd_device_t *device, unsigned int partition)
-+{
-+	return to_kdev_t(device->bdev->bd_dev+partition);
-+}
-+
-+
-+/*
-  * Setup block device.
-  */
- static inline int
- dasd_state_accept_to_ready(dasd_device_t * device)
- {
- 	dasd_devmap_t *devmap;
--	int major, minor;
- 	int rc, i;
- 
- 	devmap = dasd_devmap_from_devno(device->devinfo.devno);
- 	if (devmap->features & DASD_FEATURE_READONLY) {
--		major = major(device->kdev);
--		minor = minor(device->kdev);
- 		for (i = 0; i < (1 << DASD_PARTN_BITS); i++)
--			set_device_ro(mk_kdev(major, minor+i), 1);
-+			set_device_ro(dasd_partition_to_kdev_t(device, i), 1);
- 		DEV_MESSAGE (KERN_WARNING, device, "%s",
- 			     "setting read-only mode ");
- 	}
-@@ -1539,11 +1558,9 @@
- 			goto restart;
- 		}
- 
--		/* Dechain request from device request queue ... */
-+		/* Rechain request on device device request queue */
- 		cqr->endclk = get_clock();
--		list_del(&cqr->list);
--		/* ... and add it to list of final requests. */
--		list_add_tail(&cqr->list, final_queue);
-+		list_move_tail(&cqr->list, final_queue);
- 	}
- }
- 
-@@ -1572,6 +1589,10 @@
- 	dasd_ccw_req_t *cqr;
- 	int nr_queued;
- 
-+	/* No bdev, no queue. */
-+	bdev = device->bdev;
-+	if (!bdev)
-+		return;
- 	queue = device->request_queue;
- 	/* No queue ? Then there is nothing to do. */
- 	if (queue == NULL)
-@@ -1594,9 +1615,6 @@
- 		if (cqr->status == DASD_CQR_QUEUED)
- 			nr_queued++;
- 	}
--	bdev = bdget(kdev_t_to_nr(device->kdev));
--	if (!bdev)
--		return;
- 	while (!blk_queue_plugged(queue) &&
- 	       !blk_queue_empty(queue) &&
- 		nr_queued < DASD_CHANQ_MAX_SIZE) {
-@@ -1628,7 +1646,6 @@
- 		dasd_profile_start(device, cqr, req);
- 		nr_queued++;
- 	}
--	bdput(bdev);
- }
- 
- /*
-@@ -1707,11 +1724,9 @@
- 			__dasd_process_erp(device, cqr);
- 			continue;
- 		}
--		/* Dechain request from device request queue ... */
-+		/* Rechain request on device request queue */
- 		cqr->endclk = get_clock();
--		list_del(&cqr->list);
--		/* ... and add it to list of flushed requests. */
--		list_add_tail(&cqr->list, &flush_queue);
-+		list_move_tail(&cqr->list, &flush_queue);
- 	}
- 	spin_unlock_irq(get_irq_lock(device->devinfo.irq));
- 	/* Now call the callback function of flushed requests */
-diff -urN linux-2.5.39/drivers/s390/block/dasd_devmap.c linux-2.5.39-s390/drivers/s390/block/dasd_devmap.c
---- linux-2.5.39/drivers/s390/block/dasd_devmap.c	Fri Sep 27 23:49:55 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_devmap.c	Mon Sep 30 13:25:48 2002
-@@ -449,6 +449,15 @@
- }
- 
- /*
-+ * Find the devmap for a device corresponding to a block_device.
-+ */
-+dasd_devmap_t *
-+dasd_devmap_from_bdev(struct block_device *bdev)
-+{
-+	return dasd_devmap_from_kdev(to_kdev_t(bdev->bd_dev));
-+}
-+
-+/*
-  * Find the device structure for device number devno. If it does not
-  * exists yet, allocate it. Increase the reference counter in the device
-  * structure and return a pointer to it.
-diff -urN linux-2.5.39/drivers/s390/block/dasd_diag.c linux-2.5.39-s390/drivers/s390/block/dasd_diag.c
---- linux-2.5.39/drivers/s390/block/dasd_diag.c	Fri Sep 27 23:48:38 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_diag.c	Mon Sep 30 13:31:41 2002
+Traditionally, device detection os s390 is done completely
+at a _very_ early stage during bootup (from init_irq(),
+i.e. before memory management or the console are there).
+
+This has always been a bad idea, but now it broke even more
+since the linux driver model requires devices detection
+to take place after the core_initcalls are done.
+
+We now do only a small amount of scanning (probably
+less in the future) at the early stage, the bulk of it
+is done from a proper subsys_initcall(). This requires
+some changes in related areas:
+
+- the machine check handler initialization is split in
+  two halves, since we want to catch major machine malfunctions
+  as early as possible, but device machine checks can only
+  be caught after the channel subsystem is up.
+
+- some functions that are called from the css initialization
+  made some assumptions of when to use kmalloc or bootmem_alloc,
+  which were broken anyway. We fix this here and hopefully
+  can get rid of bootmem_alloc for the css completely in the future.
+
+- the debug logging feature for s390 was not used for functions
+  in the initialization before, since it requires the memory
+  management to be working. Now that we can be sure that it
+  works, some special cases can be removed.
+
+Now that these changes are done, a partial implementation of the
+device model for the channel subsystem is possible, but at this
+point, none of the device drivers make use of that yet.
+
+diff -urN linux-2.5.39/arch/s390/kernel/debug.c linux-2.5.39-s390/arch/s390/kernel/debug.c
+--- linux-2.5.39/arch/s390/kernel/debug.c	Fri Sep 27 23:49:06 2002
++++ linux-2.5.39-s390/arch/s390/kernel/debug.c	Mon Sep 30 13:33:49 2002
 @@ -21,6 +21,7 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
-+#include <linux/bio.h>
+ #include <asm/semaphore.h>
  
- #include <asm/dasd.h>
+ #include <linux/module.h>
++#include <linux/init.h>
+ 
  #include <asm/debug.h>
-@@ -53,31 +54,6 @@
- 	diag_bio_t bio[0];
- } dasd_diag_req_t;
  
+@@ -146,7 +147,7 @@
+ static debug_info_t *debug_area_last = NULL;
+ DECLARE_MUTEX(debug_lock);
+ 
+-static int initialized = 0;
++static int initialized;
+ 
+ static struct file_operations debug_file_ops = {
+ 	read:    debug_output,
+@@ -591,7 +592,7 @@
+ 
+ 	MOD_INC_USE_COUNT;
+ 	if (!initialized)
+-		debug_init();
++		BUG();
+ 	down(&debug_lock);
+ 
+         /* create new debug_info */
+@@ -828,18 +829,16 @@
+  * - is called exactly once to initialize the debug feature
+  */
+ 
+-int debug_init(void)
++static int __init debug_init(void)
+ {
+ 	int rc = 0;
+ 
+ 	down(&debug_lock);
+-	if (!initialized) {
+ #ifdef CONFIG_PROC_FS
+-		debug_proc_root_entry = proc_mkdir(DEBUG_DIR_ROOT, NULL);
++	debug_proc_root_entry = proc_mkdir(DEBUG_DIR_ROOT, NULL);
+ #endif /* CONFIG_PROC_FS */
+-		printk(KERN_INFO "debug: Initialization complete\n");
+-		initialized = 1;
+-	}
++	printk(KERN_INFO "debug: Initialization complete\n");
++	initialized = 1;
+ 	up(&debug_lock);
+ 
+ 	return rc;
+@@ -1173,27 +1172,9 @@
+ }
+ 
+ /*
+- * init_module:
+- */
 -
--static __inline__ int
--dia210(void *devchar)
+-#ifdef MODULE
+-int init_module(void)
 -{
--	int rc;
--
--	__asm__ __volatile__("	  diag	%1,0,0x210\n"
--			     "0:  ipm	%0\n"
--			     "	  srl	%0,28\n"
--			     "1:\n"
--			     ".section .fixup,\"ax\"\n"
--			     "2:  lhi	%0,3\n"
--			     "	  bras	1,3f\n"
--			     "	  .long 1b\n"
--			     "3:  l	1,0(1)\n"
--			     "	  br	1\n"
--			     ".previous\n"
--			     ".section __ex_table,\"a\"\n"
--			     "	  .align 4\n"
--			     "	  .long 0b,2b\n" ".previous\n":"=d"(rc)
--			     :"d"((void *) __pa(devchar))
--			     :"1");
+-	int rc = 0;
+-#ifdef DEBUG
+-	printk("debug_module_init: \n");
+-#endif
+-	rc = debug_init();
+-	if (rc) 
+-		printk(KERN_INFO "debug: an error occurred with debug_init\n");
 -	return rc;
 -}
 -
- static __inline__ int
- dia250(void *iob, int cmd)
- {
-@@ -155,7 +131,7 @@
- 	private->iob.key = 0;
- 	private->iob.flags = 2;	/* do asynchronous io */
- 	private->iob.block_count = dreq->block_count;
--	private->iob.interrupt_params = (u32) cqr;
-+	private->iob.interrupt_params = (u32)(addr_t) cqr;
- 	private->iob.bio_list = __pa(dreq->bio);
- 
- 	cqr->startclk = get_clock();
-@@ -196,21 +172,21 @@
- 	ip = S390_lowcore.ext_params;
- 
- 	cpu = smp_processor_id();
--	irq_enter(cpu, -1);
-+	irq_enter();
- 
- 	if (!ip) {		/* no intparm: unsolicited interrupt */
- 		MESSAGE(KERN_DEBUG, "%s", "caught unsolicited interrupt");
--		irq_exit(cpu, -1);
-+		irq_exit();
- 		return;
- 	}
--	cqr = (dasd_ccw_req_t *) ip;
-+	cqr = (dasd_ccw_req_t *)(addr_t) ip;
- 	device = (dasd_device_t *) cqr->device;
- 	if (strncmp(device->discipline->ebcname, (char *) &cqr->magic, 4)) {
- 		DEV_MESSAGE(KERN_WARNING, device,
- 			    " magic number of dasd_ccw_req_t 0x%08X doesn't"
- 			    " match discipline 0x%08X",
- 			    cqr->magic, *(int *) (&device->discipline->name));
--		irq_exit(cpu, -1);
-+		irq_exit();
- 		return;
- 	}
- 
-@@ -244,8 +220,7 @@
- 	dasd_schedule_bh(device);
- 
- 	spin_unlock_irqrestore(get_irq_lock(device->devinfo.irq), flags);
--	irq_exit(cpu, -1);
+-/*
+- * cleanup_module:
++ * clean up module
+  */
 -
-+	irq_exit();
+-void cleanup_module(void)
++void __exit debug_exit(void)
+ {
+ #ifdef DEBUG
+ 	printk("debug_cleanup_module: \n");
+@@ -1204,7 +1185,12 @@
+ 	return;
  }
  
- static int
-@@ -273,7 +248,7 @@
- 	rdc_data->dev_nr = device->devinfo.devno;
- 	rdc_data->rdc_len = sizeof (dasd_diag_characteristics_t);
+-#endif			/* MODULE */
++/*
++ * module definitions
++ */
++core_initcall(debug_init);
++module_exit(debug_exit);
++MODULE_LICENSE("GPL");
  
--	rc = dia210(rdc_data);
-+	rc = diag210((diag210_t *) rdc_data);
- 	if (rc)
- 		return -ENOTSUPP;
+ EXPORT_SYMBOL(debug_register);
+ EXPORT_SYMBOL(debug_unregister); 
+diff -urN linux-2.5.39/arch/s390/kernel/setup.c linux-2.5.39-s390/arch/s390/kernel/setup.c
+--- linux-2.5.39/arch/s390/kernel/setup.c	Mon Sep 30 13:33:22 2002
++++ linux-2.5.39-s390/arch/s390/kernel/setup.c	Mon Sep 30 13:33:49 2002
+@@ -78,7 +78,7 @@
+ /*
+  * cpu_init() initializes state that is per-CPU.
+  */
+-void __init cpu_init (void)
++void __devinit cpu_init (void)
+ {
+         int nr = smp_processor_id();
+         int addr = hard_smp_processor_id();
+diff -urN linux-2.5.39/arch/s390/kernel/smp.c linux-2.5.39-s390/arch/s390/kernel/smp.c
+--- linux-2.5.39/arch/s390/kernel/smp.c	Mon Sep 30 13:33:09 2002
++++ linux-2.5.39-s390/arch/s390/kernel/smp.c	Mon Sep 30 13:33:49 2002
+@@ -454,7 +454,7 @@
+ extern int pfault_init(void);
+ extern int pfault_token(void);
  
-diff -urN linux-2.5.39/drivers/s390/block/dasd_eckd.c linux-2.5.39-s390/drivers/s390/block/dasd_eckd.c
---- linux-2.5.39/drivers/s390/block/dasd_eckd.c	Fri Sep 27 23:48:35 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_eckd.c	Mon Sep 30 13:25:48 2002
-@@ -29,6 +29,7 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
-+#include <linux/bio.h>
+-int __init start_secondary(void *cpuvoid)
++int __devinit start_secondary(void *cpuvoid)
+ {
+         /* Setup the cpu */
+         cpu_init();
+@@ -474,7 +474,7 @@
+         return cpu_idle(NULL);
+ }
+ 
+-static struct task_struct *__init fork_by_hand(void)
++static struct task_struct *__devinit fork_by_hand(void)
+ {
+        struct pt_regs regs;
+        /* don't care about the psw and regs settings since we'll never
+diff -urN linux-2.5.39/arch/s390x/kernel/debug.c linux-2.5.39-s390/arch/s390x/kernel/debug.c
+--- linux-2.5.39/arch/s390x/kernel/debug.c	Fri Sep 27 23:49:06 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/debug.c	Mon Sep 30 13:33:49 2002
+@@ -21,6 +21,7 @@
+ #include <asm/semaphore.h>
+ 
+ #include <linux/module.h>
++#include <linux/init.h>
  
  #include <asm/debug.h>
- #include <asm/idals.h>
-@@ -69,7 +70,6 @@
- 	attrib_data_t attrib;	/* e.g. cache operations */
- } dasd_eckd_private_t;
  
--#ifdef CONFIG_DASD_DYNAMIC
- static
- devreg_t dasd_eckd_known_devices[] = {
- 	{
-@@ -94,7 +94,6 @@
- 		oper_func:dasd_oper_handler
- 	}
- };
--#endif
+@@ -146,7 +147,7 @@
+ static debug_info_t *debug_area_last = NULL;
+ DECLARE_MUTEX(debug_lock);
  
- static const int sizes_trk0[] = { 28, 148, 84 };
- #define LABEL_SIZE 140
-@@ -1092,7 +1091,8 @@
-  * Buils a channel programm to releases a prior reserved 
-  * (see dasd_eckd_reserve) device.
+-static int initialized = 0;
++static int initialized;
+ 
+ static struct file_operations debug_file_ops = {
+ 	read:    debug_output,
+@@ -591,7 +592,7 @@
+ 
+ 	MOD_INC_USE_COUNT;
+ 	if (!initialized)
+-		debug_init();
++		BUG();
+ 	down(&debug_lock);
+ 
+         /* create new debug_info */
+@@ -828,18 +829,16 @@
+  * - is called exactly once to initialize the debug feature
   */
--static int dasd_eckd_release(void *inp, int no, long args)
-+static int
-+dasd_eckd_release(struct block_device *bdev, int no, long args)
+ 
+-int debug_init(void)
++static int __init debug_init(void)
  {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -1101,7 +1101,7 @@
+ 	int rc = 0;
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -1134,7 +1134,8 @@
-  * 'timeout the request'. This leads to an terminate IO if 
-  * the interrupt is outstanding for a certain time. 
-  */
--static int dasd_eckd_reserve(void *inp, int no, long args)
-+static int
-+dasd_eckd_reserve(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -1143,7 +1144,7 @@
+ 	down(&debug_lock);
+-	if (!initialized) {
+ #ifdef CONFIG_PROC_FS
+-		debug_proc_root_entry = proc_mkdir(DEBUG_DIR_ROOT, NULL);
++	debug_proc_root_entry = proc_mkdir(DEBUG_DIR_ROOT, NULL);
+ #endif /* CONFIG_PROC_FS */
+-		printk(KERN_INFO "debug: Initialization complete\n");
+-		initialized = 1;
+-	}
++	printk(KERN_INFO "debug: Initialization complete\n");
++	initialized = 1;
+ 	up(&debug_lock);
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -1168,7 +1169,7 @@
- 
- 	if (rc == -EIO) {
- 		/* Request got an eror or has been timed out. */
--		dasd_eckd_release(inp, no, args);
-+		dasd_eckd_release(bdev, no, args);
- 	}
- 	dasd_kfree_request(cqr, cqr->device);
- 	dasd_put_device(devmap);
-@@ -1180,7 +1181,8 @@
-  * Buils a channel programm to break a device's reservation. 
-  * (unconditional reserve)
-  */
--static int dasd_eckd_steal_lock(void *inp, int no, long args)
-+static int
-+dasd_eckd_steal_lock(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -1189,7 +1191,7 @@
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -1213,7 +1215,7 @@
- 
- 	if (rc == -EIO) {
- 		/* Request got an eror or has been timed out. */
--		dasd_eckd_release(inp, no, args);
-+		dasd_eckd_release(bdev, no, args);
- 	}
- 	dasd_kfree_request(cqr, cqr->device);
- 	dasd_put_device(devmap);
-@@ -1223,7 +1225,8 @@
- /*
-  * Read performance statistics
-  */
--static int dasd_eckd_performance(void *inp, int no, long args)
-+static int
-+dasd_eckd_performance(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -1233,7 +1236,7 @@
- 	ccw1_t *ccw;
- 	int rc;
- 
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -1292,7 +1295,8 @@
-  * Set attributes (cache operations)
-  * Stores the attributes for cache operation to be used in Define Extend (DE).
-  */
--static int dasd_eckd_set_attrib(void *inp, int no, long args)
-+static int
-+dasd_eckd_set_attrib(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -1304,7 +1308,7 @@
- 	if (!args)
- 		return -EINVAL;
- 
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -1452,10 +1456,8 @@
- 	ASCEBC(dasd_eckd_discipline.ebcname, 4);
- 	dasd_discipline_add(&dasd_eckd_discipline);
- 
--#ifdef CONFIG_DASD_DYNAMIC
- 	for (i = 0; i < sizeof(dasd_eckd_known_devices)/sizeof(devreg_t); i++)
- 			s390_device_register(&dasd_eckd_known_devices[i]);
--#endif
- 	return 0;
+ 	return rc;
+@@ -1173,27 +1172,9 @@
  }
- 
-@@ -1464,10 +1466,8 @@
- {
- 	int i;
- 
--#ifdef CONFIG_DASD_DYNAMIC
- 	for (i = 0; i < sizeof(dasd_eckd_known_devices)/sizeof(devreg_t); i++)
- 		s390_device_unregister(&dasd_eckd_known_devices[i]);
--#endif				/* CONFIG_DASD_DYNAMIC */
- 
- 	dasd_discipline_del(&dasd_eckd_discipline);
- 
-diff -urN linux-2.5.39/drivers/s390/block/dasd_fba.c linux-2.5.39-s390/drivers/s390/block/dasd_fba.c
---- linux-2.5.39/drivers/s390/block/dasd_fba.c	Fri Sep 27 23:50:22 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_fba.c	Mon Sep 30 13:25:48 2002
-@@ -16,6 +16,7 @@
- 
- #include <linux/slab.h>
- #include <linux/hdreg.h>	/* HDIO_GETGEO			    */
-+#include <linux/bio.h>
- 
- #include <asm/idals.h>
- #include <asm/ebcdic.h>
-@@ -43,7 +44,6 @@
- 	dasd_fba_characteristics_t rdc_data;
- } dasd_fba_private_t;
- 
--#ifdef CONFIG_DASD_DYNAMIC
- static
- devreg_t dasd_fba_known_devices[] = {
- 	{
-@@ -59,7 +59,6 @@
- 		oper_func:dasd_oper_handler
- 	}
- };
--#endif
- 
- static inline void
- define_extent(ccw1_t * ccw, DE_fba_data_t *data, int rw,
-@@ -417,10 +416,8 @@
- 
- 	ASCEBC(dasd_fba_discipline.ebcname, 4);
- 	dasd_discipline_add(&dasd_fba_discipline);
--#ifdef CONFIG_DASD_DYNAMIC
- 	for (i = 0; i < sizeof(dasd_fba_known_devices) / sizeof(devreg_t); i++)
- 		s390_device_register(&dasd_fba_known_devices[i]);
--#endif
- 	return 0;
- }
- 
-@@ -429,10 +426,8 @@
- {
- 	int i;
- 
--#ifdef CONFIG_DASD_DYNAMIC
- 	for (i = 0; i < sizeof(dasd_fba_known_devices) / sizeof(devreg_t); i++)
- 		s390_device_unregister(&dasd_fba_known_devices[i]);
--#endif
- 	dasd_discipline_del(&dasd_fba_discipline);
- }
- 
-diff -urN linux-2.5.39/drivers/s390/block/dasd_genhd.c linux-2.5.39-s390/drivers/s390/block/dasd_genhd.c
---- linux-2.5.39/drivers/s390/block/dasd_genhd.c	Fri Sep 27 23:50:27 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_genhd.c	Mon Sep 30 13:25:48 2002
-@@ -33,8 +33,6 @@
- struct major_info {
- 	struct list_head list;
- 	int major;
--	struct gendisk disks[DASD_PER_MAJOR];
--	char names[DASD_PER_MAJOR * 8];
- };
  
  /*
-@@ -66,12 +64,8 @@
- dasd_register_major(int major)
- {
- 	struct major_info *mi;
--	int new_major, rc;
--	struct list_head *l;
--	int index;
--	int i;
-+	int new_major;
- 
--	rc = 0;
- 	/* Allocate major info structure. */
- 	mi = kmalloc(sizeof(struct major_info), GFP_KERNEL);
- 
-@@ -80,67 +74,39 @@
- 		MESSAGE(KERN_WARNING, "%s",
- 			"Cannot get memory to allocate another "
- 			"major number");
--		rc = -ENOMEM;
--		goto out_error;
-+		return -ENOMEM;
- 	}
- 
- 	/* Register block device. */
- 	new_major = register_blkdev(major, "dasd", &dasd_device_operations);
- 	if (new_major < 0) {
- 		MESSAGE(KERN_WARNING,
--			"Cannot register to major no %d, rc = %d", major, rc);
--		rc = new_major;
--		goto out_error;
-+			"Cannot register to major no %d, rc = %d",
-+			major, new_major);
-+		kfree(mi);
-+		return new_major;
- 	}
- 	if (major != 0)
- 		new_major = major;
--	
-+
- 	/* Initialize major info structure. */
--	memset(mi, 0, sizeof(struct major_info));
- 	mi->major = new_major;
--	for (i = 0; i < DASD_PER_MAJOR; i++) {
--		struct gendisk *disk = mi->disks + i;
--		disk->major = new_major;
--		disk->first_minor = i << DASD_PARTN_BITS;
--		disk->minor_shift = DASD_PARTN_BITS;
--		disk->fops = &dasd_device_operations;
--		disk->flags = GENHD_FL_DEVFS;
--	}
- 
- 	/* Setup block device pointers for the new major. */
- 	blk_dev[new_major].queue = dasd_get_queue;
- 
-+	/* Insert the new major info structure into dasd_major_info list. */
- 	spin_lock(&dasd_major_lock);
--	index = 0;
--	list_for_each(l, &dasd_major_info)
--		index += DASD_PER_MAJOR;
--	for (i = 0; i < DASD_PER_MAJOR; i++, index++) {
--		char *name = mi->names + i * 8;
--		mi->disks[i].major_name = name;
--		sprintf(name, "dasd");
--		name += 4;
--		if (index > 701)
--			*name++ = 'a' + (((index - 702) / 676) % 26);
--		if (index > 25)
--			*name++ = 'a' + (((index - 26) / 26) % 26);
--		sprintf(name, "%c", 'a' + (index % 26));
--	}
- 	list_add_tail(&mi->list, &dasd_major_info);
- 	spin_unlock(&dasd_major_lock);
- 
- 	return 0;
+- * init_module:
+- */
 -
--	/* Something failed. Do the cleanup and return rc. */
--out_error:
--	/* We rely on kfree to do the != NULL check. */
--	kfree(mi);
+-#ifdef MODULE
+-int init_module(void)
+-{
+-	int rc = 0;
+-#ifdef DEBUG
+-	printk("debug_module_init: \n");
+-#endif
+-	rc = debug_init();
+-	if (rc) 
+-		printk(KERN_INFO "debug: an error occurred with debug_init\n");
 -	return rc;
+-}
+-
+-/*
+- * cleanup_module:
++ * clean up module
+  */
+-
+-void cleanup_module(void)
++void __exit debug_exit(void)
+ {
+ #ifdef DEBUG
+ 	printk("debug_cleanup_module: \n");
+@@ -1204,7 +1185,12 @@
+ 	return;
  }
  
- static void
- dasd_unregister_major(struct major_info * mi)
+-#endif			/* MODULE */
++/*
++ * module definitions
++ */
++core_initcall(debug_init);
++module_exit(debug_exit);
++MODULE_LICENSE("GPL");
+ 
+ EXPORT_SYMBOL(debug_register);
+ EXPORT_SYMBOL(debug_unregister); 
+diff -urN linux-2.5.39/arch/s390x/kernel/setup.c linux-2.5.39-s390/arch/s390x/kernel/setup.c
+--- linux-2.5.39/arch/s390x/kernel/setup.c	Mon Sep 30 13:33:22 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/setup.c	Mon Sep 30 13:33:49 2002
+@@ -78,7 +78,7 @@
+ /*
+  * cpu_init() initializes state that is per-CPU.
+  */
+-void __init cpu_init (void)
++void __devinit cpu_init (void)
  {
--	int major, rc;
-+	int rc;
+         int nr = smp_processor_id();
+         int addr = hard_smp_processor_id();
+diff -urN linux-2.5.39/arch/s390x/kernel/smp.c linux-2.5.39-s390/arch/s390x/kernel/smp.c
+--- linux-2.5.39/arch/s390x/kernel/smp.c	Mon Sep 30 13:33:09 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/smp.c	Mon Sep 30 13:33:49 2002
+@@ -435,7 +435,7 @@
+ extern void init_cpu_timer(void);
+ extern int pfault_init(void);
  
- 	if (mi == NULL)
+-int __init start_secondary(void *cpuvoid)
++int __devinit start_secondary(void *cpuvoid)
+ {
+         /* Setup the cpu */
+         cpu_init();
+@@ -455,7 +455,7 @@
+         return cpu_idle(NULL);
+ }
+ 
+-static struct task_struct * __init fork_by_hand(void)
++static struct task_struct * __devinit fork_by_hand(void)
+ {
+        struct pt_regs regs;
+        /* don't care about the psw and regs settings since we'll never
+diff -urN linux-2.5.39/drivers/s390/Makefile linux-2.5.39-s390/drivers/s390/Makefile
+--- linux-2.5.39/drivers/s390/Makefile	Mon Sep 30 13:25:48 2002
++++ linux-2.5.39-s390/drivers/s390/Makefile	Mon Sep 30 13:33:49 2002
+@@ -7,8 +7,9 @@
+ obj-$(CONFIG_QDIO) += qdio.o
+ 
+ obj-y += s390mach.o s390dyn.o sysinfo.o
+-obj-y += block/ char/ misc/ net/ cio/
++obj-y += cio/ block/ char/ misc/ net/
+ 
+ drivers-y += drivers/s390/built-in.o
+ 
+ include $(TOPDIR)/Rules.make
++
+diff -urN linux-2.5.39/drivers/s390/char/con3215.c linux-2.5.39-s390/drivers/s390/char/con3215.c
+--- linux-2.5.39/drivers/s390/char/con3215.c	Mon Sep 30 13:32:13 2002
++++ linux-2.5.39-s390/drivers/s390/char/con3215.c	Mon Sep 30 13:33:49 2002
+@@ -693,13 +693,12 @@
+ 
+ 	if (raw->flags & RAW3215_ACTIVE)
+ 		return 0;
+-	if (request_irq(raw->irq, raw3215_irq, SA_INTERRUPT,
+-			"3215 terminal driver", &raw->devstat) != 0)
++	if (s390_request_console_irq(raw->irq, raw3215_irq, SA_INTERRUPT,
++				"3215 terminal driver", &raw->devstat) != 0)
+ 		return -1;
+ 	raw->line_pos = 0;
+ 	raw->flags |= RAW3215_ACTIVE;
+ 	s390irq_spin_lock_irqsave(raw->irq, flags);
+-        set_cons_dev(raw->irq);
+ 	raw3215_try_io(raw);
+ 	s390irq_spin_unlock_irqrestore(raw->irq, flags);
+ 
+@@ -1064,7 +1063,6 @@
+ 	/* Check if 3215 is to be the console */
+ 	if (!CONSOLE_IS_3215)
  		return;
-@@ -151,99 +117,177 @@
- 	spin_unlock(&dasd_major_lock);
+-	irq = raw3215_find_dev(0);
  
- 	/* Clear block device pointers. */
--	major = mi->major;
--	blk_dev[major].queue = NULL;
-+	blk_dev[mi->major].queue = NULL;
+ 	/* Set the console mode for VM */
+ 	if (MACHINE_IS_VM) {
+@@ -1072,6 +1070,22 @@
+ 		cpcmd("TERM AUTOCR OFF", NULL, 0);
+ 	}
  
--	rc = unregister_blkdev(major, "dasd");
-+	rc = unregister_blkdev(mi->major, "dasd");
- 	if (rc < 0)
- 		MESSAGE(KERN_WARNING,
- 			"Cannot unregister from major no %d, rc = %d",
--			major, rc);
-+			mi->major, rc);
++	if (console_device != -1) {
++		/* use the device number that was specified on the
++		 * command line */
++		irq = raw3215_find_dev(0);
++	} else if (MACHINE_IS_VM) {
++		/* under VM, the console is at device number 0009
++		 * by default, so try that */
++		irq = get_irq_by_devno(0x0009);
++	} else {
++		/* unlike in 2.4, we cannot autoprobe here, since
++		 * the channel subsystem is not fully initialized.
++		 * With some luck, the HWC console can take over */
++		printk(KERN_WARNING "3215 console not found\n");
++		return;
++	}
++
+ 	/* allocate 3215 request structures */
+ 	raw3215_freelist = NULL;
+ 	spin_lock_init(&raw3215_freelist_lock);
+diff -urN linux-2.5.39/drivers/s390/cio/cio_debug.c linux-2.5.39-s390/drivers/s390/cio/cio_debug.c
+--- linux-2.5.39/drivers/s390/cio/cio_debug.c	Fri Sep 27 23:49:44 2002
++++ linux-2.5.39-s390/drivers/s390/cio/cio_debug.c	Mon Sep 30 13:33:49 2002
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/cio_debug.c
+  *   S/390 common I/O routines -- message ids for debugging
+- *   $Revision: 1.4 $
++ *   $Revision: 1.5 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *                            IBM Corporation
+@@ -69,4 +69,4 @@
+ 	return ret;
+ }
  
- 	/* Free memory. */
- 	kfree(mi);
+-__initcall (cio_debug_init);
++arch_initcall (cio_debug_init);
+diff -urN linux-2.5.39/drivers/s390/cio/requestirq.c linux-2.5.39-s390/drivers/s390/cio/requestirq.c
+--- linux-2.5.39/drivers/s390/cio/requestirq.c	Mon Sep 30 13:33:09 2002
++++ linux-2.5.39-s390/drivers/s390/cio/requestirq.c	Mon Sep 30 13:33:49 2002
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/requestirq.c
+  *   S/390 common I/O routines -- 
+- *   $Revision: 1.7 $
++ *   $Revision: 1.12 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *                            IBM Corporation
+@@ -122,6 +122,34 @@
+ 					 NULL, irqflags, devname, dev_id);
+ }
+ 
++int
++s390_request_console_irq (int irq,
++			  void (*handler) (int, void *, struct pt_regs *),
++			  unsigned long irqflags,
++			  const char *devname,
++			  void *dev_id)
++{
++	int ret;
++	unsigned long flags;
++
++	s390_device_recognition_irq (irq);
++
++	ret = s390_request_irq_special (irq, (io_handler_func_t) handler,
++					NULL, irqflags, devname, dev_id);
++
++	if (ret)
++		goto out;
++
++	s390irq_spin_lock_irqsave(irq, flags);
++	ret = set_cons_dev(irq);
++	s390irq_spin_unlock_irqrestore(irq, flags);
++
++	if (ret)
++		free_irq(irq, dev_id);
++out:
++	return ret;
++}
++
+ /*
+  * request_irq wrapper
+  */
+@@ -151,7 +179,7 @@
+ 
+ 	s390irq_spin_lock_irqsave (irq, flags);
+ 
+-	CIO_DEBUG_NOCONS(irq,KERN_DEBUG, printk, 2, 
++	CIO_DEBUG_NOCONS(irq,KERN_DEBUG, DBG, 2, 
+ 			 "Trying to free IRQ %d\n", 
+ 			 irq);
+ 
+diff -urN linux-2.5.39/drivers/s390/cio/s390io.c linux-2.5.39-s390/drivers/s390/cio/s390io.c
+--- linux-2.5.39/drivers/s390/cio/s390io.c	Mon Sep 30 13:33:49 2002
++++ linux-2.5.39-s390/drivers/s390/cio/s390io.c	Mon Sep 30 13:33:49 2002
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/s390io.c
+  *   S/390 common I/O routines
+- *   $Revision: 1.11 $
++ *   $Revision: 1.33 $
+  *
+  *  S390 version
+  *    Copyright (C) 1999, 2000 IBM Deutschland Entwicklung GmbH,
+@@ -75,9 +75,8 @@
+ static __u64 irq_IPL_TOD; // FIXME: can be on stack
+ 
+ static void s390_process_subchannels (void);
+-static void s390_device_recognition_all (void);
+ static int s390_SenseID (int irq, senseid_t * sid, __u8 lpm);
+-static int s390_SetPGID (int irq, __u8 lpm, pgid_t * pgid);
++static int s390_SetPGID (int irq, __u8 lpm);
+ static int s390_SensePGID (int irq, __u8 lpm, pgid_t * pgid);
+ 
+ /* FIXME: intermixed with proc.c */
+@@ -86,7 +85,6 @@
+ 
+ int cio_show_msg;
+ static int cio_notoper_msg = 1;
+-static int cio_sid_with_pgid;     /* if we need a PGID for SenseID, switch this on */
+ 
+ static int __init
+ cio_setup (char *parm)
+@@ -125,25 +123,6 @@
+ 
+ __setup ("cio_notoper_msg=", cio_notoper_setup);
+ 
+-static int __init
+-cio_pgid_setup (char *parm)
+-{
+-	if (!strcmp (parm, "yes")) {
+-		cio_sid_with_pgid = 1;
+-	} else if (!strcmp (parm, "no")) {
+-		cio_sid_with_pgid = 0;
+-	} else {
+-		printk (KERN_ERR 
+-			"cio_pgid_setup : invalid cio_msg parameter '%s'",
+-			parm);
+-
+-	}
+-
+-	return 1;
+-}
+-
+-__setup ("cio_sid_with_pgid=", cio_pgid_setup);
+-
+ /* This function is replacing the init_IRQ function in
+  * arch/s390(x)/kernel/irq.c and is called early during
+  * bootup. Anything called from here must be careful 
+@@ -199,8 +178,6 @@
+ 	cr6 = 0x10000000;
+ 	__ctl_load (cr6, 6, 6);
+ 
+-	s390_device_recognition_all ();
+-
+ 	init_IRQ_complete = 1;
+ 
+ 	local_irq_restore (flags);
+@@ -226,6 +203,51 @@
+ 	/* this is a dummy handler only ... */
+ }
+ 
++/* 
++ * diag210 is used under VM to get information about a virtual device
++ */
++#ifdef CONFIG_ARCH_S390X
++int diag210(diag210_t * addr)
++{
++	/*
++	 * diag 210 needs its data below the 2GB border, so we
++	 * use a static data area to be sure
++	 */
++	static diag210_t diag210_tmp;
++	static spinlock_t diag210_lock = SPIN_LOCK_UNLOCKED;
++	unsigned long flags;
++	int ccode;
++
++	spin_lock_irqsave(&diag210_lock, flags);
++	diag210_tmp = *addr;
++
++	asm volatile (
++		"   sam31\n"
++		"   diag  %1,0,0x210\n"
++		"   sam64\n"
++		"   ipm   %0\n"
++		"   srl   %0,28"
++		: "=d" (ccode) : "a" (__pa(&diag210_tmp)) : "cc", "memory" );
++	
++	*addr = diag210_tmp;
++	spin_unlock_irqrestore(&diag210_lock, flags);
++
++	return ccode;
++}
++#else
++int diag210(diag210_t * addr)
++{
++	int ccode;
++
++	asm volatile (
++		"   diag  %1,0,0x210\n"
++		"   ipm   %0\n"
++		"   srl   %0,28"
++		: "=d" (ccode) : "a" (__pa(addr)) : "cc", "memory" );
++
++	return ccode;
++}
++#endif
+ 
+ /*
+  * Input :
+@@ -234,31 +256,28 @@
+  * Output : none
+  */
+ static inline void
+-_VM_virtual_device_info (__u16 devno, senseid_t * ps)
++VM_virtual_device_info (__u16 devno, senseid_t * ps)
+ {
+-	diag210_t *p_diag_data;
++	diag210_t diag_data;
+ 	int ccode;
+ 
+ 	int error = 0;
+ 
+ 	CIO_TRACE_EVENT (4, "VMvdinf");
+ 
+-	if (init_IRQ_complete) {
+-		p_diag_data = kmalloc (sizeof (diag210_t), GFP_DMA);
+-	} else {
+-		p_diag_data = alloc_bootmem_low (sizeof (diag210_t));
++	diag_data = (diag210_t) {
++		.vrdcdvno = devno,
++		.vrdclen = sizeof (diag_data),
++	};
+ 
+-	}
+-
+-	p_diag_data->vrdcdvno = devno;
+-	p_diag_data->vrdclen = sizeof (diag210_t);
+-	ccode = diag210 ((diag210_t *) virt_to_phys (p_diag_data));
++	ccode = diag210 (&diag_data);
+ 	ps->reserved = 0xff;
+ 
+-	switch (p_diag_data->vrdcvcla) {
++	/* FIXME: this would be much nicer if it were table driven */
++	switch (diag_data.vrdcvcla) {
+ 	case 0x80:
+ 
+-		switch (p_diag_data->vrdcvtyp) {
++		switch (diag_data.vrdcvtyp) {
+ 		case 00:
+ 
+ 			ps->cu_type = 0x3215;
+@@ -277,7 +296,7 @@
+ 
+ 	case 0x40:
+ 
+-		switch (p_diag_data->vrdcvtyp) {
++		switch (diag_data.vrdcvtyp) {
+ 		case 0xC0:
+ 
+ 			ps->cu_type = 0x5080;
+@@ -314,7 +333,7 @@
+ 
+ 	case 0x20:
+ 
+-		switch (p_diag_data->vrdcvtyp) {
++		switch (diag_data.vrdcvtyp) {
+ 		case 0x84:
+ 
+ 			ps->cu_type = 0x3505;
+@@ -345,7 +364,7 @@
+ 
+ 	case 0x10:
+ 
+-		switch (p_diag_data->vrdcvtyp) {
++		switch (diag_data.vrdcvtyp) {
+ 		case 0x84:
+ 
+ 			ps->cu_type = 0x3525;
+@@ -422,7 +441,7 @@
+ 
+ 	case 0x08:
+ 
+-		switch (p_diag_data->vrdcvtyp) {
++		switch (diag_data.vrdcvtyp) {
+ 		case 0x82:
+ 
+ 			ps->cu_type = 0x3422;
+@@ -477,7 +496,7 @@
+ 
+ 	case 02:		/* special device class ... */
+ 
+-		switch (p_diag_data->vrdcvtyp) {
++		switch (diag_data.vrdcvtyp) {
+ 		case 0x20:	/* OSA */
+ 
+ 			ps->cu_type = 0x3088;
+@@ -502,13 +521,6 @@
+ 
+ 	}
+ 
+-	if (init_IRQ_complete) {
+-		kfree (p_diag_data);
+-	} else {
+-		free_bootmem ((unsigned long) p_diag_data, sizeof (diag210_t));
+-
+-	}
+-
+ 	if (error) 
+ 		CIO_DEBUG_ALWAYS(KERN_ERR, 0,
+ 				 "DIAG X'210' for "
+@@ -519,12 +531,11 @@
+ 				 "rdev model: %02X\n",
+ 				 devno,
+ 				 ccode,
+-				 p_diag_data->vrdcvcla,
+-				 p_diag_data->vrdcvtyp,
+-				 p_diag_data->vrdcrccl,
+-				 p_diag_data->vrdccrty,
+-				 p_diag_data->vrdccrmd);
+-		
++				 diag_data.vrdcvcla,
++				 diag_data.vrdcvtyp,
++				 diag_data.vrdcrccl,
++				 diag_data.vrdccrty,
++				 diag_data.vrdccrmd);
  }
  
  /*
-- * Dynamically allocate a new major for dasd devices.
-+ * This one is needed for naming 18000+ possible dasd devices.
-+ *   dasda - dasdz : 26 devices
-+ *   dasdaa - dasdzz : 676 devices, added up = 702
-+ *   dasdaaa - dasdzzz : 17576 devices, added up = 18278
-  */
+@@ -553,7 +564,7 @@
  int
--dasd_gendisk_new_major(void)
-+dasd_device_name(char *str, int index, int partition)
+ read_dev_chars (int irq, void **buffer, int length)
  {
--	int rc;
--	
--	rc = dasd_register_major(0);
--	if (rc)
--		DBF_EXC(DBF_ALERT, "%s", "out of major numbers!");
--	return rc;
-+	int len;
+-	unsigned int flags;
++	unsigned long flags;
+ 	ccw1_t *rdc_ccw;
+ 	devstat_t devstat;
+ 	char *rdc_buf;
+@@ -661,9 +672,11 @@
+ 
+ 		}
+ 
++	} else {
++		local_irq_restore(flags);
+ 	}
+ 
+-	return (ret);
++	return ret;
+ }
+ 
+ /*
+@@ -698,7 +711,7 @@
+ 	 * scan for RCD command in extended SenseID data
+ 	 */
+ 
+-	for (ciw_cnt = 0; (found == 0) && (ciw_cnt < 62); ciw_cnt++) {
++	for (ciw_cnt = 0; (found == 0) && (ciw_cnt < MAX_CIWS); ciw_cnt++) {
+ 		if (ioinfo[irq]->senseid.ciw[ciw_cnt].ct == CIW_TYPE_RCD) {
+ 			/*
+ 			 * paranoia check ...
+@@ -817,11 +830,10 @@
+ 				} while (retry);
+ 
+ 			}
+-
+-			local_irq_restore (flags);
+-
+ 		}
+ 
++		local_irq_restore(flags);
 +
-+	if (partition > DASD_PARTN_MASK)
-+		return -EINVAL;
+ 		/*
+ 		 * on success we update the user input parms
+ 		 */
+@@ -867,8 +879,8 @@
+ void
+ s390_device_recognition_irq (int irq)
+ {
+-	int ret;
+ 	char dbf_txt[15];
++	devstat_t devstat;
+ 
+ 	sprintf (dbf_txt, "devrec%x", irq);
+ 	CIO_TRACE_EVENT (4, dbf_txt);
+@@ -877,52 +889,78 @@
+ 	 * We issue the SenseID command on I/O subchannels we think are
+ 	 *  operational only.
+ 	 */
+-	if ((ioinfo[irq] != INVALID_STORAGE_AREA)
+-	    && (!ioinfo[irq]->st)
+-	    && (ioinfo[irq]->schib.pmcw.st == 0)
+-	    && (ioinfo[irq]->ui.flags.oper == 1)) {
+-		int irq_ret;
+-		devstat_t devstat;
++	if ((ioinfo[irq]->st) || (!ioinfo[irq]->ui.flags.oper))
++		goto out;
+ 
+-		irq_ret = request_irq (irq,
+-				       init_IRQ_handler,
+-				       SA_PROBE, "INIT", &devstat);
++	if (request_irq (irq, init_IRQ_handler, SA_PROBE, "INIT", &devstat))
++		goto out;
+ 
+-		if (!irq_ret) {
+-			ret = enable_cpu_sync_isc (irq);
++	if (enable_cpu_sync_isc(irq))
++		goto out_freeirq;
+ 
+-			if (!ret) {
+-				ioinfo[irq]->ui.flags.unknown = 0;
++	ioinfo[irq]->ui.flags.unknown = 0;
+ 
+-				memset (&ioinfo[irq]->senseid, '\0',
+-					sizeof (senseid_t));
++	memset (&ioinfo[irq]->senseid, '\0', sizeof (senseid_t));
+ 
+-				if (cio_sid_with_pgid) {
+-					
+-					ret = s390_DevicePathVerification(irq,0);
+-					
+-					if (ret == -EOPNOTSUPP) 
+-						/* 
+-						 * Doesn't prevent us from proceeding
+-						 */
+-						ret = 0;
+-				}
++	s390_SenseID (irq, &ioinfo[irq]->senseid, 0xff);
+ 
+-				/*
+-				 * we'll fallthrough here if we don't want
+-				 * to do SPID before SID
+-				 */
+-				if (!ret) {
+-					s390_SenseID (irq, &ioinfo[irq]->senseid, 0xff);
+-				}
+-				disable_cpu_sync_isc (irq);
++	disable_cpu_sync_isc(irq);
++out_freeirq:
++	free_irq (irq, &devstat);
++out:
++	return;
++}
+ 
+-			}
++static int
++css_bus_match (struct device *dev, struct device_driver *drv)
++{
++	struct subchannel *ioinfo;
++	struct subchannel_driver *sdrv;
+ 
+-			free_irq (irq, &devstat);
++	ioinfo = list_entry (dev, struct subchannel, dev);
++	sdrv   = list_entry (drv, struct subchannel_driver, drv);
+ 
+-		}
+-	}
++	return (ioinfo->st == sdrv->st);
++}
 +
-+	len = sprintf(str, "dasd");
-+	if (index > 25) {
-+		if (index > 701)
-+			len += sprintf(str + len, "%c",
-+				       'a' + (((index - 702) / 676) % 26));
-+		len += sprintf(str + len, "%c",
-+			       'a' + (((index - 26) / 26) % 26));
++struct bus_type css_bus_type = {
++	.name  = "css",
++	.match = &css_bus_match,
++};
++
++static struct device css_bus_device = {
++	.name   = "Channel Subsystem",
++	.bus_id = "css0",
++};
++
++/*
++ * s390_register_subchannel
++ *
++ * initializes the struct device member of a subchannel and gives it to
++ * the device driver core
++ */
++static __devinit void
++s390_register_subchannel (struct subchannel *ioinfo)
++{
++	static const char *subchannel_types[] = {
++		"I/O Subchannel",
++		"CHSC Subchannel",
++		"Message Subchannel",
++		"ADM Subchannel",
++		"undefined subchannel type 4",
++		"undefined subchannel type 5",
++		"undefined subchannel type 6",
++		"undefined subchannel type 7",
++	};
++
++	strncpy (ioinfo->dev.name, subchannel_types[ioinfo->st], DEVICE_NAME_SIZE);
++	snprintf (ioinfo->dev.bus_id, DEVICE_ID_SIZE, "0:%04x", ioinfo->irq);
++
++	ioinfo->dev.bus    = &css_bus_type;
++	ioinfo->dev.parent = &css_bus_device;
++
++	if (device_register(&ioinfo->dev))
++		printk(KERN_WARNING "failed to register subchannel %04x\n", ioinfo->irq);
+ }
+ 
+ /*
+@@ -931,19 +969,43 @@
+  * Used for system wide device recognition.
+  *
+  */
+-static void __init
+-s390_device_recognition_all (void)
++static int __init
++s390_probe_css (void)
+ {
+-	int irq = 0;		/* let's start with subchannel 0 ... */
++	int ret;
++	int irq;
+ 
+-	do {
+-		s390_device_recognition_irq (irq);
++	printk (KERN_INFO "probing %d subchannels...\n", highest_subchannel+1);
++
++	if ((ret = bus_register(&css_bus_type)))
++		goto out;
++
++	if ((ret = device_register(&css_bus_device)))
++		goto out_unregister;
++
++	for (irq = 0; irq <= highest_subchannel; irq++) {
++		if (ioinfo[irq] == INVALID_STORAGE_AREA)
++			continue;
++
++		printk(KERN_INFO "subchannel %04x: devno %04x, ",
++				irq, ioinfo[irq]->devno);
++
++		if (irq != cons_dev) /* console has already been probed */
++			s390_device_recognition_irq (irq);
+ 
+-		irq++;
++		s390_register_subchannel(ioinfo[irq]);
++		printk("control unit type %04x\n", ioinfo[irq]->senseid.cu_type);
 +	}
-+	len += sprintf(str + len, "%c", 'a' + (index % 26));
+ 
+-	} while (irq <= highest_subchannel);
++out_unregister:
++	if (ret)
++		put_bus(&css_bus_type);
++out:
++	return ret;
+ }
+ 
++subsys_initcall(s390_probe_css);
 +
-+	if (partition)
-+		len += sprintf(str + len, "%d", partition);
+ /*
+  * s390_process_subchannels
+  *
+@@ -1301,7 +1363,13 @@
+ static int
+ s390_SenseID (int irq, senseid_t * sid, __u8 lpm)
+ {
+-	ccw1_t *sense_ccw;	/* ccw area for SenseID command */
++	/* SenseID may be called during console initialization,
++	 * before we have a working kmalloc, using a static
++	 * ccw area is the least evil workaround */
++	static ccw1_t sense_ccw[2];	/* ccw area for SenseID command */
++	static spinlock_t sid_lock	/* lock to protect sense_ccw */
++		= SPIN_LOCK_UNLOCKED;
++
+ 	senseid_t isid;		/* internal sid */
+ 	devstat_t devstat;	/* required by request_irq() */
+ 	__u8 pathmask;		/* calulate path mask */
+@@ -1318,6 +1386,7 @@
+ 	char dbf_txt[15];
+ 	int i;
+ 	int failure = 0;	/* nothing went wrong yet */
++	unsigned long flags;
+ 
+ 	if (ioinfo[irq]->ui.flags.oper == 0) {
+ 		return -ENODEV;
+@@ -1327,44 +1396,27 @@
+ 	sprintf (dbf_txt, "snsID%x", irq);
+ 	CIO_TRACE_EVENT (4, dbf_txt);
+ 
+-	inlreq = 0;		/* to make the compiler quiet... */
+-
+ 	if (!ioinfo[irq]->ui.flags.ready) {
+-
+-		pdevstat = &devstat;
+-
++		inlreq = 1;
+ 		/*
+ 		 * Perform SENSE ID command processing. We have to request device
+ 		 *  ownership and provide a dummy I/O handler. We issue sync. I/O
+ 		 *  requests and evaluate the devstat area on return therefore
+ 		 *  we don't need a real I/O handler in place.
+ 		 */
+-		irq_ret =
+-		    request_irq (irq, init_IRQ_handler, SA_PROBE, "SID",
+-				 &devstat);
++		if ((irq_ret = request_irq (irq, init_IRQ_handler,
++						SA_PROBE, "SID", &devstat)))
++				return irq_ret;
+ 
+-		if (irq_ret == 0)
+-			inlreq = 1;
+ 	} else {
+ 		inlreq = 0;
+-		irq_ret = 0;
+-		pdevstat = ioinfo[irq]->irq_desc.dev_id;
+-
+ 	}
+ 
+-	if (irq_ret) {
+-		return irq_ret;
+-	}
++	pdevstat = ioinfo[irq]->irq_desc.dev_id;
+ 
++	spin_lock_irqsave(&sid_lock, flags);
+ 	s390irq_spin_lock (irq);
+ 
+-	if (init_IRQ_complete) {
+-		sense_ccw = kmalloc (2 * sizeof (ccw1_t), GFP_DMA);
+-	} else {
+-		sense_ccw = alloc_bootmem_low (2 * sizeof (ccw1_t));
+-
+-	}
+-
+ 	/* more than one path installed ? */
+ 	if (ioinfo[irq]->schib.pmcw.pim != 0x80) {
+ 		sense_ccw[0].cmd_code = CCW_CMD_SUSPEND_RECONN;
+@@ -1584,14 +1636,8 @@
+ 
+ 	}
+ 
+-	if (init_IRQ_complete) {
+-		kfree (sense_ccw);
+-	} else {
+-		free_bootmem ((unsigned long) sense_ccw, 2 * sizeof (ccw1_t));
+-
+-	}
+-
+ 	s390irq_spin_unlock (irq);
++	spin_unlock_irqrestore(&sid_lock, flags);
+ 
+ 	/*
+ 	 * If we installed the irq action handler we have to
+@@ -1606,7 +1652,7 @@
+ 	 */
+ 	if ((sid->cu_type == 0xFFFF)
+ 	    && (MACHINE_IS_VM)) {
+-		_VM_virtual_device_info (ioinfo[irq]->schib.pmcw.dev, sid);
++		VM_virtual_device_info (ioinfo[irq]->schib.pmcw.dev, sid);
+ 	}
+ 
+ 	if (sid->cu_type == 0xFFFF) {
+@@ -1622,43 +1668,18 @@
+ 			  ioinfo[irq]->schib.pmcw.dev, irq);
+ 
+ 		ioinfo[irq]->ui.flags.unknown = 1;
+-
++		return -ENODEV;
+ 	}
+ 
+ 	/*
+ 	 * Issue device info message if unit was operational .
+ 	 */
+-	if (!ioinfo[irq]->ui.flags.unknown) {
+-		if (sid->dev_type != 0) {
+-
+-			CIO_DEBUG_IFMSG(KERN_INFO, 2,
+-					"SenseID : device %04X reports: "
+-					"CU  Type/Mod = %04X/%02X,"
+-					" Dev Type/Mod = %04X/%02X\n",
+-					ioinfo[irq]->schib.pmcw.dev,
+-					sid->cu_type,
+-					sid->cu_model,
+-					sid->dev_type,
+-					sid->dev_model);
+-
+-		} else {
++	CIO_DEBUG_IFMSG(KERN_INFO, 2, "SenseID : device %04X reports: "
++		"CU  Type/Mod = %04X/%02X, Dev Type/Mod = %04X/%02X\n",
++		ioinfo[irq]->schib.pmcw.dev, sid->cu_type, sid->cu_model,
++		sid->dev_type, sid->dev_model);
+ 
+-			CIO_DEBUG_IFMSG(KERN_INFO, 2,
+-					"SenseID : device %04X reports:"
+-					" Dev Type/Mod = %04X/%02X\n",
+-					ioinfo[irq]->schib.pmcw.dev,
+-					sid->cu_type,
+-					sid->cu_model);
+-		}
+-
+-	}
+-
+-	if (!ioinfo[irq]->ui.flags.unknown)
+-		irq_ret = 0;
+-	else
+-		irq_ret = -ENODEV;
+-
+-	return (irq_ret);
 +	return 0;
  }
  
  /*
-- * Return pointer to gendisk structure by kdev.
-+ * Allocate gendisk structure for devindex.
-  */
--static struct gendisk *dasd_gendisk_by_dev(kdev_t dev)
-+struct gendisk *
-+dasd_gendisk_alloc(char *device_name, int devindex)
- {
- 	struct list_head *l;
- 	struct major_info *mi;
- 	struct gendisk *gdp;
--	int major = major(dev);
-+	struct hd_struct *gd_part;
-+	int index, len, rc;
+@@ -1683,7 +1704,6 @@
+ 	int i;
+ 	pgid_t pgid;
+ 	__u8 dev_path;
+-	int first = 1;
  
--	spin_lock(&dasd_major_lock);
--	gdp = NULL;
--	list_for_each(l, &dasd_major_info) {
--		mi = list_entry(l, struct major_info, list);
--		if (mi->major == major) {
--			gdp = &mi->disks[minor(dev) >> DASD_PARTN_BITS];
-+	/* Make sure the major for this device exists. */
-+	mi = NULL;
-+	while (1) {
-+		spin_lock(&dasd_major_lock);
-+		index = devindex;
-+		list_for_each(l, &dasd_major_info) {
-+			mi = list_entry(l, struct major_info, list);
-+			if (index < DASD_PER_MAJOR)
-+				break;
-+			index -= DASD_PER_MAJOR;
-+		}
-+		spin_unlock(&dasd_major_lock);
-+		if (index < DASD_PER_MAJOR)
- 			break;
-+		rc = dasd_register_major(0);
-+		if (rc) {
-+			DBF_EXC(DBF_ALERT, "%s", "out of major numbers!");
-+			return ERR_PTR(rc);
- 		}
+ 	char dbf_txt[15];
+ 
+@@ -1758,7 +1778,7 @@
+ 	    & ioinfo[irq]->schib.pmcw.pam & ioinfo[irq]->schib.pmcw.pom;
+ 
+ 	chsc_validate_chpids(irq);
+-
++	
+ 	if ((ioinfo[irq]->opm == 0) && (old_opm)) {
+ 		not_oper_handler_func_t nopfunc=ioinfo[irq]->nopfunc;
+ 		int was_oper = ioinfo[irq]->ui.flags.ready;
+@@ -1803,7 +1823,6 @@
+ 		memcpy (&ioinfo[irq]->pgid, &global_pgid, sizeof (pgid_t));
+ 		ioinfo[irq]->ui.flags.pgid = 1;
  	}
--	spin_unlock(&dasd_major_lock);
+-	memcpy (&pgid, &ioinfo[irq]->pgid, sizeof (pgid_t));
+ 
+ 	for (i = 0; i < 8 && !ret; i++) {
+ 		pathmask = 0x80 >> i;
+@@ -1811,46 +1830,38 @@
+ 		domask = dev_path & pathmask;
+ 
+ 		if (domask) {
+-			ret = s390_SetPGID (irq, domask, &pgid);
+-
+-			/*
+-			 * For the *first* path we are prepared
+-			 *  for recovery
+-			 *
+-			 *  - If we fail setting the PGID we assume its
+-			 *     using  a different PGID already (VM) we
+-			 *     try to sense.
+-			 */
+-			if (ret == -EOPNOTSUPP && first) {
++			if (MACHINE_IS_VM) {
++				/*
++				 * If we are running under VM, try to obtain
++				 * VM's PGID by SensePGID
++				 */
+ 				*(int *) &pgid = 0;
+-
+-				ret = s390_SensePGID (irq, domask, &pgid);
+-				first = 0;
+-
+-				if (ret == 0) {
++				
++				if (!s390_SensePGID (irq, domask, &pgid)) 
+ 					/*
+ 					 * Check whether we retrieved
+ 					 *  a reasonable PGID ...
+ 					 */
+ 					if (pgid.inf.ps.state1 ==
+-					    SNID_STATE1_GROUPED) {
++					    SNID_STATE1_GROUPED) 
+ 						memcpy (&ioinfo[irq]->pgid,
+ 							&pgid, sizeof (pgid_t));
+-					} else {	/* ungrouped or garbage ... */
+-						ret = -EOPNOTSUPP;
+ 
+-					}
+-				} else {
+-					ioinfo[irq]->ui.flags.pgid_supp = 0;
++			}
++			
++			ret = s390_SetPGID (irq, domask);
+ 
+-					CIO_DEBUG(KERN_WARNING, 2,
+-						  "PathVerification(%04X) "
+-						  "- Device %04X doesn't "
+-						  " support path grouping\n",
+-						  irq,
+-						  ioinfo[irq]->schib.pmcw.dev);
+-					
+-				}
++			if (ret == -EOPNOTSUPP) {
 +
-+	/* Allocate genhd structure and gendisk arrays. */
-+	gdp = kmalloc(sizeof(struct gendisk), GFP_KERNEL);
-+	gd_part = kmalloc(sizeof (struct hd_struct) << DASD_PARTN_BITS,
-+			  GFP_ATOMIC);
++				ioinfo[irq]->ui.flags.pgid_supp = 0;
++				
++				CIO_DEBUG(KERN_WARNING, 2,
++					  "PathVerification(%04X) "
++					  "- Device %04X doesn't "
++					  " support path grouping\n",
++					  irq,
++					  ioinfo[irq]->schib.pmcw.dev);
++				
+ 			} else if (ret == -EIO) {
+ 
+ 				CIO_DEBUG(KERN_ERR, 2,
+@@ -1873,12 +1884,19 @@
+ 
+ 				ret = 0;
+ 
+-			} else {
++			} else if (ret == -ENODEV) {
+ 
+ 				CIO_DEBUG(KERN_ERR, 2,
+-					  "PathVerification(%04X) - "
+-					  "Unexpected error on device %04X\n",
++					  "PathVerification(%04X) "
++					  "- Device %04X is no longer there?!?\n",
+ 					  irq, ioinfo[irq]->schib.pmcw.dev);
 +
-+	/* Check if one of the allocations failed. */
-+	if (gdp == NULL || gd_part == NULL) {
-+		/* We rely on kfree to do the != NULL check. */
-+		kfree(gd_part);
-+		kfree(gdp);
-+		return ERR_PTR(-ENOMEM);
-+	}
++			} else if (ret) {
 +
-+	/* Initialize gendisk structure. */
-+	memset(gdp, 0, sizeof(struct gendisk));
-+	gdp->major = mi->major;
-+	gdp->major_name = device_name;
-+	gdp->first_minor = index << DASD_PARTN_BITS;
-+	gdp->minor_shift = DASD_PARTN_BITS;
-+	gdp->part = gd_part;
-+	gdp->fops = &dasd_device_operations;
++				CIO_DEBUG(KERN_ERR, 2,
++					  "PathVerification(%04X) - "
++					  "Unexpected error %d on device %04X\n",
++					  irq, ret, ioinfo[irq]->schib.pmcw.dev);
+ 				
+ 				ioinfo[irq]->ui.flags.pgid_supp = 0;
+ 			}
+@@ -1895,7 +1913,7 @@
+  *
+  */
+ static int
+-s390_SetPGID (int irq, __u8 lpm, pgid_t * pgid)
++s390_SetPGID (int irq, __u8 lpm)
+ {
+ 	ccw1_t *spid_ccw;	/* ccw area for SPID command */
+ 	devstat_t devstat;	/* required by request_irq() */
+@@ -1953,11 +1971,11 @@
+ 	spid_ccw[0].flags = CCW_FLAG_SLI | CCW_FLAG_CC;
+ 
+ 	spid_ccw[1].cmd_code = CCW_CMD_SET_PGID;
+-	spid_ccw[1].cda = (__u32) virt_to_phys (pgid);
++	spid_ccw[1].cda = (__u32) virt_to_phys (&ioinfo[irq]->pgid);
+ 	spid_ccw[1].count = sizeof (pgid_t);
+ 	spid_ccw[1].flags = CCW_FLAG_SLI;
+ 
+-	pgid->inf.fc = SPID_FUNC_MULTI_PATH | SPID_FUNC_ESTABLISH;
++	ioinfo[irq]->pgid.inf.fc = SPID_FUNC_MULTI_PATH | SPID_FUNC_ESTABLISH;
+ 
+ 	/*
+ 	 * We now issue a SetPGID request. In case of BUSY
+@@ -2011,13 +2029,13 @@
+ 						spid_ccw[0].cmd_code =
+ 						    CCW_CMD_SET_PGID;
+ 						spid_ccw[0].cda = (__u32)
+-						    virt_to_phys (pgid);
++						    virt_to_phys (&ioinfo[irq]->pgid);
+ 						spid_ccw[0].count =
+ 						    sizeof (pgid_t);
+ 						spid_ccw[0].flags =
+ 						    CCW_FLAG_SLI;
+ 
+-						pgid->inf.fc =
++						ioinfo[irq]->pgid.inf.fc =
+ 						    SPID_FUNC_SINGLE_PATH
+ 						    | SPID_FUNC_ESTABLISH;
+ 						mpath = 0;
+@@ -2071,6 +2089,7 @@
+ 
+ 				retry = 0;
+ 				ioinfo[irq]->opm &= ~lpm;
++				switch_off_chpids(irq, lpm);
+ 				irq_ret = -EAGAIN;
+ 
+ 			}
+@@ -2133,6 +2152,7 @@
+ 	devstat_t devstat;	/* required by request_irq() */
+ 	devstat_t *pdevstat = &devstat;
+ 	char dbf_txt[15];
++	pgid_t * tmp_pgid;
+ 
+ 	int irq_ret = 0;	/* return code */
+ 	int retry = 5;		/* retry count */
+@@ -2174,13 +2194,14 @@
+ 
+ 	if (init_IRQ_complete) {
+ 		snid_ccw = kmalloc (sizeof (ccw1_t), GFP_DMA);
++		tmp_pgid = kmalloc (sizeof (pgid_t), GFP_DMA);
+ 	} else {
+ 		snid_ccw = alloc_bootmem_low (sizeof (ccw1_t));
+-
++		tmp_pgid = alloc_bootmem_low (sizeof (pgid_t));
+ 	}
+ 
+ 	snid_ccw->cmd_code = CCW_CMD_SENSE_PGID;
+-	snid_ccw->cda = (__u32) virt_to_phys (pgid);
++	snid_ccw->cda = (__u32) virt_to_phys (tmp_pgid);
+ 	snid_ccw->count = sizeof (pgid_t);
+ 	snid_ccw->flags = CCW_FLAG_SLI;
+ 
+@@ -2256,6 +2277,7 @@
+ 			} else {
+ 				retry = 0;	/* success ... */
+ 				irq_ret = 0;
++				memcpy(pgid, tmp_pgid, sizeof(pgid_t));
+ 
+ 			}
+ 		} else if (irq_ret != -ENODEV) {	/* -EIO, or -EBUSY */
+@@ -2290,9 +2312,10 @@
+ 
+ 	if (init_IRQ_complete) {
+ 		kfree (snid_ccw);
++		kfree (tmp_pgid);
+ 	} else {
+ 		free_bootmem ((unsigned long) snid_ccw, sizeof (ccw1_t));
+-
++		free_bootmem ((unsigned long) tmp_pgid, sizeof (tmp_pgid));
+ 	}
+ 
+ 	s390irq_spin_unlock_irqrestore (irq, flags);
+@@ -2311,13 +2334,11 @@
+  * Function: s390_send_nop
+  * 
+  * sends a nop CCW to the specified subchannel down the given path(s)
+- * FIXME: why not put nop_ccw on the stack, it's only 64 bits?
+  */
+ int
+ s390_send_nop(int irq, __u8 lpm)
+ {
+  	char dbf_txt[15];
+- 	ccw1_t *nop_ccw;
+  	devstat_t devstat;
+  	devstat_t *pdevstat = &devstat;
+  	unsigned long flags;
+@@ -2325,6 +2346,14 @@
+  	int irq_ret = 0;
+  	int inlreq = 0;
+ 	
++	/* static allocation is necessary because nop_ccw has to be below
++	 * the 2GB border. locking is not required since it nop_ccw is
++	 * never modified */
++	static ccw1_t nop_ccw = {
++		.cmd_code  = CCW_CMD_NOOP,
++		.flags	   = CCW_FLAG_SLI,
++	};
 +
-+	/*
-+	 * Set device name.
-+	 *   dasda - dasdz : 26 devices
-+	 *   dasdaa - dasdzz : 676 devices, added up = 702
-+	 *   dasdaaa - dasdzzz : 17576 devices, added up = 18278
-+	 */
-+	len = sprintf(device_name, "dasd");
-+	if (devindex > 25) {
-+		if (devindex > 701)
-+			len += sprintf(device_name + len, "%c",
-+				       'a' + (((devindex - 702) / 676) % 26));
-+		len += sprintf(device_name + len, "%c",
-+			       'a' + (((devindex - 26) / 26) % 26));
-+	}
-+	len += sprintf(device_name + len, "%c", 'a' + (devindex % 26));
+  	if (!ioinfo[irq]->ui.flags.oper)
+  		/* no sense in trying */
+  		return -ENODEV;
+@@ -2352,19 +2381,9 @@
+  
+  	s390irq_spin_lock_irqsave (irq, flags);
+  
+- 	if (init_IRQ_complete)
+- 		nop_ccw = kmalloc (sizeof (ccw1_t), GFP_DMA);
+- 	else
+- 		nop_ccw = alloc_bootmem_low (sizeof (ccw1_t));
+- 
+- 	nop_ccw->cmd_code = CCW_CMD_NOOP;
+- 	nop_ccw->cda = 0;
+- 	nop_ccw->count = 0;
+- 	nop_ccw->flags = CCW_FLAG_SLI;
+- 
+  	memset (pdevstat, '\0', sizeof (devstat_t));
+  	
+- 	irq_ret = s390_start_IO (irq, nop_ccw, 0xE2D5D6D7, lpm,
++ 	irq_ret = s390_start_IO (irq, &nop_ccw, 0xE2D5D6D7, lpm,
+  				 DOIO_WAIT_FOR_INTERRUPT
+  				 | DOIO_TIMEOUT
+  				 | DOIO_DONT_CALL_INTHDLR
+@@ -2376,11 +2395,6 @@
+  		cancel_IO(irq);
+  	}
+  
+- 	if (init_IRQ_complete) 
+- 		kfree (nop_ccw);
+- 	else
+- 		free_bootmem ((unsigned long) nop_ccw, sizeof (ccw1_t));
+- 
+  	s390irq_spin_unlock_irqrestore (irq, flags);
+  
+  	if (inlreq)
+diff -urN linux-2.5.39/drivers/s390/s390mach.c linux-2.5.39-s390/drivers/s390/s390mach.c
+--- linux-2.5.39/drivers/s390/s390mach.c	Mon Sep 30 13:33:09 2002
++++ linux-2.5.39-s390/drivers/s390/s390mach.c	Mon Sep 30 13:33:49 2002
+@@ -11,6 +11,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/completion.h>
+ #ifdef CONFIG_SMP
+ #include <linux/smp.h>
+ #endif
+@@ -51,6 +52,7 @@
+ static spinlock_t crw_queue_lock = SPIN_LOCK_UNLOCKED;
+ 
+ static struct semaphore s_sem;
++static DECLARE_COMPLETION(mchchk_thread_active);
+ 
+ #ifdef CONFIG_MACHCHK_WARNING
+ static int mchchk_wng_posted = 0;
+@@ -103,14 +105,15 @@
+ 	kernel_thread(s390_machine_check_handler, &s_sem,
+ 		      CLONE_FS | CLONE_FILES);
+ 
++	wait_for_completion(&mchchk_thread_active);
 +
-+	/* Initialize the gendisk arrays. */
-+	memset(gd_part, 0, sizeof (struct hd_struct) << DASD_PARTN_BITS);
-+
- 	return gdp;
+ 	ctl_clear_bit(14, 25);	/* disable damage MCH */
+ 
+ 	ctl_set_bit(14, 26);	/* enable degradation MCH */
+ 	ctl_set_bit(14, 27);	/* enable system recovery MCH */
+ 
+-	ctl_set_bit(14, 28);	/* enable channel report MCH */
+ 
+-#ifdef CONFIG_MACHCK_WARNING
++#ifdef CONFIG_MACHCHK_WARNING
+ 	ctl_set_bit(14, 24);	/* enable warning MCH */
+ #endif
+ 
+@@ -127,6 +130,30 @@
+ 	return;
  }
  
- /*
-- * Return pointer to gendisk structure by devindex.
-+ * Free gendisk structure for devindex.
-  */
--struct gendisk *
--dasd_gendisk_from_devindex(int devindex)
-+void
-+dasd_gendisk_free(struct gendisk *gdp)
++/*
++ * initialize the machine check handler really early to be able to
++ * catch all machine checks that happen during boot
++ */
++static int __init
++machine_check_init (void)
 +{
-+	/* Free memory. */
-+	kfree(gdp->part);
-+	kfree(gdp);
++	s390_init_machine_check();
++	return 0;
 +}
++arch_initcall(machine_check_init);
 +
 +/*
-+ * Return devindex of first device using a specific major number.
++ * Machine checks for the channel subsystem must be enabled
++ * after the channel subsystem is initialized
 + */
-+int dasd_gendisk_major_index(int major)
- {
- 	struct list_head *l;
- 	struct major_info *mi;
--	struct gendisk *gdp;
-+	int devindex, rc;
- 
- 	spin_lock(&dasd_major_lock);
--	gdp = NULL;
-+	rc = -EINVAL;
-+	devindex = 0;
- 	list_for_each(l, &dasd_major_info) {
- 		mi = list_entry(l, struct major_info, list);
--		if (devindex < DASD_PER_MAJOR) {
--			gdp = &mi->disks[devindex];
-+		if (mi->major == major) {
-+			rc = devindex;
- 			break;
- 		}
--		devindex -= DASD_PER_MAJOR;
-+		devindex += DASD_PER_MAJOR;
- 	}
- 	spin_unlock(&dasd_major_lock);
--	return gdp;
-+	return rc;
- }
- 
- /*
-- * Return devindex of first device using a specifiy major number.
-+ * Return major number for device with device index devindex.
-  */
--int dasd_gendisk_major_index(int major)
-+int dasd_gendisk_index_major(int devindex)
- {
- 	struct list_head *l;
- 	struct major_info *mi;
--	int devindex, rc;
-+	int rc;
- 
- 	spin_lock(&dasd_major_lock);
--	rc = -EINVAL;
--	devindex = 0;
-+	rc = -ENODEV;
- 	list_for_each(l, &dasd_major_info) {
- 		mi = list_entry(l, struct major_info, list);
--		if (mi->major == major) {
--			rc = devindex;
-+		if (devindex < DASD_PER_MAJOR) {
-+			rc = mi->major;
- 			break;
- 		}
--		devindex += DASD_PER_MAJOR;
-+		devindex -= DASD_PER_MAJOR;
- 	}
- 	spin_unlock(&dasd_major_lock);
- 	return rc;
-@@ -255,11 +299,9 @@
- void
- dasd_setup_partitions(dasd_device_t * device)
- {
--	struct gendisk *disk = dasd_gendisk_by_dev(device->kdev);
--	if (disk == NULL)
--		return;
--	set_capacity(disk, device->blocks << device->s2b_shift);
--	add_disk(disk);
-+	/* Make the disk known. */
-+	set_capacity(device->gdp, device->blocks << device->s2b_shift);
-+	add_disk(device->gdp);
- }
- 
- /*
-@@ -269,13 +311,7 @@
- void
- dasd_destroy_partitions(dasd_device_t * device)
- {
--	struct gendisk *disk = dasd_gendisk_by_dev(device->kdev);
--	int minor, i;
--
--	if (disk == NULL)
--		return;
--
--	del_gendisk(disk);
-+	del_gendisk(device->gdp);
- }
- 
- int
-@@ -296,6 +332,7 @@
- dasd_gendisk_exit(void)
- {
- 	struct list_head *l, *n;
++static int __init
++machine_check_crw_init (void)
++{
++	ctl_set_bit(14, 28);	/* enable channel report MCH */
++	return 0;
++}
++device_initcall (machine_check_crw_init);
 +
- 	spin_lock(&dasd_major_lock);
- 	list_for_each_safe(l, n, &dasd_major_info)
- 		dasd_unregister_major(list_entry(l, struct major_info, list));
-diff -urN linux-2.5.39/drivers/s390/block/dasd_int.h linux-2.5.39-s390/drivers/s390/block/dasd_int.h
---- linux-2.5.39/drivers/s390/block/dasd_int.h	Fri Sep 27 23:50:26 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_int.h	Mon Sep 30 13:25:48 2002
-@@ -64,12 +64,12 @@
- #include <asm/irq.h>
- #include <asm/s390dyn.h>
+ static void
+ s390_handle_damage(char *msg)
+ {
+@@ -244,6 +271,8 @@
  
--#define CONFIG_DASD_DYNAMIC
--
- /*
-  * SECTION: Type definitions
-  */
--typedef int (*dasd_ioctl_fn_t) (void *inp, int no, long args);
-+struct dasd_device_t;
+ 	DBG(KERN_NOTICE "mach_handler : ready\n");
+ 
++	complete(&mchchk_thread_active);
 +
-+typedef int (*dasd_ioctl_fn_t) (struct block_device *bdev, int no, long args);
+ 	do {
  
- typedef struct {
- 	struct list_head list;
-@@ -139,9 +139,8 @@
- /* messages to be written via klogd and dbf */
- #define DEV_MESSAGE(d_loglevel,d_device,d_string,d_args...)\
- do { \
--	printk(d_loglevel PRINTK_HEADER " /dev/%-7s(%3d:%3d),%04x@%02x: " \
--	       d_string "\n", d_device->name, \
--	       major(d_device->kdev), minor(d_device->kdev), \
-+	printk(d_loglevel PRINTK_HEADER " %s,%04x@%02x: " \
-+	       d_string "\n", bdevname(d_device->bdev), \
- 	       d_device->devinfo.devno, d_device->devinfo.irq, \
- 	       d_args); \
- 	DBF_DEV_EVENT(DBF_ALERT, d_device, d_string, d_args); \
-@@ -153,8 +152,6 @@
- 	DBF_EVENT(DBF_ALERT, d_string, d_args); \
- } while(0)
+ 		DBG(KERN_NOTICE "mach_handler : waiting for wakeup\n");
+diff -urN linux-2.5.39/include/asm-s390/irq.h linux-2.5.39-s390/include/asm-s390/irq.h
+--- linux-2.5.39/include/asm-s390/irq.h	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/include/asm-s390/irq.h	Mon Sep 30 13:33:49 2002
+@@ -637,6 +637,12 @@
+                               const char              *devname,
+                               void                    *dev_id);
  
--struct dasd_device_t;
--
- typedef struct dasd_ccw_req_t {
- 	unsigned int magic;		/* Eye catcher */
-         struct list_head list;		/* list_head for request queueing. */
-@@ -262,7 +259,8 @@
- typedef struct dasd_device_t {
- 	/* Block device stuff. */
- 	char name[16];			/* The device name in /dev. */
--	kdev_t kdev;
-+	struct block_device *bdev;
-+	struct gendisk *gdp;
- 	devfs_handle_t devfs_entry;
- 	request_queue_t *request_queue;
- 	spinlock_t request_queue_lock;
-@@ -467,6 +465,7 @@
- dasd_devmap_t *dasd_devmap_from_devindex(int);
- dasd_devmap_t *dasd_devmap_from_irq(int);
- dasd_devmap_t *dasd_devmap_from_kdev(kdev_t);
-+dasd_devmap_t *dasd_devmap_from_bdev(struct block_device *bdev);
- dasd_device_t *dasd_get_device(dasd_devmap_t *);
- void dasd_put_device(dasd_devmap_t *);
- 
-@@ -478,9 +477,10 @@
- /* externals in dasd_gendisk.c */
- int  dasd_gendisk_init(void);
- void dasd_gendisk_exit(void);
--int  dasd_gendisk_new_major(void);
- int  dasd_gendisk_major_index(int);
--struct gendisk *dasd_gendisk_from_devindex(int);
-+int  dasd_gendisk_index_major(int);
-+struct gendisk *dasd_gendisk_alloc(char *, int);
-+void dasd_gendisk_free(struct gendisk *);
- void dasd_setup_partitions(dasd_device_t *);
- void dasd_destroy_partitions(dasd_device_t *);
- 
-diff -urN linux-2.5.39/drivers/s390/block/dasd_ioctl.c linux-2.5.39-s390/drivers/s390/block/dasd_ioctl.c
---- linux-2.5.39/drivers/s390/block/dasd_ioctl.c	Fri Sep 27 23:50:20 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_ioctl.c	Mon Sep 30 13:25:48 2002
-@@ -91,6 +91,7 @@
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
- 	dasd_ioctl_list_t *ioctl;
-+	struct block_device *bdev;
- 	struct list_head *l;
- 	const char *dir;
- 	int rc;
-@@ -101,13 +102,17 @@
- 		PRINT_DEBUG("empty data ptr");
- 		return -EINVAL;
- 	}
--	devmap = dasd_devmap_from_kdev(inp->i_rdev);
-+	bdev = bdget(kdev_t_to_nr(inp->i_rdev));
-+	if (!bdev)
-+		return -EINVAL;
++extern int s390_request_console_irq (int irq,
++			  void (*handler) (int, void *, struct pt_regs *),
++			  unsigned long irqflags,
++			  const char *devname,
++			  void *dev_id);
 +
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device)) {
- 		MESSAGE(KERN_WARNING,
--			"No device registered as device (%d:%d)",
--			major(inp->i_rdev), minor(inp->i_rdev));
-+			"No device registered as device %s", bdevname(bdev));
-+		bdput(bdev);
- 		return -EINVAL;
- 	}
- 	dir = _IOC_DIR (no) == _IOC_NONE ? "0" :
-@@ -125,11 +130,12 @@
- 			if (ioctl->owner) {
- 				if (try_inc_mod_count(ioctl->owner) != 0)
- 					continue;
--				rc = ioctl->handler(inp, no, data);
-+				rc = ioctl->handler(bdev, no, data);
- 				__MOD_DEC_USE_COUNT(ioctl->owner);
- 			} else
--				rc = ioctl->handler(inp, no, data);
-+				rc = ioctl->handler(bdev, no, data);
- 			dasd_put_device(devmap);
-+			bdput(bdev);
- 			return rc;
- 		}
- 	}
-@@ -138,10 +144,12 @@
- 		      "unknown ioctl 0x%08x=%s'0x%x'%d(%d) data %8lx", no,
- 		      dir, _IOC_TYPE(no), _IOC_NR(no), _IOC_SIZE(no), data);
- 	dasd_put_device(devmap);
-+	bdput(bdev);
- 	return -ENOTTY;
- }
+ extern int set_cons_dev(int irq);
+ extern int wait_cons_dev(int irq);
+ extern schib_t *s390_get_schib( int irq );
+@@ -860,28 +866,8 @@
+      __u32 vrdccrft : 8;    /* real device feature (output) */
+      } __attribute__ ((packed,aligned(4))) diag210_t;
  
--static int dasd_ioctl_api_version(void *inp, int no, long args)
-+static int
-+dasd_ioctl_api_version(struct block_device *bdev, int no, long args)
+-void VM_virtual_device_info( __u16      devno,   /* device number */
+-                             senseid_t *ps );    /* ptr to senseID data */
+-
+-extern __inline__ int diag210( diag210_t * addr)
+-{
+-        int ccode;
++extern int diag210( diag210_t * addr);
+ 
+-        __asm__ __volatile__(
+-#ifdef CONFIG_ARCH_S390X
+-                "   sam31\n"
+-                "   diag  %1,0,0x210\n"
+-                "   sam64\n"
+-#else
+-                "   diag  %1,0,0x210\n"
+-#endif
+-                "   ipm   %0\n"
+-                "   srl   %0,28"
+-                : "=d" (ccode) 
+-		: "a" (addr)
+-                : "cc" );
+-        return ccode;
+-}
+ extern __inline__ int chsc( chsc_area_t * chsc_area)
  {
- 	int ver = DASD_API_VERSION;
- 	return put_user(ver, (int *) args);
-@@ -150,7 +158,8 @@
+ 	int cc;
+diff -urN linux-2.5.39/include/asm-s390/s390io.h linux-2.5.39-s390/include/asm-s390/s390io.h
+--- linux-2.5.39/include/asm-s390/s390io.h	Fri Sep 27 23:50:26 2002
++++ linux-2.5.39-s390/include/asm-s390/s390io.h	Mon Sep 30 13:33:49 2002
+@@ -9,22 +9,25 @@
+ #ifndef __s390io_h
+ #define __s390io_h
+ 
++#include <linux/device.h>
++
  /*
-  * Enable device.
+  * IRQ data structure used by I/O subroutines
+  *
+  * Note : If bit flags are added, the "unused" value must be
+  *        decremented accordingly !
   */
--static int dasd_ioctl_enable(void *inp, int no, long args)
-+static int
-+dasd_ioctl_enable(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -158,7 +167,7 @@
+-typedef struct _ioinfo {
++typedef struct subchannel {
+      unsigned int  irq;           /* aka. subchannel number */
+      spinlock_t    irq_lock;      /* irq lock */
+-     void          *private_data; /* pointer to private data */
+-
+-     struct _ioinfo *prev;
+-     struct _ioinfo *next;
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -172,14 +181,15 @@
+      __u8          st;            /* subchannel type */
+ 
++     void          *private_data; /* pointer to private data */
++
++     struct subchannel *prev;
++     struct subchannel *next;
++
+      union {
+         unsigned int info;
+         struct {
+@@ -78,8 +81,26 @@
+      unsigned long qflag;         /* queued flags */
+      __u8          qlpm;          /* queued logical path mask */
+      ssd_info_t    ssd_info;      /* subchannel description */
++     struct device dev;		  /* entry in device tree */
++} __attribute__ ((aligned(8))) ioinfo_t;
++
+ 
+-   } __attribute__ ((aligned(8))) ioinfo_t;
++/*
++ * There are four different subchannel types, but we are currently
++ * only interested in I/O subchannels. This means there is only
++ * one subchannel_driver, other subchannels belonging to css_bus_type
++ * are simply ignored.
++ */
++struct subchannel_driver {
++	enum {
++		SUBCHANNEL_TYPE_IO      = 0,
++		SUBCHANNEL_TYPE_CHSC    = 1,
++		SUBCHANNEL_TYPE_MESSAGE = 2,
++		SUBCHANNEL_TYPE_ADM     = 3,
++	} st;			  /* subchannel type */
++	struct device_driver drv; /* entry in driver tree */
++};
++extern struct bus_type css_bus_type;
+ 
+ #define IOINFO_FLAGS_BUSY    0x80000000
+ #define IOINFO_FLAGS_OPER    0x40000000
+diff -urN linux-2.5.39/include/asm-s390x/irq.h linux-2.5.39-s390/include/asm-s390x/irq.h
+--- linux-2.5.39/include/asm-s390x/irq.h	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/include/asm-s390x/irq.h	Mon Sep 30 13:33:49 2002
+@@ -637,6 +637,12 @@
+                               const char              *devname,
+                               void                    *dev_id);
+ 
++extern int s390_request_console_irq (int irq,
++			  void (*handler) (int, void *, struct pt_regs *),
++			  unsigned long irqflags,
++			  const char *devname,
++			  void *dev_id);
++
+ extern int set_cons_dev(int irq);
+ extern int wait_cons_dev(int irq);
+ extern schib_t *s390_get_schib( int irq );
+@@ -860,28 +866,8 @@
+      __u32 vrdccrft : 8;    /* real device feature (output) */
+      } __attribute__ ((packed,aligned(4))) diag210_t;
+ 
+-void VM_virtual_device_info( __u16      devno,   /* device number */
+-                             senseid_t *ps );    /* ptr to senseID data */
+-
+-extern __inline__ int diag210( diag210_t * addr)
+-{
+-        int ccode;
++extern int diag210( diag210_t * addr);
+ 
+-        __asm__ __volatile__(
+-#ifdef CONFIG_ARCH_S390X
+-                "   sam31\n"
+-                "   diag  %1,0,0x210\n"
+-                "   sam64\n"
+-#else
+-                "   diag  %1,0,0x210\n"
+-#endif
+-                "   ipm   %0\n"
+-                "   srl   %0,28"
+-                : "=d" (ccode) 
+-		: "a" (addr)
+-                : "cc" );
+-        return ccode;
+-}
+ extern __inline__ int chsc( chsc_area_t * chsc_area)
+ {
+ 	int cc;
+diff -urN linux-2.5.39/include/asm-s390x/s390io.h linux-2.5.39-s390/include/asm-s390x/s390io.h
+--- linux-2.5.39/include/asm-s390x/s390io.h	Fri Sep 27 23:50:59 2002
++++ linux-2.5.39-s390/include/asm-s390x/s390io.h	Mon Sep 30 13:33:49 2002
+@@ -9,21 +9,24 @@
+ #ifndef __s390io_h
+ #define __s390io_h
+ 
++#include <linux/device.h>
++
  /*
-  * Disable device.
+  * IRQ data structure used by I/O subroutines
+  *
+  * Note : If bit flags are added, the "unused" value must be
+  *        decremented accordingly !
   */
--static int dasd_ioctl_disable(void *inp, int no, long args)
-+static int
-+dasd_ioctl_disable(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
+-typedef struct _ioinfo {
++typedef struct subchannel {
+      unsigned int  irq;           /* aka. subchannel number */
+      spinlock_t    irq_lock;      /* irq lock */
+-     void          *private_data; /* pointer to private data */
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -245,7 +255,8 @@
- /*
-  * Format device.
-  */
--static int dasd_ioctl_format(void *inp, int no, long args)
-+static int
-+dasd_ioctl_format(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
-@@ -257,8 +268,8 @@
- 	if (!args)
- 		return -EINVAL;
- 	/* fdata == NULL is no longer a valid arg to dasd_format ! */
--	partn = minor(((struct inode *) inp)->i_rdev) & DASD_PARTN_MASK;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	partn = MINOR(bdev->bd_dev) & DASD_PARTN_MASK;
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -283,14 +294,15 @@
- /*
-  * Reset device profile information
-  */
--static int dasd_ioctl_reset_profile(void *inp, int no, long args)
-+static int
-+dasd_ioctl_reset_profile(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
+-     struct _ioinfo *prev;
+-     struct _ioinfo *next;
++     __u8          st;            /* subchannel type */
++
++     void          *private_data; /* pointer to private data */
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -303,13 +315,14 @@
- /*
-  * Return device profile information
-  */
--static int dasd_ioctl_read_profile(void *inp, int no, long args)
-+static int
-+dasd_ioctl_read_profile(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
- 	int rc;
+-     __u8          st;            /* subchannel type */	
++     struct subchannel *prev;
++     struct subchannel *next;
  
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -322,12 +335,14 @@
- 	return rc;
- }
- #else
--static int dasd_ioctl_reset_profile(void *inp, int no, long args)
-+static int
-+dasd_ioctl_reset_profile(struct block_device *bdev, int no, long args)
- {
- 	return -ENOSYS;
- }
+      union {
+         unsigned int info;
+@@ -78,8 +81,26 @@
+      unsigned long qflag;         /* queued flags */
+      __u8          qlpm;          /* queued logical path mask */
+      ssd_info_t    ssd_info;      /* subchannel description */
++     struct device dev;		  /* entry in device tree */
++} __attribute__ ((aligned(8))) ioinfo_t;
  
--static int dasd_ioctl_read_profile(void *inp, int no, long args)
-+static int
-+dasd_ioctl_read_profile(struct block_device *bdev, int no, long args)
- {
- 	return -ENOSYS;
- }
-@@ -336,15 +351,16 @@
- /*
-  * Return dasd information. Used for BIODASDINFO and BIODASDINFO2.
-  */
--static int dasd_ioctl_information(void *inp, int no, long args)
-+static int
-+dasd_ioctl_information(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
--	dasd_information2_t dasd_info;
-+	dasd_information2_t *dasd_info;
- 	unsigned long flags;
- 	int rc;
+-   } __attribute__ ((aligned(8))) ioinfo_t;
++
++/*
++ * There are four different subchannel types, but we are currently
++ * only interested in I/O subchannels. This means there is only
++ * one subchannel_driver, other subchannels belonging to css_bus_type
++ * are simply ignored.
++ */
++struct subchannel_driver {
++	enum {
++		SUBCHANNEL_TYPE_IO      = 0,
++		SUBCHANNEL_TYPE_CHSC    = 1,
++		SUBCHANNEL_TYPE_MESSAGE = 2,
++		SUBCHANNEL_TYPE_ADM     = 3,
++	} st;			  /* subchannel type */
++	struct device_driver drv; /* entry in driver tree */
++};
++extern struct bus_type css_bus_type;
  
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -354,20 +370,26 @@
- 		return -EINVAL;
- 	}
- 
--	rc = device->discipline->fill_info(device, &dasd_info);
-+	dasd_info = kmalloc(sizeof(dasd_information2_t), GFP_KERNEL);
-+	if (dasd_info == NULL) {
-+		dasd_put_device(devmap);
-+		return -ENOMEM;
-+	}
-+	rc = device->discipline->fill_info(device, dasd_info);
- 	if (rc) {
- 		dasd_put_device(devmap);
-+		kfree(dasd_info);
- 		return rc;
- 	}
- 
--	dasd_info.devno = device->devinfo.devno;
--	dasd_info.schid = device->devinfo.irq;
--	dasd_info.cu_type = device->devinfo.sid_data.cu_type;
--	dasd_info.cu_model = device->devinfo.sid_data.cu_model;
--	dasd_info.dev_type = device->devinfo.sid_data.dev_type;
--	dasd_info.dev_model = device->devinfo.sid_data.dev_model;
--	dasd_info.open_count = atomic_read(&device->open_count);
--	dasd_info.status = device->state;
-+	dasd_info->devno = device->devinfo.devno;
-+	dasd_info->schid = device->devinfo.irq;
-+	dasd_info->cu_type = device->devinfo.sid_data.cu_type;
-+	dasd_info->cu_model = device->devinfo.sid_data.cu_model;
-+	dasd_info->dev_type = device->devinfo.sid_data.dev_type;
-+	dasd_info->dev_model = device->devinfo.sid_data.dev_model;
-+	dasd_info->open_count = atomic_read(&device->open_count);
-+	dasd_info->status = device->state;
- 	
- 	/*
- 	 * check if device is really formatted
-@@ -375,16 +397,16 @@
- 	 */
- 	if ((device->state < DASD_STATE_READY) ||
- 	    (dasd_check_blocksize(device->bp_block)))
--		dasd_info.format = DASD_FORMAT_NONE;
-+		dasd_info->format = DASD_FORMAT_NONE;
- 	
--	dasd_info.features = devmap->features;
-+	dasd_info->features = devmap->features;
- 	
- 	if (device->discipline)
--		memcpy(dasd_info.type, device->discipline->name, 4);
-+		memcpy(dasd_info->type, device->discipline->name, 4);
- 	else
--		memcpy(dasd_info.type, "none", 4);
--	dasd_info.req_queue_len = 0;
--	dasd_info.chanq_len = 0;
-+		memcpy(dasd_info->type, "none", 4);
-+	dasd_info->req_queue_len = 0;
-+	dasd_info->chanq_len = 0;
- 	if (device->request_queue->request_fn) {
- 		struct list_head *l;
- #ifdef DASD_EXTENDED_PROFILING
-@@ -392,45 +414,46 @@
- 			struct list_head *l;
- 			spin_lock_irqsave(&device->lock, flags);
- 			list_for_each(l, &device->request_queue->queue_head)
--				dasd_info.req_queue_len++;
-+				dasd_info->req_queue_len++;
- 			spin_unlock_irqrestore(&device->lock, flags);
- 		}
- #endif				/* DASD_EXTENDED_PROFILING */
- 		spin_lock_irqsave(get_irq_lock(device->devinfo.irq), flags);
- 		list_for_each(l, &device->ccw_queue)
--			dasd_info.chanq_len++;
-+			dasd_info->chanq_len++;
- 		spin_unlock_irqrestore(get_irq_lock(device->devinfo.irq),
- 				       flags);
- 	}
- 	
- 	rc = 0;
--	if (copy_to_user((long *) args, (long *) &dasd_info,
-+	if (copy_to_user((long *) args, (long *) dasd_info,
- 			 ((no == (unsigned int) BIODASDINFO2) ?
- 			  sizeof (dasd_information2_t) :
- 			  sizeof (dasd_information_t))))
- 		rc = -EFAULT;
- 	dasd_put_device(devmap);
-+	kfree(dasd_info);
- 	return rc;
- }
- 
- /*
-  * Set read only
-  */
--static int dasd_ioctl_set_ro(void *inp, int no, long args)
-+static int
-+dasd_ioctl_set_ro(struct block_device *bdev, int no, long args)
- {
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
--	int major, minor;
- 	int intval, i;
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--	if (minor(((struct inode *) inp)->i_rdev) & DASD_PARTN_MASK)
-+	if (MINOR(bdev->bd_dev) & DASD_PARTN_MASK)
- 		// ro setting is not allowed for partitions
- 		return -EINVAL;
- 	if (get_user(intval, (int *) args))
- 		return -EFAULT;
--	devmap = dasd_devmap_from_kdev(((struct inode *) inp)->i_rdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -439,10 +462,8 @@
- 		devmap->features |= DASD_FEATURE_READONLY;
- 	else
- 		devmap->features &= ~DASD_FEATURE_READONLY;
--	major = major(device->kdev);
--	minor = minor(device->kdev);
- 	for (i = 0; i < (1 << DASD_PARTN_BITS); i++)
--		set_device_ro(mk_kdev(major, minor + i), intval);
-+		set_device_ro(to_kdev_t(bdev->bd_dev + i), intval);
- 	dasd_put_device(devmap);
- 	return 0;
- }
-@@ -450,16 +471,15 @@
- /*
-  * Return disk geometry.
-  */
--static int dasd_ioctl_getgeo(void *inp, int no, long args)
-+static int
-+dasd_ioctl_getgeo(struct block_device *bdev, int no, long args)
- {
- 	struct hd_geometry geo = { 0, };
--	struct inode *inode = inp;
- 	dasd_devmap_t *devmap;
- 	dasd_device_t *device;
--	kdev_t kdev = inode->i_rdev;
- 	int rc;
- 
--	devmap = dasd_devmap_from_kdev(kdev);
-+	devmap = dasd_devmap_from_bdev(bdev);
- 	device = (devmap != NULL) ?
- 		dasd_get_device(devmap) : ERR_PTR(-ENODEV);
- 	if (IS_ERR(device))
-@@ -468,7 +488,7 @@
- 	if (device != NULL && device->discipline != NULL &&
- 	    device->discipline->fill_geometry != NULL) {
- 		device->discipline->fill_geometry(device, &geo);
--		geo.start = get_start_sect(inode->i_bdev);
-+		geo.start = get_start_sect(bdev);
- 		if (copy_to_user((struct hd_geometry *) args, &geo,
- 				 sizeof (struct hd_geometry)))
- 			rc = -EFAULT;
-diff -urN linux-2.5.39/drivers/s390/block/dasd_proc.c linux-2.5.39-s390/drivers/s390/block/dasd_proc.c
---- linux-2.5.39/drivers/s390/block/dasd_proc.c	Fri Sep 27 23:49:14 2002
-+++ linux-2.5.39-s390/drivers/s390/block/dasd_proc.c	Mon Sep 30 13:25:48 2002
-@@ -15,6 +15,7 @@
- #include <linux/config.h>
- #include <linux/version.h>
- #include <linux/ctype.h>
-+#include <linux/vmalloc.h>
- 
- #include <asm/debug.h>
- #include <asm/irq.h>
-@@ -123,7 +124,7 @@
- 	}
- 	features = dasd_feature_list(str, &str);
- 	/* Negative numbers in from/to/features indicate errors */
--	if (from < 0 || to < 0 || features < 0)
-+	if (from < 0 || to < 0 || from > 65546 || to > 65536 || features < 0)
- 		goto out_error;
- 
- 	if (add_or_set == 0) {
-@@ -152,10 +153,8 @@
- dasd_devices_print(dasd_devmap_t *devmap, char *str)
- {
- 	dasd_device_t *device;
--	struct gendisk *gdp;
--	char buffer[7];
- 	char *substr;
--	int minor;
-+	int major, minor;
- 	int len;
- 
- 	device = dasd_get_device(devmap);
-@@ -169,11 +168,11 @@
- 	else
- 		len += sprintf(str + len, "(none)");
- 	/* Print kdev. */
--	gdp = dasd_gendisk_from_devindex(devmap->devindex);
--	minor = devmap->devindex % DASD_PER_MAJOR;
--	len += sprintf(str + len, " at (%3d:%3d)", gdp->major, minor);
-+	major = MAJOR(device->bdev->bd_dev);
-+	minor = MINOR(device->bdev->bd_dev);
-+	len += sprintf(str + len, " at (%3d:%3d)", major, minor);
- 	/* Print device name. */
--	len += sprintf(str + len, " is %-7s", gdp->major_name);
-+	len += sprintf(str + len, " is %-7s", device->name);
- 	/* Print devices features. */
- 	substr = (devmap->features & DASD_FEATURE_READONLY) ? "(ro)" : " ";
- 	len += sprintf(str + len, "%4s: ", substr);
-diff -urN linux-2.5.39/include/asm-s390/dasd.h linux-2.5.39-s390/include/asm-s390/dasd.h
---- linux-2.5.39/include/asm-s390/dasd.h	Fri Sep 27 23:49:09 2002
-+++ linux-2.5.39-s390/include/asm-s390/dasd.h	Mon Sep 30 13:25:48 2002
-@@ -13,6 +13,8 @@
-  * 12/06/01 DASD_API_VERSION 2 - binary compatible to 0 (new BIODASDINFO2)
-  * 01/23/02 DASD_API_VERSION 3 - added BIODASDPSRD (and BIODASDENAPAV) IOCTL
-  * 02/15/02 DASD_API_VERSION 4 - added BIODASDSATTR IOCTL
-+ * ##/##/## DASD_API_VERSION 5 - added boxed dasd support TOBEDONE
-+ * 21/06/02 DASD_API_VERSION 6 - fixed HDIO_GETGEO: geo.start is in sectors!
-  *         
-  */
- 
-@@ -22,7 +24,7 @@
- 
- #define DASD_IOCTL_LETTER 'D'
- 
--#define DASD_API_VERSION 4
-+#define DASD_API_VERSION 6
- 
- /* 
-  * struct dasd_information2_t
-diff -urN linux-2.5.39/include/asm-s390x/dasd.h linux-2.5.39-s390/include/asm-s390x/dasd.h
---- linux-2.5.39/include/asm-s390x/dasd.h	Fri Sep 27 23:49:18 2002
-+++ linux-2.5.39-s390/include/asm-s390x/dasd.h	Mon Sep 30 13:25:48 2002
-@@ -13,6 +13,8 @@
-  * 12/06/01 DASD_API_VERSION 2 - binary compatible to 0 (new BIODASDINFO2)
-  * 01/23/02 DASD_API_VERSION 3 - added BIODASDPSRD (and BIODASDENAPAV) IOCTL
-  * 02/15/02 DASD_API_VERSION 4 - added BIODASDSATTR IOCTL
-+ * ##/##/## DASD_API_VERSION 5 - added boxed dasd support TOBEDONE
-+ * 21/06/02 DASD_API_VERSION 6 - fixed HDIO_GETGEO: geo.start is in sectors!
-  *         
-  */
- 
-@@ -22,7 +24,7 @@
- 
- #define DASD_IOCTL_LETTER 'D'
- 
--#define DASD_API_VERSION 4
-+#define DASD_API_VERSION 6
- 
- /* 
-  * struct dasd_information2_t
+ #define IOINFO_FLAGS_BUSY    0x80000000
+ #define IOINFO_FLAGS_OPER    0x40000000
 

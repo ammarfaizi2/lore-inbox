@@ -1,117 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313933AbSDPWsS>; Tue, 16 Apr 2002 18:48:18 -0400
+	id <S313934AbSDPWvx>; Tue, 16 Apr 2002 18:51:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313935AbSDPWsR>; Tue, 16 Apr 2002 18:48:17 -0400
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:30958 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S313933AbSDPWsP>; Tue, 16 Apr 2002 18:48:15 -0400
-Message-ID: <3CBCA9B0.5010709@didntduck.org>
-Date: Tue, 16 Apr 2002 18:46:08 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBCD31.4090105@evision-ventures.com>
-Content-Type: multipart/mixed;
- boundary="------------020809020004010901040401"
+	id <S313935AbSDPWvx>; Tue, 16 Apr 2002 18:51:53 -0400
+Received: from port-213-20-132-57.reverse.qdsl-home.de ([213.20.132.57]:31505
+	"EHLO drocklinux.dnydns.org") by vger.kernel.org with ESMTP
+	id <S313934AbSDPWvw> convert rfc822-to-8bit; Tue, 16 Apr 2002 18:51:52 -0400
+Date: Wed, 17 Apr 2002 00:50:46 +0200 (CEST)
+Message-Id: <20020417.005046.596549669.rene.rebe@gmx.net>
+To: michael.obster@bingo-ev.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <3CBCB762.4030902@bingo-ev.de>
+X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020809020004010901040401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Michael!
 
-Martin Dalecki wrote:
-> Tue Apr 16 01:02:47 CEST 2002 ide-clean-36
+On: Tue, 16 Apr 2002 23:44:34 +0000,
+    Michael Obster <michael.obster@bingo-ev.de> wrote:
+> hi,
 > 
-> - Consolidate ide_choose_drive() and choose_drive() in to one function.
+> >>I get (when FSCK):
+> >>
+> >>spurious 8259A IRQ7
 > 
-> - Remove sector data byteswpapping support. Byte-swapping the data is 
-> supported
->   on the file-system level where applicable.  Byte-swapped interfaces are
->   supported on a lower level anyway. And finally it was used 
-> inconsistently.
-> 
-> - Eliminate taskfile_input_data() and taskfile_output_data(). This 
-> allowed us
->   to split up ideproc and eliminate the ugly action switch as well as the
->   corresponding defines.
+> I also get this message every time i boot my machine when the fs are 
 
-There is a typo in the cris ide driver ata_write value.  Also,
-e100_ideproc is now dead and can be removed.  Patch attached (untested, 
-but obvious).
+I also get this on all machines since arround 2.4.5(+-5) or so! It
+doesn't matter if ALI Super7 + K6-2, SiS 630 + Celeron, Intel BX + PII
+or SiS 730 + Athlon XP ...
 
--- 
+But non machine has looked up, oopsed or crashed so far ...
 
-						Brian Gerst
+k33p h4ck1n6
+  René
 
---------------020809020004010901040401
-Content-Type: text/plain;
- name="ide36-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide36-1"
+--  
+René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
 
-diff -urN linux-ide/arch/cris/drivers/ide.c linux/arch/cris/drivers/ide.c
---- linux-ide/arch/cris/drivers/ide.c	Tue Apr 16 18:37:43 2002
-+++ linux/arch/cris/drivers/ide.c	Tue Apr 16 18:40:18 2002
-@@ -192,8 +192,6 @@
- #define ATA_PIO0_HOLD    4
- 
- static int e100_dmaproc (ide_dma_action_t func, ide_drive_t *drive);
--static void e100_ideproc (ide_ide_action_t func, ide_drive_t *drive,
--			  void *buffer, unsigned int length);
- 
- /*
-  * good_dma_drives() lists the model names (from "hdparm -i")
-@@ -280,7 +278,7 @@
- 		hwif->tuneproc = &tune_e100_ide;
- 		hwif->dmaproc = &e100_dmaproc;
- 		hwif->ata_read = e100_ide_input_data;
--		hwif->ata_write = e100_ide_input_data;
-+		hwif->ata_write = e100_ide_output_data;
- 		hwif->atapi_read = e100_atapi_read;
- 		hwif->atapi_write = e100_atapi_write;
- 	}
-@@ -560,32 +558,6 @@
- 	e100_atapi_write(drive, buffer, wcount << 2);
- }
- 
--/*
-- * The multiplexor for ide_xxxput_data and atapi calls
-- */
--static void 
--e100_ideproc (ide_ide_action_t func, ide_drive_t *drive,
--	      void *buffer, unsigned int length)
--{
--	switch (func) {
--		case ideproc_ide_input_data:
--			e100_ide_input_data(drive, buffer, length);
--			break;
--		case ideproc_ide_output_data:
--			e100_ide_input_data(drive, buffer, length);
--			break;
--		case ideproc_atapi_read:
--			e100_atapi_read(drive, buffer, length);
--			break;
--		case ideproc_atapi_write:
--			e100_atapi_write(drive, buffer, length);
--			break;
--		default:
--			printk("e100_ideproc: unsupported func %d!\n", func);
--			break;
--	}
--}
--
- /* we only have one DMA channel on the chip for ATA, so we can keep these statically */
- static etrax_dma_descr ata_descrs[MAX_DMA_DESCRS];
- static unsigned int ata_tot_size;
+eMail:    rene.rebe@gmx.net
+          rene@rocklinux.org
 
---------------020809020004010901040401--
+Homepage: http://drocklinux.dyndns.org/rene/
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.
 

@@ -1,75 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136092AbREHCes>; Mon, 7 May 2001 22:34:48 -0400
+	id <S136035AbREHCji>; Mon, 7 May 2001 22:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136123AbREHCe2>; Mon, 7 May 2001 22:34:28 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40204 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136092AbREHCeY>; Mon, 7 May 2001 22:34:24 -0400
-Date: Mon, 7 May 2001 19:34:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <15095.15091.45238.172746@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
+	id <S136123AbREHCj2>; Mon, 7 May 2001 22:39:28 -0400
+Received: from feeder.cyberbills.com ([64.41.210.81]:7689 "EHLO
+	sjc-smtp2.cyberbills.com") by vger.kernel.org with ESMTP
+	id <S136035AbREHCjR>; Mon, 7 May 2001 22:39:17 -0400
+Date: Mon, 7 May 2001 19:39:10 -0700 (PDT)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
+To: linux-kernel@vger.kernel.org
+Subject: mm: critical shortage of bounce buffers
+Message-ID: <Pine.LNX.4.31ksi3.0105071930590.20449-100000@nomad.cyberbills.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can anybody explain what does "mm: critical shortage of bounce buffers"
+mean?
 
-On Mon, 7 May 2001, David S. Miller wrote:
-> 
-> Here, let's talk code a little bit so there are no misunderstandings,
-> I really want to put this to rest:
-> 
-> Calculate dead_swap_page outside of lock.
+I have a 2xP-III/850 system with 2Gbyte of RAM. I'm trying to run
+ImageMagick on this system with quite big files (convert consumes 1+ Gbyte
+of RAM). The system crushes immediately with that message in log file and a
+whole screen of constantly scrolling allocation failure messages.
 
-NO. That's not what you're doing at all. You're calculating something
-completely different that "dead swap page". You're calculating "do we have
-a swap cache entry that is not mapped into any virtual memory"?
+Should I change some kernel define to be able to use those 2 Gbytes?
 
-> If dead_swap_page, ignore referenced bit heuristics.
+It does crush even when given "mem=960M" boot option. Both 4 and 64 Gbytes
+RAM configurations do crush. Work like a charm with high memory disabled.
 
-Which is complete crap. Those reference bits are valid and important
-data. You have not computed anything that says otherwise. You have
-computed a random number that doesn't tell you anything about whether the
-page is dead or not. 
-
-> Really, what does this have to do with swap counts and page counts?
-> 
-> It's a heuristic. In fact it even seems stupid to me to recalculate
-> dead_swap_page after we get the lock just for the sake of these
-> heuristics.
-
-YOUR HEURISTIC IS WRONG!
-
-> Maybe I should have diguised this bit as:
-> 
-> if (dead_swap_page)
-> 	do_writepage_first_pass = 1;
-
-So tell me: what does the above help?
-
-I repeat: your "dead_swap_page" variable is a random number with
-absolutely no meaning. ANYTHING that uses it is buggy. It doesn't help in
-the least if you use the first random state to set another random
-state: the amount of randomness does not increase or decrease.
-
-See?
-
-> To divert people's brains to what the intent was :-)
-
-I can see the intent.
-
-I can also see that the code doesn't match up to the intent.
-
-I call that a bug. You don't. Fine.
-
-But that code isn't coming anywhere _close_ to my tree until the two
-match. And I stand by my assertion that it should be reverted from Alans
-tree too.
-
-		Linus
+---
+Sergey Kubushin				Sr. Unix Administrator
+CyberBills, Inc.			Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8808
+Henderson, NV 89014
 

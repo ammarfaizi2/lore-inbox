@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264565AbTLLNIx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 08:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbTLLNIx
+	id S264560AbTLLNV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 08:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbTLLNV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 08:08:53 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:62665 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S264565AbTLLNIw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 08:08:52 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.0-test11: 3Com PCI 3c556B not working
-Date: Fri, 12 Dec 2003 13:08:51 +0000
-User-Agent: KMail/1.5.4
+	Fri, 12 Dec 2003 08:21:56 -0500
+Received: from nefty.hu ([195.70.37.175]:21646 "EHLO nefty.hu")
+	by vger.kernel.org with ESMTP id S264560AbTLLNVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 08:21:55 -0500
+Date: Fri, 12 Dec 2003 14:22:20 +0100 (CET)
+From: Zoltan NAGY <nagyz@nefty.hu>
+To: Joe Thornber <thornber@sistina.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: crypto + dm = crash
+In-Reply-To: <20031212093921.GB481@reti>
+Message-ID: <Pine.LNX.4.58.0312121420550.23801@nefty.hu>
+References: <Pine.LNX.4.58.0312111413080.22509@nefty.hu> <20031212093921.GB481@reti>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312121308.51306.andrew@walrond.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another problem with 2.6 on my thinkpad. Worked fine with 2.4
+On Fri, 12 Dec 2003, Joe Thornber wrote:
 
-Dmesg gives
+> Where does dm fit into this ?
+As far as I know, LVM2 uses dm..
 
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-0000:00:03.0: 3Com PCI 3c556B Laptop Hurricane at 0x1400. Vers LK1.1.19
-PCI: Setting latency timer of device 0000:00:03.0 to 64
-  ***WARNING*** No MII transceivers found!
+oh, hm. although, it is NOT a problem with dm (as far as I can tell), it
+IS a problem with the crypto or whatever..
 
-I've got ACPI enabled; Might this be ACPI/interrupt  related?
+sorry for misleading again, just when I first tried it I used lvm2 on
+encrypted /dev/loop0, and this is what misleaded me..
 
-Andrew Walrond
+Regards,
+
+--
+Zoltan NAGY,
+Network Administrator
 

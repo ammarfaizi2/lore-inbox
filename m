@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130144AbRAOPgg>; Mon, 15 Jan 2001 10:36:36 -0500
+	id <S129431AbRAOQFu>; Mon, 15 Jan 2001 11:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130281AbRAOPg0>; Mon, 15 Jan 2001 10:36:26 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:55817 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S130144AbRAOPgX>;
-	Mon, 15 Jan 2001 10:36:23 -0500
-Date: Mon, 15 Jan 2001 17:36:07 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
+	id <S129511AbRAOQFk>; Mon, 15 Jan 2001 11:05:40 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:10505 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S129431AbRAOQFd>; Mon, 15 Jan 2001 11:05:33 -0500
+Date: Mon, 15 Jan 2001 08:05:32 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
 To: Jonathan Thackray <jthackray@zeus.com>
-Cc: linux-kernel@vger.kernel.org
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Is sendfile all that sexy?
-Message-ID: <20010115173607.S25659@mea-ext.zmailer.org>
-In-Reply-To: <93t1q7$49c$1@penguin.transmeta.com> <14947.5703.60574.309140@leda.cam.zeus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14947.5703.60574.309140@leda.cam.zeus.com>; from jthackray@zeus.com on Mon, Jan 15, 2001 at 03:24:55PM +0000
+In-Reply-To: <14947.5703.60574.309140@leda.cam.zeus.com>
+Message-ID: <Pine.LNX.4.30.0101150753010.30402-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2001 at 03:24:55PM +0000, Jonathan Thackray wrote:
-> It's a very useful system call and makes file serving much more
-> scalable, and I'm glad that most Un*xes now have support for it
+On Mon, 15 Jan 2001, Jonathan Thackray wrote:
+
 > (Linux, FreeBSD, HP-UX, AIX, Tru64). The next cool feature to add to
 > Linux is sendpath(), which does the open() before the sendfile()
 > all combined into one system call.
 
-	One thing about 'sendfile' (and likely 'sendpath') is that
-	current (hammered into running binaries -> unchangeable)
-	syscalls support only up to 2GB files at 32 bit systems.
+how would sendpath() construct the Content-Length in the HTTP header?
 
-	Glibc 2.2(9) at RedHat  <sys/sendfile.h>:
+it's totally unfortunate that the other unixes chose to combine writev()
+into sendfile() rather than implementing TCP_CORK.  TCP_CORK is useful for
+FAR more than just sendfile() headers and footers.  it's arguably the most
+correct way to write server code.  nagle/no-nagle in the default BSD API
+both suck -- nagle because it delays packets which need to be sent;
+no-nagle because it can send incomplete packets.
 
-#ifdef __USE_FILE_OFFSET64
-# error "<sendfile.h> cannot be used with _FILE_OFFSET_BITS=64"
-#endif
+i'm completely happy that linus, davem and ingo refused to combine
+writev() into sendfile() and suggested CORK when i pointed out the
+header/trailer problem.
 
+imnsho if you want to optimise static file serving then it's pretty
+pointless to continue working in userland.  nobody is going to catch up
+with all the kernel-side implementations in linux, NT, and solaris.
 
-	I do admit that doing  sendfile()  on some extremely large
-	file is unlikely, but still...
+-dean
 
-> Ugh, I hear you all scream :-)
-> Jon.
-> -- 
-> Jonathan Thackray         Zeus House, Cowley Road, Cambridge CB4 OZT, UK
-> Zeus Technology                                     http://www.zeus.com/
+p.s. linus, apache-1.3 does *not* use sendfile().  it's in apache-2.0,
+which unfortunately is now performing like crap because they didn't listen
+to some of my advice well over a year ago.  a case of "let's make a pretty
+API and hope performance works out"... where i told them "i've already
+written code using the API you suggest, and it *doesn't* work."  </rant>
+thankfully linux now has TUX.
 
-/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272869AbRIGWKW>; Fri, 7 Sep 2001 18:10:22 -0400
+	id <S272865AbRIGWJC>; Fri, 7 Sep 2001 18:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272870AbRIGWKM>; Fri, 7 Sep 2001 18:10:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54025 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272869AbRIGWKG>; Fri, 7 Sep 2001 18:10:06 -0400
-Subject: Re: Toshiba IDE DMA support
-To: agd5f@yahoo.com (Alex Deucher)
-Date: Fri, 7 Sep 2001 23:14:27 +0100 (BST)
-Cc: linux-on-portege@yahoogroups.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010907163513.62384.qmail@web11304.mail.yahoo.com> from "Alex Deucher" at Sep 07, 2001 09:35:13 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272866AbRIGWIw>; Fri, 7 Sep 2001 18:08:52 -0400
+Received: from nicol6.umkc.edu ([134.193.4.67]:22541 "EHLO nicol6.umkc.edu")
+	by vger.kernel.org with ESMTP id <S272865AbRIGWIn>;
+	Fri, 7 Sep 2001 18:08:43 -0400
+Message-ID: <3B9943F3.612D467B@umkc.edu>
+Date: Fri, 07 Sep 2001 17:02:27 -0500
+From: "David L. Nicol" <nicold@umkc.edu>
+Organization: UMKC Information Services Central Systems
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: automatic per-connection ECN disabling
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15fTtL-0002fl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> capable of DMA, but at the moment do not have it
-> implemented.  I know nothing about programming IDE
-> drivers, so if anyone is interested in developing
 
-If they follow the standard model you should actully have very little
-code to write.
+I like the promise of explicit notification of congestion, and
+have enabled ECN on my computer.  However, I am always forgetting
+it is on and getting paranoid before I remember it and turn it
+off in order to communicate with a server behind a non-ECN firewall.
 
-Alan
+How difficult would it be, I wonder, to set the TCP stack to
+attempt a non-ECN connection if the first SYN does not come back
+in reasonable time?  That is, send the second (or third) initial
+SYN without the ECN option?
+
+In effect it would be a third ECN mode besides on and off: Auto.
+
+And it would make a good default.
+
+
+
+
+-- 
+                                           David Nicol 816.235.1187
+Insist on genuine Dead Horse brand bongo drums.

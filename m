@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314465AbSEQL7J>; Fri, 17 May 2002 07:59:09 -0400
+	id <S314553AbSEQMC0>; Fri, 17 May 2002 08:02:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSEQL7I>; Fri, 17 May 2002 07:59:08 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26634 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314465AbSEQL7H>; Fri, 17 May 2002 07:59:07 -0400
-Subject: Re: Still no ramfs usage limits in 2.5.9 or 2.4.19-pre8
-To: padraig@antefacto.com (Padraig Brady)
-Date: Fri, 17 May 2002 13:18:53 +0100 (BST)
-Cc: dale@farnsworth.org (Dale Farnsworth), linux-kernel@vger.kernel.org
-In-Reply-To: <3CE4E319.8070800@antefacto.com> from "Padraig Brady" at May 17, 2002 12:01:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314571AbSEQMCZ>; Fri, 17 May 2002 08:02:25 -0400
+Received: from ns.suse.de ([213.95.15.193]:64017 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314553AbSEQMCZ>;
+	Fri, 17 May 2002 08:02:25 -0400
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix BUG macro
+In-Reply-To: <Pine.LNX.4.21.0205171220480.986-100000@localhost.localdomain>
+X-Yow: A KAISER ROLL?!  What good is a Kaiser Roll without a little
+ COLE SLAW on the SIDE?
+From: Andreas Schwab <schwab@suse.de>
+Date: Fri, 17 May 2002 14:02:20 +0200
+Message-ID: <je1ycbx9rn.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2.50 (ia64-suse-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E178ghB-0006JV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus said the code should be kept as simple
-> as possible because it's only an example file system.
-> However simple should also not mean practically useless.
+Hugh Dickins <hugh@veritas.com> writes:
 
-Its useless as an example too - because it has no examples of error
-handling
+|> On Fri, 17 May 2002, Rusty Russell wrote:
+|> > In message <Pine.LNX.4.21.0205170839240.1369-100000@localhost.localdomain> you 
+|> > write:
+|> > > On Fri, 17 May 2002, Rusty Russell wrote:
+|> > > > 
+|> > > > Um, show me where sizeof(KBUILD_BASENAME) + sizeof(__FUNCTION__) >
+|> > > > sizeof(__FILENAME__).
+|> > > 
+|> > > If you're talking about kbuild2.5
+|> > 
+|> > No.  It's the include files, which makes up the majority of strings.
+|> 
+|> If they do make up the majority of strings, that's partly because
+|> you don't have Andrew's out_of_line_bug work in your tree, partly
+|> because your linker isn't combining strings (mine neither, does any?),
+
+Recent gcc and ld do.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

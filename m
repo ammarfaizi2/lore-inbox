@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264092AbUDRANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 20:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUDRANJ
+	id S264083AbUDRALh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 20:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbUDRALf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 20:13:09 -0400
-Received: from sankara1.bol.com.br ([200.221.24.109]:8182 "EHLO
-	sankara1.bol.com.br") by vger.kernel.org with ESMTP id S264092AbUDRANF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 20:13:05 -0400
-Subject: local interrupt disabling
-From: Fabiano Ramos <fabramos@bol.com.br>
-To: linux-kernel@vger.kernel.org
+	Sat, 17 Apr 2004 20:11:35 -0400
+Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:7296
+	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
+	id S264083AbUDRALf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 20:11:35 -0400
+Subject: Re: vmscan.c heuristic adjustment for smaller systems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Marc Singer <elf@buici.com>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040417165151.24b1fed5.akpm@osdl.org>
+References: <20040417193855.GP743@holomorphy.com>
+	 <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org>
+	 <20040417233037.GA15576@flea>  <20040417165151.24b1fed5.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1082247507.1201.7.camel@slack.domain.invalid>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 17 Apr 2004 21:18:27 -0300
 Content-Transfer-Encoding: 7bit
-X-Sender-IP: 200.165.174.198
+Message-Id: <1082247084.3619.2.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 17 Apr 2004 17:11:24 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Sat, 2004-04-17 at 16:51, Andrew Morton wrote:
 
-	I am doing some work on 2.4 to count the number of instructions
-executed for a given syscall.I set the trap bit on eflags at the syscall
-entry, causing a trap for each instruction executed until the iret at
-return_from_syscall. At the debug handler, I increment my counter.
-	I know that the syscall code cannot be preempted by another
-exeception handler, only by interrupts or page faults it causes.
-I want to track the page faults, no problem, but I wouldn't like
-the syscall to be interrupted by a mouse interrupt, for examnple.
-Local interrupt disabling while servicing the syscall would solve
-my problem, or would it create other problems?
+> What happens if you do the big file copy, then run `sync', then do the ls?
 
-TIA,
-Fabiano
+You shouldn't ever need to do "sync" with NFS unless you are using
+mmap(). close() will suffice to flush out all dirty pages in the case of
+ordinary file writes.
 
-
+Cheers,
+  Trond

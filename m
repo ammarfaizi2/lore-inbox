@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266667AbUGVLUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266724AbUGVLcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266667AbUGVLUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 07:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUGVLUJ
+	id S266724AbUGVLcS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 07:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266772AbUGVLcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 07:20:09 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:53775 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S266667AbUGVLUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 07:20:03 -0400
-Date: Thu, 22 Jul 2004 13:20:56 +0200
-From: DervishD <raul@pleyades.net>
-To: Eva Dominguez <evadom2002@yahoo.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aditional parallel port problems
-Message-ID: <20040722112056.GD6148@DervishD>
-Mail-Followup-To: Eva Dominguez <evadom2002@yahoo.es>,
-	linux-kernel@vger.kernel.org
-References: <20040722090106.36880.qmail@web21110.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040722090106.36880.qmail@web21110.mail.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+	Thu, 22 Jul 2004 07:32:18 -0400
+Received: from tri-e2k.ethz.ch ([129.132.112.23]:25056 "EHLO tri-e2k.ethz.ch")
+	by vger.kernel.org with ESMTP id S266724AbUGVLcQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 07:32:16 -0400
+Message-ID: <40FFA5BD.5000304@pixelized.ch>
+Date: Thu, 22 Jul 2004 13:32:13 +0200
+From: "Giacomo A. Catenazzi" <cate@pixelized.ch>
+User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
+       corbet@lwn.net, bgerst@didntduck.org, linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722070453.GA21907@kroah.com>
+In-Reply-To: <20040722070453.GA21907@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jul 2004 11:32:14.0745 (UTC) FILETIME=[89706090:01C46FDF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Eva :)
 
- * Eva Dominguez <evadom2002@yahoo.es> dixit:
->   5. The command "dmesg | grep parport" displays:
+
+Greg KH wrote:
+
+> On Thu, Jul 22, 2004 at 02:55:39AM -0700, Andrew Morton wrote:
 > 
->     "parport0: PC-style at 0x378 irq 7 [PCSPP,
-> TRISTATE, EPP]" (Is this line telling me the mode of
-> the parallel port?? in this case...what does it mean?)
->     "parport1: PC-style at 0x8800 irq 5 [PCSPP,
-> TRISTATE, EPP]"
->     "lp0: using parport0 (interrupt-driven)"
->     "lp1: using parport1 (polling)"
+> Users have had the 6-12 month warning about devfs for a while now :)
+> And udev is currently available in the latest distro versions of:
+> 	- Red Hat
+> 	- SuSE
+> 	- Gentoo
+> 	- Debian
+> 	- Mandrake
+> 
+> While devfs is only supported in Gentoo at this time (and udev fills
+> that support issue for those users.)
 
-    Here I have many VIA chipset PC's, and all of them show the same
-problem: the SPP and EPP modes are detected (but only if I give the
-proper options, otherwise only SPP works), and ECP is not detected.
-The problem is longer to explain properly, but that's more or less.
+I've still some bug report of people using home-compiled devfs kernels
+on Debian. So people still use it. You say "devfs" is buggy, but
+it works on nearly all cases, so people tend not to switch.
 
-    I cannot help you (by now...), but I'm trying to isolate and
-solve my problem with the help of Dino Klein, and as soon as I have
-something, I can contact you.
+The worse is the lack of stable name of devices, in udev too.
+I.e. microcode loader (Intel CPU) needs a device, which was so
+named (last time I controlled):
+   # device name in LANANA / devices.txt
+   DEVICE=/dev/cpu/microcode
+   # device name in devfsd
+   DEVICE2=/dev/misc/microcode
+   # device name in udev
+   DEVICE3=/dev/microcode
 
-    Anyway, your card seems to be 'moded' through software, am I
-wrong?, so maybe it should work providing in the module options the
-io_hi value for the card, so the ECR registers are accessed and you
-get ECP. Devices connected to the port shouldn't (IMHO) set the mode
-on the port...
+If we a coherent *default* device name scheme, the switching
+from a kernel utility to other would be trivial.
 
-    Raúl Núñez de Arenas Coronado
+ciao
+	cate
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Note: /dev/cpu/microcode was also created by devfs until
+recent 2.4 kernels and the whole 2.6 serie.
+
+
+
+> 
+> 
+>>That being said, mid-2005 would be an appropriate time to remove devfs.  If
+>>that schedule pushes things along faster than they would otherwise have
+>>progressed, well, good.
+> 
+> 
+> Ok, if people think that would really change anything, I'll wait a year.
+> I'm patient :)
+

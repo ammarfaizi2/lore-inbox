@@ -1,42 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280569AbRKYPPP>; Sun, 25 Nov 2001 10:15:15 -0500
+	id <S280891AbRKYPSZ>; Sun, 25 Nov 2001 10:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277152AbRKYPPG>; Sun, 25 Nov 2001 10:15:06 -0500
-Received: from pl475.nas921.ichikawa.nttpc.ne.jp ([210.165.235.219]:35636 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S280569AbRKYPO4>;
-	Sun, 25 Nov 2001 10:14:56 -0500
-Date: Mon, 26 Nov 2001 00:14:26 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-Id: <20011126001426.1e1995d9.bruce@ask.ne.jp>
-In-Reply-To: <tg4rnigano.fsf@mercury.rus.uni-stuttgart.de>
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
-	<20011125143449.B5506@duron.intern.kubla.de>
-	<tgadxagbjn.fsf@mercury.rus.uni-stuttgart.de>
-	<20011125145134.B23807@flint.arm.linux.org.uk>
-	<tg4rnigano.fsf@mercury.rus.uni-stuttgart.de>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+	id <S280867AbRKYPSQ>; Sun, 25 Nov 2001 10:18:16 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:17158 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S280823AbRKYPR7>; Sun, 25 Nov 2001 10:17:59 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Message-ID: <86256B0F.0053E736.00@smtpnotes.altec.com>
+Date: Sun, 25 Nov 2001 09:16:17 -0600
+Subject: Re: Linux 2.5.0
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Nov 2001 15:58:19 +0100
-Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE> wrote:
 
-> Russell King <rmk@arm.linux.org.uk> writes:
-> 
-> > |	* umount everything non-buys
->                             ^^^^^^^^
-> 
-> What does that mean?  It's a typo, isn't it?
 
-It should be "non-busy" - i.e., everything that will let you umount it without
-a "device is busy" error.
+Thanks.  I had hoped the version number was the only change, but wanted to be
+sure.  I'll be keeping just one source tree for both 2.4.x and 2.5.x and
+switching between the versions by applying and reversing patches as needed, so
+it's important that my copy of the source stay *exactly* in sync with Linus'
+copy (otherwise I've have just altered the version in the Makefile myself).
+With the help of your patch I've just built both 2.4.16-pre1 and 2.5.1-pre1 from
+the same 2.4.15 source, which is what I wanted.
 
-Bruce
+Wayne
+
+
+
+
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> on 11/25/2001 01:53:40 AM
+
+To:   Anuradha Ratnaweera <anuradha@gnu.org>
+cc:   James Davies <james_m_davies@yahoo.com>, Wayne
+      Brown/Corporate/Altec@Altec, lkml <linux-kernel@vger.kernel.org>
+
+Subject:  Re: Linux 2.5.0
+
+
+
+Em Sun, Nov 25, 2001 at 01:31:57PM +0600, Anuradha Ratnaweera escreveu:
+> On Sun, Nov 25, 2001 at 05:14:53PM +1000, James Davies wrote:
+> > On Sun, 25 Nov 2001 16:52, Wayne.Brown@altec.com wrote:
+> > > Is there going to be an "official" patch from 2.4.15 to 2.5.0?  I'd rather
+> > > not ftp the whole kernel tarball over a modem connection, and I don't have
+> > > the disk space on my laptop to keep both the complete 2.4 and 2.5 source
+at
+> > > the same time anyway.
+> >
+> > 2.4.15 is the same as 2.5.0
+>
+> I think he is concerned about the _official_ 2.4.15 and the _official_ 2.5.0,
+> because, subsequent patches for 2.5.0 will not _cleanly_ apply on 2.4.15 tree
+> (although fixing them should be extremely trivial).
+>
+> Can somebody confirm that the difference is only the version numbers in the
+> Makefile, and no other changes in Documentation/ etc?
+
+hey, the _oficial_ word from Linus is that it had changed only the version:
+
+[acme@brinquedo b]$ diff -uNr 2.4.15 2.5.0
+diff -uNr 2.4.15/Makefile 2.5.0/Makefile
+--- 2.4.15/Makefile     Thu Nov 22 17:22:58 2001
++++ 2.5.0/Makefile      Fri Nov 23 04:23:44 2001
+@@ -1,7 +1,7 @@
+ VERSION = 2
+-PATCHLEVEL = 4
+-SUBLEVEL = 15
+-EXTRAVERSION =-greased-turkey
++PATCHLEVEL = 5
++SUBLEVEL = 0
++EXTRAVERSION =
+
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+
+[acme@brinquedo b]$
+
+See?
+
+- Arnaldo
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

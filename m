@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbTBKPpj>; Tue, 11 Feb 2003 10:45:39 -0500
+	id <S265077AbTBKPrq>; Tue, 11 Feb 2003 10:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbTBKPpj>; Tue, 11 Feb 2003 10:45:39 -0500
-Received: from [212.130.55.83] ([212.130.55.83]:6660 "EHLO smtp.tt.dk")
-	by vger.kernel.org with ESMTP id <S262418AbTBKPpi>;
-	Tue, 11 Feb 2003 10:45:38 -0500
-Message-ID: <E8F83D6D2A6AD3118E0300902786A2050249961F@ntex.tt.dk>
-From: "Peter Leif Rasmussen (PLR)" <PLR@tt.dk>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: A change to scsi.h
-Date: Tue, 11 Feb 2003 16:54:16 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265196AbTBKPrq>; Tue, 11 Feb 2003 10:47:46 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:33205 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265077AbTBKPrp>;
+	Tue, 11 Feb 2003 10:47:45 -0500
+Date: Tue, 11 Feb 2003 07:54:47 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+Cc: andmike@us.ibm.com, randy.dunlap@verizon.net, linux-kernel@vger.kernel.org,
+       james.bottomley@steeleye.com, campbell@torque.net
+Subject: Re: [PATCH] scsi/imm.c compile errors in 2.5.60
+Message-Id: <20030211075447.1fa7b98e.rddunlap@osdl.org>
+In-Reply-To: <m3znp3q8sv.fsf@lugabout.jhcloos.org>
+References: <20030211083453.GA6787@beaverton.ibm.com>
+	<m3znp3q8sv.fsf@lugabout.jhcloos.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When looking into:
+On 11 Feb 2003 07:52:00 -0500
+"James H. Cloos Jr." <cloos@jhcloos.com> wrote:
 
-/usr/src/linux/include/scsi/scsi.h
+| Mike> Randy, It looks good. I cc'd David Campbell the listed
+| Mike> maintainer of the driver just to let him know of the update.
+| 
+| scsi/ppa.c (iomega's other scsi-over-parallel protocol) probably needs
+| the same fix.
 
-in kernel revision 2.5.60 I find this in line 200 - 205:
+Yes, I was planning to go thru drivers/scsi/ looking for others
+that need this repair.
 
-/*
- * ScsiLun: 8 byte LUN.
- */
-typedef struct scsi_lun {
-        u8 scsi_lun[8];
-} ScsiLun;
-
-This produces problems when compiling a package that doesn't know about
-'u8'.
-
-In any case shouldn't it be 'uint8_t' so we get:
-
-/*
- * ScsiLun: 8 byte LUN.
- */
-typedef struct scsi_lun {
-        uint8_t scsi_lun[8];
-} ScsiLun;
-
-Just curious from a non-regular on lkml (and I am getting out quick because
-of the volume :-)
-
-Thank you very much,
-
-Peter
+--
+~Randy

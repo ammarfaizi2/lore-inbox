@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285484AbRLGTwF>; Fri, 7 Dec 2001 14:52:05 -0500
+	id <S281221AbRLGT7I>; Fri, 7 Dec 2001 14:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285489AbRLGTv4>; Fri, 7 Dec 2001 14:51:56 -0500
-Received: from freesurfmta05.sunrise.ch ([194.230.0.18]:38585 "EHLO
-	freesurfmail.sunrise.ch") by vger.kernel.org with ESMTP
-	id <S285484AbRLGTvi>; Fri, 7 Dec 2001 14:51:38 -0500
-Message-ID: <3C111DCB.6040608@bluewin.ch>
-Date: Fri, 07 Dec 2001 20:51:39 +0100
-From: Nicolas Vollmar <nv@bluewin.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S285489AbRLGT65>; Fri, 7 Dec 2001 14:58:57 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:11668 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S284324AbRLGT6p>; Fri, 7 Dec 2001 14:58:45 -0500
+Date: Fri, 7 Dec 2001 11:58:39 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+cc: Allan Steel <allan@maths.usyd.edu.au>,
+        Paul Sargent <Paul.Sargent@3dlabs.com>
+Subject: Maximizing brk() space on stock ia32 Linux 2.4.x
+Message-ID: <Pine.LNX.4.33.0112071128500.440-100000@mf1.private>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1pre6 compile error setup.c
-In-Reply-To: <3C0B853000063099@freesurfmail.sunrise.ch> (added by	    postmaster@freesurf.ch)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the blk.h of kernel 2.4.16 are the declarations:
+Hello,
 
-extern int rd_image_start;
-extern int rd_doload;
-extern int rd_promt;
+Given the limitation of running under a stock ia32 Linux 2.4.x kernel
+(e.g. TASK_UNMAPPED_BASE = 0x40000000 and __PAGE_OFFSET = 0xC0000000), how
+can one write a program in a way to maximize the address space available
+for brk()?  For example:
 
-In the blk.h of 2.5.1-pre6 aren't they;
+1) With static linking and glibc there is still one mmap() mapping that
+looks like this: "40000000-40001000 rw-p 00000000 00:00 0".  Someone once
+commented that this is a buffer for stdio.  If so, how would one modify
+glibc to move it (MAP_FIXED) or get rid of it?  Or would it be possible to
+use an alternative libc and sidestep this issue?
 
+2) If dynamic linking is required, it seems that one needs to intercept
+all mmap() calls, for example to insert addresses and MAP_FIXED.  This
+seems a bit tricky, since the dynamic loader uses mmap(), so probably
+LD_PRELOAD would not work.  What would be required for this?
 
->I had tried to compile 2.5.1-pre6 and have got this error:
->
->
->setup.c: In function `setup_arch':
->setup.c:806: `rd_image_start' undeclared (first use in this function)
->setup.c:806: (Each undeclared identifier is reported only once
->setup.c:806: for each function it appears in.)
->setup.c:807: `rd_prompt' undeclared (first use in this function)
->setup.c:808: `rd_doload' undeclared (first use in this function)
->make[1]: *** [setup.o] Error 1
->make[1]: Leaving directory `/usr/src/linux/arch/i386/kernel'
->make: *** [_dir_arch/i386/kernel] Error 2
->
->
->Nicolas
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+3) Alternatively, it seems like it would be enough for a single, large
+brk() to be executed early in the startup of the program, before any
+mmap()'s.  Then the mmap()'s would automatically get placed higher in the
+address space.  Where would one need to put this brk() call?  Would having
+2-3 GB mapped but untouched have negative VM consequences?
+
+4) Lastly, it seems that executables by default load at 0x08000000.  How 
+does one build an executable that loads at a lower address, e.g. 
+0x00002000?  How low is safe to go?
+
+It seems that both (2) and (4) are possible, as Paul Sargent's email "2GB
+process crashing on 2.4.14" shows the /proc/<pid>/maps of a (binary-only)
+program that does them.
+
+Thanks, Wayne
+
 
 
 

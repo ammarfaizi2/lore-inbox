@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317941AbSFSRBZ>; Wed, 19 Jun 2002 13:01:25 -0400
+	id <S317940AbSFSRBL>; Wed, 19 Jun 2002 13:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317942AbSFSRBY>; Wed, 19 Jun 2002 13:01:24 -0400
-Received: from pensacola.gci.com ([205.140.80.79]:15109 "EHLO
-	pensacola.gci.com") by vger.kernel.org with ESMTP
-	id <S317941AbSFSRBW> convert rfc822-to-8bit; Wed, 19 Jun 2002 13:01:22 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA31508EC1070@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.5.22 ide disk hang on boot
-Date: Wed, 19 Jun 2002 09:01:16 -0800
+	id <S317941AbSFSRBL>; Wed, 19 Jun 2002 13:01:11 -0400
+Received: from [213.23.20.58] ([213.23.20.58]:3222 "EHLO starship")
+	by vger.kernel.org with ESMTP id <S317940AbSFSRBJ>;
+	Wed, 19 Jun 2002 13:01:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
+Date: Wed, 19 Jun 2002 19:00:57 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>
+References: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu>
+In-Reply-To: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17KipF-0000up-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki scribed:
-> U¿ytkownik leif@denali.net napisa³:
-> > I'm having exactly the same issue, with both 2.5.22 and 2.5.23.
-> > 
-> > I've downloaded the ide-clean-92.diff and applied it 
-> > against 2.5.23.  There were some fuzzy offsets, but no rejects.
-> >
-> You mean you have reverse applied it with the patch -R 
-> command of course.
+On Wednesday 19 June 2002 13:18, Craig Kulesa wrote:
+> Where:  http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/
+>
+> This patch implements Rik van Riel's patches for a reverse mapping VM 
+> atop the 2.5.23 kernel infrastructure...
+>
+> ...Hope this is of use to someone!  It's certainly been a fun and 
+> instructive exercise for me so far.  ;)
 
-Yes of course. :-)
+It's intensely useful.  It changes the whole character of the VM discussion 
+at the upcoming kernel summit from 'should we port rmap to mainline?' to 'how 
+well does it work' and 'what problems need fixing'.  Much more useful.
 
-> Yes 92 is the culprit. I have put it in the change log that
-> the unification of the PIO read handlers is dangerous and 
-> well indeed it is...
+Your timing is impeccable.  You really need to cc Linus on this work, 
+particularly your minimal, lru version.
 
-I did have one issue, not sure what it's related to:
+-- 
+Daniel
 
-My first test was against an SMP compiled kernel running on UP,
-as I stated previously.  When re-compiling the kernel, my machine
-locked up solid during IDE access.  Unfortunately no magic-keys
-were available and I needed to hard-reset and downgrade.
-
-I recompiled for UP, rebooted, and was able to perform multiple
-kernel compilations with no hanging.
-
-I didn't perform a stress-test last night, but tonight if i'm able i'll
-run some bonnie against it to see if it's stable, if you like.
-
-Leif

@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132396AbRA1RYe>; Sun, 28 Jan 2001 12:24:34 -0500
+	id <S129445AbRA1RdQ>; Sun, 28 Jan 2001 12:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129445AbRA1RYZ>; Sun, 28 Jan 2001 12:24:25 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:2052 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129235AbRA1RXw>;
-	Sun, 28 Jan 2001 12:23:52 -0500
-Date: Sun, 28 Jan 2001 18:21:54 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Linux SMP mailinglist <linux-smp@vger.kernel.org>
-Subject: [patch] new, scalable timer implementation, smptimers-2.4.0-B1
-Message-ID: <Pine.LNX.4.30.0101281752090.2612-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129235AbRA1RdG>; Sun, 28 Jan 2001 12:33:06 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:61957 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129445AbRA1Rc4>; Sun, 28 Jan 2001 12:32:56 -0500
+Date: Sun, 28 Jan 2001 18:32:33 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Stefani Seibold <stefani@seibold.net>
+Cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: patch for 2.4.0 disable printk
+Message-ID: <20010128183233.E9106@pcep-jamie.cern.ch>
+In-Reply-To: <01012723313500.01190@deepthought.seibold.net> <3A736B76.214D4193@uow.edu.au> <01012810272400.01202@deepthought.seibold.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01012810272400.01202@deepthought.seibold.net>; from stefani@seibold.net on Sun, Jan 28, 2001 at 10:27:24AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stefani Seibold wrote:
+> The inline function is the best choice, because it it full compatible to old 
+> old printk. No side effects are expeted.
 
-a new, 'ultra SMP scalable' implementation of Linux kernel timers is now
-available for download:
+What is the difference?
+I can't think of any difference between:
 
-    http://www.redhat.com/~mingo/scalable-timers/smptimers-2.4.0-B1
+  #define printk(format, args...) ((int) 0)
 
-the patch is against 2.4.1-pre10 or ac12. The timer design in this
-implementation is a work of David Miller, Alexey Kuznetsov and myself.
+and:
 
-Internals: the current 2.4 timer implementation uses a global spinlock for
-synchronizing access to the global timer lists. This causes excessive
-cacheline ping-pongs and visible performance degradation under very high
-TCP networking load (and other, timer-intensive operations).
+  static inline int printk_inline (void) { return 0; }
+  #define printk(format, args...) (printk_inline ())
 
-The new implementation introduces per-CPU timer lists and per-CPU
-spinlocks that protect them. All timer operations, add_timer(),
-del_timer() and mod_timer() are still O(1) and cause no cacheline
-contention at all (because all data structures are separated). All
-existing semantics of Linux timers are preserved, so the patch is
-'transparent' to all other subsystems.
+If you wanted to be fully compatible in the sense of evaluating the
+printk arguments, in case those have side effects, there would be:
 
-In addition, the role of TIMER_BH has been redefined, and run_local_timers
-is used directly from APIC timer interrupts to run timers (not from
-TIMER_BH). This means that timer expiry is per-CPU as well - it is global
-in vanilla 2.4. Every timer is started and expired on the CPU where it has
-been added. Timers get migrated between CPUs if mod_timer() is done on
-another CPU (because eg. a process using them migrates to another CPU.).
-In the typical case timer handling is completely localized to one CPU.
+  #define printk(format, args...) ((0 , ## args), (int) 0)
 
-The new timers still maintain 'semantical compatibility' with older
-concepts such as the IRQ lock and manipulation of TIMER_BH state. These
-constructs are quite rare already, in 2.5 they can be removed completely.
+By the way, CONFIG_NO_PRINTK or CONFIG_DISABLE_PRINTK would be better
+names.  CONFIG_PRINTK suggests that enabling that option enabled printk.
 
-the patch has been sanity tested on UP-pure, UP-APIC, UP-IOAPIC and SMP
-systems. Reports/comments/questions/suggestions welcome!
-
-	Ingo
+enjoy,
+-- Jamie
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

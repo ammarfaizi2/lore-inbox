@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbTAATNi>; Wed, 1 Jan 2003 14:13:38 -0500
+	id <S261529AbTAATT5>; Wed, 1 Jan 2003 14:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbTAATNh>; Wed, 1 Jan 2003 14:13:37 -0500
-Received: from h-64-105-35-45.SNVACAID.covad.net ([64.105.35.45]:15802 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S261312AbTAATNh>; Wed, 1 Jan 2003 14:13:37 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 1 Jan 2003 11:21:58 -0800
-Message-Id: <200301011921.LAA02354@baldur.yggdrasil.com>
-To: akpm@digeo.com, James.Bottomley@steeleye.com
-Subject: Re: [PATCH] generic device DMA (dma_pool update)
-Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org
+	id <S261545AbTAATT5>; Wed, 1 Jan 2003 14:19:57 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:56330 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S261529AbTAATT5>;
+	Wed, 1 Jan 2003 14:19:57 -0500
+To: John Bradford <john@grabjohn.com>
+Cc: jochen@scram.de (Jochen Friedrich), xavier.bestel@free.fr,
+       andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <200212311431.gBVEVLVB001666@darkstar.example.net>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 01 Jan 2003 20:28:15 +0100
+In-Reply-To: John Bradford's message of "Tue, 31 Dec 2002 14:31:21 +0000 (GMT)"
+Message-ID: <yw1x7kdozn3k.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> void *
-> dma_alloc_coherent(struct device *dev, size_t size,
->-                            dma_addr_t *dma_handle)
->+                            dma_addr_t *dma_handle, int flag)
+John Bradford <john@grabjohn.com> writes:
 
-	I thought Andrew Morton's request for a gfp flag was for
-allocating memory from a pool (for example, a "read ahead" will want
-to abort if memory is unavailable rather than wait).
+> > Alpha works around this by using an X86 emulator in their PAL code.
+> 
+> That's interesting, I didn't know that.  How complete is it?  Does it
+> just emulate a subset of X86 instructions that are enough for 90% of
+> initialisation code?
 
-	The big DMA allocations, however, will always occur during
-initialization, and I think will always have the intermediate policy
-of "I can block, but I should fail rather than block for more than a
-few seconds and potentially deadlock from loading too many drivers on
-a system with very little memory."
+AFAIK it only emulates 16-bit real mode, which is what the bios code
+is.  I've never seen a card that failed to work because of this.
 
-	Can someone show me or invent an example of two different uses
-of dma_alloc_coherent that really should use different policies on
-whether to block or not?
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+-- 
+Måns Rullgård
+mru@users.sf.net

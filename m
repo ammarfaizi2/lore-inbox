@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129678AbQJ1O3N>; Sat, 28 Oct 2000 10:29:13 -0400
+	id <S129934AbQJ1OdP>; Sat, 28 Oct 2000 10:33:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129934AbQJ1O3D>; Sat, 28 Oct 2000 10:29:03 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50958 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129678AbQJ1O2v>; Sat, 28 Oct 2000 10:28:51 -0400
-Subject: Re: PLIP driver in 2.2.xx kernels
-To: lnxkrnl@mail.ludost.net
-Date: Sat, 28 Oct 2000 15:30:07 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10010281859580.3112-100000@doom.izba.net> from "lnxkrnl@mail.ludost.net" at Oct 28, 2000 07:04:12 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130268AbQJ1OdF>; Sat, 28 Oct 2000 10:33:05 -0400
+Received: from [195.180.174.143] ([195.180.174.143]:12160 "EHLO
+	ghanima.neukum.org") by vger.kernel.org with ESMTP
+	id <S129934AbQJ1Ocx>; Sat, 28 Oct 2000 10:32:53 -0400
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Date: Sat, 28 Oct 2000 16:31:35 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: question on SMP and read()/write()
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13pWzo-0005MJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <00102816313507.00773@ghanima>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   I have a question - Why does the PLIP driver does consume so much CPU ?
-> I tried it today, and when i did ping -s 16000 dst_ip, the kernel consumed
-> about 50% of the CPU time ( /proc/cpuinfo and /proc/interrupts follow).
-> Any ideas ?
+Hi,
 
-It has to bang on the parallel port controller the hard way, there is no
-useful hardware support on a basic parallel port for the kind of abuse needed
-for PLIP
+I've noticed that sys_read() and sys_write() don't grab the big kernel lock.
+As file descriptors may be shared, must device drivers provide SMP safe
+read() and write() methods ?
+
+	TIA
+		Oliver
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

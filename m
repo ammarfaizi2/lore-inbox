@@ -1,78 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278081AbRKFGrC>; Tue, 6 Nov 2001 01:47:02 -0500
+	id <S278125AbRKFHCH>; Tue, 6 Nov 2001 02:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278098AbRKFGqv>; Tue, 6 Nov 2001 01:46:51 -0500
-Received: from unthought.net ([212.97.129.24]:21721 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S278081AbRKFGqt>;
-	Tue, 6 Nov 2001 01:46:49 -0500
-Date: Tue, 6 Nov 2001 07:46:47 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: SpaceWalker <spacewalker@altern.org>
-Cc: Stuart Young <sgy@amc.com.au>, Alexander Viro <viro@math.psu.edu>,
+	id <S278218AbRKFHB5>; Tue, 6 Nov 2001 02:01:57 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:36284 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S278125AbRKFHBr>; Tue, 6 Nov 2001 02:01:47 -0500
+Date: Tue, 6 Nov 2001 00:01:43 -0700
+Message-Id: <200111060701.fA671hL20646@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: alain@linux.lu, Linus Torvalds <torvalds@transmeta.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011106074647.A1588@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	SpaceWalker <spacewalker@altern.org>, Stuart Young <sgy@amc.com.au>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.0.20011105144855.01f83310@mail.amc.localnet> <5.1.0.14.0.20011105154947.01f6fec0@mail.amc.localnet> <3BE6BF22.E06E8D19@altern.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <3BE6BF22.E06E8D19@altern.org>; from spacewalker@altern.org on Mon, Nov 05, 2001 at 05:32:34PM +0100
+Subject: Re: Poor floppy performance in kernel 2.4.10 
+In-Reply-To: <Pine.GSO.4.21.0110271422520.21545-100000@weyl.math.psu.edu>
+In-Reply-To: <200110271800.f9RI0M803440@hitchhiker.org.lu>
+	<Pine.GSO.4.21.0110271422520.21545-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 05:32:34PM +0100, SpaceWalker wrote:
-> Stuart Young wrote:
-> > 
-> > At 11:05 PM 4/11/01 -0500, Alexander Viro wrote:
-> > 
-> > >On Mon, 5 Nov 2001, Stuart Young wrote:
-> > >
-> > > > Any reason we can't move all the process info into something like
-> > > > /proc/pid/* instead of in the root /proc tree?
-> > >
-> > >Thanks, but no thanks.  If we are starting to move stuff around, we
-> > >would be much better off leaving in /proc only what it was supposed
-> > >to contain - per-process information.
-> > 
-> 
-> We could add a file into /proc like /proc/processes that contains once
-> all process informations that some programs like top or ps can read only
-> Once.
-> It could save a lot of time in kernel mode scanning the process list for
-> each process.
-> later, a new version of ps or top could simply stat /proc/processes and
-> if it exists uses it to give informations to the user.
-> What do you think of this idea ?
+Alexander Viro writes:
+> 	BTW, here's one more devfs rmmod race: check_disk_changed() in
+> fs/devfs/base.c.  Calling ->check_media_change() with no protection
+> whatsoever.  If rmmod happens at that point...
 
-We would have the same "changing format of /proc/processes" parsing
-problems as we have now with the rest of /proc.
+How is this different from a call to fs/block_dev.c:check_disk_change()
+which also has no protection?
 
-Why not implement all of top in the kernel, so that you could do a
- cat /dev/top   and have the usual top output nicely shown ?   ;)
+				Regards,
 
-(yes, the last one was a joke!)
-
-Your suggestion may improve the performance of one or two userland
-applications, but it does not attack the real problem: that /proc is not
-machine readable.   
-
-We would be maintaining yet another /proc file, but we'd still have the
-problems we have now.   Implementing an A.I. in every CPU meter applet out
-there, while still having to accept that the A.I. gives up on us every now and
-then (when someone decides to add an ASCII art visualization of the utilization
-of the various ALUs in /proc/cpuinfo for example - the worst part being that
-this example is probably not even far fetched!)
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

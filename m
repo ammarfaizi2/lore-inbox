@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTGGWfW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 18:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTGGWfW
+	id S261808AbTGGWsT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 18:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTGGWsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 18:35:22 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:55449 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262227AbTGGWfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 18:35:19 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Peter Berg Larsen <pebl@math.ku.dk>
-Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
-Date: Mon, 7 Jul 2003 17:51:35 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <Pine.LNX.4.40.0307072020380.3501-100000@shannon.math.ku.dk>
-In-Reply-To: <Pine.LNX.4.40.0307072020380.3501-100000@shannon.math.ku.dk>
+	Mon, 7 Jul 2003 18:48:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41396 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261808AbTGGWsS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 18:48:18 -0400
+Message-ID: <3F09FC12.4070609@pobox.com>
+Date: Mon, 07 Jul 2003 19:02:42 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] new quota code
+References: <200307072105.h67L50ir024592@hera.kernel.org>
+In-Reply-To: <200307072105.h67L50ir024592@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307071751.35221.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 July 2003 01:35 pm, Peter Berg Larsen wrote:
->
-> A complete different problem that might be a problem is that even though
-> the master(pad) says it has passthough capabilities, there might not be
-> any guest attached. The bit only tells that it is capable of handling one.
-> I asked synaptics about this some time ago and they replyed that the only
-> way to find out is to send a byte and look for a returnbyte or a timeout.
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1059, 2003/07/07 17:01:15-03:00, hch@lst.de
+> 
+> 	[PATCH] new quota code
+> 	
+> 	Okay, here's the quota patch.  Basically all changes are from Jan Kara
+> 	and I backport them from 2.5.  The 32bit quota code has been shipped
+> 	by the commercial vendors ever since they used Linux 2.4 and this
+> 	particular codebase with backwards compatiblity support is around
+> 	in the 2.5, the XFS tree, -ac and -aa for a long time.  The only
+> 	change over that version is that support for the old 16bit quota
+> 	format and the old quotactl ABI is enabled unconditionally, i.e.
+> 	there's no way to render your system unusable by wrong make config
+> 	choices [1].
+> 	
+> 	[1] This also mean completely dropping support for the interim ABI
+> 	used in the early 32bit quota patches as it's mutally incompatible
+> 	to the old ABI.  But we never ever shipped that in any mainline kernels
+> 	so there's no problem.
 
-I think this won't be a problem - if there is no guest attached then, when
-we register pass-through serio port, psmouse_probe will run. The very first
-thing it to tries identify attached device and bails out if something
-goes wrong. In our case it should time out. This will leave us with a serio
-without input device attached - a perfectly valid scenario I think.
 
-Dmitry
+"no problem" being defined here as "multiple vendors shipped it but I 
+don't care", right?
+
+Why do we need a third (fourth?) 2.4 quota abi/api floating around?
+
+	Jeff
+
 
 

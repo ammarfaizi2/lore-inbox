@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268314AbTGIP3U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 11:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268351AbTGIP3T
+	id S268364AbTGIPaq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 11:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbTGIPaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 11:29:19 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:51431 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268314AbTGIP3S convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 11:29:18 -0400
-content-class: urn:content-classes:message
+	Wed, 9 Jul 2003 11:30:46 -0400
+Received: from ns.suse.de ([213.95.15.193]:38669 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268364AbTGIPap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 11:30:45 -0400
+To: root@chaos.analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modutils-2.3.15 'insmod'
+References: <Pine.LNX.4.53.0307091119450.470@chaos>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I want to read my new poem about pork brains and outer space...
+Date: Wed, 09 Jul 2003 17:45:22 +0200
+In-Reply-To: <Pine.LNX.4.53.0307091119450.470@chaos> (Richard B. Johnson's
+ message of "Wed, 9 Jul 2003 11:25:11 -0400 (EDT)")
+Message-ID: <jer84zln59.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: Redundant memset in AIO read_events
-Date: Wed, 9 Jul 2003 08:43:53 -0700
-Message-ID: <DD755978BA8283409FB0087C39132BD101B00F79@fmsmsx404.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Redundant memset in AIO read_events
-Thread-Index: AcNGGW7FsxaN5J9NSJiK0LVk/z7VbgAFnoig
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Mikulas Patocka" <mikulas@artax.karlin.mff.cuni.cz>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>
-X-OriginalArrivalTime: 09 Jul 2003 15:43:54.0292 (UTC) FILETIME=[E6E92740:01C34630]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > OK, here is another one.  In the top level read_events() function in
-> > fs/aio.c, a struct io_event is instantiated on the stack 
-> (variable ent).
-> > It calls aio_read_evt() function which will fill the entire io_event
-> > structure into variable ent.  What's the point of zeroing when copy
-> > covers the same memory area?  Possible a debug code left around?
-> 
-> Read the comment before that memset. The structure might contain some
-> padding (bytes not belonging to any of its entries), these bytes are
-> random and if you do not zero them, you copy random data into 
-> userspace.
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-That is true, but here's the definition of the io_event strcuture:
+|> It is likely that malloc(0) returning a valid pointer is a bug
+|> that has prevented this problem from being observed.
 
-struct io_event {
-        __u64           data;
-        __u64           obj;
-        __s64           res;
-        __s64           res2;
-};
+It's not a bug, it's a behaviour explicitly allowed by the C standard.
 
-In the words of the comment, C may be "fun", but I've
-having trouble envisioning an architecture where a structure
-that consists of four equal sized objects has some padding!
+Andreas.
 
-Don't we usually call code that defends against impossible
-problems "bloat"?
-
--Tony
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

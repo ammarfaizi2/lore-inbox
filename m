@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTLANpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 08:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTLANpW
+	id S261299AbTLANnd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 08:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLANnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 08:45:22 -0500
-Received: from core.kaist.ac.kr ([143.248.147.118]:46238 "EHLO
-	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S261735AbTLANpR
+	Mon, 1 Dec 2003 08:43:32 -0500
+Received: from smtp11.eresmas.com ([62.81.235.111]:47785 "EHLO
+	smtp11.eresmas.com") by vger.kernel.org with ESMTP id S261299AbTLANnc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 08:45:17 -0500
-Message-ID: <00ce01c3b811$475ba8d0$a5a5f88f@coreit5ezqhgk2>
-From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Q] I have a DMA question.
-Date: Mon, 1 Dec 2003 22:44:44 +0900
+	Mon, 1 Dec 2003 08:43:32 -0500
+Message-ID: <3FCB4506.8080305@wanadoo.es>
+Date: Mon, 01 Dec 2003 14:41:26 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ks_c_5601-1987"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: libata in 2.4.24?
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Marcelo Tosatti wrote:
 
-I want to DMA copy data from Host computer's memory to 
+> On Sat, 29 Nov 2003, Marcelo Tosatti wrote:
+>>
+>> I'm happy to include it in 2.4 when Jeff thinks its stable enough for a 
+>> stable series. ;)
 
-PCI device's memory.(PCI device is IXP1200 Evaluation Board).
+> I thought a bit more about this issue and I have a different opinion now.
+>
+> 2.6 is getting more and more stable and already includes libata --- users 
+> who need it should use 2.6.
 
-Of course, IXP1200 DMA unit can initiate DMA operation.
+Does it mean that 2.4.x is going to freeze, and only critical and security
+patches are going to be applied ?
 
-So I tried to use that unit, but finally I failed to use.
-
-So I want to use host computer(or linux kernel)'s DMA mechanism
-
-to copy data from Host computer's memory to
-
-PCi device's memory.
-
-How can I do that? function? simple instruction?
-
-Please give any advice.
-
-And if above this is complicated, 
-
-please give me method of fast data copy between 2 memories.
-
-
-Thanks!
 

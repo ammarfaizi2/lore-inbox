@@ -1,76 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUGFVDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264595AbUGFVHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbUGFVDg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 17:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUGFVDg
+	id S264595AbUGFVHV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 17:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbUGFVHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 17:03:36 -0400
-Received: from colin2.muc.de ([193.149.48.15]:60427 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264519AbUGFVDd (ORCPT
+	Tue, 6 Jul 2004 17:07:21 -0400
+Received: from mail.dsvr.co.uk ([212.69.192.8]:31696 "EHLO mail.dsvr.co.uk")
+	by vger.kernel.org with ESMTP id S264595AbUGFVHN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 17:03:33 -0400
-Date: 6 Jul 2004 23:03:31 +0200
-Date: Tue, 6 Jul 2004 23:03:31 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_SLAB_DEBUG and NUMA API
-Message-ID: <20040706210331.GA29417@muc.de>
-References: <20040706063149.GA37299@muc.de> <20040705234945.1f920d1b.akpm@osdl.org>
+	Tue, 6 Jul 2004 17:07:13 -0400
+Date: Tue, 6 Jul 2004 22:07:12 +0100
+From: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>
+To: Andrew Feldhacker <afeldhacker@thomasrepro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 series kernels on HP Netserver LH4 - kernel panic on boot
+Message-ID: <20040706210712.GA19222@jsambrook>
+Reply-To: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>
+References: <A6974D8E5F98D511BB910002A50A6647615FF248@hdsmsx403.hd.intel.com> <1089080891.15653.430.camel@dhcppc4> <200407060914.29830.vda@port.imtp.ilyichevsk.odessa.ua> <01F2769B-CF26-11D8-BFEC-000A956E7DA6@thomasrepro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-In-Reply-To: <20040705234945.1f920d1b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <01F2769B-CF26-11D8-BFEC-000A956E7DA6@thomasrepro.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 11:49:45PM -0700, Andrew Morton wrote:
-> Andi Kleen <ak@muc.de> wrote:
-> >
-> > 
-> > I tested 2.6.7-mm6 with NUMA on with CONFIG_SLAB_DEBUG and I didn't see any 
-> > oopses. Do you have a recipe to reproduce them?
-> > 
-> 
-> Still happens here.  Booting SLES9.1 with the attached config.
 
-[...]
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Here's a patch. The problem was that the kernel exit would allocate
-memory to send exit signals after the local mempolicy was already freed, 
-but not zeroed.  When the allocator tried to grab more memory it would
-fall over.
+At 01:25 on Tue 06/07/04, afeldhacker@thomasrepro.com masquerading as 'Andr=
+ew Feldhacker' wrote:
+>=20
+> Thanks so much for your replies; if there's anything else you might=20
+> need, please let me know.
+>=20
+> --Andrew Feldhacker
 
--Andi
+I've been getting the same problem on a somewhat different setup (see
+below for details).
 
--------------------------------------------------------------
+However I've narrowed things down the situation where if I remove one
+PCI card the machine boots. I replace it and get exactly the same crash
+as yours.
 
-Move the memory policy freeing to later in exit to make sure 
-the last memory allocations don't use an uninitialized policy
+The card in question in the CardBus bridge: Texas Instruments PCI1410 PC
+card Cardbus Controller as listed below.
+
+Of note is that recent 2.4 kernels have failed to set this card up
+properly. Older 2.4's, up to 2.4.22 (or maybe 2.4.23) work fine, but
+later ones misdetect the inserted Cardbus card.
+
+I've only tried 2.6.7 on this machine cos I need to get the Cardbus
+support working again...
+
+So I suggest pulling out PCI cards until either you discover a culprit,
+or have no PCI cards left plugged in.
+
+Anyhow, those details I mentioned:
+
+$ cat /proc/cpuinfo   =20
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 8
+model name      : AMD Athlon(TM) XP 1800+
+stepping        : 1
+cpu MHz         : 1529.402
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 3053.97
 
 
-diff -u linux-2.6.7-mm6/kernel/exit.c-o linux-2.6.7-mm6/kernel/exit.c
---- linux-2.6.7-mm6/kernel/exit.c-o	2004-07-06 05:59:39.000000000 +0200
-+++ linux-2.6.7-mm6/kernel/exit.c	2004-07-06 22:58:39.000000000 +0200
-@@ -828,9 +828,6 @@
- 	__exit_fs(tsk);
- 	exit_namespace(tsk);
- 	exit_thread();
--#ifdef CONFIG_NUMA
--	mpol_free(tsk->mempolicy);
--#endif
- 
- 	if (tsk->signal->leader)
- 		disassociate_ctty(1);
-@@ -841,6 +838,10 @@
- 
- 	tsk->exit_code = code;
- 	exit_notify(tsk);
-+#ifdef CONFIG_NUMA
-+	mpol_free(tsk->mempolicy);
-+	tsk->mempolicy = NULL;
-+#endif
- 	schedule();
- 	BUG();
- 	/* Avoid "noreturn function does return".  */
+
+$ lspci=20
+00:00.0 Host bridge: nVidia Corporation nForce CPU bridge=20
+00:00.1 RAM memory: nVidia Corporation nForce 220/420 Memory Controller
+00:00.2 RAM memory: nVidia Corporation nForce 220/420 Memory Controller
+00:00.3 RAM memory: nVidia Corporation: Unknown device 01aa=20
+00:01.0 ISA bridge: nVidia Corporation nForce ISA Bridge=20
+00:01.1 SMBus: nVidia Corporation nForce PCI System Management=20
+00:02.0 USB Controller: nVidia Corporation nForce USB Controller
+00:03.0 USB Controller: nVidia Corporation nForce USB Controller
+00:04.0 Ethernet controller: nVidia Corporation nForce Ethernet
+Controller=20
+00:05.0 Multimedia audio controller: nVidia Corporation: Unknown device
+01b0=20
+00:06.0 Multimedia audio controller: nVidia Corporation nForce Audio
+00:08.0 PCI bridge: nVidia Corporation nForce PCI-to-PCI bridge=20
+00:09.0 IDE interface: nVidia Corporation nForce IDE=20
+00:1e.0 PCI bridge: nVidia Corporation nForce AGP to PCI Bridge=20
+01:06.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus
+Controller=20
+01:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
+02:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 Pro
+Ultra TF
+
+
+
+Regards,
+Jonathan
+
+__
+                  =20
+ Jonathan Sambrook=20
+Software  Developer=20
+ Designer  Servers
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFA6xSASUOTbbpGXDwRAme6AJ4oT/N5OFHJBOMBn1P4O69gmR6JUwCfUA4v
+KJclNE6XCaRH5Hd6HTKSIAY=
+=/4H9
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

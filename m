@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292235AbSBBHnn>; Sat, 2 Feb 2002 02:43:43 -0500
+	id <S292251AbSBBIBt>; Sat, 2 Feb 2002 03:01:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292247AbSBBHnd>; Sat, 2 Feb 2002 02:43:33 -0500
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:12976 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S292235AbSBBHnV>;
-	Sat, 2 Feb 2002 02:43:21 -0500
-Date: Sat, 2 Feb 2002 02:42:36 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "David S. Miller" <davem@redhat.com>, vandrove@vc.cvut.cz,
-        torvalds@transmeta.com, garzik@havoc.gtf.org,
-        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
-        ralf@gnu.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-Message-ID: <20020202024236.B17031@nevyn.them.org>
-Mail-Followup-To: Chris Wedgwood <cw@f00f.org>,
-	Andrew Morton <akpm@zip.com.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"David S. Miller" <davem@redhat.com>, vandrove@vc.cvut.cz,
-	torvalds@transmeta.com, garzik@havoc.gtf.org,
-	linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
-	ralf@gnu.org
-In-Reply-To: <20020131.145904.41634460.davem@redhat.com> <E16WQYs-0003Ux-00@the-village.bc.nu> <20020202021242.GA6770@tapu.f00f.org> <3C5B56A4.B762948F@zip.com.au> <20020202073020.GA7014@tapu.f00f.org>
+	id <S292252AbSBBIBk>; Sat, 2 Feb 2002 03:01:40 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61105 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S292251AbSBBIBb>;
+	Sat, 2 Feb 2002 03:01:31 -0500
+Date: Sat, 2 Feb 2002 03:01:29 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+Message-ID: <20020202030129.B20865@havoc.gtf.org>
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <20020201124300.G763@lynx.adilger.int> <3C5AF6B5.5080105@zytor.com> <20020201152829.A2497@havoc.gtf.org> <a3ffls$tsv$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020202073020.GA7014@tapu.f00f.org>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <a3ffls$tsv$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Sat, Feb 02, 2002 at 01:33:48AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 11:30:20PM -0800, Chris Wedgwood wrote:
-> Is there no way to write something like:
+On Sat, Feb 02, 2002 at 01:33:48AM +0000, David Wagner wrote:
+> Hmm.  I don't quite follow your reasoning.  Does the kernel already
+> perform fitness tests on random data from other drivers?  I don't
+> think so.
 > 
-> --snip-- foo.c --snip--
-> void
-> blem()
-> {
-> }
+> The i810 rng seems much less prone to entropy failure than the data
+> currently collected from I/O events.  Why are fitness tests for it more
+> important than for the existing entropy sources that are currently in
+> the kernel?
 > 
-> void
-> bar()
-> {
->     blem();
->     return 0;
-> }
-> 
-> int foo()
-> {
->     return 1;
-> }
-> 
-> int main(...)
-> {
->     return foo();
-> }
-> --snip-- foo.c --snip--
-> 
-> compile and link it, have the linker know main or some part of crt0 is
-> special, build a graph of the final ELF object, see that bar and blem
-> are not connected to 'main' and discard them?
-> 
-> I'm pretty sure (but not 100% certain) that oher compilers can do
-> this, maybe someone can test on other platforms?
-> 
-> A really smart linker (if given enough compiler help) could build a
-> directional graph and still remove this code even if blem called foo.
+> What am I missing?
 
-One piece of the necessary compiler help would be -ffunction-sections. 
-If they are in the same section in the same object file, they simply
-can not be removed safely.  Relocation information for calls to local
-functions is not reliably available at link time.
+The "random" data from the RNG might suddenly become non-random.  If you
+are telling the system you are trusting this source, you better make
+sure it truly is random.
+
+RNGs are different than other entropy sources in the kernel because it's
+a black box.
+
+	Jeff
 
 
--- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+

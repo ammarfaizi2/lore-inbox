@@ -1,70 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUIFNrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUIFNtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268013AbUIFNrt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 09:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUIFNrt
+	id S268014AbUIFNtM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 09:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUIFNtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 09:47:49 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:6314 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268013AbUIFNrp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 09:47:45 -0400
-Date: Mon, 6 Sep 2004 15:45:53 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: Frank van Maarseveen <frankvm@xs4all.nl>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-Message-ID: <20040906134553.GA29886@thundrix.ch>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <413C5DDD.6070005@tequila.co.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+	Mon, 6 Sep 2004 09:49:12 -0400
+Received: from linux.di.uminho.pt ([193.136.19.96]:23509 "HELO
+	homer.lsd.di.uminho.pt") by vger.kernel.org with SMTP
+	id S268014AbUIFNsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 09:48:40 -0400
+From: =?iso-8859-1?q?Jos=E9_Orlando_Pereira?= <jop@lsd.di.uminho.pt>
+Organization: Universidade do Minho
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Synaptics detection not working reliably?
+Date: Mon, 6 Sep 2004 14:49:47 +0100
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <413C5DDD.6070005@tequila.co.jp>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+Message-Id: <200409061449.47377.jop@lsd.di.uminho.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There is something weird with Synaptics detection in 2.6.8.1 in a Fujitsu S7010
+laptop with a touchpad/stick combo. The problem is as follows:
 
-Salut,
+ - The first time the driver is loaded, either compiled in or as a module and
+regardless of options provided, the mouse is detected as a bare PS/2:
 
-On Mon, Sep 06, 2004 at 09:53:49PM +0900, Clemens Schwaighofer wrote:
-> thats why we have automount.
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event0
+B: EV=120003
+B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
+B: LED=7
 
-Plus the HAL automounting code which dynamically generates mountpoints
-for HAL detected devices...
+I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+N: Name="PS/2 Generic Mouse"
+P: Phys=isa0060/serio4/input0
+H: Handlers=mouse0 event1
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=3
 
-			    Tonnerre
+ - If I unload psmouse without actually using the mouse, and reload it again,
+it is detected again as a bare PS/2.
 
+ - If I load psmouse and actually use the mouse, which initially behaves erratically
+but eventually settlles down, and only then reload the module, it is now correctly detected:
 
---VbJkn9YxBvnuCH5J
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event0
+B: EV=120003
+B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
+B: LED=7
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+I: Bus=0011 Vendor=0002 Product=0007 Version=0000
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio4/input0
+H: Handlers=mouse0 event1
+B: EV=b
+B: KEY=6420 0 70003 0 0 0 0 0 0 0 0
+B: ABS=11000003
 
-iD8DBQFBPGoQ/4bL7ovhw40RAumcAJ9YulLJ1u+V7uSba+pxeQxkH2VexQCgiBej
-QXZfvLBIv4ed7YNEOXveBfA=
-=X/k/
------END PGP SIGNATURE-----
+I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+N: Name="PS/2 Generic Mouse"
+P: Phys=synaptics-pt/serio0/input0
+H: Handlers=mouse1 event2
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=3
 
---VbJkn9YxBvnuCH5J--
+The relevant section of /var/log/messages is:
+
+Sep  6 14:29:59 localhost kernel: input: PS/2 Generic Mouse on isa0060/serio4
+Sep  6 14:29:59 localhost udev[3329]: configured rule in '/etc/udev/rules.d//50
+Sep  6 14:29:59 localhost udev[3329]: creating device node '/udev/input/mouse0'
+Sep  6 14:29:59 localhost udev[3330]: configured rule in '/etc/udev/rules.d//50
+Sep  6 14:29:59 localhost udev[3330]: creating device node '/udev/input/event1'
+Sep  6 14:30:44 localhost kernel: psmouse.c: Mouse at isa0060/serio4/input0 los
+Sep  6 14:30:56 localhost udev[3594]: removing device node '/udev/input/mouse0'
+Sep  6 14:30:56 localhost udev[3607]: removing device node '/udev/input/event1'
+Sep  6 14:31:00 localhost kernel: Synaptics Touchpad, model: 1
+Sep  6 14:31:00 localhost kernel:  Firmware: 5.9
+Sep  6 14:31:00 localhost kernel:  Sensor: 15
+Sep  6 14:31:00 localhost kernel:  new absolute packet format
+Sep  6 14:31:00 localhost kernel:  Touchpad has extended capability bits
+Sep  6 14:31:00 localhost kernel:  -> 2 multi-buttons, i.e. besides standard bu
+Sep  6 14:31:00 localhost kernel:  -> multifinger detection
+Sep  6 14:31:00 localhost kernel:  -> palm detection
+Sep  6 14:31:00 localhost kernel:  -> pass-through port
+Sep  6 14:31:01 localhost kernel: input: SynPS/2 Synaptics TouchPad on isa0060/
+Sep  6 14:31:01 localhost kernel: serio: Synaptics pass-through port at isa0060
+Sep  6 14:31:01 localhost kernel: input: PS/2 Generic Mouse on synaptics-pt/ser
+Sep  6 14:31:02 localhost udev[3671]: configured rule in '/etc/udev/rules.d//50
+Sep  6 14:31:02 localhost udev[3671]: creating device node '/udev/input/mouse0'
+Sep  6 14:31:02 localhost udev[3672]: configured rule in '/etc/udev/rules.d//50
+Sep  6 14:31:02 localhost udev[3672]: creating device node '/udev/input/event1'
+Sep  6 14:31:02 localhost udev[3673]: configured rule in '/etc/udev/rules.d//50
+Sep  6 14:31:02 localhost udev[3673]: creating device node '/udev/input/mouse1'
+Sep  6 14:31:02 localhost udev[3674]: configured rule in '/etc/udev/rules.d//50
+Sep  6 14:31:02 localhost udev[3674]: creating device node '/udev/input/event2'
+
+This happens on an installation of Fedora Core 2+current updates. Kernel configuration
+is copied from the original Fedora Core kernel. X.org 6.7 is used and configured with the
+plain "mouse" driver.
+
+Is this a known problem? Is there a known solution or an workaround?
+
+-- 
+Jose Orlando Pereira
+* mailto:jop@di.uminho.pt * http://gsd.di.uminho.pt/~jop *

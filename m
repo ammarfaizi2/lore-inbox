@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285272AbRLNAEo>; Thu, 13 Dec 2001 19:04:44 -0500
+	id <S285268AbRLNAEY>; Thu, 13 Dec 2001 19:04:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285269AbRLNAEf>; Thu, 13 Dec 2001 19:04:35 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:6389 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S285265AbRLNAEU>;
-	Thu, 13 Dec 2001 19:04:20 -0500
-Date: Thu, 13 Dec 2001 17:03:50 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: optimize DNAME_INLINE_LEN
-Message-ID: <20011213170350.G940@lynx.no>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Manfred Spraul <manfred@colorfullife.com>,
+	id <S285266AbRLNAEO>; Thu, 13 Dec 2001 19:04:14 -0500
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:40267 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S285265AbRLNAD5>; Thu, 13 Dec 2001 19:03:57 -0500
+From: brian@worldcontrol.com
+Date: Thu, 13 Dec 2001 16:02:15 -0800
+To: "Jonathan D. Amery" <jdamery@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VT82C686 && APM deadlock bug?
+Message-ID: <20011213160215.A14006@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	"Jonathan D. Amery" <jdamery@chiark.greenend.org.uk>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <3C192A37.4547D2A7@colorfullife.com> <20011213160706.E940@lynx.no> <20011214002957.A24984@wotan.suse.de>
+In-Reply-To: <Pine.LNX.4.21.0112121632440.4294-100000@chiark.greenend.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011214002957.A24984@wotan.suse.de>; from ak@suse.de on Fri, Dec 14, 2001 at 12:29:57AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.21.0112121632440.4294-100000@chiark.greenend.org.uk>
+User-Agent: Mutt/1.3.19i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 14, 2001  00:29 +0100, Andi Kleen wrote:
-> On Thu, Dec 13, 2001 at 04:07:06PM -0700, Andreas Dilger wrote:
-> > Alternately (also ugly) you could just define struct dentry the as now,
-> > but have a fixed size declaration for d_iname, like:
-> > 
-> > #define DNAME_INLINE_MIN 16
-> > 
-> > 	unsigned char d_iname[DNAME_INLINE_MIN];
->                    Using [0] here would also work 
+On Wed, Dec 12, 2001 at 04:37:01PM +0000, Jonathan D. Amery wrote:
+> 
+>  I haven't seen this reported anywhere, so apologies if you've heard this
+> before:).
+> 
+>  in 2.4.9 and 2.4.16 with APM compiled in on my Sony Vaio FX201 laptop
+> (Via VT82C686 chipset) sometimes when the hardware screensaver comes on
+> (as a result of APM) the machine deadlocks and has to be powered off and
+> on again.  (Lots of fscking).
+> 
+>  If you want any more info, please ask :).
 
-Well, not really.  If we wanted to have a minimum size for the d_iname
-field, then if we declare it as zero and it just squeaks into a chacheline,
-then we may be stuck with 0 bytes of inline names, and _all_ names will
-be kmalloced.
+I experience the same problem on my Sony Vaio FXA32.
 
-> #define d_... has a similar problem => the potential to break previously
-> compiling source code.
+It seems to me to be related to the display.
 
-Again, not really.  The #define d_... scheme would leave all of the fields
-in their original locations, just giving them new names within the named
-struct, and the defines would be the backwards compatible (and probably
-still preferrable) way to access these fields.  I don't _think_ it would
-cause any compiler struct alignment issues to just put the same fields
-in another struct, but I could be wrong.
+I can sometimes go into standby mode while in text mode and things 
+seem fine.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Going into standby while in X cause the system to freeze.
 
+I can go into standby and come right back out immediately and things
+come back but there seems to be memory corruption.
+
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

@@ -1,88 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVCGMcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVCGMjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVCGMcF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 07:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVCGMcF
+	id S261492AbVCGMjg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 07:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVCGMjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 07:32:05 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:29674 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261443AbVCGMbw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 07:31:52 -0500
-Subject: PATCH: Fibre attached pcnet/32
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110198605.28860.32.camel@localhost.localdomain>
+	Mon, 7 Mar 2005 07:39:36 -0500
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:45857 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261492AbVCGMjf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 07:39:35 -0500
+X-ME-UUID: 20050307123933948.E78671C001D1@mwinf0809.wanadoo.fr
+Message-ID: <26812261.1110199173928.JavaMail.www@wwinf0803>
+From: jmmercy <jm.mercy@wanadoo.fr>
+Reply-To: jm.mercy@wanadoo.fr
+To: linux-kernel@vger.kernel.org
+Subject: Searching for dvbfb driver's author.
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 07 Mar 2005 12:30:06 +0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [81.251.180.82]
+X-WUM-FROM: |~|
+X-WUM-TO: |~|
+X-WUM-REPLYTO: |~|
+Date: Mon,  7 Mar 2005 13:39:33 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current driver does workarounds for errata that do not work with
-fibre attached devices. This patch avoids doing the workaround on the
-only known fibre attach pcnet/32 hardware. All handling is automated on
-pci sub-ids
+Hello.
 
-Patch by: Guido Guenther
-Signed-off-by: Alan Cox <alan@redhat.com>
+module involved : dvffb (DVB frame buffer based on vfb)
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.11/drivers/net/pcnet32.c linux-2.6.11/drivers/net/pcnet32.c
---- linux.vanilla-2.6.11/drivers/net/pcnet32.c	2005-03-05 15:15:10.000000000 +0000
-+++ linux-2.6.11/drivers/net/pcnet32.c	2005-03-05 16:12:01.000000000 +0000
-@@ -1429,26 +1429,32 @@
- 	val |= 0x10;
-     lp->a.write_csr (ioaddr, 124, val);
- 
--    /* 24 Jun 2004 according AMD, in order to change the PHY,
--     * DANAS (or DISPM for 79C976) must be set; then select the speed,
--     * duplex, and/or enable auto negotiation, and clear DANAS */
--    if (lp->mii && !(lp->options & PCNET32_PORT_ASEL)) {
--	lp->a.write_bcr(ioaddr, 32, lp->a.read_bcr(ioaddr, 32) | 0x0080);
--	/* disable Auto Negotiation, set 10Mpbs, HD */
--	val = lp->a.read_bcr(ioaddr, 32) & ~0xb8;
--	if (lp->options & PCNET32_PORT_FD)
--	    val |= 0x10;
--	if (lp->options & PCNET32_PORT_100)
--	    val |= 0x08;
--	lp->a.write_bcr (ioaddr, 32, val);
-+    /* Skip PHY selection on AT2701FX, looses link otherwise */
-+    if(lp->pci_dev->subsystem_vendor == PCI_VENDOR_ID_AT && 
-+       lp->pci_dev->subsystem_device == PCI_SUBDEVICE_ID_AT_2701FX ) {
-+    	printk(KERN_DEBUG "pcnet32: Skipping PHY selection.\n");
-     } else {
--	if (lp->options & PCNET32_PORT_ASEL) {
--	    lp->a.write_bcr(ioaddr, 32, lp->a.read_bcr(ioaddr, 32) | 0x0080);
--	    /* enable auto negotiate, setup, disable fd */
--	    val = lp->a.read_bcr(ioaddr, 32) & ~0x98;
--	    val |= 0x20;
--	    lp->a.write_bcr(ioaddr, 32, val);
--	}
-+        /* 24 Jun 2004 according AMD, in order to change the PHY,
-+         * DANAS (or DISPM for 79C976) must be set; then select the speed,
-+         * duplex, and/or enable auto negotiation, and clear DANAS */
-+        if (lp->mii && !(lp->options & PCNET32_PORT_ASEL)) {
-+    	lp->a.write_bcr(ioaddr, 32, lp->a.read_bcr(ioaddr, 32) | 0x0080);
-+    	/* disable Auto Negotiation, set 10Mpbs, HD */
-+    	val = lp->a.read_bcr(ioaddr, 32) & ~0xb8;
-+    	if (lp->options & PCNET32_PORT_FD)
-+    	    val |= 0x10;
-+    	if (lp->options & PCNET32_PORT_100)
-+    	    val |= 0x08;
-+    	lp->a.write_bcr (ioaddr, 32, val);
-+        } else {
-+    	    if (lp->options & PCNET32_PORT_ASEL) {
-+    	        lp->a.write_bcr(ioaddr, 32, lp->a.read_bcr(ioaddr, 32) | 0x0080);
-+    	        /* enable auto negotiate, setup, disable fd */
-+    	        val = lp->a.read_bcr(ioaddr, 32) & ~0x98;
-+    	        val |= 0x20;
-+    	        lp->a.write_bcr(ioaddr, 32, val);
-+    	    }
-+        }
-     }
- 
- #ifdef DO_DXSUFLO
+I am searching for the author of a module that was included in the early
+2.6.x kernel (it has disappeared between 2.6.8 and 2.6.11). It seeems to
+be 3 german guys named Alexnader Arlt, Erik Hoppe and  Joerg Schiller.
+I try googling and found few references to these people. I was surprised and
+interested but do not know the deptsh involved in writing this modules, hence
+my search for the authors. Does anyone know them, or why it was included
+in (and then removed from) the kernel ?
+I am not subscriber on the list as most of traffic will fly way over my head 8-)
+Please answer directly or on the list if reply gets bounced.
+
+Thanks and best regards.
 

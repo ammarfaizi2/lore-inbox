@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279407AbRKFM5q>; Tue, 6 Nov 2001 07:57:46 -0500
+	id <S279202AbRKFM44>; Tue, 6 Nov 2001 07:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279305AbRKFM5m>; Tue, 6 Nov 2001 07:57:42 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:48145 "EHLO
+	id <S279156AbRKFM4j>; Tue, 6 Nov 2001 07:56:39 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:45073 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S279156AbRKFM5C>; Tue, 6 Nov 2001 07:57:02 -0500
-Message-ID: <3BE7EA87.7A1A23CA@evision-ventures.com>
-Date: Tue, 06 Nov 2001 14:49:59 +0100
+	id <S277782AbRKFM4T>; Tue, 6 Nov 2001 07:56:19 -0500
+Message-ID: <3BE7EA08.1E0A604B@evision-ventures.com>
+Date: Tue, 06 Nov 2001 14:47:52 +0100
 From: Martin Dalecki <dalecki@evision-ventures.com>
 Reply-To: dalecki@evision.ag
 X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
 X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Tim Jansen <tim@tjansen.de>, andersen@codepoet.org,
-        Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: dalecki@evision.ag, Alexander Viro <viro@math.psu.edu>,
+        "Jakob =?iso-8859-1?Q?=D8stergaard?=" <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
 Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <Pine.GSO.4.21.0111051836490.27086-100000@weyl.math.psu.edu>
+In-Reply-To: <200111052300.fA5N0RO341591@saturn.cs.uml.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+"Albert D. Cahalan" wrote:
 > 
-> On Tue, 6 Nov 2001, Tim Jansen wrote:
+> You wrote:
+> > Alexander Viro wrote:
+> >> On Mon, 5 Nov 2001, Martin Dalecki wrote:
+> >>> "Albert D. Cahalan" wrote:
+> >>>
+> >>> Every BASTARD out there telling the world, that parsing ASCII formatted
+> >>> files
+> >>
+> >> What was your username, again?
+> >
+> > root, with uid != 0 and on a masquaraded host, who cares?
 > 
-> > But how can the user know this without looking into the kernel? Compare it to
-> > /proc/mounts. Proc mounts escapes spaces and other special characters in
-> > strings with an octal encoding (so spaces are replaced by '\040').
-> 
-> Ah, yes - the horrible /proc/mounts.  Check that code in 2.4.13-ac8, will
-> you?
-> 
-> Yes, current procfs sucks.  We got a decent infrastructure that allows
-> to write that code easily.  Again, see -ac8 and watch fs/namespace.c
-> code dealing with /proc/mounts.
-> 
-> No need to play silly buggers with "one value per file" (and invite the
-> Elder Ones with applications trying to use getdents()).  Sigh...
+> I think the point is that it looks like to attributed your own
+> words to me. Your post didn't quote anything from me, but it
+> started off as follows:
 
-Getdents() can be removed since 2.0 times. I never noticed *any*
-application
-actually using it.
+Oh excuse me I didn't intend to put the pun on you personally 
+or disguise myself as somebody else. In fact I was kind of
+ supporting your point of view.

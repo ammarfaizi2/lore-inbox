@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSGMNi6>; Sat, 13 Jul 2002 09:38:58 -0400
+	id <S313305AbSGMNiu>; Sat, 13 Jul 2002 09:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313421AbSGMNi5>; Sat, 13 Jul 2002 09:38:57 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:15115 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S313416AbSGMNiz>; Sat, 13 Jul 2002 09:38:55 -0400
-Date: Sat, 13 Jul 2002 10:41:22 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: c0330 <c0330@yingwa.edu.hk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Future of Kernel tree 2.0 ............
-In-Reply-To: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk>
-Message-ID: <Pine.LNX.4.44L.0207131039300.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S313419AbSGMNit>; Sat, 13 Jul 2002 09:38:49 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:14731 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S313305AbSGMNis> convert rfc822-to-8bit;
+	Sat, 13 Jul 2002 09:38:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Muli Ben-Yehuda <mulix@actcom.co.il>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: PATCH: compile the kernel with -Werror
+Date: Sat, 13 Jul 2002 15:41:37 +0200
+User-Agent: KMail/1.4.1
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <20020713102615.H739@alhambra.actcom.co.il>
+In-Reply-To: <20020713102615.H739@alhambra.actcom.co.il>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207131541.37310.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Jul 2002, c0330 wrote:
+On Saturday 13 July 2002 09:26, Muli Ben-Yehuda wrote:
+> A full kernel compilation, especially when using the -j switch to
+> make, can cause warnings to "fly off the screen" without the user
+> noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
+> had a missing return statement in a function returning non void, which
+> the compiler probably complained about but the warning got lost in the
+> noise (a little birdie told me wli used -j64).
 
->   In nowsdays, there are less less compputers using 2.0. We should push
-> them to upgrade, so I think stop developing 2.0 is better, in my opinion
+Why not add a menu item under kernel hacking?
 
-I've never seen you develop 2.0.  How can you stop if you didn't start ?
+roy
 
-I think the people who use and maintain 2.0 should decide for themselves
-whether maintaining 2.0 is worth it for them. The 2.0 maintenance isn't
-taking away any energy from 2.4 and 2.5 development, so there is no reason
-to ask people to stop doing what is useful for them.
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
+Roy Sigurd Karlsbakk, Datavaktmester
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Computers are like air conditioners.
+They stop working when you open Windows.
 

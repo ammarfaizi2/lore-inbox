@@ -1,68 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131200AbRAFRet>; Sat, 6 Jan 2001 12:34:49 -0500
+	id <S130794AbRAFRfT>; Sat, 6 Jan 2001 12:35:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131047AbRAFRei>; Sat, 6 Jan 2001 12:34:38 -0500
-Received: from enst.enst.fr ([137.194.2.16]:41654 "HELO enst.enst.fr")
-	by vger.kernel.org with SMTP id <S130794AbRAFReb>;
-	Sat, 6 Jan 2001 12:34:31 -0500
-Date: Sat, 6 Jan 2001 18:34:17 +0100
-From: Nicolas Mailhot <Nicolas.Mailhot@email.enst.fr>
-To: mdharm-usb@one-eyed-alien.net
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        jerdfelt@valinux.com
-Subject: [PATCH] USB Mass Storage and SCSI
-Message-ID: <20010106183417.A25047@rousalka.maisel2.rezel.enst.fr>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AWniW0JNca5xppdA"
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.0.1
+	id <S131047AbRAFRfB>; Sat, 6 Jan 2001 12:35:01 -0500
+Received: from nnj-dialup-60-193.nni.com ([216.107.60.193]:4288 "EHLO
+	nnj-dialup-60-193.nni.com") by vger.kernel.org with ESMTP
+	id <S130794AbRAFRet>; Sat, 6 Jan 2001 12:34:49 -0500
+Date: Sat, 6 Jan 2001 12:33:35 -0500 (EST)
+From: TenThumbs <tenthumbs@cybernex.net>
+Reply-To: TenThumbs <tenthumbs@cybernex.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.19pre6 change in /proc behavior
+Message-ID: <Pine.LNX.4.21.0101061230450.239-100000@perfect.master>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Let's say a normal user has started a process with pid =
+12345. /proc/12345 owner and group is the same as the user but
+/proc/12345/* are all owned by root so the normal user can't read most
+of the entries there. In 2.2.18 everything is owned by the user.
 
---AWniW0JNca5xppdA
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Is this supposed to be happening?
 
-Hi,
-
- Here is a patchlet to stop people searching for the
-mysteriously hidden USB Mass Storage driver (in case they
-didn't make the connection with SCSI at once like me).
-
- Seems to work, and anyway I don't see how I could have
-messed up this one:)
+Thanks.
 
 -- 
-Nicolas Mailhot
---AWniW0JNca5xppdA
-Content-Type: application/octet-stream; charset=us-ascii
-Content-Disposition: attachment; filename="USBMassStorageConfig.patch"
-
---- linux-2.4.0/drivers/usb/Config.in	Tue Nov 28 03:10:35 2000
-+++ linux-2.4.0-nim1/drivers/usb/Config.in	Sat Jan  6 18:04:26 2001
-@@ -28,10 +28,14 @@
-    comment 'USB Device Class drivers'
-    dep_tristate '  USB Audio support' CONFIG_USB_AUDIO $CONFIG_USB $CONFIG_SOUND
-    dep_tristate '  USB Bluetooth support (EXPERIMENTAL)' CONFIG_USB_BLUETOOTH $CONFIG_USB $CONFIG_EXPERIMENTAL
--   dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
--   if [ "$CONFIG_USB_STORAGE" != "n" ]; then
--      bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
--      bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM
-+   if [ "$CONFIG_SCSI" = "n" ]; then
-+      comment '  SCSI support is needed for USB Mass Storage'
-+   else
-+      dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
-+      if [ "$CONFIG_USB_STORAGE" != "n" ]; then
-+         bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
-+         bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM
-+      fi
-    fi
-    dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_USB
-    dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
-
---AWniW0JNca5xppdA--
+Sun
+    2001-01-06 17:30:47.031 UTC (JD 2451916.229711)
+    X  =  -0.004587559, Y  =  -0.004598857, Z  =  -0.001825999
+    X' =   0.000008151, Y' =  -0.000003497, Z' =  -0.000001714
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

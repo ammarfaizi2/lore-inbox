@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263123AbTCSRmR>; Wed, 19 Mar 2003 12:42:17 -0500
+	id <S263103AbTCSRrl>; Wed, 19 Mar 2003 12:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263125AbTCSRmR>; Wed, 19 Mar 2003 12:42:17 -0500
-Received: from paperi.ton.tut.fi ([193.166.234.15]:56772 "EHLO
-	paperi.ton.tut.fi") by vger.kernel.org with ESMTP
-	id <S263123AbTCSRmQ>; Wed, 19 Mar 2003 12:42:16 -0500
-Date: Wed, 19 Mar 2003 19:53:12 +0200
-From: Juha Poutiainen <pode@iki.fi>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: L2 cache detection in Celeron 2GHz (P4 based)
-Message-ID: <20030319175312.GA4441@a28a>
-References: <20030319064743.GA1683@a28a> <20030319135301.GB28770@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
+	id <S263104AbTCSRrl>; Wed, 19 Mar 2003 12:47:41 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:43917 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S263103AbTCSRrk> convert rfc822-to-8bit; Wed, 19 Mar 2003 12:47:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: John Jasen <jjasen@realityfailure.org>,
+       "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: Everything gone!
+Date: Wed, 19 Mar 2003 11:55:06 -0600
+User-Agent: KMail/1.4.1
+Cc: "Richard B. Johnson" <johnson@quark.analogic.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0303191232130.30655-100000@bushido>
+In-Reply-To: <Pine.LNX.4.44.0303191232130.30655-100000@bushido>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030319135301.GB28770@suse.de>; from davej@codemonkey.org.uk on Wed, Mar 19, 2003 at 15:53:09 +0200
-X-Mailer: Balsa 2.0.9
+Message-Id: <200303191155.06980.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 19 March 2003 11:33 am, John Jasen wrote:
+> On Wed, 19 Mar 2003, Richard B. Johnson wrote:
+> > Really? How did you do this?
+> > Clone my machine-name and domain, I mean? Without -bs in the
+> > header? I need to know. This could be exploited and needs
+> > to be fixed.
+>
+> Perhaps:
+>
+> telnet target.system 25
+> enter SMTP commands
+> quit
 
-> I'll do a 2.4 patch later if you haven't already done so.
-> 
-Please do, I'm not familiar with doing patches.
+Normaly that would record the IP of the host doing the telnet.
+(the first "Recieved: from" line in the log list where the original says
+"Received: from localhost"....)
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-> Intel document 24161822.pdf confirms it.
-> 
-Nice, I was hoping to find some more offician confirmation.
-
---
-pode
+Any opinions expressed are solely my own.

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266270AbSKGBwM>; Wed, 6 Nov 2002 20:52:12 -0500
+	id <S266280AbSKGB4n>; Wed, 6 Nov 2002 20:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266274AbSKGBwM>; Wed, 6 Nov 2002 20:52:12 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:37764 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S266270AbSKGBwL>;
-	Wed, 6 Nov 2002 20:52:11 -0500
-Date: Wed, 6 Nov 2002 21:02:00 +0000
+	id <S266282AbSKGB4n>; Wed, 6 Nov 2002 20:56:43 -0500
+Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:39044 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S266280AbSKGB4k>;
+	Wed, 6 Nov 2002 20:56:40 -0500
+Date: Wed, 6 Nov 2002 21:06:39 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: greg@kroah.com, linux-kernel@vger.kernel.org
-Cc: perex@suse.cz
-Subject: [PATCH] PnP MODULE_DEVICE_TABLE Update - 2.5.46 (3/6)
-Message-ID: <20021106210159.GN316@neo.rr.com>
+Subject: [PATCH] pnp.h changes - 2.5.46 (4/6)
+Message-ID: <20021106210639.GO316@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
-	linux-kernel@vger.kernel.org, perex@suse.cz
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,89 +20,148 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch from Jaroslav Kysela.  It was sent in previously but doesn't 
-appear to be included.  Here it is again only now against 2.5.46.
+This patch cleans up pnp.h.  It adds new resource macros.  Also it uses 
+driver_data from the driver model instead of a local one.  Please everyone use 
+the new macros instead of directly reading the structure.
+
+Thanks,
+Adam
 
 
 
-diff -ur --new-file a/drivers/net/e100/e100_main.c b/drivers/net/e100/e100_main.c
---- a/drivers/net/e100/e100_main.c	Wed Oct 30 17:45:58 2002
-+++ b/drivers/net/e100/e100_main.c	Wed Oct 30 17:45:24 2002
-@@ -87,8 +87,8 @@
- extern int e100_create_proc_subdir(struct e100_private *, char *);
- extern void e100_remove_proc_subdir(struct e100_private *, char *);
- #else
--#define e100_create_proc_subdir(X) 0
--#define e100_remove_proc_subdir(X) do {} while(0)
-+#define e100_create_proc_subdir(X, Y) 0
-+#define e100_remove_proc_subdir(X, Y) do {} while(0)
- #endif
- 
- static int e100_do_ethtool_ioctl(struct net_device *, struct ifreq *);
-diff -ur --new-file a/include/linux/module.h b/include/linux/module.h
---- a/include/linux/module.h	Wed Oct 30 17:45:58 2002
-+++ b/include/linux/module.h	Wed Oct 30 17:45:24 2002
-@@ -239,6 +239,8 @@
-  * The following is a list of known device types (arg 1),
-  * and the C types which are to be passed as arg 2.
-  * pci - struct pci_device_id - List of PCI ids supported by this module
-+ * pnpc - struct pnpc_device_id - List of PnP card ids (PNPBIOS, ISA PnP) supported by this module
-+ * pnp - struct pnp_device_id - List of PnP ids (PNPBIOS, ISA PnP) supported by this module
-  * isapnp - struct isapnp_device_id - List of ISA PnP ids supported by this module
-  * usb - struct usb_device_id - List of USB ids supported by this module
-  */
-diff -ur --new-file a/include/linux/pnp.h b/include/linux/pnp.h
---- a/include/linux/pnp.h	Wed Oct 30 17:45:58 2002
-+++ b/include/linux/pnp.h	Wed Oct 30 17:45:24 2002
-@@ -79,6 +79,9 @@
- 
- /* Driver Management */
- 
-+#define pnpc_device_id pnp_id		/* for module.h */
-+#define pnp_device_id pnp_id		/* for module.h */
+--- a/include/linux/pnp.h	Wed Oct 30 22:43:17 2002
++++ b/include/linux/pnp.h	Sun Nov  3 10:39:16 2002
+@@ -1,3 +1,9 @@
++/*
++ * Linux Plug and Play Support
++ * Copyright by Adam Belay <ambx1@neo.rr.com>
++ *
++ */
 +
- struct pnp_id {
+ #ifndef _LINUX_PNP_H
+ #define _LINUX_PNP_H
+ 
+@@ -7,7 +13,9 @@
+ #include <linux/list.h>
+ 
+ 
+-/* Device Managemnt */
++/*
++ * Device Managemnt 
++ */
+ 
+ #define DEVICE_COUNT_IRQ	2
+ #define DEVICE_COUNT_DMA	2
+@@ -51,7 +59,6 @@
+ 
+ 	struct pnp_driver * driver;	/* which driver has allocated this device */
+ 	struct	device	    dev;	/* Driver Model device interface */
+-	void  		  * driver_data;/* data private to the driver */
+ 	void		  * protocol_data;
+ 	int		    flags;	/* used by protocols */
+ 	struct proc_dir_entry *procent;	/* device entry in /proc/bus/isapnp */
+@@ -66,18 +73,35 @@
+ 	dev != global_to_pnp_dev(&pnp_global); \
+ 	dev = global_to_pnp_dev(dev->global_list.next))
+ 
++static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
++{
++	return pdev->dev.driver_data;
++}
++
++static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
++{
++	pdev->dev.driver_data = data;
++}
++
++static inline void *pnp_get_protodata (struct pnp_dev *pdev)
++{
++	return pdev->protocol_data;
++}
++
++static inline void pnp_set_protodata (struct pnp_dev *pdev, void *data)
++{
++	pdev->protocol_data = data;
++}
++
+ struct pnp_fixup {
  	char id[7];
- 	unsigned long driver_data;	/* data private to the driver */
-diff -ur --new-file a/include/linux/sunrpc/stats.h b/include/linux/sunrpc/stats.h
---- a/include/linux/sunrpc/stats.h	Wed Oct 30 17:45:58 2002
-+++ b/include/linux/sunrpc/stats.h	Wed Oct 30 17:45:24 2002
-@@ -61,16 +61,18 @@
- 
- #else
- 
-+static inline struct proc_dir_entry *rpc_proc_register(struct rpc_stat *s) { return NULL; }
-+static inline void rpc_proc_unregister(const char *p) {}
-+static inline int rpc_proc_read(char *a, char **b, off_t c, int d, int *e, void *f) { return 0; }
-+static inline void rpc_proc_zero(struct rpc_program *p) {}
-+
-+static inline struct proc_dir_entry *svc_proc_register(struct svc_stat *s) { return NULL; }
- static inline void svc_proc_unregister(const char *p) {}
--static inline struct proc_dir_entry*svc_proc_register(struct svc_stat *s)
--{
--	return NULL;
--}
-+static inline int svc_proc_read(char *a, char **b, off_t c, int d, int *e, void *f) { return 0; }
-+static inline void svc_proc_zero(struct svc_program *p) {}
-+
-+#define proc_net_rpc NULL
- 
--static inline int svc_proc_read(char *a, char **b, off_t c, int d, int *e, void *f)
--{
--	return 0;
--}
- #endif
- 
- #endif /* _LINUX_SUNRPC_STATS_H */
-diff -ur --new-file a/sound/oss/opl3sa2.c b/sound/oss/opl3sa2.c
---- a/sound/oss/opl3sa2.c	Wed Oct 30 17:45:58 2002
-+++ b/sound/oss/opl3sa2.c	Wed Oct 30 17:45:24 2002
-@@ -841,7 +841,7 @@
- 	{.id = ""}
+ 	void (*quirk_function)(struct pnp_dev *dev);	/* fixup function */
  };
  
--/*MODULE_DEVICE_TABLE(isapnp, isapnp_opl3sa2_list);*/
-+MODULE_DEVICE_TABLE(pnp, pnp_opl3sa2_list);
+-/*
+- * Linux Plug and Play Support
+- * Copyright by Adam Belay <ambx1@neo.rr.com>
+- *
+- */
  
- static int opl3sa2_pnp_probe(struct pnp_dev *dev, const struct pnp_id *card_id,
- 			     const struct pnp_id *dev_id)
+-/* Driver Management */
++/* 
++ * Driver Management
++ */
+ 
+ #define pnpc_device_id pnp_id		/* for module.h */
+ #define pnp_device_id pnp_id		/* for module.h */
+@@ -104,12 +128,38 @@
+ #define	to_pnp_driver(drv) container_of(drv,struct pnp_driver, driver)
+ 
+ 
+-/* Resource Management */
++/*
++ * Resource Management
++ */
++
++/* Use these instead of directly reading pnp_dev to get resource information */
++#define pnp_port_start(dev,bar)   ((dev)->resource[(bar)].start)
++#define pnp_port_end(dev,bar)     ((dev)->resource[(bar)].end)
++#define pnp_port_flags(dev,bar)   ((dev)->resource[(bar)].flags)
++#define pnp_port_len(dev,bar) \
++	((pnp_port_start((dev),(bar)) == 0 &&	\
++	  pnp_port_end((dev),(bar)) ==		\
++	  pnp_port_start((dev),(bar))) ? 0 :	\
++	  					\
++	 (pnp_port_end((dev),(bar)) -		\
++	  pnp_port_start((dev),(bar)) + 1))
++
++#define pnp_mem_start(dev,bar)   ((dev)->resource[(bar+8)].start)
++#define pnp_mem_end(dev,bar)     ((dev)->resource[(bar+8)].end)
++#define pnp_mem_flags(dev,bar)   ((dev)->resource[(bar+8)].flags)
++#define pnp_mem_len(dev,bar) \
++	((pnp_mem_start((dev),(bar)) == 0 &&	\
++	  pnp_mem_end((dev),(bar)) ==		\
++	  pnp_mem_start((dev),(bar))) ? 0 :	\
++	  					\
++	 (pnp_mem_end((dev),(bar)) -		\
++	  pnp_mem_start((dev),(bar)) + 1))
++
++#define pnp_irq(dev,bar)	 ((dev)->irq_resource[(bar)].start)
++#define pnp_irq_flags(dev,bar)	 ((dev)->irq_resource[(bar)].flags)
+ 
+-#define DEV_IO(dev, index) (dev->resource[index].start)
+-#define DEV_MEM(dev, index) (dev->resource[index+8].start)
+-#define DEV_IRQ(dev, index) (dev->irq_resource[index].start)
+-#define DEV_DMA(dev, index) (dev->dma_resource[index].start)
++#define pnp_dma(dev,bar)	 ((dev)->dma_resource[(bar)].start)
++#define pnp_dma_flags(dev,bar)	 ((dev)->dma_resource[(bar)].flags)
+ 
+ #define PNP_PORT_FLAG_16BITADDR	(1<<0)
+ #define PNP_PORT_FLAG_FIXED	(1<<1)
+@@ -186,7 +236,9 @@
+ };
+ 
+ 
+-/* Protocol Management */
++/* 
++ * Protocol Management
++ */
+ 
+ struct pnp_protocol {
+ 	struct list_head	protocol_list;
+@@ -262,6 +314,7 @@
+ #endif /* CONFIG_PNP */
+ 
+ #if defined(CONFIG_ISAPNP)
++
+ /* compat */
+ struct pnp_card *pnp_find_card(unsigned short vendor,
+ 				 unsigned short device,

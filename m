@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318314AbSGYDbG>; Wed, 24 Jul 2002 23:31:06 -0400
+	id <S318336AbSGYDgQ>; Wed, 24 Jul 2002 23:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318316AbSGYDbG>; Wed, 24 Jul 2002 23:31:06 -0400
-Received: from smtprelay8.dc2.adelphia.net ([64.8.50.40]:44475 "EHLO
-	smtprelay8.dc2.adelphia.net") by vger.kernel.org with ESMTP
-	id <S318314AbSGYDbG>; Wed, 24 Jul 2002 23:31:06 -0400
-Message-ID: <00a501c2338c$25365170$6a01a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
-Subject: Linux-2.5.28 link problem
-Date: Wed, 24 Jul 2002 23:34:11 -0400
-MIME-Version: 1.0
+	id <S318338AbSGYDgQ>; Wed, 24 Jul 2002 23:36:16 -0400
+Received: from [210.19.28.11] ([210.19.28.11]:61313 "EHLO
+	dZuRa.int.Vault-ID.com") by vger.kernel.org with ESMTP
+	id <S318336AbSGYDgP> convert rfc822-to-8bit; Wed, 24 Jul 2002 23:36:15 -0400
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+  charset="us-ascii"
+From: Corporal Pisang <corporal_pisang@counter-strike.com.my>
+Organization: Counter-Strike.com.my
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.28 compile error: drivers/built-in.o: In function `analog_calibrate_timer':
+Date: Thu, 25 Jul 2002 11:45:49 +0800
+User-Agent: KMail/1.4.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207251145.49350.corporal_pisang@counter-strike.com.my>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-...need help getting a compile to complete.  This problem exists with
-2.5.27-28.
-Here's the last lines from make...
+Hi,
 
-  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o
-arch/i386/kernel/init
-_task.o init/init.o --start-group arch/i386/kernel/kernel.o
-arch/i386/mm/mm.o kernel/kernel.o mm
-/mm.o fs/fs.o ipc/ipc.o security/built-in.o
-/usr/src/v2.5.28/arch/i386/lib/lib.a lib/lib.a /usr/
-src/v2.5.28/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o
-arch/i386/pci/pci.o net/network
-.o --end-group -o vmlinux
-drivers/built-in.o: In function `md_run_setup':
-/usr/src/v2.5.28/drivers/md/md.c(.data+0xee34): undefined reference to
-`local symbols in discard
-ed section .text.exit'
+
+make[1]: Leaving directory `/usr/src/linux/init'
+  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o 
+arch/i386/kernel/init_task.o init/init.o --start-group 
+arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o 
+ipc/ipc.o security/built-in.o /usr/src/linux/arch/i386/lib/lib.a lib/lib.a 
+/usr/src/linux/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o 
+arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
+drivers/built-in.o: In function `analog_calibrate_timer':
+/usr/src/linux/drivers/input/joystick/analog.c:371: undefined reference to 
+`save_flags'
+/usr/src/linux/drivers/input/joystick/analog.c:372: undefined reference to 
+`cli'
+/usr/src/linux/drivers/input/joystick/analog.c:380: undefined reference to 
+`restore_flags'
+/usr/src/linux/drivers/input/joystick/analog.c:387: undefined reference to 
+`save_flags'
+/usr/src/linux/drivers/input/joystick/analog.c:388: undefined reference to 
+`cli'
+/usr/src/linux/drivers/input/joystick/analog.c:392: undefined reference to 
+`restore_flags'
+drivers/built-in.o: In function `gameport_measure_speed':
+/usr/src/linux/drivers/input/gameport/gameport.c:97: undefined reference to 
+`save_flags'
+/usr/src/linux/drivers/input/gameport/gameport.c:98: undefined reference to 
+`cli'
+/usr/src/linux/drivers/input/gameport/gameport.c:103: undefined reference to 
+`restore_flags'
 make: *** [vmlinux] Error 1
 
-All the programs are better than specified in "Changes"...
-    Gcc = 2.96-110 (RH7.3)
-    binutils: ld = 2.11
 
-thanks in advance, jeff
+Regards,
 
+-- 
+-----------------------
+-Ubaida-
+
+ 

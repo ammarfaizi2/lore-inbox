@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310156AbSCAXHF>; Fri, 1 Mar 2002 18:07:05 -0500
+	id <S310160AbSCAXIj>; Fri, 1 Mar 2002 18:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310157AbSCAXGu>; Fri, 1 Mar 2002 18:06:50 -0500
-Received: from schmee.sfgoth.com ([63.205.85.133]:16135 "EHLO
-	schmee.sfgoth.com") by vger.kernel.org with ESMTP
-	id <S310156AbSCAXGm>; Fri, 1 Mar 2002 18:06:42 -0500
-Date: Fri, 1 Mar 2002 15:06:09 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Cc: Robert Love <rml@tech9.net>, fisaksen@bewan.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] spinlock not locked when unlocking in atm_dev_register
-Message-ID: <20020301150609.A89500@sfgoth.com>
-In-Reply-To: <20020301163936.7FA725F963@postfix2-2.free.fr> <20020301163936.7FA725F963@postfix2-2.free.fr> <1015020950.11295.25.camel@phantasy> <5.1.0.14.2.20020301143010.0d552be8@mail1.qualcomm.com>
+	id <S310157AbSCAXId>; Fri, 1 Mar 2002 18:08:33 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:42393 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S310216AbSCAXH6>; Fri, 1 Mar 2002 18:07:58 -0500
+Date: Fri, 1 Mar 2002 16:22:02 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: queue_nr_requests needs to be selective
+Message-ID: <20020301162202.B12413@vger.timpanogas.org>
+In-Reply-To: <3C7FE7DD.98121E87@zip.com.au> <E16guBW-00051l-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <5.1.0.14.2.20020301143010.0d552be8@mail1.qualcomm.com>; from maxk@qualcomm.com on Fri, Mar 01, 2002 at 02:32:24PM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16guBW-00051l-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 01, 2002 at 09:03:22PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maksim Krasnyanskiy wrote:
-> btw ATM locking seems to be messed up. Is anybody working on that ?
+On Fri, Mar 01, 2002 at 09:03:22PM +0000, Alan Cox wrote:
+> > I don't immediately see why increasing the queue length should
+> > increase bandwidth in this manner.  One possibility is that
+> 
+> Latency on the controllers ?  With caches on the controller and disks you
+> can have a lot of requests actually in flight
 
-Yes, pretty badly.  What we (the atm folks) really need to do for 2.5 is
-rewrite a lot of code.  The current driver model predates SMP in the kernel
-and it's pretty much impossible to make a driver 100% SMP correct (although,
-in practice, you can get pretty close and keep the races pretty tiny)
-Really a lot of the driver model needs to be rethought.
 
-As for maintainership I readily admit I haven't spent nearly as much time
-as I would have liked on the ATM stuff in the last year or so.  Too much
-other work to do, etc.  I'm really hoping to get some free time to play
-with stuff in the next couple months...  There are others actively working
-on stuff.  Particularly Paul Schroeder at IBM did a lot of good work on
-the (long-suffering) userland tools.
+Since 3ware uses a switched architecture, there are a lot of requests
+in flight.  Can we get the default value increased or alternately, allow 
+RAID drivers to submit a local queue_nr_request value per adapter 
+so for those cards with 8 drives that make themselves look like
+a single drive to Linux, sufficient buffers are available to prevent
+threads feeding the device from going to sleep all the time?
 
-Anyway I have been thinking that we should start kicking around ideas for
-the next-generation ATM code.  I'd recommend interested parties subscribe
-to the linux-atm-general mailing list:
-  http://lists.sourceforge.net/lists/listinfo/linux-atm-general
+:-)
 
--Mitch
+Jeff
+

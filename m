@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVAGCHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVAGA2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVAGCHA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 21:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVAGCDc
+	id S261243AbVAGA2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVAGAZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 21:03:32 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56509 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261182AbVAGCC6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 21:02:58 -0500
-Date: Thu, 6 Jan 2005 18:02:27 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, gregkh@us.ibm.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050107020227.GV1292@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 6 Jan 2005 19:25:34 -0500
+Received: from web52602.mail.yahoo.com ([206.190.39.140]:51565 "HELO
+	web52602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261229AbVAGAXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 19:23:34 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=qwIbanR6P0sbDvgDpWfYsmtTxbnyGsL4ct5nVgyyAKYDGRxKmVYzOx2i8sVknbzNdgqOym5JnPPavXYG2IacKl+PtuwuBqH/9xq6z8CJoj/Di5WRPMxuOKg/C+I+POa/fmRBI35FUk9mcSASU4pPed/KEQiVDDVFSYlLNq2pQfo=  ;
+Message-ID: <20050107002333.21133.qmail@web52602.mail.yahoo.com>
+Date: Thu, 6 Jan 2005 16:23:33 -0800 (PST)
+From: jesse <jessezx@yahoo.com>
+Subject: how to find all threads of a given process?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106152621.395f935e.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 03:26:21PM -0800, Andrew Morton wrote:
-> 
-> Guys, the technical arguments are all of course correct.  But the fact
-> remains that we broke things without any notice.  (Yes, perhaps someone did
-> say something at sometime, but the affected party didn't know, and it's our
-> job to make sure that they knew).  (These exports were removed in October -
-> the IBM guys need to work out why it took so long to detect the breakage).
+suppose I already know the PID of a process, how could
+i quickly identify all threads of this process? 
 
-Indeed!
+As i know, under /proc, threads of all processes have
+prefix ".", one way is to iterate each one and do the
+check. the approach is too expensive. any other
+suggestions?
 
-We are getting lists of symbols used by the various products, as well
-as working to get them tested more frequently against kernel.org trees
-instead of only against distro releases.  IBM being what it is, -finding-
-all such products is a challenge, but so it goes.
+for instance, 
 
-							Thanx, Paul
+

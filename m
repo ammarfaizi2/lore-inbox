@@ -1,111 +1,305 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUJISxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267303AbUJIS7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267298AbUJISxv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 14:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUJISxv
+	id S267303AbUJIS7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 14:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUJIS7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 14:53:51 -0400
-Received: from findaloan.ca ([66.11.177.6]:50601 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S267298AbUJISxq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 14:53:46 -0400
-Date: Sat, 9 Oct 2004 14:49:22 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: David Schwartz <davids@webmaster.com>
-Cc: martijn@entmoot.nl, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041009184922.GA8032@mark.mielke.cc>
-Mail-Followup-To: David Schwartz <davids@webmaster.com>,
-	martijn@entmoot.nl, linux-kernel@vger.kernel.org
-References: <000801c4ae35$3520ac90$161b14ac@boromir> <MDEHLPKNGKAHNMBLJOLKEEAPOOAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEAPOOAA.davids@webmaster.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 9 Oct 2004 14:59:25 -0400
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:28618 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S267303AbUJIS7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 14:59:05 -0400
+Message-ID: <313680C9A886D511A06000204840E1CF0A647244@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.8-rc4  boot "Kernel panic: Attempted to kill init!" as
+	 mounting on NFS (older) version 2 (on Red Hat File Server)  
+Date: Sat, 9 Oct 2004 14:59:03 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 11:28:28AM -0700, David Schwartz wrote:
-> > > Where, specifically, does the standard guarantee that a
-> > > subsequent call to
-> > > 'recvmsg' will not block?
-> > When using select() on a socket for reading, select will block until
-> > that socket is ready.
-> > According to POSIX:
-> >   A descriptor shall be considered ready for reading when a call to an
-> >   input function with O_NONBLOCK clear would not block, whether or not
-> >   the function would transfer data successfully.
-> Note that it says *would* not block, not *will* not block. The definition
-> of the word "would" is "an expression of probability or likelihood" (or a
-> "presumption or expectation"). This is *not* a guarantee.
 
-Are you sure you aren't confusing 'would' with 'should'?
+		Hi,
 
-Would and will are the same, except in terms of time.
+		 I am guessing that the kernel panic (see below) is caused
+by NFS version incompatibility.
+      I (think that I) prooved it by being able to "manually" mount by
+specifying NFS version 2 after booting with RAMDISK -
+		see that part of my email (some errors were thrown but the
+mount was completed).
 
-This is ridiculous. Everybody in this discussion *knows* that the
-existing behaviour is broken. As another poster appeared to show, can
-be proven to be usable as a denial of service attack against any
-application that doesn't use O_NONBLOCK for UDP packets under Linux.
+		 Should the kernel be configured to 
+		allow to NFS mount root file system onto the NFS server,
+which runs version 2 ? 
 
-Please - people who don't agree, just ensure that Linux is documented
-to not implement select() on sockets without O_NONBLOCK properly. No
-more silly excuses. 'Would' vs 'will' meaning 'probably'... sheesh...
+      I do not see the kernel option to configure NFS version 2 ...
+      Here is what I have:
+ 
+      CONFIG_NFS_FS=y
+      # CONFIG_NFS_V3 is not set
+      # CONFIG_NFS_V4 is not set
+      # CONFIG_NFS_DIRECTIO is not set
+      # CONFIG_NFSD is not set
+      CONFIG_ROOT_NFS=y
+      CONFIG_LOCKD=y
 
-> >   If a descriptor refers to a socket, the implied input function is the
-> >   recvmsg() function with parameters requesting normal and ancillary data,
-> >   such that the presence of either type shall cause the socket to
-> >   be marked
-> >   as readable. The presence of out-of-band data shall be checked if the
-> >   socket option SO_OOBINLINE has been enabled, as out-of-band data is
-> >   enqueued with normal data. If the socket is currently listening, then it
-> >   shall be marked as readable if an incoming connection request has been
-> >   received, and a call to the accept() function shall complete without
-> >   blocking.
-> > Thus recvmsg() shouldn't in any case block after a select() on a socket.
-> I don't draw that conclusion from that paragraph. It does say the presence
-> of normal data shall mark the socket readable, but it doesn't require the
-> kernel to keep that data available, at least not as far as I can see.
+      Or is it a bug ? 
+> 	 
+		Thanks,
+		Alex 
+> 		 -----Original Message-----
+> 		From: 	Povolotsky, Alexander  
+> 		Sent:	Tuesday, September 28, 2004 4:21 PM
+> 		To:	'linux-kernel@vger.kernel.org'
+> 		Subject:	 Linux 2.6.8-rc4 "Kernel panic: Attempted to
+> kill init!" - after replacing /fadsroot on the Linux NFSserver with the
+> one from Arabella cdrom
+> 
+> 		Hi,
+> 
+> 		I have built (cross-compiled for ppc 82xx) Linux 2.6.8-rc4
+> kernel and am trying to boot it on PQ2FADS-VR. 
+> 
+> 		I am getting: boot time  "Kernel panic: Attempted to kill
+> init!"  on the remote Linux NFS server with 
+		 Red Hat Linux release 9 (Shrike) Kernel 2.4.20-28.9 on an
+i686, which runs "older" NFS version (version 2).
 
-The data was *never* available. select() lied.
 
-> 	As far as I can tell, neither of these two excerpts prohibit an
-> implementation from, for example, discarding UDP data (say, to save memory)
-> after it triggered a read hit on a 'select' call.
+> 		Thanks,
+> 		Best Regards,
+> 		Povolotsky, Alexander
+> 		*****************************  
+> 		=> printenv
+> 		bootdelay=5
+> 		bootcmd=bootm 200000
+> 		ethaddr=08:00:17:00:00:03
+> 		serverip=192.168.0.3
+> 		ipaddr=192.168.0.5
+> 		baudrate=9600
+> 		bootargs=root=/dev/nfs rw nfsroot=192.168.0.4:/fadsroot
+> 		stdin=serial
+> 		stdout=serial
+> 		stderr=serial
+> 
+> 		Environment size: 210/262140 bytes
+> 		=> tftpboot 200000 uimage
+> 		Using FCC2 ETHERNET device
+> 		TFTP from server 192.168.0.3; our IP address is 192.168.0.5
+> 		Filename 'uimage'.
+> 		Load address: 0x200000
+> 		Loading:
+> #################################################################
+> 	
+> #################################################################
+> 		         #######################################
+> 		done
+> 		Bytes transferred = 864364 (d306c hex)
+> 		=> bootm 200000
+> 		## Booting image at 00200000 ...
+> 		   Image Name:   Linux-2.6.8-rc4
+> 		   Image Type:   PowerPC Linux Kernel Image (gzip
+> compressed)
+> 		   Data Size:    864300 Bytes = 844 kB
+> 		   Load Address: 00000000
+> 		   Entry Point:  00000000
+> 		   Verifying Checksum ... OK
+> 		   Uncompressing Kernel Image ... OK
+> 		Linux version 2.6.8-rc4 (apovolot@USPITLAD104868) (gcc
+> version 3.3.2) #5 Mon Aug
+> 		 16 08:49:38 EDT 2004
+> 		PQ2 ADS Port
+> 		Built 1 zonelists
+> 		Kernel command line: root=/dev/nfs rw
+> nfsroot=192.168.0.4:/fadsroot nobats ip=19
+> 		2.168.0.5
+> 		PID hash table entries: 256 (order 8: 2048 bytes)
+> 		Warning: real time clock seems stuck!
+> 		Dentry cache hash table entries: 8192 (order: 3, 32768
+> bytes)
+> 		Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
+> 		Memory: 30432k available (1348k kernel code, 324k data, 272k
+> init, 0k highmem)
+> 		Calibrating delay loop... 131.07 BogoMIPS
+> 		Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+> 		NET: Registered protocol family 16
+> 		PCI: Probing PCI hardware
+> 		Generic RTC Driver v1.07
+> 		Serial: CPM driver $Revision: 0.01 $
+> 		ttyCPM0 at MMIO 0xf0011a00 (irq = 40) is a CPM UART
+> 		RAMDISK driver initialized: 16 RAM disks of 32768K size 1024
+> blocksize
+> 		loop: loaded (max 8 devices)
+> 		eth0: FCC ENET Version 0.3, 08:00:17:40:00:03
+> 		NET: Registered protocol family 2
+> 		IP: routing cache hash table of 512 buckets, 4Kbytes
+> 		TCP: Hash tables configured (established 2048 bind 4096)
+> 		NET: Registered protocol family 1
+> 		NET: Registered protocol family 17
+> 		IP-Config: Guessing netmask 255.255.255.0
+> 		IP-Config: Complete:
+> 		      device=eth0, addr=192.168.0.5, mask=255.255.255.0,
+> gw=255.255.255.255,
+> 		     host=192.168.0.5, domain=, nis-domain=(none),
+> 		     bootserver=255.255.255.255, rootserver=192.168.0.4,
+> rootpath=
+> 		Looking up port of RPC 100003/2 on 192.168.0.4
+> 		Looking up port of RPC 100005/1 on 192.168.0.4
+> 		VFS: Mounted root (nfs filesystem).
+> 		Freeing unused kernel memory: 272k init
+> 		Kernel panic: Attempted to kill init!
+> 		 <0>Rebooting in 180 seconds..
+> 
+			*******
+		To work around my original problem (see above) ,
+		I am booting with ramdisk as root filesystem server and then
+trying to manually mount the /fadsroot exported on the 
+		above described Linux NFS server - I am getting errors ( but
+mounting still works) ...
 
-Your reading let's you have a broken system call interface, and declare that
-it is acceptable. Why? What is the purpose of this position? Who does it
-benefit?
+		Could anyone on this list determine (guess) what is the
+reason for errors (see below) ?
 
-> Yes, the 'recvmsg' call
-> would not have blocked, had it been made at the time the data was available.
+		Thanks,
+		Alex
 
-Wrong. The data was never available. If the select() was replaced by
-recvmsg() it most certainly *would* have blocked. Therefore, select()
-should not have said 'data is ready'.
+		=> printenv
+		bootdelay=5
+		bootcmd=bootm 200000
+		ethaddr=08:00:17:00:00:03
+		serverip=192.168.0.3
+		ipaddr=192.168.0.5
+		baudrate=9600
+		bootargs=root=/dev/nfs rw nfsroot=192.168.0.4:/fadsroot
+		stdin=serial
+		stdout=serial
+		stderr=serial
 
-If this understanding isn't clear, I begin to seriously worry about
-the competency of a few people...
+		Environment size: 210/262140 bytes
+		=> setenv bootargs root=/dev/ram rw
+ip=192.168.0.5:255.255.255.0
+		=> saveenv
+		Saving Environment to Flash...
+		.
+		Un-Protected 1 sectors
+		Erasing Flash...
+		. done
+		Erased 1 sectors
+		Writing to Flash... done
+		.
+		Protected 1 sectors
+		=> tftpboot 200000 uimage
+		Using FCC2 ETHERNET device
+		TFTP from server 192.168.0.3; our IP address is 192.168.0.5
+		Filename 'uimage'.
+		Load address: 0x200000
+		Loading:
+#################################################################
+	
+#################################################################
+		         #######################################
+		done
+		Bytes transferred = 864364 (d306c hex)
+		=> bootm 200000 FF800000
+		## Booting image at 00200000 ...
+		   Image Name:   Linux-2.6.8-rc4
+		   Image Type:   PowerPC Linux Kernel Image (gzip
+compressed)
+		   Data Size:    864300 Bytes = 844 kB
+		   Load Address: 00000000
+		   Entry Point:  00000000
+		   Verifying Checksum ... OK
+		   Uncompressing Kernel Image ... OK
+		## Loading RAMDisk Image at ff800000 ...
+		   Image Name:   Simple Embedded Linux Framework
+		   Image Type:   PowerPC Linux RAMDisk Image (gzip
+compressed)
+		   Data Size:    1400198 Bytes =  1.3 MB
+		   Load Address: 00000000
+		   Entry Point:  00000000
+		   Verifying Checksum ... OK
+		   Loading Ramdisk to 01a37000, end 01b8cd86 ... OK
+		Linux version 2.6.8-rc4 (apovolot@USPITLAD104868) (gcc
+version 3.3.2) #5 Mon Aug
+		 16 08:49:38 EDT 2004
+		PQ2 ADS Port
+		Built 1 zonelists
+		Kernel command line: root=/dev/ram rw
+ip=192.168.0.5:255.255.255.0 nobats ip=192
+		.168.0.5
+		PID hash table entries: 256 (order 8: 2048 bytes)
+		Warning: real time clock seems stuck!
+		Dentry cache hash table entries: 8192 (order: 3, 32768
+bytes)
+		Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
+		Memory: 29064k available (1348k kernel code, 324k data, 272k
+init, 0k highmem)
+		Calibrating delay loop... 131.07 BogoMIPS
+		Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+		checking if image is initramfs...it isn't (no cpio magic);
+looks like an initrd
+		Freeing initrd memory: 1367k freed
+		NET: Registered protocol family 16
+		PCI: Probing PCI hardware
+		Generic RTC Driver v1.07
+		Serial: CPM driver $Revision: 0.01 $
+		ttyCPM0 at MMIO 0xf0011a00 (irq = 40) is a CPM UART
+		RAMDISK driver initialized: 16 RAM disks of 32768K size 1024
+blocksize
+		loop: loaded (max 8 devices)
+		eth0: FCC ENET Version 0.3, 08:00:17:40:00:03
+		NET: Registered protocol family 2
+		IP: routing cache hash table of 512 buckets, 4Kbytes
+		TCP: Hash tables configured (established 2048 bind 4096)
+		NET: Registered protocol family 1
+		NET: Registered protocol family 17
+		IP-Config: Guessing netmask 255.255.255.0
+		IP-Config: Complete:
+		      device=eth0, addr=192.168.0.5, mask=255.255.255.0,
+gw=255.255.255.255,
+		     host=192.168.0.5, domain=, nis-domain=(none),
+		     bootserver=255.255.255.0, rootserver=255.255.255.0,
+rootpath=
+		RAMDISK: Compressed image found at block 0
+		VFS: Mounted root (ext2 filesystem).
+		Freeing unused kernel memory: 272k init
+		serial console detected.  Disabling virtual terminals.
 
-It's ok to say "we chose to leave it broken because we feel O_NONBLOCK
-should be mandatory". Nobody with any sort of authority seems to want
-to say this. They would prefer to talk about "POSIX compliancy" as if
-the issue was theoretical and irrelevant.
 
-It is disconcerting, to say the least.
+		BusyBox v0.60.1 (2002.10.24-02:29+0000) Built-in shell (msh)
+		Enter 'help' for a list of built-in commands.
 
-Cheers,
-mark
+		# ### Application running ...
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+		# mount -o mountvers=2 192.168.0.4:/fadsroot /tmp
+		nfs warning: mount version older than kernel
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+		portmap: server localhost not responding, timed out
+		RPC: failed to contact portmap (errno -5).
 
-                           http://mark.mielke.cc/
-
+		portmap: server localhost not responding, timed out
+		RPC: failed to contact portmap (errno -5).
+		lockd_up: makesock failed, error=-5
+		### Application running ...
+		portmap: server localhost not responding, timed out
+		RPC: failed to contact portmap (errno -5).
+		#
+		#
+		# cd tmp
+		# ls
+		XXX              gdbserver        mnt              sbin
+		bin              hello            ncurses-5.4      sys
+		boot             hello.c          opt              tmp
+		cardmgr          home             pciutils-2.1.10  ttyp0
+		cdrom            initrd           proc             usr
+		dev              lib              ptyp0            var
+		etc              lmbench-3.0-a4   root
+		floppy           main.elf         runin
+		#
+> 		 
+> 			 
+> 

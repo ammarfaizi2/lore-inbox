@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbRAOHvI>; Mon, 15 Jan 2001 02:51:08 -0500
+	id <S129641AbRAOIX7>; Mon, 15 Jan 2001 03:23:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbRAOHu5>; Mon, 15 Jan 2001 02:50:57 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:30982 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129655AbRAOHui>; Mon, 15 Jan 2001 02:50:38 -0500
-Date: Sun, 14 Jan 2001 23:50:33 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: "Michael D. Crawford" <crawford@goingware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Article: Using test suites to test the new kernel
-In-Reply-To: <3A6247AF.936B1AE1@goingware.com>
-Message-ID: <Pine.LNX.4.21.0101142350090.13533-100000@ns-01.hislinuxbox.com>
+	id <S129737AbRAOIXj>; Mon, 15 Jan 2001 03:23:39 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:21379 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129641AbRAOIXd>; Mon, 15 Jan 2001 03:23:33 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Patch] memparse should return long long
+Organisation: SAP LinuxLab
+Date: 15 Jan 2001 09:22:19 +0100
+Message-ID: <qwwu271jkck.fsf@sap.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-God sent you right? :) Been looking for something along this nature.
+The following patch lets memparse return a long long. This is needed
+to use mem= on highmem machines.
 
-David
+Greetings
+		Christoph
 
-
-
-On Mon, 15 Jan 2001, Michael D. Crawford wrote:
-
-> I've written a brief article on the topic of using test suites to test new linux
-> kernels.  
-> 
-> It is my hope that anyone who wants to play with the new kernels will try out
-> some of these suites, not just people doing a formal QA process, so that more
-> coverage of configurations can be achieved.
-> 
-> Using Test Suites to Validate the Linux Kernel
-> http://linuxquality.sunsite.dk/articles/testsuites/
-> 
-> I cover the use of suites that test the correct functioning of applications (for
-> example, language compliance tests for Python and Kaffe's Java implementation)
-> as well as test suites aimed directly at testing Linux itself.
-> 
-> Links to five different packages with test suites are given.  I'd appreciate
-> hearing of any more that you know about.
-> 
-> I also appreciate your comments on how I can improve the article.  This is a
-> first draft.
-> 
-> Regards,
-> 
-> Mike Crawford
-> 
-
+diff -uNr 2.4.0-ac/arch/i386/kernel/setup.c 2.4.0-ac-memparse/arch/i386/kernel/setup.c
+--- 2.4.0-ac/arch/i386/kernel/setup.c	Tue Jan  2 21:57:54 2001
++++ 2.4.0-ac-memparse/arch/i386/kernel/setup.c	Sun Jan 14 22:21:52 2001
+@@ -558,7 +558,7 @@
+ 				 * blow away any automatically generated
+ 				 * size
+ 				 */
+-				unsigned long start_at, mem_size;
++				unsigned long long start_at, mem_size;
+  
+ 				if (usermem == 0) {
+ 					/* first time in: zap the whitelist
+diff -uNr 2.4.0-ac/include/linux/kernel.h 2.4.0-ac-memparse/include/linux/kernel.h
+--- 2.4.0-ac/include/linux/kernel.h	Sun Dec 17 12:54:01 2000
++++ 2.4.0-ac-memparse/include/linux/kernel.h	Sun Jan 14 22:21:52 2001
+@@ -62,7 +62,7 @@
+ extern int vsprintf(char *buf, const char *, va_list);
+ extern int get_option(char **str, int *pint);
+ extern char *get_options(char *str, int nints, int *ints);
+-extern unsigned long memparse(char *ptr, char **retptr);
++extern unsigned long long memparse(char *ptr, char **retptr);
+ extern void dev_probe_lock(void);
+ extern void dev_probe_unlock(void);
+ 
+diff -uNr 2.4.0-ac/lib/cmdline.c 2.4.0-ac-memparse/lib/cmdline.c
+--- 2.4.0-ac/lib/cmdline.c	Mon Aug 28 11:42:45 2000
++++ 2.4.0-ac-memparse/lib/cmdline.c	Mon Jan 15 09:06:14 2001
+@@ -93,9 +93,9 @@
+  *	megabyte, or one gigabyte, respectively.
+  */
+ 
+-unsigned long memparse (char *ptr, char **retptr)
++unsigned long long memparse (char *ptr, char **retptr)
+ {
+-	unsigned long ret = simple_strtoul (ptr, retptr, 0);
++	unsigned long long ret = simple_strtoul (ptr, retptr, 0);
+ 
+ 	switch (**retptr) {
+ 	case 'G':
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311890AbSCTRvp>; Wed, 20 Mar 2002 12:51:45 -0500
+	id <S311893AbSCTRwZ>; Wed, 20 Mar 2002 12:52:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311889AbSCTRvf>; Wed, 20 Mar 2002 12:51:35 -0500
-Received: from epithumia.math.uh.edu ([129.7.128.2]:64489 "EHLO
-	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
-	id <S311888AbSCTRvb>; Wed, 20 Mar 2002 12:51:31 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: bradlist@bradm.net (Bradley McLean), linux-kernel@vger.kernel.org
-Subject: Re: Hard hang on 3Ware7850, Dual AthlonMP, Tyan2462
-In-Reply-To: <E16njGB-0002ku-00@the-village.bc.nu>
-From: Jason L Tibbitts III <tibbs@math.uh.edu>
-Date: 20 Mar 2002 11:51:15 -0600
-Message-ID: <ufar8mft9f0.fsf@epithumia.math.uh.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S311888AbSCTRwG>; Wed, 20 Mar 2002 12:52:06 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:15615 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S311893AbSCTRvw>; Wed, 20 Mar 2002 12:51:52 -0500
+Message-Id: <5.1.0.14.2.20020320175220.04d67410@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 20 Mar 2002 17:52:45 +0000
+To: eddantes@wanadoo.fr
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [2.5.7] undefined reference to `sys_nfsservctl'
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Anton Altaparmakov <aia21@cus.cam.ac.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C98CCFB.1080601@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "AC" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+At 17:55 20/03/02, eddantes@wanadoo.fr wrote:
+>Trond Myklebust wrote:
+>>>>>>>" " == Anton Altaparmakov <aia21@cus.cam.ac.uk> writes:
+>>      > Al Viro has a patch for this on his ftp site but you can get
+>>      > over the compile problemy by simply enabling both nfs and nfs
+>>      > server in the kernel configuration, no patch needed in that
+>>      > case... I.e. you want to set these:
+>>     >> # CONFIG_NFS_FS is not set CONFIG_NFS_V3 is not set CONFIG_NFSD
+>>     >> # is not set CONFIG_NFSD_V3 is not set
+>>No point in compile in the NFS client unless you really need it.
+>>sys_nfsservctl is a knfsd-only thing, so you shouldn't need either
+>>CONFIG_NFS_FS or CONFIG_NFS_V3 if you only want get around the bug.
+>
+>Yes, I'd prefer not to compile in stuff I don't need. And I definitely 
+>don't need NFS.
+>
+>OTOH, I went on Al Viro's ftp to try to find the patch. Which file is it? :)
 
-AC> Apparently if you swap the Tyan for something like the ASUS dual
-AC> athlon board it works. Dunno if its hardware, bios or software.
+0-aliases-c-C7-pre2
 
-But the 2462 has the MP chipset, while Asus has only MPX boards,
-right?  Does the 2466 (Tyan MPX board) have the same problems?  I may
-be able to test this in a few hours if nobody knows.  I'm running 2466
-boards with 3w7850 cards but uniprocessor since I only want the 64 bit
-slot.
+Anton
 
- - J<
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,41 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUH3Bd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUH3Bj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267930AbUH3Bd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 21:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268405AbUH3Bd0
+	id S268405AbUH3Bj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUH3Bj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 21:33:26 -0400
-Received: from gepard.lm.pl ([212.244.46.42]:46559 "EHLO gepard.lm.pl")
-	by vger.kernel.org with ESMTP id S267930AbUH3BdZ (ORCPT
+	Sun, 29 Aug 2004 21:39:59 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:58251 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S268405AbUH3Bjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 21:33:25 -0400
-Subject: Re: 2.6.9-rc1-mm1 kernel BUG at fs/jbd/checkpoint.c:646!
-From: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040829155734.0e47e6e0.akpm@osdl.org>
-References: <1093732735.1866.2.camel@rakieeta>
-	 <20040829155734.0e47e6e0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-2
-Organization: o2.pl Sp z o.o.
-Message-Id: <1093829523.1888.0.camel@rakieeta>
+	Sun, 29 Aug 2004 21:39:52 -0400
+Date: Mon, 30 Aug 2004 03:39:39 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Cc: rmk+serial@arm.linux.org.uk, akpm@osdl.org
+Subject: [PATCH] Add support for non-standard XTALs to 16c950 driver
+Message-ID: <20040830013939.GA5298@vana.vc.cvut.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 30 Aug 2004 03:32:03 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W li¶cie z pon, 30-08-2004, godz. 00:57, Andrew Morton pisze: 
-> Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
-> >
-> > this keeps happening on the SMP highmem box under heavy sync IO load.
-> > 
-> >  kernel BUG at fs/jbd/checkpoint.c:646!
-> 
-> Are you using the data=journal mount option?
+Hello,
+   patch below adds support for using different prescaler than 16 for 16c950
+chips.  This is needed for using Fujitsu-Siemens Connect2Air compact-flash
+card, which comes (apparently) with 806kHz clocks, and so you have to program
+prescaler for division by 7, and DLAB to 1, to get 115200Bd. 
 
-Yes, I am.
+   To get card properly running you also have to add lines below to 
+/etc/pcmcia/serial.opts so kernel knows that base speed is not 115200 but 
+50400 (50400 * 16 = 806400; 806400 / 7 = 115200). As I've found no code
+specifying baud_rate in serial_cs, I assume that specifying it in serial.opts
+is right way to do this type of things.
 
-Krzysztof.
+   Patch also fixes problem that for UPF_MAGIC_MULTIPLIER maximum possible
+baud rate passed to uart code was uartclk / 16 while correct value for these
+devices (and for 16c950) is uartclk / 4.
 
+   Patch also fixes problem that for UPF_MAGIC_MULTIPLIER devices with baud_rate
+19200 or 9600 spd_cust did not work correctly. Not that such devices exist,
+but we should not ignore spd_cust, user probably knows why he asked for spd_cust.
+
+serial.opts:
+
+case "$MANFID-$FUNCID-$PRODID_1-$PRODID_2-$PRODID_3-$PRODID_4" in
+'0279,950b-2-GPRS Modem---')
+    SERIAL_OPTS="baud_base 50400"
+    ;;
+esac
+
+					Thanks,
+						Petr Vandrovec
+
+
+
+diff -urN linux/drivers/serial/8250.c linux/drivers/serial/8250.c
+--- linux/drivers/serial/8250.c 2004-08-28 23:17:31.000000000 +0200
++++ linux/drivers/serial/8250.c 2004-08-29 23:13:13.000000000 +0200
+@@ -1369,24 +1369,58 @@
+ 		serial_unlink_irq_chain(up);
+ }
+ 
+-static unsigned int serial8250_get_divisor(struct uart_port *port, unsigned int baud)
++static unsigned int serial8250_get_divisor(struct uart_port *port, unsigned int baud,
++					   unsigned int *prescaler)
+ {
+-	unsigned int quot;
+-
+-	/*
+-	 * Handle magic divisors for baud rates above baud_base on
+-	 * SMSC SuperIO chips.
++        /*
++	 * Use special handling only if user did not supply its own divider.
++	 * spd_cust is defined in terms of baud_base, so always use default
++	 * prescaler when spd_cust is requested.
+ 	 */
+-	if ((port->flags & UPF_MAGIC_MULTIPLIER) &&
+-	    baud == (port->uartclk/4))
+-		quot = 0x8001;
+-	else if ((port->flags & UPF_MAGIC_MULTIPLIER) &&
+-		 baud == (port->uartclk/8))
+-		quot = 0x8002;
+-	else
+-		quot = uart_get_divisor(port, baud);
+ 
+-	return quot;
++	*prescaler = 16;
++        if (baud != 38400 || (port->flags & UPF_SPD_MASK) != UPF_SPD_CUST) {
++		unsigned int quot = port->uartclk / baud;
++
++		/*
++		 * Handle magic divisors for baud rates above baud_base on
++		 * SMSC SuperIO chips.
++		 */
++		if (port->flags & UPF_MAGIC_MULTIPLIER) {
++			if (quot == 4) {
++				return 0x8001;
++			} else if (quot == 8) {
++				return 0x8002;
++			}
++		}
++		if (port->type == PORT_16C950) {
++			/* 
++			 * This computes TCR value (4 to 16), not CPR value (which can 
++			 * be between 1.000 and 31.875) - chip I have uses XTAL of
++			 * 806400Hz, and so a division by 7 is required to get 115200Bd.
++			 * I'm leaving CPR disabled for now, until someone will
++			 * hit even more exotic XTAL (it is needed to get 500kbps
++			 * or 1000kbps from 18.432MHz XTAL, but I have no device
++			 * which would benefit from doing that).
++			 * 
++			 * If we can use divide by 16, use it.  Otherwise look for 
++			 * better prescaler, from 15 to 4.  If quotient cannot
++			 * be divided by any integer value between 4 and 15, use 4. 
++			 */
++			if (quot & 0x0F) {
++				unsigned int div;
++
++				for (div = 15; div > 4; div--) {
++					if (quot % div == 0) {
++						break;
++					}
++				}
++				*prescaler = div;
++				return quot / div;
++			}
++		}
++	}
++	return uart_get_divisor(port, baud);
+ }
+ 
+ static void
+@@ -1396,7 +1430,7 @@
+ 	struct uart_8250_port *up = (struct uart_8250_port *)port;
+ 	unsigned char cval, fcr = 0;
+ 	unsigned long flags;
+-	unsigned int baud, quot;
++	unsigned int baud, quot, prescaler;
+ 
+ 	switch (termios->c_cflag & CSIZE) {
+ 	case CS5:
+@@ -1428,8 +1462,13 @@
+ 	/*
+ 	 * Ask the core to calculate the divisor for us.
+ 	 */
+-	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
+-	quot = serial8250_get_divisor(port, baud);
++
++	if (port->type == PORT_16C950 || (port->flags & UPF_MAGIC_MULTIPLIER)) {
++		baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/4);
++	} else {
++		baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16);
++	}
++	quot = serial8250_get_divisor(port, baud, &prescaler);
+ 
+ 	/*
+ 	 * Work around a bug in the Oxford Semiconductor 952 rev B
+@@ -1531,6 +1570,13 @@
+ 	serial_outp(up, UART_DLM, quot >> 8);		/* MS of divisor */
+ 
+ 	/*
++	 * Program prescaler for 16C950 chips.
++	 */
++	if (up->port.type == PORT_16C950) {
++		serial_icr_write(up, UART_TCR, prescaler == 16 ? 0 : prescaler);
++	}
++
++	/*
+ 	 * LCR DLAB must be set to enable 64-byte FIFO mode. If the FCR
+ 	 * is written without DLAB set, this mode will be disabled.
+ 	 */

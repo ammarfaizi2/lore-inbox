@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbUAEU1J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265357AbUAEU1J
+	id S265370AbUAEU3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbUAEU3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:27:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17883 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265352AbUAEU1G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:27:06 -0500
-Date: Mon, 5 Jan 2004 12:27:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: suparna@in.ibm.com, daniel@osdl.org, janetmor@us.ibm.com,
-       pbadari@us.ibm.com, linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
-Message-Id: <20040105122749.1a09d236.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58L.0401051146480.1188@logos.cnet>
-References: <20031231091828.GA4012@in.ibm.com>
-	<20031231013521.79920efd.akpm@osdl.org>
-	<20031231095503.GA4069@in.ibm.com>
-	<20031231015913.34fc0176.akpm@osdl.org>
-	<20031231100949.GA4099@in.ibm.com>
-	<20031231021042.5975de04.akpm@osdl.org>
-	<20031231104801.GB4099@in.ibm.com>
-	<20031231025309.6bc8ca20.akpm@osdl.org>
-	<20031231025410.699a3317.akpm@osdl.org>
-	<20031231031736.0416808f.akpm@osdl.org>
-	<20040102055020.GA3410@in.ibm.com>
-	<Pine.LNX.4.58L.0401051146480.1188@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 5 Jan 2004 15:29:11 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:4365 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S265370AbUAEU3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:29:07 -0500
+Date: Mon, 5 Jan 2004 21:29:36 +0100
+From: DervishD <raul@pleyades.net>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird problems with printer using USB
+Message-ID: <20040105202936.GE15884@DervishD>
+References: <20040105192430.GA15884@DervishD> <200401051950.23418.andrew@walrond.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200401051950.23418.andrew@walrond.org>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> 
-> 
-> On Fri, 2 Jan 2004, Suparna Bhattacharya wrote:
-> 
-> > On Wed, Dec 31, 2003 at 03:17:36AM -0800, Andrew Morton wrote:
-> > > Andrew Morton <akpm@osdl.org> wrote:
-> > > >
-> > > > Let me actually think about this a bit.
-> > >
-> > > Nasty.  The same race is present in 2.4.x...
-> 
-> filemap_fdatawait() is always called with i_sem held and
-> there is no "!PG_dirty and !PG_writeback" window.
-> 
-> Where does the race lies in 2.4 ?
+    Hi Andrew :)
 
-kupdate and bdflush run filemap_fdatawait() without i_sem.  If kupdate has
-moved a page off locked_pages to wait on it, a caller of fsync() just won't
-see that page at all, and fsync can return while I/O is still in flight.
+ * Andrew Walrond <andrew@walrond.org> dixit:
+> tried a shorter usb cable and it's worked perfectly ever since. I
+> know it sounds unlikely (all the cables were within the 10ft
+> allowed for usb1), but it worked for me. Might be worth a try.
 
-Given that this only applies to mmap data in 2.4 it doesn't seem
-super-important.  A good way to fix it would be to not call
-filemap_fdatawait() *at all* if the caller is kupdate or bdflush - it's
-silly.   Could use a PF_foo flag for this?
+    The cable is OK, I've tested with two cables and with a USB
+memory stick and all works ok. Seems like the printer doesn't like to
+have both the parallel cable and the USB cable plugged at the same
+time, but sometimes it worked, so... The final cause seems to be the
+size of the file I want to print. The larger, the more chances to
+fail. I'll try a new cable tomorrow, probably, but I'll give a newer
+kernel a try.
 
+    Thanks :)
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

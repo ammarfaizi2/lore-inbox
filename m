@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314288AbSD0Q5V>; Sat, 27 Apr 2002 12:57:21 -0400
+	id <S314289AbSD0RCY>; Sat, 27 Apr 2002 13:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314289AbSD0Q5U>; Sat, 27 Apr 2002 12:57:20 -0400
-Received: from zero.tech9.net ([209.61.188.187]:47886 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314288AbSD0Q5U>;
-	Sat, 27 Apr 2002 12:57:20 -0400
-Subject: Re: The tainted message
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Richard Thrapp <rthrapp@sbcglobal.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E171TzX-0008PF-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 27 Apr 2002 12:57:08 -0400
-Message-Id: <1019926629.2045.698.camel@phantasy>
+	id <S314290AbSD0RCX>; Sat, 27 Apr 2002 13:02:23 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:20897 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S314289AbSD0RCX>;
+	Sat, 27 Apr 2002 13:02:23 -0400
+Date: Sat, 27 Apr 2002 19:02:04 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Richard Thrapp <rthrapp@sbcglobal.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: was: Re: The tainted message
+Message-ID: <20020427190204.B32034@fafner.intra.cogenit.fr>
+In-Reply-To: <1019883102.8819.48.camel@wizard> <20020427140830.A32034@fafner.intra.cogenit.fr> <1019922717.8819.62.camel@wizard>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-27 at 11:20, Alan Cox wrote:
+Richard Thrapp <rthrapp@sbcglobal.net> :
+[...]
+> That doesn't fix the problem.  The message is still wrong.  A reference
+> to an explanation only helps the people who can reach it immediately. 
+> Linux is also used on manufacturing floors (and several other places)
+> where no network connections exist.
 
-> How about
-> 
-> Warning: The module you have loaded (%s) does not seem to have an open
-> 	 source license. Please send any kernel problem reports to the
-> 	 author of this module, or duplicate them from a boot without
-> 	 ever loading this module before reporting them to the community
-> 	 or your Linux vendor
+Aunt Tillie try to insmod a binary-only module on production server and ...
 
-Perfect.  A little long, but otherwise nails it.
+Please, kernel maintainers are way harder to bother without network connection. 
+It was the first goal of tainting, wasn't it ?
 
-Maybe we want to s/open source/GPL-compatible/ though?
-
-	Robert Love
-
+-- 
+Ueimor

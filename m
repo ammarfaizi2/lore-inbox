@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262278AbSI1RV2>; Sat, 28 Sep 2002 13:21:28 -0400
+	id <S262282AbSI1RYs>; Sat, 28 Sep 2002 13:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262280AbSI1RV2>; Sat, 28 Sep 2002 13:21:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2053 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262278AbSI1RV0>; Sat, 28 Sep 2002 13:21:26 -0400
-Date: Sat, 28 Sep 2002 18:26:43 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Oliver Xymoron <oxymoron@waste.org>, Daniel Jacobowitz <dan@debian.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Does kernel use system stdarg.h?
-Message-ID: <20020928182643.A13064@flint.arm.linux.org.uk>
-References: <20020927140543.GA5613@nevyn.them.org> <20020927214721.GK21969@waste.org> <20020928091530.B32639@flint.arm.linux.org.uk> <20020928105911.GU27082@louise.pinerecords.com>
+	id <S262284AbSI1RYs>; Sat, 28 Sep 2002 13:24:48 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:54771 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262282AbSI1RYr>; Sat, 28 Sep 2002 13:24:47 -0400
+Date: Sat, 28 Sep 2002 11:27:49 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Ryan Cumming <ryan@completely.kicks-ass.org>,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020928172748.GF22795@clusterfs.com>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+References: <E17uINs-0003bG-00@think.thunk.org> <20020926235741.GC10551@think.thunk.org> <20020927041234.GS22795@clusterfs.com> <200209271820.41906.ryan@completely.kicks-ass.org> <20020928141330.GA653@think.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020928105911.GU27082@louise.pinerecords.com>; from szepe@pinerecords.com on Sat, Sep 28, 2002 at 12:59:11PM +0200
+In-Reply-To: <20020928141330.GA653@think.thunk.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 28, 2002 at 12:59:11PM +0200, Tomas Szepe wrote:
-> > It certainly looks like it.  gcc 3.0.3 appears to ignore
-> > "-iwithprefix include", where as gcc 2.95.x, 2.96, 3.1 and 3.2 all
-> > work as expected.
-> 
-> No.  Try building/installing gcc-3.2 with '--prefix=/usr/gcc-3.2'
-> and '--prefix=/usr'.  The former won't work with '-iwithprefix include',
-> the latter will.  GCC build bug?
+On Sep 28, 2002  10:13 -0400, Theodore Ts'o wrote:
+> The nature of the corruption is that a directory entry of size 8
+> (which is enough room for a zero-length name) is left in the
+> directory.  This is harmless, but it should never happen normally, and
+> so the ext3 sanity-checking code flags it as an error.  With this
+> patch, e2fsck is much smarter about salvaging corrupt directories, and
+> so it can do so without causing any directory entries to be lost.
+> (This corrupted, too-small directory entry appears at the beginning of
+> the directory block, which is another reason why I strongly suspect
+> the dx_split code.)
 
-Maybe.
+One idea I just had but don't have time to investigate (babysitting
+both kids today) is if the do_split() code is creating a hash entry
+for unused dir entries (i.e. inode == 0 or name_len == 0).  If that
+is the case, then it could explain the presence of this short entry.
 
-I've just checked the GCC 3.2 info files, and it appears that the
-definition of -iwithprefix has changed.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-gcc 2.9[156] comes with this description:
-
-`-iwithprefix DIR'
-     Add a directory to the second include path.  The directory's name
-     is made by concatenating PREFIX and DIR, where PREFIX was
-     specified previously with `-iprefix'.  If you have not specified a
-     prefix yet, the directory containing the installed passes of the
-     compiler is used as the default.
-
-whereas gcc 3.2 comes with:
-
-`-iwithprefix DIR'
-`-iwithprefixbefore DIR'
-     Append DIR to the prefix specified previously with `-iprefix', and
-     add the resulting directory to the include search path.
-     `-iwithprefixbefore' puts it in the same place `-I' would;
-     `-iwithprefix' puts it where `-idirafter' would.
-
-     Use of these options is discouraged.
-
-This seems to leave us with no official guaranteed way to get at the
-compiler specific includes, which is Bad News(tm).  We obviously can't
-use "-I/usr/lib/gcc-lib/`gcc -dumpmachine`/`gcc -dumpversion`/" and
-we've already had problems with the 2.4 "gcc -print-search-dirs"
-version.
-
-This leaves us with one option:
-
-  gcc -print-file-name=include
-
-This works, but its also not official:
-
-`-print-file-name=LIBRARY'
-     Print the full absolute name of the library file LIBRARY that
-     would be used when linking--and don't do anything else.  With this
-     option, GCC does not compile or link anything; it just prints the
-     file name.
-
-Maybe we need to go back to the gcc folk and get -iwithprefix
-reinstated...
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-	  "I know toolchain people.  They _love_ to change things."

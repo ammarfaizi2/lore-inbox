@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbUDSM6r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 08:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbUDSM6q
+	id S264380AbUDSNLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 09:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUDSNLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 08:58:46 -0400
-Received: from main.gmane.org ([80.91.224.249]:61664 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264398AbUDSM6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 08:58:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marc Bevand <bevand_m@epita.fr>
-Subject: Re: Sensors (W83627HF) in Tyan S2882
-Date: Mon, 19 Apr 2004 14:56:58 +0200
-Message-ID: <c60ids$nsf$1@sea.gmane.org>
-References: <20040419120132.GP23938@fi.muni.cz>
+	Mon, 19 Apr 2004 09:11:51 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17881 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264380AbUDSNLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 09:11:44 -0400
+Date: Mon, 19 Apr 2004 15:11:43 +0200
+From: Jan Kara <jack@suse.cz>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org, torvalds@osdl.org
+Subject: Re: dqout dereference bug
+Message-ID: <20040419131143.GF27169@atrey.karlin.mff.cuni.cz>
+References: <20040416213222.GR20937@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213.41.133.51
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040326
-X-Accept-Language: en-us, en
-In-Reply-To: <20040419120132.GP23938@fi.muni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040416213222.GR20937@redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak wrote:
-> 	Hello, world!\n
-> 
-> 	I have two systems with Tyan S2882 boards (K8S Pro). The sensors chip
-> is Winbond w83627hf according to the mainboard documentation.  The w83627hf
-> driver can read values from the sensors, but apparently not all values.
-> The board has six fan connectors (two labeled CPU1 fan and CPU2 fan,
-> and four chassis fans). BIOS displays the fan status correctly for all fans,
-> so all fans are connected to the sensors chip. However, there are only three
-> fans listed in /sys/devices/platform/i2c-1/1-0290.
+  Yes, the patch is right. The case sb == NULL should not happen but
+it's always good to have clean code :). Linus/Andrew please apply.
 
-On the S2885 (not your model), 2 fans are handled by the w83627hf, and 4 others
-by an adt7463. I see that the S2882 has an adm1027, maybe this is the chip that
-handles your 3 others fans ?
-
+								Honza
 -- 
-Marc Bevand                          http://www.epita.fr/~bevand_m
-Computer Science School EPITA - System, Network and Security Dept.
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
+
+--- linux-2.6.5/fs/dquot.c~	2004-04-16 22:30:05.000000000 +0100
++++ linux-2.6.5/fs/dquot.c	2004-04-16 22:30:48.000000000 +0100
+@@ -1145,11 +1145,13 @@
+ int vfs_quota_off(struct super_block *sb, int type)
+ {
+ 	int cnt;
+-	struct quota_info *dqopt = sb_dqopt(sb);
++	struct quota_info *dqopt;
+ 
+ 	if (!sb)
+ 		goto out;
+ 
++	dqopt = sb_dqopt(sb);
++
+ 	/* We need to serialize quota_off() for device */
+ 	down(&dqopt->dqonoff_sem);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {

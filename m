@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129831AbRAOJJd>; Mon, 15 Jan 2001 04:09:33 -0500
+	id <S129737AbRAOJTk>; Mon, 15 Jan 2001 04:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129737AbRAOJJX>; Mon, 15 Jan 2001 04:09:23 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:25474 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129733AbRAOJJU>; Mon, 15 Jan 2001 04:09:20 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <17493.979513222@ocs3.ocs-net> 
-In-Reply-To: <17493.979513222@ocs3.ocs-net> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
-Mime-Version: 1.0
+	id <S129999AbRAOJT3>; Mon, 15 Jan 2001 04:19:29 -0500
+Received: from smithers.2z.net ([206.98.112.25]:56837 "EHLO smithers.2z.net")
+	by vger.kernel.org with ESMTP id <S129737AbRAOJTT>;
+	Mon, 15 Jan 2001 04:19:19 -0500
+Message-ID: <3A62C038.803225DA@elven.org>
+Date: Mon, 15 Jan 2001 03:17:44 -0600
+From: fool@elven.org
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.4.0: couple typos in 'make menuconfig', also kbd freeze 
+ workaround, stuck swapping, etc
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 15 Jan 2001 09:09:02 +0000
-Message-ID: <18565.979549742@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Also, I couldn't build an Athlon version of the kernel either, actually
+for my Duron (btw, Duron should get listed in the processor config).
+Build errors
+("__memcpy3d" etc) were the same as the other posting I saw.
 
-kaos@ocs.com.au said:
-> That is a lot of work for a very few special cases.  OTOH, you could
-> just add a few lines of __initcall code in two source files (which I
-> did when I wrote inter_module_xxx) and swap the order of 3 lines in
-> drivers/mtd/Makefile.  Guess which alternative I am going for? 
+Other config issue: when I drop a .config in a clean kernel tree, I need
+to do a 'make menuconfig' even though I don't make any changes in it, or
+the subsequent
+'make dep' fails. Maybe this is well-known, but it struck me as odd.
 
-I've already worked round it for the 2.[024] case by reintroducing the
-ifdefs. I assume here that we're planning for 2.5. As part of the many
-changes that are going to be introduced during 2.5, this shouldn't be too
-intrusive.
+My 700Mhz Duron w/128M ram stalled thrashing once. After 20 mins, I did
+a ctl-alt-del and it was still swapping so much that the Redhat7 init
+script reported
+failures for shutting some services down. Something like "VM swap page
+bad somenumber" was printed a few times. I've heard the ac patches may
+fix the swapping
+issue.
 
-Once it's actually usable for the common case, it won't just be 'a very few 
-special cases' any more. But that's all 2.5 material.
+In "make menuconfig": when you enable the first option here, the
+additional option pops out in the wrong place:
+  [*]     Generic PCI bus-master DMA support
+  [ ]     Boot off-board chipsets first support
+    [ ]       Use PCI DMA by default when available
 
---
-dwmw2
+Also the CONFIG_IDEDMA_IVB help info mispells "valid".
+
+I was hitting the keyboard lockup when trying the Redhat7 Xconfigurator
+program (I have a PS/2 mouse). Using xf86config instead worked fine. No
+problems with
+"gpm -t ps/2" either.
+
+On a side note, back in the test-series kernel, I reported filesystem
+corruption on my VIA IDE w/DMA on. I was surprised to find out that the
+filesystem was only all messed up when mounting with an 2.2 system.
+Using the newer kernel, none of the corruption was visible, and I was
+able to recover everything.
+Hopefully, my hard drive will live happily ever after.
+
+Some filesystem questions: Is it possible for corruption to persist
+after a mkfs over the old partition (and what if the mkfs is older than
+the mkfs originally used to make the partition?). I was sure that at one
+point, a directory from the old wiped out partition popped up after the
+mkfs and an install of a distro. Also can a corrupted filesystem taint a
+clean filesystem just through cp (again considering different versions
+of the tools)? If you corrupt a hard drive, do you need to rewrite the
+partition table if it "looks" ok? Is read-only mounting proof against
+corruption?
 
 
+Saber Taylor
+http://elven.org/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

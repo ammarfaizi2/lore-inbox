@@ -1,85 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUGVKF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUGVKI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266850AbUGVKF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 06:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266849AbUGVKF7
+	id S264685AbUGVKI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 06:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUGVKI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 06:05:59 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:42671 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266850AbUGVKF4 (ORCPT
+	Thu, 22 Jul 2004 06:08:58 -0400
+Received: from mproxy.gmail.com ([216.239.56.248]:49322 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S264685AbUGVKI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 06:05:56 -0400
-Date: Thu, 22 Jul 2004 12:06:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Scott Wood <scott@timesys.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>
-Subject: [patch] voluntary-preempt-2.6.8-rc2-H9
-Message-ID: <20040722100657.GA14909@elte.hu>
-References: <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721183010.GA2206@yoda.timesys> <20040721210051.GA2744@yoda.timesys> <20040721211826.GB30871@elte.hu> <20040721223749.GA2863@yoda.timesys>
+	Thu, 22 Jul 2004 06:08:57 -0400
+Message-ID: <4d8e3fd304072203081918cd7@mail.gmail.com>
+Date: Thu, 22 Jul 2004 12:08:56 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH] delete devfs
+Cc: Greg KH <greg@kroah.com>, Jesse Stockall <stockall@magma.ca>,
+       linux-kernel@vger.kernel.org, rgooch@safe-mbox.com, akpm@osdl.org
+In-Reply-To: <200407221155.13004.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040721223749.GA2863@yoda.timesys>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040721141524.GA12564@kroah.com> <200407220047.53153.oliver@neukum.org> <20040722064952.GC20561@kroah.com> <200407221155.13004.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Scott Wood <scott@timesys.com> wrote:
-
-> > trying to make softirqs preemptible surely wont fly for 2.6 and it will
-> > also overly complicate the softirq model. What's so terminally wrong
-> > about adding preemption checks to the softirq paths? It should solve the
-> > preemption problem for good. The unbound softirq paths are well-known
-> > (mostly in the networking code) and already have preemption-alike
-> > checks.
+On Thu, 22 Jul 2004 11:55:12 +0200, Oliver Neukum <oliver@neukum.org> wrote:
+> Am Donnerstag, 22. Juli 2004 08:49 schrieb Greg KH:
+> > > Interesting, but we are not talking about an _internal_ API here.
+> > > It's about blocking the upgrade path.
+> >
+> > There is no such block.  udev has a full devfs compatibility mode, I made
+> > sure of that before every suggesting that a change like this happen.
 > 
-> If every such loop in every softirq is taken care of, that would work
-> (though only until someone adds a new softirq that forgets to check
-> for preemption).  I don't see any such checks in either the transmit
-> or receive network softirqs in vanilla 2.6.7, though (are they in a
-> patch, or am I overlooking them?), much less in each individual
-> driver.  There are checks for excessive work (where "excessive" is not
-> well defined in terms of actual time), but none for need_resched()
-> except in a few isolated places.
+> A smooth upgrade is replacing the kernel image, rerun lilo and reboot.
+> There's very good reason to remove devfs from 2.7.0, but almost none
+> to remove it from 2.6.X (unless Richard turns up and rewrites it from scratch)
+> Breaking existing setup is acceptable only if you can do nothing else.
 
-i've added an infrastructure for easy softirq lock-break and preemption 
-to the -H9 version of the voluntary-preempt patch:
+I tend to agree with you even though I still have to read the "MOM" regarding
+what has been discussed yesterday.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-H9
+If I'm not wrong, there is not plan to fork a 2.7 kernel anytime soon,
+so this kind of patch that brokes only a few users will probably be included
+in 2.6.*
 
-in -H9 i've fixed the most important softirq latency sources:
+Ciao,
 
- - the RCU code
-
-  this one is new and is really bad - it can literally execute tens of
-  thousands of d_callback() functions within rcu_do_batch() causing
-  millisecs of delays - e.g. triggered by the 'du /' test on a box with
-  enough RAM. It affects UP just as much as SMP, in both preempt and 
-  non-preempt mode as well.
-
- - the timer code
-
-  no real latencies in practice but in theory if enough timers are set 
-  to fire in the same jiffy it could be easily unbound.
-
- - net TX/RX code
-
-  being the worst offender this had some throttling code already but it 
-  didnt listen to resched requests. It does now.
-
-it is really easy to do lock-break of softirqs, one only has to find a
-place where it's safe to enable softirq processing and do a
-cond_resched_softirq() call.
-
-	Ingo
+-- 
+paoloc.doesntexist.org

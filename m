@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268429AbUHYTvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268411AbUHYTru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268429AbUHYTvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 15:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUHYTul
+	id S268411AbUHYTru (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 15:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUHYTrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 15:50:41 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:15113 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S268429AbUHYTsm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 15:48:42 -0400
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] notify_parent and ptrace cleanup
-References: <200408251808.i7PI8jFF017075@magilla.sf.frob.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 26 Aug 2004 04:48:25 +0900
-In-Reply-To: <200408251808.i7PI8jFF017075@magilla.sf.frob.com>
-Message-ID: <87y8k3knhy.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+	Wed, 25 Aug 2004 15:47:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:27061 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268411AbUHYTnz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 15:43:55 -0400
+Date: Wed, 25 Aug 2004 12:43:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs -> udev transition: vcsN are not created
+Message-ID: <20040825194308.GC9706@kroah.com>
+References: <200408251517.31608.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408251517.31608.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> writes:
-
-> > ptrace() is frangible, and racy. And looks like few things can't improve
-> > without user visible change. So, I'm thinking I would like to rewrite
-> > it by another interface.
+On Wed, Aug 25, 2004 at 03:17:31PM +0300, Denis Vlasenko wrote:
+> I am migrating my 2.6 systems from devfs to udev.
+> Versions:
 > 
-> I don't think such vague statements are useful.  Are there other races you
-> are implicitly referring to here, or only the ones I have just cited?
-> These issues are with the implementation, not the interface.  Changing the
-> ptrace interface won't do anything about them, and fixing them need not
-> change the ptrace interface.
-> 
-> The ptrace interface could use replacing, but that is really a separate
-> issue.  I will be first in line to replace it with something that has saner
-> semantics and a more convenient user interface.  But that won't help a whit
-> with things like these race concerns.  Let's keep the issue of an ugly
-> interface separate from the issue of potential bugs in the one we have.  If
-> there are bugs (aside from the inherent limitations of the intended
-> semantics), they need to be fixed.
+> # uname -a
+> Linux firebird 2.6.7-bk20 #6 Mon Jul 12 01:23:31 EEST 2004 i686 unknown
 
-Sorry for about it. Yes, racy is implementation issue. And AFAIK, it
-seems to be fixed by we don't allow SIGCONT. (If it doesn't break userland)
+Can you try the latest -mm tree?  It should have this fixed.  I'll be
+sending the patch that does this off to Linus later today.
 
-> > And looks like few things can't improve without user visible
-> > change. So, I'm thinking I would like to rewrite it by another
-> > interface.
+thanks,
 
-This is reason that I wouldn't like that we continue to be expanding
-ptrace().
-
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+greg k-h

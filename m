@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267244AbUBSRhY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 12:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267441AbUBSRhY
+	id S267429AbUBSRfd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 12:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUBSRfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 12:37:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63149 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267244AbUBSRhW (ORCPT
+	Thu, 19 Feb 2004 12:35:33 -0500
+Received: from gprs157-229.eurotel.cz ([160.218.157.229]:51584 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267429AbUBSRf3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 12:37:22 -0500
-Date: Thu, 19 Feb 2004 09:37:20 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: =?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>
-Cc: Nur Hussein <obiwan@slackware.org.my>, linux-kernel@vger.kernel.org
-Subject: Re: Security update patch to 2.6.3 for mremap()?
-Message-ID: <20040219093720.C22989@build.pdx.osdl.net>
-References: <1077201466.1636.19.camel@sophia.localdomain> <20040219170051.6b97f6bf.diegocg@teleline.es>
+	Thu, 19 Feb 2004 12:35:29 -0500
+Date: Thu, 19 Feb 2004 18:35:14 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
+Message-ID: <20040219173514.GD259@elf.ucw.cz>
+References: <200402050941.34155.mhf@linuxmail.org> <20040208020624.GG31926@dualathlon.random> <200402100625.41288.mhf@linuxmail.org> <20040219072629.GB467@openzaurus.ucw.cz> <opr3l0mfdw4evsfm@smtp.pacific.net.th> <20040219161455.GC259@elf.ucw.cz> <opr3mok1ko4evsfm@smtp.pacific.net.th>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040219170051.6b97f6bf.diegocg@teleline.es>; from diegocg@teleline.es on Thu, Feb 19, 2004 at 05:00:51PM +0100
+In-Reply-To: <opr3mok1ko4evsfm@smtp.pacific.net.th>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Diego Calleja García (diegocg@teleline.es) wrote:
-> El Thu, 19 Feb 2004 22:37:46 +0800 Nur Hussein <obiwan@slackware.org.my> escribió:
-> > http://linux.bkbits.net:8080/linux-2.4/diffs/mm/mremap.c@1.7?nav=cset@1.1136.94.4
+Hi!
+
+> >That means that PG_nosave | PG_reserved indeed is "PG_donttouch", but
+> >PG_nosave has slightly different meaning.
 > 
-> AFAIK, the 2.4 path should be this one, shouldn't it?
-> http://linux.bkbits.net:8080/linux-2.4/patch@1.1323?nav=index.html|ChangeSet@-2d|cset@1.1323
-
-yep.
-
-> > Is this line missing from 2.6.3, or did Andrew Morton's fixes address 
-> > the problem already?
+> Makes sense, but PG_reserved is used to keep VM out of these pages.
 > 
-> The 2.6 should be this one (comitted 15 days ago):
-> http://linux.bkbits.net:8080/linux-2.5/diffs/mm/mremap.c@1.38?nav=index.html|src/|src/mm|hist/mm/mremap.c
-> 2.6.3 is safe, it seems
+> Can we have a seperate bit PG_donttouch which is set with PG_nosave
+> | PG_reserved in reserved/video/BIOS/Broken CPU areas?
 
-yep.
+Why?
 
-thanks,
--chris
+I do not see what is wrong with 2 separate flags... In fact, you might
+want to 
+
+#define PG_donttouch (PG_reserved | PG_nosave)
+
+and (modulo atomic macros etc), it would work for everyone...
+ 
+								Pavel
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

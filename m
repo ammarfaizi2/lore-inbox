@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312405AbSCZSxw>; Tue, 26 Mar 2002 13:53:52 -0500
+	id <S312619AbSCZS5W>; Tue, 26 Mar 2002 13:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312443AbSCZSxn>; Tue, 26 Mar 2002 13:53:43 -0500
-Received: from 209-VALL-X7.libre.retevision.es ([62.83.213.209]:55815 "EHLO
-	ragnar-hojland.com") by vger.kernel.org with ESMTP
-	id <S312405AbSCZSxi>; Tue, 26 Mar 2002 13:53:38 -0500
-Date: Tue, 26 Mar 2002 19:52:45 +0100
-From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
-To: Frank Cornelis <fcorneli@elis.rug.ac.be>
-Cc: linux-kernel@vger.kernel.org, Frank.Cornelis@elis.rug.ac.be
-Subject: Re: realtime processes and CD-ROM
-Message-ID: <20020326195245.B2539@ragnar-hojland.com>
-In-Reply-To: <Pine.LNX.4.44.0203251716140.24395-100000@trappist.elis.rug.ac.be>
+	id <S312587AbSCZS5M>; Tue, 26 Mar 2002 13:57:12 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41259 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S312443AbSCZS5H>; Tue, 26 Mar 2002 13:57:07 -0500
+Date: Tue, 26 Mar 2002 13:57:03 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] mmap bug with drivers that adjust vm_start
+Message-ID: <20020326135703.B25375@redhat.com>
+In-Reply-To: <20020325230046.A14421@redhat.com> <20020326174236.B13052@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 25, 2002 at 05:25:50PM +0100, Frank Cornelis wrote:
-> The MP3 player XMMS has the option of making it a realtime process.
-> But even after doing so, the music sometimes blocks. This is when my CDROM 
-> is being accessed when it is not spinning anymore (spin-up time).
-> Would it be very hard to reprogram the linux kernel in such a way that
-> certain devices can't be turned off when realtime processes access these
-> devices? These devices would include CDROM players, harddisks.
-> Please note that I'm not looking for a way to (globally) disable the 
-> spinning off of my CDROM player when it's in use. Only when realtime 
-> processes access these devices the spinning of should be disabled.
-> If anyone is programming on something like described above please let me 
-> know.
+On Tue, Mar 26, 2002 at 05:42:36PM +0100, Andrea Arcangeli wrote:
+> However if the patch is needed it means the ->mmap also must do the
+> do_munmap stuff by hand internally, which is very ugly given we also did
+> our own do_munmap in a completly different region (the one requested by
+> the user).
 
-XMMS could have a flag to set spinning with CDROMSETSPINDOWN, which should
-do what you are looking for.
+At least my own code checks for that and fails if there is a mapping 
+already placed at the fixed address it needs to use.  If we're paranoid, 
+we could BUG() on getting a vma back from the new find_vma_prepare call.
 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."      [15 pend. Mar 10]
+> Our do_munmap should not happen if we place the mapping
+> elsewhere. If possible I would prefer to change those drivers to
+> advertise their enforced vm_start with a proper callback, the current
+> way is halfway broken still. BTW, which are those drivers, and why they
+> needs to enforce a certain vm_start (also despite MAP_FIXED that they
+> cannot check within the ->mmap callback)?
+
+Video drivers, others that require specific alignment (4MB pages for 
+example).  Historically, the mmap call has been the hook for doing this, 
+hence the comment in do_mmap from davem.  Unless there's a really good 
+reason for changing the hook, I don't see doing so as providing much 
+benefit other than making source compatibility hard.
+
+		-ben
+-- 
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

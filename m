@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280591AbRKSSqV>; Mon, 19 Nov 2001 13:46:21 -0500
+	id <S280592AbRKSSs5>; Mon, 19 Nov 2001 13:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280599AbRKSSqK>; Mon, 19 Nov 2001 13:46:10 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:27638 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S280592AbRKSSo1>; Mon, 19 Nov 2001 13:44:27 -0500
-Message-ID: <3BF952EC.6C8DB2BD@mvista.com>
-Date: Mon, 19 Nov 2001 10:43:56 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Jasen <jjasen1@umbc.edu>
-CC: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Hp 8xxx Cd writer
-In-Reply-To: <Pine.SGI.4.31L.02.0111191108260.12469772-100000@irix2.gl.umbc.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280547AbRKSSsj>; Mon, 19 Nov 2001 13:48:39 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34825 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S280592AbRKSSrW>; Mon, 19 Nov 2001 13:47:22 -0500
+Date: Mon, 19 Nov 2001 13:47:22 -0500
+Message-Id: <200111191847.fAJIlMn30859@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
+X-Newsgroups: linux.kernel
+In-Reply-To: <Pine.LNX.4.10.10111081706491.31943-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <001b01c1689f$fdd77850$c800000a@Artifact>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Jasen wrote:
-> 
-> On Mon, 19 Nov 2001, Miguel Maria Godinho de Matos wrote:
-> 
-> > I have a doubt though! I have an externel cd-writer ( hp 8200 ) which is
-> > supported by the kernel, but in the make xconfig menu, that options appears
-> > in gray ( u can't select it ). As a lot of kernel options need some kind of
-> > pre-selected items, i am asking anyone who  knows what do i have to
-> > pre-select so i can choose the module for hp..... support in my usb kernel
-> > configuration menu.
-> 
-> You probably need to say yes to experimental drivers, and if I recall the
-> HP8200 correctly, various USB options.
-> 
-I really don't know, BUT, questions of this sort can be answered by
-looking at the Config.in file.  Its root will be found in .../arch/your
-arch/Config.in.  It may include (source) other files which may in turn
-source still more, but in there is the whole of the configuration with
-all it options.  The syntax is really quite easy to follow.  Have fun.
+In article <Pine.LNX.4.10.10111081706491.31943-100000@coffee.psychology.mcmaster.ca>
+	hahn@physics.mcmaster.ca wrote:
+>> Bugs in the Athlon optimizations present in the Linux kernel.
+>
+>what bugs would those be?  if you're thinking of the infamous
+>"my athlon dies when I boot a CONFIG_MK7 kernel on a kt133",
+>it is by all accounts a *chipset* bug, not a kernel bug.
+>it's still unclear whether the voodoo workaround 
+>(in both linux and ac) is doing something sensible.
+
+  Without the voodoo the Athlon is a very dubious chip to use indeed...
+because user mode code can and will use Athlon optimizations which hang
+the system. This is a case of "I do it because if I don't the system
+doesn't work right."
+
 -- 
-George           george@mvista.com  (fishing lessons, not fish)
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

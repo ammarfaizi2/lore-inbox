@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSESWC6>; Sun, 19 May 2002 18:02:58 -0400
+	id <S315278AbSESWRM>; Sun, 19 May 2002 18:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315285AbSESWC6>; Sun, 19 May 2002 18:02:58 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54278
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315279AbSESWC5>; Sun, 19 May 2002 18:02:57 -0400
-Date: Sun, 19 May 2002 15:01:57 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: ULISSES FURQUIM FREIRE DA SILVA <ra993482@ic.unicamp.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware, IDE or ext3 problem?
-In-Reply-To: <Pine.GSO.4.10.10205182031540.14231-100000@tigre.dcc.unicamp.br>
-Message-ID: <Pine.LNX.4.10.10205182044290.8582-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S315285AbSESWRM>; Sun, 19 May 2002 18:17:12 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:35316 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S315278AbSESWRL>; Sun, 19 May 2002 18:17:11 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Sun, 19 May 2002 16:15:32 -0600
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/15] larger b_size, and misc fixlets
+Message-ID: <20020519221532.GE26598@turbolinux.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CE7FF89.16AF9B93@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On May 19, 2002  12:39 -0700, Andrew Morton wrote:
+> - make the printk in buffer_io_error() sector_t-aware.
+> =====================================
+> --- 2.5.16/fs/buffer.c~sector_t-printing	Sun May 19 11:49:47 2002
+> +++ 2.5.16-akpm/fs/buffer.c	Sun May 19 12:02:57 2002
+> @@ -179,8 +179,8 @@ __clear_page_buffers(struct page *page)
+>  
+>  static void buffer_io_error(struct buffer_head *bh)
+>  {
+> -	printk(KERN_ERR "Buffer I/O error on device %s, logical block %ld\n",
+> -			bdevname(bh->b_bdev), bh->b_blocknr);
+> +	printk(KERN_ERR "Buffer I/O error on device %s, logical block %Ld\n",
+> +			bdevname(bh->b_bdev), (u64)bh->b_blocknr);
+>  }
 
-Hi Ulisses,
+Not that I'm a 64-bit system user/developer, but it is my understanding
+that u64 == long on a 64-bit platform, so your cast to u64 does not
+actually change the type of b_blocknr as far as printk is concerned.
+You would need to cast it to unsigned long long instead.
 
-I guess I need to put in a special monster printk to explain the error
-events.  You drive, hardware, and data are secure because of a feature I
-created, but chose not to patent (nice guy erm sucker et al.).  However
-you do have issues that cause the driver to invoke the transfer rate
-reduction feature set.  You can simply try put the drive back in the
-faster mode and if it likes it fine, otherwise it will down grade again to
-stablize throughput.
-
-The choice is to have it continue with multiple retries w/ the higher
-transfer rate, or reduce the io rate but have success on a consistant
-bases.
-
-Cheers,
-
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sat, 18 May 2002, ULISSES FURQUIM FREIRE DA SILVA wrote:
-
-> 
-> Hi,
-> 
-> 	I installed Red Hat 7.3 and the 2.4.18-3 kernel shows some IDE
-> errors on boot like:
-> 
-> VFS: Mounted root (ext2 filesystem).
-> Journalled Block Device driver loaded
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> ide0: reset: success
-> kjournald starting.  Commit interval 5 seconds
-> EXT3-fs: mounted filesystem with ordered data mode.
-> 
-> 	I also tried the 2.4.18-4 kernel, but the errors continue. It's
-> weird cause this happen only on boot and in spite of it the system runs
-> fine.
-> 	I have a SiS 5513 chipset with a QUANTUM FIREBALLlct15 20 IDE
-> drive.
-> 	I'm not sure if I have a true hardware problem or if there is a
-> bug in the kernel. Any ideas?
-> 	(please CC the answers to me)
-> 
-> Thanks,
-> 
-> -- Ulisses
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

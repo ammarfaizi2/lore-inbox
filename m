@@ -1,90 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbTK1ThB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 14:37:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTK1ThB
+	id S261973AbTK1Thv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 14:37:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTK1Thu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 14:37:01 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:32488 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S261967AbTK1Tg4 (ORCPT
+	Fri, 28 Nov 2003 14:37:50 -0500
+Received: from [80.93.235.74] ([80.93.235.74]:56224 "EHLO office.kom")
+	by vger.kernel.org with ESMTP id S261973AbTK1ThD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 14:36:56 -0500
-Date: Fri, 28 Nov 2003 13:35:36 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@sgi.com>,
-       viro@math.psu.edu, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: hash table sizes
-Message-ID: <20031128193536.GA28519@sgi.com>
-References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125130741.108bf57c.akpm@osdl.org> <20031125211424.GA32636@sgi.com> <20031125132439.3c3254ff.akpm@osdl.org> <yq0d6bcmvfd.fsf@wildopensource.com> <20031128145255.GA26853@sgi.com> <yq08ym0mpig.fsf@wildopensource.com>
+	Fri, 28 Nov 2003 14:37:03 -0500
+Subject: Re: /proc/<pid>/status: VmSize
+From: Vladimir Zidar <vladimir@mindnever.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1070047087.4058.469.camel@mravojed>
+References: <1070047087.4058.469.camel@mravojed>
+Content-Type: text/plain
+Organization: MindNever Dot Org
+Message-Id: <1070048518.31302.7.camel@mravojed>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq08ym0mpig.fsf@wildopensource.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 28 Nov 2003 20:41:58 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ In addition, here are status and statm files:
 
-On Fri, Nov 28, 2003 at 11:22:47AM -0500, Jes Sorensen wrote:
-> >>>>> "Jack" == Jack Steiner <steiner@sgi.com> writes:
+[ status ]
+
+Name:   v
+State:  S (sleeping)
+Tgid:   15675
+Pid:    15675
+PPid:   15651
+TracerPid:      0
+Uid:    502     502     502     502
+Gid:    502     502     502     502
+FDSize: 16384
+Groups: 502 10
+VmSize:  2111108 kB
+VmLck:         0 kB
+VmRSS:   1114900 kB
+VmData:   190332 kB
+VmStk:        40 kB
+VmExe:        28 kB
+VmLib:      5424 kB
+SigPnd: 0000000000000000
+SigBlk: 0000000080000000
+SigIgn: 0000000000001000
+SigCgt: 0000000380000002
+CapInh: 0000000000000000
+CapPrm: 0000000000000000
+CapEff: 0000000000000000
+
+[ statm ]
+
+425731 278725 180470 8 276340 2377 276132
+
+
+On Fri, 2003-11-28 at 20:18, Vladimir Zidar wrote:
+>  Hola,
 > 
-> Jack> On Fri, Nov 28, 2003 at 09:15:02AM -0500, Jes Sorensen wrote:
-> >>  What about something like this? I believe node_present_pages
-> >> should be the same as nym_physpages on a non-NUMA machine. If not
-> >> we can make it min(num_physpages,
-> >> NODE_DATA(0)->node_present_pages).
+>  We are running kernel 2.4.22 on i686 SMP box.
+> Inside are two Intel(R) XEON(TM) CPU 2.00GHz, with hyperthreading
+> enabled, so /proc/cpuinfo shows four CPUs. 
+>  This box has 4GB of RAM installed, and 2GB of swap space.
 > 
-> Jack> The system has a large number of nodes. Physically, each node
-> Jack> has the same amount of memory.  After boot, we observe that
-> Jack> several nodes have substantially less memory than other
-> Jack> nodes. Some of the inbalance is due to the kernel data/text
-> Jack> being on node 0, but by far, the major source of in the
-> Jack> inbalance is the 3 (in 2.4.x) large hash tables that are being
-> Jack> allocated.
+>  The problems we are experiencing are related to heavy usage of VM.
 > 
-> Jack> I suspect the size of the hash tables is a lot bigger than is
-> Jack> needed.  That is certainly the first problem to be fixed, but
-> Jack> unless the required size is a very small percentage (5-10%) of
-> Jack> the amount of memory on a node (2GB to 32GB per node & 256
-> Jack> nodes), we still have a problem.
+>  We have multithreaded application that uses lots of mmap()-ed memory
+> (one big file in size around 700 MB, and lots of anonymous mappings to
+> /dev/zero in average size between 64k and 1MB). This program sometimes
+> grow up to 1.6 GB in size (SIZE that is shown by top utility).. But,
+> sometimes /proc/<pid>/status shows VmSize with more than 2GB, where at
+> the same time top and other /proc/<pid> entries show 1.6GB. This somehow
+> affects pthread_create() call which fails then.
 > 
-> Jack,
+>  The question is, how can happen that different numbers are shown in
+> proc filesystem, for same pid ? (which is part of multithreaded
+> process), and why pthread_create() fails ? Is there maybe 2GB limit on
+> memory size that single process can manage on i386 ? Also, when such
+> program crashes, it creates 2GB core file, which is not completly usable
+> from gdb. (gdb complains that some addresses are not accessible)..
+>  I suspect that this has something to do with amount of RAM (4GB), but
+> we are still trying to get this server tested with only 2GB running in
+> standard (not paged) mode.. but this can take some time, since it is one
+> of our production machines.
 > 
-> I agree with you, however as you point out, there are two problems to
-> deal with, the excessive size of the hash tables on large systems and
-> the imbalance that everything goes on node zero. My patch only solves
-> the first problem, or rather works around it.
 > 
-> Solving the problem of allocating structures on multiple nodes is yet
-> to be solved.
-
-Jes 
-
-Then I still dont understand your proposal. (I probably missed some piece
-of the discussion).
-
-You proposed above to limit the allocation to the amount of memory on a node.
-I dont see that does anything on SN systems - allocation is already limited to 
-that amount because memory between nodes is discontiguous. We need to limit 
-the allocation to a small percentage of the memory on a node. I
-dont see how we can do that without:
-	
-	- using vmalloc (on systems that dont have vmalloc issues)
-		OR
-	- changing algorithms so that a lrge hash table is not
-	  needed. Either lots of smaller hash tables or ???.  I suspect
-	  there are performance issues with this.
-	  	OR
-	- ????
-
-I suppose I need to wait to see the proposal for allocating memory across nodes....
-
-
+>  Anybody, idea ?
+> 
+>  Thanks.
 -- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
 

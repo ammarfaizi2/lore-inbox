@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130695AbRAZWbu>; Fri, 26 Jan 2001 17:31:50 -0500
+	id <S130874AbRAZWhl>; Fri, 26 Jan 2001 17:37:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131303AbRAZWbk>; Fri, 26 Jan 2001 17:31:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39952 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130695AbRAZWbb>; Fri, 26 Jan 2001 17:31:31 -0500
-Message-ID: <3A71FAA0.B6DE6E1A@transmeta.com>
-Date: Fri, 26 Jan 2001 14:30:56 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S131096AbRAZWhc>; Fri, 26 Jan 2001 17:37:32 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:29454 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S130874AbRAZWhY>;
+	Fri, 26 Jan 2001 17:37:24 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101262237.f0QMbFg320806@saturn.cs.uml.edu>
+Subject: Re: RE: hotmail not dealing with ECN
+To: lmb@suse.de (Lars Marowsky-Bree)
+Date: Fri, 26 Jan 2001 17:37:15 -0500 (EST)
+Cc: prandal@herefordshire.gov.uk (Randal Phil),
+        linux-kernel@vger.kernel.org ("Linux-Kernel (E-mail)")
+In-Reply-To: <20010126173744.A5164@marowsky-bree.de> from "Lars Marowsky-Bree" at Jan 26, 2001 05:37:44 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Dominik Kubla <dominik.kubla@uni-mainz.de>
-CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Lars Marowsky-Bree <lmb@suse.de>, James Sutherland <jas88@cam.ac.uk>,
-        "David S. Miller" <davem@redhat.com>,
-        Matti Aarnio <matti.aarnio@zmailer.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <20010126124426.O2360@marowsky-bree.de> <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk> <20010126154447.L3849@marowsky-bree.de> <20010126160342.B7096@pcep-jamie.cern.ch> <20010126161616.A21435@uni-mainz.de> <20010126162707.E7096@pcep-jamie.cern.ch> <20010126232640.B25603@uni-mainz.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Kubla wrote:
-> 
-> On Fri, Jan 26, 2001 at 04:27:07PM +0100, Jamie Lokier wrote:
-> ...
-> > Yeah, Apache and Samba establish _outgoing_ connections with fixed
-> > source ports.... Not!
-> 
-> Oops! Of course. Brain-damage on my part.  Now where is that dammned
-> brown paper bag...
-> 
+>> We may be right, "they" may be wrong, but in the real world
+>> arrogance rarely wins anyone friends.
+>
+> So you also turn of PMTU and just set the MTU to 200 bytes
+> because broken firewalls may drop ICMP ?
 
-ftpd and sshd do, however.
+Nah, you don't need to go that low. Try 1200 or 1400 instead.
 
-	-hpa
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

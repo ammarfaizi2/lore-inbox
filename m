@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUKYJPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263026AbUKYJ0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUKYJPY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 04:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUKYJPY
+	id S263026AbUKYJ0g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 04:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUKYJ0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 04:15:24 -0500
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:36623 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S263024AbUKYJOM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 04:14:12 -0500
-Message-ID: <41A59CBF.2030408@stud.feec.vutbr.cz>
-Date: Thu, 25 Nov 2004 09:50:07 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: a.hocquel@oreka.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.28 and prism54
-References: <41A509F9.5020302@oreka.com>
-In-Reply-To: <41A509F9.5020302@oreka.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 25 Nov 2004 04:26:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:28827 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263027AbUKYJZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Nov 2004 04:25:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uoRddwgELFw/CT/a/0jz8hgJo4JyK1/JcnBV/PTU/HdEloz1SXQJBWGw3v6PcGX/YoO3hcX45yIfxEsDHIj2Y6CDJuT2Aaw/nSsVaLkV+2qyKFyieVvcLo8ooo8ik0t5unDVddjPdH4TKscQ5tBNXDJPlEvaNoicu+pOfQi9Gcg=
+Message-ID: <81b0412b04112501253810acba@mail.gmail.com>
+Date: Thu, 25 Nov 2004 10:25:00 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: vmstat: zero cs | system debug
+In-Reply-To: <20041123133805.GF3775@schottelius.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  identified this incoming email as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+References: <20041123133805.GF3775@schottelius.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandre wrote:
-> I decided to look for .config configuration for prism54, but even if I
-> can find "title" in Wireless sub-menu, I can't choose it ! (with both
-> "make menuconfig" and "make config")
+On Tue, 23 Nov 2004 14:38:05 +0100, Nico Schottelius
+<nico-kernel@schottelius.org> wrote:
+> - what could I have done to find out the problem?
+> -> I did ps axu, vmstat, cat /proc/mdstat, free, netstat -an
 
-Maybe you don't have CONFIG_EXPERIMENTAL or CONFIG_HOTPLUG enabled.
+uname -a, lsmod, free, cat /proc/slabinfo (slabtop)
+ps aux -L (to show threads)
 
-Michal
+> - what todo to fix the problem?
+> -> tried killall -9 smbd apache ...
 
+SAK (Alt-SysRq-K) - kill everyone except init

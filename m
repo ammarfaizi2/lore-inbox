@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265191AbTLKSW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 13:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbTLKSW6
+	id S265209AbTLKSZw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 13:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbTLKSZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 13:22:58 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:40277 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S265191AbTLKSW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 13:22:57 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: <rob@landley.net>, "'Larry McVoy'" <lm@bitmover.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: "'Andre Hedrick'" <andre@linux-ide.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>, <Valdis.Kletnieks@vt.edu>,
-       "'Kendall Bennett'" <KendallB@scitechsoft.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause?
-Date: Thu, 11 Dec 2003 10:22:51 -0800
-Organization: Cisco Systems
-Message-ID: <016a01c3c013$c9aaa020$d43147ab@amer.cisco.com>
+	Thu, 11 Dec 2003 13:25:52 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:26514 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265209AbTLKSZu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 13:25:50 -0500
+Message-ID: <3FD8B487.3040504@cyberone.com.au>
+Date: Fri, 12 Dec 2003 05:16:39 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Valdis.Kletnieks@vt.edu
+CC: Robin Rosenberg <roro.l@dewire.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com> <3FD7081D.31093.61FCFA36@localhost> <20031210221800.GM6896@work.bitmover.com>            <200312111844.03839.roro.l@dewire.com> <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
+In-Reply-To: <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <200312110237.42998.rob@landley.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you write software by referring to documentation, the 
-> barrier for it being a derivative work is higher than if you 
-> write it by looking at another implementation.
-> 
-> [and the IBM/Compaq lawsuit]
 
-What you mentioned is not relevant to the discussion, I think.
 
-People who write kernel modules might read kernel sources, yes. But they
-read kernel source to understand how it works, not to clone it. Even
-user space programmers do that. Even people not writing software for
-Linux do that. Isn't the open source spirit to encourage people to read
-it? Now what you said indicates "read me, but you are then tainted and
-when I sue you you have to provide evidence you are not".
+Valdis.Kletnieks@vt.edu wrote:
 
-People also reverse-engineer how closed-source software works. That is
-how we got FAT/NTFS support in Linux. People also write various
-interesting software using undocumented APIs of DOS and Windows.
-Remember TSR? Remember <<Undocumented DOS/Windows>>?
+>On Thu, 11 Dec 2003 18:44:03 +0100, Robin Rosenberg said:
+>
+>
+>>If EXPORT_GPL is changed as a means of protecting the copyright, i..e. provide
+>>source code access. then doesn't this "mechanism" fall under the infamous DMCA, 
+>>i.e. you're not allowed to even think about circumventing it...
+>>
+>
+>17 USC 1201 (a)(1)(A) says:
+>
+>"No person shall circumvent a technological measure that effectively controls
+>access to a work protected under this title. The prohibition contained in the
+>preceding sentence shall take effect at the end of the 2-year period beginning
+>on the date of the enactment of this chapter."
+>
+>OK, so Adobe managed to make the case that rot-13 was an "effective control".
+>Given that the GPL specifically allows you to change the source and thus bypass
+>the EXPORT_GPL, I doubt you can make the case for "effective".
+>
 
-We want the same thing on Linux. Great Linux is open source so we don't
-have to do the same reverse-engineering thing as we did to M$ operating
-systems (IOW, reading source is the easiest way to "reverse-engineer" so
-we could write software that interfaces with the system). Now after
-reading your comment, I have to wonder "which one is nicer, Linux or
-Windows"?
+You know, "effectively" has two (that I know of) meanings.
 
-Hua
+I would be surprised if a case for prosecution could be won based on
+the argument that rot-13 "works properly". Not because I know anything
+about law, maybe naive though.
+
 

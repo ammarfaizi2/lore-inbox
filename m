@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130391AbQKISSv>; Thu, 9 Nov 2000 13:18:51 -0500
+	id <S130758AbQKISTB>; Thu, 9 Nov 2000 13:19:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130235AbQKISSl>; Thu, 9 Nov 2000 13:18:41 -0500
-Received: from mail-03-real.cdsnet.net ([63.163.68.110]:51974 "HELO
-	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S129886AbQKISSX>; Thu, 9 Nov 2000 13:18:23 -0500
-Message-ID: <3A0AEB32.D7EBE448@mvista.com>
-Date: Thu, 09 Nov 2000 10:21:38 -0800
-From: George Anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: mkravetz@sequent.com, linux-kernel@vger.kernel.org
-Subject: Re: test9: running tasks not in run-queue
-In-Reply-To: <20001108151148.B25050@w-mikek.des.sequent.com> <200011090104.RAA17535@pizda.ninka.net>
+	id <S130751AbQKISSw>; Thu, 9 Nov 2000 13:18:52 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7955 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129886AbQKISSo>; Thu, 9 Nov 2000 13:18:44 -0500
+Date: Thu, 9 Nov 2000 19:18:43 +0100
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Subject: Used space in bytes
+Message-ID: <20001109191843.B11373@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    Date:        Wed, 8 Nov 2000 15:11:49 -0800
->    From: Mike Kravetz <mkravetz@sequent.com>
-> 
->    The following code in __wake_up_common() is then
->    executed:
-> 
->            if (best_exclusive)
->                    best_exclusive->state = TASK_RUNNING;
->            wq_write_unlock_irqrestore(&q->lock, flags);
-> 
-> test10 fixes this error, now it sets TASK_RUNNING and
-> adds the task back to the runqueue all under the runqueue
-> lock.
+  Hello.
 
-In our preemptable kernel work we often put (or leave) tasks on the run
-queue that are not in state TASK_RUNNING and want to treat them as if
-they are in state TASK_RUNNING.  We thus changed the test in schedule()
-to "task_on_runqueue(prev)"....
+  I sent similar email a few weeks ago but discussion ended without
+any useful results if I rememeber well.
 
-George
+  Quota in reiserfs is (and needs to be) accounted in bytes not in blocks.
+I modified quota system to allow such thing so in kernel there's no
+problem. But also 'quotacheck' needs to know how many space does given
+file use. Currently it uses st_blocks from stat(2) to compute the space
+used but for reiserfs we need precision in bytes, not in 512 byte blocks...
+My proposal is to alter stat64() syscall to return also number of bytes
+used (I tried to contact Ulrich Drepper <drepper@redhat.com> who should
+be right person to ask about such things (at least I was said so) but go
+no answer...). Does anybody have any better solution?
+  I know about two others - really ugly ones:
+   1) fs specific ioctl()
+   2) compute needed number of bytes from st_size and st_blocks, which is
+      currently possible but won't be in future
+
+						Bye
+
+							Honza
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261258AbSIWNCY>; Mon, 23 Sep 2002 09:02:24 -0400
+	id <S261264AbSIWNIx>; Mon, 23 Sep 2002 09:08:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261291AbSIWNCY>; Mon, 23 Sep 2002 09:02:24 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:647 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261258AbSIWNCX>;
-	Mon, 23 Sep 2002 09:02:23 -0400
-Message-ID: <3D8F1215.8060108@colorfullife.com>
-Date: Mon, 23 Sep 2002 15:07:33 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.37: oom stress test crashes immediately
-Content-Type: multipart/mixed;
- boundary="------------070607000906050502080907"
+	id <S261289AbSIWNIx>; Mon, 23 Sep 2002 09:08:53 -0400
+Received: from mail.emit.pl.108.205.195.in-addr.arpa ([195.205.108.125]:58629
+	"EHLO mail.emit.pl") by vger.kernel.org with ESMTP
+	id <S261264AbSIWNIv>; Mon, 23 Sep 2002 09:08:51 -0400
+Date: Mon, 23 Sep 2002 15:18:20 +0200
+From: Ian Carr-de Avelon <avelon@emit.pl>
+Message-Id: <200209231318.g8NDIKA30432@mail.emit.pl>
+Subject: 2.4.20-pre7 i486
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070607000906050502080907
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-I've added oom handling into the natsemi network driver, but testing it 
-was tricky: I immediately ran into oopses.
-
-The attached patch fails kmalloc and kmem_cache_alloc if
-
-		(jiffies%HZ) < HZ/10
-
-with a 5 minute guaranteed success, for the boot process.
-
-Is that something the kernel should survive? Obviously the computer is 
-unusable after the 5 minute grace period, but I didn't expect oopses.
-
--- 
-
-	Manfred
-
---------------070607000906050502080907
-Content-Type: text/plain;
- name="patch-kmalloc-fail"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-kmalloc-fail"
-
---- 2.5/mm/slab.c	Sat Sep 21 17:03:15 2002
-+++ build-2.5/mm/slab.c	Sun Sep 22 16:59:29 2002
-@@ -1568,6 +1568,9 @@
-  */
- void * kmem_cache_alloc (kmem_cache_t *cachep, int flags)
- {
-+	if (jiffies > HZ*300 && (jiffies % HZ) < HZ/10)
-+		return NULL;
-+
- 	return __kmem_cache_alloc(cachep, flags);
- }
+Compiling 2.4.20-pre7 fails for i486 (still a fer of them around) without 
+Symmetric multi-processing support. With SMP support, the kernel compiles,
+but resets immediately after boot.
+This is with gcc 2.95.3
+Yours
+Ian
  
-@@ -1596,6 +1599,9 @@
- {
- 	cache_sizes_t *csizep = cache_sizes;
- 
-+	if (jiffies > HZ*300 && (jiffies % HZ) < HZ/10)
-+		return NULL;
-+
- 	for (; csizep->cs_size; csizep++) {
- 		if (size > csizep->cs_size)
- 			continue;
-
---------------070607000906050502080907--
+/usr/src/linux/include/linux/modules/ksyms.ver:548: warning: `del_timer_sync' redefined
+/usr/src/linux/include/linux/timer.h:30: warning: this is the location of the previous definition
+In file included from /usr/src/linux/include/linux/interrupt.h:45,
+                 from ksyms.c:21:
+/usr/src/linux/include/asm/hardirq.h:37: warning: `synchronize_irq' redefined
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:90: warning: this is the location of the previous definition
+In file included from ksyms.c:17:
+/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
+/usr/src/linux/include/linux/kernel_stat.h:57: `smp_num_cpus' undeclared (first
+use in this function)
+/usr/src/linux/include/linux/kernel_stat.h:57: (Each undeclared identifier is reported only once
+/usr/src/linux/include/linux/kernel_stat.h:57: for each function it appears in.)make[2]: *** [ksyms.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux/kernel'
+make: *** [_dir_kernel] Error 2
 

@@ -1,104 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbTI2SW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTI2SWZ
+	id S264361AbTI2SaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbTI2RoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:22:25 -0400
-Received: from monty-python.gnu.org ([199.232.76.173]:37028 "EHLO
-	monty-python.gnu.org") by vger.kernel.org with ESMTP
-	id S264275AbTI2SV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:21:58 -0400
-Subject: Linksys/Cisco GPL Violations
-From: David Turner <novalis@fsf.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FtwE+l3OzQFMDkSZIw+p"
-Message-Id: <1064859766.20847.33983.camel@banks>
+	Mon, 29 Sep 2003 13:44:06 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:57784 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263975AbTI2RnB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:43:01 -0400
+Subject: [PATCH 3/4] Explicitly set All-Repeat mode in Set3 on AT keyboards.
+In-Reply-To: <10648573751690@twilight.ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Mon, 29 Sep 2003 19:42:55 +0200
+Message-Id: <10648573751939@twilight.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 29 Sep 2003 14:22:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
---=-FtwE+l3OzQFMDkSZIw+p
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+===================================================================
 
-
-To Linux Developers Concerned about the Linksys/Cisco GPL Violations:
-
-We are in ongoing negotiating with Linksys/Cisco about this issue.
-Information from Andrew Miklas and others has been very helpful to us in
-our negotiations, and we encourage others to share with us any technical
-information about this or any other GPL violation.
-
-This isn't the first GPL violation we have dealt with; we've been
-actively
-enforcing the GPL for over ten years.  Our usual practice is not to
-publicly announce details of ongoing violation negotiations, because we
-find that private negotiation yields quicker and better cooperation.
-By building a relationship with violators where we are helping them to
-come
-into compliance, we avoid having to fight in court, and are able to
-spend
-less resources per violation.  Our number one goal in any GPL violation
-case is to get proper and full compliance with the license; everything
-else is secondary.
-
-GPL violations sometimes take time to resolve.  We wish that we could
-force resolution quicker, but we haven't found a way to do that.  We
-have,
-however, discovered a variant of Brooks's Law: adding more lawyers to a
-GPL violation usually makes it take longer.  Lawyers are reluctant to
-admit to mistakes, because they fear it could be used against them.
-Engineers and product managers are typically interested in fixing
-mistakes, so we try our best to work with them first before escalating
-to
-legal teams on both sides.  Such escalation has happened on this
-violation, so it will take additional time to resolve the matter.
-
-In addition, we are leading a coalition of many copyright holders in the
-WRT54G, as Linux is only one part of a large body of GPL'ed software in
-the product.  We formed this coalition because, having done enforcement
-cases for a product with a broad range of copyright holders before, we
-have found that separate enforcement actions and/or law suits from
-individual copyright holders make attainment of compliance more
-difficult.
-
-We will continue to do everything necessary to obtain full compliance on
-this and any other products where violations can be confirmed.  On this
-particular violation, we will keep the community informed when issues
-come
-up that impact the rights of everyone whose work is being distributed by
-Cisco or any of its subsidiaries.
-
-If you are a copyright holder on software in the WRT54G, or any other
-Cisco product, you are welcome join this coalition.  Please email
-<license-violation@fsf.org> for details.
-
-Sincerely,
-
-David Turner, GPL Compliance Engineer, FSF
-Bradley M. Kuhn, Executive Director, FSF
+ChangeSet@1.1385, 2003-09-29 12:59:49+02:00, vojtech@suse.cz
+  input: Explicitly set All-Repeat mode in Set3 on AT keyboards.
 
 
---=20
--Dave Turner
-GPL Compliance Engineer
-Support my work: http://svcs.affero.net/rm.php?r=3Dnovalis&p=3DFSF
+ atkbd.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
---=-FtwE+l3OzQFMDkSZIw+p
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+===================================================================
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/eHh228Pr/DPj/lYRAhkzAKDHw1nJ8ixdjwcoasGCy3ceRdsebACcDyab
-38sgwtc6b343/VqdxbVfWcI=
-=3Q2a
------END PGP SIGNATURE-----
-
---=-FtwE+l3OzQFMDkSZIw+p--
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Mon Sep 29 19:36:59 2003
++++ b/drivers/input/keyboard/atkbd.c	Mon Sep 29 19:36:59 2003
+@@ -111,6 +111,7 @@
+ #define ATKBD_CMD_SETREP	0x10f3
+ #define ATKBD_CMD_ENABLE	0x00f4
+ #define ATKBD_CMD_RESET_DIS	0x00f5
++#define ATKBD_CMD_SETALL_MBR    0x00fa
+ #define ATKBD_CMD_RESET_BAT	0x02ff
+ #define ATKBD_CMD_RESEND	0x00fe
+ #define ATKBD_CMD_EX_ENABLE	0x10ea
+@@ -519,6 +520,8 @@
+ 		if (atkbd_command(atkbd, param, ATKBD_CMD_SSCANSET))
+ 		return 2;
+ 	}
++
++	atkbd_command(atkbd, param, ATKBD_CMD_SETALL_MBR);
+ 
+ 	return 3;
+ }
 

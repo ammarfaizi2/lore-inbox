@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTEEOra (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 10:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTEEOrI
+	id S262298AbTEEO5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 10:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbTEEO5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 10:47:08 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:59349 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262323AbTEEOq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 10:46:58 -0400
-Date: Mon, 5 May 2003 14:59:20 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Terje Eggestad <terje.eggestad@scali.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030505145920.E23456@devserv.devel.redhat.com>
-References: <20030505113330.B8615@devserv.devel.redhat.com> <Pine.LNX.4.44.0305051650270.1045-100000@einstein31.homenet>
-Mime-Version: 1.0
+	Mon, 5 May 2003 10:57:20 -0400
+Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:61380
+	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
+	id S262298AbTEEO5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 10:57:18 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0305051650270.1045-100000@einstein31.homenet>; from tigran@veritas.com on Mon, May 05, 2003 at 04:53:12PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <16054.32214.804891.702812@panda.mostang.com>
+Date: Mon, 5 May 2003 08:05:58 -0700
+To: Richard Henderson <rth@twiddle.net>
+Cc: David Mosberger-Tang <David.Mosberger@acm.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix vsyscall unwind information
+In-Reply-To: <20030505074248.GA7812@twiddle.net>
+References: <20030502004014$08e2@gated-at.bofh.it>
+	<20030503210015$292c@gated-at.bofh.it>
+	<20030504063010$279f@gated-at.bofh.it>
+	<ugade16g78.fsf@panda.mostang.com>
+	<20030505074248.GA7812@twiddle.net>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: David.Mosberger@acm.org
+X-URL: http://www.mostang.com/~davidm/
+From: davidm@mostang.com (David Mosberger-Tang)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 5 May 2003, Arjan van de Ven wrote:
-> 
-> > On Mon, May 05, 2003 at 01:31:19PM +0200, Terje Eggestad wrote:
-> > > In all fairness this should be done in glibc,
-> > 
-> > ... or a LD_PRELOAD library......
-> 
-> which doesn't work with statically linked binaries, does it?
+>>>>> On Mon, 5 May 2003 00:42:48 -0700, Richard Henderson <rth@twiddle.net> said:
 
-good thing the LGPL on glibc requires a relinkable version to be offered
-as well ;)
+  >> If not, could one be added?
+
+  Richard> Why?  Certainly it isn't needed for x86.
+
+Certain applications (such as debuggers) want to know.  Sure, you can
+do symbol matching (if you have the symbol table) or code-reading
+(assuming you know the exact sigreturn sequence), but having a marker
+would be more reliable and faster.
+
+	--david

@@ -1,86 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266459AbRGHIX4>; Sun, 8 Jul 2001 04:23:56 -0400
+	id <S266469AbRGHIYG>; Sun, 8 Jul 2001 04:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266480AbRGHIXq>; Sun, 8 Jul 2001 04:23:46 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:14859 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S266459AbRGHIXh>; Sun, 8 Jul 2001 04:23:37 -0400
-Date: Sun, 8 Jul 2001 10:23:23 +0200
-From: Joern Heissler <joern@heissler.de>
-To: linux-kernel@vger.kernel.org
-Subject: ide cdrom drive doesn't unlock in a special case
-Message-ID: <20010708102323.A17851@debian.heissler.de>
+	id <S266480AbRGHIX4>; Sun, 8 Jul 2001 04:23:56 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:43013 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S266469AbRGHIXq>;
+	Sun, 8 Jul 2001 04:23:46 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbols in 2.4.6 
+In-Reply-To: Your message of "Sun, 08 Jul 2001 02:46:46 EST."
+             <004e01c10782$250c71c0$66b93604@molybdenum> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 08 Jul 2001 18:23:40 +1000
+Message-ID: <22800.994580620@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 8 Jul 2001 02:46:46 -0500, 
+"Jahn Veach - Veachian64" <V64@Galaxy42.com> wrote:
+>The output of depmod -e -a 2.4.6 can be found at
+>http://galaxy42.com/data/moderr.txt.
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+What does 'grep printk /proc/ksyms' report on the 2.4.6 kernel?  Also
+'nm vmlinux | grep printk' against the vmlinux for your 2.4.6 kernel?
 
-Hello!
-I'm having problems with my cdrom-drive:
-When I access the drive ("cat /dev/cdrom > /dev/null"), the tray is locked.
-
-joern:/# cat /dev/cdrom > /dev/zero
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: ATAPI reset complete
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: ATAPI reset complete
-end_request: I/O error, dev 16:40 (hdd), sector 42016
-cat: /dev/cdrom: Input/output error
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: ATAPI reset complete
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: cdrom_decode_status: error=0x34
-hdd: ATAPI reset complete
-end_request: I/O error, dev 16:40 (hdd), sector 42020
-joern:/#
-
-For some reason, my cdrom drive keeps being locked.
-When I press ctrl-c before cat exits, the drive is unlocked.
-
-I can reproduce it with 2.2.19, 2.4.6-ac2 and 2.4.5-ac13.
-When using 2.2.0, the tray is unlocked.
-
-My cdrom-drive is (according to system-bootup):
-hdd: CD-524EA-B, ATAPI CD/DVD-ROM drive
-
-
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjtIGHsACgkQs5jrxlfHa2bbzgCfa6IDQa5AjlRQcwHGnhfnjsoM
-AtAAn2vdYQfpkRqt3BkQM+YfBvshy5vo
-=KKod
------END PGP SIGNATURE-----
-
---0OAP2g/MAC+5xKAE--

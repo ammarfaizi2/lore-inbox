@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131100AbRAVWVd>; Mon, 22 Jan 2001 17:21:33 -0500
+	id <S131998AbRAVWVy>; Mon, 22 Jan 2001 17:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131145AbRAVWVP>; Mon, 22 Jan 2001 17:21:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57356 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130536AbRAVWUx>;
-	Mon, 22 Jan 2001 17:20:53 -0500
+	id <S131644AbRAVWVe>; Mon, 22 Jan 2001 17:21:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59404 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131160AbRAVWVQ>;
+	Mon, 22 Jan 2001 17:21:16 -0500
 From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101222139.f0MLd8r01730@flint.arm.linux.org.uk>
-Subject: Re: Partition IDs in the New World TM
-To: clausen@conectiva.com.br (Andrew Clausen)
-Date: Mon, 22 Jan 2001 21:39:08 +0000 (GMT)
-Cc: linux-fsdevel@vger.kernel.org, bug-parted@gnu.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A6C642E.2DF49CC0@conectiva.com.br> from "Andrew Clausen" at Jan 22, 2001 02:47:42 PM
+Message-Id: <200101222147.f0MLlxe01758@flint.arm.linux.org.uk>
+Subject: Re: Is this kernel related (signal 11)?
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+Date: Mon, 22 Jan 2001 21:47:58 +0000 (GMT)
+Cc: rmager@vgkk.com (Rainer Mager), linux-kernel@vger.kernel.org
+In-Reply-To: <200101220753.IAA12360@cave.bitwizard.nl> from "Rogier Wolff" at Jan 22, 2001 08:53:13 AM
 X-Location: london.england.earth.mulky-way.universe
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
@@ -22,23 +21,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clausen writes:
-> But, for "well behaved operating systems", can't we do it this way?
-> (For the dos partition table scheme, 0x83 could be our "file system
-> type", 0x82 our "swap type", or whatever)
+Rogier Wolff writes:
+> Harware problems are normally not reproducable. Can you attach a
+> debugger to your X server, and catch it when things go bad? (And
+> give the Xfree86 people a backtrace)
 
-I think you're complaining about the partition IDs in this thread, and not
-the partition "schemes" that Linux supports.  Am I right?
+Bad RAM can be extremely reproducable though, and can certainly produce
+SEGVs.
 
-Well, the Linux kernel doesn't really care about partition IDs at all,
-except in one circumstance - to detect auto RAID partitions.  Apart from
-that, the kernel couldn't care.  You could set all your Ext2 partitions
-as ID 82, your swap as ID 83 and Linux would carry on as if nothing had
-changed.
+Evidence: I recently had a bad 128MB SDRAM which *always* failed at byte
+address 0x220068, which was the middle of the mem_map array.  All I
+needed to do was 'dd if=/dev/hda of=/dev/null' and the machine would
+die within 5 minutes due to an invalid buffer_head pointer.
 
-About the only user programs that know about partition IDs are:
-- fdisk (its part of the partition table format)
-- installers (to stop users doing stupid things)
+The SDRAM naturally passed each and every single memory test I could
+throw at it.  However, a new SDRAM fixed the problem.
+
+It is quite common for SDRAMs to fail in this way - think about the
+failure mode.  Some of the silicon in the SDRAM is damaged.  This isn't
+going to move about, so its going to be in a fixed position.  A fixed
+position means a specific set of transistors, gate, and therefore
+memory location.
+
+In answer to the original posters question, the first step would be
+to grab a copy of memtest86 (iirc its a program that is run from floppy
+disk) and run that on your system.  That /should/ (and I stress should
+there) detect any RAM problems you have.
 
 --
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

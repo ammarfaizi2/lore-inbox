@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274275AbRISXj3>; Wed, 19 Sep 2001 19:39:29 -0400
+	id <S274280AbRISXnK>; Wed, 19 Sep 2001 19:43:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274274AbRISXjT>; Wed, 19 Sep 2001 19:39:19 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64006 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269693AbRISXjE>; Wed, 19 Sep 2001 19:39:04 -0400
-Subject: Re: PROBLEM: [1.] X session randomly crashes because of kernel problem.
-To: stephane.brossier@sun.com (Stephane Brossier)
-Date: Thu, 20 Sep 2001 00:44:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3BA929C7.B6B6000A@sun.com> from "Stephane Brossier" at Sep 19, 2001 04:27:03 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274277AbRISXm7>; Wed, 19 Sep 2001 19:42:59 -0400
+Received: from [24.254.60.23] ([24.254.60.23]:33947 "EHLO
+	femail33.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274273AbRISXmj>; Wed, 19 Sep 2001 19:42:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Roberto Jung Drebes <drebes@inf.ufrgs.br>, linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: [PATCH] VIA bug stomper. Pls apply.
+Date: Wed, 19 Sep 2001 16:41:23 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.GSO.4.21.0109192003270.1374-100000@jacui>
+In-Reply-To: <Pine.GSO.4.21.0109192003270.1374-100000@jacui>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jr0u-0004Dd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01091916412300.00579@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sep 19 00:02:15 129 modprobe: modprobe: Can't locate module binfmt-0000
-> Sep 19 00:02:15 129 kernel: [drm:r128_do_wait_for_fifo] *ERROR*
-> r128_do_wait_for_fifo failed!
+On Wednesday 19 September 2001 04:04 pm, Roberto Jung Drebes wrote:
+> On Wed, 19 Sep 2001, Aaron Tiensivu wrote:
+> > > I've been busy working on other things, and being ill. I've not yet
+> >
+> > pursued
+> >
+> > > it with them
+> >
+> > A minor nit I have with the patch is that it printk's out "Stomping
+> > the Athlon bug", which in actuality is more likely a VIA bug because
+> > the symptoms don't show up in other Althon based chipsets..
+>
+> Anyone tried changing the CPU of a oopsing system to check if it's the
+> CPU or the mobo? I have no other athlon/duron or motherboard to try
+> here.
 
-Thats an X11 3D error, but the bits before it suggest other problems are
-triggering it
+I had a SINGLE report of different CPU's doing different things, but 
+*most* people aren't swapping different chips into the same motherboard 
+very often, so all the people without the problem might have the problem 
+when they put in a different CPU, and those with the problem might have 
+it go away if they put in a different CPU. I can only assume that this 
+BIOS bug is only triggered under certain conditions of the CPU.

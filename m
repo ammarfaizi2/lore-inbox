@@ -1,93 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312376AbSCYJs3>; Mon, 25 Mar 2002 04:48:29 -0500
+	id <S312380AbSCYJuj>; Mon, 25 Mar 2002 04:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312380AbSCYJsT>; Mon, 25 Mar 2002 04:48:19 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:40966 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S312376AbSCYJsL>; Mon, 25 Mar 2002 04:48:11 -0500
-Message-ID: <3C9EF242.6080106@loewe-komp.de>
-Date: Mon, 25 Mar 2002 10:47:46 +0100
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: de, en
+	id <S312381AbSCYJua>; Mon, 25 Mar 2002 04:50:30 -0500
+Received: from mario.gams.at ([194.42.96.10]:22634 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S312380AbSCYJuT>;
+	Mon, 25 Mar 2002 04:50:19 -0500
+Message-Id: <200203250950.KAA23657@merlin.gams.co.at>
+Content-Type: text/plain; charset=US-ASCII
+From: Axel Kittenberger <Axel.Kittenberger@maxxio.com>
+Organization: Maxxio Technologies
+To: David Brown <dave@codewhore.org>
+Subject: Re: Patch, forward release() return values to the close() call
+Date: Mon, 25 Mar 2002 10:50:17 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200203210747.IAA25949@merlin.gams.co.at> <200203220758.IAA09819@merlin.gams.co.at> <20020322085143.A16251@codewhore.org>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <E16pKE0-0004Rb-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
 
-> In message <3C9E1A10.F7AA6D6E@loewe-komp.de> you write:
-> 
->>I can't see a reason why the ack-futex is needed. I think we can simply
->>delete it.
->>When deleted, the broadcast wouldn't block on ack (also preventing 
->>schedule ping-pong). With the cond->lock it's save to have several
->>broadcasters. That's fine.
->>
-> 
-> No, you might end up waking someone who did the pthread_cond_wait()
-> after you did the pthread_cond_broadcast in place of one of the
-> existing pthread_cond_wait() threads.
-> 
-> I don't believe this is allowed.  
-> 
+> This is me talking prior to having coffee, but Chapter 3 of the
+> Rubini/Corbet book says:
+>
+>   The flush operation is invoked when a process closes its copy of a file
+>   descriptor for a device; it should execute (and wait for) any outstanding
+>   operations on the device. This must not be confused with the fsync
+> operation requested by user programs. Currently, flush is used only in the
+> network file system (NFS) code. If flush is NULL, it is simply not invoked.
+>
+> I guess it doesn't specifically say it's not called in midstream, but
+> it reads as if flush() is called on /only/ close(). I may test this
+> today, just for fun.
 
+Oh thats interesting, indeed, so the function name "flush" is just 
+contra-intentional. Oxay I know now how I could have written this driver 
+without patching the kernel.....
 
-Indeed, I suspect that this isn't wanted.
-With the cond->lock you almost prevent this: an ongoing broadcast
-can't be intermixed with newly incoming waiters (they will block
-on futex_down(&cond->lock))
-But there is the window between a->b...
+Still the basic issue/idea is remaining. release() is defined as int return 
+type, but everywhere it's called it's value is discarded. (except internally 
+in "intermezzo" whatever that is)
 
+btw: blkdev_put()  has int return type and seems to return correctly the 
+return value from release()s for block devices, so I guess it would be the 
+right thing for char devs to do also.
 
-> 
->>But:
->>static int __pthread_cond_wait(pthread_cond_t *cond,
->>                               pthread_mutex_t *mutex,
->>                               const struct timespec *reltime)
->>{
->>        int ret;
->>
->>        /* Increment first so broadcaster knows we are waiting. */
->>	futex_down(&cond->lock);
->>        atomic_inc(cond->num_waiting);
->>(*)     futex_up(&mutex, 1);
->>a)	futex_up(&cond->lock, 1);  [move into syscall]
->>        do {
->>b)                ret = futex_down_time(&cond, ABSTIME); [cond_timed_wait]
->>        } while (ret < 0 && errno == EINTR);
->>	[futex_up(&cond->lock, 1); /* release condvar */]
->>
->>        futex_down(&mutex->futex);
->>        return ret;
->>}
->>
->>With the original code, we have a "signal/broadcast lost window (a->b)" 
->>that shouldn't be there:
->>
-> 
-> Where?  Having done the inc, the futex_up at (a) will fall through,
-> giving the "thread behaves as if it [signal or broadcast] were issued
-> after the about-to-block thread has blocked."
-> 
-Right after (a) another thread gets scheduled, issueing a signal/broadcast.
-
-Ah, and then the futex_down_timed() wouldn't block, OK ;-)
-But this way you have to use the ack->lock
-
- 
-
-I strongly believe, that the implementation of a condvar needs a lock
-to prevent intermixed calls. You will see my comment on your implementation
-with uwaitq. ;-)
-
-
-
+The other way I would also see as okay is to state release() can't return 
+anything senseful to anybody, bet then declare it as void return instead. But 
+as the state is currently it's suboptimal from both views.
 

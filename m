@@ -1,70 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272227AbTG3V16 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 17:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272259AbTG3V15
+	id S272253AbTG3V1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 17:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272275AbTG3VZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 17:27:57 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:56969 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S272227AbTG3V1e (ORCPT
+	Wed, 30 Jul 2003 17:25:56 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:59092 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S272273AbTG3VZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 17:27:34 -0400
-Date: Wed, 30 Jul 2003 23:27:18 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Joe Thornber <thornber@sistina.com>, Andrew Morton <akpm@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: dm: v4 ioctl interface (was: Re: Linux v2.6.0-test2)
-In-Reply-To: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
-Message-ID: <Pine.GSO.4.21.0307302314370.29569-100000@vervain.sonytel.be>
+	Wed, 30 Jul 2003 17:25:41 -0400
+Date: Wed, 30 Jul 2003 17:24:36 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm1 & ipsec-tools (xfrm_type_2_50?)
+In-Reply-To: <20030730210414.GA28308@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.56.0307301710550.26621@onqynaqf.yrkvatgba.voz.pbz>
+References: <Pine.LNX.4.56.0307301515250.26621@onqynaqf.yrkvatgba.voz.pbz>
+ <20030730210414.GA28308@outpost.ds9a.nl>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jul 2003, Linus Torvalds wrote:
-> Summary of changes from v2.6.0-test1 to v2.6.0-test2
-> ============================================
-> 
-> Andrew Morton:
->   o dm: v4 ioctl interface
+On Wed, 30 Jul 2003, bert hubert wrote:
 
-This interface code contains a local `resume()' routine, which conflicts with
-the `resume()' defined by many architectures in <asm/*.h>. The patch below
-fixes this by renaming the local routine to `do_resume()'.
+> I recently tested all this again with 2.6.0-test2 and It Just Worked, so I
+> can't confirm this.
 
-However, after this change it still doesn't compile...
+with an all modular build ?
 
---- linux-2.6.0-test2/drivers/md/dm-ioctl-v4.c.orig	Tue Jul 29 23:23:17 2003
-+++ linux-2.6.0-test2/drivers/md/dm-ioctl-v4.c	Wed Jul 30 23:17:16 2003
-@@ -613,7 +613,7 @@
- 	return r;
- }
- 
--static int resume(struct dm_ioctl *param)
-+static int do_resume(struct dm_ioctl *param)
- {
- 	int r = 0;
- 	struct hash_cell *hc;
-@@ -678,7 +678,7 @@
- 	if (param->flags & DM_SUSPEND_FLAG)
- 		return suspend(param);
- 
--	return resume(param);
-+	return do_resume(param);
- }
- 
- /*
+> I run with a very minimal racoon.conf, almost exactly the one found on
+> http://lartc.org/howto/lartc.ipsec.html
 
-Gr{oetje,eeting}s,
+ditto
 
-						Geert
+> I'd suggest posting the relevant bits of your .config
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+!/usr/sbin/setkey -f
+flush;
+spdflush;
+spdadd 9.30.62.131 9.51.94.26 any -P out ipsec
+        esp/transport//require;
+spdadd 9.51.94.26 9.30.62.131 any -P in ipsec
+        esp/transport//require;
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+/etc/racoon/racoon.conf
+remote 9.51.94.26
+{
+	exchange_mode main;
+	my_identifier asn1dn;
+	peers_identifier asn1dn;
+	certificate_type x509 "<cert>" "<key>";
+	peers_certfile "<remote cert>";
+	proposal {
+        encryption_algorithm 3des;
+		hash_algorithm sha1;
+		authentication_method rsasig;
+		dh_group modp1536 ;
+	}
+}
+sainfo anonymous
+{
+    pfs_group modp1536;
+    encryption_algorithm 3des ;
+    authentication_algorithm hmac_sha1 ;
+    compression_algorithm deflate ;
+}
+
+Again, the remote is freeswan 1.96
 
 
+> Good luck!
+Thanks, I'll probably be needing it :)
+
+-- 
+Rick Nelson
+I can saw a woman in two, but you won't want to look in the box when I do
+'For My Next Trick I'll Need a Volunteer' -- Warren Zevon

@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263588AbTJCHhO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 03:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTJCHhO
+	id S263553AbTJCHk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 03:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTJCHk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 03:37:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21823 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263588AbTJCHhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 03:37:12 -0400
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Andries.Brouwer@cwi.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] linuxabi
-References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl>
-	<m17k3nhfex.fsf@ebiederm.dsl.xmission.com>
-	<20031002153301.GA2033@win.tue.nl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Oct 2003 01:36:19 -0600
-In-Reply-To: <20031002153301.GA2033@win.tue.nl>
-Message-ID: <m13ceahix8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Oct 2003 03:40:27 -0400
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:1541 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S263553AbTJCHkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 03:40:23 -0400
+Subject: [PATCH] macintosh/adbhid.c REP_DELAY fix (was Re: 2.6.0-test5 -
+	stuck keys on iBook)
+From: Brice Figureau <brice@tincell.com>
+To: cliff white <cliffw@osdl.org>
+Cc: linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20030930143149.4930ec9c.cliffw@osdl.org>
+References: <20030930143149.4930ec9c.cliffw@osdl.org>
+Content-Type: text/plain
+Message-Id: <1065166822.7878.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Fri, 03 Oct 2003 09:40:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> writes:
+Hi Cliff,
 
-> On Thu, Oct 02, 2003 at 08:39:50AM -0600, Eric W. Biederman wrote:
+On Tue, 2003-09-30 at 23:31, cliff white wrote:
+> Kernel version: latest from ppc.bkbits.net/linuxppc-2.5
 > 
-> > This is a 2.7 project.
-> 
-> I disagree. This is unrelated to kernel development, just like working
-> on sparse is unrelated to kernel development. 
+> Symptom: keyboard diarrhea - single keypress == 3-7 characters.
 
-Granted.  The major point is that it requires a development cycle
-before it is ready.  Only if this is to be maintained as part of
-the kernel is it needed to be 2.7 work.
+Here is a patch that fixes the keyboard problem. The input layer
+REP_DELAY (and REP_PERIOD) were changed from jiffies to ms but the adb
+was not updated accordingly.
 
-> > Doing this right requires a lot more
-> > than what you are doing here.
-> 
-> Possibly. So we need discussion.
-> 
-> I have registered comment #1: Al prefers the enum style.
-> A possibility.
-> 
-> Now you come with comment #2: write LINUX_MS_RDONLY instead of
-> MS_RDONLY. You have not convinced me.
+I hope this will help you.
 
-My point is that we need to cleanly handle the fact that glibc
-defines it's own abi that is not equivalent to the kernel abi.
-A linux specific namespace does that.  After libc is done with
-the definitions users will still use MS_RDONLY.
+Brice
 
-Using defines unconditionally in a private namespace is cumbersome.
-A better way to go is probably:
+--- drivers/macintosh/adbhid.c.orig	2003-10-02 22:39:31.112571794 +0200
++++ drivers/macintosh/adbhid.c	2003-10-02 22:40:22.888120863 +0200
+@@ -611,8 +611,8 @@
+ 		/* HACK WARNING!! This should go away as soon there is an utility
+ 		 * to control that for event devices.
+ 		 */
+-		adbhid[id]->input.rep[REP_DELAY] = HZ/2;   /* input layer default: HZ/4 */
+-		adbhid[id]->input.rep[REP_PERIOD] = HZ/15; /* input layer default: HZ/33 */
++		adbhid[id]->input.rep[REP_DELAY] = 500;   /* input layer default: 250 */
++		adbhid[id]->input.rep[REP_PERIOD] = 66;   /* input layer default:  33 */
+ 	}
+ }
+ 
 
-linuxabi/features.h
-....
-#ifdef __USE_LINUX_NS
-# define LINUX_NS(X) LINUX_##
-#else
-# define LINUX_NS(X) X
-#endif
 
-.....
-linuxabi/mountflags.h
-#include <linuxabi/features.h>
-enum {
-        LINUX_NS(MS_RDONLY) = 1,
-	LINUX_NS(MS_NOSUID) = 2,
-};
-
-The result being that defines are placed in their own namespace
-if necessary to avoid libc/kernel abi differences.
-
-Eric

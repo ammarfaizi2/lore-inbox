@@ -1,81 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268480AbUHQWLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268482AbUHQWQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268480AbUHQWLY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 18:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268478AbUHQWK4
+	id S268482AbUHQWQk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 18:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268484AbUHQWQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 18:10:56 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:60586 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268475AbUHQWKh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 18:10:37 -0400
-Subject: [PATCH] 2.6.8.1-mm1 - move CONFIG_SCHEDSTATS  to
-	arch/ppc64/Kconfig.debug
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1092780837.23599.160.camel@pants.austin.ibm.com>
+	Tue, 17 Aug 2004 18:16:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7082 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268479AbUHQWQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 18:16:19 -0400
+Date: Tue, 17 Aug 2004 18:15:25 -0400
+From: Alan Cox <alan@redhat.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: switch ide-proc to use the ide_key functionality
+Message-ID: <20040817221525.GA29340@devserv.devel.redhat.com>
+References: <20040815150414.GA12181@devserv.devel.redhat.com> <200408170231.25725.bzolnier@elka.pw.edu.pl> <20040817010533.GB32628@devserv.devel.redhat.com> <200408171248.12235.bzolnier@elka.pw.edu.pl> <20040817120622.GF3204@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 17:13:57 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040817120622.GF3204@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 17, 2004 at 08:06:22AM -0400, Alan Cox wrote:
+> I'll have a look at what occurs if we make the ->key functions ref count
+> and add "put" functions. I think that can be made to work cleanly without
+> changing the rest of the code to refcounts at the same time. It'll still need
+> some locking because of the memset.  We would still have keys but we'd
+> refcount usage off them as a starting point.
 
-Otherwise it shows up under "iSeries device drivers", which doesn't
-seem right.
+Ok fixed this by using the cfg_sem. refcounting breaks the non refcounted
+code and its assumptions (good bad or otherwise). I've dropped the locking
+in in such a way as switching to refcounts later is easier.
 
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-
-
----
-
-
-diff -puN arch/ppc64/Kconfig~schedstats-to-ppc64-debug-kconfig arch/ppc64/Kconfig
---- 2.6.8.1-mm1/arch/ppc64/Kconfig~schedstats-to-ppc64-debug-kconfig	2004-08-17 17:03:41.000000000 -0500
-+++ 2.6.8.1-mm1-nathanl/arch/ppc64/Kconfig	2004-08-17 17:03:41.000000000 -0500
-@@ -334,18 +334,6 @@ config VIOTAPE
- 	  If you are running Linux on an iSeries system and you want Linux
- 	  to read and/or write a tape drive owned by OS/400, say Y here.
- 
--config SCHEDSTATS
--	bool "Collect scheduler statistics"
--	depends on DEBUG_KERNEL && PROC_FS
--	help
--	  If you say Y here, additional code will be inserted into the
--	  scheduler and related routines to collect statistics about
--	  scheduler behavior and provide them in /proc/schedstat.  These
--	  stats may be useful for both tuning and debugging the scheduler
--	  If you aren't debugging the scheduler or trying to tune a specific
--	  application, you can say N to avoid the very slight overhead
--	  this adds.
--
- endmenu
- 
- config VIOPATH
-diff -puN arch/ppc64/Kconfig.debug~schedstats-to-ppc64-debug-kconfig arch/ppc64/Kconfig.debug
---- 2.6.8.1-mm1/arch/ppc64/Kconfig.debug~schedstats-to-ppc64-debug-kconfig	2004-08-17 17:03:41.000000000 -0500
-+++ 2.6.8.1-mm1-nathanl/arch/ppc64/Kconfig.debug	2004-08-17 17:03:41.000000000 -0500
-@@ -54,4 +54,16 @@ config SPINLINE
- 
- 	  If in doubt, say N.
- 
-+config SCHEDSTATS
-+	bool "Collect scheduler statistics"
-+	depends on DEBUG_KERNEL && PROC_FS
-+	help
-+	  If you say Y here, additional code will be inserted into the
-+	  scheduler and related routines to collect statistics about
-+	  scheduler behavior and provide them in /proc/schedstat.  These
-+	  stats may be useful for both tuning and debugging the scheduler
-+	  If you aren't debugging the scheduler or trying to tune a specific
-+	  application, you can say N to avoid the very slight overhead
-+	  this adds.
-+
- endmenu
-
-_
-
+Alan
 

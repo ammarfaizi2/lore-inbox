@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263560AbTCUJUw>; Fri, 21 Mar 2003 04:20:52 -0500
+	id <S263568AbTCUJVV>; Fri, 21 Mar 2003 04:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263567AbTCUJUw>; Fri, 21 Mar 2003 04:20:52 -0500
-Received: from navigator.sw.com.sg ([213.247.162.11]:57014 "EHLO
-	navigator.sw.com.sg") by vger.kernel.org with ESMTP
-	id <S263560AbTCUJUv>; Fri, 21 Mar 2003 04:20:51 -0500
-From: Vladimir Serov <vserov@infratel.com>
-To: trond.myklebust@fys.uio.no
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <3E7ADBFD.4060202@infratel.com>
-Date: Fri, 21 Mar 2003 12:31:41 +0300
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S263567AbTCUJVV>; Fri, 21 Mar 2003 04:21:21 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:41476 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S263568AbTCUJVS>; Fri, 21 Mar 2003 04:21:18 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303210933.h2L9XmiZ000401@81-2-122-30.bradfords.org.uk>
+Subject: Re: Release of 2.4.21
+To: sflory@rackable.com (Samuel Flory)
+Date: Fri, 21 Mar 2003 09:33:48 +0000 (GMT)
+Cc: akpm@digeo.com, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+In-Reply-To: <3E7A6B4F.1000205@rackable.com> from "Samuel Flory" at Mar 20, 2003 05:30:55 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
-References: <20030318155731.1f60a55a.skraw@ithnet.com>	<3E79EAA8.4000907@infratel.com> <15993.60520.439204.267818@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+> >>>>For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
+> >>>>the 2.4.21-pre cycle, that would be less productive than just patching
+> >>>>2.4.20 and rolling a separate release off of that.
+> >>>>        
+> >>>>
+> >>>I think the naming is illogical.  If there's a bugfix-only release
+> >>>it whould have normal incremental numbers.  So if marcelo want's
+> >>>it he should clone a tree of at 2.4.20, apply the essential patches
+> >>>and bump the version number in the normal 2.4 tree to 2.4.22-pre1
+> >>>      
+> >>>
+> >>No point in making things too complex.  2.4.20-post1 is something people can
+> >>easily understand.
+> >>
+> >>I needed that for the ext3 problems which popped up shortly after 2.4.20 was
+> >>released - I was reduced to asking people to download fixes from my web page.
+> >>
+> >>And having a -post stream may allow us to be a bit more adventurous in the
+> >>-pre stream.
+> >>    
+> >>
+> >
+> >Why can't we just make all releases smaller and more frequent?
+> >
+> >Why do we need 2.4.x-pre at all, anyway - why can't we just test
+> >things in the -[a-z][a-z] trees, and _start_ with -rc1?
+> >
+> >Why can't we just do bugfixes for 2.4, and speed up 2.5 development?
+> >
+> >  
+> >
+> 
+>   That would imply some changes could take place in a short cycle.  This 
+> is not true for things like major ide subsystem updates.
 
->>>>>>" " == Vladimir Serov <vserov@infratel.com> writes:
->>>>>>            
->>>>>>
->
->     > interrupt handler for NIC, it's gone !!!  IMHO this is due to
->     > the race in the nfs client.
->
->Why would an NFS race show up only on PPC? Do you have a tcpdump?
->  
->
-Hi , Trond
-As I wrote , another persone has similar problems on PC's,  as to me it 
-was a big suprise to see such a problem in nfs, cause i'm using it for 
-over 10 yers in a different setups's OS's , etc. Yes I have tcpdump , 
-and as i wrote, nothing wrong is going on with packet receiption,  where 
-is now corrupted packets , no error messages, NOTHING !!!! Just RPC 
-request gets lost, I mean not correctly connected to the some queue or 
-caller. It last for over a year ,  and is a big pain in the ass of 
-company i'm working for now.
+We should not have major updates like that as a regular occurance in
+the stable kernel series.  If they are necessary, we could break with
+the small, frequent updates, and go back to what we have now.
 
-With best regards, Vladimir.
+Why can't we basically have two modes of working:
+
+* When nothing major is being re-written:
+
+Small, frequent updates.  -pre and -rc version numbering used to
+indicate kernels which haven't had much testing.  Larger updates
+existing in -[a-z][a-z] trees.
+
+
+* When an update to a core subsystem is in progress
+
+Larger, less frequent updates.  -pre and -rc versions getting more
+testing, and -[a-z][a-z] trees for very experimental code.
+
+
+I know there are frequently suggestions about how to organise kernel
+development, and they are usually ignored, because we generally don't
+like to work however we want to, but this suggestion is just common
+sense.  When nothing much is going on, release smaller changes to get
+a lot of testing of the same codebase.  When major work is going on,
+separate out the minor updates to give people flexibility in testing.
+
+John.

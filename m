@@ -1,62 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135209AbRDVEMJ>; Sun, 22 Apr 2001 00:12:09 -0400
+	id <S135217AbRDVESA>; Sun, 22 Apr 2001 00:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135210AbRDVEL6>; Sun, 22 Apr 2001 00:11:58 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:29956 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S135208AbRDVELk>;
-	Sun, 22 Apr 2001 00:11:40 -0400
-Date: Sun, 22 Apr 2001 00:12:09 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010422001209.G15644@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <esr@thyrsus.com> <200104220228.f3M2St1s023522@sleipnir.valparaiso.cl>
+	id <S135221AbRDVERv>; Sun, 22 Apr 2001 00:17:51 -0400
+Received: from leng.mclure.org ([64.81.48.142]:7172 "EHLO
+	leng.internal.mclure.org") by vger.kernel.org with ESMTP
+	id <S135217AbRDVERd>; Sun, 22 Apr 2001 00:17:33 -0400
+Date: Sat, 21 Apr 2001 21:17:22 -0700
+From: Manuel McLure <manuel@mclure.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12
+Message-ID: <20010421211722.C976@ulthar.internal.mclure.org>
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200104220228.f3M2St1s023522@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sat, Apr 21, 2001 at 10:28:55PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Apr 21, 2001 at 19:53:38 -0700
+X-Mailer: Balsa 1.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@sleipnir.valparaiso.cl>:
-> It has been my observation that human organizations over time grow
-> mechanisms for doing the routine (i.e., frequent) tasks quite efficiently,
-> while sporadic tasks are usually handled in ad hoc, case by case ways,
-> which can be very inefficient (and usually frustrating to the would-be
-> user).
 
-Right you are.
- 
-> In our case, the whole kernel development system is quite adept at soaking
-> up point patches (the bread-and-butter in LKM), while larger scope changes
-> (like the one you are proposing, and also some cleanup patch I proposed a
-> long while back, and the other scattered changes I've seen fly by) are very
-> infrequent and so not handled at all well.
+On 2001.04.21 19:53 Alan Cox wrote:
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
+> 		Intermediate diffs are available from
+> 
+> 			http://www.bzimage.org
+> 
+> 2.4.3-ac12
+> o	Further semaphore fixes				(David
+Howells)
 
-Indeed this is the case.  I think such global cleanups are, in fact, less
-frequent than they should be precisely *because* lkml's social machinery
-discourages them.
+Something's wrong with this - it won't build with RH 7.1 kgcc
+(egcs-2.91.66):
 
-> Question is, is it really worth it to create specialized tools for this
-> very rare case?
+ld -m elf_i386 -T /usr/src/linux-2.4.3-ac12/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+	--start-group \
+	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
+fs/fs.o ipc/ipc.o \
+	drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o  drivers/char/drm/drm.o
+drivers/net/fc/fc.o drivers/net/appletalk/appletalk.o
+drivers/net/tokenring/tr.o drivers/net/wan/wan.o drivers/atm/atm.o
+drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o
+drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o
+drivers/acpi/acpi.o arch/i386/math-emu/math.o \
+	net/network.o \
+	/usr/src/linux-2.4.3-ac12/arch/i386/lib/lib.a
+/usr/src/linux-2.4.3-ac12/lib/lib.a /usr/src/linux-2.4.3-ac12/arch/i386/lib/lib.a
+\
+	--end-group \
+	-o vmlinux
+/usr/src/linux-2.4.3-ac12/lib/lib.a(rwsem.o): In function
+`rwsem_down_read_failed':
+rwsem.o(.text+0x73): undefined reference to `__builtin_expect'
+/usr/src/linux-2.4.3-ac12/lib/lib.a(rwsem.o): In function
+`rwsem_down_write_failed':
+rwsem.o(.text+0x1d3): undefined reference to `__builtin_expect'
+/usr/src/linux-2.4.3-ac12/lib/lib.a(rwsem.o): In function
+`rwsem_up_read_wake':
+rwsem.o(.text+0x2ed): undefined reference to `__builtin_expect'
+/usr/src/linux-2.4.3-ac12/lib/lib.a(rwsem.o): In function
+`rwsem_up_write_wake':rwsem.o(.text+0x3c6): undefined reference to
+`__builtin_expect'
+make: *** [vmlinux] Error 1
+Sat Apr 21 20:35:37 PDT 2001
 
-Yes, if the rare case of supporting global cleanups actually needs to be a
-more common one.  Think about that for a while, please.
+ac12 builds OK with the standard RH 7.1 gcc (2.96), ac11 built fine with
+both the standard gcc and kgcc.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft
 
-Faith may be defined briefly as an illogical belief in the occurrence
-of the improbable...A man full of faith is simply one who has lost (or
-never had) the capacity for clear and realistic thought. He is not a
-mere ass: he is actually ill.
-	-- H. L. Mencken 

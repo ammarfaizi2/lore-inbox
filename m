@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130892AbRAHTTN>; Mon, 8 Jan 2001 14:19:13 -0500
+	id <S132006AbRAHTTn>; Mon, 8 Jan 2001 14:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131213AbRAHTTD>; Mon, 8 Jan 2001 14:19:03 -0500
-Received: from dns1.rz.fh-heilbronn.de ([141.7.1.18]:32888 "EHLO
-	dns1.rz.fh-heilbronn.de") by vger.kernel.org with ESMTP
-	id <S131242AbRAHTS1>; Mon, 8 Jan 2001 14:18:27 -0500
-Date: Mon, 8 Jan 2001 20:18:24 +0100 (CET)
-From: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: xircom_tulip_cb
-Message-ID: <Pine.LNX.4.05.10101082005500.25931-100000@lara.stud.fh-heilbronn.de>
+	id <S132002AbRAHTTZ>; Mon, 8 Jan 2001 14:19:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8323 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131213AbRAHTTU>; Mon, 8 Jan 2001 14:19:20 -0500
+Date: Mon, 8 Jan 2001 14:18:57 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Steven_Snyder@3com.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Shared memory not enabled in 2.4.0?
+In-Reply-To: <882569CE.0069993A.00@hqoutbound.ops.3com.com>
+Message-ID: <Pine.LNX.3.95.1010108141616.23598A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HY HY
+On Mon, 8 Jan 2001 Steven_Snyder@3com.com wrote:
 
-I have a Xircom R2BE-100, RealPort2 CardBus Ethernet 10/100.
+> 
+> 
+> For some reason shared memory is not being enabled on my system running kernel
+> v2.4.0 (on RedHat v6.2,  with all updates applied).
+> 
+> Per the documentation I have this line in my /etc/fstab:
+> 
+>      none  /dev/shm  shm defaults  0 0
+> 
+> Yes, I have created this subdirectory:
+> 
+>      # ls -l /dev | grep shm
+>      drwxrwxrwt    1 root     root            0 Jan  7 11:54 shm
+> 
 
-With RH6.2, 2.2.17 and pcmcia-cs-3.1.19 everything was fine.
+[Snipped...]
 
-With RH7, 2.2.18 and pcmcia-cs-3.1.23 the Card did not work. With ifconfig
--a it was displayed, but it doesn't work.
+You do have shared memory or else your shared libraries would not
+work. The problem is that somebody decided that the CPU cost to
+calculate the amount used was "too great", so it's not being shown.
 
-With 2.4.0-ac2 and Kernel-PCMCIA the same effekt.
+Hopefully this will be resolved at a later date and we will again
+be able to see shared memory activity.
 
-Exceuting 'ifconfig eth0 promisc' caused the card to work.
 
-BYtE Oli
+Cheers,
+Dick Johnson
 
-+++LINUX++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+++Manchmal stehe ich sogar nachts auf und installiere mir eins....+++++++
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
- 
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261968AbRFBWku>; Sat, 2 Jun 2001 18:40:50 -0400
+	id <S261990AbRFBWnU>; Sat, 2 Jun 2001 18:43:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261988AbRFBWkk>; Sat, 2 Jun 2001 18:40:40 -0400
-Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:37861 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S261968AbRFBWkb>; Sat, 2 Jun 2001 18:40:31 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Date goes four times faster!
-Date: Sun, 3 Jun 2001 00:51:49 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S261988AbRFBWnK>; Sat, 2 Jun 2001 18:43:10 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22547 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262009AbRFBWm6>; Sat, 2 Jun 2001 18:42:58 -0400
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Message-ID: <3B196BE4.79CFFAF4@transmeta.com>
+Date: Sat, 02 Jun 2001 15:42:44 -0700
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20010602224035Z261968-933+3296@vger.kernel.org>
+To: Russell King <rmk@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: missing sysrq
+In-Reply-To: <Pine.LNX.4.10.10106011050380.2614-100000@coffee.psychology.mcmaster.ca> <20010601203841Z261493-933+3160@vger.kernel.org> <9f97hu$83v$1@cesium.transmeta.com> <20010602230815.A22390@flint.arm.linux.org.uk> <3B19646F.CBB6DB65@transmeta.com> <20010602233920.A23300@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> > > This noon I found that the date went four times faster! It was going
-> > > well before about 11 PM Wen May 30. But after that the date
-> > 
-> > :-) On my system, date likes to go 3 times slower when I do heavy
-> > scrolling. Maybe we should teach our computers to do something in the
-> > middle ;-).
->
-> That is a console locking flaw. Its fixed in the -ac series
+Russell King wrote:
+> 
+> On Sat, Jun 02, 2001 at 03:10:55PM -0700, H. Peter Anvin wrote:
+> > That seems like a very bad idea.  What if there is a boot script bug?
+> 
+> Also think about kernel panics - the only thing that works after that
+> is the power or (if you have it connected) reset button.  ctrl-alt-del
+> needs keventd to work, and since sysrq-b is disabled by default...
+> 
+> However, IMHO that is a non-point because you need to be physically
+> at the system either way to solve the problem.
+> 
 
-I use your -ac series ever (did I? :-) but I am under the impression that my 
-hardware clock (date in the long run) is running (little) to fast.
+Not true if you have a serial console (and SysRq over serial console
+happens to work correctly that day.)  Assuming this change is corrected
+to be sane.
 
-System:
-
-Athlon I 550 (0.25 µm)
-MSI MS-6167 (AMD Irongate C4) --- Yes, Alan the very first one...;-)
-ACPI anabled...
-
-Have a nice Pentecost.
-
--Dieter
-
+	-hpa

@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267165AbSLKPES>; Wed, 11 Dec 2002 10:04:18 -0500
+	id <S267178AbSLKPBh>; Wed, 11 Dec 2002 10:01:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSLKPES>; Wed, 11 Dec 2002 10:04:18 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:56592 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267165AbSLKPES>; Wed, 11 Dec 2002 10:04:18 -0500
-Date: Wed, 11 Dec 2002 15:12:05 +0000
-To: lvm-devel@sistina.com
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [lvm-devel] Re: [PATCH] dm.c - device-mapper I/O path fixes
-Message-ID: <20021211151205.GB22145@reti>
-References: <02121016034706.02220@boiler> <02121107165303.29515@boiler> <200212111430.gBBETua06759@Port.imtp.ilyichevsk.odessa.ua> <02121108022404.29515@boiler>
+	id <S267180AbSLKPBh>; Wed, 11 Dec 2002 10:01:37 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:40898
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267178AbSLKPBg>; Wed, 11 Dec 2002 10:01:36 -0500
+Subject: Re: Oops 2.4.20-ac1 & 2.4.21-pre1 ide-scsi
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alexander Grishin <gri@ses.bryansk.elektra.ru>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212110907.58987.gri@ses.bryansk.elektra.ru>
+References: <200212110907.58987.gri@ses.bryansk.elektra.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 15:46:36 +0000
+Message-Id: <1039621596.17702.17.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <02121108022404.29515@boiler>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 08:02:24AM -0600, Kevin Corry wrote:
-> Perhaps we could make "error" and atomic_t, and store the absolute-value of 
-> the error code, and always return -error in the bio_endio() call. Or is that 
-> just too ugly?
+On Wed, 2002-12-11 at 06:07, Alexander Grishin wrote:
+> The next commands:
+> 
+>   modprobe ide-scsi
+>   rmmod ide-scsi
+>   mount -t iso9660 /dev/hdc /mnt
 
-Too ugly :)
+I'll look into that
+

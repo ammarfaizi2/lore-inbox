@@ -1,34 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277152AbRKMHRE>; Tue, 13 Nov 2001 02:17:04 -0500
+	id <S281547AbRKMHLX>; Tue, 13 Nov 2001 02:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281489AbRKMHQy>; Tue, 13 Nov 2001 02:16:54 -0500
-Received: from 24-168-215-96.he.cox.rr.com ([24.168.215.96]:28820 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S277152AbRKMHQm>;
-	Tue, 13 Nov 2001 02:16:42 -0500
-Date: Tue, 13 Nov 2001 02:16:36 -0500
-Subject: Re: HFS Filesystem
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v472)
-Cc: linux-kernel@vger.kernel.org
-To: Simon Bazley <sibaz@sibaz.com>
-From: Anthony DeRobertis <asd@suespammers.org>
-In-Reply-To: <3BEF18BA.41D7F503@sibaz.com>
-Message-Id: <5FB8FFFA-D806-11D5-A2FE-00039355CFA6@suespammers.org>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.472)
+	id <S281546AbRKMHLO>; Tue, 13 Nov 2001 02:11:14 -0500
+Received: from [203.197.249.146] ([203.197.249.146]:23947 "EHLO
+	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
+	id <S281489AbRKMHK5>; Tue, 13 Nov 2001 02:10:57 -0500
+Message-ID: <3BF11605.335EBC76@wipro.com>
+Date: Tue, 13 Nov 2001 18:15:57 +0530
+From: "s.srinivas" <srinivas.surabhi@wipro.com>
+Reply-To: srinivas.surabhi@wipro.com
+X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.5-15 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: % more space reqd. when dd is used? 
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sunday, November 11, 2001, at 07:32 , Simon Bazley wrote:
+This is a multi-part message in MIME format.
 
-> What information or documentation is there on HFS and writing 
-> linux applications what use resource forks and other mac 
-> quirkiness.
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I'd suggest Inside Macintosh: Files, which is probably still 
-available on http://developer.apple.com/. There are also the 
-tech notes. And, of course, Darwin has apple's own HFS (and 
-HFS+) implementation.
+hi all,
 
+I have two  physical harddisks /dev/hda1 and /hdb
+
+1) i want to copy drive (take backup) to a file ( in /hdb)using dd.
+So how much space( in terms percentage)more is required in /hdb
+for it to be copied successfully.
+
+2) After copying using dd if=/dev/hda1 of=/hdb/backup
+
+how to retrive it back again in terms of directories and sub-directories
+and files.
+
+thank u all
+
+regards
+vasu
+
+
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+The Information contained and transmitted by this E-MAIL is proprietary to Wipro and/or its Customer and is intended 
+for use only by the individual or entity to which it is addressed, and may contain information that is privileged,
+confidential or exempt from disclosure under applicable law. If this is a forwarded message, the content of this
+E-MAIL may not have been sent with the authority of the Company. If you are not the intended recipient, an agent
+of the intended recipient or a  person responsible for delivering the information to the named recipient,  you are
+notified that any use, distribution, transmission, printing, copying or dissemination of this information in any way
+or in any manner is strictly prohibited. If you have received this communication in error, please delete this mail &
+notify us immediately at mailadmin@wipro.com
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbTJAHr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 03:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTJAHr2
+	id S262021AbTJAIBD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTJAIBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 03:47:28 -0400
-Received: from dp.samba.org ([66.70.73.150]:45193 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261955AbTJAHr1 (ORCPT
+	Wed, 1 Oct 2003 04:01:03 -0400
+Received: from ns.suse.de ([195.135.220.2]:26604 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262021AbTJAIBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 03:47:27 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, braam@clusterfs.com, neilb@cse.unsw.edu.au,
-       David Meybohm <dmeybohm@bellsouth.net>, sfr@canb.auug.org.au
-Subject: Re: [PATCH] Many groups patch. 
-In-reply-to: Your message of "Mon, 29 Sep 2003 21:11:55 MST."
-             <20030929211155.A28089@hockin.org> 
-Date: Wed, 01 Oct 2003 17:29:14 +1000
-Message-Id: <20031001074726.A84702C0C0@lists.samba.org>
+	Wed, 1 Oct 2003 04:01:01 -0400
+Date: Wed, 1 Oct 2003 10:00:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20031001080033.GP15853@wotan.suse.de>
+References: <7F740D512C7C1046AB53446D3720017304AFCF@scsmsx402.sc.intel.com.suse.lists.linux.kernel> <20031001053833.GB1131@mail.shareable.org.suse.lists.linux.kernel> <20030930224853.15073447.akpm@osdl.org.suse.lists.linux.kernel> <20031001061348.GE1131@mail.shareable.org.suse.lists.linux.kernel> <20030930233258.37ed9f7f.akpm@osdl.org.suse.lists.linux.kernel> <20031001065705.GI1131@mail.shareable.org.suse.lists.linux.kernel> <p73brt1zahk.fsf@oldwotan.suse.de> <20031001075551.GL1131@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031001075551.GL1131@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030929211155.A28089@hockin.org> you write:
-> On Tue, Sep 30, 2003 at 09:30:07AM +1000, Rusty Russell wrote:
-> > > Why?
+On Wed, Oct 01, 2003 at 08:55:51AM +0100, Jamie Lokier wrote:
+> Andi Kleen wrote:
+> > Jamie Lokier <jamie@shareable.org> writes:
+> > > It is easy enough to fix by making the fault handler not take
+> > > mmap_sem if the fault's in the kernel address range.  (With apologies
+> > > to the folk running kernel mode userspace...)
 > > 
-> > (Rusty points at Tim).
-> > 
-> > He has 10,000 groups.  Now me, I'm happy with the minimal fix.
+> > It won't work because kernel can cause user space faults
+> > (think get_user). And handling these must be protected.
 > 
-> I'm going to merge your thoughts and mine tomorrow and send it out.  Linus
-> suggested the array of pages approah is more sane, so I'm going to try for
-> it.  I'm going to comb through the diffs between your patch and mine.
+> Are we mis-communicating?  By "fault in the kernel address range", I
 
-Keeping the groups array as an array is a feature.  IMHO, if there are
-too many for a kmalloc, vmalloc fallback makes sense: it's
-conceptually simple and not that much code.
+Yep, we were. I read it as "instruction faulting is in kernel range"
+(aka you check the ring0 bit in the error_code), not checking cr2 >= TASK_SIZE.
 
-Introducing an almost-vmalloc because Linus didn't like the vmalloc
-just doesn't make sense, IMHO.
-
-> > And worse, there are the intermediate kmallocs which would need to be
-> > fixed (thanks to Stephen Rothwell for pointing this out).  Fixing this
-> > would make it even uglier.
-> 
-> Specifically?  I think my patch gets all of those.  At least all the ones I
-> found.
-
-Yep, you got them, I didn't.  I am still hoping Stephen (CC'd) will
-move the IA64, S390 and Sparc64 code into kernel/compat.c which will
-shrink out patches.
-
-> > Here's an updated one (with David Meybohm's fix, too -- Thanks!),
-> > Rusty.
-> 
-> Can you elaborate on what this extra fix is?
-
-I screwed up a free.
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-Andi

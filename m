@@ -1,79 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268957AbRG0UdZ>; Fri, 27 Jul 2001 16:33:25 -0400
+	id <S268954AbRG0UdQ>; Fri, 27 Jul 2001 16:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268960AbRG0UdQ>; Fri, 27 Jul 2001 16:33:16 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1299 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268957AbRG0UdH>; Fri, 27 Jul 2001 16:33:07 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: swap_free: swap-space map bad (entry 00000100)
-Date: Fri, 27 Jul 2001 19:13:38 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9jseh2$lfg$1@penguin.transmeta.com>
-In-Reply-To: <20010727111313.1da63aca.samuel@dupas.com>
-X-Trace: palladium.transmeta.com 996261324 24458 127.0.0.1 (27 Jul 2001 19:15:24 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 27 Jul 2001 19:15:24 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S268960AbRG0UdG>; Fri, 27 Jul 2001 16:33:06 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:49539 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S268954AbRG0Uct>;
+	Fri, 27 Jul 2001 16:32:49 -0400
+Message-ID: <3B61D1DA.49AFC88D@randomlogic.com>
+Date: Fri, 27 Jul 2001 13:40:58 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
+Subject: Re: Linx Kernel Source tree and metrics
+In-Reply-To: <3B612D26.BA131CEC@randomlogic.com>
+		<01072714523106.00285@starship> <200107271308.f6RD8EA02743@mobilix.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-In article <20010727111313.1da63aca.samuel@dupas.com>,
-Samuel Dupas  <samuel@dupas.com> wrote:
->
->Is it a kernel problem, a hardware problem ?
 
-Could be either. However, there thing you quote looks like a traditional
-one-bit error.
+> 
+> Daniel Phillips writes:
 
->Jul 25 02:05:12 euro kernel: Unable to handle kernel NULL pointer
->dereference at virtual address 00000114 
->Jul 25 02:05:12 euro kernel: current->tss.cr3 = 0f0be000, %%cr3 = 0f0be000
->
->Jul 25 02:05:12 euro kernel: *pde = 00000000 
->Jul 25 02:05:12 euro kernel: Oops: 0000 
->Jul 25 02:05:12 euro kernel: CPU:    0 
->Jul 25 02:05:12 euro kernel: EIP:    0010:[try_to_free_buffers+18/136] 
->Jul 25 02:05:12 euro kernel: EFLAGS: 00010206 
->Jul 25 02:05:12 euro kernel: eax: 00000100   ebx: c055e360   ecx: 0001207c  edx: 00040000 
->Jul 25 02:05:12 euro kernel: esi: 00000100   edi: 00000100   ebp: c055e360  esp: da98be90
+Nit 1: I'd prefer the following format for the data dictionary:
 
-%esi is supposed to contain a kernel pointer to the per-page buffer list
-at this point. 
+-m   (Local Object)[xref]
+-   [wavelan_cs.c, 564]
+-
++m  [xref] [wavelan_cs.c, 564] (Local Object)
 
-However, it contains the value 0x00000100, which is not a valid kernel
-pointer, so dereferencing it (with an offset of 20, which is why you see
-the virtual address 0x00000114) will cause an oops. 
+I.e., three times as many entries on the screen and with the
+constant-width part aligned.
 
-Now, I suspect that the value it _should_ contain is just zero. We
-probably have the case that "page->buffers" should have been NULL (no
-buffers allocated at all), but a one-bit error has turned it into
-0x00000100, and then the page freeing logic will try to free the
-"buffers" associated with the page.
+Nit 2: You can drop the "Report" from the name of every section, we
+know it's a report.
 
-And obviously, since "page->buffers" was bogus, when it tries to do
+I'm continuing to explore this wonderful resource.  Do you intend to
+GPL the source?
 
-	if (buffer_busy(tmp))
 
-it will oops.
 
-Now, that one-bit error could easily have come from a software source
-too, of course. It might not be your RAM. But it's not as if you're
-running an experimental kernel or anything like that..
+Richard Gooch wrote:
 
-And if you've also seen a bad page table entry 00000100, it _really_
-starts to sound like one bit of your memory is stuck on.  Run a memory
-tester. 
+> 
+> Hm. Interesting. But I note it has the devfsd source code in there as
+> well. That's definately not part of the kernel!
+> 
+>                                 Regards,
+> 
+>                                         Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-NOTE: hard errors are quite uncommon. It's more likely that you have a
-bit (or a row) that has soft-errors: it doesn't necessarily show up
-every time, but shows up under heavy memory activity when the RAM chip
-or the machine starts heating up..  The fact that this happens when
-swapping may be indicative not so much of swapping problems per se, but
-just the fact that that's when your machine is under the most load.
 
-			Linus
+Answer to Daniel:
+
+The program I used is a purchased product. So, no, it won't be GPL. I have no control over the contents of the reports other than addin/removing source
+files/trees that are parsed and hand editing the generated HTML. Since there's over 1GB of HTML, the editing part is definetely out. :D
+
+
+Answer to Richard:
+
+I simply parsed the entire /usr/src/linux-2.4.2 tree (including the modules) and applicable gcc header files. I may have missed a few, I may have gotten a few
+too many. Those that are more "in the know" than I can feed me info so I can correct the files/trees that are parsed.
+
+PGA
+
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286468AbSAFAAi>; Sat, 5 Jan 2002 19:00:38 -0500
+	id <S286501AbSAFAQJ>; Sat, 5 Jan 2002 19:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286478AbSAFAA2>; Sat, 5 Jan 2002 19:00:28 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:39576
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286468AbSAFAAS>; Sat, 5 Jan 2002 19:00:18 -0500
-Date: Sat, 5 Jan 2002 18:46:34 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2-2.0.1 -- brown-paper-bag-bug fix
-Message-ID: <20020105184634.A27380@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+	id <S286495AbSAFAP7>; Sat, 5 Jan 2002 19:15:59 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:12111 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S286521AbSAFAPt>;
+	Sat, 5 Jan 2002 19:15:49 -0500
+Message-ID: <20020106011550.A7723@win.tue.nl>
+Date: Sun, 6 Jan 2002 01:15:50 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: 0@pervalidus.net, linux-kernel@vger.kernel.org
+Subject: Re: losetuping files in tmpfs fails?
+In-Reply-To: <20020105215147.GH136@pervalidus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+X-Mailer: Mutt 0.93i
+In-Reply-To: =?iso-8859-1?Q?=3C20020105215147=2EGH136=40pervalidus=3E=3B_from_Fr=E9d?=
+ =?iso-8859-1?Q?=E9ric_L=2E_W=2E_Meunier_on_Sat=2C_Jan_05=2C_2002_at_07:5?=
+ =?iso-8859-1?Q?1:47PM_-0200?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+On Sat, Jan 05, 2002 at 07:51:47PM -0200, F.W. Meunier wrote:
 
-Release 2.0.1: Sat Jan  5 18:41:47 EST 2002
-	* The now-traditional fix for the now-traditional brown-paper-bag
-	  major release.
-	* Rulebase and help sync with 2.4.18-pre1/2.5.2-pre8.
+> On a side note, why do I need to use losetup -d after umount
+> when /etc/mtab is a symlink to /proc/mounts ?
+> 
+> mount or loop "feature" ?
 
-Sigh...I don't know how my tests failed to catch that elementary
-type-composition error.  But at least I can console myself with the thought
-that I am following in the footsteps of greatness.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+mount will do losetup -d at umount time if and only if it did losetup
+at mount time, as is recorded in /etc/mtab. With a symlink that info
+is lost. See mount(8).
 
-  "...quemadmodum gladius neminem occidit, occidentis telum est."
-[...a sword never kills anybody; it's a tool in the killer's hand.]
-        -- (Lucius Annaeus) Seneca "the Younger" (ca. 4 BC-65 AD),

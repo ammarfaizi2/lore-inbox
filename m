@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRCBODu>; Fri, 2 Mar 2001 09:03:50 -0500
+	id <S129165AbRCBOCU>; Fri, 2 Mar 2001 09:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129172AbRCBODk>; Fri, 2 Mar 2001 09:03:40 -0500
-Received: from deimos.ulpgc.es ([193.145.133.6]:58373 "HELO deimos.ulpgc.es")
-	by vger.kernel.org with SMTP id <S129166AbRCBOD1>;
-	Fri, 2 Mar 2001 09:03:27 -0500
-Date: Fri, 2 Mar 2001 14:34:35 +0000 (WET)
-From: Miguel Armas <kuko@ulpgc.es>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.2 SMP + ATM hangs
-Message-ID: <Pine.LNX.4.21.0103021349450.4667-100000@mento.ulpgc.es>
+	id <S129166AbRCBOCK>; Fri, 2 Mar 2001 09:02:10 -0500
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:49347 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129165AbRCBOCB>; Fri, 2 Mar 2001 09:02:01 -0500
+Message-ID: <3A9FA6C6.520AFAE7@coplanar.net>
+Date: Fri, 02 Mar 2001 08:57:26 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PPP problems
+In-Reply-To: <Pine.LNX.4.30.0103020510440.1069-100000@roadrunner.hereintown.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob wrote:
 
-Hi there!
+> Hi, I'd like to thank everyone that helped me with the compiler problem.
+> I've updated everthing in Documentation/Changes I have a brand spankers
+> new gcc, ppp, etc.  The problem I'm running into now is when I try to
+> connect to the internet, it says that I don't have a kernel that supports
+> PPP.  I've tried compiling it in as modules and as part of the kernel but
+> when I try to connect to the isp I keep getting the message that I don't
+> have a kernel that supports PPP. I've even contacted my System
+> Administrator, Hi Chris ;^).  Any ideas on what I could try next?  A cc
+> would be great, as I'm not on the linux-kernel list.
 
-We are having problems with a Compaq Proliant 1600 Server and a Fore 200E
-ATM card using kernel 2.4.2. 
-We have been using it for a long time with SMP enabled and everything
-worked just fine (we didn't have ATM).
-A couple days ago we installed a Fore 200E ATM card and after getting the
-ATM address using ilmid the machine hangs. The kernel still respond to
-pings, but the userspace is dead.
+Do you have the right kernel configuratoin?  It sounds like
+you need to load the modules (or set modules.conf to
+auto-load them with "alias" lines)
 
-If we remove SMP support in the kernel everything works fine (but with
-only one CPU)...
+On linux 2.4 you need ppp_generic, ppp_async, slhc loaded
+with modprobe or insmod.
 
-Salu2!
--- 
-------------------------------------
-Miguel Armas del Rio <kuko@ulpgc.es>
-Division de Comunicaciones (DC)
-Universidad de Las Palmas
-------------------------------------
+on 2.4 config options under "network device support"
 
+<M> PPP (point-to-point protocol) support
+[ ]   PPP multilink support (EXPERIMENTAL)
+<M>   PPP support for async serial ports
+<M>   PPP support for sync tty ports
+<M>   PPP Deflate compression
+<M>   PPP BSD-Compress compression
+<M>   PPP over Ethernet (EXPERIMENTAL)
 
+your using a modem?  cable or ADSL?
+
+reply to me privately, as linux-kernel probably isn't
+the place to discuss this since it sounds like an install
+issue... if we find it's a kernel bug then it would be ok.
+
+if you're using a 2.2 kernel i suggest you try the
+one that came with your distribution.
+
+oh yeah what is your distribution?
+
+Cheers,
+
+Jeremy
 

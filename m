@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267786AbRGUTPi>; Sat, 21 Jul 2001 15:15:38 -0400
+	id <S267790AbRGUTUI>; Sat, 21 Jul 2001 15:20:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267787AbRGUTP2>; Sat, 21 Jul 2001 15:15:28 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:39885 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S267786AbRGUTPK>;
-	Sat, 21 Jul 2001 15:15:10 -0400
-Date: Sat, 21 Jul 2001 20:16:34 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: "Michael S. Miles" <mmiles@alacritech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kgdb and/or kdb for RH7.1
-In-Reply-To: <KIEKJCGPOOADIOGPDJJLOEPGEFAA.mmiles@alacritech.com>
-Message-ID: <Pine.LNX.4.21.0107212015220.612-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267792AbRGUTT6>; Sat, 21 Jul 2001 15:19:58 -0400
+Received: from L0190P28.dipool.highway.telekom.at ([62.46.87.188]:62337 "EHLO
+	mannix") by vger.kernel.org with ESMTP id <S267790AbRGUTTu>;
+	Sat, 21 Jul 2001 15:19:50 -0400
+Date: Sat, 21 Jul 2001 21:18:31 +0200
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, cw@f00f.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64 bit scsi read/write
+Message-ID: <20010721211831.A9471@aon.at>
+In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.18i
+From: Alexander Griesser <tuxx@aon.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-just in case you are wondering where to download kgdb from, there is one
-maintained at sourceforge by Amit Kale
+On Sun, Jul 15, 2001 at 09:08:41PM -0400, you wrote:
+> > The only requirement here is that the checksum be correct.  And sure,
+> > that's not a hard guarantee because, on average, you will get a good
+> > checksum for bad data once every 4 billion power events that mess up
+> > the final superblock transfer.  Let me see, if that happens once a year,
+> In a tree-structured filesystem, checksums on everything would only
+> cost you space similar to the number of pointers you have. Whenever
+> a non-leaf node points to a child, it can hold a checksum for that
+> child as well.
+> This gives a very reliable way to spot filesystem errors, including
+> corrupt data blocks.
 
-http://kgdb.sourceforge.net/
+Hmm, maybe this is crap, but:
+If the checksum-calculation for one node fails, wouldn't that mean, that
+the data in this node, is not to be trusted? therefore also the checksum
+of this node could be corrupted and so the node, 2 hops away, can't be
+validated with 100% certitude...
 
-On Sat, 21 Jul 2001, Michael S. Miles wrote:
-
-> Does anyone know if patches exist against the stock RedHat 7.1
-> kernel(2.4.2-2) to support remote kernel debugging(kgdb).  I would also be
-> interested in the same for kdb, but I'm primarily interested in kgdb.
-> 
-> If it doesn't exist I guess I will have to try to port the patches over
-> myself, I just didn't want to reinvent the wheel.
-> 
-> hopefully TIA,
-> michael
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+regards, alexx
+-- 
+|   .-.   | Alexander Griesser <tuxx@aon.at> -=- ICQ:63180135 |  .''`. |
+|   /v\   |  http://www.tuxx-home.at -=- Linux Version 2.4.7  | : :' : |
+| /(   )\ |  FAQ zu at.linux:  http://alfie.ist.org/LinuxFAQ  | `. `'  |
+|  ^^ ^^  `---------------------------------------------------´   `-   |

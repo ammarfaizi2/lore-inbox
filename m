@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUGTTq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUGTTpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUGTTq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUGTTpd
+	id S266149AbUGTTpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGTToS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:45:33 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:20690 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266175AbUGTTn3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 15:43:29 -0400
-Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-From: Vernon Mauery <vernux@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Volker Braun <volker.braun@physik.hu-berlin.de>,
-       lkml <linux-kernel@vger.kernel.org>, linux-thinkpad@linux-thinkpad.org
-In-Reply-To: <20040716170052.GC8264@openzaurus.ucw.cz>
-References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com>
-	 <1089054013.15671.48.camel@dhcppc4>
-	 <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de>
-	 <slrncfb55n.dkv.jgoerzen@christoph.complete.org>
-	 <pan.2004.07.14.23.28.53.135582@physik.hu-berlin.de>
-	 <20040716170052.GC8264@openzaurus.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1090352569.2542.1.camel@bluerat>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Jul 2004 12:42:49 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jul 2004 15:44:18 -0400
+Received: from nl-ams-slo-l4-01-pip-8.chellonetwork.com ([213.46.243.27]:52001
+	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266149AbUGTSjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:39:45 -0400
+Date: Tue, 20 Jul 2004 20:39:43 +0200
+Message-Id: <200407201839.i6KIdhn5015505@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       R.E.Wolff@BitWizard.nl
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] !PCI warnings: Specialix serial
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-16 at 10:00, Pavel Machek wrote:
-> Hi!
-> 
-> > > And, if I would shine
-> > > a bright light on the screen, I could make out text on it.  In other
-> > > words, the backlight was off but it was still displaying stuff.
-> > 
-> > I cannot reproduce that (T41), but maybe I'm looking at the wrong angle or
-> > your eyes are better. In any case I understand that this image is very
-> > faint.
-> > 
-> > I'm not sure whether this is actually part of the problem. The
-> > liquid crystals might just keep their current orientation, or there might
-> > be some residual charge in the driver circuit. Do you want to take your
-> > display apart and check with a voltmeter? I dont't :-)
-> 
-> If it is still there after half an hour, its certainly part of the problem.
-> LCD crystals loose the orientation in seconds, IIRC.
-> 				Pavel
+Kill warnings in Specialix serial driver when !PCI.
 
-I found that on my T40, if I am using the radeonfb built into the kernel
-I cannot see a ghost image, but if I use VESA or vga=normal, I can see a
-ghost in S3.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---Vernon
+--- linux-2.6.8-rc2/drivers/char/sx.c	2004-04-15 11:44:11.000000000 +0200
++++ linux-m68k-2.6.8-rc2/drivers/char/sx.c	2004-07-19 23:10:48.000000000 +0200
+@@ -251,11 +251,13 @@
+ #define PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8 0x2000
+ #endif
+ 
++#ifdef CONFIG_PCI
+ static struct pci_device_id sx_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_SPECIALIX, PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8, PCI_ANY_ID, PCI_ANY_ID },
+ 	{ 0 }
+ };
+ MODULE_DEVICE_TABLE(pci, sx_pci_tbl);
++#endif /* CONFIG_PCI */
+ 
+ /* Configurable options: 
+    (Don't be too sure that it'll work if you toggle them) */
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

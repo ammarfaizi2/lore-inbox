@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264912AbSJVTXi>; Tue, 22 Oct 2002 15:23:38 -0400
+	id <S264949AbSJVT1c>; Tue, 22 Oct 2002 15:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264917AbSJVTXh>; Tue, 22 Oct 2002 15:23:37 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:13812 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S264912AbSJVTXe>; Tue, 22 Oct 2002 15:23:34 -0400
-Date: Tue, 22 Oct 2002 15:29:43 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <20021022152943.J20957@redhat.com>
-References: <20021022145510.H20957@redhat.com> <E1844h3-0002Bt-00@w-gerrit2>
+	id <S264957AbSJVT1b>; Tue, 22 Oct 2002 15:27:31 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:37392 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S264949AbSJVT0S>;
+	Tue, 22 Oct 2002 15:26:18 -0400
+Date: Tue, 22 Oct 2002 21:32:26 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Jan Kasprzak <kas@informatics.muni.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-pre11 /proc/partitions read
+Message-ID: <20021022193226.GC26585@win.tue.nl>
+References: <20021022185958.GB26585@win.tue.nl> <Pine.LNX.4.44L.0210221625440.27942-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1844h3-0002Bt-00@w-gerrit2>; from gh@us.ibm.com on Tue, Oct 22, 2002 at 12:27:57PM -0700
+In-Reply-To: <Pine.LNX.4.44L.0210221625440.27942-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 12:27:57PM -0700, Gerrit Huizenga wrote:
-> That would be fine with me - we are only planning on people using
-> flags to shm*() or mmap(), not on the syscalls.  I thought Oracle
-> was the one heavily dependent on the icky syscalls.
+On Tue, Oct 22, 2002 at 04:26:35PM -0200, Marcelo Tosatti wrote:
 
-You mean the wonderfully untested calls that never worked?  At least 
-they'd tested and used Ingo's 2.4 based patches that made shmfs use 
-4MB pages.
+> > No.  I do not claim that his problem was caused by the stats.
+> > It is just that I get reports from people with mysterious mount
+> > and fdisk problems that go away when CONFIG_BLK_STATS is disabled.
+> 
+> Could you forward?
+> 
+> Thats really bad.
 
-		-ben
--- 
-"Do you seek knowledge in time travel?"
+The best reference is
+
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=35980
+
+with fsck affected.
+
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=62414
+
+shows that mount is affected.
+
+Andries

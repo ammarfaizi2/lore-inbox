@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261944AbREMXIO>; Sun, 13 May 2001 19:08:14 -0400
+	id <S261946AbREMXSH>; Sun, 13 May 2001 19:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261946AbREMXHy>; Sun, 13 May 2001 19:07:54 -0400
-Received: from pa7.solec.sdi.tpnet.pl ([213.77.165.7]:33997 "EHLO
-	tower.braxis.co.uk") by vger.kernel.org with ESMTP
-	id <S261944AbREMXHt>; Sun, 13 May 2001 19:07:49 -0400
-Date: Mon, 14 May 2001 01:07:52 +0200 (CEST)
-From: Piotr Wysocki <wysek@tower.braxis.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.5-pre1, iproute2 - IPv6
-Message-ID: <Pine.LNX.4.33.0105140040010.2829-100000@tower.braxis.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261949AbREMXR5>; Sun, 13 May 2001 19:17:57 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:2825 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S261946AbREMXRo>; Sun, 13 May 2001 19:17:44 -0400
+Date: Mon, 14 May 2001 11:17:39 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        "David S. Miller" <davem@redhat.com>,
+        Andrea Arcangeli <andrea@suse.de>, Mauelshagen@sistina.com,
+        linux-kernel@vger.kernel.org, mge@sistina.com, hch@caldera.de
+Subject: Re: LVM 1.0 release decision
+Message-ID: <20010514111739.A11330@metastasis.f00f.org>
+In-Reply-To: <23605.989775371@redhat.com> <E14z0mG-0006og-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14z0mG-0006og-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 13, 2001 at 07:39:36PM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have an unusual problem with compiling iproute2 on 2.4.5-pre1, this
-problem didn't occur on my previous kernel - 2.4.2-ac3..
-root@tower:~/progs/server/iproute2# uname -a
-Linux tower 2.4.5-pre1-xfs #5 Sat May 12 12:55:39 CEST 2001 i686 unknown
-root@tower:~/progs/server/iproute2# make
-...
-make[1]: Entering directory `/root/progs/server/iproute2/lib'
-gcc -D_GNU_SOURCE -O2 -Wstrict-prototypes -Wall -g -I../include-glibc
--include ../include-glibc/glibc-bugs.h -I/usr/src/linux/include
--I../include -DRESOLVE_HOSTNAMES   -c -o ll_proto.o ll_proto.c
-ll_proto.c:36: `ETH_P_ECHO' undeclared here (not in a function)
-ll_proto.c:36: initializer element is not constant
-ll_proto.c:36: (near initialization for `llproto_names[1].id')
-make[1]: *** [ll_proto.o] Error 1
-make[1]: Leaving directory `/root/progs/server/iproute2/lib'
-make: *** [all] Error 2
-root@tower:~/progs/server/iproute2# grep "ETH_P_ECHO"
-/usr/src/linux/include/linux/if_ether.h
-somebody@somewhere:somewhere$ grep "ETH_P_ECHO"
-/usr/src/linux-2.2.19/include/linux/if_ether.h
-#define ETH_P_ECHO      0x0200          /* Ethernet Echo packet */
-<-- or sth like this..(not me was executing it..)
-but
-root@tower:~/progs/server/iproute2# grep "0x0200"
-/usr/src/linux/include/linux/if_ether.h
-#define ETH_P_PUP       0x0200          /* Xerox PUP packet             */
+On Sun, May 13, 2001 at 07:39:36PM +0100, Alan Cox wrote:
 
-Maybe I have mailed to much output..I'm lame:)
+    Or the 32bit libc shipped with the 64bit box. Lets face it, there
+    is no reason you can't have a 32bit glibc 2.2 built to use 64bit
+    calling conventions..
 
-I tried the compilation of 2 version of iproute2: current, and
-2.2.4-now-ss001007. The error is the same..Why is it so? Do I do sth bad?
-Or maybe there is a bug in the kernel..
+It doesn't work with binary compatability form other sources (e.g.
+trying to run SunOS binaries under ultralinux and such like (I assume
+this is possible?)). Then again, should SunOS binaries really be
+making such ioctls?
 
--- 
-  *--------"Being alive, you matter much more."--------*
- | Piotr Wysocki (wysek@tower.braxis.co.uk) [wysek/elk] |
- | telephone +48605 111115  | http://wysek.braxis.co.uk |
- | BLUG reg. member #0012   | Linux reg. member #207707 |
 
+
+  --cw

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269685AbSISWKo>; Thu, 19 Sep 2002 18:10:44 -0400
+	id <S271851AbSISWQy>; Thu, 19 Sep 2002 18:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271500AbSISWKo>; Thu, 19 Sep 2002 18:10:44 -0400
-Received: from packet.digeo.com ([12.110.80.53]:37798 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S269685AbSISWKn>;
-	Thu, 19 Sep 2002 18:10:43 -0400
-Message-ID: <3D8A4C8A.D8DED29A@digeo.com>
-Date: Thu, 19 Sep 2002 15:15:38 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S272191AbSISWQy>; Thu, 19 Sep 2002 18:16:54 -0400
+Received: from dsl-213-023-020-102.arcor-ip.net ([213.23.20.102]:25495 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S271851AbSISWQx>;
+	Thu, 19 Sep 2002 18:16:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dave Olien <dmo@osdl.org>
+Subject: Re: [2.5] DAC960
+Date: Fri, 20 Sep 2002 00:21:53 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jens Axboe <axboe@suse.de>, Samium Gromoff <_deepfire@mail.ru>,
+       linux-kernel@vger.kernel.org
+References: <E17odbY-000BHv-00@f1.mail.ru> <E17s6nH-0000xq-00@starship> <20020919150958.A27837@acpi.pdx.osdl.net>
+In-Reply-To: <20020919150958.A27837@acpi.pdx.osdl.net>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Mingming Cao <mcao@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
-       suparna@linux.ibm.com, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] [PATCH] 2.5.35 patch for making DIO async--performance numbers
-References: <3D8A4352.862A0B1A@digeo.com> from "Andrew Morton" at Sep 19, 2002 01:36:18 PM PST <200209192153.g8JLrNV23057@eng2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Sep 2002 22:15:38.0594 (UTC) FILETIME=[15884420:01C2602A]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17s9gL-00010c-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
+On Friday 20 September 2002 00:09, Dave Olien wrote:
+> Daniel,
 > 
-> ...
-> > The other thing we've lost is the BIO-pruning and recycling effect: the
-> > current direct-io code will reap BIOs while it is actually submitting
-> > them, so the peak consumption is kept under control.  Plus there are
-> > cache-warmness issues.  But without having a process there to do all this,
-> > we obviously have to lose some things.
-> >
+> My mailer here has been misbehaving.  I didn't think THIS mail
+> had actually made it out.  So, you may be seeing another version
+> of this mail sometime.  Just ignore it.
 > 
-> I don't follow you. In original code, we only reap the BIO's on which IO
-> is complete. How is it controlling peak consumption ?
+> I think some coding style repairs would be great!  But I'd like to
+> hold off on that until we've finished all the functional changes.
+> That way, anyone doing a code review can easily see only the
+> changes to make the driver function.
+> 
+> Once functional changes are mostly complete, then cleaning up
+> some coding style issues would be a good thing.
 
-Ah.  The current direct-io code will, while submitting those BIOs,
-occasionally go and see if any have completed already.  If they have
-then they are processed and returned to the global BIO pool.
+Yep.  And this is not a halloween deadline kind of thing, or more
+accurately, you just did the halloween part of it.  The rest of the
+job is to try to make it nice.  It would be great to find out if the
+hardware is really as slow as it seems, or if it's the driver.
 
-But you're returning them from within end_io, so no prob.
+> Regarding being a mainteiner, lets get the code changes done
+> first ;-)
+
+It's working!  I see this in very simple terms ;-)
+
+-- 
+Daniel

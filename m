@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275506AbRJBPrn>; Tue, 2 Oct 2001 11:47:43 -0400
+	id <S275517AbRJBPtO>; Tue, 2 Oct 2001 11:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275389AbRJBPr1>; Tue, 2 Oct 2001 11:47:27 -0400
-Received: from colorfullife.com ([216.156.138.34]:48656 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S275485AbRJBPqi>;
-	Tue, 2 Oct 2001 11:46:38 -0400
-Message-ID: <3BB9E161.E936100@colorfullife.com>
-Date: Tue, 02 Oct 2001 17:46:41 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: efocht@ess.nec.de
-CC: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: deadlock in crashed multithreaded job
-In-Reply-To: <Pine.LNX.4.21.0110021052430.26281-100000@sx6.ess.nec.de>
-Content-Type: text/plain; charset=us-ascii
+	id <S275389AbRJBPs5>; Tue, 2 Oct 2001 11:48:57 -0400
+Received: from gap.cco.caltech.edu ([131.215.139.43]:5825 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S275529AbRJBPsd>; Tue, 2 Oct 2001 11:48:33 -0400
+Date: Tue, 2 Oct 2001 10:23:06 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "Dinesh  Gandhewar" <dinesh_gandhewar@rediffmail.com>
+Cc: mlist-linux-kernel@nntp-server.caltech.edu
+Subject: Re:
+Message-Id: <20011002102306.49730a0b.reynolds@redhat.com>
+In-Reply-To: <20011002152945.15180.qmail@mailweb16.rediffmail.com>
+In-Reply-To: <20011002152945.15180.qmail@mailweb16.rediffmail.com>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.6.2cvs9 (GTK+ 1.2.9; )
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss of all files and data!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich Focht wrote:
-> 
-> The question that remains is how to deal with nested locks on the same
-> resource that can lead to deadlocks. Is there any (un)written rule that
-> one should avoid them in the Linux Kernel? Or are there any approaches to
-> deal with them (which are not yet included in the Kernel)?
->
+"Dinesh  Gandhewar" <dinesh_gandhewar@rediffmail.com> was pleased to say:
 
-Yes, semaphores and spinlocks are not recursive. There is one exception
-for rw spinlocks, they can recurse on read. I'm not aware that there are
-any plans to change that.
+> I have written a linux kernel module. The linux version is 2.2.14. 
+> In this module I have declared an array of size 2048. If I use this array, the
+> execution of this module function causes kernel to reboot. If I kmalloc() this
+> array then execution of this module function doesnot cause any problem.
+> Can you explain this behaviour?
 
-My patch avoids calling copy_from_user in elf_core_dump, Andrea adds a 
-limited recursion support and uses that to prevent the deadlock.
-With his patch you can recurse on on down_read() if you pass special
-parameters.
+Unlike userland application programming, the kernel stack does not grow: it has
+a fixed size.  You are using too much stack space and corrupting your system.
+The kernel stack is quite small (less than 8K is available for ALL nested
+modules and interrupt handlers), so driver functions should use an absolute
+minimum of local variables, such as a pointer to a per-instance data area. 
+Kernel-leval kmalloc() is efficient enough to use frequently.
 
-But full recursion support is not planned.
-
---
-	Manfred
+---------------------------------------------+-----------------------------
+Tommy Reynolds                               | mailto:	<reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.236.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923

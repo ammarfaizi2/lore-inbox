@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264959AbTFTXn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 19:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265035AbTFTXn3
+	id S265037AbTFTXur (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 19:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbTFTXuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 19:43:29 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:10974 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S264959AbTFTXn0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 19:43:26 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 21 Jun 2003 01:57:24 +0200 (MEST)
-Message-Id: <UTC200306202357.h5KNvOm15238.aeb@smtp.cwi.nl>
-To: dwmw2@infradead.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] mtd/maps/impa7.c fixes
+	Fri, 20 Jun 2003 19:50:46 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:48610 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S265037AbTFTXup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 19:50:45 -0400
+Date: Fri, 20 Jun 2003 17:04:46 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030620170446.C28636@google.com>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030620142436.GB14404@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 20, 2003 at 07:24:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I happened to come across mtd/maps/impa7.c.
-It looks like some stuff that needs <linux/mtd/partitions.h>
-occurs outside #ifdef CONFIG_MTD_PARTITIONS.
-Also, there is a spurious #endif.
-Also, there is one of the many redefinitions for ARRAY_SIZE.
-Below a patch.
+On Fri, Jun 20, 2003 at 07:24:36AM -0700, Larry McVoy wrote:
+>     I've said for years that the open source world is all about
+>     reimplementing and not about new innovation.
 
-Not compiled. Not tested.
+Almost spot-on.
 
-Andries
+Where it's off is
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/mtd/maps/impa7.c b/drivers/mtd/maps/impa7.c
---- a/drivers/mtd/maps/impa7.c	Sun Jun 15 01:40:57 2003
-+++ b/drivers/mtd/maps/impa7.c	Sat Jun 21 02:25:34 2003
-@@ -66,12 +66,11 @@
- 	},
- };
- 
--#define NB_OF(x) (sizeof (x) / sizeof (x[0]))
-+static int                   mtd_parts_nb = 0;
-+static struct mtd_partition *mtd_parts    = 0;
- 
- #endif
- 
--static int                   mtd_parts_nb = 0;
--static struct mtd_partition *mtd_parts    = 0;
- static const char *probes[] = { "cmdlinepart", NULL };
- 
- int __init init_impa7(void)
-@@ -119,11 +118,11 @@
- 							    0);
- 			if (mtd_parts_nb > 0)
- 			  part_type = "command line";
--#endif
-+
- 			if (mtd_parts_nb <= 0)
- 			{
- 				mtd_parts = static_partitions;
--				mtd_parts_nb = NB_OF(static_partitions);
-+				mtd_parts_nb = ARRAY_SIZE(static_partitions);
- 				part_type = "static";
- 			}
- 			if (mtd_parts_nb <= 0)
+- It's not ALL about reimplenting.  Didn't Solaris' prstat come AFTER top?
+  Anyway I'm sure there are lots of examples here, maybe not LARGE pieces
+  of code (although I'll point to TeX since every exception needs an
+  exception as well), but I think you discount open source innovation
+  too much.  All of the ATTENTION is on the bits that are reimplementations
+  because that's how mass markets work.
+
+- Just because two people independenty implement something doesn't mean
+  one of them is REimplementing.
+
+Isn't bk simply a reimplementation of p4 by your argument?
+
+/fc
+

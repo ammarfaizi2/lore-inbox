@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUHKIlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267992AbUHKIlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267993AbUHKIlV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 04:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUHKIlV
+	id S267992AbUHKIlt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 04:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUHKIls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 04:41:21 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:6926 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267993AbUHKIlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 04:41:18 -0400
-Message-ID: <4119DC86.2050507@hist.no>
-Date: Wed, 11 Aug 2004 10:44:54 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+	Wed, 11 Aug 2004 04:41:48 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:29382 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S267992AbUHKIlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 04:41:44 -0400
+Message-ID: <4119DAA2.3050206@eidetix.com>
+Date: Wed, 11 Aug 2004 10:36:50 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] zero downtime upgrades to the kernel.
-References: <41195339.9080500@superbug.demon.co.uk>
-In-Reply-To: <41195339.9080500@superbug.demon.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org, Sascha Wilde <wilde@sha-bang.de>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net>
+In-Reply-To: <200408110131.14114.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Courtier-Dutton wrote:
+> Could you please try the patch below? I am interested in tests both with
+> and without keyboard/mouse. The main idea is to leave ports that have been
+> disabled by BIOS alone... The patch compiles but otherwise untested. Against
+> 2.6.7.
 
-> Has anyone investigated how one might be able to upgrade the linux 
-> kernel without rebooting?
->
-> We could maybe start with just being able to upgrade kernel modules 
-> while the modules were still in use.
->
-> E.g. There is a bug in the hard disc driver, and we have a fix, but 
-> don't want to reboot the machine.
-> Could we replace the hard disc driver while it was still being used, 
-> and keep mounted partitions?
+The patch seems to work well! It doesn't apply completely cleanly
+to my sources... maybe I left some of my own stuff in. On reboot, with
+keyboard attached, I get this:
 
-You can only upgrade a module that isn't in use.  So, umount everything 
-using that
-driver (keeping linux running from some other drive (or ramdisk)) 
-replace module,
-reload module, remount filesystems.  This can be quite fast, but you do 
-have to
-umount (and stop all the processes running from those disks.)
+uart_close: bad serial port count; tty->count is 1, state->count2
+  while rebooting the system.
 
+drivers/input/serio/i8042.c: ff -> i8042 (kbd-data) [121813]
 
-There are some trick you can use with disks:
-1. Have root on a initial ramdisk, and never remount to a real disk.  
-This way,
-    all disks can be umounted so any disk device driver can be 
-replaced.  You'll
-    tie up a fair amount of memory in that big initial ramdisk though.
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [121886]
 
-2. Consider using multipath and different scsi adapters using different 
-drivers.
-   Perhaps this will let you unload adapter drivers one at a time while you
-   reload the other one, and keeps disks & processes running troughout.
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [122268]
 
-3. Have two identical pc's sharing a set of scsi equipment.  When you 
-want to upgrade
-the base kernel on one, set your IP addressses so traffic goes to the other.
-This should work with protocols that allows server reboot, such as nfs.
+drivers/input/serio/i8042.c: 20 -> i8042 (command) [122404]
 
-You simply won't get a linux kernel (or module) that can be replaced 
-while running,
-but redundant hardware may give some of the same benefits.
+drivers/input/serio/i8042.c: 45 <- i8042 (return) [122404]
 
-Helge Hafting
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [122542]
+
+drivers/input/serio/i8042.c: 65 -> i8042 (parameter) [122542]
+
+Restarting system.
+
+> BTW, do you both have the same motherboard/chipset? Maybe a dmi entry is in
+> order...
+
+Mine is a VIA chipset with an AMD processor:
+
+http://www.ecsusa.com/products/km400-m2.html
+
+How do I fetch the exact information that would be needed for a DMI entry?
+
+Thanks much,
+-- 
+David N. Welton
+davidw@eidetix.com
+

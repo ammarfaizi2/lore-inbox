@@ -1,140 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263070AbTIGJij (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 05:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTIGJij
+	id S263314AbTIGJyg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 05:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTIGJyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 05:38:39 -0400
-Received: from mail-15.iinet.net.au ([203.59.3.47]:27071 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263070AbTIGJi1
+	Sun, 7 Sep 2003 05:54:35 -0400
+Received: from platane.lps.ens.fr ([129.199.121.28]:57993 "EHLO
+	platane.lps.ens.fr") by vger.kernel.org with ESMTP id S263314AbTIGJyd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 05:38:27 -0400
-Subject: Re: [PATCH] Re: Problems with PCMCIA (Texas Instruments PCI1450)
-From: Sven Dowideit <svenud@ozemail.com.au>
-Reply-To: svenud@ozemail.com.au
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Daniel Ritz <daniel.ritz@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Tom Marshall <tommy@home.tig-grr.com>
-In-Reply-To: <20030906174140.C29417@flint.arm.linux.org.uk>
-References: <200308270056.33190.daniel.ritz@gmx.ch>
-	 <200309052019.30051.daniel.ritz@gmx.ch>
-	 <20030905193811.C14076@flint.arm.linux.org.uk>
-	 <200309052140.27906.daniel.ritz@gmx.ch>
-	 <20030905205429.D14076@flint.arm.linux.org.uk>
-	 <20030906174140.C29417@flint.arm.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fvPEkI2iC1/VxJISy2+F"
-Message-Id: <1062963183.761.0.camel@sven>
+	Sun, 7 Sep 2003 05:54:33 -0400
+Date: Sun, 7 Sep 2003 11:54:23 +0200
+From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
+To: Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Power Management Update
+Message-ID: <20030907095423.GA10520@lps.ens.fr>
+References: <20030904224112.GA26556@lps.ens.fr> <Pine.LNX.4.33.0309041637440.940-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 08 Sep 2003 05:33:03 +1000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0309041637440.940-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-fvPEkI2iC1/VxJISy2+F
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have been testing swsusp to disk on my computer using kernel
+2.6.0-test4 + Patrick Mochel's main PM patch (posted on lkml on aug 31) +
+IDE PM fix from benh (posted on lkml by P. Mochel on sep 2)
 
-On Sun, 2003-09-07 at 02:41, Russell King wrote:=20
-> I'd like to hear back from people who have been affected by this bug
-> before I push this patch to Linus.
-it fixes my pcmcia problem at startup :)
+I found that my computer is able to suspend to disk if I boot with
+init=/bin/sh, but not with a normal boot. I tried swsusp with a normal
+boot (Xfree, kde, ...) but after removing several modules form
+/lib/modules, to see which modules make problems. What I found:
 
-and for bonus points, it also when plugged into the docking station
-pcmcia cards (which is one up on the last 2.4 i used)
+* swsusp doesn't like accelerated graphics. If the following modules are
+  loaded:
+    i830                   68120  20
+    intel_agp              14744  1
+    agpgart                25640  3 intel_agp
+  resuming fails. (Different kind of failures, from spontaneous reboot to
+  kernel panic.) I could try to pinpoint more precisely which module
+  causes trouble.
 
-when i get a chance I will put the pc-card bridge back into my dual
-processor piii, and see how that goes too.. is the PC-Card code supposed
-to work on SMP?
+* Apart from that, the computer can suspend and come back to life !
+  Modules loaded:
+    snd_mixer_oss          16768  3
+    binfmt_misc             8200  1
+    autofs                 12928  0
+    ne2k_pci                8288  0
+    8390                    8576  1 ne2k_pci
+    snd_virmidi             3584  2
+    snd_seq_virmidi         5632  1 snd_virmidi
+    ipchains               48080  15
+    ide_cd                 36736  0
+    cdrom                  33312  1 ide_cd
+    loop                   13192  14
+    hid                    30272  0
+    ehci_hcd               21120  0
+    uhci_hcd               27656  0
+    usbcore                91348  5 hid,ehci_hcd,uhci_hcd
+  However, the mouse is not working anymore (mouse is usb, the only usb
+  device connected) nor network on eth1 (I haven't tried eth0.)
+  Here are the last lines of the log after resuming:
+	Restarting tasks...<6>usb 1-1: USB disconnect, address 2 done
+	PM: Removing info for usb:1-1:0
+	PM: Removing info for usb:1-1
+	hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
+	eth1: mismatched read page pointers 3c vs 66.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	eth1: mismatched read page pointers 4c vs d7.
+	hub 1-0:0: new USB device on port 1, assigned address 3
+	usb 1-1: control timeout on ep0out
+  eth1 is
+   01:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+  	   Subsystem: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+	   Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+           Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+           Interrupt: pin A routed to IRQ 20
+           Region 0: I/O ports at c800 [size=32]
 
-> Thanks.
-no, thank you!=20
+A last point; lates patch from P. Mochel (posted on Sep 3, supposed to
+fix configuration with preempt enabled) completely prevents me from
+suspending to disk.
 
-in the process of playing around with cardctl eject, insert and pulling
-out the card without warning i have gotten the following..=20
-
-airo: Doing fast bap_reads
-airo: MAC enabled eth1 0:40:96:33:e:a4
-eth1: index 0x05: Vcc 5.0, Vpp 5.0, irq 3, io 0x0100-0x013f
-nfs warning: mount version older than kernel
-nfs: server 10.10.10.10 not responding, still trying
-nfs: server 10.10.10.10 OK
-nfs: server 10.10.10.10 not responding, still trying
-RPC: sendmsg returned error 101
-nfs: RPC call returned error 101
-RPC: sendmsg returned error 101
-nfs: RPC call returned error 101
-RPC: sendmsg returned error 101
-nfs: RPC call returned error 101
-airo:  Probing for PCI adapters
-kobject_register failed for airo (-17)
-Call Trace:
-[<c0214da9>] kobject_register+0x59/0x60
-[<c023c1e2>] bus_add_driver+0x52/0xb0
-[<c021ef7e>] pci_register_driver+0x6e/0xa0
-[<e08670e8>] airo_init_module+0xe8/0x10d [airo]
-[<c0139f0f>] sys_init_module+0x12f/0x260
-[<c010b0db>] syscall_call+0x7/0xb
-
-airo:  Finished probing for PCI adapters
-airo: Doing fast bap_reads
-airo: MAC enabled eth1 0:40:96:33:e:a4
-eth1: index 0x05: Vcc 5.0, Vpp 5.0, irq 3, io 0x0100-0x013f
-airo:  Probing for PCI adapters
-kobject_register failed for airo (-17)
-Call Trace:
-[<c0214da9>] kobject_register+0x59/0x60
-[<c023c1e2>] bus_add_driver+0x52/0xb0
-[<c021ef7e>] pci_register_driver+0x6e/0xa0
-[<e08670e8>] airo_init_module+0xe8/0x10d [airo]
-[<c0139f0f>] sys_init_module+0x12f/0x260
-[<c010b0db>] syscall_call+0x7/0xb
-
-airo:  Finished probing for PCI adapters
-airo: Doing fast bap_reads
-airo: MAC enabled eth1 0:40:96:33:e:a4
-eth1: index 0x05: Vcc 5.0, Vpp 5.0, irq 3, io 0x0100-0x013f
-irq 9: nobody cared!
-Call Trace:
-[<c010d45a>] __report_bad_irq+0x2a/0x90
-[<c010d550>] note_interrupt+0x70/0xb0
-[<c010d890>] do_IRQ+0x160/0x1a0
-[<c010ba48>] common_interrupt+0x18/0x20
-[<e087007b>] yenta_get_status+0x4b/0x110 [yenta_socket]
-[<c010d3e0>] handle_IRQ_event+0x30/0x80
-[<c010d7e7>] do_IRQ+0xb7/0x1a0
-[<c010ba48>] common_interrupt+0x18/0x20
-[<e0828253>] apm_bios_call_simple+0x83/0x100 [apm]
-[<e0828437>] apm_do_idle+0x27/0x80 [apm]
-[<e0828572>] apm_cpu_idle+0xa2/0x140 [apm]
-[<c0105000>] _stext+0x0/0x70
-[<c0108c8b>] cpu_idle+0x3b/0x50
-[<c03ea919>] start_kernel+0x199/0x1d0
-[<c03ea490>] unknown_bootoption+0x0/0x120
-
-handlers:
-[<c0260f90>] (ide_intr+0x0/0x1e0)
-[<e08708b0>] (yenta_interrupt+0x0/0x40 [yenta_socket])
-[<e08708b0>] (yenta_interrupt+0x0/0x40 [yenta_socket])
-Disabling IRQ #9
-
-> diff -ur ref/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
-> -- ref/drivers/pcmcia/cs.c	Tue Aug  5 11:19:39 2003
-> +++ linux/drivers/pcmcia/cs.c	Sat Sep  6 15:07:25 2003
+Many data on my computer (.config, lspci, dsdt) available on
+http://perso.nerim.net/~tudia/bug-reports/
 
 
---=-fvPEkI2iC1/VxJISy2+F
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Éric Brunet
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/W4fvPAwzu0QrW+kRArZaAJ4zdjLsbtWfDUdTJW1Yc4Ru2kg/OACgpiFZ
-oBzJq3ayGyRyQFQjhcMTM4M=
-=JxRn
------END PGP SIGNATURE-----
-
---=-fvPEkI2iC1/VxJISy2+F--
 

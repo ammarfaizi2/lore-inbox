@@ -1,78 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314462AbSDRV0L>; Thu, 18 Apr 2002 17:26:11 -0400
+	id <S314463AbSDRV3r>; Thu, 18 Apr 2002 17:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314463AbSDRV0K>; Thu, 18 Apr 2002 17:26:10 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:2576 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S314462AbSDRV0J>;
-	Thu, 18 Apr 2002 17:26:09 -0400
-Date: Thu, 18 Apr 2002 14:22:12 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-cc: Gabor Kerenyi <wom@tateyama.hu>
-Subject: Re: offtpic: GPL driver vs. non GPL driver
-In-Reply-To: <E16xnL9-00022l-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L2.0204181410570.11734-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314464AbSDRV3q>; Thu, 18 Apr 2002 17:29:46 -0400
+Received: from holomorphy.com ([66.224.33.161]:64926 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314463AbSDRV3q>;
+	Thu, 18 Apr 2002 17:29:46 -0400
+Date: Thu, 18 Apr 2002 14:28:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] migration thread fix
+Message-ID: <20020418212851.GW21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Erich Focht <efocht@ess.nec.de>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@elte.hu>, torvalds@transmeta.com
+In-Reply-To: <Pine.LNX.4.44.0204182043110.2453-100000@beast.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Alan Cox wrote:
+On Thu, Apr 18, 2002 at 10:08:55PM +0200, Erich Focht wrote:
+> The patch below applies to the 2.5.8 kernel. It does two things:
+> 1: Fixes a BUG in the migration threads: the interrupts MUST be disabled
+> before the double runqueue lock is aquired, otherwise this thing will
+> deadlock sometimes.
+> 2: Streamlines the initialization of migration threads. Instead of
+> fiddling around with cache_deccay_ticks, waiting for migration_mask bits
+> and relying on the scheduler to distribute the tasks uniformly among
+> processors, it starts the migration thread on the boot cpu and uses it to
+> reliably distribute the other threads to their target cpus.
+> Please consider applying it!
 
-| > First question: Is it possible to write the driver in GPL and then develop a
-| > binary only LIB? (I think yes because the LIB is in user space)
-|
-| Thats a legal question about derivative works again. Its a lawyer question.
-| Don't ask lawyers how to program, don't ask programmers how the law works 8)
-|
-| In business terms a binary only driver means that it won't be considered for
-| the mainstream kernel and you will need to rebuild it for every exact kernel
-| version your customers want. Irrespective of the GPL/lib question it may be
-| helpful to provide your customers source code to the kernel part of the
-| driver if only so you don't have to keep recompiling it. VMware follows very
-| much this model - their kernel bits are source code, vmware itself is most
-| definitely proprietary and per copy licensed.
-
-Hi-
-
-If this isn't clear to you, consider all of the processor-type
-possibilities, CONFIG possibilities, etc., that you could need to
-build for...not that anyone does all of this, but you could have
-customers who want all of these variations.[1]
-
-Furthermore, with open source code, you get lots of debugging
-help and often get help porting the driver to newer kernel
-versions (there's always something needed for the next kernel
-version).
-
-Another argument, if your company is concerned about exposing IP,
-is that you expose IP that is not exactly the latest and greatest.
-So what?  Maybe some other company will try to copy it.
-If they do, they will be working on a design that is a generation
-behind your company's new/latest design!
+I have a patch to fix #2 as well. Did you see it? Did you try it?
 
 
-[1] from 2.4.18:
-alpha/  cris/  ia64/  mips/    parisc/  s390/   sh/     sparc64/
-arm/    i386/  m68k/  mips64/  ppc/     s390x/  sparc/
-
-CONFIG_SMP=y or n requires a different kernel build.
-
-CONFIG_HIGHMEM=z requires a different kernel build.
-
-Not to mention CONFIG_module support, processor tuning...
-
-(probably missed a few CONFIG options here...)
-
-Now how many target kernel binaries do you want to build for
-each kernel version?
-
-15 processor_types * 2 * 2 = 60 kernel binaries per kernel version
-(but obviously worst case since you won't support all of
-those processor types)
-
--- 
-~Randy
-
+Cheers,
+Bill

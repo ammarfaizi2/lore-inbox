@@ -1,43 +1,154 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275255AbRJFPan>; Sat, 6 Oct 2001 11:30:43 -0400
+	id <S275288AbRJFPbX>; Sat, 6 Oct 2001 11:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275256AbRJFPad>; Sat, 6 Oct 2001 11:30:33 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:41744 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S275255AbRJFPaN>; Sat, 6 Oct 2001 11:30:13 -0400
-Date: Sat, 6 Oct 2001 17:30:25 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: llx@swissonline.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: proc file system
-Message-ID: <20011006173025.F12624@arthur.ubicom.tudelft.nl>
-In-Reply-To: <200110052202.f95M2Ig16051@mail.swissonline.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110052202.f95M2Ig16051@mail.swissonline.ch>; from llx@swissonline.ch on Sat, Oct 06, 2001 at 12:02:18AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S275265AbRJFPbP>; Sat, 6 Oct 2001 11:31:15 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:61711 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S275256AbRJFPbG>; Sat, 6 Oct 2001 11:31:06 -0400
+Date: Sat, 6 Oct 2001 17:31:26 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: %u-order allocation failed
+In-Reply-To: <Pine.LNX.3.96.1011006164044.29342B-200000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.96.1011006173010.32345A-200000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1908636959-1328101436-1002382286=:32345"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 12:02:18AM +0200, llx@swissonline.ch wrote:
-> i've written a prog interface for my logger utility to make it easy
-> to transport my logging information from kernel to userspace using
-> shell commands. now i want to use tail -f /prog/<mylogfile>. what
-> do i have to do for that to work. when using tail my loginfo gets
-> read form my ringbuffer, but nothing gets printed in the terminal.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I think you actually want a character device instead of a /proc file.
+--1908636959-1328101436-1002382286=:32345
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+On Sat, 6 Oct 2001, Mikulas Patocka wrote:
 
-Erik
+> On Sat, 6 Oct 2001, Rik van Riel wrote:
+> 
+> > On Sat, 6 Oct 2001, Mikulas Patocka wrote:
+> > 
+> > > Buddy allocator is broken - kill it. Or at least do not misuse it for
+> > > anything except kernel or driver initialization.
+> > 
+> > Please send patches to get rid of the buddy allocator while
+> > still making it possible to allocate contiguous chunks of
+> > memory.
+> > 
+> > If you have any idea on how to fix things, this would be a
+> > good time to let us know.
+> 
+> Here goes the fix. (note that I didn't try to compile it so there may be
+> bugs, but you see the point). 
+> 
+> kmalloc should be fixed too (used badly for example in select.c - and yes
+> - I have seen real world bugreports for poll randomly failing with
+> ENOMEM), but it will be hard to audit all drivers that they do not try to
+> use dma on kmallocated memory. 
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+This is enhanced version of a patch that fixes select and poll as well.
+Again - not compiled, not tried. 
+
+Mikulas
+
+--1908636959-1328101436-1002382286=:32345
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="vmalloc.patch.2"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.3.96.1011006173126.32345B@artax.karlin.mff.cuni.cz>
+Content-Description: 
+
+ZGlmZiAtdSAtciBsaW51eC1vcmlnL2ZzL3NlbGVjdC5jIGxpbnV4L2ZzL3Nl
+bGVjdC5jDQotLS0gbGludXgtb3JpZy9mcy9zZWxlY3QuYwlTYXQgT2N0ICA2
+IDE2OjIwOjQ1IDIwMDENCisrKyBsaW51eC9mcy9zZWxlY3QuYwlTYXQgT2N0
+ICA2IDE2OjU0OjQ0IDIwMDENCkBAIC0yMzYsNyArMjM2LDcgQEANCiANCiBz
+dGF0aWMgdm9pZCAqc2VsZWN0X2JpdHNfYWxsb2MoaW50IHNpemUpDQogew0K
+LQlyZXR1cm4ga21hbGxvYyg2ICogc2l6ZSwgR0ZQX0tFUk5FTCk7DQorCXJl
+dHVybiBrbWFsbG9jKDYgKiBzaXplLCBHRlBfS0VSTkVMIHwgX19HRlBfVk1B
+TExPQyk7DQogfQ0KIA0KIHN0YXRpYyB2b2lkIHNlbGVjdF9iaXRzX2ZyZWUo
+dm9pZCAqYml0cywgaW50IHNpemUpDQpAQCAtNDM4LDcgKzQzOCw3IEBADQog
+CWlmIChuZmRzICE9IDApIHsNCiAJCWZkcyA9IChzdHJ1Y3QgcG9sbGZkICoq
+KWttYWxsb2MoDQogCQkJKDEgKyAobmZkcyAtIDEpIC8gUE9MTEZEX1BFUl9Q
+QUdFKSAqIHNpemVvZihzdHJ1Y3QgcG9sbGZkICopLA0KLQkJCUdGUF9LRVJO
+RUwpOw0KKwkJCUdGUF9LRVJORUwgfCBfX0dGUF9WTUFMTE9DKTsNCiAJCWlm
+IChmZHMgPT0gTlVMTCkNCiAJCQlnb3RvIG91dDsNCiAJfQ0KZGlmZiAtdSAt
+ciBsaW51eC1vcmlnL2luY2x1ZGUvYXNtLWkzODYvcHJvY2Vzc29yLmggbGlu
+dXgvaW5jbHVkZS9hc20taTM4Ni9wcm9jZXNzb3IuaA0KLS0tIGxpbnV4LW9y
+aWcvaW5jbHVkZS9hc20taTM4Ni9wcm9jZXNzb3IuaAlTYXQgT2N0ICA2IDE2
+OjIxOjUwIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2FzbS1pMzg2L3Byb2Nl
+c3Nvci5oCVNhdCBPY3QgIDYgMTY6MzE6MTUgMjAwMQ0KQEAgLTQ0OCw3ICs0
+NDgsNyBAQA0KICNkZWZpbmUgS1NUS19FU1AodHNrKQkoKCh1bnNpZ25lZCBs
+b25nICopKDQwOTYrKHVuc2lnbmVkIGxvbmcpKHRzaykpKVsxMDIyXSkNCiAN
+CiAjZGVmaW5lIFRIUkVBRF9TSVpFICgyKlBBR0VfU0laRSkNCi0jZGVmaW5l
+IGFsbG9jX3Rhc2tfc3RydWN0KCkgKChzdHJ1Y3QgdGFza19zdHJ1Y3QgKikg
+X19nZXRfZnJlZV9wYWdlcyhHRlBfS0VSTkVMLDEpKQ0KKyNkZWZpbmUgYWxs
+b2NfdGFza19zdHJ1Y3QoKSAoKHN0cnVjdCB0YXNrX3N0cnVjdCAqKSBfX2dl
+dF9mcmVlX3BhZ2VzKEdGUF9LRVJORUwgfCBfX0dGUF9WTUFMTE9DLDEpKQ0K
+ICNkZWZpbmUgZnJlZV90YXNrX3N0cnVjdChwKSBmcmVlX3BhZ2VzKCh1bnNp
+Z25lZCBsb25nKSAocCksIDEpDQogI2RlZmluZSBnZXRfdGFza19zdHJ1Y3Qo
+dHNrKSAgICAgIGF0b21pY19pbmMoJnZpcnRfdG9fcGFnZSh0c2spLT5jb3Vu
+dCkNCiANCmRpZmYgLXUgLXIgbGludXgtb3JpZy9pbmNsdWRlL2xpbnV4L21t
+LmggbGludXgvaW5jbHVkZS9saW51eC9tbS5oDQotLS0gbGludXgtb3JpZy9p
+bmNsdWRlL2xpbnV4L21tLmgJU2F0IE9jdCAgNiAxNjoyMTo1OSAyMDAxDQor
+KysgbGludXgvaW5jbHVkZS9saW51eC9tbS5oCVNhdCBPY3QgIDYgMTY6Mjg6
+MTIgMjAwMQ0KQEAgLTU1MCw2ICs1NTAsNyBAQA0KICNkZWZpbmUgX19HRlBf
+SU8JMHg0MAkvKiBDYW4gc3RhcnQgbG93IG1lbW9yeSBwaHlzaWNhbCBJTz8g
+Ki8NCiAjZGVmaW5lIF9fR0ZQX0hJR0hJTwkweDgwCS8qIENhbiBzdGFydCBo
+aWdoIG1lbSBwaHlzaWNhbCBJTz8gKi8NCiAjZGVmaW5lIF9fR0ZQX0ZTCTB4
+MTAwCS8qIENhbiBjYWxsIGRvd24gdG8gbG93LWxldmVsIEZTPyAqLw0KKyNk
+ZWZpbmUgX19HRlBfVk1BTExPQwkweDIwMAkvKiBDYW4gdm1hbGxvYyBwYWdl
+cyBpZiBidWRkeSBhbGxvY2F0b3IgZmFpbHMgKi8NCiANCiAjZGVmaW5lIEdG
+UF9OT0hJR0hJTwkoX19HRlBfSElHSCB8IF9fR0ZQX1dBSVQgfCBfX0dGUF9J
+TykNCiAjZGVmaW5lIEdGUF9OT0lPCShfX0dGUF9ISUdIIHwgX19HRlBfV0FJ
+VCkNCmRpZmYgLXUgLXIgbGludXgtb3JpZy9tbS9wYWdlX2FsbG9jLmMgbGlu
+dXgvbW0vcGFnZV9hbGxvYy5jDQotLS0gbGludXgtb3JpZy9tbS9wYWdlX2Fs
+bG9jLmMJU2F0IE9jdCAgNiAxNjoyMTo0NyAyMDAxDQorKysgbGludXgvbW0v
+cGFnZV9hbGxvYy5jCVNhdCBPY3QgIDYgMTY6MzY6MjggMjAwMQ0KQEAgLTE4
+LDYgKzE4LDcgQEANCiAjaW5jbHVkZSA8bGludXgvYm9vdG1lbS5oPg0KICNp
+bmNsdWRlIDxsaW51eC9zbGFiLmg+DQogI2luY2x1ZGUgPGxpbnV4L2NvbXBp
+bGVyLmg+DQorI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2MuaD4NCiANCiBpbnQg
+bnJfc3dhcF9wYWdlczsNCiBpbnQgbnJfYWN0aXZlX3BhZ2VzOw0KQEAgLTQy
+MSw5ICs0MjIsOSBAQA0KIAlzdHJ1Y3QgcGFnZSAqIHBhZ2U7DQogDQogCXBh
+Z2UgPSBhbGxvY19wYWdlcyhnZnBfbWFzaywgb3JkZXIpOw0KLQlpZiAoIXBh
+Z2UpDQotCQlyZXR1cm4gMDsNCi0JcmV0dXJuICh1bnNpZ25lZCBsb25nKSBw
+YWdlX2FkZHJlc3MocGFnZSk7DQorCWlmIChwYWdlKSByZXR1cm4gKHVuc2ln
+bmVkIGxvbmcpIHBhZ2VfYWRkcmVzcyhwYWdlKTsNCisJaWYgKGdmcF9tYXNr
+ICYgX19HRlBfVk1BTExPQykgcmV0dXJuICh1bnNpZ25lZCBsb25nKV9fdm1h
+bGxvYyhQQUdFX1NJWkUgPDwgb3JkZXIsIGdmcF9tYXNrLCBQQUdFX0tFUk5F
+TCk7DQorCXJldHVybiAwOw0KIH0NCiANCiB1bnNpZ25lZCBsb25nIGdldF96
+ZXJvZWRfcGFnZSh1bnNpZ25lZCBpbnQgZ2ZwX21hc2spDQpAQCAtNDQ3LDYg
+KzQ0OCwxMCBAQA0KIA0KIHZvaWQgZnJlZV9wYWdlcyh1bnNpZ25lZCBsb25n
+IGFkZHIsIHVuc2lnbmVkIGludCBvcmRlcikNCiB7DQorCWlmIChhZGRyID49
+IFZNQUxMT0NfU1RBUlQgJiYgYWRkciA8IFZNQUxMT0NfRU5EKSB7DQorCQl2
+ZnJlZSgodm9pZCAqKWFkZHIpOw0KKwkJcmV0dXJuOw0KKwl9DQogCWlmIChh
+ZGRyICE9IDApDQogCQlfX2ZyZWVfcGFnZXModmlydF90b19wYWdlKGFkZHIp
+LCBvcmRlcik7DQogfQ0KZGlmZiAtdSAtciBsaW51eC1vcmlnL21tL3NsYWIu
+YyBsaW51eC9tbS9zbGFiLmMNCi0tLSBsaW51eC1vcmlnL21tL3NsYWIuYwlT
+YXQgT2N0ICA2IDE2OjIxOjQ4IDIwMDENCisrKyBsaW51eC9tbS9zbGFiLmMJ
+U2F0IE9jdCAgNiAxNzowNDozNyAyMDAxDQpAQCAtNzMsNiArNzMsNyBAQA0K
+ICNpbmNsdWRlCTxsaW51eC9pbnRlcnJ1cHQuaD4NCiAjaW5jbHVkZQk8bGlu
+dXgvaW5pdC5oPg0KICNpbmNsdWRlCTxsaW51eC9jb21waWxlci5oPg0KKyNp
+bmNsdWRlCTxsaW51eC92bWFsbG9jLmg+DQogI2luY2x1ZGUJPGFzbS91YWNj
+ZXNzLmg+DQogDQogLyoNCkBAIC0xNTM2LDEwICsxNTM3LDE0IEBADQogCWNh
+Y2hlX3NpemVzX3QgKmNzaXplcCA9IGNhY2hlX3NpemVzOw0KIA0KIAlmb3Ig
+KDsgY3NpemVwLT5jc19zaXplOyBjc2l6ZXArKykgew0KKwkJdm9pZCAqcDsN
+CiAJCWlmIChzaXplID4gY3NpemVwLT5jc19zaXplKQ0KIAkJCWNvbnRpbnVl
+Ow0KLQkJcmV0dXJuIF9fa21lbV9jYWNoZV9hbGxvYyhmbGFncyAmIEdGUF9E
+TUEgPw0KLQkJCSBjc2l6ZXAtPmNzX2RtYWNhY2hlcCA6IGNzaXplcC0+Y3Nf
+Y2FjaGVwLCBmbGFncyk7DQorCQlpZiAoKHAgPSBfX2ttZW1fY2FjaGVfYWxs
+b2MoZmxhZ3MgJiBHRlBfRE1BID8NCisJCQkgY3NpemVwLT5jc19kbWFjYWNo
+ZXAgOiBjc2l6ZXAtPmNzX2NhY2hlcCwgZmxhZ3MgJiB+X19HRlBfVk1BTExP
+QykpKQ0KKwkJCQlyZXR1cm4gcDsNCisJCWlmIChmbGFncyAmIF9fR0ZQX1ZN
+QUxMT0MpIHJldHVybiBfX3ZtYWxsb2Moc2l6ZSwgZmxhZ3MsIFBBR0VfS0VS
+TkVMKTsNCisJCXJldHVybiBOVUxMOw0KIAl9DQogCXJldHVybiBOVUxMOw0K
+IH0NCkBAIC0xNTgwLDYgKzE1ODUsMTAgQEANCiANCiAJaWYgKCFvYmpwKQ0K
+IAkJcmV0dXJuOw0KKwlpZiAoKHVuc2lnbmVkIGxvbmcpb2JqcCA+PSBWTUFM
+TE9DX1NUQVJUICYmICh1bnNpZ25lZCBsb25nKW9iaiA8IFZNQUxMT0NfRU5E
+KSB7DQorCQl2ZnJlZShvYmpwKTsNCisJCXJldHVybjsNCisJfQ0KIAlsb2Nh
+bF9pcnFfc2F2ZShmbGFncyk7DQogCUNIRUNLX1BBR0UodmlydF90b19wYWdl
+KG9ianApKTsNCiAJYyA9IEdFVF9QQUdFX0NBQ0hFKHZpcnRfdG9fcGFnZShv
+YmpwKSk7DQo=
+--1908636959-1328101436-1002382286=:32345--

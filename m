@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261945AbSJ2QFu>; Tue, 29 Oct 2002 11:05:50 -0500
+	id <S262003AbSJ2QSN>; Tue, 29 Oct 2002 11:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbSJ2QFu>; Tue, 29 Oct 2002 11:05:50 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:13453 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261945AbSJ2QFt>; Tue, 29 Oct 2002 11:05:49 -0500
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: <chris@scary.beasts.org>, <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
-References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com>
-	<200210290323.09565.agruen@suse.de> <87n0oxmrhn.fsf@goat.bogus.local>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Tue, 29 Oct 2002 15:38:56 +0100
-Message-ID: <87lm4hl37j.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
+	id <S261996AbSJ2QSN>; Tue, 29 Oct 2002 11:18:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:18106 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262003AbSJ2QSL>;
+	Tue, 29 Oct 2002 11:18:11 -0500
+Message-Id: <200210291624.g9TGOUr31626@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] AIM Independent Resource Benchmark results for 
+ kernel-2.5.44
+In-Reply-To: Message from Nathan Straz <nstraz@sgi.com> 
+   of "Tue, 29 Oct 2002 09:28:00 CST." <20021029152800.GB2030@sgi.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Tue, 29 Oct 2002 08:24:30 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
+> On Tue, Oct 29, 2002 at 12:17:38AM +0100, Jakob Oestergaard wrote:
+> > On Mon, Oct 28, 2002 at 12:28:39PM -0600, Nathan Straz wrote:
+> > > > The AIM7/AIM9 new_raph is broken code.  The convergence loop termination
+> > > > conditional looks something like:
+> > > >    if (delta == 0) break;
+> > > > for a type "double" delta.  You ought to change that to be something
+> > > > like:
+> > > >    if (delta <= 0.00000001L) break;
+> > > 
+> > > I usually specify the compiler flag -ffloat-store and that fixes the
+> > > issue for me.  
+> > 
+> > Maybe that will work as a work-around.  But it is nothing but a
+> > work-around. The previous poster was right - the code is broken.
+> 
+> /me looks at the code
+> 
+> 	/*
+> 	 * Step 4: if |p - p0| < TOL then terminate successfully
+> 	 */
+> 	delta = fabs(p - p0);
+> 	if (delta == 0.0)
+> 		break;
+> 
+> Ok, I'll admit that the code does look broken, especially with regard to
+> the comment *in* the code.  
+> 
+> Is anyone from Caldera still maintaining this code or shall I create a
+> CVS module as part of LTP?
+> 
+The OSDL is interested in this supporting this test also. 
+Appreciate the fix. 
+cliffw
+www.osdl.org
 
-> Andreas Gruenbacher <agruen@suse.de> writes:
->
->> On Tuesday 29 October 2002 00:36, chris@scary.beasts.org wrote:
->>> I'm not sure what the current glibc security check is, but it used to be
->>> simple *uid() vs. *euid() checks. This would not catch an executable with
->>> filesystem capabilities.
->>> Have a look at
->>> http://security-archive.merton.ox.ac.uk/security-audit-199907/0192.html
-> [...]
->>> I think the eventual plan was that we pass the kernel's current->dumpable
->>> as an ELF note. Not sure if it got done. Alternatively glibc could use
->>> prctl(PR_GET_DUMPABLE).
->>
->> Sorry, I don't know exactly what was your plan here. Could you please explain?
->
-> Judging from the mail archive above: instead of checking uid vs. euid
-> and gid vs. egid, ask the kernel and grant or deny LD_PRELOAD
-> according to the dumpable flag (see prctl(2)). This flag is set to
-> false, if uid != euid, etc. So, this flag could be used/cleared by
-> capabilities as well.
+> -- 
+> Nate Straz                                              nstraz@sgi.com
+> sgi, inc                                           http://www.sgi.com/
+> Linux Test Project                                  http://ltp.sf.net/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-This is already done in cap_bprm_compute_creds(), it seems. Here is an
-untested patch to trick glibc into thinking this is a SGID binary and
-thus ignoring LD_PRELOAD. This may break some programs, though.
 
-Comments?
-
-Regards, Olaf.
-
---- a/security/capability.c	Thu Oct 24 00:11:51 2002
-+++ b/security/capability.c	Tue Oct 29 15:13:42 2002
-@@ -187,6 +187,8 @@
- 			}
- 		}
- 		do_unlock = 1;
-+		if (current->euid == current->uid && current->egid == current->gid)
-+			current->gid = -1;
- 	}
- 
- 	/* For init, we want to retain the capabilities set

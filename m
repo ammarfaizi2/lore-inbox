@@ -1,120 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbUL3NhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbUL3Nj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbUL3NhK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 08:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUL3NhK
+	id S261636AbUL3Nj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 08:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUL3Nix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 08:37:10 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:42150 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261402AbUL3NgM
+	Thu, 30 Dec 2004 08:38:53 -0500
+Received: from wine.ocn.ne.jp ([220.111.47.146]:51933 "EHLO
+	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S261637AbUL3NhF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 08:36:12 -0500
-Date: Thu, 30 Dec 2004 19:04:27 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [Fake patch 2.6.10-rc2-bk15] Hide sysfs_dirent definition
-Message-ID: <20041230133427.GB3122@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <200412030306.iB3367V03088@adam.yggdrasil.com>
+	Thu, 30 Dec 2004 08:37:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is CAP_SYS_ADMIN checked by every program !?
+From: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
+References: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+In-Reply-To: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+Message-Id: <200412302236.DGE46722.PSVOYJLMtGOMFFStN@i-love.sakura.ne.jp>
+X-Mailer: Winbiff [Version 2.43]
+X-Accept-Language: ja,en
+Date: Thu, 30 Dec 2004 22:37:08 +0900
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412030306.iB3367V03088@adam.yggdrasil.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 07:06:07PM -0800, Adam J. Richter wrote:
-> 	struct sysfs_dirent is only used internally within fs/sysfs/,
-> as are the legals for sysfs_dirent.s_type.  The following patch
-> moves these definitions from the public include/linux/sysfs.h to
-> the private fs/sysfs/sysfs.h, which is consistent with other
-> definitions for internal use within sysfs, such as struct
-> sysfs_symlink.
-> 
-> 	This patch makes it clearer that there are no external
-> dependencies on struct sysfs_dirent, and it also eliminates the
-> massive recompiles that I had to do every time I would change
-> something in sysfs_dirent.
-> 
-> 	Note that this is a fake patch generated against a
-> pristine 2.6.10-rc2-bk15 tree, because my tree has some other
-> changes in it that overlap.  So, please test this patch.  It
-> should produce exactly the same binaries as before.  If the
-> patch seems OK, I would appreciate it if this patch could
-> be forwarded for integration into the stock kernels.
-> 
+Hello,
 
-Agreed. No problem with this one. 
+Bernd Eckenfels wrote:
+> You can add dump_stack(void) from kernel.h to you patch, since there are not
+> many sources for SYS_ADMIN capabilities checks in the kernel. You will
+> quickly find the syscall in question.
 
-Thanks
-Maneesh
+Oh, this is exactly what I need.
 
+And the following is the results of these tow lines.
+  printk("\n[%s]\n", current->comm);
+  dump_stack();
 
->                     __     ______________
-> Adam J. Richter        \ /
-> adam@yggdrasil.com      | g g d r a s i l
-> 
-> 
-> diff -ur linux-2.6.10-rc2-bk15/fs/sysfs/sysfs.h linux/fs/sysfs/sysfs.h
-> --- linux-2.6.10-rc2-bk15/fs/sysfs/sysfs.h	2004-11-17 18:59:13.000000000 +0800
-> +++ linux/fs/sysfs/sysfs.h	2004-12-03 11:01:25.000000000 +0800
-> @@ -1,3 +1,20 @@
-> +struct sysfs_dirent {
-> +	atomic_t		s_count;
-> +	struct list_head	s_sibling;
-> +	struct list_head	s_children;
-> +	void 			* s_element;
-> +	int			s_type;
-> +	umode_t			s_mode;
-> +	struct dentry		* s_dentry;
-> +};
-> +
-> +#define SYSFS_ROOT		0x0001
-> +#define SYSFS_DIR		0x0002
-> +#define SYSFS_KOBJ_ATTR 	0x0004
-> +#define SYSFS_KOBJ_BIN_ATTR	0x0008
-> +#define SYSFS_KOBJ_LINK 	0x0020
-> +#define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
-> +
->  
->  extern struct vfsmount * sysfs_mount;
->  
-> diff -ur linux-2.6.10-rc2-bk15/include/linux/sysfs.h linux/include/linux/sysfs.h
-> --- linux-2.6.10-rc2-bk15/include/linux/sysfs.h	2004-11-17 18:59:17.000000000 +0800
-> +++ linux/include/linux/sysfs.h	2004-12-03 11:01:46.000000000 +0800
-> @@ -59,23 +59,6 @@
->  	ssize_t	(*store)(struct kobject *,struct attribute *,const char *, size_t);
->  };
->  
-> -struct sysfs_dirent {
-> -	atomic_t		s_count;
-> -	struct list_head	s_sibling;
-> -	struct list_head	s_children;
-> -	void 			* s_element;
-> -	int			s_type;
-> -	umode_t			s_mode;
-> -	struct dentry		* s_dentry;
-> -};
-> -
-> -#define SYSFS_ROOT		0x0001
-> -#define SYSFS_DIR		0x0002
-> -#define SYSFS_KOBJ_ATTR 	0x0004
-> -#define SYSFS_KOBJ_BIN_ATTR	0x0008
-> -#define SYSFS_KOBJ_LINK 	0x0020
-> -#define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
-> -
->  #ifdef CONFIG_SYSFS
->  
->  extern int
-> 
+[ls]
+ [<c01e1852>] cap_vm_enough_memory+0x82/0x1f0
+ [<c0156dcd>] setup_arg_pages+0x9d/0x230
+ [<c0174373>] load_elf_binary+0x473/0xca0
+ [<c01334e7>] __alloc_pages+0xa7/0x360
+ [<c0156bdd>] copy_strings+0x1dd/0x200
+ [<c0157b00>] search_binary_handler+0x50/0x170
+ [<c0157d9e>] do_execve+0x17e/0x210
+ [<c01010bc>] sys_execve+0x3c/0x80
+ [<c010246d>] sysenter_past_esp+0x52/0x75
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+[cat]
+ [<c01e1852>] cap_vm_enough_memory+0x82/0x1f0
+ [<c0156dcd>] setup_arg_pages+0x9d/0x230
+ [<c0174373>] load_elf_binary+0x473/0xca0
+ [<c01334e7>] __alloc_pages+0xa7/0x360
+ [<c0156bdd>] copy_strings+0x1dd/0x200
+ [<c0157b00>] search_binary_handler+0x50/0x170
+ [<c0157d9e>] do_execve+0x17e/0x210
+ [<c01010bc>] sys_execve+0x3c/0x80
+ [<c010246d>] sysenter_past_esp+0x52/0x75
+
+[tcsh]
+ [<c01e1852>] cap_vm_enough_memory+0x82/0x1f0
+ [<c0112c1e>] copy_mm+0x17e/0x360
+ [<c0113686>] copy_process+0x406/0x9c0
+ [<c0113d45>] do_fork+0x75/0x1ad
+ [<c01e753e>] copy_to_user+0x3e/0x50
+ [<c011f85e>] sys_rt_sigprocmask+0xae/0x100
+ [<c010103c>] sys_clone+0x3c/0x40
+ [<c010246d>] sysenter_past_esp+0x52/0x75
+
+[sed]
+ [<c01e1852>] cap_vm_enough_memory+0x82/0x1f0
+ [<c0156dcd>] setup_arg_pages+0x9d/0x230
+ [<c0174373>] load_elf_binary+0x473/0xca0
+ [<c01334e7>] __alloc_pages+0xa7/0x360
+ [<c0156bdd>] copy_strings+0x1dd/0x200
+ [<c0157b00>] search_binary_handler+0x50/0x170
+ [<c0157d9e>] do_execve+0x17e/0x210
+ [<c01010bc>] sys_execve+0x3c/0x80
+ [<c010246d>] sysenter_past_esp+0x52/0x75
+
+[klogd]
+ [<c01e179c>] cap_syslog+0x4c/0x80
+ [<c011445d>] do_syslog+0x2d/0x380
+ [<c0127640>] autoremove_wake_function+0x0/0x60
+ [<c011cb84>] update_process_times+0x44/0x50
+ [<c0127640>] autoremove_wake_function+0x0/0x60
+ [<c014cda6>] vfs_read+0x116/0x160
+ [<c014d0b1>] sys_read+0x51/0x80
+ [<c010246d>] sysenter_past_esp+0x52/0x75
+
+The function which calls capable(CAP_SYS_ADMIN) is
+cap_vm_enough_memory() defined in security/commoncap.c ,
+and this function is called whenever sys_execve() is called.
+Therefore, it seemed to me that every program calls capable(CAP_SYS_ADMIN).
+
+Thank you very much.
+--
+Tetsuo Handa

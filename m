@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUFEVIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUFEVNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUFEVIM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 17:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUFEVIM
+	id S262406AbUFEVNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 17:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUFEVNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 17:08:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16041 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262045AbUFEVII (ORCPT
+	Sat, 5 Jun 2004 17:13:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43702 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262406AbUFEVNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 17:08:08 -0400
-Date: Sat, 5 Jun 2004 14:05:44 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: olh@suse.de, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] compat bug in sys_recvmsg, MSG_CMSG_COMPAT check
- missing
-Message-Id: <20040605140544.0de4034d.davem@redhat.com>
-In-Reply-To: <20040605140153.6c5945a0.davem@redhat.com>
-References: <20040605204334.GA1134@suse.de>
-	<20040605140153.6c5945a0.davem@redhat.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jun 2004 17:13:20 -0400
+Date: Sat, 5 Jun 2004 14:13:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>, Ulrich Drepper <drepper@redhat.com>
+cc: Russell Leighton <russ@elegant-software.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: clone() <-> getpid() bug in 2.6?
+In-Reply-To: <20040605205547.GD20716@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0406051405110.7010@ppc970.osdl.org>
+References: <40C1E6A9.3010307@elegant-software.com>
+ <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+ <20040605205547.GD20716@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ Replying to myself :-) ]
 
-On Sat, 5 Jun 2004 14:01:53 -0700
-"David S. Miller" <davem@redhat.com> wrote:
+On Sat, 5 Jun 2004, Arjan van de Ven wrote:
+> 
+> ... or glibc internally caches the getpid() result and doesn't notice the
+> app calls clone() internally... strace seems to show 1 getpid() call total
+> not 2.
 
-> Let's ask a better question, why do we need to pass this thing down
-> into the implementations anyways?
+Why the hell does glibc do that totally useless optimization?
 
-It's for net/core/scm.c handling, sigh.
+It's a classic "optimize for benchmarks" thing - evil. I don't see any
+real app caring, and clearly apps _do_ fail when you get it wrong, as
+shown by Russell.
 
-This means also that Olaf's patch is broken, when CONFIG_COMPAT is not
-set, MSG_CMSG_COMPAT is zero, thus ~MSG_CMSG_COMPAT is the unexpected
-value all 1's thus breaking the tests for unexpected flags completely.
+And it's really easy to get it wrong. You can't just invalidate the cache
+when you see a "clone()" - you have to make sure that you never ever cache
+it ever after either.
 
-Any better ideas?
+Uli, if Arjan is right, then please fix this. It's a buggy and pointless 
+optimization. Anybody who optimizes purely for benchmarks should be 
+ashamed of themselves.
+
+		Linus
+
+

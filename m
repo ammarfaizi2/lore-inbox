@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbTLWWVM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTLWWVM
+	id S262458AbTLWWlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 17:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLWWlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:21:12 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:42052 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S262925AbTLWWVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:21:09 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Rob Love'" <rml@ximian.com>,
-       "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: DEVFS is very good compared to UDEV
-Date: Tue, 23 Dec 2003 14:21:03 -0800
-Organization: Cisco Systems
-Message-ID: <008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
+	Tue, 23 Dec 2003 17:41:03 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:17224 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262458AbTLWWlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 17:41:00 -0500
+From: Jos Hulzink <josh@stack.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.7 (future kernel) wish
+Date: Tue, 23 Dec 2003 23:42:17 +0100
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <1072216884.6987.52.camel@fur>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
+Content-Disposition: inline
+Message-Id: <200312232342.17532.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2003-12-23 at 16:20, Jari Soderholm wrote:
-> 
-> (please use a mailer that wraps lines, in the future)
-> 
-> > I am quite advanced Linux user who has used DEVFS quite
-> > long time, and have also been a little suprised that it
-> > has been marked OBSOLETE in 2.6 kernel.
-> 
-> devfs is marked obsolete for more reasons that just the presence of
-> udev.  Devfs is also buggy, poorly designed, and unmaintained.
+Hi,
 
-I do not care about devfs, and I believe/trust udev is a better
-approach.
+First of all... Compliments about 2.6.0. It is a superb kernel, with very few 
+serious bugs, and for me it runs stable like a rock from the very first 
+moment.
 
-But I do have sth fair to say about this "unmaintained" part.
+As an end user, Linux doesn't give me a good feeling on one particular item 
+yet: Error handling. 
 
->From my memory, at some point in time, somebody (Al Viro?) reviewed
-devfs code and flamed the author in public (klml), throwing lots of bad
-impolite words to him, which I think was the biggest reason that the
-author stopped maintaining it. This was one of the projects that got
-killed by flames, or improper handling with flames (another one that
-comes to mind is CML2).
+What do I mean ? Well... for example: Pull out your USB stick with a mounted 
+fs on it. Linux doesn't really seem to like it, got weird problems etc. It 
+will survive, sure, but the user got no clue and data are lost for sure. Bad 
+sectors on a disk... Linux will pass, but even 2.6.0 went very slow, 
+unresponsive when a floppy with bad sectors went into the drive. Many other 
+non-critical or solvable problems that are dealt with in a way that makes 
+linux survive (most of the times), but not in a way that is neat from the 
+user point of view.
 
-Correct (but not flame :-) me if I am wrong.
+It all just doesn't feel like Linux is doing the best it can to "rescue the 
+user" when something is going wrong. Technically speaking, it's not only the 
+task of the kernel to do so, but for an end user it makes the difference 
+between an OS that does its job, and an OS that does its job nicely.
+
+I think it's hard to describe what I mean exactly, but I hope you get the 
+feeling. I too know that some of this is not within scope of the kernel (it's 
+not the kernels task to tell the user "put back the USB drive or data is 
+lost"), but after dealing with broken floppies again, I thought it was time 
+to write my feelings to the list.
+
+Best regards, and thanks for the wonderful world of Linux,
+
+Jos
 

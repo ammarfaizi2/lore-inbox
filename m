@@ -1,126 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262805AbSI2Qje>; Sun, 29 Sep 2002 12:39:34 -0400
+	id <S262802AbSI2QoS>; Sun, 29 Sep 2002 12:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbSI2Qje>; Sun, 29 Sep 2002 12:39:34 -0400
-Received: from transport.cksoft.de ([62.111.66.27]:19986 "EHLO
-	transport.cksoft.de") by vger.kernel.org with ESMTP
-	id <S262805AbSI2Qjc>; Sun, 29 Sep 2002 12:39:32 -0400
-Date: Sun, 29 Sep 2002 18:42:46 +0200 (CEST)
-From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-       <andre@master.linux-ide.org>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <20020929153817.GC1014@suse.de>
-Message-ID: <Pine.BSF.4.44.0209291805170.427-100000@e0-0.zab2.int.zabbadoz.net>
+	id <S262810AbSI2QoS>; Sun, 29 Sep 2002 12:44:18 -0400
+Received: from beppo.feral.com ([192.67.166.79]:28167 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S262802AbSI2QoP>;
+	Sun, 29 Sep 2002 12:44:15 -0400
+Date: Sun, 29 Sep 2002 09:49:28 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [ getting OT ] Re: Warning - running *really* short on DMA buffers
+ while  doingfiletransfers
+In-Reply-To: <200209291545.g8TFj2v09855@localhost.localdomain>
+Message-ID: <Pine.BSF.4.21.0209290942060.25666-100000@beppo>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002, Jens Axboe wrote:
+> > I've already written one OpenSource SCSI mid-layer, given
+> > presentations on how to fix the Linux mid-layer, and try to discuss
+> > these issues with Linux developers.  I just don't have the energy to
+> > go implement a real solution for Linux only to have it thrown away.
+> > Life's too short.  8-)
+> 
+> What can I say? I've always found the life of an open source developer to be a 
+> pretty thankless, filled with bug reports, irate complaints about feature 
+> breakage and tossed code.  The worst I think is "This code looks fine now why 
+> don't you <insert feature requiring a complete re-write of proposed code>".
+> 
+> I can ceratinly sympathise with anyone not wanting to work in this 
+> environment.  I just don't see it changing soon.
 
-Hi,
+Justin, and all of us, are quite content to work in an Open Source
+environment I believe. It is the true inheritor of the original Unix
+philosophies.
 
-> On Sun, Sep 29 2002, Alan Cox wrote:
-> > On Sun, 2002-09-29 at 10:12, Jens Axboe wrote:
-> > > 2.5 is definitely desktop stable, so please test it if you can. Until
-> > > recently there was a personal show stopper for me, the tasklist
-> > > deadlock. Now 2.5 is happily running on my desktop as well.
-> >
-> > Its very hard to make that assessment when the audio layer still doesnt
-> > work, most scsi drivers havent been ported, most other drivers are full
-> > of 2.4 fixed problems and so on.
->
-> I can only talk for myself, 2.5 works fine here on my boxes. Dunno what
-> you mean about audio layer, emu10k works for me.
->
-> SCSI drivers can be a real problem. Not the porting of them, most of
-[snip]
+But it's difficult to commit to an effort that one often feels is a
+waste of time from the git go. This is one of the bootstrapping problems
+of the Linux environment: pretty much everyone expects you to produce a
+working prototype of a problem solution *before* people will accept it-
+how else can they evaluate it, hmm?
 
-simply replying to one of you all ...
-
-Most important problem I currently see is that one of two kernels
-do not boot on my MP machine I use as a workstation.
-
-Apart from that and after early 2.5.3x probs were sorted out
-I already had 2.5-bk-kernels running and did the following on that
-MP machine:
-
-- compiled linux-2.5-bks
-- compiled X (runs with multi head)
-- listend to music (emu10k)
-- watched TV (bttv)
-- burned CDs (SCSI)
-- ran amanda: dumped multiple input streams from network to IDE disks
-  before writing to SCSI tape
-- ran vmware (after patchwork to compile ;-)
-- started looking at sym53c416 cli() removal and had the scanner
-  doing his work (started to debug some pnp things there too, results
-  to be posted)
-- changed to devfs
-- printing and serial are fine too
-- the new input stuff now behaves properly too
-
-often did multiple things in parallel (watching tv while compiling
-a new kernel, ...)
-
-had really few crashes (~4-6 since 2.5.34)
-had some compilation probs with modules and MP but they got either
-fixed too fast or patches went into bk within 1-2 days :-)
-
-Going to check JFS (and XFS) in the near future...
-
-So I think I am either one almost happy person with a lotta luck or
-you all (did) do a very excellent job!!! ... but please get those
-MP (boot) probs sorted out ;-)
-
-Before you start asking what probs: this time it's around ACPI init.
-
---- snipp ---
-PCI: PCI BIOS revision 2.10 entry at 0xfdb91, last bus=1
-PCI: Using configuration type 1
-ACPI: Subsystem revision 20020918
- tbxface-0099 [03] Acpi_load_tables      : ACPI Tables successfully loaded
-Parsing Methods:......................................................................................................
-Table [DSDT] - 309 Objects with 22 Devices 102 Methods 19 Regions
-ACPI Namespace successfully loaded at root c03a741c
---- dead end where no keyboard or serial console sysreqs are answered ---
-
-
-so it must be around ... and I assume it's mp_config_ioapic_for_sci()
-but still have to trace ...
-
---- drivers/acpi/bus.c:606 ---
-        /*
-         * Get a separate copy of the FADT for use by other drivers.
-         */
-        status = acpi_get_table(ACPI_TABLE_FADT, 1, &buffer);
-        if (ACPI_FAILURE(status)) {
-                printk(KERN_ERR PREFIX "Unable to get the FADT\n");
-                goto error1;
-        }
-
-#ifdef CONFIG_X86
-        /* Ensure the SCI is set to level-triggered, active-low */
-        if (acpi_ioapic)
-                mp_config_ioapic_for_sci(acpi_fadt.sci_int);
-        else
-                eisa_set_level_irq(acpi_fadt.sci_int);
-#endif
-
-        status = acpi_enable_subsystem(ACPI_FULL_INITIALIZATION);
-        if (ACPI_FAILURE(status)) {
-                printk(KERN_ERR PREFIX "Unable to start the ACPI Interpreter\n");
-                goto error1;
-        }
---- end ---
-
--- 
-Greetings
-
-Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
-56 69 73 69 74				http://www.zabbadoz.net/
+But major amounts of work would have to be expended before you would do
+something like present 'CAM in linux' for review. That makes for a
+natural tendency to try and assess *beforehand* whether there's even a
+point in trying. I think that the subtext of Justin's comment, to put
+words in his mouth which can later deny if he likes, is that there's a
+sense that some of the solutions he'd propose/do would never be
+accepted, so why spend an effort sure to be wasted?
 

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267070AbTBDAaL>; Mon, 3 Feb 2003 19:30:11 -0500
+	id <S267057AbTBDAeQ>; Mon, 3 Feb 2003 19:34:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267065AbTBDAaL>; Mon, 3 Feb 2003 19:30:11 -0500
-Received: from ns.suse.de ([213.95.15.193]:50955 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267070AbTBDAaL>;
-	Mon, 3 Feb 2003 19:30:11 -0500
-To: Kevin Lawton <kevinlawton2001@yahoo.com>
+	id <S267059AbTBDAeQ>; Mon, 3 Feb 2003 19:34:16 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24849
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267057AbTBDAeP>; Mon, 3 Feb 2003 19:34:15 -0500
+Subject: Re: linux hangs with printk on schedule()
+From: Robert Love <rml@tech9.net>
+To: Haoqiang Zheng <hzheng@cs.columbia.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible bug in arch/i386/kernel/process.c for reloading of debug registers (DRx)?
-References: <20030203235140.10443.qmail@web80304.mail.yahoo.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Feb 2003 01:39:43 +0100
-In-Reply-To: Kevin Lawton's message of "4 Feb 2003 01:19:16 +0100"
-Message-ID: <p7365s0ri9c.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+In-Reply-To: <05db01c2cbe5$4b4c34f0$9c2a3b80@zhengthinkpad>
+References: <05db01c2cbe5$4b4c34f0$9c2a3b80@zhengthinkpad>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044319431.783.113.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 03 Feb 2003 19:43:52 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Lawton <kevinlawton2001@yahoo.com> writes:
+On Mon, 2003-02-03 at 19:35, Haoqiang Zheng wrote:
 
-> I was scanning through the source and noticed the lines below.
-> Should the code below, be reloading at least the local bits of
-> DR7 if the current DR7 value != 0?  From a quick glance, it
-> looks like only if the next task's DR7 value is non-zero,
-> that DR7 is reloaded.  I'm wondering if this would leave
-> a new task to receive "local" debug events for the previous
-> task if prev->DR7!=0 && next->DR7==0.
+> I found Linux hangs when printk is inserted to the function schedule().
+> Sure, it doesn't make much sense to add such a line to schedule(). But Linux
+> shouldn't hang anyway, right? It's assumed that printk can be inserted
+> safely to anywhere. So, is it a bug of Linux?
 
-The do_debug trap handler handles that. It checks that
-the debug event is set in the current process before doing anything
-and if they weren't they are clared.
+Its a known deadlock in 2.4:
 
-So yes they leak, but only once and the user should never notice.
+	schedule -> printk() -> dmesg output -> klogd wakes up -> repeat
 
--Andi
+It is not a hard fix and its basically one of a few places where you
+cannot call printk(), which is otherwise a very robust funciton.
+
+	Robert Love
+

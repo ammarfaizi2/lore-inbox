@@ -1,53 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279317AbRJ2Rrw>; Mon, 29 Oct 2001 12:47:52 -0500
+	id <S279321AbRJ2RuM>; Mon, 29 Oct 2001 12:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279321AbRJ2Rrm>; Mon, 29 Oct 2001 12:47:42 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:20243 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S279317AbRJ2Rrb>; Mon, 29 Oct 2001 12:47:31 -0500
-Date: Mon, 29 Oct 2001 18:48:05 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.13-ac4
-Message-ID: <20011029184805.A4504@suse.cz>
-In-Reply-To: <20011029084736.A3152@suse.cz> <E15yA5r-0002Ha-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S279328AbRJ2RuD>; Mon, 29 Oct 2001 12:50:03 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8176 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S279321AbRJ2Rts>; Mon, 29 Oct 2001 12:49:48 -0500
+Message-ID: <3BDD96D2.9AC097B7@mvista.com>
+Date: Mon, 29 Oct 2001 09:50:10 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] High Resolution Timers package available.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15yA5r-0002Ha-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 29, 2001 at 10:56:35AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 10:56:35AM +0000, Alan Cox wrote:
+The High Resolution Timers project has just put the first high
+resolution system patch on its web site 
+(http://sourceforge.net/projects/high-res-timers).  This patch is for
+the 2.4.7 kernel, with newer kernels to follow soon.  The current patch
+is for the x86 platform with others to follow.
 
-> > bytes read from the 8254 get swapped. I've got some indirect evidence
-> > that this also could happen with the original i8254. 
-> 
-> Im hoping not. That would imply we interrupted someone half way through
-> reading the counter which means the locking is screwed up.
-> 
-> > By the way, if we made the 8254 accesses (spinlock?) protected (which
-> > should be done anyway, right now definitely more than one CPU can access
-> > the registers at once), I think we could remove the outb(0, 0x43);,
-> > saving some cycles.
-> 
-> Some chipsets need the outb
-
-I'm looking at how to cleanly fix the timer accesses. And I think a
-common inline function that does the
-
-lock
-outb
-inb
-inb
-check - via, other bugs
-unlock
-
-would make sense. What do you think?
-
--- 
-Vojtech Pavlik
-SuSE Labs
+George

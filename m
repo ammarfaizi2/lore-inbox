@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263551AbUCYSrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 13:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUCYSqw
+	id S263523AbUCYStu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 13:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUCYSr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 13:46:52 -0500
-Received: from mail.kroah.org ([65.200.24.183]:6542 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263523AbUCYSoo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 13:44:44 -0500
-Date: Thu, 25 Mar 2004 10:43:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, gerg@snapgear.com
-Subject: Re: [PATCH 2.6 stallion.c] RFT added class support to stallion.c
-Message-ID: <20040325184322.GA28127@kroah.com>
-References: <68680000.1079748527@w-hlinder.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <68680000.1079748527@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 25 Mar 2004 13:47:28 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:28115 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263523AbUCYSrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 13:47:10 -0500
+Message-ID: <40632922.7080804@nortelnetworks.com>
+Date: Thu, 25 Mar 2004 13:46:58 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marco Berizzi <pupilla@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: proxy arp behaviour
+References: <DAV6695HfqR77bieLYC00007982@hotmail.com>
+In-Reply-To: <DAV6695HfqR77bieLYC00007982@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 06:08:47PM -0800, Hanna Linder wrote:
-> 
-> Here is a patch to add class support to the Stallion multiport 
-> serial driver.
-> 
-> I have verified it compiles but do not have the hardware. 
-> If you can please verify, thanks.
-> 
-> Please consider for Inclusion or Testing.
+Marco Berizzi wrote:
 
-Applied to my trees, thanks.
+> eth1 configuration is here:
+> 
+> ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
+> ip route del 10.77.77.0/30 dev eth1
+> ip route add 172.17.1.0/24 dev eth1
+> 
+> echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
+> 
+> Hosts connected to eth1 are all 172.17.1.0/24.
+> The linux box is now replying to arp requests
+> that are sent by 172.17.1.0/24 hosts on the eth1
+> network segment.
 
-greg k-h
+Arp requests for what IP addresses?
+
+Chris

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312447AbSEONI1>; Wed, 15 May 2002 09:08:27 -0400
+	id <S313299AbSEONNB>; Wed, 15 May 2002 09:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312681AbSEONIW>; Wed, 15 May 2002 09:08:22 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:10706 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S312447AbSEONIS>; Wed, 15 May 2002 09:08:18 -0400
-From: <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Neil Conway <nconway.list@ukaea.org.uk>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.15 IDE 61
-Date: Wed, 15 May 2002 15:08:11 +0100
-Message-Id: <20020515140811.15825@mailhost.mipsys.com>
-In-Reply-To: <E177yXY-0001t9-00@the-village.bc.nu>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S314241AbSEONNA>; Wed, 15 May 2002 09:13:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40964 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313299AbSEONNA>; Wed, 15 May 2002 09:13:00 -0400
+Date: Wed, 15 May 2002 14:12:53 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.15 IDE 64
+Message-ID: <20020515141253.A28997@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CE24EC8.3030202@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The problem is that with the busy flag on we are wasting quite
->> a significant amount of CPU time spinning around it for no good...
->
->Why spin on the busy flag. Instead you just let the person who clears
->the flag check the pending work and do it. 
+On Wed, May 15, 2002 at 02:04:24PM +0200, Martin Dalecki wrote:
+> Tue May 14 13:35:04 CEST 2002 ide-clean-64:
+> 
+> Let's just get over with  this before queue handling will be targeted again...
+> 
+> - Implement suggestions by Russel King for improved portability and separation
 
-Which is what happened in most cases, pending work could be resumed by
-calling ide_do_request() (in the previous codebase).
+RusseLL please. 8)
 
-I used/needed this feature when implementing machine sleep support on
-PowerMac laptops. I basically got the lock, set busy flag on all interfaces
-then release the lock (well, I did the proper wait for interface not to
-be busy etc... but you get the point).
-
-That way, I am sure that newly incoming requests would be queued and not
-sent to HW while the controller is going to sleep (and then the entire
-machine).
-
-On wakeup, I do the opposite. After reviving the controller and the disk,
-I clear the busy flag and call ide_do_request() to get things back.
-
-I need to be able to do something similar with the new codebase, though
-I beleive that should be part of the generic code for power management
-when the controller gets a suspend request. In theory, it should issue
-a device-specific suspend command (that is SLEEP for IDE disks, etc...)
-and make sure the busy flag doesn't get cleared upon termination on this
-command (thus blocking queues) until the machine gets woken up.
-
-Ben.
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

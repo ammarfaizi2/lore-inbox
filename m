@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129950AbQK0Qbo>; Mon, 27 Nov 2000 11:31:44 -0500
+        id <S131466AbQK0QcO>; Mon, 27 Nov 2000 11:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131466AbQK0Qbe>; Mon, 27 Nov 2000 11:31:34 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-        chaos.analogic.com") by vger.kernel.org with ESMTP
-        id <S129950AbQK0QbV>; Mon, 27 Nov 2000 11:31:21 -0500
-Date: Mon, 27 Nov 2000 10:59:56 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Kaustubh Phanse <ksphanse@yahoo.com>
+        id <S131979AbQK0QcH>; Mon, 27 Nov 2000 11:32:07 -0500
+Received: from www.ylenurme.ee ([193.40.6.1]:51704 "EHLO ylenurme.ee")
+        by vger.kernel.org with ESMTP id <S131466AbQK0Qby>;
+        Mon, 27 Nov 2000 11:31:54 -0500
+Date: Mon, 27 Nov 2000 17:58:11 +0200 (GMT-2)
+From: Elmer Joandi <elmer@ylenurme.ee>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Error after make bzImage
-In-Reply-To: <20001127154743.27705.qmail@web310.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1001127105744.686A-100000@chaos.analogic.com>
+Subject: Re: Universal debug macros.
+In-Reply-To: <200011271459.PAA18635@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.10.10011271747210.13242-100000@yle-server.ylenurme.sise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Kaustubh Phanse wrote:
 
-> 
-> Hello!
-> 
->       I am trying to recompile my kernel after adding
-> some patches... After making the changes, I first run
-> make dep and then make clean...both run fine. However,
-> after running make bzImage it gives me the following
-> errors:
-> 
-> make[2]: *** [ksyms.o] Error 1
-> make[2]: Leaving directory
-> `/usr/src/linux-2.2.16/kernel'
-> make[1]: *** [first_rule] Error 2
-> make[1]: Leaving directory
-> `/usr/src/linux-2.2.16/kernel'
-> make: *** [_dir_kernel] Error 2                      
-> 
-> I was not able to figure out what may be causing this
-> problem. Can some one please help me out with this
-> one?
+well, really, look the other side:
 
-Try:
-cd /usr/src/linux/whatever
-cp .config ..   # Save your configuration
-make distclean	# Get rid of all old junk
-cp ../.config . # Restore
-make oldconfig
-make dep
-make bzImage
-make modules
-...etc
+We dont make a way to take info away, we just put a lot more into it and
+give the option to take it away if it is not needed.
 
+With this you get your usual amount of debug info plus a way to have lots
+more.
 
+Oh, and one more point: if linux is going to have nonprofessional endusers
+space comparable to MSWin, then you probably do not want to have every bug
+report, because these will be stupid anyway, with or without debug info.
+But if ideological wars stop development in nonsense places, then that
+day wont come anyway.
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+elmer.
 
 
 -

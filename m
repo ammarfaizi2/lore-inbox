@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263191AbTCWUfa>; Sun, 23 Mar 2003 15:35:30 -0500
+	id <S263192AbTCWUia>; Sun, 23 Mar 2003 15:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263192AbTCWUfa>; Sun, 23 Mar 2003 15:35:30 -0500
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:8460 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id <S263191AbTCWUf3>; Sun, 23 Mar 2003 15:35:29 -0500
-Message-Id: <200303232046.h2NKkZAx039361@sirius.nix.badanka.com>
-Date: Sun, 23 Mar 2003 21:46:34 +0100
-From: Henrik Persson <nix@socialism.nu>
-To: linux-kernel@vger.kernel.org
+	id <S263198AbTCWUia>; Sun, 23 Mar 2003 15:38:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37292 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263192AbTCWUi3>;
+	Sun, 23 Mar 2003 15:38:29 -0500
+Message-ID: <3E7E1DF5.40303@pobox.com>
+Date: Sun, 23 Mar 2003 15:49:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tomas Szepe <szepe@pinerecords.com>
+CC: Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       Pavel Machek <pavel@ucw.cz>, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: Ptrace hole / Linux 2.2.25
-In-Reply-To: <200303231955.h2NJtWAx038337@sirius.nix.badanka.com>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
-	<200303231938.h2NJcAq14927@devserv.devel.redhat.com>
-	<20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
-	<1048448838.1486.12.camel@phantasy.awol.org>
-	<200303231955.h2NJtWAx038337@sirius.nix.badanka.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323200956.GJ31079@louise.pinerecords.com>
+In-Reply-To: <20030323200956.GJ31079@louise.pinerecords.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Mar 2003 20:55:31 +0100
-Henrik Persson <nix@socialism.nu> wrote:
+Tomas Szepe wrote:
+> As a sidenote, I consider it important to note that it's obvious
+> that if Alan were the 2.4 maintainer, we would likely have a 2.4.21
+> with the critical (and possibly other) fixes out and all the fancy
+> new stuff rescheduled for 2.4.22.
 
-> Would it really hurt that much to release 2.4.21 with the ptracefix(es)?
 
-Or would it hurt to release -pre6 like..right now with the fixes in it?
+Now we're speaking for Marcelo _and_ Alan?
 
-This combined with a small notice on kernel.org would most certainly
-satisfy me, but as for now I had to browse trough the archives cause I
-deleted the mail with the patch by accident, and that's not very optimal,
-is it?
+	Jeff
 
--- 
-Henrik Persson  nix@socialism.nu  http://nix.badanka.com
-PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  
+
+

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbTI3NL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbTI3NL5
+	id S261468AbTI3Njy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbTI3Njy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:11:57 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43759 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261667AbTI3MzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 08:55:03 -0400
-Date: Tue, 30 Sep 2003 14:52:15 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200309301252.h8UCqF0P004385@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, linux-kernel@vger.kernel.org, root@chaos.analogic.com
-Cc: schilling@fokus.fraunhofer.de
-Subject: Re: Kernel includefile bug not fixed after a year :-(
+	Tue, 30 Sep 2003 09:39:54 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:64389 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261468AbTI3Njx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:39:53 -0400
+Date: Tue, 30 Sep 2003 14:39:36 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Dave Jones <davej@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, richard.brunner@amd.com
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20030930133936.GA28876@mail.shareable.org>
+References: <20030930073814.GA26649@mail.jlokier.co.uk> <20030930132211.GA23333@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930132211.GA23333@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From root@chaos.analogic.com  Tue Sep 30 14:21:07 2003
+Dave Jones wrote:
+> This looks to be completely gratuitous. Why disable it when we have the
+> ability to work around it ?
 
->Reply is not on the list.
+Because some people expressed a wish to have kernels that don't
+contain the workaround code, be they P4-optimised or 486-optimised
+kernels.  After all we have kernels that don't contain the F00F
+workaround too.  I'm not pushing this patch as is, it's for
+considering the pros and cons.
 
-I added the list because this is another problem that need fixiong inside the 
-kernel.
+CONFIG_X86_PREFETCH_WORKAROUND makes more makes more sense with the
+recently available "split every x86 CPU into individually selectable
+options" patch, and, on reflection, that's probably where it belongs.
 
->Also Joerg, now that I have your attention: There is a bug
->somewhere so that if I set the kernel HZ to 400, recompile
->everything including `cdrecord`, I can no longer record a CD.
->I think that somewhere, somebody is using a raw jiffie-count
->instead of multiplying by HZ in the time-out code. I've check
->through all the SCSI stuff, and I use SCSI disks exclusively.
->I think something in your code needs fixing. This is for kernel
->version 2.4.22
-
-
-Cdrecord and pther programs too includes <sys/param.h>
-
-If you change HZ in the kernel include files and recompile your problems
-suffer from the same sort of inconsistencies that have been the reason for
-my initial mail.
-
-If Linux likes to support changes to HZ, then it needs to support POSIX
-interfaces. On Solaris, sys/param.h looks this way:
-
-#define        HZ              ((clock_t)_sysconf(_SC_CLK_TCK))
-
-You may even change HZ on a running Solaris system.... the only programs that
-are affected may be the ones that have timeouts while the change has been done.
-
-The problem is that the timeouts in the SCSI interface are based on HZ rather
-than being abstract from kernel internals.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+-- Jamie

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130251AbRBKUom>; Sun, 11 Feb 2001 15:44:42 -0500
+	id <S130285AbRBKUwh>; Sun, 11 Feb 2001 15:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130285AbRBKUoc>; Sun, 11 Feb 2001 15:44:32 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27406 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130251AbRBKUoN>; Sun, 11 Feb 2001 15:44:13 -0500
-Subject: Re: 2.4.2-pre3 compile error in 6pack.c
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Sun, 11 Feb 2001 20:42:21 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), tao@acc.umu.se (David Weinehall),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        nicku@vtc.edu.hk (Nick Urbanik),
-        linux-kernel@vger.kernel.org (Kernel list)
-In-Reply-To: <3A86F86E.524778E2@colorfullife.com> from "Manfred Spraul" at Feb 11, 2001 09:39:10 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130289AbRBKUw0>; Sun, 11 Feb 2001 15:52:26 -0500
+Received: from ns.suse.de ([213.95.15.193]:19983 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130285AbRBKUwI>;
+	Sun, 11 Feb 2001 15:52:08 -0500
+Date: Sun, 11 Feb 2001 21:51:33 +0100
+From: Andi Kleen <ak@suse.de>
+To: Chris Evans <chris@scary.beasts.org>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: BUG: SO_LINGER + shutdown() does not block?
+Message-ID: <20010211215133.A11396@gruyere.muc.suse.de>
+In-Reply-To: <200102112021.XAA15811@ms2.inr.ac.ru> <Pine.LNX.4.30.0102112035230.16987-100000@ferret.lmh.ox.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14S3KC-0004yo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0102112035230.16987-100000@ferret.lmh.ox.ac.uk>; from chris@scary.beasts.org on Sun, Feb 11, 2001 at 08:41:04PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do you really prefer if drivers contain a 
+On Sun, Feb 11, 2001 at 08:41:04PM +0000, Chris Evans wrote:
 > 
-> static inline void* safe_kmalloc(size, flags)
-> {
-> 	if(size > LIMIT)
-> 		return NULL;
-> 	return kmalloc(size, flags);
-> }
+> [cc: Andi]
 
-It isnt that simple. Look at af_unix.c for example. It needs to know the
-maximum safe request size to set values up and is prepared to accept
-smaller values if that fails
+Missing context..
 
+> 
+> On Sun, 11 Feb 2001 kuznet@ms2.inr.ac.ru wrote:
+> 
+> > Hello!
+> >
+> > > I'm not seeing shutdown(2) block on a TCP socket. This is Linux kernel
+> > > 2.2.16 (RH7.0). Is this a kernel bug, a documentation bug,
+> >
+> > Man page is wrong.
+> 
+> Yes, man socket(7) seems to be wrong.
+
+What do you exactly think is wrong?
+
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

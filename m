@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUKWViV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbUKWVlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbUKWViV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 16:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUKWRn4
+	id S261373AbUKWVlA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 16:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUKWVia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:43:56 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:34701 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261344AbUKWQ5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 11:57:48 -0500
-Date: Tue, 23 Nov 2004 19:00:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041123180019.GA11920@elte.hu>
-References: <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <20041122142744.0a29aceb@mango.fruits.de> <65529.195.245.190.94.1101133129.squirrel@195.245.190.94> <20041122154516.GC2036@elte.hu> <9182.195.245.190.93.1101142412.squirrel@195.245.190.93> <20041123135508.GA13786@elte.hu> <29024.195.245.190.94.1101218441.squirrel@195.245.190.94> <20041123154108.GA27413@elte.hu> <41435.195.245.190.93.1101228794.squirrel@195.245.190.93>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Nov 2004 16:38:30 -0500
+Received: from mail.linicks.net ([217.204.244.146]:42001 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261350AbUKWVgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 16:36:38 -0500
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.28 -> ch..ch...changes....
+Date: Tue, 23 Nov 2004 21:36:36 +0000
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41435.195.245.190.93.1101228794.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200411232136.36313.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Guys,
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+I updated three boxes today to 2.4.28 (from .27), one at work, and two here at 
+home (Redhat 7.1+, Slackware 10)
 
-> Now, with the default workload (14 clients * 4 * 4 ports) I'm reaching
-> 60% of CPU, and a "fair" number of XRUNs on my P4@2.5G laptop, against
-> the on-board alsa driver (snd-ali5451), while under RT-V0.7.30-2.
+I am intrigued terribly by the small footprint of memory usage now.  I have 
+gone through the changes file, but can really see nothing (to me, a n00b) 
+that would alter that?
 
-it would be very interesting to see how the new -30-9 kernel performs
-using your workload (both fluidsynth and jackd_test), whether your xruns
-are impacted by the fifo fix, and/or whether there are any other large
-xrun sources left.
+Can anyone enlighten me?
 
-	Ingo
+As always, great work too :)
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

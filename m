@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUKIRnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbUKIRn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUKIRnn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 12:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbUKIRnn
+	id S261596AbUKIRn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 12:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKIRn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 12:43:43 -0500
-Received: from mail.gmx.de ([213.165.64.20]:36239 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261595AbUKIRnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 12:43:40 -0500
-X-Authenticated: #21910825
-Message-ID: <419101BE.1070400@gmx.net>
-Date: Tue, 09 Nov 2004 18:43:26 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en
+	Tue, 9 Nov 2004 12:43:56 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:40089 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261596AbUKIRnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 12:43:51 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: 2.6.9-bb1, 2.4.27-bs1, SKAS3/2.6-V7 released
+Date: Tue, 9 Nov 2004 12:41:06 +0100
+User-Agent: KMail/1.7.1
+Cc: Nuutti Kotivuori <naked@iki.fi>, linux-kernel@vger.kernel.org,
+       user-mode-linux-user@lists.sourceforge.net
+References: <200411041932.39733.blaisorblade_spam@yahoo.it> <871xf4a5kc.fsf@aka.i.naked.iki.fi>
+In-Reply-To: <871xf4a5kc.fsf@aka.i.naked.iki.fi>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: errors during umount make SysRq fail
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411091241.06637.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 08 November 2004 13:28, Nuutti Kotivuori wrote:
+> Blaisorblade wrote:
+> > Changes in both 2.6.9 and 2.4.27:
+> > they run fine on 2.6.9 host kernels, without hanging at the exit.
+>
+> I want to get this clear:
 
-having removed an USB disk while umount for it was still running (yes,
-that was stupid) I noticed that umount for this device hangs forever in
-D state. That would be ok (consequences for user error), however *all*
-other umounts I attempt also hang in D state and SysRq-U also hangs,
-resulting in a broken system on the next reboot.
+> Every older guest UML kernel will hang on exit on 2.6.9 hosts from now
+> on, and there's nothing to fix it but to update the guest UML patches?
 
-I assume the locking against concurrent umount is there to protect
-against non-trivial namespace problems and makes sense for normal
-umounting, but IIRC SysRq-U is there to ensure consistent filesystems
-on the next startup. Would it make sense to allow SysRq-U to break
-these locks?
+> This is a nasty limitation in general - because it means that on the
+> update to 2.6.9, every kernel binary needs to be updated - and finding
+> rock solid versions of kernels + UML patches is not a fast process.
 
-Similar problem exists with SysRq-S. If syncing of one device hangs,
-it will never proceed to the next one in the list. I agree that one
-is not trivial (stacked devices, loop et al), but can't we make a
-best effort to sync at least the physical devices in the machine?
-Please don't shoot me for talking about physical devices, I know
-there are some really grey areas trying to define that.
+Yes, I perfectly agree with you. However, there are, for 2.6, the security 
+fixes which are needed.
 
-Regards,
-Carl-Daniel
+Well, it is possible that 2.6.10 (or even 2.6.11) will make again old UML 
+binaries work. I.e., this is my hope, but no code is ready for this, yet.
+
+In fact, Linus always said "binary compatibility is important".
+
+UML was using a strange undocumented, and unwanted interface, but this is not 
+a good reason for the kernel to break it. I think they did not even notice 
+that. Also, however, I find that the breakage is a real bug.
+
+The splitout version of the patches is available, and the 
+uml-hang-on-2.6.9-host.patch is the one to apply. For 2.4, it cannot be 
+applied separately, though (it requires one of the current incrementals, 
+which is included in the patchset).
+
+Unfortunately, it does not work on most kernel versions - it can be adapted, 
+though, and if I find time, I will.
 -- 
-http://www.hailfinger.org/
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270625AbTGNMrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270631AbTGNMrD
+	id S270607AbTGNMkp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270608AbTGNMiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:47:03 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:5058
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270646AbTGNMpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:45:40 -0400
-Subject: Re: -- END OF BLOCK --
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, marcelo@conectiva.com,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <Pine.LNX.4.55L.0307140947210.18257@freak.distro.conectiva>
-References: <200307141239.h6ECdqXP002766@hraefn.swansea.linux.org.uk>
-	 <Pine.LNX.4.55L.0307140947210.18257@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 14 Jul 2003 08:38:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55825 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S270607AbTGNMag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:30:36 -0400
+Date: Fri, 4 Jan 2002 12:32:05 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Larry McVoy <lm@work.bitmover.com>, Andrew Morton <akpm@digeo.com>,
+       Daniel Phillips <phillips@arcor.de>, acme@conectiva.com.br, cw@f00f.org,
+       torvalds@transmeta.com, geert@linux-m68k.org, alan@lxorguk.ukuu.org.uk,
+       perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: GCC speed (was [PATCH] Isapnp warning)
+Message-ID: <20020104113205.GB1778@zaurus.ucw.cz>
+References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622014345.GD10801@conectiva.com.br> <20030621191705.3c1dbb16.akpm@digeo.com> <200306221522.29653.phillips@arcor.de> <20030622103251.158691c3.akpm@digeo.com> <20030623010555.GA4302@work.bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2003 13:56:45 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030623010555.GA4302@work.bitmover.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 13:50, Marcelo Tosatti wrote:
-> > I've resynched -ac to the quota code in pre5 and added the automatic
-> > quota loader on top again.
-> 
-> And the deadlock avoidance patches too right?
-> 
-> Would you mind sending me the automatic quota loader diff and the deadlock
-> avoidance diff ?
+Hi!
 
-The merge is non trivial. I'll let Christoph sort the mess out since I don't
-have time to waste on it, and the old -ac quota code works perfectly well for
-me.
+> If you think 3.[23] are slow, go back and compile with 2.7.2 - it's much 
+> faster than the later versions.  I used to yank newer versions of gcc 
+> off systems and put 2.7.2 on, I think it was close to 2x faster at 
+> compilation and made no difference on BK performance.
+
+Perhaps someone schould create 2.7.3 with long long bugs fixed
+and with c99 initializers?
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

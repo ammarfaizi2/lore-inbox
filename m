@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267097AbTAUOPJ>; Tue, 21 Jan 2003 09:15:09 -0500
+	id <S267085AbTAUOL3>; Tue, 21 Jan 2003 09:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267098AbTAUOPJ>; Tue, 21 Jan 2003 09:15:09 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27882 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267097AbTAUOPH>; Tue, 21 Jan 2003 09:15:07 -0500
-Date: Tue, 21 Jan 2003 15:24:08 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Nuno Monteiro <nuno@itsari.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG/PATCH] OSS/sb_mixer.c is broken on 2.5.59
-Message-ID: <20030121142408.GC6870@fs.tum.de>
-References: <20030117161752.GC14939@hobbes.itsari.int>
+	id <S267089AbTAUOL2>; Tue, 21 Jan 2003 09:11:28 -0500
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:30568 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id <S267085AbTAUOL1>; Tue, 21 Jan 2003 09:11:27 -0500
+Message-Id: <5.2.0.9.0.20030121152101.02c1e740@oceanic.wsisiz.edu.pl>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 21 Jan 2003 15:22:04 +0100
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+       Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+From: Bartlomiej Solarz-Niesluchowski 
+	<B.Solarz-Niesluchowski@wsisiz.edu.pl>
+Subject: Re: 2.4.21-pre3 - problems with ext3 (long)
+Cc: akpm@zip.com.au, Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1043157386.2447.56.camel@sisko.scot.redhat.com>
+References: <Pine.LNX.4.51.0301210029010.30053@oceanic.wsisiz.edu.pl>
+ <Pine.LNX.4.51.0301141401260.6636@oceanic.wsisiz.edu.pl>
+ <1043102297.13050.59.camel@sisko.scot.redhat.com>
+ <Pine.LNX.4.51.0301210029010.30053@oceanic.wsisiz.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030117161752.GC14939@hobbes.itsari.int>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 04:17:52PM +0000, Nuno Monteiro wrote:
+At 13:56 2003-01-21 +0000, Stephen C. Tweedie wrote:
 
-> Hi,
-> 
-> I know OSS is not all that supported, but it has been mostly working for 
-> the past 2.5 revisions. However, 2.5.59 broke it. Here is the fix, it 
-> allows sound/oss/sb_mixer.c to comple again -- I havent booted it yet, 
-> but its trivial enough to spot it from a mile away :)
+>If that happens again, serial console is the best way of getting the
+>full oops.  How much memory does your system have?  Have you ever seen
+>this error before?
 
-This file is OK in 2.5.59. Could it be that your editor or another 
-program you use broke it?
+Yes - we have seen this error before.....
 
-> Regards,
-> 
-> 
-> 		Nuno
-
-> --- linux-2.5.59/sound/oss/sb_mixer.c.orig	Fri Jan 17 15:40:41 2003
-> +++ linux-2.5.59/sound/oss/sb_mixer.c	Fri Jan 17 15:40:55 2003
-> @@ -45,7 +45,7 @@
->  					SOUND_MASK_TREBLE|SOUND_MASK_SPEAKER )
->  
->  #define SB16_RECORDING_DEVICES		(SOUND_MASK_SYNTH | \
-> -					SOUND_MASK_LINE | \ SOUND_MASK_MIC | \
-> +					SOUND_MASK_LINE | SOUND_MASK_MIC | \
->  					SOUND_MASK_CD)
->  
->  #define SB16_OUTFILTER_DEVICES		(SOUND_MASK_LINE | SOUND_MASK_MIC | \
-> @@ -55,7 +55,7 @@
->  					SOUND_MASK_SPEAKER | \
->  					SOUND_MASK_LINE | SOUND_MASK_MIC | \
->  					SOUND_MASK_CD | SOUND_MASK_IGAIN | \
-> -					SOUND_MASK_OGAIN | \ SOUND_MASK_VOLUME | \
-> +					SOUND_MASK_OGAIN | SOUND_MASK_VOLUME | \
->  					SOUND_MASK_BASS | SOUND_MASK_TREBLE | \
->  					SOUND_MASK_IMIX)
->  
+System has 2GB RAM.....
 
 
-cu
-Adrian
 
--- 
+>Cheers,
+>  Stephen
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--
+Bartlomiej Solarz-Niesluchowski, Administrator WSISiZ
+e-mail: B.Solarz-Niesluchowski@wsisiz.edu.pl
+01-447 Warszawa, ul. Newelska 6, pokoj 404, pon.-pt. 8-16, tel. 836-92-53
+Motto - nie psuj Win'9x one i bez tego sie psuja....
+Jak sobie poscielisz tak sie wyspisz
 

@@ -1,46 +1,45 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbULKRuw (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 11 Dec 2004 12:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULKRur
+	id S261720AbULLCKn (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 11 Dec 2004 21:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbULLCKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 12:50:47 -0500
-Received: from cm-213-141-48-41.telecable.es ([213.141.48.41]:41228 "HELO
-	cm-213.141.48-41.telecable.es") by vger.kernel.org with SMTP
-	id S261984AbULKRuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 12:50:22 -0500
-Subject: May I sit down?'
-From: "Crane" <mxeqkumhztuspdq@telecable.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-3
-To: "Soto" <bsclhmo@telecable.es>
-Message-ID: <27048994909-1596322@213.141.48.41>
-Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Dec 2004 10:31:48 -0600
+	Sat, 11 Dec 2004 21:10:43 -0500
+Received: from host-212-158-225-122.bulldogdsl.com ([212.158.225.122]:26671
+	"HELO holidayhome.co.uk") by vger.kernel.org with SMTP
+	id S261720AbULLCKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 21:10:39 -0500
+Message-ID: <e58f01c4dff2$9bf5cf0b$7d1a67d6@holidayhome.co.uk>
+From: "Emmett Boyd" <emmettboydqz@vcable.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Order Royal Replica Watches Online
+Date: Sun, 12 Dec 2004 08:33:09 +0600
+MIME-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261995AbULKRuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261720AbULLCKn@vger.kernel.org>
 
-Think getting a 1.95%   ra . t e   is impossible?
+Get the Finest Rolex Watch Replica!
 
-Think AGAIN!
+We only sell premium watches. There's no battery in these replicas just
+like the real ones since they charge themselves as you move. The second hand
+moves JUST like the real ones, too. These original watches sell in stores
+for thousands of dollars. We sell them for much less. 
 
-We can offer you the absolute rock-bottom  lowe s t   ra t e,    g u a ranteed.
+- Replicated to the Smallest Detail
+- 98% Perfectly Accurate Markings 
+- Signature Green Sticker w/ Serial Number on Watch Back
+- Magnified Quickset Date
+- Includes all Proper Markings
 
-We work with all  c r edit   types.  Visit our site now
-http://www.theseto.com/
+Visit us: http://www.bhex.com/rep/rolx/
 
-Crane
+All orders placed before December 12th will be at your door before
+Christmas!
 
-
-
-
-heard out of colt
-programmer the mandarin. sparkle
-fairchild prolongate, I classic
-the via a with syntactic
-vitiate and craig, beowulf a guilty
-the at whop emplace efface
-a the in fail
-anachronism, aarhus abbreviate topography
-
+No thanks: http://www.bhex.com/z.php
 

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129159AbRBNCbj>; Tue, 13 Feb 2001 21:31:39 -0500
+	id <S129057AbRBNCqc>; Tue, 13 Feb 2001 21:46:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129185AbRBNCb3>; Tue, 13 Feb 2001 21:31:29 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:14215 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129159AbRBNCbR>; Tue, 13 Feb 2001 21:31:17 -0500
-Date: Tue, 13 Feb 2001 18:30:51 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Carlos Carvalho <carlos@fisica.ufpr.br>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
-Message-ID: <20010213183051.A17453@twiddle.net>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Carlos Carvalho <carlos@fisica.ufpr.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <14984.24279.786295.783864@hoggar.fisica.ufpr.br> <E14SRCN-0008Gj-00@the-village.bc.nu> <14984.25773.89918.915295@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14984.25773.89918.915295@pizda.ninka.net>; from davem@redhat.com on Mon, Feb 12, 2001 at 02:33:17PM -0800
+	id <S129138AbRBNCqX>; Tue, 13 Feb 2001 21:46:23 -0500
+Received: from mail3.mia.bellsouth.net ([205.152.144.15]:43156 "EHLO
+	mail3.mia.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S129057AbRBNCqF>; Tue, 13 Feb 2001 21:46:05 -0500
+Message-ID: <3A89F1A5.7050603@bellsouth.net>
+Date: Tue, 13 Feb 2001 21:47:01 -0500
+From: Louis Garcia <louisg00@bellsouth.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-10 i686; en-US; 0.7) Gecko/20010202
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, xpert@XFree86.Org
+Subject: Video drivers and the kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, 2001 at 02:33:17PM -0800, David S. Miller wrote:
-> You have to add a few bits to arch/alpha/kernel/traps.c
-> I could be wrong though...
+I was wondering why video drivers are not part of the kernel like every 
+other piece of hardware. I would think if video drivers were part of the 
+kernel and had a nice API for X or any other windowing system, would not 
+only improve performance but would allow competing windowing systems 
+without having to develop drivers for each. Has anyone thought or 
+rejected this idea.
 
-Only to make the oops look pretty.  Something like
+Anyway, This was running though my head for a long time and just thought 
+I ask.
 
-        die_if_kernel((type == 1 ? "Kernel Bug" : "Instruction fault"),
-                      &regs, type, 0);
+Lou 
 
-Don't have a 2.2 tree handy to look at the moment...
-
-
-r~

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263660AbTKQTjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 14:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTKQTjP
+	id S263666AbTKQTkj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 14:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263667AbTKQTkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 14:39:15 -0500
-Received: from email-out2.iomega.com ([147.178.1.83]:53690 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S263639AbTKQTjM
+	Mon, 17 Nov 2003 14:40:39 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:37281 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263666AbTKQTkh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 14:39:12 -0500
-Subject: Re: [PATCH] Add lib/parser.c kernel-doc
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: rddunlap@osdl.org
-Cc: will_dyson@pobox.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20031117085529.427bbb0b.rddunlap@osdl.org>
-References: <1068970562.19499.11.camel@thalience>
-	 <1069022225.19499.59.camel@thalience> <20031117072822.GO26866@lug-owl.de>
-	 <1069061369.1139.83.camel@thalience>
-	 <20031117085529.427bbb0b.rddunlap@osdl.org>
+	Mon, 17 Nov 2003 14:40:37 -0500
+Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Ronny V. Vindenes" <s864@ii.uib.no>, lkml <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@brodo.de>
+In-Reply-To: <20031117113650.67968a26.akpm@osdl.org>
+References: <1069071092.3238.5.camel@localhost.localdomain>
+	 <20031117113650.67968a26.akpm@osdl.org>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1069097920.2324.20.camel@patrh9>
+Message-Id: <1069097751.11437.1941.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Nov 2003 12:38:40 -0700
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Nov 2003 11:35:51 -0800
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Nov 2003 19:39:11.0823 (UTC) FILETIME=[79BAADF0:01C3AD42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, where did you find good references for creating kernel-doc?
+On Mon, 2003-11-17 at 11:36, Andrew Morton wrote:
+> "Ronny V. Vindenes" <s864@ii.uib.no> wrote:
+> > I've found that neither linus.patch nor
+> > context-switch-accounting-fix.patch is causing the problem, but rather
+> > acpi-pm-timer-fixes.patch & acpi-pm-timer.patch
+> > 
+> > With these applied my cpu (athlon64) is detected as 0.0Mhz, bogomips
+> > drops to 50% and anything cpu intensive destroys interactivity. Revert
+> > them and performance is back at -mm2 level.
+> 
+> ah hah.  Thank you!
+> 
+> Probably the interactivity problems are due to the CPU scheduler thinking
+> that the CPU runs at 0Hz.  If we can work out why the PM timer patch has
+> broken the CPU clock speed detection then all should be well.
 
-I too ask where?
+Hrmm. I'll look into this. 
 
-> Evolution mangles in-line patches??
+thanks
+-john
 
-Seemingly yes by default.
 
-> That's too bad.
-> Attachments are more difficult to review/reply to.
 
-The Ximian Evolution 1.2.2 here by default does style text "Normal" 
-i.e. aggressively line broken only.  But the "Preformat" style works for
-inline text patches such as my (: newly minted and beautiful but not yet
-rejected for an explicit reason :) linux-scsi patches for making more
-writable devices appear writable.
-
-Pat LaVarre
-
-P.S.
-
-This paragraph here now is an example of Evolution's Preformat style of English with which we can let the line of text go on and on and on as English so very easily does when written by people who haven't yet learned to limit the length of a sentence, or the length of an email, helpfully.
 

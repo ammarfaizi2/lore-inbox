@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVBNQrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVBNQsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVBNQrD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 11:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVBNQrD
+	id S261480AbVBNQsf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 11:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVBNQsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 11:47:03 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:10186 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261478AbVBNQrA
+	Mon, 14 Feb 2005 11:48:35 -0500
+Received: from smtpout3.uol.com.br ([200.221.4.194]:62670 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261482AbVBNQsO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 11:47:00 -0500
-Message-ID: <1108398999.4210d39702bf6@imp5-q.free.fr>
-Date: Mon, 14 Feb 2005 17:36:39 +0100
-From: castet.matthieu@free.fr
-To: Nomad Arton <lkml@lazy.shacknet.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bttv : overlay mode and big disk io hang and could corrupt the  fs
-References: <3vOdq-WS-15@gated-at.bofh.it> <3x3N7-6zI-13@gated-at.bofh.it> <4210C412.6070503@lazy.shacknet.nu>
-In-Reply-To: <4210C412.6070503@lazy.shacknet.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 81.57.151.96
+	Mon, 14 Feb 2005 11:48:14 -0500
+Date: Mon, 14 Feb 2005 14:48:10 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: How to get the maximum output from dmesg command
+Message-ID: <20050214164810.GA12738@ime.usp.br>
+Mail-Followup-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+	linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+References: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in> <20050214161950.GA10253@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050214161950.GA10253@DervishD>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Srinivas G. <srinivasg@esntechnologies.co.in> wrote:
+> How to get maximum output from dmesg command? 
+> I am unable to see all my debug messages after loading my driver. 
+> I think there is a restriction in displaying the dmesg output. 
 
-Selon Nomad Arton <lkml@lazy.shacknet.nu>:
+There is indeed.
 
-> matthieu castet schrieb:
-> >
-> > I have done other tests.
-> >
-> > If I use grabdisplay mode the problem doesn't occur.
-> > If using overlay mode with port 54 the problem is present.
-> >
-> > I have also try the cvs bttv driver and the problem isn't fixed.
-> >
-> > Can someone look at it?
->
-> someone may look at it if you manage to reproduce the failure without
-> the nvidia binary kernel module loaded. in xfree then use nv driver
-> module, that too supports xvideo extension.
+> I saw in printk.c file under source directory. There I found LOG_BUF_LEN
+> is 16384.
 
-Where do you see I used the nvidia binary kernel module ?
+Sorry if this is obvious, but have you considered using the -s option of
+dmesg?
 
-The first bug report was done with the nv driver (But I am not sure that the
-nvidia module wasn't loaded)
 
-Matthieu
+Hope I understood it correctly, Rogério.
+
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

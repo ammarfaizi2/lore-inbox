@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292983AbSCORfn>; Fri, 15 Mar 2002 12:35:43 -0500
+	id <S293007AbSCORhR>; Fri, 15 Mar 2002 12:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292981AbSCORf2>; Fri, 15 Mar 2002 12:35:28 -0500
-Received: from petkele.almamedia.fi ([194.215.205.158]:13269 "HELO
+	id <S293002AbSCORhJ>; Fri, 15 Mar 2002 12:37:09 -0500
+Received: from petkele.almamedia.fi ([194.215.205.158]:33237 "HELO
 	petkele.almamedia.fi") by vger.kernel.org with SMTP
-	id <S292983AbSCORfT>; Fri, 15 Mar 2002 12:35:19 -0500
-Message-ID: <3C9230C6.4119CB4C@pp.inet.fi>
-Date: Fri, 15 Mar 2002 19:35:02 +0200
+	id <S292981AbSCORgt>; Fri, 15 Mar 2002 12:36:49 -0500
+Message-ID: <3C923120.B3AF105E@pp.inet.fi>
+Date: Fri, 15 Mar 2002 19:36:32 +0200
 From: Jari Ruusu <jari.ruusu@pp.inet.fi>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
+To: Herbert Valerio Riedel <hvr@hvrlab.org>
 CC: Andrea Arcangeli <andrea@suse.de>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Herbert Valerio Riedel <hvr@hvrlab.org>, linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
 Subject: Re: 2.4.19pre3aa2
-In-Reply-To: <20020314032801.C1273@dualathlon.random> <3C912ACF.AF3EE6F0@pp.inet.fi> <20020315105621.GA22169@suse.de>
+In-Reply-To: <20020314032801.C1273@dualathlon.random> 
+			<3C912ACF.AF3EE6F0@pp.inet.fi> <1016194785.5713.200.camel@janus.txd.hvrlab.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Mar 15 2002, Jari Ruusu wrote:
-> > - No more illegal sleeping in generic_make_request().
+Herbert Valerio Riedel wrote:
+> the patch I sent to andrea is quite minimal, it only changes the IV
+> metric, and adds a few #define's to loop.h in order to recognize the IV
+> metric when compiling filter modules against it; as to jari's patch, if
+> the following def's were added, it can be used instead of my minimal
+> patch...
 > 
-> I've told you this before -- sleeping in make_request is not illegal,
-> heck it happens _all the time_. Safely sleeping requires a reserved pool
-> of the units you wish to allocate, of course. In fact I think that would
-> be much nicer than the path you are following here by delaying
-> allocations to the loop thread (and still not using a reserved pool).
-
-Yes, I know you have told me that before, but I'm being overcareful. See:
-
-<quote> from device drivers book by Alessandro Rubini, chapter 12, page 331
-The request function has one very important constraint: it must be atomic.
-request is not usually called in direct response to user requests, and it is
-not running in the context of any particular process. It can be called at
-interrupt time, from tasklets, or from any number of other places. Thus, it
-must not sleep while carrying out its tasks.
-</quote>
-
-> - loop_put_buffer(), it looks racy to check waitqueue_active there.
-
-No race there. All that loop_put_buffer() cares is that helper thread wakes
-up. If helper thread woke up earlier and completed its job, fine. If helper
-thread wakes up later, that is fine too. If helper thread wakes up
-unnecessarily, it will just go back to sleep after noticing that that there
-is no work to do.
-
-> -       if(!bh) return((struct buffer_head *)0);
+> /* definitions for IV metric */
+> #define LOOP_IV_SECTOR_BITS 9
+> #define LOOP_IV_SECTOR_SIZE (1 << LOOP_IV_SECTOR_BITS)
 > 
-> eww!
+> typedef int loop_iv_t;
 > 
-> - Also, please adher to the style. VaRiAbLe names can hurt the eyes, and
-> stuff like
-> 
->         if (something) break;
-> 
->         return(val);
-> 
-> etc don't belong too. Could you fix that up?
-> 
-> That said, thanks for fixing it!
+> ...except maybe for when backward compatibility is needed. As it is a
+> major concern to some of us to be able to convert their old iv-metric
+> encrypted volumes to the new "atomic"-IV-metric, it can be usefull to be
+> able to have both IV metrics available on the same system...
 
-If there is any chance of being merged to mainline kernel, I will fix these
-"hurt the eyes" formatting issues.
+Not changing IV parameter type in 2.4 kernels is important. Break that in
+2.5/2.6 kernels, but not in stable 2.4, ok? Older 2.4 kernels dont't have
+loop_iv_t, and being able to compile _existing_ modules for them is
+important. 512 byte IV is nothing new, you know that, and all sane systems
+have used 512 byte IV for a long time already. So the 'block size IV' change
+to '512 byte IV' is nothing new, but changing the parameter type is evil and
+should be avoided for compatibility sake.
 
-> BTW, it looks like you are killing LO_FLAGS_BH_REMAP?! Why? This is a
-> very worthwhile optimization.
+> ps: just to make one thing clear (again), I don't care too much whether
+> my loop-fix or jari's goes in; I primarily care for a fixed IV situation
+> (including the above mentioned #define's/typedef) and if possible anyhow
+> to allow for limited compatibility to the old metric...
 
-Removing it simplified the code a lot. Doing remap direcly from
-loop_make_request() would probably be more effective. Just remap and return
-1 from loop_make_request() like LVM code does.
+So the choice here is either break (or at least cause need to modify) all
+other implementations or cryptoapi implementation.
+
+Herbert, if this loop_iv_t type goes into mainline kernel, I will have to
+reverse that on loop-AES patches for backward compatibility.
+
+Dependency on above mentioned #define's/typedef on kernel include files is
+silly, as cryptoapi can define them on any of its own include files.
 
 Regards,
 Jari Ruusu <jari.ruusu@pp.inet.fi>

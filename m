@@ -1,38 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVAXWuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVAXWtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVAXWuD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVAXWtZ
+	id S261715AbVAXWtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVAXWrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:49:25 -0500
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:13447 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S261701AbVAXWsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:48:18 -0500
-Message-ID: <41F57B1C.6020204@am.sony.com>
-Date: Mon, 24 Jan 2005 14:47:56 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 24 Jan 2005 17:47:45 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64505 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261701AbVAXWmK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:42:10 -0500
+From: Nick Pollitt <npollitt@mvista.com>
+Organization: MontaVista
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Configure mangles hex values
+Date: Mon, 24 Jan 2005 14:41:56 -0800
+User-Agent: KMail/1.7.2
+Cc: kaos@sgi.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200501241416.36422.npollitt@mvista.com>
+In-Reply-To: <200501241416.36422.npollitt@mvista.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/8] core-small: Introduce CONFIG_CORE_SMALL from -tiny
-References: <1.464233479@selenic.com>	 <20050123004042.09f7f8eb.akpm@osdl.org>  <20050123175204.GV12076@waste.org> <1106596845.10239.91.camel@localhost.localdomain>
-In-Reply-To: <1106596845.10239.91.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501241441.56586.npollitt@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> #define		SIZE_HASH(small, large)    CONFIG_CORE_SMALL ? (small):(large)
+Sorry about previous message.
 
-I hate to be a "ditto-head", but I like this a lot.
+The hex function in scripts/Configure strips the leading 0x from hex values.  
+The 0x needs to be there in autoconf.h, and stripping it out causes the 
+following problematic scenario:
 
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+If I start with a hex value in my config file like this:
+CONFIG_LOWMEM_SIZE=0x40000000
+and then run make oldconfig, it strips out the '0x' so I end up with this:
+CONFIG_LOWMEM_SIZE=40000000
+Then if I run make xconfig, it doesn't think this is a valid hex value, so it
+replaces my value with the default:
+CONFIG_LOWMEM_SIZE=0x20000000
+
+The following patch removes the lines that strip out 0x, and inserts the 0x if 
+appropriate.
+
+--- scripts/Configure.orig 2005-01-24 13:31:55.000000000 -0800
++++ scripts/Configure 2005-01-24 13:34:20.000000000 -0800
+@@ -378,15 +378,18 @@
+ function hex () {
+  old=$(eval echo "\${$2}")
+  def=${old:-$3}
+- def=${def#*[x,X]}
+  while :; do
+    readln "$1 ($2) [$def] " "$def" "$old"
+-   ans=${ans#*[x,X]}
+-   if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
+-     define_hex "$2" "0x$ans"
++   if expr "$ans" : '0x[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
++     define_hex "$2" "$ans"
+      break
+    else
+-     help "$2"
++     if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
++       define_hex "$2" "0x$ans"
++       break
++     else
++       help "$2"
++     fi
+    fi
+  done
+ }

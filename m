@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319195AbSHGT2y>; Wed, 7 Aug 2002 15:28:54 -0400
+	id <S319292AbSHGTma>; Wed, 7 Aug 2002 15:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319266AbSHGT2y>; Wed, 7 Aug 2002 15:28:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:60642 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S319195AbSHGT2y>;
-	Wed, 7 Aug 2002 15:28:54 -0400
-Date: Wed, 7 Aug 2002 21:31:25 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Alexandre Julliard <julliard@winehq.com>,
-       Luca Barbieri <ldb@ldb.ods.org>
-Subject: Re: [patch] tls-2.5.30-A1
-In-Reply-To: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208072128460.26329-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319296AbSHGTma>; Wed, 7 Aug 2002 15:42:30 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:25216 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319292AbSHGTmD>;
+	Wed, 7 Aug 2002 15:42:03 -0400
+Date: Thu, 1 Nov 2001 23:48:25 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: mporter@mvista.com, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
+Message-ID: <20011101234824.A69@toy.ucw.cz>
+References: <20020805131740.A2433@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020805131740.A2433@baldur.yggdrasil.com>; from adam@yggdrasil.com on Mon, Aug 05, 2002 at 01:17:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Wed, 7 Aug 2002, Linus Torvalds wrote:
+> 	I want to replace all statements in the kernel of the form
+> BUG_ON(condition1 || condition2) with:
+> 
+> 			BUG_ON(condition1);
+> 			BUG_ON(condition2);
+> 
+> 	I was recently bitten by a very sporadic BUG_ON(cond1 || cond2)
+> statement and was quite annoyed at the greatly reduced opportunity to
+> debug the problem.  Make these changes and someone who experiences
+> the problem may be able to provide slightly more useful information.
 
-> I would suggest:
->  - move all kernel-related (and thus non-visible to user space) segments 
->    up, and make the cacheline optimizations _there_. 
->  - keep the TLS entries contiguous, and make sure that segment 0040 (ie
->    GDT entry #8) is available to a TLS entry, since if I remember
->    correctly, that one is also magical for old Windows binaries for all
->    the wrong reasons (ie it was some system data area in DOS and in 
->    Windows 3.1)
->  - and for cleanliness bonus points: make the regular user data segments 
->    just another TLS segment that just happens to have default values. If 
->    the user wants to screw with its own segments, let it.
+it makes code slower/bigger... probably bad idea
 
-i'll do this. Julliard, any additional suggestions perhaps - is GDT entry
-8 the best %fs choice for Wine?
-
-	Ingo
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTIMUxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 16:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbTIMUxJ
+	id S262201AbTIMVLp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 17:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTIMVLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 16:53:09 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65036
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S262190AbTIMUxH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 16:53:07 -0400
-Subject: Re: [RFC] Enabling other oom schemes
-From: Robert Love <rml@tech9.net>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: rusty@linux.co.intel.com, riel@conectiva.com.br, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030913174825.GB7404@mail.jlokier.co.uk>
-References: <200309120219.h8C2JANc004514@penguin.co.intel.com>
-	 <20030913174825.GB7404@mail.jlokier.co.uk>
-Content-Type: text/plain
-Message-Id: <1063476152.24473.30.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Sat, 13 Sep 2003 16:52:56 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Sep 2003 17:11:44 -0400
+Received: from mail1-106.ewetel.de ([212.6.122.106]:25533 "EHLO
+	mail1.ewetel.de") by vger.kernel.org with ESMTP id S262201AbTIMVLl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 17:11:41 -0400
+Date: Sat, 13 Sep 2003 23:11:30 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: People, not GPL  [was: Re: Driver Model]
+In-Reply-To: <Pine.LNX.4.10.10309131008210.16744-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0309132308350.2956-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-09-13 at 13:48, Jamie Lokier wrote:
+On Sat, 13 Sep 2003, Andre Hedrick wrote:
 
-> Also, when the OOM condition is triggered I'd like the system to
-> reboot, but first try for a short while to unmount filesystems cleanly.
-> 
-> Any chance of those things?
+> Prove an original work which uses the proper "unprotectable API" to
+> operate in the Linux kernel is a "derived work".
 
-I like all of these ideas.
+I never claimed such a thing. Whether an API is unprotectable or not
+is a question for the lawyers.
 
-One thing to keep in mind is that during a real OOM condition, we cannot
-allocate _any_ memory.  None. Zilch.
+If people put GPL_ONLY symbol exports in their code, that's their call
+to make, is it not? It's their code and they're free to say "well, this
+is my code, and if you use this symbol, I consider your stuff to be a
+derived work". Once again it's up to the lawyers to decide whether
+this has legal value or not.
 
-And that makes some things very hard.  When we start getting into things
-such as complicated policies that kill nonessential services first, et
-cetera... there comes a time where a lot of communication is needed
-(probably with user-space).  Hard to do that with no memory.
-
-I do like all of this, however, and want to see some different OOM
-killers.
-
-	Robert Love
-
+-- 
+Ciao,
+Pascal
 

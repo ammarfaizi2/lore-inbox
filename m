@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130830AbQKBASI>; Wed, 1 Nov 2000 19:18:08 -0500
+	id <S131047AbQKBAVI>; Wed, 1 Nov 2000 19:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131047AbQKBAR6>; Wed, 1 Nov 2000 19:17:58 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:34571 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S130830AbQKBARz>; Wed, 1 Nov 2000 19:17:55 -0500
-From: miquels@cistron.nl (Miquel van Smoorenburg)
+	id <S131520AbQKBAU6>; Wed, 1 Nov 2000 19:20:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:30607 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131047AbQKBAUw>;
+	Wed, 1 Nov 2000 19:20:52 -0500
+Date: Wed, 1 Nov 2000 16:06:24 -0800
+Message-Id: <200011020006.QAA20542@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: npsimons@fsmlabs.com
+CC: garloff@suse.de, jamagallon@able.es, linux-kernel@vger.kernel.org
+In-Reply-To: <20001101171158.A4708@fsmlabs.com> (message from Nathan Paul
+	Simons on Wed, 1 Nov 2000 17:11:58 -0700)
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-Date: 2 Nov 2000 00:17:57 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <8tqbrl$q59$1@enterprise.cistron.net>
-In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net>
-X-Trace: enterprise.cistron.net 973124277 26793 195.64.65.201 (2 Nov 2000 00:17:57 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101171158.A4708@fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200011012247.OAA19546@pizda.ninka.net>,
-David S. Miller <davem@redhat.com> wrote:
->   Date: 	Wed, 1 Nov 2000 23:57:34 +0100
->   From: Kurt Garloff <garloff@suse.de>
->
->   kgcc is a redhat'ism.
->
->Debian has it too.
+   Date: 	Wed, 1 Nov 2000 17:11:58 -0700
+   From: Nathan Paul Simons <npsimons@fsmlabs.com>
 
-Not quite. Debian does have an completely optional gcc272 package. It
-is _not_ installed as kgcc (the binary is called gcc272) and you don't
-_have_ to compile your kernels with it. It is an optional package and
-you have to actively select and install it. By default Debian comes
-with gcc 2.95.2 which compiles current 2.2.x and 2.4.x kernels just
-fine. At least I haven't used gcc272 for kernels for at least a year now
-(I think, first egcs, then gcc 2.95) and on all the servers I administer
-(and that's quite a few) gcc 2.95 hasn't caused any problems.
+	   So other distro's did it too.  Why did nobody complain till
+   RedHat did it?  Because no one else decided to use, as the default,
+   a bleeding edge compiler that not only won't compile the kernel but
+   won't even touch a lot of userspace code either.
 
-Mike.
--- 
-People get the operating system they deserve.
+The topic is this thread is whether "kgcc" as a seperate compiler for
+the kernel is a "Red Hat thing".  You stated that it is, I am showing
+you how it isn't.  Please don't change the topic.
+
+Red Hat's selection of it's userland compiler is an entirely different
+topic and there have probably been a few hundred seperate flame wars
+on this matter.  Such a discussion does not belong here on the kernel
+list.  FWIW, I will be one of the first people to say that there were
+some errors of judgment in the decision making that went on there.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

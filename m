@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286311AbSASRXt>; Sat, 19 Jan 2002 12:23:49 -0500
+	id <S286336AbSASRlG>; Sat, 19 Jan 2002 12:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286303AbSASRXj>; Sat, 19 Jan 2002 12:23:39 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:13716 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S286207AbSASRX2>; Sat, 19 Jan 2002 12:23:28 -0500
-Date: Sat, 19 Jan 2002 09:21:53 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <000701c1a10d$cae90480$6800000a@brownell.org>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	id <S286339AbSASRk4>; Sat, 19 Jan 2002 12:40:56 -0500
+Received: from ns.suse.de ([213.95.15.193]:28679 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S286336AbSASRkj>;
+	Sat, 19 Jan 2002 12:40:39 -0500
+To: Stefan Rompf <srompf@isg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interface operative status detection
+In-Reply-To: <3C498CC9.6FAED2AF@isg.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Jan 2002 18:40:35 +0100
+In-Reply-To: Stefan Rompf's message of "19 Jan 2002 16:27:54 +0100"
+Message-ID: <p73g0525je4.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"> > " == David Miller
-"> " == Russell King
+Stefan Rompf <srompf@isg.de> writes:
 
-> > BTW, the USB host controller drivers do this (allocate potentially
-> > from interrupts) so anyone using USB on ARM...
-> 
-> Well, I've got a BUG() in there that'll trigger when pci_alloc_consistent()
-> is called from IRQ, and so far no one has reported an incidence of
-> that occuring, despite there being USB OHCI controllers available on ARM.
+> while playing with the Zebra routing daemon, I realized that neither
+> Linux nor Zebra are capable of detecting the operative state of an
+> interface, f.e. the ethernet link beat. This is a major show stopper
+> against using Linux for "serious" IP routing.
 
-Yes, that'd be rare -- but legal.
+It's only when you assume that the link beat is a "serious" sign for
+link healthiness. Unfortunately there are many error cases where a link
+can fail, but the link beat is still there - for example the software
+on the other machine crashing but the NIC still working fine. These
+seem to be the majority of the cases in fact except for demo situations
+where people pull cables on purpose. To handle all the other cases you
+need a separate heartbeat protocol that actually checks if the higher
+layers above the networking card are alive on the peer too. Most routing
+protocols do this already in fact, e.g. OSPF or RIP with their 'hello' 
+packets. The Linux IP stack does it also using ARP probes.  When a probe
+is not answered the routing daemon eventually notices and takes action.
+While waiting for probes is a bit slower (30-60s usually), checking
+the link beat only handles such a small subset of cases that it is not
+worth it to optimize these rare ones. 
 
-The USB host controller drivers would do that primarily in the
-case where (a) some driver submitted a new URB in_interrupt(),
-so the HCD needed to queue new requests to the hardware,
-and (b) the pools of endpoint or transfer descriptors didn't have
-enough free entries.
+Commercial vendors seem to like it because it looks good in demos ;),
+but linux fortunately doesn't have to be concerned with such marketing
+reasoning. 
 
-The main reason for (a) is that the last URB just completed, and
-freed its resources, and a new request for that endpoint needs to
-get submitted.  As for (b), endpoint descriptors are normally
-preserved until the device is disconnected.  That leaves transport
-descriptors (TDs).  OHCI (and EHCI) don't need many of those;
-typically one per request.  So if one was just put back into the pool,
-it'd typically still be available.  UHCI needs more memory, but
-the same general rules apply.
+In short - Linux doesn't have this feature because it's not needed.
+If your routing protocol relies on link state checking without other
+probing it's broken. Zebra isn't. 
 
-- Dave
-
-
+-Andi

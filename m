@@ -1,49 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbTEROUu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 10:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTEROUu
+	id S262093AbTEROds (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 10:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTEROds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 10:20:50 -0400
-Received: from mx03.uni-tuebingen.de ([134.2.3.13]:3298 "EHLO
-	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S262090AbTEROUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 10:20:49 -0400
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: achurch@achurch.org (Andrew Church)
+	Sun, 18 May 2003 10:33:48 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:20968 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262093AbTEROdq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 10:33:46 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 18 May 2003 16:46:05 +0200 (MEST)
+Message-Id: <UTC200305181446.h4IEk5C00022.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
+Subject: [PATCH] namespace fix
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fixes for gcc 3.3
-References: <3ec3c4bf.50762@mail.achurch.org>
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 18 May 2003 16:33:36 +0200
-In-Reply-To: <3ec3c4bf.50762@mail.achurch.org>
-Message-ID: <877k8ouxxb.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-achurch@achurch.org (Andrew Church) writes:
+After
+    # mount --rbind /tmp /mnt
+(on 2.5.68) I have a corrupted namespace. Umounting /mnt fails,
+and /proc/mounts contains
+    ...
+    /dev/root /mnt ext3 rw 0 0
+    proc /mnt/proc proc rw 0 0
+    usbfs /mnt/proc/bus/usb usbfs rw 0 0
+    /dev/hdb5 /mnt/usr reiserfs rw 0 0
+    ...
+where of course no directories /mnt/proc or /mnt/usr exist.
 
->      The following is a short set of modifications I had to make to the
-> 2.4.20 source to get it to compile under gcc 3.3.
-> 
-> --- linux-2.4.20-orig/drivers/ide/ide-cd.h	2002-12-10 17:46:28 +0900
-> +++ linux-2.4.20/drivers/ide/ide-cd.h	2003-05-16 00:59:53 +0900
-> @@ -437,7 +437,7 @@
->  
->  	byte     curlba[3];
->  	byte     nslots;
-> -	__u8 short slot_tablelen;
-> +	__u8     slot_tablelen;
->  };
+This is caused by the fact that copy_tree() thinks that the dentry
+it is called with is the root of the filesystem. If it is not,
+confusion arose.
 
-Please check out the 2.5 source whether things are fixed there
-already, and maybe differently. This for example should really be
-__u16.
+This confusion is fixed by the patch (against 2.5.69-bk12) below.
 
--- 
-	Falk
+Andries
+
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/namespace.c b/fs/namespace.c
+--- a/fs/namespace.c	Sun May 18 00:44:23 2003
++++ b/fs/namespace.c	Sun May 18 17:17:21 2003
+@@ -418,36 +418,54 @@
+ #endif
+ }
+ 
++static int
++lives_below_in_same_fs(struct dentry *d, struct dentry *dentry)
++{
++	while (1) {
++		if (d == dentry)
++			return 1;
++		if (d == NULL || d == d->d_parent)
++			return 0;
++		d = d->d_parent;
++	}
++}
++
+ static struct vfsmount *copy_tree(struct vfsmount *mnt, struct dentry *dentry)
+ {
+-	struct vfsmount *p, *next, *q, *res;
++	struct vfsmount *res, *p, *q, *r, *s;
++	struct list_head *h;
+ 	struct nameidata nd;
+ 
+-	p = mnt;
+-	res = nd.mnt = q = clone_mnt(p, dentry);
++	res = q = clone_mnt(mnt, dentry);
+ 	if (!q)
+ 		goto Enomem;
+-	q->mnt_parent = q;
+-	q->mnt_mountpoint = p->mnt_mountpoint;
++	q->mnt_mountpoint = mnt->mnt_mountpoint;
++
++	p = mnt;
++	for (h = mnt->mnt_mounts.next; h != &mnt->mnt_mounts; h = h->next) {
++		r = list_entry(h, struct vfsmount, mnt_child);
++		if (!lives_below_in_same_fs(r->mnt_mountpoint, dentry))
++			continue;
+ 
+-	while ( (next = next_mnt(p, mnt)) != NULL) {
+-		while (p != next->mnt_parent) {
+-			p = p->mnt_parent;
+-			q = q->mnt_parent;
++		for (s = r; s; s = next_mnt(s, r)) {
++			while (p != s->mnt_parent) {
++				p = p->mnt_parent;
++				q = q->mnt_parent;
++			}
++			p = s;
++			nd.mnt = q;
++			nd.dentry = p->mnt_mountpoint;
++			q = clone_mnt(p, p->mnt_root);
++			if (!q)
++				goto Enomem;
++			spin_lock(&dcache_lock);
++			list_add_tail(&q->mnt_list, &res->mnt_list);
++			attach_mnt(q, &nd);
++			spin_unlock(&dcache_lock);
+ 		}
+-		p = next;
+-		nd.mnt = q;
+-		nd.dentry = p->mnt_mountpoint;
+-		q = clone_mnt(p, p->mnt_root);
+-		if (!q)
+-			goto Enomem;
+-		spin_lock(&dcache_lock);
+-		list_add_tail(&q->mnt_list, &res->mnt_list);
+-		attach_mnt(q, &nd);
+-		spin_unlock(&dcache_lock);
+ 	}
+ 	return res;
+-Enomem:
++ Enomem:
+ 	if (res) {
+ 		spin_lock(&dcache_lock);
+ 		umount_tree(res);

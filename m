@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276099AbRJKLan>; Thu, 11 Oct 2001 07:30:43 -0400
+	id <S276094AbRJKLmN>; Thu, 11 Oct 2001 07:42:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276094AbRJKLad>; Thu, 11 Oct 2001 07:30:33 -0400
-Received: from nicol6.umkc.edu ([134.193.4.67]:28935 "EHLO nicol6.umkc.edu")
-	by vger.kernel.org with ESMTP id <S276074AbRJKLa3>;
-	Thu, 11 Oct 2001 07:30:29 -0400
-Message-ID: <3BC582E7.C2C4FCC7@davidnicol.com>
-Date: Thu, 11 Oct 2001 06:30:47 -0500
-From: David Nicol <phuqytol@davidnicol.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en-GB, en, ru
+	id <S276097AbRJKLmE>; Thu, 11 Oct 2001 07:42:04 -0400
+Received: from kullstam.ne.mediaone.net ([66.30.138.48]:32386 "HELO
+	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
+	id <S276069AbRJKLlr>; Thu, 11 Oct 2001 07:41:47 -0400
+From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Tulip problem in Kernel 2.4.11
+In-Reply-To: <000701c151c4$0e6933e0$0300a8c0@theburbs.com>
+	<87u1x6zmdy.fsf@penny.ik5pvx.ampr.org>
+Organization: none
+Date: 11 Oct 2001 07:38:46 -0400
+In-Reply-To: <87u1x6zmdy.fsf@penny.ik5pvx.ampr.org>
+Message-ID: <m2adyy5ruh.fsf@euler.axel.nom>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: OO swap interface
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9E013@ATL_MS1> <20011010095536.C10443@turbolinux.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org> writes:
 
-Here's an idea that has been mulling under my mullet for 
-the last few weeks:
+> :-> "Jamie" == Jamie  <darkshad@home.com> writes:
+> 
+>     > Hello there is a definate problem with the tulip drivers in the 2.4.11
+>     > kernel.
+>     > I have a DEC DC 21041 NIC which uses the tulip drivers.  I use the 2.2.19
+>     > kernel and there are
+>     > two different sets of tulip drivers listed in that kernel which
+>     > I can choose 
+>     > from in the 2.4.11 kernel there is only one. When I do a
+>     > modprobe tulip the 
+>     > driver loads fine as you can see bellow there are no strange
+>     > error messages 
+>     > ect.  But I can not communicate though this one NIC. When I use
+>     > the 2.2.19 
+>     > Kernel it works fine.
+> 
+> I can add to this that 2.4.2 works fine, I've tried 2.4.9 and 2.4.11
+> and I can't use the lan either. 
+> In 2.4.11, I can see that the driver can sense if I plug/unplug the
+> connector (10BaseT, connected to a Compaq Netelligent 8 port hub), but
+> nothing more.
 
-the nbd can be used for a swap device, but since swap has no reason
-to inform the drive about what parts of it are free, it is not possible
-to have a central nbd server overcommit for multiple client swapping
-nodes.
-
-Therefore I wonder how tricky it would be to create a swap interface
-that is ignorant of disk geometries.   the swap interface language
-would accept requests for space, with unique handles, and would
-return the swapped-out data on representation of the handle.  Like
-a virtual memory hat check.
-
-
-
-
-
+linux 2.4.11 is broken with respect to tulip driver and dec 21041
+chipset.  my 21041 card doesn't work either.  what you can do is the
+following.  compile kernel using a module for tulip driver.  go to
+tulip.sourceforge.net.  get tulip-0.9.14.  unpack it.  for each new
+kernel, manually (or make a script) compile a tulip driver in
+tulip-0.9.14 and install it in
+/lib/module/2.4.X/kernel/drivers/net/tulip.  this will replace the
+broken driver and keep you going.
 
 -- 
-                                           David Nicol 816.235.1187
-                                            1,3,7-trimethylxanthine
+J o h a n  K u l l s t a m
+[kullstam@mediaone.net]

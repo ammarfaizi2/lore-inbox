@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUHRGqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUHRGvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUHRGqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 02:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHRGqI
+	id S261232AbUHRGvj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 02:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUHRGvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 02:46:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12481 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261500AbUHRGqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 02:46:03 -0400
-Date: Tue, 17 Aug 2004 23:44:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] notify_parent cleanup
-Message-Id: <20040817234409.45009377.akpm@osdl.org>
-In-Reply-To: <200408180040.i7I0eM4l011117@magilla.sf.frob.com>
-References: <200408180040.i7I0eM4l011117@magilla.sf.frob.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 02:51:39 -0400
+Received: from mail5.dslextreme.com ([66.51.199.81]:50317 "HELO
+	mail5.dslextreme.com") by vger.kernel.org with SMTP id S261232AbUHRGvh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 02:51:37 -0400
+Date: Tue, 17 Aug 2004 23:49:47 -0700 (PDT)
+From: Richard A Nelson <cowboy@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1{,-mm1} boot failure on Athlon/A7V600
+In-Reply-To: <Pine.LNX.4.58.0408172155410.5882@hygvzn-guhyr.pnirva.bet>
+Message-ID: <Pine.LNX.4.58.0408172346280.12101@hygvzn-guhyr.pnirva.bet>
+References: <Pine.LNX.4.58.0408172155410.5882@hygvzn-guhyr.pnirva.bet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> wrote:
->
->  I don't know why notify_parent is an exported symbol at all.
 
-Some leftover, I guess.
+Interestingly enough - it is network related... If I unplug the e100
+cable before booting, and let things come up before plugging it in
+I'm set to go (thus far) !
 
->  My inclination would be to remove it as an exported symbol,
+I'm wondering if it might be related to:
+	OOPS: 2.6.8.1 QoS and routing conflict (bug)
 
-I'll unexport it.
+and by delaying the ifup, I've missed some of the problem.
 
-> ...
->  Also, why is ptrace_notify exported?
+I'll let it run as long as possible - at least now I should be able
+to capture the oops should it bite me again.
+-- 
+Rick Nelson
+Mere nonexistence is a feeble excuse for declaring a thing unseeable. You
+*can* see dragons.  You just have to look in the right direction.
+        -- John Hasler
 
-binfmt_aout.c uses it.

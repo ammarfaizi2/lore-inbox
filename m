@@ -1,57 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263067AbTDBRWP>; Wed, 2 Apr 2003 12:22:15 -0500
+	id <S263070AbTDBRag>; Wed, 2 Apr 2003 12:30:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263069AbTDBRWP>; Wed, 2 Apr 2003 12:22:15 -0500
-Received: from smtpde02.sap-ag.de ([155.56.68.170]:60607 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S263067AbTDBRWO>; Wed, 2 Apr 2003 12:22:14 -0500
-From: Christoph Rohland <cr@sap.com>
-To: CaT <cat@zip.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, tomlins@cam.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-Organisation: Development SAP J2EE Engine
-Date: Wed, 02 Apr 2003 19:33:05 +0200
-In-Reply-To: <20030402144432.GB536@zip.com.au> (CaT's message of "Thu, 3 Apr
- 2003 00:44:32 +1000")
-Message-ID: <ovadf8ls8e.fsf@sap.com>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.4 (Native Windows TTY
- Support (Windows), cygwin32)
-References: <Pine.LNX.4.44.0304011734370.1503-100000@localhost.localdomain>
-	<ovd6k5l60d.fsf@sap.com> <20030402144432.GB536@zip.com.au>
-MIME-Version: 1.0
+	id <S263076AbTDBRag>; Wed, 2 Apr 2003 12:30:36 -0500
+Received: from ext-ch1gw-3.online-age.net ([216.34.191.37]:64706 "EHLO
+	ext-ch1gw-3.online-age.net") by vger.kernel.org with ESMTP
+	id <S263070AbTDBRad>; Wed, 2 Apr 2003 12:30:33 -0500
+From: "Kiniger, Karl (MED)" <karl.kiniger@med.ge.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Wed, 2 Apr 2003 19:41:17 +0200
+Subject: Re: how to interpret ide error messages (2.4)
+Message-ID: <20030402174117.GA26195@ki_pc2.kretz.co.at>
+References: <20030402122324.GA23847@ki_pc2.kretz.co.at> <1049290268.16275.51.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Disposition: inline
+In-Reply-To: <1049290268.16275.51.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Apr 2003, cat@zip.com.au wrote:
-> Sounds like what you want is a dynamically resizing tmpfs based on
-> the amount of memory (ram+swap) available. That's a much bigger
-> goose to fry I believe.
+On Wed, Apr 02, 2003 at 02:31:09PM +0100, Alan Cox wrote:
+> On Wed, 2003-04-02 at 13:23, Kiniger, Karl (MED) wrote:
+> > kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> > kernel: hdc: dma_intr: error=0x01 { AddrMarkNotFound }, LBAsect=20300322, sector=1263288
+> > kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
 > 
-> Now, even if the percentile patch took into account swap, you'd
-> still need to remount tmpfs in order to get it to take into account
-> of any swap you add on the fly.
-
-No, that's why I said you would need hooks into swapon and
-swapoff. Then it would adjust on the fly. Else it's useless from the
-usability point of view. With these hooks it's easy to do.
-
->> could add much saner defaults for /dev/shm or even use it for /tmp.
+> The drive could not find the requested sector. That normally means bad
+> things but for some drivers can also mean the controller asked for a
+> totally bogon sector number
 > 
-> I use it for /tmp now just fine. :) It's sized at 63% of 256MB of
-> RAM.
+> > kernel: hdc: dma_intr: error=0x40 { UncorrectableError }, LBAsect=20803307, sector=1766272
+> > kernel: end_request: I/O error, dev 16:04 (hdc), sector 1766272
+> 
+> Unrecoverable data error.
+> 
+> > The affected sectors dont generate any error messages if I read them today...
+> 
+> On errors the next write to a bad sector will typically remap it
+> transparently to another spare block on the disk. Read obviously cannot
+> do the same. That would mean that if for example clearcase ignored the
+> I/O error and wrote back what it thought it saw but did not that it may
+> have recovered the sector with invalid data. Its also possible of course
+> clearcase actually handles I/O errors properly (which is hard).
 
-And I have set it to 400MB on a 256MB box just fine ;-) How could you
-do these two setup generally without knowing your hardware. 20MB tmpfs
-on a 40MB machine can be a desaster btw.
+What is giving me an alarm signal is:
 
-Greetings
-		Christoph
+Since it is a raid1 I expected user space not being affected.
+(The other drive did not show any error messages since installation,
+they are Maxtors 6Y120L0 (120 GB) cooled quite well) So I thought that
+ClearCase should not have seen any error return code.
 
+In the meantime I have just re-synced the faulty drive and there were
+no write error messages and the bad block seems to be properly re-mapped
 
+> 
+> Consult the clearcase support I guess, there should be tools to verify
+> your clearcase datasets. You might also want to force an fsck on your
+
+fortunately only one replica packet seems to be corrupted and I can
+request it again - the database seems ok after a run of the equivalent
+of fsck.
+
+> file systems while the box is down for disk replacement to check 
+> everything out.
+
+there is still interest what "sector=1766272" actually means, e.g given
+a partition table and LBAsect, how to calculate 'sector' or vice versa.
+
+Thanks,
+
+Karl
+
+-- 
+Karl Kiniger        karl.kiniger@med.ge.com
+GE Medical Kretztechnik
+Tiefenbach 15
+A-4871 Zipf         Tel: (++43) 7682-3800-710  Fax (++43) 7682-3800-47

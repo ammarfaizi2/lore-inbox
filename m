@@ -1,115 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbTHaVfM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 17:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTHaVfM
+	id S262683AbTHaVlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 17:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbTHaVlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 17:35:12 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:5050 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262681AbTHaVfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 17:35:01 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Sun, 31 Aug 2003 23:34:59 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux@3ware.com
-Subject: Bug Report: 2.4.22 3ware hang on dying drive
-Message-Id: <20030831233459.42779a9a.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Aug 2003 17:41:42 -0400
+Received: from hermes.iil.intel.com ([192.198.152.99]:25047 "EHLO
+	hermes.iil.intel.com") by vger.kernel.org with ESMTP
+	id S262683AbTHaVl1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 17:41:27 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Date: Mon, 1 Sep 2003 00:41:23 +0300
+Message-ID: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Thread-Index: AcNwCJ4U5Ho3Wgg4TbCBj46bQmBgyA==
+From: "Zach, Yoav" <yoav.zach@intel.com>
+To: <akpm@osdl.org>, <torvalds@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 31 Aug 2003 21:41:24.0072 (UTC) FILETIME=[9FDE9680:01C37008]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I just experienced this freeze during a verify cycle of a 3ware raid 5 config with 3 drives.
-Entries in logfiles:
-
-3w-xxxx: scsi2: AEN: INFO: Verify started: Unit #0.
-3w-xxxx: scsi2: Unit #0: Command (f72d7400) timed out, resetting card.
-
-And then:
-
-ksymoops 2.4.8 on i686 2.4.22.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22/ (default)
-     -m /boot/System.map-2.4.22 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-NMI Watchdog detected LOCKUP on CPU1, eip c02b3cd6, registers:
-CPU:    1
-EIP:    0010:[<c02b3cd6>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000002
-eax: 00466307   ebx: 006ab97c   ecx: 1152d298   edx: 00029ab9
-esi: 00009004   edi: 00042000   ebp: f735ded4   esp: f735dec0
-ds: 0018   es: 0018   ss: 0018
-Process scsi_eh_2 (pid: 69, stackpage=f735d000)
-Stack: 00000000 f88dd2db 006ab97c 130055b2 00000000 3f522cb5 00064f95 3f522cb3 
-       0008c524 f735407c 00000000 00009008 00000000 f88da29b f735407c 00042000
-       0000001e 00155810 00155810 00000000 00000000 0000900c 00000000 f735407c
-Call Trace:    [<f88dd2db>] [<f88da29b>] [<f88dd673>] [<f88dd543>] [<f88dd8e5>]
-  [<c0213cef>] [<c021438e>] [<f88e3220>] [<c0214b66>] [<f88e3220>] [<c010592e>]
-  [<c0214a50>]
-Code: 39 d8 72 f6 5b c3 8d 74 26 00 8b 44 24 04 eb 0a 8d 76 00 8d
+The proposed patch solves a problem for interpreters that need to
+execute a non-readable file, which cannot be read in userland. To handle
+such cases the interpreter must have the kernel load the binary on its
+behalf. The proposed patch handles this case by telling binfmt_misc, by
+a special flag in the registration string, to open the binary for
+reading and pass its descriptor as argv[1], instead of passing the
+binary's path. Old behavior of binfmt_misc is kept for interpreters
+which do not specify this special flag. The patch is against
+linux-2.6.0-test4. A similar one was posted twice on the list, on Aug.
+14 and 21, without significant response.
 
 
->>EIP; c02b3cd6 <__rdtsc_delay+16/20>   <=====
+========================== start patch
+==================================
+diff -r -U 3 linux-2.6.0-test4/fs/binfmt_misc.c linux/fs/binfmt_misc.c
+--- linux-2.6.0-test4/fs/binfmt_misc.c	Sat Aug 23 02:54:23 2003
++++ linux/fs/binfmt_misc.c	Mon Sep  1 00:17:01 2003
+@@ -38,6 +38,8 @@
+ 
+ enum {Enabled, Magic};
+ #define MISC_FMT_PRESERVE_ARGV0 (1<<31)
++#define MISC_FMT_OPEN_BINARY (1<<30)
++
+ 
+ typedef struct {
+ 	struct list_head list;
+@@ -106,6 +108,10 @@
+ 	char *iname_addr = iname;
+ 	int retval;
+ 
++	int fd;
++	char fd_str[32];
++	char * fdsp = fd_str;
++
+ 	retval = -ENOEXEC;
+ 	if (!enabled)
+ 		goto _ret;
+@@ -119,16 +125,41 @@
+ 	if (!fmt)
+ 		goto _ret;
+ 
+-	allow_write_access(bprm->file);
+-	fput(bprm->file);
+-	bprm->file = NULL;
++ 	if (fmt->flags & MISC_FMT_OPEN_BINARY) {
++		/* if the binary should be opened on behalf of the
++		 * interpreter than keep it open and assign it a
+descriptor */
++ 		fd = get_unused_fd ();
++ 		if (fd < 0) {
++ 			allow_write_access(bprm->file);
++ 			fput(bprm->file);
++ 			bprm->file = NULL;
++ 			retval = fd;
++ 			goto _ret;
++ 		} else {
++ 			fd_install (fd, bprm->file);
++ 			sprintf (fd_str, "/dev/fd/%d", fd);
++ 		}
++ 	} else {
++ 		allow_write_access(bprm->file);
++ 		fput(bprm->file);
++ 		bprm->file = NULL;
++ 	}
++ 
+ 
+ 	/* Build args for interpreter */
+ 	if (!(fmt->flags & MISC_FMT_PRESERVE_ARGV0)) {
+ 		remove_arg_zero(bprm);
+ 	}
+-	retval = copy_strings_kernel(1, &bprm->interp, bprm);
++
++ 	if (fmt->flags & MISC_FMT_OPEN_BINARY) {
++		/* make argv[1] be the file descriptor */
++ 		retval = copy_strings_kernel(1, &fdsp, bprm);
++ 	} else {
++		/* make argv[1] be the path to the file */
++ 		retval = copy_strings_kernel(1, &bprm->interp, bprm);
++ 	}
+ 	if (retval < 0) goto _ret; 
++
+ 	bprm->argc++;
+ 	retval = copy_strings_kernel(1, &iname_addr, bprm);
+ 	if (retval < 0) goto _ret; 
+@@ -139,9 +170,18 @@
+ 	retval = PTR_ERR(file);
+ 	if (IS_ERR(file))
+ 		goto _ret;
+-	bprm->file = file;
+ 
+-	retval = prepare_binprm(bprm);
++	/* get the file permissions and read its header */
++	if (fmt->flags & MISC_FMT_OPEN_BINARY) {
++		retval = prepare_binprm(bprm);
++		bprm->file = file;
++		memset(bprm->buf,0,BINPRM_BUF_SIZE);
++		retval =
+kernel_read(bprm->file,0,bprm->buf,BINPRM_BUF_SIZE);
++	} else {
++		bprm->file = file;
++		retval = prepare_binprm(bprm);
++	}
++
+ 	if (retval >= 0)
+ 		retval = search_binary_handler(bprm, regs);
+ _ret:
+@@ -296,6 +336,10 @@
+ 		p++;
+ 		e->flags |= MISC_FMT_PRESERVE_ARGV0;
+ 	}
++	if (*p == 'O') {
++		p++;
++		e->flags |= MISC_FMT_OPEN_BINARY;
++	}
+ 
+ 	if (*p == '\n')
+ 		p++;
+========================== end patch ==================================
 
->>ebp; f735ded4 <_end+36f96874/38512a00>
->>esp; f735dec0 <_end+36f96860/38512a00>
 
-Trace; f88dd2db <[3w-xxxx]tw_poll_status+6b/d0>
-Trace; f88da29b <[3w-xxxx]tw_aen_drain_queue+4b/370>
-Trace; f88dd673 <[3w-xxxx]tw_reset_sequence+23/e0>
-Trace; f88dd543 <[3w-xxxx]tw_reset_device_extension+13/120>
-Trace; f88dd8e5 <[3w-xxxx]tw_scsi_eh_abort+f5/1e0>
-Trace; c0213cef <scsi_try_to_abort_command+4f/60>
-Trace; c021438e <scsi_unjam_host+18e/850>
-Trace; f88e3220 <[3w-xxxx]driver_template+0/6b>
-Trace; c0214b66 <scsi_error_handler+116/180>
-Trace; f88e3220 <[3w-xxxx]driver_template+0/6b>
-Trace; c010592e <arch_kernel_thread+2e/40>
-Trace; c0214a50 <scsi_error_handler+0/180>
+Yoav Zach
+Performance Tools Lab
+Intel Corp.
 
-Code;  c02b3cd6 <__rdtsc_delay+16/20>
-00000000 <_EIP>:
-Code;  c02b3cd6 <__rdtsc_delay+16/20>   <=====
-   0:   39 d8                     cmp    %ebx,%eax   <=====
-Code;  c02b3cd8 <__rdtsc_delay+18/20>
-   2:   72 f6                     jb     fffffffa <_EIP+0xfffffffa>
-Code;  c02b3cda <__rdtsc_delay+1a/20>
-   4:   5b                        pop    %ebx
-Code;  c02b3cdb <__rdtsc_delay+1b/20>
-   5:   c3                        ret    
-Code;  c02b3cdc <__rdtsc_delay+1c/20>
-   6:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  c02b3ce0 <__loop_delay+0/30>
-   a:   8b 44 24 04               mov    0x4(%esp,1),%eax
-Code;  c02b3ce4 <__loop_delay+4/30>
-   e:   eb 0a                     jmp    1a <_EIP+0x1a>
-Code;  c02b3ce6 <__loop_delay+6/30>
-  10:   8d 76 00                  lea    0x0(%esi),%esi
-Code;  c02b3ce9 <__loop_delay+9/30>
-  13:   8d 00                     lea    (%eax),%eax
-
-
-1 warning issued.  Results may not be reliable.
-
-After reboot drive 1 (from 0-2) was dead. Replacement and rebuild worked.
-If you have further questions, feel free to ask.
-
-Regards,
-Stephan

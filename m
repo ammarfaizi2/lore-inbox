@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268765AbUJPP7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUJPQCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268765AbUJPP7X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 11:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268775AbUJPP7X
+	id S268769AbUJPQCm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 12:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268771AbUJPQCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 11:59:23 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:30857 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S268765AbUJPP7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 11:59:10 -0400
-Date: Sat, 16 Oct 2004 19:58:47 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+	Sat, 16 Oct 2004 12:02:42 -0400
+Received: from [82.154.234.21] ([82.154.234.21]:8064 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S268769AbUJPQCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 12:02:40 -0400
+Message-ID: <41714622.3090800@vgertech.com>
+Date: Sat, 16 Oct 2004 17:02:42 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Erwin Schoenmakers <esc-solutions@planet.nl>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: while building kernel 2.6.8.1. for Alpha (Miata)
-Message-ID: <20041016195847.A20976@jurassic.park.msu.ru>
-References: <417139A2.5090705@planet.nl> <20041016191704.A20686@jurassic.park.msu.ru> <20041016153017.GE5307@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041016153017.GE5307@stusta.de>; from bunk@stusta.de on Sat, Oct 16, 2004 at 05:30:17PM +0200
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-bk3 - make[3]: *** [drivers/char/drm/gamma_drv.o] Error
+ 1
+References: <4170C664.9000703@vgertech.com> <20041016093112.GA5307@stusta.de>
+In-Reply-To: <20041016093112.GA5307@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 05:30:17PM +0200, Adrian Bunk wrote:
-> What are the required versions on Alpha?
+Adrian Bunk wrote:
+>>...
+>>CONFIG_EXPERIMENTAL=y
+>># CONFIG_CLEAN_COMPILE is not set
+>>CONFIG_BROKEN=y
+>>...
+>>CONFIG_DRM_GAMMA=m
+>>...
+> 
+> If you answer "yes" to
+> 
+>   "Prompt for development and/or incomplete code/drivers"
+> 
+> and "no" to
+> 
+>   "Select only drivers expected to compile cleanly"
+> 
+> it souldn't be a big surprise if a driver doesn't compile.
+> 
 
-IIRC, gcc >= 3.3.4, binutils >= 2.13.
+Totally correct, my mistake.
 
-> According to Documentation/Changes, Erwin's versions were OK.
+Sorry for the false alarm.
+Thanks,
+Nuno Silva
 
-Probably it needs to be updated. I doubt if these versions
-work on x86_64 at all, for example.
-
-Ivan.

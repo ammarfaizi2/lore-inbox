@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbUKDPOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUKDPQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbUKDPOW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 10:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbUKDPOW
+	id S262256AbUKDPQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 10:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbUKDPQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 10:14:22 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:52364 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S262253AbUKDPOO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 10:14:14 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Thu, 4 Nov 2004 10:14:12 -0500
-User-Agent: KMail/1.7
-Cc: tlaurent@linagora.com,
-       "gene.heskett@verizon.net" <gene.heskett@verizon.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Doug McNaught <doug@mcnaught.org>, Jan Knutar <jk-lkml@sci.fi>,
-       Tom Felker <tfelker2@uiuc.edu>
-References: <200411030751.39578.gene.heskett@verizon.net> <200411040911.51923.gene.heskett@verizon.net> <1099579352.418a3fd82b569@intranet.linagora.com>
-In-Reply-To: <1099579352.418a3fd82b569@intranet.linagora.com>
+	Thu, 4 Nov 2004 10:16:00 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:23460 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262256AbUKDPPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 10:15:42 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-user] Harddisk Shutdown while UML Guest Shutdown
+Date: Thu, 4 Nov 2004 16:14:46 +0100
+User-Agent: KMail/1.7.1
+Cc: Roland Kaeser <roli8200@yahoo.de>, LKML <linux-kernel@vger.kernel.org>
+References: <20041104094130.15928.qmail@web26103.mail.ukl.yahoo.com>
+In-Reply-To: <20041104094130.15928.qmail@web26103.mail.ukl.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: multipart/signed;
+  boundary="nextPart2318629.PtsUeb18tE";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411041014.12749.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.42.194] at Thu, 4 Nov 2004 09:14:13 -0600
+Message-Id: <200411041614.57091.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 November 2004 09:42, tlaurent@linagora.com wrote:
->Selon Gene Heskett <gene.heskett@verizon.net>:
->> On Thursday 04 November 2004 08:10, Doug McNaught wrote:
->> >Gene Heskett <gene.heskett@verizon.net> writes:
->> >> [root@coyote linux-2.6.10-rc1-bk13]# grep SYSRQ .config
->> >> CONFIG_MAGIC_SYSRQ=y
->> >
->> >Did you also enable it in /proc?
->> >
->> >-Doug
->>
->> I just now discovered it defaults to a 0, so I put an
->> echo 1 >proc/sys/kermel/sysrq
->> in rc.local just now.
+--nextPart2318629.PtsUeb18tE
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On Thursday 04 November 2004 10:41, Roland Kaeser wrote:
+> Hello
 >
->You might also want to have a look at /etc/sysctl.conf. Some distros
-> put a kernel.sysrq=0 in it...
-
-And I just put a comment in front of that puppy!
-
->Cheers,
->Thibaut
+> Here comes the Test report for the UML SKAS and User run Tests
 >
->> Thanks for the heads up.
->>
->> --
->> Cheers, Gene
->> "There are four boxes to be used in defense of liberty:
->>  soap, ballot, jury, and ammo. Please use in that order."
->> -Ed Howdershelt (Author)
->> 99.28% setiathome rank, not too shabby for a WV hillbilly
->> Yahoo.com attorneys please note, additions to this message
->> by Gene Heskett are:
->> Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> If I run the UML Kernel without the HOSTS SKAS Patch, it works normally, =
+no
+> hd shutdown!
+>
+> If i run the UML Kernel with the HOSTS SKAS Patch but as "normal" user, it
+> works also normally, without any harddisk shutdown!
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> It seems more and more to be a kind of bug in the UML Patch which allows
+> the uml kernel to call kernel functions on the host kernel.
+
+Also, there is a host kernel bug which causes the host to crash. Maybe (it =
+is=20
+just a random try, actually, but there should not be a lot of bugs in 2.6=20
+kernels), you could try this: would you please read this thread and tell if=
+=20
+you can reproduce the described panic and if it is anyhow similar to the=20
+other one.
+
+http://groups.google.com/groups?hl=3Den&lr=3D&threadm=3D2WG11-2iJ-1%40gated=
+=2Dat.bofh.it&prev=3D/groups%3Fnum%3D25%26hl%3Den%26lr%3D%26group%3Dlinux.k=
+ernel%26start%3D50
+
+> Roland
+
+
+=2D-=20
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+
+--nextPart2318629.PtsUeb18tE
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBikdxqH9OHC+5NscRAhIIAJ9nne1PgaYgeuKV088B/fwYq7JGNwCfcTmh
+fkhF5HnJ0wtmNK8yxOuMShM=
+=tgYz
+-----END PGP SIGNATURE-----
+
+--nextPart2318629.PtsUeb18tE--
+

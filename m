@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTETEC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 00:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTETEC3
+	id S261262AbTETEML (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 00:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbTETEML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 00:02:29 -0400
-Received: from waste.org ([209.173.204.2]:10932 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263552AbTETEC2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 00:02:28 -0400
-Date: Mon, 19 May 2003 23:15:20 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: wiggle - a tools for applying patches with conflicts
-Message-ID: <20030520041520.GP23380@waste.org>
-References: <16073.40798.305573.92933@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
+	Tue, 20 May 2003 00:12:11 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:3010 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261262AbTETEMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 00:12:10 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <20030519165623.GA983@mars.ravnborg.org>
+	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
+	<babhik$sbd$1@cesium.transmeta.com>
+	<m1d6ie37i8.fsf@frodo.biederman.org> <3EC95B58.7080807@zytor.com>
+	<m18yt235cf.fsf@frodo.biederman.org> <3EC9660D.2000203@zytor.com>
+	<1053392095.21582.48.camel@imladris.demon.co.uk>
+	<3EC9803F.6010701@zytor.com>
+	<buoy91275r3.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<3EC9AB3F.1090802@zytor.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 20 May 2003 13:24:21 +0900
+In-Reply-To: <3EC9AB3F.1090802@zytor.com>
+Message-ID: <buoel2u2qkq.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16073.40798.305573.92933@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 20, 2003 at 01:22:06PM +1000, Neil Brown wrote:
+"H. Peter Anvin" <hpa@zytor.com> writes:
+> The kernel-internal headers would typedef these to different names, e.g.
 > 
-> I am pleased to announce the first public release of 'wiggle'.
-> 
-> Wiggle is a program for applying patches that 'patch' cannot
-> apply due to conflicting changes in the original.
-> 
-> Wiggle will always apply all changes in the patch to the original.
-> If it cannot find a way to cleanly apply a patch, it inserts it
-> in the original in a manner similar to 'merge', and report an
-> unresolvable conflict.  Such a conflict will look like:
+> /* linux/types.h */
+> #include <linux/abi/types.h>
+> /* Kernel internal types */
+> typedef __kernel_dev64_t dev_t;
+> typedef __kernel_ino_t ino_t;
 
-Very clever. An option to generate traditional .rej files rather than
-inline conflicts would be nice; I hate the latter.
+I see...  I guess that seems reasonable.
 
+-Miles
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+`Cars give people wonderful freedom and increase their opportunities.
+ But they also destroy the environment, to an extent so drastic that
+ they kill all social life' (from _A Pattern Language_)

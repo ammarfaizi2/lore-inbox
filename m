@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270676AbTHFQbG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 12:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270650AbTHFQ3j
+	id S270809AbTHFQhc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 12:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTHFQgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 12:29:39 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:32474 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S269994AbTHFQ2k
+	Wed, 6 Aug 2003 12:36:07 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:42723 "EHLO tsmtp6.mail.isp")
+	by vger.kernel.org with ESMTP id S270206AbTHFQeM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 12:28:40 -0400
-Date: Wed, 6 Aug 2003 18:28:38 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Cc: rusty@rustcorp.com.au
-Subject: [TRIVIAL][PATCH 2.6] 2 spelling patches in helps
-Message-ID: <Pine.LNX.4.51.0308061827590.23721@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Aug 2003 12:34:12 -0400
+Date: Wed, 6 Aug 2003 18:34:10 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Filesystem Tests
+Message-Id: <20030806183410.49edfa89.diegocg@teleline.es>
+In-Reply-To: <3F310B6D.6010608@namesys.com>
+References: <3F306858.1040202@mrs.umn.edu>
+	<20030805224152.528f2244.akpm@osdl.org>
+	<3F310B6D.6010608@namesys.com>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+El Wed, 06 Aug 2003 18:06:37 +0400 Hans Reiser <reiser@namesys.com> escribió:
 
-please consider these patches to fix spelling.
+> I don't think ext2 is a serious option for servers of the sort that 
+> Linux specializes in, which is probably why he didn't measure it.
 
-Regards,
-Maciej Soltysiak
+Why?
 
-diff -u linux-2.6.0-test2/net/Kconfig linux-2.6.0-test2-mm4/net/Kconfig
---- linux-2.6.0-test2/net/Kconfig	2003-07-27 18:57:01.000000000 +0200
-+++ linux-2.6.0-test2-mm4/net/Kconfig	2003-08-04 20:26:47.000000000 +0200
-@@ -595,7 +602,7 @@
- 	depends on EXPERIMENTAL
- 	---help---
- 	  This option enables NIC (Network Interface Card) hardware throttling
--	  during periods of extremal congestion. At the moment only a couple
-+	  during periods of extreme congestion. At the moment only a couple
- 	  of device drivers support it (really only one -- tulip, a modified
- 	  8390 driver can be found at
- 	  <ftp://ftp.inr.ac.ru/ip-routing/fastroute/fastroute-8390.tar.gz>).
+> 
+> reiser4 cpu consumption is still dropping rapidly as others and I find 
+> kruft in the code and remove it.  Major kruft remains still.
 
-diff -u linux-2.6.0-test2/Documentation/scsi/ncr53c8xx.txt linux-2.6.0-test2-mm4/Documentation/scsi/ncr53c8xx.txt
---- linux-2.6.0-test2/Documentation/scsi/ncr53c8xx.txt	2003-07-27 18:55:55.000000000 +0200
-+++ linux-2.6.0-test2-mm4/Documentation/scsi/ncr53c8xx.txt	2003-08-04 20:27:40.000000000 +0200
-@@ -1025,7 +1025,7 @@
- then it will for sure win the next SCSI BUS arbitration.
-
- Since, there is no way to know what devices are trying to arbitrate for the
--BUS, using this feature can be extremally unfair. So, you are not advised
-+BUS, using this feature can be extremely unfair. So, you are not advised
- to enable it, or at most enable this feature for the case the chip lost
- the previous arbitration (boot option 'iarb:1').
-
+Cool.

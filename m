@@ -1,172 +1,167 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287045AbSALO7p>; Sat, 12 Jan 2002 09:59:45 -0500
+	id <S287106AbSALPLk>; Sat, 12 Jan 2002 10:11:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287048AbSALO7g>; Sat, 12 Jan 2002 09:59:36 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:21011 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S287045AbSALO7S>;
-	Sat, 12 Jan 2002 09:59:18 -0500
-Date: Sat, 12 Jan 2002 07:56:38 -0700
-From: yodaiken@fsmlabs.com
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: yodaiken@fsmlabs.com, Rob Landley <landley@trommello.org>,
-        Robert Love <rml@tech9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        nigel@nrg.org, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020112075638.A5098@hq.fsmlabs.com>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com> <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there> <20020111220051.A2333@hq.fsmlabs.com> <3C4023A2.8B89C278@linux-m68k.org> <20020112052802.A3734@hq.fsmlabs.com> <3C40392F.C4E1EFF3@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C40392F.C4E1EFF3@linux-m68k.org>; from zippel@linux-m68k.org on Sat, Jan 12, 2002 at 02:25:03PM +0100
+	id <S287051AbSALPLb>; Sat, 12 Jan 2002 10:11:31 -0500
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:38902 "EHLO
+	filestore.kroptech.com") by vger.kernel.org with ESMTP
+	id <S287048AbSALPLR>; Sat, 12 Jan 2002 10:11:17 -0500
+Message-ID: <009e01c19b7c$463457d0$02c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Writeout in recent kernels/VMs poor compared to last -ac
+Date: Sat, 12 Jan 2002 10:17:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 12 Jan 2002 15:17:39.0896 (UTC) FILETIME=[46312380:01C19B7C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 02:25:03PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> yodaiken@fsmlabs.com wrote:
-> 
-> > > > SCHED_FIFO leads to
-> > > >                 niced app 1 in K mode gets Sem A
-> > > >                 SCHED_FIFO app prempts and blocks on  Sem A
-> > > >                 whoops! app 2 in K more preempts niced app 1
-> > >
-> > > Please explain what's different without the preempt patch.
-> > 
-> > See that "preempt" in line 2 . Linux does not
-> > preempt kernel mode processes otherwise. The beauty of the
-> > non-preemptive kernel is that "in K mode every process makes progress"
-> > and even the "niced app" will complete its use of SemA and
-> > release it in one run.
-> 
-> The point of using semaphores is that one can sleep while holding them,
-> whether this is forced by preemption or voluntary makes no difference.
+I recently began regularly transferring large (600 MB+) files to my
+Linux-based fileserver and have noticed what I would characterize as poor
+writeout behavior under this load. I've done a bit of comparison testing
+which may help reveal the problem better.
 
-No. The point of using semaphores is that one can sleep while
-_waiting_ for the resource. Sleeping while holding semaphores is
-a different kettle of lampreys entirely.
-And it makes a very big difference
-A:
-	get sem on memory pool
-		do something horrible to pool
-	release sem on memory pool
+Disclaimer: I did not choose this test because it is scientific or stresses
+the system in any particular way. I use it because it's an operation which I
+perform frequently and so the faster it goes, the broader I smile. This may
+be an entirely inappropriate load to optimize for, and if so I understand.
 
-In a preemptive kernel this can cause a deadlock. In a non
-preemptive it cannot. You are correct in that 
-B:
-	get sem on memory pool
-		do potentially blocking operations
-	release sem
-is also dangerous - but I don't think that helps your case.
-To fix B, we can enforce a coding rule - one of the reasons why
-we have all those atomic ops in the kernel is to be able to 
-avoid this problem.
-To fix A in a preemptive kernel we need to start messing about with
-priorities and that's a major error.
-"The current kernel has too many places where processes
-can sleep while holding semaphores so we should always have the 
-potential of blocking with held semaphores" is, to me, a backwards
-argument.
+Test consisted of FTPing in (Linux was the destination) a 650 MB file and
+timing the transfer (from the client's perspective) which capturing "vmstat
+1" output on the server. Server hardware is Dual PPro 200, 160 MB RAM, 512
+MB swap, destination filesystem is VFAT[0] on cpqarray partition on a RAID5
+logical drive. Root and swap are not on the cpqarray.
 
-> > If you have a reasonably fair scheduler you
-> > can make very useful analysis with Linux now of the form
-> >
-> >         Under 50 active proceses in the system means that in every
-> >         2 second interval every process
-> >         will get at least 10ms of time to run.
-> > 
-> > That's a very valuable property and it goes away in a preemptive kernel
-> > to get you something vague.
-> 
-> How is that changed? AFAIK inserting more schedule points does not
-> change the behaviour of the scheduler. The niced app will still get its
-> time.
+Here are my results (average of 2 runs, each from a clean reboot with all
+unneeded services disabled):
 
-How many times can an app be preempted? In a non preempt kernel
-is can be preempted during user mode at timer frequency and no more
-and it cannot be preempted during kernel mode. So
-	while(1){
-		read mpeg data
-		process
-		write bitmap
-		}
+2.4.17: 6:52
+2.4.17-rmap11a: 6:53
+2.4.18-pre2aa2: 7:10
+2.4.13-ac7: 5:30 (!)
+2.4.17 with cpqarray driver update from -ac: 6:30
 
-Assuming Andrew does not get too ambitious about read/write granularity, once this
-process is scheduled on a non-preempt system it will always make progress. The non
-preempt kernel says, "your kernel request will complete - if we have resources".
-A preempt kernel says: "well, if nobody more important activates you get some time"
-Now you do the analysis based on the computation of "goodness" to show that there is
-a bound on preemption count during an execution of this process. I don't want to 
-have to think that hard. 
-Let's suppose the Gnome desktop constantly creates and 
-destroys new fresh i/o bound tasks to do something. So with the old fashioned non
-preempt (ignoring Andrew) we get
-			wait no more than 1 second
-			I'm scheduled and start a read 
-			wait no more than one second
-			I'm scheduled and in user mode for at least 10milliseconds
-			wait no more than 1 second
-			I'm scheduled and do my write
-			...
-with preempt we get
-			wait no more than 1 second
-			I'm scheduled and start a read 
-				I'm preempted
-				read not done
-				come back for 2 microseconds
-				preempted again
-				haven't issued the damn read request yet 
-				ok a miracle happens, I finish the read request
-				go to usermode and an interrupt happens
-						well it would be stupid to have a goodness
-						function in a preempt kernel that lets a low
-						priority task finish its time slice so preempt
-				...
+The last test was just to see if -ac's better performance had anything to do
+with the driver update. Apparently it had little or nothing to do with it.
 
-> 
-> > So your argument is that I'm advocating Andrew Morton's patch which
-> > reduces latencies more than the preempt patch because I have a
-> > financial interest in not reducing latencies? Subtle.
-> 
-> Andrew's patch requires constant audition and Andrew can't audit all
-> drivers for possible problems. That doesn't mean Andrew's work is
-> wasted, since it identifies problems, which preempting can't solve, but
-> it will always be a hunt for the worst cases, where preempting goes for
-> the general case.
+The vmstat output is very revealing. All tests except for -ac show a strong
+oscillation on the blocks out (this is a representative sample from stock
+2.4.17 but the other recent kernels show essentially the same behavior):
 
-the preempt requires constant auditing too - and more complex auditing.
-After all, a missed audit in Andrew will simply increase worst case timing.
-A missed audit in preempt will hang the system.
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
+id
+ 0  1  1      0   4408   2712 118756   0   0     0     0  109    16   0   0
+100
+ 0  1  1      0   4436   2716 118724   0   0     1  3913  287    13   0   8
+92
+ 0  1  0      0   4436   2716 118724   0   0     0     0  118    11   0   0
+100
+ 0  0  0      0   4352   2724 118816   0   0     8     0 3639   203   2  28
+70
+ 0  0  0      0   4420   2736 118752   0   0    11     0 4530   259   0  33
+67
+ 0  0  0      0   4348   2744 118816   0   0    10     0 4273   245   0  42
+58
+ 1  0  0      0   4376   2756 118772   0   0    11     0 4551   246   1  39
+60
+ 0  1  1      0   4364   2760 118724   0   0     4  6730 1710    93   1  19
+80
+ 0  1  1      0   4364   2760 118724   0   0     0     0  108     9   0   0
+100
+ 0  1  1      0   4364   2760 118724   0   0     0  3667  117     9   0   2
+98
+ 0  1  1      0   4364   2760 118724   0   0     0     0  125     8   0   0
+100
+ 1  0  1      0   4364   2760 118724   0   0     0  3819  124    10   0   2
+98
+ 0  1  1      0   4372   2760 118704   0   0     0  2055  195    10   0   5
+95
+ 0  1  1      0   4372   2760 118704   0   0     0     0  120     6   0   0
+100
+ 0  1  1      0   4408   2760 118668   0   0     0  2415  203    16   0   4
+96
+ 0  1  1      0   4472   2760 118608   0   0     0  4321  280    18   1   6
+93
+ 0  2  1      0   4468   2760 118608   0   0     0     0  112     8   0   0
+100
+ 0  1  1      0   4352   2760 118724   0   0     1  3232  227     9   0  10
+90
+ 0  1  1      0   4352   2760 118724   0   0     0     0  108     8   0   0
+100
+ 0  0  0      0   4440   2768 118696   0   0     7     0 3233   179   1  25
+74
+ 1  0  0      0   4448   2776 118680   0   0    11     0 4417   253   0  36
+63
 
-> 
-> > In any case, motive has no bearing on a technical argument.
-> > Your motive could be to make the 68K look better by reducing
-> > performance on other processors for all I know.
-> 
-> I am more than busy to keep it running (together with a few others, who
-> are left) and more important I make no money of it.
+-ac, on the other hand, is very smooth (still a noticeable oscillation, but
+far more consistent):
 
-Come on! First of all, you are causing me a great deal of pain by making
-me struggle not to make some bad joke about the economics of Linux companies.
-More important, not making money has nothing to do with purity of motivation -
-don't you read this list?
-And how do I know that you haven't got a stockpile of 68K boards that may
-be worth big money once it's known that 68K linux is at the top of the heap?
-Much less plausible money making schemes have been tried.
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
+id
+ 0  1  0      0   3064   3900 121580   0   0     4  2051 1714   174   0  16
+83
+ 0  1  0      0   3064   3904 121576   0   0     3  1572 1331   133   0  10
+90
+ 0  1  0      0   3064   3904 121576   0   0     4  2048 1727   163   0  14
+86
+ 0  1  0      0   3064   3908 121572   0   0     4  2048 1720   160   0  17
+82
+ 0  1  0      0   3064   3912 121568   0   0     3  1536 1312   124   0  12
+88
+ 0  1  0      0   3064   3916 121564   0   0     4  2048 1727   168   0  16
+84
+ 0  1  1      0   3064   3920 121560   0   0     4  2080 1720   158   0  16
+84
+ 0  1  0      0   3064   3924 121556   0   0     3  1536 1314   119   0  12
+87
+ 0  1  0      0   3064   3928 121552   0   0     4  2048 1719   160   1  13
+86
+ 0  1  1      0   3064   3932 121548   0   0     4  2048 1726   159   1  15
+84
+ 0  1  0      0   3064   3936 121544   0   0     3  1536 1327   129   1  12
+86
+ 0  1  0      0   3064   3940 121540   0   0     4  2048 1714   159   0  18
+82
+ 1  0  1      0   3064   3944 121536   0   0     3  1920 1604   151   0  16
+83
+ 0  1  0      0   3064   3944 121536   0   0     4  1696 1429   130   1  13
+86
+ 0  1  0      0   3064   3948 121532   0   0     4  2048 1726   159   1  17
+82
+ 0  1  0      0   3064   3952 121528   0   0     3  1536 1324   121   0  11
+88
+ 0  1  0      0   3064   3956 121524   0   0     4  2051 1722   164   1  15
+83
+ 0  0  1      0   3064   3960 121520   0   0     3  1728 1586   139   1  13
+86
+ 0  1  0      0   3064   3964 121516   0   0     4  1856 1455   129   1  12
+86
+ 0  1  0      0   3064   3968 121512   0   0     4  2052 1717   162   0  17
+83
+ 0  1  0      0   3064   3972 121508   0   0     3  1568 1327   131   0  12
+88
 
-Seriously: for our business, a Linux kernel that can reliably run at millisecond
-level latencies is only good. If you could get a Linux kernel to run at 
-latencies of 100 microseconds worst case on a 486, I'd be a little more
-worried  but even then ...
-On a 800Mhz Athlon, RTLinux scheduling jitter is 17microseconds worst case right now.
+Full vmstat output for all runs is available by request.
 
+Any ideas? I'm willing to do further testing if it is of use to anyone. I
+rather like the ~15% boost I get from -ac, and I feel much more comfortable
+seeing consistent behavior.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+--Adam
+
+[0] Early on I experienced some flukes with the cpqarray driver (bad RAM, I
+think) so I use VFAT in case Linux suddenly doesn't want to access the array
+anymore I will have a chance of booting $OTHER_OS and recovering my data.
+
 

@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132468AbRD1WhK>; Sat, 28 Apr 2001 18:37:10 -0400
+	id <S132756AbRD1W5S>; Sat, 28 Apr 2001 18:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132756AbRD1WhA>; Sat, 28 Apr 2001 18:37:00 -0400
-Received: from 13dyn184.delft.casema.net ([212.64.76.184]:27407 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132468AbRD1Wgp>; Sat, 28 Apr 2001 18:36:45 -0400
-Message-Id: <200104282236.AAA06021@cave.bitwizard.nl>
-Subject: Sony Memory stick format funnies... 
-To: linux-kernel@vger.kernel.org
-Date: Sun, 29 Apr 2001 00:36:41 +0200 (MEST)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S132757AbRD1W5J>; Sat, 28 Apr 2001 18:57:09 -0400
+Received: from mail.s.netic.de ([212.9.160.11]:23050 "EHLO mail.netic.de")
+	by vger.kernel.org with ESMTP id <S132756AbRD1W4z>;
+	Sat, 28 Apr 2001 18:56:55 -0400
+Date: Sun, 29 Apr 2001 00:55:25 +0200 (MEST)
+From: Roman Fietze <fietze@s.netic.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.[234] kernel panic, DMA Pool, CDROM Mount Failure
+In-Reply-To: <20010428195742.C11698@suse.de>
+Message-ID: <Pine.LNX.4.21.0104290041260.1612-100000@rfhome.fietze.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Hi,
+On Sat, 28 Apr 2001, Jens Axboe wrote:
 
-I have a Sony memory stick in my system. When I display all the
-interesting (i.e. not all 0xff and not all 0x00 data), I see (on a
-recently formatted stick):
+> Is the CDROM on the 1542?
 
-% hd /dev/hde | grep -v "ff ff ff ff ff ff ff ff   ff ff ff ff ff ff ff ff" | grep -v "00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00"
-001b0  00 00 00 00 00 00 00 00   00 00 00 00 00 00 80 02 ................
-001c0  08 00 01 07 d0 dd 27 00   00 00 d9 ee 01 00 00 00 ....P]'...Yn....
-001f0  00 00 00 00 00 00 00 00   00 00 00 00 00 00 55 aa ..............U*
-04e00  e9 00 00 20 20 20 20 20   20 20 20 00 02 20 01 00 i..        .. ..
-04e10  02 00 02 00 00 f8 0c 00   10 00 08 00 27 00 00 00 .....x......'...
-04e20  d9 ee 01 00 00 00 29 00   00 00 00 00 00 00 00 00 Yn....).........
-04e30  00 00 00 00 00 00 46 41   54 31 32 20 20 20 00 00 ......FAT12   ..
-04ff0  00 00 00 00 00 00 00 00   00 00 00 00 00 00 55 aa ..............U*
-05000  f8 ff ff 00 00 00 00 00   00 00 00 00 00 00 00 00 x...............
-06800  f8 ff ff 00 00 00 00 00   00 00 00 00 00 00 00 00 x...............
-08000  4d 45 4d 53 54 49 43 4b   49 4e 44 03 00 00 00 00 MEMSTICKIND.....
-08010  00 00 00 00 00 00 4f 4c   b7 28 00 00 00 00 00 00 ......OL7(......
-% 
-
-However, when I mount the stick on /mnt/d1 I see: 
-
-# l /mnt/d1
-total 16
-drwxr-xr-x 512 root     root        16384 Mar 24 17:26 dcim/
--r-xr-xr-x   1 root     root            0 May 23  2000 memstick.ind*
-# 
-
-Where the *(&#$%& does that "dcim" directory come from????
+All three CDROM's are on the 1542. Sorry, you can't see that from [7.6].
 
 
-				Roger. 
+> And could you include full panic info, please?
+
+How do I get "full panic info"? Pointers would help.
+
+I copied the info from the screen to paper because the system was locked,
+.../log/messages did not show anything. Allthough I am a programmer
+(embedded systems) I do not yet know how to get more information, but I'm
+working on it (I have RTFM in Documentation/, e.g. oops-tracing and in the
+HOWTO's). This bites me so I want to know it.
+
+The panic caused some lost files, so when testing new kernels for this
+problem I stop after the first tried mount and reboot if it doesn't mount
+and don't risk any more panics. As I mentioned in the mail, the panics are
+follow up errors (kernel memory corrupted?). Too bad I can't use this box
+as a crash system, I do only have this one and full restores with an old
+Exabyte just take too long.
+
+I diff'ed sr.c but can't find a bug there, but that hasn't say too much.
+
+
+Roman
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Roman Fietze      fietze@s.netic.de
+Short is beautiful, esp. signatures
+
+
+

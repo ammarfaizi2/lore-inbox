@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135851AbREKOcz>; Fri, 11 May 2001 10:32:55 -0400
+	id <S136772AbREKOhH>; Fri, 11 May 2001 10:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136772AbREKOch>; Fri, 11 May 2001 10:32:37 -0400
-Received: from hermes.sistina.com ([208.210.145.141]:64008 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S135851AbREKOcQ>;
-	Fri, 11 May 2001 10:32:16 -0400
-Date: Fri, 11 May 2001 16:27:45 +0000
-From: "Heinz J. Mauelshagen" <Mauelshagen@sistina.com>
-To: linux-kernel@vger.kernel.org
-Cc: mge@sistina.com
-Subject: LVM 1.0 release decision
-Message-ID: <20010511162745.B18341@sistina.com>
-Reply-To: Mauelshagen@sistina.com
-Mime-Version: 1.0
+	id <S135801AbREKOg5>; Fri, 11 May 2001 10:36:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64777 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131949AbREKOgi>; Fri, 11 May 2001 10:36:38 -0400
+Subject: Re: LVM 1.0 release decision
+To: Mauelshagen@sistina.com
+Date: Fri, 11 May 2001 15:32:46 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, mge@sistina.com
+In-Reply-To: <20010511162745.B18341@sistina.com> from "Heinz J. Mauelshagen" at May 11, 2001 04:27:45 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14yDyI-0000yE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> This leads to the dilemma, that trying to avoid further differences between
+> our LVM releases and the stock kernel code would force us into postponing
+> the pending LVM 1.0 release accordingly which OTOH is incovenient for the LVM
+> user base.
+> 
+> In regard to this situation we'ld like to know about your oppinion on
+> the following request:
+> is it acceptable to release 1.0 soon *before* all patches to reach the 1.0 code
 
-As most of you probably know, we've got criticism a couple of weeks ago about
-our Linux kernel patch policy causing the LVM vanilla kernel code to differ
-from the one we release directly.
+Please fix the binary incompatibility in the on disk format between the current
+code and your new release _before_ you do that. The last patches I was sent
+would have screwed every 64bit LVM user.
 
-In order to avoid this difference we provide smaller patches more often now.
-We have started already with a subset of about 50 necessary patches.
+A new format is fine but import old ones properly. And if you do a new format
+stop using kdev_t on disk - it will change size soon
 
-Even though we get kind support from Alan Cox to get those QAed and integrated,
-the pure amount of patches will take at least a couple of weeks to make it in.
+Alan
 
-This leads to the dilemma, that trying to avoid further differences between
-our LVM releases and the stock kernel code would force us into postponing
-the pending LVM 1.0 release accordingly which OTOH is incovenient for the LVM
-user base.
-
-In regard to this situation we'ld like to know about your oppinion on
-the following request:
-is it acceptable to release 1.0 soon *before* all patches to reach the 1.0 code
-status are in vanilla (presumed that we provide them with our release as we
-always did before)?
-
-We'll gather your answers for some days and will send the conclusion
-to the lists.
-
-Thanks for your support!
-
--- 
-
-Regards,
-Heinz    -- The LVM Guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

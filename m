@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263264AbREMTGi>; Sun, 13 May 2001 15:06:38 -0400
+	id <S261749AbREMT2C>; Sun, 13 May 2001 15:28:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263265AbREMTG3>; Sun, 13 May 2001 15:06:29 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:34841 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S263264AbREMTGV>; Sun, 13 May 2001 15:06:21 -0400
-Message-ID: <004b01c0dbdf$9d341500$3303a8c0@pnetz>
-From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: <kernel@llamas.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14yHQW-0001Sg-00@the-village.bc.nu>
-Subject: Re: Latest on Athlon Via KT133A chipset solution?
-Date: Sun, 13 May 2001 21:04:58 +0200
+	id <S261747AbREMT1x>; Sun, 13 May 2001 15:27:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6183 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S261464AbREMT1m>; Sun, 13 May 2001 15:27:42 -0400
+To: "H . J . Lu" <hjl@lucon.org>
+Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
+In-Reply-To: <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 May 2001 13:24:18 -0600
+In-Reply-To: "H . J . Lu"'s message of "Sun, 13 May 2001 11:07:07 -0700"
+Message-ID: <m1y9s1jbml.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Give the current -ac a spin and tell me if it works/doesnt and if not how
-> it fails
+"H . J . Lu" <hjl@lucon.org> writes:
 
-I tried 2.4.4-ac8.
-It still hangs during boot if compiled for Athlon, but also crashes after a
-while if compiled for 586. (I did a bonnie, did it a second time. The second
-run doesn´t finished.) It is a complete system freeze, magic sysrq doesn´t
-work.
+> It doesn't make any senses. When I specify CONFIG_IP_PNP and
+> BOOTP/DHCP, I want a kernel with IP config using BOOTP/DHCP. I would
+> expect IP config is turned for BOOTP/DHCP by default. You can turn
+> it off by passing "ip=off" to kernel. Did I miss something?
 
-Now i am going to try the new bios with a new version of the via fix. I will
-report if this solution fix it for me/us.
+Since you have to set the command line anyway ip=dhcp is no extra
+burden and it lets you use the same kernel to boot of the harddrive etc.
 
-greetings
+> > This same situation exists for 2.2.18 & 2.2.19 as well.
+> > 
+> > The only way to get long term stability out of this is to write
+> > a user space client, you can put in a ramdisk.  One of these days...
+> 
+> It doesn't work with diskless machines which don't support ramdisk
+> during boot.
 
-Christian
+I don't believe that is a real world situation.
 
+I boot diskless all of time and supporting a ramdisk is trivial.  You
+just a have a program that slaps a kernel a ramdisk, and some command
+line arguments into a single image, along with a touch of adapter code
+to set the kernel parameters correctly and then boot that.
+
+Eric

@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266693AbVBDU3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVBDUid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266693AbVBDU3g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:29:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbVBDUND
+	id S262737AbVBDUid (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbVBDUic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:13:03 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:39072 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S264150AbVBDUFU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:05:20 -0500
-Date: Fri, 4 Feb 2005 21:05:07 +0100
-From: Stelian Pop <stelian@popies.net>
-To: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050204200507.GE5028@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050204183922.GC27707@bitmover.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 4 Feb 2005 15:38:32 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:8661 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262737AbVBDUaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:30:16 -0500
+Date: Fri, 4 Feb 2005 20:29:36 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Mr. Berkley Shands" <berkley@exegy.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 Kernel BUG at hugetlbpage:212 (x86_64 and i386)
+In-Reply-To: <4203D5AD.8030108@cse.wustl.edu>
+Message-ID: <Pine.LNX.4.61.0502042011240.11692@goblin.wat.veritas.com>
+References: <42023352.9040309@dssimail.com> 
+    <Pine.LNX.4.61.0502041634090.10535@goblin.wat.veritas.com> 
+    <20050204194255.GO24805@holomorphy.com> <4203D5AD.8030108@cse.wustl.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 10:39:22AM -0800, Larry McVoy wrote:
-
-> > > I suppose what we could do is stick the BK changeset key into the 
-> > > delta history so that if you really wanted to get the BK level
-> > > granularity you could.
+On Fri, 4 Feb 2005, Mr. Berkley Shands wrote:
 > > 
-> > This would be nice indeed and I think it would end up all whinning
-> > since using that, one could be able to get the full history from the
-> > bkcvs repository. But would you do that ?
+> Sorry, but I still crash. This time it hung the kernel so bad I had to
+> powerfail to restart.
+
+Thanks for trying, okay, your problem is a different one from
+what my patch fixes: I thought that might turn out to be so.
+
+> Feb  4 13:43:19 eclipse kernel: Kernel BUG at hugetlbpage:212
+> Feb  4 13:43:19 eclipse kernel: invalid operand: 0000 [1] SMP
+> Feb  4 13:43:19 eclipse kernel: CPU 1
+> Feb  4 13:43:19 eclipse kernel: Modules linked in:
+> Feb  4 13:43:19 eclipse kernel: Pid: 1374, comm: DssiEPSearch Not tainted
+> 2.6.10
+> <ffffffff8011e3cb>{unmap_hugepage_range+75} RSP <000001007f337dd8>
 > 
-> You get a commitment from the group of BK complainers that that is good 
-> enough and we'll do it.  It may take a while because in the current way
-> that BK stores metadata it would be prohibitively expensive.  But we
-> want to change that anyway so we can prototype it on an internal tree
-> and see how well it works.
-> 
-> If/when we do this we'll reexport the 2.4 and 2.5 histories from scratch
-> so you get the info going backwards in time.
+> patch applied and rebooted (I made sure this time :-)
 
-If we find enough information in the CVS tree which would allow
-anybody to trace back each change to what was submitted by the author
-of the change (this being a GNU patch and a patch comment), this
-would be perfect for me. I can't speak for the 'group of BK 
-complainers' but I can't see a *technical* reason why they would
-disagree with this.
+And kernel rebuilt, I trust!
 
-> So, do you think you can sign up the usual suspects to being happy with
-> this answer?
+> unless of course I'm not functional today :-)
+> The patch I had was for mmap.c, not in hugetlb.c. Did I miss something?
 
-I'll let them answer themselves.
+No, that's right, it was only fixing mm/mmap.c.
 
-> And do you mind spelling out exactly what it is that you
-> think is being offered so there is no confusion later?
+Please point me privately to your app source, oh, it may be gigantic,
+or difficult for me to compile, I guess your binary as well or instead:
+so I can try to reproduce on i386.
 
-Informaly, exactly what I said before: Be able to find enough information
-in the CVS tree which would allow anybody to trace back each change
-to what was submitted by the author of the change (= patch + comment).
+We notice fpga_read and fpga_ioctl in both your traces, not in our
+2.6.10 kernel source: just leftover addresses on the stack, not part
+of the real backtrace, but interestingly there in both.  Where are
+they from (FC3?), any idea what chance it's doing something bad?
 
-How you can make this happen is another problem. The obvious way to
-implement this is using CVS branches and merges but this could be
-too much work for you.
-
-You said before that:
-> > I suppose what we could do is stick the BK changeset key into the 
-> > delta history so that if you really wanted to get the BK level
-> > granularity you could.
-(and know I agreed at the moment), but thinking again about this I'm not
-sure anymore how "sticking the BK changeset key into the delta history"
-gives us "BK level granularity". From what I understand (but you are the
-SCM expert not me so I may be missing something) there is exactly 
-one delta per 'trunk' changeset, so if you have a file being modified
-several times on a branch you will end with one single delta which is
-the merge of the separate patches. I'm not sure how, by adding several
-'BK changeset keys' into the log entry of the merged delta you make
-one able to resplit the delta later.
-
-What am I missing here ?
-
-Thanks,
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Hugh

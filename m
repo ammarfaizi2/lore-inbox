@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292122AbSBTSNJ>; Wed, 20 Feb 2002 13:13:09 -0500
+	id <S292146AbSBTSRk>; Wed, 20 Feb 2002 13:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292142AbSBTSNA>; Wed, 20 Feb 2002 13:13:00 -0500
-Received: from [213.171.51.190] ([213.171.51.190]:39810 "EHLO ns.yauza.ru")
-	by vger.kernel.org with ESMTP id <S292122AbSBTSMq>;
-	Wed, 20 Feb 2002 13:12:46 -0500
-Date: Wed, 20 Feb 2002 21:12:41 +0300
-From: Nikita Gergel <fc@yauza.ru>
-To: J Sloan <jjs@lexus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: opengl-nvidia not compiling
-Message-Id: <20020220211241.64a19953.fc@yauza.ru>
-In-Reply-To: <3C73DEA4.7010703@lexus.com>
-In-Reply-To: <20020220015358.A26765@suse.de>
-	<1014182978.21280.14.camel@imyourhandiman>
-	<20020220170454.5e700732.fc@yauza.ru>
-	<1014218667.22795.1.camel@imyourhandiman>
-	<20020220192123.25786b72.fc@yauza.ru>
-	<3C73DEA4.7010703@lexus.com>
-Organization: YAUZA-Telecom
-X-Mailer: Sylpheed version 0.7.1 (GTK+ 1.2.10; i586-alt-linux)
-X-Face: /kH/`k:.@|9\`-o$p/YBn<xFr)I]mglEQW0$I${i4Q;J|JXWbc}de_p8c1;:W~5{WV,.l%B S|A4'A1hnId[
+	id <S292157AbSBTSRZ>; Wed, 20 Feb 2002 13:17:25 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:61448 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S292146AbSBTSRR>; Wed, 20 Feb 2002 13:17:17 -0500
+Subject: 2.5.5 -- filesystems.c:30: In function `sys_nfsservctl':
+	dereferencing pointer to incomplete type
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 20 Feb 2002 10:13:21 -0800
+Message-Id: <1014228802.6910.29.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg=pgp-sha1; boundary="=.30,7yy+?t+HNXS"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.30,7yy+?t+HNXS
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+This has been reported by someone else, but the .config 
+information was not included in the report.  Hopefully, 
+this will help.
 
-On Wed, 20 Feb 2002 09:36:36 -0800
-J Sloan <jjs@lexus.com> wrote:
+Here you go:
 
-> Sire, may I make so bold as to press one
-> point I wish to be clear on?
-> 
-> Have you actually run the nvidia drivers
-> in a 2.5 kernel?
+CONFIG_QUOTA=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
 
-yes, I'm using now 2.5.2-pre10 and have to game Quake I/II/III, Tux Racer, BZFlag and everything works well, except Return To Castle Wolfenstein.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon   
+-DKBUILD_BASENAME=filesystems  -DEXPORT_SYMTAB -c filesystems.c
+filesystems.c: In function `sys_nfsservctl':
+filesystems.c:30: dereferencing pointer to incomplete type
+filesystems.c:30: dereferencing pointer to incomplete type
+filesystems.c:30: warning: value computed is not used
+filesystems.c:32: dereferencing pointer to incomplete type
+filesystems.c:33: dereferencing pointer to incomplete type
+filesystems.c:33: dereferencing pointer to incomplete type
+filesystems.c:33: warning: value computed is not used
+make[2]: *** [filesystems.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/fs'
 
-> if so, I would be encouraged to try, as the
-> nvidia drivers were one reason I've stayed
-> with 2.4 on my gaming machine.
-
-Of course, If you want only game you must use 2.4 now, but why are you subscribed lkml then? =)
-
-> 
-> Joe
-> 
-> Nikita Gergel wrote:
-> 
-> >
-> >1. It's obvious. Try to understand meanings of MINOR in 2.4 and minor in 2.5 =)
-> >2. I've compiled my NVIDIA kernel modules bringed in these fixes. I've no troubles.
-> >
-
-
--- 
-Nikita Gergel					System Administrator
-Moscow, Russia					YAUZA-Telecom
-
---=.30,7yy+?t+HNXS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8c+ccFP8BYTTFfXkRAjMMAKC0+XRvBRDEwdBUg1TBIzqSk4vtmACdF1NY
-VhAMCPMfNmB90IjQKgWIYzI=
-=ovB6
------END PGP SIGNATURE-----
-
---=.30,7yy+?t+HNXS--
 

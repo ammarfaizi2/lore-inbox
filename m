@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUIGOGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268077AbUIGOMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268076AbUIGOGl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUIGOGl
+	id S268077AbUIGOMM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUIGOMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:06:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35228 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268076AbUIGOGK (ORCPT
+	Tue, 7 Sep 2004 10:12:12 -0400
+Received: from mail.dif.dk ([193.138.115.101]:63962 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268077AbUIGOMK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:06:10 -0400
-Date: Tue, 7 Sep 2004 07:06:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Steve French <smfltc@us.ibm.com>
-Subject: Re: [PATCH 4/4] copyfile: copyfile
-In-Reply-To: <20040907121520.GC27297@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
-References: <20040907120908.GB26630@wohnheim.fh-wedel.de>
- <20040907121118.GA27297@wohnheim.fh-wedel.de> <20040907121235.GB27297@wohnheim.fh-wedel.de>
- <20040907121520.GC27297@wohnheim.fh-wedel.de>
+	Tue, 7 Sep 2004 10:12:10 -0400
+Date: Tue, 7 Sep 2004 16:10:12 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: attribute warn_unused_result
+In-Reply-To: <413DB1DE.6040508@kolivas.org>
+Message-ID: <Pine.LNX.4.61.0409071607450.28819@jjulnx.backbone.dif.dk>
+References: <413DB1DE.6040508@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 7 Sep 2004, Con Kolivas wrote:
+
+> Date: Tue, 7 Sep 2004 15:04:30 +0200 
+> From: Con Kolivas <kernel@kolivas.org>
+> To: Con Kolivas <kernel@kolivas.org>
+> Cc: Arjan van de Ven <arjanv@redhat.com>,
+>     linux kernel mailing list <linux-kernel@vger.kernel.org>,
+>     Andrew Morton <akpm@osdl.org>
+> Subject: Re: attribute warn_unused_result
+> 
+> Con Kolivas wrote:
+> > Arjan van de Ven wrote:
+> >> you really are supposed to use the return value of copy_to_user and 
+> >> friends.
+> > 
+> > 
+> > Oh dear I hadn't looked at that. My tree must have been corrupted by 
+> > reiser4 doing the in-out thing to me ;P. Excuse the noise.
+> Nope a cleanly unpacked bk13 with a minimal config and gcc 3.4.1 
+> definitely gives me the following:
+
+Yup, the warnings are there, I see them with bk13 and gcc 3.4.0 as well. 
+As I said in my previous mail I'm working on fixing the binfmt_elf bits, 
+and unless someone else beats me to it I'll attempt to deal with the rest 
+as well.
+I'll post the patches as soon as I have something that I feel is resonably 
+sane, then you guys can all pick it apart ;)
 
 
-On Tue, 7 Sep 2004, Jörn Engel wrote:
->
-> Again, the syscall itself may be a stupid idea, but Steve indicated
-> interest for cifs.  I'll hide behind his back and let him fight for
-> it. ;)
-
-Well, this isn't useful for cifs.
-
-For cifs to be able to use it, the "copyfile()" interface needs to
-basically just be a pathname operation (ie a "dir->i_op->copy()"), not a
-"struct file" operation.  It's more like the VFS "->rename()" or "->link"
-operations, in other words. And it should return -EXDEV the same way
-rename returns EXDEV if the files aren't on the same filesystem.
-
-Then you could (and should) make a "generic_file_copy()" function that
-takes that pathname format, and then uses sendfile() to do the copy for
-regular disk-based filesystems.
-
-I think you should be able to copy the "sys_link()" code for almost all of 
-the top-level stuff. The only real difference being
-
--	error = dir->i_op->link(old_dentry, dir, new_dentry);
-+	error = dir->i_op->copy(old_dentry, dir, new_dentry);
-
-or something.
-
-And no, I don't know how to handle interruptability. I think the right
-answer may be that filesystems that don't support this as a "native op"  
-and can't do it quickly should just return an error, and then users can
-copy their multi-gigabyte files by hand, like they used to.
-
-So if we do this, we do this _right_. We also make sure that we error out 
-"too much" rather than "too little", so that people don't start depending 
-on behaviour that we don't want them to depend on. 
-
-		Linus
+--
+Jesper Juhl <juhl-lkml@dif.dk>

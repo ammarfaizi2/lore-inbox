@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbTIRNb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 09:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbTIRNb2
+	id S261183AbTIRNha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 09:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbTIRNha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 09:31:28 -0400
-Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:24998 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S261313AbTIRNb1
+	Thu, 18 Sep 2003 09:37:30 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:59370 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S261183AbTIRNh3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 09:31:27 -0400
-Date: Thu, 18 Sep 2003 14:31:25 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-ac3
-In-Reply-To: <200309152306.h8FN6lF04552@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0309181430110.8770@r2-pc.dcs.qmul.ac.uk>
-References: <200309152306.h8FN6lF04552@devserv.devel.redhat.com>
-X-URL: http://www.theBachChoir.org.uk/
+	Thu, 18 Sep 2003 09:37:29 -0400
+Message-ID: <3F69B517.8080903@genebrew.com>
+Date: Thu, 18 Sep 2003 09:37:27 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030908 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Auth-User: jonquil.thebachchoir.org.uk
-X-uvscan-result: clean (19zysX-0006Eh-Jv)
+To: koala.gnu@tiscali.it
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cpu speed
+References: <3F697B67.8070409@tiscali.it>
+In-Reply-To: <3F697B67.8070409@tiscali.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.152.250.151] at Thu, 18 Sep 2003 08:37:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 15 Alan Cox wrote:
+Koala GNU wrote:
+> Hi all,
+> 
+> I have a T21 thinkpad Pentium III 800 MHz.
+> 
+> I have redhat 8.0 with linux 2.4.18 installed on my machine.
+> 
+> Executing cat /proc/cpuinfo I noticed that cpu speed is 200 MHz.
+> 
+> Looking at BIOS the speed is correct.
 
->This one should be treated gently initially.
->
->Linux 2.4.22-ac3
+Does this happen irrespective of whether you are plugged in to A/C power 
+at the time? Most laptops will go to lower speeds on battery (depending 
+on your setup in BIOS), and even if you plug in the power later, 
+/proc/cpuinfo is not updated. So please make sure you boot up with A/C 
+power and let us know if you see the same thing.
 
-[built with everything modular except romfs and ELF]
+Thanks,
+Rahul
+--
+Rahul Karnik
+rahul@genebrew.com
+http://www.genebrew.com/
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.22-ac3/kernel/drivers/ide/ide-core.o
-depmod:         ide_wait_hwif_ready
-depmod:         ide_probe_for_drive
-depmod:         ide_probe_reset
-depmod:         ide_tune_drives
-make: *** [_modinst_post] Error 1
-
-Is this helpful?
-
-Matt

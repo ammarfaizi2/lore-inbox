@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269157AbUJFR4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269335AbUJFSB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269157AbUJFR4h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUJFR4h
+	id S269335AbUJFSB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 14:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269345AbUJFSB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:56:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43164 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269157AbUJFR4f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 13:56:35 -0400
-Date: Wed, 6 Oct 2004 10:56:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Corey Thomas <corey@world.std.com>
-cc: netdev@oss.sgi.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Raylink/WebGear testing - ray_cs.c iomem bug?
-In-Reply-To: <Pine.LNX.4.58.0410061032410.8290@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0410061053550.8290@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410061032410.8290@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Oct 2004 14:01:57 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:54948 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269335AbUJFSBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 14:01:55 -0400
+Date: Wed, 6 Oct 2004 20:01:45 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20041006180145.GC10153@wohnheim.fh-wedel.de>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com>
+Mime-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <20041006174108.GA26797@kroah.com>
+User-Agent: Mutt/1.3.28i
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Rcpt-To: greg@kroah.com, alan@lxorguk.ukuu.org.uk, rmk+lkml@arm.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
+X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
+X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 6 Oct 2004, Linus Torvalds wrote:
+On Wed, 6 October 2004 10:41:08 -0700, Greg KH wrote:
 > 
-> If somebody has access to this card and can test it, can you email me? I'd 
-> hate to apply even an "obvious" fix when the bug may be hidden by other 
-> bugs, and the obvious fix might end up breaking things for silly reasons.
+> Good point.  So, should we do it in the kernel, in call_usermodehelper,
+> so that all users of this function get it correct, or should I do it in
+> userspace, in the /sbin/hotplug program?
+> 
+> Any opinions?
 
-Ahh. Never mind. It looks like the RCS/CCS difference is encoded in the 
-index that is used to offset the base, which means that rcs_base and 
-ccs_base really do end up being the same thing.
+Kernel.
 
-Still, I'd love to have somebody verify that the cleaned-up version 
-(without any changes) still works. It should be 100% equivalent to the old 
-one, but it's good to make sure.
+Same reasoning as before, if someone comes along and creates a "much
+better" /sbin/hotplug which doesn't handle it, things will break
+again.
 
-		Linus
+Jörn
+
+-- 
+Data dominates. If you've chosen the right data structures and organized
+things well, the algorithms will almost always be self-evident. Data
+structures, not algorithms, are central to programming.
+-- Rob Pike

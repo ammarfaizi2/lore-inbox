@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313080AbSDOR6I>; Mon, 15 Apr 2002 13:58:08 -0400
+	id <S313083AbSDOSIF>; Mon, 15 Apr 2002 14:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313082AbSDOR6H>; Mon, 15 Apr 2002 13:58:07 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:41938 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S313080AbSDOR6H>; Mon, 15 Apr 2002 13:58:07 -0400
-Message-ID: <3CBB14AC.9807E7CD@delusion.de>
-Date: Mon, 15 Apr 2002 19:58:04 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.8 i686)
-X-Accept-Language: en, de
+	id <S313084AbSDOSIF>; Mon, 15 Apr 2002 14:08:05 -0400
+Received: from customer201-108.iplannetworks.net ([200.69.201.108]:51186 "EHLO
+	ntmba.mba") by vger.kernel.org with ESMTP id <S313083AbSDOSIE>;
+	Mon, 15 Apr 2002 14:08:04 -0400
+Message-ID: <3CBB16FE.90503@laotraesquina.com.ar>
+Date: Mon, 15 Apr 2002 15:07:58 -0300
+From: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: es-ar, en-us
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS: USB disconnect
-In-Reply-To: <3CBA8506.AE090B97@delusion.de> <20020415152310.GH21356@kroah.com> <3CBAFFC2.2FB7ECFE@delusion.de> <20020415155947.GB21707@kroah.com> <3CBB0FE7.73938A47@delusion.de> <20020415164542.GI21707@kroah.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: HP scanjet 2200c support
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Hi
 
-> Good.  Well, not good, but nice in that it doesn't look like the more
-> recent changes to the USB tree caused this.  Can you send this oops and
-> info to the HID maintainer?
+I'm running linux 2.4.16 in a Red Hat 7.2 installation. I have a HP 
+scanjet 2200c and I can see the usb id into the boot kernel messages, 
+but I can use it to scan.
 
-Sure, I'll send it to Vojtech.
+Is this scanner supported?
 
-Regards,
--Udo.
+Thanks
+
+Pablo
+

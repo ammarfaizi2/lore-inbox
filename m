@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270658AbTGNNOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270653AbTGNNOF
+	id S270606AbTGNNHh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTGNNAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:14:05 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45501 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270703AbTGNNNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:13:46 -0400
-Date: Mon, 14 Jul 2003 10:26:02 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: sim710 resend #5
-In-Reply-To: <200307141224.h6ECOrQj030905@hraefn.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55L.0307141019560.18257@freak.distro.conectiva>
-References: <200307141224.h6ECOrQj030905@hraefn.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Jul 2003 09:00:52 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:53218 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S270679AbTGNM6o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:58:44 -0400
+Date: Mon, 14 Jul 2003 15:11:32 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030714131132.GD221@elf.ucw.cz>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030713193114.GD570@elf.ucw.cz> <1058130071.1829.2.camel@laptop-linux> <20030713210934.GK570@elf.ucw.cz> <1058147684.2400.9.camel@laptop-linux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058147684.2400.9.camel@laptop-linux>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-And it doenst apply:
+> Having listened to the arguments, I'll make pressing Escape to cancel
+> the suspend a feature which defaults to being disabled and can be
+> enabled via a proc entry in 2.4. I won't add code to poll for ACPI (or
+> APM) events :>
 
-marcelo@freak linux-2.4.22-pre5]$ patch -p1 < /tmp/sim
-patching file drivers/scsi/sim710_d.h
-Reversed (or previously applied) patch detected!  Assume -R? [n]
-Apply anyway? [n]
-Skipping patch.
-9 out of 9 hunks ignored -- saving rejects to file
-drivers/scsi/sim710_d.h.rej
+At least no new proc entry, please. Make it depend on sysrq_enabled
+and disable it completely if sysrq support is not compiled in.
 
-that linux-2.4.22-pre5 tree has been generated out of local BK tree.
+								Pavel
 
-Now if I apply your patch against a 2.4.22-pre5 from tarballs and patches
-it works fine. Weird.
-
-I'll investigate it later.
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,80 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265015AbTFLVel (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 17:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265004AbTFLVdL
+	id S265013AbTFLVig (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 17:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbTFLVig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 17:33:11 -0400
-Received: from grendel.firewall.com ([66.28.56.41]:27362 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S265006AbTFLVc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 17:32:59 -0400
-Date: Thu, 12 Jun 2003 23:46:26 +0200
-From: Marek Habersack <grendel@caudium.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.5.70-mm8 and the 3com NIC driver
-Message-ID: <20030612214626.GA1770@thanes.org>
-Reply-To: grendel@caudium.net
+	Thu, 12 Jun 2003 17:38:36 -0400
+Received: from dsl-62-3-122-163.zen.co.uk ([62.3.122.163]:25728 "EHLO
+	tor.trudheim.com") by vger.kernel.org with ESMTP id S265007AbTFLViT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 17:38:19 -0400
+Subject: Re: Intel PRO/Wireless 2100 vs. Broadcom BCM9430x
+From: Anders Karlsson <anders@trudheim.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055452675.13998.2.camel@ixodes.goop.org>
+References: <Pine.LNX.4.44.0306120813380.411-100000@twin.uoregon.edu>
+	 <1055450268.3989.27.camel@tor.trudheim.com>
+	 <1055452675.13998.2.camel@ixodes.goop.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ag2K5P2hguYeH4IMEFKM"
+Organization: Trudheim Technology Limited
+Message-Id: <1055454724.2084.9.camel@tor.trudheim.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
+Date: 12 Jun 2003 22:52:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+--=-ag2K5P2hguYeH4IMEFKM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Thu, 2003-06-12 at 22:17, Jeremy Fitzhardinge wrote:
+> On Thu, 2003-06-12 at 13:37, Anders Karlsson wrote:
+> > And that is if your laptop will allow such a card to be plugged in and
+> > used of course. Thinkpads with the tcpa chip in them might not allow
+> > such a card,
+>=20
+> Nothing to do with TCPA: my laptop doesn't have one, and it objects to
+> "foreign" wireless cards.  Plain old BIOS is enough.
 
-  As mentioned in the subject, the kernel doesn't work with a 3Com 3c905
-card. Here's what's shown on the screen and in the logs on both startup and
-in intervals during normal system run:
+I based my statement on a discussion from about a week ago on the list
+and that seemed to indicate that the IBM Thinkpads had a 'white-list'
+of sorts to allow only some specific mini-PCI cards. IIRC it was the
+T40, R40 and X31 that was affected.
 
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e601.
-diagnostics: net 0cc0 media 8802 dma 0000003b fifo 0000
-eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
-Flags; bus-master 1, dirty 240(0) current 240(0)
-Transmit list 00000000 vs. efce2200.
-0: @efce2200  length 8000002a status 0000002a
-1: @efce22a0  length 80000050 status 00000050
-2: @efce2340  length 8000002a status 0000002a
-3: @efce23e0  length 8000002a status 0000002a
-4: @efce2480  length 8000002a status 0000002a
-5: @efce2520  length 80000036 status 00000036
-6: @efce25c0  length 80000036 status 00000036
-7: @efce2660  length 80000036 status 00000036
-8: @efce2700  length 80000050 status 00000050
-9: @efce27a0  length 80000050 status 00000050
-10: @efce2840  length 80000050 status 00000050
-11: @efce28e0  length 80000050 status 00000050
-12: @efce2980  length 80000050 status 00000050
-13: @efce2a20  length 80000050 status 00000050
-14: @efce2ac0  length 80000050 status 80000050
-15: @efce2b60  length 80000050 status 80000050
-eth0: Resetting the Tx ring pointer.
+Apologies if my statement was incorrect.
 
-All the earlier -mm kernels worked fine in this regard,
+/A
 
-marek
-
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-ag2K5P2hguYeH4IMEFKM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
 
-iD8DBQE+6PSyq3909GIf5uoRAo4RAJ940+AgFJ/u+QV6SDLlT75zbab32wCfZjtQ
-RxOEMFVXuQZY97rQ/KSwNK8=
-=PUuU
+iD8DBQA+6PYDLYywqksgYBoRApmxAJ95f0eMjWhd/thz5jdwBiS6RcpIOACgvW1S
+TnDpVDXDTvG+SQr5kn2PeHQ=
+=bpXm
 -----END PGP SIGNATURE-----
 
---k+w/mQv8wyuph6w0--
+--=-ag2K5P2hguYeH4IMEFKM--
+

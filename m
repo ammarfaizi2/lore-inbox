@@ -1,93 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265276AbTLMSIj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 13:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTLMSIj
+	id S265259AbTLMSQk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 13:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbTLMSQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 13:08:39 -0500
-Received: from purplechoc.demon.co.uk ([80.176.224.106]:4224 "EHLO
-	skeleton-jack.localnet") by vger.kernel.org with ESMTP
-	id S265276AbTLMSIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 13:08:36 -0500
-Date: Sat, 13 Dec 2003 18:08:28 +0000
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Peter Horton <pdh@colonel-panic.org>, linux-mips@linux-mips.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
-Message-ID: <20031213180828.GA480@skeleton-jack>
-References: <20031213114134.GA9896@skeleton-jack> <20031213160536.GA13271@linux-mips.org>
+	Sat, 13 Dec 2003 13:16:40 -0500
+Received: from pixy-gw.netlab.is.tsukuba.ac.jp ([130.158.83.98]:8977 "HELO
+	pixy.netlab.is.tsukuba.ac.jp") by vger.kernel.org with SMTP
+	id S265259AbTLMSQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 13:16:38 -0500
+To: hirofumi@mail.parknet.co.jp
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FAT fs sanity check patch
+In-Reply-To: <87d6b6ujl0.fsf@devron.myhome.or.jp>
+References: <20031203072219F.yokota@netlab.is.tsukuba.ac.jp>
+	<87d6b6ujl0.fsf@devron.myhome.or.jp>
+X-Mailer: Mew version 1.94.2 on Emacs 19.34 / Mule 2.3 (SUETSUMUHANA)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031213160536.GA13271@linux-mips.org>
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@colonel-panic.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20031214031630A.yokota@netlab.is.tsukuba.ac.jp>
+Date: Sun, 14 Dec 2003 03:16:30 +0900
+From: Yokota Hiroshi <yokota@netlab.is.tsukuba.ac.jp>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2003 at 05:05:36PM +0100, Ralf Baechle wrote:
-> On Sat, Dec 13, 2003 at 11:41:34AM +0000, Peter Horton wrote:
-> 
-> > The current MIPS 2.4 kernel (from CVS) currently allows fixed shared
-> > mappings to violate D-cache aliasing constraints.
-> > 
-> > The check for illegal fixed mappings is done in
-> > arch_get_unmapped_area(), but these mappings are granted in
-> > get_unmapped_area() and arch_get_unmapped_area() is never called.
-> > 
-> > A quick look at sparc and sparc64 seem to show the same problem.
-> 
-> Ehh...  <asm/pgtable.h> defines HAVE_ARCH_UNMAPPED_AREA therefore
-> get_unmapped_area calls the arch's version of arch_get_unmapped_area
-> instead of the generic version in mm/mmap.c
-> 
 
-arch_get_unmapped_area() never get called because get_unmapped_area()
-notices the MAP_FIXED flag and returns success.
 
-In the example below the second mmap() should fail because it violates
-the shm_align_mask.
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: FAT fs sanity check patch
+Date: Wed, 03 Dec 2003 22:17:15 +0900
 
-P.
+> > Because some MS windows based FAT filesystem disk formatter generetes
+> > wrong super bloacks.
 
-pdh@qube2:~$ uname -a
-Linux qube2 2.4.23 #2 Sat Dec 13 18:03:10 GMT 2003 mips unknown
-pdh@qube2:~$ ./shared
-0xdeadbeef 0
-pdh@qube2:~$ cat shared.c
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/user.h>
+> BTW, did this happen in MS windows of which version?
 
-int main(int argc, char *argv[])
-{
-        static char zero;
-        void *p1, *p2;
-        int fd;
+ I tested on Windows 95 and Windows Me.
+But I think it can happen on all version of MS-Windows.
 
-        fd = open("/tmp/test.shared", O_CREAT|O_RDWR|O_TRUNC, 0664);
-        if(fd == -1)
-                return 1;
-        unlink("/tmp/test.shared");
+###
 
-        lseek(fd, PAGE_SIZE - 1, SEEK_SET);
-        if(write(fd, &zero, 1) != 1)
-                return 1;
+I found why MS-Windows uses wrong numbers.
 
-        p1 = mmap(NULL, PAGE_SIZE, PROT_READ, MAP_SHARED, fd, 0);
-        if(p1 == MAP_FAILED)
-                return 1;
+Usually, MO-disk uses "super floppy" format. And all "super floppy" format
+disk contains wrong numbers. But "plain (Fixed disk)" format disk contains
+correct number.
 
-        p2 = mmap(p1 + PAGE_SIZE, PAGE_SIZE, PROT_WRITE, MAP_SHARED|MAP_FIXED, fd, 0);
-        if(p2 == MAP_FAILED || p2 - p1 != PAGE_SIZE)
-                return 1;
 
-        *(int *) p2 = 0xdeadbeef;
+In "super floppy" format, boot sector's media number is 0xf0 (== 1.44MB 2HD
+IBM-PC floppy format).
+And FAT entry's media number is 0xf8 (== Fixed disk).
 
-        printf("%#x %#x\n", *(int *) p2, *(int *) p1);
+Media number can takes 0xf0-0xff.
+Other media number values are used for other format disks.
+For example, 1.2MB 2HC NEC-PC9801 floppy format uses 0xf9.
 
-        return 0;
-}
-pdh@qube2:~$
+
+Usually, these two values must be same. But "super floppy" format
+disk uses different value.
+
+Why this format uses different value?
+I think MS-Windows changes disk cache's caching strategy based on
+boot sector's media ID value.
+
+Because any removeable media can eject any time, so disk cache
+(espeially write cache) is not usable for removeable disks.
+
+MO disk can treat as Fixed disk, except disk caching strategy.
+Because MO disk is removeable.
+
+Anyway, this bad hack is not useful for Linux. Linux uses
+mount/unmount command to flush disk cache.
+
+I think the name of "super floppy" comes from this wrong number in
+boot sector.
+
+---
+YOKOTA Hiroshi

@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVAZQvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVAZQyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbVAZQvq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 11:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVAZQvJ
+	id S262425AbVAZQyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 11:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVAZQxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 11:51:09 -0500
-Received: from lakermmtao10.cox.net ([68.230.240.29]:16887 "EHLO
-	lakermmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S262429AbVAZQtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 11:49:05 -0500
-Date: Wed, 26 Jan 2005 11:49:04 -0500
-From: Chris Shoemaker <c.shoemaker@cox.net>
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How do I find out who uses swap?
-Message-ID: <20050126164904.GA17707@cox.net>
-References: <1755048250.20050126141156@dns.toxicfilms.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1755048250.20050126141156@dns.toxicfilms.tv>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 26 Jan 2005 11:53:36 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34449 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262425AbVAZQwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 11:52:06 -0500
+Date: Wed, 26 Jan 2005 08:51:15 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [RFC][PATCH] new timeofday arch specific hooks (v. A2)
+In-Reply-To: <1106710145.5235.47.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0501260846500.1852@schroedinger.engr.sgi.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com> 
+ <1106607153.30884.12.camel@cog.beaverton.ibm.com>  <1106620134.15850.3.camel@gaston>
+  <1106694561.30884.52.camel@cog.beaverton.ibm.com>  <1106697227.5235.28.camel@gaston>
+  <1106698655.1589.8.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0501251620100.27922@schroedinger.engr.sgi.com>
+ <1106710145.5235.47.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 02:11:56PM +0100, Maciej Soltysiak wrote:
-> Hi,
-> 
-> I have a problem for some time with that the amount of swap
-> being used constantly increases up to the moment where
-> the swap is used in 100% and the machine deadlocks.
-> 
-> How do I find out which proceses use swap and in what amount?
-> 
-> I tried using top and sorting by SWAP, it shows this:
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  SWAP COMMAND
->  3390 ncg       15   0 72504 3380 1720 S  0.0  0.7   0:00.76  67m ncgserver
-> 24718 mysql     15   0 68056 7364 2232 S  0.0  1.4   2:30.70  59m mysqld
->   582 fallen    16   0 30396  568  480 S  0.0  0.1   0:02.40  29m sc_serv
->   624 vpopmail  16   0 31124 1736 1436 S  0.0  0.3   0:01.99  28m spamd
-> 31765 solt      16   0 29916 1020  616 S  0.0  0.2   0:02.25  28m sc_serv
->  3348 bind      22   0 31604 3872 1472 S  0.0  0.8   0:48.84  27m named
-> 24021 root      16   0 32976  10m 7228 S  0.0  2.1   0:01.99  21m apache
-> 13066 www-data  16   0 33104  10m 7276 S  0.0  2.2   0:00.62  21m apache
-> 13103 www-data  16   0 33104  10m 7276 S  0.0  2.2   0:00.61  21m apache
-> 13104 www-data  16   0 33104  10m 7276 S  0.0  2.2   0:00.60  21m apache
-> 13099 www-data  16   0 33104  10m 7276 S  0.3  2.2   0:00.63  21m apache
-> 13142 www-data  16   0 33104  10m 7276 S  0.0  2.2   0:00.61  21m apache
-> 29898 www-data  16   0 33108  11m 7580 S  0.0  2.2   0:00.01  21m apache
-> 13061 www-data  16   0 34492  12m 7700 S  0.0  2.5   0:00.56  21m apache
-> 13057 www-data  15   0 35076  13m 7696 S  0.0  2.6   0:00.78  21m apache
-> 23259 www-data  16   0 36344  14m 7784 S  0.0  2.9   0:01.15  21m apache
-> 13062 www-data  15   0 37812  15m 7868 S  0.0  3.2   0:01.03  20m apache
-                                                                ^^^
-                                                              look here
 
-> 
-> Or should I look at VIRT or MEM ?
-> I am confused.
+On Wed, 26 Jan 2005, Benjamin Herrenschmidt wrote:
 
-man 1 top
+> On Tue, 2005-01-25 at 16:34 -0800, Christoph Lameter wrote:
+>
+> > I just hope that the implementation of one arch does not become a standard
+> > without sufficient reflection. Could we first get an explanation of
+> > the rationale of the offsets? From my viewpoint of the ia64 implementation
+> > I have some difficulty understanding why such complicated things as
+> > prescale and postscale are necessary in gettimeday and why the simple
+> > formula that we use in gettimeofday is not sufficient?
+>
+> What is complicated here ? The formula, at least as we do on ppc64, is
+> simply:
+>
+>  time = (hw_value - prescale offset) / scale + post scale offset
 
--chris
+Yes that is basically what we do on ia64 but we use different
+terminology.
+
+time = ns_at_last_tick + (hw_value - last_tick_hw_value) * scale >> shift
+
+> > What I think is a priority need is some subsystem that manages
+> > time sources effectively (including the ability of the ntp code to
+> > scale the appropriately) and does that in an arch independent
+> > way so that all the code can be consolidated. Extract the best existing
+> > solutions and work from there.
+>
+> Which is what John is trying to do, so help instead of criticizing :)
+
+I sure hope that we will be doing that. But so far this has been
+a new implementation instead otherwise ntp_scale would not be in the
+gettimeofday function.

@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUFRXhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265763AbUFRXk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUFRXhW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbUFRXYC
+	id S265763AbUFRXk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUFRXhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:24:02 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:22470 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265782AbUFRXTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:19:07 -0400
-Date: Sat, 19 Jun 2004 00:18:58 +0100 (BST)
-From: jsimmons@pentafluge.infradead.org
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-In-Reply-To: <20040618213830.GT20632@lug-owl.de>
-Message-ID: <Pine.LNX.4.56.0406190009390.26434@pentafluge.infradead.org>
-References: <40D33C58.1030905@am.sony.com>
- <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
- <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org>
- <20040618211000.GP20632@lug-owl.de> <20040618211352.GC7404@suse.de>
- <20040618213830.GT20632@lug-owl.de>
+	Fri, 18 Jun 2004 19:37:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8085 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265786AbUFRXdN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:33:13 -0400
+Message-ID: <40D37BA5.8070704@pobox.com>
+Date: Fri, 18 Jun 2004 19:32:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.3 (/)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (0.3 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 NO_REAL_NAME           From: does not include a real name
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, tony@atomide.com, david-b@pacbell.net,
+       jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+References: <20040618175902.778e616a.spyro@f2s.com>	<40D359B3.6080400@pobox.com>  <20040619002618.5650e16a.spyro@f2s.com> <1087601446.2134.211.camel@mulgrave>
+In-Reply-To: <1087601446.2134.211.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On Fri, 2004-06-18 23:13:53 +0200, Jens Axboe <axboe@suse.de>
-> wrote in message <20040618211352.GC7404@suse.de>:
-> > On Fri, Jun 18 2004, Jan-Benedict Glaw wrote:
+James Bottomley wrote:
+> On Fri, 2004-06-18 at 18:26, Ian Molton wrote:
 > 
-> > > Hope the CE Forum will show some engagement there. Or OSDL. Or IBM.
-> > > Or ...  But usually, that's hot air. No direct income :--<
-
-I have heard companies complain about the free beer mentality linux users 
-have. I guess they have the same problem :-(  
-
-> > Come on people, not everything is counted in dollars or euros. Lots of
-> > people enjoy doing auxiliary work in their spare time and get loads
-> > done. If it doesn't work for you, then maybe you are not the right for
-> > the job or maybe you are doing something wrong.
+>>On Fri, 18 Jun 2004 17:08:03 -0400
+>>Jeff Garzik <jgarzik@pobox.com> wrote:
+>>
+>>>You _might_ convince the kernel DMA gurus that this could be done by 
+>>>creating a driver-specific bus, and pointing struct device to that 
+>>>internal bus, but that seems like an awful lot of work as opposed to the 
+>>>wrappers.
+>>
+>>Its an awful lot less work than re-writing all those drivers!
 > 
-> Well, sometimes I actually do some nice work to put on the table, but
-> keeping an eye on a good number of vendor trees is IMHO *far* beyond
-> what you'd actually do at some late evening at the weekends. That's way
-> more than a good full-time job. At least, I think so.
+> 
+> Every other driver bar this one already copes correctly with on chip
+> memory using the ioremap methods.  That's why we're all wondering if it
+> isn't simpler to fix this driver.
 
-I agree. Its not a matter of money but of time. Of course it is nice to 
-pay bills. Quality takes time. That is just reality. The question is how 
-much time can you put in it over say a week period. If you work for a 
-living doing something else there goes 40 hours working on a open source 
-project. 
+
+Indeed...  if the SRAM is accessible via ioremapped memory, DMA API 
+shouldn't be needed.
+
+	Jeff
+
 

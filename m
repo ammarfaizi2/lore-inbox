@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265472AbTFVDa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 23:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbTFVDa2
+	id S265489AbTFVDkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 23:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbTFVDkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 23:30:28 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:36021 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265472AbTFVDa1
+	Sat, 21 Jun 2003 23:40:22 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:49280 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265489AbTFVDkT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 23:30:27 -0400
-Date: Sat, 21 Jun 2003 20:43:52 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: cw@f00f.org, torvalds@transmeta.com, geert@linux-m68k.org,
-       alan@lxorguk.ukuu.org.uk, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Isapnp warning
-Message-ID: <90770000.1056253431@[10.10.2.4]>
-In-Reply-To: <20030621191705.3c1dbb16.akpm@digeo.com>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com><Pine.LNX.4.44.0306211652130.1980-100000@home.transmeta.com><20030622001101.GB10801@conectiva.com.br><20030622014102.GB29661@dingdong.cryptoapps.com><20030622014345.GD10801@conectiva.com.br> <20030621191705.3c1dbb16.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 21 Jun 2003 23:40:19 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 21 Jun 2003 20:52:43 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Thomas Winischhofer <twini@xfree86.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SiS IRQ router 96x detection (2.5.69) ...
+In-Reply-To: <3EF50D43.6020809@xfree86.org>
+Message-ID: <Pine.LNX.4.55.0306212007430.3725@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.55.0306022338530.3631@bigblue.dev.mcafeelabs.com> 
+ <3EF248F9.7040402@winischhofer.net> <1056198220.25975.23.camel@dhcp22.swansea.linux.org.uk>
+ <Pine.LNX.4.55.0306211314400.3725@bigblue.dev.mcafeelabs.com>
+ <3EF50D43.6020809@xfree86.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andrew Morton <akpm@digeo.com> wrote (on Saturday, June 21, 2003 19:17:05 -0700):
+On Sun, 22 Jun 2003, Thomas Winischhofer wrote:
 
-> Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
->> 
->> Em Sat, Jun 21, 2003 at 08:41:02PM -0500, Chris Wedgwood escreveu:
->> > On Sat, Jun 21, 2003 at 09:11:01PM -0300, Arnaldo Carvalho de Melo wrote:
->> > 
->> > > Humm, I'd love to do that, i.e. to make gcc 3 required, lots of good
->> > > stuff like this one, anonymous structs, etc, etc, lots of stuff
->> > > could be done in an easier way, but are we ready to abandon gcc
->> > > 2.95.*? Can anyone confirm if gcc 2.96 accepts this?
->> > 
->> > What *requires* 2.96 still?  Is it a large number of people or obscure
->> > architecture?
->> 
->> I don't know, I was just trying to figure out the impact of requiring gcc 3
->> to compile the kernel. I never used gcc 2.96 btw.
->> 
-> 
-> Compared to 2.95.3, gcc-3.3 takes 1.5x as long to compile, and produces a
-> kernel which is 200k larger.
-> 
-> It is simply worthless.
+> Davide Libenzi wrote:
+> > I have to admit that I was tempted to let this go through by simply
+> > ignoring you.
+>
+> Ouch, this hurts. The lawyer in me just told me that this is no proper
+> way to argue. And he means both sides. I think he's right.
+>
+> Davide, calm down and take a deep breath. Better? :)
 
-Agreed. 2.95.4 is also still the default debian compiler. Requiring
-3.x seems like a bad plan, until they get it to a point where it's
-actually better than 2.95, stable, and widely distributed. It's 
-definitely not there yet (seems kind of stable, but not the others).
+I am calm :) I do respect Alan but sometime he just says unbeliveable
+things.
 
-M.
+
+> Alan probably receives thousands of mails every day and he therefore
+> tends to make it somewhat very short sometimes. Be happy that he even
+> aswered at all, right?
+
+Not really. Like you were pointing out, this was not :
+
+Subject: [patch] Improving VM performance by 1.02% using bozo-hashes ...
+
+The new SiS chipset using the 96x SB will make the kernel to puke in the
+face of the poor user that will try to install Linux on the machine that
+is employing it. The whole USB subsystem will remain quite because of this.
+Now, the "was so ugly to have no words" was basically because I added
+explicit initialization to NULL of the new "detect" function pointer. This
+was the note that Alan posted to lkml. I *very personally* do want full
+structure initialization when using the old field-order-based method. It
+is sure easier for me to add a single "detect" explicit initialization at
+the end of the sequence, but it'll become generally a mess if the
+structure will grow in number of fields. Think about the old INIT_TASK
+macro. I also proposed to rewrite the damn structure array initialization
+using the C99 syntax, that way better suite the sparse field
+initialization. No answer though. Now, it's not the playing with the PCI
+IRQ routing does excite me a lot and I did it simply because my machine
+didn't work. I did spend a few hours on the patch and I was willing to
+spend another one to see the kernel fixed. But if he does not care, why
+should I ?
+
+
+
+- Davide
 

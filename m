@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130480AbQLEWIQ>; Tue, 5 Dec 2000 17:08:16 -0500
+	id <S130634AbQLEWK4>; Tue, 5 Dec 2000 17:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130634AbQLEWIF>; Tue, 5 Dec 2000 17:08:05 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:18699 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S130480AbQLEWH5>; Tue, 5 Dec 2000 17:07:57 -0500
-Message-ID: <3A2D6016.E97675B4@Hell.WH8.TU-Dresden.De>
-Date: Tue, 05 Dec 2000 22:37:26 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <Pine.LNX.4.21.0012051104510.7727-100000@age.cs.columbia.edu>
+	id <S130696AbQLEWKq>; Tue, 5 Dec 2000 17:10:46 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:62213 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130634AbQLEWKg>; Tue, 5 Dec 2000 17:10:36 -0500
+Date: Tue, 5 Dec 2000 15:39:00 -0600
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12-pre5 breaks vmware (again)
+Message-ID: <20001205153900.F6567@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.21.0010162307570.918-100000@saturn.homenet> <Pine.LNX.4.21.0012051223140.873-100000@penguin.homenet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012051223140.873-100000@penguin.homenet>; from tigran@veritas.com on Tue, Dec 05, 2000 at 12:25:38PM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> 
-> Do you know if only one specific chip revision exhibits this problem? It
-> would really help track down the problem. If I remember correctly, 82557
-> doesn't have flow control at all, and 82558/9 have different
-> implementations -- one is proprietary (82558) and one is standard (82559).
+[Tigran Aivazian]
+> I think 'flags' is what it used to be called ages ago but that is
+> irrelevant -- everyone presumably already changed all their software
+> to use 'features' (I did, for example) and forgot about the old
+> 'flags' forever....
 
-82559 has this problem for sure.
+Ages ago?  s/flags/features/ happened in test11pre5.  I doubt most of
+the world had switched yet.
 
--Udo.
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

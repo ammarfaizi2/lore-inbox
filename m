@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVBBTpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVBBTvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVBBTpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVBBTkp
+	id S262352AbVBBTvW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:51:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVBBTrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:40:45 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:30357 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262832AbVBBTjA (ORCPT
+	Wed, 2 Feb 2005 14:47:19 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:28220 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262334AbVBBTjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:39:00 -0500
-Date: Wed, 2 Feb 2005 20:38:57 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Haakon Riiser <haakon.riiser@fys.uio.no>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Accelerated frame buffer functions
-In-Reply-To: <20050202174509.GA773@s>
-Message-ID: <Pine.GSO.4.61.0502022037440.2069@waterleaf.sonytel.be>
-References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
- <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales>
- <20050202154139.GA3267@s> <9e4733910502020825434a477@mail.gmail.com>
- <20050202174509.GA773@s>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Feb 2005 14:39:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ErUaSPWpCBkg5IO3s1PiKnCS2uofwrzh47EB7e6/KYmH4OwMN054vEtTClG49vEYBtUFkNDVgPLevTTUgzHAMmLR6pPBN7xkm5Oi0lYfXq4maVzqDNLw0srqyb/Vy8etVJOhb1H0LstRQWJdU4f1fNxZF3LpHTAAGNIuhcwtTVg=
+Message-ID: <d120d500050202113954912c34@mail.gmail.com>
+Date: Wed, 2 Feb 2005 14:39:05 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Touchpad problems with 2.6.11-rc2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050202095851.27321bcf@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050123190109.3d082021@localhost.localdomain>
+	 <m3acqr895h.fsf@telia.com>
+	 <20050201234148.4d5eac55@localhost.localdomain>
+	 <20050202102033.GA2420@ucw.cz>
+	 <20050202085628.49f809a0@localhost.localdomain>
+	 <20050202170727.GA2731@ucw.cz>
+	 <20050202095851.27321bcf@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, Haakon Riiser wrote:
-> > On Wed, 2 Feb 2005 16:41:39 +0100, Haakon Riiser
-> > <haakon.riiser@fys.uio.no> wrote:
-> >> Thanks for the tip, I hadn't heard about it.  I will take a look,
-> >> but only to see if it can show me the user space API of /dev/fb.
-> >> I don't need a general library that supports a bunch of different
-> >> graphics cards.  I'm writing my own frame buffer driver for the
-> >> GX2 CPU, and I just want to know how to call the various functions
-> >> registered in struct fb_ops, so that I can test my code.  I mean,
-> >> all those functions registered in fb_ops must be accessible
-> >> somehow; if they weren't, what purpose would they serve?
-> > 
-> > You should look at writing a DRM driver. DRM implements the kernel
-> > interface to get 3D hardware running. It is a fully accelerated driver
-> > interface. They are located in drivers/char/drm
+On Wed, 2 Feb 2005 09:58:51 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
+> On Wed, 2 Feb 2005 18:07:27 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
 > 
-> Have the standard frame buffer drivers been abandoned, even
-> for devices that have no 3D acceleration (like the Geode GX2)?
+> > On Wed, Feb 02, 2005 at 08:56:28AM -0800, Pete Zaitcev wrote:
+> > > On Wed, 2 Feb 2005 11:20:33 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > >
+> > > > Well, you removed the scaling to the touchpad resolution, which will
+> > > > cause ALPS touchpad to be significantly slower than Synaptics touchpads.
+> > > > Similarly, the screen size used to be taken into account, but probably
+> > > > that was a mistake, since the value is usually left at default and
+> > > > doesn't correspond to the real screen size.
+> > >
+> > > Exactly. And it works much better now.
+> >
+> > With a Synaptics I suppose? You wouldn't like it with an ALPS.
+> 
+> No, it's a Dualpoint, and so ALPS. But never mind that, I think I see
+> your point.
+> 
+> However, while I see a possibility of serious regressions with the other
+> variety, but isn't it striking that result is so radical? With all the
+> arithmetics still in place I can move my finger all across the pad without
+> causing any motions. We are not talking about ballistics or any fine tuning,
+> simply the calculations are wrong.
+> 
 
-No.
+It works fine for my Synaptics with default resolution, I don't have
+ALPS to try but I think Peter tried to make it behave similarly.
+Still, I agree that relying on the screen coordinates is a bad idea.
 
-> GX2 is an integrated CPU/graphics chip for embedded systems.
-> We have third party applications that use the framebuffer device,
-> and I was hoping to make things faster by writing an accelerated
-> driver.  The only thing I need answered is how to access fb_ops
-> from userspace.  If that is impossible because all the framebuffer
-> code is leftover junk that no one uses anymore, or even /can/
-> use anymore because the userspace interface is gone, please let
-> me know now so I don't have to waste any more time.
+> If Synaptics delivers much bigger deltas for small motions, it's up to the
+> Synapics mode of alps.c to make them reasonable, if that. There's no need
+> to penalize ALPS. But I seriously doubt that Synaptics can be so broken.
 
-mmap() the MMIO registers to userspace, and program the acceleration engine
-from userspace, like DirectFB (and XF*_FBDev 3.x for Matrox and Mach64) does.
+Why is that having 5x better resolution is considered broken? And how
+synaptics should "make them reasonable"? Driver emits pretty much raw
+coordinate values and it is up to the consumer to make sense of them.
 
-Gr{oetje,eeting}s,
+> I wish Peter tested the removal of scaling with his Synaptics. If he
+> (and Dmitry) insist on running a special code in X, that's fine.
 
-						Geert
+Yes, because there are other things we can do in that special code. Do
+you like default tochpad sensitivity? What if someone does not? Do you
+like verical and horisontal scrolling? Circular scrolling?
+multi-finger tappng (synaptics only)? Corner tapping? What about
+rebooting every time you change an option?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>  But honestly, I expect that things will go well for them.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Well, your code will make my touchpad (Synaptics) go ballistic. It
+really has resolution of about 4000 points across.
+
+-- 
+Dmitry

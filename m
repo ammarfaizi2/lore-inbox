@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263409AbTDSQPr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 12:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTDSQPq
+	id S263410AbTDSQYI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 12:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTDSQYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 12:15:46 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:53711
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263409AbTDSQPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 12:15:46 -0400
+	Sat, 19 Apr 2003 12:24:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3339 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263410AbTDSQYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 12:24:07 -0400
+Date: Sat, 19 Apr 2003 17:36:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: John Bradford <john@grabjohn.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030419180421.0f59e75b.skraw@ithnet.com>
-References: <20030419180421.0f59e75b.skraw@ithnet.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050766175.3694.4.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <20030419173602.E4082@flint.arm.linux.org.uk>
+Mail-Followup-To: John Bradford <john@grabjohn.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030419180421.0f59e75b.skraw@ithnet.com> <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Apr 2003 16:29:36 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sat, Apr 19, 2003 at 05:22:18PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-04-19 at 17:04, Stephan von Krawczynski wrote:
-> after shooting down one of this bloody cute new very-big-and-poor IDE drives
-> today I wonder whether it would be a good idea to give the linux-fs (namely my
-> preferred reiser and ext2 :-) some fault-tolerance. I remember there have been
-> some discussions along this issue some time ago and I guess remembering that it
-> was decided against because it should be the drivers issue to give the fs a
-> clean space to live, right?
- 
-Sometimes disks just go bang. They seem to do it distressingly more
-often nowdays which (while handy for criminals and pirates) is annoying
-for the rest of us. Putting magic in the file system to handle this is
-hard to do well, and at best you get things like ext2/ext3 have now -
-the ability to recover data in the event of some corruption, unless you
-get into really fancy stff.
+On Sat, Apr 19, 2003 at 05:22:18PM +0100, John Bradford wrote:
+> A RAID-0 array and regular backups are the best way to protect your
+> data.
 
-Buy IDE disks in pairs use md1, and remember to continually send the
-hosed ones back to the vendor/shop (and if they keep appearing DOA to
-your local trading standards/fair trading type bodies).
+Correction.  RAID-0 is the best way to loose your data.  If any device
+containing any part of the array goes down, you loose at least some of
+your data.
 
-Perhaps someone should also start a scoreboard for people to report dead
-IDE drives by vendor ;)
+RAID-1 is the redundant raid level, where each device in the set
+contains a duplicate of the other device(s).
 
-Alan
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

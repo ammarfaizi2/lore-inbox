@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSGPLnJ>; Tue, 16 Jul 2002 07:43:09 -0400
+	id <S315919AbSGPL4f>; Tue, 16 Jul 2002 07:56:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315856AbSGPLnI>; Tue, 16 Jul 2002 07:43:08 -0400
-Received: from daimi.au.dk ([130.225.16.1]:20154 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S315806AbSGPLnG>;
-	Tue, 16 Jul 2002 07:43:06 -0400
-Message-ID: <3D340775.7F7AAFB9@daimi.au.dk>
-Date: Tue, 16 Jul 2002 13:45:57 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1-ac5
-References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317550AbSGPL4e>; Tue, 16 Jul 2002 07:56:34 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:64393 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315919AbSGPL4d>;
+	Tue, 16 Jul 2002 07:56:33 -0400
+Date: Tue, 16 Jul 2002 13:59:20 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020716135920.B7352@ucw.cz>
+References: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Tue, Jul 16, 2002 at 01:28:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DMA is still broken on the ALI15X3 IDE controller.
-Does anybody know what the problem could be
-? The
-problem was introduced by this patch:
+On Tue, Jul 16, 2002 at 01:28:19PM +0200, Joerg Schilling wrote:
 
-http://www.linuxdiskcert.org/ide-2.4.19-p8-ac1.all.convert.10.patch.bz2
-http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.10.patch.bz2
+> It would help, if somebody would correct the current SCSI addressng scheme used 
+> in Linux. Linux currently uses something called BUS/channel/target/lun.
+> This does not reflect reality.
+> 
+> What Linux calls a SCSI bus is definitely not a SCSI bus but a SCSI HBA card.
+> What Linux calls a channel really is one of possibly more SCSI busses going
+> off one of the SCSI HBA cards. It makes sense to just count SCSI busses.
 
-But it is a 700K patch, without knowing a little
-more about what is going on I'd have a hard time
-finding the problem in that patch.
+Well, no. It doesn't. Because the numbers will change if you add a card
+(even at runtime - hotplugging USB SCSI is something real happening
+today. And that'd be a very bad thing.
 
-Symptoms are:
-- DMA does not get enabled at boot.
-- Manually switching on DMA will cause all disk
-  access to hang, the IDE led stays light until
-  IDE is initialized at next boot.
+The way it'll be done is that you'll get the device physical path (see
+driverfs) to the device, the device serial number and other identifiers
+and then a hotplug/system configuration agent will choose a nice name
+for it (completely configurable).
 
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Vojtech Pavlik
+SuSE Labs

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUJOQUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268092AbUJOQUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268127AbUJOQUg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268146AbUJOQUf
+	id S268092AbUJOQUH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:20:35 -0400
-Received: from vsmtp4alice-fr.tin.it ([212.216.176.150]:16575 "EHLO
-	vsmtp4.tin.it") by vger.kernel.org with ESMTP id S268127AbUJOQSi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:18:38 -0400
-Subject: Re: janitoring printk with no KERN_ constants, kill all defaults?
-From: Daniele Pizzoni <auouo@tin.it>
-To: Dave Jones <davej@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041015154658.GD23638@redhat.com>
-References: <1097855099.3004.64.camel@pdp11.tsho.org>
-	 <20041015154658.GD23638@redhat.com>
-Content-Type: text/plain
-Message-Id: <1097860808.3004.80.camel@pdp11.tsho.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 19:20:08 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Oct 2004 12:20:06 -0400
+Received: from ida.rowland.org ([192.131.102.52]:16132 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S268092AbUJOQSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 12:18:18 -0400
+Date: Fri, 15 Oct 2004 12:18:17 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Paul Fulghum <paulkf@microgate.com>
+cc: Laurent Riffard <laurent.riffard@free.fr>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
+ : oops...]
+In-Reply-To: <1097853723.5829.17.camel@deimos.microgate.com>
+Message-ID: <Pine.LNX.4.44L0.0410151215440.1052-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ven, 2004-10-15 at 17:46, Dave Jones wrote:
-> On Fri, Oct 15, 2004 at 05:44:59PM +0200, Daniele Pizzoni wrote:
-> 
->  > I ask, what rationale there is behind checking all printks to include
->  > the "appropriate" constant? Should then we make printk fail when called
->  > without KERN_ constant? Or can I force with a sed script all defaulted
->  > printk to KERN_WARNING?
-> 
-> No. Consider this..
-> 
-> 	printk (KERN_INFO "blah blah ");
-> 	if (foo)
-> 		printk ("%s", stringptr);
-> 	else
-> 		printk ("%d", number);
-> 	printk ("\n");
-> 
-> There's nothing wrong with any of those printk's, so you
-> cannot do the checks you mention above.
+On Fri, 15 Oct 2004, Paul Fulghum wrote:
 
-Let me understand... You mean that we should check printk constants for
-_consistency_ in their context (that is: for buggish printk code). So
-printk without KERN_* constant are not an issue (and the janitors TODO
-list entry is a bit puzzling)?
+> This looks like it is related to the generic-irq-subsystem patches.
+> Specifically, adding and removing proc entries for each interrupt.
+> 
+> Laurent's configuration has two controllers sharing the same interrupt.
+> The hcd->description for both controllers are identical: "uhci_hcd"
+> 
+> This string is used when requesting the irq (hcd-pci.c).
+> request_irq() creates a /proc/irq/nn/uhci_hcd entry.
+> The IRQ action->dir (one for each device) is a pointer to this entry.
+> There does not appear to be a check for name collision
+> when creating this entry. So two identical entries are created,
+> one for each device. The proc entries are added to the head of
+> a list so the second entry is 1st in the list.
+> 
+> When unloading the module, the proc entry is removed when free_irq()
+> is called. Removal of the proc entry is based on name matching
+> starting at the head of the list so the 2nd entry is found 1st.
+> It looks like the proc entry of the second device is removed
+> when calling free_irq() for the first device. When the
+> second device is removed, the action->dir has already
+> been freed causing the oops.
+> 
+> Comments?
 
-Thanks for helping
-Daniele
+Your explanation sounds entirely reasonable to me.  Can you pass it on to 
+the people responsible for the generic-irq subsystem?
 
+Alan Stern
 

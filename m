@@ -1,61 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUGGLPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUGGLVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbUGGLPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 07:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUGGLPW
+	id S265055AbUGGLVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 07:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUGGLVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 07:15:22 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:60607 "EHLO scrub.home")
-	by vger.kernel.org with ESMTP id S265054AbUGGLPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 07:15:17 -0400
-Date: Wed, 7 Jul 2004 13:14:33 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: Szakacsits Szabolcs <szaka@sienet.hu>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
-       buytenh@gnu.org, msw@redhat.com
-Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring
- HDIO_GETGEO semantics)
-In-Reply-To: <20040707012856.GA1481@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0407071304190.20635@scrub.home>
-References: <20040706015620.GA12659@apps.cwi.nl>
- <Pine.LNX.4.21.0407061811090.4511-100000@mlf.linux.rulez.org>
- <20040707012856.GA1481@apps.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jul 2004 07:21:16 -0400
+Received: from 142.13.111.219.st.bbexcite.jp ([219.111.13.142]:4023 "EHLO
+	tiger.gg3.net") by vger.kernel.org with ESMTP id S265055AbUGGLVN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 07:21:13 -0400
+Date: Wed, 7 Jul 2004 20:21:10 +0900
+From: Georgi Georgiev <chutz@gg3.net>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: partitionable md devices and partition detection
+Message-ID: <20040707112109.GC2051@ols-dell.iic.hokudai.ac.jp>
+References: <20040707045939.GA20516@ols-dell.iic.hokudai.ac.jp> <16619.35060.821865.570842@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16619.35060.821865.570842@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 7 Jul 2004, Andries Brouwer wrote:
-
-> How does a monster like that arise? Wart upon wart. Well, we guess, and
-> usually right, but not always, then invent a correction to guess a bit
-> better in some special situations, then ...
-> And times change, and likely guesses become less likely, and changes are made ...
+maillog: 07/07/2004-15:24:04(+1000): Neil Brown types
+> On Wednesday July 7, chutz@gg3.net wrote:
+> > What is the proper way to detect the partitions on a md device during kernel
+> > initialization?
 > 
-> At some point in time the monster must be eliminated.
->
-> [..]
+> Hmm... I guess there isn't.
+> I remember having a lot of trouble getting partitions to be recognised
+> when an array is first assembled, and deciding it was just easier to
+> leave it to user-space.  However that isn't an option when booting
+> without an initrd.
 > 
-> Now this happened first in 2.5.6 if I recall correctly, over two
-> years ago, and a few programs had to be adapted a little.
-> I think fdisk, cfdisk, sfdisk, probably also lilo, were adapted rather
-> quickly, but, as we discovered recently, parted took more time. Ach.
+> The following patch should make it work for the
+>   md=d0,....
+> case.  The "raid=part" case is a bit harder....
+> 
+> NeilBrown
+> 
+> 
+> diff ./init/do_mounts_md.c~current~ ./init/do_mounts_md.c
+> --- ./init/do_mounts_md.c~current~	2004-07-07 15:20:05.000000000 +1000
+> +++ ./init/do_mounts_md.c	2004-07-07 15:20:57.000000000 +1000
+> @@ -232,6 +232,8 @@ static void __init md_setup_drive(void)
+>  			err = sys_ioctl(fd, RUN_ARRAY, 0);
+>  		if (err)
+>  			printk(KERN_WARNING "md: starting md%d failed\n", minor);
+> +		else
+> +			sys_ioctl(fd, BLKRRPART, 0);
+>  		sys_close(fd);
+>  	}
+>  }
 
-I basically agree with your argumentation, but it wasn't really eliminated 
-in 2.5.6. The kernel still provides some values to the users. If the 
-kernel doesn't know, it should clearly say so, this is where we fucked up. 
-Silently fixing a few applications and leaving everybody else believing 
-everything is well doesn't help.
-At this point we either complete the job and remove this ioctl or we 
-restore the 2.4 behaviour (maybe with a deprecated warning).
+Shouldn't something, similar to the patch above, added to ./drivers/md/md.c do
+the trick for the raid=part case?
 
-bye, Roman
+I am way out of my league here, but looking at the above patch, wouldn't
+something like the thing below do it (plus adding the appropriate header)?
+
+I'll try the above suggestion when I get home.
+
+--- /usr/src/linux/drivers/md/md.c.orig	2004-07-07 20:03:23.529156642 +0900
++++ /usr/src/linux/drivers/md/md.c	2004-07-07 20:18:50.845059260 +0900
+@@ -1856,6 +1856,22 @@
+ 					export_rdev(rdev);
+ 			}
+ 			autorun_array(mddev);
++			if (part) {
++				int fd;
++				char name[16];
++
++				sprintf(name, "/dev/%s", mdname(mddev));
++				fd = sys_open(name, 0, 0);
++				if (fd < 0) {
++					printk(KERN_ERR 
++						"md: open failed - cannot"
++						"detect partitions on %s\n",
++						name);
++				} else {
++					sys_ioctl(fd, BLKRRPART, 0);
++					sys_close(fd);
++				}
++			}
+ 			mddev_unlock(mddev);
+ 		}
+ 		/* on success, candidates will be empty, on error
+
+-- 
+|    Georgi Georgiev   |  The surest sign that a man is in love is     |
+|     chutz@gg3.net    |  when he divorces his wife.                   |
+|   +81(90)6266-1163   |                                               |

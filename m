@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbTEIMB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTEIMB0
+	id S262486AbTEIMDO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTEIMDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:01:26 -0400
-Received: from lnx-7-fe1.ams-2.theinternetone.net ([62.4.94.8]:41213 "HELO
-	mail.theinternetone.net") by vger.kernel.org with SMTP
-	id S262488AbTEIMBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:01:23 -0400
-Message-ID: <31354.80.88.128.14.1052482431.squirrel@webmail.444.net>
-Date: Fri, 9 May 2003 14:13:51 +0200 (CEST)
-Subject: Contact me immediately
-From: <contribution@444.net>
-To: <contribution@444.net>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.10)
+	Fri, 9 May 2003 08:03:13 -0400
+Received: from pop.gmx.net ([213.165.64.20]:18222 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262486AbTEIMCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:02:52 -0400
+Message-ID: <3EBB9BD4.8070101@gmx.net>
+Date: Fri, 09 May 2003 14:15:16 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: strace -ff fails on 2.4.21-rc1
+References: <200305090513_MC3-1-3814-65C7@compuserve.com>
+In-Reply-To: <200305090513_MC3-1-3814-65C7@compuserve.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Brethren,
-Greetings in the name of our Lord .Be informed that this message/mail
-is getting to you on the basis of a contribution to your
-organisation/ministry on philantropic purposes.However,your email address
-was gotten from network-online,hence; you are to contact me through my
-Physician,Danilo Zapanta on telephone number ++234-80-3470-1685.Please
-endeavour to immediately call Danilo or mail me through
-ojogracial@mailbox.hu which Danilo can assses.
-Nevertheless,I am former Mrs Grace Ojo, a widow to Late Sheik Ojo. I am
-72years old and I am now a new Christian convert, suffering from long time
-cancer of the breast. From all indications,my condition is really
-deteriorating and is quite obvious that I may not live more than six
-months, because the cancer stage has gotten to a very severe stage.
-My late husband was killed during the Gulf war, and during the period
-of our marriage we had a son who was also killed in a cold blood during
-the Gulf war.My late husband was very wealthy and after his death, I
-inherited all his business and wealth. My personal physician told me
-that I may not live for more than six months and I am so scared about
-this. So, I now decided to divide part of this wealth, by contributing to
-the development of evangelism in Africa,America,Europe and Asian
-Countries. This mission which will no doubt be tasking had made me to
-recently relocate to Nigeria, Africa where I live presently.I am willing
-to donate the sum of $10,000,000.00 Million US Dollars to your
-organisation/Ministry for the development of philantropism and also as
-aids for the less privileged around you.
-Please note that, this fund is lying in a Security Company in Europe
-which has branches all over.To enable you and your ministry get this
-funds,contact me immediately through my physician,Danilo Zapanta on
-telephone number ++234-80-3470-1685,so that the  an immediate transfer of
-the funds will be made to you/your organisation/ministry.
-Mrs Grace Ojo
-Kaduna-Nigeria
+Chuck Ebbert wrote:
+> Ingo Oeser wrote:
+> 
+> 
+>>SUID binaries cannot be ptrace()d under Linux for security reasons.
+> 
+> 
+>   I just found out minicom is spawing /sbin/lockdev which is setgrp
+> 'lock'.  Would that cause ptrace failure??
+
+AFAIK that could have caused the failure. Please test 2.4.21-rc2 whcih
+has fixes for many ptrace problems.
 
 
---------------------------------------------
-Free Webmail courtesy of http://www.444.net/
-
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
 

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263562AbREYGDs>; Fri, 25 May 2001 02:03:48 -0400
+	id <S263559AbREYGJ2>; Fri, 25 May 2001 02:09:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263560AbREYGDi>; Fri, 25 May 2001 02:03:38 -0400
-Received: from vitelus.com ([64.81.36.147]:4875 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S263559AbREYGDb>;
-	Fri, 25 May 2001 02:03:31 -0400
-Date: Thu, 24 May 2001 23:03:21 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
+	id <S263563AbREYGJS>; Fri, 25 May 2001 02:09:18 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:44807 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263559AbREYGJH>;
+	Fri, 25 May 2001 02:09:07 -0400
+Date: Thu, 24 May 2001 22:07:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Aaron Lehmann <aaronl@vitelus.com>, hugh@misc.nu
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Message-ID: <20010524230321.B23155@vitelus.com>
+Message-ID: <20010524220740.C8162@kroah.com>
+In-Reply-To: <20010524213404.A22585@vitelus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200105250559.f4P5x80365151@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.18i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010524213404.A22585@vitelus.com>; from aaronl@vitelus.com on Thu, May 24, 2001 at 09:34:04PM -0700
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 01:59:08AM -0400, Albert D. Cahalan wrote:
-> If a driver writes 0x63f30e44 (4 bytes) to the card, no problem?
-> Fine, how about 0x52e590a84fc8231e (8 bytes) then? You can see
-> where this is leading I hope: 200 kB is perfectly fine.
+On Thu, May 24, 2001 at 09:34:04PM -0700, Aaron Lehmann wrote:
+> This message sparked a long thread on the debian-legal mailing list,
+> which is long since dead. I am personally very curious about whether
+> this has been resolved upstream. I consider it a very important issue,
+> which is why I asked for RMS' opinion. He said that what is being done
+> is clearly not "mere aggregation", and that such firmware should be
+> moved out of the kernel (and even the tarball) to stop violating the
+> GPL and make Linux be free software.
 
-Yes, I thought this way at first. However, the GPL is actually quite
-explicit about defining source code:
-	The source code for a work means the preferred form of the work for
-	making modifications to it.
+Last I heard, Hugh was talking with the Keyspan people to get this
+resolved.  But that was a few weeks ago.
 
-That means that if you modify your string of bytes in a hex editor,
-it's not a problem. But if (as in the case of firmware) you create the
-strings from secret, undistributed source files, then according to the
-GPL the strings are not source code. Since the source code is
-unavailable, that makes them non-free. You can see where this leads...
+Any news Hugh?
+
+thanks,
+
+greg k-h

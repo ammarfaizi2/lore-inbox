@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315852AbSEQMmM>; Fri, 17 May 2002 08:42:12 -0400
+	id <S316141AbSEQMng>; Fri, 17 May 2002 08:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315884AbSEQMmL>; Fri, 17 May 2002 08:42:11 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63242 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315852AbSEQMmK>; Fri, 17 May 2002 08:42:10 -0400
-Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 17 May 2002 14:01:30 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
-        paul@engsoc.org (Paul Faure), linux-kernel@vger.kernel.org
-In-Reply-To: <20020517123902.GA11512@dualathlon.random> from "Andrea Arcangeli" at May 17, 2002 02:39:02 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E178hMQ-0006Sb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S316131AbSEQMnf>; Fri, 17 May 2002 08:43:35 -0400
+Received: from slip-202-135-75-243.ca.au.prserv.net ([202.135.75.243]:15753
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315981AbSEQMnd>; Fri, 17 May 2002 08:43:33 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix BUG macro 
+In-Reply-To: Your message of "Fri, 17 May 2002 12:47:31 +0100."
+             <Pine.LNX.4.21.0205171220480.986-100000@localhost.localdomain> 
+Date: Fri, 17 May 2002 22:46:18 +1000
+Message-Id: <E178h82-0001o6-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, May 17, 2002 at 01:49:21PM +0100, Alan Cox wrote:
-> > I think its mostly #2. We invoke ksoftirq far far too easily.
-> 
-> ksoftirqd + SCHED_FIFO is like no ksoftirqd at all, provided the ne card
-> is irq driven (it is) everything works like it was working in 2.4.0.
+In message <Pine.LNX.4.21.0205171220480.986-100000@localhost.localdomain> you w
+rite:
+> If they do make up the majority of strings, that's partly because
+> you don't have Andrew's out_of_line_bug work in your tree, partly
+> because your linker isn't combining strings (mine neither, does any?),
+> partly because (I suspect) you're overlooking the vast number of BUG
+> __FILE__ strings which are just leafnames, to each of which you're
+> now proposing to add one or more __FUNCTION__ strings.
 
-For a 10Mbit ne2k it ought to be if its done with sched fifo. For serious
-devices its not. The ksoftirqd bounce blows everything out of cache and is
-easily measured
+I don't care about the size of the kernel, I care about the fact that
+the compile is 5x slower than it needs to be because the contents of
+every pre-processed file depends on where the kernel tree happens to
+be (see http://ccache.samba.org)
 
+And I compile a lot of Linus kernels,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

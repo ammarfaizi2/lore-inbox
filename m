@@ -1,58 +1,235 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268773AbTCCUVD>; Mon, 3 Mar 2003 15:21:03 -0500
+	id <S268772AbTCCUUE>; Mon, 3 Mar 2003 15:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268775AbTCCUVC>; Mon, 3 Mar 2003 15:21:02 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:6378 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268773AbTCCUU4>;
-	Mon, 3 Mar 2003 15:20:56 -0500
-Date: Mon, 3 Mar 2003 15:31:15 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Pavel Roskin <proski@gnu.org>
-Cc: David Hinds <dhinds@sonic.net>,
-       David Hinds <dahinds@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fallback to PCI IRQs for TI bridges
-Message-ID: <20030303203115.GD6615@gtf.org>
-References: <Pine.LNX.4.50.0302281944470.6367-100000@marabou.research.att.com> <20030301093814.A6700@sonic.net> <Pine.LNX.4.50.0303031203300.17551-100000@marabou.research.att.com>
+	id <S268773AbTCCUUE>; Mon, 3 Mar 2003 15:20:04 -0500
+Received: from verein.lst.de ([212.34.181.86]:62729 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S268772AbTCCUTz>;
+	Mon, 3 Mar 2003 15:19:55 -0500
+Date: Mon, 3 Mar 2003 21:30:18 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] d_alloc_anon
+Message-ID: <20030303213018.A20618@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0303031203300.17551-100000@marabou.research.att.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 12:26:54PM -0500, Pavel Roskin wrote:
-> Hi, David!
-> 
-> > > yenta_socket in 2.5.63 knows different models of the bridges and sets IRQ
-> > > routing to PCI for certain models.  I don't really like this approach.
-> >
-> > I have not looked at the most recent 2.5.* kernels but if that is true
-> > then you're right, it is ill conceived.
-> 
-> I'm not aware of the "political" situation around PCMCIA drivers, but I
-> think it's sad that the kernel drivers are pushed (e.g. by Red Hat) in the
-> hope that they will get more visibility and will be improved, but the
-> people who have the best expertize still use pcmcia-cs drivers and work on
-> improving them.
-
-Red Hat "pushes" exactly what the Linux community supports:
-
-This is also called "tracking upstream" and/or "working with the Linux
-community, and following the Linux community's decisions."  This is
-_not_ a political situation at all.  We simply ship what the community
-supports.  Red Hat would not be good "open source citizens" if they did
-otherwise.
-
-Taking off my Red hat, and donning my "personal opinion" hat, I think
-the kernel cardbus support has been very effectively.  It allows drivers
-such as tulip and 8139too and epic100 and 3c59x to Just Work(tm),
-without any modification besides PCI id table updates.  Nothing external
-required.  That's a huge boon to programmers and maintainers.
-
-	Jeff
+Every filesystem that implements methods to convert from a NFS
+filehandle to a dentry duplicates this code (there are even more out of
+tree). Factor it out in common code. The function d_alloc_anon() is
+already present in 2.5 with the same interface but a slightly different
+implementation.
 
 
-
+--- 1.22/fs/dcache.c	Thu Jan 23 10:55:22 2003
++++ edited/fs/dcache.c	Mon Mar  3 19:41:38 2003
+@@ -659,6 +659,53 @@
+ }
+ 
+ /**
++ * d_alloc_anon - allocate an anonymous dentry
++ * @inode: inode to allocate the dentry for
++ *
++ * This is similar to d_alloc_root.  It is used by filesystems when
++ * creating a dentry for a given inode, often in the process of 
++ * mapping a filehandle to a dentry.  The returned dentry may be
++ * anonymous, or may have a full name (if the inode was already
++ * in the cache).  The file system may need to make further
++ * efforts to connect this dentry into the dcache properly.
++ *
++ * When called on a directory inode, we must ensure that
++ * the inode only ever has one dentry.  If a dentry is
++ * found, that is returned instead of allocating a new one.
++ *
++ * On successful return, the reference to the inode has been transferred
++ * to the dentry.  If %NULL is returned (indicating kmalloc failure),
++ * the reference on the inode has not been released.
++ */
++
++struct dentry * d_alloc_anon(struct inode *inode)
++{
++	struct dentry *dentry;
++	struct list_head *p;
++
++	/* Try to find a dentry.  If possible, get a well-connected one. */
++	spin_lock(&dcache_lock);
++	list_for_each(p, &inode->i_dentry) {
++		dentry = list_entry(p, struct dentry, d_alias);
++		if (!(dentry->d_flags & DCACHE_NFSD_DISCONNECTED))
++			goto found;
++	}
++	spin_unlock(&dcache_lock);
++
++	/* Didn't find dentry.  Create anonymous dcache entry. */
++	dentry = d_alloc_root(inode);
++	if (dentry)
++		dentry->d_flags |= DCACHE_NFSD_DISCONNECTED;
++	return dentry;
++
++found:
++	dget_locked(dentry);
++	spin_unlock(&dcache_lock);
++	iput(inode);
++	return dentry;
++}
++
++/**
+  * d_alloc_root - allocate root dentry
+  * @root_inode: inode to allocate the root for
+  *
+--- 1.13/fs/fat/inode.c	Thu Apr  4 21:31:14 2002
++++ edited/fs/fat/inode.c	Mon Mar  3 19:40:10 2003
+@@ -430,7 +430,6 @@
+ 				int len, int fhtype, int parent)
+ {
+ 	struct inode *inode = NULL;
+-	struct list_head *lp;
+ 	struct dentry *result;
+ 
+ 	if (fhtype != 3)
+@@ -477,33 +476,14 @@
+ 	if (!inode)
+ 		return ERR_PTR(-ESTALE);
+ 
+-	
+-	/* now to find a dentry.
+-	 * If possible, get a well-connected one
+-	 *
+-	 * Given the way that we found the inode, it *MUST* be
+-	 * well-connected, but it is easiest to just copy the
+-	 * code.
+-	 */
+-	spin_lock(&dcache_lock);
+-	for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
+-		result = list_entry(lp,struct dentry, d_alias);
+-		if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
+-			dget_locked(result);
+-			result->d_vfs_flags |= DCACHE_REFERENCED;
+-			spin_unlock(&dcache_lock);
+-			iput(inode);
+-			return result;
+-		}
+-	}
+-	spin_unlock(&dcache_lock);
+-	result = d_alloc_root(inode);
++
++	result = d_alloc_anon(inode);
+ 	if (result == NULL) {
+ 		iput(inode);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	result->d_op = sb->s_root->d_op;
+-	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
++	result->d_vfs_flags |= DCACHE_REFERENCED;
+ 	return result;
+ 
+ 		
+--- 1.18/fs/nfsd/nfsfh.c	Mon Dec 16 17:50:09 2002
++++ edited/fs/nfsd/nfsfh.c	Mon Mar  3 19:40:10 2003
+@@ -135,7 +135,6 @@
+ 	 * of 0 means "accept any"
+ 	 */
+ 	struct inode *inode;
+-	struct list_head *lp;
+ 	struct dentry *result;
+ 	if (ino == 0)
+ 		return ERR_PTR(-ESTALE);
+@@ -155,27 +154,14 @@
+ 		iput(inode);
+ 		return ERR_PTR(-ESTALE);
+ 	}
+-	/* now to find a dentry.
+-	 * If possible, get a well-connected one
+-	 */
+-	spin_lock(&dcache_lock);
+-	for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
+-		result = list_entry(lp,struct dentry, d_alias);
+-		if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
+-			dget_locked(result);
+-			result->d_vfs_flags |= DCACHE_REFERENCED;
+-			spin_unlock(&dcache_lock);
+-			iput(inode);
+-			return result;
+-		}
+-	}
+-	spin_unlock(&dcache_lock);
+-	result = d_alloc_root(inode);
++
++
++	result = d_alloc_anon(inode);
+ 	if (result == NULL) {
+ 		iput(inode);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+-	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
++	result->d_vfs_flags |= DCACHE_REFERENCED;
+ 	return result;
+ }
+ 
+--- 1.42/fs/reiserfs/inode.c	Thu Feb 13 07:42:42 2003
++++ edited/fs/reiserfs/inode.c	Mon Mar  3 19:40:11 2003
+@@ -1249,7 +1249,6 @@
+ 				     int len, int fhtype, int parent) {
+     struct cpu_key key ;
+     struct inode *inode = NULL ;
+-    struct list_head *lp;
+     struct dentry *result;
+ 
+     /* fhtype happens to reflect the number of u32s encoded.
+@@ -1301,27 +1300,12 @@
+     if (!inode)
+         return ERR_PTR(-ESTALE) ;
+ 
+-    /* now to find a dentry.
+-     * If possible, get a well-connected one
+-     */
+-    spin_lock(&dcache_lock);
+-    for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
+-	    result = list_entry(lp,struct dentry, d_alias);
+-	    if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
+-		    dget_locked(result);
+-		    result->d_vfs_flags |= DCACHE_REFERENCED;
+-		    spin_unlock(&dcache_lock);
+-		    iput(inode);
+-		    return result;
+-	    }
+-    }
+-    spin_unlock(&dcache_lock);
+-    result = d_alloc_root(inode);
++    result = d_alloc_anon(inode);
+     if (result == NULL) {
+ 	    iput(inode);
+ 	    return ERR_PTR(-ENOMEM);
+     }
+-    result->d_flags |= DCACHE_NFSD_DISCONNECTED;
++    result->d_vfs_flags |= DCACHE_REFERENCED;
+     return result;
+ 
+ }
+--- 1.12/include/linux/dcache.h	Sat Aug  3 18:39:21 2002
++++ edited/include/linux/dcache.h	Mon Mar  3 19:40:11 2003
+@@ -165,6 +165,7 @@
+ 
+ /* allocate/de-allocate */
+ extern struct dentry * d_alloc(struct dentry *, const struct qstr *);
++extern struct dentry * d_alloc_anon(struct inode *);
+ extern void shrink_dcache_sb(struct super_block *);
+ extern void shrink_dcache_parent(struct dentry *);
+ extern int d_invalidate(struct dentry *);
+--- 1.67/kernel/ksyms.c	Tue Oct  1 14:34:41 2002
++++ edited/kernel/ksyms.c	Mon Mar  3 19:40:11 2003
+@@ -164,6 +164,7 @@
+ EXPORT_SYMBOL(d_move);
+ EXPORT_SYMBOL(d_instantiate);
+ EXPORT_SYMBOL(d_alloc);
++EXPORT_SYMBOL(d_alloc_anon);
+ EXPORT_SYMBOL(d_lookup);
+ EXPORT_SYMBOL(__d_path);
+ EXPORT_SYMBOL(mark_buffer_dirty);

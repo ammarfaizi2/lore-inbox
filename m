@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbUCZLoe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 06:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbUCZLoe
+	id S264032AbUCZLsI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 06:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbUCZLsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 06:44:34 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:37597 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264021AbUCZLo2
+	Fri, 26 Mar 2004 06:48:08 -0500
+Received: from smtp-out6.xs4all.nl ([194.109.24.7]:57096 "EHLO
+	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264032AbUCZLsB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 06:44:28 -0500
-Date: Fri, 26 Mar 2004 22:45:05 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, anton@samba.org,
-       sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [Lse-tech] Re: [PATCH] [0/6] HUGETLB memory commitment
-Message-ID: <20040326171505.GA4390@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20040326085826.GA3332@in.ibm.com> <5310.1080272349@kao2.melbourne.sgi.com>
+	Fri, 26 Mar 2004 06:48:01 -0500
+Date: Fri, 26 Mar 2004 12:47:39 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-fbdev-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Radeon 7000 problems with kernels after 2.6.3
+Message-ID: <20040326114739.GA32596@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5310.1080272349@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 02:39:09PM +1100, Keith Owens wrote:
-> On Fri, 26 Mar 2004 14:28:26 +0530, 
-> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> >On Thu, Mar 25, 2004 at 04:22:32PM -0800, Andrew Morton wrote:
-> >> Keith Owens <kaos@sgi.com> wrote:
-> >> >
-> >> > FWIW, lkcd (crash dump) treats hugetlb pages as normal kernel pages and
-> >> > dumps them, which is pointless and wastes a lot of time.  To avoid
-> >> > dumping these pages in lkcd, I had to add a PG_hugetlb flag.  lkcd runs
-> >
-> >This should already be fixed in recent versions of lkcd. It uses a
-> >little bit of trickery to avoid an extra page flag -- hugetlb pages are 
-> >detected as "in use" as well as reserved, unlike other reserved pages 
-> >which helps identify them.
-> 
-> Are you sure that this works for hugetlb pages that have been
-> preallocated but not yet mapped?  AFAICT the hugetlb pages start off as
-> reserved with a zero usecount.
-> 
+On recent kernel (2.6.4 and later) my Radeon 7000 doesn't display
+anything. My Eizo monitor warns me of really incompatible frequencies
+(fV 217.2 Hz, fH 271.5 kHz). fbset returns normal values, by the way.
 
-I just realised that hugetlb pages are no longer marked as reserved in
-the current trees, and since they are allocated as compound pages 
-they would show up as being in use and not LRU. So, we do have a problem,
-without PG_hugetlb.
+I've found out that this chunk in patch-2.6.4, applying to
+drivers/video/aty/radeon_base.c, causes my problems:
 
-Regards
-Suparna
+@@ -1329,6 +1320,16 @@
+         * not sure which model starts having FP2_GEN_CNTL, I assume anything more
+         * recent than an r(v)100...
+         */
++#if 0
++       /* XXX I had reports of flicker happening with the cinema display
++        * on TMDS1 that seem to be fixed if I also forbit odd dividers in
++        * this case. This could just be a bandwidth calculation issue, I
++        * haven't implemented the bandwidth code yet, but in the meantime,
++        * forcing uses_dvo to 1 fixes it and shouln't have bad side effects,
++        * I haven't seen a case were were absolutely needed an odd PLL
++        * divider. I'll find a better fix once I have more infos on the
++        * real cause of the problem.
++        */
+        while (rinfo->has_CRTC2) {
+                u32 fp2_gen_cntl = INREG(FP2_GEN_CNTL);
+                u32 disp_output_cntl;
+@@ -1362,6 +1363,9 @@
+                uses_dvo = 1;
+                break;
+        }
++#else
++       uses_dvo = 1;
++#endif
+        if (freq > rinfo->pll.ppll_max)
+                freq = rinfo->pll.ppll_max;
+        if (freq*12 < rinfo->pll.ppll_min)
 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
+If I change that #if 0 to #if 1, I get a normal image. This is with the
+following video-card:
 
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R100 QD [Radeon 7200] (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc Radeon 7000/Radeon
+        Flags: bus master, stepping, 66Mhz, medium devsel, latency 64, IRQ 16
+        Memory at d8000000 (32-bit, prefetchable) [size=128M]
+        I/O ports at a000 [size=256]
+        Memory at e5000000 (32-bit, non-prefetchable) [size=512K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [58] AGP version 2.0
+        Capabilities: [50] Power Management version 2
+
+
+I've seen other messages about problems with radeonfb. Can other people
+confirm this problem, and confirm that removing this chunk fixes the
+problem?
+
+
+Kind regards,
+Jurriaan
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Don't like these taglines? Steal your own...
+Debian (Unstable) GNU/Linux 2.6.5-rc2-mm3 3940 bogomips 0.18 0.28

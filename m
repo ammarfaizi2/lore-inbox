@@ -1,78 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267168AbTGTNqY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 09:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbTGTNqY
+	id S267140AbTGTNqV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 09:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbTGTNpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 09:46:24 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:946 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S267168AbTGTNpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 09:45:35 -0400
-Date: Sun, 20 Jul 2003 10:00:35 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6-test1 startup messages?
-Message-ID: <20030720140035.GC20163@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w7PDEPdKQumQfZlR"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 20 Jul 2003 09:45:34 -0400
+Received: from sc-outsmtp1.homechoice.co.uk ([81.1.65.35]:17674 "HELO
+	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
+	id S267140AbTGTNpc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 09:45:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+Subject: Fwd: [linuxdc-dev] Problem trying to build 2.6.0-test1
+Date: Sun, 20 Jul 2003 15:00:46 +0100
+User-Agent: KMail/1.4.3
+To: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307201500.46604.adrian@mcmen.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a message I posted to the Dreamcast linux development list. It appears 
+to be a problem with the cross assembler (target is SH4, host is ia32) I am 
+using but before I put it down to that, I wonder if anybody else has seen 
+this and can offer a comment?
 
---w7PDEPdKQumQfZlR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It is certainly not a configuration problem as the SH4 maintainer has built 
+this kernel for the Dreamcast (he's probably the only one apart from me to 
+have even tried :() and when I used his .config it failed in just the same 
+way.
+
+Thanks
+
+Adrian
+
+----------  Forwarded Message  ----------
+
+Subject: [linuxdc-dev] Problem trying to build 2.6.0-test1
+Date: Sun, 20 Jul 2003 14:25:33 +0100
+From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+To: linuxdc-dev@lists.sourceforge.net
+
+Getting this - is this a configuration problem? (Though it seems to occur
+whether initrd support is on or off). I'm just using the gcc 3.0.4 I use to
+build 2.4 series kernels with.
+
+echo "  .section .init.ramfs,\"a\"" > usr/initramfs_data.S
+echo ".incbin \"usr/initramfs_data.cpio.gz\"" >> usr/initramfs_data.S
+  AS      usr/initramfs_data.o
+usr/initramfs_data.S: Assembler messages:
+usr/initramfs_data.S:2: Error: Unknown pseudo-op:  `.incbin'
+make[2]: *** [usr/initramfs_data.o] Error 1
+make[1]: *** [usr] Error 2
+make: *** [vmlinux] Error 2
 
 
 
-  I just converted a box to 2.6-test1.  I've installed the module-init-tools
-per another thread on the list.  Spread throughout the startup messages
-of the system (Debian Unstable) are messages that read:
+-------------------------------------------------------
+This SF.net email is sponsored by: VM Ware
+With VMware you can run multiple operating systems on a single machine.
+WITHOUT REBOOTING! Mix Linux / Windows / Novell virtual machines at the
+same time. Free trial click here: http://www.vmware.com/wl/offer/345/0
+_______________________________________________
+Linuxdc-dev mailing list
+Linuxdc-dev@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/linuxdc-dev
 
-FATAL: Module /dev/tts not found
-FATAL: Module /dev/tts not found
-FATAL: Module /dev/ttsS?? not found
-FATAL: Module /dev/ttsS?? not found
+-------------------------------------------------------
 
-looking at /dev/tty* I have /dev/tty, /dev/tty0-tty63.  There is no
-/dev/ttyS0 (serial console) or tts*.
-
-Have they been renamed or did I miss something in my config?  Can anyone
-point me to a thread?  Digging through the archives gave some great
-reading material yet nothing that seemed to answer my problem.
-
-Thanks for any pointers,
-  I'd still gladly recomend Linux to my friends.
-    Robert
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---w7PDEPdKQumQfZlR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/GqCD8+1vMONE2jsRAnP3AJ0b8tEsxJ5tO7Jbt8wz0kHWsrdt1gCfRjXw
-I45xU6ECSKrBYwoSgUskZto=
-=rIBr
------END PGP SIGNATURE-----
-
---w7PDEPdKQumQfZlR--

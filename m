@@ -1,98 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282978AbSAULOh>; Mon, 21 Jan 2002 06:14:37 -0500
+	id <S284180AbSAUL3L>; Mon, 21 Jan 2002 06:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284144AbSAULO1>; Mon, 21 Jan 2002 06:14:27 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:58130 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S282978AbSAULOU>; Mon, 21 Jan 2002 06:14:20 -0500
-Message-ID: <3C4BF71D.4010209@namesys.com>
-Date: Mon, 21 Jan 2002 14:10:21 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S284264AbSAUL3C>; Mon, 21 Jan 2002 06:29:02 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:5904 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S284180AbSAUL2o>; Mon, 21 Jan 2002 06:28:44 -0500
+Date: Mon, 21 Jan 2002 03:22:20 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Davide Libenzi <davidel@xmailserver.org>, Jens Axboe <axboe@suse.de>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+In-Reply-To: <20020121114311.A24604@suse.cz>
+Message-ID: <Pine.LNX.4.10.10201210308460.14375-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201202321350.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Mon, 21 Jan 2002, Vojtech Pavlik wrote:
 
->On Mon, 21 Jan 2002, Hans Reiser wrote:
->
->>Rik van Riel wrote:
->>
->
->>>I take it you're volunteering to bring ext3, XFS, JFS,
->>>JFFS2, NFS, the inode & dentry cache and smbfs into
->>>shape so reiserfs won't get unbalanced ?
->>>
->
->>If they use writepage(), then the job of balancing cache cleaning is
->>done, we just use writepage as their pressuring mechanism.
->>Any FS that wants to optimize cleaning can implement a VFS method, and
->>any FS that wants to optimize freeing can implement a VFS method, and
->>all others can use their generic VM current mechanisms.
->>
->
->It seems you're still assuming that different filesystems will
->all see the same kind of load.
->
+> On Sun, Jan 20, 2002 at 04:12:36PM -0800, Andre Hedrick wrote:
+> 
+> > > > > We only read out 4k thus the device has the the next 4k we may be wanting
+> > > > > ready.  Look at it as a dirty prefetch, but eventally the drive is going
+> > > > > to want to go south, thus [lost interrupt]
+> > > >
+> > > > Even if the drive is programmed for 16 sectors in multi mode, it still
+> > > > must honor lower transfer sizes. The fix I did was not to limit this,
+> > > > but rather to only setup transfers for the amount of sectors in the
+> > > > first chunk. This is indeed necessary now that we do not have a copy of
+> > > > the request to fool around with.
+> > 
+> > Listen and for just a second okay.
+> > 
+> > Since the set multimode command is similar to the set transfer rate, if
+> > you program the drive to run at U100 but the host can feed only U33 you
+> > have problems.  Much of this simple arguement is the same answer for
+> > multimode.
+> > 
+> > Same thing here but a variation, of the operations,
+> 
+> So you're saying that if you program the drive to multimode 16, you
+> can't read a single sector and always have to read 16? That not only
+> doesn't make sense to me, but it also contradicts anything that I've
+> heard before.
 
-I don't understand this comment.
+Vojtech,
 
->
->
->Freeing cache (or at least, applying pressure) really is a job
->for the VM because none of the filesystems will have any idea
->exactly how busy the other filesystems are.
->
+If the device is programmed for to do 16 sectors in multimode, it and you
+issue a read/write multiple pio and short change the device it is not
+going to like it.  However if it is programmed for multimode and you issue
+single sector pio transfers command opcodes it is fine.
 
-I fully agree, and it is the point I have been making (poorly, since it 
-has not
-communicated) for as long as I have been discussing it with you.  The VM 
-should
-apply pressure to the caches.  It should define an interface that 
-subcache managers
-act in response to.   The larger a subcache is, the more percentage of 
-total memory
-pressure it should receive.  The amount of memory pressure per unit of 
-time should
-be determined by the VM.
+Do we differ?
 
-Note that there are two kinds of pressure, cleaning pressure and freeing 
-pressure.
-I think that the structure appropriate for delegating them is the same, 
-but someone
-may correct me.  
-
-Also note that a unit of pressure is a unit of aging, not a unit of
-freeing/cleaning.  The application of pressure does not necessarily free 
-a page, it
-merely ages the subcache, which might or might not free a page depending 
-on how much
-use is being made of what is in the subcache.
-
-Thus, a subcache receives pressure to grow from somewhere (things like 
-write()
-in the case of ReiserFS), and pressure to shrink from VM, and VM exerts 
-however
-much total pressure on all the subcaches is required to not run out of 
-memory.
-
-The mechanism of going through pages, seeing what subcache they belong 
-to, and
-pressuring that subcache, is a decent one (if a bit CPU cache expensive) 
-for obtaining
-linearly proportional cache pressure.  Since code inertia favors it, 
-let's use it for now.
-
-Hans
+Regards,
 
 
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

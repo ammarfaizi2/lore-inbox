@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273265AbRINCju>; Thu, 13 Sep 2001 22:39:50 -0400
+	id <S273267AbRINC4L>; Thu, 13 Sep 2001 22:56:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273266AbRINCjj>; Thu, 13 Sep 2001 22:39:39 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:47493
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S273265AbRINCjb>; Thu, 13 Sep 2001 22:39:31 -0400
-Date: Thu, 13 Sep 2001 19:39:37 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Val Henson <val@nmt.edu>
-Cc: jgarzik@mandrakesoft.com, becker@scyld.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Endian-ness bugs in yellowfin.c
-Message-ID: <20010913193937.O21906@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20010913195141.B799@boardwalk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010913195141.B799@boardwalk>
-User-Agent: Mutt/1.3.20i
+	id <S273268AbRINC4C>; Thu, 13 Sep 2001 22:56:02 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:31251 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S273267AbRINCzo>;
+	Thu, 13 Sep 2001 22:55:44 -0400
+Date: Thu, 13 Sep 2001 23:56:00 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon bug stomping #2
+In-Reply-To: <19425218582.20010913153137@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.GSO.4.21.0109132350420.24762-100000@jacui>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 13, 2001 at 07:51:41PM -0600, Val Henson wrote:
+On Thu, 13 Sep 2001, VDA wrote:
 
-> diff -Nru a/drivers/net/Config.in b/drivers/net/Config.in
-> --- a/drivers/net/Config.in	Thu Sep 13 19:20:29 2001
-> +++ b/drivers/net/Config.in	Thu Sep 13 19:20:29 2001
-> @@ -39,7 +39,7 @@
->        fi
->        dep_tristate '  BMAC (G3 ethernet) support' CONFIG_BMAC $CONFIG_ALL_PPC
->        dep_tristate '  GMAC (G4/iBook ethernet) support' CONFIG_GMAC $CONFIG_ALL_PPC
-> -      tristate '  Symbios 53c885 (Synergy ethernet) support' CONFIG_NCR885E
-> +      tristate '  Symbios 53c885 (Synergy ethernet) support' CONFIG_YELLOWFIN
->        tristate '  National DP83902AV (Oak ethernet) support' CONFIG_OAKNET
->        dep_bool '  PowerPC 405 on-chip ethernet' CONFIG_PPC405_ENET $CONFIG_405GP
->        if [ "$CONFIG_PPC405_ENET" = "y" ]; then
+> Device 0 Offset 55 - Debug (RW)
+> 7-0 Reserved (do not program). default = 0
+> *** 3R BIOS: non-zero!?
+> *** YH BIOS: zero.
+> *** TODO: try to set to 0.
 
-Since you're killing this, why not just remove this question entirely?
+I tryed sequentially to test the values given. It only worked when I set
+offset 0x55 to 0, and then stopped. I don't need to set any other value in
+other addresses. This is enough.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+It's weird when your system only works when changing a "do not
+program" value. :)
+
+--
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
+

@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268812AbUJKLhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUJKLmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268812AbUJKLhf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUJKLhe
+	id S268832AbUJKLmS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUJKLmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 07:37:34 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:22736 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S268812AbUJKLhU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:37:20 -0400
-Date: Mon, 11 Oct 2004 13:37:12 +0200
-From: Tim Cambrant <cambrant@acc.umu.se>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 11 Oct 2004 07:42:18 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:47971 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268819AbUJKLmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 07:42:17 -0400
+Message-ID: <416A70AA.3040608@yahoo.com.au>
+Date: Mon, 11 Oct 2004 21:38:18 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.9-rc4-mm1
-Message-ID: <20041011113712.GB10342@shaka.acc.umu.se>
 References: <20041011032502.299dc88d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: SunOS shaka.acc.umu.se 5.8 Generic_117000-05 sun4u sparc SUNW,Ultra-250 Solaris
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
->
-> optimize-profile-path-slightly.patch
->   Optimize profile path slightly
->
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/
 
-I'm still getting an oops at startup with this patch. After reversing
-it, everything is fine. Weren't you supposed to remove that from your
-tree until it was fixed?
+> +no-wild-kswapd-2.patch
 
-
--- 
-
-        Tim Cambrant
-     cambrant@acc.umu.se
-http://www.acc.umu.se/~cambrant/
+Is this an improvement? It again decouples the "priority" semantics of
+the direct and asynch reclaim paths. Seems to make things more complex
+in general.

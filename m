@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265022AbUFGTgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265027AbUFGTxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbUFGTgG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 15:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbUFGTgG
+	id S265027AbUFGTxU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 15:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265028AbUFGTxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 15:36:06 -0400
-Received: from web51808.mail.yahoo.com ([206.190.38.239]:26217 "HELO
-	web51808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265022AbUFGTfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 15:35:55 -0400
-Message-ID: <20040607193325.24606.qmail@web51808.mail.yahoo.com>
-Date: Mon, 7 Jun 2004 12:33:25 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: [PATCH] Missing BKL in sys_chroot() for 2.6
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: BlaisorBlade <blaisorblade_spam@yahoo.it>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <Pine.LNX.4.58.0406071216060.1637@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jun 2004 15:53:20 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31242 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265027AbUFGTxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 15:53:19 -0400
+Subject: Re: APM realy sucks on 2.6.x
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Kloska <kloska@scienion.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040607144841.GD1467@elf.ucw.cz>
+References: <40C0E91D.9070900@scienion.de>
+	 <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de>
+	 <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de>
+	 <20040607144841.GD1467@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 07 Jun 2004 21:53:20 +0200
+Message-Id: <1086638000.2220.8.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the clarification.
+On Mon, 2004-06-07 at 16:48 +0200, Pavel Machek wrote:
 
-Phy
+> HP sells compaq nx5000 notebooks with Linux preloaded. Unfortunately
+> suspend-to-RAM is not there (IIRC). That's because suspend-to-RAM is
+> hard to do with ACPI.
 
+It took some time for me to work, but now ACPI S3 (suspend to RAM) is
+finally working for me (I have been trying it since 2.4.22 with no
+luck). Only one thing is required before suspending:
 
---- Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> 
-> On Mon, 7 Jun 2004, Phy Prabab wrote:
-> >  
-> > > see what the BKL 
-> > 
-> > What does BKL stand for?
-> 
-> "big kernel lock" aka the traditional global kernel
-> lock that these days 
-> is not actually used that much any more. When you
-> see "lock_kernel()", 
-> "unlock_kernel()", that's the BKL.
-> 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+# modprobe ds
+# cardctl eject
 
+This ejects my CardBus NIC before going to sleep. Not doing so, causes
+the system to freeze when resuming.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

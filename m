@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbTIVOVq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 10:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTIVOVq
+	id S263164AbTIVOa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 10:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTIVOaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 10:21:46 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:457 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S263157AbTIVOVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 10:21:45 -0400
-Date: Tue, 23 Sep 2003 00:20:23 +1000
-From: CaT <cat@zip.com.au>
-To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix Athlon MCA
-Message-ID: <20030922142023.GC514@zip.com.au>
-References: <20030921143934.GA1867@dreamland.darkstar.lan> <Pine.LNX.4.44.0309211034080.11614-100000@home.osdl.org> <20030921174731.GA891@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Sep 2003 10:30:25 -0400
+Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:51660 "EHLO
+	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
+	id S263164AbTIVOaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 10:30:21 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+From: Alistair J Strachan <alistair@devzero.co.uk>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: 2.6.0-test5-mm4
+Date: Mon, 22 Sep 2003 15:29:57 +0100
+User-Agent: KMail/1.5.9
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk> <20030922134813.GF7665@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030922134813.GF7665@parcelfarce.linux.theplanet.co.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030921174731.GA891@redhat.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309221529.57836.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 21, 2003 at 06:47:31PM +0100, Dave Jones wrote:
-> yeah, I prefer that way just for the added comment outside the loop.
-> expanding it to mention "some athlons don't work with bank 0 enabled"
+On Monday 22 September 2003 14:48, you wrote:
+> On Mon, Sep 22, 2003 at 01:17:42PM +0100, Alistair J Strachan wrote:
+> > One possible explanation is that I have devfs compiled into my kernel. I
+> > do not, however, have it automatically mounting on boot. It overlays /dev
+> > (which is populated with original style device nodes) after INIT has
+> > loaded.
+>
+> Amazingly idiotic typo.  And yes, it gets hit only if devfs is configured.
+>
+> diff -u B5-real32/init/do_mounts.h B5-current/init/do_mounts.h
+> --- B5-real32/init/do_mounts.h	Sun Sep 21 21:22:33 2003
+> +++ B5-current/init/do_mounts.h	Mon Sep 22 09:41:21 2003
+> @@ -53,7 +53,7 @@
+>  static inline u32 bstat(char *name)
+>  {
+>  	struct stat64 stat;
+> -	if (!sys_stat64(name, &stat) != 0)
+> +	if (sys_stat64(name, &stat) != 0)
+>  		return 0;
+>  	if (!S_ISBLK(stat.st_mode))
+>  		return 0;
+> @@ -65,7 +65,7 @@
+>  static inline u32 bstat(char *name)
+>  {
+>  	struct stat stat;
+> -	if (!sys_newstat(name, &stat) != 0)
+> +	if (sys_newstat(name, &stat) != 0)
+>  		return 0;
+>  	if (!S_ISBLK(stat.st_mode))
+>  		return 0;
 
-Would this MCE message be of the same flavour as the one this
-thread is about?
+Thanks for that. It's working fine now.
 
-Message from syslogd@lexx at Mon Sep 22 21:38:01 2003 ...
-lexx kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-
-Message from syslogd@lexx at Mon Sep 22 21:38:01 2003 ...
-lexx kernel: Bank 2: 940040000000017a
-
-I don't have my stick of RAM plugged into the first RAM slot but rather
-the 3rd of 4. I guess this correspends to bank 2 above. I've been ignoring
-them uptil now but is this a linux hassle or a h/w one?
-
--- 
-	And so the stripper looks down and asks 'Can you breathe?'
-		- from a friend's bucks night
+Cheers,
+Alistair.

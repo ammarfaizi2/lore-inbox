@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRBLUCe>; Mon, 12 Feb 2001 15:02:34 -0500
+	id <S129741AbRBLUM5>; Mon, 12 Feb 2001 15:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129955AbRBLUCY>; Mon, 12 Feb 2001 15:02:24 -0500
-Received: from jalon.able.es ([212.97.163.2]:36232 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129583AbRBLUCO>;
-	Mon, 12 Feb 2001 15:02:14 -0500
-Date: Mon, 12 Feb 2001 21:02:06 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lkml subject line
-Message-ID: <20010212210206.A1587@werewolf.able.es>
-In-Reply-To: <200102121525.KAA16906@mah21awu.cas.org> <Pine.LNX.4.32.0102121344060.1070-100000@viper.haque.net> <VrfrVB.A.43D.6IDi6@dinero.interactivesi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <VrfrVB.A.43D.6IDi6@dinero.interactivesi.com>; from ttabi@interactivesi.com on Mon, Feb 12, 2001 at 19:58:02 +0100
-X-Mailer: Balsa 1.1.1
+	id <S129231AbRBLUMi>; Mon, 12 Feb 2001 15:12:38 -0500
+Received: from betty.magenta-netlogic.com ([193.37.229.181]:14084 "EHLO
+	betty.magenta-netlogic.com") by vger.kernel.org with ESMTP
+	id <S129741AbRBLUM0>; Mon, 12 Feb 2001 15:12:26 -0500
+Message-ID: <3A884456.4080103@magenta-netlogic.com>
+Date: Mon, 12 Feb 2001 20:15:18 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; 0.7) Gecko/20010109
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Tweedy <pault@5emedia.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: "Unable to load intepreter" on login - 2.2.14-5.0
+In-Reply-To: <B6ADBFF3.3E19%pault@5emedia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Tweedy wrote:
 
-On 02.12 Timur Tabi wrote:
-> 
-> In fact, I was unable to find an full-featured GUI email client for Linux, so
-> I'm using Polarbar, which is an all-Java client.
-> 
+> Secondly, to get the thing running I'm assuming I can copy a working login
+> binary from an identical server, so I can get in & change the passwords and
+> sort the security out?
 
-Try balsa. It can handle several pop-imap accounts, folders and subfolders,
-threading view of messages and filtering through procmail when retrieving
-mail.
-Uses the address book of the gnome env (so you can share it).
+...and what if the 'cp' binary has been hacked to stop you doing just 
+that?  What if 'passwd' is silently emailing your root password to the 
+hacker each time you change it?
 
-Much lighter than evolution, does all I need and fast.
+Reformat and re-install.  It's the only way (and check your firewall).
 
-http://www.balsa.net
- 
+Tony
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
 
-Linux werewolf 2.4.1-ac10 #1 SMP Sun Feb 11 23:36:46 CET 2001 i686
+The only secure computer is one that's unplugged, locked in a safe,
+and buried 20 feet under the ground in a secret location... and i'm
+not even too sure about that one"--Dennis Huges, FBI.
+
+tmh@magenta-netlogic.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

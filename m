@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279710AbRJYFET>; Thu, 25 Oct 2001 01:04:19 -0400
+	id <S279714AbRJYFzl>; Thu, 25 Oct 2001 01:55:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279713AbRJYFEJ>; Thu, 25 Oct 2001 01:04:09 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:14599 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S279710AbRJYFD6>;
-	Thu, 25 Oct 2001 01:03:58 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200110250504.f9P54VX94424@saturn.cs.uml.edu>
-Subject: Re: [Q] cannot fork w/ 1000s of procs (but still mem avail.)
-To: Andries.Brouwer@cwi.nl
-Date: Thu, 25 Oct 2001 01:04:31 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, tip@internetwork-ag.de
-In-Reply-To: <UTC200110102054.UAA09813.aeb@cwi.nl> from "Andries.Brouwer@cwi.nl" at Oct 10, 2001 08:54:22 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S279715AbRJYFzc>; Thu, 25 Oct 2001 01:55:32 -0400
+Received: from mail1.amc.com.au ([203.15.175.2]:261 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S279714AbRJYFzO>;
+	Thu, 25 Oct 2001 01:55:14 -0400
+Message-Id: <5.1.0.14.0.20011025154916.00a1c250@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 25 Oct 2001 15:55:44 +1000
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: SiS/Trident 4DWave sound driver oops
+Cc: "Michael F. Robbins" <compumike@compumike.com>
+In-Reply-To: <1003972047.2393.9.camel@tbird.robbins>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would be nice to do as follows:
+At 09:07 PM 24/10/01 -0400, Michael F. Robbins wrote:
+>I also have a totally reproduceable OOPS on 2.4.9 through 2.4.12.
+>Kernel 2.4.7 works just fine.  If the soundcard is compiled in to the
+>kernel, it dies while booting.  If it is compiled as a module, it dies
+>when attempting to load the module (typically when artsd starts).
 
-1. have a process limit, with a default based on memory size
-2. have a pid limit, 2x the above + 300, rounded up to 9999, 99999, etc.
+I just tried 2.4.7, and while the module loads, the ac97_codec gives an 
+"unknown id" response, and I get no sound out of the device whatsoever. Any 
+writes to /dev/dsp just hang (not the kernel) and I get nothing out of the 
+device.
 
-So if we require 32 kB per process, then...
+I might try compiling the 2.4.7 trident module without symbol versions, and 
+a 2.4.9 kernel the same, and try forcibly inmod'ing the 2.4.7 trident 
+module on 2.4.9 and see what happens.
 
-  0    to  11 MB  -->  3-digit
- 12 MB to 155 MB  -->  4-digit
-156 MB to 1.6 GB  -->  5-digit   (max kernel memory on x86)
-1.7 GB to  16 GB  -->  6-digit
 
-The 15-bit limit isn't so bad though, as you can see from the
-above. On x86, you get 1 PID for every 28 kB of kernel memory.
-You will have some other uses for kernel memory too, if we may
-assume that this box has some real work to do. So more likely,
-you can't really have anywhere near that many processes anyway.
+AMC Enterprises P/L    - Stuart Young
+First Floor            - Network and Systems Admin
+3 Chesterville Rd      - sgy@amc.com.au
+Cheltenham Vic 3192    - Ph:  (03) 9584-2700
+http://www.amc.com.au/ - Fax: (03) 9584-2755
 
-Thus there isn't any good reason to break the old user apps.

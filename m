@@ -1,222 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267503AbTA3SLg>; Thu, 30 Jan 2003 13:11:36 -0500
+	id <S267581AbTA3SUU>; Thu, 30 Jan 2003 13:20:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267530AbTA3SLg>; Thu, 30 Jan 2003 13:11:36 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:57766 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S267503AbTA3SLd>;
-	Thu, 30 Jan 2003 13:11:33 -0500
-Message-ID: <3E396CF1.5000300@colorfullife.com>
-Date: Thu, 30 Jan 2003 19:20:33 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Andrea Arcangeli <andrea@suse.de>, Richard Henderson <rth@twiddle.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re:  frlock and barrier discussion
-Content-Type: multipart/mixed;
- boundary="------------080904080605080309030800"
+	id <S267595AbTA3SUU>; Thu, 30 Jan 2003 13:20:20 -0500
+Received: from apollo.nbase.co.il ([194.90.137.2]:63497 "EHLO
+	apollo.nbase.co.il") by vger.kernel.org with ESMTP
+	id <S267581AbTA3SUR>; Thu, 30 Jan 2003 13:20:17 -0500
+Date: Thu, 30 Jan 2003 20:29:36 +0200
+From: Michael Rozhavsky <mrozhavsky@mrv.com>
+To: vlan@scry.wanfear.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 8021q memory leak
+Message-ID: <20030130182936.GC3348@mike.nbase.co.il>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080904080605080309030800
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Stephen wrote:
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[snip - memory barrier for fr_write_begin]
+Hi,
 
->Using mb() is more paranoid than necessary. 
+There is a memory leak in vlan module of 2.4.20
 
+When last vlan of the group is removed the group is unhashed but not
+deleted.
 
-What about the memory barrier in fr_read_begin?
-If I understand the Intel documentation correctly, then i386 doesn't need them:
-"Writes by a single processor are observed in the same order by all processors"
-
-I think "smp_read_barrier_depends()" (i.e. a nop for i386) is sufficient. Attached is a test app - could someone try it? I don't have access to a SMP system right now.
-
-
-What about permitting arch overrides for the memory barriers? E.g. ia64 has acquire and release memory barriers - it doesn't map to the Linux wmb()/rmb() scheme.
+Attached patch fixes this memory leak and completes implementation of
+memory debug output.
 
 --
-	Manfred 
+  Michael Rozhavsky
+  Senior Software Engineer
+  MRV International
+  Tel: +972 (4) 993-6248
+  Fax: +972 (4) 989-0564
+  http://www.mrv.com
 
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="vlan.diff"
 
+diff -u linux-2.4.20/net/8021q/vlan.c linux-2.4.20-test/net/8021q/vlan.c
+--- linux-2.4.20/net/8021q/vlan.c	2002-11-29 01:53:15.000000000 +0200
++++ linux-2.4.20-test/net/8021q/vlan.c	2003-01-30 20:19:12.000000000 +0200
+@@ -171,6 +171,8 @@
+ 		next = *pprev;
+ 	}
+ 	*pprev = grp->next;
++	kfree (grp);
++	VLAN_MEM_DBG("vlan_group kfree, addr: %p  size: %i\n", grp, sizeof(struct vlan_group));
+ }
+ 
+ /*  Find the protocol handler.  Assumes VID < VLAN_VID_MASK.
+@@ -509,6 +545,7 @@
+ 	 */
+ 	if (!grp) { /* need to add a new group */
+ 		grp = kmalloc(sizeof(struct vlan_group), GFP_KERNEL);
++		VLAN_MEM_DBG("vlan_group malloc, addr: %p  size: %i\n", grp, sizeof(struct vlan_group));
+ 		if (!grp)
+ 			goto out_free_newdev_priv;
+ 					
+@@ -546,9 +583,13 @@
+ 
+ out_free_newdev_priv:
+ 	kfree(new_dev->priv);
++	VLAN_MEM_DBG("new_dev->priv kfree, addr: %p  size: %i\n",
++		     new_dev->priv, sizeof(struct vlan_dev_info));
+ 
+ out_free_newdev:
+ 	kfree(new_dev);
++	VLAN_MEM_DBG("net_device kfree, addr: %p  size: %i\n",
++		     new_dev, sizeof (struct net_device));
+ 
+ out_unlock:
+ 	rtnl_unlock();
+diff -u linux-2.4.20/net/8021q/vlan_dev.c linux-2.4.20-test/net/8021q/vlan_dev.c
+--- linux-2.4.20/net/8021q/vlan_dev.c	2002-11-29 01:53:15.000000000 +0200
++++ linux-2.4.20-test/net/8021q/vlan_dev.c	2003-01-30 20:06:26.000000000 +0200
+@@ -171,7 +171,7 @@
+ 
+ #ifdef VLAN_DEBUG
+ 		printk(VLAN_DBG "%s: dropping skb: %p because came in on wrong device, dev: %s  real_dev: %s, skb_dev: %s\n",
+-			__FUNCTION__ skb, dev->name, 
++			__FUNCTION__, skb, dev->name, 
+ 			VLAN_DEV_INFO(skb->dev)->real_dev->name, 
+ 			skb->dev->name);
+ #endif
+@@ -783,8 +783,13 @@
+ 				BUG();
+ 
+ 			kfree(dev->priv);
++			VLAN_MEM_DBG("dev->priv kfree, addr: %p  size: %i\n",
++				     dev->priv, sizeof(struct vlan_dev_info));
+ 			dev->priv = NULL;
+ 		}
++		/* will be deleted by kernel */
++		VLAN_MEM_DBG("net_device kfree, addr: %p  size: %i\n",
++			     dev, sizeof (struct net_device));
+ 	}
+ }
+ 
 
-
-
-
-
-
-
-
-
-
-
---------------080904080605080309030800
-Content-Type: text/plain;
- name="frlock.cpp"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="frlock.cpp"
-
-/*
- * frlock: test for Intel memory ordering.
- * Copyright (C) 1999,2003 by Manfred Spraul.
- * 
- * Redistribution of this file is permitted under the terms of the GNU 
- * Public License (GPL)
- * $Header: /pub/home/manfred/cvs-tree/movopt/frlock.cpp,v 1.2 2003/01/26 10:41:39 manfred Exp $
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <assert.h>
-
-static volatile int g_val1;
-static volatile int g_val2;
-static volatile int g_seq1;
-static volatile int g_seq2;
-
-static volatile int start;
-#define MB()	__asm__ __volatile__ ("lock;addl $0,(%%esp)\n\t" \
-					:/* no output*/ \
-					:/* no input*/:"cc","memory")
-
-#define DELAY()		do { int i; for(i=0;i<1000;i++); } while(0)
-
-void* threadfnc(void* param)
-{
-	while(!start);
-	if(1 == (int)param)
-		goto cpu1;
-	if(2 == (int)param)
-		goto cpu2;
-	assert(0);
-cpu1:
-	{	// reader:
-		for(;;) {
-			int x1,x2,val1,val2;
-
-			x1 = g_seq1;
-			val1 = g_val1;
-			val2 = g_val2;
-			x2 = g_seq2;
-			if (x1 == x2) {
-				if (val1 != val2) {
-					printf("Bad! memory ordering violation with %d/%d: %d/%d.\n", x1, x2, val1, val2);
-				}
-			}
-	    	}
-	}
-cpu2:
-	{	// writer:
-	    	int target = 0;
-		for (;;) {
-
-			// write 1:
-			target++;
-			g_seq1 = target;
-			g_val1 = target;
-			g_val2 = target;
-			g_seq2 = target;
-			DELAY();
-
-			// write 2:
-			target++;
-			g_seq1 = target;
-			g_val1 = target;
-			MB();
-			g_val2 = target;
-			g_seq2 = target;
-			DELAY();
-
-			// write 3:
-			target++;
-			g_seq1 = target;
-			g_val2 = target;
-			g_val1 = target;
-			g_seq2 = target;
-			DELAY();
-
-			// write 4:
-			target++;
-			g_seq1 = target;
-			g_val2 = target;
-			MB();
-			g_val1 = target;
-			g_seq2 = target;
-			DELAY();
-			
-
-
-			// write 5:
-			target++;
-			g_seq1 = target;
-			g_val1 = target;
-			MB(); MB();
-			g_val2 = target;
-			g_seq2 = target;
-			DELAY();
-
-			// write 6:
-			target++;
-			g_seq1 = target;
-			g_val1 = target;
-			MB(); DELAY();
-			g_val2 = target;
-			g_seq2 = target;
-			DELAY();
-
-			// write 7:
-			target++;
-			g_seq1 = target;
-			g_val2 = target;
-			MB(); MB();
-			g_val1 = target;
-			g_seq2 = target;
-			DELAY();
-
-			// write 8:
-			target++;
-			g_seq1 = target;
-			g_val2 = target;
-			MB(); DELAY();
-			g_val1 = target;
-			g_seq2 = target;
-			DELAY();
-		}
-	}
-}
-
-void start_thread(int id)
-{
-	pthread_t thread;
-	int res;
-
-	res = pthread_create(&thread,NULL,threadfnc,(void*)id);
-	if(res != 0)
-		assert(false);
-}
-
-
-
-int main()
-{
-	printf("movopt:\n");
-	start_thread(1);
-	start_thread(2);
-	printf(" starting, please wait.\n");
-	fflush(stdout);
-	start = 1;
-	for(;;) sleep(1000);
-}
-
---------------080904080605080309030800--
-
+--FL5UXtIhxfXey3p5--

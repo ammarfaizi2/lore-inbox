@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265562AbRGFHfb>; Fri, 6 Jul 2001 03:35:31 -0400
+	id <S265810AbRGFHsp>; Fri, 6 Jul 2001 03:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265580AbRGFHfV>; Fri, 6 Jul 2001 03:35:21 -0400
-Received: from s2.relay.oleane.net ([195.25.12.49]:33035 "HELO
-	s2.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S265562AbRGFHfH>; Fri, 6 Jul 2001 03:35:07 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-Date: Fri, 6 Jul 2001 09:34:59 +0200
-Message-Id: <20010706073459.5593@smtp.adsl.oleane.com>
-In-Reply-To: <Pine.LNX.4.33.0107050810400.22053-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0107050810400.22053-100000@penguin.transmeta.com>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S266237AbRGFHsf>; Fri, 6 Jul 2001 03:48:35 -0400
+Received: from scan2.fhg.de ([153.96.1.37]:11228 "EHLO scan2.fhg.de")
+	by vger.kernel.org with ESMTP id <S265810AbRGFHs0>;
+	Fri, 6 Jul 2001 03:48:26 -0400
+Message-ID: <3B456D45.FBF10C1A@N-Club.de>
+Date: Fri, 06 Jul 2001 09:48:21 +0200
+From: Juergen Wolf <JuWo@N-Club.de>
+Organization: AEMT Fraunhofer
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Francois Romieu <romieu@cogenit.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
+In-Reply-To: <Pine.LNX.4.30.0107021014230.15054-100000@flash.datafoundation.com> <3B42DEC2.AAB1E65B@N-Club.de> <20010704145752.A29311@se1.cogenit.fr>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Nope.
->
->I do not want to maintain two interfaces. If we make user space the way to
->do these things, then we will do pretty much most of the driver setup etc
->in user space. We'd have to: we'd enter user space before drivers have had
->a chance to initialize, exactly because "features like these" can change
->the device mappings etc.
->
->And I don't want to have two completely different bootup paths.
+Francois Romieu wrote:
+> 
+> Is X or something like a nvidia module enabled ?
+> 
 
-I agree. Also, having this userland step would help for things like
-booting from an FireWire or USB hard disk. I hacked the SBP2 (FW)
-driver to be useable as a boot device, but this involved adding an
-ugly schedule() loop for a couple of seconds before mouting root
-in order to leave some time for the drive to be probed. Also, on
-such dynamic busses, you can't really know which device major/minor
-a given drive will be assigned.
+Hi,
 
-Having a userland mecanism here would allow waiting for all devices
-to be probed, reading of the disk GUID (on fw at least) to figure
-out where is the real root device, etc... Even displaying a nice
-UI to let the user pick a root device is none is found, etc...
+ the nvidia modul is not loaded or enabled but X is running sometimes.
+Anyways, it seems to happen if X is not running too.
+Luckily I got a very helpfull hint from Hans-Christian Armingeon in
+reply to my questions here on the list. The epic100.c from
+http://lrcwww.epfl.ch/~boch/sw/epic100.c.txt fixes the problem in all
+the affected kernel versions. 
 
-So your idea fixes more than just the ACPI problems ;)
-
-Ben.
-
-
+Thanx for your help guys
+	Juergen

@@ -1,128 +1,130 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314697AbSDTR5P>; Sat, 20 Apr 2002 13:57:15 -0400
+	id <S314703AbSDTR7Q>; Sat, 20 Apr 2002 13:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314698AbSDTR5P>; Sat, 20 Apr 2002 13:57:15 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49091 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314697AbSDTR5M>;
-	Sat, 20 Apr 2002 13:57:12 -0400
-Date: Sat, 20 Apr 2002 13:57:11 -0400 (EDT)
+	id <S314704AbSDTR7P>; Sat, 20 Apr 2002 13:59:15 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:21959 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314703AbSDTR6m>;
+	Sat, 20 Apr 2002 13:58:42 -0400
+Date: Sat, 20 Apr 2002 13:58:41 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [CFT][PATCH] (2/5) sane procfs/dcache interaction
-In-Reply-To: <Pine.GSO.4.21.0204201304150.25383-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0204201356480.25383-100000@weyl.math.psu.edu>
+Subject: [CFT][PATCH] (5/5) sane procfs/dcache interaction
+In-Reply-To: <Pine.GSO.4.21.0204201357470.25383-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0204201358140.25383-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-diff -urN C8-unhash_process/fs/proc/base.c C8-name_to_int/fs/proc/base.c
---- C8-unhash_process/fs/proc/base.c	Tue Mar 19 16:05:58 2002
-+++ C8-name_to_int/fs/proc/base.c	Fri Apr 19 01:17:11 2002
-@@ -778,34 +778,41 @@
+diff -urN C8-file/fs/proc/base.c C8-procfs/fs/proc/base.c
+--- C8-file/fs/proc/base.c	Fri Apr 19 02:11:56 2002
++++ C8-procfs/fs/proc/base.c	Fri Apr 19 01:20:20 2002
+@@ -88,6 +88,11 @@
+ 	return PROC_I(inode)->task;
+ }
+ 
++static inline int proc_type(struct inode *inode)
++{
++	return PROC_I(inode)->type;
++}
++
+ ssize_t proc_pid_read_maps(struct task_struct*,struct file*,char*,size_t,loff_t*);
+ int proc_pid_stat(struct task_struct*,char*);
+ int proc_pid_status(struct task_struct*,char*);
+@@ -99,7 +104,7 @@
+ 	struct task_struct *task = proc_task(inode);
+ 	struct files_struct *files;
+ 	struct file *file;
+-	int fd = (inode->i_ino & 0xffff) - PROC_PID_FD_DIR;
++	int fd = proc_type(inode) - PROC_PID_FD_DIR;
+ 
+ 	task_lock(task);
+ 	files = task->files;
+@@ -735,6 +740,7 @@
+ 	 */
+ 	get_task_struct(task);
+ 	ei->task = task;
++	ei->type = ino;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+ 	if (ino == PROC_PID_INO || task_dumpable(task)) {
+@@ -753,11 +759,6 @@
+ 
+ /* dentry stuff */
+ 
+-static int pid_fd_revalidate(struct dentry * dentry, int flags)
+-{
+-	return 0;
+-}
+-
+ /*
+  *	Exceptional case: normally we are not allowed to unhash a busy
+  * directory. In this case, however, we can do it - no aliasing problems
+@@ -771,6 +772,31 @@
+ 	return 0;
+ }
+ 
++static int pid_fd_revalidate(struct dentry * dentry, int flags)
++{
++	struct task_struct *task = proc_task(dentry->d_inode);
++	int fd = proc_type(dentry->d_inode) - PROC_PID_FD_DIR;
++	struct files_struct *files;
++
++	task_lock(task);
++	files = task->files;
++	if (files)
++		atomic_inc(&files->count);
++	task_unlock(task);
++	if (files) {
++		read_lock(&files->file_lock);
++		if (fcheck_files(files, fd)) {
++			read_unlock(&files->file_lock);
++			put_files_struct(files);
++			return 1;
++		}
++		read_unlock(&files->file_lock);
++		put_files_struct(files);
++	}
++	d_drop(dentry);
++	return 0;
++}
++
+ static void pid_base_iput(struct dentry *dentry, struct inode *inode)
+ {
+ 	struct task_struct *task = proc_task(inode);
+@@ -781,11 +807,6 @@
+ 	iput(inode);
+ }
+ 
+-static int pid_fd_delete_dentry(struct dentry * dentry)
+-{
+-	return 1;
+-}
+-
+ static int pid_delete_dentry(struct dentry * dentry)
+ {
+ 	return proc_task(dentry->d_inode)->pid == 0;
+@@ -794,7 +815,7 @@
+ static struct dentry_operations pid_fd_dentry_operations =
+ {
+ 	d_revalidate:	pid_fd_revalidate,
+-	d_delete:	pid_fd_delete_dentry,
++	d_delete:	pid_delete_dentry,
  };
  
- /* Lookups */
--#define MAX_MULBY10	((~0U-9)/10)
-+
-+static unsigned name_to_int(struct dentry *dentry)
-+{
-+	const char *name = dentry->d_name.name;
-+	int len = dentry->d_name.len;
-+	unsigned n = 0;
-+
-+	if (len > 1 && *name == '0')
-+		goto out;
-+	while (len-- > 0) {
-+		unsigned c = *name++ - '0';
-+		if (c > 9)
-+			goto out;
-+		if (n >= (~0U-9)/10)
-+			goto out;
-+		n *= 10;
-+		n += c;
-+	}
-+	return n;
-+out:
-+	return ~0U;
-+}
+ static struct dentry_operations pid_dentry_operations =
+@@ -879,8 +900,8 @@
+ 	return NULL;
  
- /* SMP-safe */
- static struct dentry *proc_lookupfd(struct inode * dir, struct dentry * dentry)
- {
--	unsigned int fd, c;
- 	struct task_struct *task = proc_task(dir);
-+	unsigned fd = name_to_int(dentry);
- 	struct file * file;
- 	struct files_struct * files;
- 	struct inode *inode;
- 	struct proc_inode *ei;
--	const char *name;
--	int len;
- 
--	fd = 0;
--	len = dentry->d_name.len;
--	name = dentry->d_name.name;
--	if (len > 1 && *name == '0') goto out;
--	while (len-- > 0) {
--		c = *name - '0';
--		name++;
--		if (c > 9)
--			goto out;
--		if (fd >= MAX_MULBY10)
--			goto out;
--		fd *= 10;
--		fd += c;
--	}
-+	if (fd == ~0U)
-+		goto out;
- 
- 	inode = proc_pid_make_inode(dir->i_sb, task, PROC_PID_FD_DIR+fd);
- 	if (!inode)
-@@ -992,17 +999,12 @@
- /* SMP-safe */
- struct dentry *proc_pid_lookup(struct inode *dir, struct dentry * dentry)
- {
--	unsigned int pid, c;
- 	struct task_struct *task;
--	const char *name;
- 	struct inode *inode;
- 	struct proc_inode *ei;
--	int len;
-+	unsigned pid;
- 
--	pid = 0;
--	name = dentry->d_name.name;
--	len = dentry->d_name.len;
--	if (len == 4 && !memcmp(name, "self", 4)) {
-+	if (dentry->d_name.len == 4 && !memcmp(dentry->d_name.name,"self",4)) {
- 		inode = new_inode(dir->i_sb);
- 		if (!inode)
- 			return ERR_PTR(-ENOMEM);
-@@ -1017,18 +1019,9 @@
- 		d_add(dentry, inode);
- 		return NULL;
- 	}
--	while (len-- > 0) {
--		c = *name - '0';
--		name++;
--		if (c > 9)
--			goto out;
--		if (pid >= MAX_MULBY10)
--			goto out;
--		pid *= 10;
--		pid += c;
--		if (!pid)
--			goto out;
--	}
-+	pid = name_to_int(dentry);
-+	if (pid == ~0U)
-+		goto out;
- 
- 	read_lock(&tasklist_lock);
- 	task = find_task_by_pid(pid);
+ out_unlock2:
+-	put_files_struct(files);
+ 	read_unlock(&files->file_lock);
++	put_files_struct(files);
+ out_unlock:
+ 	iput(inode);
+ out:
 
 

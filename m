@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265066AbTAWImd>; Thu, 23 Jan 2003 03:42:33 -0500
+	id <S265039AbTAWJE7>; Thu, 23 Jan 2003 04:04:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbTAWImd>; Thu, 23 Jan 2003 03:42:33 -0500
-Received: from posti2.jyu.fi ([130.234.4.33]:26242 "EHLO posti2.jyu.fi")
-	by vger.kernel.org with ESMTP id <S265066AbTAWImc>;
-	Thu, 23 Jan 2003 03:42:32 -0500
-Date: Thu, 23 Jan 2003 10:51:33 +0200 (EET)
-From: Riku Meskanen <mesrik@cc.jyu.fi>
-To: <redhat-devel-list@redhat.com>
-cc: <redhat-list@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux application level timers?
-In-Reply-To: <20030122221703.42913.qmail@web9806.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.33.0301231044560.27340-100000@tukki.cc.jyu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265058AbTAWJE7>; Thu, 23 Jan 2003 04:04:59 -0500
+Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:25832
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S265039AbTAWJE6>; Thu, 23 Jan 2003 04:04:58 -0500
+Subject: Re: Zero copy in 2.4 kernels
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Stanley Yee <SYee@snapappliance.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <057889C7F1E5D61193620002A537E8690B4378@NCBDC>
+References: <057889C7F1E5D61193620002A537E8690B4378@NCBDC>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-DVMf+MpajTfUb0kJvRMe"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Jan 2003 09:14:16 +0000
+Message-Id: <1043313257.26889.1.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Jan 2003, Tom Sanders wrote:
 
-> I'm writing an application server which receives
-> requests from other applications. For each request
-> received, I want to start a timer so that I can fail
-> the application request if it could not be completed
-> in max specified time.
->
-> Which Linux timer facility can be used for this?
->
-> I have checked out alarm() and signal() system calls,
-> but these calls doesn't take an argument, so its not
-> possible to associate application request with the
-> matured alarm.
->
-> Any inputs?
->
-Yes, get a book like "Advanced Programming in
-the UNIX Environment" W. Richard Stevens and
-look how to use signals and select()/poll()
-from there.
+--=-DVMf+MpajTfUb0kJvRMe
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Also if you are able to use tools to have the
-protocol defined by ASN.1 that would help, because
-then you could be able to have tools to generate
-automatically protocol handling code too with C or
-C++ etc.
+On Wed, 2003-01-22 at 01:48, Stanley Yee wrote:
+> Is the zero copy function enabled by default in the 2.4.X kernels?  If so
+> which kernel version and what do I need to do to enable it?  Thanks for y=
+our
+> time.
 
-I'm not in the latter business, read and used
-some code from the above book long time ago,
-but I've seen nice tools used more and more rather
-than hand-coding the protocol (because it's very
-easy get in troubles with hard to find errors
-of incomplete state-machine etc.)
+sendfile(2) does zero-copy writes from files to sockets, works on any
+version of 2.4 AFAIK.
 
-HTH,
+HTH
 
-:-) riku
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
--- 
-    [ This .signature intentionally left blank ]
+--=-DVMf+MpajTfUb0kJvRMe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+L7JokbV2aYZGvn0RAktJAJ0TrLHGaeoE9+vXoVLvVwXzceBAmwCfX5+1
+0GLwsDdw2Ma8/v1KayygXrw=
+=suF4
+-----END PGP SIGNATURE-----
+
+--=-DVMf+MpajTfUb0kJvRMe--
 

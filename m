@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282597AbRK2Tzq>; Thu, 29 Nov 2001 14:55:46 -0500
+	id <S282906AbRK2T4Q>; Thu, 29 Nov 2001 14:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282906AbRK2Tz1>; Thu, 29 Nov 2001 14:55:27 -0500
-Received: from ns.suse.de ([213.95.15.193]:1803 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282597AbRK2TzU>;
-	Thu, 29 Nov 2001 14:55:20 -0500
-To: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: ethernet links should remember routes the same as addresses
-In-Reply-To: <3C068ED1.D5E2F536@nortelnetworks.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Nov 2001 20:55:17 +0100
-In-Reply-To: "Christopher Friesen"'s message of "29 Nov 2001 20:43:02 +0100"
-Message-ID: <p73r8qhqrmi.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S282623AbRK2T4H>; Thu, 29 Nov 2001 14:56:07 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:41735 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282906AbRK2Tzz>; Thu, 29 Nov 2001 14:55:55 -0500
+Message-ID: <3C069291.82E205F1@zip.com.au>
+Date: Thu, 29 Nov 2001 11:54:57 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: viro@redhat.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14 still not making fs dirty when it should
+In-Reply-To: <20011128231504.A26510@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Christopher Friesen" <cfriesen@nortelnetworks.com> writes:
-
-> Suppose I have a fancy routing setup, dynamically configured by different
-> binaries, scripts, etc, complete with multiple addresses per link, additional
-> routing rules and tables specified using iproute2, etc.
+Pavel Machek wrote:
 > 
-> An ethernet driver hangs.  Could be a software bug, an intermittent hardware
-> issue, whatever.  It can be fixed up by setting the link down and up.
+> Hi!
 > 
-> Currently, if I run "ip link set dev ethX down", all routes associated with that
-> IP address in the additional routing tables are lost.  This is somewhat
-> understandable, as the addresses are not actually available anymore.  However,
-> the addresses are still visible associated with the link.  Then I run "ip link
-> set dev ethX up".  The route in the main routing table comes back, but none of
-> the other routes do.  Somehow, all of those additional routes must be re-added.
+> I still can mount / read/write, press reset, and not get fsck on next
+> reboot. That strongly suggests kernel bug to me.
 
-ip route list dev device > BACKUP
+aargh.  I thought that was fixed.  How's this look?
 
-...
-
-while read i ; do ip route add $i ; done < BACKUP
-
-
-> 
-> Wouldn't it be nice if we could keep track of these additional routes?  Then you
-> could simply 'down' and 'up' the link and everything would be back the way it
-> was before.
-> 
-> Does this sound like a good idea?  How hard would this be to implement (not
-> knowing what the current code looks like, I don't know how this would be done)?
-
-In kernel very easy. The IP addresses and the driver init/cleanup are 
-completely separated and can be easily done independent. You may need
-some way to prevent packets getting submitted to the driver (e.g. a
-netif_carrier_off but make sure to not confuse it with a real 
-netif_carrier_off done by the driver, so you'll likely need a new flag) 
-
-I'm not sure it it worth it though given how easily it is to simulate
-in user space. If you really wanted it I guess best would be to add new 
-ioctls for it. Coding should be easy.
-
--Andi
+--- linux-2.4.17-pre1/fs/ext2/super.c	Thu Nov 22 23:02:58 2001
++++ linux-akpm/fs/ext2/super.c	Thu Nov 29 11:53:52 2001
+@@ -311,6 +311,7 @@ static int ext2_setup_super (struct supe
+ 	es->s_mnt_count=cpu_to_le16(le16_to_cpu(es->s_mnt_count) + 1);
+ 	es->s_mtime = cpu_to_le32(CURRENT_TIME);
+ 	mark_buffer_dirty(sb->u.ext2_sb.s_sbh);
++	ll_rw_block(WRITE, 1, sb->u.ext2_sb.s_sbh);
+ 	sb->s_dirt = 1;
+ 	if (test_opt (sb, DEBUG))
+ 		printk ("[EXT II FS %s, %s, bs=%lu, fs=%lu, gc=%lu, "

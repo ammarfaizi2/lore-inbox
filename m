@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264568AbUANTns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 14:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbUANTmV
+	id S263178AbUANUD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 15:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUANUBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 14:42:21 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:43496 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264471AbUANTll convert rfc822-to-8bit (ORCPT
+	Wed, 14 Jan 2004 15:01:41 -0500
+Received: from lech.pse.pl ([194.92.3.7]:64426 "EHLO lech.pse.pl")
+	by vger.kernel.org with ESMTP id S266336AbUANUBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 14:41:41 -0500
-User-Agent: Microsoft-Entourage/10.1.1.2418
-Date: Wed, 14 Jan 2004 20:40:33 +0100
-Subject: Hude read/write cache
-From: J=?ISO-8859-1?B?/A==?=rgen Scholz <juergen@scholz-gmbh.cc>
-To: <linux-kernel@vger.kernel.org>
-Message-ID: <BC2B59C1.2E87%juergen@scholz-gmbh.cc>
-Mime-version: 1.0
-Content-type: text/plain; charset="ISO-8859-1"
-Content-transfer-encoding: 8BIT
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:150d20c68877055ca0efd2f4e3b0e0d9
+	Wed, 14 Jan 2004 15:01:18 -0500
+Date: Wed, 14 Jan 2004 21:01:13 +0100
+From: Lech Szychowski <lech.szychowski@pse.pl>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Catch 22
+Message-ID: <20040114200113.GA7237@lech.pse.pl>
+Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
+Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
+	linux-kernel@vger.kernel.org
+References: <400554C3.4060600@sms.ed.ac.uk> <20040114090137.5586a08c.jkl@sarvega.com> <20040114091456.752ad02d.rddunlap@osdl.org> <40058DAB.30802@grupopie.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40058DAB.30802@grupopie.com>
+Organization: Polskie Sieci Elektroenergetyczne S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>  - mount /dev/hda somewhere (/mnt/disk or something)
+>  - # cd /mnt/disk
+>  - edit etc/lilo.conf to always use /dev/hda
+>  - # chroot . lilo
 
-I got a small server, which main purpose is routing and dialup besides being
-a repository for files. This system is very noisy. Because of that I want to
-stop the disks from spinning, when the system is in regular usage (standby,
-routing..). This should happen through a read and write cache which keeps
-the most often used files in RAM (like log files, bash, ...), so that there
-is no need for the system to access the (physical) hard drive.
-I would like to use a regular filesystem with a sort of transparent cache.
-Any ideas?
+AFAIR "lilo -r /mnt/disk" would be a better/easier way to
+achieve the same result you're trying to get with the last line.
 
-Ciao,
-Jürgen
+-- 
+	Leszek.
 
+-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+-- speaking just for myself...

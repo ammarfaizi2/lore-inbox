@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292520AbSBYXyq>; Mon, 25 Feb 2002 18:54:46 -0500
+	id <S292514AbSBYX6g>; Mon, 25 Feb 2002 18:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292514AbSBYXy3>; Mon, 25 Feb 2002 18:54:29 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:7921 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S292507AbSBYXyQ>;
-	Mon, 25 Feb 2002 18:54:16 -0500
-Date: Tue, 26 Feb 2002 00:53:57 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-ac1
-In-Reply-To: <E16fV8u-0006r6-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.30.0202260053090.9792-100000@balu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292515AbSBYX60>; Mon, 25 Feb 2002 18:58:26 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:20130 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292514AbSBYX6R>;
+	Mon, 25 Feb 2002 18:58:17 -0500
+Date: Mon, 25 Feb 2002 15:55:47 -0800 (PST)
+Message-Id: <20020225.155547.55741458.davem@redhat.com>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <a5ehlm$1fe$1@cesium.transmeta.com>
+In-Reply-To: <20020225230156.GA11786@merlin.emma.line.org>
+	<20020225.150813.66161624.davem@redhat.com>
+	<a5ehlm$1fe$1@cesium.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "H. Peter Anvin" <hpa@zytor.com>
+   Date: 25 Feb 2002 15:34:14 -0800
 
-Let's fill that mailbox up :]
+   > This whole conversation exists because "Deleting the EXTRAVERSION
+   > setting from linux/Makefile" then making new diffs/tars was screwed
+   > up.  Doing it with a script isn't going to help this kind of problem.
+   > 
+   
+   Sure it would.  It would make the likelihood for errors much lower.
+   You need to make tarballs anyway.
 
-On Tue, 26 Feb 2002, Alan Cox wrote:
-
-> > I am just curious how much of the item marked with [o] do you plan to push
-> > to Marcelo? Especially that a lot of them starts with "Fix ...".
->
-> Marcelo is about to get a very full mailbox of stuff I've been holding over
->
-
--- 
-Balazs Pozsar
-
+Part of my suggestion involved putting up tarballs in the RC
+releases, perhaps you missed that bit :-)

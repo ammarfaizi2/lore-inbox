@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSEUSxg>; Tue, 21 May 2002 14:53:36 -0400
+	id <S315438AbSEUSyR>; Tue, 21 May 2002 14:54:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSEUSxf>; Tue, 21 May 2002 14:53:35 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:46087 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S315431AbSEUSxe>; Tue, 21 May 2002 14:53:34 -0400
-Message-ID: <3CEA993D.5060705@yahoo.com>
-Date: Wed, 22 May 2002 00:30:13 +0530
-From: C Hanish Menon <hanishkvc@yahoo.com>
-Reply-To: hanishkvc@yahoo.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020515 Debian/1.0rc2-2
-X-Accept-Language: en
+	id <S315437AbSEUSyQ>; Tue, 21 May 2002 14:54:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50184 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315438AbSEUSyK>; Tue, 21 May 2002 14:54:10 -0400
+Date: Tue, 21 May 2002 11:53:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.17
+In-Reply-To: <3CEA93B5.B2E62FC7@linux-m68k.org>
+Message-ID: <Pine.LNX.4.33.0205211144180.3073-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Seems like a race or unhandled situation with ksoftirqd scheduling/management
- - Oops missed the control flow in the generic irq.c as most targets use their
- own irq.c 
-In-Reply-To: <3CEA8742.2040308@yahoo.com.suse.lists.linux.kernel> <p73hel1xswv.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi
 
-Andi Kleen wrote:
-> At least i386 runs the softirqs at the end of do_IRQ.
+On Tue, 21 May 2002, Roman Zippel wrote:
 > 
-> ksoftirqd is just supposed to be a fallback mechanism for the case
-> of soft irqs eating excessive runtime or one softirq triggering another
-> (common case is networking and serial softirq for BH). It is not
-> the primary way to run softirqs.
+> Basically I could agree with it, but something looks wrong. Why exactly
+> is pte_free_tlb() needed in first place? Why does it call
+> tlb_remove_page()?
 
-Oops, You are right, i386 and also the generic mips irq.c has code in
-do_IRQ to call do_softirq.
+That is a x86-specific thing, not aarchitected.
 
-But most of the target specific irq.c in mips, don't seem to follow this 
-convention. Even when I started my port, I had based my interrupt 
-subsystem after looking into some of these target specific irq.c's.
+The _architected_ thing is
 
-So I was expecting this call to softirqs occuring from within 
-kernel/entry.S after ret_from_irq. And as there is no code there to this
-end, I came to my flawed conclusion.
+ - pte_free() does the physical free of a pte pointer that was allocated 
+   but never inserted into the page tables due to optimistic locking (see 
+   pte_alloc_map() in mm/memory.c).
 
-Sorry about this wrong assumption.
-I have got the solution to my problem. However have to check out with 
-the mips target guys has to how they are taking care of softirqs. When
-they aren't calling do_softirq from do_IRQ or any other part of 
-interrupt subsystem.
+ - pte_free_tlb() does the same BUT it is also an architecture-specific 
+   hook to allow the architecture to also some way shoot down whatever TLB 
+   contents that might depend on the pmd_page in question.
 
-Keep :-)
-HanishKVC
+   On x86, we do that by just adding it as another page to teh tlb flush 
+   stuff, but other architectures might just make it be the same as 
+   pte_free() if there are no TLB issues involved.
 
+If you care, the reason we need to do this on x86 is that the TLB walker
+is speculative and almost totally asynchronous wrt the rest of the CPU
+core, so we may have a CPU "TLB lookup thread" goin on in parallel with 
+the TLB cleaning - and that TLB lookup may have looked up the pmd contents 
+already but not resolved the entry yet. Which is why we have to 
+synchronize the PMD freeing with the TLB flush - the same way we already 
+have to do it for the regular data pages.
+
+Other architectures may not have this issue (or you can fix it with
+alternative approaches, like using the pmd quicklists etc to avoid freeing
+the pmd before the TLB flush, which is likely to be the fix in the 2.4.x
+tree).
+
+		Linus
 

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269120AbTBXD5i>; Sun, 23 Feb 2003 22:57:38 -0500
+	id <S269106AbTBXDyc>; Sun, 23 Feb 2003 22:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269121AbTBXD5i>; Sun, 23 Feb 2003 22:57:38 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:38047 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id <S269120AbTBXD5h>;
-	Sun, 23 Feb 2003 22:57:37 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15961.39567.749201.870556@napali.hpl.hp.com>
-Date: Sun, 23 Feb 2003 20:07:43 -0800
+	id <S269115AbTBXDyb>; Sun, 23 Feb 2003 22:54:31 -0500
+Received: from bitmover.com ([192.132.92.2]:20416 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S269106AbTBXDyb>;
+	Sun, 23 Feb 2003 22:54:31 -0500
+Date: Sun, 23 Feb 2003 20:02:46 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: davidm@hpl.hp.com, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call 
-In-Reply-To: <E18n9cZ-0000ng-00@w-gerrit2>
-References: <15961.24656.733807.819204@napali.hpl.hp.com>
-	<E18n9cZ-0000ng-00@w-gerrit2>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Cc: Bill Davidsen <davidsen@tmr.com>, lse-tech@lists.sf.et,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224040246.GA4215@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Gerrit Huizenga <gh@us.ibm.com>, Bill Davidsen <davidsen@tmr.com>,
+	lse-tech@lists.sf.et,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1030223181400.999D-100000@gatekeeper.tmr.com> <E18n9Kx-0000kA-00@w-gerrit2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18n9Kx-0000kA-00@w-gerrit2>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 23 Feb 2003 19:49:38 -0800, Gerrit Huizenga <gh@us.ibm.com> said:
+On Sun, Feb 23, 2003 at 07:31:26PM -0800, Gerrit Huizenga wrote:
+> But most
+> people don't connect big machines to IDE drive subsystems.
 
-  Gerrit> I haven't seen anything recently on the higher level System bencmarks
-  Gerrit> for IA64
-
-Did you miss the TPC-C announcement from last November & December?
-
- rx5670 4-way Itanium 2: 80498 tpmC @ $5.30/transaction (Oracle 10 on Linux).
- rx5670 4-way Itanium 2: 87741 tpmC @ $5.03/transaction (MS SQL on Windows).
-
-Both world-records for 4-way machines when they were announced (not
-sure if that's still true).
-
-	--david
+3ware controllers.  They look like SCSI to the host, but use cheap IDE
+drives on the back end.  Really nice cards.  bkbits.net runs on one.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281197AbRKUBwN>; Tue, 20 Nov 2001 20:52:13 -0500
+	id <S281437AbRKUCFQ>; Tue, 20 Nov 2001 21:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281429AbRKUBwD>; Tue, 20 Nov 2001 20:52:03 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:30980 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S281197AbRKUBvz>; Tue, 20 Nov 2001 20:51:55 -0500
-Message-ID: <3BFB08B2.3AE5BF60@lexus.com>
-Date: Tue, 20 Nov 2001 17:51:46 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre6 i686)
+	id <S281440AbRKUCFG>; Tue, 20 Nov 2001 21:05:06 -0500
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:31241 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S281437AbRKUCEz>;
+	Tue, 20 Nov 2001 21:04:55 -0500
+Message-ID: <3BFAE669.342B268D@nyc.rr.com>
+Date: Tue, 20 Nov 2001 18:25:29 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: mroth@calpoly.edu
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spawning kernel threads from other kernel threads(?)
-In-Reply-To: <H00006040937765d.1006306811.davinci.artisan.calpoly.edu@MHS>
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Loop.c File !!!!
+In-Reply-To: <fa.ihadquv.1knkor8@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mroth@calpoly.edu wrote:
+What version of the kernel are you trying to compile?
 
-> Question:
->         Can you spawn a kernel thread from another kernel thread? I want to
-> have one manager ?entity? which will dynamically create kernel threads as
-> needed. Right now, when I try to spawn another thread from the manager ?entity?
-> [as of today, still a kernel thread] it will crash. Is this legal? If not, what
-> is the alternative?
->
-> kernel_thread()
-> Kernel Version 2.4.3
-
-2.4.3 is awfully stale for starters -
-
-and BTW what is an "?entity?" ?
-
-cu
-
-jjs
-
+Miguel Maria Godinho de Matos wrote:
+> 
+> The problem is the following:
+> 
+> I AM A NEWBIE!!!
+> 
+> Well i had some questions about the linux kernel compilation and some of you
+> gave me some real goos answeres, however, there is an issue which keeps
+> buzzing my head and that i can't understand!
+> 
+> Some one told me i should edit the loop.c file and even tried to explained me
+> why but i couldn't understand.
+> 
+> He said something about my new kernel wouldn't be able to compile if two or
+> three lines weren't comented!
+> 
+> I didn't understand this fact so i would like to know why should i edit the
+> /usr/src/linux/drivers/block/loop.c file!!!!
+> 
+> Plz some one explain me this fact.
+> 
+> tks for your attention, Astinus
+> 
+> If i wasn't explicit enough plz tell me! So i can reformulate my e-mail post!
+> 
+> once again tks for your attention.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,116 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbUCaSGI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 13:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCaSGH
+	id S262272AbUCaSGP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 13:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUCaSGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 31 Mar 2004 13:06:15 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:55983 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262272AbUCaSGH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 31 Mar 2004 13:06:07 -0500
-Received: from userbb201.dsl.pipex.com ([62.190.241.201]:50337 "EHLO
-	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
-	id S262269AbUCaSFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 13:05:46 -0500
-Date: Wed, 31 Mar 2004 19:05:44 +0100
-From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.26-rc1, Dell Poweredge 750, IDE DMA and patch for piix
-Message-ID: <20040331180544.GA10161@axis.demon.co.uk>
-Mime-Version: 1.0
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16491.2184.253165.545651@napali.hpl.hp.com>
+Date: Wed, 31 Mar 2004 10:06:00 -0800
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: ulrich.windl@rz.uni-regensburg.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 on Itanium2: floating-point assist fault at ip 400000000062ada1, isr 0000020000000008
+In-Reply-To: <200403311900.17293.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <406AE0D5.10359.1930261@localhost>
+	<200403311900.17293.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We recently got a new Dell Poweredge 750 which has SATA disks in.
-2.4.26-rc1 doesn't enable me to turn on DMA...
+>>>>> On Wed, 31 Mar 2004 19:00:17 +0200, Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
 
-00:1f.2 IDE interface: Intel Corp.: Unknown device 25a3 (rev 02) (prog-if 8a [Master SecP PriP])
-        Subsystem: Dell Computer Corporation: Unknown device 0165
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 0
-        Region 0: I/O ports at <unassigned>
-        Region 1: I/O ports at <unassigned>
-        Region 2: I/O ports at <unassigned>
-        Region 3: I/O ports at <unassigned>
-        Region 4: I/O ports at fea0 [size=16]
+  Denis> kernel says that you have them too frequently, which probably
+  Denis> impairs efficiency. It's a hint to programmer.
 
-Here is a diff against 2.4.26-rc1 which enables piix to recognise the
-chip.  It works and is tested but was developed by cut and paste
-rather than reading the technical manuals so may not be correct!
+Close: the kernel limits the frequency of the printing to avoid
+flooding the log files.  Even if you do get the faults frequently, it
+won't print more than 5 warning messages every 5 seconds.  The
+floating-point software-assist (fpswa) faults are harmless in the
+sense that they don't affect correctness of the program, but if you do
+get them _very_ frequently (which is quite rare), they could impair
+performance.  FPSWA faults occur only for corner-cases of
+floating-point arithmetic, such as operations on denormals or
+non-finite numbers.  Many programs don't need denormal support at all
+and for those, you can link the program with -ffast-math (GCC) or -ftz
+(Intel compiler).  This will turn on "flush-to-zero" mode and avoid
+any FPSWA-faults due to denormals (in x86-speak, this is equivalent to
+the "flush-to-zero" mode that SSE offers).
 
-Here is it working...
+If the messages appear with a frequency of less than 5 messages/5
+seconds, then there is certainly no performance issue and you may want
+to just turn off the messages.  This can be done via the prctl(2)
+system-call or with the prctl command.  With the latter:
 
-ide: late registration of driver.
-ICH5: IDE controller at PCI slot 00:1f.2
-ICH5: chipset revision 2
-ICH5: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xfea0-0xfea7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfea8-0xfeaf, BIOS settings: hdc:DMA, hdd:DMA
-hda: TEAC CD-ROM CD-224E, ATAPI CD/DVD-ROM drive
-hdc: ST3120026AS, ATA DISK drive
-hdd: ST3120026AS, ATA DISK drive
+	prctl --fp-emul=silent
 
---- piix.c.2.4.26-rc1	2004-03-31 13:06:51.000000000 +0100
-+++ piix.c	2004-03-31 15:37:57.000000000 +0100
-@@ -155,6 +155,7 @@
- 			case PCI_DEVICE_ID_INTEL_82801E_11:
- 			case PCI_DEVICE_ID_INTEL_ESB_2:
- 			case PCI_DEVICE_ID_INTEL_ICH6_2:
-+			case PCI_DEVICE_ID_INTEL_ESB_3:
- 				p += sprintf(p, "PIIX4 Ultra 100 ");
- 				break;
- 			case PCI_DEVICE_ID_INTEL_82372FB_1:
-@@ -294,6 +295,7 @@
- 		case PCI_DEVICE_ID_INTEL_82801EB_11:
- 		case PCI_DEVICE_ID_INTEL_ESB_2:
- 		case PCI_DEVICE_ID_INTEL_ICH6_2:
-+		case PCI_DEVICE_ID_INTEL_ESB_3:
- 			mode = 3;
- 			break;
- 		/* UDMA 66 capable */
-@@ -686,6 +688,7 @@
- 		case PCI_DEVICE_ID_INTEL_82801E_11:
- 		case PCI_DEVICE_ID_INTEL_ESB_2:
- 		case PCI_DEVICE_ID_INTEL_ICH6_2:
-+		case PCI_DEVICE_ID_INTEL_ESB_3:
- 		{
- 			unsigned int extra = 0;
- 			pci_read_config_dword(dev, 0x54, &extra);
-@@ -883,6 +886,7 @@
-  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18},
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 19},
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_3, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 21},
- 	{ 0, },
- };
- 
---- piix.h.2.4.26-rc1	2004-03-31 13:06:51.000000000 +0100
-+++ piix.h	2004-03-31 15:37:40.000000000 +0100
-@@ -333,6 +333,20 @@
- 		.enablebits	= {{0x41,0x80,0x80}, {0x43,0x80,0x80}},
- 		.bootable	= ON_BOARD,
- 		.extra		= 0,
-+	},{	/* 21 */
-+		.vendor		= PCI_VENDOR_ID_INTEL,
-+		.device		= PCI_DEVICE_ID_INTEL_ESB_3,
-+		.name		= "ICH5",
-+		.init_setup	= init_setup_piix,
-+		.init_chipset	= init_chipset_piix,
-+		.init_iops	= NULL,
-+		.init_hwif	= init_hwif_piix,
-+		.init_dma	= init_dma_piix,
-+		.channels	= 2,
-+		.autodma	= AUTODMA,
-+		.enablebits	= {{0x41,0x80,0x80}, {0x43,0x80,0x80}},
-+		.bootable	= ON_BOARD,
-+		.extra		= 0,
- 	},{
- 		.vendor		= 0,
- 		.device		= 0,
+will fork a new shell and disable the printing of the FPSWA-messages
+in the shell and all its children.  There is also "--unaligned=silent"
+which will turn off a similar message for unaligned access emulation
+done by the kernel.
 
-
--- 
-Nick Craig-Wood
-ncw1@axis.demon.co.uk
+	--david

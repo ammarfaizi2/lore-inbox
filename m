@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTI2RVI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTI2RU1
+	id S263966AbTI2Rk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbTI2RiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:20:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54535 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263861AbTI2RTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:19:05 -0400
-Date: Mon, 29 Sep 2003 18:19:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: davej@redhat.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove unnecessary checks in pcmcia
-Message-ID: <20030929181901.A7593@flint.arm.linux.org.uk>
-Mail-Followup-To: davej@redhat.com, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <E1A41Rq-0000NP-00@hardwired>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Sep 2003 13:38:18 -0400
+Received: from coderock.org ([193.77.147.115]:15372 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S263930AbTI2Req (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:34:46 -0400
+From: Domen Puncer <domen@coderock.org>
+To: intermezzo-devel@lists.sourceforge.net
+Subject: replicator.c - bug in izo_rep_cache_clean()?
+Date: Mon, 29 Sep 2003 19:34:39 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1A41Rq-0000NP-00@hardwired>; from davej@redhat.com on Mon, Sep 29, 2003 at 06:04:34PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309291934.39891.domen@coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
-> io->stop/start are 16 bits, so will never be >0xffff
+Hi.
 
-Not necessarily.  On x86 yes.  On ARM, no.
+Another repost after more than a month, since this bug is still in kernel tree.
+Now CC-ing lkml, folks at intermezzo ml don't care?
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+I've been doing some janitor work and came across this:
+
+
+On Saturday 12 of July 2003 18:07, Matthew Wilcox wrote:
+> On Sat, Jul 12, 2003 at 05:22:55PM +0200, Domen Puncer wrote:
+> > ---
+> > fs/intermezzo/replicator.c:83: //izo_rep_cache_clean()
+> >                 tmp = bucket = &fset->fset_clients[i];
+> >
+> >                 tmp = tmp->next;
+> >                 while (tmp != bucket) {
+> >                         struct izo_offset_rec *offrec;
+> >                         tmp = tmp->next;
+> >                         list_del(tmp);
+> >                         offrec = list_entry(tmp, struct izo_offset_rec,
+> >                                             or_list);
+> >                         PRESTO_FREE(offrec, sizeof(struct
+> > izo_offset_rec)); }
+> >
+> > This code just doesn't look right.
+> > We delete tmp (tmp->next = LIST_POISON1)... next time we'll
+> >  list_del(LIST_POISON1)!!
+> > We also do not delete first entry in the list
+> > &fset->fset_clients[i]->next.
+>
+> Yup, looks like a bug.  I bet they meant to list_del(&tmp->prev).
+
+I guess it could be written like this:
+	list_for_each_save(tmp, next, bucket) {
+		struct izo_offset_rec *offrec;
+		list_del(tmp);
+		...
+
+
+	Domen

@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVCKRHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVCKRZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVCKRHz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 12:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVCKRHy
+	id S261219AbVCKRZK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 12:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVCKRZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 12:07:54 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:48353 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S261211AbVCKRHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 12:07:46 -0500
-Date: Fri, 11 Mar 2005 12:04:49 -0500
-From: Jody McIntyre <scjody@modernduck.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       willy@debian.org, nathans@sgi.com
-Subject: Re: [PATCH, RFC 1/3] Add sem_getcount() to arches that lack it
-Message-ID: <20050311170449.GS1111@conscoop.ottawa.on.ca>
-References: <20050311000646.GJ1111@conscoop.ottawa.on.ca> <20050310205503.6151ab83.akpm@osdl.org> <20050311053144.GP1111@conscoop.ottawa.on.ca> <20050310215652.76c47856.akpm@osdl.org> <20050311122747.GL21986@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Mar 2005 12:25:10 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:1468 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261219AbVCKRY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 12:24:59 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [PATCH 4/9] UML - Export gcov symbol based on gcc version
+Date: Fri, 11 Mar 2005 18:01:29 +0100
+User-Agent: KMail/1.7.2
+Cc: Adrian Bunk <bunk@stusta.de>, Jeff Dike <jdike@addtoit.com>,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org> <20050310225340.GD3205@stusta.de>
+In-Reply-To: <20050310225340.GD3205@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050311122747.GL21986@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200503111801.29510.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 12:27:47PM +0000, Matthew Wilcox wrote:
-
-> > But I guess it's a bit hard to justify adding more infrastructure to
-> > support a single callsite which has a simple alternative.  So if you could
-> > please add the separate counter?
-> 
-> It's pretty *small* infrastructure, and it gives me something to whine at
-> people about when they use atomic_read on something that isn't an atomic.
-
-Agreed, but I don't mind adding a separate counter.  However...
-
-> If we are going to get rid of sem_getcount, could we rename the 'count'
-> variables, at least on i386 and ppc to make it clear that you're not
-> supposed to do this ... maybe to 'count_$ARCH'?
-
-I'm working on a patch to do just that.  It fails when building XFS:
-
-fs/xfs/xfs_inode_item.c: In function `xfs_inode_item_pushbuf':
-fs/xfs/xfs_inode_item.c:803: error: structure has no member named `count'
-fs/xfs/xfs_inode_item.c:825: error: structure has no member named `count'
-
-fs/xfs/linux-2.6/sema.h:
-#define valusema(sp)                    (atomic_read(&(sp)->count))
-
-It seems getting the value of a semaphore is more common than it appears
-at first glance.  I don't see how this code could possibly work on
-parisc.  Therefore I propose:
-
-1. Adding sem_getcount() everywhere, as in my original patch.
-2. Renaming count to count_$ARCH as willy suggested.
-3. Anyone who abuses semaphores will now break.  Fix them to use
-   sem_getcount().
-
-I'll work on that over the weekend unless anyone has any better ideas.
-
-Jody
-
-
-> 
-> -- 
-> "Next the statesmen will invent cheap lies, putting the blame upon 
-> the nation that is attacked, and every man will be glad of those
-> conscience-soothing falsities, and will diligently study them, and refuse
-> to examine any refutations of them; and thus he will by and by convince 
-> himself that the war is just, and will thank God for the better sleep 
-> he enjoys after this process of grotesque self-deception." -- Mark Twain
-
+On Thursday 10 March 2005 23:53, Adrian Bunk wrote:
+> On Wed, Mar 09, 2005 at 09:16:02PM -0500, Jeff Dike wrote:
+> > The init function called by gcc when gcov is enabled is __gcov_init or
+> > __bb_init_func, depending on the gcc version.  Anton is using 3.3.4 and
+> > seeing __gcov_init.  I'm using 3.3.2 and seeing __bb_init_func, so we
+> > need to close that gap a bit.
+> >
+> > Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> >
+> > Index: linux-2.6.11/arch/um/kernel/gmon_syms.c
+> > ===================================================================
+> > --- linux-2.6.11.orig/arch/um/kernel/gmon_syms.c 2005-03-07
+> > 10:53:03.000000000 -0500 +++
+> > linux-2.6.11/arch/um/kernel/gmon_syms.c 2005-03-07 16:29:37.000000000
+> > -0500 @@ -5,8 +5,14 @@
+> >
+> >  #include "linux/module.h"
+> >
+> > +#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3) || \
+> > + (__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4)
+> >...
+>
+> This patch is still wrong.
+>
+> It seems my comment on this [1] was lost:
+>
+> <--  snip  -->
+>
+> This line has to be something like
+>
+> ( (__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4) && \
+>    HEAVILY_PATCHED_SUSE_GCC )
+>
+> I hope SuSE has added some #define to distinguish what they call
+> "gcc 3.3.4" from GNU gcc 3.3.4
+"You hope" does not mean "it exists".
+Secondly, the patch is wrong anyway, as I said elsewhere.
 -- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+

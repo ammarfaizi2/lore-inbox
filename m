@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312850AbSCVVlJ>; Fri, 22 Mar 2002 16:41:09 -0500
+	id <S312852AbSCVVot>; Fri, 22 Mar 2002 16:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312851AbSCVVk7>; Fri, 22 Mar 2002 16:40:59 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:7135 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312850AbSCVVkt>;
-	Fri, 22 Mar 2002 16:40:49 -0500
-Date: Fri, 22 Mar 2002 22:40:19 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Joerg Pommnitz <pommnitz@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I want my martians
-Message-ID: <20020322224019.A3252@ucw.cz>
-In-Reply-To: <20020322102058.73815.qmail@web13306.mail.yahoo.com>
+	id <S312855AbSCVVoj>; Fri, 22 Mar 2002 16:44:39 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19719 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S312852AbSCVVoa>; Fri, 22 Mar 2002 16:44:30 -0500
+Date: Fri, 22 Mar 2002 22:44:13 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Martin Blais <blais@discreet.com>
+Cc: Martin Blais <blais@IRO.UMontreal.CA>, linux-kernel@vger.kernel.org
+Subject: Re: xxdiff as a visual diff tool (shameless plug)
+Message-ID: <20020322214413.GG16382@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there> <20020322092712.GA233@elf.ucw.cz> <200203221829.NAA22671161@cuba.discreet.qc.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 22, 2002 at 02:20:58AM -0800, Joerg Pommnitz wrote:
-> Hi List,
-> as I wrote in
-> http://marc.theaimsgroup.com/?l=linux-net&m=101672497502530&w=2 I'm trying
-> to send packets from one network interface to another one on the same
-> machine over the external network. This almost works except for the fact
-> that the Linux IP stack considers these packets to be "martians" and drops
-> them. While this might be a good idea for normal operation it prevents me
-> from doing what I want: network latency and reliability measurements.
+Hi!
+
+> > It would be great to somehow split patches before feeding them to the
+> > patch. If you have one big hunk, and it fails because of one letter
+> > added somewhere in file, it is *big pain* to find/kill offending
+> > letter.
 > 
-> So, is there a way to convince the Linux kernel that these martians are
-> not here to take over the world but just harmless little packets that
-> should be delivered to the waiting application?
+> oops.. sorry Pavel, never mind previous email, i got it now (brain is slowly 
+> booting this morning).
 
-for a in /proc/sys/net/ipv4/conf/*/rp_filter; do echo 0 > $a; done
+Problem is that sometimes even one hunk is too much.
 
+> that seems more like a patch problem/improvement request. i wouldn't do the 
+> patch myself... however, with the rejected hunks problem, i wonder if it is 
+> at all possible to avoid implementing patch functionality in the diffing tool 
+> itself.
+
+Question is how to do it in patch. Even one *long line* can be too
+much, and then your horizontal highlight would come very handy.
+
+								Pavel
 -- 
-Vojtech Pavlik
-SuSE Labs
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

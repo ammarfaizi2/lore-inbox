@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270109AbTGUOfw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGUOfw
+	id S270120AbTGUOjS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270139AbTGUOjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:35:52 -0400
-Received: from gsd.di.uminho.pt ([193.136.20.132]:16267 "EHLO
-	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
-	id S270109AbTGUOfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:35:42 -0400
-Date: Mon, 21 Jul 2003 15:50:42 +0100
-From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SVR4 STREAMS (for example LiS)
-Message-ID: <20030721145042.GA17555@lsd.di.uminho.pt>
-Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
-	linux-kernel@vger.kernel.org
-References: <3F1BF509.1000608@giga-stream.de> <Pine.LNX.4.53.0307211031460.18968@chaos>
+	Mon, 21 Jul 2003 10:39:18 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:52632 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270120AbTGUOjQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:39:16 -0400
+Date: Mon, 21 Jul 2003 16:49:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: how to use "ATAPI:" protocol for IDE CD/RWs??
+Message-ID: <20030721144930.GG12516@suse.de>
+References: <Pine.LNX.4.53.0307200606120.17848@localhost.localdomain> <20030720122653.C22265@ss1000.ms.mff.cuni.cz> <20030720222854.GI26422@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307211031460.18968@chaos>
-User-Agent: Mutt/1.4.1i
-X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
-X-Organization: 'GSD'
-X-Section: 'BIC'
-X-Priority: '1 (Highest)'
+In-Reply-To: <20030720222854.GI26422@fs.tum.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 10:38:38AM -0400, Richard B. Johnson wrote:
-> Streams are an extension of buffered I/O implimented by the 'C'
-> runtime library. Streams really have nothing to do with the
-> internal workings of kernel I/O. As far as kernel I/O goes,
-> one reads() and writes() from user-space.
+On Mon, Jul 21 2003, Adrian Bunk wrote:
+> On Sun, Jul 20, 2003 at 12:26:53PM +0200, Rudo Thomas wrote:
+> > >   are there known problems with trying to access IDE CD/RWs directly
+> > > through the IDE drivers, rather than using SCSI emulation?  i've tried
+> > > testing cdrecord using the "dev=ATAPI:x,y,z" option, and am having
+> > > no luck.
+> > 
+> > Take a look at
+> > http://www.codemonkey.org.uk/post-halloween-2.5.txt
+> > 
+> > Excerpt:
+> > 
+> > CD Recording.
+> > ~~~~~~~~~~~~
+> > - Jens Axboe added the ability to use DMA for writing CDs on
+> >   ATAPI devices. Writing CDs should be much faster than it
+> >   was in 2.4, and also less prone to buffer underruns and the like.
+> > - Updated cdrecord in rpm and tar.gz can be found at
+> >   *.kernel.org/pub/linux/kernel/people/axboe/tools/
+> >...
+> 
+> @Dave:
+> What about writing "You need cdrecord >= 2.0 for this." instead?
 
-Actually, SysV Streams do.
+We already cleared this with Joerg some weeks ago, I'm sure the next
+version of the post-halloween document will reflect reality. You need
+1.11a38 or newer.
 
-An ex, for openning a pty, on svr4:
-fds = open(pts_name, O_RDWR)
-ioctl(fds, I_PUSH, "ptem")
-ioctl(fds, I_PUSH, "ldterm")
-ioctl(fds, I_PUSH, "ttcompat")
+-- 
+Jens Axboe
 
-Where ptem, ldterm, ttcompat work as independent modules converting the
-stream, resulting in a pseudo-terminal implementation.
-
-New programs should just use openpty directly, and let libc take care
-of the actual implementation.
-
-Also, BSD sockets were implemented using streams also, thus the compatibility
-libraries.
-
-Anyway, I see no point in caring wether streams are used or not in normal
-programs.
-
-Regards,
-Luciano Rocha

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263399AbUDOV2O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 17:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUDOV2N
+	id S262132AbUDOViJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 17:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUDOViJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 17:28:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:685 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263399AbUDOV2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 17:28:02 -0400
-Date: Thu, 15 Apr 2004 14:27:32 -0700
-From: Greg KH <greg@kroah.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040415212731.GA13578@kroah.com>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040414064015.GA4505@in.ibm.com> <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk> <20040415091752.A24815@flint.arm.linux.org.uk> <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk> <20040415161942.A7909@flint.arm.linux.org.uk> <20040415161011.GB2965@kroah.com> <20040415161332.GC24997@parcelfarce.linux.theplanet.co.uk> <20040415191447.GE24997@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Apr 2004 17:38:09 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:54546 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262132AbUDOViH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 17:38:07 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH] Kconfig.debug family
+Date: Thu, 15 Apr 2004 23:36:30 +0200
+User-Agent: KMail/1.6.1
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       jgarzik@pobox.com, akpm@osdl.org
+References: <407CEB91.1080503@pobox.com> <20040414212539.GE1175@waste.org> <20040415135229.75964100.rddunlap@osdl.org>
+In-Reply-To: <20040415135229.75964100.rddunlap@osdl.org>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040415191447.GE24997@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404152336.30621@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 08:14:47PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> BTW, how about a new section that would
-> 	a) be allocated separately at module load time
-> 	b) contain a kobject with ->release() freeing that section
-> 	c) be populated with structures containing kobjects and having
-> no ->release(); main kobject would be pinned down by them.  Original
-> refcount in each of those guys would be 1.
-> 
-> module_exit() would unregister all stuff we have in there and then drop
-> the references to them.  No waiting for anything and when all references
-> to these objects are gone, we get the section freed.  That can happen
-> way after the completion of rmmod - as the matter of fact we could have
-> the same module loaded again by that time.
-> 
-> AFAICS, that would solve the problem with static objects.  Comments?
+On Thursday 15 April 2004 22:52, Randy.Dunlap wrote:
 
-Yes, that would be very nice to have.  It would also have to work pretty
-much the same way with the code built into the kernel (with the
-exception that module_exit() would never get called.
+Hi Randy,
 
-Sounds like some fun linker magic is called for here...
+> This patch:
+> - creates lib/Kconfig.debug for generic kernel debug options
+> - creates arch/*/Kconfig.debug for arch-specific debug options
+> - moves KALLSYMS to the generic kernel debug options list
+> This is a first cut for review/comments.  I will double-check
+> the generic options list to see how it needs to be corrected...
 
-thanks,
+I really appreciate it. But I have one comment/suggestion:
 
-greg k-h
+We might use lib/Kconfig.debug for all arches and use proper "depend on" if 
+there is stuff for some specific arch only. So we have every debug stuff just 
+in one file. What do you think?
+
+ciao, Marc

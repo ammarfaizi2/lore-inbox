@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbTAWO34>; Thu, 23 Jan 2003 09:29:56 -0500
+	id <S264907AbTAWOev>; Thu, 23 Jan 2003 09:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbTAWO3z>; Thu, 23 Jan 2003 09:29:55 -0500
-Received: from angband.namesys.com ([212.16.7.85]:1920 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S265249AbTAWO3y>; Thu, 23 Jan 2003 09:29:54 -0500
-Date: Thu, 23 Jan 2003 17:39:04 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: ext2 FS corruption with 2.5.59.
-Message-ID: <20030123173904.A901@namesys.com>
-References: <20030123153832.A860@namesys.com> <Pine.LNX.4.44.0301231402290.1589-100000@localhost.localdomain> <20030123172638.A821@namesys.com>
+	id <S264939AbTAWOev>; Thu, 23 Jan 2003 09:34:51 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36880 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264907AbTAWOev>; Thu, 23 Jan 2003 09:34:51 -0500
+Date: Thu, 23 Jan 2003 15:44:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Martin Mares <mj@ucw.cz>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, trivial@rustcorp.com.au,
+       Neil Brown <neilb@cse.unsw.edu.au>, dwmw2@redhat.com
+Subject: Re: [PATCH] [TRIVIAL] kstrdup
+Message-ID: <20030123144400.GC1229@atrey.karlin.mff.cuni.cz>
+References: <20030119233750.GA674@elf.ucw.cz> <20030123063701.1F7172C2E0@lists.samba.org> <20030123140215.GA1229@atrey.karlin.mff.cuni.cz> <20030123142138.GA2031@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030123172638.A821@namesys.com>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20030123142138.GA2031@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi!
 
-On Thu, Jan 23, 2003 at 05:26:38PM +0300, Oleg Drokin wrote:
-> > >     My test consists of running "fsx -c 1234 testfile", "iozone -a",
-> > >     "dbench 60", "fsstress -p10 -n1000000 -d ." at the same time on the
-> > >     tested FS.
-> > >     fsx usually breaks just when dbench is finished.
-> Also I decided to run same test with ext3 and it deadlocked.
-> This time it was not absolutely vanilla kernel, so I am going to try it on
-> vanilla kernel and report back if it will be reproducable there.
-> (with stacktraces)
+> > Ehm?! What's confusing on strdup? Or you want to also introduce
+> > kmemcpy, kmemcmp, ksprintf etc?
+> 
+> No, as long as they don't allocate any memory.
+> 
+> "kstrdup" makes it clear that the string is allocated by kmalloc()
+> and should be freed by kfree().
 
-Ok, so on vanilla 2.5.59, the above test on ext3 fs crashes my kernel
-soon (in several seconds) after dbench is over.
+As we do not have any free(), there's no possibility for confusion.
 
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,6), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-------------[ cut here ]------------
-kernel BUG at fs/buffer.c:2545!
-invalid operand: 0000
-CPU:    0
-EIP:    0060:[<c0151d86>]    Not tainted
-EFLAGS: 00010246
-EIP is at submit_bh+0x26/0x110
-eax: 00000405   ebx: efe93180   ecx: f7c5a4b4   edx: f1b928a0
-esi: 00000001   edi: 00000001   ebp: e1bc1e2c   esp: e1bc1e24
-ds: 007b   es: 007b   ss: 0068
-Process kjournald (pid: 204, threadinfo=e1bc0000 task=f7a0c680)
-Stack: efe93180 00000000 e1bc1e48 c0151ebd 00000001 efe93180 e1bc1eb0 e0c5e5a0 
-       df65ccc0 e1bc1fb0 c01941bc 00000001 00000001 e1bc1eb0 e1bc0000 f7c5a400 
-       f7c5a45c 00000000 00000000 00000000 f7c5a4b4 f7c5a45c df65cd10 f7c5a43c 
-Call Trace:
- [<c0151ebd>] ll_rw_block+0x4d/0x70
- [<c01941bc>] journal_commit_transaction+0x49c/0x1150
- [<c0118b3a>] schedule+0x3ea/0x4c0
- [<c0196ed6>] kjournald+0x1e6/0x2f0
- [<c0196cf0>] kjournald+0x0/0x2f0
- [<c0196cd0>] commit_timeout+0x0/0x10
- [<c01071b1>] kernel_thread_helper+0x5/0x14
-
-Code: 0f 0b f1 09 7c 31 28 c0 89 f6 83 7b 20 00 75 0a 0f 0b f2 09 
-
-Bye,
-    Oleg
+As I said, if kstrdup took GFP_XXX argument, I'd agree, but as it
+hardcodes GFP_KERNEL...
+							Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

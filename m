@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261341AbSI3VRM>; Mon, 30 Sep 2002 17:17:12 -0400
+	id <S261332AbSI3VVX>; Mon, 30 Sep 2002 17:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261342AbSI3VRM>; Mon, 30 Sep 2002 17:17:12 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:4368 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261341AbSI3VRM>;
-	Mon, 30 Sep 2002 17:17:12 -0400
-Date: Mon, 30 Sep 2002 14:21:10 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: george anzinger <george@mvista.com>
-cc: John Levon <movement@marcelothewonderpenguin.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/6] High-res-timers part 6 (support-man) take 2
-In-Reply-To: <3D98BED5.79A73D7C@mvista.com>
-Message-ID: <Pine.LNX.4.33L2.0209301419380.4649-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261335AbSI3VVX>; Mon, 30 Sep 2002 17:21:23 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:51348 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S261332AbSI3VVW>;
+	Mon, 30 Sep 2002 17:21:22 -0400
+Date: Tue, 1 Oct 2002 07:26:27 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: L A Walsh <law@tlinx.org>
+Cc: Linux-Xfs <linux-xfs@oss.sgi.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-Fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: block size in XFS = hard coded constant?
+Message-ID: <20021001072627.A218954@wobbly.melbourne.sgi.com>
+References: <1033336748.1088.4.camel@laptop.americas.sgi.com> <NFBBKNPJLGIDJFAHGKMBIEIJCDAA.law@tlinx.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <NFBBKNPJLGIDJFAHGKMBIEIJCDAA.law@tlinx.org>; from law@tlinx.org on Mon, Sep 30, 2002 at 01:55:38AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Sep 2002, george anzinger wrote:
+Hello,
 
-| "Randy.Dunlap" wrote:
-| >
-| > On Sat, 28 Sep 2002, John Levon wrote:
-| >
-| > | On Sat, Sep 28, 2002 at 10:32:08AM -0700, george anzinger wrote:
-| > |
-| > | > The 4th, 5th, and 6th parts are support code and not really
-| > | > part of the kernel.
-| > |
-| > | So ...
-| > |
-| > | > This part contains man pages for the new system calls.
-| > |
-| > | ... why are they here ?
-| > |
-| > | http://freshmeat.net/projects/man-pages/
-| >
-| > I agree, please let's not clutter the kernel tree.
-|
-| Oh, I agree also.  I don't think any of the high-res-timers
-| support patches belong in the tree.  For testing and
-| verifying the system calls, however, it is nice to have
-| them.  It is easy to do the patch and then move the whole
-| directory as this is the only thing in it.
-|
-| I might suggest, however, that we should have a regression
-| test set for the kernel "somewhere".  Does such a thing
-| exist?  I haven't seen it, but then I have yet to see a
-| great number of things ;)
+On Mon, Sep 30, 2002 at 01:55:38AM -0700, L A Walsh wrote:
+> Right -- I know it isn't the filesystem block size.
+> 
+> In this day and age, it seems anachronistic.  Given the 10% higher block
+> density, not only would it yield higher capacities, but should yield higher
+> transfer rates, no?
+> 
+> I know it isn't a simple constant switch -- but I wouldn't want to switch
+> constants since not all disks should be constrained to the same block size.
+> 
 
-I believe that IBM's LTP project does regression testing on
-2.5.x kernels.  That's more for things like compile/build and
-syscall correctness IIRC.  Not so much as performance (regression)
-testing.
+I have some code which implements an initial version of >512 byte sector
+sizes for the XFS data device - I was just chatting about this with Steve
+today.  Initial benchmarking results seem to suggest that it does indeed
+perform slightly better.  Support for this will likely be making its way
+into XFS in the future, but not right away.
+
+cheers.
 
 -- 
-~Randy
-
+Nathan

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280718AbRKGAh0>; Tue, 6 Nov 2001 19:37:26 -0500
+	id <S280709AbRKGAlQ>; Tue, 6 Nov 2001 19:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280725AbRKGAhS>; Tue, 6 Nov 2001 19:37:18 -0500
-Received: from mail124.mail.bellsouth.net ([205.152.58.84]:17467 "EHLO
-	imf24bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280718AbRKGAfn>; Tue, 6 Nov 2001 19:35:43 -0500
-Message-ID: <3BE881D0.B57FC763@mandrakesoft.com>
-Date: Tue, 06 Nov 2001 19:35:28 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280725AbRKGAlG>; Tue, 6 Nov 2001 19:41:06 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:5291 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S280709AbRKGAk4>;
+	Tue, 6 Nov 2001 19:40:56 -0500
+Date: Wed, 07 Nov 2001 00:40:52 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: dalecki@evision.ag, Ricky Beam <jfbeam@bluetopia.net>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Message-ID: <812463125.1005093652@[195.224.237.69]>
+In-Reply-To: <3BE87CB9.43427FCF@evision-ventures.com>
+In-Reply-To: <3BE87CB9.43427FCF@evision-ventures.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-To: dalecki@evision.ag
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161FVT-00029X-00@the-village.bc.nu> <3BE883BF.1025EC08@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> And then there is the overloaded struct inde. It would be worth
-> quite a bit of memmory to not overlay the private,filesystem
-> specific parts but to attach them by a pointer instead, in esp.
-> if you make this in a way where the private part would be used
-> without the public interface in drivers.
 
-I think there are plans for several filesystems to use the generic_ip
-and generic_sbp members of the unions, instead of further adding to the
-unions.  
 
-FreeVxFS is an example of one such filesystem which already does this.
+--On Wednesday, 07 November, 2001 1:13 AM +0100 Martin Dalecki 
+<dalecki@evision-ventures.com> wrote:
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+> around 6 years
+> ago people did just give up on adapting the parsers to the ever chaning
+> "wonderfull" ascii interfaces those times.
 
+Must have passed me by - probably too busy with regedt32 and other
+such great /proc substitutes - cough...
+
+--
+Alex Bligh

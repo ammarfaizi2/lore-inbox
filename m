@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279170AbRKFMzq>; Tue, 6 Nov 2001 07:55:46 -0500
+	id <S279407AbRKFM5q>; Tue, 6 Nov 2001 07:57:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277782AbRKFMzh>; Tue, 6 Nov 2001 07:55:37 -0500
-Received: from gap.cco.caltech.edu ([131.215.139.43]:46248 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S279156AbRKFMzb> convert rfc822-to-8bit; Tue, 6 Nov 2001 07:55:31 -0500
-Message-Id: <sbe793a0.089@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0
-Date: Tue, 06 Nov 2001 07:38:49 -0500
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <terje.eggestad@scali.no>, <amon@vnl.com>
-Cc: <weixl@caltech.edu>, <mlist-linux-kernel@nntp-server.caltech.edu>
-Subject: Re: How can I know the number of current users in the system?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S279305AbRKFM5m>; Tue, 6 Nov 2001 07:57:42 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:48145 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S279156AbRKFM5C>; Tue, 6 Nov 2001 07:57:02 -0500
+Message-ID: <3BE7EA87.7A1A23CA@evision-ventures.com>
+Date: Tue, 06 Nov 2001 14:49:59 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Tim Jansen <tim@tjansen.de>, andersen@codepoet.org,
+        Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <Pine.GSO.4.21.0111051836490.27086-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It depends whether you're looking for an idea of who's on, or you want a definitive count. The lattter is basically almost impossible. What if a logged-in user nohups two xterms to different X-servers, then logs out - how many people are logged in? I've spent a hell of a long time working on this on AIX for a certain German bank, and the bottom line is that it can't be done. What is 'logged on' anyway? Someone running bash or ksh, that's cool, but what about someone running /home/fred/myprog? Is it a shell?
+Alexander Viro wrote:
+> 
+> On Tue, 6 Nov 2001, Tim Jansen wrote:
+> 
+> > But how can the user know this without looking into the kernel? Compare it to
+> > /proc/mounts. Proc mounts escapes spaces and other special characters in
+> > strings with an octal encoding (so spaces are replaced by '\040').
+> 
+> Ah, yes - the horrible /proc/mounts.  Check that code in 2.4.13-ac8, will
+> you?
+> 
+> Yes, current procfs sucks.  We got a decent infrastructure that allows
+> to write that code easily.  Again, see -ac8 and watch fs/namespace.c
+> code dealing with /proc/mounts.
+> 
+> No need to play silly buggers with "one value per file" (and invite the
+> Elder Ones with applications trying to use getdents()).  Sigh...
 
-Basically once Unix went beyond serial terminals connected to dumb serial ports, we lost the ability to track users.
-
-Nik
-
-
-> Hmmm, you should be able to count the number of pty's and tty's.
-> Every logged in user is attached to some sort of getty
-> whose parent is the init task (1). That might be a basis for
-> a count.
-
-
+Getdents() can be removed since 2.0 times. I never noticed *any*
+application
+actually using it.

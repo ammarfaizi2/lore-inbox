@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289795AbSBOPzb>; Fri, 15 Feb 2002 10:55:31 -0500
+	id <S289887AbSBOQBK>; Fri, 15 Feb 2002 11:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289877AbSBOPzT>; Fri, 15 Feb 2002 10:55:19 -0500
-Received: from mail2.home.nl ([213.51.129.226]:2707 "EHLO mail2.home.nl")
-	by vger.kernel.org with ESMTP id <S289795AbSBOPzI>;
-	Fri, 15 Feb 2002 10:55:08 -0500
-Subject: 2.5.5-pre1 matroxfb compileproblem
-From: Luuk van der Duim <l.a.van.der.duim@student.rug.nl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.21mdk 
-Date: 15 Feb 2002 16:54:25 +0100
-Message-Id: <1013788465.13368.2.camel@CC75757-A>
+	id <S289880AbSBOQA7>; Fri, 15 Feb 2002 11:00:59 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:27662 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289887AbSBOQAx>;
+	Fri, 15 Feb 2002 11:00:53 -0500
+Date: Fri, 15 Feb 2002 07:56:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
+Message-ID: <20020215155636.GB1695@kroah.com>
+In-Reply-To: <3C6D2130.1020103@wanadoo.fr>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C6D2130.1020103@wanadoo.fr>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 18 Jan 2002 13:35:02 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While compiling 2.5.5-pre1 I ran into this problem:
+On Fri, Feb 15, 2002 at 03:54:40PM +0100, Pierre Rousselet wrote:
+> with 2.5.5-pre1 usb-uhci module can't unload. rmmod hangs, leaving the 
+> system unstable. in one circumstance the box freezed with an oops 
+> involving swapper pid0 . this doesn't happen with 2.5.4
 
-    
-    matroxfb_base.c: In function `matroxfb_ioctl':
-    matroxfb_base.c:1062: warning: implicit declaration of function
-    `matroxfb_switch'
-    matroxfb_base.c: In function `initMatrox2':
-    matroxfb_base.c:1792: incompatible types in assignment
-    make[4]: *** [matroxfb_base.o] Error 1
-    make[4]: Leaving directory
-    `/usr/src/linux-2.5.5-pre1/drivers/video/matrox'
-    make[3]: *** [first_rule] Error 2
-    make[3]: Leaving directory
-    `/usr/src/linux-2.5.5-pre1/drivers/video/matrox'
-    make[2]: *** [_subdir_matrox] Error 2
-    make[2]: Leaving directory `/usr/src/linux-2.5.5-pre1/drivers/video'
-    make[1]: *** [_subdir_video] Error 2
-    make[1]: Leaving directory `/usr/src/linux-2.5.5-pre1/drivers'
-    make: *** [_dir_drivers] Error 2
-    
-    
-Yours,
+Try this (untested, I haven't rebooted yet) patch:
 
-Luuk van der Duim
+thanks,
 
+greg k-h
+
+
+diff -Nru a/drivers/usb/usb.c b/drivers/usb/usb.c
+--- a/drivers/usb/usb.c	Thu Feb 14 22:47:21 2002
++++ b/drivers/usb/usb.c	Thu Feb 14 22:47:21 2002
+@@ -1979,11 +1979,11 @@
+ 				if (driver->owner)
+ 					__MOD_DEC_USE_COUNT(driver->owner);
+ 				/* if driver->disconnect didn't release the interface */
+-				if (interface->driver) {
+-					put_device (&interface->dev);
++				if (interface->driver)
+ 					usb_driver_release_interface(driver, interface);
+-				}
+ 			}
++			/* remove our device node for this interface */
++			put_device(&interface->dev);
+ 		}
+ 	}
+ 

@@ -1,68 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264786AbUEKPce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264787AbUEKPhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264786AbUEKPce (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 11:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264787AbUEKPce
+	id S264787AbUEKPhV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 11:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264790AbUEKPhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 11:32:34 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:63363 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S264786AbUEKPcc (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 11:32:32 -0400
-Message-Id: <200405111532.i4BFWQIs029188@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: John McGowan <jmcgowan@inch.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: Kernel 2.6.6: Removing the last large file does not reset filesystem properties 
-In-Reply-To: Your message of "Tue, 11 May 2004 09:00:33 EDT."
-             <20040511084510.J33555@shell.inch.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040511002008.GA2672@localhost.localdomain> <20040511004956.70f7e17d.akpm@osdl.org>
-            <20040511084510.J33555@shell.inch.com>
+	Tue, 11 May 2004 11:37:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49323 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264787AbUEKPhT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 11:37:19 -0400
+Date: Tue, 11 May 2004 08:28:48 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: gallir@atlas-iap.es, matthew.e.tolentino@intel.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH](2) efivars: check enabled {2.6.6 doesn't boot with 4k
+ stacks}
+Message-Id: <20040511082848.0b1d3bbd.rddunlap@osdl.org>
+In-Reply-To: <20040511143833.GA14555@lists.us.dell.com>
+References: <20040510172404.11a90ce9.rddunlap@osdl.org>
+	<20040510210243.14bbd99b.rddunlap@osdl.org>
+	<20040511143833.GA14555@lists.us.dell.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-262474000P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Tue, 11 May 2004 11:32:26 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-262474000P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 11 May 2004 09:38:33 -0500 Matt Domsch wrote:
 
-On Tue, 11 May 2004 09:00:33 EDT, John McGowan said:
+| On Mon, May 10, 2004 at 09:02:43PM -0700, Randy.Dunlap wrote:
+| > // linux-266
+| > // efivars_init and efivars_exit need to check efi_enabled
+| > // instead of assuming that the system is using EFI;
+| 
+| Good catch.  I missed the creation of that in the x86 EFI merge.
+| 
+| > +++ ./drivers/firmware/efivars.c	2004-05-10 20:45:55.000000000 -0700
+| > @@ -664,6 +664,9 @@ efivars_init(void)
+| >  	unsigned long variable_name_size = 1024;
+| >  	int i, rc = 0, error = 0;
+| >  
+| > +	if (!efi_enabled)
+| > +		return 0;
+| 
+| I would think this would be return -ENODEV; instead, yes?
 
-> fsck does fix it. Or should the removal of the last large file have
-> resulted in the change without the mismatch between the "largefile"
-> property being set with no large files?
+um, OK.  I suppose that is a good idea... to prevent the module
+from remaining loaded.
 
-Then fsck should exit RC=1.   At least the Fedora Core 2 initscripts think
-that's OK and specifically check for that case (a few lines later it remounts /
-r/w, which *should* refresh all the important in-core blocks that might have
-gotten changed out from under it - I think. If that's not true, somebody squawk
-so we can fix that assumption in the initscrips. ;)
+Here's an updated diff.
 
-> I know what's happening and how to patch the initscript to get an
-> automatic reboot on exit code 2. Is that the proper way to handle it?
-
-NO.
-
-Consider - if you *do* scrog your filesystem, you'll get hung in a loop
-of fsck/reboot/fsck/reboot/fsck/reboot.  You really *do* want the system
-to yell for help from a human at that point....
+--
+~Randy
 
 
---==_Exmh_-262474000P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+// linux-266
+// efivars_init and _exit need to check for efi_enabled (or else crash);
 
-iD8DBQFAoPIKcC3lWbTT17ARAivcAJ4qHAMgY3M5g4RuSKFxWy2VyNrTVwCdEiMa
-XrMRv0S4ph6jo1Xtyi533uw=
-=GrJZ
------END PGP SIGNATURE-----
+diffstat:=
+ drivers/firmware/efivars.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
---==_Exmh_-262474000P--
+
+diff -Naurp ./drivers/firmware/efivars.c~efivars_check_enabled ./drivers/firmware/efivars.c
+--- ./drivers/firmware/efivars.c~efivars_check_enabled	2004-05-09 19:33:13.000000000 -0700
++++ ./drivers/firmware/efivars.c	2004-05-11 08:43:07.000000000 -0700
+@@ -664,6 +664,9 @@ efivars_init(void)
+ 	unsigned long variable_name_size = 1024;
+ 	int i, rc = 0, error = 0;
+ 
++	if (!efi_enabled)
++		return -ENODEV;
++
+ 	printk(KERN_INFO "EFI Variables Facility v%s\n", EFIVARS_VERSION);
+ 
+ 	/*
+@@ -733,6 +736,9 @@ efivars_exit(void)
+ {
+ 	struct list_head *pos, *n;
+ 
++	if (!efi_enabled)
++		return;
++
+ 	list_for_each_safe(pos, n, &efivar_list)
+ 		efivar_unregister(get_efivar_entry(pos));
+ 

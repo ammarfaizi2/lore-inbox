@@ -1,68 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbUDHS20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 14:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbUDHS2Z
+	id S262208AbUDHShV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 14:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUDHShV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 14:28:25 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:54478 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262143AbUDHS2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 14:28:24 -0400
-Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       parisc-linux@parisc-linux.org
-In-Reply-To: <20040408181838.GN31667@dualathlon.random>
-References: <20040408151415.GB31667@dualathlon.random>
-	<1081438124.2105.207.camel@mulgrave>
-	<20040408153412.GD31667@dualathlon.random>
-	<1081439244.2165.236.camel@mulgrave>
-	<20040408161610.GF31667@dualathlon.random>
-	<1081441791.2105.295.camel@mulgrave>
-	<20040408171017.GJ31667@dualathlon.random>
-	<1081446226.2105.402.camel@mulgrave>
-	<20040408175158.GK31667@dualathlon.random>
-	<1081447654.1885.430.camel@mulgrave> 
-	<20040408181838.GN31667@dualathlon.random>
+	Thu, 8 Apr 2004 14:37:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:44017 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262208AbUDHShM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 14:37:12 -0400
+Subject: Re: NUMA API for Linux
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Andi Kleen <ak@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20040408033125.376459b3.ak@suse.de>
+References: <1081373058.9061.16.camel@arrakis>
+	 <20040407232712.2595ac16.ak@suse.de> <1081374061.9061.26.camel@arrakis>
+	 <20040407234525.4f775c16.ak@suse.de> <1081385903.9925.109.camel@arrakis>
+	 <20040408033125.376459b3.ak@suse.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Apr 2004 13:28:17 -0500
-Message-Id: <1081448897.2105.465.camel@mulgrave>
+Organization: IBM LTC
+Message-Id: <1081449406.12673.27.camel@arrakis>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 08 Apr 2004 11:36:47 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-08 at 13:18, Andrea Arcangeli wrote:
-> it enterely depends on the workload. On a desktop machine there may be
-> only some hundred entries in those lists at maximum with glibc being the
-> biggest offender:
+On Wed, 2004-04-07 at 18:31, Andi Kleen wrote:
+> On Wed, 07 Apr 2004 17:58:23 -0700
+> Matthew Dobson <colpatch@us.ibm.com> wrote:
 > 
-> cat /proc/*/maps | grep libc.so.6 | wc -l
 > 
-> with shared memory on some server there can be easily several thousand
-> entries for some inode even on 64bit, but a timeslice was probably
-> exaggerated (the timeslice was for the walking of the ptes in each
-> mapping too, I don't think you need to look at every pte).
+> > Is there a reason you don't have a case for MPOL_PREFERRED?  You have a
+> > comment about it in the function, but you don't check the nodemask isn't
+> > empty...
+> 
+> Empty prefered is a special case. It means DEFAULT.  This is useful
+> when you have a process policy != DEFAULT, but want to set a specific
+> VMA to default. Normally default in a VMA would mean use process policy.
 
-So you're worried about our code?  OK, if you look, you'll see we only
-have to flush one address in the mmap_shared list, (which is usually the
-long list).
+Ok.. That makes sense.
 
-I'd constructed it on the predicate that flushing a non-current space is
-more expensive than finding a current one, but I can alter it to flush
-the first vma it comes to with a present translation.
 
-The mmap list is usually empty.  We only excite that case for multiple
-private mappings of a file which for some reason gets updated.
+> > In this function, why do we care what bits the user set past
+> > MAX_NUMNODES?  Why shouldn't we just silently ignore the bits like we do
+> > in sys_sched_setaffinity?  If a user tries to hand us an 8k bitmask, my
+> > opinion is we should just grab as much as we care about (MAX_NUMNODES
+> > bits rounded up to the nearest UL).
+> 
+> This is to catch uninitialized bits. Otherwise it could work on a kernel
+> with small MAX_NUMNODES, and then suddenly fail on a kernel with bigger
+> MAX_NUMNODES when a node isn't online.
 
-I'd be very surprised if flush_dcache_page executes more than a few
-hundred instructions all told...that's certainly nowhere close to a
-timeslice.
+I am of the opinion that we should allow currently offline nodes in the
+user's mask.  Those nodes may come online later on, and we should
+respect the user's request to allocate from those nodes if possible. 
+Just like in sched_setaffinity() we take in the user's mask, and when we
+actually use the mask to make a decision, we check it against
+cpu_online_map.  Just because a node isn't online at the time of the
+mbind() call doesn't mean it won't be soon.  Besides, we should be
+checking against node_online_map anyway, because nodes could go away. 
+Well, maybe not right now, but in the near future.  Hotplugable memory
+is a reality, even if we don't support it just yet.
 
-James
 
+> > This seems a bit strange to me.  Instead of just allocating a whole
+> > struct zonelist, you're allocating part of one?  I guess it's safe,
+> > since the array is meant to be NULL terminated, but we should put a note
+> > in any code using these zonelists that they *aren't* regular zonelists,
+> > they will be smaller, and dereferencing arbitrary array elements in the
+> > struct could be dangerous.  I think we'd be better off creating a
+> > kmem_cache_t for these and using *whole* zonelist structures. 
+> > Allocating part of a well-defined structure makes me a bit nervous...
+> 
+> And that after all the whining about sharing policies? ;-) (a BIND policy will
+> always carry a zonelist). As far as I can see all existing zonelist code
+> just walks it until NULL.
+> 
+> I would not be opposed to always using a full one, but it would use considerably
+> more memory in many cases.
+
+I'm not whining about sharing policies because of the space usage,
+although that is a small side issue.  I'm whining about sharing policies
+because it just makes sense.  You've got a data structure that is always
+dynamically allocated and referenced by pointers, that has no instance
+specific data in it, and that *already has* an atomic reference counter
+in it.  And you decided not to share this data structure?!  In my
+opinion, it's harder and more code to *not* share it...  Instead of
+copying the structure in mpol_copy(), just atomic_inc(policy->refcnt)
+and we're pretty much done.  You already do an atomic_dec_and_test() in
+mpol_free()...
+
+-Matt
 

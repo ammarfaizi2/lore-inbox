@@ -1,160 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUJTAxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUJTAmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267180AbUJTAxo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUJTAxl
+	id S265044AbUJTAmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUJTAkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:53:41 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6836 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267180AbUJTATa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:19:30 -0400
-Subject: Re: [PATCH] I2C update for 2.6.9
-In-Reply-To: <10982315043501@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 19 Oct 2004 17:18:25 -0700
-Message-Id: <10982315052484@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
+	Tue, 19 Oct 2004 20:40:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54450 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265044AbUJTARK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:17:10 -0400
+Date: Tue, 19 Oct 2004 17:16:04 -0700
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] I2C update for 2.6.9
+Message-ID: <20041020001603.GA11393@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1867.7.5, 2004/09/15 15:27:44-07:00, johnpol@2ka.mipt.ru
+Hi,
 
-[PATCH] w1_therm: more precise temperature calculation
+Here are some i2c driver fixes and updates for 2.6.9.  There is a new
+chip and a new bus driver, as well as a bunch of minor fixes.  The
+majority of these patches have been in the past few -mm releases.
 
-This patch will introduce new temperature calculation mechanism which
-allows to use up to 9bit resolution(currently 3 digits after point).
-Fixed timeout issues with multiple repeated reading.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Individual patches will follow, sent to the sensors and linux-kernel
+lists.
 
+thanks,
 
- drivers/w1/w1_therm.c |   71 ++++++++++++++++++++++++++++++--------------------
- 1 files changed, 43 insertions(+), 28 deletions(-)
+greg k-h
 
+ Documentation/i2c/i2c-stub         |   33 +
+ Documentation/i2c/sysfs-interface  |   32 +
+ Documentation/i2c/writing-clients  |   26 -
+ drivers/i2c/algos/i2c-algo-ite.c   |    8 
+ drivers/i2c/busses/Kconfig         |   34 +
+ drivers/i2c/busses/Makefile        |    2 
+ drivers/i2c/busses/i2c-ali1535.c   |    4 
+ drivers/i2c/busses/i2c-ali1563.c   |    4 
+ drivers/i2c/busses/i2c-ali15x3.c   |    4 
+ drivers/i2c/busses/i2c-amd756.c    |   50 +-
+ drivers/i2c/busses/i2c-amd8111.c   |    4 
+ drivers/i2c/busses/i2c-elektor.c   |    8 
+ drivers/i2c/busses/i2c-hydra.c     |    4 
+ drivers/i2c/busses/i2c-i801.c      |    4 
+ drivers/i2c/busses/i2c-i810.c      |    6 
+ drivers/i2c/busses/i2c-ibm_iic.c   |    4 
+ drivers/i2c/busses/i2c-mpc.c       |    7 
+ drivers/i2c/busses/i2c-nforce2.c   |    5 
+ drivers/i2c/busses/i2c-piix4.c     |    4 
+ drivers/i2c/busses/i2c-prosavage.c |   14 
+ drivers/i2c/busses/i2c-s3c2410.c   |  877 +++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-savage4.c   |    6 
+ drivers/i2c/busses/i2c-sis5595.c   |    4 
+ drivers/i2c/busses/i2c-sis630.c    |    4 
+ drivers/i2c/busses/i2c-sis96x.c    |    4 
+ drivers/i2c/busses/i2c-stub.c      |  125 +++++
+ drivers/i2c/busses/i2c-via.c       |    4 
+ drivers/i2c/busses/i2c-viapro.c    |    4 
+ drivers/i2c/busses/i2c-voodoo3.c   |    6 
+ drivers/i2c/busses/scx200_acb.c    |   13 
+ drivers/i2c/chips/Kconfig          |   11 
+ drivers/i2c/chips/Makefile         |    1 
+ drivers/i2c/chips/adm1021.c        |    2 
+ drivers/i2c/chips/adm1025.c        |   16 
+ drivers/i2c/chips/adm1031.c        |   48 +-
+ drivers/i2c/chips/asb100.c         |   18 
+ drivers/i2c/chips/ds1621.c         |    2 
+ drivers/i2c/chips/eeprom.c         |    2 
+ drivers/i2c/chips/fscher.c         |    2 
+ drivers/i2c/chips/gl518sm.c        |    8 
+ drivers/i2c/chips/it87.c           |   50 +-
+ drivers/i2c/chips/lm75.c           |    2 
+ drivers/i2c/chips/lm77.c           |    2 
+ drivers/i2c/chips/lm78.c           |   40 -
+ drivers/i2c/chips/lm80.c           |    7 
+ drivers/i2c/chips/lm83.c           |   22 
+ drivers/i2c/chips/lm85.c           |   53 +-
+ drivers/i2c/chips/lm87.c           |  814 ++++++++++++++++++++++++++++++++++
+ drivers/i2c/chips/lm90.c           |   49 +-
+ drivers/i2c/chips/max1619.c        |    5 
+ drivers/i2c/chips/pcf8574.c        |    2 
+ drivers/i2c/chips/pcf8591.c        |    2 
+ drivers/i2c/chips/smsc47m1.c       |   58 +-
+ drivers/i2c/chips/via686a.c        |   32 -
+ drivers/i2c/chips/w83627hf.c       |   22 
+ drivers/i2c/chips/w83781d.c        |   76 +--
+ drivers/i2c/i2c-core.c             |   20 
+ drivers/w1/Makefile                |    4 
+ drivers/w1/dscore.c                |   13 
+ drivers/w1/w1.c                    |   29 -
+ drivers/w1/w1.h                    |    2 
+ drivers/w1/w1_family.c             |   11 
+ drivers/w1/w1_int.c                |   17 
+ drivers/w1/w1_int.h                |    2 
+ drivers/w1/w1_netlink.c            |    8 
+ drivers/w1/w1_therm.c              |   71 +-
+ include/linux/i2c-vid.h            |   36 +
+ 67 files changed, 2476 insertions(+), 387 deletions(-)
+-----
 
-diff -Nru a/drivers/w1/w1_therm.c b/drivers/w1/w1_therm.c
---- a/drivers/w1/w1_therm.c	2004-10-19 16:55:06 -07:00
-+++ b/drivers/w1/w1_therm.c	2004-10-19 16:55:06 -07:00
-@@ -59,19 +59,28 @@
- 	return sprintf(buf, "%s\n", sl->name);
- }
- 
-+static inline int w1_convert_temp(u8 rom[9])
-+{
-+	int t, h;
-+	
-+	if (rom[1] == 0)
-+		t = ((s32)rom[0] >> 1)*1000;
-+	else
-+		t = 1000*(-1*(s32)(0x100-rom[0]) >> 1);
-+	
-+	t -= 250;
-+	h = 1000*((s32)rom[7] - (s32)rom[6]);
-+	h /= (s32)rom[7];
-+	t += h;
-+
-+	return t;
-+}
-+
- static ssize_t w1_therm_read_temp(struct device *dev, char *buf)
- {
- 	struct w1_slave *sl = container_of(dev, struct w1_slave, dev);
--	s16 temp;
--
--	/* 
--	 * Must be more precise.
--	 */
--	temp = 0;
--	temp <<= sl->rom[1] / 2;
--	temp |= sl->rom[0] / 2;
- 
--	return sprintf(buf, "%d\n", temp * 1000);
-+	return sprintf(buf, "%d\n", w1_convert_temp(sl->rom));
- }
- 
- static int w1_therm_check_rom(u8 rom[9])
-@@ -92,7 +101,6 @@
- 	struct w1_master *dev = sl->master;
- 	u8 rom[9], crc, verdict;
- 	int i, max_trying = 10;
--	u16 temp;
- 
- 	atomic_inc(&sl->refcnt);
- 	if (down_interruptible(&sl->master->mutex)) {
-@@ -120,6 +128,7 @@
- 		if (!w1_reset_bus (dev)) {
- 			int count = 0;
- 			u8 match[9] = {W1_MATCH_ROM, };
-+			unsigned long tm;
- 
- 			memcpy(&match[1], (u64 *) & sl->reg_num, 8);
- 			
-@@ -127,24 +136,29 @@
- 
- 			w1_write_8(dev, W1_CONVERT_TEMP);
- 
--			if (count < 10) {
--				if (!w1_reset_bus(dev)) {
--					w1_write_block(dev, match, 9);
--
--					w1_write_8(dev, W1_READ_SCRATCHPAD);
--					if ((count = w1_read_block(dev, rom, 9)) != 9) {
--						dev_warn(&dev->dev, "w1_read_block() returned %d instead of 9.\n", count);
--					}
-+			tm = jiffies + msecs_to_jiffies(750);
-+			while(time_before(jiffies, tm)) {
-+				set_current_state(TASK_INTERRUPTIBLE);
-+				schedule_timeout(tm-jiffies);
- 
--					crc = w1_calc_crc8(rom, 8);
-+				if (signal_pending(current))
-+					flush_signals(current);
-+			}
- 
--					if (rom[8] == crc && rom[0])
--						verdict = 1;
-+			if (!w1_reset_bus (dev)) {
-+				w1_write_block(dev, match, 9);
-+				
-+				w1_write_8(dev, W1_READ_SCRATCHPAD);
-+				if ((count = w1_read_block(dev, rom, 9)) != 9) {
-+					dev_warn(&dev->dev, "w1_read_block() returned %d instead of 9.\n", count);
- 				}
-+
-+				crc = w1_calc_crc8(rom, 8);
-+
-+				if (rom[8] == crc && rom[0])
-+					verdict = 1;
-+
- 			}
--			else
--				dev_warn(&dev->dev,
--					  "18S20 doesn't respond to CONVERT_TEMP.\n");
- 		}
- 
- 		if (!w1_therm_check_rom(rom))
-@@ -157,12 +171,13 @@
- 			   crc, (verdict) ? "YES" : "NO");
- 	if (verdict)
- 		memcpy(sl->rom, rom, sizeof(sl->rom));
-+	else
-+		dev_warn(&dev->dev, "18S20 doesn't respond to CONVERT_TEMP.\n");
-+
- 	for (i = 0; i < 9; ++i)
- 		count += sprintf(buf + count, "%02x ", sl->rom[i]);
--	temp = 0;
--	temp <<= sl->rom[1] / 2;
--	temp |= sl->rom[0] / 2;
--	count += sprintf(buf + count, "t=%u\n", temp);
-+	
-+	count += sprintf(buf + count, "t=%d\n", w1_convert_temp(rom));
- out:
- 	up(&dev->mutex);
- out_dec:
+<ben-linux:fluff.org>:
+  o I2C: S3C2410 I2C Bus driver
+
+Evgeniy Polyakov:
+  o w1: schedule_timeout() issues
+  o w1_therm: more precise temperature calculation
+  o W1: let W1 select NET
+  o w1: Added slave->ttl - time to live for the registered slave
+
+Gerd Knorr:
+  o I2C: i2c bus power management support
+
+Greg Kroah-Hartman:
+  o I2C: convert from pci_module_init to pci_register_driver for all i2c drivers
+  o I2C: convert scx200_acb driver to not use pci_find_device
+  o I2C: change i2c-elektor.c driver from using pci_find_device()
+  o I2C: fix up __iomem marking for i2c bus drivers
+
+Jean Delvare:
+  o I2C: lm87 driver ported to Linux 2.6
+  o I2C: Clean up i2c-amd756 and i2c-prosavage messages
+  o I2C: Fix amd756 name
+  o I2C: Update Kconfig for AMD bus drivers
+  o I2C: Fourth auto-fan control interface proposal
+  o I2C: Spare 1 byte in lm90 driver
+  o I2C: Store lm83 and lm90 temperatures in signed
+  o I2C: Cleanup lm78 init
+  o I2C: Update Documentation/i2c/writing-clients
+  o I2C: More verbose debug in w83781d detection
+  o I2C: Fix macro calls in chip drivers
+  o I2C: Do not init global variables to 0
+
+Margit Schubert-While:
+  o I2C: minor lm85 fix
+
+Mark M. Hoffman:
+  o i2c: kill some sensors driver macro abuse
+  o i2c: sensors chip driver updates
+  o i2c: Add Intel VRD 10.0 and AMD Opteron VID support
+  o I2C/SMBus stub for driver testing
+
+Matthieu Castet:
+  o use of MODULE_DEVICE_TABLE in i2c busses driver
+
+Nishanth Aravamudan:
+  o I2C: replace schedule_timeout() with msleep_interruptible() in i2c-ibm_iic.c
+  o i2c/i2c-mpc: replace schedule_timeout() with msleep_interruptible()
+  o i2c-algo-ite: remove iic_sleep()
+
+Rudolf Marek:
+  o I2C: fix it8712 detection
 

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311829AbSDNKkt>; Sun, 14 Apr 2002 06:40:49 -0400
+	id <S312136AbSDNLUJ>; Sun, 14 Apr 2002 07:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311898AbSDNKks>; Sun, 14 Apr 2002 06:40:48 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:43410 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S311829AbSDNKks>; Sun, 14 Apr 2002 06:40:48 -0400
-Date: Sun, 14 Apr 2002 12:40:46 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-Subject: -aa VM updates for 2.4
-Message-ID: <20020414124046.A2186@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Andrew Morton <akpm@zip.com.au>, Mike Fedyk <mfedyk@matchmail.com>,
-	linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-In-Reply-To: <20020413233906.GB10807@matchmail.com> <3CB8C55F.ECD143F7@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312141AbSDNLUJ>; Sun, 14 Apr 2002 07:20:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:36584 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312136AbSDNLUI>; Sun, 14 Apr 2002 07:20:08 -0400
+Date: Sun, 14 Apr 2002 13:17:33 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8-pre3 full compile - errors
+In-Reply-To: <20020414105343.A30748@flint.arm.linux.org.uk>
+Message-ID: <Pine.NEB.4.44.0204141316250.5235-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 13, 2002 at 11:56:26PM +0000, Andrew Morton wrote:
-> Mike Fedyk wrote:
-> > 
-> > Why haven't any of the -aa VM updates gone into 2.5?  Especially after Andrew
-> > Morton has split it up this is surprising...
-> 
-> I don't think there's really any point in doing that.
+On Sun, 14 Apr 2002, Russell King wrote:
 
-Are they going to be in 2.4 anytime soon? And if not, why not? 
+> On Sun, Apr 14, 2002 at 07:39:38PM +1000, Keith Owens wrote:
+> > FB_CYBER2000
+>
+> As far as I'm aware, it builds.  It certainly builds on ARM.  What were
+> the errors (you didn't list them.)
 
-Thanks.
+???
 
-Regards,
+Keith did list the errors in his mail. The FB_CYBER2000 error seems to be:
 
-bert 
+<--  snip  -->
+
+drivers/video/cyber2000fb.c: In function `cyberpro_pci_probe':
+drivers/video/cyber2000fb.c:1707: `MCLK_MULT' undeclared (first use in
+this function)
+drivers/video/cyber2000fb.c:1708: `MCLK_DIV' undeclared (first use in this
+function)
+
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

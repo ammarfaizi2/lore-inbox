@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUEWQ1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUEWQdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUEWQ1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 12:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbUEWQ1i
+	id S263159AbUEWQdf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 12:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUEWQdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 12:27:38 -0400
-Received: from mail.kroah.org ([65.200.24.183]:19948 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263154AbUEWQ1g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 12:27:36 -0400
-Date: Sun, 23 May 2004 09:25:46 -0700
-From: Greg KH <greg@kroah.com>
-To: Erik Steffl <steffl@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev and /dev/sda1 not found during boot (it's there right after boot)
-Message-ID: <20040523162546.GA6500@kroah.com>
-References: <408A1945.1030506@bigfoot.com> <20040424155507.GA11273@kroah.com> <40B0C9BB.4020304@bigfoot.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B0C9BB.4020304@bigfoot.com>
-User-Agent: Mutt/1.5.6i
+	Sun, 23 May 2004 12:33:35 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:59008 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S263159AbUEWQde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 12:33:34 -0400
+Message-Id: <200405231633.i4NGXHv18935@pincoya.inf.utfsm.cl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, vonbrand@inf.utfsm.cl
+Subject: Re: [RFD] Explicitly documenting patch submission 
+In-reply-to: Your message of "Sat, 22 May 2004 23:46:29 MST."
+             <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 23 May 2004 12:33:17 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23, 2004 at 08:56:43AM -0700, Erik Steffl wrote:
-> Greg KH wrote:
-> >On Sat, Apr 24, 2004 at 12:37:41AM -0700, Erik Steffl wrote:
-> >
-> >> just moved to udev and everything seems to be working OK except of 
-> >>SATA drive (visible as /dev/sda1) when fsck checks it during boot (it 
-> >>works fine right after that).
-> >
-> >
-> >This is a Debian specific bug/issue.  I suggest you file it against the
-> >Debian udev package, as it is not a kernel issue.
+Linus Torvalds <torvalds@osdl.org> said:
+> This is a request for discussion..
+
+[...]
+
+> So, to avoid these kinds of issues ten years from now, I'm suggesting that 
+> we put in more of a process to explicitly document not only where a patch 
+> comes from (which we do actually already document pretty well in the 
+> changelogs), but the path it came through. 
+
+How will the path be preserved? Does BK do it now? Can it be transferred
+into CVS (for paranoid CVS-won't-screw-us-ever people)? Does this mean
+that only the repositories contain the certificates, "final source"
+doesn't?
+
+[...]
+
+> To keep the rules as simple as possible, and yet making it clear what it
+> means to sign off on the patch, I've been discussing a "Developer's
+> Certificate of Origin" with a random collection of other kernel
+> developers (mainly subsystem maintainers).  This would basically be what
+> a developer (or a maintainer that passes through a patch) signs up for
+> when he signs off, so that the downstream (upstream?) developers know
+> that it's all ok:
 > 
->   why would you think it's debian specific issue?
+> 	Developer's Certificate of Origin 1.0
 
-Because it doesn't happen on my Gentoo or Red Hat based systems? :)
+[Nice idea snipped]
 
->   btw if I add sleep at the beginning of /etc/init.d/checkfs.sh (runs 
-> fsck for all filesystems) everythings works. Which I guess confirms that 
-> there is some delay between when the module is loaded and when the 
-> device is available in userspace. Is that how udev works? How can this 
-> issue be solved?
-
-As you point out, this is all in how udev is handled by the boot
-scripts, if they wait long enough for the device node to show up before
-continuing on or not.  Thereby showing that this is a distro specific
-issue.
-
-Now the Debian maintainer of udev has said that you should also read the
-README file for udev for more information about this type of issue.  I
-suggest you go through the Debian bug reporting process for further
-help.
-
-Good luck,
-
-greg k-h
+Just make sure the relevant open source licenses are in Documentation, and
+so is the Certificate du jour. And hash out ideas/scripts to retrieve
+proof(s) of origin for a particular line (consider its convoluted history,
+originated by Joe Random Hacker, modified by Jane Random and rewritten by
+Al Hacker, even Aunt Tillie might have touched it ;-).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

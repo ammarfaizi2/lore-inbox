@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131481AbRC3QKI>; Fri, 30 Mar 2001 11:10:08 -0500
+	id <S131508AbRC3Qea>; Fri, 30 Mar 2001 11:34:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131497AbRC3QJs>; Fri, 30 Mar 2001 11:09:48 -0500
-Received: from [194.25.18.216] ([194.25.18.216]:49418 "EHLO ntovmsw02.otto.de")
-	by vger.kernel.org with ESMTP id <S131481AbRC3QJp>;
-	Fri, 30 Mar 2001 11:09:45 -0500
-Message-Id: <4B6025B1ABF9D211B5860008C75D57CC0271B9E7@NTOVMAIL04>
-From: "Butter, Frank" <Frank.Butter@otto.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 on COMPQ Proliant
-Date: Fri, 30 Mar 2001 18:08:35 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S131534AbRC3QeV>; Fri, 30 Mar 2001 11:34:21 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:51470 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S131508AbRC3QeC>; Fri, 30 Mar 2001 11:34:02 -0500
+Date: Fri, 30 Mar 2001 08:32:39 -0800
+To: Frank de Lange <frank@unternet.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3: still experiencing APIC-related hangs
+Message-ID: <20010330083239.A3410@ferret.phonewave.net>
+In-Reply-To: <20010330143224.A23427@unternet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010330143224.A23427@unternet.org>; from frank@unternet.org on Fri, Mar 30, 2001 at 02:32:24PM +0200
+From: idalton@ferret.phonewave.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I solved it for now using the SmartStart-CD as described and I'll flash the,
-ROM as soon as possible - thanks for all answers.
+On Fri, Mar 30, 2001 at 02:32:24PM +0200, Frank de Lange wrote:
+> Hi'all,
+> 
+> Subject says it all: 2.4.3 (unpatchaed) is still causing the dreaded
+> APIC-related hangs on SMP BX systems (Abit BP-6, maybe Gigabyte). I still need
+> to apply one of Maciej's patches to get rid of these hangs. The source comments
+> in arc/i386/kernel/apic.c ("If focus CPU is disabled then the hang goes away")
+> are incorrect, as the hang does not go away by simply disabling focus CPU. The
+> only way for me to get rid of the hangs is to apply patch-2.4.1-io_apic-46
+> (which does the LEVEL->EDGE->LEVEL triggered trick to 'free' the IO_APIC). I've
+> been running with this patch for quite some time now, and have not experienced
+> any problems with it. Maybe it it time to include it in the main kernel,
+> perhaps as a configurable option ("BROKEN_IO_APIC")?
+> 
+> Maciej, did you submit the patch to Linus? It really seems to solve the
+> (occurence of the) problems with these boards...
 
-The only thing that isn't working yet is the FibreChannel controller.
-Has anybody dealed with this internal controller and an external
-COMPAQ Raid Array 4100, connected via an external FC-AL Switch?  
+Where is this patch found? I am not seeing it so far on kernel.org.
 
-Thx,
-Frank
+-- Ferret
 
-> On Fri, 30 Mar 2001, Butter, Frank wrote:
-> 
-> > For the SMP-Problem it helped to use an option offerd at boot time:
-> > "Press F9 to select different operating system". Before I used
-> > "Minimum Configuration...", because Linux wasn't listed.
-> 
-> This is a sure sign that you need to update your firmware. 
-> Download the
-> latest ROMPAQ from the COMPAQ web site and reflash your 
-> systems. After you
-> do that run the Configuration Utility from the SmartStart CD 
-> and set the
-> OS type to Linux.
-> 
-> --
-> Joel Gallun                                         joel@tux.org
-> Open system and Internet consulting     http://www.tux.org/~joel
-> 

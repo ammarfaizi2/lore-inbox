@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279406AbRJ2Tec>; Mon, 29 Oct 2001 14:34:32 -0500
+	id <S279399AbRJ2Tgq>; Mon, 29 Oct 2001 14:36:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279412AbRJ2Tdh>; Mon, 29 Oct 2001 14:33:37 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:45204 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S279408AbRJ2Td0>; Mon, 29 Oct 2001 14:33:26 -0500
-Date: 27 Oct 2001 14:45:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8BfMOaZmw-B@khms.westfalen.de>
-In-Reply-To: <3BCDCF1D.6030202@usa.net>
-Subject: Re: [Q] pivot_root and initrd
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
-MIME-Version: 1.0
+	id <S279414AbRJ2Tgm>; Mon, 29 Oct 2001 14:36:42 -0500
+Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:4718 "EHLO
+	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S279399AbRJ2TgL>; Mon, 29 Oct 2001 14:36:11 -0500
+Date: Mon, 29 Oct 2001 19:30:17 +0000
+From: Adrian Burgess <kernel@corrosive.freeserve.co.uk>
+To: Justin Mierta <Crazed_Cowboy@stones.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ECS k7s5a motherboard doesnt work
+Message-ID: <20011029193017.A7083@corrosive.freeserve.co.uk>
+Mail-Followup-To: Justin Mierta <Crazed_Cowboy@stones.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15y9q4-0002ER-00@the-village.bc.nu> <3BDD7164.8080401@stones.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <3BCDCF1D.6030202@usa.net>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+In-Reply-To: <3BDD7164.8080401@stones.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux corrosive.freeserve.co.uk 2.4.13-ac2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebrower@usa.net (Eric)  wrote on 17.10.01 in <3BCDCF1D.6030202@usa.net>:
+On Mon, Oct 29, 2001 at 10:10:28AM -0500, Justin Mierta wrote:
+> 
+> well, i dont have a floppy drive, so that test is a little difficult to 
+> do, but i threw some ram in there that i have used in linux before, and 
+> i still had the slew of ide error messages.  and this harddrive has 
+> worked in linux before.  i'm getting more and more convinced its an ide 
+> controller +linux issue.
+> 
+> plus, i just discovered this:
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0109.1/0198.html
+> 
+> which really points to ide controller and linux not fighting nicely 
+> together, altho the thread doesnt really point towards a solution.
+> 
+> justin
 
-> You are simply doing the following, I assume with success:
+Ok, well, I'm still using the KS75A under Linux, Win98, and WinXP, and the
+only OS that seems to have problems is Linux.  I don't have any data
+corruption problems (as far as I know), but I'm still getting the DMA
+timeout errors reported in the thread above.  There definitely seems to be
+more reports than normal about IDE problems with Linux on this board.  And
+other than IDE the board seems pretty stable.
+Btw, the SIS900 is the on-board Ethernet controller.
 
->    exec /sbin/init "$@"
-
-> whereas I am doing something like the following:
-
->    exec chroot . sh -c 'umount $OLDROOT; exec -a init.new /sbin/init
->      $INITARGS' <dev/console >dev/console 2>&1
-
-> I am mystified that the call to 'exec /sbin/init' works if you are using
-> the standard (you mention "based on RedHat7.1" util-linux") /sbin/init
-> proggie, and that a standard RH7.1 initscripts would not complain when
-> the root filesystem is already mounted r/w.
-
-It works because the PID is 1, of course.
-
-/linuxrc (or however you call it) runs with PID=1, so when it exec's /sbin/ 
-init, the PID is still 1.
-
-OTOH, you have chroot run a shell as a child, which therefore does *not*  
-have PID=1.
-
-MfG Kai
+Cheers,
+Adrian

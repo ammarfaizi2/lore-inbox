@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129683AbQLENZb>; Tue, 5 Dec 2000 08:25:31 -0500
+	id <S131071AbQLENwp>; Tue, 5 Dec 2000 08:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130215AbQLENZV>; Tue, 5 Dec 2000 08:25:21 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:14341 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129683AbQLENZC>;
-	Tue, 5 Dec 2000 08:25:02 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Tigran Aivazian <tigran@veritas.com>
-Date: Tue, 5 Dec 2000 13:54:02 MET-1
+	id <S131017AbQLENwf>; Tue, 5 Dec 2000 08:52:35 -0500
+Received: from [134.106.84.3] ([134.106.84.3]:53009 "EHLO
+	kyle.pmnet.uni-oldenburg.de") by vger.kernel.org with ESMTP
+	id <S130983AbQLENw2>; Tue, 5 Dec 2000 08:52:28 -0500
+Date: Tue, 5 Dec 2000 14:22:00 +0100 (CET)
+From: "Christian W. Zuckschwerdt" <zany@triq.net>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] ipchains log will show all flags
+Message-ID: <0012051408110.1526-100000@localhost>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.0-test12-pre5 breaks vmware (again)
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <ECC703608DB@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Dec 00 at 12:25, Tigran Aivazian wrote:
+Hi Linus,
 
-> In case you haven't noticed yet -- the 'features' field of /proc/cpuinfo
-> has been changed again so vmware won't run anymore. The fix is just as
-> obvious as the previous one -- to change /usr/bin/vmware-config.pl script
-> from grepping for 'features' to grep for 'flags'. I think 'flags' is what
-> it used to be called ages ago but that is irrelevant -- everyone
-> presumably already changed all their software to use 'features' (I did,
-> for example) and forgot about the old 'flags' forever....
+This tiny patch extends ipchains logging. This way one can distinguish
+(plain) connection attempts and (Xmas, Fin,...) scans. E.g.
+ kernel: Packet log: input - lo PROTO=6 127.0.0.1:40326 127.0.0.1:80
+  L=40 S=0x00 I=5808 F=0x0000 T=51 (#1)
+ vs.
+  L=40 S=0x00 I=5808 F=0x0000 T=51 (#1) B=-s--a-
+ and
+  L=40 S=0x00 I=5808 F=0x0000 T=51 (#1) B=fs-p-u
 
-Blessed vmware-config.pl contains
+Please comment on the format (B=...) and implementation details (speed).
+The patch is against 2.2.17's /net/ipv4/ip_fw.c 
 
-\(flags\|features\).*
 
-so it should run...
-                                                    Petr
-                                                    
+ipchains log with flags  Christian W. Zuckschwerdt  <zany@triq.net>
+
+--- linux-2.2.17-pristine/net/ipv4/ip_fw.c.orig	Mon Nov 27 00:38:36 2000
++++ linux-2.2.17/net/ipv4/ip_fw.c	Sun Dec  3 23:58:06 2000
+@@ -415,6 +415,7 @@
+ {
+ 	__u32 *opt = (__u32 *) (ip + 1);
+ 	int opti;
++	struct tcphdr *tcp=(struct tcphdr *)((__u32 *)ip+ip->ihl);
+ 	
+ 	if (f)
+ 	{
+@@ -443,7 +444,15 @@
+ 
+ 	for (opti = 0; opti < (ip->ihl - sizeof(struct iphdr) / 4); opti++)
+ 		printk(" O=0x%8.8X", *opt++);
+-	printk(" %s(#%d)\n", syn ? "SYN " : /* "PENANCE" */ "", count);
++	printk(" %s(#%d)", syn ? "SYN " : /* "PENANCE" */ "", count);
++
++	if (ip->protocol == IPPROTO_TCP)
++		printk(" B=%c%c%c%c%c%c\n", tcp->fin ? 'f' : '-',
++		       tcp-syn ? 's' : '-', tcp->rst ? 'r' : '-',
++		       tcp->psh ? 'p' : '-', tcp->ack ? 'a' : '-',
++		       tcp->urg ? 'u' : '-');
++	else
++		printk("\n");
+ }
+ 
+ /* function for checking chain labels for user space. */
+-- 
+  cu.
+    :
+    Christian
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

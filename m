@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUFJQ10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUFJQd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUFJQ10 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 12:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUFJQ10
+	id S261668AbUFJQd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 12:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUFJQd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 12:27:26 -0400
-Received: from mail.kroah.org ([65.200.24.183]:61150 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261685AbUFJQ1M (ORCPT
+	Thu, 10 Jun 2004 12:33:26 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:38807 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261668AbUFJQdZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 12:27:12 -0400
-Date: Thu, 10 Jun 2004 09:26:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Whitespace fixes
-Message-ID: <20040610162606.GA32258@kroah.com>
-References: <200406090221.24739.dtor_core@ameritech.net> <200406100142.14861.dtor_core@ameritech.net> <200406100143.53381.dtor_core@ameritech.net> <200406100145.01599.dtor_core@ameritech.net>
+	Thu, 10 Jun 2004 12:33:25 -0400
+Date: Thu, 10 Jun 2004 09:42:08 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: mikpe@csd.uu.se, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.7-rc3-mm1] perfctr cpumask cleanup
+Message-Id: <20040610094208.079149f1.pj@sgi.com>
+In-Reply-To: <20040610160350.GB1444@holomorphy.com>
+References: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
+	<20040609154750.241df741.pj@sgi.com>
+	<16584.9947.222378.506457@alkaid.it.uu.se>
+	<20040610090157.04fa62ee.pj@sgi.com>
+	<20040610160350.GB1444@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406100145.01599.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10, 2004 at 01:44:59AM -0500, Dmitry Torokhov wrote:
-> 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1768, 2004-06-10 00:07:32-05:00, dtor_core@ameritech.net
->   Whitespace and formatting changes (a,b,c -> a, b, c) in drivers/base
->   
->   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+William Lee Irwin wrote:
+> Please get some cross-compilers together so we don't have every non-x86
+> arch exploding at once.  Alpha vs. cpu_possible_map was horrendous.
 
-Ok, I've applied the majority of this patch.  But the bus.c and class.c
-files are different in my tree than in Linus's right now, so I'll apply
-those sections by hand and fix up the rejects in a separate changeset.
+Yes sir.
 
-thanks again.
+Randy Dunlap wrote:
+> or submit such patches to OSDL PLM.
 
-greg k-h
+That too.
+
+I'm reminded of the old saw:
+
+  Fools rush in where angels fear to tread.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

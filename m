@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269140AbUIRGO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269146AbUIRGer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269140AbUIRGO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 02:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269144AbUIRGO1
+	id S269146AbUIRGer (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 02:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269147AbUIRGer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 02:14:27 -0400
-Received: from mail4.bluewin.ch ([195.186.4.74]:17831 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S269140AbUIRGO0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 02:14:26 -0400
-Date: Sat, 18 Sep 2004 08:13:31 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Kenneth =?iso-8859-1?Q?Aafl=F8y?= <lists@kenneth.aafloy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Via-Rhine WOL vs PXE Boot
-Message-ID: <20040918061331.GA12757@k3.hellgate.ch>
-Mail-Followup-To: Kenneth =?iso-8859-1?Q?Aafl=F8y?= <lists@kenneth.aafloy.net>,
-	linux-kernel@vger.kernel.org
-References: <200409172154.36550.lists@kenneth.aafloy.net> <20040917203458.GA12779@k3.hellgate.ch> <200409180001.42332.lists@kenneth.aafloy.net>
+	Sat, 18 Sep 2004 02:34:47 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:23000
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269146AbUIRGep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 02:34:45 -0400
+Date: Fri, 17 Sep 2004 23:31:08 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: jonsmirl@gmail.com, david@gibson.dropbear.id.au, akpm@osdl.org,
+       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [TRIVIAL] Fix recent bug in fib_semantics.c
+Message-Id: <20040917233108.561c88d6.davem@davemloft.net>
+In-Reply-To: <20040918041627.GA12356@gondor.apana.org.au>
+References: <9e47339104091717215e9be08b@mail.gmail.com>
+	<E1C8T4t-0006ug-00@gondolin.me.apana.org.au>
+	<9e473391040917183726113e91@mail.gmail.com>
+	<20040918041627.GA12356@gondor.apana.org.au>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200409180001.42332.lists@kenneth.aafloy.net>
-X-Operating-System: Linux 2.6.9-rc2-bk1-nproc on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Sep 2004 00:01:42 +0200, Kenneth Aafløy wrote:
-> Or should this rather be reported as a bug to Via, so that they can implement 
-> restoring the adapter from the D3 state in the pxe boot rom?
+On Sat, 18 Sep 2004 14:16:28 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
-Have you tried the VIA driver to check if it fares any better?
+> Thanks.  The following bug is probably your problem.
 
-> I've attached what I belive to be a bk patch (kinda new to that) which 
-> comments out this power-state change, untill something better is found. I 
-> have not tested WOL with this, but I can't think of any reason why it should 
-> not work.
+Good catch on this fix, but really he's hitting the
+BUG_ON() in fib_sync_down()  (I hate i386 backtraces,
+it's an art to decode them properly)
 
-I'm afraid you will convince neither me nor the hardware with assumptions.
+So if you rmmod() a device before any routes are ever
+created in ipv4, this triggers.  I didn't think this
+was possible, but it is.
 
-Roger
+The fix is simple enough.
+
+===== net/ipv4/fib_semantics.c 1.16 vs edited =====
+--- 1.16/net/ipv4/fib_semantics.c	2004-09-17 11:11:04 -07:00
++++ edited/net/ipv4/fib_semantics.c	2004-09-17 23:14:44 -07:00
+@@ -1040,9 +1040,7 @@
+ 	if (force)
+ 		scope = -1;
+ 
+-	BUG_ON(!fib_info_laddrhash);
+-
+-	if (local) {
++	if (local && fib_info_laddrhash) {
+ 		unsigned int hash = fib_laddr_hashfn(local);
+ 		struct hlist_head *head = &fib_info_laddrhash[hash];
+ 		struct hlist_node *node;

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVAJMq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVAJNDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbVAJMq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 07:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVAJMq5
+	id S262230AbVAJNDm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 08:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVAJNDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 07:46:57 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:35157 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262228AbVAJMqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 07:46:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=I9Y8jZZ/gLimGV07kr5h7tCVLEAlou0ggCbtrm+F7mJLsTPdql9DflK7LMg3WtaIF2DP4b520PNkYtDYirGOJ8GD/rezdtLf+3WTPR+Whp/Pf+/yO1/bJZjtw3KOV1r5C1njtIGKDNP890VsZTyQCzIbUk16YFuJhiVEtsw/CiU=
-Message-ID: <884a349a050110044654d75f7b@mail.gmail.com>
-Date: Mon, 10 Jan 2005 13:46:53 +0100
-From: Roseline Bonchamp <roseline.bonchamp@gmail.com>
-Reply-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
-To: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: USB problem with a mass storage device on 2.6.10
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 10 Jan 2005 08:03:42 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:60814 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262230AbVAJNDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 08:03:40 -0500
+Message-ID: <41E27D29.2040001@grupopie.com>
+Date: Mon, 10 Jan 2005 13:03:37 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-os@analogic.com
+Cc: "Patrick J. LoPresti" <patl@curl.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/random vs. /dev/urandom
+References: <20050107190536.GA14205@mtholyoke.edu> <20050107213943.GA6052@pclin040.win.tue.nl> <Pine.LNX.4.61.0501071729330.22391@chaos.analogic.com> <s5gzmzjbza1.fsf@egghead.curl.com> <Pine.LNX.4.61.0501100735210.19253@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0501100735210.19253@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+linux-os wrote:
+> [...]
+> One is free to use any number of samples. The short number of samples
+> was DELIBERATELY used to exacerbate the problem although a number
+> or nay-sayers jumped on this in an attempt to prove that I don't
+> know what I'm talking about.
 
-I have a PQI 1GB Intelligent Stick, which does'nt work most of the
-time on 2.6.10 (sometime when I plug/unplug it does work, but most of
-the time it does'nt)
+It seems to me that you actually don't.
 
-When it does not work, I see this when I plug it:
+Since this is a *uniform* distribution in the range [0..2^N[, than any 
+of those N bits must also show a uniform distribution, or the 
+distribution of the sum of the bits wouldn't be uniform. (isn't this 
+obvious?)
 
-kernel: usb 1-3: new high speed USB device using ehci_hcd and address 6
-kernel: usb 3-1: new full speed USB device using uhci_hcd and address 4
-kernel: usb 3-1: new full speed USB device using uhci_hcd and address 5
+It would be different of course, if this was not a uniform distribution, 
+or the range was not a power of 2...
 
-When it does work, I only see the first one (high speed), and then USB
-mass storage stuff.
+Of course, I agree that throwing away 5 bits in every byte of perfect 
+entropy that the kernel worked so hard to gather is just wrong, but the 
+randomness of the result is not the reason why.
 
-On kernel 2.6.9 it does work, but seems to produce a kernel crash (log
-attached) (but I still can use it and mount it)
+> In the first place, the problem was to display the error of using
+> an ANDing operation to truncate a random number. In the limit,
+> one could AND with 0 and show that all randomness has been removed.
 
-I tried on a knoppix 3.6 (2.6.7, not vanilla) kernel, and it seems to work too.
+Not really.. you just get a perfect random uniform distribution if the 
+range [0..0] :)
 
-Even with 2.6.10 I have no problem with some other USB mass storage devices.
+-- 
+Paulo Marques - www.grupopie.com
 
-I already did a post about this, but the subject of the mail was wrong
-(sorry), and it was not mailed to linux-usb:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0501.1/0371.html
+"A journey of a thousand miles begins with a single step."
+Lao-tzu, The Way of Lao-tzu
 
-Regards,

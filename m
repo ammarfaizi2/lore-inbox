@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbRB0AFW>; Mon, 26 Feb 2001 19:05:22 -0500
+	id <S129282AbRB0AIm>; Mon, 26 Feb 2001 19:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRB0AFN>; Mon, 26 Feb 2001 19:05:13 -0500
-Received: from lindy.SoftHome.net ([204.144.232.9]:62475 "HELO
-	lindy.softhome.net") by vger.kernel.org with SMTP
-	id <S129281AbRB0AE5>; Mon, 26 Feb 2001 19:04:57 -0500
-Message-ID: <20010227003431.12104.qmail@lindy.softhome.net>
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: linux-kernel@vger.kernel.org, roger@kea.grace.cri.nz
-Subject: Re: tcp stalls with 2.4 (but not 2.2) 
-Organization: SoftHome
-X-URL: http://www.SoftHome.net/
-In-Reply-To: Your message of "Mon, 26 Feb 2001 11:11:16 EST."
-             <3A9A8023.7542CBF7@coplanar.net> 
-Date: Mon, 26 Feb 2001 17:34:30 -0700
-From: Brian Grossman <brian@SoftHome.net>
+	id <S129289AbRB0AIc>; Mon, 26 Feb 2001 19:08:32 -0500
+Received: from mail5.atl.bellsouth.net ([205.152.0.93]:32418 "EHLO
+	mail5.atl.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S129282AbRB0AIZ>; Mon, 26 Feb 2001 19:08:25 -0500
+Message-ID: <3A9AEFAF.1DC89A8A@mandrakesoft.com>
+Date: Mon, 26 Feb 2001 19:07:11 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: netdev@oss.sgi.com,
+        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New net features for added performance
+In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <15002.60104.350394.893905@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > I'm seeing stalls sending packets to some clients.  I see this problem
-> > under 2.4 (2.4.1 and 2.4.1ac17) but not under 2.2.17.
+"David S. Miller" wrote:
+> Jeff Garzik writes:
+>  > 2) Tx packet grouping.
+>  ...
+>  > Disadvantages?
 > 
-> compiled in ECN support? SYNcookies?  try disabling through /proc
-> tcp or udp? if udp check /proc/net/ipv4/ip_udpdloose or such
+> See Torvalds vs. world discussion on this list about API entry points
+> which pass multiple pages at a time versus simpler ones which pass
+> only a single page at a time. :-)
 
-CONFIG_INET_ECN is not set in .config.
-CONFIG_SYN_COOKIES is set, but tcp_syncookies but is set to 0.
+I only want to know if more are coming, not actually pass multiples..
 
-> > My theory is there is an ICMP black hole between my server and some of its
-> > clients.  Is there a tool to pinpoint that black hole if it exists?
-> 
-> ping is your friend.  -s lets you set size of packet. (to
-> check for fragmentation) use tcpdump to capture
-> a trace of this or a tcp session.
+	Jeff
 
-> email trace to me private if you want.
 
-Does ping set the no fragment bit?
 
-Ping -s 1500 to the router immediately before client's known IP address
-works fine.  I'll get the owner of the client to help out later and send
-those results with tcpdump to you privately.
-
-Brian
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265964AbUGOEPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUGOEvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265964AbUGOEPn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 00:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUGOEPn
+	id S265971AbUGOEvj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 00:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUGOEvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 00:15:43 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45538 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265964AbUGOEPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 00:15:41 -0400
-Subject: Re: kexec on ppc64
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "R. Sharada [imap]" <sharada@in.ibm.com>
-Cc: fastboot@lists.osdl.org,
-       PPC64 External List <linuxppc64-dev@lists.linuxppc.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040714144514.GA2041@in.ibm.com>
-References: <20040714144514.GA2041@in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1089864891.10000.257.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Jul 2004 21:14:51 -0700
+	Thu, 15 Jul 2004 00:51:38 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:50816 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S265971AbUGOEvc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 00:51:32 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: momentary sensors failure in gkrellm2
+Date: Thu, 15 Jul 2004 00:51:32 -0400
+User-Agent: KMail/1.6
+Cc: Linus Torvalds <torvalds@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407150051.32215.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.62.14] at Wed, 14 Jul 2004 23:51:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-taking silly IBM list off the cc...
+Greetings;
 
-On Wed, 2004-07-14 at 07:45, R Sharada 
->         - also identify relevant data (that might be required for the
-> kexec kernel) that could be pushed into the device_tree so that it can
-> be passed to the new kexec kernel
+I noticed tonight, while booted to 2.6.8-rc1, that my gkrellm display 
+was a little short, all the temps and voltages were on the missing 
+list.  So, based on the more eyeballs theory, I rebooted a few times 
+testing recent kernels.
 
-We actually had a similar problem on x86.  The e820 table is presented
-by the BIOS, and must be saved or reconstructed when you boot into the
-new kernel.  
+Backing up to 2.6.7-mm6, it all worked, so I grabbed Andrews rc1-mm1 
+patch and installed that.
 
-It would be really cool to have a way of passing the memory layout
-information to the new kernel that is relatively cross-platform.  That
-way, we don't get stuck rewriting it for each new arch.  
+I'm happy to note that the sensors stuff is back among the living and 
+being displayed properly with 2.6.8-rc1-mm1.
 
-For instance, instead of passing the BIOS/firmware structures like LMBs 
-in the device tree or e820 tables to the kexec kernel, you'd pass the
-Linux concepts like zone_start_pfn and so forth.
+I've no idea which of the patches involving the i2c stuff wasn't right 
+for my chipset (via686 & winbond 697hf IIRC), but something broke it 
+just for 2.6.8-rc1.
 
-> I would like to solicit inputs, feedback, opinions, changes on this
-> preliminary idea and planned list of 'things to do'. I would also like
-> to know the interest to participate in this effort or anything else
-> related to 'kexec on ppc64'.
-
-While you're ripping apart prom.c, have you thought about getting rid of
-all of the RELOC() stuff?  I think Ben H. had an evil plan for that,
-too.
-
-BTW, have you seen any opportunities to replace the arch-specific things
-like lmb_alloc() with normal bootmem calls?
-
--- Dave
-
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

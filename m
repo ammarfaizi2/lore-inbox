@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbUKTUXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263179AbUKTU0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUKTUXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 15:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUKTUXY
+	id S263179AbUKTU0C (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 15:26:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbUKTU0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 15:23:24 -0500
-Received: from relay00.pair.com ([209.68.1.20]:53513 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S263173AbUKTUXM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 15:23:12 -0500
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <419FA7AD.3090004@cybsft.com>
-Date: Sat, 20 Nov 2004 14:23:09 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Sat, 20 Nov 2004 15:26:01 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:44416 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S263179AbUKTUZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 15:25:54 -0500
+Date: Sat, 20 Nov 2004 14:25:51 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+cc: linux-kernel@vger.kernel.org
+Subject: [OT] Re: page fault scalability patch V11 [0/7]: overview
+In-Reply-To: <20041120190818.GX2714@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0411201422310.1272@gradall.private.brainfood.com>
+References: <20041120042340.GJ2714@holomorphy.com> <419EC829.4040704@yahoo.com.au>
+ <20041120053802.GL2714@holomorphy.com> <419EDB21.3070707@yahoo.com.au>
+ <20041120062341.GM2714@holomorphy.com> <419EE911.20205@yahoo.com.au>
+ <20041119225701.0279f846.akpm@osdl.org> <419EEE7F.3070509@yahoo.com.au>
+ <1834180000.1100969975@[10.10.2.4]> <Pine.LNX.4.58.0411200911540.20993@ppc970.osdl.org>
+ <20041120190818.GX2714@holomorphy.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu>
-In-Reply-To: <20041118164612.GA17040@elte.hu>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i have released the -V0.7.29-0 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
-> 
+On Sat, 20 Nov 2004, William Lee Irwin III wrote:
 
-I have some latency test results from -V0.7.29-4 generated using the rtc 
-histograms and realfeel. The test runs were just over an hour under 
-heavy load from stress-kernel. One is from a slower 450 UP system and 
-one is from a 933 SMP system. I will be doing more testing but these are 
-a start.
+> "The perfect is the enemy of the good."
 
-http://www.cybsft.com/testresults/histograms/up450test1.hist.png
+"With the proper course of action made so explicit, we had merely to choose
+between wisdom and folly.  Precisely how we chose folly in this instance is
+not entirely clear."
 
-http://www.cybsft.com/testresults/histograms/up450test1.hist.png
-
-kr
+Quote taken from Andrew Suffield on irc, who said he got it from Penny Arcade.

@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTLGQWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 11:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTLGQWQ
+	id S264451AbTLGQY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 11:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbTLGQY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 11:22:16 -0500
-Received: from holomorphy.com ([199.26.172.102]:14809 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264450AbTLGQWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 11:22:10 -0500
-Date: Sun, 7 Dec 2003 08:22:03 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Amir Hermelin <amir@montilio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Creating a page struct for HIGHMEM pages
-Message-ID: <20031207162203.GQ19856@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Amir Hermelin <amir@montilio.com>, linux-kernel@vger.kernel.org
-References: <006c01c3bcdb$92290f50$1d01a8c0@CARTMAN>
-Mime-Version: 1.0
+	Sun, 7 Dec 2003 11:24:29 -0500
+Received: from web40514.mail.yahoo.com ([66.218.78.131]:51269 "HELO
+	web40514.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264451AbTLGQYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 11:24:25 -0500
+Message-ID: <20031207162424.25571.qmail@web40514.mail.yahoo.com>
+Date: Sun, 7 Dec 2003 08:24:24 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+To: Mark Symonds <mark@symonds.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <03e201c3bc94$6b1a1900$7a01a8c0@gandalf>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <006c01c3bcdb$92290f50$1d01a8c0@CARTMAN>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 07, 2003 at 06:02:46PM +0200, Amir Hermelin wrote:
-> Suppose I want to create a page struct pointing to high memory (e.g. IO
-> mapped memory), that is, allocate the memory for the page struct myself and
-> fill in the values, what are the necessary flags/values (other than the
-> 'virtual' field) I must be sure to set?  Does the page* need to be located
-> anywhere specific?  Does the pte field need to be set in anyway? The
-> question is relevant to kernel versions 2.4.20 and up.
+Would it be possible to swap the RAM from another
+machine? 
 
-I'm not entirely sure this is safe (I don't know of anything doing it off
-the top of my head or any guarantee it should work), but PG_reserved is
-an absolute requirement at the very least. ->virtual is likely irrelevant.
-Also, COW userspace mappings of such beasts are illegal since the
-physical address can't be calculated for do_wp_page() to do its copy.
-Codepaths assuming it's in a zone and so on must also be avoided.
-You'll need to set VM_RESERVED on the vma, since the page structure
-can't be looked up via pte_page(). If you want faults handled on it,
-you'll also have to define your own ->nopage() method.
 
-I generally prefer setting VM_RESERVED and prefaulting in ->f_op->mmap(),
-though that may not be feasible in some scenarios. Handling this would be
-much easier if drivers could override fault handling methods and the like.
+--- Mark Symonds <mark@symonds.net> wrote:
 
--- wli
+> 
+
+> > I had the exact same thing happen to me about 
+
+> > a year ago, with the same error message. It
+
+> > started after I had upraded my kernel. It 
+
+> > turned out one of my RAM sticks had gone
+
+> > bad. Do you have another machine you can
+
+> > test 2.4.23 with?
+
+> > 
+
+> 
+
+> I do, but not with identical hardware.  Thing is 
+
+> it ran just fine for months on previous kernels,
+
+> and even now will run just fine with them.  The
+
+> crashing only happens when using 2.4.23. 
+
+> 
+
+> -- 
+
+> Mark
+
+> 
+
+
+=====
+I code, therefore I am
+
+__________________________________
+Do you Yahoo!?
+New Yahoo! Photos - easier uploading and sharing.
+http://photos.yahoo.com/

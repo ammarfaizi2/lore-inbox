@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269522AbTGJSWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbTGJSWv
+	id S266415AbTGJS2q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269528AbTGJS2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:22:51 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:14992 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S269523AbTGJSWc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:22:32 -0400
-Message-ID: <003101c34712$a9b8f480$602fa8c0@henrique>
-From: "Henrique Oliveira" <henrique2.gobbi@cyclades.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>,
-       "Kevin Curtis" <kevin.curtis@farsite.co.uk>
-Cc: "lkml" <linux-kernel@vger.kernel.org>
-References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk> <Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva>
-Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
-Date: Thu, 10 Jul 2003 11:39:57 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Thu, 10 Jul 2003 14:28:46 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:10971 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S266415AbTGJS2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:28:44 -0400
+Date: Thu, 10 Jul 2003 14:42:44 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: finger.kernel.org
+In-reply-to: <3F0DA7A6.6070606@triphoenix.de>
+To: linux-kernel@vger.kernel.org
+Message-id: <200307101442.58578.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
+References: <5cDp.1BP.3@gated-at.bofh.it> <7JES.d3.3@gated-at.bofh.it>
+ <3F0DA7A6.6070606@triphoenix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-The patch for the generic HDLC layer was included on the kernel 2.4.21. Thus
-this layer is already on the main tree (unless, of course, someone has
-removed it, I havent checked 2.4.22 yet). This layer provides data link
-protocol (ppp, hdlc, raw-hdlc, x25, frame-relay, cisco-hdlc) for the kernel.
-It's mainly used by synchronous cards drivers (Cyclades, Moxa, SDL, Farsite,
-etc, etc, etc).
-regards
-Henrique
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
------ Original Message -----
-From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-To: "Kevin Curtis" <kevin.curtis@farsite.co.uk>
-Cc: "lkml" <linux-kernel@vger.kernel.org>
-Sent: Thursday, July 10, 2003 10:11 AM
-Subject: Re: Why is generic hldc beig ignored? RE:Linux 2.4.22-pre4
+On Thursday 10 July 2003 13:51, Dennis Bliefernicht wrote:
+> Kurt Wall wrote:
+>  > Works over here (right now):
+>
+> Same here, not only kernel.org, but also finger.kernel.org:
 
+Not, here, sometimes it works sometimes it doesn't.
 
->
->
-> On Thu, 10 Jul 2003, Kevin Curtis wrote:
->
-> > The usual request for generic hdlc (please).
-> > Why are requests for it's inclusion being ignored?
-> >
-> >
-> > Kevin Curtis
-> > Linux Development
-> > FarSite Communications Ltd
-> > www.farsite.co.uk
-> > tel:  +44 1256 330461
-> > fax:  +44 1256 854931
->
->
-> Where is the patch and why do you want it in?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jeff.
+
+- -- 
+Trust me, you don't want me doing _anything_ first thing in the morning.
+		- Linus Torvalds
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/DbOuwFP0+seVj/4RAu2jAJoD5Dd9ExFRiIGYepIdSWxS1IcOmACgso5C
+R6IUWQfYaWBBwg1bvspyLkY=
+=me3l
+-----END PGP SIGNATURE-----
 

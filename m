@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVA3JiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVA3KKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVA3JiL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 04:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVA3JiL
+	id S261664AbVA3KKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 05:10:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVA3KKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 04:38:11 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:53457 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261662AbVA3JiH (ORCPT
+	Sun, 30 Jan 2005 05:10:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5074 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261664AbVA3KKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 04:38:07 -0500
-Date: Sun, 30 Jan 2005 10:37:42 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-cc: Christoph Hellwig <hch@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
-       wbsd-devel@list.drzeus.cx
-Subject: Re: [Wbsd-devel] [PATCH 540] MMC_WBSD depends on ISA
-In-Reply-To: <41FBAC44.9020502@drzeus.cx>
-Message-ID: <Pine.GSO.4.61.0501301034310.1953@waterleaf.sonytel.be>
-References: <200501072250.j07MonUe012310@anakin.of.borg> <41E22B4F.4090402@drzeus.cx>
- <41FB91A3.7060404@drzeus.cx> <20050129135714.GA320@infradead.org>
- <20050129145417.A12311@flint.arm.linux.org.uk> <20050129150023.GA959@infradead.org>
- <41FBAC44.9020502@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 30 Jan 2005 05:10:17 -0500
+Date: Sun, 30 Jan 2005 02:10:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: roland@topspin.com, linux-kernel@vger.kernel.org
+Subject: Re: Correct way to release get_user_pages()?
+Message-Id: <20050130021017.7ef1c764.akpm@osdl.org>
+In-Reply-To: <41FA7AE2.10209@ammasso.com>
+References: <52pszqw917.fsf@topspin.com>
+	<41FA7AE2.10209@ammasso.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Jan 2005, Pierre Ossman wrote:
-> Christoph Hellwig wrote:
-> > > > Russell, please undo this patch. isa_virt_to_bus() is not dependent on
-> > > > CONFIG_ISA. It causes problems on x86_64 platforms which cannot enable
-> > > > ISA support.
-> > 
-> > Actually it is, x86_64 just refuses to set CONFIG_ISA despite having
-> > isa-like devices.
-> > 
-> > Either way a new driver shouldn't use isa_virt_to_bus at all but rather
-> > use the proper DMA API and all those problems go away.
-> >  
-> The problem was that the DMA API didn't work for x86_64 when I wrote the
-> driver. I see now that it has been fixed.
-> isa_virt_to_bus still works even though CONFIG_ISA is not configured. So I
-> still think that the ISA dependency should be removed.
+Timur Tabi <timur.tabi@ammasso.com> wrote:
+>
+>  Roland Dreier wrote:
+> 
+>  > Reading through the tree, I see that some callers of get_user_pages()
+>  > release the pages that they got via put_page(), and some callers use
+>  > page_cache_release().  Of course <linux/pagemap.h> has
+>  > 
+>  > 	#define page_cache_release(page)      put_page(page)
+>  > 
+>  > so this is really not much of a difference, but I'd like to know which
+>  > is considered better style.  Any opinions?
 
-... which makes it selectable again on all platforms that don't have ISA and
-don't provide isa_virt_to_bus(), where it still breaks.
+I guess we should only use page_cache_release() if the page is known to be
+pagecache.  In the case of get_user_pages() the page could of course be
+anonymous in which case put_page is probably more appropriate.  It's all a
+bit of a mess and if we ever do end up having PAGE_CACHE_SIZE > PAGE_SIZE,
+someone will have some work to do.
 
-Please don't remove the dependency...
+I suppose put_page() would be better for now.
 
-> I'll move to the new API when I have the time to properly test it.
+>  I've defined this function.  I'm not sure if it really works, but it 
+>  looks good.
+> 
+>  #include <linux/pagemap.h>
+> 
+>  void put_user_pages(int len, struct page **pages)
+>  {
+>           int i;
+> 
+>           for (i=0; i<len; i++) {
+>                   if (!PageReserved(pages[i])) {
+>                           SetPageDirty(pages[i]);
+>                   }
+>                   page_cache_release(pages[i]);
+>           }
+>  }
 
-.. but change it to e.g. `depends on ISA || X86_64', until you have moved it to
-the new API.
+no...  You should only dirty the page if it was modified, and then use
+set_page_dirty() or set_page_dirty_lock().
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+See dio_bio_complete() for an example.

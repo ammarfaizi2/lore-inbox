@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319629AbSH3Reo>; Fri, 30 Aug 2002 13:34:44 -0400
+	id <S319630AbSH3Rg1>; Fri, 30 Aug 2002 13:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319630AbSH3Reo>; Fri, 30 Aug 2002 13:34:44 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:14025 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S319629AbSH3Ren>;
-	Fri, 30 Aug 2002 13:34:43 -0400
-Date: Fri, 30 Aug 2002 10:39:07 -0700
-To: Timothy Murphy <tim@birdsnest.maths.tcd.ie>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: wavelan_cs.c in linux-2.4.20-pre5
-Message-ID: <20020830173907.GA15469@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020830183658.A1821@birdsnest.maths.tcd.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020830183658.A1821@birdsnest.maths.tcd.ie>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S319631AbSH3Rg1>; Fri, 30 Aug 2002 13:36:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11016 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319630AbSH3Rg0>; Fri, 30 Aug 2002 13:36:26 -0400
+Date: Fri, 30 Aug 2002 10:47:30 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] scheduler fixes, 2.5.32-BK
+In-Reply-To: <Pine.LNX.4.44.0208301916370.910-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208301038240.1307-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 06:36:59PM +0100, Timothy Murphy wrote:
-> I'm not quite sure if you are responsible for this driver,
-> but I thought I would mention that I had to #include <linux/types.h>
-> in wavelan_cs.c to compete compilation of the kernel,
-> after getting warnings that seemed to imply u32 was undefined.
 
-	That's the wrong fix. #include <linux/types.h> is already
-available in wavelan.p.h. Those includes should be moved there as
-well.
+On Fri, 30 Aug 2002, Ingo Molnar wrote:
+> 
+> hm, indeed, you are right - completions are the only safe method.
+> 
+> i'm starting to wonder whether it's possible at all (theoretically) to
+> have a mutex design which has the current semaphore implementation's good
+> fastpath properties, but could also be used on stack.
 
-	Jean
+That's is my point. I don't think there is - although I suspect that many 
+architectures could easily do it. For all I know, there might well be some 
+tricks we could play on x86 with cmpxchg8b, for example.
+
+But I simply think that our current "completion vs semaphore" split is a
+pretty good one conceptually. They may _look_ like they are largely the
+same operation, but they have pretty distinct behaviour both in what the
+fast path is (ie "expected behaviour": semaphores expect to succeed,
+completions expect to wait), and what the release criteria are (semaphores
+do not guarantee that nobody looks at them after a down() has succeeded,
+while completions do).
+
+And one thing that tends to confirm my belief that "struct completion"  
+actually makes sense as a separate thing from a semaphore has nothing to 
+do with these implementation details. It's the much more conceptual one: a 
+lot of the cases where we converted to completions are just a lot more 
+_readable_ as completions.
+
+Using a semaphore for much of it ("wait for the IO to complete" or "wait
+for the thread to be set up") counted as a clever trick, but was a fairly
+obscure clever trick. While the completion thing looks "obvious".
+
+So even if the actual implementation of semaphores and completions were
+100% the same, I would actually want to _keep_ this naming and conceptual
+difference, simply because it just _looks_ cleaner, in my opinion.
+
+		Linus
 

@@ -1,61 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264959AbUFRBvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264926AbUFRB5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264959AbUFRBvx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 21:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUFRBr6
+	id S264926AbUFRB5r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbUFRB5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 21:47:58 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:40137 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264961AbUFRBqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 21:46:12 -0400
-Message-ID: <40D24963.7040003@opensound.com>
-Date: Thu, 17 Jun 2004 18:46:11 -0700
-From: 4Front Technologies <dev@opensound.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bastiaan Spandaw <lkml@becobaf.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-References: <40D232AD.4020708@opensound.com>	 <77709e76040617180749cd1f09@mail.gmail.com>	 <40D24163.5000006@opensound.com> <1087522622.5475.30.camel@louise3.6s.nl>
-In-Reply-To: <1087522622.5475.30.camel@louise3.6s.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 17 Jun 2004 21:57:46 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24965 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264933AbUFRB5H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 21:57:07 -0400
+Subject: [PATCH RFC] __bd_forget should wait for inodes using the mapping
+From: Chris Mason <mason@suse.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1087523668.8002.103.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 17 Jun 2004 21:54:28 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastiaan Spandaw wrote:
-> 
-> The distributions you named earlier all patch the kernels they ship with
-> their distribution.
-> 
-> There's only a handfull that install a vanilla kernel by default (out of
-> the >200 distributions available)
-> 
-> debian, redhat & gentoo patch their kernels.
-> 
-> 
-> Is your problem that a kernel is not the kernel.org vanilla version? (If
-> so have a fit @ debian, redhat and gentoo as well )
-> 
+__bd_forget will change the mapping for filesystem inodes without 
+waiting to make sure no users of the block device address space are 
+using that mapping.
 
-Redhat/Debian/Gentoo do the right thing by the kernel from www.kernel.org.
+In the case of background writeout, it is possible for __bd_forget 
+to free the block device inode while mpage_writepages is still 
+looking through the mapping for dirty pages.  This is because
+each device node in the filesystem has a pointer to the block
+device address space, and __bd_forget is used to reset those pointers
+before the block device inode is freed.  
 
-> Or that Suse's does not work with your income generating product?
-> 
-We can fix our problems. It's just that it's becomming a treadmill.
-What's with you guys?. Would you really like to see Linux forking?
+There is no locking to make sure __bd_forget isn't running 
+at the same time as __writeback_single_inode is run on the 
+filesystem device node.
 
+Here's an example patch that should fix things, Andi just found
+a race where I wasn't holding onto the filesystem inode correctly,
+so this rev got a last minute fix before I wander off for the night.
 
+It's quite ugly, I'm hoping we can hash out something better.
 
+Index: linux.t/fs/block_dev.c
+===================================================================
+--- linux.t.orig/fs/block_dev.c	2004-06-17 21:14:08.000000000 -0400
++++ linux.t/fs/block_dev.c	2004-06-17 21:46:46.203782616 -0400
+@@ -24,6 +24,7 @@
+ #include <linux/uio.h>
+ #include <linux/namei.h>
+ #include <asm/uaccess.h>
++#include <linux/writeback.h>
+ 
+ struct bdev_inode {
+ 	struct block_device bdev;
+@@ -258,11 +259,31 @@ static void init_once(void * foo, kmem_c
+ 	}
+ }
+ 
++/* 
++ * we have to make sure that we don't free the block
++ * device inode and mapping while one of the inodes using
++ * it is in background writeback. 
++ *
++ * The lock ordering required elsewhere is bdev_lock->inode_lock.
++ */
+ static inline void __bd_forget(struct inode *inode)
+ {
++	spin_lock(&inode_lock);
++	__iget(inode);
++	while (inode->i_state & I_LOCK) {
++		spin_unlock(&bdev_lock);
++		spin_unlock(&inode_lock);
++		__wait_on_inode(inode);
++		spin_lock(&bdev_lock);
++		spin_lock(&inode_lock);
++	}
+ 	list_del_init(&inode->i_devices);
+ 	inode->i_bdev = NULL;
+ 	inode->i_mapping = &inode->i_data;
++	spin_unlock(&inode_lock);
++	spin_unlock(&bdev_lock);
++	iput(inode);
++	spin_lock(&bdev_lock);
+ }
+ 
+ static void bdev_clear_inode(struct inode *inode)
 
-best regards
-
-Dev Mazumdar
----------------------------------------------------------------------
-4Front Technologies
-4035 Lafayette Place, Unit F, Culver City, CA 90232, USA
-Tel: 310 202 8530   Fax: 310 202 0496   URL: http://www.opensound.com
----------------------------------------------------------------------
 

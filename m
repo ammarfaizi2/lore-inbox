@@ -1,80 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbTL0WNY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 17:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTL0WNX
+	id S264873AbTL0Woy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 17:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTL0Woy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 17:13:23 -0500
-Received: from mail.aei.ca ([206.123.6.14]:9201 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S264855AbTL0WNV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 17:13:21 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Re: Solution found: kernel-2.6.0/esd/realplayer8 doesn't work
-Date: Sat, 27 Dec 2003 17:13:17 -0500
-User-Agent: KMail/1.5.93
-Cc: Tetsuji Rai <badtrans666@yahoo.co.jp>
-References: <3FE8E39D.4090905@yahoo.co.jp>
-In-Reply-To: <3FE8E39D.4090905@yahoo.co.jp>
+	Sat, 27 Dec 2003 17:44:54 -0500
+Received: from web40612.mail.yahoo.com ([66.218.78.149]:45599 "HELO
+	web40612.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264873AbTL0Wow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 17:44:52 -0500
+Message-ID: <20031227224451.73330.qmail@web40612.mail.yahoo.com>
+Date: Sat, 27 Dec 2003 23:44:51 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: 2.6.0 sound output - wierd effects
+To: Rob Love <rml@ximian.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1072501808.4136.6.camel@fur>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312271713.18596.edt@aei.ca>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 23, 2003 07:53 pm, Tetsuji Rai wrote:
-> Self reply and post as my reminder....
-> use
->
-> export LD_ASSUME_KERNEL=2.2.5
->
-> and realplayer works fine.
+ --- Rob Love <rml@ximian.com> a écrit : > On Sat, 2003-12-27 at
+00:02, Martin J. Bligh wrote:
+> 
+> > Because someone broke it ... that's what this thread is
+> about ;-)
+> 
+> Right, sorry :-)
+> 
+> But what does that have to do with OSS remaining in the kernel
+> and the
+> guy I was responding to having to continue to use OSS?
+> 
+> I mean, it is a bug, and we will fix it.  Keeping OSS is
+> orthogonal. 
+> That was my point.
+> 
 
-This implies it might be a thread problem.  In my case, using 2.6.0-mm1, xine works
-fine but xmms fails.  Its _not_ fixed here with the above export.
+The problem is that alsa is not stable. At least not like oss.
+I switched from alsa to oss because i could compile oss
+directly in my kernel
+ (that was a long time ago).
 
-Ed Tomlinson
+and when 2.6.0-test apeared i compiled alsa in the kernel but i
+had
+problems with it and came back to oss:
+1. SOund was jerky compared to oss (almost inaudible)
+with oss emulation.
+2. doesn't have an btaudio driver and i wasn't been able to
+compile alsa and oss btaudio driver in the same kernel 
+so i couldn't watch tv with the alsa kernel :-(
+3. Many old sound applications require oss (even emulated)
+And oss emulation is far from stable. 
 
-> -------- Original Message --------
-> Subject: kernel-2.6.0/esd/realplayer8 doesn't work
-> Date: Tue, 23 Dec 2003 23:21:13 +0900
-> From: Tetsuji Rai <badtrans666@yahoo.co.jp>
-> To: linux-kernel@vger.kernel.org
->
-> Hi, all
->
->    I just installed kernel-2.6.0 release on debian-testing.   On my box esd
-> works with xmms, mpg123 as with kernel-2.4.xx series, however, only
-> Realplayer8 cannot use esd at all.  Realplayer says "cannot open audio
-> device, Another application may be using it."  Sounds strange.   It works
-> very fine with the very same configuration on kernel 2.4.23.
->    As a matter of course module-init-tools are installed for kernel-2.6.0.
-> Strange thing is xmms, mpg123 works, but that realplayer doesn't work.  And
-> when some weeks ago I tested kernel 2.6.0-test6/7, realplayer worked as
-> expected.
->   Will anybody have any idea?   I once suspect it should be related to
-> connection between realplayer and esd, but if so kernel version doesn't
-> matter.   So there should be another reason;for eg. esound doesn't keep up
-> with kernel development...just a guess.
->
-> PS: I recompiled esound daemon 0.2.32 with kernel 2.6.0 for sure.
->
-> TIA
-> --
-> Tetsuji Rai (in Tokyo) aka AF-One (Athlete's Foot-One)
-> Born to be the luckiest guy in the world!   May the Force be with me!
-> http://www.geocities.com/tetsuji_rai
-> http://setiathome.ssl.berkeley.edu/fcgi-bin/fcgi?cmd=view_feedback&id=1855
-> fax: 1-516-706-0320
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+These are my opinions. I hope they will change soon :-)
+
+> 	Rob Love
+> 
+Calin
+
+
+=====
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
+
+_________________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

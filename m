@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289211AbSA3N7K>; Wed, 30 Jan 2002 08:59:10 -0500
+	id <S289224AbSA3OD3>; Wed, 30 Jan 2002 09:03:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289216AbSA3N67>; Wed, 30 Jan 2002 08:58:59 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:18603 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289211AbSA3N66>;
-	Wed, 30 Jan 2002 08:58:58 -0500
-Date: Wed, 30 Jan 2002 16:56:32 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Rob Landley <landley@trommello.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <200201291845.g0TIjSU16741@snark.thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201301630300.4935-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289225AbSA3ODU>; Wed, 30 Jan 2002 09:03:20 -0500
+Received: from sombre.2ka.mipt.ru ([194.85.82.77]:12160 "EHLO
+	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
+	id <S289224AbSA3ODL>; Wed, 30 Jan 2002 09:03:11 -0500
+Date: Wed, 30 Jan 2002 16:56:19 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: patches-2.5@kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [bla-bla-bla... penguin and others...]patch against 2.5.3-pre6 to make it to be compiled [sorry for my english.. ik...]
+Message-Id: <20020130165619.5b736306.johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Wed__30_Jan_2002_16:56:19_+0300_08404060"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-On Tue, 29 Jan 2002, Rob Landley wrote:
+--Multipart_Wed__30_Jan_2002_16:56:19_+0300_08404060
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> And a paralell tree to Linus's, dedicated to patch processing and
-> tracking patches, with a patch submission system dedicated to routing
-> patches to the proper maintainers, reviewing and cross-checking
-> patches from maintainers, resolving conflicts, subjecting the lot to
-> public scrutiny and being a one-stop-shopping place for people who
-> want to find bugs in something...  Like Alan Cox did for years, and
-> like Dave Jones is doing now...  This is a totally different subject
-> then?
+Here it is...
 
-you are banging on open doors. We have and need multiple trees. And no, a
-*single* 'integration' or 'patch penguin' tree will not be able to solve
-this problem. The 'small stuff' tree is a tree that does *not* apply
-nontrivial patches. It's a tree for *pure* small stuff.
+I don't look into the discussion about great penguin and other... because
+it is a BULLSHIT. ALL my patches, including even two strings typo was
+commited into the TREE, but without any credit. So, i don't care about
+people, who want to see "bla-bla-bla	fixed by ABSD" in ChangeLog... I work
+in this direction only because i like to do it, and all others, who only
+want to be included in linuxtoday.com newslatter, are suckers. Sorry for
+such comparison, but... it is true until you make me change my mind. I
+know, that many BIG and GOOD changes was not included into the TREE... But
+i don't care about it. Maybe because of exactly me didn't that patches...
+Maybe... But maybe because SOMEONE don't want to include it into the
+TREE... Maybe... I don't know, but it is not my task for now... Now i and
+you must improove Linux OS and not something other. Please work and stop
+flooding.
 
-also, the -ac, -dj and -aa trees all act as a 'small stuff' tree currently
-but the problem Alan pointed out is that Linus often rejects small stuff
-from these sources as well, which creates high latency for small stuff and
-decreases the 'end user' quality of the Linus tree. (and also we lose some
-of the newbie developers who by definition start with small stuff.) So by
-making a *separate* and *small stuff only* tree Linus could start trusting
-those patches as small-stuff-only.
+But I know exactly, that someone will ALWAYS work with LINUX, only because
+this someone like to do it. And please don't talk about something magic in
+this. The only thing that can be done is "Maintainers tree", which is
+already done some years ago...
 
-A small stuff tree will not and cannot replace the multiple experimental
-trees that explore riskier patches (but only a few a time) like the -dj
-tree or the -ac tree. (although i'd say the -ac tree isnt purely that,
-it's more like a productization tree. The -dj and the devel-based -aa tree
-is a good example.)
+So, you'd better work and improve Linux OS.
+Simply don't care about complains...
 
-this way all the people who have the experience and stamina to integrate
-patches can act as an experimental ground to 'cook' bigger patches before
-they are sent to Linus. Linus' tree is 'cooking' a few patches as well,
-but only in orthogonal areas. Eg. right now we have the bio changes, the
-vfs cleanups, the device handing cleanups, and the scheduler cleanups
-going on in parallel. The -dj tree might (and does) 'cook' patches that
-shouldnt be applied to the Linus tree right now even if they were
-'perfect' as a starting point. [i still have to see a complex patch that
-is truly perfect and needs no iterations. Much of the true integration
-steps are still done in the Linus tree these days.]
 
-but integration (of nontrivial patches) on such level *can* be
-parallelized to a certain degree. If patches are 'pre-cooked' well (in the
--ac, -dj and -aa, etc. trees and actual users see and test them) then the
-load on the Linus tree and the latency of transition of the Linus tree can
-be decreased somewhat. But i think we are still very far from the point
-when Linus gets only 'perfect' (nontrivial-) patches. I doubt we'll ever
-reach that point, and in that case Linus wont have much fun himself so i
-doubt we want to reach that point :)
+	Evgeniy Polyakov ( s0mbre ).
 
-the small stuff tree on the other hand does not need to be parallelized,
-small stuff is atomic and such patches scale almost infinitely. So a
-single small stuff tree could indeed not only serve as a trusted source
-for Linus, but could also take off the load from the other trees so they
-can concentrate on the not-so-small-stuff like driver updates and other
-subsystem updates, or even bigger patches. Formalizing and automating the
-small-stuff tree might work as well, due to its inherent simplicity.
+--Multipart_Wed__30_Jan_2002_16:56:19_+0300_08404060
+Content-Type: application/octet-stream;
+ name="test.diff"
+Content-Disposition: attachment;
+ filename="test.diff"
+Content-Transfer-Encoding: base64
 
-	Ingo
+LS0tIC4vZHJpdmVycy9iYXNlL2ZzLmN+CVdlZCBKYW4gMzAgMDg6MDg6MDMgMjAwMgorKysgLi9k
+cml2ZXJzL2Jhc2UvZnMuYwlXZWQgSmFuIDMwIDA4OjEzOjIxIDIwMDIKQEAgLTgsNyArOCw3IEBA
+CiAjaW5jbHVkZSA8bGludXgvZGV2aWNlLmg+CiAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CiAj
+aW5jbHVkZSA8bGludXgvc3RyaW5nLmg+Ci0jaW5jbHVkZSA8bGludXgvbWFsbG9jLmg+CisjaW5j
+bHVkZSA8bGludXgvc2xhYi5oPgogCiBleHRlcm4gc3RydWN0IGRyaXZlcl9maWxlX2VudHJ5ICog
+ZGV2aWNlX2RlZmF1bHRfZmlsZXNbXTsKIAotLS0gLi9kcml2ZXJzL2Jhc2UvY29yZS5jfglXZWQg
+SmFuIDMwIDA4OjA4OjAzIDIwMDIKKysrIC4vZHJpdmVycy9iYXNlL2NvcmUuYwlXZWQgSmFuIDMw
+IDA4OjEyOjI5IDIwMDIKQEAgLTcsNyArNyw3IEBACiAKICNpbmNsdWRlIDxsaW51eC9kZXZpY2Uu
+aD4KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KLSNpbmNsdWRlIDxsaW51eC9tYWxsb2MuaD4K
+KyNpbmNsdWRlIDxsaW51eC9zbGFiLmg+CiAKICN1bmRlZiBERUJVRwogCi0tLSAuL2RyaXZlcnMv
+dmlkZW8vcml2YS9mYmRldi5jfglUaHUgTm92IDE1IDAxOjUyOjIwIDIwMDEKKysrIC4vZHJpdmVy
+cy92aWRlby9yaXZhL2ZiZGV2LmMJV2VkIEphbiAzMCAwODoxODowOSAyMDAyCkBAIC0xODExLDcg
+KzE4MTEsNyBAQAogCWluZm8gPSAmcmluZm8tPmluZm87CiAKIAlzdHJjcHkoaW5mby0+bW9kZW5h
+bWUsIHJpbmZvLT5kcnZyX25hbWUpOwotCWluZm8tPm5vZGUgPSAtMTsKKwlpbmZvLT5ub2RlID0g
+Tk9ERVY7CiAJaW5mby0+ZmxhZ3MgPSBGQklORk9fRkxBR19ERUZBVUxUOwogCWluZm8tPmZib3Bz
+ID0gJnJpdmFfZmJfb3BzOwogCg==
 
+--Multipart_Wed__30_Jan_2002_16:56:19_+0300_08404060--

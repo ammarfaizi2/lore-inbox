@@ -1,38 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264319AbRFIPGu>; Sat, 9 Jun 2001 11:06:50 -0400
+	id <S263986AbRFIP7w>; Sat, 9 Jun 2001 11:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264331AbRFIPGj>; Sat, 9 Jun 2001 11:06:39 -0400
-Received: from sal.qcc.sk.ca ([198.169.27.3]:9484 "HELO sal.qcc.sk.ca")
-	by vger.kernel.org with SMTP id <S264319AbRFIPG3>;
-	Sat, 9 Jun 2001 11:06:29 -0400
-Date: Sat, 9 Jun 2001 09:06:27 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: temperature standard - global config option?
-Message-ID: <20010609090627.D21327@qcc.sk.ca>
-In-Reply-To: <9fskv3$niq$1@cesium.transmeta.com> <Pine.SOL.4.33.0106091015470.572-100000@yellow.csi.cam.ac.uk>
-Mime-Version: 1.0
+	id <S264259AbRFIP7m>; Sat, 9 Jun 2001 11:59:42 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:14233 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S263986AbRFIP7e>; Sat, 9 Jun 2001 11:59:34 -0400
+Message-ID: <3B224613.440AE25C@uow.edu.au>
+Date: Sun, 10 Jun 2001 01:51:47 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] truncate_inode_pages
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.SOL.4.33.0106091015470.572-100000@yellow.csi.cam.ac.uk>; from jas88@cam.ac.uk on Sat, Jun 09, 2001 at 10:17:43AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland <jas88@cam.ac.uk> wrote:
-> 
-> The current x86 setup uses a small sensor sitting under the CPU socket.
+The ftruncate() in this program:
 
-Current Intel chips have a sensor built right into the die of the processor
-itself -- voila, close enough to the critical junction temperature for any
-purpose.  Many workstation CPUs have a similar feature, and the other x86
-manufacturers either do or have plans to include such a beast.
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
-Any opinions expressed are just that -- my opinions.
------------------------------------------------------------------------
+int clean = 64 * 1024 * 1024;
+int dirty = 64 * 1024 * 1024;
+
+main()
+{
+	int fd = open("foo", O_RDWR|O_TRUNC|O_CREAT, 0666);
+	void *mem;
+
+	ftruncate(fd, clean + dirty);
+	mem = mmap(0, clean + dirty, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	memset(mem, 0, clean + dirty);
+	msync(mem, clean, MS_SYNC);
+	ftruncate(fd, clean);
+}
+
+
+takes 45 seconds CPU time due to the O(clean * dirty) algorithm in
+truncate_inode_pages().  The machine is locked up for the duration.
+The patch reduces this to 20 milliseconds via an O(clean + dirty)
+algorithm.
+
+
+--- linux-2.4.5/mm/filemap.c	Mon May 28 13:31:49 2001
++++ linux-akpm/mm/filemap.c	Sun Jun 10 01:27:09 2001
+@@ -273,15 +273,24 @@
+ {
+ 	unsigned long start = (lstart + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
++	int complete;
+ 
+-repeat:
+ 	spin_lock(&pagecache_lock);
+-	if (truncate_list_pages(&mapping->clean_pages, start, &partial))
+-		goto repeat;
+-	if (truncate_list_pages(&mapping->dirty_pages, start, &partial))
+-		goto repeat;
+-	if (truncate_list_pages(&mapping->locked_pages, start, &partial))
+-		goto repeat;
++	do {
++		complete = 1;
++		while (truncate_list_pages(&mapping->clean_pages, start, &partial)) {
++			spin_lock(&pagecache_lock);
++			complete = 0;
++		}
++		while (truncate_list_pages(&mapping->dirty_pages, start, &partial)) {
++			spin_lock(&pagecache_lock);
++			complete = 0;
++		}
++		while (truncate_list_pages(&mapping->locked_pages, start, &partial)) {
++			spin_lock(&pagecache_lock);
++			complete = 0;
++		}
++	} while (!complete);
+ 	spin_unlock(&pagecache_lock);
+ }

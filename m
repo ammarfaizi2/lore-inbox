@@ -1,91 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbUKVLGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUKVLMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbUKVLGS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 06:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbUKVLFl
+	id S262060AbUKVLMb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 06:12:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbUKVLMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 06:05:41 -0500
-Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:57290 "EHLO
-	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262059AbUKVLDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 06:03:34 -0500
-Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041122024654.37eb5f3d.akpm@osdl.org>
-References: <877joexjk5.fsf@devron.myhome.or.jp>
-	 <20041122024654.37eb5f3d.akpm@osdl.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Mon, 22 Nov 2004 11:03:22 +0000
-Message-Id: <1101121403.18623.10.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Mon, 22 Nov 2004 06:12:06 -0500
+Received: from news.suse.de ([195.135.220.2]:62864 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262060AbUKVLG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 06:06:58 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Roland McGrath <roland@redhat.com>, Daniel Jacobowitz <dan@debian.org>,
+       Eric Pouech <pouech-eric@wanadoo.fr>, Mike Hearn <mh@codeweavers.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	<419E42B3.8070901@wanadoo.fr>
+	<Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
+	<419E4A76.8020909@wanadoo.fr>
+	<Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
+	<419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
+	<Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
+	<20041120214915.GA6100@tesore.ph.cox.net>
+	<Pine.LNX.4.58.0411211326350.11274@bigblue.dev.mdolabs.com>
+	<Pine.LNX.4.58.0411211414460.20993@ppc970.osdl.org>
+	<je7joe91wz.fsf@sykes.suse.de>
+	<Pine.LNX.4.58.0411211703160.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0411211947200.11274@bigblue.dev.mdolabs.com>
+	<Pine.LNX.4.58.0411212022510.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0411212212530.20993@ppc970.osdl.org>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I feel like I'm in a Toilet Bowl with a thumbtack in my forehead!!
+Date: Mon, 22 Nov 2004 12:06:55 +0100
+In-Reply-To: <Pine.LNX.4.58.0411212212530.20993@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sun, 21 Nov 2004 22:23:41 -0800 (PST)")
+Message-ID: <je7joeywfk.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-22 at 02:46 -0800, Andrew Morton wrote:
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
-> >
-> > 
-> >  		status = __block_prepare_write(inode, new_page, zerofrom,
-> >  						PAGE_CACHE_SIZE, get_block);
-> >  		if (status)
-> >  			goto out_unmap;
-> >  		kaddr = kmap_atomic(new_page, KM_USER0);
-> >  		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
-> >  		flush_dcache_page(new_page);
-> >  		kunmap_atomic(kaddr, KM_USER0);
-> >  		__block_commit_write(inode, new_page,
-> >  				zerofrom, PAGE_CACHE_SIZE);
-> >  		unlock_page(new_page);
-> >  		page_cache_release(new_page);
-> >  	}
-> > 
-> >  But until ->commit_write(), kernel doesn't update the ->i_size. Then,
-> >  if kernel writes out that hole page before updates of ->i_size, dirty
-> >  flag of buffer_head is cleared in __block_write_full_page(). So hole
-> >  page was not writed to disk.
-> 
-> Oh I see.  After the above page is unlocked, it's temporarily outside
-> i_size.
-> 
-> Perhaps cont_prepare_write() should look to see if the zerofilled page is
-> outside the current i_size and if so, advance i_size to the end of the
-> zerofilled page prior to releasing the page lock.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Would it be ok to modify i_size from prepare_write?  That would make my
-life in NTFS a lot easier...  There are cases in NTFS where I need to do
-page updates in prepare write that would benefit from an i_size update
-as well rather than having to postpone the i_size update to
-commit_write.  (Note commit_write would still update i_size, too, its
-just that prepare write would set i_size to be up to the start of the
-write because otherwise you have a potential hole between i_size and the
-start of the write and at least on NTFS that causes me a lot of
-headaches with resident files and non-resident files with
-initialized_size != i_size that I could make a lot easier to deal with
-by updating i_size in prepare_write to point to the start of the write.)
+> IMHO, this is a nice cleanup, and it also means that I can actually debug 
+> my "program from hell":
 
-> We might need to run mark_inode_dirty() at some stage, or perhaps just rely
-> on the caller doing that in ->commit_write().
+Does it also work when trying to single step over it?  I guess all bets
+are off then.
 
-Slight problem with not running mark_inode_dirty() at this point is that
-if commit_write() fails for some reason (-ENOMEM springs to mind)
-mark_inode_dirty() may never get run which may cause a problem,
-depending on what exactly was done in prepare_write...
+Andreas.
 
-Best regards,
-
-        Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

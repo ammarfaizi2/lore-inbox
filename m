@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135844AbREAOih>; Tue, 1 May 2001 10:38:37 -0400
+	id <S135854AbREAOlR>; Tue, 1 May 2001 10:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135813AbREAOia>; Tue, 1 May 2001 10:38:30 -0400
-Received: from ns.suse.de ([213.95.15.193]:54546 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S135520AbREAOiG>;
-	Tue, 1 May 2001 10:38:06 -0400
-Date: Tue, 1 May 2001 16:38:04 +0200
-From: Hubert Mantel <mantel@suse.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Alpha compile problem solved by Andrea (pte_alloc)
-Message-ID: <20010501163804.D14970@suse.de>
-Mail-Followup-To: Hubert Mantel <mantel@suse.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010430014653.C923@athlon.random> <E14uGya-0008He-00@the-village.bc.nu>
+	id <S136620AbREAOlG>; Tue, 1 May 2001 10:41:06 -0400
+Received: from jalon.able.es ([212.97.163.2]:7651 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S135947AbREAOjy>;
+	Tue, 1 May 2001 10:39:54 -0400
+Date: Tue, 1 May 2001 16:39:47 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: APIC asymmetry in SMP ?
+Message-ID: <20010501163947.A1278@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <E14uGya-0008He-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 05:56:41PM +0100
-Organization: SuSE Labs, Nuernberg, Germany
-X-Operating-System: SuSE Linux - Kernel 2.2.19
-X-PGP-Key: 1024D/B0DFF780, 1024R/CB848DFD
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, 
 
-On Mon, Apr 30, Alan Cox wrote:
+Looking over one other problem, I realized that my 2 cpus are recognized
+slightly different in the <setup_APIC_timer> function:
 
-> > OTOH x86 is racy and there's no workaround available at the moment.
-> 
-> -ac fixes all known problems there 
+cpu: 0, clocks: 1002324, slice: 334108
+CPU0<T0:1002320,T1:668208,D:4,S:334108,C:1002324>
+cpu: 1, clocks: 1002324, slice: 334108
+CPU1<T0:1002320,T1:334096,D:8,S:334108,C:1002324>
 
-Is there some place from where one can download all the patches in -ac 
-kernels as separate patches, not just one monster patch (same way Andrea 
-is doing)?
+Both are just the same, both pII@400, 512Kb:
 
-I assume you are maintaining them as separate patches anyway in order to 
-be able to feed them to Linus.
+CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+Intel machine check reporting enabled on CPU#0.
+CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
+CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
+CPU: Common caps: 0183fbff 00000000 00000000 00000000
+CPU0: Intel Pentium II (Deschutes) stepping 02
+.
+CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
+CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
+CPU: Common caps: 0183fbff 00000000 00000000 00000000
+CPU1: Intel Pentium II (Deschutes) stepping 02
 
-> Alan
-                                                                  -o)
-    Hubert Mantel              Goodbye, dots...                   /\\
-                                                                 _\_v
+???
+
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
+
+Linux werewolf 2.4.4-ac1 #1 SMP Tue May 1 11:35:17 CEST 2001 i686
+

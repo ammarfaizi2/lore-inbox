@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268996AbRHaTT3>; Fri, 31 Aug 2001 15:19:29 -0400
+	id <S268970AbRHaTS3>; Fri, 31 Aug 2001 15:18:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRHaTTM>; Fri, 31 Aug 2001 15:19:12 -0400
-Received: from mail.arcor-ip.de ([145.253.2.10]:27052 "EHLO mail.arcor-ip.de")
-	by vger.kernel.org with ESMTP id <S268996AbRHaTSs>;
-	Fri, 31 Aug 2001 15:18:48 -0400
-Date: Fri, 31 Aug 2001 21:18:51 +0200
-From: Christopher Ruehl <ruehlc@europe.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb_control/bulk_msg
-Message-ID: <20010831211851.A1047@pegasus>
-Reply-To: Christopher Ruehl <ruehlc@europe.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010831093641.A1257@pegasus> <20010831004623.A20895@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010831004623.A20895@kroah.com>; from greg@kroah.com on Fri, Aug 31, 2001 at 12:46:23AM -0700
-OS: Linux pegasus 2.4.9-ac5
+	id <S268996AbRHaTST>; Fri, 31 Aug 2001 15:18:19 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6016 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268970AbRHaTSG> convert rfc822-to-8bit; Fri, 31 Aug 2001 15:18:06 -0400
+Date: Fri, 31 Aug 2001 15:18:18 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?Q?=22Hammond=2C_Jean-Fran=E7ois=22?= 
+	<Jean-Francois.Hammond@mindready.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Scheduling in interrup
+In-Reply-To: <F50B5436A4CED31190DA000629386F010168A9C7@CHOPIN>
+Message-ID: <Pine.LNX.3.95.1010831151138.4225A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Aug 31, 2001 at 09:36:41AM +0200, Christopher Ruehl wrote:
-> > ! PLEASE CC to me i'am not registered to this list
-> Does the same thing happen with the uhci (JE) driver?
-> You will also have better luck asking this on the linux-usb-devel
-> mailing list.
+On Fri, 31 Aug 2001, [iso-8859-1] "Hammond, Jean-François" wrote:
 
-ok, i'll sent it to linux-usb-devel
+> Hi,
+> 
+> Here is the bug :
+> 
+> Scheduling in interrupt
+> kernel BUG at sched.c:706!
+> < all the registers are dump >
+> Kernel panic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing
+> 
+> General information :
+> 
+> Kernel version : 2.4.8 without SMP
+> GCC version : 2.96-81 (Red Hat 7.1)
+> 
+> I am developing in the kernel. I got two PC with one network card for each.
+> The bug appear when trying to stress my network driver by sending a lot
+> of packet to one node on the network. The PC that is sending packets
+> seems to work fine, but the one that receiving packets get the bug after 
+> a while. My interrupt handler does not have bottom half and my interrupt
+> as the options : SA_INTERRUPT and SA_SHIRQ.
+> 
+> I got two possible answer. The first possible answer to this is my interrupt
+> routine stays too long at the interrupt level. The second answer is I lock
+> the
+> interrupt for a long time.
+> 
+> Do you have any suggestion to this problem ?
+> 
+> Thanks,
+> 
 
-and it's happen with both, the new and 'old JE' uhci
+So, what is the interrupt service routine doing that it should not
+be doing?
 
-i'am also took the delay switch on for slow usb-devices
-CONFIG_USB_LONG_TIMEOUT=y
+o	Are you attempting to access paged RAM?
+o	Are you accessing anything that sleeps?
+o	Are you enabling interrupts without protecting against
+	re-entry first?
+o	Etc.
 
-but it's doesn't resolve my problem.
+Your ISR must be doing something that it should not be doing in
+order to get this kind of error.
 
-thanx for now
--cr
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

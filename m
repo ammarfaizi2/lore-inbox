@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUDDLVv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 07:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUDDLVv
+	id S262311AbUDDL17 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 07:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUDDL17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 07:21:51 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:64454 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S262322AbUDDLVW (ORCPT
+	Sun, 4 Apr 2004 07:27:59 -0400
+Received: from zero.aec.at ([193.170.194.10]:49161 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262311AbUDDL16 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 07:21:22 -0400
-Date: Sun, 4 Apr 2004 13:21:13 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.[45]-.*: weird behavior
-In-Reply-To: <200404040109.13414.rjwysocki@sisk.pl>
-Message-ID: <Pine.LNX.4.58.0404041248400.7155@alpha.polcom.net>
-References: <200404032122.54823.rjwysocki@sisk.pl> <200404032314.27866.rjwysocki@sisk.pl>
- <Pine.LNX.4.58.0404032341450.18910@alpha.polcom.net> <200404040109.13414.rjwysocki@sisk.pl>
+	Sun, 4 Apr 2004 07:27:58 -0400
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel stack challenge
+References: <1H9LV-5Jb-1@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 04 Apr 2004 13:27:44 +0200
+In-Reply-To: <1H9LV-5Jb-1@gated-at.bofh.it> (Sergiy Lozovsky's message of
+ "Sun, 04 Apr 2004 09:00:08 +0200")
+Message-ID: <m3ad1s0yq7.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe you should check IRQ sharing with ps port (if it is ps keyboard). Is 
-it different under >=2.6.4-mm than under other kernels?
+Sergiy Lozovsky <serge_lozovsky@yahoo.com> writes:
 
-And maybe you should add boot options to turn ACPI and other similar 
-options off.
+> This function doesn't work in the kernel (system hungs
+> instantly when my function is called). Does antbody
+> have any idea what the reason can be? Some special
+> alignment? Special memory segment? In what direction
+> should I look?
 
-And what video card are you using? There were some problems with S3 and 
-other cards / XFree86 implementations in the past. Maybe kernel change is 
-just exposing the problemm, not producing it? What about starting X with 
-vesa or other "generic" driver insead of driver for your card.
+The kernel puts some data about the current task at the bottom
+of the stack and accesses that by referencing the stack pointer
+in "current". This is even used by interrupts.
 
-I tried hard to reproduce your problem on my Athlon 32 box with 
-2.6.5-rc3-mm4 but with no luck. I have some problems with this kernel, as 
-with other kernels past 2.6.4 (for example I cannot mount any non root non 
-virtual fs :)), but not this kind of problem. If I remember good I had one 
-keyboard lockup under X in last month, but this was on 2.6.2-rc2-mm? 
-kernel (probalby) after exiting from game (aa) and keyboard did not 
-unlock (but I didint wait 30 sec - I do not have enough amount of 
-patience :)). This problem never happened again.
-
-What are exact steps to reproduce your problem?
-
-And maybe the common thing with these two configurations is the 
-SMP<->preemprion. These two are very similar in producing problems and if 
-I remember good you have preemtion enabled on the laptop. Can you 
-reproduce the problem without it?
-
-I also found the patch for kernel stack in proc - it is here:
-
-  http://thebsh.namesys.com/snapshots/LATEST/extra/a_04-proc-stack.patch
-
-there is also iowait-reason and sleep-stat patch in the same directory.
-
-And maybe try to reproduce the problem with 2.6.5 without mm. People like 
-to have reports about "stable" kernels :)
-
-
-good luck
-
-Grzegorz Kulewski
-
-
-PS. I am compiling 2.6.5 too to check if it works better for me.
+-Andi
 

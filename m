@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136019AbRAGQuf>; Sun, 7 Jan 2001 11:50:35 -0500
+	id <S136060AbRAGQwf>; Sun, 7 Jan 2001 11:52:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136001AbRAGQuZ>; Sun, 7 Jan 2001 11:50:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36623 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136019AbRAGQuI>; Sun, 7 Jan 2001 11:50:08 -0500
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-To: hadi@cyberus.ca (jamal)
-Date: Sun, 7 Jan 2001 16:51:11 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        ak@suse.de, greearb@candelatech.com, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-In-Reply-To: <Pine.GSO.4.30.0101071102140.18916-100000@shell.cyberus.ca> from "jamal" at Jan 07, 2001 11:12:23 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136085AbRAGQwZ>; Sun, 7 Jan 2001 11:52:25 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:1008 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S136068AbRAGQwR>; Sun, 7 Jan 2001 11:52:17 -0500
+Date: Sun, 7 Jan 2001 14:52:04 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+Reply-To: linux-mm@kvack.org
+To: david <sector2@ihug.co.nz>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: new kernel mm
+In-Reply-To: <3A580C47.94994D3A@ihug.co.nz>
+Message-ID: <Pine.LNX.4.21.0101071450390.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FJ2H-0002vI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok. Good point.
-> But remember that parsing /proc for an embedded system is also not the
-> most healthy thing.
+On Sun, 7 Jan 2001, david wrote:
 
-I dont compile in /proc either. SIOCGIFCONF is enough for an embedded box.
+> can i rewrite the mm system in kernel's 2.2.18 to add new and
+> needed functions or may be it can be a compile option old (mm
+> system or new mm system) ?
+
+Upgrade to 2.4.0  ;)
+
+But yes, you can rewrite 2.2.18 VM all you want, that's
+what the GPL is for...
+
+Btw, which extra functions are you looking at? You may
+find that some of them have already been implemented by
+other people (which would save you quite a bit of work).
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to loose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

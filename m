@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269468AbUJSPf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUJSPn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269468AbUJSPf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 11:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269470AbUJSPf4
+	id S269470AbUJSPn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 11:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUJSPn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 11:35:56 -0400
-Received: from ida.rowland.org ([192.131.102.52]:3076 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S269468AbUJSPfu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 11:35:50 -0400
-Date: Tue, 19 Oct 2004 11:35:47 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-cc: linux-kernel@vger.kernel.org, Nils Rennebarth <Nils.Rennebarth@web.de>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Fw: X is killed when trying to suspend with
- USB Mouse plugged in
-In-Reply-To: <200410182012.27593.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.44L0.0410191134090.1023-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Oct 2004 11:43:29 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:55525 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S269470AbUJSPn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 11:43:27 -0400
+Date: Tue, 19 Oct 2004 11:43:15 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ronald Moesbergen <r.moesbergen@hccnet.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: 2.6.9-rc3, i8042.c: Can't read CTR while initializing i8042
+Message-ID: <20041019154315.GA10692@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Ronald Moesbergen <r.moesbergen@hccnet.nl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4161A2C1.8000901@hccnet.nl> <1097079186.29255.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097079186.29255.53.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Dmitry Torokhov wrote:
-
-> > I don't know about /dev/input/mouse1.  But the oops isn't a bug... it's a 
-> > weakness in the way Linux implements loadable kernel modules.
+On Wed, Oct 06, 2004 at 05:13:07PM +0100, Alan Cox wrote:
+> On Llu, 2004-10-04 at 20:21, Ronald Moesbergen wrote:
+> > Since 2.6.9-rc3 (I tested rc3-bk3 also) on 3 out of 10 boots my PS/2 
+> > keyboard is dead and 'i8042.c: Can't read CTR while initializing i8042' 
+> > shows up in my logfile. Google found this:
 > > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109463125415432&w=2
+> > 
+> > which suggests to add i8042.noacpi=1 to my boot parameters, but 
+> > unfortunately that doesn't help, the kernel doesn't even recognize this 
+> > option. Reverting back to 2.6.9-rc2 fixes it. The machine is a P4 3Ghz 
+> > HT, E7205 chipset, ASUS P4P8X board.
 > 
-> Ugh, it is not module implementation weakness, it looks like refcounting
-> problem in USB.
+> For E7xxx systems you need to disable USB legacy support in the BIOS
+> because SMM only works on the boot processor. There is a patch to
+> automate it in 2.6.8.1-ac you can also borrow
 
-Could you explain that more fully?  Are you talking about a particular 
-refcounting problem in the usbhid subsystem or do you mean a more 
-pervasive problem in the whole USB system?  And why do you say it's a 
-refcounting problem in the first place?
+Same problem on a Dell Dimension 8250. However I couldn't find an option
+on the BIOS to disable usb legacy support. 
 
-Alan Stern
+The only thing that worked was booting with 'acpi=off'.
+
+Jan
 

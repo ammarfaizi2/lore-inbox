@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVAJIpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVAJJAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVAJIpO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 03:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVAJIpN
+	id S262158AbVAJJAj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 04:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVAJJAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 03:45:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63114 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262154AbVAJIpI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 03:45:08 -0500
-Date: Mon, 10 Jan 2005 09:45:06 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Hikaru1@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: ide-cd in 2.6.8-2.6.10 and 2.4.26-2.4.28 high cpu use with dma
-Message-ID: <20050110084501.GA31651@suse.de>
-References: <20050109105201.GB12497@roll> <20050109105418.GD12497@roll> <20050109123028.GA12753@roll> <1105278277.12004.32.camel@localhost.localdomain>
+	Mon, 10 Jan 2005 04:00:39 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:57752 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262158AbVAJJAf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 04:00:35 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 10 Jan 2005 09:50:18 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] bttv-cards.c: #if 0 function bttv_reset_audio (fwd)
+Message-ID: <20050110085018.GA19858@bytesex>
+References: <20050108012900.GM14108@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105278277.12004.32.camel@localhost.localdomain>
+In-Reply-To: <20050108012900.GM14108@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09 2005, Alan Cox wrote:
-> On Sul, 2005-01-09 at 12:30, Hikaru1@verizon.net wrote:
-> > A minor mistake. I forgot to state explicitly that the problem only appears
-> > with writing audio cds. Writing data cds does not cause problems.
-> 
-> It sets the required alignment of buffers for DMA. The 2.6.10 code is
-> correct, the question is who is feeding unaligned buffers to the driver
-> layer - the kernel or the SG layer. Which burning interface are you
-> using  - /dev/sg  (ie dev=1,0,0) or /dev/hd*  (dev=/dev/hdc etc)
+On Sat, Jan 08, 2005 at 02:29:00AM +0100, Adrian Bunk wrote:
+> The patch forwarded below still applies and compiles against 2.6.10-mm2.
 
-Look at the check, it's also doing length check. And for cdda burning,
-you are never going to have 32-byte alignment, hence it false back to
-pio.
+And it's still wrong, bttv_reset_audio() is not superfluous.
 
--- 
-Jens Axboe
+> Please apply.
+
+No.
+
+  Gerd
 

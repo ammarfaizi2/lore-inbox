@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135879AbRDTL4l>; Fri, 20 Apr 2001 07:56:41 -0400
+	id <S135882AbRDTMHn>; Fri, 20 Apr 2001 08:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135880AbRDTL4a>; Fri, 20 Apr 2001 07:56:30 -0400
-Received: from mail2.bonn-fries.net ([62.140.6.78]:8972 "HELO
-	mail2.bonn-fries.net") by vger.kernel.org with SMTP
-	id <S135879AbRDTL4U>; Fri, 20 Apr 2001 07:56:20 -0400
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andreas Dilger <adilger@turbolinux.com>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>,
-        Linux kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] [PATCH] update ext2 documentation
-Date: Fri, 20 Apr 2001 14:07:34 +0200
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <200104201016.f3KAGwct030395@webber.adilger.int>
-In-Reply-To: <200104201016.f3KAGwct030395@webber.adilger.int>
+	id <S135880AbRDTMHd>; Fri, 20 Apr 2001 08:07:33 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:25606 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135882AbRDTMHW> convert rfc822-to-8bit; Fri, 20 Apr 2001 08:07:22 -0400
+From: s-jaschke@t-online.de (Stefan Jaschke)
+Reply-To: stefan@jaschke-net.de
+Organization: jaschke-net.de
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: epic100 error
+Date: Fri, 20 Apr 2001 14:07:11 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org, epic@skyld.com
+In-Reply-To: <20010417184552.A6727@core.devicen.de> <01042013091501.07156@antares> <3AE01E97.E41399F7@mandrakesoft.com>
+In-Reply-To: <3AE01E97.E41399F7@mandrakesoft.com>
 MIME-Version: 1.0
-Message-Id: <01042014132609.01958@subspace.radio>
-Content-Transfer-Encoding: 7BIT
+Message-Id: <01042014071100.01203@antares>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Apr 2001, Andreas Dilger wrote:
-> The included patch updates Documentation/filesystems/ext2 to reflect
-> current information about ext2.  It also adds some more information
-> that people have told me is hard to find in other places (such as a
-> description of the superblock compatibility flags, file and filesystem
-> size limits).
+On Friday 20 April 2001 13:33, Jeff Garzik wrote:
+> Here's a suggestion to try: go through epic100.c and write 0x12
+> unconditionally to MIICfg register.  Right now it is conditional:  if
+> (dev->if_port...) out(0x12,ioaddr+MIICfg);
 
-To quote Oliver Twist: "Please, Sir, I want some more".  How about a
-explanation of the significance of GOOD_OLD_REV, etc.  In particular, I'm
-curious why CURRENT_REV is defined as GOOD_OLD_REV and not DYNAMIC_REV.
+I changed all three such lines. Same behavior as before.
 
---
-Daniel
+<offtopic>
+You also cc-d this to epic@skyld.com. My message to this address 
+bounced. Is this a problem with my provider only?
+
+'A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+  epic@skyld.com:
+    unrouteable mail domain "skyld.com"'
+</offtopic>
+
+-- 
+Stefan R. Jaschke <stefan@jaschke-net.de>
+http://www.jaschke-net.de

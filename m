@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbTJMKpc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 06:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTJMKpc
+	id S261667AbTJMK7F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 06:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTJMK7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 06:45:32 -0400
-Received: from asplinux.ru ([195.133.213.194]:4362 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S261328AbTJMKpb (ORCPT
+	Mon, 13 Oct 2003 06:59:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54433 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261667AbTJMK7C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 06:45:31 -0400
-From: Kirill Korotaev <kk@sw.ru>
-Reply-To: kk@sw.ru
-Organization: SWsoft
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] Invalidate_inodes can be very slow
-Date: Mon, 13 Oct 2003 14:46:25 +0400
-User-Agent: KMail/1.5.1
-References: <200310131318.09234.kk@sw.ru> <20031013095347.GF16158@holomorphy.com>
-In-Reply-To: <20031013095347.GF16158@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 13 Oct 2003 06:59:02 -0400
+Date: Mon, 13 Oct 2003 04:02:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Kernel thread signal handling.
+Message-Id: <20031013040219.6ad71a57.akpm@osdl.org>
+In-Reply-To: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
+References: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310131446.25921.kk@sw.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Untested brute-force forward port to 2.6.0-test7-bk4. No idea if the
-> locking is correct or if list movement is done in all needed places.
-First of all, thanks for forward port. I think this patch is quite usefull
-for both 2.4 and 2.6 kernels, but I can't check it on all kernels myself.
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+>  1. We need disallow_signal() to complement allow_signal().
+> 
+>  2. We need a function which does dequeue_signal() _with_ locking.
+> 
+>  3. We might need a better name for #2. Change if you care.
+> 
+>  4. We need allow_signal() to actually allow signals other than
+>     SIGKILL. Currently they get either converted to SIGKILL or
+>     silently dropped, according to whether your kernel thread
+>     happens to have sa_handler set for the signal in question.
+> 
+>     It would be nicer to fix this in the signal delivery code
+>     itself if (!tsk->mm) rather than by faking a handler in
+>     allow_signal(). I'm not touching the signal delivery code
+>     with a bargepole though. Hopefully the proposed change to
+>     allow_signal() will provoke someone else into doing so.
 
-comments:
-1. why have you replaced list_del with list_del_init in my patch?
-It's not required.
-2. locks are ok, as for i_list, i_hash lists.
-3. Missed 
-+list_add(&inode->i_sb_list, &sb->s_inodes);
-in get_new_inode_fast() function. Please add it.
+Sigh.  Using signals to communicate with kernel threads is evil.  It keeps
+on breaking and each site does it differently and we've had plenty of bugs
+due to this practice.
 
-I looked through, everything else looks ok.
+Signals are for userspace and the signal developers shouldn't have to worry
+about weird in-kernel abuse and we have other simpler, more reliable
+mechanisms available in-kernel and even more such ranting you get the
+point.
 
-[your patch]
+Is there no way in which jffs2 can be weaned off this obnoxious habit?
 
-Kirill
 

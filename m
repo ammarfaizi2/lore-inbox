@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbTANEro>; Mon, 13 Jan 2003 23:47:44 -0500
+	id <S261593AbTANFGu>; Tue, 14 Jan 2003 00:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261581AbTANEro>; Mon, 13 Jan 2003 23:47:44 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:230 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261568AbTANErm>; Mon, 13 Jan 2003 23:47:42 -0500
-Date: Mon, 13 Jan 2003 20:56:22 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Theurer <habanero@us.ibm.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>, Erich Focht <efocht@ess.nec.de>
-cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: NUMA scheduler 2nd approach
-Message-ID: <352680000.1042520180@titus>
-In-Reply-To: <000201c2bb97$02bc35e0$29060e09@andrewhcsltgw8>
-References: <52570000.1042156448@flay><200301101734.56182.efocht@ess.nec.de> <967810000.1042217859@titus> <200301130055.28005.efocht@ess.nec.de> <1042507438.24867.153.camel@dyn9-47-17-164.beaverton.ibm.com> <000201c2bb97$02bc35e0$29060e09@andrewhcsltgw8>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267452AbTANFGu>; Tue, 14 Jan 2003 00:06:50 -0500
+Received: from h80ad26f3.async.vt.edu ([128.173.38.243]:39810 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S261593AbTANFGt>; Tue, 14 Jan 2003 00:06:49 -0500
+Message-Id: <200301140515.h0E5FVqZ005872@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [TRIVIAL] kstrdup 
+In-Reply-To: Your message of "Mon, 13 Jan 2003 23:15:14 EST."
+             <20030114041514.GA4844@gtf.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030114025452.656612C385@lists.samba.org> <200301140328.h0E3SFqZ004587@turing-police.cc.vt.edu> <20030114033803.GG404@gtf.org> <200301140353.h0E3rWqZ004900@turing-police.cc.vt.edu>
+            <20030114041514.GA4844@gtf.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-605521789P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Tue, 14 Jan 2003 00:15:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I played with this today on my 4 node (16 CPU) NUMAQ.  Spent most
->> of the time working with the first three patches.  What I found was
->> that rebalancing was happening too much between nodes.  I tried a
->> few things to change this, but have not yet settled on the best
->> approach.  A key item to work with is the check in find_busiest_node
->> to determine if the found node is busier enough to warrant stealing
->> from it.  Currently the check is that the node has 125% of the load
->> of the current node.  I think that, for my system at least, we need
->> to add in a constant to this equation.  I tried using 4 and that
->> helped a little.  
-> 
-> Michael,
-> 
-> in:
-> 
-> +static int find_busiest_node(int this_node)
-> +{
-> + int i, node = this_node, load, this_load, maxload;
-> + 
-> + this_load = maxload = atomic_read(&node_nr_running[this_node]);
-> + for (i = 0; i < numnodes; i++) {
-> +  if (i == this_node)
-> +   continue;
-> +  load = atomic_read(&node_nr_running[i]);
-> +  if (load > maxload && (4*load > ((5*4*this_load)/4))) {
-> +   maxload = load;
-> +   node = i;
-> +  }
-> + }
-> + return node;
-> +}
-> 
-> You changed ((5*4*this_load)/4) to:
->   (5*4*(this_load+4)/4)
-> or
->   (4+(5*4*(this_load)/4))  ?
-> 
-> We def need some constant to avoid low load ping pong, right?
-> 
-> Finally I added in the 04 patch, and that helped
->> a lot.  Still, there is too much process movement between nodes.
-> 
-> perhaps increase INTERNODE_LB?
+--==_Exmh_-605521789P
+Content-Type: text/plain; charset=us-ascii
 
-Before we tweak this too much, how about using the global load 
-average for this? I can envisage a situation where we have two
-nodes with 8 tasks per node, one with 12 tasks, and one with four.
-You really don't want the ones with 8 tasks pulling stuff from
-the 12 ... only for the least loaded node to start pulling stuff
-later.
+On Mon, 13 Jan 2003 23:15:14 EST, Jeff Garzik said:
+> But having said that -- see my mail to Rusty about storing the strlen()
+> result and then calling memcpy().  It [purposefully] does not address
+> the fact that the string may become stale data, because it's the job of
+> a higher level to ensure that.  But it does make explicit a compiler
+> temporary, and allows us to use the presumeably-faster memcpy().
 
-What about if we take the global load average, and multiply by
-num_cpus_on_this_node / num_cpus_globally ... that'll give us
-roughly what we should have on this node. If we're significantly
-out underloaded compared to that, we start pulling stuff from
-the busiest node? And you get the damping over time for free.
+5 second's thought and another shot of Cherry Coke and it suddenly dawns
+on me that memcpy() addresses my concerns as well as strncpy(), and as you
+noted is presumably faster as well (since it doesn't have to keep looking for
+a terminating null).
 
-I think it'd be best if we stay fairly conservative for this, all
-we're trying to catch is the corner case where a bunch of stuff 
-has forked, but not execed, and we have a long term imbalance.
-Agressive rebalance might win a few benchmarks, but you'll just
-cause inter-node task bounce on others. 
 
-M.
+--==_Exmh_-605521789P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+I5zzcC3lWbTT17ARAmujAKC2PQAXQgUD7ktNCVjoHnew5vc7CQCgyEvI
+4saGfUKV/exaJJ4J1nwguf8=
+=JDsy
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-605521789P--

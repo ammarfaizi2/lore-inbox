@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266038AbTBTQ5d>; Thu, 20 Feb 2003 11:57:33 -0500
+	id <S266095AbTBTRGj>; Thu, 20 Feb 2003 12:06:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266095AbTBTQ5d>; Thu, 20 Feb 2003 11:57:33 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:62363 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266038AbTBTQ5c>; Thu, 20 Feb 2003 11:57:32 -0500
-Date: Thu, 20 Feb 2003 17:07:37 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: alastair@quaratino
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 amd speculative caching
-Message-ID: <Pine.GSO.4.50.0302201704570.3443-100000@quaratino>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266100AbTBTRGj>; Thu, 20 Feb 2003 12:06:39 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:42645 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S266095AbTBTRGi>;
+	Thu, 20 Feb 2003 12:06:38 -0500
+Date: Thu, 20 Feb 2003 12:16:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Steven French <sfrench@us.ibm.com>
+Cc: Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org
+Subject: Re: cifs leaks memory like crazy in 2.5.61
+Message-ID: <20030220171638.GC9800@gtf.org>
+References: <OFEBDD7C2C.B0956D07-ON87256CD3.005C9BC9@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFEBDD7C2C.B0956D07-ON87256CD3.005C9BC9@us.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> According to Richard Brunner of AMD's email to the list dated June 11,
-> 2002, the cache attribute bug only affected Athlon XPs and MPs, so
-> that can't be the problem here, can it?
+On Thu, Feb 20, 2003 at 10:56:04AM -0600, Steven French wrote:
+> I run three file API tests regularly against it - fsx, the connecathon
+> "nfs" tests and iozone and use them as a sort of regression test bucket
+> (which unfortunately didn't pick this problem up) - as a result of this I
+> will add "ls -R" of a deep directory tree to the list (ls -R of a shallow
+> tree doesn't seem to show this problem up) - if there are other useful
+> filesystem regression cases that I could automate and run, I would love to
+> know about them.
 
-I think it can - I believe Durons > 1GHz use the "Palomino" core (just
-with less cache), so they would have the same issues as the Athlon XP.
-Earlier Durons used the "Thunderbird" core if I remember rightly.
+Those are more stress tests, than regression tests.  You have to know
+what you regressed from, and progressed to, before you have regression
+tests.  ;-)
 
-Cheers
-Alastair
+It sounds like unit tests are lacking...
+
+	Jeff
+
+
+

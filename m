@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266961AbTADPde>; Sat, 4 Jan 2003 10:33:34 -0500
+	id <S266957AbTADPjY>; Sat, 4 Jan 2003 10:39:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266962AbTADPde>; Sat, 4 Jan 2003 10:33:34 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:1953 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266961AbTADPdd>; Sat, 4 Jan 2003 10:33:33 -0500
-Date: Sat, 4 Jan 2003 13:41:54 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Marco Monteiro <masm@acm.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <1041628789.1165.173.camel@fly>
-Message-ID: <Pine.LNX.4.50L.0301041338150.2429-100000@imladris.surriel.com>
-References: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
- <1041628789.1165.173.camel@fly>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266964AbTADPjY>; Sat, 4 Jan 2003 10:39:24 -0500
+Received: from main.gmane.org ([80.91.224.249]:19400 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S266957AbTADPjX>;
+	Sat, 4 Jan 2003 10:39:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Steven Barnhart" <sbarn03@softhome.net>
+Subject: Re: 2.5.54-mm3
+Date: Sat, 04 Jan 2003 10:47:46 -0500
+Message-ID: <pan.2003.01.04.15.47.43.915841@softhome.net>
+References: <3E16A2B6.A741AE17@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.13.0 (The whole remains beautiful)
+Cc: linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Marco Monteiro wrote:
+On Sat, 04 Jan 2003 01:00:38 +0000, Andrew Morton wrote:
 
-> You make software. You have a business model, to make money, where you
-> sell software. The software that you sell is NOT Free. Imagine, now,
-> that you change the business model, continuing to make money, where the
-> software you produce is Free. Wouldn't it be better?
+> Filesystem mount and unmount is a problem.  Probably, this will not be
+> addressed.  People who have specialised latency requirements should avoid
+> using automounters and those gadgets which poll CDROMs for insertion events.
 
-Are you volunteering to set up such a business for Andre, or
-are you just doing vague ideological handwaving ?
+That stinks...it don't work in .54 and I'd likem to have my automounter
+functioning again. Oh well it *is* 2.5.
 
-Andre does release his software eventually, after he has
-recovered the development costs.  This is a lot more than
-what most developers do and I am thankful that Andre's
-business model means both an income for him and high quality
-free software drivers.
+> This work has broken the shared pagetable patch - it touches the same code
+> in many places.   I shall put Humpty together again, but will not be 
+> including it for some time.  This is because there may be bugs in this
+> patch series which are accidentally fixed in the shared pagetable patch. So
+> shared pagetables will be reintegrated when these changes have had sufficient
+> testing.
 
-> You understand now why I say that Free Software is good and non-Free
-> Software is bad?
+Also for some reason I always have to do a "touch /fastboot" and boot in
+rw mode to boot the kernel. The kernel fails on remouting fs in r-w mode.
+X also don't work saying /dev/agpgart don't exist even though it does and
+I saw it. agpgart module is loaded..maybe it would work as built into the
+kernel? .config attached.
 
-No, you haven't told us why.
+Steven
 
-> I'm a pacifist. If I where called to fight, I would not do it.
 
-Does that also mean that if somebody called on you to do what
-you're asking others to do (create free software while earning
-money with it), you wouldn't do it ?
-
-> The same with Free Software. I believe in Free Software, I think that
-> every body should make their software Free. Maybe I'm just an asshole,
-
-So you're asking, in the name of freedom, that other people should
-limit their freedom ?
-
-I wouldn't call it idealism, I call it hypocricy.
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268110AbTB1Tml>; Fri, 28 Feb 2003 14:42:41 -0500
+	id <S268105AbTB1Ts5>; Fri, 28 Feb 2003 14:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268111AbTB1Tmk>; Fri, 28 Feb 2003 14:42:40 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:27914 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S268110AbTB1Tmi>; Fri, 28 Feb 2003 14:42:38 -0500
-To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix scsi_probe_and_add_lun
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 28 Feb 2003 20:48:07 +0100
-Message-ID: <wrp3cm8gpag.fsf@hina.wild-wind.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	id <S268111AbTB1Ts5>; Fri, 28 Feb 2003 14:48:57 -0500
+Received: from verein.lst.de ([212.34.181.86]:14343 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S268105AbTB1Ts5>;
+	Fri, 28 Feb 2003 14:48:57 -0500
+Date: Fri, 28 Feb 2003 20:58:59 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix scsi_probe_and_add_lun
+Message-ID: <20030228205859.A26967@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Marc Zyngier <mzyngier@freesurf.fr>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <wrp3cm8gpag.fsf@hina.wild-wind.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <wrp3cm8gpag.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Fri, Feb 28, 2003 at 08:48:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Fri, Feb 28, 2003 at 08:48:07PM +0100, Marc Zyngier wrote:
+> Christoph,
+> 
+> The following patch fixes a bug introduced in the recent scsi_scan.c
+> reorganisation.
+> 
+> Without this patch, my Alpha Jensen was crashing just after detecting
+> its first SCSI disk. It is now working fine.
 
-Christoph,
+Argg, stupid mistake - thanks for the patch.
 
-The following patch fixes a bug introduced in the recent scsi_scan.c
-reorganisation.
-
-Without this patch, my Alpha Jensen was crashing just after detecting
-its first SCSI disk. It is now working fine.
-
-        M.
-
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=jensen.patch
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1092  -> 1.1093 
-#	drivers/scsi/scsi_scan.c	1.62    -> 1.63   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/28	maz@hina.wild-wind.fr.eu.org	1.1093
-# Fix scsi_probe_and_add_lun typo.
-# The ol'Jensen wouldn't boot without it...
-# --------------------------------------------
-#
-diff -Nru a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
---- a/drivers/scsi/scsi_scan.c	Fri Feb 28 20:45:00 2003
-+++ b/drivers/scsi/scsi_scan.c	Fri Feb 28 20:45:00 2003
-@@ -1338,7 +1338,7 @@
- 	scsi_release_request(sreq);
-  out_free_sdev:
- 	if (res == SCSI_SCAN_LUN_PRESENT) {
--		if (*sdevp)
-+		if (sdevp)
- 			*sdevp = sdev;
- 	} else {
- 		if (q) {
-
---=-=-=
-
-
--- 
-Places change, faces change. Life is so very strange.
-
---=-=-=--

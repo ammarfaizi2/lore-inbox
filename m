@@ -1,191 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318439AbSGaSdR>; Wed, 31 Jul 2002 14:33:17 -0400
+	id <S318447AbSGaSdb>; Wed, 31 Jul 2002 14:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318440AbSGaSdR>; Wed, 31 Jul 2002 14:33:17 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:63495 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318439AbSGaSdO>;
-	Wed, 31 Jul 2002 14:33:14 -0400
-Date: Wed, 31 Jul 2002 11:35:08 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
-Subject: Re: [BK PATCH] devfs cleanups for 2.5.29 - take 2
-Message-ID: <20020731183508.GB21793@kroah.com>
-References: <20020731183358.GA21793@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020731183358.GA21793@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 03 Jul 2002 17:31:40 -0700
+	id <S318441AbSGaSdb>; Wed, 31 Jul 2002 14:33:31 -0400
+Received: from mail01d.rapidsite.net ([207.158.192.52]:29121 "HELO
+	mail01d.rapidsite.net") by vger.kernel.org with SMTP
+	id <S318440AbSGaSd2>; Wed, 31 Jul 2002 14:33:28 -0400
+Message-ID: <3D482E45.2040809@theworld.com>
+Date: Wed, 31 Jul 2002 14:36:53 -0400
+From: John Muir Kumph <ninjo@theworld.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1a) Gecko/20020611
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: un killable processes - stuck file system
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And here's the additional patch that I made on top of the previous two I
-sent to the list yesterday:
+Forgive me if this is the wrong place to send this bug report - but
+here goes:
 
+I have a DVD-RAM with an IDE interface - currently /dev/hdc.
+I foolishly ejected the disk while it was still mounted and
+flipped the write protect tab - and lo!:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.545   -> 1.546  
-#	     fs/devfs/base.c	1.47    -> 1.48   
-#	        fs/devices.c	1.8     -> 1.9    
-#	include/linux/devfs_fs_kernel.h	1.14    -> 1.15   
-#	      fs/block_dev.c	1.76    -> 1.77   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/30	greg@kroah.com	1.546
-# Remove the devfs_should* functions I added, and replace them with one devfs_only() call
-# 
-# This now explains what is really going on much better than before.
-# --------------------------------------------
-#
-diff -Nru a/fs/block_dev.c b/fs/block_dev.c
---- a/fs/block_dev.c	Wed Jul 31 11:23:15 2002
-+++ b/fs/block_dev.c	Wed Jul 31 11:23:15 2002
-@@ -453,7 +453,7 @@
- 
- int register_blkdev(unsigned int major, const char * name, struct block_device_operations *bdops)
- {
--	if (devfs_should_register_blkdev())
-+	if (devfs_only())
- 		return 0;
- 	if (major == 0) {
- 		for (major = MAX_BLKDEV-1; major > 0; major--) {
-@@ -476,7 +476,7 @@
- 
- int unregister_blkdev(unsigned int major, const char * name)
- {
--	if (devfs_should_unregister_blkdev())
-+	if (devfs_only())
- 		return 0;
- 	if (major >= MAX_BLKDEV)
- 		return -EINVAL;
-diff -Nru a/fs/devfs/base.c b/fs/devfs/base.c
---- a/fs/devfs/base.c	Wed Jul 31 11:23:15 2002
-+++ b/fs/devfs/base.c	Wed Jul 31 11:23:15 2002
-@@ -2228,59 +2228,17 @@
- 
- 
- /**
-- *	devfs_should_register_chrdev - should we register a conventional character driver.
-+ *	devfs_only - returns if "devfs=only" is a boot option
-  *
-- *	If "devfs=only" this function will return -1, otherwise 0 is returned.
-+ *	If "devfs=only" this function will return 1, otherwise 0 is returned.
-  */
--int devfs_should_register_chrdev (void)
-+int devfs_only (void)
- {
-     if (boot_options & OPTION_ONLY)
--	    return -1;
-+	    return 1;
-     return 0;
- }
- 
--
--/**
-- *	devfs_should_register_blkdev - should we register a conventional block driver.
-- *
-- *	If the "devfs=only" option was provided at boot time, this function will
-- *	return -1, otherwise 0 is returned.
-- */
--
--int devfs_should_register_blkdev (void)
--{
--    if (boot_options & OPTION_ONLY)
--	    return -1;
--    return 0;
--}
--
--
--/**
-- *	devfs_should_unregister_chrdev - should we unregister a conventional character driver.
-- *
-- *	If "devfs=only" this function will return -1, otherwise 0 is returned
-- */
--int devfs_should_unregister_chrdev (void)
--{
--    if (boot_options & OPTION_ONLY)
--	    return -1;
--    return 0;
--}
--
--
--/**
-- *	devfs_should_unregister_blkdev - should we unregister a conventional block driver.
-- *
-- *	If the "devfs=only" option was provided at boot time, this function will
-- *	return -1, otherwise 0 is returned.
-- */
--
--int devfs_should_unregister_blkdev (void)
--{
--    if (boot_options & OPTION_ONLY)
--	    return -1;
--    return 0;
--}
- 
- /**
-  *	devfs_setup - Process kernel boot options.
-diff -Nru a/fs/devices.c b/fs/devices.c
---- a/fs/devices.c	Wed Jul 31 11:23:15 2002
-+++ b/fs/devices.c	Wed Jul 31 11:23:15 2002
-@@ -98,7 +98,7 @@
- 
- int register_chrdev(unsigned int major, const char * name, struct file_operations *fops)
- {
--	if (devfs_should_register_chrdev())
-+	if (devfs_only())
- 		return 0;
- 	if (major == 0) {
- 		write_lock(&chrdevs_lock);
-@@ -128,7 +128,7 @@
- 
- int unregister_chrdev(unsigned int major, const char * name)
- {
--	if (devfs_should_register_chrdev())
-+	if (devfs_only())
- 		return 0;
- 	if (major >= MAX_CHRDEV)
- 		return -EINVAL;
-diff -Nru a/include/linux/devfs_fs_kernel.h b/include/linux/devfs_fs_kernel.h
---- a/include/linux/devfs_fs_kernel.h	Wed Jul 31 11:23:15 2002
-+++ b/include/linux/devfs_fs_kernel.h	Wed Jul 31 11:23:15 2002
-@@ -94,10 +94,7 @@
- extern void devfs_auto_unregister (devfs_handle_t master,devfs_handle_t slave);
- extern devfs_handle_t devfs_get_unregister_slave (devfs_handle_t master);
- extern const char *devfs_get_name (devfs_handle_t de, unsigned int *namelen);
--extern int devfs_should_register_chrdev (void);
--extern int devfs_should_register_blkdev (void);
--extern int devfs_should_unregister_chrdev (void);
--extern int devfs_should_unregister_blkdev (void);
-+extern int devfs_only (void);
- 
- extern void devfs_register_tape (devfs_handle_t de);
- extern void devfs_register_series (devfs_handle_t dir, const char *format,
-@@ -237,19 +234,7 @@
- {
-     return NULL;
- }
--static inline int devfs_should_register_chrdev (void)
--{
--    return 0;
--}
--static inline int devfs_should_register_blkdev (void)
--{
--    return 0;
--}
--static inline int devfs_should_unregister_chrdev (void)
--{
--    return 0;
--}
--static inline int devfs_should_unregister_blkdev (void)
-+static inline int devfs_only (void)
- {
-     return 0;
- }
+cat > foo.tmp failed and got stuck
+
+In fact nothing could kill this process now listed as D.
+
+In fact the drive now can't be mounted or unmounted.  I
+did some reading and it appears that a forced mount or
+lazy mount might work - but umount -f fails with:
+
+umount2: Device or resource busy
+umount: /dev/hdc: not mounted
+umount: /media/cdrom: Illegal seek
+
+I'm sure that if I reboot - all will be fine...  But
+we try to avoid rebooting
+
+Seems like:
+- one shouldn't be able to eject media that's mounted
+- if one does - it shouldn't take down the device
+- if it does take down the device - it'd be nice to be
+   able to fix it without rebooting
+
+I'll monitor the list for any questions - but feel free to
+email too and I'll post a summary of the answers.
+
+John Muir Kumph
+
+Output of scripts/ver_linux
+Linux lurch 2.4.18-4GB #1 Wed Mar 27 13:57:05 UTC 2002 i686 unknown
+
+Gnu C                  2.95.3
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.12
+e2fsprogs              1.26
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+Linux C Library        x    1 root     root      1394238 Mar 23 13:34 
+/lib/libc.so
+.6
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0
+Modules Loaded         vmnet vmppuser vmmon iptable_mangle iptable_nat 
+ip_conntrac
+k iptable_filter ip_tables nls_iso8859-1 ntfs vfat fat snd-pcm-oss 
+snd-mixer-oss p
+arport_pc lp parport snd-cmipci snd-pcm snd-opl3-lib snd-hwdep snd-timer 
+snd-mpu40
+1-uart snd-rawmidi snd-seq-device snd soundcore ipv6 isa-pnp st sg 
+usb-storage joy
+dev evdev input usb-uhci usbcore af_packet 8139too mii reiserfs
+

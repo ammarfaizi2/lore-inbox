@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVCDS7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262990AbVCDS7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbVCDS7X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 13:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbVCDS4J
+	id S262990AbVCDS7a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 13:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVCDS4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 13:56:09 -0500
-Received: from cassarossa.samfundet.no ([129.241.93.19]:48295 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S262987AbVCDSv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:51:56 -0500
-Date: Fri, 4 Mar 2005 19:51:47 +0100
-From: Hans-Christian Egtvedt <hc@mivu.no>
-To: dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new driver for ITM Touch touchscreen
-Message-ID: <20050304185147.GB9407@samfundet.no>
-References: <1109932223.5453.16.camel@charlie.itk.ntnu.no> <200503041403.37137.adobriyan@mail.ru> <d120d50005030406525896b6cb@mail.gmail.com> <1109953224.3069.39.camel@charlie.itk.ntnu.no> <d120d50005030408544462c9ea@mail.gmail.com>
+	Fri, 4 Mar 2005 13:56:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:34798 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262964AbVCDSyb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:54:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Cz2wTgrBH4YDcgUu5jBhjqmHzR1R/b/mcO8vsZEDT4oDGqTpbPbUPScFwKdFSE+pEKNeThteB2QL8ejBa2VaqcKYLQtLt+jRtMdgg1XH1N+YeYy3nhVniOd+BizZfm09XiZZmo5lFuo04gLzKBre+ZGG+MyM3OilMr0W0ebDVgk=
+Message-ID: <d91f4d0c050304105339eb297d@mail.gmail.com>
+Date: Fri, 4 Mar 2005 13:53:50 -0500
+From: George Georgalis <georgalis@gmail.com>
+Reply-To: George Georgalis <georgalis@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: problem with linux 2.6.11 and sa
+In-Reply-To: <20050304043706.GA10336@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50005030408544462c9ea@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050303184605.GB1061@ixeon.local>
+	 <d91f4d0c0503031057306a74e1@mail.gmail.com>
+	 <20050304043706.GA10336@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Around Fri 04 Mar 2005 11:54:18 +0000 or thereabout, Dmitry Torokhov wrote:
-> On Fri, 04 Mar 2005 17:20:24 +0100, Hans-Christian Egtvedt <hc@mivu.no> wrote:
->> On Fri, 2005-03-04 at 09:52 -0500, Dmitry Torokhov wrote:
->> > On Fri, 4 Mar 2005 14:03:37 +0200, Alexey Dobriyan <adobriyan@mail.ru> wrote:
->> > > On Friday 04 March 2005 12:30, Hans-Christian Egtvedt wrote:
->> > As far as the driver goes:
->> >
->> > - yes, it does need input_sync;
->> One problem with input_sync is that the panel get's too fast, and double
->> click is experienced quite often, maybe some threshold is needed for low
->> values in Z-direction?
->> 
->> I'm probably doing something wrong here since I experience easy
->> doubleclicks when I just lightly touch the screen.
-> Yes, I think you need to use some threshold when reporting BTN_TOUCH
-> event. Still, always report ABS_PRESSURE as is. This way the
-> touchscreen is useable via legacy interfaces (mousedev. tsdev) and if
-> a specialized userspace driver is written it still can get pretty much
-> unmangled data from /dev/input/eventX. This will also allow such
-> driver adjust touchpad sensitivity, if needed.
+On Thu, 3 Mar 2005 23:37:06 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> On Thu, Mar 03, 2005 at 01:57:28PM -0500, George Georgalis wrote:
+> > I recall a problem a while back with a pipe from
+> > /proc/kmsg that was sent by root to a program with a
+> > user uid. The fix was to run the logging program as
+> > root. Has that protected pipe method been extended
+> > since 2.6.8.1?
+> >
+> > I'm very defiantly seeing a problem with the 2.6.11
+> > kernel and my spamassassin setup. However, it's not
+> > clear exactly where the problem is, seems like sa
+> > but it might be 2.6.11 with daemontools + qmail +
+> > QMAIL_QUEUE.
+> 
+> Does reverting to 2.6.10 fix this behavior?
 
-OK, I'll try to find some better documentation about input devices, any
-tips/pointers would be nice. I'm completly new to kernel drivers, I'm used to
-writing drivers in embedded systems.
+Yes, actually I revert to 2.6.8.1; will try 2.6.10 today...
 
-The driver is made in the way it is today because there is also a driver for
-X which read raw events from /dev/input/eventX. It's called lictouch, I have
-the source for it too, but I'm not (yet) part of any developing there.
-
-It would be a really nice feature if one could use the touchscreen as a
-legacy interface, but then I would need to be able to calibrate the screen in
-the driver and not frontend. At least preferable.
-
->> > Also, is there a way to query the screen for actual size?
->> 
->> Sorry, the panel is a fixed size, and it gives out coordinates from 0 ->
->> 4095 in both X- and Y-direction. In Z-direction (pressure strength) it
->> goes from 0 to 255.
->> 
->> Or did you want the size of the screen? Meaning you want to know if it's
->> a 15", 17" and so on?
-> No, not physical sizes. I was wondering if soe touchscreens are
-> reporting let's say actual coordinates from 1100-3600 and others from
-> 600-3850, instead of full 0-4096. Is there a way to query the hardware
-> and find the actual min and max for a device so it can be reported to
-> userspace.
-
-I really don't have an answer, I'm still waiting for the datascheet to the
-controller beeing used. When I get that I can perhaps do calibration in the
-driver, and not with a config file or in xf86free/x.org config.
+// George
 
 -- 
-Regards
-Hans-Christian Egtvedt
-MIVU Solutions DA
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

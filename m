@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283714AbRLCXq2>; Mon, 3 Dec 2001 18:46:28 -0500
+	id <S284714AbRLDAMM>; Mon, 3 Dec 2001 19:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278492AbRLCXa7>; Mon, 3 Dec 2001 18:30:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37639 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282990AbRLCJVb>; Mon, 3 Dec 2001 04:21:31 -0500
-Subject: Re: OSS driver cleanups.
-To: zwane@linux.realnet.co.sz (Zwane Mwaikambo)
-Date: Mon, 3 Dec 2001 09:30:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0112031105230.28692-100000@netfinity.realnet.co.sz> from "Zwane Mwaikambo" at Dec 03, 2001 11:11:56 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284552AbRLDAGj>; Mon, 3 Dec 2001 19:06:39 -0500
+Received: from hq2.fsmlabs.com ([209.155.42.199]:10757 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S284496AbRLCMKh>;
+	Mon, 3 Dec 2001 07:10:37 -0500
+Date: Mon, 3 Dec 2001 05:04:10 -0700
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Larry McVoy <lm@bitmover.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011203050410.D16148@hq2>
+In-Reply-To: <20011130200239.A28131@hq2> <200112012318.fB1NI6sW020423@sleipnir.valparaiso.cl> <20011202122526.A2622@work.bitmover.com> <E16AhO2-0000C2-00@starship.berlin>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ApQV-0006HW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16AhO2-0000C2-00@starship.berlin>
+User-Agent: Mutt/1.3.23i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know OSS will be replaced with ALSA soon, but i've got a couple of OSS
-> cleanup patches lined up (module usage count, power management patches
-> for two cards) for both 2.4.x and 2.5.x, should i continue with them or is
-> it not worthwhile?
+On Mon, Dec 03, 2001 at 01:55:08AM +0100, Daniel Phillips wrote:
+> I'm sure Linus does have quite considerable talent for design, but I haven't 
+> seen him execise it much.  Mostly he acts as a kind of goodness daemon, 
+> sitting in his little pinhole and letting what he considers 'good' stuff pass 
+> into the box.  There's no doubt about it, it's different from the way you 
+> like to develop, you and me both.  Equally clearly, it works pretty well.
 
-Well if you've done the work why not - people will be running 2.4 for a long
-time. The PM changes may also be relevant to ALSA anyway
+This is a good explanation of why Linux may fail as a project, but it is
+pure fantasy as to how it has so far succeded as a project. 
+
+The tiny part of system I wrote directly and the larger part that
+I got to see up close involved a great deal of design, old fashioned 
+careful engineering, and even aesthetic principles of what wasgood
+design. 
+
+Don't drink the cool aid. Go back and look in the kernel archives and 
+you will see extensive design discussions among all the core developers.
+Linus has a point about the development of Linux not being in
+accord with some master plan (at least not one anyone admits to) , but 
+that's about as far as it goes.
+
+
+

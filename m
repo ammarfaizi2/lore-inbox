@@ -1,114 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267613AbTAQTCh>; Fri, 17 Jan 2003 14:02:37 -0500
+	id <S267628AbTAQTMe>; Fri, 17 Jan 2003 14:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267626AbTAQTCh>; Fri, 17 Jan 2003 14:02:37 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:3718 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267613AbTAQTCf>;
-	Fri, 17 Jan 2003 14:02:35 -0500
-Date: Fri, 17 Jan 2003 14:13:15 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: "Ruslan U. Zakirov" <cubic@miee.ru>
-Cc: Samium Gromoff <deepfire@ibe.miee.ru>, LKML <linux-kernel@vger.kernel.org>,
-       Jaroslav Kysela <perex@perex.cz>
-Subject: Re: ALSA and isapnp cards
-Message-ID: <20030117141315.GC26108@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	"Ruslan U. Zakirov" <cubic@miee.ru>,
-	Samium Gromoff <deepfire@ibe.miee.ru>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Jaroslav Kysela <perex@perex.cz>
-References: <20030117111854.GA22551@neo.rr.com> <Pine.BSF.4.05.10301171931290.71917-100000@wildrose.miee.ru>
+	id <S267637AbTAQTMe>; Fri, 17 Jan 2003 14:12:34 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:39377 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267628AbTAQTMc>;
+	Fri, 17 Jan 2003 14:12:32 -0500
+Message-Id: <200301171921.h0HJLSA17204@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: [OSDL][BENCHMARK] Database results 2.4 versus 2.5
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSF.4.05.10301171931290.71917-100000@wildrose.miee.ru>
-User-Agent: Mutt/1.4i
+Date: Fri, 17 Jan 2003 11:21:28 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 07:56:44PM +0300, Ruslan U. Zakirov wrote:
-> Hello Adam and other.
-> I've just posted another patch that works for PnP cards to you and Samium.
-> During the work on it, i've found some bugs, but I can't solve them.
-> At the end of patch there is hack for drivers/pnp/driver.c look at it.
-> devs -  member of pnp_card_device_id struct have got more then one id for
-> awe32 cards and when we request first device with 
-> const char *id=devs[0].id it contains "CTL0031CTL0021" instead "CTL0031"
-> and compare_pnp_id fails on it.
-> This bug can be solved in other way with allocation tmp buffer in driver,
-> copy id from table to buffer, add to the end \0 then request for device,
-> but I think that it's bad way. 
-> Any suggestions?
 
-Could you please try this patch.  I think the lenght should be 8, not 7. Yep
-that should do the trick.  Thanks for finding this bug.
+We have found some very nice database performance improvements in the
+OSDL-DBT-2 database workload comparing the latest 2.4 kernel with 2.5.49
+on a 8-way Profusion Xeon 700MHz Pentium III system with 4GB of memory.
+We suspect there will be I/O improvements after moving to the latest
+2.5 releases.  We would like to optimize our memory utilization before
+moving on to those experiments.
 
---- a/include/linux/pnp.h	Tue Jan 14 05:59:30 2003
-+++ b/include/linux/pnp.h	Fri Jan 17 14:02:33 2003
-@@ -23,6 +23,7 @@
- #define DEVICE_COUNT_IO		8
- #define DEVICE_COUNT_MEM	4
- #define MAX_DEVICES		8
-+#define PNP_ID_LEN		8
- 
- struct pnp_resource;
- struct pnp_protocol;
-@@ -148,7 +149,7 @@
- }
- 
- struct pnp_fixup {
--	char id[7];
-+	char id[PNP_ID_LEN];
- 	void (*quirk_function)(struct pnp_dev *dev);	/* fixup function */
- };
- 
-@@ -180,20 +181,20 @@
-  */
- 
- struct pnp_id {
--	char id[7];
-+	char id[PNP_ID_LEN];
- 	struct pnp_id * next;
- };
- 
- struct pnp_device_id {
--	char id[7];
-+	char id[PNP_ID_LEN];
- 	unsigned long driver_data;	/* data private to the driver */
- };
- 
- struct pnp_card_device_id {
--	char id[7];
-+	char id[PNP_ID_LEN];
- 	unsigned long driver_data;	/* data private to the driver */
- 	struct {
--		char id[7];
-+		char id[PNP_ID_LEN];
- 	} devs[MAX_DEVICES];		/* logical devices */
- };
- 
+OSDL-DBT-2 is transaction intensive.  We have implemented two variants on
+SAP-DB using raw data files: 
+-one "cached" that  runs in memory and does very little I/O except for 
+   the log writes, and
+-another "non-cached" with heavy reads and some writes.
+
+In both variants the database buffer cache is sized to consume most of the
+memory on the system.  There are five transaction types running during the
+test run.  For the workload metric, we count how many of one transaction
+type,"new-order", complete per minute (NOTPM).  We measure this after the
+database cache is warm.  The new-order transaction represents 45% of all
+transactions running.  The bigger the number, the better the performance.
+
+We did several runs of each variant (cached and non-cached) on each of
+the two OS versions (2.4.21-pre3 and 2.5.49*).  Run variances were low
+compared to the differences we saw between OS versions.  Results are as
+follows (numbers represent average over the runs):
 
 
-> And next:
-> if probe function fails for some reasons. PnP layer does not do all clean
-> ups as i think. Because just after it I do the same command and ko loads
-> with oops. Some points on it:
+Linux       DBT2      Metric  Wrkld %memused            iostats
+Version     Workload (bigger Speedup on4GB   %user %sys  total
+                      better)                            iops
+___________________________________________________________________
+2.4.21-pre3 cached     4479          99.73    74.24 3.64  **     
+2.5.49 (*)  cached     5040          99.73    85.37 2.85  381   
+            cached            12.5%     
+___________________________________________________________________     
+2.4.21-pre3 noncached  1407.8        95.11    25.75 9.68   **
+2.5.49 (*)  noncached  1667.5        99.68    49.12 7.2   1461          
+           non-cached        18.4%      
+___________________________________________________________________
+** iostats is broken at 2.4 due to driver problems.  
 
-Could you please give me more details on this, such as what driver you are
-using.
+( If the table above gets distorted, or you want more details, please go to:
+http://www.osdl.org/projects/dbt2dev/results/LKML_dbt2_2.4v2.5_both.html )
 
->    1) pnpc_driver has been registered, but after drv->probe fail, it's not
-> been unregistered.
 
-Hmm, I don't think the driver should be unregistered on a probe failure, it
-should be registered on a module unload.  It's the driver's job to clean
-things up so it can accept another match if one comes up.
+The results for 2.5 are significantly improved over 2.4, 12.5% for the
+cached workload and 18.4% for the non-cached.
 
->    2) There is was some patch in 2.5.59 to driver-model that changed
-> something and it's may be a reason, I don't know exactly. 
+Notice that even though the %sys times are not particularly high at 2.4 ,
+the metric improves.  Our examination of the statistics show that both
+the cached and non-cached workloads are paging in the 2.4 case but are
+not paging in the 2.5 case.  Since we use raw data files rather than file
+system, we think that the 2.5 kernel is taking away memory from the mostly
+unused file system buffer cache in favor of database cache, but cannot
+do this in the 2.4.  Perhaps someone can confirm this? Any suggestions
+for further improvement?
 
-A lot of things have changed, I'll take a look.
+The %sys drops going from 2.4 to 2.5 in both cases.  We suspect this is
+due to lack of paging in the 2.5 runs.
+
+We saved system and database stats from these runs.  The system
+configuration details and summarized stats can be found at the URL
+given above.
+
+
 
 Regards,
-Adam
+
+Mary Edie Meredith 
+Mark Wong 
+cliffw
+Open Source Development Lab
+
+OSDL DBT-2 Project information: http://sourceforge.net/projects/osdldbt
+
+OSDL-DBT-2 tests on 4-way systems will be released soon as part of OSDL's
+test suite in the Scalable Test Platform (STP) : http://www.osdl.org/stp/
+
+
+(*)We needed to include Mathew Wilcox's flock patch so we could
+stop and restart the database.  Note this patch should not be used
+on any systems with NFS.  The patch is found at the following URL:
+ftp://ftp.linux.org.uk/pub/linux/willy/patches/flock-2.5.49-2.diff
+
+
+

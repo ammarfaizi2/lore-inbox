@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315219AbSEBSCR>; Thu, 2 May 2002 14:02:17 -0400
+	id <S315342AbSEBSKf>; Thu, 2 May 2002 14:10:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315227AbSEBSCP>; Thu, 2 May 2002 14:02:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10510 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315219AbSEBSBY>; Thu, 2 May 2002 14:01:24 -0400
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Thu, 2 May 2002 19:20:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        rgooch@ras.ucalgary.ca (Richard Gooch), arjanv@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CD169AE.1010206@evision-ventures.com> from "Martin Dalecki" at May 02, 2002 06:30:38 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S315345AbSEBSKe>; Thu, 2 May 2002 14:10:34 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:8529 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315344AbSEBSKd>; Thu, 2 May 2002 14:10:33 -0400
+Date: Thu, 2 May 2002 20:10:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020502201043.L11414@dualathlon.random>
+In-Reply-To: <3971861785.1020330424@[10.10.2.3]> <E173Juk-0000Qr-00@w-gerrit2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E173LBU-0004VB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Shared libraries for example don't look up stuff like this inside
-> themselfs. (Unless you look at DLL stubs...)
+On Thu, May 02, 2002 at 09:58:02AM -0700, Gerrit Huizenga wrote:
+> In message <3971861785.1020330424@[10.10.2.3]>, > : "Martin J. Bligh" writes:
+> > > With numa-q there's a 512M hole in each node IIRC. that's fine
+> > > configuration, similar to the wildfire btw.
+> > 
+> > There's 2 different memory models - the NT mode we use currently
+> > is contiguous, the PTX mode is discontiguous. I don't think it's
+> > as simple as a 512Mb fixed size hole, though I'd have to look it
+> > up to be sure.
+> 
+> No - it definitely isn't as simple as a 512 MB hole.  Depends on how much
 
-Nor does the kernel. Internal symbols are already resolved
+I meant that as an example, I recall that was valid config, 512M of ram
+and 512M hole, then next node 512M ram and 512M hole etc... Of course it
+must be possible to vary the mem size if you want more or less ram in
+each node but still it doesn't generate a problematic layout for
+discontigmem (i.e. not 256 discontigous chunks or something of that
+order).
 
-> It's the ld.so programm which maintains such data.
-> modutils don't do anything different from classical late binding.
+> memory is in each node, holes could be all kinds of sizes.  You could,
+> in theory, have had 128 MB in one node and 8 GB in another node.  I don't
+> think we had holes within the node from the software side - I think the
+> requirement was that all DIMMS were added in low to high memory slots.
+> Not sure what forced that requirement - could have been PTX, BIOS,
+> cache controllers, etc.
+> 
+> gerrit
 
-Indeed
 
-> The natural place for such maintainance work could be for example
-> the init process, which serves already pretty a similar role for
-
-Well actually the logical place to do it is in modutils. Which is where
-we do it right now. We even precompute dependancies with depmod much like
-the dynamic link caches
-
-> Another analogy is the rpm dependency maintainance.
-> It's the rpm program - which does checking here and not
-> the actual application itself during the file-system install.
-
-Actually for dynamic stuff the application also does some of it for late
-binding and when triggers are used for relations between packages
-
-All of which says the current modutils method is correct 
+Andrea

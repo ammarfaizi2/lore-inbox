@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262624AbSJBVq6>; Wed, 2 Oct 2002 17:46:58 -0400
+	id <S262628AbSJBVx1>; Wed, 2 Oct 2002 17:53:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262627AbSJBVq6>; Wed, 2 Oct 2002 17:46:58 -0400
-Received: from pegasus.mail.eclipse.net.uk ([212.104.129.225]:5652 "HELO
-	pegasus.mail.eclipse.net.uk") by vger.kernel.org with SMTP
-	id <S262624AbSJBVqz>; Wed, 2 Oct 2002 17:46:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Peter L Jones <peter@drealm.org.uk>
-Organization: The Dwarfen Realm
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: kernel BUG at slab.c:1292
-Date: Wed, 2 Oct 2002 22:52:02 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200210021935.51996@advent.drealm.org.uk> <20021002193252.GA1883@ppc.vc.cvut.cz>
-In-Reply-To: <20021002193252.GA1883@ppc.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210022252.03129@advent.drealm.org.uk>
+	id <S262638AbSJBVx1>; Wed, 2 Oct 2002 17:53:27 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:18416 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262628AbSJBVxZ>; Wed, 2 Oct 2002 17:53:25 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 2 Oct 2002 15:56:49 -0600
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH]  4KB stack + irq stack for x86
+Message-ID: <20021002215649.GY3000@clusterfs.com>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
+	linux-kernel@vger.kernel.org,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-mm@kvack.org
+References: <3D9B62AC.30607@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D9B62AC.30607@us.ibm.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 Oct 2002 20:32, Petr Vandrovec wrote:
-> On Wed, Oct 02, 2002 at 07:35:51PM +0100, Peter L Jones wrote:
-> > Hi all,
-> >
-> > I asked on #kernelnewbies what I should do with this and was told to
-> > check the mailing list archive at http://marc.theaimsgroup.com/ - which
-> > I've done.
-> >
-> > The following was produced during boot.  I _looks_ like it was during a
-> > modprobe, but I'm not entirely sure what - it could be that binfmt_misc
-> > but I couldn't find any docs in the tree for BUG() tracebacks (and I
-> > probably wouldn't have understood the source).
-> >
-> > I'm not subscribed to the list: if anyone wants more info, drop me
-> > private mail and I'll see what I can do.
->
-> Try this. I just sent it to Linus.
-> 						Petr Vandrovec
->
+On Oct 02, 2002  14:18 -0700, Dave Hansen wrote:
+> I've resynced Ben's patch against 2.5.40.  However, I'm getting some 
+> strange failures.  The patch is good enough to pass LTP, but 
+> consistently freezes when I run tcpdump on it.
+> 
+> Although I don't have CONFIG_PREEMPT on, I have the feeling that I 
+> need to disable preemption in common_interrupt() like it was before. 
+>   Any insights would be appreciated.
 
-Petr,
+I'm a little bit worried about this patch.  Have you tried something
+like NFS-over-ext3-over-LVM-over-MD or so, which can have a deep stack?
 
-This appears to have done the trick.
+We hit a bunch of deep stack problems like this (overflowing an 8kB stack)
+even without interrupts involved when developing Lustre.  Granted, we
+fixed some large stack allocations in the ext3 indexed-directory code
+and in our own code, but I'm still worried that a 4kB stack is too small.
 
--- Peter
+The Stanford checker folks would probably be able to run a test for
+large stack allocations in 2.5.40 if you asked them nicely, and maybe
+even do stack depths for call chains.
+
+Alternately, you could set up an 8kB stack + IRQ stack and "red-zone"
+the high page of the current 8kB stack and see if it is ever used.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

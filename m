@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbUCBTyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 14:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUCBTyk
+	id S261757AbUCBT6V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 14:58:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbUCBT6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 14:54:40 -0500
-Received: from hera.kernel.org ([63.209.29.2]:13470 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261746AbUCBTyi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 14:54:38 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
-Date: Tue, 2 Mar 2004 19:54:28 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c22opk$hq1$1@terminus.zytor.com>
-References: <1078254284.2232.385.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1078257268 18242 63.209.29.3 (2 Mar 2004 19:54:28 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 2 Mar 2004 19:54:28 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 2 Mar 2004 14:58:21 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:14208 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261757AbUCBT6T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 14:58:19 -0500
+Date: Tue, 2 Mar 2004 14:58:50 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Meadors <clubneon@hereintown.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Better performance with 2.6
+In-Reply-To: <1078257097.7380.31.camel@clubneon.priv.hereintown.net>
+Message-ID: <Pine.LNX.4.53.0403021455380.1605@chaos>
+References: <1078229894.53b994c0albhaf@home.se>  <20040302195155.0384abdc.albhaf@home.se>
+  <Pine.LNX.4.53.0403021406560.1166@chaos> <1078257097.7380.31.camel@clubneon.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1078254284.2232.385.camel@cube>
-By author:    Albert Cahalan <albert@users.sourceforge.net>
-In newsgroup: linux.dev.kernel
+On Tue, 2 Mar 2004, Chris Meadors wrote:
+
+> On Tue, 2004-03-02 at 14:10, Richard B. Johnson wrote:
 >
-> > As RBJ said, ptys are now recycled in pid-like fashion,
-> > which means numbers won't be reused until wraparound
-> > happens.  This is good for security/fault tolerance,
-> > at least to some minor degree.
-> 
-> Ouch. It's bad for display and bad for typing.
-> What is easier to type?
-> 
-> ps -t pts/6
-> ps -t pts/1014962
-> 
-> (and yes, I really type these -- I don't have a
-> third hand to operate the mouse simultaneously)
-> 
+> > Are you talking about BogoMips??  This is just how many twinkies
+> > you can eat in a second with the current coding style in the
+> > short timer counter. It has absolutely, positively, nothing to
+> > do with "CPU capacity".
+>
+> He probably meant MHz.  But the same thing.  What difference does a
+> tenth of a MHz matter?
+>
+> I do have a question about BogoMIPS.  I know they don't mean anything,
+> but why on my Opteron system with two processors that read the same on
+> the cpu MHz line, do my bogomips vary so much?
+>
+> processor       : 0
+> cpu MHz         : 1393.980
+> bogomips        : 2736.12
+>
+> processor       : 1
+> cpu MHz         : 1393.980
+> bogomips        : 3145.72
+>
 
-(Programmable) tab completion, anyone?
+Because the loop-counter is called at different times, therefore
+the cache has different stuff in it.
 
-	-hpa
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

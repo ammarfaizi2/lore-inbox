@@ -1,119 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUFGPzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUFGP6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264857AbUFGPzo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 11:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUFGPzV
+	id S264811AbUFGP6n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 11:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUFGP6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 11:55:21 -0400
-Received: from may.priocom.com ([213.156.65.50]:19165 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S264826AbUFGPxr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 11:53:47 -0400
-Subject: Re: [PATCH] 2.6.6 memory allocation checks in SliceBlock()
-From: Yury Umanets <torque@ukrpost.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040606110333.57e5b853.rddunlap@osdl.org>
-References: <1086538992.2793.94.camel@firefly>
-	 <20040606110333.57e5b853.rddunlap@osdl.org>
-Content-Type: text/plain
-Message-Id: <1086623657.20964.19.camel@firefly>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 07 Jun 2004 18:54:17 +0300
+	Mon, 7 Jun 2004 11:58:12 -0400
+Received: from [141.156.69.115] ([141.156.69.115]:36747 "EHLO
+	mail.infosciences.com") by vger.kernel.org with ESMTP
+	id S264819AbUFGP5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 11:57:00 -0400
+Message-ID: <40C4904A.2080903@infosciences.com>
+Date: Mon, 07 Jun 2004 11:56:58 -0400
+From: nardelli <jnardelli@infosciences.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: Greg KH <greg@kroah.com>, Ian Abbott <abbotti@mev.co.uk>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Memory leak in visor.c and ftdi_sio.c
+References: <40C08E6D.8080606@infosciences.com> <c9q8a6$hga$1@sea.gmane.org> <20040605001832.GA28502@kroah.com> <40C47972.8090703@infosciences.com> <Pine.LNX.4.53.0406071141090.10324@chaos>
+In-Reply-To: <Pine.LNX.4.53.0406071141090.10324@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-06 at 21:03, Randy.Dunlap wrote:
-> On Sun, 06 Jun 2004 19:23:12 +0300 Yury Umanets wrote:
+Richard B. Johnson wrote:
+> On Mon, 7 Jun 2004, nardelli wrote:
 > 
-> | Adds memory allocation checks in SliceBlock()
-> | 
-> |  ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c |    4 ++++
-> |  1 files changed, 4 insertions(+)
-> | 
-> | Signed-off-by: Yury Umanets <torque@ukrpost.net>
-> | 
-> | diff -rupN ./linux-2.6.6/drivers/char/drm/sis_ds.c
-> | ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c
-> | --- ./linux-2.6.6/drivers/char/drm/sis_ds.c	Mon May 10 05:33:19 2004
-> | +++ ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c	Wed Jun  2 14:19:22
-> | 2004
-> | @@ -231,6 +231,8 @@ static TMemBlock* SliceBlock(TMemBlock *
-> |  	if (startofs > p->ofs) {
-> |  		newblock = (TMemBlock*) DRM(calloc)(1, sizeof(TMemBlock),
-> |  		    DRM_MEM_DRIVER);
-> | +		if (!newblock)
-> | +			return NULL;
-> |  		newblock->ofs = startofs;
-> |  		newblock->size = p->size - (startofs - p->ofs);
-> |  		newblock->free = 1;
-> | @@ -244,6 +246,8 @@ static TMemBlock* SliceBlock(TMemBlock *
-> |  	if (size < p->size) {
-> |  		newblock = (TMemBlock*) DRM(calloc)(1, sizeof(TMemBlock),
-> |  		    DRM_MEM_DRIVER);
-> | +		if (!newblock)
-> | +			return NULL;
-> |  		newblock->ofs = startofs + size;
-> |  		newblock->size = p->size - size;
-> |  		newblock->free = 1;
-> | 
-> | -- 
 > 
-> These look like the right thing to do, but one caller of
-> SliceBlock() has no error handling:
+>>Greg KH wrote:
+>>
+>>>On Fri, Jun 04, 2004 at 05:34:41PM +0100, Ian Abbott wrote:
+>>>
+>>>
+>>>>On 04/06/2004 15:59, nardelli wrote:
 > 
-> mmAllocMem():
+> [SNIPPED...]
 > 
-> 	p = SliceBlock(p,startofs,size,0,mask+1);
-> 	p->heap = heap;
-> 	return p;
 > 
-> However, callers of mmAllocMem() do have failure handling.
-Hello Randy,
+>>>
+>>>===== drivers/usb/serial/visor.c 1.114 vs edited =====
+>>>--- 1.114/drivers/usb/serial/visor.c	Fri Jun  4 07:13:10 2004
+>>>+++ edited/drivers/usb/serial/visor.c	Fri Jun  4 17:12:53 2004
+>>
+>>...
+>>
+>>Just curious - is there something special about 42?  Grepping wasn't
+>>very useful, as numbers like this are scattered all over the place.
+>>
+>>
+>>>+/* number of outstanding urbs to prevent userspace DoS from happening */
+>>>+#define URB_UPPER_LIMIT	42
+> 
+> 
+> See Hitchiker's Guide to the Galaxy. ;^
+> 
 
-This is fixed version:
-
- ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-Signed-off-by: Yury Umanets <torque@ukrpost.net>
-
-diff -rupN ./linux-2.6.6/drivers/char/drm/sis_ds.c
-./linux-2.6.6-modified/drivers/char/drm/sis_ds.c
---- ./linux-2.6.6/drivers/char/drm/sis_ds.c	Mon May 10 05:33:19 2004
-+++ ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c	Mon Jun  7 18:41:41
-2004
-@@ -231,6 +231,8 @@ static TMemBlock* SliceBlock(TMemBlock *
- 	if (startofs > p->ofs) {
- 		newblock = (TMemBlock*) DRM(calloc)(1, sizeof(TMemBlock),
- 		    DRM_MEM_DRIVER);
-+		if (!newblock)
-+			return NULL;
- 		newblock->ofs = startofs;
- 		newblock->size = p->size - (startofs - p->ofs);
- 		newblock->free = 1;
-@@ -244,6 +246,8 @@ static TMemBlock* SliceBlock(TMemBlock *
- 	if (size < p->size) {
- 		newblock = (TMemBlock*) DRM(calloc)(1, sizeof(TMemBlock),
- 		    DRM_MEM_DRIVER);
-+		if (!newblock)
-+			return NULL;
- 		newblock->ofs = startofs + size;
- 		newblock->size = p->size - size;
- 		newblock->free = 1;
-@@ -285,6 +289,8 @@ PMemBlock mmAllocMem( memHeap_t *heap, i
- 	if (p == NULL)
- 		return NULL;
- 	p = SliceBlock(p,startofs,size,0,mask+1);
-+	if (!p)
-+		return NULL;
- 	p->heap = heap;
- 	return p;
- }
+LOL - I knew I shouldn't have asked :-)
 
 
 -- 
-umka
-
+Joe Nardelli
+jnardelli@infosciences.com

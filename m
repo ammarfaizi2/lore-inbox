@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318222AbSIJXzp>; Tue, 10 Sep 2002 19:55:45 -0400
+	id <S318223AbSIKAC1>; Tue, 10 Sep 2002 20:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318223AbSIJXzp>; Tue, 10 Sep 2002 19:55:45 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:41233 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S318222AbSIJXzp>;
-	Tue, 10 Sep 2002 19:55:45 -0400
-Subject: Problems with 2.4 and 2.5 with KVM/mouse
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S318227AbSIKAC1>; Tue, 10 Sep 2002 20:02:27 -0400
+Received: from packet.digeo.com ([12.110.80.53]:48515 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S318223AbSIKAC1>;
+	Tue, 10 Sep 2002 20:02:27 -0400
+Message-ID: <3D7E8936.9882E929@digeo.com>
+Date: Tue, 10 Sep 2002 17:07:18 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@arcor.de>
+CC: Chuck Lever <cel@citi.umich.edu>, Rik van Riel <riel@conectiva.com.br>,
+       trond.myklebust@fys.uio.no,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu> <E17orzf-0007Gn-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 10 Sep 2002 17:00:31 -0700
-Message-Id: <1031702431.3086.36.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 11 Sep 2002 00:07:06.0478 (UTC) FILETIME=[2A1AA0E0:01C25927]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two machines on a KVM and when I switch between them the mouse
-pointer goes wacky and causes random clicks. This has always been
-somewhat of a problem when both machines were running 2.4 but there was
-a workaround.  If I switched consoles (alt-F1, alt-F7) then the mouse
-would restore back to correct behaviour. 
+Daniel Phillips wrote:
+> 
+> ...
+> Andrew, did I miss something, or does the current code really ignore
+> the pte dirty bits?
 
-Now, on my test machine running 2.5 the mouse works until I do a KVM
-machine swap. Then the 2.5 machine never clears up the mouse wackiness
-and the only choice is to reboot. 
+Sure.  pte_dirty -> PageDirty propagation happens in page reclaim,
+and in msync.
 
-The mouse is a Logitech optical mouse with a wheel "Wheel mouse". The
-mouseconfig is the same on both machines. The KVM is a Belkin four port.
+We _could_ walk the pte chain in writeback.  But that would involve
+visiting every page in the mapping, basically.  That could hurt.
 
-Probably the simplest is to buy another mouse or switch to USB...
+But if a page is already dirty, and we're going to write it anyway,
+it makes tons of sense to run around and clean all the ptes which
+point at it.
 
+It especially makes sense for fielmap_sync() to do that. (quickly
+edits the todo file).
 
-
+I'm not sure that MAP_SHARED is a good way of performing file writing,
+really.  And not many things seem to use it for that. It's more there
+as a way for unrelated processes to find a chunk of common memory via
+the usual namespace.  Not sure about that, but I am sure that it's a
+damn pest.

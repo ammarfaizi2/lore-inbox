@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTFITnc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 15:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTFITnc
+	id S261216AbTFITtk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 15:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTFITtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 15:43:32 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:32663 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261180AbTFITnb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 15:43:31 -0400
-Date: Mon, 09 Jun 2003 12:46:03 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 793] New: Thinkpad T30, new BIOS, and ACPI 
-Message-ID: <56010000.1055187963@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Mon, 9 Jun 2003 15:49:40 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:27622 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261216AbTFITtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 15:49:39 -0400
+From: Daniel Phillips <dphillips@sistina.com>
+Reply-To: dphillips@sistina.com
+Organization: Sistina
+To: dm-devel@sistina.com, Greg KH <greg@kroah.com>,
+       Joe Thornber <thornber@sistina.com>
+Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
+Date: Mon, 9 Jun 2003 22:03:50 +0200
+User-Agent: KMail/1.5.2
+Cc: dm-devel@sistina.com, Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <20030606171700.GC12231@kroah.com>
+In-Reply-To: <20030606171700.GC12231@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200306092203.50024.dphillips@sistina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=793
+On Friday 06 June 2003 19:17, Greg KH wrote:
+> On Thu, Jun 05, 2003 at 10:39:43AM +0100, Joe Thornber wrote:
+> > Here's the header file for the the proposed new ioctl interface for
+> > dm.  We've tried to change as little as possible to minimise code
+> > changes in LVM2 and EVMS.
+>
+> Minor comment:
+> 	- please do not use uint_32t types in kernel header files.  Use
+> 	  the proper __u32 type which is guarenteed to be the proper
+> 	  size across the user/kernel boundry.
 
-           Summary: Thinkpad T30, new BIOS, and ACPI
-    Kernel Version: 2.5.70-mm6
-            Status: NEW
-          Severity: normal
-             Owner: akpm@digeo.com
-         Submitter: peter@peterjohanson.com
+We even have a flavor without the __'s:
 
+   http://lxr.linux.no/source/include/asm-i386/types.h?v=2.5.56#L47
 
-Distribution: gentoo
-Hardware Environment: T30 with BIOS v2.04 and EC v1.03
-Software Environment:
-Problem Description: I recently upgraded the BIOS and embedded controller on my
-thinkpad T30 to the latest released by IBM. This has fixed the invalid ECDT
-table, which had forced me to use the small patch from 
-http://www.poupinou.org/acpi/ibm_ecdt.html
-to get ACPI working. Now the table passes the test, and a lot of the ACPI stuff
-works. the problem is now when i close and re-open the lid on my laptop. the
-system turns nearly unresponsive, and dmesg shows a *ton* of lines:
+A little easier on the eyes, imho.
 
- ACPI-0295: *** Error: AE_TIME while evaluating method [_L18] for GPE[ 0]
-    ACPI-0345: *** Error: Handler for [EmbeddedControl] returned AE_TIME
-    ACPI-1121: *** Error: Method execution failed [\_GPE._L18] (Node c1ae74c0), 
-AE_TIME
-    ACPI-0295: *** Error: AE_TIME while evaluating method [_L18] for GPE[ 0]
-    ACPI-0345: *** Error: Handler for [EmbeddedControl] returned AE_TIME
-    ACPI-1121: *** Error: Method execution failed [\_GPE._L18] (Node c1ae74c0), 
-AE_TIME
+Regards,
 
-and top shows events/0 taking about 10% of the CPU. i will attach my dmesg
-output from the system before closing the lid.
-
-Steps to reproduce: close lid  & reopen it.
+Daniel
 

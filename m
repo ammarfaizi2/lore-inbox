@@ -1,69 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266078AbUGMVhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUGMVjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266078AbUGMVhu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbUGMVhu
+	id S266144AbUGMVjW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUGMVjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:37:50 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:62441 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S266078AbUGMVhr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:37:47 -0400
-Message-ID: <40F455B0.2090008@pacbell.net>
-Date: Tue, 13 Jul 2004 14:35:44 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Will Beers <whbeers@mbio.ncsu.edu>
-CC: Olaf Hering <olh@suse.de>, Gary_Lerhaupt@Dell.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Stuart_Hayes@Dell.com
-Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
-References: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com> <40CF0049.2010307@pacbell.net> <20040713180727.GA11583@suse.de> <40F4457F.2010005@pacbell.net> <40F449BD.2030508@mbio.ncsu.edu> <40F44FFB.80707@pacbell.net> <40F45327.1080703@mbio.ncsu.edu>
-In-Reply-To: <40F45327.1080703@mbio.ncsu.edu>
-Content-Type: multipart/mixed;
- boundary="------------060800020400070808000605"
+	Tue, 13 Jul 2004 17:39:21 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:25798 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S266144AbUGMVjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 17:39:13 -0400
+Date: Tue, 13 Jul 2004 23:38:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: paul@linuxaudiosystems.com, rlrevell@joe-job.com,
+       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040713213847.GH974@dualathlon.random>
+References: <20040712163141.31ef1ad6.akpm@osdl.org> <200407130001.i6D01pkJ003489@localhost.localdomain> <20040712170844.6bd01712.akpm@osdl.org> <20040713162539.GD974@dualathlon.random> <20040713114829.705b9607.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040713114829.705b9607.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060800020400070808000605
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Jul 13, 2004 at 11:48:29AM -0700, Andrew Morton wrote:
+> sys_sched_yield() also calls schedule() with local interrupts disabled. 
+> It's a bit grubby, but saves a few cycles.  Nick and Ingo prefer it that way.
 
-Will Beers wrote:
->  > Sounds to me like your BIOS may be broken.  But if you're
->  > up for it, you could try using byte access to write that one
-> 
-> Changing the pci_read_config to a byte access fixes it, thanks!
-
-You're reading byte 0 not byte 2 of that field ... I meant
-more like the attached patch to _write_ the flag (untested).
-
-
-> -                       pci_read_config_dword(pdev, where, &cap);
-> +                       pci_read_config_byte(pdev, where, &cap);
-
---------------060800020400070808000605
-Content-Type: text/plain;
- name="Diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Diff"
-
---- 1.89/drivers/usb/host/ehci-hcd.c	Wed Jun 30 19:10:04 2004
-+++ edited/drivers/usb/host/ehci-hcd.c	Tue Jul 13 14:33:41 2004
-@@ -293,8 +293,7 @@
- 		struct pci_dev *pdev = to_pci_dev(ehci->hcd.self.controller);
- 
- 		/* request handoff to OS */
--		cap |= 1 << 24;
--		pci_write_config_dword(pdev, where, cap);
-+		pci_write_config_byte(pdev, where + 3, 1);
- 
- 		/* and wait a while for it to happen */
- 		do {
-
---------------060800020400070808000605--
-
+we can remove the irqs_disabled() check in might_sleep then, I'd like to
+call might_sleep from cond_resched.

@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269270AbTGJNWm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 09:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269271AbTGJNWl
+	id S266346AbTGJNav (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 09:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269265AbTGJNav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 09:22:41 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:26050 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S269270AbTGJNWk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 09:22:40 -0400
-Date: Thu, 10 Jul 2003 06:36:46 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
-Message-ID: <86930000.1057844205@[10.10.2.4]>
-In-Reply-To: <80050000.1057800978@[10.10.2.4]>
-References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain> <80050000.1057800978@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 10 Jul 2003 09:30:51 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:48651 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S266346AbTGJNau (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 09:30:50 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: 2.5.74-mm3 OOM killer fubared ?
+Date: Thu, 10 Jul 2003 13:45:30 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bejqlq$q83$1@news.cistron.nl>
+References: <bejhrj$dgg$1@news.cistron.nl> <20030710112728.GX15452@holomorphy.com> <bejnl9$m9l$1@news.cistron.nl> <Pine.LNX.4.53.0307100918410.203@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1057844730 26883 62.216.29.200 (10 Jul 2003 13:45:30 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Results now with highpte
+In article <Pine.LNX.4.53.0307100918410.203@chaos>,
+Richard B. Johnson <root@chaos.analogic.com> wrote:
+>On Thu, 10 Jul 2003, Miquel van Smoorenburg wrote:
+>
+>> As I said I've got plenty memory free ... perhaps I need to tune
+>> /proc/sys/vm because I've got so much streaming I/O ? Possibly,
+>> there are too many dirty pages so cleaning them out faster might
+>> help (and let pflushd do it instead of my single-threaded app)
+>>
 
-2.5.74-bk6-44 is with the patch applied
-2.5.74-bk6-44-on is with the patch applied and 4/4 config option.
-2.5.74-bk6-44-hi is with the patch applied and with highpte instead.
+I did the tuning now, but it did not help much. Alas.
 
-Overhead of 4/4 isn't much higher, and is much more generally useful.
+>The problem, as I see it, is that you can dirty pages 10-15 times
+>faster than they can be written to disk. So, you will always
+>have the possibility of an OOM situation as long as you are I/O
+>bound. FYI, you can read/write RAM at 1,000+ megabytes/second, but
+>you can only write to disk at 80 megabytes/second with the fastest
+>SCSI around, 40 megabytes/second with ATA, 20 megabytes/second with
+>IDE/DMA, 10 megabytes/second with PIOW, etc. There just aren't
+>any disks around that will run at RAM speeds so buffered I/O will
+>always result in full buffers if the I/O is sustained. To completely
+>solve the OOM situation requires throttling the generation of data.
 
-Kernbench: (make -j vmlinux, maximal tasks)
-                              Elapsed      System        User         CPU
-                   2.5.74       46.11      115.86      571.77     1491.50
-            2.5.74-bk6-44       45.92      115.71      570.35     1494.75
-         2.5.74-bk6-44-on       48.11      134.51      583.88     1491.75
-         2.5.74-bk6-44-hi       47.06      131.13      570.79     1491.50
+My disks are fast enough - under 2.5.74-vanilla, no problem.
 
-SDET 128  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.74       100.0%         0.1%
-            2.5.74-bk6-44       100.3%         0.7%
-         2.5.74-bk6-44-on        92.1%         0.2%
-         2.5.74-bk6-44-hi        94.5%         0.1%
+>It is only when the data generation rate is less than or equal to
+>the data storage rate that you can generate data forever.
+>
+>A possibility may be to not return control to the writing process
+>(including swap), until the write completes if RAM gets low.
 
+That's what can be tuned with /proc/sys/vm/dirty_ratio , right ?
+If I understand Documentation/filesystems/proc.txt correctly.
+
+Mike.
 

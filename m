@@ -1,169 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319271AbSHVAvV>; Wed, 21 Aug 2002 20:51:21 -0400
+	id <S319250AbSHUXqu>; Wed, 21 Aug 2002 19:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319273AbSHVAvV>; Wed, 21 Aug 2002 20:51:21 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:37083 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319271AbSHVAvT>;
-	Wed, 21 Aug 2002 20:51:19 -0400
-Date: Wed, 21 Aug 2002 17:59:31 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: gregkh@us.ibm.com, greg@kroah.com
-cc: linux-kernel@vger.kernel.org, Hanna Linder <hannal@us.ibm.com>
-Subject: Re: PCI Cleanup
-Message-ID: <74760000.1029977971@w-hlinder>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319251AbSHUXqs>; Wed, 21 Aug 2002 19:46:48 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:40433 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319250AbSHUXqn>; Wed, 21 Aug 2002 19:46:43 -0400
+Subject: Re: 2.5 IDE Whitepaper?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: PAUL BENNETT <paul.bennett@usa.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <3D64231C.6050407@mandrakesoft.com>
+References: <20020821183807.21562.qmail@uwdvg003.cms.usa.net> 
+	<3D64231C.6050407@mandrakesoft.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Aug 2002 00:51:52 +0100
+Message-Id: <1029973912.26845.266.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-08-22 at 00:32, Jeff Garzik wrote:
+> PAUL BENNETT wrote:
+> > I am looking for documentation regarding the 2.5 IDE rewrite.  For example: 
+> > What are the goals for 2.5.  What is the implementation plan?  What were the
+> > problems in 2.4, and how will they be fixed in 2.5, etc?
+> 
+> <chuckle>  I wish :)
+> 
+> I imagine it will happen like most things happen, Linus describes his 
+> ideas and goals and wishes in a few lkml posts, and eventually something 
+> like it happens :)
 
-Here is the first part of the sh port of the pci_ops 
-changes. If anyone can compile this for Sega let me
-know if there are any problems.
+I can try, my working list approximates this (ignoring the 2.5
+porting/block I/O stuff which is a chapter in itself)
 
-Thanks.
+Phase #1 (mostly complete)
+	Merge Andre's current code [DONE]
+	Remove all the bogus code from the PCI drivers [90% DONE]
+	Move all the drivers seperate from the core code [DONE]
+	Migrate the PCI drivers to a registration API and allow insmod
+	Fix bugs arising from the first bits of phase 1
 
-Hanna Linder
-hannal@us.ibm.com
+Phase #2 
+	Deal with insmod of a device currently running as legacy
+	Fix up the locking ready to allow rmmod of a pci driver
+	Allow rmmod and hotplug at the controller level
 
-ps -this patches against bk://linuxusb.bkbits.net/pci_hp-2.5
+Phase #3
+	Complete splitting setup-pci functions into smaller bits of code
+	and replace deep magic and callbacks with functions called from
+	each driver. Get all the if device==foo out of the PCI code 	paths
 
------
+Phase #4
+	Do something about the ide_register/unregister end of the world
+	and legacy chipset stuff. The PPC folks may tackle this in
+	advance
+	Get us to the point we can foo = ide_attach(); ide_remove(foo) 	
+	for arbitary interfaces
+	
+And then (when the setup is turned the right way out and not before)
+begin looking at turning the actual block I/O engine the right way out.
+(That is driver calls helpers not midlayer and magic)
 
-diff -Nru a/arch/sh/kernel/pci-dc.c b/arch/sh/kernel/pci-dc.c
---- a/arch/sh/kernel/pci-dc.c	Wed Aug 21 17:55:02 2002
-+++ b/arch/sh/kernel/pci-dc.c	Wed Aug 21 17:55:02 2002
-@@ -31,76 +31,58 @@
- 	{0, 0, 0, NULL}
- };
- 
--#define BBA_SELECTED(dev) (dev->bus->number==0 && dev->devfn==0)
-+#define BBA_SELECTED(bus,devfn) (bus->number==0 && devfn==0)
- 
--static int gapspci_read_config_byte(struct pci_dev *dev, int where,
--                                    u8 * val)
-+static int gapspci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 * val)
- {
--	if (BBA_SELECTED(dev))
--		*val = inb(GAPSPCI_BBA_CONFIG+where);
--	else
--                *val = 0xff;
--
-+	switch (size) {
-+	case 1:
-+		if (BBA_SELECTED(bus, devfn))
-+			*val = (u8)inb(GAPSPCI_BBA_CONFIG+where);
-+		else
-+			*val = (u8)0xff;
-+		break;
-+	case 2:
-+		if (BBA_SELECTED(bus, devfn))
-+			*val = (u16)inw(GAPSPCI_BBA_CONFIG+where);
-+		else
-+			*val = (u16)0xffff;
-+		break;
-+	case 4:
-+		if (BBA_SELECTED(bus, devfn))
-+			*val = inl(GAPSPCI_BBA_CONFIG+where);
-+		else
-+			*val = 0xffffffff;
-+		break;
-+	}	
- 	return PCIBIOS_SUCCESSFUL;
- }
- 
--static int gapspci_read_config_word(struct pci_dev *dev, int where,
--                                    u16 * val)
--{
--        if (BBA_SELECTED(dev))
--		*val = inw(GAPSPCI_BBA_CONFIG+where);
--	else
--                *val = 0xffff;
--
--        return PCIBIOS_SUCCESSFUL;
--}
--
--static int gapspci_read_config_dword(struct pci_dev *dev, int where,
--                                     u32 * val)
--{
--        if (BBA_SELECTED(dev))
--		*val = inl(GAPSPCI_BBA_CONFIG+where);
--	else
--                *val = 0xffffffff;
--
--        return PCIBIOS_SUCCESSFUL;
--}
--
--static int gapspci_write_config_byte(struct pci_dev *dev, int where,
--                                     u8 val)
--{
--        if (BBA_SELECTED(dev))
--		outb(val, GAPSPCI_BBA_CONFIG+where);
--
--        return PCIBIOS_SUCCESSFUL;
--}
--
--
--static int gapspci_write_config_word(struct pci_dev *dev, int where,
--                                     u16 val)
--{
--        if (BBA_SELECTED(dev))
--		outw(val, GAPSPCI_BBA_CONFIG+where);
--
--        return PCIBIOS_SUCCESSFUL;
--}
--
--static int gapspci_write_config_dword(struct pci_dev *dev, int where,
--                                      u32 val)
-+static int gapspci_write(struct pci_bus *bus, unsigned int devfn,
-+				    int where, u32 val)
- {
--        if (BBA_SELECTED(dev))
--		outl(val, GAPSPCI_BBA_CONFIG+where);
--
--        return PCIBIOS_SUCCESSFUL;
-+	if (BBA_SELECTED(bus, devfn)) {
-+		switch (size) {
-+	case 1:
-+		if (BBA_SELECTED(bus, devfn))
-+			outb((u8)val, GAPSPCI_BBA_CONFIG+where);
-+		break;
-+	case 2:
-+		if (BBA_SELECTED(bus, devfn))
-+			outw((u16)val, GAPSPCI_BBA_CONFIG+where);
-+		break;
-+	case 4:
-+		if (BBA_SELECTED(bus, devfn))
-+			outl(val, GAPSPCI_BBA_CONFIG+where);
-+		break;
-+		}
-+	}
-+	return PCIBIOS_SUCCESSFUL;
- }
- 
- static struct pci_ops pci_config_ops = {
--        gapspci_read_config_byte,
--        gapspci_read_config_word,
--        gapspci_read_config_dword,
--        gapspci_write_config_byte,
--        gapspci_write_config_word,
--        gapspci_write_config_dword
-+	.read = 	gapspci_read,
-+	.write = 	gapspci_write,
- };
- 
- 
-@@ -143,7 +125,7 @@
- 
- 	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
- 		dev = pci_dev_b(ln);
--		if (!BBA_SELECTED(dev)) continue;
-+		if (!BBA_SELECTED(bus, dev->devfn)) continue;
- 
- 		printk("PCI: MMIO fixup to %s\n", dev->name);
- 		dev->resource[1].start=0x01001700;
+That should allow us to keep solid stable IDE along the way.
 

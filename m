@@ -1,110 +1,249 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319590AbSIMJsn>; Fri, 13 Sep 2002 05:48:43 -0400
+	id <S319579AbSIMKDa>; Fri, 13 Sep 2002 06:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319592AbSIMJsn>; Fri, 13 Sep 2002 05:48:43 -0400
-Received: from mta.sara.nl ([145.100.16.144]:22763 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S319590AbSIMJsm>;
-	Fri, 13 Sep 2002 05:48:42 -0400
-Date: Fri, 13 Sep 2002 11:53:20 +0200
-Subject: Re: XFS?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-From: Remco Post <r.post@sara.nl>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
-Message-Id: <A2AA8734-C6FE-11D6-A11E-000393911DE2@sara.nl>
-X-Pgp-Agent: GPGMail 0.5.3 (v20)
-X-Mailer: Apple Mail (2.482)
+	id <S319592AbSIMKD3>; Fri, 13 Sep 2002 06:03:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:65245 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319579AbSIMKD1>;
+	Fri, 13 Sep 2002 06:03:27 -0400
+Date: Fri, 13 Sep 2002 12:14:25 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] sys_exit() threading improvements, BK-curr
+In-Reply-To: <Pine.LNX.4.44.0209121011290.5719-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209131207510.672-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+this patch implements the 'keep the initial thread around until every
+thread in the group exits' concept in a different, less intrusive way,
+along your suggestions. There is no exit_done completion handling anymore,
+freeing of the task is still done by wait4(). This has the following
+side-effect: detached threads/processes can only be started within a
+thread group, not in a standalone way.
 
-On vrijdag, september 13, 2002, at 09:47 , Ivan Ivanov wrote:
+(the patch also fixes the bugs introduced by the ->exit_done code, which
+made it possible for a zombie task to be reactivated.)
 
->
-> XFS and JFS are designed for large multiprocessor machines powered by 
-> UPS
-> etc., where the risk of power fail, or some kind of tecnical problem is
-> veri low.
->
+i've introduced the p->group_leader pointer, which can/will be used for
+other purposes in the future as well - since from now on the thread group
+leader is always existent. Right now it's used to notify the parent of the
+thread group leader from the last non-leader thread that exits [if the
+thread group leader is a zombie already].
 
-Hmm, not entirely true. We run (C)XFS on Irix on our 1024 CPU SGI Origin 
-3800 box over here. Every few weeks the @$%#@ thing breaks, (CPU, bad 
-memory that kind of things). This takes down at least one partition of 
-the system, and sometimes a filesystem (or all filesystems). Without the 
-journaling features of XFS we'd spend all of our uptime fsck-ing. What 
-I'm saying, big box with lots of parts has a lot of parts that could 
-possible break....
+	Ingo
 
-
-> On the other side Linux works in much "risky" environment - old
-> machines, assembled from "yellow" parts, unstable power suply and so on.
->
-> With XFS every time when power fails while writing to file the entire 
-> file
-> is lost. The joke is that it is normal according FAQ :)
-> JFS has the same problem.
-> With ReiserFS this happens sometimes, but much much rarely. May be v4 
-> will
-> solve this problem at all.
->
-
-Of course, loosing a file during a crash is not nice, but often the 
-whole job has to be rerun, at least from it's last checkpoint, so 
-loosing one file is not a problem. The same is true for most of the 
-desktop work, it's much clearer to a user not to find his/her file in 
-place, than a 'maybe corrupted' version.
-
-
-> The above three filesystems have problems with badblocks too.
->
-> So the main problem is how usable is the filesystem. I mean if a company
-> spends a few tousand $ to provide a "low risky" environment, then may be
-> it will use AIX or IRIX, but not Linux.
-> And if I am running a <$1000 "server" I will never use XFS/JFS.
->
-
-A few 1000 $ do not buy you an IRIX or a AIX box with support. So, 
-spending that money wisely buys you a nice Linux box, decent hardware 
-and a decent FS. Even in our very well protected environment, the 
-no-break powersupply is able to fail in the most horrible way( thoiug 
-that happend only once in over 20 years), having a robust FS is a must. 
-There is a world of possibilities between spending $200 at Walmart for a 
-low-end pc and >>$5k for your low-end IBM box. For 'small' servers that 
-people will want to depend on, a decent FS is a must.
-
-Now if XFS was as non-intrusive as FreeVFS, it probbably whould have 
-been part of the main stream a long time ago. Unfortunately the XFS 
-people wanted to provide functions not in the VFS layer... Now maybe if 
-we cut that problem in two parts: filesystem and functional (dmapi 
-IIRC), the intrusion into the VFS layer would not be taken as bad as it 
-had been as it has been in the past....
-
-- ---
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (Darwin)
-
-iD8DBQE9gbWYBIoCv9yTlOwRAuZNAJ9G+HxDINeeeT0QTZn7Ly1tpqHXAwCeLxCd
-OMWrvLeT643az91jwHEq240=
-=zAGH
------END PGP SIGNATURE-----
+--- linux/include/linux/sched.h.orig	Fri Sep 13 11:32:03 2002
++++ linux/include/linux/sched.h	Fri Sep 13 11:38:02 2002
+@@ -219,8 +219,6 @@
+ 	/* thread group exit support */
+ 	int			group_exit;
+ 	int			group_exit_code;
+-
+-	struct completion	group_exit_done;
+ };
+ 
+ /*
+@@ -316,6 +314,7 @@
+ 	struct task_struct *parent;	/* parent process */
+ 	struct list_head children;	/* list of my children */
+ 	struct list_head sibling;	/* linkage in my parent's children list */
++	struct task_struct *group_leader;
+ 	struct list_head thread_group;
+ 
+ 	/* PID hash table linkage. */
+@@ -826,6 +825,9 @@
+ }
+ 
+ #define thread_group_leader(p)	(p->pid == p->tgid)
++
++#define delay_group_leader(p) \
++	(p->tgid == p->pid && !list_empty(&p->thread_group))
+ 
+ extern void unhash_process(struct task_struct *p);
+ 
+--- linux/include/linux/init_task.h.orig	Fri Sep 13 11:35:03 2002
++++ linux/include/linux/init_task.h	Fri Sep 13 11:35:14 2002
+@@ -61,6 +61,7 @@
+ 	.parent		= &tsk,						\
+ 	.children	= LIST_HEAD_INIT(tsk.children),			\
+ 	.sibling	= LIST_HEAD_INIT(tsk.sibling),			\
++	.group_leader	= &tsk,						\
+ 	.thread_group	= LIST_HEAD_INIT(tsk.thread_group),		\
+ 	.wait_chldexit	= __WAIT_QUEUE_HEAD_INITIALIZER(tsk.wait_chldexit),\
+ 	.real_timer	= {						\
+--- linux/fs/exec.c.orig	Fri Sep 13 11:38:12 2002
++++ linux/fs/exec.c	Fri Sep 13 11:38:17 2002
+@@ -515,7 +515,6 @@
+ 	atomic_set(&newsig->count, 1);
+ 	newsig->group_exit = 0;
+ 	newsig->group_exit_code = 0;
+-	init_completion(&newsig->group_exit_done);
+ 	memcpy(newsig->action, current->sig->action, sizeof(newsig->action));
+ 	init_sigpending(&newsig->shared_pending);
+ 
+--- linux/kernel/exit.c.orig	Fri Sep 13 10:28:51 2002
++++ linux/kernel/exit.c	Fri Sep 13 12:07:25 2002
+@@ -583,7 +583,6 @@
+ 	 *	jobs, send them a SIGHUP and then a SIGCONT.  (POSIX 3.2.2.2)
+ 	 */
+ 
+-	current->state = TASK_ZOMBIE;
+ 	if (current->exit_signal != -1)
+ 		do_notify_parent(current, current->exit_signal);
+ 
+@@ -592,6 +591,8 @@
+ 	while (!list_empty(&current->ptrace_children))
+ 		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,ptrace_list), current, 1);
+ 	BUG_ON(!list_empty(&current->children));
++
++	current->state = TASK_ZOMBIE;
+ 	/*
+ 	 * No need to unlock IRQs, we'll schedule() immediately
+ 	 * anyway. In the preemption case this also makes it
+@@ -697,9 +698,9 @@
+ 	do_exit(sig->group_exit_code);
+ }
+ 
+-static inline int eligible_child(pid_t pid, int options, task_t *p)
++static int eligible_child(pid_t pid, int options, task_t *p)
+ {
+-	if (pid>0) {
++	if (pid > 0) {
+ 		if (p->pid != pid)
+ 			return 0;
+ 	} else if (!pid) {
+@@ -725,6 +726,12 @@
+ 	if (((p->exit_signal != SIGCHLD) ^ ((options & __WCLONE) != 0))
+ 	    && !(options & __WALL))
+ 		return 0;
++	/*
++	 * Do not consider thread group leaders that are
++	 * in a non-empty thread group:
++	 */
++	if (current->tgid != p->tgid && delay_group_leader(p))
++		return 0;
+ 
+ 	if (security_ops->task_wait(p))
+ 		return 0;
+@@ -781,8 +788,12 @@
+ 				current->cstime += p->stime + p->cstime;
+ 				read_unlock(&tasklist_lock);
+ 				retval = ru ? getrusage(p, RUSAGE_BOTH, ru) : 0;
+-				if (!retval && stat_addr)
+-					retval = put_user(p->exit_code, stat_addr);
++				if (!retval && stat_addr) {
++					if (p->sig->group_exit)
++						retval = put_user(p->sig->group_exit_code, stat_addr);
++					else
++						retval = put_user(p->exit_code, stat_addr);
++				}
+ 				if (retval)
+ 					goto end_wait4; 
+ 				retval = p->pid;
+--- linux/kernel/signal.c.orig	Fri Sep 13 10:29:45 2002
++++ linux/kernel/signal.c	Fri Sep 13 11:59:24 2002
+@@ -251,23 +251,6 @@
+ 	if (!atomic_read(&sig->count))
+ 		BUG();
+ 	spin_lock(&sig->siglock);
+-	/*
+-	 * Do not let the thread group leader exit until all other
+-	 * threads are done:
+-	 */
+-	while (!list_empty(&current->thread_group) &&
+-			current->tgid == current->pid &&
+-			atomic_read(&sig->count) > 1) {
+-
+-		spin_unlock(&sig->siglock);
+-		write_unlock_irq(&tasklist_lock);
+-
+-		wait_for_completion(&sig->group_exit_done);
+-
+-		write_lock_irq(&tasklist_lock);
+-		spin_lock(&sig->siglock);
+-	}
+-
+ 	spin_lock(&tsk->sigmask_lock);
+ 	tsk->sig = NULL;
+ 	if (atomic_dec_and_test(&sig->count)) {
+@@ -276,10 +259,21 @@
+ 		flush_sigqueue(&sig->shared_pending);
+ 		kmem_cache_free(sigact_cachep, sig);
+ 	} else {
+-		if (!list_empty(&current->thread_group) &&
+-					atomic_read(&sig->count) == 1)
+-			complete(&sig->group_exit_done);
+-		__remove_thread_group(tsk, sig);
++		struct task_struct *leader = tsk->group_leader;
++		/*
++		 * If we are the last non-leader member of the thread
++		 * group, and the leader is zombie, then notify the
++		 * group leader's parent process.
++		 *
++		 * (subtle: here we also rely on the fact that if we are the
++		 *  thread group leader then we are not zombied yet.)
++		 */
++		if (atomic_read(&sig->count) == 1 &&
++					leader->state == TASK_ZOMBIE) {
++			__remove_thread_group(tsk, sig);
++			do_notify_parent(leader, leader->exit_signal);
++		} else
++			__remove_thread_group(tsk, sig);
+ 		spin_unlock(&sig->siglock);
+ 	}
+ 	clear_tsk_thread_flag(tsk,TIF_SIGPENDING);
+@@ -1096,6 +1090,8 @@
+ 	struct siginfo info;
+ 	int why, status;
+ 
++	if (delay_group_leader(tsk))
++		return;
+ 	if (sig == -1)
+ 		BUG();
+ 
+--- linux/kernel/fork.c.orig	Fri Sep 13 11:38:28 2002
++++ linux/kernel/fork.c	Fri Sep 13 11:59:13 2002
+@@ -628,7 +628,6 @@
+ 	atomic_set(&sig->count, 1);
+ 	sig->group_exit = 0;
+ 	sig->group_exit_code = 0;
+-	init_completion(&sig->group_exit_done);
+ 	memcpy(sig->action, current->sig->action, sizeof(sig->action));
+ 	sig->curr_target = NULL;
+ 	init_sigpending(&sig->shared_pending);
+@@ -672,6 +671,12 @@
+ 	 */
+ 	if (clone_flags & CLONE_THREAD)
+ 		clone_flags |= CLONE_SIGHAND;
++	/*
++	 * Detached threads can only be started up within the thread
++	 * group.
++	 */
++	if (clone_flags & CLONE_DETACHED)
++		clone_flags |= CLONE_THREAD;
+ 
+ 	retval = security_ops->task_create(clone_flags);
+ 	if (retval)
+@@ -843,6 +848,7 @@
+ 	 * Let it rip!
+ 	 */
+ 	p->tgid = p->pid;
++	p->group_leader = p;
+ 	INIT_LIST_HEAD(&p->thread_group);
+ 	INIT_LIST_HEAD(&p->ptrace_children);
+ 	INIT_LIST_HEAD(&p->ptrace_list);
+@@ -870,6 +876,7 @@
+ 			goto bad_fork_cleanup_namespace;
+ 		}
+ 		p->tgid = current->tgid;
++		p->group_leader = current->group_leader;
+ 		list_add(&p->thread_group, &current->thread_group);
+ 		spin_unlock(&current->sig->siglock);
+ 	}
 

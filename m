@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbRLVF3W>; Sat, 22 Dec 2001 00:29:22 -0500
+	id <S286691AbRLVF1w>; Sat, 22 Dec 2001 00:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286693AbRLVF3N>; Sat, 22 Dec 2001 00:29:13 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:55680 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S286692AbRLVF3B>;
-	Sat, 22 Dec 2001 00:29:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
-Date: Fri, 21 Dec 2001 21:29:00 -0800
-X-Mailer: KMail [version 1.3.2]
-Cc: timothy.covell@ashavan.org
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <200112220214.fBM2EsSr022402@svr3.applink.net>
-In-Reply-To: <200112220214.fBM2EsSr022402@svr3.applink.net>
+	id <S286692AbRLVF1m>; Sat, 22 Dec 2001 00:27:42 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:47880 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S286691AbRLVF1c>; Sat, 22 Dec 2001 00:27:32 -0500
+Message-ID: <3C241978.65020179@zip.com.au>
+Date: Fri, 21 Dec 2001 21:26:16 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16HeiS-0000Cd-00@phalynx>
+To: Keith Owens <kaos@ocs.com.au>
+CC: Jason Thomas <jason@topic.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] link errors with internal calls to devexit functions
+In-Reply-To: Your message of "Sat, 22 Dec 2001 13:57:25 +1100."
+	             <20011222025725.GA629@topic.com.au> <5750.1008997543@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 21, 2001 18:11, Timothy Covell wrote:
-> As concerns the use of Traditional Units being weird, I would say that the
-> motivation made a lot of since.   The units were based on commonly
-> available natural units of measure, eg.
->
-> one inch = 1 thumb = 1 pouce
-> one foot  = size of a foot = 1 pied
-Oh, and things like having 0 degrees being the temperature of -frozen water- 
-isn't really that natural... no, we'd be much better off using averagish 
-sizes of human body parts as a reference.
+Keith Owens wrote:
+> 
+>         __devexit_call(bttv_remove(dev));
+>         __devexit_call(uhci_pci_remove(dev));
 
-> Also, as is very appropriate to this discussion, the English Units
-> made use of powers of two and three. Eg.
->
-> 1 inch, 1/2 inch, 1/4 inch, 1/8 inch
-Oh, that's right, only users of the Imperial system can use these new-fangled 
-"fractions". If only someone would invent a 1/4 centimeter, the metric system 
-would be a viable replacement!
+This may break the drivers.  They both call the remove
+function on the init path, when something failed.
 
-How about this: Seeing there is no commonly used unit smaller than an inch, 
-people had to resort to using fractions of an inch to describe sizes. It 
-works in metric too, but people just don't, because there are a wider range 
-of metric units.
-
-> 3 feet equals a yard.
->
-> So, the English units were more attuned to nature.  The only thing
-> natural about base ten is that the majority of us have 10 fingers and
-> 10 toes.
-Yes, and three is a magical number decreed by God himself. You do have a good 
-point, though, the Imperial system fits in quite well with our 
-base-two-but-sometimes-three number system.
-
-> Finally, Farhenheit units are smaller so that they make more convenient
-> divisions: Eg.
-Brilliant. The system with the smallest units wins. Let me introduce you to 
-the yocto-centigrade, where the boiling point is 10^26 degrees. Combined with 
-the revolutionary new "decimal point", you can obtain never before seen 
-precision in describing temperatures! 
-
--Ryan
+I believe the correct fix here is to simply remove __devinit altogether
+from the definition of both those functions.

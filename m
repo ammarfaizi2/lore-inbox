@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263026AbTDVJbA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 05:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbTDVJbA
+	id S263029AbTDVJeu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 05:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbTDVJeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 05:31:00 -0400
-Received: from port-212-202-172-137.reverse.qdsl-home.de ([212.202.172.137]:60551
-	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
-	id S263026AbTDVJa7 convert rfc822-to-8bit (ORCPT
+	Tue, 22 Apr 2003 05:34:50 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:2187 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S263029AbTDVJet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 05:30:59 -0400
-Date: Tue, 22 Apr 2003 11:46:14 +0200 (CEST)
-Message-Id: <20030422.114614.846960661.rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: mangled isapnp IDs in /proc/bus/isapnp/devices
-From: Rene Rebe <rene.rebe@gmx.net>
-X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Score: 0.0 (/)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *197uM2-0007Qt-LT*uMhWHnzaa3I*
+	Tue, 22 Apr 2003 05:34:49 -0400
+Date: Tue, 22 Apr 2003 11:46:25 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@digeo.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] use __GFP_REPEAT in pmd_alloc_one()
+In-Reply-To: <200304202224.h3KMOE4q003663@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0304221033150.15088-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sun, 20 Apr 2003, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1124.1.25, 2003/04/20 14:28:32-07:00, akpm@digeo.com
+> 
+> 	[PATCH] use __GFP_REPEAT in pmd_alloc_one()
+> 	
+> 	Convert all pmd_alloc_one() implementations to use __GFP_REPEAT
 
-is there a reason why the isapnp device id are mangled this way:
+If this change was bogus (cfr. Davem's checkin):
 
-drivers/pnp/isapnp_proc.c
+> diff -Nru a/arch/sparc/mm/sun4c.c b/arch/sparc/mm/sun4c.c
+> --- a/arch/sparc/mm/sun4c.c	Sun Apr 20 15:24:17 2003
+> +++ b/arch/sparc/mm/sun4c.c	Sun Apr 20 15:24:17 2003
+> @@ -2194,7 +2194,7 @@
+>  	BTFIXUPSET_CALL(pte_alloc_one_kernel, sun4c_pte_alloc_one_kernel, BTFIXUPCALL_NORM);
+>  	BTFIXUPSET_CALL(pte_alloc_one, sun4c_pte_alloc_one, BTFIXUPCALL_NORM);
+>  	BTFIXUPSET_CALL(free_pmd_fast, sun4c_free_pmd_fast, BTFIXUPCALL_NOP);
+> -	BTFIXUPSET_CALL(pmd_alloc_one, sun4c_pmd_alloc_one, BTFIXUPCALL_RETO0);
+> +	BTFIXUPSET_CALL(pmd_alloc_one, sun4c_lpmd_alloc_one, BTFIXUPCALL_RETO0);
+>  	BTFIXUPSET_CALL(free_pgd_fast, sun4c_free_pgd_fast, BTFIXUPCALL_NORM);
+>  	BTFIXUPSET_CALL(get_pgd_fast, sun4c_get_pgd_fast, BTFIXUPCALL_NORM);
 
-static void isapnp_devid(char *str, unsigned short vendor, unsigned short device)
-{
-        sprintf(str, "%c%c%c%x%x%x%x",
-                        'A' + ((vendor >> 2) & 0x3f) - 1,
-                        'A' + (((vendor & 3) << 3) | ((vendor >> 13) & 7)) - 1,
-                        'A' + ((vendor >> 8) & 0x1f) - 1,
-                        (device >> 4) & 0x0f,
-                        device & 0x0f,
-                        (device >> 12) & 0x0f,
-                        (device >> 8) & 0x0f);
-}
+Then this one is bogus, too:
 
-This results in output like:
+> diff -Nru a/include/asm-m68k/sun3_pgalloc.h b/include/asm-m68k/sun3_pgalloc.h
+> --- a/include/asm-m68k/sun3_pgalloc.h	Sun Apr 20 15:24:17 2003
+> +++ b/include/asm-m68k/sun3_pgalloc.h	Sun Apr 20 15:24:17 2003
+> @@ -18,7 +18,7 @@
+>  
+>  extern const char bad_pmd_string[];
+>  
+> -#define pmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); })
+> +#define lpmd_alloc_one(mm,address)       ({ BUG(); ((pmd_t *)2); })
+>  
+>  
 
-CSCd937 CSC0000
+Gr{oetje,eeting}s,
 
-Which I have to un-mangle ... :-( What is the reason for not outputting
-simple hex?
+						Geert
 
-Sincerely,
-- René
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---  
-René Rebe - Europe/Germany/Berlin
-e-mail:   rene@rocklinux.org, rene.rebe@gmx.net
-web:      http://www.rocklinux.org/people/rene http://gsmp.tfh-berlin.de/rene/
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+
+
+

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272065AbRIPNk5>; Sun, 16 Sep 2001 09:40:57 -0400
+	id <S272212AbRIPNui>; Sun, 16 Sep 2001 09:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271129AbRIPNkq>; Sun, 16 Sep 2001 09:40:46 -0400
-Received: from web10404.mail.yahoo.com ([216.136.130.96]:59658 "HELO
-	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S271370AbRIPNkd>; Sun, 16 Sep 2001 09:40:33 -0400
-Message-ID: <20010916134057.10660.qmail@web10404.mail.yahoo.com>
-Date: Sun, 16 Sep 2001 23:40:57 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: 2.4.10-pre7 compile error 
-To: kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S271370AbRIPNu2>; Sun, 16 Sep 2001 09:50:28 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:50953 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S271129AbRIPNuY>; Sun, 16 Sep 2001 09:50:24 -0400
+Date: Sun, 16 Sep 2001 15:50:45 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+        VDA@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+Message-ID: <20010916155045.A5671@suse.cz>
+In-Reply-To: <20010916130201.A1327@suse.cz> <E15icMH-0005H3-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15icMH-0005H3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Sep 16, 2001 at 02:53:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Sep 16, 2001 at 02:53:17PM +0100, Alan Cox wrote:
+> > > to 0x89 and it happilly lives... So maybe some BIOS vendors
+> > > used KT133 instead of KT133A BIOS image?
+> > 
+> > Same here ...
+> 
+> One way to test this hypthesis maybe to run dmidecode on the machines and
+> see if they report KT133 or KT133A. Its also possible some BIOS code does
+> blindly program bit 7 even tho its reserved and should have been kept
+> unchanged.
 
-I got this when compiling the kernel
+I think it's possible to decide whether a chipset is KT133 or KT133A
+based on the hostbridge revision. Mine is KT133 and is rev 03.
 
-i810_audio.c:500: `AC97_EA_VRA' undeclared (first use
-in this function)
-i810_audio.c: In function `i810_set_dac_channels':
-i810_audio.c:543: `AC97_EA_PRI' undeclared (first use
-in this function)
-i810_audio.c:543: `AC97_EA_PRJ' undeclared (first use
-in this function)
-i810_audio.c:543: `AC97_EA_PRK' undeclared (first use
-in this function)
-i810_audio.c: In function `i810_ioctl':
-i810_audio.c:1589: `AC97_EA_SPSA_3_4' undeclared
-(first use in this function)
-i810_audio.c:1989: `AC97_SPDIF_CONTROL' undeclared
-(first use in this function)
-i810_audio.c: In function `i810_open':
-i810_audio.c:2187: `AC97_EA_SPSA_3_4' undeclared
-(first use in this function)
-make[2]: *** [i810_audio.o] Error 1
-make[2]: Leaving directory `/home/linux/drivers/sound'
-make[1]: *** [_modsubdir_sound] Error 2
-make[1]: Leaving directory `/home/linux/drivers'
-make: *** [_mod_drivers] Error 2
-
-
-=====
-S.KIEU
-
-http://travel.yahoo.com.au - Yahoo! Travel
-- Got Itchy feet? Get inspired!
+-- 
+Vojtech Pavlik
+SuSE Labs

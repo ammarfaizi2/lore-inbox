@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274752AbRKMQ10>; Tue, 13 Nov 2001 11:27:26 -0500
+	id <S274862AbRKMQ0c>; Tue, 13 Nov 2001 11:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRKMQ1N>; Tue, 13 Nov 2001 11:27:13 -0500
-Received: from ns.caldera.de ([212.34.180.1]:25216 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S274752AbRKMQ1A>;
-	Tue, 13 Nov 2001 11:27:00 -0500
-Date: Tue, 13 Nov 2001 17:26:53 +0100
-Message-Id: <200111131626.fADGQrn24822@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x has finally made it!
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20011113171836.A14967@emma1.emma.line.org>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S274752AbRKMQ0W>; Tue, 13 Nov 2001 11:26:22 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:2062 "HELO palrel13.hp.com")
+	by vger.kernel.org with SMTP id <S274248AbRKMQ0I>;
+	Tue, 13 Nov 2001 11:26:08 -0500
+Subject: Re: Linux 2.4.15-pre4 - merge with Alan
+From: "Chad N. Tindel" <ctindel@cup.hp.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Janice Girouard <girouard@us.ibm.com>,
+        Takao Indoh <indou.takao@jp.fujitsu.com>,
+        "Chad N. Tindel" <ctindel@ieee.org>, Mark Huth <mhuth@mvista.com>
+In-Reply-To: <12029.1005628638@kao2.melbourne.sgi.com>
+In-Reply-To: <12029.1005628638@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 13 Nov 2001 09:27:08 -0800
+Message-Id: <1005672430.1361.2.camel@ct742302.cup.hp.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011113171836.A14967@emma1.emma.line.org> you wrote:
-> On Tue, 13 Nov 2001, Alastair Stevens wrote:
->
->> For those who haven't seen it yet, Moshe Bar at BYTE.com has revisited his
->> Linux 2.4 vs FreeBSD benchmarks, using 2.4.12 in this case:
->> 
->>  http://www.byte.com/documents/s=1794/byt20011107s0001/1112_moshe.html
->
-> Wow. That person is knowledgeable... NOT. Turning off fsync() for mail
-> is just as good as piping it to /dev/null. See RFC-1123.
+> drivers/net/bonding.c has #include <limits.h>, exposing the kernel to
+> user space dependencies.  It must be removed.
+> 
+> I could not find a maintainer for this beast so cc'ed to seevral users
+> in the changelog.
 
-After the last VM article no one expect any clue from him anayway 8)
+Thanks for the message.  I just noticed that the bonding patch had been
+included in 2.4.15-pre3.  I hadn't realized Alan was going to integrate
+it yet!  I'm happy he did though.  I have a patch which addresses that
+issue and some race conditions which I'll send out immediately.
 
-	Christoph
+Chad
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Chad N. Tindel <ctindel@cup.hp.com>
+Software Engineer
+Hewlett Packard, Cupertino
+(408) 447-4230
+

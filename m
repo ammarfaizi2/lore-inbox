@@ -1,161 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVBKAJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVBKAMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVBKAJj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 19:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBKAJj
+	id S261960AbVBKAMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 19:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVBKAMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 19:09:39 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45810 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261959AbVBKAJ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 19:09:28 -0500
-From: "Sven Dietrich" <sdietrich@mvista.com>
-To: <george@mvista.com>, "'Ingo Molnar'" <mingo@elte.hu>
-Cc: "'William Weston'" <weston@lysdexia.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Date: Thu, 10 Feb 2005 16:09:28 -0800
-Message-ID: <000701c50fcd$f42dc600$bc0a000a@mvista.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0008_01C50F8A.E60A8600"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <420BC23F.6030308@mvista.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Thu, 10 Feb 2005 19:12:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28823 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261960AbVBKALr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 19:11:47 -0500
+Date: Thu, 10 Feb 2005 16:11:44 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <marcelo.tosatti@cyclades.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: USB 2.4.30: fix modem_run
+Message-ID: <20050210161144.708cb96f@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I entered a patch which adds "exclusive_access" lock into 2.4.29, to fix
+devices which cannot handle simultaneous accesses. This caused a regression
+with European ADSL modems. An ioctl USBDEVFS_REAPURB allows a process to enter
+the kernel and wait for USB I/O to finish. Naturally, this should not take
+exclusive_access, or nothing will ever finish.
 
-This is a multi-part message in MIME format.
+This patch is essentially the patch by Sergey Vlasov with my additions
+a) to allow ENOTTY returned without taking a lock and b) to filter ENOIOCTLCMD,
+which is improper to leak to userspace.
 
-------=_NextPart_000_0008_01C50F8A.E60A8600
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-
-Hi George,
-
-you may want to use this for reference.
-
-This patch adds a config option to allow you to select whether timer IRQ runs in thread or not.
-
-I'm not totally happy with the #ifdefs, but it may make witching back and forth easier.
-
-Sven
-
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> George Anzinger
-> Sent: Thursday, February 10, 2005 12:21 PM
-> To: Ingo Molnar
-> Cc: William Weston; linux-kernel@vger.kernel.org
-> Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-> 
-> 
-> If I want to write a patch that will work with or without the 
-> RT patch applied 
-> is the following enough?
-> 
-> #ifndef RAW_SPIN_LOCK_UNLOCKED
-> typedef raw_spinlock_t spinlock_t
-> #define RAW_SPIN_LOCK_UNLOCKED SPIN_LOCK_UNLOCKED
-> #endif
-> 
-> 
-> -- 
-> George Anzinger   george@mvista.com
-> High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-------=_NextPart_000_0008_01C50F8A.E60A8600
-Content-Type: application/octet-stream;
-	name="common_timer_irqthread.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="common_timer_irqthread.patch"
-
-Index: linux-2.6.10-Omap1710/include/linux/time.h=0A=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
---- linux-2.6.10-Omap1710.orig/include/linux/time.h	2005-02-03 =
-09:06:40.378530238 +0000=0A=
-+++ linux-2.6.10-Omap1710/include/linux/time.h	2005-02-03 =
-09:20:37.703894461 +0000=0A=
-@@ -80,7 +80,20 @@=0A=
- =0A=
- extern struct timespec xtime;=0A=
- extern struct timespec wall_to_monotonic;=0A=
--extern raw_seqlock_t xtime_lock;=0A=
-+=0A=
-+#ifndef ARCH_HAVE_XTIME_LOCK=0A=
-+=0A=
-+ #ifdef PREEMPT_TIMER_IRQ=0A=
-+  #define XTIME_LOCK_T seqlock_t=0A=
-+  #define DECLARE_XTIME_LOCK DECLARE_SEQLOCK(xtime_lock)=0A=
-+ #else=0A=
-+  #define XTIME_LOCK_T raw_seqlock_t=0A=
-+  #define DECLARE_XTIME_LOCK DECLARE_RAW_SEQLOCK(xtime_lock)=0A=
-+ #endif =0A=
-+=0A=
-+extern XTIME_LOCK_T xtime_lock;=0A=
-+=0A=
-+#endif=0A=
- =0A=
- static inline unsigned long get_seconds(void)=0A=
- { =0A=
-Index: linux-2.6.10-Omap1710/kernel/timer.c=0A=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
---- linux-2.6.10-Omap1710.orig/kernel/timer.c	2005-02-03 =
-09:06:40.379529900 +0000=0A=
-+++ linux-2.6.10-Omap1710/kernel/timer.c	2005-02-03 09:52:42.418866172 =
-+0000=0A=
-@@ -943,7 +943,7 @@=0A=
-  * playing with xtime and avenrun.=0A=
-  */=0A=
- #ifndef ARCH_HAVE_XTIME_LOCK=0A=
--DECLARE_RAW_SEQLOCK(xtime_lock);=0A=
-+DECLARE_XTIME_LOCK;=0A=
- =0A=
- EXPORT_SYMBOL(xtime_lock);=0A=
- #endif=0A=
-Index: linux-2.6.10-Omap1710/lib/Kconfig.RT=0A=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
---- linux-2.6.10-Omap1710.orig/lib/Kconfig.RT	2005-02-03 =
-09:06:40.379529900 +0000=0A=
-+++ linux-2.6.10-Omap1710/lib/Kconfig.RT	2005-02-03 09:06:49.185545306 =
-+0000=0A=
-@@ -119,6 +119,14 @@=0A=
- =0A=
- 	  Say N if you are unsure.=0A=
- =0A=
-+config PREEMPT_TIMER_IRQ=0A=
-+	bool "Run timer IRQ in a thread"=0A=
-+       	default y=0A=
-+	depends on PREEMPT_HARDIRQS && ARM=0A=
-+	help=0A=
-+	This declares the xtime_lock as a mutex and allows =0A=
-+        running the timer interrupt in a thread.=0A=
-+=0A=
- config SPINLOCK_BKL=0A=
- 	bool "Old-Style Big Kernel Lock"=0A=
- 	depends on (PREEMPT || SMP) && !PREEMPT_RT=0A=
-
-------=_NextPart_000_0008_01C50F8A.E60A8600--
-
+diff -urpN -X dontdiff linux-2.4.30-pre1/drivers/usb/devio.c linux-2.4.30-pre1-usb/drivers/usb/devio.c
+--- linux-2.4.30-pre1/drivers/usb/devio.c	2004-11-22 23:04:18.000000000 -0800
++++ linux-2.4.30-pre1-usb/drivers/usb/devio.c	2005-02-10 11:18:08.000000000 -0800
+@@ -1132,6 +1132,8 @@ static int proc_ioctl (struct dev_state 
+ 			/* ifno might usefully be passed ... */
+                        retval = driver->ioctl (ps->dev, ctrl.ioctl_code, buf);
+ 			/* size = min_t(int, size, retval)? */
++			if (retval == -ENOIOCTLCMD)
++				retval = -ENOTTY;
+                }
+ 	}
+ 
+@@ -1146,24 +1148,10 @@ static int proc_ioctl (struct dev_state 
+ 	return retval;
+ }
+ 
+-static int usbdev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
++static int usbdev_ioctl_exclusive(struct dev_state *ps, struct inode *inode,
++				  unsigned int cmd, unsigned long arg)
+ {
+-	struct dev_state *ps = (struct dev_state *)file->private_data;
+-	int ret = -ENOIOCTLCMD;
+-
+-	if (!(file->f_mode & FMODE_WRITE))
+-		return -EPERM;
+-	down_read(&ps->devsem);
+-	if (!ps->dev) {
+-		up_read(&ps->devsem);
+-		return -ENODEV;
+-	}
+-
+-	/*
+-	 * grab device's exclusive_access mutex to prevent its driver from
+-	 * using this device while it is being accessed by us.
+-	 */
+-	down(&ps->dev->exclusive_access);
++	int ret;
+ 
+ 	switch (cmd) {
+ 	case USBDEVFS_CONTROL:
+@@ -1194,14 +1182,6 @@ static int usbdev_ioctl(struct inode *in
+ 			inode->i_mtime = CURRENT_TIME;
+ 		break;
+ 
+-	case USBDEVFS_GETDRIVER:
+-		ret = proc_getdriver(ps, (void *)arg);
+-		break;
+-
+-	case USBDEVFS_CONNECTINFO:
+-		ret = proc_connectinfo(ps, (void *)arg);
+-		break;
+-
+ 	case USBDEVFS_SETINTERFACE:
+ 		ret = proc_setintf(ps, (void *)arg);
+ 		break;
+@@ -1220,6 +1200,53 @@ static int usbdev_ioctl(struct inode *in
+ 		ret = proc_unlinkurb(ps, (void *)arg);
+ 		break;
+ 
++	case USBDEVFS_CLAIMINTERFACE:
++		ret = proc_claiminterface(ps, (void *)arg);
++		break;
++
++	case USBDEVFS_RELEASEINTERFACE:
++		ret = proc_releaseinterface(ps, (void *)arg);
++		break;
++
++	case USBDEVFS_IOCTL:
++		ret = proc_ioctl(ps, (void *) arg);
++		break;
++
++	default:
++		ret = -ENOTTY;
++	}
++	return ret;
++}
++
++static int usbdev_ioctl(struct inode *inode, struct file *file,
++			unsigned int cmd, unsigned long arg)
++{
++	struct dev_state *ps = file->private_data;
++	int ret;
++
++	if (!(file->f_mode & FMODE_WRITE))
++		return -EPERM;
++	down_read(&ps->devsem);
++	if (!ps->dev) {
++		up_read(&ps->devsem);
++		return -ENODEV;
++	}
++
++	/*
++	 * Some ioctls don't touch the device and can be called without
++	 * grabbing its exclusive_access mutex; they are handled in this
++	 * switch.  Other ioctls which need exclusive_access are handled in
++	 * usbdev_ioctl_exclusive().
++	 */
++	switch (cmd) {
++	case USBDEVFS_GETDRIVER:
++		ret = proc_getdriver(ps, (void *)arg);
++		break;
++
++	case USBDEVFS_CONNECTINFO:
++		ret = proc_connectinfo(ps, (void *)arg);
++		break;
++
+ 	case USBDEVFS_REAPURB:
+ 		ret = proc_reapurb(ps, (void *)arg);
+ 		break;
+@@ -1232,19 +1259,28 @@ static int usbdev_ioctl(struct inode *in
+ 		ret = proc_disconnectsignal(ps, (void *)arg);
+ 		break;
+ 
++	case USBDEVFS_CONTROL:
++	case USBDEVFS_BULK:
++	case USBDEVFS_RESETEP:
++	case USBDEVFS_RESET:
++	case USBDEVFS_CLEAR_HALT:
++	case USBDEVFS_SETINTERFACE:
++	case USBDEVFS_SETCONFIGURATION:
++	case USBDEVFS_SUBMITURB:
++	case USBDEVFS_DISCARDURB:
+ 	case USBDEVFS_CLAIMINTERFACE:
+-		ret = proc_claiminterface(ps, (void *)arg);
+-		break;
+-
+ 	case USBDEVFS_RELEASEINTERFACE:
+-		ret = proc_releaseinterface(ps, (void *)arg);
+-		break;
+-
+ 	case USBDEVFS_IOCTL:
+-		ret = proc_ioctl(ps, (void *) arg);
++		ret = -ERESTARTSYS;
++		if (down_interruptible(&ps->dev->exclusive_access) == 0) {
++			ret = usbdev_ioctl_exclusive(ps, inode, cmd, arg);
++			up(&ps->dev->exclusive_access);
++		}
+ 		break;
++
++	default:
++		ret = -ENOTTY;
+ 	}
+-	up(&ps->dev->exclusive_access);
+ 	up_read(&ps->devsem);
+ 	if (ret >= 0)
+ 		inode->i_atime = CURRENT_TIME;

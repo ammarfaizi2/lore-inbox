@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288756AbSAXRui>; Thu, 24 Jan 2002 12:50:38 -0500
+	id <S288784AbSAXRxs>; Thu, 24 Jan 2002 12:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288763AbSAXRu2>; Thu, 24 Jan 2002 12:50:28 -0500
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:60801
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S288756AbSAXRuQ>; Thu, 24 Jan 2002 12:50:16 -0500
-Date: Thu, 24 Jan 2002 09:49:37 -0800
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200201241749.g0OHnbG02468@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: Rasmus =?iso-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a chipset)
-In-Reply-To: <Pine.LNX.4.44.0201241803540.1345-100000@grignard.amagerkollegiet.dk>
-In-Reply-To: <20020124155853Z287177-13996+11274@vger.kernel.org> <Pine.LNX.4.44.0201241803540.1345-100000@grignard.amagerkollegiet.dk>
-Reply-To: whitney@math.berkeley.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S288809AbSAXRxc>; Thu, 24 Jan 2002 12:53:32 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:18190 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S288800AbSAXRxQ>; Thu, 24 Jan 2002 12:53:16 -0500
+Date: Thu, 24 Jan 2002 09:52:59 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Sven <luther@dpt-info.u-strasbg.fr>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
+In-Reply-To: <20020123183102.A3780@dpt-info.u-strasbg.fr>
+Message-ID: <Pine.LNX.4.10.10201240949370.28447-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, Rasmus Bøg Hansen wrote:
 
-> When running /sbin/poweroff from runlevel 3 or 5, 'halt -i -d -p' is
-> again the last command run, follwing this from the kernel: 
->   Power down.  
->   hwsleep-0178 [02] Acpi_enable_sleep_state: Entering S5 
-> And again my system hangs.
+> > The correct fix is to do something like fb_info.node = NODEV;
+> 
+> And not B_FREE ?
+> 
+> I am unsure about this, but i notice that in the 2.4.17 kernel + pm3fb, the
+> value assigned to .node was -1, which correspond to B_FREE and not NODEV
+> (which is 0).
 
-I have an ASUS A7V motherboard, similar to your ASUS A7V133.  I find
-that stock kernel (2.4.18-pre7) APM powers off the machine, but stock
-kernel ACPI does not.  However, the Intel ACPI patch, available from
-http://developer.intel.com/technology/IAPC/acpi/downloads.htm against
-kernel 2.4.16, does power down my machine.  I was able to forward port
-this to 2.4.18-pre7 without too much trouble by starting with 2.4.16,
-applying the Intel ACPI patch first, and then applying kernel
-patch-2.4.17 and kernel patch-2.4.18-pre7.
+Looking at it your right. It should be B_FREE.
 
-As to the merits of the amd_disconnect patch that started this thread,
-under 2.4.18-pre7-acpi, I get an idle CPU temperature of about 48 C.
-With the amd_disconnect patch, it drops to 32-35 C, wow!  As
-previously discussed, APM + amd_disconnect on an Athlon does not
-provide any power savings, one needs ACPI + amd_disconnect.
+> That said, since it is almost never used, it would maybe be best to move it
+> out of the fbdevs and into some of the more generic layers.
 
-Note that on this motherboard (and perhaps all ASUS Via chipset
-motherboards, including the A7V133), one needs the following line in
-/etc/sensors.conf to get reasonable lm_sensors CPU temperatures:
-  compute temp2 @*2, @/2
-This is as described at http://www2.lm-sensors.nu/~lm78/support.html
-in Ticket 775.
+I agree. In fact it is already does set it. Form rgeister_framebuffer
 
-Best wishes,
-Wayne
+fb_info->node = mk_kdev(FB_MAJOR, i);
+
+So why does any fbdev driver touch it?
+
+> Also, since when does the B_FREE or NODEV exists ? I did put the changes into
+> a #ifdef kernel 2.5, and kept the -1 for kernels 2.4, but i guess i could
+> remove this check altogether if the NODEV was present from the begining. And
+> what about 2.2 kernels ?
+
+It is a 2.5.X thing. 
+
+

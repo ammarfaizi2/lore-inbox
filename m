@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261557AbSJUSO3>; Mon, 21 Oct 2002 14:14:29 -0400
+	id <S261191AbSJUSLJ>; Mon, 21 Oct 2002 14:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbSJUSO3>; Mon, 21 Oct 2002 14:14:29 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:46013 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S261557AbSJUSO2> convert rfc822-to-8bit; Mon, 21 Oct 2002 14:14:28 -0400
-X-Qmail-Scanner-Mail-From: devilkin-lkml@blindguardian.org via whocares
-X-Qmail-Scanner: 1.14 (Clear:. Processed in 0.064766 secs)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre10-ac2: i/o error on cdrom diskdump
-Date: Mon, 21 Oct 2002 20:20:28 +0200
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210212020.28904.devilkin-lkml@blindguardian.org>
+	id <S261304AbSJUSLJ>; Mon, 21 Oct 2002 14:11:09 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:1033 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S261191AbSJUSKy>;
+	Mon, 21 Oct 2002 14:10:54 -0400
+Date: Mon, 21 Oct 2002 20:16:44 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: laforge@gnumonks.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: 2.4.20-pre7: ip_conntrack: table full, dropping packet.
+Message-Id: <20021021201644.166db824.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+Hello all,
 
-Whenever I try to dd a cdrom to an iso image I get an I/O error.  This problem 
-has been present for some time, and I don't know if it's because I use 
-ide-scsi or not (not been able to test).
+After several days running kernel 2.4.20-pre7 I came across the syslogged
+message:
 
-Is this still an open issue, and is it likely to get fixed before 2.4.20 
-final?
+kernel: ip_conntrack: table full, dropping packet.
 
-Thanks!
-
-DK
+This box runs about 10 rules for destination nat. My simple question: is this a
+bug, or a need to tune something? If it is a bug, is there a later kernel that
+has it fixed?
 -- 
-New York's got the ways and means;
-Just won't let you be.
-		-- The Grateful Dead
-
+Regards,
+Stephan

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271329AbRHORxy>; Wed, 15 Aug 2001 13:53:54 -0400
+	id <S271336AbRHOSDP>; Wed, 15 Aug 2001 14:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271331AbRHORxe>; Wed, 15 Aug 2001 13:53:34 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:24572 "EHLO
+	id <S271337AbRHOSCy>; Wed, 15 Aug 2001 14:02:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62205 "EHLO
 	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S271329AbRHORxc> convert rfc822-to-8bit; Wed, 15 Aug 2001 13:53:32 -0400
-Message-ID: <3B7AB709.914370FA@mvista.com>
-Date: Wed, 15 Aug 2001 10:53:13 -0700
+	id <S271336AbRHOSCs> convert rfc822-to-8bit; Wed, 15 Aug 2001 14:02:48 -0400
+Message-ID: <3B7AB93D.F8B5B455@mvista.com>
+Date: Wed, 15 Aug 2001 11:02:37 -0700
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
@@ -74,8 +74,10 @@ george anzinger wrote:
 >         current->state = TASK_INTERRUPTIBLE;
 > -       expire = schedule_timeout(expire);
 > +       while (expire = schedule_timeout(expire) && !signal());
-Oops! should be:
- +       while (expire = schedule_timeout(expire) && !do_signal());
+Still not quite right.  regs needs to be dummied up (see sys_sigpause)
+and then:
++       while (expire = schedule_timeout(expire) && !do_signal(regs,
+NULL));
 > 
 >         if (expire) {
 >                 if (rmtp) {

@@ -1,143 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261393AbSJZOjV>; Sat, 26 Oct 2002 10:39:21 -0400
+	id <S261398AbSJZOqz>; Sat, 26 Oct 2002 10:46:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbSJZOjV>; Sat, 26 Oct 2002 10:39:21 -0400
-Received: from mail.spylog.com ([194.67.35.220]:56267 "EHLO mail.spylog.com")
-	by vger.kernel.org with ESMTP id <S261393AbSJZOjT>;
-	Sat, 26 Oct 2002 10:39:19 -0400
-Date: Sat, 26 Oct 2002 18:45:27 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44-ac3 - don't compile.
-Message-ID: <20021026144527.GA4424@an.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021025131349.GA25980@an.local> <2925311195.1035536802@[10.10.2.3]> <002f01c27c57$a3e8fef0$0b00a8c0@runner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <002f01c27c57$a3e8fef0$0b00a8c0@runner>
-User-Agent: Mutt/1.3.28i
-Organization: SpyLOG ltd.
+	id <S261424AbSJZOqz>; Sat, 26 Oct 2002 10:46:55 -0400
+Received: from norma.kjist.ac.kr ([203.237.41.18]:49543 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S261398AbSJZOqz>; Sat, 26 Oct 2002 10:46:55 -0400
+Date: Sat, 26 Oct 2002 23:56:53 +0900 (KST)
+From: Maintaniner on duty <hugh@norma.kjist.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: IDESCSI emulation with 2.4.20-pre10aa1
+Message-ID: <Pine.LNX.4.33.0210262343380.24144-100000@norma.kjist.ac.kr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Rune,
+
+I do not think this problem has anything to do with -aa1 patch.
+Anyway, I tried to make a CDROM of an .iso file using a command
+like
+
+cdrecord -v dev=0,0 boot.iso
+
+It correctly identified the cdrom in /dev/sr0
+and strarted to write on the blank cd.
+Well.. almost at the end of it, "data write error" appeared with
+no reason.  The file size of the file "boot.iso" is just about 13M.
+I then looked into the made cd, I could mount it.  Inside, everything
+looked normal.
+
+HOwever, when I tried to boot my machine with this CDROM, it showed
+top of the familiar page.  But in the middle, it cannot finish
+showing the whole page of SuSE-8.1 boot.iso page.
+
+I suspect that in this particular kernel version, the idescsi emulation is
+not bug-free, because I remember that there was a lot of communication
+going on in kernel mailing list on this very topic.
+
+Can someone point me a working kernel version for idescsi?
+
+Thanks.
 
 
- Thank.
+HUgh
 
 
-Once you wrote about "Re: 2.5.44-ac3 - don't compile.":
-> From: "Mikael Pettersson"
-> Sent: Wednesday, October 23, 2002 1:43 PM
-> Subject: Re: [PATCH 2.5.44] compile error whit LOCAL_APIC disabled...
-> 
-> 
-> >
-> > Known bug in scripts/Configure when switching from an APIC-enabled to
-> > an APIC-disabled config. `make oldconfig' fixes it.
-> 
-> 
-> or just comment out in your ".config":
-> CONFIG_X86_EXTRA_IRQS
-> CONFIG_X86_FIND_SMP_CONFIG
-> CONFIG_X86_MPPARSE
-> 
-> Rune Petersen
-> ----- Original Message -----
-> From: "Martin J. Bligh" <mbligh@aracnet.com>
-> To: "Andrey Nekrasov" <andy@spylog.ru>; <linux-kernel@vger.kernel.org>
-> Sent: Friday, October 25, 2002 6:06 PM
-> Subject: Re: 2.5.44-ac3 - don't compile.
-> 
-> 
-> > Odd. I'm sure akpm fixed this in 44, unless -ac3 reverts it.
-> > Can you search back for posts by Andrew Morton, and find the
-> > fix, and try it?
-> >
-> > M.
-> >
-> > --On Friday, October 25, 2002 5:13 PM +0400 Andrey Nekrasov
-> <andy@spylog.ru> wrote:
-> >
-> > > Hello.
-> > >
-> > >
-> > >  x86, no SMP.
-> > >
-> > >
-> > > ...
-> > > make -f init/Makefile
-> > >   Generating init/../include/linux/compile.h (updated)
-> > >
-> 
-> 
-> gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototyp
-> es
-> > > -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
-> > > -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
-> > > -fomit-frame-pointer -nostdinc -iwithprefix
-> lude    -DKBUILD_BASENAME=version
-> > > -c -o init/version.o init/version.c
-> > >    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
-> > > init/do_mounts.o
-> > >         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-> arch/i386/kernel/head.o
-> > > arch/i386/kernel/init_task.o  init/built-in.o --start-group
-> > > arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-> > > arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
-> fs/built-in.o
-> > > ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a
-> > > drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
-> net/built-in.o
-> > > --end-group  -o vmlinux
-> > > arch/i386/kernel/built-in.o: In function `MP_processor_info':
-> > > arch/i386/kernel/built-in.o(.init.text+0x46a3): undefined reference to
-> `Dprintk'
-> > > arch/i386/kernel/built-in.o(.init.text+0x46b6): undefined reference to
-> `Dprintk'
-> > > arch/i386/kernel/built-in.o(.init.text+0x46c9): undefined reference to
-> `Dprintk'
-> > > arch/i386/kernel/built-in.o(.init.text+0x46dc): undefined reference to
-> `Dprintk'
-> > > arch/i386/kernel/built-in.o(.init.text+0x46ef): undefined reference to
-> `Dprintk'
-> > > arch/i386/kernel/built-in.o(.init.text+0x4702): more undefined
-> references to
-> > > `Dprintk' follow
-> > > make: *** [vmlinux] Error 1
-> > > ...
-> > >
-> > > Why?
-> > >
-> > >
-> > >
-> > > --
-> > > bye.
-> > > Andrey Nekrasov, SpyLOG.
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> > >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-bye.
-Andrey Nekrasov, SpyLOG.

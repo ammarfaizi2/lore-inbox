@@ -1,39 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132269AbRCVXqC>; Thu, 22 Mar 2001 18:46:02 -0500
+	id <S132257AbRCVX6t>; Thu, 22 Mar 2001 18:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132252AbRCVXoE>; Thu, 22 Mar 2001 18:44:04 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45578 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132257AbRCVXlz>; Thu, 22 Mar 2001 18:41:55 -0500
-Subject: Re: [PATCH] Prevent OOM from killing init
-To: mikpe@csd.uu.se (Mikael Pettersson)
-Date: Thu, 22 Mar 2001 23:43:57 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <200103222335.AAA22466@harpo.it.uu.se> from "Mikael Pettersson" at Mar 23, 2001 12:35:29 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132246AbRCVX6d>; Thu, 22 Mar 2001 18:58:33 -0500
+Received: from epic8.Stanford.EDU ([171.64.15.41]:62700 "EHLO
+	epic8.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S132262AbRCVX5u>; Thu, 22 Mar 2001 18:57:50 -0500
+Date: Thu, 22 Mar 2001 15:49:31 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: <jt@hpl.hp.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Re : [CHECKER] 28 potential interrupt errors
+In-Reply-To: <20010322153641.B13162@bougret.hpl.hp.com>
+Message-ID: <Pine.GSO.4.31.0103221543240.29011-100000@epic8.Stanford.EDU>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14gEkJ-0003aF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >How do you return an out of memory error to a C program that is out of memory
-> >due to a stack growth fault. There is actually not a language construct for it
-> SIGSEGV.
-> Stack overflow for a language like C using standard implementation techniques
-> is the same as a page fault while accessing a page for which there is no backing
-> store. SIGSEGV is the logical choice, and the one I'd expect on other Unices.
 
-Guess again. You are expanding the stack because you have no room left on it.
-You take a fault. You want to report a SIGSEGV. Now where are you
-going to put the stack frame ?
+Sometimes the line number reported by the checker is not correct.
+But if you go into the function, you can find the bug.
 
-SIGSEGV in combination with a preallocated alternate stack maybe, but then you
-still need to recover. C++ you can maybe do it with exception handling but
-C doesnt really have the structure and longjmp just doesnt cut it.
+On Thu, 22 Mar 2001, Jean Tourrilhes wrote:
 
-Alan
+> Junfeng Yang wrote :
+> > Hi,
+> >
+> > Here are yet more results from the MC project.  This checker looks for
+> > inconsistent usage of interrupt functions.
+> [...]
+> > ---------------------------------------------------------
+> > [BUG] error path
+
+at line 952, this function exits without restoring flags.
+
+> >
+> > /u2/acc/oses/linux/2.4.1/drivers/net/irda/irport.c:943:irport_net_ioctl: ERROR:INTR:947:997: Interrupts inconsistent, severity `20':997
+> >
+> >         /* Disable interrupts & save flags */
+> >         save_flags(flags);
+> > Start --->
+> >         cli();
+> >
+> >         switch (cmd) {
+> >         case SIOCSBANDWIDTH: /* Set bandwidth */
+> >                 if (!capable(CAP_NET_ADMIN))
+> >                         return -EPERM;
+> >                 irda_task_execute(self, __irport_change_speed, NULL, NULL,
+> >
+> >         ... DELETED 40 lines ...
+> >
+> >         }
+> >
+> >         restore_flags(flags);
+> >
+> > Error --->
+> >         return ret;
+> > }
+> >
+> > [BUG] error path. this bug is interesting
+> >
+> > /u2/acc/oses/linux/2.4.1/drivers/net/pcmcia/wavelan_cs.c:2561:wavelan_get_wireless_stats: ERROR:INTR:2528:2561: Interrupts inconsistent, severity `20':2561
+> >
+> >
+> >   /* Disable interrupts & save flags */
+> > Start --->
+> >   spin_lock_irqsave (&lp->lock, flags);
+> >
+> >   if(lp == (net_local *) NULL)
+
+return without restoring flags here
+(use lp->lock first, then check if lp == NULL)
+--->
+
+> >     return (iw_stats *) NULL;
+> >   wstats = &lp->wstats;
+> >
+> >   /* Get data from the mmc */
+> >
+> >         ... DELETED 23 lines ...
+> >
 

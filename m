@@ -1,178 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbULIAEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbULIARX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbULIAEH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 19:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbULIAEH
+	id S261414AbULIARX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 19:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbULIARX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 19:04:07 -0500
-Received: from motgate2.mot.com ([144.189.100.101]:1973 "EHLO motgate2.mot.com")
-	by vger.kernel.org with ESMTP id S261411AbULIAD4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 19:03:56 -0500
-In-Reply-To: <Pine.LNX.4.61.0412081703030.4040@linen.sps.mot.com>
-References: <Pine.LNX.4.61.0412081703030.4040@linen.sps.mot.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Message-Id: <CBD40131-4975-11D9-9F2D-000393DBC2E8@freescale.com>
-Content-Transfer-Encoding: 8BIT
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Russell King <rmk@arm.linux.org.uk>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [RFC][PATCH] Add platform_get_resource_byname & platform_get_resource_byirq
-Date: Wed, 8 Dec 2004 18:03:46 -0600
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.619)
+	Wed, 8 Dec 2004 19:17:23 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:55452 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261414AbULIARQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 19:17:16 -0500
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+In-Reply-To: <Pine.LNX.4.58.0412081548010.4783@schroedinger.engr.sgi.com>
+References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>
+	 <1102533066.1281.81.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081114590.27324@schroedinger.engr.sgi.com>
+	 <1102535891.1281.148.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081207010.28001@schroedinger.engr.sgi.com>
+	 <1102549009.1281.267.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081548010.4783@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1102551441.1281.286.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 08 Dec 2004 16:17:23 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clearly, I'm smoking crack this afternoon and can't create patches out 
-of bk.  Ignore the fsl_device.h bits of the patch.
+On Wed, 2004-12-08 at 15:53, Christoph Lameter wrote:
+> On Wed, 8 Dec 2004, john stultz wrote:
+> > However, there is also this short term single shot adjustments. These
+> > adjustments are made by applying the MAX_SINGLESHOT_ADJ (500ppm) scaling
+> > for an amount of time (offset_len) which would compensate for the
+> > offset. This style is difficult because we cannot precompute it and
+> > apply it to an entire tick. Instead it needs to be applied for just a
+> > specific amount of time which may be only a fraction of a tick. When we
+> > start talking about systems with irregular tick frequency (via
+> > virtualization, or tickless systems) it becomes even more problematic.
+> 
+> We would need to schedule a special tick like event at a certain time but
+> otherwise I do not see a problem. Is there a requirement that these
+> "specific amounts of time" are less than 1 ms? The timer hardware (such as
+> the RTC clock) can generate an event in <200ns that could be used to
+> change the scaling. For a tickless system we would need to have such
+> scheduled events anyways.
 
-- kumar
+Eh, I'd like to not to be dependent on event accuracy/frequency. Lets
+see if we can do it w/o scheduling events. 
 
-On Dec 8, 2004, at 5:16 PM, Kumar Gala wrote:
+> > If this can be fudged then it becomes less of an issue. Or at worse, we
+> > have to do two mult/shift operations on two "parts" of the time interval
+> > using different adjustments.
+> 
+> That looks troublesome. Better avoid that.
 
-> Adds the ability to find a resource or irq on a platform device by its
-> resource name.  This patch also tweaks how resource names get set. 
-> Before, resources names were set to pdev->dev.bus_id, now that only
-> happens if the resource name has not been previous set.
->
-> All of this allows us to find a resource without assuming what order 
-> the
-> resources are in.
->
-> Signed-off-by; Kumar Gala <kumar.gala@freescale.com>
->
-> -- 
->
->  diff -Nru a/drivers/base/platform.c b/drivers/base/platform.c
-> --- a/drivers/base/platform.c   2004-12-08 16:59:52 -06:00
->  +++ b/drivers/base/platform.c   2004-12-08 16:59:52 -06:00
->  @@ -58,6 +58,42 @@
->   }
->   
->   /**
->  + *     platform_get_resource_byname - get a resource for a device by 
-> name
->  + *     @dev: platform device
-> + *     @type: resource type
->  + *     @name: resource name
-> + */
->  +struct resource *
->  +platform_get_resource_byname(struct platform_device *dev, unsigned 
-> int type,
->  +                     char * name)
->  +{
->  +       int i;
->  +
->  +       for (i = 0; i < dev->num_resources; i++) {
->  +               struct resource *r = &dev->resource[i];
->  +
->  +               if ((r->flags & (IORESOURCE_IO|IORESOURCE_MEM|
-> +                                IORESOURCE_IRQ|IORESOURCE_DMA))
-> +                   == type)
->  +                       if (!strcmp(r->name, name))
-> +                               return r;
->  +       }
->  +       return NULL;
->  +}
->  +
->  +/**
->  + *     platform_get_irq - get an IRQ for a device
->  + *     @dev: platform device
-> + *     @name: IRQ name
->  + */
->  +int platform_get_irq_byname(struct platform_device *dev, char * name)
->  +{
->  +       struct resource *r = platform_get_resource_byname(dev, 
-> IORESOURCE_IRQ, name);
->  +
->  +       return r ? r->start : 0;
->  +}
->  +
->  +/**
->    *     platform_add_devices - add a numbers of platform devices
->    *     @devs: array of platform devices to add
->   *     @num: number of platform devices in array
->  @@ -103,7 +139,8 @@
->          for (i = 0; i < pdev->num_resources; i++) {
->                  struct resource *p, *r = &pdev->resource[i];
->   
->  -               r->name = pdev->dev.bus_id;
->  +               if (r->name == NULL)
->  +                       r->name = pdev->dev.bus_id;
->   
->                  p = NULL;
->                  if (r->flags & IORESOURCE_MEM)
-> @@ -308,3 +345,5 @@
->   EXPORT_SYMBOL_GPL(platform_device_unregister);
->  EXPORT_SYMBOL_GPL(platform_get_irq);
->  EXPORT_SYMBOL_GPL(platform_get_resource);
-> +EXPORT_SYMBOL_GPL(platform_get_irq_byname);
-> +EXPORT_SYMBOL_GPL(platform_get_resource_byname);
-> diff -Nru a/include/linux/fsl_devices.h b/include/linux/fsl_devices.h
-> --- /dev/null   Wed Dec 31 16:00:00 196900
->  +++ b/include/linux/fsl_devices.h       2004-12-08 16:59:52 -06:00
->  @@ -0,0 +1,49 @@
->  +/*
->  + * include/linux/fsl_devices.h
-> + *
->  + * Definitions for any platform device related flags or structures 
-> for
-> + * Freescale processor devices
->  + *
->  + * Maintainer: Kumar Gala (kumar.gala@freescale.com)
-> + *
->  + * Copyright 2004 Freescale Semiconductor, Inc
->  + *
->  + * This program is free software; you can redistribute  it and/or 
-> modify it
->  + * under  the terms of  the GNU General  Public License as published 
-> by the
->  + * Free Software Foundation;  either version 2 of the  License, or 
-> (at your
->  + * option) any later version.
->  + */
->  +
->  +#ifdef __KERNEL__
->  +#ifndef _FSL_DEVICE_H_
-> +#define _FSL_DEVICE_H_
-> +
->  +/* A table of information for supporting the Gianfar Ethernet 
-> Controller
->  + * This helps identify which enet controller we are dealing with,
->  + * and what type of enet controller it is
->  + */
->  +struct gianfar_platform_data {
->  +       u32 flags;
->  +       u32 phyid;
->  +       uint interruptPHY;
->  +       uint phyregidx;
->  +       char * phydevice;
->  +       unsigned char mac_addr[6];
->  +};
->  +
->  +/* Flags related to gianfar device features */
->  +#define GIANFAR_HAS_GIGABIT            0x00000001
->  +#define GIANFAR_HAS_COALESCE           0x00000002
->  +#define GIANFAR_HAS_RMON               0x00000004
->  +#define GIANFAR_HAS_MULTI_INTR         0x00000008
->  +
->  +/* Flags in gianfar_platform_data */
->  +#define GIANFAR_PDATA_FIRM_SET_MACADDR 0x00000001
->  +#define GIANFAR_PDATA_HAS_PHY_INTR     0x00000002      /* if not set 
-> use a timer */
->  +
->  +/* Flags related to I2C device features */
->  +#define FSL_I2C_SEPARATE_DFSRR         0x00000001
->  +#define FSL_I2C_CLOCK_5200             0x00000002
->  +
->  +#endif /* _FSL_DEVICE_H_ */
->  +#endif /* __KERNEL__ */
->  -
->  To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  Please read the FAQ at  http://www.tux.org/lkml/
+Well, its not *that* bad. Similar to the ntp_scale() function, it would
+look something like:
+
+if (interval <= offset_len)
+	return (interval * singleshot_mult)>>shift;
+else {
+	cycle_t v1,v2;
+	v1 = (offset_len * singleshot_mult)>>shift;
+	v2 = (interval-offset_len)*adjusted_mult)>>shift;
+	return v1+v2;
+}
+
+Where:
+	singleshot_mult = original_mult + ntp_adj + ss_mult
+and
+	adjusted_mult = original_mult + ntp_adj
+
+
+> > Its starting to look doable, but its not necessarily the simplest thing
+> > (for me at least). I'll put it on my list, but patches would be more
+> > then welcome.
+> 
+> I am still suffering from my limited NTP knowlege but will see what I can
+> do about this.
+
+:) Any added NTP knowledge would be great to add to the pool. 
+
+-john
+
 

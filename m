@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbTJSORO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 10:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJSOQL
+	id S261845AbTJSOml (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 10:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTJSOmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 10:16:11 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:63644 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261820AbTJSOP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 10:15:58 -0400
-Message-ID: <3F929C82.4020904@softhome.net>
-Date: Sun, 19 Oct 2003 16:15:30 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-References: <H2MN.3cm.7@gated-at.bofh.it> <H366.3IC.9@gated-at.bofh.it> <H3fO.3VO.13@gated-at.bofh.it> <H3IO.4yt.9@gated-at.bofh.it> <HWvz.5PI.9@gated-at.bofh.it> <I1EP.5QO.1@gated-at.bofh.it> <3F9173FE.5080308@softhome.net> <20031019113743.GO12423@fs.tum.de>
-In-Reply-To: <20031019113743.GO12423@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 19 Oct 2003 10:42:40 -0400
+Received: from h80ad26a8.async.vt.edu ([128.173.38.168]:41600 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261845AbTJSOmj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 10:42:39 -0400
+Message-Id: <200310191442.h9JEgWN5027294@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: andersen@codepoet.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results are in 
+In-Reply-To: Your message of "Sun, 19 Oct 2003 03:01:50 MDT."
+             <20031019090149.GA20951@codepoet.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.10.10310190120330.15306-100000@master.linux-ide.org> <3F924AF2.3010104@namesys.com>
+            <20031019090149.GA20951@codepoet.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_440750390P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sun, 19 Oct 2003 10:42:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sat, Oct 18, 2003 at 07:10:22PM +0200, Ihar 'Philips' Filipau wrote:
+--==_Exmh_440750390P
+Content-Type: text/plain; charset=us-ascii
+
+On Sun, 19 Oct 2003 03:01:50 MDT, Erik Andersen said:
+
+> See "6.21 Device Configuration Overlay feature set" in 
+> the ATA6 spec...
 > 
->>Martin J. Bligh wrote:
->>>If you have a puny 128K L2 cache, it might help,
-> 
-> Martin was ironically talking about people who are ignorant of machines
-> with _huge_ caches.
-> 
+> "The optional Device Configuration Overlay feature set allows a
+> utility program to modify some of the optional commands, modes,
+> and feature sets that a device reports as supported in the
+> IDENTIFY DEVICE or IDENTIFY PACKET DEVICE command response as
+> well as the capacity reported."
 
-   Oh. Sorry. Probably I need to work on my English bit more.
+I'm going to go out on a limb again and guess that knowing how to do the
+modifications requires access to pieces of dead trees only available after an
+NDA has been signed?
 
-> I the context of this thread he wanted to vote for making -Os 
-> conditionally and not unconditionally enabled by telling that he knows 
-> of situations where -O2 produces faster code.
 
-   Absolutely.
-   High-end toys, after all, optimized to handle this.
 
-   IMHO this should be settled on per-target basis: embedded system - 
--Os; servers - -O2; desktops - -O3 ;) So instead of CONFIG_EMBEDDED 
-better to have CONFIG_TARGET=[desktop|server|embedded].
+--==_Exmh_440750390P
+Content-Type: application/pgp-signature
 
-   Inroducing one more variable into builds - is really painful. I was 
-hit by gcc miscompiles and internal errors not once (especially with 
--O[23]). Tracking down this kind of issues would be made more problematic.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-P.S. I'm really sorry for my rude response.
+iD8DBQE/kqLXcC3lWbTT17ARAicoAJ9rp6ZKDckVn6Z5SonTgjhpB0TaTgCgkanz
+uwlEeMwXfHlSguUnHYm2v7A=
+=BUeP
+-----END PGP SIGNATURE-----
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
-
+--==_Exmh_440750390P--

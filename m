@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278409AbRJMUsx>; Sat, 13 Oct 2001 16:48:53 -0400
+	id <S278408AbRJMUyy>; Sat, 13 Oct 2001 16:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278408AbRJMUsn>; Sat, 13 Oct 2001 16:48:43 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:57608 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S278407AbRJMUsb>; Sat, 13 Oct 2001 16:48:31 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, lse-tech@sourceforge.net,
-        Paul.McKenney@us.ibm.com
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion 
-In-Reply-To: Your message of "13 Oct 2001 20:42:34 +0200."
-             <k23d4njs9x.fsf@zero.aec.at> 
-Date: Sun, 14 Oct 2001 06:44:23 +1000
-Message-Id: <E15sVdv-0005rx-00@wagner>
+	id <S278411AbRJMUyo>; Sat, 13 Oct 2001 16:54:44 -0400
+Received: from vitelus.com ([64.81.243.207]:42758 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S278408AbRJMUyj>;
+	Sat, 13 Oct 2001 16:54:39 -0400
+Date: Sat, 13 Oct 2001 13:55:07 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: "peter k." <spam-goes-to-dev-null@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: iptables v1.2.3: can't initialize iptables table `filter': Module is wrong version
+Message-ID: <20011013135507.B9856@vitelus.com>
+In-Reply-To: <004801c153d6$ffc398c0$0100005a@host1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <004801c153d6$ffc398c0$0100005a@host1>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <k23d4njs9x.fsf@zero.aec.at> you write:
-> In article <Pine.LNX.4.33.0110131015410.8707-100000@penguin.transmeta.com>,
-> Linus Torvalds <torvalds@transmeta.com> writes:
-> 
-> >  - nobody has shown a case where existing normal locking ends up being
-> >    really a huge problem, and where RCU clearly helps.
-> 
-> The poster child of such a case is module unloading. Keeping reference
-> counts for every even non sleeping use of a module is very painful. 
+On Sat, Oct 13, 2001 at 01:05:33PM +0200, peter k. wrote:
+> iptables keeps telling me that whenever i run it although i got the latest
+> kernel, latest iptables and all modules required for iptables are loaded (it
+> also doesnt work when i compile them into the kernel)!
+> anyone got an idea how to fix this?
 
-Well, module unloading requires only a small fraction of the read copy
-update infrastructure (synchronize_kernel()), and can be implemented
-without any scheduler changes, as it's not at all speed critical.
-
-If nothing else, this thread has served to make more kernel hackers
-aware of the technique, so they can try it themselves as desired.
-
-Cheers,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+did you compile your iptables against the version/configuration of the
+kernel you are trying to run?

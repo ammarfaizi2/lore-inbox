@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbULCJX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbULCJ1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbULCJX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 04:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbULCJX4
+	id S262113AbULCJ1V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 04:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbULCJ1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 04:23:56 -0500
-Received: from mail.suse.de ([195.135.220.2]:39611 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262106AbULCJXz (ORCPT
+	Fri, 3 Dec 2004 04:27:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2781 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262113AbULCJ1S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 04:23:55 -0500
-Date: Fri, 3 Dec 2004 10:23:52 +0100
-From: Andi Kleen <ak@suse.de>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc2-mm4
-Message-ID: <20041203092352.GD25528@wotan.suse.de>
-References: <20041130095045.090de5ea.akpm@osdl.org> <1101865072.20437.4.camel@arrakis>
+	Fri, 3 Dec 2004 04:27:18 -0500
+Date: Fri, 3 Dec 2004 01:26:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: Time sliced CFQ io scheduler
+Message-Id: <20041203012645.21377669.akpm@osdl.org>
+In-Reply-To: <41B02DFD.9090503@gmx.de>
+References: <20041202130457.GC10458@suse.de>
+	<20041202134801.GE10458@suse.de>
+	<20041202114836.6b2e8d3f.akpm@osdl.org>
+	<20041202195232.GA26695@suse.de>
+	<20041202121938.12a9e5e0.akpm@osdl.org>
+	<41AF94B8.8030202@gmx.de>
+	<20041203070108.GA10492@suse.de>
+	<41B02DFD.9090503@gmx.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101865072.20437.4.camel@arrakis>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 05:37:53PM -0800, Matthew Dobson wrote:
-> On Tue, 2004-11-30 at 09:50, Andrew Morton wrote:
-> > +x86_64-experimental-4gb-dma-zone.patch
-> > 
-> >  Add a fourth memory zone on x86_64: ZONE_DMA32
+"Prakash K. Cheemplavam" <prakashkc@gmx.de> wrote:
+>
+> > Can you try with the patch that is in the parent of this thread? The
+>  > above doesn't look that bad, although read performance could be better
+>  > of course. But try with the patch please, I'm sure it should help you
+>  > quite a lot.
+>  > 
 > 
-> Andi,
-> 	I think you made a small mistake in this patch.  There should be no
-> need to modify ZONES_SHIFT or MAX_ZONES_SHIFT for the change you wish to
-> make, since 4 zones (0..3) still fit into 2 bits.
+>  It actually got worse: Though the read rate seems accepteble, it is not, as 
+>  interactivity is dead while writing.
 
-Right yes. Thanks.
+Is this a parallel IDE system?  SATA?  SCSI?  If the latter, what driver
+and what is the TCQ depth?
 
--Andi

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSG2MiE>; Mon, 29 Jul 2002 08:38:04 -0400
+	id <S317059AbSG2Mm6>; Mon, 29 Jul 2002 08:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317036AbSG2MiE>; Mon, 29 Jul 2002 08:38:04 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50423 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317034AbSG2MiE>; Mon, 29 Jul 2002 08:38:04 -0400
-Subject: Re: drm error messages when using agpgart in 2.4.18/2.4.19-rc3(aa3)?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Srihari Vijayaraghavan <harisri@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020729122642Z316530-685+19927@vger.kernel.org>
-References: <20020729122642Z316530-685+19927@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 29 Jul 2002 14:56:46 +0100
-Message-Id: <1027951006.808.34.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317083AbSG2Mm6>; Mon, 29 Jul 2002 08:42:58 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:3596 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317059AbSG2Mmy>; Mon, 29 Jul 2002 08:42:54 -0400
+Date: Mon, 29 Jul 2002 14:46:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: David Howells <dhowells@redhat.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: linux-2.5.29 __downgrade_write() for CONFIG_RWSEM_GENERIC_SPINLOCK
+In-Reply-To: <28935.1027944502@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.44.0207291429580.28515-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 13:33, Srihari Vijayaraghavan wrote:
-> [X.] Other notes, patches, fixes, workarounds:
-> Using: XFree86 4.1.0 (as in Debian Woody 3.0 r0)
-> Using Driver "radeon", under "Device" section in XF86Config-4 file.
-> 
-> I initially thought I will post it to dri/xfree86 mailing lists, since it 
-> happens only if I have 'agpgart' support in the kernel, I begin to think 
-> kernel mailing list may be the appropriate forum. Please correct me if I am 
-> wrong.
+Hi,
 
-XFree86 and the kernel DRI modules as well as AGP all have a close
-relationship. If you are doing 3D you really should consider upgrading
-to XFree86 4.2.0. That has very large numbers of fixes and improvements
-over 4.1.0
+On Mon, 29 Jul 2002, David Howells wrote:
 
-Alan
+> Brrr... I don't like that. If I'm going to pass in a second argument, then I
+> want it to be what Christoph's version because it's more readable and more
+> obvious what it's doing (and, since the value is constant, the optimiser can
+> obviously get rid of it easily).
+
+If the intention was to help the gcc optimizing the code, that was not
+readable from the old version. It also wasn't that clear that wakewrite
+and sem->activity basically have the same information (only if one reads
+the code carefully one sees that "wakewrite" actually means "only if
+there's no activity, wake a writer").
+
+bye, Roman
 

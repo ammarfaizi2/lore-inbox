@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292444AbSBZRiV>; Tue, 26 Feb 2002 12:38:21 -0500
+	id <S292421AbSBZRjm>; Tue, 26 Feb 2002 12:39:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292429AbSBZRiL>; Tue, 26 Feb 2002 12:38:11 -0500
-Received: from montreal.eicon.com ([192.219.17.120]:19719 "EHLO
-	mtl_exchange.eicon.com") by vger.kernel.org with ESMTP
-	id <S292421AbSBZRiC>; Tue, 26 Feb 2002 12:38:02 -0500
-Message-ID: <D8E12241B029D411A3A300805FE6A2B9025761AB@montreal.eicon.com>
-From: Daniel Shane <daniel.shane@eicon.com>
-To: "'Stelian Pop'" <stelian.pop@fr.alcove.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: PCI driver in userspace
-Date: Tue, 26 Feb 2002 12:42:26 -0500
+	id <S292447AbSBZRja>; Tue, 26 Feb 2002 12:39:30 -0500
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:32411 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S292423AbSBZRij>; Tue, 26 Feb 2002 12:38:39 -0500
+Message-ID: <000901c1beec$6ac68940$030ba8c0@mistral>
+From: "Simon Turvey" <turveysp@ntlworld.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: IDE error on 2.4.17
+Date: Tue, 26 Feb 2002 17:38:35 -0000
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.0.1460.8)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Stelian!
+After a large file (4gigs) transfer using Samba attempts to access the file
+(also across Samba) resulted in lots of the following type of message.
 
-I think this is a good example to start with. It has all the
-interresting features. I hope it also has interrupt handling
-to userspace (by generating SIGIO's). Although I dont know
-if this is a good idea in the first place.
+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=250746,
+sector=250680
+end_request: I/O error, dev 03:01 (hda), sector 250680
 
-Daniel Shane
+Can anyone point me in the direction of a reason/solution?
 
-> On Tue, Feb 26, 2002 at 09:55:48AM -0500, Daniel Shane wrote:
-> 
-> > I'm looking for an example of userspace PCI driver, does 
-> anyone know where I
-> > could find one? (Probably not in the kernel source tree, obviously).
-> 
-> There are probably better examples than mines, but you can still
-> look at the Andrew Tridgell's 'capture' application which drives the
-> PCI Motion Eye Camera device (and compare with 
-> drivers/media/video/meye.c):
-> 	http://samba.org/picturebook/
-> 
-> You'll find in it quite a number of features, including i/o memory
-> mapping, i/o port access, etc.
-> 
-> Of course, one could also direct you to the XFree source code... :-)
-> 
-> Stelian.
-> -- 
-> Stelian Pop <stelian.pop@fr.alcove.com>
-> Alcove - http://www.alcove.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Thanks,
+    Simon
+
+
+

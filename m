@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264510AbRFJIjj>; Sun, 10 Jun 2001 04:39:39 -0400
+	id <S264508AbRFJIn7>; Sun, 10 Jun 2001 04:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264509AbRFJIjU>; Sun, 10 Jun 2001 04:39:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45073 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264508AbRFJIjN>;
-	Sun, 10 Jun 2001 04:39:13 -0400
-Date: Sun, 10 Jun 2001 09:38:38 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>, hofmang@ibm.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-Message-ID: <20010610093838.A13074@flint.arm.linux.org.uk>
-In-Reply-To: <3B22CEF9.6DEB1A66@uow.edu.au> <Pine.LNX.4.33.0106100151090.9384-100000@toomuch.toronto.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0106100151090.9384-100000@toomuch.toronto.redhat.com>; from bcrl@redhat.com on Sun, Jun 10, 2001 at 01:54:13AM -0400
+	id <S264509AbRFJInt>; Sun, 10 Jun 2001 04:43:49 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36365 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264508AbRFJInl>; Sun, 10 Jun 2001 04:43:41 -0400
+Date: Sun, 10 Jun 2001 05:43:37 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: George Bonser <george@gator.com>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.4.6-pre2 page_launder() improvements
+In-Reply-To: <CHEKKPICCNOGICGMDODJMEJLDEAA.george@gator.com>
+Message-ID: <Pine.LNX.4.33.0106100541200.1742-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 10, 2001 at 01:54:13AM -0400, Ben LaHaise wrote:
-> I doubt it's related to pump: a few times I've seen the 3c59x driver drop
-> the first few transmit packets.  Try loading the driver as a module and
-> putting the whole modprobe ; ifconfig ; ping <somehost> set of commands
-> into a script and watch what happens.  This goes for all ethernet driver
-> writers.
+On Sun, 10 Jun 2001, George Bonser wrote:
 
-Is this a change of requirements for ethernet drivers?  Many other drivers
-do exactly the same (drop the first few packets while they're negotiating
-with a hub), unless they're using 10base2, even back to the days of 2.0
-kernels.
+> I took it out of the load balancer and regained control in
+> seconds. The 15 minute load average showed somewhere over 150
+> with a bazillion apache processes. Even top -q would not update
+> when I put it back into the balancer. The load average and
+> number of processes started to increase until I got to some
+> point where it would just stop providing output. Again, control
+> returned within seconds after taking it out of the balancer. As
+> far as I could tell, I never at any time got more than 100MB
+> into swap.
 
+OK, I guess it's just thrashing.  Having 64MB of RAM with
+250 Apache processes will give you about 256kB per Apache
+process ... minus page table, TCP, etc... overhead.
+
+That sounds like the machine just gets a working set
+larger than the amount of available memory. It should
+work better with eg. 96, 128 or more MBs of memory.
+
+regards,
+
+Rik
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

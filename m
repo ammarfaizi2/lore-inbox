@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279951AbRJ3Mcy>; Tue, 30 Oct 2001 07:32:54 -0500
+	id <S273783AbRJ3MiY>; Tue, 30 Oct 2001 07:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279950AbRJ3Mcr>; Tue, 30 Oct 2001 07:32:47 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45071 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S279947AbRJ3Mck>; Tue, 30 Oct 2001 07:32:40 -0500
-Date: Tue, 30 Oct 2001 13:33:09 +0100
-From: Jan Kara <jack@suse.cz>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-Message-ID: <20011030133309.F6302@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au> <20011024171658.B10075@atrey.karlin.mff.cuni.cz> <15319.12709.29314.342313@notabene.cse.unsw.edu.au> <20011025174815.C4644@atrey.karlin.mff.cuni.cz> <15320.59456.565780.111066@notabene.cse.unsw.edu.au> <20011029150602.G11994@atrey.karlin.mff.cuni.cz> <15325.58603.350619.609850@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15325.58603.350619.609850@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.20i
+	id <S273854AbRJ3MiO>; Tue, 30 Oct 2001 07:38:14 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:59493 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S273783AbRJ3MiG>;
+	Tue, 30 Oct 2001 07:38:06 -0500
+Date: Tue, 30 Oct 2001 12:38:35 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch-2.4.14-pre5] bugfix to microcode update driver
+Message-ID: <Pine.LNX.4.21.0110301232210.1282-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Monday October 29, jack@suse.cz wrote:
-> > > 
-> > > I accept that it does look like a bit of a hack.
-> > > But I think it is simple, understandable, and predictable.
-> > > And I think that (for me) the value of tree quotas is more than enough
-> > > to offset that cost.
-> >   I just don't like the idea that when you do lookup you can suddenly get
-> > Disk quota exceeded... I'd concern this behaviour a bit nonintuitive. I agree
-> > that if root makes lookup of every file after moving directories then this
-> > doesn't happen but still I don't like the design :).
-> > 
-> 
-> You cannot get "Disk quota exceeded" on a lookup. If treequota_check
-> finds a discrepancy it fixes it with "notify_change" with
-> ia_valid set to ATTR_FORCE | ATTR_TID.
-> I changed quota_transfer to take ATTR_FORCE to mean "just do it, even
-> if it exceeds quota, and don't give an error".   Given that ATTR_FORCE
-> is not actually used at all in the current kernel, I felt fairly free
-> to interpret it how I wanted.
-  Hmm.. I should have read your patch more carefuly.. Sorry. 
+Hi Linus,
 
-> So the only non-intuitive thing that can happen is that you find your
-> usage mysteriously changes.  However this can only happen after
-> administrator intervention, and with uid quotas administrator
-> intervention (e.g. chown -R) can equally cause mysterious changes of
-> usage.
-> 
-> However I'm not particularly trying to convince anyone to use or
-> approve of tree-quotas.  I was after comments to make sure that I
-> hadn't missed something in thinking through the issues.  I thank you
-> and others for your comments.  The fact that I am comfortable with my
-> answers (though you may not be) encourages me that I haven't missed
-> anything.
-> 
-> I will be using treequotas locally next year and will keep the
-> patches on my web-page up-to-date.  I have heard from at least one
-> person who thinks they might be useful, so there are probably a few
-> dozen who might find it useful.
-  :) I also think tree quotas are useful I'd just like to think of some
-nicer solution...:)
+Apparently, on a HT (hyper-threading) enabled processors the processor
+resources (for microcode update) are shared by all logical processors in a
+single CPU package, so if one logical processor accepted the update then
+it (currently) will fail on all others. Removing that check is harmless
+for other (non-HT) processors and required on HT, so please apply this
+patch.
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Regards,
+Tigran
+
+
+--- arch/i386/kernel/microcode.c.0	Tue Oct 30 12:29:00 2001
++++ arch/i386/kernel/microcode.c	Tue Oct 30 12:27:33 2001
+@@ -47,6 +47,10 @@
+  *	1.08	11 Dec 2000, Richard Schaal <richard.schaal@intel.com> and
+  *			     Tigran Aivazian <tigran@veritas.com>
+  *		Intel Pentium 4 processor support and bugfixes.
++ *	1.09	30 Oct 2001, Tigran Aivazian <tigran@veritas.com>
++ *		Bugfix for HT (Hyper-Threading) enabled processors
++ *		whereby processor resources are shared by all logical processors
++ *		in a single CPU package.
+  */
+ 
+ #include <linux/init.h>
+@@ -61,7 +65,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+ 
+-#define MICROCODE_VERSION 	"1.08"
++#define MICROCODE_VERSION 	"1.09"
+ 
+ MODULE_DESCRIPTION("Intel CPU (IA-32) microcode update driver");
+ MODULE_AUTHOR("Tigran Aivazian <tigran@veritas.com>");
+@@ -240,10 +244,6 @@
+ 				printk(KERN_ERR 
+ 					"microcode: CPU%d not 'upgrading' to earlier revision"
+ 					" %d (current=%d)\n", cpu_num, microcode[i].rev, rev);
+-			} else if (microcode[i].rev == rev) {
+-				printk(KERN_ERR
+-					"microcode: CPU%d already up-to-date (revision %d)\n",
+-						cpu_num, rev);
+ 			} else {
+ 				int sum = 0;
+ 				struct microcode *m = &microcode[i];
+
+
+
+

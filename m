@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278078AbRKDVkc>; Sun, 4 Nov 2001 16:40:32 -0500
+	id <S278470AbRKDVvM>; Sun, 4 Nov 2001 16:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278081AbRKDVkX>; Sun, 4 Nov 2001 16:40:23 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:9410 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278078AbRKDVkL>; Sun, 4 Nov 2001 16:40:11 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Tim Jansen <tim@tjansen.de>
-To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Sun, 4 Nov 2001 22:42:54 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011104204502.O14001@unthought.net> <200111042112.fA4LCNR241720@saturn.cs.uml.edu> <20011104222009.Y14001@unthought.net>
-In-Reply-To: <20011104222009.Y14001@unthought.net>
+	id <S279105AbRKDVvC>; Sun, 4 Nov 2001 16:51:02 -0500
+Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:52082 "EHLO
+	porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
+	id <S278470AbRKDVup>; Sun, 4 Nov 2001 16:50:45 -0500
+Date: Sun, 4 Nov 2001 23:50:37 +0200 (EET)
+From: Jani Jaakkola <jjaakkol@cs.Helsinki.FI>
+X-X-Sender: <jjaakkol@loussa.kamppa>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with Toshiba Portege 4000 keyboard
+Message-ID: <Pine.LNX.4.33.0111042337340.824-100000@loussa.kamppa>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <160Uzc-1RQC4OC@fmrl03.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 November 2001 22:20, Jakob Østergaard wrote:
-> > > I could even live with parsing ASCII, as long as there'd just be type
-> > > information to go with the values.
-> > You are looking for something called the registry. It's something
-> > that was introduced with Windows 95. It's basically a filesystem
-> > with typed files: char, int, string, string array, etc.
-> Having read out 64 bit values, floating point data etc. from the registry,
-> I'm old enough to know that it is *NOT* what I'm looking for   :)
 
-Why? It's not bad only because it is from MS. IMHO the disadvantages of the 
-registry are:
-- you need special software/syscalls to access it
-- because of that making backups etc is hard
-- the organization of the data is horrible
+When writing rapidly using Toshiba Portege 4000 laptop keyboard, the
+keypresses sometimes get doubled in X (so that instead of word 'doubled'
+I get word 'ddoublled').
 
-Assuming you could mount it as a regular filesystem and use it for kernel 
-configuration, what else are its disadvantages?
+This seems to be hardware related. The keyboard controller seems to send
+key release events often twice (so that about every fifth letter gets
+doubled) but only when writing rapidly. It does not matter on Linux
+console, but it makes X send X protocol key release events twice, which
+makes some (or most) X programs to double keypresses. This is very
+annoying.
 
-bye...
+I patched linux/drivers/char/keyboard.c to work around this (patch
+included). If you have any better solutions or ideas I would be very happy
+to hear about them.
 
+Please CC comments to me, since I am not on the list.
+
+Patch follows:
+
+--- keyboard.c.orig     Sun Nov  4 23:25:19 2001
++++ keyboard.c  Sun Nov  4 23:18:42 2001
+@@ -90,6 +90,8 @@
+ static unsigned long key_down[256/BITS_PER_LONG];
+
+ static int dead_key_next;
++static unsigned int prev_scancode;
++
+ /*
+  * In order to retrieve the shift_state (for the mouse server), either
+  * the variable must be global, or a new procedure must be created to
+@@ -222,7 +224,12 @@
+        }
+        kbd = kbd_table + fg_console;
+        if ((raw_mode = (kbd->kbdmode == VC_RAW))) {
+-               put_queue(scancode | up_flag);
++               /* The following 'if' is a workaround for hardware
++                * which sometimes send the key release event twice */
++               if (!up_flag || (scancode|up_flag)!=prev_scancode) {
++                       prev_scancode=scancode|up_flag;
++                       put_queue(prev_scancode);
++               }
+                /* we do not return yet, because we want to maintain
+                   the key_down array, so that we have the correct
+                   values when finishing RAW mode or when changing VT's */
 
 

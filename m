@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbUKCUa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUKCUcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbUKCUa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 15:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbUKCUa6
+	id S261857AbUKCUcf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 15:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUKCUce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 15:30:58 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:25729 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261785AbUKCUax
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 15:30:53 -0500
-Message-ID: <418940AA.7000809@tmr.com>
-Date: Wed, 03 Nov 2004 15:33:46 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sai Prathap <saiprathap@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Installing software on a knoppix CD
-References: <69cfd1b80411031106663a1cc8@mail.gmail.com>
-In-Reply-To: <69cfd1b80411031106663a1cc8@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 15:32:34 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:55815 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261854AbUKCUcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 15:32:18 -0500
+Date: Wed, 3 Nov 2004 20:32:08 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: uClinux development list <uclinux-dev@uclinux.org>, akpm@osdl.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [uClinux-dev] [PATCH 1/14] FRV: Fujitsu FR-V CPU arch implementation
+Message-ID: <20041103203208.GA23494@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>,
+	uClinux development list <uclinux-dev@uclinux.org>, akpm@osdl.org,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+References: <20041102234610.GB7040@lst.de> <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> <8632.1099511196@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8632.1099511196@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sai Prathap wrote:
-> Hi,
+[any reason you drop me from the cc list?]
+
+> > Please use the generic kernel/irq/* code.
 > 
-> I have a question regarding knoppix. If we boot from a knoppix CD, Is
-> it possible to get any software installed on it ? Because, whenever I
-> try to install something  it says its not writable. Please advice.
+> That code is not sufficient.
 
-*If* there is room on the CD, you can add things to the image and burn a 
-new CD. The "right" method is to mount the CD and copy everything into a 
-directory, add the new material, run mkisofs with the right boot options 
-to make a bootable image, and burn the image.
+Why?  And what makes it impossible to extend the code to handle your
+hardware. 
 
-If you are heavily into burning CDs, you *MIGHT* be able to extract the 
-ISO image, reburn it with the cdrecord -multi option, and then add your 
-own stuff in a second session. I haven't tried this, and if you aren't 
-familiar with burning multisession CDs it's eather a learning experience 
-or a good thing to avoid.
+> > I can't see this beeing called from generic code ever, why do you
+> > implement it?
+> 
+> It's a placeholder for something I'd like to implement for the FR451 CPU which
+> has a decrementer counter. It is actually called from entry.S.
 
-Check first to see if there's any room on the CD for more stuff!
+So add it when you implement that code.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> > > +void *dma_alloc_coherent(struct device *hwdev, size_t size, dma_addr_t *dma_handle, int flag)
+> 
+> > the last argument is the gfp mask.
+> 
+> It's called "flag" in include/asm-i386/dma-mapping.h. And shouldn't it be an
+> "unsigned long" if it's GFP flags?
+
+If you look at the callers it's use as gfp mask.  Feel free to send patches
+to change the types to what you think makes sense.
+
+> > does GFP_DMA really hae the same meaning as on i386 here?
+> 
+> I'm not sure whether it should put all of its memory in the DMA region, or
+> none of it. There's no documentation on this.
+
+There's no rules on how to do it anyway.  But it looks like you don't
+have any arbitrary dma limits, so conditionally setting doesn't make
+much sense.
+
+> > Don't mess with per-arch fields in common procfs files.
+> 
+> Should I then add an arch-specific file to "/proc/<pid>/"?
+
+That's not that bad at least.  But you'd need to convience us why
+your port is the first that absolutely needs something like that.
+

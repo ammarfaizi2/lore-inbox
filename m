@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSHAO5i>; Thu, 1 Aug 2002 10:57:38 -0400
+	id <S315260AbSHAO4X>; Thu, 1 Aug 2002 10:56:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSHAO5h>; Thu, 1 Aug 2002 10:57:37 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:15307 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315370AbSHAO5h>; Thu, 1 Aug 2002 10:57:37 -0400
-Message-ID: <3D494CFF.245675E@nortelnetworks.com>
-Date: Thu, 01 Aug 2002 11:00:15 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)
-References: <20020730054111.GA1159@dualathlon.random> <20020730084939.A8978@redhat.com> <20020730214116.GN1181@dualathlon.random> <20020730175421.J10315@redhat.com> <20020731004451.GI1181@dualathlon.random> <20020801103011.GB159@elf.ucw.cz> <20020801104707.B21032@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S315370AbSHAO4X>; Thu, 1 Aug 2002 10:56:23 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:51951 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315260AbSHAO4X>; Thu, 1 Aug 2002 10:56:23 -0400
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: martin@dalecki.de
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <3D493C3B.2060609@evision.ag>
+References: <Pine.LNX.4.44.0208011541590.19906-100000@localhost.localdomain> 
+	<3D493C3B.2060609@evision.ag>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 01 Aug 2002 17:16:44 +0100
+Message-Id: <1028218604.15022.59.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+On Thu, 2002-08-01 at 14:48, Marcin Dalecki wrote:
+> And what leads you to the assumption that it is actually the
+> IDE code, which is to be blamed for this?
 
-> After thinking about it further, there is one problem with when that is
-> avoided with timeout: if the system time is changed between the timeout
-> calculation and the time the kernel calculates the jiffies offset, the
-> process could be delayed much longer than desired (and fixing this case
-> is hard enough that it should be avoided in typical code).  Tradeoffs...
-
-Now if we had a constant monotonic source of time--say 64-bit nanoseconds since
-boot--this wouldn't be a problem.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Side question Martin - is the IDE flush cache on close stuff in the 2.5
+tree yet. That might be a candidate for this

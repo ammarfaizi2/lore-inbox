@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbTGBWEk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 18:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbTGBWDX
+	id S264854AbTGBWDP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 18:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbTGBWBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 18:03:23 -0400
-Received: from holomorphy.com ([66.224.33.161]:57017 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264635AbTGBWBk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 18:01:40 -0400
-Date: Wed, 2 Jul 2003 15:15:51 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030702221551.GH26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay> <20030702174700.GJ23578@dualathlon.random> <20030702214032.GH20413@holomorphy.com> <20030702220246.GS23578@dualathlon.random>
+	Wed, 2 Jul 2003 18:01:20 -0400
+Received: from cpt-dial-196-30-178-203.mweb.co.za ([196.30.178.203]:60035 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S264635AbTGBWA6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 18:00:58 -0400
+Subject: Re: [PATCH] remove IO APIC newline
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030701221347.4aa0dc2e.diegocg@teleline.es>
+References: <200306271836.h5RIakGD026159@hera.kernel.org>
+	 <20030627184111.GB4333@gtf.org>
+	 <20030627205742.48f107c2.diegocg@teleline.es>
+	 <1057039383.5499.46.camel@workshop.saharacpt.lan>
+	 <20030701221347.4aa0dc2e.diegocg@teleline.es>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dnSsGS73HyqkQOFIz9Xr"
+Message-Id: <1057184214.21471.9.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030702220246.GS23578@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 03 Jul 2003 00:16:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 12:02:46AM +0200, Andrea Arcangeli wrote:
-> Now releasing the pte_chain during mlock would be a generic feature
-> orthogonal with the above I know, but I doubt you really care about it
-> for all other usages (also given the nearly unfixable complexity it
-> would introduce in munlock).
 
-What complexity? Just unmap it if you can't allocate a pte_chain and
-park it on the LRU.
+--=-dnSsGS73HyqkQOFIz9Xr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2003-07-01 at 22:13, Diego Calleja Garc=EDa wrote:
+> El 01 Jul 2003 08:03:04 +0200 Martin Schlemmer <azarah@gentoo.org>
+> escribi=F3:
+>=20
+> > Wont it be more consistant to rather use CPU#0, CPU#1, etc ?
+>=20
+> Probably. I though nobody would mind it...attached a version with CPU#X.
+
+Looks cleaner for all its worth.
 
 
--- wli
+Regards,
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-dnSsGS73HyqkQOFIz9Xr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/A1nWqburzKaJYLYRAnUfAJ434duZJGomQMzeZOsUyADOkLAS8ACgmWVE
+xGPP8hartlw9bCOfB9mwIf4=
+=oEt0
+-----END PGP SIGNATURE-----
+
+--=-dnSsGS73HyqkQOFIz9Xr--
+

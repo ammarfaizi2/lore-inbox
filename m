@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUENRCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUENRJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUENRCn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 13:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUENRCW
+	id S261802AbUENRJD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 13:09:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUENRJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 13:02:22 -0400
-Received: from nrao.edu ([192.33.115.2]:17796 "EHLO cv3.cv.nrao.edu")
-	by vger.kernel.org with ESMTP id S261764AbUENQ7j (ORCPT
+	Fri, 14 May 2004 13:09:03 -0400
+Received: from mtaw4.prodigy.net ([64.164.98.52]:49311 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S261787AbUENRI6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 12:59:39 -0400
-Message-ID: <40A4FAF3.4030103@nrao.edu>
-Date: Fri, 14 May 2004 12:59:31 -0400
-From: Rodrigo Amestica <ramestic@nrao.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 14 May 2004 13:08:58 -0400
+Message-ID: <40A4FC1A.20809@pacbell.net>
+Date: Fri, 14 May 2004 10:04:26 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: query_module in 2.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact postmaster@cv.nrao.edu for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.9, required 7,
-	autolearn=not spam, BAYES_00 -4.90)
-X-MailScanner-From: ramestic@nrao.edu
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.6-mm2, usb ehci warnings/error?
+References: <40A3962F.3020500@pacbell.net> <40A47AC3.4010403@gmx.de>
+In-Reply-To: <40A47AC3.4010403@gmx.de>
+Content-Type: multipart/mixed;
+ boundary="------------070507000703000105070505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+This is a multi-part message in MIME format.
+--------------070507000703000105070505
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-what do you mean by 'You shouldn't need to'? I'm working in a 2.4.x 
-platform and discover that I need to check for a module symbol. Then I 
-decided that I should do it in such a way that no changes will be 
-required at the moment of porting the code to 2.6, and then I came 
-across with this thread.
+Prakash K. Cheemplavam wrote:
+> David Brownell wrote:
+> 
+>>> There appear lines like
+>>>
+>>> usb usb2: string descriptor 0 read error: -108
+>>>
+>>> bug or feature? They weren't there with 2.6.6-mm1. I have no usb2.0 
+>>> stuff to actually test. My usb1 stuff seems to work though.
+>>
+>> Bug; minor, since the only real symptom seems to be messages like
+>> that.  Ignore them for now, I'll make a patch soonish.
+> 
+> Ok, good. Thanks for the explanation of what is going on, though I don't 
+> can make too much out of it. ;-)
 
-What's the programmatical way of checking for the presence of symbol and 
-getting its address?
--
-thanks,
- Rodrigo
+The short version is:  it's missing this patch.
+
+[ Greg, please merge! ]
+
+- Dave
+
+--------------070507000703000105070505
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+--- bk2/xu26/drivers/usb/host/ohci-hub.c	2004-05-11 18:03:30.000000000 -0700
++++ gadget-2.6/drivers/usb/host/ohci-hub.c	2004-05-13 09:15:18.000000000 -0700
+@@ -385,6 +385,7 @@
+ 			) {
+ 		ohci_vdbg (ohci, "autosuspend\n");
+ 		(void) ohci_hub_suspend (&ohci->hcd);
++		ohci->hcd.state = USB_STATE_RUNNING;
+ 		up (&hcd->self.root_hub->serialize);
+ 	}
+ #endif
+
+--------------070507000703000105070505--
+

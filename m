@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132537AbRDQEKE>; Tue, 17 Apr 2001 00:10:04 -0400
+	id <S132540AbRDQEHE>; Tue, 17 Apr 2001 00:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132539AbRDQEJp>; Tue, 17 Apr 2001 00:09:45 -0400
-Received: from warden.digitalinsight.com ([208.29.163.2]:1492 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S132537AbRDQEJl>; Tue, 17 Apr 2001 00:09:41 -0400
-Date: Mon, 16 Apr 2001 20:01:20 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Miles Lane <miles@megapathdsl.net>,
-        Randolph Bentson <bentson@grieg.holmsjoen.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get
- better audio.
-In-Reply-To: <20010416205626.C17655@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33.0104162000080.2674-100000@dlang.diginsite.com>
+	id <S132539AbRDQEGy>; Tue, 17 Apr 2001 00:06:54 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:24325 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S132537AbRDQEGn>;
+	Tue, 17 Apr 2001 00:06:43 -0400
+Message-ID: <3ADBC170.EB7F1511@megapathdsl.net>
+Date: Mon, 16 Apr 2001 21:07:12 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-ac7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Larry McVoy <lm@bitmover.com>
+CC: Randolph Bentson <bentson@grieg.holmsjoen.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get 
+ better audio.
+In-Reply-To: <3ADB922B.4DE1F9A4@megapathdsl.net> <20010416185305.B22650@grieg.holmsjoen.com> <3ADBBC99.8B389B9E@megapathdsl.net> <20010416204858.B17655@work.bitmover.com> <3ADBBE5B.A3A3C0C@megapathdsl.net> <20010416205626.C17655@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-have a couple of these and you would be able to keep one trained on the
-most common speakers in any given discussion (then you only have the
-problem of more speakers then mikes, but short of putting enough mikes
-around to get the entire room you will always have this problem)
-
-David Lang
-
- On Mon,
-16 Apr 2001, Larry McVoy wrote:
-
-> Date: Mon, 16 Apr 2001 20:56:26 -0700
-> From: Larry McVoy <lm@bitmover.com>
-> To: Miles Lane <miles@megapathdsl.net>
-> Cc: Larry McVoy <lm@bitmover.com>,
->      Randolph Bentson <bentson@grieg.holmsjoen.com>,
->      linux-kernel@vger.kernel.org
-> Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time,
->      please get better audio.
->
+Larry McVoy wrote:
+> 
 > > Are you talking about one of those "eavesdropper"
 > > parabolic microphones?  Are you thinking of having
 > > someone on stage redirecting the microphone as
@@ -48,16 +33,21 @@ David Lang
 > > person in the audience said or need to go to a
 > > "hand raising/acknowledgement" to create a pause
 > > during which the microphone could be redirected.
->
+> 
 > Yeah, but that is still way way way faster than walking across the room to
 > hand someone a mike.
-> --
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
+I like this idea quite a bit.  It would probably not
+be terribly expensive to rent/buy the required equipment,
+it would be easy to use and would not be terribly disruptive
+to the preceedings.
+
+I'm curious, didn't you find that those mikes are too
+directionally sensitive?  I've noticed that the movement
+of the speaker by just an inch or two can cause major
+variations in signal reception (I've only tried that
+little plastic parabolic eavesdropping "toy" that was
+all the rage about two Christmasses ago -- there was one
+floating around my office).
+
+	Miles

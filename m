@@ -1,152 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262806AbTAEEbE>; Sat, 4 Jan 2003 23:31:04 -0500
+	id <S262813AbTAEEga>; Sat, 4 Jan 2003 23:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbTAEEbE>; Sat, 4 Jan 2003 23:31:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9079 "HELO
-	mailhub.stusta.mhn.de") by vger.kernel.org with SMTP
-	id <S262806AbTAEEbC>; Sat, 4 Jan 2003 23:31:02 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Wolfgang Walter <ml-linux-kernel@studentenwerk.mhn.de>
-Organization: Studentenwerk =?iso-8859-1?q?M=FCnchen?=
-To: David Schwartz <davids@webmaster.com>
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-Date: Sun, 5 Jan 2003 05:39:35 +0100
-User-Agent: KMail/1.4.3
-Cc: <linux-kernel@vger.kernel.org>, <rms@gnu.org>
-References: <20030105001731.AAA11069@shell.webmaster.com@whenever>
-In-Reply-To: <20030105001731.AAA11069@shell.webmaster.com@whenever>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301050539.35205.ml-linux-kernel@studentenwerk.mhn.de>
+	id <S262821AbTAEEga>; Sat, 4 Jan 2003 23:36:30 -0500
+Received: from enchanter.real-time.com ([208.20.202.11]:36110 "EHLO
+	enchanter.real-time.com") by vger.kernel.org with ESMTP
+	id <S262813AbTAEEg3>; Sat, 4 Jan 2003 23:36:29 -0500
+Date: Sat, 4 Jan 2003 22:45:00 -0600
+From: Carl Wilhelm Soderstrom <chrome@real-time.com>
+To: linux-kernel@vger.kernel.org
+Subject: fs corruption with 2.4.20 IDE+md+LVM
+Message-ID: <20030104224455.A18362@real-time.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 January 2003 01:17, David Schwartz wrote:
-> On Sat, 04 Jan 2003 18:44:58 -0500, Richard Stallman wrote:
-> >Defending shrink wrap licensing agreements, arguing to weaken
-> >fair use and
-> >first sale doctrines, and arguing that if you include a header it's
-> >a derived
-> >work is a strange way to defend intellectual freedom.
-> >
-> >Those are not my views.  Are you confusing me with someone else?
->
-> 	Then please explain to me how the GPL comes to apply to a person who
-> did not agree to it as a condition of receiving a copyrighted work.
-> Please explain to me why you think that the GPL should have applied
-> to kernel modules that only include header files.
->
+I observed filesystem corruption on my home workstation recently. I was
+running kernel 2.4.20 (built myself with gcc 2.95.4), and ext3 with the
+default journaling mode (ordered?).
 
-You seem not to understand copyright.
+I was downloading files, and noticed that they weren't being saved. I
+immediately did a 'df -h', and it reported my home partition as having 7.3T
+used, -64Z free.
 
-The GPL does not affect the user of the software. If you have bought a copy of 
-Red Linux distribution cd i.a. it is not necessary to accept the GPL (or BSD 
-or whatever license) to use the software. You may sell your received copy 
-when ever you want to ever you want for whatever price you can get - if you 
-do not keep a copy. As you can do with microsoft windows - if you bought it 
-(and did not licensed it from microsoft). I.a. it is not necessary to provide 
-source code because it is Red Hat which a) made the copy and b) did so by 
-accepting the GPL. 
+I (foolishly) immediately did a 'du -sch ~/*' to see what might be taking up
+all the space. after realizing what was going on (du reported filesystem
+permission errors on files it shouldn't have), I shut down all programs, and
+dropped to runlevel 1. 
 
-But if you want to make and use or distribute copies of that CD or distributed 
-works, well, then you must get explicit permission from the copyright owners 
-- as you would have to for any copyrightable work. This is so because of 
-copyright law. If you buy the software you only have the right to use it. You 
-do not have by default the right to distribute copies, make or distribute 
-derived works etc.
+I unmounted my LVM'ed partitions (/var /usr /home), and tried to fsck
+/dev/sys/home (the /home partition). it couldn't find a good superblock; and
+fell back to using another backup superblock. fsck reported that the journal
+was corrupt, and discarded it. many of the low-numbered inodes had wrong
+refcounts, or wrong modes.
 
-If the CD would be a copy of microsoft windows you would have to negotiate 
-with microsoft - probably they would not allow that you distribute a derived 
-version.
+eventually it fixed the filesystem; but everything ended up in many files &
+directories under lost+found. (had to pull the home dirs from one or more
+dirs each, under lost+found).
 
-Now the authors of the software on the Red Hat CD make you an offer: you may 
-accept the GPL. If you do so, they allow you to make and distribute copies or 
-derived works under certain conditions. You don't have to accept the GPL. If 
-you do not, you may try to negotiate for other terms with the copyright 
-holders.
+after fixing the filesystem, I gratuitously fsck -f'ed all my other
+partitions; they came up clean.
 
-> 	That's a lot better than trying to arm twist others in to providing
-> our freedom to use their works. When you talk about forcing a person
-> to distribute the source code to a derived work, you are only talking
-> about their control over what they added. When a person creates a
+fortunately, looks like the only stuff I really lost were some chunks of my
+XFree86 source tree, and some linux kernel sources. easily replaceable
+stuff.
 
-Do you understand? You are not allowed to produce derived works without 
-permission of the copyright owner. He may do so under what consitions he want 
-(or simply does not allow you to do so at all).
+here's my system architecture:
+2x Western Digital 80GB Special Edition IDE drives (hde, hdf)
+- / is an ext3 RAID1 /dev/md0 made of hde1 and hdf1
+- /dev/md1 is LVM-formatted RAID1, made of hde2 and hdf2. this partition
+contains /var, /usr, and /home. 
 
-With the GPL the copyright owner(s) of the work grants you the right to do so 
-under certain conditions described under the GPL. One right is to produce 
-derived works at all and 
+/home is the only place that I saw this corruption.
 
-Have you ever got permission from microsoft or adobe to produce derived works 
-from windows 2000 or photoshop?
+I have since reverted back to kernel 2.4.18.
 
-> derived work of an open source work, all they have to offer is the
-> value they added. In the name of freedom, you take their control over
-> their work from them.
+I'm thinking that my reaction *should* have been to power-cycle the box
+immediately upon notice of the problem, to prevent further fs corruption,
+and bring it back up in single-user read-only mode. shutting down programs
+nicely would have written more stuff to disk, worsening the corruption.
 
-No, they allow you to do the work at all. By default you would not be allowed 
-to add value at all.
+I will also point out that kernel 2.4.20-ac1 and 2.4.21-pre6 will not boot
+on my machine; they kernel panic when detecting my IDE devices. I have not
+tried 2.4.20-ac2 nor 2.4.21-pre2 yet. 2.4.20 and 2.4.18 boot quite happily
+tho. I suppose I ought to try the latest versions and set up a serial
+console to capture the oops, before reporting a bug on this.
 
->
-> 	This is the same "freedom" that socialism promises the workers. They
-> call it the freedom to own the machinery they use to produce.
-> Analogously, this "freedom" is really just the loss of the freedom of
-> ownership.
-
-No. The authors of the work has with your words - the "ownership" of his work. 
-Law says that one facete of that "ownership" is that he may allow or forbid 
-derived works. And if he allows someone to produce a derived work its under 
-his conditions.
-
-The GPL does not restrict you. Contrary, it uses copyright law to establish a 
-pool of software with much more freedom as copyright law gives to you. It 
-only does not give you so much freedom to deny other people the same 
-freedoms. The copyright holders can only do so, because copyright law itself 
-give you none of these rights at all.
-
-Richard Stallmann - if I understand him right - beliefs that the rights the 
-GPL grants should be granted (for software) by copyright law itself and 
-therefor granted for every software. You may argument about that.
-
-But you cant't argument that an author as owner of his work should use a less 
-restrictive license than the GPL so you can make a derived work and 
-distribute it under a more restrictive license than GPL. Why should he want 
-to allow that at all (a lot of peoply allow that choosing a BSD-license - 
-nice gift)? Nobody can force him to do so. Its not the GPL which restricts 
-your freedom, it is copyright law and the author(s) of the work you want to 
-made a derived work from.
-
-It is simply impossible that authors have control under which condition 
-derived works may be made from their works AND in the same time have the 
-right to made derived works from works of other authors without control of 
-these authors.
-
-
-By the way: a completely different question is if a work is a derived work. Is 
-a driver for nvidia a derived work. Well, the GPL can not define that, of 
-course - because it only applies to derived works. No license can that. A 
-licence may state what it will not regard as a derived work.
-
-The courts decide what is a derived work. The courts decide that your book 
-with a main character named Harry Potter, wizard studying in Hogwards, is a 
-derived work from 4 those well known Rowling-books and that you may not 
-distribute it without permission.
-
-
-Greetings,
-
-Wolfgang Walter
+Carl Soderstrom.
 -- 
-Wolfgang Walter
-Studentenwerk München
-Anstalt des öffentlichen Rechts
-EDV
-Leopoldstraße 15
-80802 München
-Tel: +49 89 38196-276
-Fax: +49 89 38196-144
-wolfgang.walter@studentenwerk.mhn.de
-http://www.studentenwerk.mhn.de/
+Systems Administrator
+Real-Time Enterprises
+www.real-time.com

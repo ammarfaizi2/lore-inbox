@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbREVU25>; Tue, 22 May 2001 16:28:57 -0400
+	id <S262791AbREVU3R>; Tue, 22 May 2001 16:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262799AbREVU2r>; Tue, 22 May 2001 16:28:47 -0400
-Received: from are.twiddle.net ([64.81.246.98]:27777 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S262798AbREVU2e>;
-	Tue, 22 May 2001 16:28:34 -0400
-Date: Tue, 22 May 2001 13:28:15 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: alpha iommu fixes
-Message-ID: <20010522132815.A4573@twiddle.net>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15112.59880.127047.315855@pizda.ninka.net> <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522170016.D15155@athlon.random>
+	id <S262798AbREVU3H>; Tue, 22 May 2001 16:29:07 -0400
+Received: from mnh-1-24.mv.com ([207.22.10.56]:37896 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262791AbREVU2w>;
+	Tue, 22 May 2001 16:28:52 -0400
+Message-Id: <200105222013.PAA03768@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Ryan Cumming <bodnar42@bodnar42.dhs.org>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: UML cross-platform build problems (was Re: [PATCH] 
+ include/linux/coda.h)
+In-Reply-To: Your message of "Tue, 22 May 2001 12:56:26 -0400."
+             <20010522125625.A3985@cs.cmu.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010522170016.D15155@athlon.random>; from andrea@suse.de on Tue, May 22, 2001 at 05:00:16PM +0200
+Date: Tue, 22 May 2001 15:13:52 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 05:00:16PM +0200, Andrea Arcangeli wrote:
-> I'm also wondering if ISA needs the sg to start on a 64k boundary,
+jaharkes@cs.cmu.edu said:
+> I agree that a UML kernel on FreeBSD should be a native binary and not
+> cross-compiled. However, this could be an UML specific problem and
+> -D__linux__ should be added to CFLAGS in arch/uml/Makefile
 
-Traditionally, ISA could not do DMA across a 64k boundary.
+Exactly.  Don't be shy about fiddling CFLAGS in UML-specific Makefiles.  This 
+is already done quite a bit (-D__i386__ and the construction of userspace 
+CFLAGS are examples).
 
-The only ISA card I have (a soundblaster compatible) appears
-to work without caring for this, but I suppose we should pay
-lip service to pedantics.
+This is very UML-specific, so there's no reason to bother the rest of the 
+kernel (unless, of course, you find a bug that could affect other ports).
+
+				Jeff
 
 
-r~

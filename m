@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316709AbSFDXKq>; Tue, 4 Jun 2002 19:10:46 -0400
+	id <S316715AbSFDXOz>; Tue, 4 Jun 2002 19:14:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316715AbSFDXKp>; Tue, 4 Jun 2002 19:10:45 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:57027 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S316709AbSFDXKo>; Tue, 4 Jun 2002 19:10:44 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7ED9@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Dave Jones'" <davej@suse.de>
-Cc: "'Pavel Machek'" <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] i386 "General Options" - begone [take 2]
-Date: Tue, 4 Jun 2002 16:09:48 -0700 
+	id <S316916AbSFDXOy>; Tue, 4 Jun 2002 19:14:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4107 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316715AbSFDXOy>;
+	Tue, 4 Jun 2002 19:14:54 -0400
+Message-ID: <3CFD499D.DF6EA8CF@zip.com.au>
+Date: Tue, 04 Jun 2002 16:13:33 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] "laptop mode"
+In-Reply-To: <3CFD453A.B6A43522@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Dave Jones [mailto:davej@suse.de] 
+Andrew Morton wrote:
+> 
+> Here's a patch which is designed to make the kernel play more nicely
+> with portable computers.
 
-> On Tue, Jun 04, 2002 at 02:58:35PM -0700, Grover, Andrew wrote:
->  > So, let's assume in the very near future it becomes 
-> possible to compile a
->  > kernel without MPS or $PIR support. Where should those 
-> config options go?
-> Why do they need to be options ? They should be implied if 
-> CONFIG_ACPI=n
-> Otherwise we could build a kernel without any PCI IRQ routing, MPS
-> discovery etc.. I can't see the benefit of making this stuff compile
-> time optional other than to save a few bytes (and there are 
-> much better
-> places to start attacking to save space than this).
+I just had a brainwave.  The following text has been added...
 
-One reason is for code cleanliness. Linux's internal data structures for irq
-routing and MPS stuff on i386 were not designed to handle the possibility of
-multiple ways of getting this info. ACPI init gets in there and does its
-thing, but it could be better architected. Making the legacy config options
-removable is one way to ensure the kernel has things properly modularized
-wrt this, and yes, I think someday (maybe not soon) someone *will* want to
-leave out MPS support.
 
-> Can you confirm that you're not advocating a "ACPI or Legacy" 
-> approach ?
-> I think you're aware of the dragons that lie that way, but I 
-> want to be
-> sure my suspicions are unfounded.
+Aside: there is another reason why disks spin up more often than
+necessary: an application has only read a part of a file, and it needs
+to fetch more of that file later on.  This commonly happens with the
+pagein of executables.  To fix this you can increase the readahead
+tunable of your disk drive to something enormous (say, one gigabyte):
 
-All I can say is using just *part* of ACPI will cause some machine,
-somewhere, to not work. I want to avoid scenarios where that happens. If
-there are issues with that, can we discuss them asap, perhaps now?
+        blockdev --setra 2097152 /dev/hda
 
-Regards -- Andy
+Once this is done, the readahead code will effectively read entire
+files into memory when the application attempts to read just a small
+part of that file.  So later access to other parts of that file will
+not require another spinup.
+
+
+-

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264448AbTFEDNX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 23:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTFEDNX
+	id S264437AbTFEDMx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 23:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTFEDMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 23:13:23 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:52228 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S264448AbTFEDNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 23:13:20 -0400
-Date: Thu, 5 Jun 2003 13:25:58 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
-       <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
+	Wed, 4 Jun 2003 23:12:53 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:38287 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264437AbTFEDMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 23:12:51 -0400
+Date: Wed, 4 Jun 2003 20:26:22 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: shemminger@osdl.org, jgarzik@pobox.com, davem@redhat.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.5.70-bk+ broken networking
-In-Reply-To: <20030604184341.A10256@beaverton.ibm.com>
-Message-ID: <Mutt.LNX.4.44.0306051325110.335-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030604202622.1be40092.akpm@digeo.com>
+In-Reply-To: <20030605023349.GH24515@conectiva.com.br>
+References: <20030604161437.2b4d3a79.shemminger@osdl.org>
+	<3EDE7FEB.2C7FAEC7@digeo.com>
+	<20030604185652.31958d1f.akpm@digeo.com>
+	<20030605023349.GH24515@conectiva.com.br>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Jun 2003 03:26:22.0152 (UTC) FILETIME=[3C88F480:01C32B12]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jun 2003, Patrick Mansfield wrote:
+broken "cleanup"
 
-> [root@elm3b79 root]# ifup eth0
-> sender address length == 0
+ net/core/iovec.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-This is a bug introduced by a coding style cleanup, fix below.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
---- bk.pending/net/core/iovec.c	2003-06-05 11:12:59.000000000 +1000
-+++ bk.w1/net/core/iovec.c	2003-06-05 13:30:06.000000000 +1000
-@@ -47,10 +47,10 @@ int verify_iovec(struct msghdr *m, struc
+diff -puN net/core/iovec.c~iovec-fix net/core/iovec.c
+--- 25/net/core/iovec.c~iovec-fix	2003-06-04 20:23:03.000000000 -0700
++++ 25-akpm/net/core/iovec.c	2003-06-04 20:24:05.000000000 -0700
+@@ -47,9 +47,10 @@ int verify_iovec(struct msghdr *m, struc
  						  address);
  			if (err < 0)
  				return err;
 -			m->msg_name = address;
 -		} else
 -			m->msg_name = NULL;
--	}
 +		}
 +		m->msg_name = address;
-+	} else
++	} else {
 +		m->msg_name = NULL;
+ 	}
  
  	size = m->msg_iovlen * sizeof(struct iovec);
- 	if (copy_from_user(iov, m->msg_iov, size))
+
+_
 

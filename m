@@ -1,34 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265171AbSKNTyT>; Thu, 14 Nov 2002 14:54:19 -0500
+	id <S265180AbSKNUIj>; Thu, 14 Nov 2002 15:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265179AbSKNTyT>; Thu, 14 Nov 2002 14:54:19 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:25337 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S265171AbSKNTyS>; Thu, 14 Nov 2002 14:54:18 -0500
-Date: Thu, 14 Nov 2002 15:01:12 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Rohit Seth <rseth@unix-os.sc.intel.com>
-Cc: dada1 <dada1@cosmosbay.com>, Christoph Hellwig <hch@infradead.org>,
-       Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove hugetlb syscalls
-Message-ID: <20021114150112.C20258@redhat.com>
-References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com> <08a601c28bbb$2f6182a0$760010ac@edumazet> <20021114141310.A25747@infradead.org> <002b01c28bf0$751a3960$760010ac@edumazet> <20021114103147.A17468@redhat.com> <3DD3FED2.2010901@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DD3FED2.2010901@unix-os.sc.intel.com>; from rseth@unix-os.sc.intel.com on Thu, Nov 14, 2002 at 11:51:46AM -0800
+	id <S265190AbSKNUIj>; Thu, 14 Nov 2002 15:08:39 -0500
+Received: from home.deeptown.org ([205.150.192.50]:7298 "HELO deeptown.org")
+	by vger.kernel.org with SMTP id <S265180AbSKNUIf> convert rfc822-to-8bit;
+	Thu, 14 Nov 2002 15:08:35 -0500
+Message-ID: <002d01c28c1a$91ff9640$34c096cd@toybox>
+From: "Serge Kuznetsov" <sk@deeptown.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+References: <015301c28c00$f6287390$34c096cd@toybox> <20021114.092646.38763468.davem@redhat.com>
+Subject: Re: [NET] Possible bug in netif_receive_skb
+Date: Thu, 14 Nov 2002 15:15:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 11:51:46AM -0800, Rohit Seth wrote:
-> [-- text/html is unsupported (use 'v' to view this part) --]
 
-Sorry, but your html-only email got trapped by the spam filters 
-of linux-mm and linux-kernel.
 
-		-ben
--- 
-"Do you seek knowledge in time travel?"
+> 
+> ->func() must either take or free up the SKB, there must be no
+> violations of this rule.
+> 
+
+Could you explain it more clearly?
+
+How it applies to that two ( even three ) scenarios, I've told?
+
+What if we have the first scenario:
+
+ptype_all->func = func1;
+ptype_all->next = NULL;
+
+  Will this function be called or not?
+
+Second scenario:
+
+ptype_all->func = func1;
+ptype_all->next = &ptype1;
+
+ptype1->func = func2;
+ptype1->next = NULL;
+
+Will func2() be called?
+
+Third scenario:
+
+ptype_all->func = func1;
+ptype_all->next = &ptype1;
+
+ptype1->func = func2;
+ptype1->next = &ptype2;
+
+ptype2->func = func3;
+ptype2->next = &ptype3;
+
+ptype3->func = func4;
+ptype3->next = NULL;
+
+If func2() freed skb, and return NET_RX_DROP, what will happen?
+
+
+PS: I still don't understand why we should skip the first step, and call first function on second cycle?

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285591AbRLWIel>; Sun, 23 Dec 2001 03:34:41 -0500
+	id <S285608AbRLWIpc>; Sun, 23 Dec 2001 03:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285604AbRLWIeb>; Sun, 23 Dec 2001 03:34:31 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:57492 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S285591AbRLWIeS>; Sun, 23 Dec 2001 03:34:18 -0500
-Date: Sun, 23 Dec 2001 03:34:17 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200112230834.fBN8YHl15225@devserv.devel.redhat.com>
-To: geoffeg@sin.sloth.org, linux-kernel@vger.kernel.org
-Subject: Re: Using USB floppy drive for root floppy
-In-Reply-To: <mailman.1009060801.12605.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1009060801.12605.linux-kernel2news@redhat.com>
+	id <S285612AbRLWIpW>; Sun, 23 Dec 2001 03:45:22 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36846 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S285608AbRLWIpG>; Sun, 23 Dec 2001 03:45:06 -0500
+Message-ID: <3C259976.24142F36@mvista.com>
+Date: Sun, 23 Dec 2001 00:44:38 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] High resolution POSIX timers available
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[...]
-> Originally, I just downloaded the standard boot and root floppies. I booted
-> and got the "Insert root floppy disk to be loaded into RAM disk and press
-> ENTER" message. Upon inserting the root disk and pressing ENTER I get a
-> message saying "Unable to mount root fs on 02:00".
->[...] 
-> To get around this problem I compiled my own kernel (2.4.12) with USB and
-> SCSI floppy support. Upon booting that kernel, linux recognizes the USB
-> floppy drive and apparently assigns it to sda. I then tried booting with
-> root=/dev/fd0 which caused the "Unable to mount root fs on 02:00" again. I
-> then tried root=/dev/sda which caused the kernel to panic with "Unable to
-> mount root fs on 08:00".
+The High Resolution Timers project:
 
-There must be a delay before an attempt to mount is made.
-Insert schedule_timeout(5*HZ) there (mdelay won't work because
-it locks out khubd).
+ http://sourceforge.net/projects/high-res-timers/
 
--- Pete
+has just released a new and improved version for the 2.4.13 kernel.  
+
+This version completes the core kernel work and the i386 platform work. 
+
+The project provides timers with micro second resolution while not
+increasing system overhead until a timer that lies between two jiffies
+is about to expire. 
+
+Save for thread signal restrictions in linux, the timers provided by the
+project are fully compliant with POSIX standards 1003.1b-1993 as
+extended by 1003.1j-2000.
+-- 
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

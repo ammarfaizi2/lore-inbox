@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316378AbSEOMJy>; Wed, 15 May 2002 08:09:54 -0400
+	id <S316379AbSEOMM0>; Wed, 15 May 2002 08:12:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316379AbSEOMJx>; Wed, 15 May 2002 08:09:53 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:15364 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316378AbSEOMJw>; Wed, 15 May 2002 08:09:52 -0400
-Message-Id: <200205151200.g4FC0MY13196@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [RFC][PATCH] iowait statistics
-Date: Wed, 15 May 2002 15:02:57 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.44L.0205132214480.32261-100000@imladris.surriel.com> <3CE073FA.57DAC578@zip.com.au>
+	id <S316380AbSEOMMZ>; Wed, 15 May 2002 08:12:25 -0400
+Received: from penguin-ext.wise.edt.ericsson.se ([193.180.251.47]:907 "EHLO
+	penguin.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S316379AbSEOMMY>; Wed, 15 May 2002 08:12:24 -0400
+Message-ID: <3CE250A5.47F71DF@uab.ericsson.se>
+Date: Wed, 15 May 2002 14:12:21 +0200
+From: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: knfsd misses occasional writes
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 May 2002 00:18, Andrew Morton wrote:
-> Rik van Riel wrote:
-> > 4) on SMP systems the iowait time can be overestimated, no big
-> >    deal IMHO but cheap suggestions for improvement are welcome
->
-> I suspect that a number of these statistical accounting mechanisms
-> are going to break.  The new irq-affinity code works awfully well.
->
-> The kernel profiler in 2.5 doesn't work very well at present.
-> When investigating this, I ran a busy-wait process.  It attached
-> itself to CPU #3 and that CPU received precisely zero interrupts
-> across a five minute period.  So the profiler cunningly avoids profiling
-> busy CPUs, which is rather counter-productive.  Fortunate that oprofile
-> uses NMI.
 
-What, even local APIC interrupts did not happen on CPU#3
-in these five mins?
---
-vda
+Hello everyone, 
+
+When copying lots of small files from multiple NFS clients to a kNFSd
+filesystem (i.e. doing backup of a cluster), exported with `sync', I
+find that some few files (1 out of 1000) were silently truncated to zero
+size when checking locally with `ls' (the clients reported total
+success). With `asynch' instead, all files were correctly copied. 
+
+I have seen this behaviour in 2.4.17 (UP and SMP builds, UP hardware) as
+well as 2.4.18, when using the NFSv2 protocol. I have not tried 2.5.x
+and NFSv3 yet. The full /etc/exports line is:
+
+   /opt/telorb 172.16.0.0/255.255.0.0(rw,sync,no_wdelay)
+
+Removing `no_wdelay' makes no difference.
+
+The clients are all 2.4.17, and the relevant .config lines (for both
+server and clients) are:
+
+   CONFIG_NFS_FS=y
+   CONFIG_NFS_V3=y
+   CONFIG_ROOT_NFS=y
+   CONFIG_NFSD=y
+   CONFIG_NFSD_V3=y
+   CONFIG_SUNRPC=y
+   CONFIG_LOCKD=y
+   CONFIG_LOCKD_V4=y
+
+Reading the source (fs/nfsd/*) seems to show that knfsd tries to do the
+right thing.
+
+/Sverker Wiberg

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318109AbSGMG2R>; Sat, 13 Jul 2002 02:28:17 -0400
+	id <S318111AbSGMGqf>; Sat, 13 Jul 2002 02:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318110AbSGMG2Q>; Sat, 13 Jul 2002 02:28:16 -0400
-Received: from 62-190-201-94.pdu.pipex.net ([62.190.201.94]:23300 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S318109AbSGMG2P>; Sat, 13 Jul 2002 02:28:15 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207130636.HAA00666@darkstar.example.net>
-Subject: Re: IDE/ATAPI in 2.5
-To: linux-kernel@vger.kernel.org
-Date: Sat, 13 Jul 2002 07:36:08 +0100 (BST)
-Cc: thunder@ngforever.de, schilling@fokus.gmd.de, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <Pine.LNX.4.44.0207121345180.3421-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Jul 12, 2002 01:52:06 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318110AbSGMGqe>; Sat, 13 Jul 2002 02:46:34 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:45774 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318111AbSGMGqd>;
+	Sat, 13 Jul 2002 02:46:33 -0400
+Date: Sat, 13 Jul 2002 15:16:39 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Art Haas <ahaas@neosoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [SCRIPT] designated initializer conversion
+Message-Id: <20020713151639.0be75486.rusty@rustcorp.com.au>
+In-Reply-To: <20020711025248.GA486@debian>
+References: <20020711025248.GA486@debian>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because we can't tell Linux users "your (once favorite) CD-ROM is not 
-> implemented in Linux (any more), and will never ever be". If we explicitly 
-> exclude hardware, where do we end?!
+On Wed, 10 Jul 2002 21:52:48 -0500
+Art Haas <ahaas@neosoft.com> wrote:
 
-Like other mainstream operating systems :-)
+> Hi.
+> 
+> Near the end of May, there was a thread on the kernel mailing
+> list about converting structure initializers from the present
+> form like ...
 
-One thing that occurs to me, but that I don't necessarily think is a good idea, is that for a long time we had "old" IDE code and "new" IDE code in the kernel, and there is no reason why we couldn't do a similar thing, (I.E. have a "legacy devices will work" foo driver, and "legacy devices might break" foo driver).  Personally I hate that idea, but maybe others will disagree.  I'd rather support all hardware forever, because the whole point is that you can compile out what you don't want, and supporting it is not causing excessive bloat.
+If you're game, try sending these, one file at a time, to
+trivial@rustcorp.com.au.
 
-John.
+Cheers!
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

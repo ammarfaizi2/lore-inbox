@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbVBDUvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266197AbVBDUog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbVBDUvC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:51:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbVBDUon
+	id S266197AbVBDUog (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263291AbVBDUgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:44:43 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:37548 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S266043AbVBDUlg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:41:36 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data corruption
-Date: Fri, 4 Feb 2005 12:41:27 -0800
-User-Agent: KMail/1.7.1
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-References: <1107519382.1703.7.camel@localhost.localdomain>
-In-Reply-To: <1107519382.1703.7.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Fri, 4 Feb 2005 15:36:03 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:41882 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S265857AbVBDU0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:26:07 -0500
+Date: Fri, 4 Feb 2005 21:26:28 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: Rahul Jain <rbj2@oak.njit.edu>
+Subject: Re: How to add source files in kernel
+Message-ID: <20050204202628.GA14973@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502041241.28029.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.GSO.4.58.0502041408540.12006@chrome.njit.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 February 2005 4:16 am, Rusty Russell wrote:
+
+Rahul Jain <rbj2@oak.njit.edu> ha scritto:
+> The kernel recompilation went without any problems. I wrote loadable
+> module programs that can access the functions defined in .c. When I try to
+> install these modules, they came back with the following error
 > 
-> Is USB/SCSI just terminally broken under 2.6?  
+> /sbin/insmod x.o
+> x.o: unresolved symbol enqueue_sfi
+> x.o: unresolved symbol init_skbuff_list
+> x.o: unresolved symbol get_head_sfi
+> x.o: unresolved symbol search_sfi
+> x.o: unresolved symbol enqueue_skbuff_list
+> x.o: unresolved symbol init_head_sfi
+> x.o:
+> Hint: You are trying to load a module without a GPL compatible license
+>      and it has unresolved symbols.  Contact the module supplier for
+>      assistance, only they can help you.
+> 
+> make: *** [install] Error 1
 
-I don't think so, but there are problems that appear in some
-hardware configs and not others.  Many folk report no problems;
-a (very) few report nothing but.
+You forgot the EXPORT for those symbols, add:
 
-If you've verified this on 2.6.10, then you certainly have
-have the ehci-hcd (re)queueing race fix that has made a big
-difference for some folk.  I don't know of any other issues
-in that driver that could explain usb-storage problems.
+EXPORT_SYMBOL(symbol_name);
 
-What hardware config do you have?
+to .c file. Or you may have exported the symbols as GPL only
+(EXPORT_SYMBOL_GPL) and the module which is not licensed under GPL
+cannot see them.
 
-  - Whose EHCI controller and revision?  I've never had
-    good luck with VIA VT6202.  ("lspci -v".)
-
-  - Whose USB storage adapter?  ("lsusb -v", or in this
-    case the /proc/bus/usb/devices entry would be ok.)
-    GeneSys adapters have been the most problematic,
-    but they're hardly the only ones with quirks.
-
-Thing is, that driver stack isn't especially thin:  SCSI isn't
-the top, and it's got usb-storage, usbcore, and a USB HCD under
-it.  That makes it harder to track down root causes, even when
-there is just a single one and it's in those drivers (rather
-than being hardware misbehavior).
-
-- Dave
+Luca
+-- 
+Home: http://kronoz.cjb.net
+La somma dell'intelligenza sulla terra e` una costante.
+La popolazione e` in aumento.

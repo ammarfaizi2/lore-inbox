@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291291AbSCMAUr>; Tue, 12 Mar 2002 19:20:47 -0500
+	id <S291314AbSCMAX5>; Tue, 12 Mar 2002 19:23:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291314AbSCMAUh>; Tue, 12 Mar 2002 19:20:37 -0500
-Received: from jubjub.wizard.com ([209.170.216.9]:3086 "EHLO jubjub.wizard.com")
-	by vger.kernel.org with ESMTP id <S291291AbSCMAUa>;
-	Tue, 12 Mar 2002 19:20:30 -0500
-Date: Tue, 12 Mar 2002 16:19:57 -0800
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: linux-kernel@vger.kernel.org
-Subject: more unresolved symbols in 2.5.6
-Message-ID: <20020313001957.GA9853@wizard.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux/2.5.5 (i686)
-X-uptime: 4:12pm  up 8 days, 11:09,  2 users,  load average: 0.00, 0.29, 0.52
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+	id <S291306AbSCMAXr>; Tue, 12 Mar 2002 19:23:47 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:41903 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S291314AbSCMAXa>; Tue, 12 Mar 2002 19:23:30 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 12 Mar 2002 16:23:24 -0800
+Message-Id: <200203130023.QAA08389@adam.yggdrasil.com>
+To: rmk@arm.linux.org.uk
+Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>On Tue, Mar 12, 2002 at 03:55:36PM -0800, Adam J. Richter wrote:
+>> 	Are you talking about an event that occurred in the 2.4
+>> tree or the 2.5 tree?  Are you saying that the newer driver in
+>> 2.4 was reverted back to the older driver (i.e., the one that
+>> is in 2.5), or are you saying that someone made some attempt
+>> at porting the 2.5 tree's NCR53C80 driver the new DMA mapping
+>> interface and then backed them out?
 
-        Just going through the rest of the reports in my rolling of 2.5.6.
+>Someone had a go at "making 2.5 compile" without taking Alan's 2.4
+>changes. It went into Linus tree.  It got subsequently reverted
+>because of the reasons I outlined in my previous mail.
 
-        With CONFIG_BLK_DEV_IDECD=m, /sbin/depmod -ae -F System.map 2.5.6 from 
-make modules_install comes back with:
+	Maybe you are thinking of the patches that I posted a
+while ago that included an update to some locking changes for
+a bunch of the scsi drivers.  Alan spoke up and said that
+I should not apply the NCR53C80 part of those patches because
+I had made a mistake and becuase there was a newer driver in 2.4,
+and provided some tips on porting the 2.4 driver.  I immediately
+said I would follow Alan's advice and not submit patches
+based on the old NCR53C80-based drivers.
 
-depmod: *** Unresolved symbols in /lib/modules/2.5.6/kernel/drivers/ide/ide-cd.o
-depmod:         ide_fops
-depmod: *** Unresolved symbols in /lib/modules/2.5.6/kernel/drivers/net/tulip/de4x5.o
-depmod:         virt_to_bus_not_defined_use_pci_map
-depmod: *** Unresolved symbols in /lib/modules/2.5.6/kernel/sound/oss/sound.o
-depmod:         virt_to_bus_not_defined_use_pci_map
+	Maybe you were thinking of some other event when you
+said "I believe changes to NCR53c80 were recently reverted back because
+these 'fixes' lead to massive data corruption."  If so, I would be
+interested in hearing about it.
 
-        The virt_to_bus_not_defined_use_pci_map is known and is being worked 
-on, AFAIK, but ide_fops is new. Poking around ide-cd.c, line 2514, is the only 
-reference to it, inside a devfs_register() call. Leads me to assume that this 
-would only show up, if CONFIG_DEVFS_FS is set to Y. Richard, any insights into 
-this one? It looks like ide_fops may only need to be exported via ksyms.c, but 
-I'd rather have a second opinion..
-
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292384AbSB0OSP>; Wed, 27 Feb 2002 09:18:15 -0500
+	id <S292386AbSB0OWk>; Wed, 27 Feb 2002 09:22:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292508AbSB0OSH>; Wed, 27 Feb 2002 09:18:07 -0500
-Received: from x86unx3.comp.nus.edu.sg ([137.132.90.3]:38305 "EHLO
-	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
-	id <S292395AbSB0OR5>; Wed, 27 Feb 2002 09:17:57 -0500
-Date: Wed, 27 Feb 2002 22:17:51 +0800 (GMT-8)
-From: Zhu Ying Jie <zhuyingj@comp.nus.edu.sg>
-To: linux-kernel@vger.kernel.org
-Subject: How to disable TCP's checksum
-Message-ID: <Pine.GSO.4.21.0202272215080.21508-100000@sf3.comp.nus.edu.sg>
+	id <S292516AbSB0OWb>; Wed, 27 Feb 2002 09:22:31 -0500
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:59134 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S292511AbSB0OWR>; Wed, 27 Feb 2002 09:22:17 -0500
+Message-ID: <3C7CEA75.3040805@drugphish.ch>
+Date: Wed, 27 Feb 2002 15:17:25 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Nathan <wfilardo@fuse.net>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: 2.5.5-dj2 compile failures
+In-Reply-To: <Pine.LNX.4.44.0202271600370.16294-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I am currently using kernel version 2.4.2 and trying to disable
-tcp_input's checksum function. However, even I comment all the csum_error
-in the file tcp_input.c, the packet (with wrong checksum) seems still will
-be dropped. Can anyone tell me how to do the work? 
+Hello,
 
-Zhu Ying jie
-Department of Computer Science,
-School of Computing, 
-National University of Singapore
+>>RTC Timer support failed - but maybe I don't need that
+>>
+>>Generic ESS ES18xx driver also failed to compile, - so no sound here.
+>>
+> 
+> Aargh i think thats me too! I'll have a look.
 
+I sent in patches for the RTC Timer compile fix (interrupt.h was 
+missing) last night [1] but I only cc'd to dj and the ALSA maintainer. I 
+haven't fixed the ESS driver though.
 
-SS****************************SS***********************************SS
-+           From little town of far land we came,                   + 
-+           to save our honor from a world of flame.                +
-+           By little town of far land we sleep,                    + 
-+           and trust that world will be won for you to keep.       +
-SS****************************SS***********************************SS
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=101477526613921&w=2
+
+Cheers,
+Roberto Nibali, ratz
 
 

@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVCHJ0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVCHJ2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVCHJ0S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 04:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVCHJ0S
+	id S261926AbVCHJ2v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 04:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVCHJ2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 04:26:18 -0500
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:56045 "HELO
-	develer.com") by vger.kernel.org with SMTP id S261420AbVCHJ0J (ORCPT
+	Tue, 8 Mar 2005 04:28:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32977 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261926AbVCHJ2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 04:26:09 -0500
-Message-ID: <422D6FB1.4050506@develer.com>
-Date: Tue, 08 Mar 2005 10:26:09 +0100
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       Neil Conway <nconway_kernel@yahoo.co.uk>, nfs@lists.sourceforge.net
-Subject: Re: NFS client bug in 2.6.8-2.6.11
-References: <422D2FDE.2090104@develer.com>	 <1110259831.11712.1.camel@lade.trondhjem.org>	 <422D485F.5060709@develer.com> <1110264475.11712.30.camel@lade.trondhjem.org>
-In-Reply-To: <1110264475.11712.30.camel@lade.trondhjem.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 8 Mar 2005 04:28:40 -0500
+Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050307155001.099352b5.akpm@osdl.org>
+References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050304160451.4c33919c.akpm@osdl.org>
+	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050307123118.3a946bc8.akpm@osdl.org>
+	 <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050307131113.0fd7477e.akpm@osdl.org>
+	 <1110230527.15117.625.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1110237205.15117.702.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050307155001.099352b5.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1110274110.1941.5.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 08 Mar 2005 09:28:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> ty den 08.03.2005 Klokka 07:38 (+0100) skreiv Bernardo Innocenti:
->>
->>Two clients started showing the problem after
->>being upgraded from FC2 to FC3, while the server
->>remained unchanged.
+Hi,
+
+On Mon, 2005-03-07 at 23:50, Andrew Morton wrote:
+
+> truncate_inode_pages_range() seems to dtrt here.  Can we do it in the same
+> manner in invalidate_inode_pages2_range()?
 > 
-> Can you produce tcpdumps to back that up?
 > 
-> Neil's problem appeared rather to be server-related. Neither of us could
-> reproduce his problem when the server was exporting an XFS partition.
+> Something like:
 
-Actually, I was mistaken: running a background "find / >/dev/null"
-triggers the problem even on the old RedHat (2.4.26) and
-Gentoo (2.6.11) clients.
+> -			if (page->mapping != mapping || page->index > end) {
+> +			page_index = page->index;
+> +			if (page_index > end) {
+> +				next = page_index;
+> +				unlock_page(page);
+> +				break;
+> +			}
+> +			if (page->mapping != mapping) {
+>  				unlock_page(page);
+>  				continue;
+>  			}
 
+Yes, breaking early seems fine for this.  But don't we need to test
+page->mapping == mapping again with the page lock held before we can
+reliably break on page_index?
 
-> The other thing to try is to turn off subtree checking on the server.
+I think it should be OK just to move the page->mapping != mapping test
+above the page>index > end test.  Sure, if all the pages have been
+stolen by the time we see them, then we'll repeat without advancing
+"next"; but we're still making progress in that case because pages that
+were previously in this mapping *have* been removed, just by a different
+process.  If we're really concerned about that case we can play the
+trick that invalidate_mapping_pages() tries and do a "next++" in that
+case.
 
-It's already turned off on all shares.  For the record, this is the
-contents of my /etc/exportfs:
-
-/home                   gss/krb5(rw,no_root_squash,no_subtree_check,async) beetle(rw,no_root_squash,no_subtree_check,async) deimos(rw,async,no_subtree_check,anonuid=134,anongid=100) haring(rw,async,no_subtree_check,anonuid=127,anongid=100) murphy(rw,async,no_subtree_check,anonuid=158,anongid=100) daneel(rw,async,no_subtree_check,anonuid=100,anongid=100) 10.0.0.0/8(rw,no_subtree_check,async)
-/arc                    10.0.0.0/8(rw,no_root_squash,no_subtree_check,async,anonuid=14,anongid=113)
-
-#
-# NFSv4
-#
-/export                 beetle(rw,fsid=0,no_root_squash,insecure,no_subtree_check,async)
-/export                 10.0.0.0/8(rw,fsid=0,insecure,no_subtree_check,async)
-/export                 gss/krb5(rw,fsid=0,insecure,no_subtree_check,async)
-/export/home            beetle(rw,nohide,no_root_squash,insecure,no_subtree_check,async)
-/export/home            10.0.0.0/8(rw,nohide,insecure,no_subtree_check,async)
-/export/home            gss/krb5(rw,nohide,no_root_squash,insecure,no_subtree_check,async)
-/export/arc             10.0.0.0/8(rw,nohide,no_root_squash,insecure,no_subtree_check,async,anonuid=14,anongid=113)
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
+--Stephen
 

@@ -1,98 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263571AbSJWJuT>; Wed, 23 Oct 2002 05:50:19 -0400
+	id <S263958AbSJWJzF>; Wed, 23 Oct 2002 05:55:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263958AbSJWJuT>; Wed, 23 Oct 2002 05:50:19 -0400
-Received: from hazard.jcu.cz ([160.217.1.6]:937 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id <S263571AbSJWJuS>;
-	Wed, 23 Oct 2002 05:50:18 -0400
-Date: Wed, 23 Oct 2002 11:56:01 +0200
-From: Jan Marek <linux@hazard.jcu.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [miniPATCH] 2.5.44 fix compilation errors in the AFS fs
-Message-ID: <20021023095601.GB12175@hazard.jcu.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S263960AbSJWJzF>; Wed, 23 Oct 2002 05:55:05 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:15280 "EHLO
+	pc.kolivas.net") by vger.kernel.org with ESMTP id <S263958AbSJWJzE>;
+	Wed, 23 Oct 2002 05:55:04 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.44-mm3
+Date: Wed, 23 Oct 2002 20:01:00 +1000
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210232001.08647.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Problem
 
-Hallo lkml,
+I run hdparm in my init (to disable apm on the hard drive routinely) and got 
+this when I tried to boot mm3:
 
-I'm sending 2 patches to fix compilation errors in the AFS fs.
+CPU:0
+EIP 0060:[<c01b630e>] Not tainted
+EFLAGS: 00010286
+eax: 00000000 ebx: cdf73f00 ecx: cd4b0cd4 edx: c02479c4
+esi: cdf73f00 edi: c02479cf ebp: 00000000 esp: cd4bbefc
+ds: 0068 es: 0068 ss: 0068
+Process hdparm (pid: 315, threadinfo=cd4ba000 tsk=cd938ce0)
+Stack: cdf73f00 c013b3dc cd4b0cd4 cdab6540 cd4b0cd4 cdab6540 ffffffe9 cdfe65e0
+	cdf73f20 00000000 00000000 160065e0 ffffffa 00000000 c013b65e cdf73f00
+	cd4b0cd4 cdab6540 cd4b0cd4 cdab6540 cd4b0cd4 c0134d7a cd4b0cd4 cdab6540
+Call Trace: [<c013b3dc>] [<c013b65e>] [<c0134d7a>] [<c0134cb2>] [<c0135023>]
+[<c0106cd3>]
+Code: 8b 40 2c 8b 5c 24 0c 8b 90 e8 00 00 00 ff 80 54 01 00 00 50
 
-The first of them fixed union afs_dirent_t and using this union in the
-fs/afs/dir.c.
 
-The second of them fix number of parameters of calling function kleave()
-in the net/rxpc/main.c.
+Then when I try to use the keyboard each keystroke produces something like:
+evbug.c: Event. Dev: isa0060/serio0/input0, Type: 0, Code: 0, Value, 0
 
-Sincerely
-Jan Marek
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
+The machine still works ok after this but I keep getting this with each 
+keystroke.
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fs_afs_dirc.patch"
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
---- linux-2.5.44/fs/afs/dir.c.old	2002-10-23 11:35:12.000000000 +0200
-+++ linux-2.5.44/fs/afs/dir.c	2002-10-23 11:39:57.000000000 +0200
-@@ -72,7 +72,7 @@
- 		u8	name[16];
- 		u8	overflow[4];	/* if any char of the name (inc NUL) reaches here, consume
- 					 * the next dirent too */
--	};
-+	} parts;
- 	u8	extended_name[32];
- } afs_dirent_t;
- 
-@@ -258,7 +258,7 @@
- 
- 		/* got a valid entry */
- 		dire = &block->dirents[offset];
--		nlen = strnlen(dire->name,sizeof(*block) - offset*sizeof(afs_dirent_t));
-+		nlen = strnlen(dire->parts.name,sizeof(*block) - offset*sizeof(afs_dirent_t));
- 
- 		_debug("ENT[%u.%u]: %s %u \"%.*s\"\n",
- 		       blkoff/sizeof(afs_dir_block_t),offset,
-@@ -290,11 +290,11 @@
- 
- 		/* found the next entry */
- 		ret = filldir(cookie,
--			      dire->name,
-+			      dire->parts.name,
- 			      nlen,
- 			      blkoff + offset * sizeof(afs_dirent_t),
--			      ntohl(dire->vnode),
--			      filldir==afs_dir_lookup_filldir ? dire->unique : DT_UNKNOWN);
-+			      ntohl(dire->parts.vnode),
-+			      filldir==afs_dir_lookup_filldir ? dire->parts.unique : DT_UNKNOWN);
- 		if (ret<0) {
- 			_leave(" = 0 [full]");
- 			return 0;
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="net_rxpc_mainc.patch"
-
---- linux-2.5.44/net/rxrpc/main.c.old	2002-10-23 11:44:45.000000000 +0200
-+++ linux-2.5.44/net/rxrpc/main.c	2002-10-23 11:45:41.000000000 +0200
-@@ -123,5 +123,5 @@
- 	__RXACCT(printk("Outstanding Peers      : %d\n",atomic_read(&rxrpc_peer_count)));
- 	__RXACCT(printk("Outstanding Transports : %d\n",atomic_read(&rxrpc_transport_count)));
- 
--	kleave();
-+	kleave("");
- } /* end rxrpc_cleanup() */
-
---a8Wt8u1KmwUX3Y2C--
+iD8DBQE9tnNfF6dfvkL3i1gRAtICAKCS4jwiqEdS/A8kUivzny6tn6549wCeIXZr
+wcpKVUGAPbSGCq0HplGfOUA=
+=8/+L
+-----END PGP SIGNATURE-----

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVCARLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVCARQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbVCARLX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 12:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVCARLX
+	id S261983AbVCARQj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 12:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVCARQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 12:11:23 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:5823 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261982AbVCARLR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 12:11:17 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-Date: Tue, 1 Mar 2005 09:10:29 -0800
-User-Agent: KMail/1.7.2
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-References: <422428EC.3090905@jp.fujitsu.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 1 Mar 2005 12:16:39 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:57869 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261983AbVCARQg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 12:16:36 -0500
+Date: Wed, 02 Mar 2005 02:18:02 +0900 (JST)
+Message-Id: <20050302.021802.71004233.yoshfuji@linux-ipv6.org>
+To: lm@bitmover.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bkbits.net down?
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050301165415.GA1990@bitmover.com>
+References: <20050302.010010.132894644.yoshfuji@linux-ipv6.org>
+	<20050301165415.GA1990@bitmover.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503010910.29460.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, March 1, 2005 8:59 am, Matthew Wilcox wrote:
-> The MCA handler has to go and figure out what the hell just happened
-> (was it a DIMM error, PCI bus error, etc).  OK, fine, it finds that it
-> was an error on PCI bus 73.  At this point, I think the architecture
-> error handler needs to call into the PCI subsystem and say "Hey, there
-> was an error, you deal with it".
->
-> If we're lucky, we get all the information that allows us to figure
-> out which device it was (eg a destination address that matches a BAR),
-> then we could have a ->error method in the pci_driver that handles it.
-> If there's no ->error method, at leat call ->remove so one device only
-> takes itself down.
->
-> Does this make sense?
+In article <20050301165415.GA1990@bitmover.com> (at Tue, 1 Mar 2005 08:54:15 -0800), lm@bitmover.com (Larry McVoy) says:
 
-This was my thought too last time we had this discussion.  A completely 
-asynchronous call is probably needed in addition to Hidetoshi's proposed API, 
-since as you point out, the driver may not be running when an error occurs 
-(e.g. in the case of a DMA error or more general bus problem).  The async 
-->error callback could do a total reset of the card, or something along those 
-lines as Jeff suggests, while the inline ioerr_clear/ioerr_check API could 
-potentially deal with errors as they happen (probably in the case of PIO 
-related errors), when the additional context may allow us to be smarter about 
-recovery.
+> No, sorry.  We're working on the tarball+patch server we talked about about
+> a couple years back and I screwed up the http server.  The bk:// urls work,
+> please use them until I fix this, should be quick.
 
-Jesse
+Okay, thanks. But bk:// urls does not seem to work, unfortunately.
+
+|% bk pull
+|Pull bk://linux.bkbits.net:8080/linux-2.5
+|  -> file://home2/yoshfuji/BitKeeper/linux-2.6
+|% 
+
+No message like "nothing to pull."
+
+Anyway, it's time to sleep for me. ZZZzzz...
+
+> 
+> On Wed, Mar 02, 2005 at 01:00:10AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> > Hello.
+> > 
+> > *.bkbits.net (port 8080) seems to reply with no data.
+> > And "bk pull" on linux-2.5 also fails.
+> > Is this scheduled?
+> > 
+> > Thank you.
+> > 
+> > --yoshfuji
+> 
+> -- 
+> ---
+> Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

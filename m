@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263343AbTCNPEO>; Fri, 14 Mar 2003 10:04:14 -0500
+	id <S263355AbTCNPNK>; Fri, 14 Mar 2003 10:13:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263344AbTCNPEO>; Fri, 14 Mar 2003 10:04:14 -0500
-Received: from bitmover.com ([192.132.92.2]:27284 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S263343AbTCNPEN>;
-	Fri, 14 Mar 2003 10:04:13 -0500
-Date: Fri, 14 Mar 2003 07:14:55 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, Lars Marowsky-Bree <lmb@suse.de>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314151455.GB8937@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	vojtech@suse.cz
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de> <20030314144347.GA8937@work.bitmover.com> <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
+	id <S263356AbTCNPNK>; Fri, 14 Mar 2003 10:13:10 -0500
+Received: from 237.oncolt.com ([213.86.99.237]:25281 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263355AbTCNPNI>; Fri, 14 Mar 2003 10:13:08 -0500
+Subject: Re: devfs + PCI serial card = no extra serial ports
+From: David Woodhouse <dwmw2@infradead.org>
+To: Bryan Whitehead <driver@jpl.nasa.gov>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3E6CD8B1.5070300@jpl.nasa.gov>
+References: <200303081948.LAA05459@adam.yggdrasil.com>
+	 <3E6CD8B1.5070300@jpl.nasa.gov>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047655430.14792.86.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
+Date: 14 Mar 2003 15:23:50 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 04:10:49PM +0000, Alan Cox wrote:
-> On Fri, 2003-03-14 at 14:43, Larry McVoy wrote:
-> > You might want to stop and consider what SuSE would do if someone decided
-> > they didn't like SuSE and came up with a pathetic shell script and started
-> > describing it as "a system compatible with SuSE".  I'm pretty sure that
-> > your lawyers would be all over them in about 30 seconds.  Ditto for Red
-> > Hat, Alan.  I believe it is your founder who has carefully explained to
-> > all of us the importance of brand.  In fact, isn't the point that Red Hat
-> > is nothing *but* brand?  So how fast would I get sued if I came out with
-> > "Larry's Red Hat Linux"?  Pretty fast, right?
-> > 
-> > I stand behind my statements.  If you don't like them, oh, darn.
+On Mon, 2003-03-10 at 18:25, Bryan Whitehead wrote:
+> [snip]
+> >       There is nothing in devfs that prevents you from registering
+> > devfs devices even if they are not yet bound to specific hardware
+> > (you do not need a sysfs mapping, for example).  So, you should be
+> > able to register /dev/tts/0..N at initialization, where N is the
+> > maximum number of serial devices you want to support.
 > 
-> I thought you were above deliberately tangling unrelated questions to
-> try and make a bogus point. Lets think about this clearly.
-> 
-> "XYZ runs on Red Hat Linux"
-> "XYZ reads Red Hat Linux RPM databases"
-> "XYZ imports Oracle Databases into Bananavision"
-> 
-> versus
-> 
-> "Larry's Red Hat Linux"
+> are you saying there is a way to force devfs to make more entries in 
+> /dev/tts/ without any hardware being attached to the entries? Then i can 
+> use setserial? so on boot I'd have 4 entries in /dev/tts ?
 
-I thought you were above deliberately tangling unrelated questions to try
-and distract from my perfectly valid point.  
+Don't do this. The whole concept of opening a device node for a device
+which is _absent_, then doing magic ioctls on it to make the driver
+probe for the hardware, is utterly bogus.
 
-    "BitBucket: GPL-ed BitKeeper clone"
-    "The goal of this project is to produce a system compatible with BitKeeper"
+Fix it properly instead -- disallow opening of a /dev/ttySx node with
+uart type unknown, and implement a proper way to tell the serial driver
+'please look for a device _here_', via sysfs or something. 
 
-Let's try a little simple substitution since you seem to be needing coffee
-this morning:
-
-    "Red Cap: a proprietary Red Hat clone"
-    "The goal of this system is to produce a system compatible with Red Hat"
-
-Go run those statements by your lawyers, Alan, and then please report
-what they said back here.  
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+dwmw2
+

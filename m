@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265666AbTFSQaU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 12:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265416AbTFSQaT
+	id S265437AbTFSQ2m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbTFSQ2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 12:30:19 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:43940 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265731AbTFSQaM (ORCPT
+	Thu, 19 Jun 2003 12:28:42 -0400
+Received: from ns.suse.de ([213.95.15.193]:59396 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265437AbTFSQ2h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 12:30:12 -0400
-Date: Thu, 19 Jun 2003 09:46:19 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <3EF101E4.3030900@cox.net>
-Message-ID: <Pine.LNX.4.44.0306190943110.955-100000@cherise>
+	Thu, 19 Jun 2003 12:28:37 -0400
+To: Ray Bryant <raybry@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to hang in   2.4.21
+References: <3EF1D830.F12113D@sgi.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Jun 2003 18:42:31 +0200
+In-Reply-To: <3EF1D830.F12113D@sgi.com.suse.lists.linux.kernel>
+Message-ID: <p733ci65894.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > What is a sysfs "class", as in /sys/class/...?
+Ray Bryant <raybry@sgi.com> writes:
 > 
-> It is an abstraction. It is a group of objects that implement common 
-> functionality, and have common attributes and behaviors.
+>      select() and poll() call a common routine: __pollwait().  On the
+> first call to __pollwait(), it calls __get_free_page(GFP_KERNEL) to
+> allocate a table to hold wait queues.  In the natural course of things,
+> this calls into __alloc_pages().  In low memory situations, the process
+> can then end up in the rebalance code at the bottom of __alloc_pages()
+> where there is a call to yield().  If the process makes this call, this
+> is a bad thing [tm], since the process state at that point is
+> TASK_INTERRUPTIBLE.  There is no wait queue yet for the process (that is
+> done later in __pollwait()) and no schedule timeout event has yet been
+> created (that is done later in select()) so the process will never
+> return from the call to yield().
 
-Not quite. A class represents a class of devices, or the function that a 
-device performs, e.g. disk or sound. 
+Nasty bug. How about adding a BUG() for current->state != TASK_RUNNING at 
+the beginning of __alloc_pages unless GFP_ATOMIC is set?
 
-> > What do sysfs classes have in common? How is
-> > a /sys/class/ different from a /sys/devices,
-> > /sys/bus, etc?
-> 
-> /sys/bus, /sys/block are just special-case classes that get their own 
-> top-level directory. They could just easily have been put under 
-> /sys/class/block, /sys/class/bus.
-
-No. If you want to go that far, 'devices' could go under there as well, 
-and we'd eventually just have one top-level directory: /sys/class :) 
-
-The top-level directories in sysfs represent classes of objects, not 
-necessarily tied to any driver model concepts. The reason it's so 
-driver-model heavy now is because that's how the whole thing originated. 
-
-
-	-pat
-
+-Andi

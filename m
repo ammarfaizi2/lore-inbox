@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284164AbRLROoH>; Tue, 18 Dec 2001 09:44:07 -0500
+	id <S284135AbRLROpr>; Tue, 18 Dec 2001 09:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284187AbRLROn5>; Tue, 18 Dec 2001 09:43:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50705 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284164AbRLROnw>;
-	Tue, 18 Dec 2001 09:43:52 -0500
-Date: Tue, 18 Dec 2001 15:43:38 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joe Krahn <jkrahn@nc.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Common removable media interface?
-Message-ID: <20011218154338.D32511@suse.de>
-In-Reply-To: <3C1F41D6.43A16F80@nc.rr.com> <20011218142002.C32511@suse.de> <3C1F47D4.8964A190@nc.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C1F47D4.8964A190@nc.rr.com>
+	id <S284163AbRLROph>; Tue, 18 Dec 2001 09:45:37 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:7825 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S284135AbRLROp1>;
+	Tue, 18 Dec 2001 09:45:27 -0500
+Date: Tue, 18 Dec 2001 17:43:01 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: bcrl <bcrl@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] mempool-2.5.1-D2
+In-Reply-To: <200112172357.AAA17058@webserver.ithnet.com>
+Message-ID: <Pine.LNX.4.33.0112181731520.3480-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18 2001, Joe Krahn wrote:
-> Jens Axboe wrote:
-> > 
-> > On Tue, Dec 18 2001, Joe Krahn wrote:
-> > > I think Linux could use a common removable
-> > > media interface, sort of like cdrom.c adds
-> ...
-> > 
-> > Stuff like this belongs in user space, no need to bloat the kernel with
-> > it.
-> > 
-> > --
-> > Jens Axboe
-> OK, you are right. Bloat is bad. So,
-> would you say that new drivers should keep ioctls
-> to a bare minimum, much less than cdrom.c, and just
-> provide generic access, like SG_IO/HDIO_DRIVE_CMD,
-> as a general rule from now on?
-> (Sounds OK to me...)
 
-That's exactly what I'm saying, in fact that's the direction that 2.5 is
-heading currently (rq->cmd[]). _One_ packet ioctl for your atapi or scsi
-removables, done.
+On Tue, 18 Dec 2001, Stephan von Krawczynski wrote:
 
--- 
-Jens Axboe
+> Hm, and where is the real-world-difference to standard VM? I mean
+> today your bad-ass application gets shot down by L's oom-killer and
+> your VM will "refill". So you're not going to die for long in the
+> current situation either. [...]
+
+Think of the following trivial case: 'the whole system is full of dirty
+pagecache pages, the rest is kmalloc()ed somewhere'. Nothing to oom,
+nothing to kill, plenty of swap left and no RAM. And besides, in this
+situation, oom is the worst possible answer, the application getting
+oom-ed is not at fault in this case.
+
+	Ingo
 

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbTISTrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 15:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTISTrZ
+	id S261725AbTIST44 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 15:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbTIST4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 15:47:25 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:32932 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261686AbTISTrY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 15:47:24 -0400
-Subject: [PATCH 1/5] input: Fix Set3 keycode for right control in atkbd.c
-In-Reply-To: 
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Fri, 19 Sep 2003 21:47:14 +0200
-Message-Id: <10640008343413@twilight.ucw.cz>
+	Fri, 19 Sep 2003 15:56:55 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:16530 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261732AbTISTyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 15:54:18 -0400
+Date: Fri, 19 Sep 2003 21:54:12 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 4/13] use cpu_relax() in busy loop
+Message-ID: <20030919215412.D22138@devserv.devel.redhat.com>
+References: <20030918162522.E16499@osdlab.pdx.osdl.net> <20030918162748.F16499@osdlab.pdx.osdl.net> <20030918162930.G16499@osdlab.pdx.osdl.net> <20030918163156.H16499@osdlab.pdx.osdl.net> <1063956884.5394.3.camel@laptop.fenrus.com> <20030919124845.A27079@osdlab.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Vojtech Pavlik <vojtech@suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030919124845.A27079@osdlab.pdx.osdl.net>; from chrisw@osdl.org on Fri, Sep 19, 2003 at 12:48:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
 
-===================================================================
+On Fri, Sep 19, 2003 at 12:48:45PM -0700, Chris Wright wrote:
+> * Arjan van de Ven (arjanv@redhat.com) wrote:
+> > 
+> > mdelay ?
+> 
+> Yeah, good point.  For these subsecond pauses mdelay() makes more sense.
+> It'd be nice to get rid of long busy loops in general. 
 
-ChangeSet@1.1350, 2003-09-19 13:15:12+02:00, Andries.Brouwer@cwi.nl
-  input: Fix Set3 keycode for right control in atkbd.c
-
-
- atkbd.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-===================================================================
-
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Fri Sep 19 14:13:04 2003
-+++ b/drivers/input/keyboard/atkbd.c	Fri Sep 19 14:13:04 2003
-@@ -71,7 +71,7 @@
- 	134, 46, 45, 32, 18,  5,  4, 63,135, 57, 47, 33, 20, 19,  6, 64,
- 	136, 49, 48, 35, 34, 21,  7, 65,137,100, 50, 36, 22,  8,  9, 66,
- 	125, 51, 37, 23, 24, 11, 10, 67,126, 52, 53, 38, 39, 25, 12, 68,
--	113,114, 40, 84, 26, 13, 87, 99,100, 54, 28, 27, 43, 84, 88, 70,
-+	113,114, 40, 84, 26, 13, 87, 99, 97, 54, 28, 27, 43, 84, 88, 70,
- 	108,105,119,103,111,107, 14,110,  0, 79,106, 75, 71,109,102,104,
- 	 82, 83, 80, 76, 77, 72, 69, 98,  0, 96, 81,  0, 78, 73, 55, 85,
- 	 89, 90, 91, 92, 74,185,184,182,  0,  0,  0,125,126,127,112,  0,
-
+yep; first step is making them grep-able by using mdelay ;)

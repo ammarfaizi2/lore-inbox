@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261820AbTC0I7S>; Thu, 27 Mar 2003 03:59:18 -0500
+	id <S261818AbTC0I6S>; Thu, 27 Mar 2003 03:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261821AbTC0I7S>; Thu, 27 Mar 2003 03:59:18 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:48368 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261820AbTC0I7Q>;
-	Thu, 27 Mar 2003 03:59:16 -0500
-Date: Thu, 27 Mar 2003 10:09:33 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Framebuffer fixes.
-In-Reply-To: <1048734021.982.4.camel@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0303271008190.26358-100000@vervain.sonytel.be>
+	id <S261820AbTC0I6S>; Thu, 27 Mar 2003 03:58:18 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:24836 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261818AbTC0I6R>; Thu, 27 Mar 2003 03:58:17 -0500
+Message-ID: <3E82C05A.8080107@aitel.hist.no>
+Date: Thu, 27 Mar 2003 10:11:54 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jordi Ros <jros@xiran.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: page size bigger than 4 KB for ext2
+References: <E3738FB497C72449B0A81AEABE6E713C027904@STXCHG1.simpletech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Mar 2003, Antonino Daplas wrote:
->        - image->depth should be representative of the data depth
-> (currently, either 8 or 1).  If image->depth == 1, color expansion can
-> now be used to draw the logo, thus there's no need to differentiate
-> between mono logo drawing and monochrome expansion.
+Jordi Ros wrote:
+> Hi all,
+> 
+> I am trying to bring up a hard drive formated to 8KB page size using ext2. 
+ > It seems that i may need to recompile the kernel, as default 
+PAGE_SIZE is 4KB. I have 2 questions:
+> 
+> 1) What is the procedure to build a kernel that can support hard drives formatted to 8KB ext2?
+Build it for one of those architectures that actually have 8k pages, and
+run on that sort of machine.  Nobody has made a 8k page linux
+for i386 or other 4k-page architectures.  It is possible, but a lot
+of work because the cpu don't support it.
 
-> +	/*
-> +	 * Monochrome expansion and logo drawing functions are the same if
-> +	 * fb_logo.needs_logo == 1.
-> +	 */
-> +	switch (info->fix.visual) {
-> +	case FB_VISUAL_MONO10:
-> +		image.fg_color = (u32) (~(~0UL << fb_logo.depth));
-                                                  ^^^^^^^^^^^^^
-> +		image.bg_color = 0;
-> +		image.depth = 1;
-> +		break;
-> +	case FB_VISUAL_MONO01:
-> +		image.bg_color = (u32) (~(~0UL << fb_logo.depth));
-                                                  ^^^^^^^^^^^^^
-> +		image.fg_color = 0;
-> +		image.depth = 1;
-> +		break;
+> 2) What is the procedure to format a hard drive to 8KB ext2?
+ From man mke2fs:
+mke2fs -b 8192 /dev/disc...
 
-Shouldn't these be info->var.bits_per_pixel instead of fb_logo.depth?
+Of course you won't be able to mount it on a machine with 4k pages.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Helge Hafting
 

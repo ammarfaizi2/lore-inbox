@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUHZEuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267542AbUHZEwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUHZEuK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 00:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267542AbUHZEuJ
+	id S267542AbUHZEwx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 00:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267583AbUHZEwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 00:50:09 -0400
-Received: from holomorphy.com ([207.189.100.168]:42642 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267563AbUHZEt7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 00:49:59 -0400
-Date: Wed, 25 Aug 2004 21:49:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: jmerkey@comcast.net, linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
-Message-ID: <20040826044954.GP2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Roland Dreier <roland@topspin.com>, jmerkey@comcast.net,
-	linux-kernel@vger.kernel.org, jmerkey@drdos.com
-References: <082620040421.9849.412D655C000690BA000026792200735446970A059D0A0306@comcast.net> <20040826043318.GO2793@holomorphy.com> <52isb6bj64.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52isb6bj64.fsf@topspin.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 26 Aug 2004 00:52:53 -0400
+Received: from lakermmtao08.cox.net ([68.230.240.31]:25041 "EHLO
+	lakermmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S267542AbUHZEwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 00:52:39 -0400
+In-Reply-To: <20040826042936.GR21964@parcelfarce.linux.theplanet.co.uk>
+References: <410D96DC.1060405@namesys.com> <Pine.LNX.4.44.0408251624540.5145-100000@chimarrao.boston.redhat.com> <20040825205618.GA7992@hockin.org> <30958D95-F6ED-11D8-A7C9-000393ACC76E@mac.com> <412D2BD2.2090408@sun.com> <EAB989A6-F6F9-11D8-A7C9-000393ACC76E@mac.com> <20040825180615.Z1973@build.pdx.osdl.net> <BCE1F8F8-F716-11D8-A7C9-000393ACC76E@mac.com> <20040826042936.GR21964@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <C08CA144-F71B-11D8-A7C9-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Chris Wright <chrisw@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@redhat.com>, Tim Hockin <thockin@hockin.org>,
+       Mike Waychison <Michael.Waychison@Sun.COM>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Using fs views to isolate untrusted processes: I need an assistant architect in the USA for Phase I of a DARPA funded linux kernel project
+Date: Thu, 26 Aug 2004 00:52:37 -0400
+To: viro@parcelfarce.linux.theplanet.co.uk
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
-William> ELF ABI violation. "...the reserved area shall not
-William> consume more than 1GB of the address space."
+On Aug 26, 2004, at 00:29, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> Files and directories are not different in that respect - the only 
+> overhead
+> is price of hash lookup when crossing the binding in either case.  1000
+> bindings shouldn't be a problem - it's 3--5 per hash chain.  Wrt 
+> memory,
+> it's one struct vfsmount allocated per binding - IOW, about 80Kb total
+> for 1000 of those.
 
-On Wed, Aug 25, 2004 at 09:46:43PM -0700, Roland Dreier wrote:
-> Agreed, but I do like running with PAGE_OFFSET == 0xB0000000 on my
-> main box, which has 1 GB of RAM.  I can avoid highmem and still use
-> the last 128 MB of RAM.  It takes me about 3 seconds to edit
-> <asm/page.h> when I build a new kernel so I'm not arguing for merging
-> this, though.
+Where would I increase the hash size if I wanted to increase the number
+of bindings by an order of magnitude or so?  I'm very interested in
+pursuing this possibility, because when combined with the procedure I
+described earlier, plus a little bit of extra work with capabilities 
+and such
+it's very easy to build incredibly flexible and basically indestructible
+chroot environments with not much code.
 
-Though asinine, the ABI spec is set in stone.
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 
--- wli

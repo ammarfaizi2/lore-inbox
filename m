@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVDAJI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVDAJRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVDAJI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 04:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVDAJI6
+	id S261605AbVDAJRT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 04:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVDAJRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 04:08:58 -0500
-Received: from general.keba.co.at ([193.154.24.243]:35923 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S262652AbVDAJIL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 04:08:11 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Date: Fri, 1 Apr 2005 11:07:54 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231D8@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Thread-Index: AcU2BZvvgd/4rBgGTNqQgCCbxR4G+wAk5B/w
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Ingo Molnar" <mingo@elte.hu>, "kus Kusche Klaus" <kus@keba.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
-       <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Alan Stern" <stern@rowland.harvard.edu>
+	Fri, 1 Apr 2005 04:17:19 -0500
+Received: from mail1.upco.es ([130.206.70.227]:61873 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261605AbVDAJRM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 04:17:12 -0500
+Date: Fri, 1 Apr 2005 11:17:08 +0200
+From: Romano Giannetti <romanol@upco.es>
+To: Maximilian Engelhardt <maxi@daemonizer.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+Subject: Re: Call for help: list of machines with working S3
+Message-ID: <20050401091708.GA31787@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es,
+	Maximilian Engelhardt <maxi@daemonizer.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@suse.cz>
+References: <3xVNA-Qn-43@gated-at.bofh.it> <1111089912.9802.26.camel@mobile> <20050318145028.GA22887@pern.dea.icai.upco.es> <1112298873.10156.18.camel@mobile>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <1112298873.10156.18.camel@mobile>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The following tests are made with 'IRQ 8' at 95, rtc_wakeup 
-> at 89(99):
-> > * Heavy mmap load, no oom: max jitter:     42.1% (   51 usec)
-> > * Heavy mmap load, oom:    max jitter:  11989.2% (14635 usec)
-> >   (but still "missed irqs: 0", so IRQ 8 was also blocked for 14 ms)
+On Thu, Mar 31, 2005 at 09:54:33PM +0200, Maximilian Engelhardt wrote:
+> On Fri, 2005-03-18 at 15:50 +0100, Romano Giannetti wrote:
+> > 
+> > It happens exactly the same on my laptop, sony vaio whose configuration is 
+> > 
+> > http://www.dea.icai.upco.es/romano/linux/vaio-conf/laptop-config.html
 > 
-> did you get any kernel messages in that time? (about missed 
-> irqs, etc.)  
-> Please do a 'dmesg -n 0' to minimize the effect of kernel messages.
+> I was able to get some logs using CONFIG_LP_CONSOLE (the first time I
+> ever saw "Back to C!"):
+> 
+> Back to C!
+> PM: Finishing up.
+> ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 10 (level,low) -> IRQ 10
+> MCE: The hardware reports a non fatal, correctable incident occurred on
+> CPU 0.
+> Bank 1: e200000000000001
+> hda: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: task_out_intr: error=0x04 { DriveStatusError }
+> ide: failed opcode was: unknown
+> 
+> keeps on always repeating last three messages until I reboot
+> 
+> Full log:
+> http://home.daemonizer.de/resume.png
+> 
+> kernel version is 2.6.11
+> config: http://home.daemonizer.de/config-2.6.11-S3test
+> dmesg from booting: http://home.daemonizer.de/dmesg-2.6.11-S3test
+> lspci: http://home.daemonizer.de/lspci
+> Gentoo Base System version 1.6.10
+> 
+> Hardware:
+> Acer Travelmate 661lci (centrino)
+> Intel(R) Pentium(R) M processor 1400MHz
 
-Excellent, thanks!
+I tried with serial console. The only thing I get is: 
 
-It turned out that the latencies are not caused by the kernel
-messages themselves, but by sending them to a serial console
-(which was off), in all my high latency cases at rtpri 89(99).
+Stopping tasks:
+================================================================================|
 
-After removing the serial console from the boot parameters,
-* the OOM timings are back to normal (around 50 microseconds)
-* the USB error and remove timings are back to normal
-* the USB plugin timings are in the range of the USB read
-  (which is up to 1 ms - still bad)
+and nothing more. Well, this was done with the double console, so that I
+will try again as soon as I have a bit of time with just the serial console
+on. 
 
-However, latencies at rtprio 2 are still very frustrating
-(details will follow).
+But the "external" behaviour for me is like your: it stops, then at restart
+the HDD led stays on and nothing happen. 
+
+
+Romano 
 
 -- 
-Klaus Kusche
-Entwicklung Software - Steuerung
-Software Development - Control
-
-KEBA AG
-A-4041 Linz
-Gewerbepark Urfahr
-Tel +43 / 732 / 7090-3120
-Fax +43 / 732 / 7090-8919
-E-Mail: kus@keba.com
-www.keba.com
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264986AbUFALhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUFALi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264986AbUFALhu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 07:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbUFALhu
+	id S265000AbUFALi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 07:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbUFALi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 07:37:50 -0400
-Received: from holomorphy.com ([207.189.100.168]:42383 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264986AbUFALhr (ORCPT
+	Tue, 1 Jun 2004 07:38:58 -0400
+Received: from cantor.suse.de ([195.135.220.2]:5264 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265000AbUFALh7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 07:37:47 -0400
-Date: Tue, 1 Jun 2004 04:37:36 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040601113736.GP2093@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dominik Karall <dominik.karall@gmx.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040601021539.413a7ad7.akpm@osdl.org> <200406011248.16303.dominik.karall@gmx.net> <20040601112418.GM2093@holomorphy.com>
+	Tue, 1 Jun 2004 07:37:59 -0400
+Subject: Re: I would like to see ReiserFS V3 enter a feature freeze real
+	soon.
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Vladimir Saveliev <vs@namesys.com>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Andrew Morton <akpm@osdl.org>, Alexander Zarochentcev <zam@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       LKML <linux-kernel@vger.kernel.org>, Jeff Mahoney <jeffm@suse.com>
+In-Reply-To: <40BB61C0.5020902@namesys.com>
+References: <20040528122854.GA23491@clipper.ens.fr>
+	 <1085748363.22636.3102.camel@watt.suse.com>
+	 <1085750828.1914.385.camel@tribesman.namesys.com>
+	 <1085751695.22636.3163.camel@watt.suse.com>  <40BB61C0.5020902@namesys.com>
+Content-Type: text/plain
+Message-Id: <1086089827.22636.3391.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040601112418.GM2093@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 01 Jun 2004 07:37:07 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 04:24:18AM -0700, William Lee Irwin III wrote:
-> There's a plot down there I don't completely understand. Until those
-> who know what's going on materialize:
+On Mon, 2004-05-31 at 12:48, Hans Reiser wrote:
+> While I like and appreciate the data journaling stuff, and I think it 
+> should go in, real soon now I think we should avoid adding new features 
+> to V3.  Let the mission critical server folks have a reiserfs version 
+> that only gets bug fixes added to it, and let V4 be for those who want 
+> excitement.
+> 
+> Are there any things which Chris and Jeff think should go in besides 
+> data journaling/ordering and bitmap algorithm changes?
+> 
 
-While I'm at it, I might as well
+We've got io error fault tolerance that needs to go in after the barrier
+code has stabilized.  I can't promise that I'll never making another
+change in there, but my goal is to keep them to a minimum.
+
+> Also, I would like to see some serious benchmarks of the bitmap 
+> algorithm changes before they go in.  They seem nice in theory, and some 
+> users liked them for their uses, but that does not make a serious 
+> scientific study.  Such a study has a high chance of making them even 
+> better.;-)
+> 
+
+Some benchmarks have been posted on reiserfs-list, but I'd love to
+coordinate with you on getting some mongo numbers.  I can spout off a
+long list of places where the code does better then the original v3
+allocator, but that's because those were the ones I was trying to fix
+;-)
+
+> zam, I view you as the block allocator maintainer, please review that 
+> bitmap code from Chris.
+> 
+> Chris and Jeff, can you propose a benchmarking plan for the bitmap code?
+
+A good start would be to just rebenchmark against v4.
+
+-chris
 
 
-Index: linux-2.6.7-rc2-mm1/drivers/scsi/sr_ioctl.c
-===================================================================
---- linux-2.6.7-rc2-mm1.orig/drivers/scsi/sr_ioctl.c	2004-06-01 04:12:12.000000000 -0700
-+++ linux-2.6.7-rc2-mm1/drivers/scsi/sr_ioctl.c	2004-06-01 04:36:09.000000000 -0700
-@@ -545,5 +545,4 @@
- {
- 	Scsi_CD *cd = cdi->handle;
- 	return scsi_ioctl(cd->device, cmd, (void __user *)arg);
--	return scsi_ioctl(cd->device, cmd, (void __user *)arg);
- }

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262163AbREXQK7>; Thu, 24 May 2001 12:10:59 -0400
+	id <S262170AbREXQO7>; Thu, 24 May 2001 12:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262168AbREXQKt>; Thu, 24 May 2001 12:10:49 -0400
-Received: from marine.sonic.net ([208.201.224.37]:13112 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S262163AbREXQKa>;
-	Thu, 24 May 2001 12:10:30 -0400
-Message-ID: <20010524090920.A24268@sonic.net>
-Date: Thu, 24 May 2001 09:09:20 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Praveen Srinivasan <praveens@stanford.edu>, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] rsrc_mgr.c - null ptr fix for 2.4.4
-In-Reply-To: <200105240734.f4O7YB404249@smtp1.Stanford.EDU>
+	id <S262169AbREXQOt>; Thu, 24 May 2001 12:14:49 -0400
+Received: from geos.coastside.net ([207.213.212.4]:35500 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S262168AbREXQOl>; Thu, 24 May 2001 12:14:41 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200105240734.f4O7YB404249@smtp1.Stanford.EDU>; from Praveen Srinivasan on Thu, May 24, 2001 at 12:35:17AM -0700
+Message-Id: <p05100305b732e0c1151b@[207.213.214.37]>
+In-Reply-To: <20010524175600.A14584@gruyere.muc.suse.de>
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
+ <200105240658.f4O6wEWq031945@webber.adilger.int>
+ <20010524103145.A9521@gruyere.muc.suse.de>
+ <p05100301b732c8715ebd@[207.213.214.37]>
+ <20010524175600.A14584@gruyere.muc.suse.de>
+Date: Thu, 24 May 2001 09:13:52 -0700
+To: Andi Kleen <ak@suse.de>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Dying disk and filesystem choice.
+Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001 at 12:35:17AM -0700, Praveen Srinivasan wrote:
-> Hi,
-> This fixes an unchecked ptr bug in the resource manager code for the PCMCIA 
-> driver (rsrc_mgr.c).
+At 5:56 PM +0200 2001-05-24, Andi Kleen wrote:
+>On Thu, May 24, 2001 at 08:50:04AM -0700, Jonathan Lundell wrote:
+>  > At 10:31 AM +0200 2001-05-24, Andi Kleen wrote:
+>>  >reiserfs doesn't, but the HD usually has transparently in its firmware.
+>>  >So it hits a bad block; you see an IO error and the next time you hit
+>>  >the block the firmware has mapped in a fresh one from its internal
+>>  >reserves.
+>>
+>>  Drives have remapping capability, but it's the first I've heard of HD
+>>  firmware doing it automatically. I'd be very interested in reading
+>>  the relevant documentation, if you could provide a pointer. Seems to
+>>  me if a drive *could* do this, you'd certainly want to turn it
+>>  (automatic remapping) off. There's way too much chance that a system
+>>  will read the remapped sector and assume that it contains the
+>>  original data. That would be hopelessly corrupting.
+>
+>There are two scenarios: read and write. For write doing remapping transparent
+>is all fine, as the data is destroyed anyways.
+>For read it returns an IO error once and the next time you read from that
+>block it contains fresh (or partly recovered) data.
 
-I would instead suggest:
+What HDs are we talking about, specifically?
 
---- ../linux/./drivers/pcmcia/rsrc_mgr.c	Tue Mar  6 19:28:32 2001
-+++ ./drivers/pcmcia/rsrc_mgr.c	Mon May  7 22:09:09 2001
-@@ -189,6 +189,12 @@
-     
-     /* First, what does a floating port look like? */
-     b = kmalloc(256, GFP_KERNEL);
-+
-+    if(b == NULL){
-+      printk(" kmalloc failed!\n");
-+      return;
-+    }
-+
-     memset(b, 0, 256);
-     for (i = base, most = 0; i < base+num; i += 8) {
- 	if (check_io_resource(i, 8))
+WRT writes, how does the drive detect the error?
+
+WRT reads, there are too many filesystems that would accept the 
+second (no-IO-error) read as being the original good data.
+
+IBM's UltraStar drives have an option (a bit in a vendor-unique mode 
+page) that enables automatic reassignment, but it's done safely. If 
+an unrecoverable read error is reported, the block is entered in a 
+list of reassignment candidates. If that block is subsequently 
+written, it's written back to the original location, and then 
+verified. If the verify fails, the block is reassigned and rewritten; 
+if it succeeds, it's left in the original location, and the block is 
+removed from the reassignment candidate list.
+
+Notice that invalid data is never returned without an error 
+indication. That's critical.
+-- 
+/Jonathan Lundell.

@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316677AbSGNOHg>; Sun, 14 Jul 2002 10:07:36 -0400
+	id <S316683AbSGNOLY>; Sun, 14 Jul 2002 10:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316679AbSGNOHf>; Sun, 14 Jul 2002 10:07:35 -0400
-Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:4744 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316677AbSGNOHd>; Sun, 14 Jul 2002 10:07:33 -0400
-Date: Sun, 14 Jul 2002 08:10:24 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Joerg Schilling <schilling@fokus.gmd.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207141324.g6EDOvUe019079@burner.fokus.gmd.de>
-Message-ID: <Pine.LNX.4.44.0207140804480.3331-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+	id <S316712AbSGNOLX>; Sun, 14 Jul 2002 10:11:23 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:63168 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S316683AbSGNOLW>;
+	Sun, 14 Jul 2002 10:11:22 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200207141411.SAA09328@sex.inr.ac.ru>
+Subject: Re: route cache corruption
+To: nirs@exanet.com (Nir Soffer)
+Date: Sun, 14 Jul 2002 18:11:06 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4913AB320D31DC4798D6FEF5F557351F159764@hawk.exanet-il.co.il> from "Nir Soffer" at Jul 14, 2 01:53:42 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-On Sun, 14 Jul 2002, Joerg Schilling wrote:
-> If a CD-ROM does not support ATAPI, you are not able to
-> 
-> -	open/close/lock the door.
+> We've been having some problems with the route cache corrupting on us,
+> suddenly every connection we made went out to the loopback interface,
+> and right back in the machine.
 
-This can be supported, though. Most of the non-ATAPI CD-ROM devices 
-support this behavior, only do they use different commands.
+Details are required.
 
-> In addition, if the drive would support DAE via some non-standard
-> interface nobody would be happy with it. The DAE quality would be lousy
-> and none of the programs that is still supported would be able to use
-> the drive decently for DAE.
+> Could this be the cause of this phenomena, or am I barking up the
+> wrong tree?
 
-Not exactly. My old MITSUMI indestructible has digital audio quality above 
-many of the existing ATAPI devices. Old != Bad.
+It could not.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Alexey

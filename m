@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137087AbREKKXk>; Fri, 11 May 2001 06:23:40 -0400
+	id <S137098AbREKKcV>; Fri, 11 May 2001 06:32:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137096AbREKKXa>; Fri, 11 May 2001 06:23:30 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:32014 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S137087AbREKKXV>;
-	Fri, 11 May 2001 06:23:21 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Andi Kleen <ak@suse.de>
-Date: Fri, 11 May 2001 12:21:59 MET-1
+	id <S137097AbREKKcM>; Fri, 11 May 2001 06:32:12 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6408 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S137098AbREKKcC>; Fri, 11 May 2001 06:32:02 -0400
+Subject: Re: 2.4.4-ac6: timeout waiting for DMA on hpt370 / ibm DJNA drive
+To: thunder7@xs4all.nl
+Date: Fri, 11 May 2001 18:48:18 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20010511084417.A4460@middle.of.nowhere> from "thunder7@xs4all.nl" at May 11, 2001 08:44:17 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Source code compatibility in Stable series????
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org,
-        davem@redhat.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <2983F527D00@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14yH1W-0000jh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 May 01 at 12:03, Andi Kleen wrote:
-> On Fri, May 11, 2001 at 02:56:35AM -0700, David S. Miller wrote:
-> I guess it would be possible to add a HAVE_ZEROCOPY to skbuff.h to make
-> it a bit easier for single source drivers.
+> I got these messages in 2.4.4-ac5, and now in 2.4.4-ac6, when I expire
+> my news-spool. In 2.4.4, there's no problem expring my newsspool and
+> running 2 bonnie's in the background.
+
+Yep. I think there are problems with the hpt366 changes. Im trying to get
+more data first.
+
+> BOFH excuse #24:
 > 
-> --- include/linux/skbuff.h-o    Wed May  9 12:36:44 2001
-> +++ include/linux/skbuff.h  Fri May 11 12:12:43 2001
-> @@ -29,6 +29,7 @@
->  #define HAVE_ALLOC_SKB     /* For the drivers to know */
->  #define HAVE_ALIGNABLE_SKB /* Ditto 8)        */
->  #define SLAB_SKB       /* Slabified skbuffs       */
-> +#define HAVE_ZEROCOPY      /* Zerocopy stack */ 
+> network packets travelling uphill (use a carrier pigeon)
 
-When I was updating VMware's vmnet, I decided to use
-
-#ifdef skb_shinfo
-
-This gives you maximal backward compatibility, as all public zerocopy
-patches contain this macro. Only thing is that Dave has to remember
-that when he turns skb_shinfo into inline function, an identity #define have
-to be added.
-
-Just my opinion - as you cannot add HAVE_ZEROCOPY to all already existing
-and installed kernels.
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-
+Been there, done that ;)
 

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262213AbTDAJgO>; Tue, 1 Apr 2003 04:36:14 -0500
+	id <S262228AbTDAJtn>; Tue, 1 Apr 2003 04:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262214AbTDAJgO>; Tue, 1 Apr 2003 04:36:14 -0500
-Received: from f28.pav2.hotmail.com ([64.4.37.28]:16902 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262213AbTDAJgN>;
-	Tue, 1 Apr 2003 04:36:13 -0500
-X-Originating-IP: [129.219.25.77]
-X-Originating-Email: [bhushan_vadulas@hotmail.com]
-From: "shesha bhushan" <bhushan_vadulas@hotmail.com>
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Deactivating TCP checksumming
-Date: Tue, 01 Apr 2003 09:47:30 +0000
+	id <S262229AbTDAJtn>; Tue, 1 Apr 2003 04:49:43 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:49876 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S262228AbTDAJtm>; Tue, 1 Apr 2003 04:49:42 -0500
+Date: Tue, 1 Apr 2003 20:02:37 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: sct@redhat.com, akpm@zip.com.au, adilger@clusterfs.com
+Subject: 2.5.66: slow to friggin slow journal recover
+Message-ID: <20030401100237.GA459@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F28fCuayVxYPtqpymRi000013e5@hotmail.com>
-X-OriginalArrivalTime: 01 Apr 2003 09:47:31.0618 (UTC) FILETIME=[B6F2C820:01C2F833]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The journal recovery rangers from slow to really friggin slow under
+2.5.66 with definate pauses in disk io stretching for 10s of seconds.
+This does not happen with 2.5.63 and if I hit ^c on fsck and let the
+kernel handle the journal recover for all partitions  on mountime
+the recovery under 2.5.66 is either so fast that you don't notice
+it or just a buttload faster. Very objective measurements of time but
+the slowness of a journal recover as done by fsck is so noticible it's
+not funny.
 
-Hello all,
-  I am trying to de-activate the TCP checksumming and allow hardware (GBE to 
-compute it for me). But can any one let me know how to do it.
+At the time of fsck journal recover or moiunt-time kernel journal
+recover DMA is turned on the drive.
 
-This is what I did.But Its not working for me.
+e2fsprogs 1.27 is in use. (1.27-2 from debian woody)
 
-In linux/net/ipv4/tcp.c there are function calls to 
-csum_and_copy_from_user(). I replaced it from copy_from_user() and set the 
-skb->ip_summed = CHECKSUM_HW and skb->csum = 1;. Is this correct. Since its 
-not working there must be something more that has to be done. could any one 
-please tell me what additional thinks I need to do.
-
-All suggestion are highly apperciated.
-
-Thanking You
-Shesha
-
-
-
-
-_________________________________________________________________
-Say it now. Say it online. http://www.msn.co.in/ecards/ Send e-cards to your 
-love
-
+-- 
+"Other countries of course, bear the same risk. But there's no doubt his
+hatred is mainly directed at us. After all this is the guy who tried to
+kill my dad."
+        - George W. Bush Jr, Leader of the United States Regime
+          September 26, 2002 (from a political fundraiser in Houston, Texas)

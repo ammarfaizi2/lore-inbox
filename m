@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVA0PMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVA0PSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbVA0PMc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 10:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVA0PMc
+	id S262641AbVA0PSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 10:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVA0PSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 10:12:32 -0500
-Received: from holomorphy.com ([66.93.40.71]:61314 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262630AbVA0PMY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 10:12:24 -0500
-Date: Thu, 27 Jan 2005 07:12:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, Rik van Riel <riel@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-Message-ID: <20050127151211.GB10843@holomorphy.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> <20050126172538.GN10843@holomorphy.com> <20050127050927.GR10843@holomorphy.com> <16888.46184.52179.812873@alkaid.it.uu.se> <20050127125254.GZ10843@holomorphy.com> <20050127142500.A775@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050127142500.A775@flint.arm.linux.org.uk>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 27 Jan 2005 10:18:09 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26508 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262641AbVA0PSG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 10:18:06 -0500
+Message-ID: <41F90697.5020408@tmr.com>
+Date: Thu, 27 Jan 2005 10:19:51 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: johnpol@2ka.mipt.ru
+CC: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+References: <20050124175449.GK3515@stusta.de><20050124021516.5d1ee686.akpm@osdl.org> <20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 04:52:54AM -0800, William Lee Irwin III wrote:
->> FIRST_USER_PGD_NR is a matter of killing the entire box dead where it
->> exists, not any kind of process' preference. Userspace should be
->> prevented from setting up vmas below FIRST_USER_PGD_NR.
-
-On Thu, Jan 27, 2005 at 02:25:00PM +0000, Russell King wrote:
-> No it should not.  The PGD index is FAR to coarse to use - each PGD on
-> ARM maps 1MB of virtual address space.  Userspace text starts at 32K.
-> The protection against mmap() MAP_FIXED fiddling with the first page is
-> handled by the arch-specific mmap() wrappers, so generic code doesn't
-> have to worry about it.
-> What generic code _does_ have to worry about is:
+Evgeniy Polyakov wrote:
+> On Mon, 24 Jan 2005 18:54:49 +0100
+> Adrian Bunk <bunk@stusta.de> wrote:
 > 
-> (a) not removing the very first page.
-> (b) not removing the very first pointer to the 2nd level table in the
->     1st level tables.
-> and that is all.  Maybe FIRST_USER_PGD_NR was a bad way of achieving
-> this, but in the instance of the VM upon which it was originally
-> implemented (somewhere between 2.2 and 2.4), it was deemed (by others
-> iirc) to be the best way of achieving it at the time.
+> 
+>>It seems noone who reviewed the SuperIO patches noticed that there are 
+>>now two modules "scx200" in the kernel...
+> 
+> 
+> They are almost mutually exlusive(SuperIO contains more advanced), 
+> so I do not see any problem here.
+> Only one of them can be loaded in a time.
+> 
+> So what does exactly bother you?
+>
+That I don't know how to select loading between modules with the same 
+name. What's the trick?
 
-The only claim above is the effect of clobbering virtual page 0 and
-referring to this phenomenon by the macro. I was rather careful not to
-claim a specific lower boundary to the address space.
-
-
--- wli
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

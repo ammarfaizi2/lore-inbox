@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVCXJdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263080AbVCXJeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbVCXJdz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 04:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbVCXJdz
+	id S263080AbVCXJeX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 04:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbVCXJeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 04:33:55 -0500
-Received: from web53307.mail.yahoo.com ([206.190.39.236]:38746 "HELO
-	web53307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263020AbVCXJdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 04:33:52 -0500
-Message-ID: <20050324093352.43916.qmail@web53307.mail.yahoo.com>
-Date: Thu, 24 Mar 2005 09:33:51 +0000 (GMT)
-From: sounak chakraborty <sounakrin@yahoo.co.in>
-Subject: Re: sched.c  function
-To: Oliver Neukum <oliver@neukum.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 24 Mar 2005 04:34:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:28588 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263080AbVCXJeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 04:34:19 -0500
+Subject: Re: How's the nforce4 support in Linux?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Asfand Yar Qazi <ay1204@qazi.f2s.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050324093032.GA14022@havoc.gtf.org>
+References: <4242865D.90800@qazi.f2s.com>
+	 <20050324093032.GA14022@havoc.gtf.org>
+Content-Type: text/plain
+Date: Thu, 24 Mar 2005 10:34:12 +0100
+Message-Id: <1111656852.6290.47.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-> What exactly do you want to know about the
-> scheduler?
 > 
-I had a wild idea  to process one function that
-repeatedly checks the task list and find out which
-process is in which state 
+> * "hardware firewall" -- sounds silly.  Pretty sure Linux doesn't support
+> it in any case.
+> 
 
-At first i retrieve the information from fork.c in
-do_fork() and exit.x in do_exit()
-but the problem it showed me is that the information
-of the task at the beginnig and at the
-end(termination)
+probably just one of those things implemented in the binary drivers in
+software, just like the "hardware" IDE raid is most of the time (3ware
+being the positive exception there)
 
-but the process may be in different states at
-different moment in between these two extremes(start
--- end)
 
-So how to know that .
-
-I can  run for_each process after certain interval of
-time , but rather than using timer i thought to set a
-value or call the function (for_each_process) whenever
-sheduling occurs(that is some process is going to
-sleep and some are awakening) that is i am getting
-some changes in the task list after that..
-
-is my approch is correct ?
-or should i implement timer ?
-plz help me 
-
-i am sorry if some of my concepts are wrong as i am
-new to kernel and would be obliged if you correct me
-thank for your help 
-sounak  
-
-________________________________________________________________________
-Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUCRNqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 08:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUCRNqZ
+	id S262632AbUCRNrj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 08:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbUCRNri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 08:46:25 -0500
-Received: from gizmo02ps.bigpond.com ([144.140.71.12]:29902 "HELO
-	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
-	id S261807AbUCRNqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 08:46:23 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
+	Thu, 18 Mar 2004 08:47:38 -0500
+Received: from main.gmane.org ([80.91.224.249]:50579 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262632AbUCRNrh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 08:47:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: SiS APIC, hacker looking for docs/help, was : Re: 2.6.4 under heavy ioload disables sis5513 DMA
-Date: Thu, 18 Mar 2004 23:48:26 +1000
-User-Agent: KMail/1.5.1
-Cc: Lionel.Bouton@inet6.fr
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403182348.26764.ross@datscreative.com.au>
+From: Martin Wilke <werwolf@unixfreunde.de>
+Subject: Temp Problems on AMD XP
+Date: Thu, 18 Mar 2004 14:52:38 +0100
+Organization: unixfreunde.de
+Message-ID: <pan.2004.03.18.13.52.38.546168@unixfreunde.de>
+Reply-To: werwolf@unixfreunde.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 217.93.48.201
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
-> > Dunno how DMA timeout is related to interrupts or are you suggesting it 
-> > is loosing dma-complete interrupts? 
-> > 
-> > I don't know the details (yet I hope), but I'm quite sure that interrupt 
-> > handling in XT-PIC mode leads to problems on several SiS configurations 
-> > (when you reorganize PCI cards in a system and the behaviour changes or 
-> > when you disable the VGA IRQ and some things start to work, the suspect 
-> > becomes obvious). One user reported that putting 2 disks on one channel 
-> > instead of one on each (so 1 IRQ used instead of 2) solve instability 
-> > issues too... I ruled out IDE driver problems several times by 
-> > repeatedly checking the code and the run-time register values against 
-> > known-good values. My lack of knowledge on the interrupt handling 
-> > details is what prevents me from being 100% sure that the problem lies 
-> > here. This is why I'm willing to work on this subject. 
- 
-I had a report that my patch helped an sis740 board run in apic ioapic mode.
-Don't know if it would help your situation. Here is relevant link.
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4278.html
+just wanna know if somebody has the same problem as me.
 
-There is a problem with apm mode with my patch - small fix here if reqd.
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4410.html
+i' m running an amd xp 3000+ on an epox board with nforce2-chipset. everything 
+was alright til i changeed from kernbel 2.6.3 to 2.6.4 3 days ago. since then 
+my cpu-temperature rised to 60-65 degrees, sometimes 73 degrees (while 
+compiling) and pc powered himself down then.
+i took my old config-files and did not change anything.
+last night i upgraded to 2.6.5-rc1 and everything is running normal as 
+before..
 
-Hope it helps.
-Ross.
 
-> > Same board runs same and higher loads with 2.4.2[345] flawlessly. Also 
-> > 8 hours OK with 2.4.26-pre4 last night + 430 cycles of swsusp2. 
-> > 
- 

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136567AbREDXZt>; Fri, 4 May 2001 19:25:49 -0400
+	id <S136571AbREDX17>; Fri, 4 May 2001 19:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136571AbREDXZj>; Fri, 4 May 2001 19:25:39 -0400
-Received: from mta1.snfc21.pbi.net ([206.13.28.122]:29344 "EHLO
-	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S136567AbREDXZT>; Fri, 4 May 2001 19:25:19 -0400
-Date: Fri, 04 May 2001 16:23:49 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] pegasus + MediaGX: Oops in khubd,
- the continuing story?
-To: linux-usb-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Message-id: <0ba601c0d4f1$46c07a00$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <E14vnVb-00085n-00@the-village.bc.nu>
-X-Priority: 3
+	id <S136573AbREDX1u>; Fri, 4 May 2001 19:27:50 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:24583 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S136571AbREDX1e>;
+	Fri, 4 May 2001 19:27:34 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Andreas Schwab <schwab@suse.de>
+cc: Todd Inglett <tinglett@vnet.ibm.com>, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP races in proc with thread_struct 
+In-Reply-To: Your message of "04 May 2001 15:11:37 +0200."
+             <jer8y52r92.fsf@hawking.suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 05 May 2001 09:27:28 +1000
+Message-ID: <12062.989018848@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suspect the ohci driver currently. I've been reviewing it a little and it
-> is full of code written by someone who does not know about pci write posting.
+On 04 May 2001 15:11:37 +0200, 
+Andreas Schwab <schwab@suse.de> wrote:
+>Keith Owens <kaos@ocs.com.au> writes:
+>|> Wrap the reference to the parent task structure with exception table
+>|> recovery code, like copy_from_user().
+>
+>Exception tables only protect accesses to user virtual memory.  Kernel
+>memory references must always be valid in the first place.
 
-I think there's a lot of that going around ... I don't think any of what you
-mentioned was in the Documentation/pci.txt writeup, or any other source
-of kernel documentation I found when I started to look at at that code!
-
-That diagnosis works as well with the known facts as any other; maybe
-better, considering some of the info I've collected offline.  And it could
-also explain some other intermittent failures.
-
-
-> You have to do
-> 
-> writel(STOP, reg->dmactrl);
-> [posted]
-> readl(reg->dmactrl)
-> [read forces write, read reply will follow any DMA
-> pending the other way]
-
-Good to know.  That'd apply for any register read, not just the
-one that was written to, yes?
-
-- Dave
-
+Wrong.  Exception tables say that if the kernel gets an exception
+between labels A and B then branch to fixup label C.  See show_regs()
+in arch/i386/kernel/process.c and wrmsr_eio() in arch/i386/kernel/msr.c
+for examples which do not depend on user virtual memory.
 

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUAPCyT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 21:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbUAPCyT
+	id S265243AbUAPC7R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 21:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUAPC7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 21:54:19 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:3416 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265230AbUAPCyN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 21:54:13 -0500
-Date: Thu, 15 Jan 2004 18:54:00 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: joe.korty@ccur.com, paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-Id: <20040115185400.31c9d670.pj@sgi.com>
-In-Reply-To: <20040115170624.2851e19a.akpm@osdl.org>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-	<20040108051111.4ae36b58.pj@sgi.com>
-	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
-	<20040108225929.GA24089@tsunami.ccur.com>
-	<16381.61618.275775.487768@cargo.ozlabs.ibm.com>
-	<20040114150331.02220d4d.pj@sgi.com>
-	<20040115002703.GA20971@tsunami.ccur.com>
-	<20040114204009.3dc4c225.pj@sgi.com>
-	<20040115081533.63c61d7f.akpm@osdl.org>
-	<20040115145357.1033d65a.pj@sgi.com>
-	<20040115170624.2851e19a.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 15 Jan 2004 21:59:17 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:44780 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265243AbUAPC7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 21:59:15 -0500
+Message-ID: <4007537F.4070609@labs.fujitsu.com>
+Date: Fri, 16 Jan 2004 11:59:11 +0900
+From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
+Reply-To: tsuchiya@labs.fujitsu.com
+Organization: Fujitsu Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: filesystem bug?
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Thanks for the feedback, Andrew.
+Hi Stephen,
 
-Two points you made that I now agree with:
+>Now, I can't tell from this whether it's a bash bug or an exit/signal
+> bug, but it doesn't look like a filesystem problem for now. I'm going
+> to try with a different shell to see if that helps.
 
- * Better that this code uses existing arch-dependent bitops,
-   than that it have code pretending to be generic hiding
-   additional arch specific dependencies.
+I tried with /bin/zsh, and it seems you are right. The script
+is working fine for about 2 hours.
 
- * Having just realized that the other existing include/bitmap.h
-   calls take a count of bits, not bytes, I now agree with you
-   and Joe that it should be bit counts.
+So I will try to find out about EIO(inode corruption) problem next.
 
+Thank you so much,
 
-> You can never provide too many comments!
-
-Good - I'm on solid ground there ;)
-
-
-> Anyway, please wake me up again when you and Joe have finished.
-
-ok
+Yoshi
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--
+Yoshihiro Tsuchiya
+
+
+

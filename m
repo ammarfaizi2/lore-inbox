@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269030AbUJEOAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269078AbUJEOAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269030AbUJEOAR (ORCPT <rfc822;willy@w.ods.org>);
+	id S269078AbUJEOAR (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 5 Oct 2004 10:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269829AbUJEOAF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269833AbUJEOAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:00:05 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:50603 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269758AbUJEN4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 09:56:36 -0400
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
-References: <1096401785.13936.5.camel@localhost.localdomain>
-	<1096467125.2028.11.camel@mulgrave> 
-	<20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Oct 2004 08:56:22 -0500
-Message-Id: <1096984590.1765.2.camel@mulgrave>
-Mime-Version: 1.0
+	Tue, 5 Oct 2004 10:00:10 -0400
+Received: from zero.aec.at ([193.170.194.10]:40462 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S269937AbUJEN5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 09:57:10 -0400
+To: Hideo AOKI <aoki@sdl.hitachi.co.jp>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6]  vm-thrashing-control-tuning
+References: <2LXI2-3a5-21@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 05 Oct 2004 15:57:03 +0200
+In-Reply-To: <2LXI2-3a5-21@gated-at.bofh.it> (Hideo AOKI's message of "Tue,
+ 05 Oct 2004 15:40:14 +0200")
+Message-ID: <m3ekkd46a8.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 06:49, Anton Blanchard wrote:
-> 
-> Hi James,
-> 
-> > These state transition warnings are currently expected in this code
-> > (they're basically verbose warnings).
-> > 
-> > What was the oops?
-> > 
-> > I have a theory that we should be taking a device reference before
-> > waking up the error handler, otherwise host removal can race with error
-> > handling.
-> 
-> Did this get sorted out? Here is an oops from a few week old BK tree.
-> FYI I just noticed I have disabled host reset in the sym2 driver (it
-> was locking up at the time and I never went back to work out why).
-> However, even with a host reset this could happen right?
+Hideo AOKI <aoki@sdl.hitachi.co.jp> writes:
 
-Well, the theoretical hole is fixed ... If you test the current tree
-we'll find out if this is indeed your problem.
+> This patch adds "swap_token_timeout" parameter in /proc/sys/vm.
+> The parameter means expired time of token. Unit of the value is HZ, and the default value is the same as current SWAP_TOKEN_TIMEOUT
+> (i.e. HZ * 300). The patch can be applied to both 2.6.9-rc2 and 2.6.9-rc3.
 
-James
 
+Please don't export any sysctls as jiffies. The values of jiffies changes.
+Use s or ms instead. sysctl has convenience functions for this.
+
+-Andi
 

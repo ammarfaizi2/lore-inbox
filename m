@@ -1,131 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293229AbSCFFJF>; Wed, 6 Mar 2002 00:09:05 -0500
+	id <S293236AbSCFFcU>; Wed, 6 Mar 2002 00:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293234AbSCFFI4>; Wed, 6 Mar 2002 00:08:56 -0500
-Received: from [198.16.16.39] ([198.16.16.39]:56988 "EHLO carthage")
-	by vger.kernel.org with ESMTP id <S293229AbSCFFIu>;
-	Wed, 6 Mar 2002 00:08:50 -0500
-Date: Tue, 5 Mar 2002 23:03:49 -0600
-From: James Curbo <jcurbo@acm.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: a couple of USB related Oopses
-Message-ID: <20020306050349.GA1152@carthage>
-Reply-To: James Curbo <jcurbo@acm.org>
-In-Reply-To: <20020305184604.GA4590@carthage> <20020305192307.GB10151@kroah.com> <20020305193317.GA5339@carthage> <20020305193732.GC10151@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <20020305193732.GC10151@kroah.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Debian GNU/Linux
-Organization: Henderson State University, Arkadelphia, AR
+	id <S293234AbSCFFcB>; Wed, 6 Mar 2002 00:32:01 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35747 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S293235AbSCFFbz>; Wed, 6 Mar 2002 00:31:55 -0500
+Date: Tue, 5 Mar 2002 22:28:43 -0700
+Message-Id: <200203060528.g265Sh502430@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
+In-Reply-To: <3C84294C.AE1E8CE9@sandino.net>
+In-Reply-To: <3C7EA7CB.C36D0211@sandino.net>
+	<20020302075847.GE20536@kroah.com>
+	<3C84294C.AE1E8CE9@sandino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sandino Araico writes:
+> Greg KH wrote:
+> 
+> > On Thu, Feb 28, 2002 at 03:57:31PM -0600, Sandino Araico Sánchez wrote:
+> > > The Oops happens after I use the ide-scsi module with my CDRW and then I
+> > > plug the Zip USB in.
+> >
+> > Can you run the oops through ksymoops and send it to us?
+> 
+> ksymoops output attached.
+> Invalid operand: 0000
+> CPU:    0
+> EIP: 0010: [<c01565f0>] Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010282
+> eax: 0000000d ebx: d010d8e0 ecx: dd384000 edx: 00000001
+> esi: cd0d1a14 edi: c49a7d60 ebp: bfffe4cc esp: c1b7bf18
+> ds: 0018 es: 0018 ss: 0018
+> Process rmmod (pid: 24039, stackpage=c1b76000)
+> Stack: c0244807 c02447ea c02447e0 d010d8e0 d010d8e0 c01575d8 d010d8e0 d010d2e0
+>         d010d8e0 cd0d1a14 e090b362 d010d8e0 cd0d1a00 00000000 e0d5d3be cd0d1a14
+>         00000600 00000000 c49a7d60 d010dee0 e0d5ea80 c01c544a c49a7d60 e0d5c000
+> Call Trace: [<c01575d8>] [<e0d5d424>] [<e0d5d3be>] [<e0d5ea80>] [<c01c544a>] [<c01c555e>] [<e0d5ea80>] [<e0d5d424>] [<e0d5ea80>] [<c011980f>] [<c0118b12>]
+>         [<c0106e23>]
+> Code: 0f 0b 83 c4 10 f0 ff 4b 04 0f 94 c0 84 c0 0f 84 93 00 00 00 
+> 
+> >>EIP; c01565f0 <devfs_put+30/dc>   <=====
+> Trace; c01575d8 <devfs_unregister+30/38>
+> Trace; e0d5d424 <[usb-uhci]__module_license+9099/fcd5>
+> Trace; e0d5d3be <[usb-uhci]__module_license+9033/fcd5>
+> Trace; e0d5ea80 <[usb-uhci]__module_license+a6f5/fcd5>
+> Trace; c01c544a <scsi_unregister_device+52/d4>
+> Trace; c01c555e <scsi_unregister_module+36/3c>
+> Trace; e0d5ea80 <[usb-uhci]__module_license+a6f5/fcd5>
+> Trace; e0d5d424 <[usb-uhci]__module_license+9099/fcd5>
+> Trace; e0d5ea80 <[usb-uhci]__module_license+a6f5/fcd5>
+> Trace; c011980f <free_module+17/b4>
+> Trace; c0118b12 <sys_delete_module+126/234>
+> Trace; c0106e23 <system_call+33/38>
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I suspect the USB-UHCI driver is doing a double-unregister on a devfs
+entry. Please set CONFIG_DEVFS_DEBUG=y, recompile and boot the new
+kernel. Send the new Oops (passed through ksymoops, of course).
 
-Ah, I tried it with 2.5.6-pre2 and usb-uhci.. still got a panic, when I
-tried to print to the printer (which is what I was doing before too) 
-Also, got these in my kernel log...
+				Regards,
 
-usb-uhci.c: ENXIO 80000200, flags 0, urb c1523ac0, burb c1523a40
-usb-uhci.c: ENXIO 80000200, flags 0, urb d7983c40, burb d7983bc0
-usb-uhci.c: ENXIO 80000200, flags 0, urb d7983c40, burb d7983bc0
-usb-uhci.c: ENXIO 80000280, flags 0, urb d7831540, burb d7983bc0
-usbfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -6
-usb-uhci.c: ENXIO 80000280, flags 0, urb d7831540, burb d7983bc0
-usbfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -6
-usb-uhci.c: ENXIO 80000280, flags 0, urb d7831540, burb d7983bc0
-usbfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -6
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2840, burb d7983bc0
-usbfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -6
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2840, burb d7983bc0
-usbfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -6
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2840, burb d7983bc0
-usbfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -6
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2ac0, burb d7983bc0
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2ac0, burb d7983bc0
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2ac0, burb d7983bc0
-usb-uhci.c: ENXIO 80000280, flags 0, urb d76b2ac0, burb d7983bc0
-
-Does that mean anything to you guys?
-
--- 
-James Curbo <jcurbo@acm.org> <jc108788@rc.hsu.edu>
-Undergraduate Computer Science, Henderson State University
-PGP Keys at <http://reddie.henderson.edu/~curboj/>
-Public Keys: PGP - 1024/0x76E2061B GNUPG - 1024D/0x3EEA7288
-
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ksymoops-output-4.txt"
-
-ksymoops 2.4.3 on i686 2.5.6-pre2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.6-pre2/ (default)
-     -m /boot/System.map-2.5.6-pre2 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Warning (compare_maps): ksyms_base symbol idle_cpu_R__ver_idle_cpu not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol vmalloc_to_page_R__ver_vmalloc_to_page not found in System.map.  Ignoring ksyms_base entry
-Reading Oops report from the terminal
-Unable to handle kernel paging request at virtual address 0100005e
-c020a07f
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c020a07f>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 00ffff92   ebx: d7b281c0   ecx: d7b281dc   edx: cff7a000
-esi: 00000000   edi: d34391c0   ebp: ffffffed   esp: cff7bf00
-ds: 0018   es: 0018   ss: 0018
-Stack: c021ab5a d7b281dc 000001f0 c02de900 c02df100 d34391c0 c020bd98 d6cc90c0 
-       d34391c0 cff7a000 d34391c0 00000000 d6cc90c0 c0136d2f d6cc90c0 d34391c0 
-       d34391c0 d6cc90c0 00000000 c142e380 c0135761 d6cc90c0 d34391c0 00000000 
-Call Trace: [<c021ab5a>] [<c020bd98>] [<c0136d2f>] [<c0135761>] [<c0135672>] 
-   [<c0135a57>] [<c0108a1f>] 
-Code: 8b 80 cc 00 00 00 85 c0 74 17 8b 50 18 85 d2 74 10 8b 44 24 
-
->>EIP; c020a07e <usb_submit_urb+e/40>   <=====
-Trace; c021ab5a <usblp_open+ba/110>
-Trace; c020bd98 <usb_open+68/d0>
-Trace; c0136d2e <chrdev_open+5e/a0>
-Trace; c0135760 <dentry_open+e0/190>
-Trace; c0135672 <filp_open+52/60>
-Trace; c0135a56 <sys_open+36/80>
-Trace; c0108a1e <syscall_call+6/a>
-Code;  c020a07e <usb_submit_urb+e/40>
-00000000 <_EIP>:
-Code;  c020a07e <usb_submit_urb+e/40>   <=====
-   0:   8b 80 cc 00 00 00         mov    0xcc(%eax),%eax   <=====
-Code;  c020a084 <usb_submit_urb+14/40>
-   6:   85 c0                     test   %eax,%eax
-Code;  c020a086 <usb_submit_urb+16/40>
-   8:   74 17                     je     21 <_EIP+0x21> c020a09e <usb_submit_urb+2e/40>
-Code;  c020a088 <usb_submit_urb+18/40>
-   a:   8b 50 18                  mov    0x18(%eax),%edx
-Code;  c020a08a <usb_submit_urb+1a/40>
-   d:   85 d2                     test   %edx,%edx
-Code;  c020a08c <usb_submit_urb+1c/40>
-   f:   74 10                     je     21 <_EIP+0x21> c020a09e <usb_submit_urb+2e/40>
-Code;  c020a08e <usb_submit_urb+1e/40>
-  11:   8b 44 24 00               mov    0x0(%esp,1),%eax
-
-
-3 warnings issued.  Results may not be reliable.
-
---SUOF0GtieIMvvwua--
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

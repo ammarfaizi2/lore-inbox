@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSGVLb0>; Mon, 22 Jul 2002 07:31:26 -0400
+	id <S316576AbSGVHms>; Mon, 22 Jul 2002 03:42:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316820AbSGVLb0>; Mon, 22 Jul 2002 07:31:26 -0400
-Received: from ns.suse.de ([213.95.15.193]:61968 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316788AbSGVLbZ>;
-	Mon, 22 Jul 2002 07:31:25 -0400
-Date: Mon, 22 Jul 2002 13:34:32 +0200
-From: Dave Jones <davej@suse.de>
-To: Karol Olechowskii <karol_olechowski@acn.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon XP 1800+ segemntation fault
-Message-ID: <20020722133432.N27749@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Karol Olechowskii <karol_olechowski@acn.waw.pl>,
-	linux-kernel@vger.kernel.org
-References: <20020722133259.A1226@acc69-67.acn.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020722133259.A1226@acc69-67.acn.pl>; from karol_olechowski@acn.waw.pl on Mon, Jul 22, 2002 at 01:32:59PM +0000
+	id <S316577AbSGVHms>; Mon, 22 Jul 2002 03:42:48 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:9641 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316576AbSGVHmr>;
+	Mon, 22 Jul 2002 03:42:47 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.18 is available 
+Date: Mon, 22 Jul 2002 17:45:47 +1000
+Message-ID: <29877.1027323947@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 01:32:59PM +0000, Karol Olechowskii wrote:
- > Hello 
- > 
- > Few days ago I've bought new processor Athlon XP 1800+ to my computer
- > (MSI K7D Master with 256 MB PC2100 DDR).Before that I've got Athlon ThunderBird
- > 900 processor and everything had been working well till I change to the new one.
- > Now for every few minutes I've got segmetation fault or immediate system reboot.
- > Could anyone tell me what's goin' on?
- > ...
- > Jul 21 11:26:01 alpha kernel: EIP:    0010:[<c01a2942>]    Tainted: P
-                                                              ^^^^^^^^^^^
- > nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
- > devfs_register(nvidiactl): could not append to parent, err: -17
- > devfs_register(nvidia0): could not append to parent, err: -17
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Content-Type: text/plain; charset=us-ascii
 
-Ask nvidia. Only they can help you. They have the kernel source,
-we don't have their source.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-        Dave.
+modutils-2.4.18.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.18-1.src.rpm       As above, in SRPM format
+modutils-2.4.18-1.i386.rpm      Compiled with gcc 2.96 20000731,
+                                glibc 2.2.2.
+modutils-2.4.18-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
+				glibc-2.2.3.
+patch-modutils-2.4.18.gz        Patch from modutils 2.4.17 to 2.4.18.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Changelog extract
+
+	* Optionally only check the numeric part of the kernel and module
+	  version, insmod -N.  This option is always set for kernel >= 2.5, it
+	  defaults to off for earlier kernels.
+
+This change should have been in modutils 2.4.17 but it slipped through
+my TODO list.  This patch goes with the 2.5 kernel change
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102595659604735&w=2
+
+Checking the complete version string (including EXTRAVERSION) is a
+waste of time.  For historical reasons, insmod only checks the first
+32 characters of the version string, many users have longer version
+strings.  Users make significant changes to their config and kernel but
+do not change the version string, as a test for compatibility this is
+pointless.  Above all, storing the full string in kernel module.h
+forces a complete rebuild when you change one character in
+EXTRAVERSION.  So you have a test that is incomplete, unreliable and
+has horrible side effects, time to kill it.
+
+As always, the default for modutils on stable kernels is no change to
+existing behaviour, unless the user requests it.
+
+For kernel 2.5 and later, insmod only checks the numeric version
+number.  With modutils 2.4.18 and the above kernel patch, changing
+EXTRAVERSION no longer forces a complete kernel rebuild.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9O7gqi4UHNye0ZOoRAjxdAKCB7UZxLxexChP0y+3nFquk0VubKQCgsLnp
+L9FoBM+sIAqWvvf1IOTL0HM=
+=4VET
+-----END PGP SIGNATURE-----
+

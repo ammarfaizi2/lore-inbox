@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277094AbRJVRFI>; Mon, 22 Oct 2001 13:05:08 -0400
+	id <S277097AbRJVRGI>; Mon, 22 Oct 2001 13:06:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277092AbRJVRE7>; Mon, 22 Oct 2001 13:04:59 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:40965 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S277094AbRJVREn>;
-	Mon, 22 Oct 2001 13:04:43 -0400
-Date: Mon, 22 Oct 2001 10:05:08 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre11
-Message-ID: <20011022100508.B3885@kroah.com>
-In-Reply-To: <20011022112149.A5625@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011022112149.A5625@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S277115AbRJVRFt>; Mon, 22 Oct 2001 13:05:49 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:45066 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S277104AbRJVRFg>; Mon, 22 Oct 2001 13:05:36 -0400
+Date: Mon, 22 Oct 2001 10:04:21 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+In-Reply-To: <20011021215351.C19390@vega.digitel2002.hu>
+Message-ID: <Pine.LNX.4.10.10110220954490.1738-100000@transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 11:21:49AM +0100, Alan Cox wrote:
-> 
-> 2.2.20pre11
-> o	Security fixes
-> 	| Details censored in accordance with the US DMCA
 
-http://marc.theaimsgroup.com/?l=bugtraq&m=100343090106914
+> > have a adapter to connect a PS/2 keyboard or mouse to the iPAQ at work. I
+> > also have a alchemy board which allows you to plug in usb mice/keyboards. 
+> > 
+> > Plus for real game support I really like to see OpenGL use direct input.
+> > Sorry but you need real time response in games. Have input events going
+> > back a forth between the X client and the X server is just a waste.
+
+[snip]...
+ 
+> But don't move anything into kernel space which is possible in user space
+> as well! 
+
+I think we are misunderstanding each other here. I just want to see some
+kind of locking like DRI for input if "direct input" would ever be
+implemented. I would like to see also a standard api used for all the
+keyboards and mice. This is why I'm a a fan of the input api. Lets face
+it. The XFree86 developement cycle is many many many times longer than
+linux. This way as soon as a driver using the standard input api is
+avaliable for linux it is supported under XFree86. 
 

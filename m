@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133054AbQLJWZ3>; Sun, 10 Dec 2000 17:25:29 -0500
+	id <S132106AbQLJWZk>; Sun, 10 Dec 2000 17:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132565AbQLJWZT>; Sun, 10 Dec 2000 17:25:19 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:47368 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132106AbQLJWZN>; Sun, 10 Dec 2000 17:25:13 -0500
-Date: Sun, 10 Dec 2000 15:50:16 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18-25 DELL Laptop Video Problems
-Message-ID: <20001210155016.A19788@vger.timpanogas.org>
-In-Reply-To: <20001209160027.A15007@vger.timpanogas.org> <E144sZd-0005q5-00@the-village.bc.nu> <20001209181351.C15531@vger.timpanogas.org> <20001210174906.B2161@uni-mainz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001210174906.B2161@uni-mainz.de>; from dominik.kubla@uni-mainz.de on Sun, Dec 10, 2000 at 05:49:06PM +0100
+	id <S135241AbQLJWZ3>; Sun, 10 Dec 2000 17:25:29 -0500
+Received: from 62-6-231-238.btconnect.com ([62.6.231.238]:28423 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S132106AbQLJWZ1>;
+	Sun, 10 Dec 2000 17:25:27 -0500
+Date: Sun, 10 Dec 2000 21:57:05 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] NR_RESERVED_FILES broken in 2.4 too
+In-Reply-To: <Pine.LNX.4.30.0012102346130.5455-100000@fs129-190.f-secure.com>
+Message-ID: <Pine.LNX.4.21.0012102152440.5361-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2000 at 05:49:06PM +0100, Dominik Kubla wrote:
-> Use the VESA fb driver instead of the ATI fb driver. I have been doing so
-> ever since i got my DELL Inspiron 7500: the ATI driver won't recognize the
-> Rage Mobility chips (well, i could convince it to do so but the 1400x1050
-> LCD panel timing never worked...)
+On Sun, 10 Dec 2000, Szabolcs Szakacsits wrote:
 > 
-> Dominik
+> - this comment from include/linux/fs.h should be deleted
+>   #define NR_RESERVED_FILES 10 /* reserved for root */
 
-Can you enable both at the same time?  It's an installer issue with laptops
-and I need tobe able to detect whatever is running.
+well, not really -- it is "reserved" right now too, it is just root is
+allowed to use up all the reserved entries in the beginning and then when
+the normal user uses up all the "non-reserved" ones (from slab
+cache) there would be nothing left for the root.
 
-:-)
+But let us not argue about the above definition of "reserved" -- that is
+not productive. Let's do something productive -- namely, take your idea to
+the next logical step. Since you have proven that the freelist mechanism
+or concept of "reserve file structures" is not 100% satisfactory as is
+then how about removing the freelist altogether? I.e. what about serving
+each allocation request directly from the slab cache and imposing any
+"reserved for root" policy purely by the nr_xxx_files counters?
 
-Jeff
+The only argument against such idea would be "taking elements off the
+freelist is probably faster than allocating from slab". But maybe not? Who
+measured it? if slab allocator is so fast that the difference is
+negligible then applying the same idea all over the kernel (e.g. to
+superblocks etc) will remove a lot of code, which is a good thing.
 
+Regards,
+Tigran
 
-> -- 
-> Drug misuse is not  a disease, it is a decision, like  the decision to step
-> out in  front of a  moving car. You  would call that  not a disease  but an
-> error of judgment.  --Philip K. Dick. Author's Note, A SCANNER DARKLY, 1977
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

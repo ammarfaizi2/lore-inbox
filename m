@@ -1,28 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279580AbRJ2W3V>; Mon, 29 Oct 2001 17:29:21 -0500
+	id <S279581AbRJ2WcL>; Mon, 29 Oct 2001 17:32:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279581AbRJ2W3F>; Mon, 29 Oct 2001 17:29:05 -0500
-Received: from quechua.inka.de ([212.227.14.2]:22562 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S279580AbRJ2W25>;
-	Mon, 29 Oct 2001 17:28:57 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Micro$of use Novell, not his own products
-In-Reply-To: <E15x74M-00073w-00@mx10.port.ru>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
-Message-Id: <E15yKuS-0007s1-00@calista.inka.de>
-Date: Mon, 29 Oct 2001 23:29:32 +0100
+	id <S279582AbRJ2WcB>; Mon, 29 Oct 2001 17:32:01 -0500
+Received: from web20509.mail.yahoo.com ([216.136.226.144]:42713 "HELO
+	web20509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S279581AbRJ2Wby>; Mon, 29 Oct 2001 17:31:54 -0500
+Message-ID: <20011029223230.69111.qmail@web20509.mail.yahoo.com>
+Date: Mon, 29 Oct 2001 23:32:30 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Ethernet NIC dual homing
+To: Laurent Deniel <deniel@worldnet.fr>
+Cc: linux-kernel@vger.kernel.org, ctindel@users.sourceforge.net
+In-Reply-To: <3BDDD55C.56EDE4E0@worldnet.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E15x74M-00073w-00@mx10.port.ru> you wrote:
->> did you know that M$ uses BSD servers for Hotmail?
->> http://www.zdnet.com/zdnn/stories/news/0,4586,2776342,00.html
+> Hmm, it seems that a lot of good stuff (e.g. ARP
+> monitoring and
+> SIOCBONDCHANGEACTIVE ioctl) are implemented in the
+> bonding patch for 2.4.13.
+> Will it be included in the mainstream 2.4.x kernel
+> or is it a 2.5 thing ? 
 
-this is outdated. They use the quite good IIS SMTP Service for outgoing
-mails now.
+Personnaly, I don't know. Chad now maintains the
+project so he may have better opinions about this.
+But I'd like to see it in the 2.4 once well tested
+since it interests lots of people, and it allows us to
+put linux boxes in more critical environments.
 
-Greetings
-Bernd
+Regards,
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVCLF6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVCLGNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVCLF6m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 00:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVCLF6l
+	id S261635AbVCLGNV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 01:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVCLGNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 00:58:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:43750 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261576AbVCLF5j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 00:57:39 -0500
-Subject: Re: [RFC][PATCH] new timeofday arch specific hooks  (v. A3)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-In-Reply-To: <1110590710.30498.329.camel@cog.beaverton.ibm.com>
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
-	 <1110590710.30498.329.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Sat, 12 Mar 2005 16:52:13 +1100
-Message-Id: <1110606733.19810.4.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sat, 12 Mar 2005 01:13:21 -0500
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:387 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261635AbVCLGNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 01:13:19 -0500
+Message-ID: <4232887D.3090007@bigpond.net.au>
+Date: Sat, 12 Mar 2005 17:13:17 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-3.0.2 for 2.6.11
+References: <4226796A.9080502@bigpond.net.au>
+In-Reply-To: <4226796A.9080502@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-11 at 17:25 -0800, john stultz wrote:
-> All,
-> 	This patch implements the minimal architecture specific hooks to enable
-> the new time of day subsystem code for i386, x86-64, ia64, ppc32 and
-> ppc64. It applies on top of my linux-2.6.11_timeofday-core_A3 patch and
-> with this patch applied, you can test the new time of day subsystem. 
+Peter Williams wrote:
+> A patch of PlugSched-3.0.2 (containing ingosched, staircase, 
+> spa_no_frills and zaphod CPU schedulers) against a 2.6.11 kernel is
+> available for download from:
 > 
-> Basically it configs in the NEWTOD code and cuts alot of code out of the
-> build via #ifdefs. I know, I know, #ifdefs' are ugly and bad, and the
-> final patch will just remove the old code. For now this allows us to be
-> flexible and easily switch between the two implementations with a single
-> define.
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2-for-2.6.11.patch?download> 
 > 
-> New in this version:
-> o ppc32 arch code (by Darrick Wong. Many thanks to him for this code!)
-> o ia64 arch code (by Max Asbock. Many thanks to him for this code!)
-> o minor cleanups moving code between the arch and timesource patches
 > 
-> Items still on the TODO list:
-> o s390 arch port (hey Martin: nudge, nudge :)
-> o arch specific vsyscall/fsyscall interface
-> o other arch ports (volunteers wanted!)
+> PlugSched's version number has been bumped to 3.0.2 as it contains minor 
+> bug fixes and a patch for this version against a 2.6.10 kernel is 
+> available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2-for-2.6.10.patch?download> 
+> 
+> 
+> and against a CKRM modified 2.6.10 kernel at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2%2Bckrm-E17-for-2.6.10.patch?download> 
 
-I'm not what the impact will be with the vDSO implementation of
-gettimeofday which relies on the bits in systemcfg (tb_to_xs etc...).
+A bug fix update, PlugSched-3.0.2.1, of the 2.6.11 version is available at:
 
-Currently, the userland code uses the exact same bits as the kernel
-code, and thus, we have a garantee of getting the same results from
-both. Also, our "special" ppc_adjtimex will also update our offset and
-scale factor (with appropriate barriers) in a way that applies to both
-the kernel/syscall gettimeofday and the vDSO implementation. I'm not
-sure this is still true with your patch.
+<http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2.1-for-2.6.11.patch?download>
 
-I suppose I'll have to dig into the details sometime next week..
+and an incremental patch from 3.0.2 to 3.0.2.1 is available at:
 
-Ben
+<http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2-to-3.0.2.1-for-2.6.11.patch?download>
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

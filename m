@@ -1,80 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131314AbQKTF1I>; Mon, 20 Nov 2000 00:27:08 -0500
+	id <S131076AbQKTFvO>; Mon, 20 Nov 2000 00:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131129AbQKTF0u>; Mon, 20 Nov 2000 00:26:50 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:2579 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131326AbQKTF0p>; Mon, 20 Nov 2000 00:26:45 -0500
-Date: Sun, 19 Nov 2000 22:53:05 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NCPFS not returning Volume Size (???)
-Message-ID: <20001119225305.D29253@vger.timpanogas.org>
-In-Reply-To: <20001116204029.A15356@vger.timpanogas.org> <20001119171006.B379@ppc.vc.cvut.cz>
-Mime-Version: 1.0
+	id <S131129AbQKTFvE>; Mon, 20 Nov 2000 00:51:04 -0500
+Received: from mx2.core.com ([208.40.40.41]:13492 "EHLO smtp-2.core.com")
+	by vger.kernel.org with ESMTP id <S131076AbQKTFuv>;
+	Mon, 20 Nov 2000 00:50:51 -0500
+Message-ID: <3A18B4B8.37508FA0@megsinet.net>
+Date: Sun, 19 Nov 2000 23:20:56 -0600
+From: "M.H.VanLeeuwen" <vanl@megsinet.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Ford <david@linux.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: run level 1, login takes too long, 2.4.X vs. 2.2.X
+In-Reply-To: <3A18573B.E65CA88A@megsinet.net> <3A18AA1F.FAC00978@linux.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001119171006.B379@ppc.vc.cvut.cz>; from vandrove@vc.cvut.cz on Sun, Nov 19, 2000 at 05:10:06PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2000 at 05:10:06PM +0100, Petr Vandrovec wrote:
-> On Thu, Nov 16, 2000 at 08:40:29PM -0700, Jeff V. Merkey wrote:
-> > Petr,
-> > 
-> > NCPFS in 2.2.18-pre21 is not returning volume size via df -h.  I checked
-> > your code and found this comment:
-> > 
-> > static int ncp_statfs(struct super_block *sb, struct statfs *buf, int bufsiz)
-> > {
-> > NCP Code
-> > 
-> > 2222/17E6   Get Object's Remaining Disk Space
-> > 
-> > I noticed that 2.4 also is not reporting Volume free space.  
-> 
-> Yes, it is intentional. There are two different things:
-> (1) you can mount all volumes from server to one mountpoint, and all these
->     volumes share one superblock. So it is not clear, which value to
->     return. Sum of all volume sizes?
-> (2) in Netware, each directory can have its own space limit, so
->     returned free space should differ from directory to directory.
->     As statfs is per-superblock thing, I believe that returning
->     'sorry, I do not know' is better.
-> 
-> > grouped into case/switch classes.  If you can point me to 
-> > where 1) the login ID is stored and B) where NCP packet 
-> > request/reponse headers are constructed, i.e. a skeleton 
-> > to send/receive the requests I can grab, I'll try to 
-> > code this for you.
-> 
-> loginID is not stored anywhere in kernel. You can look at
-> ioctl(,NCP_IOC_GETOBJECTNAME,...). If you need your own ID
-> so you know which disk space restriction retrieve, you'll have
-> to first execute retrieve logged in info for current connection
-> (where connection number is stored in server->connection).
-> 
-> request/reply is built in preallocated space, you can look
-> at functions in ncplib_kernel.c, f.e. ncp_open_create_file_or_subdir
-> uses almost every of ncp_add_* functions. ncp_request() then
-> executes RPC call and ncp_unlock_server() unlocks connection.
-> You must NOT access userspace between ncp_init_request()
-> and ncp_unlock_server() function, or deadlock can occur.
-> 
+Hi David,
 
-There's is a method to obtain this accurately.  NSS may have 
-changed some things.  I have a list of four issues now with this 
-one I need to get finished.  I may need some help with your code
-as I go.
+Yup, I know rpc.portmap isn't running, the point is that it wasn't running on either
+2.2.17 or 2.4.X.  Isn't run level 1 supposed to only be the bare minimum of running
+processes, a few kernel processes, init and getty.  No network services...
 
-Jeff
+What's changed in the kernel to elicit this behavior?
 
+Is there a better "faster" way to get root access at run level 1 w/o login & passwd
+on 2.4.X?
 
-> 					Best regards,
-> 						Petr Vandrovec
-> 						vandrove@vc.cvut.cz
+No it's not an everyday occurance, but I was impatiently thinking the sytem had
+locked up and rebooted a couple of times, so it got me wondering why 2.2.X and
+2.4.X differ in this basic behavior. 
+
+Martin
+
+David Ford wrote:
+> 
+> rpc.portmap isn't running, your login configuration/nss requires yp or something provided ans an RPC.
+> 
+> -d
+> 
+> "M.H.VanLeeuwen" wrote:
+> 
+> > I had occasion to "telinit 1" today and found that it took a long time
+> > to login after root passwd was entered.  this doesn't happen with 2.2.X
+> > kernels.
+> >
+> > Is this to be expected with the 2.4 series kernels? or a bug?
+> >
+> > Martin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

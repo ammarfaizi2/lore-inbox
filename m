@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbRAEXYl>; Fri, 5 Jan 2001 18:24:41 -0500
+	id <S129777AbRAEXef>; Fri, 5 Jan 2001 18:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131035AbRAEXYb>; Fri, 5 Jan 2001 18:24:31 -0500
-Received: from monza.monza.org ([209.102.105.34]:53776 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S129777AbRAEXYN>;
-	Fri, 5 Jan 2001 18:24:13 -0500
-Date: Fri, 5 Jan 2001 15:23:45 -0800
-From: Tim Wright <timw@splhi.com>
-To: Igmar Palsenberg <maillist@chello.nl>
-Cc: Torrey Hoffman <torrey.hoffman@myrio.com>, Sven Koch <haegar@cut.de>,
-        Kernel devel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
-Message-ID: <20010105152345.A2100@scutter.sequent.com>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Igmar Palsenberg <maillist@chello.nl>,
-	Torrey Hoffman <torrey.hoffman@myrio.com>,
-	Sven Koch <haegar@cut.de>,
-	Kernel devel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4461B4112BDB2A4FB5635DE1995874320223BC@mail0.myrio.com> <Pine.LNX.4.21.0101050019530.4273-100000@server.serve.me.nl>
-Mime-Version: 1.0
+	id <S129895AbRAEXeZ>; Fri, 5 Jan 2001 18:34:25 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:29063 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S129777AbRAEXeJ>;
+	Fri, 5 Jan 2001 18:34:09 -0500
+Message-ID: <3A5659DE.90103B95@pobox.com>
+Date: Fri, 05 Jan 2001 15:33:50 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike <mike@khi.sdnpk.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-irda@pasta.cs.UiT.No" <linux-irda@pasta.cs.UiT.No>
+Subject: Re: How can I create root disk in Redhat 6.0
+In-Reply-To: <3A55AAF7.4F5EDFCD@khi.sdnpk.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0101050019530.4273-100000@server.serve.me.nl>; from maillist@chello.nl on Fri, Jan 05, 2001 at 12:25:09AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 12:25:09AM +0100, Igmar Palsenberg wrote:
-> On Thu, 4 Jan 2001, Torrey Hoffman wrote:
-> 
-> > I had exactly this problem with the Maxtor 61 GB drive on my 
-> > Pentium based server.  Theoretically a BIOS upgrade could fix it,
-> > but ASUS quit making BIOS upgrades for my motherboard two years
-> > ago.
-> 
-> Ah well, join the club in my case :)
-> 
+Mike wrote:
 
-I had a similar situation except I was more interested in the performance
-difference. Went from ~4MB/s with the 430HX controller to ~12.5MB/s with
-the promise. This on an old Pentium system.
+> Hi !!
+>
+> When i boot linux from rescue disk, i get following message:
+>
+> VFS: Insert root floppy disk to be loaded in RAM disk and press ENTER
+>
+> Now how can i create a root disk... I am trying to boot Redhat 6.0
 
-> > I solved the problem by getting a Promise Ultra 100 controller
-> > and putting the drive on that. Works perfectly under Linux 
-> > Mandrake 2.2.17-mdk-21 - it shows up as /dev/hde.  They are
-> > cheap controllers if you don't get the RAID version.
-> 
-> Thanx.. Will try that. New machine costs more.
->  
+A Slackware boot disk can do wonders here -
 
-Vanilla 2.2 kernels don't have this support (at least not as on 2.2.18).
-If you're not running Mandrake, grab Andre Hedrick's excellent ide patch.
+I never cared for Red Hat's rescue disks - even though I have
+run Red Hat since '97, I still use Slackware boot/root floppies for
+this type of situation...
 
-One thing you may like to know. If you want the drives attached to the new
-controller to be /dev/hda..., then edit lilo.conf and add
-	append="pci=reverse"
-to your patched kernel entry. Oh, and if you ever need to bootstrap one of
-these puppies with a kernel that doesn't have the drivers, you can use
-	append="ide0=0xe000,0xd802 ide1=0xd400,0xd002"
-to be able to access the drive attached to the Promise controller using the
-standard ide driver.
+jjs
 
-Hope this helps.
 
-Tim
-
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

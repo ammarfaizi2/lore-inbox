@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbUAWCAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 21:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUAWCAb
+	id S266504AbUAWCGR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 21:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266506AbUAWCGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 21:00:31 -0500
-Received: from ns1.s2io.com ([216.209.86.101]:17287 "EHLO ns1.s2io.com")
-	by vger.kernel.org with ESMTP id S265200AbUAWCA2 (ORCPT
+	Thu, 22 Jan 2004 21:06:17 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:52938 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S266504AbUAWCGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 21:00:28 -0500
-From: "Leonid Grossman" <leonid.grossman@s2io.com>
-To: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Cc: "'ravinandan arakali'" <ravinandan.arakali@s2io.com>
-Subject: pci_alloc_consistent()
-Date: Thu, 22 Jan 2004 17:59:47 -0800
-Message-ID: <000101c3e154$949dd520$7310100a@S2IOtech.com>
+	Thu, 22 Jan 2004 21:06:16 -0500
+To: David Ford <david+hb@blue-labs.org>
+Cc: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
+ public posts
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
+	<20040121194315.GE9327@redhat.com>
+	<Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
+	<1074717499.18964.9.camel@localhost.localdomain>
+	<20040121211550.GK9327@redhat.com>
+	<20040121213027.GN23765@srv-lnx2600.matchmail.com>
+	<pan.2004.01.21.23.40.00.181984@dungeon.inka.de>
+	<1074731162.25704.10.camel@localhost.localdomain>
+	<yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 22 Jan 2004 23:15:44 +0100
+In-Reply-To: <401000C1.9010901@blue-labs.org> (David Ford's message of "Thu,
+ 22 Jan 2004 11:56:33 -0500")
+Message-ID: <m3fze7d3zj.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-reply-to: <20040122234803.GC18316@widomaker.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Score: -106.2
-X-Spam-Outlook-Score: ()
-X-Spam-Features: BAYES_01,IN_REP_TO,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are there any known issues with pci_alloc_consistent() allocating more
-than 1MB?
-One of our developers seems to recall a thread but we can't find it...
+David Ford <david+hb@blue-labs.org> writes:
 
-We are using pci_alloc_consistent() in our 10GbE driver, to allocate
-memory for DMA transfers between
-host and device. 
-If we allocate under 1MB, everything works fine. When the allocation is
-more than 1 MB, allocation call does not return any failure but some
-data corruption seems to take place beyond the 1 MB space. 
+> If you can't handle clicking on a link to authorize your email, then
+> I'm not interested in your email.
 
-Is this a known problem? The system is 2-way Itanium, running 2.4.21
-kernel.
+Well, I think I can't handle clicking on any link most of the time.
+You know, UUCP doesn't carry HTTP, while it transfers mail quite
+effectively.
 
-Thanks in advance, Leonid
-
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Charles Shannon Hendrix
-> Sent: Thursday, January 22, 2004 3:48 PM
-> To: Linux Kernel
-> Subject: Re: Nvidia drivers and 2.6.x kernel
-> 
-> 
-> Thu, 22 Jan 2004 @ 12:12 +0000, Kieran said:
-> 
-> > How strange. I run slack 9.1 and 2.6.1, just grabbed the 4496
-> > pre-patched file from http://www.sh.nu/download/nvidia/ and 
-> installed it 
-> > as I would on 2.4. Works a charm.
-> 
-> How's the performance?
-> 
-> I have found the 4496 and 5328 drivers lowered my performance.
-> 
-> 5328 is supposed to be faster mip-mapping and faster when 
-> running with vertical blank sync, but I didn't see it myself. 
->  It also caused quite a few sound artifacts from my Live! sound card.
-> 
-> Anyone done a driver-by-driver benchmark?
-> 
-> I got tired of it, but here's the performance order on my 
-> system from fastest to slowest:
-> 
-> 4620
-> 3xxx (last stable 3xxx driver)
-> 4496
-> 5328
-> 
-> Mostly what I look for are not benchmark numbers, but notable 
-> hesitation in programs and interactive response, and side 
-> effects like bad sound artifacts.
-> 
-> 
-> 
-> 
-> -- 
-> UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM 
-> maker.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+Yes, I can PPP-connect over the dial-up, click on your link, disconnect.
+Costs money and time. Multiply this by everyone who demands such
+a click.
+-- 
+Krzysztof Halasa, B*FH

@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264141AbRFFUtM>; Wed, 6 Jun 2001 16:49:12 -0400
+	id <S264140AbRFFUvM>; Wed, 6 Jun 2001 16:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264147AbRFFUsw>; Wed, 6 Jun 2001 16:48:52 -0400
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:37133
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id <S264141AbRFFUst>; Wed, 6 Jun 2001 16:48:49 -0400
-From: "Phil Oester" <phil@theoesters.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: NFS caching issues on 2.4
-Date: Wed, 6 Jun 2001 13:48:48 -0700
-Message-ID: <LAEOJKHJGOLOPJFMBEFEEEFNDNAA.phil@theoesters.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+	id <S264145AbRFFUvC>; Wed, 6 Jun 2001 16:51:02 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:56081 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S264140AbRFFUuu>; Wed, 6 Jun 2001 16:50:50 -0400
+Date: Wed, 6 Jun 2001 17:47:37 -0300
+From: Harald Welte <laforge@gnumonks.org>
+To: Tomas Telensky <ttel5535@artax.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to know HZ from userspace?
+Message-ID: <20010606174736.H14579@corellia.laforge.distro.conectiva>
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <20010606200933.B16802@artax.karlin.mff.cuni.cz> <20010606152245.F14579@corellia.laforge.distro.conectiva> <20010606205951.A21519@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010606205951.A21519@artax.karlin.mff.cuni.cz>; from ttel5535@artax.karlin.mff.cuni.cz on Wed, Jun 06, 2001 at 08:59:51PM +0200
+X-Operating-System: Linux corellia.laforge.distro.conectiva 2.4.3
+X-Date: Today is Setting Orange, the 9th day of Confusion in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've stumbled upon a wierd NFS caching issue on 2.4 which does not seem to
-exist in 2.2.  Our www docroot is NFS mounted on a NetApp 760.  We have a
-cron job which make changes to the index.html every 5 minutes.
+On Wed, Jun 06, 2001 at 08:59:51PM +0200, Tomas Telensky wrote:
+> > On Wed, Jun 06, 2001 at 08:09:33PM +0200, Tomas Telensky wrote:
+> > > > Hi!
+> > > > 
+> > > > Is there any way to read out the compile-time HZ value of the kernel?
+> > > 
+> > > Why simply #include <asm/param.h>?
+> > 
+> > because the include file doesn't say anything about the HZ value of 
+> > the currently running kernel, but only about some kernel source somewhere
+> > on your harddrive?
+> 
+> This _SHOULD_ correspond on each linux instalation. But if you would
+> distribute a binary to other people it's a problem.
 
-Recently, we upgraded all the web servers to 2.4 and noticed that there were
-big delays in seeing these 5 minute updates.  Yet, an ls -l in the nfs
-directory on each of the servers clearly shows the new timestamp.  However,
-a cat of the file shows that it is the old version (sometimes up to 1 hour
-old).  I was using NFSv3, so decided to try NFSv2, but got the same results.
+I my initial mail I wrote that I'm talking about user-mode-linux. So for
+example you compile a program, copy it into your user-mode-linux filesystem,
+and it won't work anymore. (recompiling is also not an option, who has a 
+kernel source installed inside his user-mode-linux root filesystem).
 
-I reverted to 2.2.19 on the boxes (which are RedHat 7.1 incidentally), and
-these problems went away.
+and what happens if you recompile your kernel with a different HZ (because
+of tc's TBF or something)... then you would have to recompile your userspace
+application afterwards?
 
-Any ideas why this is happening?
+nah. That's not a solution.
 
--Phil Oester
+I'd say:
 
+- Either change all sysctl variables to be HZ-independent, or
+- Create a sane way to read HZ from the running kernel.
+
+Everything else is broken, from my point of view.
+
+> 	Tomas
+
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)

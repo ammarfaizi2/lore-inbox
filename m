@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbUFJTLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbUFJTPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbUFJTLr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUFJTLq
+	id S262451AbUFJTPN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUFJTPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 15:11:46 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:55220 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S262450AbUFJTLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 15:11:43 -0400
-X-Sasl-enc: RxrTUXSNHDkgdQZfeORcVg 1086894701
-Message-ID: <40C8B26D.7040404@mailcan.com>
-Date: Thu, 10 Jun 2004 21:11:41 +0200
-From: Leon Woestenberg <leonw@mailcan.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Insults in the kernel-sources
-References: <200406102053.48615.Tobias.Hirning@gmx.de>
-In-Reply-To: <200406102053.48615.Tobias.Hirning@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 15:15:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31640 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262451AbUFJTOB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 15:14:01 -0400
+Date: Thu, 10 Jun 2004 20:14:00 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Greg KH <greg@kroah.com>
+Cc: sensors@stimpy.netroedge.com,
+       "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Finding user/kernel pointer bugs [no html]
+Message-ID: <20040610191359.GJ12308@parcelfarce.linux.theplanet.co.uk>
+References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> <20040610044903.GE12308@parcelfarce.linux.theplanet.co.uk> <20040610165821.GB32577@kroah.com> <20040610191004.GA1661@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040610191004.GA1661@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Tobias,
+On Thu, Jun 10, 2004 at 12:10:04PM -0700, Greg KH wrote:
+> @@ -170,8 +170,11 @@
+>  static int DIV_TO_REG(int val)
+>  {
+>  	int answer = 0;
+> -	while ((val >>= 1))
+> +	val >>= 1;
+> +	while (val) {
+>  		answer++;
+> +		val >>= 1;
+> +	}
+>  	return answer;
 
-Tobias Hirning wrote:
-> have you ever tried a 
-> grep "insult" -i -r ./*
->  in the sourcetree of the kernel?
-> (insult must be replaced by an insult)
-> Haven't?
-> So do and think about, because the you can find to much of insults in 
-> the sources.
+That's less readable than the original...
 
-This is a feature. I makes reading the source code enjoyable even for
-people who do not know sh*t about C programming. And that's not an
-insult :-)
+> -		data_ptrs = (u8 **) kmalloc(rdwr_arg.nmsgs * sizeof(u8 *),
+> -					    GFP_KERNEL);
+> +		data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
 
-I think some of the insults need updating though. We do not want to
-support old insults (although Linux is well-known for excellent support 
-for legacy entities).
-
-Regards,
-
-Leon.
+While we are at it, what's the type of ->nmsgs?

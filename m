@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266791AbRGFSpy>; Fri, 6 Jul 2001 14:45:54 -0400
+	id <S266788AbRGFSlx>; Fri, 6 Jul 2001 14:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266790AbRGFSpf>; Fri, 6 Jul 2001 14:45:35 -0400
-Received: from mysql.sashanet.com ([209.181.82.108]:12970 "EHLO
-	mysql.sashanet.com") by vger.kernel.org with ESMTP
-	id <S266791AbRGFSpW>; Fri, 6 Jul 2001 14:45:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Sasha Pachev <sasha@mysql.com>
-Organization: MySQL
-To: Mike Kravetz <mkravetz@sequent.com>
-Subject: Re: Strange thread behaviour on 8-way x86 machine
-Date: Fri, 6 Jul 2001 12:45:20 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0107031225120K.18621@mysql> <20010703115139.B1128@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20010703115139.B1128@w-mikek2.des.beaverton.ibm.com>
+	id <S266790AbRGFSln>; Fri, 6 Jul 2001 14:41:43 -0400
+Received: from [199.26.153.10] ([199.26.153.10]:2565 "HELO fourelle.com")
+	by vger.kernel.org with SMTP id <S266788AbRGFSlf>;
+	Fri, 6 Jul 2001 14:41:35 -0400
+Message-ID: <3B4605E5.DDA1B8CA@fourelle.com>
+Date: Fri, 06 Jul 2001 11:39:33 -0700
+From: "Adam D. Scislowicz" <adams@fourelle.com>
+Organization: Fourelle Systems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0107061245200U.17811@mysql>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+CC: adams@fourelle.com
+Subject: IDE0/Slave Detection Fails in 2.4.x(2.4.4, 2.4.5, and 2.4.5-ac18 tested)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 July 2001 12:51, Mike Kravetz wrote:
-> On Tue, Jul 03, 2001 at 12:25:12PM -0600, Sasha Pachev wrote:
-> > Hi,
-> > 
-> > I have observed a rather strange behaviour doing a multi-threaded CPU 
-> > benchmark on an 8-way machine running 2.4.2 SMP kernel. Even when the 
-> > priority is reniced to the highest possible value, I am still unable to 
-reach 
-> > more than 50% CPU utilization. My benchmark just creates a bunch of 
-threads 
-> > with pthread_create(), and then runs a simple integer computation in each 
-> > thread. On a dual with 2.4.3 kernel, and a 4-way with 2.4.2 kernel, I am 
-able 
-> > to reach full CPU utilization. 
-> 
-> I haven't had any problem fully utilizing 8 CPUs on 2.4.* kernels.  This
-> may seem obvious, but do you have more than 4 CPUs worth of work for the
-> system to do?  What is the runqueue length during this benchmark?
+I am having a problem where the 2.4.x(2.4.4, and 2.4.5, and 2.4.5-ac18)
+kernel does not detect the IDE0/primary slave device. If I put a third
+drive in the system as IDE1/secondary master then that is detected.
+However
+the IDE0/primary slave is never detected.
 
-Upon further investigation and testing, it turned out that the kernel was not 
-at fault - the problem was high mutex contention, which caused frequent 
-context switches, and the idle CPU was apparently from the scheduler waiting 
-for the original CPU to become available too often.
+Using the 2.2.19 kernel the IDE0/primary slave device IS detected
+properly. This
+can be seen below in the 2.2.19 Kernel Init Messages.
 
-On a side note, it would be nice if a process could communicate to the kernel 
-that it would rather run on the first available CPU than wait for the perfect 
-one to become available.
+Below is some more detailed info.
+ *Note: Please CC me in any replay as I am not subscribed to this
+mailiing list ;)
 
--- 
-MySQL Development Team
-For technical support contracts, visit https://order.mysql.com/
-   __  ___     ___ ____  __ 
-  /  |/  /_ __/ __/ __ \/ /   Sasha Pachev <sasha@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__  MySQL AB, http://www.mysql.com/
-/_/  /_/\_, /___/\___\_\___/  Provo, Utah, USA
-       <___/                  
+ -Adam Scislowicz
+
+[ My IDE Controller Info (2.2.19:/proc/pci) ]
+  Bus  0, device   7, function  1:
+    IDE interface: Intel 82371AB PIIX4 IDE (rev 1).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.
+Latency=64.
+      I/O at 0xffa0 [0xffa1].
+
+
+[ The 2.2.19 Kernel Init Messages ]
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hda: TOSHIBA THNCF032MAA, ATA DISK drive
+hdb: IBM-DARA-206000, ATA DISK drive
+hdc: ST320420A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: TOSHIBA THNCF032MAA, 31MB w/2kB Cache, CHS=496/4/32
+hdb: IBM-DARA-206000, 5729MB w/418kB Cache, CHS=730/255/63, UDMA
+hdc: ST320420A, 19458MB w/2048kB Cache, CHS=39535/16/63, UDMA
+
+
+[ The 2.4.5-ac18 Kernel Init Messages ]
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hda: TOSHIBA THNCF032MAA, ATA DISK drive
+hdc: ST320420A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 63488 sectors (33 MB) w/2KiB Cache, CHS=496/4/32, DMA
+hdc: 39851760 sectors (20404 MB) w/2048KiB Cache, CHS=39535/16/63,
+UDMA(33)
+

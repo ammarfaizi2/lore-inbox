@@ -1,60 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266670AbUGKXL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266667AbUGKX0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266670AbUGKXL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 19:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266671AbUGKXL2
+	id S266667AbUGKX0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 19:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266671AbUGKX0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 19:11:28 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:34720 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266670AbUGKXLL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 19:11:11 -0400
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-From: Robert Love <rml@ximian.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjanv@redhat.com, linux-audio-dev@music.columbia.edu
-In-Reply-To: <20040711103020.GA24797@elte.hu>
-References: <20040709182638.GA11310@elte.hu>
-	 <20040710222510.0593f4a4.akpm@osdl.org> <20040711093209.GA17095@elte.hu>
-	 <20040711024518.7fd508e0.akpm@osdl.org> <20040711095039.GA22391@elte.hu>
-	 <20040711025855.08afbca1.akpm@osdl.org>  <20040711103020.GA24797@elte.hu>
-Content-Type: text/plain
-Date: Sun, 11 Jul 2004 19:12:23 -0400
-Message-Id: <1089587543.3619.9.camel@lucy>
+	Sun, 11 Jul 2004 19:26:14 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:60816 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S266667AbUGKX0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 19:26:08 -0400
+Date: Mon, 12 Jul 2004 00:26:01 +0100
+From: Ian Molton <spyro@f2s.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb@linuxtv.org
+Subject: [DVB] tda1004x frontend regression
+Message-Id: <20040712002601.48427258.spyro@f2s.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-07-11 at 12:30 +0200, Ingo Molnar wrote:
+This is a multi-part message in MIME format.
 
-> the reason is difference in overhead (codesize, speed) and risks (driver
-> robustness). We do not want to enable preempt for Fedora yet because it
-> breaks just too much stuff and is too heavy. So we looked for a solution
-> that might work for a generic distro.
+--Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I think we should work toward being able to enable kernel preemption in
-Fedora, then, instead of other tangential solutions.
+Hi.
 
-And I disagree with the overhead argument.  I have seen no specific
-arguments that show a significant overhead.  Heck, when people tried to
-show that kernel preemption hurt throughput, we saw tests that showed
-improved throughput (probably due to better utilization of I/O).
+Attached is a diff I've made.
 
-But stability is a subjective argument (and I agree we need more driver
-love, at least for obscure drivers) wrt kernel preemption.  So I would
-say we should concentrate on working on the stability[1] so we could
-just enable kernel preemption unconditionally and not designing new
-solutions.
+I tried the 2.6.7-bk20 driver for the tda1004x frontend on my DVB-T card, only to find out that it failed to work, unlike the 2.6.5 driver which appeared to work well.
 
-Best,
+I assumed this was due to my firmware being out of date but this was not the case.
 
-	Robert Love
+I discovered the problem was related to some additions made to the driver, and commenting them out allowed things to work again. Ther is also a dodgy looking alteration to some pointer (fe->data).
 
-[1] What better way than enabling CONFIG_PREEMPT for Fedora?  Enable it
-for Fedora, and do not enable it for Red Hat Enterprise until you are
-confidant.  ;-)
+In the course of my fiddling, I added support to the firmware list for the latest (2.17d) firmware.
 
+all this is in the attached diff, and the driver works in this modified state for me.
 
+--Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D
+Content-Type: application/octet-stream;
+ name="diff_dvb"
+Content-Disposition: attachment;
+ filename="diff_dvb"
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvbWVkaWEvZHZiL2Zyb250ZW5kcy90ZGExMDA0eC5jLm5ldwkyMDA0LTA3LTEy
+IDAwOjE2OjQxLjAwMDAwMDAwMCArMDEwMAorKysgZHJpdmVycy9tZWRpYS9kdmIvZnJvbnRlbmRz
+L3RkYTEwMDR4LmMJMjAwNC0wNy0xMiAwMDoxMTozNy4wMDAwMDAwMDAgKzAxMDAKQEAgLTE4NCw3
+ICsxODQsOCBAQAogCWludCBmd19vZmZzZXQ7CiAJaW50IGZ3X3NpemU7CiB9Owotc3RhdGljIHN0
+cnVjdCBmd2luZm8gdGRhMTAwNDVoX2Z3aW5mb1tdID0geyB7LmZpbGVfc2l6ZSA9IDI4NjcyMCwu
+Zndfb2Zmc2V0ID0gMHgzNGNjNSwuZndfc2l6ZSA9IDMwNTU1fSB9Oworc3RhdGljIHN0cnVjdCBm
+d2luZm8gdGRhMTAwNDVoX2Z3aW5mb1tdID0geyB7LmZpbGVfc2l6ZSA9IDI4NjcyMCwuZndfb2Zm
+c2V0ID0gMHgzNGNjNSwuZndfc2l6ZSA9IDMwNTU1fSwKKwkJCQkJICAgIHsuZmlsZV9zaXplID0g
+MzAzMTA0LC5md19vZmZzZXQgPSAweDM3ZWY5LC5md19zaXplID0gMzA1NTR9IH07CiBzdGF0aWMg
+aW50IHRkYTEwMDQ1aF9md2luZm9fY291bnQgPSBzaXplb2YodGRhMTAwNDVoX2Z3aW5mbykgLyBz
+aXplb2Yoc3RydWN0IGZ3aW5mbyk7CiAKIHN0YXRpYyBzdHJ1Y3QgZndpbmZvIHRkYTEwMDQ2aF9m
+d2luZm9bXSA9IHsgey5maWxlX3NpemUgPSAyODY3MjAsLmZ3X29mZnNldCA9IDB4M2M0ZjksLmZ3
+X3NpemUgPSAyNDQ3OX0gfTsKQEAgLTEzMDYsNyArMTMwNyw3IEBACiB7CiAJaW50IHN0YXR1cyA9
+IDA7CiAJc3RydWN0IGR2Yl9pMmNfYnVzICppMmMgPSBmZS0+aTJjOwotCXN0cnVjdCB0ZGExMDA0
+eF9zdGF0ZSAqdGRhX3N0YXRlID0gKHN0cnVjdCB0ZGExMDA0eF9zdGF0ZSAqKSBmZS0+ZGF0YTsK
+KwlzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUgKnRkYV9zdGF0ZSA9IChzdHJ1Y3QgdGRhMTAwNHhfc3Rh
+dGUgKikgJihmZS0+ZGF0YSk7CiAKIAlkcHJpbnRrKCIlczogY21kPTB4JXhcbiIsIF9fRlVOQ1RJ
+T05fXywgY21kKTsKIApAQCAtMTM2OCw2ICsxMzY5LDcgQEAKIAkJCXRkYV9zdGF0ZS0+aW5pdGlh
+bGlzZWQgPSAxOwogCQlyZXR1cm4gc3RhdHVzOwogCisjaWYgMAogCWNhc2UgRkVfR0VUX1RVTkVf
+U0VUVElOR1M6CiAJewogCQlzdHJ1Y3QgZHZiX2Zyb250ZW5kX3R1bmVfc2V0dGluZ3MqIGZlc2V0
+dGluZ3MgPSAoc3RydWN0IGR2Yl9mcm9udGVuZF90dW5lX3NldHRpbmdzKikgYXJnOwpAQCAtMTM3
+Niw2ICsxMzc4LDcgQEAKIAkJZmVzZXR0aW5ncy0+bWF4X2RyaWZ0ID0gMTY2NjY3KjI7CiAJCXJl
+dHVybiAwOwogCX0KKyNlbmRpZgogCSAgICAKIAlkZWZhdWx0OgogCQlyZXR1cm4gLUVPUE5PVFNV
+UFA7CkBAIC0xMzkyLDcgKzEzOTUsNyBAQAogICAgICAgICBpbnQgZmVfdHlwZSA9IC0xOwogICAg
+ICAgICBpbnQgdHVuZXJfdHlwZSA9IC0xOwogCXN0cnVjdCB0ZGExMDA0eF9zdGF0ZSB0ZGFfc3Rh
+dGU7Ci0Jc3RydWN0IHRkYTEwMDR4X3N0YXRlKiBwdGRhX3N0YXRlOworLy8Jc3RydWN0IHRkYTEw
+MDR4X3N0YXRlKiBwdGRhX3N0YXRlOwogCXN0cnVjdCBpMmNfbXNnIHR1bmVyX21zZyA9IHsuYWRk
+cj0wLCAuZmxhZ3M9MCwgLmJ1Zj0wLCAubGVuPTAgfTsKICAgICAgICAgc3RhdGljIHU4IHRkMTM0
+NF9pbml0W10gPSB7IDB4MGIsIDB4ZjUsIDB4ODgsIDB4YWIgfTsKICAgICAgICAgc3RhdGljIHU4
+IHRkMTMxNl9pbml0W10gPSB7IDB4MGIsIDB4ZjUsIDB4ODUsIDB4YWIgfTsKQEAgLTE0ODUsMjAg
+KzE0ODgsMjQgQEAKICAgICAgICAgLy8gdXBsb2FkIGZpcm13YXJlCiAgICAgICAgIGlmICgoc3Rh
+dHVzID0gdGRhMTAwNHhfZnd1cGxvYWQoaTJjLCAmdGRhX3N0YXRlKSkgIT0gMCkgcmV0dXJuIHN0
+YXR1czsKIAorI2lmIDAKIAkvLyBjcmVhdGUgdGhlIHJlYWwgc3RhdGUgd2UnbGwgYmUgcGFzc2lu
+ZyBhYm91dAogCWlmICgocHRkYV9zdGF0ZSA9IChzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUqKSBrbWFs
+bG9jKHNpemVvZihzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUpLCBHRlBfS0VSTkVMKSkgPT0gTlVMTCkg
+ewogCQlyZXR1cm4gLUVOT01FTTsKIAl9CiAJbWVtY3B5KHB0ZGFfc3RhdGUsICZ0ZGFfc3RhdGUs
+IHNpemVvZihzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUpKTsKIAkqZGF0YSA9IHB0ZGFfc3RhdGU7Cisj
+ZW5kaWYKIAogCS8vIHJlZ2lzdGVyCiAgICAgICAgIHN3aXRjaCh0ZGFfc3RhdGUuZmVfdHlwZSkg
+ewogICAgICAgICBjYXNlIEZFX1RZUEVfVERBMTAwNDVIOgotCQlyZXR1cm4gZHZiX3JlZ2lzdGVy
+X2Zyb250ZW5kKHRkYTEwMDR4X2lvY3RsLCBpMmMsIHB0ZGFfc3RhdGUsICZ0ZGExMDA0NWhfaW5m
+byk7CisJCXJldHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQodGRhMTAwNHhfaW9jdGwsIGkyYywg
+KHZvaWQgKikoKigodTMyKikgJnRkYV9zdGF0ZSkpLCAmdGRhMTAwNDVoX2luZm8pOworLy8JCXJl
+dHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQodGRhMTAwNHhfaW9jdGwsIGkyYywgcHRkYV9zdGF0
+ZSwgJnRkYTEwMDQ1aF9pbmZvKTsKIAogICAgICAgICBjYXNlIEZFX1RZUEVfVERBMTAwNDZIOgot
+CQlyZXR1cm4gZHZiX3JlZ2lzdGVyX2Zyb250ZW5kKHRkYTEwMDR4X2lvY3RsLCBpMmMsIHB0ZGFf
+c3RhdGUsICZ0ZGExMDA0NmhfaW5mbyk7CisJCXJldHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQo
+dGRhMTAwNHhfaW9jdGwsIGkyYywgKHZvaWQgKikoKigodTMyKikgJnRkYV9zdGF0ZSkpLCAmdGRh
+MTAwNDZoX2luZm8pOworLy8JCXJldHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQodGRhMTAwNHhf
+aW9jdGwsIGkyYywgcHRkYV9zdGF0ZSwgJnRkYTEwMDQ2aF9pbmZvKTsKICAgICAgICAgfQogCiAg
+ICAgICAgIC8vIHNob3VsZCBub3QgZ2V0IGhlcmUK
+
+--Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D--

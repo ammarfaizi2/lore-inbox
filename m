@@ -1,391 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310483AbSCWRG1>; Sat, 23 Mar 2002 12:06:27 -0500
+	id <S310441AbSCWRQA>; Sat, 23 Mar 2002 12:16:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310441AbSCWRGL>; Sat, 23 Mar 2002 12:06:11 -0500
-Received: from gear.torque.net ([204.138.244.1]:7434 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S310436AbSCWRF4>;
-	Sat, 23 Mar 2002 12:05:56 -0500
-Message-ID: <3C9CB643.FC33C0AF@torque.net>
-Date: Sat, 23 Mar 2002 12:07:15 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.7-dj1 i686)
-X-Accept-Language: en
+	id <S310488AbSCWRPv>; Sat, 23 Mar 2002 12:15:51 -0500
+Received: from mustard.heime.net ([194.234.65.222]:53145 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S310441AbSCWRPk>; Sat, 23 Mar 2002 12:15:40 -0500
+Date: Sat, 23 Mar 2002 18:15:36 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG] USB keyboard reboots kernel upon startup
+Message-ID: <Pine.LNX.4.30.0203231727330.9887-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
-In-Reply-To: <20020322215809.A17173@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> 
-> Hello:
-> 
-> One problem I see when trying to use a box with 128 SCSI disks
-> is that sd_mod sometimes refuses to load. Earlier kernels simply
-> oopsed when it happened, but that is fixed in 2.4.18. The root
-> of the evil is the enormous array sd[] that sd_init allocates.
-> Alan suggested to split the allocation, which is what I did.
+hi all
 
-Pete,
-I haven't looked too closely at your patch, but I
-can recount a little history: all the upper level scsi
-drivers used to have an "EXTRA_DEVS" config option.
-This put an upper limit on the number of new devices 
-that could be attached _after_ the upper level driver
-was loaded. With help from Eric Y. we got rid of those
-in the sg and st drivers using another level of
-indirection.
+When booting up with a Logitech USB keyboard (the one with a with scroll
+wheel), the system reboots immediately when probing for an AT keyboard
+(after pty: 256 Unix98 ptys configured). When unplugging it, I get this
 
-So the only thing that is now contiguous is an array of
-pointers (to device state structures). A driver-scope 
-read-write lock protects that structure. The sg
-driver does a small overallocation on this array
-(#define SG_DEV_ARR_LUMP 6). If new devices are
-registered after driver initialization and the device 
-pointer array is not big enough then a write lock is 
-taken and the pointers moved over into a larger array.
-By using the private_data member of the file structure,
-most reads of that array can be avoided (otherwise
-a read_lock is taken).
+keyboard: Timeout - AT keyboard not present?(ed)
+keyboard: Timeout - AT keyboard not present?(f4)
 
-There have been no reported errors with this approach
-during the lk 2.4 series. A patched sg driver (together
-with Richard Gooch's sd-many patch) has been able to
-address over 300 (similated) disks without noticeable
-memory problems on a modestly-sized box.
+any ideas?
 
-I believe that it was Eric's intention to implement the
-same solution in sd. The generic disk stuff and the
-partitions are a complicating factor.
-All those parallel arrays set up by sd_init (e.g.
-rscsi_disks[], sd_sizes[], sd_blocksizes[],
-sd_hardsizes[], sd_max_sectors[] and sd[] are a mess.
-It is false economy to do the number of index
-operations that sd does, my guess is that 90% of them
-are redundant. Couldn't the sd driver just
-have a device structure that contains an (16 element)
-array of pointers to partition structures?
+it works fine if I re-attach the keyboard after reboot
+
+I'm using kernel 2.4.19-pre3-ac1
+
+PCI controller is an SiS
+
+  Bus  0, device   1, function  2:
+    USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 7).
+      IRQ 12.
+      Master Capable.  Latency=32.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xe7800000 [0xe7800fff].
+  Bus  0, device   1, function  3:
+    USB Controller: Silicon Integrated Systems [SiS] 7001 (#2) (rev 7).
+      IRQ 12.
+      Master Capable.  Latency=32.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xe7000000 [0xe7000fff].
+
+thanks
+
+roy
+
+--
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 
 
-BTW. It is probably worth looking at the sd-many patch
-as it must have been faced with a similar problem.
-
-Doug Gilbert
- 
-> Arjan said that it may be easier to use vmalloc, and sure it is.
-> However, I heard that vmalloc space is not too big, so it may
-> make sense to conserve it (especially on non-x86 32-bitters).
-> 
-> Does anyone care to give it a test run?
-> 
-> -- Pete
-> 
-> diff -ur -X dontdiff linux-2.4.19-pre4/drivers/block/ll_rw_blk.c linux-2.4.19-pre4-sd/drivers/block/ll_rw_blk.c
-> --- linux-2.4.19-pre4/drivers/block/ll_rw_blk.c Thu Mar 21 15:46:13 2002
-> +++ linux-2.4.19-pre4-sd/drivers/block/ll_rw_blk.c      Fri Mar 22 11:42:01 2002
-> @@ -85,7 +85,7 @@
->  int * blk_size[MAX_BLKDEV];
-> 
->  /*
-> - * blksize_size contains the size of all block-devices:
-> + * blksize_size contains the block size of all block-devices:
->   *
->   * blksize_size[MAJOR][MINOR]
->   *
-> diff -ur -X dontdiff linux-2.4.19-pre4/drivers/scsi/sd.c linux-2.4.19-pre4-sd/drivers/scsi/sd.c
-> --- linux-2.4.19-pre4/drivers/scsi/sd.c Thu Mar 21 15:46:21 2002
-> +++ linux-2.4.19-pre4-sd/drivers/scsi/sd.c      Fri Mar 22 11:42:01 2002
-> @@ -65,8 +65,13 @@
->   *  static const char RCSid[] = "$Header:";
->   */
-> 
-> +/* system major --> sd_gendisks index */
-> +#define SD_MAJOR_IDX(i)                (MAJOR(i) & SD_MAJOR_MASK)
-> +/* sd_gendisks index --> system major */
->  #define SD_MAJOR(i) (!(i) ? SCSI_DISK0_MAJOR : SCSI_DISK1_MAJOR-1+(i))
-> 
-> +#define SD_PARTITION(dev)      ((SD_MAJOR_IDX(dev) << 8) | (MINOR(dev) & 255))
-> +
->  #define SCSI_DISKS_PER_MAJOR   16
->  #define SD_MAJOR_NUMBER(i)     SD_MAJOR((i) >> 8)
->  #define SD_MINOR_NUMBER(i)     ((i) & 255)
-> @@ -84,9 +89,8 @@
->  #define SD_TIMEOUT (30 * HZ)
->  #define SD_MOD_TIMEOUT (75 * HZ)
-> 
-> -struct hd_struct *sd;
-> -
->  static Scsi_Disk *rscsi_disks;
-> +static struct gendisk *sd_gendisks;
->  static int *sd_sizes;
->  static int *sd_blocksizes;
->  static int *sd_hardsizes;      /* Hardware sector size */
-> @@ -195,7 +199,9 @@
->                         if (put_user(diskinfo[0], &loc->heads) ||
->                                 put_user(diskinfo[1], &loc->sectors) ||
->                                 put_user(diskinfo[2], &loc->cylinders) ||
-> -                               put_user(sd[SD_PARTITION(inode->i_rdev)].start_sect, &loc->start))
-> +                               put_user(sd_gendisks[SD_MAJOR_IDX(
-> +                                   inode->i_rdev)].part[MINOR(
-> +                                   inode->i_rdev)].start_sect, &loc->start))
->                                 return -EFAULT;
->                         return 0;
->                 }
-> @@ -226,7 +232,9 @@
->                         if (put_user(diskinfo[0], &loc->heads) ||
->                                 put_user(diskinfo[1], &loc->sectors) ||
->                                 put_user(diskinfo[2], (unsigned int *) &loc->cylinders) ||
-> -                               put_user(sd[SD_PARTITION(inode->i_rdev)].start_sect, &loc->start))
-> +                               put_user(sd_gendisks[SD_MAJOR_IDX(
-> +                                   inode->i_rdev)].part[MINOR(
-> +                                   inode->i_rdev)].start_sect, &loc->start))
->                                 return -EFAULT;
->                         return 0;
->                 }
-> @@ -286,30 +294,32 @@
-> 
->  static int sd_init_command(Scsi_Cmnd * SCpnt)
->  {
-> -       int dev, devm, block, this_count;
-> +       int dev, block, this_count;
-> +       struct hd_struct *ppnt;
->         Scsi_Disk *dpnt;
->  #if CONFIG_SCSI_LOGGING
->         char nbuff[6];
->  #endif
-> 
-> -       devm = SD_PARTITION(SCpnt->request.rq_dev);
-> +       ppnt = &sd_gendisks[SD_MAJOR_IDX(SCpnt->request.rq_dev)].part[MINOR(SCpnt->request.rq_dev)];
->         dev = DEVICE_NR(SCpnt->request.rq_dev);
-> 
->         block = SCpnt->request.sector;
->         this_count = SCpnt->request_bufflen >> 9;
-> 
-> -       SCSI_LOG_HLQUEUE(1, printk("Doing sd request, dev = %d, block = %d\n", devm, block));
-> +       SCSI_LOG_HLQUEUE(1, printk("Doing sd request, dev = 0x%x, block = %d\n",
-> +           SCpnt->request.rq_dev, block));
-> 
->         dpnt = &rscsi_disks[dev];
-> -       if (devm >= (sd_template.dev_max << 4) ||
-> +       if (dev >= sd_template.dev_max ||
->             !dpnt->device ||
->             !dpnt->device->online ||
-> -           block + SCpnt->request.nr_sectors > sd[devm].nr_sects) {
-> +           block + SCpnt->request.nr_sectors > ppnt->nr_sects) {
->                 SCSI_LOG_HLQUEUE(2, printk("Finishing %ld sectors\n", SCpnt->request.nr_sectors));
->                 SCSI_LOG_HLQUEUE(2, printk("Retry with 0x%p\n", SCpnt));
->                 return 0;
->         }
-> -       block += sd[devm].start_sect;
-> +       block += ppnt->start_sect;
->         if (dpnt->device->changed) {
->                 /*
->                  * quietly refuse to do anything to a changed disc until the changed
-> @@ -318,7 +328,7 @@
->                 /* printk("SCSI disk has been changed. Prohibiting further I/O.\n"); */
->                 return 0;
->         }
-> -       SCSI_LOG_HLQUEUE(2, sd_devname(devm, nbuff));
-> +       SCSI_LOG_HLQUEUE(2, sd_devname(dev, nbuff));
->         SCSI_LOG_HLQUEUE(2, printk("%s : real dev = /dev/%d, block = %d\n",
->                                    nbuff, dev, block));
-> 
-> @@ -576,8 +586,6 @@
->         fops:           &sd_fops,
->  };
-> 
-> -static struct gendisk *sd_gendisks = &sd_gendisk;
-> -
->  #define SD_GENDISK(i)    sd_gendisks[(i) / SCSI_DISKS_PER_MAJOR]
-> 
->  /*
-> @@ -644,7 +652,9 @@
->                         default:
->                                 break;
->                         }
-> -                       error_sector -= sd[SD_PARTITION(SCpnt->request.rq_dev)].start_sect;
-> +                       error_sector -= sd_gendisks[SD_MAJOR_IDX(
-> +                               SCpnt->request.rq_dev)].part[MINOR(
-> +                               SCpnt->request.rq_dev)].start_sect;
->                         error_sector &= ~(block_sectors - 1);
->                         good_sectors = error_sector - SCpnt->request.sector;
->                         if (good_sectors < 0 || good_sectors >= this_count)
-> @@ -1146,23 +1156,12 @@
->                 hardsect_size[SD_MAJOR(i)] = sd_hardsizes + i * (SCSI_DISKS_PER_MAJOR << 4);
->                 max_sectors[SD_MAJOR(i)] = sd_max_sectors + i * (SCSI_DISKS_PER_MAJOR << 4);
->         }
-> -       /*
-> -        * FIXME: should unregister blksize_size, hardsect_size and max_sectors when
-> -        * the module is unloaded.
-> -        */
-> -       sd = kmalloc((sd_template.dev_max << 4) *
-> -                                         sizeof(struct hd_struct),
-> -                                         GFP_ATOMIC);
-> -       if (!sd)
-> -               goto cleanup_sd;
-> -       memset(sd, 0, (sd_template.dev_max << 4) * sizeof(struct hd_struct));
-> -
-> -       if (N_USED_SD_MAJORS > 1)
-> -               sd_gendisks = kmalloc(N_USED_SD_MAJORS * sizeof(struct gendisk), GFP_ATOMIC);
-> -               if (!sd_gendisks)
-> -                       goto cleanup_sd_gendisks;
-> +
-> +       sd_gendisks = kmalloc(N_USED_SD_MAJORS * sizeof(struct gendisk), GFP_ATOMIC);
-> +       if (!sd_gendisks)
-> +               goto cleanup_sd_gendisks;
->         for (i = 0; i < N_USED_SD_MAJORS; i++) {
-> -               sd_gendisks[i] = sd_gendisk;
-> +               sd_gendisks[i] = sd_gendisk;    /* memcpy */
->                 sd_gendisks[i].de_arr = kmalloc (SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].de_arr,
->                                                   GFP_ATOMIC);
->                 if (!sd_gendisks[i].de_arr)
-> @@ -1179,7 +1178,11 @@
->                 sd_gendisks[i].major_name = "sd";
->                 sd_gendisks[i].minor_shift = 4;
->                 sd_gendisks[i].max_p = 1 << 4;
-> -               sd_gendisks[i].part = sd + (i * SCSI_DISKS_PER_MAJOR << 4);
-> +               sd_gendisks[i].part = kmalloc((SCSI_DISKS_PER_MAJOR << 4) * sizeof(struct hd_struct),
-> +                                               GFP_ATOMIC);
-> +               if (!sd_gendisks[i].part)
-> +                       goto cleanup_gendisks_part;
-> +               memset(sd_gendisks[i].part, 0, (SCSI_DISKS_PER_MAJOR << 4) * sizeof(struct hd_struct));
->                 sd_gendisks[i].sizes = sd_sizes + (i * SCSI_DISKS_PER_MAJOR << 4);
->                 sd_gendisks[i].nr_real = 0;
->                 sd_gendisks[i].real_devices =
-> @@ -1188,18 +1191,19 @@
-> 
->         return 0;
-> 
-> +cleanup_gendisks_part:
-> +       kfree(sd_gendisks[i].flags);
->  cleanup_gendisks_flags:
->         kfree(sd_gendisks[i].de_arr);
->  cleanup_gendisks_de_arr:
->         while (--i >= 0 ) {
->                 kfree(sd_gendisks[i].de_arr);
->                 kfree(sd_gendisks[i].flags);
-> +               kfree(sd_gendisks[i].part);
->         }
-> -       if (sd_gendisks != &sd_gendisk)
-> -               kfree(sd_gendisks);
-> +       kfree(sd_gendisks);
-> +       sd_gendisks = NULL;
->  cleanup_sd_gendisks:
-> -       kfree(sd);
-> -cleanup_sd:
->         kfree(sd_max_sectors);
->  cleanup_max_sectors:
->         kfree(sd_hardsizes);
-> @@ -1320,6 +1324,7 @@
->   */
->  int revalidate_scsidisk(kdev_t dev, int maxusage)
->  {
-> +       struct gendisk *sdgd;
->         int target;
->         int max_p;
->         int start;
-> @@ -1333,14 +1338,15 @@
->         }
->         DEVICE_BUSY = 1;
-> 
-> -       max_p = sd_gendisks->max_p;
-> -       start = target << sd_gendisks->minor_shift;
-> +       sdgd = &SD_GENDISK(target);
-> +       max_p = sd_gendisk.max_p;
-> +       start = target << sd_gendisk.minor_shift;
-> 
->         for (i = max_p - 1; i >= 0; i--) {
->                 int index = start + i;
->                 invalidate_device(MKDEV_SD_PARTITION(index), 1);
-> -               sd_gendisks->part[index].start_sect = 0;
-> -               sd_gendisks->part[index].nr_sects = 0;
-> +               sdgd->part[SD_MINOR_NUMBER(index)].start_sect = 0;
-> +               sdgd->part[SD_MINOR_NUMBER(index)].nr_sects = 0;
->                 /*
->                  * Reset the blocksize for everything so that we can read
->                  * the partition table.  Technically we will determine the
-> @@ -1372,6 +1378,7 @@
->  static void sd_detach(Scsi_Device * SDp)
->  {
->         Scsi_Disk *dpnt;
-> +       struct gendisk *sdgd;
->         int i, j;
->         int max_p;
->         int start;
-> @@ -1384,17 +1391,18 @@
-> 
->                         /* If we are disconnecting a disk driver, sync and invalidate
->                          * everything */
-> +                       sdgd = &SD_GENDISK(i);
->                         max_p = sd_gendisk.max_p;
->                         start = i << sd_gendisk.minor_shift;
-> 
->                         for (j = max_p - 1; j >= 0; j--) {
->                                 int index = start + j;
->                                 invalidate_device(MKDEV_SD_PARTITION(index), 1);
-> -                               sd_gendisks->part[index].start_sect = 0;
-> -                               sd_gendisks->part[index].nr_sects = 0;
-> +                               sdgd->part[SD_MINOR_NUMBER(index)].start_sect = 0;
-> +                               sdgd->part[SD_MINOR_NUMBER(index)].nr_sects = 0;
->                                 sd_sizes[index] = 0;
->                         }
-> -                        devfs_register_partitions (&SD_GENDISK (i),
-> +                        devfs_register_partitions (sdgd,
->                                                     SD_MINOR_NUMBER (start), 1);
->                         /* unregister_disk() */
->                         dpnt->has_part_table = 0;
-> @@ -1430,16 +1438,22 @@
->                 kfree(sd_sizes);
->                 kfree(sd_blocksizes);
->                 kfree(sd_hardsizes);
-> -               kfree((char *) sd);
-> +               for (i = 0; i < N_USED_SD_MAJORS; i++) {
-> +#if 0 /* XXX aren't we forgetting to deallocate something? */
-> +                       kfree(sd_gendisks[i].de_arr);
-> +                       kfree(sd_gendisks[i].flags);
-> +#endif
-> +                       kfree(sd_gendisks[i].part);
-> +               }
->         }
->         for (i = 0; i < N_USED_SD_MAJORS; i++) {
->                 del_gendisk(&sd_gendisks[i]);
-> -               blk_size[SD_MAJOR(i)] = NULL;
-> +               blk_size[SD_MAJOR(i)] = NULL;   /* XXX blksize_size actually? */
->                 hardsect_size[SD_MAJOR(i)] = NULL;
->                 read_ahead[SD_MAJOR(i)] = 0;
->         }
->         sd_template.dev_max = 0;
-> -       if (sd_gendisks != &sd_gendisk)
-> +       if (sd_gendisks != NULL)    /* kfree tests for 0, but leave explicit */
->                 kfree(sd_gendisks);
->  }
-> 
-> diff -ur -X dontdiff linux-2.4.19-pre4/drivers/scsi/sd.h linux-2.4.19-pre4-sd/drivers/scsi/sd.h
-> --- linux-2.4.19-pre4/drivers/scsi/sd.h Thu Nov 22 11:49:15 2001
-> +++ linux-2.4.19-pre4-sd/drivers/scsi/sd.h      Fri Mar 22 11:42:01 2002
-> @@ -23,8 +23,6 @@
->  #include <linux/genhd.h>
->  #endif
-> 
-> -extern struct hd_struct *sd;
-> -
->  typedef struct scsi_disk {
->         unsigned capacity;      /* size in blocks */
->         Scsi_Device *device;
-> @@ -45,7 +43,6 @@
->  #define N_SD_MAJORS    8
-> 
->  #define SD_MAJOR_MASK  (N_SD_MAJORS - 1)
-> -#define SD_PARTITION(i)                (((MAJOR(i) & SD_MAJOR_MASK) << 8) | (MINOR(i) & 255))
-> 
->  #endif
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

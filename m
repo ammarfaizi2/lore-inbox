@@ -1,98 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267673AbTAHDLA>; Tue, 7 Jan 2003 22:11:00 -0500
+	id <S267675AbTAHDZH>; Tue, 7 Jan 2003 22:25:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267675AbTAHDLA>; Tue, 7 Jan 2003 22:11:00 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:55292 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267673AbTAHDK7> convert rfc822-to-8bit;
-	Tue, 7 Jan 2003 22:10:59 -0500
-content-class: urn:content-classes:message
-Subject: RE: [PATCH][2.4] generic cluster APIC support for systems with more than 8 CPUs
-Date: Tue, 7 Jan 2003 19:19:37 -0800
-Message-ID: <E88224AA79D2744187E7854CA8D9131DA5CE54@fmsmsx407.fm.intel.com>
+	id <S267681AbTAHDZH>; Tue, 7 Jan 2003 22:25:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64777 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267675AbTAHDZG>; Tue, 7 Jan 2003 22:25:06 -0500
+Date: Tue, 7 Jan 2003 19:29:00 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] linux-2.5.54_delay-cleanup_A0
+In-Reply-To: <1041993975.1052.71.camel@w-jstultz2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0301071927190.1892-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.4] generic cluster APIC support for systems with more than 8 CPUs
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcK2nkywWW6S2yKREdetAABQi+Bv6wAJHDgw
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: "Andrew Theurer" <habanero@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>,
-       <jamesclv@us.ibm.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Schlobohm, Bruce" <bruce.schlobohm@intel.com>
-X-OriginalArrivalTime: 08 Jan 2003 03:19:37.0980 (UTC) FILETIME=[C67E33C0:01C2B6C4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-> I am seeing if I can get together a test for Netbench with/without
-your
-> patch.
-> Looking at the patch, I would expect a slight increase in performance.
-> I'll
-> let you know the results as soon as I have them.
+On 7 Jan 2003, john stultz wrote:
 > 
-[NK] Thanks for trying it out. The numbers from my post may be useful to
+> 	if (timer)
+> 		timer->delay(loops);
 
-you.
+Why the "if (timer)"?
 
-> I do have one question for you:  Have you tested netperf using only
-one
-> gigabit adapter?  If so, have you been able to max out the adapter
-when
-> using
-> hyperthreading?  If not, could you test this?  So far I have not been
-able
-> to, while I can quite easily with no hyperthreading (in Netbench).
-This is
-> the case with both irq_balance and irq affinity.  having ints
-processed by
-> one and only one logical CPU at one time really seems to bottleneck
-> network
-> throughput.  I'm sure some of this has to do with sharing those
-resources
-> among 2 logical CPUs, but I also wonder if int processing is just a
-lot
-> slower than P3 overall.
+Wouldn't it be saner to initialize the timer to something that can at 
+least do estimated loops, and then just unconditionally do
 
-[NK] While testing we had 4 100mbps NICs with 4 Way Intel P4 Xeon
-1.6GHz. What is your system configuration? Some numbers from your
-experiments would be useful in understanding the situation better. Also
-what do you mean by no hyper-threading, Is HT disabled in the BIOS, or
-the HT awareness is disabled in the code. I need more details of your
-setup to test it out.
+	timer->delay(..);
 
-> 
-> I am bringing this up, because I recall James Cleverdon having some
-code
-> which
-> allows interrupts to be dynamically routed to two CPU destinations, a
-pair
-> of
-> CPUs with consecutive CPU ID's.  Interrupts are dynamically routed to
-the
-> least loaded CPU, and if both are idle, to the CPU with the lower
-CPUID.
-> I
-> like this idea, because when in HT, if consecutive logical CPU ID's
-map to
-> one physical core, we get to use "whole" processor, and both
-destinations
-> share the cache.  Anyway, just a thought.
+instead?
 
-[NK] This case will work well if the CPUs are lightly loaded. For
-Heavily loaded CPUs to let then perform their on task, it is required to
-move the interrupts out of the package.
+		Linus
 
-Thanks,
-Nitin
-
-> 
-> -Andrew Theurer

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbTENFdp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 01:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTENFdp
+	id S261399AbTENFpH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 01:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTENFpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 01:33:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:44736 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261808AbTENFdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 01:33:43 -0400
-Date: Tue, 13 May 2003 22:46:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: gibbs@scsiguy.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: ahc_linux_map_seg() compile/style/data corruption fixes
-Message-ID: <20030514054625.GF2444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	gibbs@scsiguy.com, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20030514044934.GC29926@holomorphy.com> <20030514053747.GE2444@holomorphy.com>
+	Wed, 14 May 2003 01:45:06 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:16143 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261399AbTENFpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 01:45:06 -0400
+Date: Wed, 14 May 2003 06:57:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christopher Hoover <ch@murgatroid.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.68: Don't include SCSI block ioctls on non-scsi systems
+Message-ID: <20030514065752.A647@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christopher Hoover <ch@murgatroid.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <20030513202710.A32666@heavens.murgatroid.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030514053747.GE2444@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030513202710.A32666@heavens.murgatroid.com>; from ch@murgatroid.com on Tue, May 13, 2003 at 08:29:20PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 10:37:47PM -0700, William Lee Irwin III wrote:
-> Hmm, 2.5.x is supposed to guarantee most (if not all) of the
-> preconditions the code here is trying to (re)establish. Probably the
-> only use of not ripping out the 4GB spanning code and segment count
-> checks is to keep driver versions synched. As it stands, this doesn't
-> compile and if ever invoked the code not needed for 2.5 will not behave
-> as expected (though thankfully a nop). Maybe a (shudder) #ifdef to rip
-> out the overhead for 2.5 should be added esp. as post gcc-3.0 probably
-> can't compile earlier kernels anyway.
+On Tue, May 13, 2003 at 08:29:20PM -0700, Christopher Hoover wrote:
+> Unless I'm missing something, there doesn't seem to be a good reason
+> for the block system to include SCSI ioctls unless there's a SCSI
+> block device (CONFIG_BLK_DEV_SD) in the system.
 
-Clarification: the code before my patch doesn't compile with gcc-3.3;
-the code after it does. Mutatis mutandis with respect to the unexpected
-behavior.
+That's broken.  You can use them on ide, sd and sr currently.
 
-
--- wli

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130937AbRBHB17>; Wed, 7 Feb 2001 20:27:59 -0500
+	id <S129032AbRBHBd3>; Wed, 7 Feb 2001 20:33:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130939AbRBHB1t>; Wed, 7 Feb 2001 20:27:49 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:21701 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S130937AbRBHB1b>; Wed, 7 Feb 2001 20:27:31 -0500
-Message-ID: <3A81F60C.7C1DB09A@alumni.caltech.edu>
-Date: Wed, 07 Feb 2001 17:27:40 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Reply-To: dank@alumni.caltech.edu
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S130021AbRBHBdU>; Wed, 7 Feb 2001 20:33:20 -0500
+Received: from pille1.addcom.de ([62.96.128.35]:46857 "HELO pille1.addcom.de")
+	by vger.kernel.org with SMTP id <S129027AbRBHBdE>;
+	Wed, 7 Feb 2001 20:33:04 -0500
+Date: Thu, 8 Feb 2001 02:34:48 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: BaRT <bart11@dingoblue.net.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 Kernel Crash 
+In-Reply-To: <8078.981548195@redhat.com>
+Message-ID: <Pine.LNX.4.30.0102080228000.1082-100000@vaio>
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        dot@dotat.at
-Subject: Re: TCP_NOPUSH on FreeBSD, TCP_CORK on Linux (was: Is sendfile all that
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexy wrote:
+On Wed, 7 Feb 2001, David Woodhouse wrote:
 
-> > > How close is TCP_NOPUSH to behaving identically to TCP_CORK now? 
+> bart11@dingoblue.net.au said:
+> >  On one of my linux boxen, that is used as an ISDN router after a 3
+> > days of up time I get this: 
 > 
-> They have not so much of common. 
+> Read http://www.tux.org/lkml/#s4-3
 > 
-> TCP_NOPUSH enables T/TCP and its presense used to mean that 
-> T/TCP is possible on this system. Linux headers cannot 
-> even contain TCP_NOPUSH.
+> Particularly the "Don't even bother..." part.
 
-But Tony Finch wrote:
-> They are exactly the same. 
+The Call Trace was decoded by klogd, running it through ksymoops won't 
+really work. AFAICS the trace makes sense. Since I can't think of any 
+relation to the ISDN stack, I asked BaRT to post the trace to l-k, and I 
+think it actually provides useful information.
 
-Alexy, Tony just checked in a change to FreeBSD to make TCP_NOPUSH behave the
-same as TCP_CORK.
+So I'ld hope somebody takes a look into this.
 
-Tony, are people using the TCP_NOPUSH define as a way to detect
-the presence of T/TCP support?  In that case, perhaps the right
-thing to do to achieve source compatibility would be for FreeBSD
-to also define TCP_CORK (and give it TCP_NOPUSH as a value, perhaps).
+--Kai
 
-- Dan
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

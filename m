@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313620AbSDHN26>; Mon, 8 Apr 2002 09:28:58 -0400
+	id <S313621AbSDHNtI>; Mon, 8 Apr 2002 09:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313621AbSDHN25>; Mon, 8 Apr 2002 09:28:57 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:50439 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S313620AbSDHN24>;
-	Mon, 8 Apr 2002 09:28:56 -0400
-Date: Mon, 08 Apr 2002 22:29:06 +0900 (JST)
-Message-Id: <20020408.222906.10292799.taka@valinux.co.jp>
-To: nfs@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [NFS][PATCH] zerocopy NFS
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	id <S313626AbSDHNtH>; Mon, 8 Apr 2002 09:49:07 -0400
+Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:49422 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S313621AbSDHNtH>;
+	Mon, 8 Apr 2002 09:49:07 -0400
+Date: Mon, 8 Apr 2002 14:49:23 +0100
+From: Chris Wilson <chris@jakdaw.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Subject: Re: P4/i845 Strange clock drifting
+Message-Id: <20020408144923.4566d3fc.chris@jakdaw.org>
+In-Reply-To: <200204051752.TAA02715@harpo.it.uu.se>
+Organization: Hah!
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I'm tuning knfsd and I implemented zerocopy knfsd.
-Everyone knows knfsd copies file data many times,
-so I tried to reduce the copies. 
-nfsd_read() doesn't copy filedata anymore.
-This works pretty fine and performance is improved.
+Hi Mikael,
 
-Following patches patches are against linux 2.5.7
+I've now applied your patch so that APIC's get enabled even though the
+bios has disabled them. 
 
-ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va01-knfsd-zerocopy-vfsread-2.5.7.patch
-ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va02-kmap-multplepages-2.5.7.patch
+I really should have saved the dmi messages to another machine when the
+machine first came up as it appears to have crashed now :(
 
-I also have patches against linux 2.4.18
+The machine was completely idle other than for an ssh session running
+ntpdate every ten minutes (my original problem is that the clock appears
+to stop/slow down periodically). 
 
-ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.4.18/va01-knfsd-zerocopy-vfsread-2.4.18.patch
-ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.4.18/va02-kmap-multplepages-2.4.18.patch
+>From memory the dmi messages just had a bios date, and the mobo model
+(Supermicro P4SBE). Once I've got the NOC to reboot the system I'll switch
+it back to a kernel that doesn't attempt to enable the APIC and send you
+the full dmi strings.
+
+> This should work (and is known to work on many P6 and K7 boards),
+> but your BIOS may have problems with the local APIC.
+> - does apm --suspend work? does the resume afterwards work?
+
+I don't have APM support compiled in and will have disabled anything power
+management related in the BIOS setup.
+
+I guess that I'm not going to get APIC going on this system then - does
+anyone have any other suggestions on what to try next to debug the clock
+drift problem? Short of dropping the server into the nearest skip....
+
+Are the APIC thing and the clock thing likely to be related??
 
 
-Now I'm designing new mechanism to send pagecache directly 
-using sendpage.
+Cheers,
 
-I'm waiting for your comments.
-
-
-Regards,
-Hirokazu Takahashi
-VP Engineering Dept.
-VA Linux Systems Japan
+Chris

@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUJYLk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbUJYLpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUJYLk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 07:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJYLk4
+	id S261412AbUJYLpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 07:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJYLpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 07:40:56 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:27033 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261684AbUJYLkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 07:40:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=Pvez8VY9m5iISNW+p/qUJ764CdKxCNaL1jSc7oxLCXMPkXuO4wASRXRj5nNCQodjX4DzaGT/cD9HA7RjBuX1xrMNN64P+xgDw2LOwnCC9uNgJYCfODlChyHwlksXKioP4b0b1LfzGpAmh8LHQ5Z8Hrpc1Z+bUHX5Ym9CCCiO2LE=
-Message-ID: <605a56ed04102504401e0f469f@mail.gmail.com>
-Date: Mon, 25 Oct 2004 13:40:47 +0200
-From: Arne Henrichsen <ahenric@gmail.com>
-Reply-To: Arne Henrichsen <ahenric@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with close() system call
+	Mon, 25 Oct 2004 07:45:55 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:3764 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261412AbUJYLpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 07:45:53 -0400
+Date: Mon, 25 Oct 2004 13:46:41 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041025114641.GU14325@dualathlon.random>
+References: <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com> <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com> <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041024233214.GA9772@work.bitmover.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Oct 24, 2004 at 04:32:14PM -0700, Larry McVoy wrote:
+> the BK license haters have finally admitted that, [..]
 
-I have a question regarding the close() system call. I have written my
-own character driver for a serial type card with 8 ports. Each port is
-seen as a device by Linux. Everything works great, I can open, close,
-write, read etc from/to the individual devices. But I also see some
-strange things. When I for instance in my user application open and
-configure each device (via ioctl) in a loop, somehow a close system
-call has been initiated (not called by my user app). I can see this as
-my drivers flush function get called. Who or why is this function
-called without my user app even calling close()? Is it related to the
-module count of each device? I print out the counter
-(filp->f_count.counter), and I do not know how it gets
-incremented/decremented. The release call is also supposed to get
-called after the user is finished, but is never called which I guess
-has something to do with the user count not being zero.
-
-I will see in my driver:
-
-open dev 0
-ioctl dev 0
-open dev 1
-flush dev 0
-ioctl dev 1
-open dev 2
-flush dev 1
-etc
-
-Could anybody shed some light on this issue please?
-
-Thanks
-Arne
+dream on

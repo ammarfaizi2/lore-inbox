@@ -1,54 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284604AbRLETd0>; Wed, 5 Dec 2001 14:33:26 -0500
+	id <S284610AbRLETfQ>; Wed, 5 Dec 2001 14:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280980AbRLETdQ>; Wed, 5 Dec 2001 14:33:16 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:45053
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S284607AbRLETc7>; Wed, 5 Dec 2001 14:32:59 -0500
-Date: Wed, 5 Dec 2001 11:32:52 -0800
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Cyrille Beraud <cyrille.beraud@savoirfairelinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Removing an executable while it runs
-Message-ID: <20011205193252.GB9050@mikef-linux.matchmail.com>
-Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	Cyrille Beraud <cyrille.beraud@savoirfairelinux.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <B22D093570E@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B22D093570E@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.3.24i
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S280980AbRLETfI>; Wed, 5 Dec 2001 14:35:08 -0500
+Received: from alageremail2.agere.com ([192.19.192.110]:50925 "EHLO
+	alageremail2.agere.com") by vger.kernel.org with ESMTP
+	id <S284603AbRLETe5>; Wed, 5 Dec 2001 14:34:57 -0500
+From: "Michael Smith" <smithmg@agere.com>
+To: "'Tommy Reynolds'" <reynolds@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Unresolved symbol memset
+Date: Wed, 5 Dec 2001 14:35:03 -0500
+Organization: Agere Systems
+Message-ID: <00d701c17dc3$f059db80$4d129c87@agere.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <20011205131659.3af1bafa.reynolds@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 05:15:52PM +0000, Petr Vandrovec wrote:
-> On  5 Dec 01 at 11:00, Cyrille Beraud wrote:
-> 
-> > I would like to remove an executable from the file-system while it is 
-> > running and
-> > get all the blocks back immediately, not after the end of the program.
-> > Is this possible ?
-> 
-> No. Binary runs from these blocks. Maybe you can force it to run from
-> swap by modifying these pages through ptrace interface, but it is
-> not supported. Just kill the app if you need these blocks.
-> 
-> >  From what I understand, the inode is not released until the program 
-> > ends. Do all the file-systems behave the same way ?
-> 
-> No. Some will refuse to unlink running app (or another opened file).
-> Some will unlink it immediately, and app then dies when it needs
-> page-in something. Some works as POSIX mandates.
-> 
+Taking your advice I removed the header memory.h and switched the
+include for string.h to be linux/string.h.  This seemed to fix the
+problem.  I thank you all for your input and appreciate the time you all
+took
 
-POSIX behaviour would be in ext[23], reiserfs, xfs, (and probably ffs,
-ntfs).  Can someone verify which FSes have what behaviour?
+Michael
 
-I'd guess that vfat (fat16/28--err, 32), nfs, and hfs would delete
-immediately.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Tommy Reynolds
+Sent: Wednesday, December 05, 2001 2:17 PM
+To: Michael Smith
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbol memset
 
-mf
+More important activities lacking, "Michael Smith" <smithmg@agere.com>
+wrote:
+
+> That particular header is included.  As I mentioned, I am using memset
+> in other areas of the code, as well as the same file.  If I take this
+> one call out of the source, it compiles, links and I am able to
+perform
+> and insmod correctly.  Below are the headers that are included in the
+> file, and the area of the code that is causing the problem.  Let me
+say
+> that the code, even with this particular call in, compiles and links.
+> The problem happens when I go to perform the insmod on it.
+> 
+> #include <memory.h>
+> #include <string.h>
+> #include "myownheaders.h"
+> 
+> 
+> void myfunction( void *a, int len )
+> {
+> ....
+> Mymemmove() //used because NdisMoveMemory can not be used
+> memset( &a->WORD[NUMWORDS-len], 0, len*4);
+> ...
+> }
+
+Inside a driver (or module) file, any include reference that doesn't
+begin with
+either <linux/foo.h> or <asm/foo.h> should always raise a red flag.
+There are
+user-land header files ("/usr/include") and kernel header files
+("/usr/src/linux/include") and never the twain shall meet.
+
+Mixing includes is always a bad idea.
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- --
+-- --
+Tommy Reynolds                               | mailto:
+<reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923
+

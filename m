@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVDFPUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVDFPUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbVDFPUV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 11:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVDFPUU
+	id S262227AbVDFPUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 11:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVDFPUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 11:20:20 -0400
-Received: from 201008146170.user.veloxzone.com.br ([201.8.146.170]:45808 "EHLO
-	resgate.org") by vger.kernel.org with ESMTP id S262226AbVDFPUO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 11:20:14 -0400
-Message-ID: <20050406121959.5596D3245A8C71F1@resgate.org>
-From: sac@resgate.org
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20PROGRAMA=C7AO?= DE CURSOS DE SOCORRISTA INTERNACIONAL - 40 HORAS - ABRIL / MAIO 2005
-Date: 06 Apr 2005 12:20:09 -0300
-MIME-Version: 1.0
-Expiry-Date: 31 May 2005 14:48:35 -0300
+	Wed, 6 Apr 2005 11:20:32 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62353 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262227AbVDFPU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 11:20:26 -0400
+Subject: Re: [LTP] Re: [ANNOUNCE] April Release of LTP now Available
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dan Kegel <dank@kegel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Marty Ridgeway <mridge@us.ibm.com>,
+       linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       ltp-announce@lists.sourceforge.net
+In-Reply-To: <4253FAC3.5010000@kegel.com>
+References: <OF98479217.2360E20E-ON85256FDA.00696BC9-86256FDA.00698E70@us.ibm.com>
+	 <20050406043001.3f3d7c1c.akpm@osdl.org>  <4253FAC3.5010000@kegel.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+Date: Wed, 06 Apr 2005 17:20:14 +0200
+Message-Id: <1112800815.6275.86.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---------------------------------------------------------------
-PROGRAMAÇÃO DE CURSOS - ABRIL / MAIO 2005
---------------------------------------------------------------
-CURSO DE SOCORRISTA INTERNACIONAL - 40 HORAS
-( RCP BÁSICO + DESF. EXTERNA  AUTOMÁTICA + PS )
---------------------------------------------------------------
-TURMA 01 - 09,10 e 16,17 de abril 2005 em Vila Velha - ES
-TURMA 02 - 14 a 17 de abril de 2005 em Vila Velha - ES
-TURMA 03 - 21 a 24 de abril de 2005 em São Mateus - ES
-TURMA 04 - 28,29,30/04 e 01/05 em Cachoeiro de Itapemirim - ES
-TURMA 05 - 02 a 05 de maio de 2005  em São Gabriel da Palha - ES
-TURMA 06 - 07,08 e 14,15 de maio de 2005 em Vitória - ES
-TURMA 07 - 07,08 e 14,15 de maio de 2005 em Guarapari - ES
-TURMA 08 - 21,22 e 28,29 de maio em Anchieta - ES
-TURMA 09 - 21,22 e 28,29 de maio em Teixeira de Freitas - BA
---------------------------------------------------------------
-Valor: R$400,00 ( Quatrocentos Reais )
-Forma de Pagamento: 4x (Entrada + 30/60/90 dias )
---------------------------------------------------------------
-Para confirmar sua matricula, favor efetuar o pagamento do curso no
-BANCO ABN REAL AMRO BANK e enviar fax ou email com cod. do pagamento.
-Agência 0442-1
-Conta Corrente: 1724317-5
-Favorecido: R E S G A T E   T R E I N A M E N T O S   L T D A
-C.N.P.J. 02.904.691/0001-83          I.Estadual: Isento
+On Wed, 2005-04-06 at 08:05 -0700, Dan Kegel wrote:
+> Andrew Morton wrote:
+> >> LTP-20050405
+> > 
+> > It seems to have an x86ism in it which causes the compile to fail on ppc64:
+> > 
+> > socketcall01.c: In function `socketcall':
+> > socketcall01.c:80: error: asm-specifier for variable `__sc_4' conflicts with asm clobber list
+> 
+> That might be a problem with your toolchain.
 
-Agência de Treinamentos Autorizada do  National Safety Council
---------------------------------------------------------------
-Rua Dom Pedro II - 549 - Sala 107 - Ed. Center Glória Shopping
-Bairro: Glória - Vila Velha - Esp.Santo - Brasil Cep 29122-300
-E-Mail:atendimento@resgate.com.br    Visite WWW.RESGATE.COM.BR
-Telefax 27) 3289-1973 ICQ:118415003 Skype:www.resgate.com.br
+I wonder why ltp doesn't just use the normal syscall() macro/functions
+but instead insists on using stuff from kernel headers...
+
+

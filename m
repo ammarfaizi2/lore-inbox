@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312449AbSCUSzU>; Thu, 21 Mar 2002 13:55:20 -0500
+	id <S312453AbSCUTDn>; Thu, 21 Mar 2002 14:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312448AbSCUSzK>; Thu, 21 Mar 2002 13:55:10 -0500
-Received: from david.siemens.de ([192.35.17.14]:3561 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id <S312449AbSCUSzC>;
-	Thu, 21 Mar 2002 13:55:02 -0500
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: devfs mailing list <devfs@oss.sgi.com>,
-        linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: PATCH: support for IDE devices in ide-scsi with devfs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-4mdk 
-Date: 21 Mar 2002 21:54:51 +0300
-Message-Id: <1016736897.3113.5.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S312455AbSCUTDc>; Thu, 21 Mar 2002 14:03:32 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:18637 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S312453AbSCUTDW>; Thu, 21 Mar 2002 14:03:22 -0500
+Date: Thu, 21 Mar 2002 19:58:49 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: boot_cpu_data.x86_vendor corruption on dual AMD
+In-Reply-To: <200203132129.WAA08883@harpo.it.uu.se>
+Message-ID: <Pine.GSO.3.96.1020321192522.22279F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently using ide-scsi with devfs does not allow you to use hdparm
-interface because no IDE nodes (block devices) are created. The patch
-adds this.
+On Wed, 13 Mar 2002, Mikael Pettersson wrote:
 
-Related patch for devfsd that creates old compatibility links is going
-to devfs list. I do not think spcial new compatibility links are needed.
+> I'm involved with debugging a driver problem which only appears
+> on dual AMD systems. When the driver's module_init() is called,
+> boot_cpu_data.x86_vendor is 0 (Intel) instead of 2 (AMD), causing
+> incorrect code to be selected and eventually an oops.
+> 
+> We've so far traced it to the call to smp_init() in init/main.c.
+> Before this call, boot_cpu_data.x86_vendor is 2 (correct), but
+> after the call, the field is 0.
 
--andrej
+ Code in arch/i386/kernel/head.S (look below checkCPUtype) clears
+boot_cpu_data.x86_vendor and it does not get reconstructed after secondary
+bootstraps.  A common x86_vendor does not make sense anyway, at least in
+principle (the whole cpu_data handling needs a rework but I have no time
+to continue what I started last year and nobody else seems to work on it
+either).  Wouldn't current_cpu_data.x86_vendor suffice?  That will work
+for sure. 
 
---- linux-2.4.18-4mdk/drivers/scsi/ide-scsi.c.orig	Tue Mar  5 06:08:04 2002
-+++ linux-2.4.18-4mdk/drivers/scsi/ide-scsi.c	Thu Mar 21 21:21:31 2002
-@@ -95,6 +95,7 @@
- 	unsigned long flags;			/* Status/Action flags */
- 	unsigned long transform;		/* SCSI cmd translation layer */
- 	unsigned long log;			/* log flags */
-+	devfs_handle_t de;			/* pointer to IDE device */
- } idescsi_scsi_t;
- 
- /*
-@@ -502,6 +503,8 @@
-  */
- static void idescsi_setup (ide_drive_t *drive, idescsi_scsi_t *scsi, int id)
- {
-+	int minor = (drive->select.b.unit) << PARTN_BITS;
-+
- 	DRIVER(drive)->busy++;
- 	idescsi_drives[id] = drive;
- 	drive->driver_data = scsi;
-@@ -516,6 +519,10 @@
- 	set_bit(IDESCSI_LOG_CMD, &scsi->log);
- #endif /* IDESCSI_DEBUG_LOG */
- 	idescsi_add_settings(drive);
-+	scsi->de = devfs_register(drive->de, "generic", DEVFS_FL_DEFAULT,
-+				     HWIF(drive)->major, minor,
-+				     S_IFBLK | S_IRUSR | S_IWUSR,
-+				     ide_fops, NULL);
- }
- 
- static int idescsi_cleanup (ide_drive_t *drive)
-@@ -524,6 +531,8 @@
- 
- 	if (ide_unregister_subdriver (drive))
- 		return 1;
-+	if (scsi->de)
-+		devfs_unregister(scsi->de);
- 	drive->driver_data = NULL;
- 	kfree (scsi);
- 	return 0;
-
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319307AbSH3Ca4>; Thu, 29 Aug 2002 22:30:56 -0400
+	id <S319331AbSH3Cfq>; Thu, 29 Aug 2002 22:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319331AbSH3Ca4>; Thu, 29 Aug 2002 22:30:56 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:1733 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S319307AbSH3Caz>;
-	Thu, 29 Aug 2002 22:30:55 -0400
-Date: Thu, 29 Aug 2002 19:35:05 -0700
-To: "B. Joshua Rosen" <bjrosen@polybus.com>, hch@lst.de
-Cc: jgarzik@mandrakesoft.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Compilation errors in 2.4.20.rc5
-Message-ID: <20020830023504.GC14559@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <1030673385.30059.4.camel@yorktown>
-Mime-Version: 1.0
+	id <S319339AbSH3Cfq>; Thu, 29 Aug 2002 22:35:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16132 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319331AbSH3Cfp>;
+	Thu, 29 Aug 2002 22:35:45 -0400
+Message-ID: <3D6EDDC0.F9ADC015@zip.com.au>
+Date: Thu, 29 Aug 2002 19:51:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@surriel.com
+Subject: Re: statm_pgd_range() sucks!
+References: <20020830015814.GN18114@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1030673385.30059.4.camel@yorktown>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 10:09:45PM -0400, B. Joshua Rosen wrote:
-> -o wavelan_cs.o wavelan_cs.c
-> In file included from wavelan_cs.c:66:
-> /home/tmp/linux/include/linux/ethtool.h:18: parse error before `u32'
-> /home/tmp/linux/include/linux/ethtool.h:18: warning: no semicolon at end
-> of struct or union
-> /home/tmp/linux/include/linux/ethtool.h:19: warning: type defaults to
-> `int' in declaration of `supported'
+William Lee Irwin III wrote:
+> 
+> Okay, I have *had it* with statm_pgd_range()!
 
-	Ok, I'll forward...
+It's certainly very bad.  A measurement tools shouldn't be perturbing
+the system so much as to invalidate the results of other measurement
+tools, and this one does.
 
-	hch@lst.de (or whoever did that) :
-	1) I don't really think that a wireless driver will get much
-benefit from ethtool (try setting full duplex ;-)
-	2) Headers are added in the file wavelan_cs.h, to keep
-wavelan.c clean and tidy. And this would have avoided the bug.
-	3) It take only 2 second to try to compile before submitting
-your changes. Even the best of us do it.
-	4) A MAINTAINER is not someone that clean up after the mess of
-other people. I usually answer my e-mail, and I could have both answer
-your question and reviewed the patch.
+I have several times had colleagues peering at kernel code wondering
+why their application was spending so long in statm_pgd_range when
+it really wasn't.
 
-	So, please clean up your mess...
+> ...
+> (1) shared, lib, text, & total are now reported as what's mapped
+>         instead of what's resident. This actually fixes two bugs:
 
-	Jean
+hmm.  Personally, I've never believed, or even bothered to try to
+understand what those columns are measuring.  Does anyone actually
+find them useful for anything?  If so, what are they being used for?
+What info do we really, actually want to know?
+
+Reporting the size of the vma is really inaccurate for many situations, 
+and the info which you're showing here can be generated from
+/proc/pid/maps.  And it would be nice to get something useful out of this.
+
+Would it be hard to add an `nr_pages' occupancy counter to vm_area_struct?
+Go and add all those up?
+
+BTW, Rohit's hugetlb patch touches proc_pid_statm(), so a diff on -mm3
+would be appreciated.

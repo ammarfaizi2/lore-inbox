@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263748AbRFRHrT>; Mon, 18 Jun 2001 03:47:19 -0400
+	id <S263756AbRFRIQ4>; Mon, 18 Jun 2001 04:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263749AbRFRHrJ>; Mon, 18 Jun 2001 03:47:09 -0400
-Received: from [62.172.234.2] ([62.172.234.2]:27206 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S263748AbRFRHq5>;
-	Mon, 18 Jun 2001 03:46:57 -0400
-Date: Mon, 18 Jun 2001 08:47:57 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: function of getname() function
+	id <S263766AbRFRIQg>; Mon, 18 Jun 2001 04:16:36 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:55568 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S263756AbRFRIQa>; Mon, 18 Jun 2001 04:16:30 -0400
+Date: Mon, 18 Jun 2001 14:05:35 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: Reg:current a pointer to task_struct
 In-Reply-To: <Pine.LNX.4.10.10106181324110.11158-100000@blrmail>
-Message-ID: <Pine.LNX.4.21.0106180846290.606-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.10.10106181403400.9461-100000@blrmail>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sathish,
+Hi,
 
-The function of getname() is to allocate some (kernel-space) memory for
-the userspace-passed filename and copy it from user space to kernel space.
+Please help me with the following:
 
+I tried to go through get_current function which is in assembly.
+
+static inline struct task_struct * get_current(void) {
+        struct task_struct *current;
+        __asm__("andl %%esp,%0; ":"=r" (current) : "0" (~8191UL));
+        return current;
+ }
+
+
+Please tell me what is done here. Does current refer to process onproc.
+
+
+Thanks in advance,
 Regards,
-Tigran
+sathish
 
-On Mon, 18 Jun 2001, SATHISH.J wrote:
-
-> Hi,
-> 
-> Sorry if this question is too silly.
-> 
-> I could not understand what getname(filename) function in the sys_open()
-> function is doing. I could not understand from the code what exactly it is
-> doing. Please help me with the same.
-> 
-> Thanks in advance,
-> 
-> Regards,
-> sathish
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

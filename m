@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQLXQKv>; Sun, 24 Dec 2000 11:10:51 -0500
+	id <S129707AbQLXQcn>; Sun, 24 Dec 2000 11:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129707AbQLXQKl>; Sun, 24 Dec 2000 11:10:41 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:3706 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129597AbQLXQKh>; Sun, 24 Dec 2000 11:10:37 -0500
-Date: Sun, 24 Dec 2000 16:40:09 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.2.19pre2
-Message-ID: <20001224164009.A8636@athlon.random>
-In-Reply-To: <3A41DDB3.7E38AC7@uow.edu.au>, <3A41DDB3.7E38AC7@uow.edu.au>; <20001221161952.B20843@athlon.random> <3A4303AC.C635F671@uow.edu.au>, <3A4303AC.C635F671@uow.edu.au>; <20001222141929.A13032@athlon.random> <3A444CAA.4C5A7A89@uow.edu.au>, <3A444CAA.4C5A7A89@uow.edu.au>; <20001223191159.B29450@athlon.random> <3A454205.D33090A8@uow.edu.au>
+	id <S130026AbQLXQcd>; Sun, 24 Dec 2000 11:32:33 -0500
+Received: from 216-80-74-178.dsl.enteract.com ([216.80.74.178]:2308 "EHLO
+	kre8tive.org") by vger.kernel.org with ESMTP id <S129707AbQLXQcY>;
+	Sun, 24 Dec 2000 11:32:24 -0500
+Date: Sun, 24 Dec 2000 09:02:12 -0600
+From: Mike Elmore <mwelmor@kre8tive.org>
+To: linux-kernel@vger.kernel.org
+Subject: Masquerade hangups
+Message-ID: <20001224090212.A1218@kre8tive.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3A454205.D33090A8@uow.edu.au>; from andrewm@uow.edu.au on Sun, Dec 24, 2000 at 11:23:33AM +1100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 24, 2000 at 11:23:33AM +1100, Andrew Morton wrote:
-> ack.
+Hello,
 
-This patch against 2.2.19pre3 should fix all races. (note that wait->flags
-doesn't need to be initialized in the critical section in test1X too)
+I have a Tyan S1854 Trinity 400 mb machine with a
+PCI rtl8139 card connected to my local net and a
+ISA 3c509 card connected to my dsl link.  Masquerade
+is set up.
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre3/wake-one-3
+I seem to get pretty good performance from 
+internet->masq box and from masq box->internal
+lan, but when a internal box tries to get to the
+net through the masquerade, connection seem to time
+out.  I'll get a pretty good initial burst, then
+connections stall.
 
-Comments?
+I'm using test13-pre4.  I saw some iptables stuff on
+the list a week or so ago, was this fixed in pre4 or
+is this my problem?
 
-Andrea
+I can provide any information needed.
+
+-mwe
+mike@kre8tive.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129657AbQKHR7A>; Wed, 8 Nov 2000 12:59:00 -0500
+	id <S129324AbQKHSEl>; Wed, 8 Nov 2000 13:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129488AbQKHR6u>; Wed, 8 Nov 2000 12:58:50 -0500
-Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:50698 "EHLO
-	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S129657AbQKHR6h>; Wed, 8 Nov 2000 12:58:37 -0500
-Date: Wed, 8 Nov 2000 18:58:23 +0100 (CET)
-From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-To: James Simmons <jsimmons@suse.com>
-cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken colors on console with 2.4.0-textXX
-In-Reply-To: <Pine.LNX.4.21.0011080952570.2704-100000@euclid.oak.suse.com>
-Message-ID: <Pine.LNX.4.21.0011081856460.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
+	id <S129368AbQKHSEc>; Wed, 8 Nov 2000 13:04:32 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:58031 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S129324AbQKHSEW>; Wed, 8 Nov 2000 13:04:22 -0500
+Message-ID: <3A0995A3.F15E040D@inet.com>
+Date: Wed, 08 Nov 2000 12:04:19 -0600
+From: ejc <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: adding a protocol
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, James Simmons wrote:
+Does anyone have pointers to information on how to add support for a
+network protocol to the kernel?
 
-> 
-> > Okay - so its the console subsystem that gets it wrong? Remember
-> > that 2.2.X gets it right - with the same X server. I really
-> > would like to have this fixed in 2.4 - can I do something to
-> > help fixing this? (I'm not familiar with the console subsystem,
-> > neither with the X server)
-> 
-> It is the way it is done that is wrong. At present the X server is in
-> total control of setting the console system back to text mode. This
-> works under normal conditions but when the system is stressed or X
-> fails you are stuck. The console system should be setting the video
-> hardware back to vga text mode instead of the X server. I have been
-> working on a patch that does that. 
+http://www.csn.ul.ie/~heathclf/fyp/fyp-final/fyp-final.html looks like
+it may be helpful, and I'm studying include/net/*, and net/*.  I didn't
+notice anything useful in Documentation/networking, but rub my nose in
+it if there is...
 
-Sure - but this was always the case. And using 2.2 with the same
-(or more) stress the Xserver is still able to set the video hardware
-back to vga text mode. I just want to know whats the difference
-between 2.2 and 2.4 that causes failure in 2.4.
+If there isn't something useful out there, I'll try to take notes as I
+go. 
 
-Richard.
+Suggestions/questions/comments/complaints (mostly) welcome.  ;)
 
---
-Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-WWW: http://www.anatom.uni-tuebingen.de/~richi/
-The GLAME Project: http://www.glame.de/
+TIA,
 
+Eli
+--------------------. "To the systems programmer, users and applications
+Eli Carter          | serve only to provide a test load."
+eli.carter@inet.com `---------------------------------- (random fortune)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVAUAG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVAUAJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVAUAG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 19:06:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVAUAG2
+	id S261489AbVAUAJa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 19:09:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVAUAJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 19:06:28 -0500
-Received: from gate.crashing.org ([63.228.1.57]:65421 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261253AbVAUAFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 19:05:03 -0500
-Subject: Re: Radeon framebuffer weirdness in -mm2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       ajoshi@shell.unixbox.com,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <20050120234844.GF12076@waste.org>
-References: <20050120232122.GF3867@waste.org>
-	 <20050120153921.11d7c4fa.akpm@osdl.org>  <20050120234844.GF12076@waste.org>
-Content-Type: text/plain
-Date: Fri, 21 Jan 2005 11:03:57 +1100
-Message-Id: <1106265837.18397.19.camel@gaston>
+	Thu, 20 Jan 2005 19:09:30 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:61298 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261489AbVAUAJH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 19:09:07 -0500
+Date: Fri, 21 Jan 2005 02:09:35 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>, ak@suse.de
+Cc: Greg KH <greg@kroah.com>, tiwai@suse.de, mingo@elte.hu,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, VANDROVE@vc.cvut.cz
+Subject: security hook missing in compat ioctl in 2.6.11-rc1-mm2
+Message-ID: <20050121000935.GA341@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il> <20050112212954.GA13558@kroah.com> <20050112214326.GB14703@wotan.suse.de> <20050112225230.GA14590@kroah.com> <20050112151049.7473db7d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050119213818.55b14bb0.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-20 at 15:48 -0800, Matt Mackall wrote:
-> On Thu, Jan 20, 2005 at 03:39:21PM -0800, Andrew Morton wrote:
-> > Matt Mackall <mpm@selenic.com> wrote:
-> > >
-> > > I'm seeing radeonfb on my ThinkPad T30 go weird on reboot (lots of
-> > > horizontal lines) and require powercycling to fix. Worked fine with 2.6.10.
-> > 
-> > Which radeon driver? CONFIG_FB_RADEON_OLD or CONFIG_FB_RADEON?
-> 
-> FB_RADEON.
-> 
-> > (cc Ben, who is the likely cuprit ;)
-> 
-> Btw, ajoshi's address from MAINTAINERS is bouncing.
+Hi!
+Security hook seems to be missing before compat_ioctl in mm2.
+And, it would be nice to avoid calling it twice on some paths.
 
-The file should be updated, I am the radeonfb maintainer now.
+Chris Wright's patch addressed this in the most elegant way I think,
+by adding vfs_ioctl.
 
-> > Which -mm2, btw?  2.6.10-mm2 or 2.6.11-rc1-mm2?
-> 
-> 2.6.11-rc1-mm2
-> 
-> > Did you try the corresponding -mm1?
-> 
-> Nothing between that and .10 yet. Building -mm1 now.
+Accordingly, this change:
 
-Thanks.
+@@ -468,6 +496,11 @@ asmlinkage long compat_sys_ioctl(unsigne
+ 
+  found_handler:
+ 	if (t->handler) {
++		/* RED-PEN how should LSM module know it's handling 32bit? */
++		error = security_file_ioctl(filp, cmd, arg);
++		if (error)
++			goto out_fput;
++
+ 		lock_kernel();
+ 		error = t->handler(fd, cmd, arg, filp);
+ 		unlock_kernel();
 
-Ben.
+ from Andy's "some fixes" patch wont be needed.
 
+Chris - are you planning to update your patch to -rc1-mm2?
+I'd like to see this addressed, after this I believe logically
+we'll get everything right, then I have a couple of small
+cosmetic patches, and I believe we'll be set.
 
+-- 
+I dont speak for Mellanox.

@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266500AbUGKFTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266501AbUGKF01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266500AbUGKFTS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 01:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266501AbUGKFTS
+	id S266501AbUGKF01 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 01:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbUGKF01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 01:19:18 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:10896 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266500AbUGKFTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 01:19:16 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: karim@opersys.com
-Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
-Date: Sun, 11 Jul 2004 00:19:14 -0500
-User-Agent: KMail/1.6.2
-Cc: Adam Kropelin <akropel1@rochester.rr.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, tim.bird@am.sony.com,
-       celinux-dev@tree.celinuxforum.org, tpoynor@mvista.com,
-       geert@linux-m68k.org
-References: <40EEF10F.1030404@am.sony.com> <200407102351.05059.dtor_core@ameritech.net> <40F0C8E8.2060908@opersys.com>
-In-Reply-To: <40F0C8E8.2060908@opersys.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 11 Jul 2004 01:26:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40685 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266501AbUGKF0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 01:26:24 -0400
+Date: Sat, 10 Jul 2004 22:25:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       linux-audio-dev@music.columbia.edu
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-Id: <20040710222510.0593f4a4.akpm@osdl.org>
+In-Reply-To: <20040709182638.GA11310@elte.hu>
+References: <20040709182638.GA11310@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407110019.14558.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 July 2004 11:58 pm, Karim Yaghmour wrote:
-> 
-> Dmitry Torokhov wrote:
-> > Do we need to encourage ordinary users to turn this option on? 99% of
-> > non-embedded market is much safer with that option off...
-> 
-> There are other boot params that gather similar if not higher percentages.
-> profile= is one of those.
+Ingo Molnar <mingo@elte.hu> wrote:
 >
+> I took a
+>  look at latencies and indeed 2.6.7 is pretty bad - latencies up to 50
+>  msec (!) can be easily triggered using common workloads, on fast 2GHz+
+>  x86 system - even when using the fully preemptible kernel!
 
-I do not see anywhere in my boot log suggestion to activate profiling...
-Nor I see recommendadtion to use idebus=66... But i will see suggesion to
-set loops_per_jiffy. 
+What were those workloads?
 
-> Also, keep in mind that in a not too distant future (and indeed today for
-> some folks already) recompiling and fine-tuning the Linux kernel for your
-> latest gizmo will not be as foreign as your statement may make it sound.
+Certainly 2.6+preempt is not as good as 2.4+LL at this time, but 2.6 isn't
+too bad either.  Even under heavy filesystem load it's hard to exceed a 0.5
+millisecond holdoff.  There are still a few problem in the ext3 checkpoint
+buffer handling, but those seem pretty hard to hit.  I doubt if the `Jack'
+testers were running `dbench 1000' during their testing.  
 
-Use of this particular option will require active tracking of kernel timer
-code to ensure that lpj that was valid for kernel x.y.z is still valid for
-kernel x.y.z+1. I do not beleive that normal user will ever care to do that
-even in very distant future. Still, given that message in the boot log, many
-will probably try the option.
+All of which makes me suspect that the problems which the `Jack' testers
+saw were not directly related to long periods of non-preemption in-kernel. 
+At least, not in core kernel/fs/mm code.  There have been problem in the
+past in places like i2c drivers, fbdev scrolling, etc.
 
-I am no longer question presence of the code in the kernel, I just don't like
-the message...
+What we need to do is to encourage audio testers to use ALSA drivers, to
+enable CONFIG_SND_DEBUG in the kernel build and to set
+/proc/asound/*/*/xrun_debug and to send us the traces which result from
+underruns.
 
--- 
-Dmitry
+As for the patch, well, sprinkling rescheduling points everywhere is still
+not the preferred approach.  But adding more might_sleep() checks is a
+sneaky way of making it more attractive ;)
+
+Minor point:  this:
+
+	cond_resched();
+	function_which_might_sleep();
+
+is less efficient than
+
+	function_which_might_sleep();
+	cond_resched();
+
+because if function_which_might_sleep() _does_ sleep, need_resched() will
+likely be false when we hit cond_resched(), thus saving a context switch. 
+Unfortunately, might_sleep() calls tend to go at the entry to functions,
+whereas cond_resched() calls should be neat the exit point, or inside loop
+bodies.

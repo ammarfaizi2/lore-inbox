@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136518AbRD3UJg>; Mon, 30 Apr 2001 16:09:36 -0400
+	id <S135266AbRD3U0c>; Mon, 30 Apr 2001 16:26:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136517AbRD3UJ1>; Mon, 30 Apr 2001 16:09:27 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22020 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136516AbRD3UJA>; Mon, 30 Apr 2001 16:09:00 -0400
-Subject: Re: DMA support in cs5530 IDE driver? (repost)
-To: mshiloh@mediabolic.com (Michael Shiloh)
-Date: Mon, 30 Apr 2001 21:13:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104301124210.32533-100000@michael.channeldot.com> from "Michael Shiloh" at Apr 30, 2001 11:29:06 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135239AbRD3U0W>; Mon, 30 Apr 2001 16:26:22 -0400
+Received: from adsl-63-206-198-42.dsl.snfc21.pacbell.net ([63.206.198.42]:28876
+	"EHLO adsl-63-206-198-42.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S135283AbRD3U0F>; Mon, 30 Apr 2001 16:26:05 -0400
+Date: Mon, 30 Apr 2001 13:22:59 -0700 (PDT)
+From: Francois Gouget <fgouget@free.fr>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Elmer Joandi <elmer@linking.ee>, Ookhoi <ookhoi@dds.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Aironet doesn't work
+In-Reply-To: <3AEDB0D4.2CB47196@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0104301319570.30974-100000@amboise.dolphin>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14uK2a-0000Ib-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can anyone report success or failure with enabling DMA for
-> the CS5530 IDE driver? I can get my system to crash or at
-> least hang pretty reliably by using hdparm to turn on DMA
-> while reading an MPEG-2 movie from my hard disk drive.
+On Mon, 30 Apr 2001, Jeff Garzik wrote:
 
-My palmtop is a CS5530/MediaGX233 and seems stable with 2.4.*-ac. Im probably
-not hitting the disk as hard as you though
+> Francois Gouget wrote:
+> > CONFIG_PCMCIA=y
+> > CONFIG_CARDBUS=y
+> > CONFIG_I82365=y
+> 
+> Not correct -- you do not need I82365 if you have CardBus.  However, if
+> you are running 2.4.4 you should be ok.
+
+   Ok. I upgraded to 2.4.4 and modified my config file to be:
+
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+# CONFIG_I82365 is not set
+
+   But now I get the same missing symbols I initially had in 2.4.3:
+
+Apr 30 13:19:34 oleron cardmgr[148]: initializing socket 0
+Apr 30 13:19:34 oleron cardmgr[148]: socket 0: Aironet PC4800
+Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_core'
+Apr 30 13:19:34 oleron cardmgr[148]: + Warning: /lib/modules/2.4.4/kernel/drivers/net/aironet4500_core.o 
+symbol for parameter rx_queue_len not found
+Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_proc'
+Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_cs'
+Apr 30 13:19:35 oleron cardmgr[148]: get dev info on socket 0
+failed: Resource temporarily unavailable
+
+
+--
+Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
+                            1 + e ^ ( i * pi ) = 0
 

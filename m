@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262467AbTHUG5r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 02:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbTHUG5r
+	id S262475AbTHUG7i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 02:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbTHUG5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 02:57:47 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:20476 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S262467AbTHUGXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 02:23:36 -0400
-Subject: Re: usb-storage: how to ruin your hardware(?)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308210205.h7L25PI6012011@wildsau.idv.uni.linz.at>
-References: <200308210205.h7L25PI6012011@wildsau.idv.uni.linz.at>
+	Thu, 21 Aug 2003 02:57:53 -0400
+Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:60585 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id S262472AbTHUGaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 02:30:20 -0400
+Subject: Re: Initramfs
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: gkajmowi@tbaytel.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200308210044.17876.gkajmowi@tbaytel.net>
+References: <200308210044.17876.gkajmowi@tbaytel.net>
 Content-Type: text/plain
-Message-Id: <1061446640.3390.51.camel@workshop.saharacpt.lan>
+Message-Id: <1061447419.19503.20.camel@camp4.serpentine.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.3 
-Date: 21 Aug 2003 08:17:20 +0200
+Date: 20 Aug 2003 23:30:20 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-21 at 04:05, H.Rosmanith (Kernel Mailing List) wrote:
-> -- Start of PGP signed section.
-> > For the vast majority of USB storage devices, it's not possible to kill the
-> > device like you did.
-> > 
-> > It looks like the device firmware needs certain data on the first sector to
-> > operate.  The usb-storage communication is working just fine, but the
-> > device is refusing commands.
+On Wed, 2003-08-20 at 21:44, Garrett Kajmowicz wrote:
+
+> Upon booting I get the following:
 > 
-> aha. do you know why the device is refusing commands? it relys on sector0
-> to contain some vital information and if this is not there, it refuses
-> commands?
+> Dentry cache hash table entries: 16384 (order: 4, 65536 bytes)
+> Inode-cache hash table entries: 8196 (order: 3, 32768 bytes)
+> Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+> ->(three characters, an 'o' with an I superimposed, a carat^, and a white 
+> smilyface)
+> Kernel panic: populate_root: bogus mode: 0
 > 
+> In idle task - not syncing
 
-We sell a make of flashdisk (what we call your 'usb bar') that use
-sector 0 with its encryption scheme.  Basically as soon as you
-'encrypt' or 'password protect' or whatever the device, you cannot
-get a valid partition table, and sector 0 is not writable, so
-repartitioning fails.  I have not tried to just put a fs on the
-whole disk, but I assume it will fail as well, as it should start
-at sector 0.
+The initramfs cpio unpacker is quite cranky, and has some undocumented
+limits.  What does "cpio -itv" report on your cpio archive?
 
-Anyhow, the only way to fix this if you lost the password, is to
-format the device with the software that comes with the device
-(windows based only for ours) - might be the same thing your side,
-you just got the device into  'lock down mode' via some fluke.
+If your archive contains any symlinks, for example, the unpacker will
+almost certainly blow up.
 
-Hope this might be of some help, else take it back.  Our side
-at least if not burned or damaged, we would replace it.
+> How would you suggest I go about fixing this problem, or do you require more 
+> information?
 
+If you actually want to fix the problem, you'll want to port
+init/initramfs.c to userspace, hammer on it until it unpacks what you
+want, then port the patches back to the kernel code and test them
+there.  Unless you're unbelievably patient, in which case do all the
+hacking on the kernel code and reboot a lot.
 
-Regards,
+> Also, is there a good detailed FAQ or a HOWTO document available 
+> online that I might be able to refer to?
 
--- 
-Martin Schlemmer
+No.  initramfs is stuck in limbo at the moment, and early userspace is
+unlikely to see any real work until 2.7.  Feel free to ask questions,
+but don't expect them to result in anything actually happening.
 
+If you want to do real work in this area, the klibc mailing list is the
+place to go: http://www.zytor.com/mailman/listinfo/klibc
+
+	<b
 

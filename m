@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbSKUVxO>; Thu, 21 Nov 2002 16:53:14 -0500
+	id <S264907AbSKUWBL>; Thu, 21 Nov 2002 17:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbSKUVxO>; Thu, 21 Nov 2002 16:53:14 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:46818 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S264938AbSKUVxN>;
-	Thu, 21 Nov 2002 16:53:13 -0500
-Subject: Unsupported AGP-bridge on VIA VT8633
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037916067.813.7.camel@chevrolet.hybel>
+	id <S264919AbSKUWBL>; Thu, 21 Nov 2002 17:01:11 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:15491 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S264907AbSKUWBJ>; Thu, 21 Nov 2002 17:01:09 -0500
+Date: Thu, 21 Nov 2002 14:08:08 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Wim Coekaerts <Wim.Coekaerts@oracle.com>
+Subject: Re: [RFC] hangcheck-timer module
+Message-ID: <20021121220807.GN770@nic1-pc.us.oracle.com>
+References: <20021121201711.GG770@nic1-pc.us.oracle.com> <3DDD4288.70605@didntduck.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 21 Nov 2002 23:01:07 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDD4288.70605@didntduck.org>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have an ASUS CUV266-DLS motherboard, with an agp-bridge which I think
-is supposed to be supported. But it isn't. This is with 2.4.20-rc1, but
-I've tried 2.5.47 as well, and haven't seen anything that should have
-changed in 2.4.20-rc2 or 2.5.48. 
+On Thu, Nov 21, 2002 at 03:31:04PM -0500, Brian Gerst wrote:
+> Joel Becker wrote:
+> >	Attached is a module, hangcheck-timer.  It is used to detect
+> >when the system goes out to lunch for a period of time, such as when a
+> >driver like qla2x00 udelays a bunch.
+> 
+> There is already an NMI watchdog that is better than what you propose, 
+> because it will also catch cases where something gets stuck with 
+> interrupts disabled.
 
-Based on agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Unsupported Via chipset (device id: 3091), you might want to
-try agp_try_unsupported=1.
-agpgart: no supported devices found.
+	The issue at hand is not permanent hangs.  The issue is hangs
+that return.  Consider a clustering enviornment where the other nodes
+have given up on the delayed node and clean up after it.  When the hang
+finally ends, the node still thinks it is "alive" and happily scribbles
+to places it shouldn't.
+	udelay will not ever trigger the NMI watchdog, as it is running
+on the processor, so the cpu timer will run happily.  But as far as
+everything higher up (kernel + userspace), the delay will be unnoticed
+and bad things can happen.
 
-I have tried with agp_try_unsupported=1, but no luck. I have seen that
-in pci_ids.h this device id is defined to vt8633, so I suppose it should
-work. I would really like to know why it doesn't...
+Joel
 
-Regards,
-Stian Jordet
+-- 
 
+"I'm so tired of being tired,
+ Sure as night will follow day.
+ Most things I worry about
+ Never happen anyway."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

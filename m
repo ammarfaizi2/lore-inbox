@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314380AbSEXNRw>; Fri, 24 May 2002 09:17:52 -0400
+	id <S314379AbSEXNuP>; Fri, 24 May 2002 09:50:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314394AbSEXNRv>; Fri, 24 May 2002 09:17:51 -0400
-Received: from cmailg7.svr.pol.co.uk ([195.92.195.177]:19784 "EHLO
-	cmailg7.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S314380AbSEXNRv>; Fri, 24 May 2002 09:17:51 -0400
-Posted-Date: Fri, 24 May 2002 08:06:11 GMT
-Date: Fri, 24 May 2002 09:06:10 +0100 (BST)
-From: Riley Williams <rhw@InfraDead.Org>
-Reply-To: Riley Williams <rhw@InfraDead.Org>
-To: Ron Gage <ron@rongage.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFQ] - Kernel Janitor Project - Compiler Cleanups
-In-Reply-To: <1021826787.7867.32.camel@portable>
-Message-ID: <Pine.LNX.4.21.0205240903420.1541-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314403AbSEXNuO>; Fri, 24 May 2002 09:50:14 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:13746 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314379AbSEXNuN>;
+	Fri, 24 May 2002 09:50:13 -0400
+Date: Thu, 23 May 2002 00:22:11 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Hayden James <hjames@stevens-tech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nVidia NIC/IDE/something support?
+Message-ID: <20020523002211.A1853@ucw.cz>
+In-Reply-To: <Pine.SGI.4.30.0205221316500.3534318-100000@attila.stevens-tech.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ron.
+On Wed, May 22, 2002 at 01:20:28PM -0400, Hayden James wrote:
+> The asus board uses the realtek 8139 as the onboard nic and should be
+> supported by the linux kernel.  The audio seems to be an exact clone of
+> the i810 driver with just same name changes and added pci ids, you can
+> get the gpl patches for it at nvidia's web site.  The rest of the
+> facilities, ide,
 
-> To expose the warnings, all one needs to do is change the CC
-> defination from "gcc" to "gcc -w" in the toplevel Makefile.
+nVidia nForce IDE is supported only in 2.5 at the moment. 2.5 also
+supports it's sounds without any modifications. USB is a standard OHCI
+there, so no problem.
 
-I seem to remember somewhere that CC should always be defined to be just
-the name of the executable, and any flags should be defined in CFLAGS
-rather than in CC itself. Memory says that in some circumstances, make
-can do the wrong thing if this rule isn't followed.
+> usb etc should be supported normally by the linux kernel.
+> Also you will need to get the separate nVidia video driver for graphics
+> support.
+> 
+> Hayden A. James
+> Computer Engineering
+> Stevens Institute of Technology
+> http://attila.stevens-tech.edu/~hjames/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Perhaps somebody can confirm this?
-
-Best wishes from Riley.
-
+-- 
+Vojtech Pavlik
+SuSE Labs

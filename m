@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbRHQSf7>; Fri, 17 Aug 2001 14:35:59 -0400
+	id <S268071AbRHQStO>; Fri, 17 Aug 2001 14:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268071AbRHQSfu>; Fri, 17 Aug 2001 14:35:50 -0400
-Received: from roc-24-95-218-9.rochester.rr.com ([24.95.218.9]:26240 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S266688AbRHQSfo>; Fri, 17 Aug 2001 14:35:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Chris Mason <mason@suse.com>
-To: Chris Schanzle <chris.schanzle@jhuapl.edu>, linux-kernel@vger.kernel.org
-Subject: Re: I/O causes performance problem with 2.4.8-ac3
-Date: Fri, 17 Aug 2001 13:50:03 -0400
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <3B7C08D4.9070303@jhuapl.edu>
-In-Reply-To: <3B7C08D4.9070303@jhuapl.edu>
+	id <S270012AbRHQStD>; Fri, 17 Aug 2001 14:49:03 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7035 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S268071AbRHQSsy>; Fri, 17 Aug 2001 14:48:54 -0400
+To: root@chaos.analogic.com
+Cc: David Christensen <David_Christensen@Phoenix.com>,
+        Holger Lubitz <h.lubitz@internet-factory.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <Pine.LNX.3.95.1010817131800.2216B-100000@chaos.analogic.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Aug 2001 12:41:49 -0600
+In-Reply-To: <Pine.LNX.3.95.1010817131800.2216B-100000@chaos.analogic.com>
+Message-ID: <m11ymaplzm.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15Xnky-0002ZV-00@roc-24-169-102-121.rochester.rr.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 August 2001 01:54 pm, Chris Schanzle wrote:
-> This probably belongs in the "use-once" thread...
->
-> I ran into a significant (lack of) performance situation with 2.4.8-ac3
-> that does not exist with 2.4.8.  Perhaps someone can shed some light on
-> what happened and how to avoid it in the future.
->
->
-> Performance was excellent until I decided to "dd bs=1024k </dev/cdrom
->
->  >somefile" a 600+MB cdrom while a kernel build was going on.  It took
->
-> nearly 7 minutes to complete the dd and near the end, the cdrom drive
-> light was only occasionally flickering activity (not "on" as it was at the
-> start), keystrokes were delayed, refreshes were sluggish.  
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-Most of the current use once code is for the page cache, dd if=/dev/cdrom 
-will read from the buffer cache, where the pages will take longer to age out. 
- One of the patches between 2.4.8pre7 and 2.4.8final seems to have helped a 
-lot here, but I'm not sure which one it was (check out the 'still buffer 
-cache problems' thread).  I'm also not sure if the speedup was intentional, 
-so it might go away during future tweaks.
+> On Fri, 17 Aug 2001, David Christensen wrote:
+> 
+> > > > Ryan Mack proclaimed:
+> > Most modern firmware does NOT clear memory during POST, it takes too long.
 
-Rik also posted a patch in 2.4.8-ac5 that deactivates buffer cache pages 
-after a threshold, which should help as well (and benefit reiserfs/ext3 in 
-general).
+Clearing memory on most machines takes a 1s or less.  Think of memory
+fill rates at the 800MB/s level.  Most BIOS's seem to clear some of
+the memory but I haven't read their code to see what they are doing.
 
--chris
+> > Certain compatibility areas are usually cleared (such as the 1st megabyte)
+> > but the rest is
+> > left as is, except for a few read/writes (usually on a megabyte boundary).
+> > The 
+> > exception to this rule is ECC systems.  They have to be written to make sure
+> > the 
+> > ECC information is correct.  
+Correct.
+
+> > SDRAM memory sizing is usually done by reading an EEPROM on the SDRAM DIMM.
+> > The BIOS doesn't need to guess the correct timing values, it simply reads
+> > the EEPROM and programs the memory controller.  In the case of a BIOS that
+> > doesn't use EEPROM you might lose data as the BIOS iteratively tries 
+> > different memory timings and tests if they work.
+
+This would totally depend on your controller.  But different timings
+shouldn't affect your memory cells just the read/write paths to your
+memory.
+
+> > I have done work implementing ACPI S3 (suspend-to-RAM) in DOS by simply
+> > hitting 
+> > the RESET button and restoring the memory controller settings.  The contents
+> > of 
+> > RAM have always been valid.
+
+Hmm.  That sounds a little risky.  I have measured single bit errors
+occuring as early as 1s after writing the data without somekind of
+refresh running.
+
+> > David Christensen
+> > 
+> 
+> I just posted working SDRAM controller initialization code. The SDRAM
+> controller must be initialized in a specific step-by-step manner or
+> else you don't even get to "restoring the memory controller settings".
+
+Comments frequently don't match the code.  And how the SDRAM controller
+must be initialized totally depends on the chipset and vendor.  SDRAM
+itself must be initialized in a specific matter.  
+
+But for the case of a warm reset there is not need to reset the SDRAM
+controller.  Memory really only needs to be cleared in the case when
+some form of error checking is being used.
+
+Personally I think writing such code carries more credibility then
+simply posting it anyway....
+
+Eric

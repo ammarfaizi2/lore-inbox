@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283264AbRK2PHZ>; Thu, 29 Nov 2001 10:07:25 -0500
+	id <S283271AbRK2PMp>; Thu, 29 Nov 2001 10:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283265AbRK2PHQ>; Thu, 29 Nov 2001 10:07:16 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:55940 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S283264AbRK2PG6>;
-	Thu, 29 Nov 2001 10:06:58 -0500
-Message-ID: <3C064E91.B288EFCD@mailnet.de>
-Date: Thu, 29 Nov 2001 16:04:49 +0100
-From: pil@mailnet.de
-X-Mailer: Mozilla 4.79C-pil. [en] (X11; U; Linux 2.4.16 i586)
-X-Accept-Language: en, en-US, de
+	id <S283270AbRK2PMf>; Thu, 29 Nov 2001 10:12:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3592 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S283265AbRK2PM0>; Thu, 29 Nov 2001 10:12:26 -0500
+Subject: Re: rpm builder of kernel image
+To: hch@ns.caldera.de (Christoph Hellwig)
+Date: Thu, 29 Nov 2001 15:21:00 +0000 (GMT)
+Cc: maftoul@esrf.fr (Samuel Maftoul), linux-kernel@vger.kernel.org
+In-Reply-To: <200111291358.fATDwSh32089@ns.caldera.de> from "Christoph Hellwig" at Nov 29, 2001 02:58:28 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Martin Eriksson <nitrax@giron.wox.org>, linux-kernel@vger.kernel.org
-Subject: Re: About 2.4.16
-In-Reply-To: <3C062E3B.70CEC5D4@mailnet.de> <001a01c178d7$3c3bfa70$0201a8c0@HOMER>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E169Szk-0000JN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Eriksson wrote:
-> 
+> You might want to take a look at make-krpm [1], currently I only have
+> support for Caldera and a default target that might work or not work
+> for others.  I accept patches..
 
-> 
-> Oh.. 2.4.13 was pretty usable too, so maybe 3 times slower?
-> 
+Or for Linux 2.4.13 or later just type
 
-Not for me. I reported an hfs-bug for 2.4.12 up to 2.4.14. So 6 times
-slower would be the best for the users and - I guess - developers too.
-
-Regards
-
-W. Pichler
-
+	make config
+	make rpm

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287244AbSA1W3h>; Mon, 28 Jan 2002 17:29:37 -0500
+	id <S287189AbSA1W1s>; Mon, 28 Jan 2002 17:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287204AbSA1W3Z>; Mon, 28 Jan 2002 17:29:25 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:63331 "EHLO
+	id <S287287AbSA1W1c>; Mon, 28 Jan 2002 17:27:32 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:65122 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S287244AbSA1W24>; Mon, 28 Jan 2002 17:28:56 -0500
-Message-ID: <3C55D0A2.9030405@redhat.com>
-Date: Mon, 28 Jan 2002 17:28:50 -0500
+	id <S287189AbSA1W1A>; Mon, 28 Jan 2002 17:27:00 -0500
+Message-ID: <3C55D031.5040801@redhat.com>
+Date: Mon, 28 Jan 2002 17:26:57 -0500
 From: Doug Ledford <dledford@redhat.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020120
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] i810 driver update
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] i810 driver update.
 Content-Type: multipart/mixed;
- boundary="------------020808020902010700040401"
+ boundary="------------070808090002000003040603"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020808020902010700040401
+--------------070808090002000003040603
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Linus,
+Marcelo,
 
-This is the latest i810 driver.  It fixes quite a few problems with the 
-existing driver in your tree and after several weeks of public cooking I'm 
-pretty confident in stating that it doesn't introduce any new bugs.  Since 
-this makes a lot of people's machines work that currently don't, please drop 
-this into your tree.  It was diff'ed against the latest pre kernel.  Thanks ;-)
+This is the final, cooked version of the i810 driver.  It's been out long 
+enough for me to say with a good deal of certainty that it fixes quite a few 
+bugs in the existing driver and doesn't introduce any new bugs (that doesn't 
+mean it fixes all of the existing bugs though, record is still problematic 
+and full duplex isn't supported, but these aren't regressions since the 
+current driver is the same way).  This was diff'ed against the latest pre 
+patch.  Please apply this to your tree.  Thanks.
 
 -- 
 
@@ -38,15 +41,15 @@ this into your tree.  It was diff'ed against the latest pre kernel.  Thanks ;-)
        Please check my web site for aic7xxx updates/answers before
                        e-mailing me about problems
 
---------------020808020902010700040401
+--------------070808090002000003040603
 Content-Type: text/plain;
- name="2.5-i810.patch"
+ name="2.4-i810.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="2.5-i810.patch"
+ filename="2.4-i810.patch"
 
---- linux_2_5/drivers/sound/i810_audio.c.old	Mon Jan 28 17:21:55 2002
-+++ linux_2_5/drivers/sound/i810_audio.c	Mon Jan 28 17:23:47 2002
+--- linux_2_4/drivers/sound/i810_audio.c.old	Mon Jan 28 17:20:50 2002
++++ linux_2_4/drivers/sound/i810_audio.c	Mon Jan 28 17:20:54 2002
 @@ -14,7 +14,7 @@
   *	Analog Devices (A major AC97 codec maker)
   *	Intel Corp  (you've probably heard of them already)
@@ -853,25 +856,28 @@ Content-Disposition: inline;
                          schedule();
                          if (signal_pending(current)) {
                                  if (!ret) ret = -EAGAIN;
-@@ -1402,11 +1511,12 @@ static ssize_t i810_write(struct file *f
+@@ -1402,12 +1511,14 @@ static ssize_t i810_write(struct file *f
                  }
  
  		swptr = dmabuf->swptr;
 -		if (dmabuf->count < 0) {
 -			dmabuf->count = 0;
 -		}
--		cnt = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
--		// this is to make the copy_from_user simpler below
+-		cnt = dmabuf->dmasize - swptr;
+-		if(cnt > (dmabuf->dmasize - dmabuf->count))
+-			cnt = dmabuf->dmasize - dmabuf->count;
 +		cnt = i810_get_free_write_space(state);
 +		/* Bound the maximum size to how much we can copy to the
 +		 * dma buffer before we hit the end.  If we have more to
 +		 * copy then it will get done in a second pass of this
 +		 * loop starting from the beginning of the buffer.
 +		 */
- 		if(cnt > (dmabuf->dmasize - swptr))
- 			cnt = dmabuf->dmasize - swptr;
++		if(cnt > (dmabuf->dmasize - swptr))
++			cnt = dmabuf->dmasize - swptr;
  		spin_unlock_irqrestore(&state->card->lock, flags);
-@@ -1416,25 +1526,30 @@ static ssize_t i810_write(struct file *f
+ 
+ #ifdef DEBUG2
+@@ -1415,22 +1526,30 @@ static ssize_t i810_write(struct file *f
  #endif
  		if (cnt > count)
  			cnt = count;
@@ -887,21 +893,18 @@ Content-Disposition: inline;
  		if (cnt <= 0) {
  			unsigned long tmo;
  			// There is data waiting to be played
--			if(!dmabuf->enable && dmabuf->count) {
--				/* force the starting incase SETTRIGGER has been used */
--				/* to stop it, otherwise this is a deadlock situation */
--				dmabuf->trigger |= PCM_ENABLE_OUTPUT;
--				start_dac(state);
--			}
--			// Update the LVI pointer in case we have already
--			// written data in this syscall and are just waiting
--			// on the tail bit of data
 +			/*
 +			 * Force the trigger setting since we would
 +			 * deadlock with it set any other way
 +			 */
 +			dmabuf->trigger = PCM_ENABLE_OUTPUT;
  			i810_update_lvi(state,0);
+-			if(!dmabuf->enable && dmabuf->count) {
+-				/* force the starting incase SETTRIGGER has been used */
+-				/* to stop it, otherwise this is a deadlock situation */
+-				dmabuf->trigger |= PCM_ENABLE_OUTPUT;
+-				start_dac(state);
+-			}
  			if (file->f_flags & O_NONBLOCK) {
  				if (!ret) ret = -EAGAIN;
  				goto ret;
@@ -912,7 +915,7 @@ Content-Disposition: inline;
  			/* There are two situations when sleep_on_timeout returns, one is when
  			   the interrupt is serviced correctly and the process is waked up by
  			   ISR ON TIME. Another is when timeout is expired, which means that
-@@ -1442,7 +1557,7 @@ static ssize_t i810_write(struct file *f
+@@ -1438,7 +1557,7 @@ static ssize_t i810_write(struct file *f
  			   is TOO LATE for the process to be scheduled to run (scheduler latency)
  			   which results in a (potential) buffer underrun. And worse, there is
  			   NOTHING we can do to prevent it. */
@@ -921,7 +924,7 @@ Content-Disposition: inline;
  #ifdef DEBUG
  				printk(KERN_ERR "i810_audio: playback schedule timeout, "
  				       "dmasz %u fragsz %u count %i hwptr %u swptr %u\n",
-@@ -1484,10 +1599,8 @@ static ssize_t i810_write(struct file *f
+@@ -1480,10 +1599,8 @@ static ssize_t i810_write(struct file *f
  		x = dmabuf->fragsize - (swptr % dmabuf->fragsize);
  		memset(dmabuf->rawbuf + swptr, '\0', x);
  	}
@@ -933,7 +936,7 @@ Content-Disposition: inline;
          set_current_state(TASK_RUNNING);
          remove_wait_queue(&dmabuf->wait, &waita);
  
-@@ -1506,22 +1619,19 @@ static unsigned int i810_poll(struct fil
+@@ -1502,22 +1619,19 @@ static unsigned int i810_poll(struct fil
  		return 0;
  	poll_wait(file, &dmabuf->wait, wait);
  	spin_lock_irqsave(&state->card->lock, flags);
@@ -965,12 +968,7 @@ Content-Disposition: inline;
  	return mask;
  }
  
-@@ -1559,16 +1669,13 @@ static int i810_mmap(struct file *file, 
- 	if (size > (PAGE_SIZE << dmabuf->buforder))
- 		goto out;
- 	ret = -EAGAIN;
--	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
-+	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
+@@ -1559,12 +1673,9 @@ static int i810_mmap(struct file *file, 
  			     size, vma->vm_page_prot))
  		goto out;
  	dmabuf->mapped = 1;
@@ -985,7 +983,7 @@ Content-Disposition: inline;
  	printk("i810_audio: mmap'ed %ld bytes of data space\n", size);
  #endif
  out:
-@@ -1579,16 +1686,15 @@ out:
+@@ -1575,16 +1686,15 @@ out:
  static int i810_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
  {
  	struct i810_state *state = (struct i810_state *)file->private_data;
@@ -1004,7 +1002,7 @@ Content-Disposition: inline;
  #ifdef DEBUG
  	printk("i810_audio: i810_ioctl, arg=0x%x, cmd=", arg ? *(int *)arg : 0);
  #endif
-@@ -1605,13 +1711,23 @@ static int i810_ioctl(struct inode *inod
+@@ -1601,13 +1711,23 @@ static int i810_ioctl(struct inode *inod
  #ifdef DEBUG
  		printk("SNDCTL_DSP_RESET\n");
  #endif
@@ -1019,19 +1017,19 @@ Content-Disposition: inline;
 -			stop_adc(state);
 +			c = dmabuf->read_channel;
 +			__stop_adc(state);
-+		}
+ 		}
 +		if (c != NULL) {
 +			outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
 +			outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
 +			outb(0, state->card->iobase+c->port+OFF_CIV);
 +			outb(0, state->card->iobase+c->port+OFF_LVI);
- 		}
++		}
 +
 +		spin_unlock_irqrestore(&state->card->lock, flags);
  		synchronize_irq();
  		dmabuf->ready = 0;
  		dmabuf->swptr = dmabuf->hwptr = 0;
-@@ -1624,10 +1740,9 @@ static int i810_ioctl(struct inode *inod
+@@ -1620,10 +1740,9 @@ static int i810_ioctl(struct inode *inod
  #endif
  		if (dmabuf->enable != DAC_RUNNING || file->f_flags & O_NONBLOCK)
  			return 0;
@@ -1045,7 +1043,7 @@ Content-Disposition: inline;
  		return 0;
  
  	case SNDCTL_DSP_SPEED: /* set smaple rate */
-@@ -1678,9 +1793,6 @@ static int i810_ioctl(struct inode *inod
+@@ -1674,9 +1793,6 @@ static int i810_ioctl(struct inode *inod
  #ifdef DEBUG
  		printk("SNDCTL_DSP_STEREO\n");
  #endif
@@ -1055,7 +1053,7 @@ Content-Disposition: inline;
  		if (dmabuf->enable & DAC_RUNNING) {
  			stop_dac(state);
  		}
-@@ -1713,18 +1825,7 @@ static int i810_ioctl(struct inode *inod
+@@ -1709,18 +1825,7 @@ static int i810_ioctl(struct inode *inod
  #ifdef DEBUG
  		printk("SNDCTL_DSP_SETFMT\n");
  #endif
@@ -1075,7 +1073,7 @@ Content-Disposition: inline;
  
  	case SNDCTL_DSP_CHANNELS:
  #ifdef DEBUG
-@@ -1824,22 +1925,47 @@ static int i810_ioctl(struct inode *inod
+@@ -1820,22 +1925,47 @@ static int i810_ioctl(struct inode *inod
  
  		dmabuf->ossfragsize = 1<<(val & 0xffff);
  		dmabuf->ossmaxfrags = (val >> 16) & 0xffff;
@@ -1138,14 +1136,14 @@ Content-Disposition: inline;
  		dmabuf->ready = 0;
  #ifdef DEBUG
  		printk("SNDCTL_DSP_SETFRAGMENT 0x%x, %d, %d\n", val,
-@@ -1857,13 +1983,13 @@ static int i810_ioctl(struct inode *inod
+@@ -1853,13 +1983,13 @@ static int i810_ioctl(struct inode *inod
  		i810_update_ptr(state);
  		abinfo.fragsize = dmabuf->userfragsize;
  		abinfo.fragstotal = dmabuf->userfrags;
 -		if(dmabuf->mapped)
 -			abinfo.bytes = dmabuf->count;
 -		else
--			abinfo.bytes = dmabuf->dmasize - dmabuf->count;
+-			abinfo.bytes = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
 +		if (dmabuf->mapped)
 + 			abinfo.bytes = dmabuf->dmasize;
 +  		else
@@ -1157,7 +1155,7 @@ Content-Disposition: inline;
  		printk("SNDCTL_DSP_GETOSPACE %d, %d, %d, %d\n", abinfo.bytes,
  			abinfo.fragsize, abinfo.fragments, abinfo.fragstotal);
  #endif
-@@ -1875,17 +2001,17 @@ static int i810_ioctl(struct inode *inod
+@@ -1871,17 +2001,17 @@ static int i810_ioctl(struct inode *inod
  		if (!dmabuf->ready && (val = prog_dmabuf(state, 0)) != 0)
  			return val;
  		spin_lock_irqsave(&state->card->lock, flags);
@@ -1181,7 +1179,7 @@ Content-Disposition: inline;
  		printk("SNDCTL_DSP_GETOPTR %d, %d, %d, %d\n", cinfo.bytes,
  			cinfo.blocks, cinfo.ptr, dmabuf->count);
  #endif
-@@ -1897,13 +2023,12 @@ static int i810_ioctl(struct inode *inod
+@@ -1893,13 +2023,12 @@ static int i810_ioctl(struct inode *inod
  		if (!dmabuf->ready && (val = prog_dmabuf(state, 1)) != 0)
  			return val;
  		spin_lock_irqsave(&state->card->lock, flags);
@@ -1197,7 +1195,7 @@ Content-Disposition: inline;
  		printk("SNDCTL_DSP_GETISPACE %d, %d, %d, %d\n", abinfo.bytes,
  			abinfo.fragsize, abinfo.fragments, abinfo.fragstotal);
  #endif
-@@ -1915,16 +2040,17 @@ static int i810_ioctl(struct inode *inod
+@@ -1911,16 +2040,17 @@ static int i810_ioctl(struct inode *inod
  		if (!dmabuf->ready && (val = prog_dmabuf(state, 0)) != 0)
  			return val;
  		spin_lock_irqsave(&state->card->lock, flags);
@@ -1220,7 +1218,7 @@ Content-Disposition: inline;
  		printk("SNDCTL_DSP_GETIPTR %d, %d, %d, %d\n", cinfo.bytes,
  			cinfo.blocks, cinfo.ptr, dmabuf->count);
  #endif
-@@ -1954,7 +2080,7 @@ static int i810_ioctl(struct inode *inod
+@@ -1950,7 +2080,7 @@ static int i810_ioctl(struct inode *inod
  	case SNDCTL_DSP_SETTRIGGER:
  		if (get_user(val, (int *)arg))
  			return -EFAULT;
@@ -1229,7 +1227,7 @@ Content-Disposition: inline;
  		printk("SNDCTL_DSP_SETTRIGGER 0x%x\n", val);
  #endif
  		if( !(val & PCM_ENABLE_INPUT) && dmabuf->enable == ADC_RUNNING) {
-@@ -1964,7 +2090,7 @@ static int i810_ioctl(struct inode *inod
+@@ -1960,7 +2090,7 @@ static int i810_ioctl(struct inode *inod
  			stop_dac(state);
  		}
  		dmabuf->trigger = val;
@@ -1238,7 +1236,7 @@ Content-Disposition: inline;
  			if (!dmabuf->write_channel) {
  				dmabuf->ready = 0;
  				dmabuf->write_channel = state->card->alloc_pcm_channel(state->card);
-@@ -1974,13 +2100,18 @@ static int i810_ioctl(struct inode *inod
+@@ -1970,13 +2100,18 @@ static int i810_ioctl(struct inode *inod
  			if (!dmabuf->ready && (ret = prog_dmabuf(state, 0)))
  				return ret;
  			if (dmabuf->mapped) {
@@ -1262,7 +1260,7 @@ Content-Disposition: inline;
  			if (!dmabuf->read_channel) {
  				dmabuf->ready = 0;
  				dmabuf->read_channel = state->card->alloc_rec_pcm_channel(state->card);
-@@ -1990,12 +2121,14 @@ static int i810_ioctl(struct inode *inod
+@@ -1986,12 +2121,14 @@ static int i810_ioctl(struct inode *inod
  			if (!dmabuf->ready && (ret = prog_dmabuf(state, 1)))
  				return ret;
  			if (dmabuf->mapped) {
@@ -1281,7 +1279,7 @@ Content-Disposition: inline;
  		}
  		return 0;
  
-@@ -2199,7 +2332,19 @@ static int i810_open(struct inode *inode
+@@ -2195,7 +2332,19 @@ static int i810_open(struct inode *inode
  
  	/* find an avaiable virtual channel (instance of /dev/dsp) */
  	while (card != NULL) {
@@ -1302,7 +1300,7 @@ Content-Disposition: inline;
  			if (card->states[i] == NULL) {
  				state = card->states[i] = (struct i810_state *)
  					kmalloc(sizeof(struct i810_state), GFP_KERNEL);
-@@ -2233,8 +2378,8 @@ found_virt:
+@@ -2229,8 +2378,8 @@ found_virt:
  			card->states[i] = NULL;;
  			return -EBUSY;
  		}
@@ -1312,7 +1310,7 @@ Content-Disposition: inline;
  	}
  	if(file->f_mode & FMODE_WRITE) {
  		if((dmabuf->write_channel = card->alloc_pcm_channel(card)) == NULL) {
-@@ -2245,13 +2390,13 @@ found_virt:
+@@ -2241,13 +2390,13 @@ found_virt:
  		/* Initialize to 8kHz?  What if we don't support 8kHz? */
  		/*  Let's change this to check for S/PDIF stuff */
  	
@@ -1327,7 +1325,7 @@ Content-Disposition: inline;
  	}
  		
  	/* set default sample format. According to OSS Programmer's Guide  /dev/dsp
-@@ -2278,11 +2423,10 @@ static int i810_release(struct inode *in
+@@ -2274,11 +2423,10 @@ static int i810_release(struct inode *in
  	lock_kernel();
  
  	/* stop DMA state machine and free DMA buffers/channels */
@@ -1342,8 +1340,8 @@ Content-Disposition: inline;
  		stop_adc(state);
  	}
  	spin_lock_irqsave(&card->lock, flags);
-@@ -2348,13 +2492,26 @@ static int i810_open_mixdev(struct inode
- 	unsigned int minor = minor(inode->i_rdev);
+@@ -2344,13 +2492,26 @@ static int i810_open_mixdev(struct inode
+ 	int minor = MINOR(inode->i_rdev);
  	struct i810_card *card = devs;
  
 -	for (card = devs; card != NULL; card = card->next)
@@ -1371,7 +1369,7 @@ Content-Disposition: inline;
  	return -ENODEV;
  }
  
-@@ -2700,6 +2857,7 @@ static int __init i810_probe(struct pci_
+@@ -2696,6 +2857,7 @@ static int __init i810_probe(struct pci_
  	}
  	memset(card, 0, sizeof(*card));
  
@@ -1379,7 +1377,7 @@ Content-Disposition: inline;
  	card->iobase = pci_resource_start (pci_dev, 1);
  	card->ac97base = pci_resource_start (pci_dev, 0);
  	card->pci_dev = pci_dev;
-@@ -2756,7 +2914,8 @@ static int __init i810_probe(struct pci_
+@@ -2752,7 +2914,8 @@ static int __init i810_probe(struct pci_
  	}
  	pci_set_drvdata(pci_dev, card);
  
@@ -1389,7 +1387,7 @@ Content-Disposition: inline;
  		i810_configure_clocking();
  	}
  
-@@ -2775,7 +2934,7 @@ static int __init i810_probe(struct pci_
+@@ -2771,7 +2934,7 @@ static int __init i810_probe(struct pci_
  		kfree(card);
  		return -ENODEV;
  	}
@@ -1398,7 +1396,7 @@ Content-Disposition: inline;
  	return 0;
  }
  
-@@ -2793,6 +2952,7 @@ static void __exit i810_remove(struct pc
+@@ -2789,6 +2952,7 @@ static void __exit i810_remove(struct pc
  		if (card->ac97_codec[i] != NULL) {
  			unregister_sound_mixer(card->ac97_codec[i]->dev_mixer);
  			kfree (card->ac97_codec[i]);
@@ -1406,7 +1404,7 @@ Content-Disposition: inline;
  		}
  	unregister_sound_dsp(card->dev_audio);
  	kfree(card);
-@@ -2961,14 +3121,11 @@ static int __init i810_init_module (void
+@@ -2957,14 +3121,11 @@ static int __init i810_init_module (void
  	if(ftsodell != 0) {
  		printk("i810_audio: ftsodell is now a deprecated option.\n");
  	}
@@ -1423,5 +1421,5 @@ Content-Disposition: inline;
  		}
  	}
 
---------------020808020902010700040401--
+--------------070808090002000003040603--
 

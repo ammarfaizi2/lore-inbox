@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266378AbUHWUMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267747AbUHWV23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266378AbUHWUMU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUHWUKc
+	id S267747AbUHWV23 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267993AbUHWV2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:10:32 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:35080 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267386AbUHWTEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 15:04:06 -0400
-Date: Mon, 23 Aug 2004 20:03:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [PATCH][2/7] xattr consolidation - LSM hook changes
-Message-ID: <20040823200353.A20114@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-	Chris Wright <chrisw@osdl.org>
-References: <Xine.LNX.4.44.0408231414270.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231415310.13728-100000@thoron.boston.redhat.com>
+	Mon, 23 Aug 2004 17:28:25 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22015 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267747AbUHWVZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 17:25:22 -0400
+Date: Mon, 23 Aug 2004 23:25:14 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: rlrevell@joe-job.com, diegocg@teleline.es, linux-kernel@vger.kernel.org,
+       kernel@wildsau.enemy.org, diablod3@gmail.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040823212514.GE22419@fs.tum.de>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org> <d577e5690408190004368536e9@mail.gmail.com> <1092915160.830.9.camel@krustophenia.net> <20040819140659.6f61edcd.diegocg@teleline.es> <4124A572.nail7YU5JK0TN@burner>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Xine.LNX.4.44.0408231415310.13728-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Mon, Aug 23, 2004 at 02:16:17PM -0400
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4124A572.nail7YU5JK0TN@burner>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 02:16:17PM -0400, James Morris wrote:
-> This patch replaces the dentry parameter with an inode in the LSM
-> inode_{set|get|list}security hooks, in keeping with the ext2/ext3 code.
-> dentries are not needed here.
+On Thu, Aug 19, 2004 at 03:04:50PM +0200, Joerg Schilling wrote:
+> >From diegocg@teleline.es  Thu Aug 19 14:07:10 2004
+> 
+> >See http://weblogs.mozillazine.org/gerv/archives/006193.html (which may not
+> >be the best interpretation of the changes)
+> 
+> Unfortunately the person who did write this has no clue on the Copyright law :-(
+> 
+> The Copyright law is _very_ explicit about the fact that Authors that do minor
+> contributions have no right to influence the license or the way of publishing.
+>...
 
-Given that the actual methods take a dentry this sounds like a bad design.
-Can;t you just pass down the dentry through all of the ext2 interfaces?
+"The Copyright law" is a strange term.
 
-(And again, mid-term these checks should move to the VFS)
+E.g. the German and the US copyright laws aren't exactly the same.
+
+> Jörg
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

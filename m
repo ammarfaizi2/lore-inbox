@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288921AbSBRX0f>; Mon, 18 Feb 2002 18:26:35 -0500
+	id <S288936AbSBRX2P>; Mon, 18 Feb 2002 18:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288923AbSBRX0Z>; Mon, 18 Feb 2002 18:26:25 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:55987 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S288921AbSBRX0P>; Mon, 18 Feb 2002 18:26:15 -0500
-Date: Tue, 19 Feb 2002 00:26:14 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: jiffies rollover, uptime etc.
-Message-ID: <20020219002614.A27210@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C717DEA.7090309@candelatech.com> <E16cwUx-00073d-00@the-village.bc.nu>
+	id <S288946AbSBRX2G>; Mon, 18 Feb 2002 18:28:06 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:37126 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S288936AbSBRX16>; Mon, 18 Feb 2002 18:27:58 -0500
+Date: Tue, 19 Feb 2002 10:27:52 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Whitespace PCI cleanups
+Message-Id: <20020219102752.7dd1e21c.rusty@rustcorp.com.au>
+In-Reply-To: <20020218181623.GA122@elf.ucw.cz>
+In-Reply-To: <20020218181623.GA122@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16cwUx-00073d-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 18, 2002 at 10:31:34PM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 18, 2002 at 10:31:34PM +0000, Alan Cox wrote:
-> > I wonder, is it more expensive to write all drivers to handle the
-> > wraps than to take the long long increment hit?  The increment is
+On 
+Pavel Machek <pavel@suse.cz> wrote:
+
+> Hi!
 > 
-> Total cost of handling it right - 0 clocks. Its simply about maths order
-> and sign 
+> Here are some cleanups of whitespace in pci. Martin (pci maintainer)
+> approved pci.c/pci.h parts and I guess I have his okay for pci.txt
+> part too. (This is small stuff, so I do not want to bother Linus with
+> that...)
 
-$ uname -a ; uptime
-Linux newyork-1 2.2.18 #3 Mon Dec 11 15:57:33 EST 2000 i686 unknown
-  6:22pm  up 425 days,  1:35,  3 users,  load average: 0.10, 0.05, 0.01
+Want me to add this to the trivial patch collection for tracking?  If so just
+send (or cc:) it to trivial@rustcorp.com.au.
 
-This server is pretty remote and hard to reach, and not sure to reboot
-properly unattended - are there predictions about how well 2.2.18 will
-survive jiffy wraparound?
-
-Would you consider it worth rebooting for? By the way, this is our second
-most important production server, I'm exceedingly pleased with the
-stability. We've abused it no end.
-
-Thanks.
-
-Regards,
-
-bert
-
+Cheers!
+Rusty.
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

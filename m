@@ -1,95 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbUCOAlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 19:41:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUCOAlJ
+	id S262154AbUCOAwP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 19:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUCOAwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 19:41:09 -0500
-Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:46747 "EHLO
-	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
-	id S262112AbUCOAlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 19:41:02 -0500
-Message-ID: <4054FBE3.6010905@quark.didntduck.org>
-Date: Sun, 14 Mar 2004 19:42:11 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: en-us, en
+	Sun, 14 Mar 2004 19:52:15 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:10439 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262154AbUCOAwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 19:52:12 -0500
+Date: Sun, 14 Mar 2004 19:52:12 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch] proper alignment of init task in kernel image
+In-Reply-To: <20040315000340.GZ20174@waste.org>
+Message-ID: <Pine.LNX.4.58.0403141951340.28447@montezuma.fsmlabs.com>
+References: <20040315000340.GZ20174@waste.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] x86 execve from kernel
-Content-Type: multipart/mixed;
- boundary="------------010109020905030708050109"
-X-Charter-MailScanner-Information: 
-X-Charter-MailScanner: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010109020905030708050109
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 14 Mar 2004, Matt Mackall wrote:
 
-Remove the jump through int $0x80 for execve from a kernel thread.
+> This keeps the alignment of the init task matched with the stack size.
+> Saves 4k for 4k stacks, keeps system from exploding with 16k. Please apply.
 
---
-				Brian Gerst
+Don't forget the following minor patch;
 
---------------010109020905030708050109
-Content-Type: text/plain;
- name="execve-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="execve-1"
-
-diff -urN linux-bk/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
---- linux-bk/arch/i386/kernel/process.c	2004-03-14 18:25:39.000000000 -0500
-+++ linux/arch/i386/kernel/process.c	2004-03-14 19:39:47.333293016 -0500
-@@ -630,6 +630,33 @@
- }
- 
+Index: linux-2.6.4-mm1/arch/i386/kernel/init_task.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.4-mm1/arch/i386/kernel/init_task.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 init_task.c
+--- linux-2.6.4-mm1/arch/i386/kernel/init_task.c	11 Mar 2004 15:26:38 -0000	1.1.1.1
++++ linux-2.6.4-mm1/arch/i386/kernel/init_task.c	15 Mar 2004 00:51:14 -0000
+@@ -20,7 +20,7 @@ EXPORT_SYMBOL(init_mm);
  /*
-+ * execs a userspace program from a kernel thread
-+ */
-+int execve(char *filename, char **argv, char **envp)
-+{
-+	struct pt_regs regs;
-+	int error;
-+	unsigned long flags;
-+
-+	memset(&regs, 0, sizeof(regs));
-+	regs.eflags = X86_EFLAGS_IF;
-+
-+	error = do_execve(filename,
-+			(char __user * __user *) argv,
-+			(char __user * __user *) envp,
-+			&regs);
-+	if (error == 0) {
-+		current->ptrace &= ~PT_DTRACE;
-+		__asm__ __volatile__(
-+		       "movl %0,%%esp\n\t"
-+		       "movl %1,%%ebp\n\t"
-+		       "jmp resume_userspace\n\t"
-+		       : : "r" (&regs), "r" (current_thread_info()));
-+	}
-+	return error;
-+}
-+
-+/*
-  * These bracket the sleeping functions..
+  * Initial thread structure.
+  *
+- * We need to make sure that this is 8192-byte aligned due to the
++ * We need to make sure that this is THREAD_SIZE aligned due to the
+  * way process stacks are handled. This is done by having a special
+  * "init_task" linker map entry..
   */
- extern void scheduling_functions_start_here(void);
-diff -urN linux-bk/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linux-bk/include/asm-i386/unistd.h	2004-03-14 18:25:46.000000000 -0500
-+++ linux/include/asm-i386/unistd.h	2004-03-14 19:12:38.000000000 -0500
-@@ -395,7 +395,7 @@
- static inline _syscall3(int,read,int,fd,char *,buf,off_t,count)
- static inline _syscall3(off_t,lseek,int,fd,off_t,offset,int,count)
- static inline _syscall1(int,dup,int,fd)
--static inline _syscall3(int,execve,const char *,file,char **,argv,char **,envp)
-+extern int execve(char *, char **, char **);
- static inline _syscall3(int,open,const char *,file,int,flag,int,mode)
- static inline _syscall1(int,close,int,fd)
- static inline _syscall3(pid_t,waitpid,pid_t,pid,int *,wait_stat,int,options)
-
---------------010109020905030708050109--

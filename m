@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264170AbTICSXf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTICSW0
+	id S264361AbTICSbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbTICS3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:22:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48329 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264170AbTICSVw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:21:52 -0400
-Message-ID: <3F563130.6040609@pobox.com>
-Date: Wed, 03 Sep 2003 14:21:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Wed, 3 Sep 2003 14:29:48 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:7163 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id S264239AbTICS3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:29:17 -0400
+Organization: 
+Date: Wed, 3 Sep 2003 21:26:06 +0300 (EEST)
+From: Panagiotis Papadakos <papadako@csd.uoc.gr>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: IOMEGA ZIP 100 ATAPI problems with 2.6
+In-Reply-To: <20030901200530.64ad6fb9.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.53.0309032124040.20174@oneiro.csd.uch.gr>
+References: <Pine.GSO.4.53.0308310037230.27956@oneiro.csd.uch.gr>
+ <3F515301.4040305@sbcglobal.net> <3F532C67.6070904@sbcglobal.net>
+ <Pine.GSO.4.53.0309020539380.9075@oneiro.csd.uch.gr> <20030901200530.64ad6fb9.akpm@osdl.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Stuart MacDonald <stuartm@connecttech.com>,
-       "'Mariusz Zielinski'" <levi@wp-sa.pl>, root@chaos.analogic.com,
-       "'James Clark'" <jimwclark@ntlworld.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Driver Model
-References: <004801c37233$08c93b10$294b82ce@stuartm> <1062608313.19058.133.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1062608313.19058.133.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2003-09-03 at 16:50, Stuart MacDonald wrote:
-> 
->>From: Mariusz Zielinski [mailto:levi@wp-sa.pl] 
->>
->>>Realtek 8180L wlan chipset driver.
->>
->>From:
->>http://www.realtek.com.tw/downloads/downloads1-3.aspx?series=16&Software=True
->>
->>These drivers are all source and appear to be all GPLed.
-> 
-> 
-> Only part source so realtek need a little re-education to make them fix
-> the drivers. Someone who deals with realtek drivers (Jeff Garzik ?) care
-> to start a polite initial dialog ?
+With -mm5 I get the followimg Oops when trying to mount the ZIP
 
+EIP: 0060:[<c025deb4>] Not tainted VLI
+....
+EIP is at idefloppy_input_buffers+0x34/0x120
+....
+Call Trace:
+[<c025e5a2>] idefloppy_pc_intr+0x212/0x2d0
+[<c0127602>] update_one_process+0xb2/0x120
+[<c024cb7b>] ide_intr+0xeb/0x190
+[<c025e390>] idefloppy_pc_intr+0x0/0x2d0
+[<c010c7aa>] handle_IRQ_event+0x3a/0x70
+[<c010cb31>] do_IRQ+0x91/0x130
+......
 
-Maybe I'm blind but I don't see 8180 wireless support at all there.
-
-They have for a driver whose zipfile is called "8139cp".  You unpack it 
-and it's an ancient 8139too.c with 8139C+ support added :)
-
-But no 8180 support?
-
-	Jeff
-
-
+Regards
+	Panagiotis Papadakos
 

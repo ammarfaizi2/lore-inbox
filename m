@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbRGSXm7>; Thu, 19 Jul 2001 19:42:59 -0400
+	id <S266263AbRGSXpt>; Thu, 19 Jul 2001 19:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266263AbRGSXmu>; Thu, 19 Jul 2001 19:42:50 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:4077 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id <S266224AbRGSXmo>; Thu, 19 Jul 2001 19:42:44 -0400
-Date: Thu, 19 Jul 2001 18:53:21 -0500
-From: Andrew Friedley <saai@swbell.net>
-Subject: Re: [PATCH] PPPOE can kfree SKB twice (was Re: kernel panic problem.
- (smp, iptables?))
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <003d01c110ad$fe41db40$0200a8c0@loki>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <005f01c10e69$28273e60$0200a8c0@loki>
- <15189.2408.59953.395204@pizda.ninka.net>
- <sb6r8vcg31q.fsf@slug.watson.ibm.com>
- <15191.27007.837441.266822@pizda.ninka.net>
-X-Priority: 3
+	id <S266271AbRGSXpj>; Thu, 19 Jul 2001 19:45:39 -0400
+Received: from [198.99.130.100] ([198.99.130.100]:63617 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S266263AbRGSXp2>;
+	Thu, 19 Jul 2001 19:45:28 -0400
+Message-Id: <200107192245.f6JMjcR08865@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7pre8aa1 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 19 Jul 2001 18:45:38 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hey, I'm having trouble applying your first patch to kernel 2.4.6.  I have a
-list of 18 failed hunks.
-The command I used is: cd /usr/src/linux && patch -Np0 -i
-/home/arch/pppoe-davidmiller.patch  Is the patch for a different kernel? I
-had the same problem applying it to 2.4.7-pre8.
+> Only in 2.4.7pre6aa1: 51_uml-ac-to-aa-2.bz2
+> Only in 2.4.7pre8aa1/: 51_uml-ac-to-aa-3.bz2
+>         Moved part of it in the tux directory so it can compile
+>         without tux (in reality I got errno compilation error
+>         but it's low prio and I'll sort it out later, Jeff Dike any
+>         hint is welcome ;).
 
-Andrew Friedley
+This is the patch I sent to Alan a while back which works around the problem.
+
+rmk suggested a better way which I'll add at some point.
+
+				Jeff
 
 
-> Michal Ostrowski writes:
->  > Alexey replied to my last post with some valuable comments and in
->  > response I have a new patch (that goes on top of David Miller's patch
->  > from yesterday).
->
-> Applied to my tree, thanks.
->
-> Later,
-> David S. Miller
-> davem@redhat.com
+diff -Naur -X exclude-files ac_cur/arch/um/Makefile ac/arch/um/Makefile
+--- ac_cur/arch/um/Makefile	Mon Jul  9 13:05:03 2001
++++ ac/arch/um/Makefile	Mon Jul  9 13:26:21 2001
+@@ -20,6 +20,8 @@
+ LINK_PROFILE = $(PROFILE) -Wl,--wrap,__monstartup
+ endif
+ 
++CFLAGS := $(subst -fno-common,,$(CFLAGS))
++
+ SUBDIRS += $(ARCH_DIR)/fs $(ARCH_DIR)/drivers $(ARCH_DIR)/kernel \
+ 	$(ARCH_DIR)/sys-$(SUBARCH)
 
 

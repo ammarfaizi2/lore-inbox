@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264039AbTFHXWI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 19:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbTFHXWI
+	id S264061AbTFHXlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 19:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTFHXlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 19:22:08 -0400
-Received: from codepoet.org ([166.70.99.138]:29654 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S264039AbTFHXWG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 19:22:06 -0400
-Date: Sun, 8 Jun 2003 17:35:46 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
+	Sun, 8 Jun 2003 19:41:49 -0400
+Received: from daffy.hulpsystems.net ([64.246.21.252]:57480 "EHLO
+	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S264061AbTFHXls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 19:41:48 -0400
 Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030608233546.GA11064@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: Hakan Lennestal <hakanl@cdt.luth.se>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.53.0306090106220.10922@delta1>
+References: <Pine.GSO.4.53.0306090106220.10922@delta1>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-I+90lm4syNgYJlrl5U8M"
+Organization: 
+Message-Id: <1055116508.26305.67.camel@loke>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Jun 2003 01:55:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jun 2003 21:53:14 -0600, Erik Andersen wrote:
-> I went through a similar exercise several weeks ago when I saw
-> the thread on the l-k mailing list.  It took just a fix minutes
-> to extract the linux kernel and cramfs filesystem from their
-> firmware.  Linksys is indeed shipping BusyBox and the Linux
 
-BTW, this is what I did to open up the Linksys rom...
+--=-I+90lm4syNgYJlrl5U8M
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-    #!/bin/sh
+On Mon, 2003-06-09 at 01:25, Hakan Lennestal wrote:
+> A possible common source for wlan router software ?
+>=20
+> Linux drivers, etc for Broadcom wlan chipsets
+> is to be found within the AirForce program from Broadcom.
+> The OneDriver infrastucture concept offers drivers
+> for Linux and VxWorks.
 
-    wget ftp://ftp.linksys.com/pub/network/WRT54G_1.02.1_US_code.bin
+Yes, but nobody can get his hands on this. Broadcom doesn't reply on reques=
+ts.
 
-    # I noticed a GZIP signature for a file name "piggy" at offset
-    # 60 bytes from the start, suggesting we have a compressed Linux
-    # kernel
-    dd if=WRT54G_1.02.1_US_code.bin bs=60 skip=1 | zcat > kernel
-
-    # Noticed there was a cramfs magic signature (bytes 45 3D CD 28
-    followed shortly by "Compressed ROMFS") at offset 786464
-    dd if=WRT54G_1.02.1_US_code.bin of=cramfs.image bs=786464 skip=1
-    file cramfs.image
-
-    sudo mount -o loop,ro -t cramfs ./cramfs.image /mnt 
-    ls -la /mnt/bin
-    file /mnt/bin/busybox
-    strings /mnt/bin/busybox | grep BusyBox
-    # Use uClibc's ldd to get useful answers for non-x86 binaries
-    /usr/i386-linux-uclibc/bin/i386-uclibc-ldd /mnt/bin/busybox
-
- -Erik
-
+Regards,
+Martin List-Petersen
+martin at list-petersen dot dk
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Preserve the old, but know the new.
+
+
+--=-I+90lm4syNgYJlrl5U8M
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+48zczAGaxP8W1ugRAseUAJ4tQcsHHku5PUGYzZWjiOWSuLQ/ZQCgyH6a
+nNd9Q6Nv+WcrZD/lb5DGH8A=
+=mBn9
+-----END PGP SIGNATURE-----
+
+--=-I+90lm4syNgYJlrl5U8M--
+

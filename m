@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265592AbUFDEeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265586AbUFDEkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265592AbUFDEeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 00:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbUFDEeZ
+	id S265586AbUFDEkt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 00:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbUFDEkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 00:34:25 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:60321 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265592AbUFDEdp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 00:33:45 -0400
-Subject: Re: idebus setup problem (2.6.7-rc1)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Herbert Poetzl <herbert@13thfloor.at>, "Zhu, Yi" <yi.zhu@intel.com>,
-       Auzanneau Gregory <mls@reolight.net>, Jeff Garzik <jgarzik@pobox.com>,
+	Fri, 4 Jun 2004 00:40:49 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:25183 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265586AbUFDEkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 00:40:47 -0400
+Message-ID: <40BFFD4B.1090502@yahoo.com.au>
+Date: Fri, 04 Jun 2004 14:40:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Paul Jackson <pj@sgi.com>,
        lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200406032344.19152.bzolnier@elka.pw.edu.pl>
-References: <3ACA40606221794F80A5670F0AF15F8403BD54FE@PDSMSX403.ccr.corp.intel.com>
-	 <20040603213115.GA1107@MAIL.13thfloor.at>
-	 <200406032344.19152.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1086323563.29391.1039.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 04 Jun 2004 14:32:43 +1000
+Subject: Re: [PATCH] cpumask 10/10 optimize various uses of new cpumasks
+References: <20040603094339.03ddfd42.pj@sgi.com>	 <20040603101115.7f746d98.pj@sgi.com> <1086323259.29381.1036.camel@bach>
+In-Reply-To: <1086323259.29381.1036.camel@bach>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-04 at 07:44, Bartlomiej Zolnierkiewicz wrote:
-> On Thursday 03 of June 2004 23:31, Herbert Poetzl wrote:
-> > On Thu, Jun 03, 2004 at 10:05:08PM +0800, Zhu, Yi wrote:
-> > > Rusty Russell wrote:
-> > > > Dislike this idea.  If you have hundreds of parameters, maybe it's
-> > > > supposed to be a PITA?
-> > >
-> > > What's your idea to make module_param support alterable param
-> > > names like ide3=xxx ?
-> >
-> > hmm, what about making all those something like:
-> >
-> > 	ide=3:foo,bar;4:wossname
+Rusty Russell wrote:
+> On Fri, 2004-06-04 at 03:11, Paul Jackson wrote:
 > 
-> We are in stable kernel and in 2.7 'idex=' and 'hdx=' will die.
+>>cpumask 10/10 optimize various uses of new cpumasks
+>>
+>>        Make use of for_each_cpu_mask() macro to simplify and optimize
+>>        a couple of sparc64 per-CPU loops.
+> 
+> 
+> This means we can finally do this, too... Yes!
+> 
+> Name: Cleanup cpumask_t Temporaries
+> Status: Booted on 2.6.7-rc2-bk4
+> Depends: Misc/cpumask-tour-de-force.patch.gz
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> Paul Jackson's cpumask tour-de-force allows us to get rid of those
+> stupid temporaries which we used to hold CPU_MASK_ALL to hand them to
+> functions.  This used to break NR_CPUS > BITS_PER_LONG.
 
-Yes, and if you want to clean this up for 2.6, I'd recommend simply
-putting twenty module_param_call() lines.
+Actually I think this was already possible as of a couple of
+months ago, but thanks for doing the cleanup :)
 
-It's ugly, but that's because it's doing ugly things, IMHO, and I don't
-think Bart would disagree?
+Fix was embarrassingly simple as pointed out by Linus:
 
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+-#define CPU_MASK_ALL	{ {[0 ... CPU_ARRAY_SIZE-1] = ~0UL} }
+-#define CPU_MASK_NONE	{ {[0 ... CPU_ARRAY_SIZE-1] =  0UL} }
++#define CPU_MASK_ALL	((cpumask_t) { {[0 ... CPU_ARRAY_SIZE-1] = ~0UL} })
++#define CPU_MASK_NONE	((cpumask_t) { {[0 ... CPU_ARRAY_SIZE-1] =  0UL} })

@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266120AbUGTSe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266126AbUGTSiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266120AbUGTSe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 14:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUGTSe2
+	id S266126AbUGTSiN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 14:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUGTSiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 14:34:28 -0400
-Received: from thunderdog.allegientsystems.com ([208.251.178.238]:38294 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id S266115AbUGTSe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 14:34:26 -0400
-Message-ID: <40FD65C2.7060408@optonline.net>
-Date: Tue, 20 Jul 2004 14:34:42 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Pavel Machek <pavel@suse.cz>, linux-scsi@vger.kernel.org,
-       random1@o-o.yi.org, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: device_suspend() levels [was Re: [patch] ACPI work on aic7xxx]
-References: <40FD38A0.3000603@optonline.net> <20040720155928.GC10921@atrey.karlin.mff.cuni.cz> <40FD4CFA.6070603@optonline.net> <20040720174611.GI10921@atrey.karlin.mff.cuni.cz> <40FD6002.4070206@optonline.net> <1090347939.1993.7.camel@gaston>
-In-Reply-To: <1090347939.1993.7.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jul 2004 14:38:13 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:30778 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266126AbUGTSiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:38:03 -0400
+Date: Tue, 20 Jul 2004 20:38:00 +0200
+Message-Id: <200407201838.i6KIc0CG015389@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 464] m68k sparse void return
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+M68k: Don't return anything in functions returning void (found by sparse)
 
-> 2 comments here:
-> 
->  - The low level bus state (PCI D state for example) and the "linux"
-> state should be 2 different entities.
-> 
->  - For PCI, we probably want a hook so the arch can implement it's own
-> version of pci_set_power_state() so that ACPI can use it's own trickery
-> there.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Ok, so the takeaway message for driver writers is to treat the 
-pci_dev->suspend() state parameter as an opaque value as far as 
-possible, and just pass it on to the other layers
+--- linux-2.6.8-rc2/arch/m68k/mac/macints.c	2004-05-24 11:13:22.000000000 +0200
++++ linux-m68k-2.6.8-rc2/arch/m68k/mac/macints.c	2004-07-10 21:06:54.000000000 +0200
+@@ -545,7 +545,8 @@
+ #endif
+ 
+ 	if (irq < VIA1_SOURCE_BASE) {
+-		return cpu_free_irq(irq, dev_id);
++		cpu_free_irq(irq, dev_id);
++		return;
+ 	}
+ 
+ 	if (irq >= NUM_MAC_SOURCES) {
+--- linux-2.6.8-rc2/arch/m68k/mm/kmap.c	2004-04-28 16:08:20.000000000 +0200
++++ linux-m68k-2.6.8-rc2/arch/m68k/mm/kmap.c	2004-07-10 21:06:54.000000000 +0200
+@@ -45,7 +45,7 @@
+ 
+ static inline void free_io_area(void *addr)
+ {
+-	return vfree((void *)(PAGE_MASK & (unsigned long)addr));
++	vfree((void *)(PAGE_MASK & (unsigned long)addr));
+ }
+ 
+ #else
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

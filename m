@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269824AbRHET6G>; Sun, 5 Aug 2001 15:58:06 -0400
+	id <S270004AbRHEUKi>; Sun, 5 Aug 2001 16:10:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269997AbRHET55>; Sun, 5 Aug 2001 15:57:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21005 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269824AbRHET5s>; Sun, 5 Aug 2001 15:57:48 -0400
-Subject: Re: Problems with 2.4.7-ac6 + SMP + FastTrak100
-To: arnvid@karstad.org (Arnvid Karstad)
-Date: Sun, 5 Aug 2001 20:59:47 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010805210628.B856.ARNVID@karstad.org> from "Arnvid Karstad" at Aug 05, 2001 09:23:21 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269997AbRHEUK2>; Sun, 5 Aug 2001 16:10:28 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:19727 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S270002AbRHEUKO>; Sun, 5 Aug 2001 16:10:14 -0400
+Date: Sun, 5 Aug 2001 15:40:39 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Mike Black <mblack@csihq.com>,
+        Ben LaHaise <bcrl@redhat.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <996985193.982.7.camel@gromit>
+Message-ID: <Pine.LNX.4.21.0108051540010.10618-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15TU3v-0008HH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I rebuilt my kernel 2.4.7 after applied Alan Cox patch 6 to get FastTrak
-> 100 support in my kernel. The kernel boots fine up until after it's
-> freeing memory used by kernel with the following printout..
-> 
-> 
-> Freeing unused kernel memory: 236kbytes
-> Invalid operand: 0000
-> CPU:0
-> EIP: 0010:[<c010ca24>]
-> EFALGS: 00010206
-> ... then all the registers
 
-If yo can grab the EIP and the calltrace after the thunderstorm, then look
-them up in System.map that would be great. Also see if disabling pnpbios
-support helps
+
+On 5 Aug 2001, Michael Rothwell wrote:
+
+> On 04 Aug 2001 10:08:56 -0700, Linus Torvalds wrote:
+> > 
+> > On Sat, 4 Aug 2001, Mike Black wrote:
+> > >
+> > > I'm testing 2.4.8-pre4 -- MUCH better interactivity behavior now.
+> > 
+> > Good.. However.. [...]  before we get too happy about the interactive thing, let's
+> > remember that sometimes interactivity comes at the expense of throughput,
+> > and maybe if we fix the throughput we'll be back where we started.
+> 
+> Could there be both interactive and throughput optimizations, and a way
+> to choose one or the other at run-time? Or even just at compile time? 
+
+You can increase the queue size (somewhere in drivers/block/ll_rw_block.c)
+to get higher throughtput.
+
+

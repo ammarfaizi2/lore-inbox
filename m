@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSGLTAz>; Fri, 12 Jul 2002 15:00:55 -0400
+	id <S316832AbSGLTDt>; Fri, 12 Jul 2002 15:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316820AbSGLTAy>; Fri, 12 Jul 2002 15:00:54 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:7563 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316705AbSGLTAx>; Fri, 12 Jul 2002 15:00:53 -0400
-Date: Fri, 12 Jul 2002 12:03:27 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Martin MOKREJ? <mmokrejs@natur.cuni.cz>
-Cc: Thunder from the hill <thunder@ngforever.de>,
-       Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Missing files in 2.4.19-rc1
-Message-ID: <20020712190327.GM695@opus.bloom.county>
-References: <20020712185023.GL695@opus.bloom.county> <Pine.OSF.4.44.0207122052150.281934-100000@tao.natur.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.44.0207122052150.281934-100000@tao.natur.cuni.cz>
-User-Agent: Mutt/1.4i
+	id <S316840AbSGLTDt>; Fri, 12 Jul 2002 15:03:49 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58775 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S316832AbSGLTDq>; Fri, 12 Jul 2002 15:03:46 -0400
+Date: Fri, 12 Jul 2002 21:06:12 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Martin Dalecki <dalecki@evision-ventures.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <3D2F20DD.1030704@zytor.com>
+Message-ID: <Pine.SOL.4.30.0207122051280.21379-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12, 2002 at 08:54:46PM +0200, Martin MOKREJ? wrote:
-> On Fri, 12 Jul 2002, Tom Rini wrote:
-> 
-> > On Fri, Jul 12, 2002 at 08:39:18PM +0200, Martin MOKREJ? wrote:
+
+On Fri, 12 Jul 2002, H. Peter Anvin wrote:
+
+> Linus Torvalds wrote:
 > >
-> > > `make dep` gave again:
-> > [snip]
-> > > au1000_gpio.c:41: asm/au1000.h: No such file or directory
-> > > au1000_gpio.c:42: asm/au1000_gpio.h: No such file or directory
+> > On Fri, 12 Jul 2002, Martin Dalecki wrote:
 > >
-> > These aren't an issue, since you're not compiling for MIPS, and that's
-> > for the MIPS-specific au1000 GPIO driver.  And those files aren't
-> > missing on MIPS.
-> 
-> Hmm, I just tried with plain 2.4.18 extracted and have the same problem.
-> Should I just ignore `make dep` errors and just compile? Probably yes,
-> as I'm running 2.4.10-pre2 for some months now with no real troubles
-> anyway.
+> >>So Linus what's your opinnion please?
+> >
+> >
+> > I will violently oppose anything that implies that the IDE layer uses the
+> > SCSI layer normally.  No way, Jose. I'm all for scrapping, but the thing
+> > that should be scrapped is ide-scsi.
+> >
+> > The higher layers already have much of what the SCSI layer does, and the
+> > SCSI layer itself is slowly moving in that direction.
+>
+> Then *please* make a *compatible* interface available to user space.
+> This certainly can be done; the parallel port IDE interface stuff had
+> exactly such an interface (/dev/pg*) -- we could have a /dev/hg*
+> interface presumably.  That is an acceptable solution.
+>
+> Note again that this discussion (and it's a discussion, not a voting
+> session -- technical pros and cons is what applies) apply to ATAPI (SCSI
+> over IDE) only.  Alan has already brought up the fact of non-hard disk
 
-Yes, since they aren't errors, they're warnings really.
+Please stop calling ATAPI as SCSI over IDE, it is not. It is Packet
+Interface over ATA (IDE). Some ATAPI/SCSI devices are functionally
+equivalent because they support the same command set (i.e. MMC).
 
-> But the source tree is broken, right? ;-)
+> non-ATAPI devices, and IMO those devices are explicitly out of scope.
+> Maturity of drivers is another, but right now we're suffering through
+> having to deal with multiple drivers for the same hardware, or with user
 
-No.  'make dep' goes and does dependancies on every single file in the
-tree (except inside of arch/ where we only go into arch/$(ARCH)) so for
-drivers which are specific to certain arches, you might get warnings for
-files which don't exit on your $ARCH, but aren't selectible anyhow.
+Where multiple means two? ;-)
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> space having to choose different interfaces depending on connection
+> interface, and either which way that's pretty pathetic.
+
+It is in fact. Generic higher level interface is a solution.
+
+Greets
+--
+Bartlomiej
+
+>
+> 	-hpa
+
+

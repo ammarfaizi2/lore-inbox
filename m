@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVAaVFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVAaVEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVAaVFD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVAaVE4
+	id S261375AbVAaVEw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVAaVEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:04:56 -0500
-Received: from mail.joq.us ([67.65.12.105]:65171 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261368AbVAaVC5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:02:57 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] sched - Implement priority and fifo support for
- SCHED_ISO
-References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>
-	<41FE9582.7090003@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Mon, 31 Jan 2005 15:04:46 -0600
-In-Reply-To: <41FE9582.7090003@kolivas.org> (Con Kolivas's message of "Tue,
- 01 Feb 2005 07:30:58 +1100")
-Message-ID: <87is5dia35.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 31 Jan 2005 16:04:37 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:42896 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261373AbVAaVEG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 16:04:06 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16894.40247.701998.555392@tut.ibm.com>
+Date: Mon, 31 Jan 2005 15:03:51 -0600
+To: karim@opersys.com
+Cc: Tom Zanussi <zanussi@us.ibm.com>, Andi Kleen <ak@muc.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
+Subject: Re: [PATCH] relayfs redux, part 2
+In-Reply-To: <41FE89E0.9030802@opersys.com>
+References: <16890.38062.477373.644205@tut.ibm.com>
+	<m1d5volksx.fsf@muc.de>
+	<16892.26990.319480.917561@tut.ibm.com>
+	<20050131125758.GA23172@muc.de>
+	<16894.23610.315929.805524@tut.ibm.com>
+	<41FE89E0.9030802@opersys.com>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+Karim Yaghmour writes:
+ > 
+ > Tom Zanussi wrote:
+ > > OK, makes sense to me - I'll get rid of relay_reserve and replace it
+ > > with the simple putc write and variant.
+ > 
+ > Please don't do that. Instead, bring back the ad-hoc mode code, that's
+ > what is was for anyway.
+ > 
 
-> Jack O'Quin wrote:
->> Loading the realtime-lsm and then running with SCHED_FIFO *does* work
->> as expected on this kernel.  I should retry the test with *exactly*
->> the expected patch sequence.  What would that be?
->
-> Sure enough I found the bug in less than 5 mins, and it would
-> definitely cause this terrible behaviour.
->
-> A silly bracket transposition error on my part :P
+I don't think they need to be mutually exclusive - we could keep
+relay_reserve(), but the relay_write() that's currently built on top
+of relay_reserve() would use the putc code instead.  It's complicating
+the API a bit, but if it makes everyone happy...
 
-Cool.  I'll try that right away.
--- 
-  joq
+Tom
+

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319631AbSIMM5g>; Fri, 13 Sep 2002 08:57:36 -0400
+	id <S319634AbSIMM5m>; Fri, 13 Sep 2002 08:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319634AbSIMM5g>; Fri, 13 Sep 2002 08:57:36 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:31906 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S319631AbSIMM5f> convert rfc822-to-8bit; Fri, 13 Sep 2002 08:57:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Vishal <vishal@naturesoft.net>, linux-kernel@vger.kernel.org
-Subject: Re: building a very basic minimal LINUX.
-Date: Fri, 13 Sep 2002 08:01:33 -0500
-User-Agent: KMail/1.4.1
-References: <1031904489.2888.138.camel@vishal.naturesoft.com>
-In-Reply-To: <1031904489.2888.138.camel@vishal.naturesoft.com>
+	id <S319635AbSIMM5m>; Fri, 13 Sep 2002 08:57:42 -0400
+Received: from denise.shiny.it ([194.20.232.1]:24998 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S319634AbSIMM5k>;
+	Fri, 13 Sep 2002 08:57:40 -0400
+Message-ID: <XFMail.20020913150221.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209130801.33326.pollard@admin.navo.hpc.mil>
+In-Reply-To: <3D81C3EF.9509A4D0@aitel.hist.no>
+Date: Fri, 13 Sep 2002 15:02:21 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Subject: Re: Killing/balancing processes when overcommited
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 September 2002 03:08 am, Vishal wrote:
-> Hi all,
->   i want to start work on building a base linux system(i386 machine,32MB
-> flash,with networking support) to be installed on flash for an embedded
-> system. Can anyone direct me to any information\docs\ideas for starting
-> off with such work?.
->   Thanks in advance.
-> regards,
-> Vishal
 
-Check the router project. I think the foundation you want is there
-in that all the utilities for network support (plus a few more for
-maintenance) is already done.
+> This is hard to setup, and has the some weaknesses:
+> 1. You worry only about apps you _know_.  But the guy who got
+> his netscape or make -j killed will rename his
+> copies of these apps to something else so your carefully
+> set up oom killer won't know what is running.
+> (How much memory is the "mybrowser" app supposed to use?)
+> Or he'll get another software package that you haven't heard of.
+>
+> 2. Lots and lots of people running netscapes using
+> only 70M each will still be too much.  Think of
+> a university with xterms and then they all
+> goes to cnn.com or something for the latest news
+> about some large event.
+>
+> Even nice well-behaved apps
+> is bad when there is unusually many of them. [...]
 
-You may want to add some interpreters (perl, python,tcl/tk) or
-whatever embeded application you have, but that would make
-for a fairly usable system.
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+That's obvious. The point is that the sysadmin should be
+able to hint the oom killer as much as possible.
+The current linux/mm/oom_kill.c:badness() takes into account
+many factors. The sysadmin should be able to affect the
+badness calculation on process/user/something basis.
 
-Any opinions expressed are solely my own.
+
+
+Bye.
+

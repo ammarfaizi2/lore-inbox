@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290309AbSAPAvr>; Tue, 15 Jan 2002 19:51:47 -0500
+	id <S290312AbSAPAx5>; Tue, 15 Jan 2002 19:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290308AbSAPAvj>; Tue, 15 Jan 2002 19:51:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:33201 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S290313AbSAPAv0>;
-	Tue, 15 Jan 2002 19:51:26 -0500
-Date: Wed, 16 Jan 2002 03:48:51 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] O(1) scheduler-H6/H7/I0 and nice +19
-In-Reply-To: <20020116004452.7C241CCB54@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0201160343230.30495-100000@localhost.localdomain>
+	id <S289804AbSAPAxu>; Tue, 15 Jan 2002 19:53:50 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:3974 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S290312AbSAPAxE>; Tue, 15 Jan 2002 19:53:04 -0500
+Date: Tue, 15 Jan 2002 19:51:44 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Wakko Warner <wakko@animx.eu.org>
+cc: "J.A. Magallon" <jamagallon@able.es>, <linux-kernel@vger.kernel.org>
+Subject: Re: Unable to compile 2.4.14 on alpha
+In-Reply-To: <20020115190344.A20283@animx.eu.org>
+Message-ID: <Pine.LNX.4.44.0201151926580.9754-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 15 Jan 2002, Ed Tomlinson wrote:
+	Hello Wakko ,
 
-> OK I3 also works fine with respect to my nice test. [...]
+On Tue, 15 Jan 2002, Wakko Warner wrote:
+ ...snip...
+> just out of curiosity, I have this dac960 controller with alpha 2.70
+> firmware.  I know it says it needs 2.73, but the latest for alpha is 2.70.
+> Any ideas if it'll work or not?
+	Nope ,  The linux DAC960 driver needs 3.51-0-04 for dual flash .
+	Or 2.73-0-00 for single flash .  And beleive me Leonard means what
+	he put in the README.DAC960 file .
+	2.73 usability is new to me as when one of these dropped into my
+	hands all the driver supported was the Dual 3.51... firmware .
+	Using either of the above will work on Linux ,  BUT not alpha
+	vms/osf/nt .
+	The cost for the items from Mylex isn't reasonable imo .  But if
+	you want it & have a flash burner , Get two just like on the card
+	now & download the firmware & burn it .  Don't get the XDBA
+	version as IIRC the alpha boards don't support it .  But do check
+	if MB you have does .  Might get lucky .
 
-good!
+> If I loose the contents of everything on this sytem, fine, I have another
+> disk with the system on it so I won't loose anything.  =)
 
-> Watching with top 's 0.3' I can see them lose priority in the 3-10
-> seconds it takes them to setup.  This is not that critical if they are
-> the only thing trying to run.  If you have another (not niced) task
-> eating cpu (like a kernel compile)  then intactive startup time
-> suffers.  Startup time is wait time that _is_ noticed by users.
+>  Lab tests show that use of micro$oft causes cancer in lab animals
+	And other living things !-)  Hth ,  JimL
 
-well, the kernel needs some 'proof' that a task is interactive, before it
-gives it special attention.
-
-the scheduler will give newly started up tasks some credit (if the parent
-is interactive), but if they take too long to start up then there is
-nothing it can do but to penalize them.
-
-> Is there some way we could tell the scheduler or the scheduler could
-> learn that a given _program_ is usually interactive so it should wait
-> at bit (10 seconds on my box would work) before starting to increase
-> its priority numbers?
-
-there is a way: renicing. Either use nice +19 on the compilation job or
-use nice -5 on the 'known good' tasks. Perhaps we should allow a nice
-decrease of up to -5 from the default level - and things like KDE or Gnome
-could renice interactive tasks, while things like compilation jobs would
-run on the default priority.
-
-	Ingo
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVBQAOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVBQASs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbVBQAOr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 19:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVBQAOr
+	id S262162AbVBQASs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 19:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVBQASs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 19:14:47 -0500
-Received: from nabe.tequila.jp ([211.14.136.221]:57516 "HELO nabe.tequila.jp")
-	by vger.kernel.org with SMTP id S262160AbVBQAOm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 19:14:42 -0500
-Message-ID: <4213E1E9.8010609@tequila.co.jp>
-Date: Thu, 17 Feb 2005 09:14:33 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "d.c" <aradorlinux@yahoo.es>
-CC: kernel@crazytrain.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-References: <20050214020802.GA3047@bitmover.com>	<58cb370e05021404081e53f458@mail.gmail.com>	<20050214150820.GA21961@optonline.net>	<20050214154015.GA8075@bitmover.com>	<7579f7fb0502141017f5738d1@mail.gmail.com>	<20050214185624.GA16029@bitmover.com>	<1108469967.3862.21.camel@crazytrain>	<42131637.2070801@tequila.co.jp> <20050216163923.54929d52.aradorlinux@yahoo.es>
-In-Reply-To: <20050216163923.54929d52.aradorlinux@yahoo.es>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Feb 2005 19:18:48 -0500
+Received: from FLA1Aah135.kng.mesh.ad.jp ([61.193.101.135]:42211 "EHLO
+	yamt.dyndns.org") by vger.kernel.org with ESMTP id S262162AbVBQASq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 19:18:46 -0500
+To: oda@valinux.co.jp
+Cc: ebiederm@xmission.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /proc/cpumem
+In-Reply-To: Your message of "Wed, 16 Feb 2005 17:49:51 +0900"
+	<20050216170224.4C66.ODA@valinux.co.jp>
+References: <20050216170224.4C66.ODA@valinux.co.jp>
+X-Mailer: Cue version 0.8 (041105-2302/takashi)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Date: Thu, 17 Feb 2005 09:17:15 +0900
+Message-Id: <1108599435.484439.5660.nullmailer@yamt.dyndns.org>
+From: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+hi,
 
-On 02/17/2005 12:39 AM, d.c wrote:
-> El Wed, 16 Feb 2005 18:45:27 +0900,
-> Clemens Schwaighofer <cs@tequila.co.jp> escribió:
-> 
-> 
->>than mature VCS. Apache group is switching to it, gcc people are
->>strongly thinking about it, and those two are _huge_ projects with tons
->>of developers, patches, trunks, etc.
-> 
-> 
-> ....and all of them work today with CVS, so any SCM will fit their purposes.
+> +	while (addr < end) {
+> +		if (valid_phys_addr_range(addr, &size)) {
+> +			if (!found) {
+> +				found = 1;
+> +				p->addr = addr;
+> +				p->size = size;
+> +			} else {
+> +				p->size += size;
+> +			}
+> +			addr += size;
+> +			size = 0xf0000000;
+> +		} else {
+> +			if (found) {
+> +				return p;
+> +			}
+> +			addr += PAGE_SIZE;
+> +		}
+> +	}
 
-so, your point it is, because linux used none before, none than bk fit?
+doesn't this loop take very long time if you have a large hole?
 
-- --
-[ Clemens Schwaighofer                      -----=====:::::~ ]
-[ TBWA\ && TEQUILA\ Japan IT Group                           ]
-[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
-[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
-[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+i'd suggest to change valid_phys_addr_range to fill &size even when
+it returns false, so that caller can skip the hole efficiently.
 
-iD8DBQFCE+HpjBz/yQjBxz8RAr8lAJ4w6TK0c7H1fjs178Y9Q0Mr4hdGBgCg32cT
-LUSf7DWy++w+cczaHpeEnIs=
-=zRM5
------END PGP SIGNATURE-----
+YAMAMOTO Takashi

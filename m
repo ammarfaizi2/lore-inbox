@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132308AbQKWMpV>; Thu, 23 Nov 2000 07:45:21 -0500
+        id <S129153AbQKWNJs>; Thu, 23 Nov 2000 08:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132352AbQKWMpL>; Thu, 23 Nov 2000 07:45:11 -0500
-Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:9894 "EHLO
-        old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
-        id <S132308AbQKWMo6>; Thu, 23 Nov 2000 07:44:58 -0500
-Message-ID: <3A1CFC1C.305C5C1E@ftel.co.uk>
-Date: Thu, 23 Nov 2000 11:14:36 +0000
-From: Paul Flinders <P.Flinders@ftel.co.uk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+        id <S129859AbQKWNJj>; Thu, 23 Nov 2000 08:09:39 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:39697 "EHLO saturn.cs.uml.edu")
+        by vger.kernel.org with ESMTP id <S129153AbQKWNJ2>;
+        Thu, 23 Nov 2000 08:09:28 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200011231239.eANCd1S199359@saturn.cs.uml.edu>
+Subject: Re: silly [< >] and other excess
+To: kaos@ocs.com.au (Keith Owens)
+Date: Thu, 23 Nov 2000 07:39:00 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        rmk@arm.linux.org.uk (Russell King), Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3870.974948601@kao2.melbourne.sgi.com> from "Keith Owens" at Nov 23, 2000 02:03:21 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: becker@scyld.com
-CC: linux-kernel@vger.kernel.org
-Subject: Problems with DFE-550 & Sundance driver
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The sundance driver in 2.4.0-test11 doesn't seem to like a DFE-550
-that I have
+Keith Owens writes:
+> "Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
 
-On module installation te driver identifies the card but cant  find any
-PHYs, also if I remove the module afterwards I can't reinsert it.
+>> The hard part of klogd/ksymoops is decoding the code bytes AFAIK.
+>> The rest is a just a cross between grep and ps -- you search and
+>> you do symbol lookups. I could throw it together in a few hours,
+>> minus the disassembly part.
+>
+> Take a look at the code in ksymoops oops.c before you make rash
+> statements like that.  It has to handle _all_ architecture messages,
+> including cross arch debugging.
 
-Any suggestions?
+I looked. I'm sure that was hard to write, but I don't agree
+that it is needed. If you miss one of the zillions of kernel
+data formats, then you can't properly handle the data.
 
-The messages are
+Also, cross-arch debugging is done by people who don't need tools
+like ksymoops anyway. Most likely they have half the opcodes
+memorized already, and they have the CPU manual open on their desk.
+Tools are needed so that regular users don't have to send the
+whole System.map file to linux-kernel.
 
-On installation:
-eth0: OEM Sundance Technology ST201 at 0xca858000, 00:50:ba:02:95:70, IRQ 11.
-eth0: No MII transceiver found!, ASIC status 62
+I threw together a semi-working prototype in a few hours.
+It is the worst code I ever wrote in my life, not even
+excluding stuff I wrote in Atari BASIC. It slurps down log
+files pretty well though, and proves "[<>]" is unneeded.
 
-On re-installation
-/lib/modules/2.4.0-test11/kernel/drivers/net/sundance.o: init_module: No such device
-Using /lib/modules/2.4.0-test11/kernel/drivers/net/sundance.o
-Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
+Nasty source:
+http://www.cs.uml.edu/~acahalan/linux/ogrep.tar.gz
+
+Compile:
+gcc -O2 -DOGREP -o ogrep *.c
+
+Example usage:
+ogrep -v 2.2.11 parser-god-sacrifice your-log-file
+
+Um, yeah, you have to sacrifice an argument to the parser gods.
+The built-in usage message is thus wrong. The ksyms parser is
+disabled, you get some extra blank lines, and invalid symbols
+print as "?" (the ps WCHAN behavior) instead of being suppressed.
+Non-i386 ought to work, provided that kernel pointers are not
+wider than usespace pointers. Performance needs work too.
+
+While the code is crap, it does prove that you don't need
+kernel code to put silly [<>] brackets around anything.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

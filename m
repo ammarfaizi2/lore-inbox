@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278149AbRJWSCZ>; Tue, 23 Oct 2001 14:02:25 -0400
+	id <S278151AbRJWSHp>; Tue, 23 Oct 2001 14:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278151AbRJWSCP>; Tue, 23 Oct 2001 14:02:15 -0400
-Received: from colorfullife.com ([216.156.138.34]:14091 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S278149AbRJWSCF>;
-	Tue, 23 Oct 2001 14:02:05 -0400
-Message-ID: <002601c15bec$ea4ed950$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1011023124944.14694A-100000@chaos.analogic.com>
-Subject: Re: Behavior of poll() within a module
-Date: Tue, 23 Oct 2001 20:02:42 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S278170AbRJWSHf>; Tue, 23 Oct 2001 14:07:35 -0400
+Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:48616 "EHLO
+	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S278151AbRJWSH1>; Tue, 23 Oct 2001 14:07:27 -0400
+Date: Tue, 23 Oct 2001 13:07:56 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+Message-ID: <20011023130756.A742@cy599856-a.home.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be> <3BD532EC.6080803@eisenstein.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BD532EC.6080803@eisenstein.dk>
+User-Agent: Mutt/1.3.23i
+X-Editor: GNU Emacs 20.7.2
+X-Operating-System: Debian GNU/Linux 2.4.12-ac5 i586 K6-3+
+X-Uptime: 13:02:21 up 0 min,  1 user,  load average: 0.57, 0.15, 0.05
+From: Josh McKinney <forming@home.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Richard B. Johnson" <root@chaos.analogic.com>
+On approximately Tue, Oct 23, 2001 at 11:05:48AM +0200, Jesper Juhl wrote:
 > 
-> In this module, there isn't any read() or write() event that can
-> clear the poll mask. Instead, the sole purpose of poll is to tell
-> the user-mode caller that there is new status available as a result
-> of an interrupt. This is a module that controls a motor. It runs
-> <forever> on its own. It gets new parameters via an ioctl(). It
-> reports exceptions (like overload conditions) using the poll
-> mechanism.
+> I use the same version of the driver with my Geforce3 and I am also 
+> running 2.4.13-pre6 and it works just fine so I don't agree with you 
+> that it breaks...
+> You do know that there are a few files that need to be recompiled every 
+> time you build a new kernel - right?
 > 
-> The caller reads the cached status via an ioctl(). Any caller sleeping
-> in poll must be awakened as a result of the interrupt event. Any caller
-> can read the cached status at any time. If this was allowed to
-> clear the poll mask, only one caller would be awakened. 
->
-Ugh.
-->poll must never change any state. The kernel is free to call poll
-multiple times (common are once, twice and three times).
 
-Can you use a per-filp pollmask?
-* remove poll_active
-* remove poll_mask
-* add event counters for every possible event.
-    poll_count_POLLIN, poll_count_POLLOUT, etc.
-* interrupt handler increases the counter.
-* ioctl() copies the value of the counters into
-    filp->private_data->event_handled_POLL{IN,OUT}
-* poll sets the pollmask if
-    filp->private_data->event_seen != info->poll_count
+I have replied to this person personally a when this thread started with what I
+think is the fix to his problem.  I have seen this error on my machine before.
+The problem arose when I compiled the running kernel with gcc-3.0.  At first I
+thought it was just gcc-3 breaking the kernel.  Then I realized that the nvidia
+modules use `cc` to compile.  The symlink to cc was gcc-2.95.  Changing the
+symlink to gcc-3.0 made the problem go away.
 
-If filps (file descriptors) are shared between apps, then I have no
-idea how to fix your design.
-
---
-    Manfred
-
+Josh
+-- 
+Linux, the choice                | The first Rotarian was the first man to
+of a GNU generation       -o)    | call John the Baptist "Jack."   -- H.L.
+Kernel 2.4.12-ac5          /\    | Mencken 
+on a i586                 _\_v   | 
+                                 | 

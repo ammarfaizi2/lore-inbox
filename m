@@ -1,55 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVBWUlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVBWUpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVBWUlr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVBWUlr
+	id S261566AbVBWUpq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVBWUpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:41:47 -0500
-Received: from kunet.com ([69.26.169.26]:47368 "EHLO kunet.com")
-	by vger.kernel.org with ESMTP id S261565AbVBWUlp (ORCPT
+	Wed, 23 Feb 2005 15:45:46 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:24615 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261566AbVBWUp0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:41:45 -0500
-Message-ID: <009d01c519e8$166768b0$7101a8c0@shrugy>
-From: "Ammar T. Al-Sayegh" <ammar@kunet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel BUG at mm/rmap.c:483!
-Date: Wed, 23 Feb 2005 15:41:38 -0500
+	Wed, 23 Feb 2005 15:45:26 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [BK PATCHES] 2.6.x libata fixes (mostly)
+Date: Wed, 23 Feb 2005 23:45:23 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Mark Lord <mlord@pobox.com>
+References: <421CE018.5030007@pobox.com>
+In-Reply-To: <421CE018.5030007@pobox.com>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-Id: <200502232345.23666.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Wednesday 23 February 2005 21:57, Jeff Garzik wrote:
 
-I recently installed Fedora RC3 on a new server.
-The kernel is 2.6.10-1.741_FC3smp. The server
-crashes every few days. When I examine /var/log/messages,
-I find the following line just before the crash:
+> This BK push includes additional hardware support, but that's only 
+> because it's (a) obviously low impact and (b) it was in the queue.
 
-Feb 22 23:50:35 hostname kernel: ------------[ cut here ]------------
-Feb 22 23:50:35 hostname kernel: kernel BUG at mm/rmap.c:483!
+> --- a/drivers/scsi/ahci.c
+> +++ b/drivers/scsi/ahci.c
 
-No further debug lines are given to diagnose the
-source of the problem.
+> +static u8 ahci_check_err(struct ata_port *ap)
+> +{
+> +	void *mmio = (void *) ap->ioaddr.cmd_addr;
 
-I have been using kernel 2.4 for few years now without
-any problem. This is the first time I see this problem
-with kernel 2.6. I'm not sure if this is related to
-the kernel itself, the new hardware, or some other
-installed software. I'm thinking about downgrading to
-kernel 2.4. Do you think this will resolve this issue?
-Any suggestion on what else I can do to mitigate this
-problem?
+void __iomem *
 
-Thanks.
+> +	return (readl(mmio + PORT_TFDATA) >> 8) & 0xFF;
 
+> --- a/drivers/scsi/libata-core.c
+> +++ b/drivers/scsi/libata-core.c
 
--ammar
+> + *	ata_qc_free - free unused ata_queued_cmd
+> + *	@qc: Command to complete
+
+"Command to free"?
+
+--- /dev/null
++++ b/drivers/scsi/sata_qstor.c
+
+> +	u8 *prd = pp->pkt + QS_CPB_BYTES;
+
+> +	for (nelem = 0; nelem < qc->n_elem; nelem++,sg++) {
+> +		u64 addr;
+> +		u32 len;
+
+> +		addr = sg_dma_address(sg);
+> +		*(u64 *)prd = cpu_to_le64(addr);
+
+*(__le64 *) prd
+
+> +		prd += sizeof(u64);
+
+> +		len = sg_dma_len(sg);
+> +		*(u32 *)prd = cpu_to_le32(len);
+
+*(__le32 *) prd
+
+> +		prd += sizeof(u64);
+
+Should this be "prd += sizeof(u32)"? Looks suspicious.
+
+> +static void qs_qc_prep(struct ata_queued_cmd *qc)
+> +{
+
+> +	*(u32 *)(&buf[ 4]) = cpu_to_le32(qc->nsect * ATA_SECT_SIZE);
+> +	*(u32 *)(&buf[ 8]) = cpu_to_le32(qc->n_elem);
+
+> +	*(u64 *)(&buf[16]) = cpu_to_le64(addr);
+
+__le* again...
+
+> +static void qs_ata_setup_port(struct ata_ioports *port, unsigned long base)
+> +{
+> +	port->cmd_addr		=
+
+> +	port->error_addr	=
+
+> +	port->status_addr	=
+
+> +	port->altstatus_addr	=
+
+Oo-oops...
+
+> +static int qs_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
+> +{
+
+> +	if (have_64bit_bus &&
+> +	    !pci_set_dma_mask(pdev, 0xffffffffffffffffULL)) {
+> +		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
+> +		if (rc) {
+> +			rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
+
+We already have DMA_{32,64}BIT_MASK.
+
+> +	} else {
+> +		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
+
+> +		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
+
+	Alexey

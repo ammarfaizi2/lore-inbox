@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264233AbRFFW4X>; Wed, 6 Jun 2001 18:56:23 -0400
+	id <S264232AbRFFXCD>; Wed, 6 Jun 2001 19:02:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264234AbRFFW4N>; Wed, 6 Jun 2001 18:56:13 -0400
-Received: from pat.uio.no ([129.240.130.16]:47283 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S264233AbRFFW4C>;
-	Wed, 6 Jun 2001 18:56:02 -0400
-To: "Phil Oester" <phil@theoesters.com>
+	id <S264234AbRFFXBy>; Wed, 6 Jun 2001 19:01:54 -0400
+Received: from druid.if.uj.edu.pl ([149.156.64.221]:14085 "HELO
+	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
+	id <S264232AbRFFXBn>; Wed, 6 Jun 2001 19:01:43 -0400
+Date: Thu, 7 Jun 2001 01:02:32 +0200 (CEST)
+From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+To: Kipp Cannon <kipp@sgl.crestech.ca>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: NFS caching issues on 2.4
-In-Reply-To: <LAEOJKHJGOLOPJFMBEFEEEFNDNAA.phil@theoesters.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 07 Jun 2001 00:55:58 +0200
-In-Reply-To: "Phil Oester"'s message of "Wed, 6 Jun 2001 13:48:48 -0700"
-Message-ID: <shs3d9dtdz5.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <Pine.GSO.4.05.10106061721140.27215-100000@s3.sgl.crestech.ca>
+Message-ID: <Pine.LNX.4.33.0106070057001.31904-100000@druid.if.uj.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Phil Oester <phil@theoesters.com> writes:
+On Wed, 6 Jun 2001, Kipp Cannon wrote:
 
-     > I've stumbled upon a wierd NFS caching issue on 2.4 which does
-     > not seem to exist in 2.2.  Our www docroot is NFS mounted on a
-     > NetApp 760.  We have a cron job which make changes to the
-     > index.html every 5 minutes.
+> If the kernel tells me the temperature is 1 (one) what should that mean?
+> If it's spitting out 0.1*<temperature in K> as people are claiming the
+> ACPI stuff does then 1 means 10 kelvin or 1 dekakelvin, not a
+>                                             ^^^^
+> decikelvin as other people are saying they would prefer to see used.  Or
+> are people being braindamaged and by "0.1*K" they mean that ACPI spits out
+> 10*<temperature in K>?  Which would then mean that everyone does agree
+> afterall that the unit should be a decikelvin although they don't
+> necessarily know what multiplication means :-).
 
-     > Recently, we upgraded all the web servers to 2.4 and noticed
-     > that there were big delays in seeing these 5 minute updates.
-     > Yet, an ls -l in the nfs directory on each of the servers
-     > clearly shows the new timestamp.  However, a cat of the file
-     > shows that it is the old version (sometimes up to 1 hour old).
-     > I was using NFSv3, so decided to try NFSv2, but got the same
-     > results.
+I do believe that by 0.1*K everyone means a basic unit of 0.1 K, i.e. with
+an int of 1 meaning 0.1 Kelvin, analogically 0.01*K meaning an int of 1
+means 0.01 Kelvin - hence the proper names of deci and centi-Kelvins.
 
-     > I reverted to 2.2.19 on the boxes (which are RedHat 7.1
-     > incidentally), and these problems went away.
+Perosnally I believe we should take normal (32 bit) ints (perhaps more on
+64bit architectures?) and encode using 0.001*K (i.e. miliKelvins),
+I do believe space is not an issue here and this leaves us the most
+precision and logical system - Farenhait is screwed, and
+Celsius/Centigrade are not to good since don't begin at absolute zero.
 
-     > Any ideas why this is happening?
+Anyway just my two cents.
 
-The main suspect would be if you're mmapping the file while the cron
-job updates your file on the server. This would means that the cache
-invalidation breaks (see all the conditions in
-invalidate_inode_pages()).
+Maciej.
 
-Cheers,
-  Trond

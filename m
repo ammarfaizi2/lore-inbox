@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVBOWNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVBOWPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVBOWNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 17:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVBOWNI
+	id S261915AbVBOWPA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 17:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVBOWO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 17:13:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65233 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261914AbVBOWNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 17:13:05 -0500
-Date: Tue, 15 Feb 2005 14:10:22 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: holt@sgi.com, haveblue@us.ibm.com, raybry@sgi.com, taka@valinux.co.jp,
-       hugh@veritas.com, akpm@osdl.org, marcello@cyclades.com,
-       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
- sys_page_migrate
-Message-Id: <20050215141022.3b99df87.pj@sgi.com>
-In-Reply-To: <16914.28795.316835.291470@wombat.chubb.wattle.id.au>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-	<1108242262.6154.39.camel@localhost>
-	<20050214135221.GA20511@lnx-holt.americas.sgi.com>
-	<1108407043.6154.49.camel@localhost>
-	<20050214220148.GA11832@lnx-holt.americas.sgi.com>
-	<20050215074906.01439d4e.pj@sgi.com>
-	<20050215162135.GA22646@lnx-holt.americas.sgi.com>
-	<20050215083529.2f80c294.pj@sgi.com>
-	<20050215185943.GA24401@lnx-holt.americas.sgi.com>
-	<16914.28795.316835.291470@wombat.chubb.wattle.id.au>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Feb 2005 17:14:59 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:16259 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261915AbVBOWOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 17:14:49 -0500
+Subject: Re: Pty is losing bytes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andreas Schwab <schwab@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0502151129210.5570@ppc970.osdl.org>
+References: <jebramy75q.fsf@sykes.suse.de>
+	 <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0502151129210.5570@ppc970.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1108505601.4915.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Feb 2005 22:13:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr Peter Chubb writes:
-> Can page migration be done lazily, instead of all at once?
+On Maw, 2005-02-15 at 19:44, Linus Torvalds wrote:
+> However, then when I start looking at n_tty_receive_room() and 
+> n_tty_receive_buf(), my stomach gets a bit queasy. I have this horrid 
+> feeling that I had something to do with the mess, but I'm going to lash 
 
-That might be a useful option.  Not my area to comment on.
+You did.
+Then Ted tided it up
+Then Bill added hacks to "fix" up the locking
 
-We would also require, at least as an option, to be able to force the
-migration on demand.  Some of our big honkin iron parallel jobs run with
-a high degree of parallelism, and nearly saturate each node being used. 
-For jobs like that, it can be better to get everything in place, before
-resuming execution.
+The real fix is shooting the flip buffers, at that point a lot of the
+locking goes away (because the tty owns everything relevant). I just
+don't have time to do major kernel hacking and finish the MBA thesis at
+the same time.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+Sorry yes I know how n_tty works, and no I'm not going to fix it
+

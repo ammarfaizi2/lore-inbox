@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264080AbTE0Vf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTE0Vf5
+	id S264139AbTE0ViZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTE0ViZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:35:57 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15567
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264080AbTE0Vf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:35:57 -0400
-Subject: Re: [patch] sis650 irq router fix for 2.4.x
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3ED3CDA9.5090605@winischhofer.net>
-References: <3ED21CE3.9060400@winischhofer.net>
-	 <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>
-	 <3ED32BA4.4040707@winischhofer.net>
-	 <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
-	 <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk>
-	 <3ED3CDA9.5090605@winischhofer.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054068660.19108.15.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 27 May 2003 17:38:25 -0400
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:53232 "EHLO
+	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S264139AbTE0ViY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 17:38:24 -0400
+Date: Tue, 27 May 2003 23:51:18 +0200
+From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+Subject: 2.4.21-rc5 - drivers/ide/pci/via82cxxx.c (PCI_DEVICE_ID_VIA_8237)
+Message-ID: <20030527215118.GA30616@deimos.one.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 May 2003 21:51:01 +0100
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
+X-Age: 23 (1980.09.27 - libra)
+X-Girl: 1 will be enough!
+X-GG: 88988
+X-ICQ: 59367544
+X-JID: deimos@jabber.gda.pl
+X-Operating-System: Slackware GNU/Linux, kernel 2.4.21-rc4, up  3:29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-27 at 21:42, Thomas Winischhofer wrote:
-> Alan Cox wrote:
-> > I'm keeping an eye on it. The correct answer appears to be 
-> > "use ACPI" once it works on SiS
-> 
-> It already does. No problem, except for idiotic OS string checks which 
-> require using a custom DSDT.
+Hi,
 
-It only works for setups that choose not to use the APIC in the ACPI
-setup. I know how to fix it (indeed I fixed 2.5 ages ago with info from
-Ollie)
+With new -rc5 there is, something like add new:
+{ "vt8237",     PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 |
+VIA_BAD_AST },
 
+This is not correct.
 
+After make bzImage I have:
+
+(...)
+make[4]: Entering directory `/usr/src/linux-2.4.20/drivers/ide/pci'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe
+-mpreferred-stack-boundary=2 -march=athlon  -I../ -nostdinc -iwithprefix
+include -DKBUILD_BASENAME=via82cxxx  -c -o via82cxxx.o via82cxxx.c
+via82cxxx.c:78: `PCI_DEVICE_ID_VIA_8237' undeclared here (not in a function)
+via82cxxx.c:78: initializer element is not constant
+via82cxxx.c:78: (near initialization for `via_isa_bridges[0].id')
+via82cxxx.c:78: initializer element is not constant
+via82cxxx.c:78: (near initialization for `via_isa_bridges[0]')
+(...)
+
+So, you better live it in / FUTURE_BRIDGES / like it was before or something
+;-)
+
+P.S. It works, but I don't know if it supose to be that:
+
+#ifdef FUTURE_BRIDGES
+        { "vt8237",     PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+#endif
+
+Take care.
+
+-- 
+# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #

@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263131AbTCLKCj>; Wed, 12 Mar 2003 05:02:39 -0500
+	id <S263126AbTCLKAh>; Wed, 12 Mar 2003 05:00:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263132AbTCLKCj>; Wed, 12 Mar 2003 05:02:39 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:16879 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S263131AbTCLKCd>; Wed, 12 Mar 2003 05:02:33 -0500
-Subject: Re: [2.4.19] How to get the path name of a struct dentry
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Torsten Foertsch <torsten.foertsch@gmx.net>
+	id <S263128AbTCLKAh>; Wed, 12 Mar 2003 05:00:37 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:37044 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S263126AbTCLKAf>; Wed, 12 Mar 2003 05:00:35 -0500
+Date: Wed, 12 Mar 2003 11:11:16 +0100
+To: Mark Hahn <hahn@physics.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200303121033.08560.torsten.foertsch@gmx.net>
-References: <200303121033.08560.torsten.foertsch@gmx.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AQZWJaH76RI/zcx525mM"
-Organization: Red Hat, Inc.
-Message-Id: <1047463991.1556.1.camel@laptop.fenrus.com>
+Subject: Re: is irq smp affinity good for anything?
+Message-ID: <20030312101116.GB12206@pusa.informat.uv.es>
+References: <20030311140458.GA15465@pusa.informat.uv.es> <Pine.LNX.4.44.0303112047240.15753-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 Mar 2003 11:13:12 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0303112047240.15753-100000@coffee.psychology.mcmaster.ca>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 11, 2003 at 08:48:59PM -0500, Mark Hahn wrote:
+> > I did not expect to increase global latency to these results...
+> > and neither to increase latency in the CPU that's receiving 
+> > just one interrupt!
+> 
+> but isn't that just a cache effect?  that is, you're keeping 
+> all cpus busy (caches too) with user-space, so when the interrupt
+> comes in, a bound interrupt has no choice, even if the cache 
+> is busy with userspace.
+Hi
 
---=-AQZWJaH76RI/zcx525mM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+first of all thanks for your reply, 
 
-On Wed, 2003-03-12 at 10:33, Torsten Foertsch wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->=20
-> Hi,
->=20
-> Assuming I have got a particular (struct dentry*)dp, how can I get it's f=
-ull=20
-> path name.
+I think that user space code always has to make the best use of cache as it
+can... in other words, i don't want to use a cpu exclusively for a device
+that delivers 6000 ints/second
 
-the question also is "in which namespace do you want the full path name"
-and which chroot and ... There is no such thing as *the* full path name.
+I bound an irq to a cpu because I thought that:
 
---=-AQZWJaH76RI/zcx525mM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+as spin_irq_locks just disables interrupts locally I should get better
+latency that just one ISR on that particular cpu could at least reduce
+a little the number of times that interrupts get disabled on that cpu
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+... that was my reasoning...
 
-iD8DBQA+bwg3xULwo51rQBIRAqjfAJ4znCsnQ8e352XA5YIIEQUlBAKI/QCdHIjJ
-D0NAJyN7mkC0OAiOg/jNL48=
-=EIwg
------END PGP SIGNATURE-----
+but latency gets worse... that's not comphrensible for me...
 
---=-AQZWJaH76RI/zcx525mM--
+	Ulisses
+
+
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbQKDI2e>; Sat, 4 Nov 2000 03:28:34 -0500
+	id <S129130AbQKDIf4>; Sat, 4 Nov 2000 03:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132620AbQKDI2P>; Sat, 4 Nov 2000 03:28:15 -0500
-Received: from mr14.vic-remote.bigpond.net.au ([24.192.1.29]:10946 "EHLO
-	mr14.vic-remote.bigpond.net.au") by vger.kernel.org with ESMTP
-	id <S132606AbQKDI2J>; Sat, 4 Nov 2000 03:28:09 -0500
-Message-Id: <200011040827.TAA14095@mr14.vic-remote.bigpond.net.au>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S129809AbQKDIfq>; Sat, 4 Nov 2000 03:35:46 -0500
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:43270 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S129130AbQKDIfj>; Sat, 4 Nov 2000 03:35:39 -0500
+Date: Sat, 4 Nov 2000 03:40:02 -0500
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Russ Allbery <rra@stanford.edu>
+Cc: Tim Riker <Tim@Rikers.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+Message-ID: <20001104034002.A26612@munchkin.spectacle-pond.org>
+In-Reply-To: <fa.g3i0smv.15loso7@ifi.uio.no> <fa.cjn9ksv.1a0m82t@ifi.uio.no> <ylbsvww97j.fsf@windlord.stanford.edu>
 Mime-Version: 1.0
-From: David Hammerton <dhammerton@labyrinth.net.au>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4-test10: new wrapper.h brakes drivers
-X-Mailer: Pronto v2.2.1
-Date: 04 Nov 2000 03:27:58 EST
-Reply-To: David Hammerton <dhammerton@labyrinth.net.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <ylbsvww97j.fsf@windlord.stanford.edu>; from rra@stanford.edu on Fri, Nov 03, 2000 at 10:19:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Nov 03, 2000 at 10:19:12PM -0800, Russ Allbery wrote:
+> Tim Riker <Tim@Rikers.org> writes:
+> 
+> > Agreed. C99 does not replace all the needed gcc features. We should
+> > start using the ones that make sense, and push for
+> > standardization/documentation on the rest.
+> 
+> > I'm perfectly happy with this as a long term goal. I'll put what effort
+> > I can into moving that direction without breaking the existing world as
+> > we know it.
+> 
+> May I tentatively suggest that one point at which your resources could
+> productively be applied is towards improving the C99 compliance in gcc?
+> Clearly for the near to medium future the compiler that everyone will use
+> to build the Linux kernel will be gcc, which means that in order to use
+> any C99 syntax, it first has to be solid in gcc.  That means the best way
+> of introducing such things into the Linux kernel is to *first* get the C99
+> support solid, reliable, and efficient in gcc, then once a version of gcc
+> is released with that support, help get Linux compiling with that version
+> of gcc.
+> 
+> *Then*, when that version of gcc can be made a prerequisite for the
+> kernel, you can start switching constructs over to the C99 syntax that gcc
+> supports.
 
-i just installed the latest kernel (2.4-test10).
+Hmmmmm.  Last month the compiler related thread on the kernel list was the
+kernel couldn't move to newer versions of the compiler because the compiler had
+changed things (where newer might mean either the latest snapshot de jour, or a
+tested/appropriately patched version based off of the snapshots, or even 2.95).
+Now people seem to be advocating moving the kernel to use features from C99
+that haven't even been coded yet (which mean when coded using the latest
+codegen as well).  Note, I seriously doubt Linus will want a flag day (ie,
+after a given kernel release, you must use revision n of the compiler, but
+before that release, you must use revision n-1 of the compiler), so you still
+have to maintain support for the old GCC way of doing things, in addition to
+the C99 way of doing things probably for a year or so.
 
-On recompilation of my "Nvidia" kernel drivers (for geforce 2 3d video support
-in linux), it failed linking to "mem_map_inc_count" (and dec_count).
-
-Im not much of a programmer, but to get it working all i had to do was to add
-to '/usr/src/linux/include/linux/wrapper.h':
-/*the patch*/
-#define mem_map_inc_count(p)    atomic_inc(&(p->count))
-#define mem_map_dec_count(p)    atomic_dec(&(p->count))
-/*end patch*/
-
-yes, you'll notice i ripped this out of the older kernels..
-
-good luck in finding an alternative, or just leave it in, or whatever.
-
-cheers
-
-David
+-- 
+Michael Meissner, Red Hat, Inc.
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUKNXFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbUKNXKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUKNXFr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 18:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUKNXFr
+	id S261371AbUKNXKM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 18:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbUKNXKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 18:05:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27820 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261360AbUKNXFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 18:05:44 -0500
-Message-ID: <4197E4B7.3050008@pobox.com>
-Date: Sun, 14 Nov 2004 18:05:27 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Sun, 14 Nov 2004 18:10:12 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:28624 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261368AbUKNXKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 18:10:08 -0500
+Subject: Re: [BK PATCH] SCSI -rc1 fixes
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] SCSI -rc1 fixes
-References: <1100467267.23710.7.camel@mulgrave>
-In-Reply-To: <1100467267.23710.7.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <4197E4B7.3050008@pobox.com>
+References: <1100467267.23710.7.camel@mulgrave> 
+	<4197E4B7.3050008@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 14 Nov 2004 17:09:49 -0600
+Message-Id: <1100473795.23649.26.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> This is my first set of -rc fixes for SCSI.  The patch is available at
+On Sun, 2004-11-14 at 17:05, Jeff Garzik wrote:
+> thankyou thankyou :)
 
-thankyou thankyou :)
+I've only been away for *two* weeks .... that's not a very long time
+compared with a linux kernel -rc cycle ...
+
+James
+
 
 

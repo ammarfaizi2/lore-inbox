@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUKDMLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbUKDL5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUKDMLG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 07:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbUKDMIq
+	id S261385AbUKDL5j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 06:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbUKDLza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 07:08:46 -0500
-Received: from spc1-leed3-6-0-cust18.seac.broadband.ntl.com ([80.7.68.18]:17654
-	"EHLO fentible.pjc.net") by vger.kernel.org with ESMTP
-	id S262170AbUKDMFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 07:05:02 -0500
-Date: Thu, 4 Nov 2004 12:05:00 +0000
-From: Patrick Caulfield <pcaulfie@redhat.com>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-       DECnet list <linux-decnet-user@lists.sourceforge.net>
-Subject: [PATCH] DECnet route RCU fix
-Message-ID: <20041104120500.GI26743@tykepenguin.com>
-Mail-Followup-To: davem@redhat.com, linux-kernel@vger.kernel.org,
-	DECnet list <linux-decnet-user@lists.sourceforge.net>
+	Thu, 4 Nov 2004 06:55:30 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:65498 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261385AbUKDLsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 06:48:55 -0500
+Date: Thu, 4 Nov 2004 12:49:04 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 7/12] meye: the driver is no longer experimental and depends on PCI
+Message-ID: <20041104114904.GV3472@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <20041104111231.GF3472@crusoe.alcove-fr> <20041104111613.GM3472@crusoe.alcove-fr> <20041104114126.GA31736@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041104114126.GA31736@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a missing _bh in the 23 August locking update. 
-Without this any attempt to read from /proc/net/decnet_cache causes a 
-"scheduling while atomic" crash.
+On Thu, Nov 04, 2004 at 11:41:26AM +0000, Christoph Hellwig wrote:
+> > +	depends on VIDEO_DEV && PCI && SONYPI && !HIGHMEM64G
+> 
+> What's the problem with PAE?
 
+Read the source:
+-----------------
+ * NOTE: The meye device expects dma_addr_t size to be 32 bits
+ * (the toc must be exactly 1024 entries each of them being 4 bytes
+ * in size, the whole result being 4096 bytes). We're using here
+ * dma_addr_t for corectness but the compilation of this driver is
+ * disabled for HIGHMEM64G=y, where sizeof(dma_addr_t) != 4 !
+-----------------
 
-Signed-off-by: Patrick Caulfield <patrick@tykepenguin.com>
+Of course, the actual hardware does exist only on C1V* Vaio Laptops,
+which can accept at most 256 MB RAM, so the test is there in Kconfig
+only to prevent 'make allyesconfig' and equivalents from spitting
+warnings...
 
-===== net/decnet/dn_route.c 1.27 vs edited =====
---- 1.27/net/decnet/dn_route.c	2004-10-28 08:39:57 +01:00
-+++ edited/net/decnet/dn_route.c	2004-11-04 11:59:37 +00:00
-@@ -1676,7 +1676,7 @@
- 		rt = dn_rt_hash_table[s->bucket].chain;
- 		if (rt)
- 			break;
--		rcu_read_unlock();
-+		rcu_read_unlock_bh();
- 	}
- 	return rt;
- }
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

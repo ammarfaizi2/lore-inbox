@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbTHXP0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 11:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbTHXP0H
+	id S261186AbTHXPUz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 11:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbTHXPUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 11:26:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7185 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261228AbTHXP0D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 11:26:03 -0400
-Date: Mon, 25 Aug 2003 01:25:48 +1000 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jamesm@excalibur.intercode.com.au
-To: Christoph Hellwig <hch@infradead.org>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>, <sds@epoch.ncsc.mil>
-Subject: Re: selinux build failure
-In-Reply-To: <20030824160245.A18526@infradead.org>
-Message-ID: <Mutt.LNX.4.44.0308250124380.22060-100000@excalibur.intercode.com.au>
+	Sun, 24 Aug 2003 11:20:55 -0400
+Received: from web40505.mail.yahoo.com ([66.218.78.122]:63571 "HELO
+	web40505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261186AbTHXPUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 11:20:53 -0400
+Message-ID: <20030824152052.57555.qmail@web40505.mail.yahoo.com>
+Date: Sun, 24 Aug 2003 08:20:52 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [RFC] patch for invalid packet time from ULOG target of iptables
+To: Harald Welte <laforge@gnumonks.org>
+Cc: linux-kernel@vger.kernel.org, ulogd@lists.gnumonks.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+In-Reply-To: <20030824150024.GF10987@sunbeam.de.gnumonks.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Aug 2003, Christoph Hellwig wrote:
+I understand. Thanks.
 
-> Argg, this is b0rked.  {asm,linux}/compat.h are for the 32bit compatiblity
-> code.  64bit arches don't have fcntl64 - see the #if BITS_PER_LONG == 32
-> around sys_fcntl64 in fcntl.c..
-
-Indeed.  How about this?
+-Alex
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+--- Harald Welte <laforge@gnumonks.org> wrote:
+> On Sun, Aug 24, 2003 at 07:16:00AM -0700, Alex Davis wrote:
+> > I've just started playing with the ULOG target in
+> > iptables, and I've noticed that the 'timestamp_sec'
+> > member of the ulog_packet_msg_t struct paseed to
+> > the user is always 0 for locally generated packets.
+> 
+> This is a well-known behaviour (see the list archives of
+> netfilter-devel@lists.netfilter.org or ulogd@lists.gnumonks.org).
+> 
+> This is _NOT_ considered a bug, but a feature.
+> 
+> > I was thinking of patching the ipt_ulog_target
+> > function in net/ipv4/netfilter/ipt_ULOG.c to
+> > check if timestamp_sec is 0 and if so, set it
+> > to the current time by adding code to test
+> > 'timestamp_sec' after it's been set. E.g;
+> 
+> so how would you then differentiate in userspace between 
+> 
+> a) a skb receive timestamp
+> b) a timestamp created within the ULOG target (which can be very
+>    different, think of async packets via QUEUE, etc.)
+> 
+> We definitely don't want to have one field in the packet that has
+> different semantics according from which hook it came in.
+> 
+> What ulogd currently does, is _always_ logging the userspace time,
+> disregarding the skb receive timestamp.  This is way closer to the LOG
+> target behaviuor anyway, since in this case the time is prepended by
+> syslogd (which just calls gettimeofday() from userspace).
+> 
+> -- 
+> - Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
+> ============================================================================
+> Programming is like sex: One mistake and you have to support it your lifetime
+> 
 
-diff -urN -X dontdiff linux-2.6.0-test4.orig/security/selinux/hooks.c linux-2.6.0-test4.w1/security/selinux/hooks.c
---- linux-2.6.0-test4.orig/security/selinux/hooks.c	2003-08-23 11:53:14.000000000 +1000
-+++ linux-2.6.0-test4.w1/security/selinux/hooks.c	2003-08-25 01:23:11.690432168 +1000
-@@ -2057,9 +2057,11 @@
- 		case F_GETLK:
- 		case F_SETLK:
- 	        case F_SETLKW:
-+#if BITS_PER_LONG == 32
- 	        case F_GETLK64:
- 		case F_SETLK64:
- 	        case F_SETLKW64:
-+#endif
- 			if (!file->f_dentry || !file->f_dentry->d_inode) {
- 				err = -EINVAL;
- 				break;
+> ATTACHMENT part 2 application/pgp-signature 
 
+
+=====
+I code, therefore I am
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266834AbSLDCNu>; Tue, 3 Dec 2002 21:13:50 -0500
+	id <S266839AbSLDCYT>; Tue, 3 Dec 2002 21:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266826AbSLDCNu>; Tue, 3 Dec 2002 21:13:50 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:44246 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S266817AbSLDCNt> convert rfc822-to-8bit; Tue, 3 Dec 2002 21:13:49 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <andrew@erlenstar.demon.co.uk>
-CC: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Tue, 3 Dec 2002 18:21:18 -0800
-In-Reply-To: <87fztflvmj.fsf@erlenstar.demon.co.uk>
-Subject: Re: bincancels in linux.kernel
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20021204022120.AAA20784@shell.webmaster.com@whenever>
+	id <S266841AbSLDCYT>; Tue, 3 Dec 2002 21:24:19 -0500
+Received: from mail.inw.de ([217.6.75.131]:11482 "EHLO mail.internetwork-ag.de")
+	by vger.kernel.org with ESMTP id <S266839AbSLDCYT>;
+	Tue, 3 Dec 2002 21:24:19 -0500
+Message-ID: <3DED68FC.7780C0C@inw.de>
+Date: Tue, 03 Dec 2002 18:31:24 -0800
+From: Till Immanuel Patzschke <tip@inw.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: MXT driver f. 2.4.19+ ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear List,
 
->well, I would have to disagree (even if you don't think that binaries
->coming via the mailing list would be a problem, there is still the
->question of binaries posted via news - and the recent levels of abuse
->in comp.binaries.*.d, rec.*, vmsnet.* etc. suggests that there are
->plenty of people who are happy to post binaries anywhere they can
->regardless of the real purpose of a group)
+is there any location where there is more recent driver for the IBM MXT hardware
+than on the IBM website (which hold patches for RedHat 7.2, kernel 2.4.9 or
+so).  I know that SuSE includes the MXT driver with their kernel, but I'd like
+to try it with 2.4.20...
+(Or does the 2.4.9 whatever patch apply easily to any newer version - which I
+doubt...)
+Thanks for the help
 
->Andrew.
+Immanuel
 
-	IMO, the person who makes the decision to cancel automatically takes the 
-responsibility for ensuring the cancellation doesn't suppress legitimate 
-content. If you don't have the time and energy to do it right, then don't do 
-it.
-
-	Spam is bad, but suppressing useful legitimate content because of 
-unsophisticated spam-checking algorithms is worse. Especially in this case 
-where it's not difficult to develop a more sophisticated algorithm, for 
-example, one that exempts posts that started on the mailing list.
-
-	DS
-
+P.S. What is the story w/ MXT and 2.5
+P.P.S. Please don't blame me for asking - just have the hardware around and want
+to try it out :-)
 

@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTIZGEm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 02:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbTIZGEm
+	id S261956AbTIZGQq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 02:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTIZGQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 02:04:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38279 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261947AbTIZGEm (ORCPT
+	Fri, 26 Sep 2003 02:16:46 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:7619 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261956AbTIZGQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 02:04:42 -0400
-Date: Thu, 25 Sep 2003 22:51:16 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Urban.Widmark@enlight.net
-Cc: linux-kernel@vger.kernel.org
-Subject: buggy changes to fs/smbfs/inode.c
-Message-Id: <20030925225116.433e1c53.davem@redhat.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 26 Sep 2003 02:16:45 -0400
+Message-ID: <3F73D9C4.1050201@colorfullife.com>
+Date: Fri, 26 Sep 2003 08:16:36 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David wrote:
 
-Your changes to fs/smbfs/inode.c do not build on platforms
-that do not define CONFIG_UID16.  You cannot use low2highuid()
-unless CONFIG_UID16 is known to be defined.
+>Fine, then we should have something like an rx_copybreak scheme in
+>the ns83820 driver too.
+>  
+>
+Is that really the right solution? Add a full-packet copy to every driver?
+IMHO the fastest solution would be to copy only the ip & tcp headers, 
+and keep the rest as it is. And preferable in the network core, to avoid 
+having to copy&paste that into every driver.
+
+--
+    Manfred
+

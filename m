@@ -1,55 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUHEXbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUHEXgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267940AbUHEXbc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 19:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267942AbUHEXbc
+	id S267829AbUHEXgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 19:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267947AbUHEXgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 19:31:32 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:61427 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S267940AbUHEXbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 19:31:11 -0400
-Message-ID: <4112C33A.40904@am.sony.com>
-Date: Thu, 05 Aug 2004 16:31:06 -0700
-From: Geoff Levand <geoffrey.levand@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mporter@mvista.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Fix ebony uart clock
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 19:36:39 -0400
+Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:38272
+	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
+	id S267829AbUHEXgi convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 19:36:38 -0400
+Subject: Re: [PATCH][2.6][Trivial] NFS Kconfig description correction
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.60.0408060046170.2538@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.60.0408060046170.2538@dragon.hygekrogen.localhost>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1091748994.4356.3.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 05 Aug 2004 16:36:35 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebony-uart-clock-04.08.05.patch:
+På to , 05/08/2004 klokka 15:54, skreiv Jesper Juhl:
+> This is a resend of a trivial patch I've submitted earlier.
 
-This patch corrects the Ebony board's uart clock value to the rate
-of the external Epson SG-615P clock source.  Now good to 115Kbps.
+...and it's been queued, but it is number 24 out of a set of 43 patches
+that will go to Linus once 2.4.8 is released.
 
-Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com> for CELF
----
-
-  ebony.h |    3 ++-
-  1 files changed, 2 insertions(+), 1 deletion(-)
-
-  diff -X dontdiff -ruN 
-linux-2.6.8-rc3.orig/arch/ppc/platforms/4xx/ebony.h 
-branch_KGDB/arch/ppc/platforms/4xx/ebony.h
---- linux-2.6.8-rc3.orig/arch/ppc/platforms/4xx/ebony.h	2004-07-17 
-21:59:03.000000000 -0700
-+++ branch_KGDB/arch/ppc/platforms/4xx/ebony.h	2004-08-05 
-15:58:40.000000000 -0700
-@@ -64,7 +64,8 @@
-  #define UART0_IO_BASE	(u8 *) 0xE0000200
-  #define UART1_IO_BASE	(u8 *) 0xE0000300
-
--#define BASE_BAUD	33000000/3/16
-+/* external Epson SG-615P */
-+#define BASE_BAUD	691200
-
-  #define STD_UART_OP(num)					\
-  	{ 0, BASE_BAUD, 0, UART##num##_INT,			\
-
-
+Cheers,
+  Trond

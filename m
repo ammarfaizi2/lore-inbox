@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263726AbTEFNwg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 09:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbTEFNv5
+	id S263732AbTEFNvq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 09:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbTEFNu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 09:51:57 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:16260 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263726AbTEFNvg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 09:51:36 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16055.49364.106094.795419@gargle.gargle.HOWL>
-Date: Tue, 6 May 2003 16:04:04 +0200
-From: mikpe@csd.uu.se
-To: ak@suse.de
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix x86_64 pte_user() and floppy.h for 2.5.69
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	Tue, 6 May 2003 09:50:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22287 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263726AbTEFNuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 09:50:52 -0400
+Date: Tue, 6 May 2003 15:03:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: Marcus Meissner <meissner@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
+Message-ID: <20030506150318.C21775@flint.arm.linux.org.uk>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+	Marcus Meissner <meissner@suse.de>, linux-kernel@vger.kernel.org
+References: <20030505210811.GC7049@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <1052218090.28792.15.camel@dhcp22.swansea.linux.org.uk.suse.lists.linux.kernel> <20030506120939.GB15261@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <20030506122844.95332D872@Hermes.suse.de> <20030506124212.GE15261@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030506124212.GE15261@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Tue, May 06, 2003 at 02:42:12PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Tue, May 06, 2003 at 02:42:12PM +0200, Jörn Engel wrote:
+> On Tue, 6 May 2003 14:28:44 +0200, Marcus Meissner wrote:
+> > 
+> > Every platform that supports USB will be able to read USB Storage
+> > Devices which almost everytime have FAT filesystems with MSDOS partitions.
+> > 
+> > So short of S/390 you get like every platform.
+> 
+> And short of most embedded systems.
 
-2.5.69 failed to link on x86_64 due to a missing reference to pte_user().
-I simply stole the one that i386 added in .68 -> .69.
-There's also irqreturn_t warnings on floppy.h -- fixed also by syncing
-with i386' floppy.h.
+CF cards - these have MSDOS partition tables on.  CF cards get used on
+embedded systems.
 
-Boots fine on Simics.
+Therefore, it follows that if you have an embedded system with a CF socket,
+you'll probably want the MSDOS partitioning enabled.
 
-/Mikael
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
---- linux-2.5.69/include/asm-x86_64/floppy.h.~1~	2003-05-05 22:56:30.000000000 +0200
-+++ linux-2.5.69/include/asm-x86_64/floppy.h	2003-05-06 15:19:34.000000000 +0200
-@@ -22,7 +22,7 @@
-  * floppy accesses go through the track buffer.
-  */
- #define _CROSS_64KB(a,s,vdma) \
--(!vdma && ((unsigned long)(a)/K_64 != ((unsigned long)(a) + (s) - 1) / K_64))
-+(!(vdma) && ((unsigned long)(a)/K_64 != ((unsigned long)(a) + (s) - 1) / K_64))
- 
- #define CROSS_64KB(a,s) _CROSS_64KB(a,s,use_virtual_dma & 1)
- 
-@@ -62,10 +62,8 @@
- 	static int bytes=0;
- 	static int dma_wait=0;
- #endif
--	if(!doing_pdma) {
--		floppy_interrupt(irq, dev_id, regs);
--		return;
--	}
-+	if (!doing_pdma)
-+		return floppy_interrupt(irq, dev_id, regs);
- 
- #ifdef TRACE_FLPY_INT
- 	if(!calls)
-@@ -96,7 +94,7 @@
- 	calls++;
- #endif
- 	if(st == 0x20)
--		return;
-+		return IRQ_HANDLED;
- 	if(!(st & 0x20)) {
- 		virtual_dma_residue += virtual_dma_count;
- 		virtual_dma_count=0;
---- linux-2.5.69/include/asm-x86_64/pgtable.h.~1~	2003-04-08 01:47:26.000000000 +0200
-+++ linux-2.5.69/include/asm-x86_64/pgtable.h	2003-05-06 15:12:40.000000000 +0200
-@@ -241,6 +241,7 @@
-  * The following only work if pte_present() is true.
-  * Undefined behaviour if not..
-  */
-+extern inline int pte_user(pte_t pte)		{ return pte_val(pte) & _PAGE_USER; }
- extern inline int pte_read(pte_t pte)		{ return pte_val(pte) & _PAGE_USER; }
- extern inline int pte_exec(pte_t pte)		{ return pte_val(pte) & _PAGE_USER; }
- extern inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }

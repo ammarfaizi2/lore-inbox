@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311342AbSCLUpk>; Tue, 12 Mar 2002 15:45:40 -0500
+	id <S310464AbSCLU4o>; Tue, 12 Mar 2002 15:56:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311343AbSCLUpV>; Tue, 12 Mar 2002 15:45:21 -0500
-Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:26755 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311342AbSCLUpT>;
-	Tue, 12 Mar 2002 15:45:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6.
-Date: Tue, 12 Mar 2002 21:40:02 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C8D9999.83F991DB@zip.com.au> <E16kkID-0001qr-00@starship> <3C8E6544.1AE28413@zip.com.au>
-In-Reply-To: <3C8E6544.1AE28413@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16kt3y-0000BL-00@starship>
+	id <S311238AbSCLU4g>; Tue, 12 Mar 2002 15:56:36 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:41955 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S310464AbSCLU4Z>; Tue, 12 Mar 2002 15:56:25 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 12 Mar 2002 12:56:21 -0800
+Message-Id: <200203122056.MAA05893@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 12, 2002 09:29 pm, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > On March 12, 2002 07:00 am, Andrew Morton wrote:
-> > >   Identifies readahead thrashing.
-> > >
-> > >     Currently, it just performs a shrink on the readahead window when thrashing
-> > >     occurs.  This greatly reduces the amount of pointless I/O which we perform,
-> > >     and will reduce the CPU load.  The idea is that the readahead window
-> > >     dynamically adjusts to a sustainable size.  It improves things, but not
-> > >     hugely, experimentally.
-> > 
-> > The question is, does it wipe out a nasty corner case?  If so then the improvement
-> > for the averge case is just a nice fringe benefit.  A carefully constructed test
-> > that triggers the corner case would be most interesting.
-> 
-> There are many test scenarios.  The one I use is:
-> 
-> - 64 megs of memory.
-> 
-> - Process A loops across N 10-megabyte files, reading 4k from each one
->   and terminates when all N files are fully read.
-> 
-> - Process B loops, repeatedly reading a one gig file off another disk.
-> 
-> The total wallclock time for process A exhibits *massive* step jumps
-> as you vary N.  In stock 2.5.6 the runtime jumps from 40 seconds to
-> ten minutes when N is increased from 40 to 60.
-> 
-> With my changes, the rate of increase of runtime-versus-N is lower,
-> and happens at later N.  But it's still very sudden and very bad.
-> 
-> Yes, it's a known-and-nasty corner case.  Worth fixing if the
-> fix is clean.  But IMO the problem is not common enough to
-> justify significantly compromising the common case.
+	Warning: these drivers do not work yet.
 
-It's a given the common case should be optimal.  I'm sure there's an algorithm that
-fixes up your test case, which by the way isn't that uncommon - it's Rik's '100 ftp
-processes' case.  I'll buy the suggestion it isn't common enough to drop everything
-right now and go fix it.
+	ftp://ftp.yggdrasil.com/private/adam/scsi-linux-2.5.6-diff.gz
 
--- 
-Daniel
+	This patch allows all of the SCSI drivers that are available on
+x86 to build, except for these:
+		o The NCR53c80-based drivers (according to Alan Cox, there
+		  is a new driver in the 2.4.x tree, and I don't want to
+		  add a port of that driver to this already huge patch).
+
+		o 53c7,8xx - I believe we have other scsi drivers that
+		  cover the same hardware, so I have skipped this driver.
+
+		o dpt_i2o - I need to understand the i2o system a little more
+		  to determine whether all of the similar looking code in
+		  drivers/messages/i2o and dpt_i2o is redundant or necessary.
+
+	The patch adds a little code to scsi.c to allow scsi drivers
+to tell the mid-level code to automatically map and unmap gather/scatter
+lists.  This has simplified the porting process immensely.
+
+	The patch also adds a routine for using the SCSI request
+scratchpad area for accessing scsi requests in memory (primarily
+for non-DMA drivers).  This eliminated some code replicated in
+a multiple scsi drivers and basically enabled me to the need to
+add very many calls to kmap and kunmap in each driver.
+
+	There are also a few patches that juat add PCI or ISAPnP
+device ID's, so that the boards will work with automatic
+module loading based on device ID's.
+
+	I owe an email to Tim Sullivan who tried my BusLogic and found
+that it paniced at initialization.  So, these drivers probably do not
+work yet.  Nevertheless, I would be interested in people looking
+at the patch or even trying it just to see how it fares on other
+hardware.  All that I know is that the code compiles and has no undefined
+symbols, except for scsi_reset_host in BusLogic.c (I guess you can
+comment it out for now, which is I told Tim to try).
+
+	I want to emphasize that this patch is just a snapshot of
+work in progress at this point.  I just finished getting the drivers
+to compile and link.  I am going to step away from this for a while,
+perhaps until tomorrow, but I thought I should post this in case
+anyone is interested.
+
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290741AbSBLCx2>; Mon, 11 Feb 2002 21:53:28 -0500
+	id <S290687AbSBLBeq>; Mon, 11 Feb 2002 20:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290743AbSBLCxS>; Mon, 11 Feb 2002 21:53:18 -0500
-Received: from zero.tech9.net ([209.61.188.187]:38408 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290741AbSBLCxE>;
-	Mon, 11 Feb 2002 21:53:04 -0500
-Subject: Re: Linux 2.5.4-dj1
-From: Robert Love <rml@tech9.net>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020212013034.A14368@suse.de>
-In-Reply-To: <20020212013034.A14368@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 11 Feb 2002 21:53:08 -0500
-Message-Id: <1013482389.6781.645.camel@phantasy>
+	id <S290701AbSBLBeh>; Mon, 11 Feb 2002 20:34:37 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:42118 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290687AbSBLBeV>;
+	Mon, 11 Feb 2002 20:34:21 -0500
+Date: Mon, 11 Feb 2002 17:32:36 -0800 (PST)
+Message-Id: <20020211.173236.08323394.davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: thread_info implementation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15464.28196.894340.327685@napali.hpl.hp.com>
+In-Reply-To: <200202120101.g1C11OJZ010115@napali.hpl.hp.com>
+	<20020211.170709.118972278.davem@redhat.com>
+	<15464.28196.894340.327685@napali.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-02-11 at 20:30, Dave Jones wrote:
+   From: David Mosberger <davidm@hpl.hp.com>
+   Date: Mon, 11 Feb 2002 17:21:40 -0800
+   
+   The task pointer lives in the thread pointer register (r13), so it's
+   trivial to address off of it.
 
-> o   Fix UP Preempt compilation.			(Mikael Pettersson)
-
-I ended up sending the following patch to Linus instead.
-
-Would you merge this into your next release, so we can keep the trees in
-sync (and not inadvertently push your fix over Linus's later on).  This
-approach removes the conditional altogether in the UP+preempt case, so
-it is optimal.
-
-Thanks, 
-
-	Robert Love
-
-diff -urN linux-2.5.4-dj1/include/asm-i386/smplock.h linux/include/asm-i386/smplock.h
---- linux-2.5.4-dj1/include/asm-i386/smplock.h	Sun Feb 10 20:50:13 2002
-+++ linux/include/asm-i386/smplock.h	Mon Feb 11 21:34:18 2002
-@@ -12,10 +12,15 @@
- 
- #ifdef CONFIG_SMP
- #define kernel_locked()		spin_is_locked(&kernel_flag)
-+#define check_irq_holder(cpu) \
-+do { \
-+	if (global_irq_holder == (cpu)) \
-+		BUG(); \
-+} while(0)
- #else
- #ifdef CONFIG_PREEMPT
- #define kernel_locked()		preempt_get_count()
--#define global_irq_holder      0xFF    /* NO_PROC_ID */
-+#define check_irq_holder(cpu)	do { } while(0)
- #else
- #define kernel_locked()		1
- #endif
-@@ -28,8 +33,7 @@
- do {						\
- 	if (unlikely(task->lock_depth >= 0)) {	\
- 		spin_unlock(&kernel_flag);	\
--		if (global_irq_holder == (cpu))	\
--			BUG();			\
-+		check_irq_holder(cpu);		\
- 	}					\
- } while (0)
- 
-
+So why don't you put the, oh my gosh, "THREAD INFO POINTER" into the
+thread pointer register instead?  That is what I did and everything
+transforms naturally, you will need to make zero modifications to
+assembly code besides the offset macro names and that you can even
+script :-)
 

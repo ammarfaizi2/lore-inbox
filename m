@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVADHos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVADHuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbVADHos (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 02:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVADHos
+	id S261545AbVADHuh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 02:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVADHuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 02:44:48 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54675 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262207AbVADHoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 02:44:30 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 boot loader IDs
-References: <41D31696.8050701@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Jan 2005 00:43:22 -0700
-In-Reply-To: <41D31696.8050701@zytor.com>
-Message-ID: <m1vfadr65h.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 4 Jan 2005 02:50:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:58047 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261545AbVADHu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 02:50:28 -0500
+Date: Tue, 4 Jan 2005 08:46:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050104074617.GK2825@suse.de>
+References: <20050103192844.GA29678@suse.de> <41D9C9B2.2070006@tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D9C9B2.2070006@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> This patch adds some i386 boot loader IDs that were used but never officially
-> recorded as assigned.  This makes them nice and official.
+On Mon, Jan 03 2005, Bill Davidsen wrote:
+> Jens Axboe wrote:
+> >On Mon, Jan 03 2005, Bill Davidsen wrote:
+> >
+> >>SCSI command filtering - while I totally support the idea (and always
+> >>have), I miss running cdrecord as a normal user. Multisession doesn't work
+> >>as a normal user (at least if you follow the man page) because only root
+> >>can use -msinfo. There's also some raw mode which got a permission denied,
+> >>don't remember as I was trying something not doing production stuff.
+> >
+> >
+> >So look at dmesg, the kernel will dump the failed command. Send the
+> >result here and we can add that command, done deal. 2.6.10 will do this
+> >by default.
+> >
 > 
->  	Please contact <hpa@zytor.com> if you need a bootloader ID
->  	value assigned.
+> Is this enough? I'm building 2.6.10-bk6 on a spare machine to try this 
+> on a system with a "scsi" CD interface via USB. The commands appear to 
+> go through the same process, but I'll know in an hour or so.
+> 
+> I was going to look these up before suggesting that they were 
+> trustworthy, but I'll take this as a offer to do that and accept! 
+> Obviously security comes first, if these are not trustworthy I won't 
+> argue for their inclusion.
+> 
+> kjournald starting.  Commit interval 5 seconds
+> EXT3 FS on hdb1, internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+> scsi: unknown opcode 0x01
+> scsi: unknown opcode 0x55
+> scsi: unknown opcode 0x1e
+> scsi: unknown opcode 0x35
 
-I suspect /sbin/kexec could use one.  But I don't have the faintest
-what you could do with the information after the kernel came up.
+You don't have write permissions on the device.
 
-I don't think enhancing the bootloader numeric parameter is the
-right way to go.  Currently the value is a single byte with the low
-nibble reserved for version number information.  With the
-values already assigned we have 7 left.  
+-- 
+Jens Axboe
 
-If we assign a new value each for the bootloaders I know of that don't
-yet have values assigned: pxelinux, isolinux, filo, /sbin/kexec,
-redboot the pool of numbers is nearly exhausted.  With the addition of
-bootloaders I can't recall or have not been written yet we will
-quickly exhaust the pool of numbers.
-
-Even if using this mechanism is needed for supporting existing
-bootloaders I suggest it be deprecated in favor of a kernel command
-line option.  A command line option would be easier to maintain
-being string based.  It would be portable to architectures besides
-x86.  And it requires no additional code to implement, as you
-can already read /proc/cmdline.
-
-Eric

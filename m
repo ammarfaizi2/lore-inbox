@@ -1,50 +1,260 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbTD2C2v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 22:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbTD2C2v
+	id S261515AbTD2CsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 22:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbTD2CsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 22:28:51 -0400
-Received: from adsl-68-74-104-142.dsl.klmzmi.ameritech.net ([68.74.104.142]:15620
-	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
-	id S261214AbTD2C2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 22:28:50 -0400
-From: Tabris <tabris@sbcglobal.net>
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: 2.4.21-rc1-ac2 Promise IDE DMA won't work
-Date: Mon, 28 Apr 2003 22:34:59 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-References: <Pine.LNX.4.10.10304281855540.20264-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10304281855540.20264-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304282234.59745.tabris@sbcglobal.net>
+	Mon, 28 Apr 2003 22:48:14 -0400
+Received: from smtp-out.comcast.net ([24.153.64.109]:681 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S261515AbTD2CsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 22:48:09 -0400
+Date: Mon, 28 Apr 2003 22:58:46 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: Swap Compression
+To: linux-kernel@vger.kernel.org
+Message-id: <200304282258460250.00DF10C2@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: multipart/mixed; boundary="Boundary_(ID_bDRkL8jhYEVKkjIOPFKl6Q)"
+References: <200304251848410590.00DEC185@smtp.comcast.net>
+ <20030426091747.GD23757@wohnheim.fh-wedel.de>
+ <200304261148590300.00CE9372@smtp.comcast.net>
+ <20030426160920.GC21015@wohnheim.fh-wedel.de>
+ <200304262224040410.031419FD@smtp.comcast.net>
+ <3EADAA5D.1090408@techsource.com>
+ <200304282258310030.00DED562@smtp.comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 April 2003 09:58 pm, Andre Hedrick wrote:
-> NO ATAPI DMA!
+
+--Boundary_(ID_bDRkL8jhYEVKkjIOPFKl6Q)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+
+
+
+*********** REPLY SEPARATOR  ***********
+
+On 4/28/2003 at 6:25 PM Timothy Miller wrote:
+
+>rmoser wrote:
 >
-> I will not write the driver core to attempt to support the various
-> combinations.  The ATAPI DMA engine space is used support 48bit.
-> Use the onboard controller for ATAPI.
-> Andre Hedrick
-> LAD Storage Consulting Group
+>>So what's the best way to do this?  I was originally thinking like this:
+>>
+>>Grab some swap data
+>>Stuff it into fcomp_push()
+>>When you have 100k of data, seal it up
+>>Write that 100k block
+>>
+>>But does swap compress in 64k blocks?  80x86 has 64k segments.
+>>The calculation for compression performance loss, 256/size_of_input,
+>>gives a loss of 0.003906 (0.3906%) for a dataset 65536 bytes long.
+>>So would it be better to just compress segments, whatever size they
+>>may be, and index those?  This would, of course, be much more efficient
+>>in terms of finding the data to uncompress.  (And system dependant)
+>>
+>>
+>We're not using DOS here.  x86 has arbitrarily-sized segments.  It is
+>the PAGES you want to swap, and they are typically 4k.
+>
+>
+>BTW, I see swap compression as being more valuable for over-loaded
+>servers than for PDA's.  Yes, I see the advantage for a PDA, but you
+>only get any significant benefit out of this if you have the horsepower
+>and RAM required for doing heavy-weight compression.  If you can't
+>compress a page very much, you don't benefit much from swapping it to RAM.
 
-Can I object that it came built onto the board? okok... i'll take that 
-as a no for now...
+Feh.  Selectable compression is the eventual goal.  If you want serious
+heavy-weight compression, go with fcomp2.  Ahh heck I'll attatch the
+.plan file for fcomp2; this is rediculously RAM and CPU intensive in good
+implimentation, so don't even think for a second that you'll want to use
+this on your cpu-overloaded boxen.
 
-Tho i'm still not quite sure how it makes a diff to be honest, unless 
-you mean that the Promise and HPT will never be supported for DMA?
+And no implimenting this right away, it's too much to code!
 
-and the only other thing i should say is that altho i'm not exactly a 
-n00b, the average user WILL expect it to work.
+--Bluefox Icy
 
-can i expect this to be fixed by 2.6? (yeah, i know... 2.4-ac-ide code 
-is similar to 2.5-ide code)
---
-tabris
+--Boundary_(ID_bDRkL8jhYEVKkjIOPFKl6Q)
+Content-type: application/octet-stream; name=__fcomp2.plan
+Content-transfer-encoding: base64
+Content-disposition: attachment; filename=__fcomp2.plan
+
+ZmNvbXAKRm94IENvbXByZXNzaW9uIDI6ICBTaXplIGlzIGV2ZXJ5dGhpbmcK
+CmJ5IEJsdWVmb3ggSWN5CgpUaGlzIGFsZ29yaXRtIGlzIGNvcHlyaWdodCBC
+bHVlZm94IEljeSB1bmRlciB0aGUgTEdQTCBhcyBpdCBleGlzdHMgb24gQXBy
+aWwKMjgsIDIwMDMuICBMR1BMIHYyLjAKCkRlZmluaXRpb25zOgogIEJhc2Ug
+MDogIEEgbnVtYmVyIHRoYXQgc3RhcnRzIGF0IDAuICBTbyAxIGJ5dGUgYmFz
+ZSAwIGNvdW50ZXJzIGFyZSByYW5nZWQKICBmcm9tIDAgdG8gMjU1LgoKICBC
+YXNlIDE6ICBBIG51bWJlciB0aGF0IHN0YXJ0cyBhdCAxLiAgU28gMSBieXRl
+IGJhc2UgMSBjb3VudGVycyBhcmUgcmFuZ2VkCiAgZnJvbSAxIHRvIDI1Niwg
+d2l0aCAweDAwIGJlaW5nIDEgYW5kIDB4MDEgYmVpbmcgMiBhbmQgMHhGRiBi
+ZWluZyAyNTYuCgogIE9yZGVyIG9mIFJlZHVuZGFuY3k6ICBBIG51bWVyaWMg
+Y291bnQgb2YgaG93IG11Y2ggYSBzcGVjaWZpYyBzdHJpbmcgaXMgdXNlZAog
+IHRvIHJlZmVyZW5jZSBvdGhlciBkYXRhIGluIGEgZmlsZSdzIGNvbXByZXNz
+ZWQgb3V0cHV0LgoKZmNvbXAgdXNlcyBhIGNvbXByZXNzaW9uIGFsZ29yaXRo
+bSB0aGF0IGlzIGZvY3Vzc2VkIG9uIHNwZWVkIG9ubHkuICBJdCB1c2VzCmxp
+dHRsZSBSQU0sIGFuZCB3YXMgaW50ZW5kZWQgZm9yIGtlcm5lbC1sZXZlbCBS
+QU0gY29tcHJlc3Npb24gYW5kIGZvciBwYWNraW5nCmV4ZWN1dGFibGUgZmls
+ZXMgb24gMSBNaHogNjUwMiBwcm9jZXNzb3JzIChpdHMgY3JlYXRpb24gcHVy
+cG9zZSkuICBmY29tcDIgaXMKcXVpdGUgZGlmZmVyZW50LgoKZmNvbXAyIHVz
+ZXMgY29tcHJlc3Npb24gYW5kIGRlY29tcHJlc3Npb24gcm91dGluZXMgYnkg
+Qmx1ZWZveCBJY3kuICBJdCB3YXMKY3JlYXRlZCBsaXRlcmFsbHkgd2l0aCBz
+aXplIGluIG1pbmQgb25seS4gIGZjb21wMiBjb21wcmVzc2lvbiBzaG91bGQg
+YmUgc2FuZSwKYnV0IHRoZXJlJ3MgYWx3YXlzIHRoZSB3YXJuaW5nIHRoYXQg
+SSB3cm90ZSB0aGUgYm95ZXItbW9vcmUgc2VhcmNoIG15c2VsZiwgYW5kCnNv
+bWVvbmUgcmVhbGx5IG5lZWRzIHRvIEZTQS1wcm92ZSB0aGF0IGl0IHdvcmtz
+LiAgUmVwbGFjZSBpdCB3aXRoIEtNUCwgIGJydXRlCmZvcmNlLCBvciB5b3Vy
+IG93biBlcXVpdmFsZW50IEJNIGlmIHlvdSB3YW50IGEgMTAwJSBndWFyZW50
+ZWUuCgpmY29tcDIgY29tcHJlc3NlZCBkYXRhIGlzIGEgbWl4ZWQgYmFja3Bv
+aW50ZXIvdGFibGUgZGF0YSBmb3JtYXQuICBPZmZpY2lhbGx5LApmY29tcDIg
+aXMgYSBmbG9hdGluZyBzaXplIGJhY2twb2ludGVyIGZvcm1hdDsgYmFja3Bv
+aW50ZXIgc2l6ZSBhbmQgbWF4IGRpc3RhbmNlCmlzIGNhcGFibGUgb2Ygc3dp
+dGNoaW5nIGFsb25nIHRoZSB3YXkuICBNb3N0IGltcGxpbWVudGF0aW9ucyB3
+aWxsIHdhbnQgdG8gdXNlCmEgZml4ZWQgc2l6ZSBiYWNrcG9pbnRlciB0aG91
+Z2gsIHVzdWFsbHkgMjQgYml0ICgxNiBNQikuCgpmY29tcDIgdXNlcyBhIHBv
+aW50ZXIgdGFibGUgYW5kIHZhcmlvdXMgcG9pbnRlciB0eXBlcy4gIFRoZSBw
+b2ludGVyIHR5cGVzIGFyZQpxdWl0ZSBkaXZlcnNlLiAgQSBnZW5lcmFsIHBv
+aW50ZXIgY29udGFpbmVyIGxvb2tzIGxpa2Ugc286CgpUWVBFICAgIFNJWkUg
+ICAgREVTQwpCeXRlICAgICAgIDEgICAgVHlwZSBvZiBwb2ludGVyClggICAg
+ICAgICAgWCAgICBUaGUgcG9pbnRlciBpdHNlbGYKM0J5dGUgICAgICAzICAg
+IDI0IGJpdCBmb3J3YXJkIHJlZmVyZW5jZSBpbmRpY2F0aW5nIHRoZSBsb2Nh
+dGlvbiBvZiB0aGUgbmV4dAogICAgICAgICAgICAgICAgcG9pbnRlci4gIEl0
+IGlzIGJhc2UgMCwgYW5kIGEgMCBpbmRpY2F0ZXMgRU9TIChqdXN0IGxpa2Ug
+aW4KCQlmY29tcCkKCkxpdGVyYWwgcG9pbnRlcnMgKDEpIHBvaW50IGJhY2sg
+aW50byB0aGUgc3RyZWFtIGFuZCBtYXkgYmUgOCwgMTYsIDI0LCBvciAzMgpi
+aXQuIFRoZXNlIHBvaW50ZXJzIGFyZSBzdGFuZGFyZCBnby1iYWNrLWFuZC1j
+b3B5LU4gcG9pbnRlcnMsIGxpa2UgZmNvbXAgdXNlcy4KVGhleSBwcm92aWRl
+IGEgcG9pbnRlciB3aXRoaW4gdGhlIHdpbmRvdyB0aGF0IHRoZSBzY2FuIGlz
+IHVzaW5nLgoKVFlQRSAgICBTSVpFICAgIERFU0MKQnl0ZSAgICAgICAxICAg
+IFNpemUgTiBpbiBieXRlcyBvZiBwb2ludGVyIGRhdGEKTkJ5dGUgICAgICBO
+ICAgIERpc3RhbmNlIGJhY2sgdG8gbG9vaywgYmFzZSAxICgwID09IDEsIHJh
+bmdlIGlzIDEuLjJeTikKTkJ5dGUgICAgICBOICAgIERpc3RhbmNlIHRvIGNv
+cHksIGJhc2UgMSAoMCA9PSAxLCByYW5nZSBpcyAwLi4yXk4pCgpUYWJsZSBw
+b2ludGVycyAoMikgYXJlIGV4dHJhIHBvd2VyLiAgVGFibGUgcG9pbnRlcnMg
+YXJlIHBvaW50ZXJzIHRoYXQgcmVmZXJlbmNlCmEgdGFibGUgd2hpY2ggaG9s
+ZHMgdGhlIGFic29sdXRlIGxvY2F0aW9ucyBpbiB0aGUgc3RyZWFtIChub3Qg
+aW5jbHVkaW5nIHRoZQp0YWJsZSkgb2YgZGF0YSB0aGF0IGVhY2ggcG9pbnRl
+ciBwb2ludHMgdG8uICBJbiByZWFsaXR5LCBhbGwgYmFjayBwb2ludGVycyBj
+YW4KYmUgcmVwbGFjZWQgd2l0aCB0YWJsZSBwb2ludGVycy4KClBsZWFzZSBu
+b3RlIHRoYXQgYnkgc3RyZWFtLCB3ZSBtZWFuIHRoZSBhY3R1YWwgcG9pbnRl
+ci1hbmQtZGF0YSBzdHJlYW0gdGhhdCBpcwpwcm9jZXNzZWQgaW4gdGhlIGNv
+bXByZXNzaW9uIGFuZCBOT1QgdGhlIHN1cHBsaW1lbnRhcnkgaGVhZGVyIG9y
+IHRhYmxlLgoKVFlQRSAgICBTSVpFICAgIERFU0MKQnl0ZSAgICAgICAxICAg
+IFNpemUgTiBpbiBieXRlcyBvZiBwb2ludGVyIGRhdGEuICBJbmNyZWFzaW5n
+IHRoZSBzaXplIGluY3JlYXNlcwogICAgICAgICAgICAgICAgeW91ciByYW5n
+ZSBpbiB0aGUgdGFibGUsIGkuZS4gMSBieXRlIGNhbiBhY2Nlc3MgZW50cmll
+cyAwLi4yNTUsCgkJMiBjYW4gYWNjZXNzIDAuLjY1NTM1LCAzIDAuLjE2Nzc3
+MzgzLCBhbmQgc28gb24uCk5CeXRlICAgICAgTiAgICBJbmRleCBvZiB0aGUg
+ZW50cnkgdG8gY29weQpOQnl0ZSAgICAgIE4gICAgTnVtYmVyIG9mIGJ5dGVz
+IGJhc2UgMCB0byBza2lwIGZyb20gdGhlIGJlZ2lubmluZwpOQnl0ZSAgICAg
+IE4gICAgTnVtYmVyIG9mIGJ5dGVzIGJhc2UgMSB0byBjb3B5CgpUaGUgZmlu
+YWwgdHlwZSBvZiBwb2ludGVyIGlzIGEgTlVMTCAoMCkgcG9pbnRlci4gIElm
+IHRoZSBwb2ludGVyIGlzIG51bGwsIGl0CnNpbXBseSBpcyBibGFuaywgaS5l
+LiBYID0gMCBpbiB0aGUgZ2VuZXJhbCBwb2ludGVyIGNvbnRhaW5lciBkZWZp
+bml0aW9uLiAgQQpudWxsIHBvaW50ZXIgaXMgYWx3YXlzIDQgYnl0ZXMgbG9u
+ZyBpbmNsdWRpbmcgdGhlIGdlbmVyYWwgcG9pbnRlciBjb250YWluZXIKZGVm
+aW5lZCBhYm92ZSwgYW5kIDAgYnl0ZXMgbG9uZyBub3QgaW5jbHVkaW5nIGl0
+LiAgSXQgbG9va3MgbGlrZSB0aGlzOgoKVFlQRSAgICBTSVpFICAgIERFU0MK
+ClllcywgdGhpcyBpcyBjb21wbGV0ZS4KClRoZSBzdHJlYW0gZm9ybWF0IGlz
+OgoKZmNvbXAyIHN0cmVhbToKVFlQRSAgIFNJWkUgICAgREVTQwozQnl0ZSAg
+ICAgMyAgICBMZW5ndGggb2YgWCBiYXNlIDAgKGZvciBjb25zaXN0ZW5jeSkK
+c3RyZWFtICAgIFggICAgYSBidW5jaCBvZiBieXRlcyB0byB0YWtlIGFzIHB1
+cmUgc3RyZWFtClBvaW50ZXIgICBZICAgIEEgcG9pbnRlciBpbnNpZGUgYSBn
+ZW5lcmFsIHBvaW50ZXIgY29udGFpbmVyCgpUaGUgbGFzdCAyIHJlcGVhdCB1
+bnRpbCBFT1MsIHdoaWNoIGlzIHdoZXJlIHRoZSBnZW5lcmFsIHBvaW50ZXIg
+Y29udGFpbmVyIGhhcwppdHMgbmV4dCBwb2ludGVyIGFzIGEgMC4gIFRoZSBz
+dHJlYW0gc2hvdWxkIGFsd2F5cyBlbmQgd2l0aCBhIHBvaW50ZXIgd2l0aCBh
+CmZvcndhcmQgcmVmZXJlbmNlIG9mIDAsIGVpdGhlciBMaXRlcmFsLCBUYWJs
+ZSwgb3IgTlVMTC4KClRoZSBmY29tcDIgdGFibGUgaXMgcHJldHR5IHNpbXBs
+ZS4gIEl0IHBvaW50cyB0byBvZmZzZXRzIGluIHRoZSBzdHJlYW0gb2YgZGF0
+YSwKd2hpY2ggaXMgcmVhZCBieSBhIGRlY29tcHJlc3NvciBhbmQgdXNlZCB0
+byBnaXZlIGZ1cnRoZXIKY29tcHJlc3Npb24vZGVjb21wcmVzc2lvbiBwZXJm
+b3JtYW5jZS4gIFRoaXMgd29ya3Mgd2hlbiB0aGluZ3MgYXJlIG91dCBvZiBy
+ZWFjaApvZiBiYWNrcG9pbnRlcnMuICBBbHNvLCBhIHZlcnkgZ29vZCBpbXBs
+aW1lbnRhdGlvbiBtYXkgdGFrZSB0aGUgdGltZSB0bwpvcHRpbWl6ZSB0aGUg
+dGFibGUgYW5kIHN0cmVhbTsgdGhhdCBpcywgaXQgbWF5IG1vdmUgYWxsIHRo
+ZSBtb3N0IGNvbW1vbmx5IHVzZWQKdGFibGUgZW50cmllcyB0byB0aGUgYmVn
+aW5uaW5nIGFuZCB1c2UgdGhlIHNtYWxsZXN0IHBvaW50ZXIgZGF0YSBzaXpl
+IHBvc3NpYmxlLgoKVGhlIGZjb21wMiB0YWJsZSBpcyBpbiBpdHNlbGYgbm90
+IGJ1aWx0IGZvciBzaXplLiAgRGF0YSBvZiBtdWx0aXBsZSByZWR1bmRhbmN5
+CmlzIGluaXRpYWxseSBlbnRlcmVkIGludG8gdGhlIHRhYmxlIGFzIGEgMzIg
+Yml0ICg0IGJ5dGUpIG9mZnNldC4gIFRoZSBsZW5ndGggaXMKbm90IHN0b3Jl
+ZDsgdGhlIGNvbXByZXNzb3Igd2lsbCBmaW5kIGFuIG9mZnNldCBmcm9tIHRo
+aXMgd2l0aGluIHRoZSByZWFjaCBvZgp0aGUgbmV4dCB0YWJsZSBlbnRyeSBh
+dCBjb21wcmVzc2lvbiB0aW1lLCB3aGlsZSB0aGUgZGVjb21wcmVzc29yIHJl
+YWRzIGVudHJ5LApza2lwLCBhbmQgY29weS4gIFRvIGRvIHRoaXMgbW9yZSBl
+YXNpbHksIHRoZSBjb21wcmVzc29yIHNob3VsZCBrZWVwIHRoZSBkYXRhCnRh
+YmxlIGluIHRoZSBvcmRlciB0aGUgZGF0YSBhcHBlYXJzIGluIHRoZSBmaWxl
+IHVudGlsIGNvbXByZXNzaW9uIGlzIGZpbmlzaGVkLAphbmQgdGhlbiBzb3J0
+IHRoZSB0YWJsZSBiYXNlZCBvbiBvcmRlciBvZiByZWR1bmRhbmN5IChha2Eg
+aG93IG1hbnkgdGltZXMgZWFjaAplbnRyeSBpcyB1c2VkKSBmcm9tIGdyZWF0
+ZXN0IHRvIGxlYXN0LiAgQXMgdGhlIHRhYmxlIGlzIHNvcnRlZCwgdGhlIHN0
+cmVhbSBhbmQKdGFibGUgYm90aCBtYXkgYmUgYWRqdXN0ZWQgc28gYXMgdG8g
+c3F1ZWV6ZSBvdXQgbW9yZSBzcGFjZSAoaS5lLiB0aGUgbW9zdCB1c2VkCnRh
+YmxlIGVudHJpZXMgYXJlIHJlZmVyZW5jZWQgYXMgOCBiaXQgcG9pbnRlcnMs
+IGNoYW5naW5nIHRoZSBwb2ludGVycyB0byBwb2ludAphdCB0aGVzZSBhbmQg
+dXNlIDggYml0IHN0b3JhZ2UgY2hhbmdlcyB0aGUgY29tcHJlc3NlZCBzdHJl
+YW0pLiAgTm90ZSB0aGF0CmFsdGVyaW5nIHRoZSBzaXplIG9mIHRoZSBjb21w
+cmVzc2VkIHN0cmVhbSBzaG91bGQgbm90IGFsdGVyIHRoZSB0YWJsZSwgYXMg
+aXQgaXMKaW4gcmVmZXJlbmNlIHRvIHRoZSB1bmNvbXByZXNzZWQgc3RyZWFt
+LgoKZmNvbXAyLXRhYmxlOgpUWVBFICAgIFNJWkUgICAgREVTQwpEd29yZCAg
+ICAgIDQgICAgQSAzMiBiaXQgb2Zmc2V0IG9mIHRoZSBkYXRhIGluIHRoZSB1
+bmNvbXByZXNzZWQgc3RyZWFtCgpBbiBmY29tcDIgZGF0YSBmaWxlIGNvbnRh
+aW5zIGEgZmV3IHRoaW5ncy4gIEZpcnN0IGFyZSAyIGxvbmdzOiAgVGFibGUg
+YW5kClN0cmVhbSBvZmZzZXRzIGluIHRoZSBmaWxlLiAgU2Vjb25kIGlzIHNv
+bWUgZGF0YSwgdGhlIHRhYmxlLCBhbmQgdGhlIHN0cmVhbS4KVGhlICJzb21l
+IGRhdGEiIGNhbiBiZSBhbnl0aGluZyAoZW5jcnlwdGlvbiBmbGFncywgQ1JD
+J3MsIGV0YykuCgpmY29tcDIgZGF0YSBmaWxlOgpUWVBFICAgU0laRSAgICBE
+RVNDCkRXb3JkICAgICA0ICAgIDMyIGJpdCBvZmZzZXQgYmFzZSAwICh0aGlz
+IGlzIEFUIDApIG9mIHdoZXJlIHRoZSB0YWJsZSBpcyBpbiB0aGUKICAgICAg
+ICAgICAgICAgZmlyZQpEV29yZCAgICAgNCAgICAzMiBiaXQgYmFzZSAwIG9m
+ZnNldCBvZiB0aGUgZmNvbXAyIHN0cmVhbQpzdHJlYW0gICAgWCAgICBXaGF0
+ZXZlciB5b3Ugd2FudCB1bnRpbCB0aGUgdGFibGUgb2NjdXJzCmZjb21wMi10
+YWJsZSBZICBUaGUgdGFibGUKZmNvbXAyLXN0cmVhbSBaIFRoZSBzdHJlYW0u
+ICBUaGUgYmVnaW5uaW5nIG9mIHRoaXMgaXMgZXhhY3RseSB3aGVyZSBhIHBv
+aW50ZXIgdG8KICAgICAgICAgICAgICAgb2Zmc2V0IDAgaW4gdGhlIHRhYmxl
+IHdvdWxkIHBvaW50IHRvCgpJIHdvdWxkIGVuY291cmFnZSB0aGUgb3BlbiBz
+b3VyY2UgY29tbXVuaXR5IHRvIGV4cGVyaW1lbnQgd2l0aCBpbXBsaW1lbnRp
+bmcKdGhpcyBjb21wcmVzc2lvbiBzY2hlbWEuICBJdCBpcyBWRVJZIFJBTSBp
+bnRlbnNpdmUsIGJ1dCBhIGdvb2QgaW1wbGltZW50YXRpb24Kc2hvdWxkIGJl
+IGFibGUgdG8gc3F1ZWV6ZSBncmVhdCBjb21wcmVzc2lvbiByYXRpb3MgZnJv
+bSB0aGlzLiAgSGVyZSBhcmUgdGhlCnJlcXVpcmVtZW50cyBmb3IgdGhlIGJl
+c3QgaW1wbGltZW50YXRpb246CgoxLiAgSW50ZWxsaWdlbnQgVGFibGUgR2Vu
+ZXJhdGlvbgogIFRhYmxlIGVudHJpZXMgYXJlIGVhY2ggNCBieXRlcyBpbiBz
+aXplLiAgQSB0YWJsZSBzaG91bGQgbm90IGJlIGdlbmVyYXRlZCBhdCBhCiAg
+cG9pbnQgbGVzcyB0aGFuIDQgYnl0ZXMgZnJvbSB0aGUgcHJldmlvdXMgdGFi
+bGUuCjIuICBPcHRpbWl6ZWQgVGFibGUgU29ydGluZwogIFRoZSBlbnRyaWVz
+IG1vc3QgdXNlZCBpbiB0aGUgdGFibGUgc2hvdWxkIGJlIHBsYWNlZCBhdCB0
+aGUgYmVnaW5uaW5nOyB0aGUKICB0YWJsZSBzaG91bGQgYmUgc29ydGVkIGlu
+IGRlc2NlbmRpbmcgcmVmZXJlbmNlIG9yZGVyLiAgVGhlbiB0aGUgcG9pbnRl
+cnMgbXVzdAogIGJlIGFkanVzdGVkIChtdXN0IGFzIGluIHRoaXMgd2lsbCBi
+cmVhayB0aGUgc3RyZWFtIGlmIHlvdSBkb24ndCBkbyB0aGlzKSBpbgogIHRo
+ZSBjb21wcmVzc2VkIHN0cmVhbSB0byBwb2ludCB0byB0aGUgbmV3IGxvY2F0
+aW9ucyBvZiB0aGUgdGFibGUgZW50cmllcy4gIEluCiAgYWRqdXN0aW5nIHRo
+ZSBwb2ludGVycywgdGhlIGNvbXByZXNzb3Igc2hvdWxkIHNocmluayB0aGVt
+IHRvIHRoZSBzbWFsbGVzdAogIHBvc3NpYmxlIHNpemUgZ2l2ZW4gdGhlIGlu
+ZGV4IG51bWJlciB0aGV5IG11c3QgcmVmZXJlbmNlIGFuZCB0aGUKICBkaXN0
+YW5jZS92ZWN0b3IgdGhleSBtdXN0IHNraXAgYW5kIGNvcHkuICBGb3IgdGhl
+IGJlc3Qgb3B0aW1pemF0aW9uLCB0aGlzCiAgc3RlcCBzaG91bGQgYWxzbyB0
+YWtlIGludG8gYWNjb3VudCB0aGUgZGlzdGFuY2UvdmVjdG9yIHNpemVzIGlu
+IHRoZSBwb2ludGVycywKICB0byBhc3Nlc3MgaG93IG1hbnkgcG9pbnRlcnMg
+d291bGQgZ2FpbiBhbmQgbG9zZSBzaXplIGluIGVhY2ggcmFuZ2Ugb2YgaW5k
+ZXgKICBzaXplICgxLzIvMy80IGJ5dGVzKSBhbmQgY29tcHV0ZSB0aGUgdG90
+YWwgc2l6ZSBnYWluIChwb3NpdGl2ZSBvciBuZWdhdGl2ZSkKICBmb3IgZWFj
+aCBwb2ludGVyIGdpdmVuIHRoZSBwb3NpdGlvbnMsIGFuZCBhZGp1c3QgYWNj
+b3JkaW5nIHRvIHRoZXNlIGZpbmFsCiAgc2NvcmVzLgozLiAgSW50ZWxsaWdl
+bnQgVGFibGUgRGlzY2FyZGluZwogIFdoZW4gdGFibGUgZW50cmllcyBpbiB0
+aGUgdGFibGUgYXJlIGNsb3NlIGVub3VnaCB0b2dldGhlciwgdGhlIHBvaW50
+ZXJzIHdoaWNoCiAgcmVmZXJlbmNlIHRoZW0gbWF5IGJlIGNhcGFibGUgb2Yg
+dXNpbmcgb25seSBhIHNtYWxsIHNldCBmcm9tIGEgbGFyZ2VyIHNldCBvZgog
+IHRhYmxlIGVudHJpZXMuICBJZiB0aGlzIGlzIHRoZSBjYXNlLCB0aGUgY29t
+cHJlc3NvciBzaG91bGQgcmVtb3ZlIHRob3NlIHRhYmxlCiAgZW50cmllcyBh
+bmQgcmVhZGp1c3QgYWxsIHJlbGF0ZWQgcG9pbnRlcnMuCgpJZiBhIGNvbXBy
+ZXNzb3IgaXMgd3JpdHRlbiwgaXQgZG9lcyBub3QgaGF2ZSB0byBmb2xsb3cg
+YW55IG9mIHRoZSBhYm92ZSB0byBoYXZlCmNvbXBhdGlibGUgb3V0cHV0IHdp
+dGggZmNvbXAyIGJpbmFyeSBmaWxlczsgaG93ZXZlciwgdGhlIGFib3ZlIGd1
+aWRlbGluZXMgZ2l2ZQp0aGUgYmVzdCBjb21wcmVzc2lvbiByYXRpb3MgZm9y
+IGZjb21wMiBjb21wcmVzc2VkIGZpbGVzLgo=
+
+--Boundary_(ID_bDRkL8jhYEVKkjIOPFKl6Q)--

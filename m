@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUHHPyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265684AbUHHP4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUHHPyg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 11:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUHHPyg
+	id S265684AbUHHP4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 11:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUHHP4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 11:54:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57092 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265668AbUHHPye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 11:54:34 -0400
-Date: Sun, 8 Aug 2004 16:54:29 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix kallsyms dependency
-Message-ID: <20040808165429.A17968@flint.arm.linux.org.uk>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20040808123230.B7589@flint.arm.linux.org.uk> <20040808154610.GA18740@mars.ravnborg.org>
+	Sun, 8 Aug 2004 11:56:40 -0400
+Received: from pop.gmx.de ([213.165.64.20]:31972 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265684AbUHHP4h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 11:56:37 -0400
+X-Authenticated: #1725425
+Date: Sun, 8 Aug 2004 17:58:34 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: dynamic /dev security hole?
+Message-Id: <20040808175834.59758fc0.Ballarin.Marc@gmx.de>
+In-Reply-To: <1091969260.5759.125.camel@cube>
+References: <1091969260.5759.125.camel@cube>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040808154610.GA18740@mars.ravnborg.org>; from sam@ravnborg.org on Sun, Aug 08, 2004 at 05:46:10PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 05:46:10PM +0200, Sam Ravnborg wrote:
-> On Sun, Aug 08, 2004 at 12:32:30PM +0100, Russell King wrote:
-> > Hi,
-> > 
-> > It appears that kallsyms data is not updated if the kallsyms program is
-> > changed.  The following patch adds an appropriate dependency.
+On 08 Aug 2004 08:47:40 -0400
+Albert Cahalan <albert@users.sf.net> wrote:
+
+> Suppose I have access to a device, for whatever legit
+> reason. Maybe I'm given access to a USB key with
+> some particular serial number.
 > 
-> Added, and implemented your suggestion in scripts/Makefile
-> with a few other CONFIG selections.
+> I hard link this to somewhere else. Never mind that an
+> admin could in theory use 42 separate partitions and
+> mount most of the system with the "nodev" option. This
+> is rarely done.
 > 
-> Btw. any specific reason to hack kallsyms? Just curious if something
-> shows up in this area.
+> Now the device is removed. The /dev entry goes away.
+> A new device is added, and it gets the same device
+> number as the device I had legit access to. Hmmm?
 
-Yes - later ARM binutils adds extra symbols like "$a" and "$d" to the
-symbol table as "mapping symbols" (binutils terminology).  It's not
-clear whether these will continue to be visible via normal tools or
-not, and I was considering getting kallsyms to filter them out.
+This would require (1) /dev to be inside the root filesystem and (2) users
+having write access somewhere in that filesystem.
 
-Depending on the outcome of the binutils side depends whether or not
-I end up modifying kallsyms to ignore these symbols and whether we
-end up saying "binutils earlier than <todays latest and greatest
-release> can not be used for ARM."
+(1) is uncommon, often a separate filesystem is used for udev
+(2) is very bad practice anyway and should never be seen on a true
+multi-user machine
 
-If a release of binutils is imminent which solves both the mapping
-symbol visibility problem and the undefined symbol issue, then I
-suspect its just all round easier to prevent the ARM kernel being
-built with older binutils versions.
+Besides, this is nothing new. Dynamic permission updates through PAM have
+the same issue, and anyone calling themselves "admin" should be well aware
+of those issues. This is basic Unix-security, after all.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Yet, this issue should probably mentioned in documentation. It certainly
+should be mentioned in the udev-HOWTO.
+
+Regards

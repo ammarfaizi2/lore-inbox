@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUJAQZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJAQaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUJAQZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJAQZr
+	id S264377AbUJAQaB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 12:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJAQaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:25:47 -0400
-Received: from tomts45.bellnexxia.net ([209.226.175.112]:15275 "EHLO
-	tomts45-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264795AbUJAQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:24:32 -0400
-Reply-To: <ivan.kalatchev@esg.ca>
-From: "Ivan Kalatchev" <ivan.kalatchev@esg.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.6.8 bug in fs/locks.c
-Date: Fri, 1 Oct 2004 12:24:30 -0400
-Message-ID: <000001c4a7d3$21c62bb0$2e646434@ivans>
+	Fri, 1 Oct 2004 12:30:01 -0400
+Received: from conn.mc.mpls.visi.com ([208.42.156.2]:56706 "EHLO
+	conn.mc.mpls.visi.com") by vger.kernel.org with ESMTP
+	id S264377AbUJAQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 12:27:13 -0400
+Message-ID: <415D84A3.6010105@steinerpoint.com>
+Date: Fri, 01 Oct 2004 11:24:03 -0500
+From: Al Borchers <alborchers@steinerpoint.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: new locking in change_termios breaks USB serial drivers
+References: <415D3408.8070201@steinerpoint.com> <1096630567.21871.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> How much of a problem is this, would it make more sense to make the
+> termios locking also include a semaphore to serialize driver side events
+> and not the spin lock ?
 
-Hi all,
+Its a design decision for the tty layer.  You should choose whatever is
+best there and the drivers will have to adapt.
 
-Application I'm developing has a web interface, so user can change
-configuration file for this application using IE browser e.g.
-I'm using pthreads for each user-application connections. To protect
-configuration file from corruption I used file locking mechanism - fcntl
-with F_WRLCK/F_RDLCK.
- And at one point after posting web page back immediately after browser
-received it, I got this in dmesg:
+I don't know how many tty drivers have assumed that set_termios can sleep,
+like the USB serial drivers have.  If that is an implicit part of tty API
+that other drivers depend on, then, if possible, it seems much better to keep
+the API the same and continue to allow set_termios to sleep.
 
-------------[ cut here ]------------
-kernel BUG at fs/locks.c:1726!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in: hpac cdc_acm ohci_hcd usbcore e100
-CPU:    0
-EIP:    0060:[<c01555f1>]    Not tainted
-EFLAGS: 00010246   (2.6.8)
-EIP is at locks_remove_flock+0x69/0xbc
-eax: c113d781   ebx: c34ecf4c   ecx: c34eceb0   edx: c1dbff6c
-esi: c126f420   edi: c3fd0a40   ebp: c34eceb0   esp: c35b8f84
-ds: 007b   es: 007b   ss: 0068
-Process hdas (pid: 6875, threadinfo=c35b8000 task=c113d710)
-Stack: c126f420 c126f420 c0142d13 c126f420 c126f420 00000007 00000000
-bf5ff914
-       c3c9ce60 c0142cdf c01513e9 00000009 00000007 00000009 c35b8000
-c0105c4b
-       00000009 00000007 bf5ff914 00000007 00000009 bf5ff6f4 000000dd
-c010007b
-Call Trace:
- [<c0142d13>] __fput+0x33/0x104
- [<c0142cdf>] fput+0x13/0x14
- [<c01513e9>] sys_fcntl64+0x69/0x70
- [<c0105c4b>] syscall_call+0x7/0xb
-Code: 0f 0b be 06 de 4a 23 c0 89 d3 8b 13 85 d2 75 c7 ba 00 f0 ff
+I think the USB serial drivers can just queue up urbs to the device
+with commands to set the termios settings and return without waiting
+for those urbs to complete.  There are potential synchronization issues,
+however.  The termios settings might go into different USB queues than
+the data, and so it is possible that data sent immediately after a
+set_termios might get to the device before the new termios settings.
 
-Configuration file was destroyed of course, as I opened it for writing with
-truncation.
-I'm changing code now to use pthread mutexes to control access to the
-configuration file,
-hopefully it will work better. So this message more like bug info, but I
-would like
-to be CC-ed  all answers/comments posted to the list in response to this
-posting.
+To correctly support TCSETAW/TCSETSW the USB serial drivers would have to
+have two different versions of set_termios--a non sleeping one to be called
+through the tty API and a sleeping one to use with TCSETAW/TCSETSW ioctls
+so the ioctl would not return until the settings were guaranteed to have
+taken effect.  Not many USB serial drivers support TCSETAW/TCSETSW now.
 
-Regards,
-
-_________________________________________________
-Ivan Kalatchev
-
-Senior Software Developer
-Engineering Seismology Group Canada Inc.
-ISO 9001-2000
-1 Hyperion Court, Kingston,
-Ontarion, Canada K7K 7G3
-phone: (613) 548-8287 ext.247
-fax:     (613) 548-8917
+-- Al
 
 

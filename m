@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVBZDYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVBZD0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVBZDYY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 22:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVBZDYY
+	id S261192AbVBZD0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 22:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVBZD0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 22:24:24 -0500
-Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:35232 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S261380AbVBZDXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 22:23:17 -0500
-Date: Fri, 25 Feb 2005 22:22:12 -0500 (EST)
-From: Ryan Mann <rmann@rmisp.net>
-X-X-Sender: rmann@rmnet
-To: Hershel Ricks <Shari.Decker@lenderz.net>
-cc: kernel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-kernel-announce@vger.kernel.org
-Subject: Re: Loan User - 177
-In-Reply-To: <4A0B4A08-DAF9-11D6-8A1D-4880E4C59064@apple20.mhpcc.edu>
-Message-ID: <Pine.LNX.4.61.0502252220320.7403@rmnet>
-References: <4A0B4A08-DAF9-11D6-8A1D-4880E4C59064@apple20.mhpcc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 25 Feb 2005 22:26:12 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:23978 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261192AbVBZDYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 22:24:31 -0500
+Subject: Linux RT question - __up_mutex calling pi_setprio
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 25 Feb 2005 22:24:22 -0500
+Message-Id: <1109388262.1452.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
+
+I have a couple of questions about __up_mutex in rt.c. I'm still using
+RT-V0.7.38-06 and this may have changed. I haven't checked.
+
+1) can old_owner ever not be the same as current. IOW can a process
+unlock a lock owned by another process?
+
+2) Is it really necessary to call pi_setprio on the old_owner (I guess
+if the previous question is true, then this would be too).  If the
+process is unlocking a lock, I don't expect it to be also blocked on a
+lock so it would not need to iterate the priority list. Wouldn't just
+calling mutex_setprio be sufficient?
+
+Thanks,
+
+-- Steve
 
 
-What does this have to do with the Linux kernel?  Have I 
-been selected for a loan because I run the Linux operating 
-system?  I'm honored!!!  <sarcasm>
-
-
-On Fri, 25 Feb 2005, Hershel Ricks wrote:
-
-> Thank you for your attention.
->
-> You have been pre-approved for a new home loan.
-> This offer is unconditional and your credit is in no way a factor.
->
-> Please find all details below:
->
-> _______SUMMARY_______
-> Interest: 3.95
-> Term: 360 months
-> Max Price: $350,000
-> Closing Date: 30 days
->
->
-> Please follow this link for your instant activation:
-> http://www.m0rtgagesource.com/index2.php?refid=phade
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel-announce" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->

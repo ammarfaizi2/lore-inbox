@@ -1,70 +1,425 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbUKOGIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbUKOGbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbUKOGIK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 01:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUKOGIK
+	id S261514AbUKOGbU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 01:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUKOGbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 01:08:10 -0500
-Received: from almesberger.net ([63.105.73.238]:12294 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261513AbUKOGIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 01:08:05 -0500
-Date: Mon, 15 Nov 2004 03:07:50 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generalize prio_tree (1/3)
-Message-ID: <20041115030750.L28802@almesberger.net>
-References: <20041114235646.K28802@almesberger.net> <419830FD.7000007@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419830FD.7000007@yahoo.com.au>; from nickpiggin@yahoo.com.au on Mon, Nov 15, 2004 at 03:30:53PM +1100
+	Mon, 15 Nov 2004 01:31:20 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:17568 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S261514AbUKOGat
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 01:30:49 -0500
+Message-ID: <41984CCC.9040800@blue-labs.org>
+Date: Mon, 15 Nov 2004 01:29:32 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: iptables OOPS (all recent kernels on x86_64)
+Content-Type: multipart/mixed;
+ boundary="------------050609000400010701040206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> I'm curious, how do you plan to use them for healthier barrier handling?
+This is a multi-part message in MIME format.
+--------------050609000400010701040206
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ah, you missed the great discussion on fsdevel and the BOF
-at OLS :-)
+Up until 2.6.9, when I changed link status after the initial 
+configuration, I would get a kernel OOPS.  Now with 2.6.9, I get a crash 
+immediately on boot with network device configuration.   Attached is my 
+boot log.
 
-http://marc.theaimsgroup.com/?t=108787649700005&r=1&w=2&n=34
-http://marc.theaimsgroup.com/?t=108809650200006&r=1&w=2&n=11
-http://marc.theaimsgroup.com/?l=linux-fsdevel&m=109107082406140&w=2
 
-This comes from prioritization of requests at the elevator.
-In order to honor priorities as much as possible, we need to
-keep barriers from affecting all requests in the queue.
+general protection fault: 0000 [1] PREEMPT
+CPU 0
+Modules linked in: ipt_TCPMSS ipt_REJECT iptable_filter iptable_mangle 
+ipt_MASQUERADE ipt_REDIRECT ipta
+Pid: 841, comm: ip Not tainted 2.6.9
+RIP: 0010:[<ffffffffa00494a8>] 
+<ffffffffa00494a8>{:ipt_MASQUERADE:device_cmp+152}
+RSP: 0018:000001003a883c08  EFLAGS: 00010202
+RAX: 82f363feffa60e02 RBX: 0000010006260d90 RCX: ffffff000032c000
+RDX: ffffff000032cc40 RSI: 0000010006260d90 RDI: 0000010038077658
+RBP: 0000010038077658 R08: 0000000000000000 R09: 000001003ae4ea88
+R10: 0000000000000000 R11: 000001003c4aa3c0 R12: 0000000000000000
+R13: ffffffffa0049410 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000002a959a6d40(0000) GS:ffffffff808f0d00(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000002a9582f6d0 CR3: 0000000000101000 CR4: 00000000000006e0
+Process ip (pid: 841, threadinfo 000001003a882000, task 0000010037864cf0)
+Stack: 0000010038077820 000001003a883c34 0000010006260d90 ffffffffa002e7ef
+       0000000000000001 000000c4805da6c9 ffffffffa004a400 0000010006260d90
+       0000000000000001 000001003ae2a4d8
+Call Trace:<ffffffffa002e7ef>{:ip_conntrack:ip_ct_selective_cleanup+271}
+       <ffffffffa0049559>{:ipt_MASQUERADE:masq_inet_event+25}
+       <ffffffff801535f0>{notifier_call_chain+32} 
+<ffffffff8058af01>{ipv6_add_addr+1361}
+       <ffffffff8058e466>{addrconf_add_linklocal+22} 
+<ffffffff8059226f>{addrconf_notify+2383}
+       <ffffffff80530cf5>{rt_cache_flush+581} 
+<ffffffff801535f0>{notifier_call_chain+32}
+       <ffffffff804fc36c>{dev_open+124} 
+<ffffffff804fde18>{dev_change_flags+104}
+       <ffffffff80562755>{devinet_ioctl+773} 
+<ffffffff80563e6c>{inet_ioctl+92}
+       <ffffffff804f1353>{sock_ioctl+867} <ffffffff801b586d>{sys_ioctl+1117}
+       <ffffffff80110f4a>{system_call+126}
 
-The idea is to ignore barriers unless requests separated by a
-barrier overlap, and at least one of them is a write. prio_tree
-is used to find those overlaps.
+Code: 48 8b 00 8b 40 50 39 85 98 01 00 00 75 12 8b 43 24 39 85 e0
+RIP <ffffffffa00494a8>{:ipt_MASQUERADE:device_cmp+152} RSP 
+<000001003a883c08>
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+ <0>Rebooting in 20 seconds..cable
 
-That way, priorities are only affected by barriers if using
-some form of direct IO, with overlaps and writes. While this
-isn't perfect (i.e. someone else scribbling over our files can
-still spoil all the fun), it allows a much larger class of
-applications to enjoy the full benefits of priorities.
+Scott ~ # cat /var/lib/iptables/rules-save
+# Generated by iptables-save v1.2.11 on Fri Nov 12 06:33:19 2004
+*nat
+:PREROUTING ACCEPT [145181:13427044]
+:POSTROUTING ACCEPT [48481:3068771]
+:OUTPUT ACCEPT [48479:3068633]
+[26:2684] -A PREROUTING -p tcp -m tcp --dport 8081 -j REDIRECT --to-ports 81
+[12522:800423] -A POSTROUTING -s 10.0.3.0/255.255.255.0 -o cable -j 
+MASQUERADE
+COMMIT
+# Completed on Fri Nov 12 06:33:19 2004
+# Generated by iptables-save v1.2.11 on Fri Nov 12 06:33:19 2004
+*mangle
+:PREROUTING ACCEPT [5254657:6537774407]
+:INPUT ACCEPT [4808824:6244772115]
+:FORWARD ACCEPT [444206:292346697]
+:OUTPUT ACCEPT [4842514:6158843926]
+:POSTROUTING ACCEPT [5289483:6451816902]
+COMMIT
+# Completed on Fri Nov 12 06:33:19 2004
+# Generated by iptables-save v1.2.11 on Fri Nov 12 06:33:19 2004
+*filter
+:INPUT ACCEPT [4808760:6244768923]
+:FORWARD ACCEPT [444206:292346709]
+:OUTPUT ACCEPT [4842512:6158843732]
+[64:3192] -A INPUT -i cable -p tcp -m tcp --dport 3128 -j REJECT 
+--reject-with icmp-admin-prohibited
+[10328:493816] -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j 
+TCPMSS --clamp-mss-to-pmtu
+COMMIT
+# Completed on Fri Nov 12 06:33:19 2004
 
-Besides that, it also helps the elevator to do a better job for
-requests even without priorities, because it doesn't have to go
-FIFO whenever it sees a barrier.
 
-See also section 3.6 of
-http://abiss.sourceforge.net/doc/abiss-lk.ps.gz
+--------------050609000400010701040206
+Content-Type: text/plain;
+ name="ipt_masq.oops"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipt_masq.oops"
 
-The CPU overhead is actually quite marginal: in tests, the ABISS
-elevator would actually outperform AS in terms of CPU time
-spent (measured by sending a lot of random requests with AIO
-into a large queue). While such tests compare apples and oranges,
-they at least indicate that minimalizing the effect of barriers
-doesn't have a horrible performance impact.
+Bootdata ok (command line is root=/dev/hda3 console=ttyS0,115200n8 console=tty0 serial=0,115200n8 ro noexec=on swiotlb=16384)
+Linux version 2.6.9 (root@Scott) (gcc version 3.4.3 (Gentoo Linux 3.4.3, ssp-3.4.3-0, pie-8.7.6.5)) #1 Fri Nov 12 03:51:49 EST 2004
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e4000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000003ff30000 (usable)
+ BIOS-e820: 000000003ff30000 - 000000003ff40000 (ACPI data)
+ BIOS-e820: 000000003ff40000 - 000000003fff0000 (ACPI NVS)
+ BIOS-e820: 000000003fff0000 - 0000000040000000 (reserved)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+No mptable found.
+Looks like a VIA chipset. Disabling IOMMU. Overwrite with "iommu=allowed"
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Processor #0 15:5 APIC version 16
+ACPI: IOAPIC (id[0x01] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 1, version 3, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+Using ACPI (MADT) for SMP configuration information
+Built 1 zonelists
+Kernel command line: root=/dev/hda3 console=ttyS0,115200n8 console=tty0 serial=0,115200n8 ro noexec=on swiotlb=16384
+Initializing CPU#0
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+time.c: Using 1.193182 MHz PIT timer.
+time.c: Detected 2310.106 MHz processor.
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Placing software IO TLB between 0x213a000 - 0x613a000
+Memory: 955016k/1047744k available (5082k kernel code, 91972k reserved, 2606k data, 200k init)
+Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU: AMD Opteron(tm) Processor 148 stepping 08
+Using local APIC NMI watchdog using perfctr0
+Using local APIC timer interrupts.
+Detected 13.125 MHz APIC timer.
+NET: Registered protocol family 16
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20040816
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 10 *11 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 *10 11 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 7 10 11 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 7 10 11 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 10 11 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 7 10 11 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 7 10 11 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 7 10 11 14 15) *0, disabled.
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+ACPI: PCI interrupt 0000:00:07.0[A] -> GSI 16 (level, low) -> IRQ 169
+ACPI: PCI interrupt 0000:00:08.0[A] -> GSI 18 (level, low) -> IRQ 177
+ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 16 (level, low) -> IRQ 169
+ACPI: PCI interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 185
+ACPI: PCI interrupt 0000:00:0c.0[A] -> GSI 17 (level, low) -> IRQ 185
+ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 18 (level, low) -> IRQ 177
+ACPI: PCI interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 193
+ACPI: PCI interrupt 0000:00:0f.1[A] -> GSI 20 (level, low) -> IRQ 193
+ACPI: PCI interrupt 0000:00:10.0[A] -> GSI 21 (level, low) -> IRQ 201
+ACPI: PCI interrupt 0000:00:10.1[A] -> GSI 21 (level, low) -> IRQ 201
+ACPI: PCI interrupt 0000:00:10.2[B] -> GSI 21 (level, low) -> IRQ 201
+ACPI: PCI interrupt 0000:00:10.3[B] -> GSI 21 (level, low) -> IRQ 201
+ACPI: PCI interrupt 0000:00:10.4[C] -> GSI 21 (level, low) -> IRQ 201
+ACPI: PCI interrupt 0000:00:11.5[C] -> GSI 22 (level, low) -> IRQ 209
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 16 (level, low) -> IRQ 169
+TC classifier action (bugs to netdev@oss.sgi.com cc hadi@cyberus.ca)
+agpgart: Detected AGP bridge 0
+agpgart: Maximum main memory to use for agp memory: 941M
+agpgart: AGP aperture is 256M @ 0xe0000000
+PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
+IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
+devfs: 2004-01-31 Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x0
+Initializing Cryptographic API
+PCI: Via IRQ fixup for 0000:00:10.0, from 11 to 9
+PCI: Via IRQ fixup for 0000:00:10.1, from 11 to 9
+PCI: Via IRQ fixup for 0000:00:10.2, from 10 to 9
+PCI: Via IRQ fixup for 0000:00:10.3, from 10 to 9
+ACPI: Power Button (FF) [PWRF]
+ACPI: Sleep Button (CM) [SLPB]
+ACPI: Processor [CPU1] (supports C1)
+Real Time Clock Driver v1.12
+Non-volatile memory driver v1.2
+Software Watchdog Timer: 0.07 initialized. soft_noboot=0 soft_margin=60 sec (nowayout= 0)
+w83877f_wdt: cannot register miscdev on minor=130 (err=-16)
+WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
+w83627hf WDT: cannot register miscdev on minor=130 (err=-16)
+sc1200wdt: build 20020303<3>sc1200wdt: io parameter must be specified
+Linux agpgart interface v0.100 (c) Dave Jones
+ipmi message handler version v33
+ipmi device interface version v33
+IPMI System Interface driver version v33, KCS version v33, SMIC version v33, BT version v33
+ipmi_si: Trying "kcs" at I/O port 0xca2
+ipmi_si: Trying "smic" at I/O port 0xca9
+ipmi_si: Trying "bt" at I/O port 0xe4
+ipmi_si: Unable to find any System Interface(s)
+IPMI Watchdog: driver version v33
+Copyright (C) 2004 MontaVista Software - IPMI Powerdown via sys_reboot version v33.
+Hangcheck: starting hangcheck timer 0.5.0 (tick is 180 seconds, margin is 60 seconds).
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+Using anticipatory io scheduler
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+RAMDISK driver initialized: 16 RAM disks of 32768K size 1024 blocksize
+loop: loaded (max 8 devices)
+ACPI: PCI interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 185
+ACPI: PCI interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 185
+eth0: 3Com Gigabit LOM (3C940)
+      PrefPort:A  RlmtMode:Check Link State
+Loaded prism54 driver, version 1.2
+Linux Tulip driver version 1.1.13 (May 11, 2002)
+ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 18 (level, low) -> IRQ 177
+tulip0:  MII transceiver #1 config 3000 status 7829 advertising 01e1.
+eth1: Lite-On 82c168 PNIC rev 32 at 0xb000, 00:A0:CC:56:CB:FB, IRQ 177.
+netconsole: not configured, aborting
+Linux video capture interface: v1.00
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:0f.1
+ACPI: PCI interrupt 0000:00:0f.1[A] -> GSI 20 (level, low) -> IRQ 193
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on pci0000:00:0f.1
+    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:DMA
+hda: SAMSUNG SP1614N, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: SONY DVD RW DRU-700A, ATAPI CD/DVD-ROM drive
+hdd: 4X4X32, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 1024KiB
+hda: 312581808 sectors (160041 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(100)
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+hdc: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+hdd: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
+PCI: Enabling device 0000:00:09.0 (0000 -> 0003)
+ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 16 (level, low) -> IRQ 169
+sym0: <875> rev 0x4 at pci 0000:00:09.0 irq 169
+sym0: Symbios NVRAM, ID 15, Fast-20, SE, parity checking
+sym0: open drain IRQ line driver, using on-chip SRAM
+sym0: using LOAD/STORE-based firmware.
+sym0: SCAN FOR LUNS disabled for targets 1.
+sym0: SCSI BUS has been reset.
+scsi0 : sym-2.1.18j
+  Vendor: UMAX      Model: Astra 2400S       Rev: V1.1
+  Type:   Scanner                            ANSI SCSI revision: 02
+scsi(0:0:1:0): Beginning Domain Validation
+scsi(0:0:1:0): Ending Domain Validation
+3ware 9000 Storage Controller device driver for Linux v2.26.02.001.
+ACPI: PCI interrupt 0000:00:08.0[A] -> GSI 18 (level, low) -> IRQ 177
+ata1: SATA max UDMA/133 cmd 0xFFFFFF000002A200 ctl 0xFFFFFF000002A238 bmdma 0x0 irq 177
+ata2: SATA max UDMA/133 cmd 0xFFFFFF000002A280 ctl 0xFFFFFF000002A2B8 bmdma 0x0 irq 177
+ata1: no device found (phy stat 00000000)
+scsi1 : sata_promise
+ata2: no device found (phy stat 00000000)
+scsi2 : sata_promise
+ACPI: PCI interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 193
+sata_via(0000:00:0f.0): routed to hard irq line 10
+ata3: SATA max UDMA/133 cmd 0xE800 ctl 0xE402 bmdma 0xD400 irq 193
+ata4: SATA max UDMA/133 cmd 0xE000 ctl 0xD802 bmdma 0xD408 irq 193
+ata3: no device found (phy stat 00000000)
+scsi3 : sata_via
+ata4: no device found (phy stat 00000000)
+scsi4 : sata_via
+Attached scsi generic sg0 at scsi0, channel 0, id 1, lun 0,  type 6
+Fusion MPT base driver 3.01.16
+Copyright (c) 1999-2004 LSI Logic Corporation
+Fusion MPT SCSI Host driver 3.01.16
+ohci1394: $Rev: 1223 $ Ben Collins <bcollins@debian.org>
+ACPI: PCI interrupt 0000:00:07.0[A] -> GSI 16 (level, low) -> IRQ 169
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[169]  MMIO=[fd800000-fd8007ff]  Max Packet=[2048]
+video1394: Installed video1394 module
+ieee1394: raw1394: /dev/raw1394 device initialized
+sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+eth1394: $Rev: 1224 $ Ben Collins <bcollins@debian.org>
+eth1394: eth2: IEEE-1394 IPv4 over 1394 Ethernet (fw-host0)
+ieee1394: Loaded AMDTP driver
+ieee1394: Loaded CMP driver
+ACPI: PCI interrupt 0000:00:10.4[C] -> GSI 21 (level, low) -> IRQ 201
+ehci_hcd 0000:00:10.4: VIA Technologies, Inc. USB 2.0
+ehci_hcd 0000:00:10.4: irq 201, pci mem ffffff0000068000
+ehci_hcd 0000:00:10.4: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:10.4: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
+usb usb1: Product: VIA Technologies, Inc. USB 2.0
+usb usb1: Manufacturer: Linux 2.6.9 ehci_hcd
+usb usb1: SerialNumber: 0000:00:10.4
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 8 ports detected
+usbcore: registered new driver cdc_acm
+drivers/usb/class/cdc-acm.c: v0.23:USB Abstract Control Model driver for USB modems and ISDN adapters
+Initializing USB Mass Storage driver...
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: PS2T++ Logitech TouchPad 3 on isa0060/serio1
+i2c /dev entries driver
+i2c-parport: using default base 0x378
+Driver for 1-wire Dallas network protocol.
+usbcore: registered new driver DS9490R
+Advanced Linux Sound Architecture Driver Version 1.0.6 (Sun Aug 15 07:17:53 2004 UTC).
+via82xx: Assuming DXS channels with 48k fixed sample rate.
+         Please try dxs_support=1 or dxs_support=4 option
+         and report if it works on your machine.
+ACPI: PCI interrupt 0000:00:11.5[C] -> GSI 22 (level, low) -> IRQ 209
+codec_read: codec 0 is not valid [0xfe0000]
+codec_read: codec 0 is not valid [0xfe0000]
+codec_read: codec 0 is not valid [0xfe0000]
+codec_read: codec 0 is not valid [0xfe0000]
+usb 1-7: new high speed USB device using address 4
+usbcore: registered new driver snd-usb-usx2y
+ALSA device list:
+  #0: VIA 823x rev60 at 0xc800, irq 209
+GACT probability on
+u32 classifier
+    Perfomance counters on
+    input device check on 
+    Actions configured 
+NET: Registered protocol family 2
+usb 1-7: Product: USB2.0 Hub Controller
+usb 1-7: Manufacturer: NEC Corporation
+hub 1-7:1.0: USB hub found
+hub 1-7:1.0: 4 ports detected
+IP: routing cache hash table of 1024 buckets, 56Kbytes
+TCP: Hash tables configured (established 262144 bind 37449)
+IPv4 over IPv4 tunneling driver
+GRE over IPv4 tunneling driver
+Initializing IPsec netlink socket
+NET: Registered protocol family 1
+NET: Registered protocol family 10
+IPv6 over IPv4 tunneling driver
+NET: Registered protocol family 17
+NET: Registered protocol family 15
+Bridge firewalling registered
+NET: Registered protocol family 4
+802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
+All bugs added by David S. Miller <davem@redhat.com>
+SCTP: Hash tables configured (established 65536 bind 9362)
+powernow-k8: Power state transitions not supported
+ACPI: (supports S0 S1 S3 S4 S5)
+ACPI wakeup devices: 
+PCI0 PS2K PS2M UAR2 UAR1 AC97 USB1 USB2 USB3 USB4 EHCI PWRB SLPB 
+BIOS EDD facility v0.16 2004-Jun-25, 1 devices found
+ReiserFS: hda3: found reiserfs format "3.6" with standard journal
+ReiserFS: hda3: using ordered data mode
+ReiserFS: hda3: journal params: device hda3, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+ReiserFS: hda3: checking transaction log (hda3)
+ReiserFS: hda3: Using r5 hash to sort names
+VFS: Mounted root (reiserfs filesystem) readonly.
+Freeing unused kernel memory: 200k freed
+Adding 498004k swap on /dev/hda2.  Priority:-1 extents:1
+general protection fault: 0000 [1] PREEMPT 
+CPU 0 
+Modules linked in: ipt_TCPMSS ipt_REJECT iptable_filter iptable_mangle ipt_MASQUERADE ipt_REDIRECT iptable_nat ip_conntrack ip_tables ov511 uhci_hcd
+Pid: 841, comm: ip Not tainted 2.6.9
+RIP: 0010:[<ffffffffa00494a8>] <ffffffffa00494a8>{:ipt_MASQUERADE:device_cmp+152}
+RSP: 0018:000001003a883c08  EFLAGS: 00010202
+RAX: 82f363feffa60e02 RBX: 0000010006260d90 RCX: ffffff000032c000
+RDX: ffffff000032cc40 RSI: 0000010006260d90 RDI: 0000010038077658
+RBP: 0000010038077658 R08: 0000000000000000 R09: 000001003ae4ea88
+R10: 0000000000000000 R11: 000001003c4aa3c0 R12: 0000000000000000
+R13: ffffffffa0049410 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000002a959a6d40(0000) GS:ffffffff808f0d00(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000002a9582f6d0 CR3: 0000000000101000 CR4: 00000000000006e0
+Process ip (pid: 841, threadinfo 000001003a882000, task 0000010037864cf0)
+Stack: 0000010038077820 000001003a883c34 0000010006260d90 ffffffffa002e7ef 
+       0000000000000001 000000c4805da6c9 ffffffffa004a400 0000010006260d90 
+       0000000000000001 000001003ae2a4d8 
+Call Trace:<ffffffffa002e7ef>{:ip_conntrack:ip_ct_selective_cleanup+271} 
+       <ffffffffa0049559>{:ipt_MASQUERADE:masq_inet_event+25} 
+       <ffffffff801535f0>{notifier_call_chain+32} <ffffffff8058af01>{ipv6_add_addr+1361} 
+       <ffffffff8058e466>{addrconf_add_linklocal+22} <ffffffff8059226f>{addrconf_notify+2383} 
+       <ffffffff80530cf5>{rt_cache_flush+581} <ffffffff801535f0>{notifier_call_chain+32} 
+       <ffffffff804fc36c>{dev_open+124} <ffffffff804fde18>{dev_change_flags+104} 
+       <ffffffff80562755>{devinet_ioctl+773} <ffffffff80563e6c>{inet_ioctl+92} 
+       <ffffffff804f1353>{sock_ioctl+867} <ffffffff801b586d>{sys_ioctl+1117} 
+       <ffffffff80110f4a>{system_call+126} 
 
-- Werner
+Code: 48 8b 00 8b 40 50 39 85 98 01 00 00 75 12 8b 43 24 39 85 e0 
+RIP <ffffffffa00494a8>{:ipt_MASQUERADE:device_cmp+152} RSP <000001003a883c08>
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+ <0>Rebooting in 20 seconds..cable: network connection up using port A
+    speed:           100
+    autonegotiation: yes
+    duplex mode:     full
+    flowctrl:        none
+    irq moderation:  disabled
+    scatter-gather:  enabled
+SysRq : Emergency Sync
+SysRq : Emergency Sync
+SysRq : Emergency Sync
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+--------------050609000400010701040206--

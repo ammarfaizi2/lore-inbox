@@ -1,34 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVANUtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVANUt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbVANUtW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 15:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVANUtW
+	id S262119AbVANUt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 15:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVANUt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 15:49:22 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:22987 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S262117AbVANUtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:49:13 -0500
-Subject: Adding a new system call from a module in 2.6
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 14 Jan 2005 15:49:20 -0500
-Message-Id: <1105735760.3253.23.camel@avishay.fsl.cs.sunysb.edu>
+	Fri, 14 Jan 2005 15:49:28 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:33412 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262119AbVANUtS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 15:49:18 -0500
+Date: Fri, 14 Jan 2005 21:49:57 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH 4/8 ] ltt for 2.6.10 : fs/ events
+Message-ID: <20050114204957.GB8385@mars.ravnborg.org>
+Mail-Followup-To: Karim Yaghmour <karim@opersys.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LTT-Dev <ltt-dev@shafik.org>
+References: <41E76288.2080004@opersys.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0-1mdk 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E76288.2080004@opersys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that the sys_call_table is no longer exported, what would be the
-best way to add a new system call from a module in 2.6?  I have only
-seen the system call table in assembly code (such as in
-arch/i386/kernel/entry.S) and do not know how to export it.  I know that
-doing this is not recommended, but it would save me a lot of time while
-developing new system calls (no need to recompile kernel and reboot for
-every change).  Thanks in advance for any suggestions.
+Hi Karim.
 
-Avishay Traeger
+>  void __wait_on_buffer(struct buffer_head * bh)
+>  {
+> +	ltt_ev_file_system(LTT_EV_FILE_SYSTEM_BUF_WAIT_START, 0, 0, NULL);
 
+Pleae use the subsystem name in both function name and constant - like:
+> +	ltt_ev_fs(LTT_EV_FS_BUF_WAIT_START, 0, 0, NULL);
 
+This is commonly practice.
+
+Comment is relevant for:
+file_system	=>	fs
+network		=>	net
+memory		=>	mm
+
+	Sam

@@ -1,29 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129364AbRB1XgP>; Wed, 28 Feb 2001 18:36:15 -0500
+	id <S129381AbRB1XiP>; Wed, 28 Feb 2001 18:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRB1XgG>; Wed, 28 Feb 2001 18:36:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63753 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129364AbRB1Xfq>; Wed, 28 Feb 2001 18:35:46 -0500
-Subject: Re: i2o & Promise SuperTrak100
-To: david2@maincube.net (David Priban)
-Date: Wed, 28 Feb 2001 23:38:31 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <MPBBILLJAONHMANIJOPDAEGGFMAA.david2@maincube.net> from "David Priban" at Feb 28, 2001 03:11:30 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129389AbRB1XiG>; Wed, 28 Feb 2001 18:38:06 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:14600 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S129381AbRB1Xhy>;
+	Wed, 28 Feb 2001 18:37:54 -0500
+Date: Wed, 28 Feb 2001 18:37:52 -0500
+From: Zach Brown <zab@zabbo.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] pci_dma_set_mask()
+Message-ID: <20010228183752.C25968@tetsuo.zabbo.net>
+In-Reply-To: <20010228103727.I23735@tetsuo.zabbo.net> <3A9D26A2.14563DE1@mandrakesoft.com> <20010228161450.A25553@tetsuo.zabbo.net> <15005.34953.909874.589120@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14YGAz-0006k8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <15005.34953.909874.589120@pizda.ninka.net>; from davem@redhat.com on Wed, Feb 28, 2001 at 03:23:53PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If I enable DRIVERDEBUG in i2o_core.c it makes the freeze to go away and
-> kernel
-> loads just fine. I do get bunch of I/O errors on mounted array but this may
-> be due to crappy HD's I'm using for testing.
+On Wed, Feb 28, 2001 at 03:23:53PM -0800, David S. Miller wrote:
 
-Umm that sounds like it might be timing. That could be a pain
+> Jeff/Zach, I agree, I'm fully for such a patch, but please update the
+> documentation!  It is the most important part of the patch.
 
+Very good point.  I'll add Jeff's error returning and spin some minor
+docs and resend.
+
+thanks.

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTLWRH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLWRH7
+	id S261807AbTLWROv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTLWROv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:07:59 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:57007 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S262041AbTLWRH4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:07:56 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: <xan2@ono.com>, linux-kernel@vger.kernel.org
-Subject: Re: [License of kernel components] linux-2.x.y/Documentation/logo.GIF should be logo.PNG?
-Date: Tue, 23 Dec 2003 12:07:53 -0500
-User-Agent: KMail/1.5.1
-References: <178ed117d672.17d672178ed1@ono.com>
-In-Reply-To: <178ed117d672.17d672178ed1@ono.com>
-Organization: Organization: None that appears to be detectable by casual observers
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 12:14:51 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:18380 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261807AbTLWROt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 12:14:49 -0500
+Date: Tue, 23 Dec 2003 12:14:49 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Christophe Saout <christophe@saout.de>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>
+Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
+Message-ID: <20031223171449.GA8847@gtf.org>
+References: <1072129379.5570.73.camel@leto.cs.pocnet.net> <20031222215236.GB13103@leto.cs.pocnet.net> <20031223131355.A6864@infradead.org> <1072186582.4111.46.camel@leto.cs.pocnet.net> <20031223151545.GE476@reti> <20031223153143.GA28690@gtf.org> <20031223154325.GF476@reti> <20031223170118.GA4384@leto.cs.pocnet.net> <20031223171541.GG476@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312231207.53580.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.56.244] at Tue, 23 Dec 2003 11:07:53 -0600
+In-Reply-To: <20031223171541.GG476@reti>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 December 2003 10:20, xan2@ono.com wrote:
->Hi,
->
->I believe that the tux logo located at
->linux-2.6.0/Documentation/logo.gif is the image that appears on the
->boot of the system if framebuffer is enabled, isn't it?
->
->In this cas, and also if it's only for documentation purpose, I
-> think that we could change the propietary (and I think patented)
-> format of this logo (gif) to anyone that were free (for example
-> like PNG format [that has GPL licensed]).
+On Tue, Dec 23, 2003 at 05:15:41PM +0000, Joe Thornber wrote:
+> On Tue, Dec 23, 2003 at 06:01:18PM +0100, Christophe Saout wrote:
+> > So how does this look?
+> 
+> <snip>
+> 
+> > -static struct dm_daemon _kcryptd;
+> > +static struct dm_daemon kcryptd;
+> 
+> Please keep the leading underscore, it indicates that it is static
+> data; a convention that is used throughout dm.  hch was ok about it
+> last time he noticed it, so he can't really complain now ;)
 
-I don't think GIF was ever "proprietary", but the l-z-w compression 
-used was patented.  The patent expired earlier this year.  So gif is 
-back.
+ewwww...  The programmer knows what is static data without needing a
+leading underscore.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+This practice is wrong for the same reason that Hungarian notation is
+wrong :)
+
+	Jeff
+
+
 

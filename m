@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270926AbTHAVeU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 17:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272431AbTHAVeU
+	id S274955AbTHAVrk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 17:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274957AbTHAVrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 17:34:20 -0400
-Received: from mail.kroah.org ([65.200.24.183]:9175 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270926AbTHAVeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 17:34:18 -0400
-Date: Fri, 1 Aug 2003 14:27:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Diffie <diffie@blazebox.homeip.net>
+	Fri, 1 Aug 2003 17:47:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1740 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274955AbTHAVrR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 17:47:17 -0400
+Date: Fri, 1 Aug 2003 14:35:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lenar =?ISO-8859-1?Q?L=F5hmus?= <lenar@vision.ee>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Badness in device_release at drivers/base/core.c:84
-Message-ID: <20030801212750.GB31881@kroah.com>
-References: <20030801182207.GA3759@blazebox.homeip.net>
+Subject: Re: oops with 2.6.0-test2-mm2
+Message-Id: <20030801143517.1cea7ccb.akpm@osdl.org>
+In-Reply-To: <1059740447.28249.11.camel@vision.dev>
+References: <1059740447.28249.11.camel@vision.dev>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030801182207.GA3759@blazebox.homeip.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 01, 2003 at 02:22:07PM -0400, Diffie wrote:
+Lenar Lõhmus <lenar@vision.ee> wrote:
+>
+> Found following oops in my logs. Machine runs as if nothing happened.
+> Kernel 2.6.0-test2-mm2. .config attached and utilversions appended.
 > 
-> Under 2.6.0-test2-mm2 keeps getting Badness in device_release at
-> drivers/base/core.c:84 when loading USB modules on NFORCE2 based board.
+> AMD 2500+ barton with 1GB of memory (HIGHMEM enabled) on NF2 board.
 > 
-> uname: Linux blaze 2.6.0-test2-mm2 #1 Thu Jul 31 13:11:05 EDT 2003 i686
-> unknown on Linux Slackware 9.0, GCC 3.2.2
-> 
-> Device '' does not have a release() function, it is broken and must be
-> fixed.
-> Badness in device_release at drivers/base/core.c:84
-> Call Trace:
-> [<c021dfd8>] kobject_cleanup+0x88/0x90
-> [<c02c03ff>] hub_port_connect_change+0x2af/0x330
-> [<c02bfcfd>] hub_port_status+0x3d/0xb0
-> [<c02c07bd>] hub_events+0x33d/0x3b0
-> [<c02c0865>] hub_thread+0x35/0xf0
-> [<c011b810>] default_wake_function+0x0/0x30
-> [<c02c0830>] hub_thread+0x0/0xf0
-> [<c01070c9>] kernel_thread_helper+0x5/0xc
+> Unable to handle kernel paging request at virtual address 02000014
+> c0169e46
+> *pde = 00000000
+> Oops: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<c0169e46>]    Not tainted VLI
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010206
+> eax: 02000000   ebx: c8454980   ecx: c8450e48   edx: c8450e48
+> esi: c8450e38   edi: c1b56000   ebp: 0000000c   esp: c1b57e78
 
-The USB warnings should all be fixed up with the patches I just sent to
-Linus, so you can safely ignore them for now.
+A single bit got set in %eax.  You probably have bad hardware.  Try running
+memtest86 for 12 hours.
 
-As for the oops, I have no idea, sorry.
 
-thanks,
-
-greg k-h

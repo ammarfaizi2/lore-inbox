@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTHUPDs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 11:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTHUPDs
+	id S262752AbTHUPGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 11:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTHUPGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 11:03:48 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:49360 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S262738AbTHUPDp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 11:03:45 -0400
-Date: Thu, 21 Aug 2003 17:03:33 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-In-Reply-To: <20030821164435.B3518@pclin040.win.tue.nl>
-Message-ID: <Pine.GSO.3.96.1030821164926.2489M-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Thu, 21 Aug 2003 11:06:46 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:47037 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262752AbTHUPGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 11:06:44 -0400
+Date: Thu, 21 Aug 2003 08:06:11 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: michal-bugzilla@logix.cz
+Subject: [Bug 1130] New: GRE tunnels freeze kernel 
+Message-ID: <6570000.1061478371@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, Andries Brouwer wrote:
+http://bugme.osdl.org/show_bug.cgi?id=1130
 
-> >  Hmm, that would make some sense, but how does it work when an external
-> > keyboard is attached?
-> 
-> Usually the keyboard and mouse commands are sent to all attached
-> keyboards resp. mice. Thus, with an internal keyboard that only
-> knows about Set 2 and an external keyboard that also knows about
-> Set 3 you can change the kbds to Set 3. Now the internal one is
-> dead, but the external one functions.
+           Summary: GRE tunnels freeze kernel
+    Kernel Version: 2.6.0-test2, 2.6.0-test3
+            Status: NEW
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: michal-bugzilla@logix.cz
 
- I meant: how does the translation work if there is only a single onboard
-controller that does scanning of the embedded keyboard and presents set #1
-of codes directly?  But after a bit of thinking I suppose it does support
-translation for an external keyboard (which presents set #2 by default and
-a lot of PC software expects set #1) and probably a pass-through mode for
-it as well. 
 
- What the big fault of all these limited implementations is, there is no
-reliable way to query what is supported.  If a device does not support
-mode switching or a particular mode, it should NAK a command that does it,
-or at least report the original mode if queried afterwards.  Another
-possibility is to return a different device ID -- IBM chose a single value
-of 256 possible for its PS/2 keyboards -- why couldn't the incompatible
-others have chosen something different, sigh?... 
+Distribution: SuSE Linux 8.2
+Hardware Environment: x86
+Software Environment: gcc-3.3 used to compile kernel.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Problem Description:
+Incoming packet to the GRE tunnel interface freezes the kernel.
+
+Steps to reproduce:
+On a 2.6.0-test system create a tunnel for instance with these steps:
+
+On 10.0.0.1:
+modprobe ip_gre
+ip tunnel add gre1 mode gre local 10.0.0.1 remote 10.0.0.2 ttl 64
+ip link set gre1 up
+ip addr add 172.16.0.1/24 dev gre1
+
+On a non-2.6.0 10.0.0.2:
+modprobe ip_gre
+ip tunnel add gre1 mode gre local 10.0.0.2 remote 10.0.0.1 ttl 64
+ip link set gre1 up
+ip addr add 172.16.0.2/24 dev gre1
+
+Now ping the 2.6.0 system:
+ping -c1 172.16.0.1
+
+Upon receiving the packet the box foreezes. No Oops but neither <Alt>+<F>
+console switching nor NumLock worked anymore. (Don't know about SysRq).
+
 

@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291766AbSB0DAi>; Tue, 26 Feb 2002 22:00:38 -0500
+	id <S291787AbSB0DCs>; Tue, 26 Feb 2002 22:02:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291775AbSB0DA3>; Tue, 26 Feb 2002 22:00:29 -0500
-Received: from mx1.fuse.net ([216.68.2.90]:38090 "EHLO mta01.fuse.net")
-	by vger.kernel.org with ESMTP id <S291766AbSB0DAQ>;
-	Tue, 26 Feb 2002 22:00:16 -0500
-Message-ID: <3C7C4BBF.2020505@fuse.net>
-Date: Tue, 26 Feb 2002 22:00:15 -0500
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020203
+	id <S291776AbSB0DCj>; Tue, 26 Feb 2002 22:02:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31753 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291775AbSB0DCZ>;
+	Tue, 26 Feb 2002 22:02:25 -0500
+Message-ID: <3C7C4BED.CD0A03BF@zip.com.au>
+Date: Tue, 26 Feb 2002 19:01:01 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.5.5-dj2 compile failures
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: george anzinger <george@mvista.com>
+CC: wwp <subscript@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: low latency & preemtible kernels
+In-Reply-To: <20020226141144.248506fa.subscript@free.fr> <3C7C4520.2783D895@mvista.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First the good news - it built the ALSA modules correctly this time around.
+george anzinger wrote:
+> 
+> wwp wrote:
+> >
+> > Hi there,
+> >
+> > here's a newbie question:
+> > is it UNadvisable to apply both preempt-kernel-rml and low-latency patches
+> > over a 2.4.18 kernel?
+> >
+> > thanx in advance
+> >
+> > --
+> I believe that the preempt kernel patch or one related to it does the
+> low-latency stuff in a more economical way,
 
-And I suspect these are trivial fixes:
-    USB storage fails by trying to reference "address" member of a 
-scatterlist, which has a vdma_address (MIPS) or a dma_address (x86) 
-(didn't check others).
-        USB Mass Storage is modular, all sub drivers selected.
+Sigh.  Not to single you out, George - I see abject misunderstanding
+and misinformation about this sort of thing all over the place.
 
-        This affects datafab.c and jumpshot.c.
+So let's make some statements:
 
-gcc -D__KERNEL__ 
--I/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.5-dj2/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -DMODULE -DMODVERSIONS -include 
-/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.5-dj2/include/linux/modversions.h 
--I../../scsi/ -DKBUILD_BASENAME=datafab  -c -o datafab.o datafab.c
-datafab.c: In function `datafab_read_data':
-datafab.c:260: structure has no member named `address'
-datafab.c:261: structure has no member named `address'
-datafab.c:269: structure has no member named `address'
-datafab.c:270: structure has no member named `address'
-datafab.c: In function `datafab_write_data':
-datafab.c:351: structure has no member named `address'
-datafab.c:351: structure has no member named `address'
-datafab.c:360: structure has no member named `address'
-datafab.c:360: structure has no member named `address'
-make[3]: *** [datafab.o] Error 1
-make[3]: Leaving directory 
-`/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.5-dj2/drivers/usb/storage'
-make[2]: *** [_modsubdir_storage] Error 2
-make[2]: Leaving directory 
-`/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.5-dj2/drivers/usb'
-make[1]: *** [_modsubdir_usb] Error 2
-make[1]: Leaving directory 
-`/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.5-dj2/drivers'
-make: *** [_mod_drivers] Error 2
+- preemption is more expensive that explicit scheduling points.   Always
+  was, always shall be.
 
-    Some FSs seem to have trouble with dparent_lock - fatfs.o, at least, 
-caused depmod to say "undefined symbol."
-        I believe the following patch fixes it.
+- Anyone who has performed measurements knows that preemption is
+  ineffective.  Worst-case latencies are still up to 100 milliseconds.
 
---- dcache.c.old        Tue Feb 26 21:55:53 2002
-+++ dcache.c    Tue Feb 26 21:56:59 2002
-@@ -31,6 +31,7 @@
+- preemptability is a *basis* for getting a maintainable low-latency
+  kernel.   And that's the reason why I support its merge into 2.5.  Same
+  with Ingo, I expect.
 
- spinlock_t dcache_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
- rwlock_t dparent_lock __cacheline_aligned_in_smp = RW_LOCK_UNLOCKED;
-+EXPORT_SYMBOL(dparent_lock);
+  But there's a lot of icky stuff to be done yet to make it effective.
 
- /* Right now the dcache depends on the kernel lock */
- #define check_lock()   if (!kernel_locked()) BUG()
+> i.e. takes advantage of the
+> preemption code to implement the low-latency stuff.  See the lock-break
+> patch that rml has.  It should be right next to the preempt patch.
 
+lock-break is missing the cross-SMP reschedule hack, so on SMP it'll
+still have very high worst-case latencies.  If all the other parts
+of the low-latency patch were included then preempt+lock-break should
+give better results than low-latency.
 
-
---Nathan
-
-
+-

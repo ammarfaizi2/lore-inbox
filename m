@@ -1,78 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310441AbSCLGf0>; Tue, 12 Mar 2002 01:35:26 -0500
+	id <S310202AbSCLGuu>; Tue, 12 Mar 2002 01:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310438AbSCLGfR>; Tue, 12 Mar 2002 01:35:17 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:45753 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S310451AbSCLGfE>;
-	Tue, 12 Mar 2002 01:35:04 -0500
-Date: Tue, 12 Mar 2002 17:33:32 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
-Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Oskar Liljeblad <oskar@osk.mine.nu>, <mjp@securepipe.com>
-Subject: [PATCH] dnotify
-Message-Id: <20020312173332.5bf6f277.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S310438AbSCLGuk>; Tue, 12 Mar 2002 01:50:40 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:27847 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S310202AbSCLGuc>;
+	Tue, 12 Mar 2002 01:50:32 -0500
+Date: Mon, 11 Mar 2002 22:47:08 -0800 (PST)
+Message-Id: <20020311.224708.08403487.davem@redhat.com>
+To: tngo@broadcom.com
+Cc: linux-kernel@vger.kernel.org, gignatin@broadcom.com, gyoung@broadcom.com
+Subject: Re: [BETA] First test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <030801c1c960$ed24f470$f665030a@lt-ir002050.broadcom.com>
+In-Reply-To: <030801c1c960$ed24f470$f665030a@lt-ir002050.broadcom.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, Linus,
+   From: "Timothy Ngo" <tngo@broadcom.com>
+   Date: Mon, 11 Mar 2002 16:57:44 -0800
 
-The following patch makes directory notifications per thread group instead
-of per process tree as they are now.  This means, in particular, that if
-a child closes a file descriptor that has a directory open with notifies
-enabled, the notification will not be removed.
+   The driver was also written in a way that proprietary information
+   about the hardware would not be unnecessarily disclosed. This is
+   necessary to protect our intellectual property and to keep a
+   competitive edge in the highly competitive Gigabit NIC marketplace.
+   
+Then please tell us why other gigabit vendors are able to work with
+the Linux developer community and Broadcom is not able to? :-)
 
-Thanks to Andrea for the push in the right direction.
+   At this point, we cannot support the Linux open source community
+   to write their own driver.
 
-Patch against 2.4.19-pre3, but also applies to 2.5.6 with a small offset.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Frankly, we don't need your support anymore.  Once it was realized
+that we would not receive any help from you we did everything in our
+power to produce a driver and situation that did not require
+Broadcom's help.  We couldn't depend upon you, so we took appropriate
+actions.
 
-diff -ruN 2.4.19-pre3/fs/dnotify.c 2.4.19-pre3-notify/fs/dnotify.c
---- 2.4.19-pre3/fs/dnotify.c	Wed Nov  8 18:27:57 2000
-+++ 2.4.19-pre3-notify/fs/dnotify.c	Tue Mar 12 12:02:15 2002
-@@ -1,7 +1,7 @@
- /*
-  * Directory notifications for Linux.
-  *
-- * Copyright (C) 2000 Stephen Rothwell
-+ * Copyright (C) 2000,2001,2002 Stephen Rothwell
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License as published by the
-@@ -59,7 +59,7 @@
- 	write_lock(&dn_lock);
- 	prev = &inode->i_dnotify;
- 	for (odn = *prev; odn != NULL; prev = &odn->dn_next, odn = *prev)
--		if (odn->dn_filp == filp)
-+		if ((odn->dn_owner == current->files) && (odn->dn_filp == filp))
- 			break;
- 	if (odn != NULL) {
- 		if (turning_off) {
-@@ -82,6 +82,7 @@
- 	dn->dn_mask = arg;
- 	dn->dn_fd = fd;
- 	dn->dn_filp = filp;
-+	dn->dn_owner = current->files;
- 	inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
- 	dn->dn_next = inode->i_dnotify;
- 	inode->i_dnotify = dn;
-diff -ruN 2.4.19-pre3/include/linux/dnotify.h 2.4.19-pre3-notify/include/linux/dnotify.h
---- 2.4.19-pre3/include/linux/dnotify.h	Wed Mar  6 16:08:12 2002
-+++ 2.4.19-pre3-notify/include/linux/dnotify.h	Tue Mar 12 11:23:07 2002
-@@ -11,6 +11,7 @@
- 						   see linux/fcntl.h */
- 	int			dn_fd;
- 	struct file *		dn_filp;
-+	fl_owner_t		dn_owner;
- };
- 
- #define DNOTIFY_MAGIC	0x444E4F54
+   In one benchmark test, we've achieved better than 1.8 Gigabit total
+   throughput using jumbo frames.
+
+Our driver is faster than yours, and this is backed up by reports done
+by public testers of our driver.  Our cases are well documented,
+whereas all you can do is mention is a magic "one benchmark test" and
+a magic performance result which contains no details.  It seems that
+knowing more about the hardware than anyone else doesn't seem to help
+you all that much in this area.  This I find amusing. :-)
+
+We make regular and detailed releases.  Our work is publicly
+documented and very accessible to the community.  Whereas Broadcom
+does releases behind closed doors and only distribution vendors even
+hear about when this happens.
+
+   [BRCM] Our driver is 117K, Intel's driver is 82K, the Altima driver is 82K.
+   It has
+   a lot of features and carries all backward compatible for all chips
+   including
+   firmware.
+
+Our driver fully supports not only the same exact hardware and
+revisions as your driver, it supports MORE chipsets (and MORE
+features) than your driver including but not limited to the Syskonnect
+Tigon3 based boards.
+
+Your argument for having a huge driver binary size is garbage.
+Our driver supports all of your hardware fully, and is HALF the
+size.
+
+Your arguments are not only erroneous, they show how deeply you do
+not understand the problems the Linux developer community has with
+your driver.
+   
+   > > Finally, their driver is just plain buggy, they have
+   > > code which tries to use page_address() on pages which are potentially
+   > > in highmem and that is guarenteed to oops.
+   
+   [BRCM] It is true that the driver uses page_address() in one subroutine that
+   is used to workaround a problem on the very early 5700 chip. But this routine
+   is not used at all, it was there intially to support early rev of the
+   silicon. It was removed in later version of the Broadcom driver.
+   
+Removing it removes support for HIGHMEM zerocopy in your driver for
+those revisions when, in fact, you could have simply used calls to
+skb_copy() to fix the bug.  Our driver handles this correctly, not
+penalizing performance on this card revision regardless of how "rare"
+or "unimportant" it is.  What you have done to fix this bug in your
+driver is precisely the kind of garbage change we would never accept
+into a driver found in the Linux sources.
+
+Frankly I am disgusted with Broadcom's attitude here.  No other vendor
+gives us this much of a problem with their gigabit Linux drivers.
+
+Intel is not crying about "competitive gigabit market" to us, they
+have cleaned up their driver and allow Jeff Garzik to co-maintain it
+with them.  Same story for NatSemi's gigabit parts for which Ben
+Lahaise (another one of those "arrogant" Linux developers :-) is the
+sole driver author.
+
+So please, take your sob story and excuses elsewhere.  The world is
+crumbling from underneath you, and luckily the Linux community has a
+solution to your attitude and ignorance in this situation.  We have
+our own driver and thus we can and will choose to ignore you.  And
+ignore you we will if you continue to act this way.
+
+One of the things that Broadcom really, and truly, wants to protect is
+their broken NICE extensions in their drivers.  They want to retain
+this so they can ship their proprietary VLAN trunking and load
+balancing kernel module.  Not only are the NICE extentions truly
+disgusting, making use of them from binary-only Linux kernel modules
+is of questionable legality.
+
+Jeff and I have made numerous efforts to fix this relationship, both
+publicly, directly with Broadcom, and more recently directly with
+vendors who use Broadcom's parts.  It is a real shame (and IMHO a PR
+disaster for Broadcom, considering how other gigabit vendors interact
+with us) that they can't figure out that they are fighting a losing
+battle and that it is in their interest to work together and not
+against us on these matters.

@@ -1,64 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266589AbSKGVwF>; Thu, 7 Nov 2002 16:52:05 -0500
+	id <S266595AbSKGV5L>; Thu, 7 Nov 2002 16:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266592AbSKGVwF>; Thu, 7 Nov 2002 16:52:05 -0500
-Received: from parmenides.zen.co.uk ([212.23.8.69]:60936 "HELO
-	parmenides.zen.co.uk") by vger.kernel.org with SMTP
-	id <S266589AbSKGVwE>; Thu, 7 Nov 2002 16:52:04 -0500
-X-Zen-Trace: 217.155.72.205
-Date: Thu, 7 Nov 2002 21:58:36 +0000
-To: Andy Wallace <andyw2@btconnect.com>
-Cc: rgammans@computer-surgery.co.uk, sct@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Documentation/DocBook/journal-api.sgml
-Message-ID: <20021107215835.D15193@computer-surgery.co.uk>
-References: <1036684868.2032.76.camel@pavilion>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1036684868.2032.76.camel@pavilion>; from andyw2@btconnect.com on Thu, Nov 07, 2002 at 04:01:08PM +0000
-From: Roger Gammans <roger@computer-surgery.co.uk>
+	id <S266596AbSKGV5L>; Thu, 7 Nov 2002 16:57:11 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:63240 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S266595AbSKGV5J>;
+	Thu, 7 Nov 2002 16:57:09 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200211072202.gA7M2Rd132519@saturn.cs.uml.edu>
+Subject: Re: ps performance sucks
+To: akpm@digeo.com (Andrew Morton)
+Date: Thu, 7 Nov 2002 17:02:26 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), davidsen@tmr.com (Bill Davidsen),
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com, jw@pegasys.ws,
+       wa@almesberger.net, andersen@codepoet.org, woofwoof@hathway.com
+In-Reply-To: <3DCAD5A9.D4D4C1CB@digeo.com> from "Andrew Morton" at Nov 07, 2002 01:05:45 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton writes:
+> "Albert D. Cahalan" wrote:
 
---KFztAG8eRSV9hGtP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> In case you happen to know where they are, I'm looking for these:
+>>
+>> pages reclaimed
+>
+> /proc/vmstat:pgsteal
 
-On Thu, Nov 07, 2002 at 04:01:08PM +0000, Andy Wallace wrote:
-> Hi,
->=20
-> make psdocs failed to compile journal-api.sgml for me with a couple of
-> errors on 2.5.46.
->=20
-> The attached patch fixes these errors and allows it to compile
-> successfully.
+That's a funny name for it. Sure about that? Longer description
+of what I'm looking for:
 
-I believe Sam Ravnbourn sent this to Linus and trival about three weeks
-ago. But thanks.
+    reattaches from reclaim list
+        Number of pages that have been faulted while on the inactive list
 
-TTFN
---=20
-Roger.
-Master of Peng Shui.  (Ancient oriental art of Penguin Arranging)
-GPG Key FPR: CFF1 F383 F854 4E6A 918D  5CFF A90D E73B 88DE 0B3E
+To me, "pgsteal" sounds like pages grabbed from a clean list to
+be used for some new purpose.
 
---KFztAG8eRSV9hGtP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+>> minor faults
+>
+> /proc/vmstat:pgfault - /proc/vmstat:pgmajfault
+>
+>> COW faults
+>> zero-page faults
+>
+> These are not available separately
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+They count as minor faults?
 
-iD8DBQE9yuILqQ3nO4jeCz4RAisIAJ44/4+kBsg8V/+ScU8nJCZdLJAC2ACgg5gp
-jarOFUYsGpR3zzFiGIZnKQ8=
-=X/ED
------END PGP SIGNATURE-----
+>> anticipated short-term memory shortfall
+>
+> hm.  tricky.
 
---KFztAG8eRSV9hGtP--
+How about these then? (and would you want them?)
+
+a. urgency level for the need to free up memory
+b. amount (or %) by which the system is overcommitted
+
+>> pages freed
+>
+> /proc/vmstat:pgfree
+>
+> This is a little broken in 2.5.46.  pgfree is accumulated
+> _before_ the per-cpu LIFO queues and pgalloc is accumulated _after_
+> the per-cpu queues (or vice versa) so they're out of whack.
+
+Can I assume it will be fixed soon? Is this a value you'd like?
+
+>> pages scanned by page-replacement algorithm
+>
+> /proc/vmstat:pgscan
+>
+>> clock cycles by page replacement algorithm
+>
+> Not available.  Could sum up the CPU across all kswapd instances,
+> which is a bit lame.
+
+I suspect that it's cycles of the page aging "clock" hand,
+not CPU cycles. So that would be pages scanned divided by
+the average number of pages in a full scan.
+
+>> number of system calls
+>
+> Not available
+
+I though so. Bummer. I guess this is due to overhead.
+
+>> number of forks (fork, vfork, & clone) and execs
+>
+> /proc/stat: processes
+
+That's fork/vfork/clone all together, w/o execs?
+(good for "vmstat -f", but poor for "vmstat -s")
+
+Got one more:
+
+      wired pages
+          Total number of pages that are currently in use
+          and cannot be used for paging
+
+Thanks for all the help. BTW, you didn't say if you liked the
+proposed changes, so I'm assuming they don't matter to you.

@@ -1,122 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbUCWACL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 19:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUCWACL
+	id S261669AbUCWAD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 19:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUCWAD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 19:02:11 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:34524 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261661AbUCWACE (ORCPT
+	Mon, 22 Mar 2004 19:03:57 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:64415 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261669AbUCWADP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 19:02:04 -0500
-Date: Mon, 22 Mar 2004 15:59:52 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040322155952.4d6f5035.pj@sgi.com>
-In-Reply-To: <20040320093614.GZ2045@holomorphy.com>
-References: <1079651064.8149.158.camel@arrakis>
-	<20040318165957.592e49d3.pj@sgi.com>
-	<1079659184.8149.355.camel@arrakis>
-	<20040318175654.435b1639.pj@sgi.com>
-	<1079737351.17841.51.camel@arrakis>
-	<20040319165928.45107621.pj@sgi.com>
-	<20040320031843.GY2045@holomorphy.com>
-	<20040319220907.1e07d36f.pj@sgi.com>
-	<20040320093614.GZ2045@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Mar 2004 19:03:15 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C77B@exa-atlanta.se.lsil.com>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: RE: [PATCH][RELEASE] megaraid 2.10.2 Driver
+Date: Mon, 22 Mar 2004 19:02:39 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not quasi-const, it is const.
+Jeff,
 
-	Const cpumasks are not your Father's const references.
-	======================================================
+>>For upstream, this should just be CONFIG_COMPAT I presume.
 
-True, the current cpumask_const_t API makes essential use of the 'C'
-const construct and semantics.
+For 2.6 kernels, this would be just CONFIG_COMPAT. Or have I
+misunderstood your comment?
 
-But it's not simply and entirely the usual const usage as seen in the
-signature:
+>>I don't see how this construct will work in all cases.  Hence my 
+>>CONFIG_COMPAT command above.
 
-  char *strncpy(char *dest, const char *src, size_t n);
+We saw the need for ioctl compatibility in __x86_64__ cases so far.
+What other cases will this not work in?
 
-In this usual case, declaring something referenced by an argument
-pointer as 'const' means the called function won't change the referenced
-data.  For simple values such as the 'size_t n', it's not useful,
-because these are simply pass by value, so changes by the called
-function won't be visible to the caller anyway.  But when passing in
-pointers, it has become useful in 'C' to indicate that the called
-function won't mess with the pointed to data.
+>>Bug -- always set dma mask.  Do not conditionally _not_ call 
+>>pci_set_dma_mask(), for the 64-bit case.
 
-That's the usual use of the C keyword 'const', as I am sure you know
-well.
+The code does not __not__ call pci_set_dma_mask() conditionally.
+It is always calling with either 64-bit or 32-bit mask.
 
-You aren't simply marking parameters with the C 'const' keyword; you are
-also labeling some functions and a cpumask typedef as const, embedding
-the letters "_const" in the names.  Part of the cpumask_const_t
-implementation uses the real C keyword 'const', but it's not simply the
-classic usage shown above.
+>>ummmm what???    uxferaddr is u32.  why are you casting it to a pointer?
 
-Each time I try to work with this, I have to scratch my head and think
-a few minutes first.
+Both copy_to_user and copy_from_user take pointers, don't they?
 
-Is the following a fair statement of this interface:
+Thank you,
+Sreenivas
 
- 1) Declaring a cpumask as type 'cpumask_const_t' means it might be passed
-    to various cpumask '*_const()' methods either by value or by a const
-    pointer, depending on the implementation (the size of the mask,
-    presumably).
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com]
+Sent: Monday, March 22, 2004 6:08 PM
+To: Bagalkote, Sreenivas
+Cc: 'linux-kernel@vger.kernel.org'; 'linux-scsi@vger.kernel.org'
+Subject: Re: [PATCH][RELEASE] megaraid 2.10.2 Driver
 
- 2) The various cpumask '*_const()' methods expect to be passed such
-    cpumask_const_t masks, and may actually pass by value or by const
-    reference, at the discretion of the implementation, again.
 
-So if I am not too confused, this non-C keyword embedded '_const' string
-means something like "optionally pass masks by value or const pointer,
-at the discretion of the implementation."
+Bagalkote, Sreenivas wrote:
+> Hello,
+> @@ -45,6 +46,10 @@
+>  
+>  #include "megaraid2.h"
+>  
+> +#ifdef LSI_CONFIG_COMPAT
+> +#include <asm/ioctl32.h>
+> +#endif
+> +
 
-This is an abuse (or at the very least an extension) of our customary
-use of the 'const' construct of the 'C' language, in my view; an abuse
-with which users will never become comfortable.
+For upstream, this should just be CONFIG_COMPAT I presume.
 
-You castigate yourself for not having converted more cpumask
-manipulations to making full use of this quasi-const mechanism.
 
-That way does not lay closure and sweet success.  You have provided a
-weird API that will never become widely and comfortably used by others;
-you will always find your available energies for putting it in use
-yourself to be insufficient; you will be pushing this rock up the hill
-throughout your years in purgatory (hopefully fewer years than I expect
-to spend there ;).
+>  MODULE_AUTHOR ("LSI Logic Corporation");
+>  MODULE_DESCRIPTION ("LSI Logic MegaRAID driver");
+>  MODULE_LICENSE ("GPL");
+> @@ -206,6 +211,10 @@
+>  		 */
+>  		major = register_chrdev(0, "megadev", &megadev_fops);
+>  
+> +		if (!major) {
+> +			printk(KERN_WARNING
+> +				"megaraid: failed to register char
+> device.\n");
+> +		}
+>  		/*
+>  		 * Register the Shutdown Notification hook in kernel
+>  		 */
+> @@ -214,6 +223,13 @@
+>  				"MegaRAID Shutdown routine not
+> registered!!\n");
+>  		}
+>  
+> +#ifdef LSI_CONFIG_COMPAT
+> +		/*
+> +		 * Register the 32-bit ioctl conversion
+> +		 */
+> +		register_ioctl32_conversion(MEGAIOCCMD,
+> megadev_compat_ioctl);
+> +#endif
+> +
 
-I do not fault you for failing to put this interface to more wide
-spread usage.  I do fault the interface for being a bit too weird
-to obtain wide spread usage on its own, after it's original creation
-and introduction.
+ditto
 
-Could you (Bill or any lurker) provide any specific examples of generic
-code where it is important to pass by value on some architectures, but
-by const reference on some other architectures?  Rather than distort the
-API in general for such cases, I'd prefer to consider more narrowly
-focused solutions that address such specific needs.  In general, I would
-hope to be able to arrive at a cpumask (or even more generic mask as
-multi-word bit mask) ADT that was always clear and explicit, using just
-traditional 'C' idioms, as to whether arguments were pass by value or
-reference, and which arguments were const reference or not-const.  If
-some arch's (say sparc64) have arch-specific code that explicitly passes
-a pointer to a cpumask, where similar code in some other arch passes by
-value, that's fine, and an appropriate arch-specific optimization.  The
-only challenges come in generic code for which arch's cannot agree on
-any one form for passing a particular mask.  Examples anyone ... ?
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> @@ -620,12 +638,15 @@
+>  
+>  		/* Set the Mode of addressing to 64 bit if we can */
+>  		if((adapter->flag & BOARD_64BIT)&&(sizeof(dma_addr_t) == 8))
+> {
+> -			pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
+> -			adapter->has_64bit_addr = 1;
+> +			if (pci_set_dma_mask(pdev, 0xffffffffffffffffULL) ==
+> 0)
+> +				adapter->has_64bit_addr = 1;
+>  		}
+> -		else  {
+> -			pci_set_dma_mask(pdev, 0xffffffff);
+> -			adapter->has_64bit_addr = 0;
+> +		if (!adapter->has_64bit_addr)  {
+> +			if (pci_set_dma_mask(pdev, 0xffffffff) != 0) {
+> +				printk("megaraid%d: DMA not available.\n",
+> +					host->host_no);
+> +				goto fail_attach;
+> +			}
+
+Bug -- always set dma mask.  Do not conditionally _not_ call 
+pci_set_dma_mask(), for the 64-bit case.
+
+Minor:  add ULL to the constant.
+
+
+
+> @@ -2549,7 +2575,9 @@
+>  		/*
+>  		 * Unregister the character device interface to the driver.
+>  		 */
+> -		unregister_chrdev(major, "megadev");
+> +		if (major) {
+> +			unregister_chrdev(major, "megadev");
+> +		}
+
+register_chrdev() returns a negative errno value on error, such as -EBUSY.
+
+
+> @@ -4434,8 +4332,9 @@
+>  				/*
+>  				 * Get the user data
+>  				 */
+> -				if( copy_from_user(data, (char *)uxferaddr,
+> -							pthru->dataxferlen)
+> ) {
+> +				if( copy_from_user(data,
+> +						(char *)((ulong)uxferaddr),
+> +						pthru->dataxferlen) ) {
+
+ummmm what???    uxferaddr is u32.  why are you casting it to a pointer?
+
+
+> @@ -4460,8 +4359,8 @@
+>  			 * Is data going up-stream
+>  			 */
+>  			if( pthru->dataxferlen && (uioc.flags & UIOC_RD) ) {
+> -				if( copy_to_user((char *)uxferaddr, data,
+> -							pthru->dataxferlen)
+> ) {
+> +				if( copy_to_user((char *)((ulong)uxferaddr),
+> +						data, pthru->dataxferlen) )
+> {
+
+ditto
+
+
+
+> diff -Naur old/drivers/scsi/megaraid2.h new/drivers/scsi/megaraid2.h
+> --- old/drivers/scsi/megaraid2.h	2004-03-22 17:28:38.000000000 -0500
+> +++ new/drivers/scsi/megaraid2.h	2004-03-22 13:10:48.000000000 -0500
+>  #ifndef PCI_VENDOR_ID_LSI_LOGIC
+>  #define PCI_VENDOR_ID_LSI_LOGIC		0x1000
+>  #endif
+
+this can be removed.
+
+
+
+> +#if defined (CONFIG_COMPAT) || defined ( __x86_64__)
+> +#define LSI_CONFIG_COMPAT
+> +#endif
+> +#ifdef LSI_CONFIG_COMPAT
+> +static int megadev_compat_ioctl(unsigned int, unsigned int, unsigned
+long,
+> +	struct file *);
+> +#endif
+
+I don't see how this construct will work in all cases.  Hence my 
+CONFIG_COMPAT command above.
+
+	Jeff
+
+

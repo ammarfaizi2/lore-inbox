@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290181AbSALANW>; Fri, 11 Jan 2002 19:13:22 -0500
+	id <S290184AbSALAWf>; Fri, 11 Jan 2002 19:22:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290182AbSALANQ>; Fri, 11 Jan 2002 19:13:16 -0500
-Received: from mail2.mx.voyager.net ([216.93.66.201]:61960 "EHLO
-	mail2.mx.voyager.net") by vger.kernel.org with ESMTP
-	id <S290181AbSALANC>; Fri, 11 Jan 2002 19:13:02 -0500
-Message-ID: <3C3F7FB2.225B6A7E@megsinet.net>
-Date: Fri, 11 Jan 2002 18:13:38 -0600
+	id <S290185AbSALAWY>; Fri, 11 Jan 2002 19:22:24 -0500
+Received: from mail5.mx.voyager.net ([216.93.66.204]:36359 "EHLO
+	mail5.mx.voyager.net") by vger.kernel.org with ESMTP
+	id <S290182AbSALAWI>; Fri, 11 Jan 2002 19:22:08 -0500
+Message-ID: <3C3F81C8.9744C16A@megsinet.net>
+Date: Fri, 11 Jan 2002 18:22:32 -0600
 From: "M.H.VanLeeuwen" <vanl@megsinet.net>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ken Brownfield <brownfld@irridia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <3C2CD326.100@athlon.maya.org> <20020103142301.C4759@asooo.flowerfire.com> <20020111144117.A1485@asooo.flowerfire.com>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Taming OOM killer, 2.4.17-rc1
+In-Reply-To: <20011212094246.O4801@athlon.random> <3C1AB4B4.A24A0A5@megsinet.net> <200201112113.g0BLDFE24964@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: multipart/mixed;
- boundary="------------8A0169405699BAF5647CD72B"
+ boundary="------------44B4B49D7F7E9B591209EA49"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------8A0169405699BAF5647CD72B
+--------------44B4B49D7F7E9B591209EA49
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Ken Brownfield wrote:
-> 
-> After more testing, my original observations seem to be holding up,
-> except that under heavy VM load (e.g., "make -j bzImage") the machine's
-> overall performance seems far lower.  For instance, without the patch
-> the -j build finishes in ~10 minutes (2x933P3/256MB) but with the patch
-> I haven't had the patience to let it finish after more than an hour.
-> 
-> This is perhaps because the vmscan patch is too aggressively shrinking
-> the caches, or causing thrashing in another area?  I'm also noticing
-> that the amount of swap used is nearly an order of magnitude higher,
-> which doesn't make sense at first glance...  Also, there are extended
-> periods where idle CPU is 50-80%.
-> 
-> Maybe the patch or at least its intent can be merged with Andrea's work
-> if applicable?
-> 
-> Thanks,
-> --
-> Ken.
-> brownfld@irridia.com
-> 
+Denis,
 
+This patch was a feeble attempt at fixing a real VM problem by masking what was
+really going on.
 
-Ken,
+There are many "better" solution than this old patch
 
-Attached is an update to my previous vmscan.patch.2.4.17.c
+AA has a great VM patch
+Rik has an rmap patch that looks promising
 
-Version "d" fixes a BUG due to a race in the old code _and_
-is much less agressive at cache_shrinkage or conversely more
-willing to swap out but not as much as the stock kernel.
+and my latest "simple" fix is attached for 2.4.17 but should apply to 2.4.18-pre
 
-It continues to work well wrt to high vm pressure.
-
-Give it a whirl to see if it changes your "-j" symptoms.
-
-If you like you can change the one line in the patch
-from "DEF_PRIORITY" which is "6" to progressively smaller
-values to "tune" whatever kind of swap_out behaviour you
-like.
+Thanks for looking at this old one though.
 
 Martin
---------------8A0169405699BAF5647CD72B
+
+BTW: w/ this patch you no longer need to Tame the OOM killer
+--------------44B4B49D7F7E9B591209EA49
 Content-Type: application/octet-stream;
  name="vmscan.patch.2.4.17.d"
 Content-Transfer-Encoding: base64
@@ -100,5 +75,5 @@ LDYgKzUyNCw5IEBACiAJfQogCXNwaW5fdW5sb2NrKCZwYWdlbWFwX2xydV9sb2NrKTsKIAor
 CWlmIChtYXhfbWFwcGVkIDw9IDAgJiYgKG5yX3BhZ2VzID4gMCB8fCBwcmlvcml0eSA8IERF
 Rl9QUklPUklUWSkpCisJCXN3YXBfb3V0KHByaW9yaXR5LCBnZnBfbWFzaywgY2xhc3N6b25l
 KTsKKwogCXJldHVybiBucl9wYWdlczsKIH0KIAo=
---------------8A0169405699BAF5647CD72B--
+--------------44B4B49D7F7E9B591209EA49--
 

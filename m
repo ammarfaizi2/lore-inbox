@@ -1,88 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbUENVLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUENVW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbUENVLx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 17:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUENVLx
+	id S262902AbUENVW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 17:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUENVW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 17:11:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24278 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262850AbUENVLv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 17:11:51 -0400
-Date: Fri, 14 May 2004 14:11:45 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       luto@myrealbox.com, Chris Wright <chrisw@osdl.org>,
-       olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] capabilites, take 2
-Message-ID: <20040514141145.Z21045@build.pdx.osdl.net>
-References: <1084536213.951.615.camel@cube> <1084548061.17741.119.camel@moss-spartans.epoch.ncsc.mil> <1084547976.952.644.camel@cube> <1084557969.18592.21.camel@moss-spartans.epoch.ncsc.mil> <1084555929.951.679.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 May 2004 17:22:29 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:59335 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262874AbUENVWW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 17:22:22 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Marc Singer <elf@buici.com>
+Subject: Re: arm-lh7a40x IDE support in 2.6.6
+Date: Fri, 14 May 2004 23:23:19 +0200
+User-Agent: KMail/1.5.3
+Cc: rmk@arm.linux.org.uk, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200405141840.04401.bzolnier@elka.pw.edu.pl> <200405142045.51875.bzolnier@elka.pw.edu.pl> <20040514194726.GA21194@buici.com>
+In-Reply-To: <20040514194726.GA21194@buici.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1084555929.951.679.camel@cube>; from albert@users.sourceforge.net on Fri, May 14, 2004 at 01:32:09PM -0400
+Message-Id: <200405142323.19115.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Albert Cahalan (albert@users.sourceforge.net) wrote:
-> On Fri, 2004-05-14 at 14:06, Stephen Smalley wrote:
-> > You missed the point.  Capability scheme maps far too
-> > many operations to a single capability; CAP_SYS_ADMIN
-> > in Linux is a good example.
-> 
-> What I said: lovely, but not exactly groundbreaking.
-> 
-> Suppose we break up CAP_SYS_ADMIN into 41 other bits.
-> There you go. It's silly to argue that a system with
-> more bits is some kind of major advance over one with
-> just a few bits. There is a quality-of-implementation
-> issue here, not some fundamental difference.
+On Friday 14 of May 2004 21:47, Marc Singer wrote:
 
-Needing more bits isn't the only problem.
+> > [ you used 'struct ide_hwif_s' in arch-lh7a40x/ide.h to workaround this
+> > 8) ]
 
-> > TE model
-> > defers organization of operations into equivalence
-> > classes to the policy writer.
-> 
-> I don't see anything special here either. With a
-> plain capability-bit system, you could allow for
-> user-defined aliases that map to multiple bits.
-> In some random /etc config file:
-> 
-> define ADMIN := FOO | BAR | BAZ
+struct hwif_s actually
 
-This doesn't effect the inflexibility of a single definition for domain
-transistion that's inherent in the capabilty system.
+> Copied from elsewhere.
 
-> Lack of granularity is an implementation detail.
-> (Blame the SGI folks that wouldn't listen to me.)
-> Lack of granularity is not a design flaw.
+superio.h, superio.c
 
-It's a design flaw.  More bits won't help.  There's an important missing
-piece...credentials for both subject and object.  Both of which can be
-dynamic, and differ per subject's view of an object.
+EEK, added to TODO
 
-> What I'm looking for:
-> 
-> 1. configure the kernel by ...
-> 2. ensure that /bin/foo runs early in boot
-> 3. put "blah blah blah" in /etc/foo.conf
-> 
-> That is, is there a small set of simple config files
-> and binaries that I could just slap onto an existing
-> system to ensure that a particular app is granted an
-> extra capability bit?
-> 
-> If yes, then the ugly old-Oracle hack is not needed.
+> Listen.  It is not my intention to be clever.  All I want to do is get
+> things working and to not break other people's code.  I'm certain that
+> most people are working with the same assumptions.  Aside from some
+> naive snippets I've see promulgated, the bulk of the kernel work I've
+> see is sane given limited information.  Certainly, once one
+> understands a sybsystem completely then the quality rises.  I hope
+> you'll admit that the IDE code is overly intricate.
 
-Nearly.  There's the minor issue that execve() clears that bit more
-agressively than desired for non-root processes.  Otherwise pam can do
-it with pam_cap.  Which is all we're trying to fix here.
+With changes like this nobody will ever be able to understand
+IDE subsystem completely. ;-)
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> > - you are setting IDE_NO_IRQ in ide_init_hwif_ports() which is used
+> >   in many places in generic IDE code - anybody wanting to understand
+> >   interactions with your code + generic code will have serious
+> >   problems (especially if knows _nothing_ about lpd7a40x)
+>
+> I don't know what you mean.  I grep for that constant and found it
+> nowhere except for ide-io.c and in my code.  It doesn't take much to
+> find the references.
+
+I'm talking about ide_init_hwif_ports() function.
+
+> What is it that you want changed?
+>
+> > - hwif->mmio is set to 2 but resource handling is missed
+>
+> Can you be more specific?  Did you notice the comment?  I didn't know
+> what it was for, but I set it because I thought that that was the
+> right way to go.
+>
+> Are you talking about reserving the address space?  At the moment,
+
+Yes.
+
+> this is done in the arch setup.  I can certainly move it to the IDE
+> driver.
+
+OK
+
+> > > The OUTB breaks my interface because I don't really have byte-level
+> > > access to the resgisters.  So, is selectproc a pre-select procedure or
+> > > should it be a substitute?
+> >
+> > pre-select but you can change it to be substitute if you need
+> > (just remember to update all users if you decide to do this)
+>
+> I'll have to search the kernel to see what uses it.  Maybe the better
+> way would be to define a new select proc that *is* a substitute.
+
+Nope.
+
+> > IMO it is better to fix it correctly than to do hacks like this
+> > in lpd7a40x_ide_outb() (which is minor performance hit btw)
+>
+> Of course.
+>
+> > > Anyway, that is what I did in a nutshell.  I plan to get back to this
+> > > in a week or so.  Since Russell King already integrated the lh7a40x
+> > > code into the kernel, this stuff should be easy to test.
+> >
+> > That's what I'm talking about - it shouldn't have been integrated. :-)
+>
+> I think we are talking about two things here.  I agree that the
+> ide-lpd7a400 code should not have been integrated.  However, the rest
+
+OK
+
+> of the core code is fine.  It is that core code that is necessary to
+> make the test possible.
+
+Stuff in arch-lh7a40x/ide.h is really a driver code but
+abuses subsystem code instead - that's my complain.
+
+OK, lets move things forward and just fix it.
+
+Cheers.
+

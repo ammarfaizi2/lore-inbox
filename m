@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267340AbRGKPzx>; Wed, 11 Jul 2001 11:55:53 -0400
+	id <S267334AbRGKPtd>; Wed, 11 Jul 2001 11:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267339AbRGKPzn>; Wed, 11 Jul 2001 11:55:43 -0400
-Received: from zeke.inet.com ([199.171.211.198]:9384 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S267338AbRGKPz3>;
-	Wed, 11 Jul 2001 11:55:29 -0400
-Message-ID: <3B4C7615.FADBF9A3@inet.com>
-Date: Wed, 11 Jul 2001 10:51:49 -0500
-From: "Jordan Breeding" <jordan.breeding@inet.com>
-Reply-To: Jordan <ledzep37@home.com>,
-        Jordan Breeding <jordan.breeding@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Hugh Dickins <hugh@veritas.com>, Jordan <ledzep37@home.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: Discrepancies between /proc/cpuinfo and Dave J's x86info
-In-Reply-To: <Pine.LNX.4.30.0107111421300.2003-100000@Appserv.suse.de>
+	id <S267337AbRGKPtY>; Wed, 11 Jul 2001 11:49:24 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:53831 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S267334AbRGKPtC>; Wed, 11 Jul 2001 11:49:02 -0400
+Date: Wed, 11 Jul 2001 17:49:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Klaus Dittrich <kladit@t-online.de>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7p6 hang
+Message-ID: <20010711174913.E3496@athlon.random>
+In-Reply-To: <200107110849.f6B8nlm00414@df1tlpc.local.here> <shslmlv62us.fsf@charged.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <shslmlv62us.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Jul 11, 2001 at 02:56:43PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Wed, Jul 11, 2001 at 02:56:43PM +0200, Trond Myklebust wrote:
+> >>>>> " " == Klaus Dittrich <kladit@t-online.de> writes:
 > 
-> On Wed, 11 Jul 2001, Hugh Dickins wrote:
+>      > Kernel: 2.4.7p5 or 2.4.7p6 System: PII-SMP, BX-Chipset
 > 
-> > As others have said, cpuid level 3 corresponds to Processor Serial
-> > Number enabled.  I think what you have here is a machine on which
-> > the BIOS has disabled PSN on the first CPU, but left it enabled on the
-> > second CPU, and so the kernel has then disabled it on the second CPU.
+>      > The kernel boots up to the message
 > 
-> I'll bet that's exactly what it is. Good work.
+>      > ..  Linux NET4.0 for Linux 2.4 Based upon Swansea University
+>      > Computer Society NET3.039
 > 
-> This patch (against 247pre6) should keep the cpuinfo in sync with the real
-> state of the CPU..
+>      > and then stops.
 > 
-> regards,
+>      > I actually use 2.4.7p3 without problems.
 > 
-> Dave.
-> 
-> --
-> | Dave Jones.        http://www.suse.de/~davej
-> | SuSE Labs
-> 
-> diff -urN --exclude-from=/home/davej/.exclude linux-247pre7/arch/i386/kernel/setup.c linux-dj/arch/i386/kernel/setup.c
-> --- linux-247pre7/arch/i386/kernel/setup.c      Wed Jul 11 13:16:10 2001
-> +++ linux-dj/arch/i386/kernel/setup.c   Wed Jul 11 13:18:27 2001
-> @@ -1994,6 +1994,7 @@
->                 wrmsr(0x119,lo,hi);
->                 printk(KERN_NOTICE "CPU serial number disabled.\n");
->                 clear_bit(X86_FEATURE_PN, &c->x86_capability);
-> +               c->cpuid_level--;
->         }
->  }
+> I have the same problem on my setup. To me, it looks like the loop in
+> spawn_ksoftirqd() is suffering from some sort of atomicity problem.
 
-It does keep everything in sync here.  Thanks for the help.
+can you reproduce with 2.4.7pre5aa1?
 
-Jordan
+Andrea

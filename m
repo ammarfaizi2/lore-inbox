@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269775AbUJMS0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269779AbUJMSmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269775AbUJMS0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 14:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269776AbUJMS0e
+	id S269779AbUJMSmN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 14:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269780AbUJMSmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 14:26:34 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:25757 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S269775AbUJMS0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 14:26:33 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: single linked list header in kernel?
-Date: Wed, 13 Oct 2004 20:25:43 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.10.13.18.25.41.367757@smurf.noris.de>
-References: <416C1F48.4040407@nortelnetworks.com> <pan.2004.10.13.05.50.46.937470@smurf.noris.de> <416D4255.9080501@nortelnetworks.com>
-NNTP-Posting-Host: kiste.smurf.noris.de
+	Wed, 13 Oct 2004 14:42:13 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:8600 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S269779AbUJMSmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 14:42:11 -0400
+Date: Wed, 13 Oct 2004 20:41:53 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 4level page tables for Linux
+Message-ID: <20041013184153.GO17849@dualathlon.random>
+References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1097691943 506 192.109.102.35 (13 Oct 2004 18:25:43 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Wed, 13 Oct 2004 18:25:43 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097606902.10652.203.camel@localhost>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Chris Friesen wrote:
-
-> There are various places where there are open-coded single-linked list 
-> implementations.  This would just unify them to a single implementation.  On a 
-> previous occasion, someone estimated 42 instances where slist_for_each() could 
-> be used in net/core alone.
+On Tue, Oct 12, 2004 at 11:48:22AM -0700, Dave Hansen wrote:
+> @@ -110,13 +115,18 @@ int install_file_pte(struct mm_struct *m
+>                 unsigned long addr, unsigned long pgoff, pgprot_t prot)
+>  {
+> ...
+> +       pml4 = pml4_offset(mm, addr);
+> +
+> +       spin_lock(&mm->page_table_lock);
+> +       pgd = pgd_alloc(mm, pml4, addr);
+> +       if (!pgd)
+> +               goto err_unlock;
 > 
-So, if that bothers you, you should write a generic SLL, and convert a
-couple of existing singly-linked lists to it as a proof-of-concept.
+> Locking isn't needed for access to the pml4?  This is a wee bit
+> different from pgd's and I didn't see any documentation about it
 
-I dunno, though -- open-coding a singly-linked list isn't that much of a
-problem; compared to a doubly-linked one, there's simply fewer things that
-can go horribly wrong. :-/
+btw, locking isn't needed even for the pgd.
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+fremap.c is the only one that gets it right:
 
+	pgd = pgd_offset(mm, addr);
+	spin_lock(&mm->page_table_lock);
+	pmd = pmd_alloc(mm, pgd, addr);
+
+the rest is just overkill but it doesn't hurt in practice.
+
+after you add the 4level, locking will become necessary for the pgd, but
+it's still not needed for the pml4.
+
+I'm not very excited about changing the naming, of the pgd/pmd/pte so I
+like to keep it like it is now.
+
+peraphs we could consider pgd4 instead of pml4. What does "pml" stands
+for?

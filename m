@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132409AbQKKUeM>; Sat, 11 Nov 2000 15:34:12 -0500
+	id <S132374AbQKKUgC>; Sat, 11 Nov 2000 15:36:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132374AbQKKUeC>; Sat, 11 Nov 2000 15:34:02 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132409AbQKKUdp>; Sat, 11 Nov 2000 15:33:45 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Q: Linux rebooting directly into linux.
-Date: 11 Nov 2000 12:33:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8ukaeb$eh6$1@cesium.transmeta.com>
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001109113524.C14133@animx.eu.org> <m1g0kycm0x.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+	id <S132449AbQKKUfw>; Sat, 11 Nov 2000 15:35:52 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:11528 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132448AbQKKUfd>;
+	Sat, 11 Nov 2000 15:35:33 -0500
+Date: Sat, 11 Nov 2000 21:35:31 +0100
+From: Andi Kleen <ak@suse.de>
+To: Robert Lynch <rmlynch@best.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        Peter Samuelson <peter@cadcamlab.org>
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+Message-ID: <20001111213531.A31570@gruyere.muc.suse.de>
+In-Reply-To: <3A0C86B3.62DA04A2@best.com> <20001110234750.B28057@wire.cadcamlab.org> <20001111153036.A28928@gruyere.muc.suse.de> <3A0D89F7.1CDC3B68@best.com> <20001111193012.A30963@gruyere.muc.suse.de> <3A0D9690.E55465F4@best.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A0D9690.E55465F4@best.com>; from rmlynch@best.com on Sat, Nov 11, 2000 at 10:57:20AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <m1g0kycm0x.fsf@frodo.biederman.org>
-By author:    ebiederm@xmission.com (Eric W. Biederman)
-In newsgroup: linux.dev.kernel
-> > > 
-> > > The interface is designed to be simple and inflexible yet very
-> > > powerful.  To that end the code just takes an elf binary, and a
-> > > command line.  The started image also takes an environment generated
-> > > by the kernel of all of the unprobeable hardware details.
+On Sat, Nov 11, 2000 at 10:57:20AM -0800, Robert Lynch wrote:
+> Andi Kleen wrote:
 > > 
-> > Isn't this what milo does on alpha?
+> > On Sat, Nov 11, 2000 at 10:03:35AM -0800, Robert Lynch wrote:
+> > > sys_nfsservctl                      80     1060     980  +1225.0
+> > > dump_extended_fpu                    8       84      76  +950.00
+> > > get_fpregs                          36      372     336  +933.33
+> > > schedule_tail                       16      144     128  +800.00
+> > > set_fpregs                          36      272     236  +655.56
+> > > tty_release                         16      108      92  +575.00
+> > > ext2_write_inode                    20      108      88  +440.00
+> > > ...
+> > >
+> > > I have surpressed my momentary urge to post the whole thing, so
+> > > as not to arouse the legendary ire of this list. :)
+> > 
+> > Ordering by byte delta is more useful than by Change to get the real
+> > pigs, because Change gives high values even for relatively small changes
+> > (like 8 -> 84)
+> > 
+> > Also note that some of the output is bogus due to inaccurate nm output
+> > (bloat-o-meter relies on nm)
+> > 
+> > -Andi
 > 
-> Similar milo uses kernel drivers in it's own framework.  
-> This has proved to be a major maintenance problem.  Milo is nearly
-> a kernel fork.  
-> 
-> The design is for the long term to get this incorporated into the
-> kernel, and even if not a small kernel patch should be easier to
-> maintain that a harness for calling kernel drivers.
-> 
+> Yer right, here's a biggie I missed:
 
-I'm working on something similiar in "Genesis".  It pretty much is (or
-rather, will be) a kernel *port*, not a fork; the port is such that it
-can run on top of a simple BIOS extender and thus access the boot
-media.
+That is the slow path of the spinlocks needed for fine grained SMP 
+locking. Not really surprising that that it bloated a bit, given all
+the locking work that went into 2.4.
 
-	-hpa
+>From looking at my UP configuration (where vmlinux's text segment has bloated
+by about 500K between 2.2 and 2.4) there are no obvious big pigs, just lots of 
+small stuff that adds together.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

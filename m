@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271207AbTG2IYk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 04:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTG2IYk
+	id S271208AbTG2ImL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 04:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271298AbTG2ImL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 04:24:40 -0400
-Received: from hmbg-d9ba879c.pool.mediaWays.net ([217.186.135.156]:29449 "EHLO
-	streik.no-ip.org") by vger.kernel.org with ESMTP id S271207AbTG2IYj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 04:24:39 -0400
-Date: Tue, 29 Jul 2003 10:24:32 +0200
-From: Groove Over <groove.over@blankenese.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: rivafb
-Message-Id: <20030729102432.58cf7d21.groove.over@blankenese.de>
-Reply-To: Groove.Over@blankenese.de
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.WJDaGh_tFlOXs("
+	Tue, 29 Jul 2003 04:42:11 -0400
+Received: from indianer.linux-kernel.at ([212.24.125.53]:1258 "EHLO
+	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
+	id S271208AbTG2ImJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 04:42:09 -0400
+Message-Id: <200307290839.h6T8dj72007467@indianer.linux-kernel.at>
+From: Oliver Pitzeier <oliver@linux-kernel.at>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Linux v2.6.0-test2
+Date: Tue, 29 Jul 2003 10:41:13 +0200
+Organization: Linux Kernel Austria
+X-Mailer: Oracle Outlook Connector 3.4 40812
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner-Information: Please contact your Internet E-Mail Service Provider for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.WJDaGh_tFlOXs(
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Linus Torvalds <torvalds@osdl.org> wrote:
+[ ... ]
+> Various architectures are congealing: sparc64, ia64, alpha, 
+> m68k, ppc32, v850 and s390 all had updates. 
 
-Hi...
-The rivafb and the nvidia-accelerated drivers conflict, yes, but you can own situation if you tell X to use the rivafb-framebuffer instead the nvidia-one.
+Linus, your are making me happy:
 
-Section "Device"
-        Identifier      "GeForce"
-        Driver          "nvidia"
-        BusID           "1:0:0"
-        Option          "UseFBDev"      "true"
-EndSection
+[root@track /root]# uname -a; rpm -q gcc; rpm -q glibc; \
+> rpm -q modutils; rpm -q initscripts
+Linux track.uptime.at 2.6.0-test2 #1 Mon Jul 28 15:18:16 CEST 2003 alpha unknown
+gcc-3.1-6
+glibc-2.2.4-31
+modutils-2.4.21-18
+initscripts-5.84.1-1
 
-This should fix the problem.
+It works like a charm. :)
 
-And, I have my own question, too... How do I switch my resolution?
+It's a AlphaServer 1000A 5/333, EV56, Noritake system.
 
-"kernel /boot/gentoo-2.4.20-r5-bo.nvidia root=/dev/hda3 video=rivafb:1280x1024-32@100" doesn't work for me.
-What is wrong? 
+Best regards,
+ Oliver
 
-Thanks a lot for solutions, 
-
-kraM
-
---=.WJDaGh_tFlOXs(
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Ji9EX39/uNMye18RAqpzAJ44Qi7ac33Ak9fvmUe7FM9rDeh+qACeKsWT
-xVXmpuUk79ZonbakcsoliHI=
-=vOBj
------END PGP SIGNATURE-----
-
---=.WJDaGh_tFlOXs(--

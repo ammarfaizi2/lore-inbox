@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbUBEB5M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 20:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUBEB5M
+	id S264557AbUBECBm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 21:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUBECBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 20:57:12 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:10419 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264481AbUBEB5H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 20:57:07 -0500
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
-	X  (fwd)
-From: Keith Mannthey <kmannth@us.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.58.0402041719300.2086@home.osdl.org>
-References: <51080000.1075936626@flay>
-	<Pine.LNX.4.58.0402041539470.2086@home.osdl.org> <60330000.1075939958@flay>
-	<64260000.1075941399@flay> <Pine.LNX.4.58.0402041639420.2086@home.osdl.org>
-	<20040204165620.3d608798.akpm@osdl.org> 
-	<Pine.LNX.4.58.0402041719300.2086@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 04 Feb 2004 17:56:49 -0800
-Message-Id: <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com>
-Mime-Version: 1.0
+	Wed, 4 Feb 2004 21:01:42 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:3001 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264557AbUBECBi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 21:01:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Daniel McNeil <daniel@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.2-rc3-mm1] DIO read race fix
+Date: Wed, 4 Feb 2004 17:54:48 -0800
+User-Agent: KMail/1.4.1
+Cc: Janet Morgan <janetmor@us.ibm.com>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+References: <3FCD4B66.8090905@us.ibm.com> <20040109035510.GA3279@in.ibm.com> <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
+In-Reply-To: <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402041754.48693.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-04 at 17:29, Linus Torvalds wrote:
-> 
-> So it does need to be fixed, and if it ends up being a noticeable
-> perofmance problem, then we can look at the hot-paths one by one and see
-> if we can avoid using it. We probably can, most of the time.
-> 
+Hmmm !! You beat me by few hours :)
 
-Martin sent me a patch that fixed the X panics (NUMA and DISCONTIG
-enabled).  (Thanks Martin!) I don't have the same X panics and issues I
-had before. I don't know if this will work for the generic case. It
-compiles with a simple memory situation just fine but I didn't boot it. 
+It sounds convincing. I am not sure about the fix either.
+Let me try the fix and see if really fixes the problem.
 
+Thanks,
+Badari
 
-diff -purN -X /home/mbligh/.diff.exclude virgin/include/asm-i386/mmzone.h pfn_valid/include/asm-i386/mmzone.h
---- virgin/include/asm-i386/mmzone.h    2003-10-01 11:48:22.000000000 -0700
-+++ pfn_valid/include/asm-i386/mmzone.h 2004-02-04 16:39:12.000000000 -0800
-@@ -84,14 +84,8 @@ extern struct pglist_data *node_data[];
-                + __zone->zone_start_pfn;                               \
- })
- #define pmd_page(pmd)          (pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
--/*
-- * pfn_valid should be made as fast as possible, and the current definition 
-- * is valid for machines that are NUMA, but still contiguous, which is what
-- * is currently supported. A more generalised, but slower definition would
-- * be something like this - mbligh:
-- * ( pfn_to_pgdat(pfn) && ((pfn) < node_end_pfn(pfn_to_nid(pfn))) ) 
-- */ 
--#define pfn_valid(pfn)          ((pfn) < num_physpages)
-+
-+#define pfn_valid(pfn) ( pfn_to_pgdat(pfn) && ((pfn) < node_end_pfn(pfn_to_nid(pfn))) ) 
- 
- /*
-  * generic node memory support, the following assumptions apply:
-
+On Wednesday 04 February 2004 05:39 pm, Daniel McNeil wrote:
+> I have found (finally) the problem causing DIO reads racing with
+> buffered writes to see uninitialized data on ext3 file systems
+> (which is what I have been testing on).
+>
+> The problem is caused by the changes to __block_write_page_full()
+> and a race with journaling:
+>
+> journal_commit_transaction() -> ll_rw_block() -> submit_bh()
+>
+> ll_rw_block() locks the buffer, clears buffer dirty and calls
+> submit_bh()
+>
+> A racing __block_write_full_page() (from ext3_ordered_writepage())
+>
+> 	would see that buffer_dirty() is not set because the i/o
+>         is still in flight, so it would not do a bh_submit()
+>
+> 	It would SetPageWriteback() and unlock_page() and then
+> 	see that no i/o was submitted and call end_page_writeback()
+> 	(with the i/o still in flight).
+>
+> This would allow the DIO code to issue the DIO read while buffer writes
+> are still in flight.  The i/o can be reordered by i/o scheduling and
+> the DIO can complete BEFORE the writebacks complete.  Thus the DIO
+> sees the old uninitialized data.
+>
+> Here is a quick hack that fixes it, but I am not sure if this the
+> proper long term fix.
+>
+> Thoughts?
+>
+> Daniel
 

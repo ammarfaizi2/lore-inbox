@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbTDBGBx>; Wed, 2 Apr 2003 01:01:53 -0500
+	id <S261692AbTDBGgX>; Wed, 2 Apr 2003 01:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbTDBGBx>; Wed, 2 Apr 2003 01:01:53 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:37373
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261811AbTDBGBu>; Wed, 2 Apr 2003 01:01:50 -0500
-Date: Wed, 2 Apr 2003 01:08:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: linux-scsi@vger.kernel.org
-Subject: isp1020 memory trample in 2.5.66
-Message-ID: <Pine.LNX.4.50.0304020101460.8773-100000@montezuma.mastecende.com>
+	id <S261711AbTDBGgX>; Wed, 2 Apr 2003 01:36:23 -0500
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:60737 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S261692AbTDBGgV>; Wed, 2 Apr 2003 01:36:21 -0500
+From: Jos Hulzink <josh@stack.nl>
+To: Matthew Harrell 
+	<mharrell-dated-1049671247.27e955@bittwiddlers.com>
+Subject: Re: [Bug 529] New: ACPI under 2.5.50+ (approx) locks system hard during bootup
+Date: Wed, 2 Apr 2003 08:47:34 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <130680000.1049224849@flay> <200304020107.58676.josh@stack.nl> <20030401232043.GA10066@bittwiddlers.com>
+In-Reply-To: <20030401232043.GA10066@bittwiddlers.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304020847.34735.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.65 was ok, 2.5.66 can't boot, there is nothing obvious in the patch 
-which could have led to this. I'd try a binary search but i'm afraid i 
-won't have that much free time for a while.
+On Wednesday 02 April 2003 01:20, Matthew Harrell wrote:
+> I sympathize since I've been feeling the same way.  When I mentioned it to
+> Andrew in response to another ACPI problem I saw posted he recommended I
+> send it via bugzilla to see if more people will pay attention then.
+>
+> But, in the ACPI team's defense, I also have about three other computers
+> with ACPI that do work fine and I've seen a number of other people on the
+> ACPI list without problems.  In my case it's annoying since it's my laptop
+> which has the problem and that's the only one that I really care about when
+> it comes to ACPI.
+>
+> I suggest you read through my initial email and see if you find anything
+> unusually different in your setup.  I'm not positive since I'm new to
+> bugzilla but if you do have anything different that you notice then go to
+> bugzilla.kernel.org under bug 529 and add on to the bug report.  Sounds
+> like the more info the better for this bug
 
-Box is 32way PIII-450, devices attached to the only real active isp1020 
-HBA are;
+I sure will. My plain Asus P2L97-DS with plain PII 333 SMP, plain Intel 440 
+LX, plain Soundblaster Live, plain 3Com 3C905C and plain Matrox G400 has no 
+trouble at all with 2.4 kernels, all IRQ lines claimed succesfully. With 
+recent 2.5 kernels it is simply: IDW ! No fancy strange laptop, no "made in 
+antarctica" chipset, only a SMP configuration on one of the most used 
+chipsets in the world, and yes, I enabled MPS 1.4 support for I had trouble 
+with shared IRQs. (FWIW: MPS 1.4 also reroutes interrupts)
 
-qlogicisp : new isp1020 revision ID (5)
-qlogicisp : interrupt 233 already in use
-scsi0 : QLogic ISP1020 SCSI on PCI bus 01 device 70 irq 41 MEM base 
-0xf8c1a000
-  Vendor: IBM       Model: DRHS36V           Rev: 0270
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-  Vendor: IBM       Model: DRHS36V           Rev: 0270
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-  Vendor: PLEXTOR   Model: CD-ROM PX-32CS    Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi1 : QLogic ISP1020 SCSI on PCI bus 04 device 70 irq 89 MEM base 0xf8c1c000
-SCSI device sda: 72170879 512-byte hdwr sectors (36951 MB)
-SCSI device sda: drive cache: write through
- sda: sda1 sda2 sda3
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sdb: 72170879 512-byte hdwr sectors (36951 MB)
-SCSI device sdb: drive cache: write through
- sdb: unknown partition table
-
-Unable to handle kernel paging request at virtual address 6b6b6b6b
- printing eip:
-6b6b6b6b
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<6b6b6b6b>]    Not tainted
-EFLAGS: 00010086
-EIP is at 0x6b6b6b6b
-eax: f8c1c000   ebx: e4f9c000   ecx: 00000001   edx: c3f56400
-esi: e4f9c000   edi: 00000002   ebp: e4fa09cc   esp: c0375f10
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c0374000 task=c03064a0)
-Stack: c0228d4b e4fa09cc 00000001 00000001 c3f564b0 c3f56400 0000000b c3f56400 
-       00000002 c0375f98 c0228a39 0000000b c3f56400 c0375f98 e59f1914 24000001 
-       0000000b c010cd4a 0000000b c3f56400 c0375f98 c0356960 c0356970 0000000b 
-Call Trace:
- [<c0228d4b>] isp1020_intr_handler+0x2db/0x300
- [<c0228a39>] do_isp1020_intr_handler+0x49/0x80
- [<c010cd4a>] handle_IRQ_event+0x3a/0x60
- [<c010d052>] do_IRQ+0x112/0x1f0
- [<c01089b0>] default_idle+0x0/0x40
- [<c01089b0>] default_idle+0x0/0x40
- [<c010b700>] common_interrupt+0x18/0x20
- [<c01089b0>] default_idle+0x0/0x40
- [<c01089b0>] default_idle+0x0/0x40
- [<c01089dd>] default_idle+0x2d/0x40
- [<c0108a82>] cpu_idle+0x52/0x70
- [<c0105000>] _stext+0x0/0x70
-
-Code:  Bad EIP value.
- <0>Kernel panic: Aiee, killing interrupt handler!
-
-0xc0228d4b is in isp1020_intr_handler (drivers/scsi/qlogicisp.c:1072).
-1071                    (*Cmnd->scsi_done)(Cmnd); <===
-1072            }
-
--- 
-function.linuxpower.ca
+Jos

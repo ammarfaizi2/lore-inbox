@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbSLaXdk>; Tue, 31 Dec 2002 18:33:40 -0500
+	id <S264920AbSLaX3p>; Tue, 31 Dec 2002 18:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264963AbSLaXdk>; Tue, 31 Dec 2002 18:33:40 -0500
-Received: from ns.netrox.net ([64.118.231.130]:48521 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S264954AbSLaXdj>;
-	Tue, 31 Dec 2002 18:33:39 -0500
-Subject: Re: [PATCH] __deprecated requires gcc 3.1
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
+	id <S264925AbSLaX3p>; Tue, 31 Dec 2002 18:29:45 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:50653 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S264920AbSLaX3n>; Tue, 31 Dec 2002 18:29:43 -0500
+Date: Tue, 31 Dec 2002 15:44:21 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, James.Bottomley@steeleye.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <200212312313.gBVNDdM04070@localhost.localdomain>
-References: <200212312313.gBVNDdM04070@localhost.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041378241.948.14.camel@icbm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 31 Dec 2002 18:44:03 -0500
-Content-Transfer-Encoding: 7bit
+Message-id: <3E122BD5.6020400@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212312202.OAA10841@adam.yggdrasil.com>
+ <3E121D28.47282D77@digeo.com> <3E1226FF.9010407@pacbell.net>
+ <3E1227F4.E4B98632@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-31 at 18:13, James Bottomley wrote:
+Yes, that was exactly what I was demonstrating ... those are
+the callbacks that'd be supplied to mempool_create(), showing
+that it doesn't need to change for that kind of usage.  (Which
+isn't allocating DMA buffers, note!)
 
-> Oops, mea culpa on that one.  It's missing a trailing `__' on the end of 
-> __GNUC_MINOR
+But we still need lower level allocators that are reasonable
+for use with 1/Nth page allocations ... which isn't a problem
+that mempool even attempts to solve.  Hence dma_pool, in any of
+its implementations, would go underneath mempool to achieve what
+Adam was describing (for drivers that need it).
 
-Looks like Linus already committed it.
-
-Attached patch is against the updated BK and fixes the omission.  Sorry.
-
-	Robert Love
-
- include/linux/compiler.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+- Dave
 
 
-diff -urN linux-2.5.53/include/linux/compiler.h linux/include/linux/compiler.h
---- linux-2.5.53/include/linux/compiler.h	2002-12-31 18:39:55.000000000 -0500
-+++ linux/include/linux/compiler.h	2002-12-31 18:40:10.000000000 -0500
-@@ -19,7 +19,7 @@
-  * Usage is:
-  * 		int __deprecated foo(void)
-  */
--#if ( __GNUC__ == 3 && __GNUC_MINOR > 0 ) || __GNUC__ > 3
-+#if ( __GNUC__ == 3 && __GNUC_MINOR__ > 0 ) || __GNUC__ > 3
- #define __deprecated	__attribute__((deprecated))
- #else
- #define __deprecated
+Andrew Morton wrote:
+> David Brownell wrote:
+> 
+>>        void *mempool_alloc_td (int mem_flags, void *pool)
+>>        {
+>>                struct td *td;
+>>                dma_addr_t dma;
+>>
+>>                td = dma_pool_alloc (pool, mem_flags, &dma);
+>>                if (!td)
+>>                        return td;
+>>                td->td_dma = dma;       /* feed to the hardware */
+>>                ... plus other init
+>>                return td;
+>>        }
+> 
+> 
+> The existing mempool code can be used to implement this, I believe.  The
+> pool->alloc callback is passed an opaque void *, and it returns
+> a void * which can point at any old composite caller-defined blob.
+> 
 
 
 

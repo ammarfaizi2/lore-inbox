@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbUC3AET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbUC3AES
+	id S263229AbUC3AJO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbUC3AJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:04:18 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:2159 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263231AbUC3ACT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:02:19 -0500
-Date: Mon, 29 Mar 2004 15:04:10 -0800
-From: Paul Jackson <pj@sgi.com>
-To: colpatch@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
-       wli@holomorphy.com, haveblue@us.ibm.com, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH] Introduce mask ADT, rebuild cpumask_t and nodemask_t
- [0/22]
-Message-Id: <20040329150410.7ed30da1.pj@sgi.com>
-In-Reply-To: <1080600241.6742.20.camel@arrakis>
-References: <20040329041140.77ce66d2.pj@sgi.com>
-	<1080600241.6742.20.camel@arrakis>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 Mar 2004 19:09:14 -0500
+Received: from dsl081-235-061.lax1.dsl.speakeasy.net ([64.81.235.61]:8359 "EHLO
+	ground0.sonous.com") by vger.kernel.org with ESMTP id S263229AbUC3AJJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:09:09 -0500
+In-Reply-To: <1080604519.32741.8.camel@minerva>
+References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <Pine.LNX.4.53.0403291602340.2893@chaos>  <20040329222710.GA8204@DervishD> <1080604519.32741.8.camel@minerva>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <75D673FF-81DE-11D8-A0A8-000A959DCC8C@sonous.com>
 Content-Transfer-Encoding: 7bit
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       DervishD <raul@pleyades.net>, linux-kernel@vger.kernel.org
+From: Lev Lvovsky <lists1@sonous.com>
+Subject: Re: older kernels + new glibc?
+Date: Mon, 29 Mar 2004 16:09:06 -0800
+To: Matthew Reppert <repp0017@tc.umn.edu>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Matthew, for reviewing these, and the initial feedback.
 
-I should give credit to Christoph Hellwig - he's the one who initially
-recommended to me that I use a common ADT for both cpumask and nodemask,
-about 4 months ago.  I will never admit in public how much time that
-one line comment of his cost me ... ;-).
+On Mar 29, 2004, at 3:55 PM, Matthew Reppert wrote:
+>
+> See http://www.kernelnewbies.org/faq/index.php3#headers
+>
+> The correct place, I've read, to get the headers for the current 
+> running
+> kernel is /lib/modules/$(uname -r)/build/include ... which of course
+> assumes that you keep your kernel in the same place you built it from,
+> but that's not a worse assumption than whatever you'd assume for
+> /usr/include/{linux,asm} symlinks to work I'm sure.
+>
+> Basically, the potential problem as I understand it is binary
+> incompatibility with the currently installed glibc.
+>
+> Matt
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+http://www.ussg.iu.edu/hypermail/linux/kernel/0007.3/0587.html
+
+beautiful, this answers all questions :)
+
+thanks everyone!
+-lev
+

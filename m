@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314787AbSD2DwN>; Sun, 28 Apr 2002 23:52:13 -0400
+	id <S314792AbSD2D70>; Sun, 28 Apr 2002 23:59:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314791AbSD2DwM>; Sun, 28 Apr 2002 23:52:12 -0400
-Received: from conn6m.toms.net ([64.32.246.219]:26601 "EHLO conn6m.toms.net")
-	by vger.kernel.org with ESMTP id <S314787AbSD2DwM>;
-	Sun, 28 Apr 2002 23:52:12 -0400
-Date: Sun, 28 Apr 2002 23:50:18 -0400 (EDT)
-From: Tom Oehser <tom@toms.net>
-To: linux-kernel@vger.rutgers.org
-cc: torvalds@transmeta.com
-Subject: I made a bzip2 bootloader and ramdisk patch, ?useful/not?
-Message-ID: <Pine.LNX.4.44.0204282336490.32489-100000@conn6m.toms.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314794AbSD2D70>; Sun, 28 Apr 2002 23:59:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:53942 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314792AbSD2D7Z>;
+	Sun, 28 Apr 2002 23:59:25 -0400
+Date: Sun, 28 Apr 2002 20:49:11 -0700 (PDT)
+Message-Id: <20020428.204911.63038910.davem@redhat.com>
+To: jd@epcnet.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VLAN and Network Drivers 2.4.x
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <467685860.avixxmail@nexxnet.epcnet.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: jd@epcnet.de
+   Date: Sun, 28 Apr 2002 22:28:06 +0200
+   
+   > Please don't bother posting the results, we know what will happen.
+   
+   I think your solution is ok for 2.5 but not for 2.4. On the 2.4 series it would be easier to
+   add a flag which is set if the driver is VLAN ready.
 
-Greetings-
+Will you at least listen to what my proposed solution is?
+It has precisely the same effect your proposal has.
 
-I patched the kernel decompression and the ramdisk decompression
-to use bzip2 instead of gzip (for tomsrtbt), is there sufficient
-interest or openness to this that I should clean it up and fixup
-the config stuff or is this something of such limited usefulness
-that I should just keep it here?
+Let me say it for millionth time:
 
-In the past I have seen discussion to the effect that the memory
-and CPU usage of bzip2 is so much higher that there is no point,
-of course, that discussion was about _requests for a patch_, and
-it seems possible that it might be seen as of greater use in the
-context of _fait accompli_ (?sp).
+Networking sets "can't VLAN" by default in device flags,
+if device driver clear it we can do VLAN.  So by default
+device is marked as not VLAN capable.
 
-The tradeoffs are obvious- it takes less space on the media (for
-both the kernel and the root ramdisk), but massively more memory
-and CPU time. Perhaps only something like tomsrtbt is willing to
-pay the price...
-
-Any-way, the patch as it stands, (that is, it works, but has not
-been prettied up for prime-time) is available if anyone cares at:
-
-        http://not.toms.net/tomsrtbt-sources/bz2.diff
-
--Tom Oehser, Tom@Toms.NET
-
-
-
-
+This is exactly the behavior you are asking for.  There
+is no fundamental difference between your scheme and mine
+except that I am being required to retype a description
+of mine a million times.

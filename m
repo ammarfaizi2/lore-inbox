@@ -1,64 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130297AbRBZOep>; Mon, 26 Feb 2001 09:34:45 -0500
+	id <S130304AbRBZOep>; Mon, 26 Feb 2001 09:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130375AbRBZObO>; Mon, 26 Feb 2001 09:31:14 -0500
+	id <S130219AbRBZObJ>; Mon, 26 Feb 2001 09:31:09 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130381AbRBZOak>;
-	Mon, 26 Feb 2001 09:30:40 -0500
-Message-ID: <20010226092240.23713.qmail@lindy.softhome.net>
-To: linux-kernel@vger.kernel.org
-cc: roger@kea.grace.cri.nz
-Subject: tcp stalls with 2.4 (but not 2.2)
-Date: Mon, 26 Feb 2001 02:22:40 -0700
-From: Brian Grossman <brian@SoftHome.net>
+	by vger.kernel.org with ESMTP id <S130357AbRBZOah>;
+	Mon, 26 Feb 2001 09:30:37 -0500
+Message-ID: <20010226084403.10459.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico@patrec.com>
+Subject: Re: 64GB option broken in 2.4.2
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Mon, 26 Feb 2001 02:44:03 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14XCWa-0000Hc-00@the-village.bc.nu> from "Alan Cox" at Feb 26, 1 01:32:27 am
+X-Mailer: ELM [version 2.4 PL25]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hypthesis#2 The bounce buffer code in the Linus tree is known to be
+> imperfect. Does 2.4.2ac3 do the same ?
+> 
+No improvement.  (In fact, 2.4.2ac3 breaks 3ware IDE RAID support.)
 
-I'm seeing stalls sending packets to some clients.  I see this problem
-under 2.4 (2.4.1 and 2.4.1ac17) but not under 2.2.17.
-
-My theory is there is an ICMP black hole between my server and some of its
-clients.  Is there a tool to pinpoint that black hole if it exists?
-
-Can anyone suggest another cause or a direction for investigation?
-
-Why does this affect 2.4 but not 2.2?
-
-The characteristics I've discovered so far:
-
-        From strace of the server process, each write to the network is
-        preceeded by a select on the output fd.  The select waits for a
-        long time, after which the write succeeds.
-
-        The packets are received by the client a couple minutes after my
-        server sends them.
-
-        The clients I have tested with are win98 and winNT.
-
-        The router for both 2.4 and 2.2 servers is running 2.2.18 with
-        ipvs (ipvs-1.0.2-2.2.18).
-
-        That router does not block any ICMP.
-
-        The behavior occurs on the 2.4 machine whether the packets are
-        routed directly or are mangled by ipvs.
-
-        I've tried the same machine with both 2.4 and 2.2, as well as
-        another machine with just 2.2.  2.2 works.  2.4 doesn't.
-
-        Both of my servers and the router I mentioned have two tulip
-        network cards.
-
-        The clients I've tested with are behind a modem through earthlink.
-        Another I suspect to have same problem is behind a modem
-	through Juno.
-
-        I've tried adjusting both /proc/sys/net/ipv4/route/min_adv_mss and
-        /proc/sys/net/ipv4/route/min_pmtu downward.  Do these require an
-        ifconfig down/up to take effect?
-
-Thanks for any help anyone can supply.
-
-Brian
+While operating this Thunder 2500 (Tyan motherboard, ServerWorks chipset)
+is like walking on a minefield, the problem I see with 2.4.2 64GB option
+feels generic.  I'll go out on a limb, and claim that anyone with more
+than 1GB can reproduce this CPU spin.

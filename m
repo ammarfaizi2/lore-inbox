@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130757AbRCEXV3>; Mon, 5 Mar 2001 18:21:29 -0500
+	id <S130761AbRCEXVk>; Mon, 5 Mar 2001 18:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130759AbRCEXVT>; Mon, 5 Mar 2001 18:21:19 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:25103 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S130757AbRCEXVH>; Mon, 5 Mar 2001 18:21:07 -0500
-Date: Tue, 6 Mar 2001 12:21:04 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: The IO problem on multiple PCI busses
-Message-ID: <20010306122104.B26306@metastasis.f00f.org>
-In-Reply-To: <19350124090521.18330@mailhost.mipsys.com> <15006.40524.929644.25622@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15006.40524.929644.25622@pizda.ninka.net>; from davem@redhat.com on Thu, Mar 01, 2001 at 11:09:00AM -0800
-X-No-Archive: Yes
+	id <S130759AbRCEXVa>; Mon, 5 Mar 2001 18:21:30 -0500
+Received: from hs-gk.cyberbills.com ([216.35.157.254]:4107 "EHLO
+	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
+	id <S130758AbRCEXVN>; Mon, 5 Mar 2001 18:21:13 -0500
+Date: Mon, 5 Mar 2001 15:21:06 -0800 (PST)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac12
+In-Reply-To: <3AA41C3C.A8DE3254@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.31ksi3.0103051514050.12620-100000@nomad.cyberbills.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 11:09:00AM -0800, David S. Miller wrote:
+On Mon, 5 Mar 2001, Jeff Garzik wrote:
 
-    I think a cleaner scheme is to allow mmap() on
-    /proc/bus/pci/${BUS}/${DEVICE} nodes, that is much cleaner and solves
-    transparently any "different word size between userland and kernel"
-    issues (specifically 32-bit userlands executing on 64-bit
-    kernels).
+> Amazingly you've hit one of the few problems caused by something
+> outside
+> the kernel tree.  db v1.85 has been superceded by db2 and db3.  db1 is
+> where the "original" Berkeley db stuff now lives.  Apparently aicasm
+> needs db 1.
+>
+> So, update your packages, or create the proper symlinks if you've
+> already got db1 installed in some other location.
 
-This works great for when you want to do IO cycles from userland; but
-what about the case of hardware which requires IO cycles from a
-device driver for some very non-video hardware that may support
-multiple cards across multiple busses?
+I _DO_ know what db1 stands for. And we do _NOT_ have db1 in our
+distribution, KSI Linux. And we are _NOT_ going to build the obsolete
+library with all the accompanied development stuff just to be able to make
+some tool required to build exactly ONE kernel driver. It was a nightmare to
+get rid of TREE incompatible libdbs so it doesn't make any sence to get that
+mess back in. It's just plain braindead to do something like this. Occam was
+right and this is plain stupid.
 
-Or do I not understand?
+---
+Sergey Kubushin				Sr. Unix Administrator
+CyberBills, Inc.			Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8808
+Henderson, NV, 89014
 
-
-
-  --cw

@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUIMVB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUIMVDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267829AbUIMVB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268686AbUIMVB4
+	id S268686AbUIMVDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268929AbUIMVDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:01:56 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:51127 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S267829AbUIMVBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:01:52 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: 2.6.9-rc1-mm5: Oops related to reiserfs, other stuff
-Date: Mon, 13 Sep 2004 23:03:15 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200409132211.44109.rjw@sisk.pl> <20040913211836.A31310@infradead.org>
-In-Reply-To: <20040913211836.A31310@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 13 Sep 2004 17:03:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32153 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268686AbUIMVB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 17:01:59 -0400
+Date: Mon, 13 Sep 2004 14:00:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@borntraeger.net, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: Linux 2.6.9-rc2 : oops
+Message-Id: <20040913140002.6e5fa076.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409131318320.2378@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
+	<200409132203.08286.linux-kernel@borntraeger.net>
+	<Pine.LNX.4.58.0409131318320.2378@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409132303.15812.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 of September 2004 22:18, Christoph Hellwig wrote:
-> On Mon, Sep 13, 2004 at 10:11:44PM +0200, Rafael J. Wysocki wrote:
-> > Andrew,
-> > 
-> > There is a problem in 2.6.9-rc1-mm5 related to the reiserfs handling of 
-ACLs.  
-> > Namely, if a reiserfs partition is mounted with "-o acl", any attempt to 
-> > create a file on it results in an Oops similar to this one:
-> 
-> Can you back out the generic ACL patch?  I suspect it's is fault although
-> I don't see how.
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>  Looks like somebody is trying to free an invalid address. Sadly, your 
+>  traceback doesn't show _who_, because it's hidden in the buffering.
 
-I've backed the following patches:
+yes, I doubt if we get synchronous notification of a double-free without
+CONFIG_DEBUG_SLAB.
 
-generic-acl-support-for-permission-fix.patch
-generic-acl-support-for-permission-keyfs-fix.patch
-generic-acl-support-for-permission.patch
+There's a known double-free in the isofs filesystem.  Christian, were you
+using CDROMs at the time?
 
-and it works now.
+>  The only changes to slab itself have been by Christoph lately, I don't 
+>  think that matters. Can you enable slab debugging? That should catch it 
+>  much earlier..
 
-Greets,
-RJW
+Yup.  Enable CONFIG_DEBUG_SLAB.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+
+
+Invalidate this pointer so it doesn't get freed twice.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/fs/isofs/rock.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN fs/isofs/rock.c~rock-fix fs/isofs/rock.c
+--- 25/fs/isofs/rock.c~rock-fix	2004-09-10 01:47:00.135392480 -0700
++++ 25-akpm/fs/isofs/rock.c	2004-09-10 01:47:00.139391872 -0700
+@@ -62,7 +62,7 @@
+ }                                     
+ 
+ #define MAYBE_CONTINUE(LABEL,DEV) \
+-  {if (buffer) kfree(buffer); \
++  {if (buffer) { kfree(buffer); buffer = NULL; } \
+   if (cont_extent){ \
+     int block, offset, offset1; \
+     struct buffer_head * pbh; \
+_
+

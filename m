@@ -1,300 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVCJBZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbVCJBTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVCJBZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVCJBXQ
+	id S262625AbVCJBTR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVCJBSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:23:16 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:5583
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262526AbVCJBDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 20:03:19 -0500
-Date: Wed, 9 Mar 2005 17:02:24 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: hugh@veritas.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: [PATCH 0/15] ptwalk: pagetable walker cleanup
-Message-Id: <20050309170224.3f368c98.davem@davemloft.net>
-In-Reply-To: <1110415184.32524.128.camel@gaston>
-References: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
-	<1110415184.32524.128.camel@gaston>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 9 Mar 2005 20:18:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52127 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262622AbVCJAm3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:29 -0500
+Cc: kay.sievers@vrfy.org
+Subject: [PATCH] class_simple: pass dev_t to the class core
+In-Reply-To: <11104148811634@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:34:41 -0800
+Message-Id: <1110414881502@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Mar 2005 11:39:44 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+ChangeSet 1.2041, 2005/03/09 09:33:17-08:00, kay.sievers@vrfy.org
 
-> There are some other bugs introduced by set_pte_at() caused by latent
-> bugs in the PTE walkers that 'drop' part of the address along the way,
-> notably the vmalloc.c ones are bogus, thus breaking ppc/ppc64 in subtle
-> ways. Before I send patches, I'd rather check if it's not all fixed by
-> your patches first :)
+[PATCH] class_simple: pass dev_t to the class core
 
-Ben, I fixed vmalloc and the other cases when I pushed the set_pte_at()
-changes to Linus.  Here is the changeset that fixes them, and it's certainly
-in Linus's tree:
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/02/26 20:51:23-08:00 davem@nuts.davemloft.net 
-#   [MM]: Pass correct address down to bottom of page table iterators.
-#   
-#   Some routines, namely zeromap_pte_range, remap_pte_range,
-#   change_pte_range, unmap_area_pte, and map_area_pte, were
-#   using a chopped off address.  This causes bogus addresses
-#   to be passed into set_pte_at() and friends, resulting
-#   in missed TLB flushes and other nasties.
-#   
-#   Signed-off-by: David S. Miller <davem@davemloft.net>
-# 
-# mm/vmalloc.c
-#   2005/02/26 20:50:16-08:00 davem@nuts.davemloft.net +13 -9
-#   [MM]: Pass correct address down to bottom of page table iterators.
-# 
-# mm/mprotect.c
-#   2005/02/26 20:50:16-08:00 davem@nuts.davemloft.net +10 -7
-#   [MM]: Pass correct address down to bottom of page table iterators.
-# 
-# mm/memory.c
-#   2005/02/26 20:50:16-08:00 davem@nuts.davemloft.net +7 -5
-#   [MM]: Pass correct address down to bottom of page table iterators.
-# 
-diff -Nru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	2005-03-09 17:09:47 -08:00
-+++ b/mm/memory.c	2005-03-09 17:09:47 -08:00
-@@ -992,16 +992,17 @@
- 			      unsigned long address,
- 			      unsigned long size, pgprot_t prot)
- {
--	unsigned long end;
-+	unsigned long base, end;
+
+ drivers/base/class_simple.c |   21 ++-------------------
+ 1 files changed, 2 insertions(+), 19 deletions(-)
+
+
+diff -Nru a/drivers/base/class_simple.c b/drivers/base/class_simple.c
+--- a/drivers/base/class_simple.c	2005-03-09 16:29:41 -08:00
++++ b/drivers/base/class_simple.c	2005-03-09 16:29:41 -08:00
+@@ -10,18 +10,15 @@
  
-+	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
- 	end = address + size;
- 	if (end > PMD_SIZE)
- 		end = PMD_SIZE;
- 	do {
--		pte_t zero_pte = pte_wrprotect(mk_pte(ZERO_PAGE(address), prot));
-+		pte_t zero_pte = pte_wrprotect(mk_pte(ZERO_PAGE(base+address), prot));
- 		BUG_ON(!pte_none(*pte));
--		set_pte_at(mm, address, pte, zero_pte);
-+		set_pte_at(mm, base+address, pte, zero_pte);
- 		address += PAGE_SIZE;
- 		pte++;
- 	} while (address && (address < end));
-@@ -1106,8 +1107,9 @@
- 		unsigned long address, unsigned long size,
- 		unsigned long pfn, pgprot_t prot)
- {
--	unsigned long end;
-+	unsigned long base, end;
+ #include <linux/config.h>
+ #include <linux/device.h>
+-#include <linux/kdev_t.h>
+ #include <linux/err.h>
  
-+	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
- 	end = address + size;
- 	if (end > PMD_SIZE)
-@@ -1115,7 +1117,7 @@
- 	do {
- 		BUG_ON(!pte_none(*pte));
- 		if (!pfn_valid(pfn) || PageReserved(pfn_to_page(pfn)))
--			set_pte_at(mm, address, pte, pfn_pte(pfn, prot));
-+			set_pte_at(mm, base+address, pte, pfn_pte(pfn, prot));
- 		address += PAGE_SIZE;
- 		pfn++;
- 		pte++;
-diff -Nru a/mm/mprotect.c b/mm/mprotect.c
---- a/mm/mprotect.c	2005-03-09 17:09:47 -08:00
-+++ b/mm/mprotect.c	2005-03-09 17:09:47 -08:00
-@@ -30,7 +30,7 @@
- 		unsigned long size, pgprot_t newprot)
- {
- 	pte_t * pte;
--	unsigned long end;
-+	unsigned long base, end;
+ struct class_simple {
+-	struct class_device_attribute attr;
+ 	struct class class;
+ };
+ #define to_class_simple(d) container_of(d, struct class_simple, class)
  
- 	if (pmd_none(*pmd))
- 		return;
-@@ -40,6 +40,7 @@
- 		return;
+ struct simple_dev {
+ 	struct list_head node;
+-	dev_t dev;
+ 	struct class_device class_dev;
+ };
+ #define to_simple_dev(d) container_of(d, struct simple_dev, class_dev)
+@@ -35,12 +32,6 @@
+ 	kfree(s_dev);
+ }
+ 
+-static ssize_t show_dev(struct class_device *class_dev, char *buf)
+-{
+-	struct simple_dev *s_dev = to_simple_dev(class_dev);
+-	return print_dev_t(buf, s_dev->dev);
+-}
+-
+ static void class_simple_release(struct class *class)
+ {
+ 	struct class_simple *cs = to_class_simple(class);
+@@ -75,12 +66,6 @@
+ 	cs->class.class_release = class_simple_release;
+ 	cs->class.release = release_simple_dev;
+ 
+-	cs->attr.attr.name = "dev";
+-	cs->attr.attr.mode = S_IRUGO;
+-	cs->attr.attr.owner = owner;
+-	cs->attr.show = show_dev;
+-	cs->attr.store = NULL;
+-
+ 	retval = class_register(&cs->class);
+ 	if (retval)
+ 		goto error;
+@@ -143,7 +128,7 @@
  	}
- 	pte = pte_offset_map(pmd, address);
-+	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
- 	end = address + size;
- 	if (end > PMD_SIZE)
-@@ -52,8 +53,8 @@
- 			 * bits by wiping the pte and then setting the new pte
- 			 * into place.
- 			 */
--			entry = ptep_get_and_clear(mm, address, pte);
--			set_pte_at(mm, address, pte, pte_modify(entry, newprot));
-+			entry = ptep_get_and_clear(mm, base + address, pte);
-+			set_pte_at(mm, base + address, pte, pte_modify(entry, newprot));
+ 	memset(s_dev, 0x00, sizeof(*s_dev));
+ 
+-	s_dev->dev = dev;
++	s_dev->class_dev.devt = dev;
+ 	s_dev->class_dev.dev = device;
+ 	s_dev->class_dev.class = &cs->class;
+ 
+@@ -154,8 +139,6 @@
+ 	if (retval)
+ 		goto error;
+ 
+-	class_device_create_file(&s_dev->class_dev, &cs->attr);
+-
+ 	spin_lock(&simple_dev_list_lock);
+ 	list_add(&s_dev->node, &simple_dev_list);
+ 	spin_unlock(&simple_dev_list_lock);
+@@ -200,7 +183,7 @@
+ 
+ 	spin_lock(&simple_dev_list_lock);
+ 	list_for_each_entry(s_dev, &simple_dev_list, node) {
+-		if (s_dev->dev == dev) {
++		if (s_dev->class_dev.devt == dev) {
+ 			found = 1;
+ 			break;
  		}
- 		address += PAGE_SIZE;
- 		pte++;
-@@ -66,7 +67,7 @@
- 		 unsigned long size, pgprot_t newprot)
- {
- 	pmd_t * pmd;
--	unsigned long end;
-+	unsigned long base, end;
- 
- 	if (pud_none(*pud))
- 		return;
-@@ -76,12 +77,13 @@
- 		return;
- 	}
- 	pmd = pmd_offset(pud, address);
-+	base = address & PUD_MASK;
- 	address &= ~PUD_MASK;
- 	end = address + size;
- 	if (end > PUD_SIZE)
- 		end = PUD_SIZE;
- 	do {
--		change_pte_range(mm, pmd, address, end - address, newprot);
-+		change_pte_range(mm, pmd, base + address, end - address, newprot);
- 		address = (address + PMD_SIZE) & PMD_MASK;
- 		pmd++;
- 	} while (address && (address < end));
-@@ -92,7 +94,7 @@
- 		 unsigned long size, pgprot_t newprot)
- {
- 	pud_t * pud;
--	unsigned long end;
-+	unsigned long base, end;
- 
- 	if (pgd_none(*pgd))
- 		return;
-@@ -102,12 +104,13 @@
- 		return;
- 	}
- 	pud = pud_offset(pgd, address);
-+	base = address & PGDIR_MASK;
- 	address &= ~PGDIR_MASK;
- 	end = address + size;
- 	if (end > PGDIR_SIZE)
- 		end = PGDIR_SIZE;
- 	do {
--		change_pmd_range(mm, pud, address, end - address, newprot);
-+		change_pmd_range(mm, pud, base + address, end - address, newprot);
- 		address = (address + PUD_SIZE) & PUD_MASK;
- 		pud++;
- 	} while (address && (address < end));
-diff -Nru a/mm/vmalloc.c b/mm/vmalloc.c
---- a/mm/vmalloc.c	2005-03-09 17:09:47 -08:00
-+++ b/mm/vmalloc.c	2005-03-09 17:09:47 -08:00
-@@ -26,7 +26,7 @@
- static void unmap_area_pte(pmd_t *pmd, unsigned long address,
- 				  unsigned long size)
- {
--	unsigned long end;
-+	unsigned long base, end;
- 	pte_t *pte;
- 
- 	if (pmd_none(*pmd))
-@@ -38,6 +38,7 @@
- 	}
- 
- 	pte = pte_offset_kernel(pmd, address);
-+	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
- 	end = address + size;
- 	if (end > PMD_SIZE)
-@@ -45,7 +46,7 @@
- 
- 	do {
- 		pte_t page;
--		page = ptep_get_and_clear(&init_mm, address, pte);
-+		page = ptep_get_and_clear(&init_mm, base + address, pte);
- 		address += PAGE_SIZE;
- 		pte++;
- 		if (pte_none(page))
-@@ -59,7 +60,7 @@
- static void unmap_area_pmd(pud_t *pud, unsigned long address,
- 				  unsigned long size)
- {
--	unsigned long end;
-+	unsigned long base, end;
- 	pmd_t *pmd;
- 
- 	if (pud_none(*pud))
-@@ -71,13 +72,14 @@
- 	}
- 
- 	pmd = pmd_offset(pud, address);
-+	base = address & PUD_MASK;
- 	address &= ~PUD_MASK;
- 	end = address + size;
- 	if (end > PUD_SIZE)
- 		end = PUD_SIZE;
- 
- 	do {
--		unmap_area_pte(pmd, address, end - address);
-+		unmap_area_pte(pmd, base + address, end - address);
- 		address = (address + PMD_SIZE) & PMD_MASK;
- 		pmd++;
- 	} while (address < end);
-@@ -87,7 +89,7 @@
- 			   unsigned long size)
- {
- 	pud_t *pud;
--	unsigned long end;
-+	unsigned long base, end;
- 
- 	if (pgd_none(*pgd))
- 		return;
-@@ -98,13 +100,14 @@
- 	}
- 
- 	pud = pud_offset(pgd, address);
-+	base = address & PGDIR_MASK;
- 	address &= ~PGDIR_MASK;
- 	end = address + size;
- 	if (end > PGDIR_SIZE)
- 		end = PGDIR_SIZE;
- 
- 	do {
--		unmap_area_pmd(pud, address, end - address);
-+		unmap_area_pmd(pud, base + address, end - address);
- 		address = (address + PUD_SIZE) & PUD_MASK;
- 		pud++;
- 	} while (address && (address < end));
-@@ -114,8 +117,9 @@
- 			       unsigned long size, pgprot_t prot,
- 			       struct page ***pages)
- {
--	unsigned long end;
-+	unsigned long base, end;
- 
-+	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
- 	end = address + size;
- 	if (end > PMD_SIZE)
-@@ -127,7 +131,7 @@
- 		if (!page)
- 			return -ENOMEM;
- 
--		set_pte_at(&init_mm, address, pte, mk_pte(page, prot));
-+		set_pte_at(&init_mm, base + address, pte, mk_pte(page, prot));
- 		address += PAGE_SIZE;
- 		pte++;
- 		(*pages)++;
-@@ -151,7 +155,7 @@
- 		pte_t * pte = pte_alloc_kernel(&init_mm, pmd, base + address);
- 		if (!pte)
- 			return -ENOMEM;
--		if (map_area_pte(pte, address, end - address, prot, pages))
-+		if (map_area_pte(pte, base + address, end - address, prot, pages))
- 			return -ENOMEM;
- 		address = (address + PMD_SIZE) & PMD_MASK;
- 		pmd++;
 

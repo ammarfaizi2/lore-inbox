@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbUCCCaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 21:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCCCaH
+	id S262330AbUCCClD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 21:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbUCCClD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 21:30:07 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:23705 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262325AbUCCC3d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 21:29:33 -0500
-Message-ID: <40454300.4080803@zytor.com>
-Date: Tue, 02 Mar 2004 18:29:20 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
+	Tue, 2 Mar 2004 21:41:03 -0500
+Received: from ns.suse.de ([195.135.220.2]:2439 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262330AbUCCClA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 21:41:00 -0500
+To: David Weinehall <david@southpole.se>
+Cc: Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
+       Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+References: <4044119D.6050502@andrew.cmu.edu>
+	<4044366B.3000405@namesys.com>
+	<4044B787.7080301@andrew.cmu.edu>
+	<1078266793.8582.24.camel@mentor.gurulabs.com>
+	<20040302224758.GK19111@khan.acc.umu.se>
+	<40453538.8050103@animezone.org>
+	<20040303014115.GP19111@khan.acc.umu.se>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Mar 2004 03:39:26 +0100
+In-Reply-To: <20040303014115.GP19111@khan.acc.umu.se.suse.lists.linux.kernel>
+Message-ID: <p73ptbu4psx.fsf@brahms.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: cloos@jhcloos.com, linux-kernel@vger.kernel.org
-Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
-References: <20040301184512.GA21285@hobbes.itsari.int>	<c2175f$6hn$1@terminus.zytor.com>	<m3u1175miy.fsf@lugabout.jhcloos.org>	<4044BC48.7060903@zytor.com> <20040302140809.6b0ef6f8.akpm@osdl.org>
-In-Reply-To: <20040302140809.6b0ef6f8.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "H. Peter Anvin" <hpa@zytor.com> wrote:
-> 
->>>Will patching in the old behavior wrt re-use, while not disrupting
->>>the other improvements, be a lot of work?  I've looked thru the src, 
->>>but haven't yet spotted the point where the new pis number is chosen.
->>
->>Not a lot of work, but the performance would suffer big time.
-> 
-> The (untested) first-fit patch I proposed uses a radix tree, so it should
-> in fact be faster than the old code.
-> 
-> Are you now thinking that we might need to change the pty allocator?
-> 
+David Weinehall <david@southpole.se> writes:
 
-I don't; I think this is a total joke.  The utmp issue is a more severe 
-one; it might be reason to stick to the old behaviour at least for 2.6.
+> On Tue, Mar 02, 2004 at 08:30:32PM -0500, Andrew Ho wrote:
+> > XFS is the best filesystem.
+> 
+> Well it'd better be, it's 10 times the size of ext3, 5 times the size of
+> ReiserFS and 3.5 times the size of JFS.
 
-Linear scan of utmp and not removing entries on logout is clearly bad 
-chicken.  Effectively utmp seems to be tied to the current structure, 
-mostly because it tries to go beyond it -- it's so bad at doing so that 
-it actually *causes* problems!
+I think your ext3 numbers are off, most likely you didn't include JBD. 
 
-	-hpa
+> And people say size doesn't matter.
+
+A lot of this is actually optional features the other FS don't have,
+like support for separate realtime volumes and compat code for old 
+revisions, journaled quotas etc. I think you could
+relatively easily do a "mini xfs" that would be a lot smaller. 
+
+But on today's machines it's not really an issue anymore.
+
+-Andi

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRALKLH>; Fri, 12 Jan 2001 05:11:07 -0500
+	id <S129431AbRALKNR>; Fri, 12 Jan 2001 05:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130282AbRALKK5>; Fri, 12 Jan 2001 05:10:57 -0500
-Received: from jalon.able.es ([212.97.163.2]:27277 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129511AbRALKKs>;
-	Fri, 12 Jan 2001 05:10:48 -0500
-Date: Fri, 12 Jan 2001 11:10:39 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: shmfs behaviour
-Message-ID: <20010112111039.A2160@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.1
+	id <S129718AbRALKNH>; Fri, 12 Jan 2001 05:13:07 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:49671 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S129431AbRALKM4>; Fri, 12 Jan 2001 05:12:56 -0500
+Date: Fri, 12 Jan 2001 18:10:42 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.1-pre3 says 2.4.1-pre2 (fwd)
+Message-ID: <Pine.LNX.4.31.0101121809040.2806-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
 
-A couple of questions about shm filesystem:
-- Time ago I remember you could see some dot files inside the /dev/shm
-  filesystem (then, even it was mounted in /var/shm...). No it shows nothing.
-  Is it the supposed behaviour ?
-- By accident (switching between 2.2 and 2.4), i left the shm fs 'commented'
-  (with a fs type of 'ignore'). Kernel 2.4 looked working good. What is
-  /dev/shm for exactly ? Because it looks like I can live without it...
 
-TIA
+patch-2.4.1-pre3.bz2 didn't update Makefile correctly.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+Should be +EXTRAVERSION =-pre3 instead of -pre2
 
-Linux werewolf 2.4.0-ac6 #1 SMP Thu Jan 11 11:56:52 CET 2001 i686
+
+diff -u --recursive --new-file v2.4.0/linux/Makefile linux/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+-SUBLEVEL = 0
+-EXTRAVERSION =
++SUBLEVEL = 1
++EXTRAVERSION =-pre2
+
+
+Thanks,
+Jeff Chua
+[ jchua@fedex.com ]
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

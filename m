@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVBDT26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263394AbVBDT3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVBDT26 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 14:28:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266480AbVBDT1v
+	id S263394AbVBDT3J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 14:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbVBDT3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 14:27:51 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:9372 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S263371AbVBDT1f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 14:27:35 -0500
-Date: Fri, 4 Feb 2005 11:24:57 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-Message-ID: <20050204192457.GB24544@atomide.com>
-References: <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <Pine.LNX.4.61.0502032329150.26742@montezuma.fsmlabs.com> <20050204171805.GF22444@atomide.com> <Pine.LNX.4.61.0502041028460.2194@montezuma.fsmlabs.com> <20050204174254.GG22444@atomide.com> <Pine.LNX.4.61.0502041052550.2194@montezuma.fsmlabs.com> <20050204185804.GA24544@atomide.com>
+	Fri, 4 Feb 2005 14:29:08 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:29671 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S266552AbVBDT2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 14:28:16 -0500
+Date: Fri, 4 Feb 2005 20:28:30 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       keith maanthey <kmannth@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: i386 HPET code
+Message-ID: <20050204192830.GB5038@ucw.cz>
+References: <88056F38E9E48644A0F562A38C64FB6003EA715C@scsmsx403.amr.corp.intel.com> <20050203213026.GF3181@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204185804.GA24544@atomide.com>
+In-Reply-To: <20050203213026.GF3181@wotan.suse.de>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [050204 11:14]:
-> * Zwane Mwaikambo <zwane@arm.linux.org.uk> [050204 09:54]:
-> > On Fri, 4 Feb 2005, Tony Lindgren wrote:
+On Thu, Feb 03, 2005 at 10:30:26PM +0100, Andi Kleen wrote:
+> On Thu, Feb 03, 2005 at 06:28:27AM -0800, Pallipadi, Venkatesh wrote:
 > > 
-> > > * Zwane Mwaikambo <zwane@arm.linux.org.uk> [050204 09:31]:
-> > > > On Fri, 4 Feb 2005, Tony Lindgren wrote:
-> > > > 
-> > > > > Yes, it's safer to keep the timer periodic, although it's
-> > > > > used for oneshot purposes for the skips. If the timer interrupt
-> > > > > got missed for some reason, the system would be able to recover when
-> > > > > it's in periodic mode.
-> > > > > 
-> > > > > And with some timers, we can do the reprogramming faster, as we just
-> > > > > need to load the new value.
-> > > > > 
-> > > > > I could not figure out how to disable the interrupts for PIT
-> > > > > when local APIC is used and the ticks to skip is longer than PIT
-> > > > > would allow. So I just changed the mode temporarily to disable it.
-> > > > >
-> > > > > Does anybody know if there's a way to stop PIT interrupts while
-> > > > > keeping it in the periodic mode?
-> > > > 
-> > > > disable_irq(0) ?
-> > > 
-> > > Then the problem is that the CPU does not stay in sleep but wakes to
-> > > the first PIT interrupt AFAIK.
+> > Hi John, Andrew,
 > > 
-> > I do not understand, do you want to disable the PIT from interrupting the 
-> > processor and enable it interrupting at a later time?
+> > 
+> > Can you check whether only the following change makes the problem go
+> > away. If yes, then it looks like a hardware issue.
+> > 
+> > >	hpet_writel(hpet_tick, HPET_T0_CMP);
+> > >+	hpet_writel(hpet_tick, HPET_T0_CMP); /* AK: why twice? */
 > 
-> Yes, that right. PIT max skip ticks = 54 and local APIC timer > 1000.
-> PIT interrupt needs to be disabled to stay in sleep for over 54 ticks.
 > 
-> But I think you're right, disable_irq(0) should do the trick :)
-> 
-> Hmmm, we should be able to keep PIT irq disabled all the time when using
-> local APIC timer. I'll play with it a bit.
+> Ask Vojtech (cced), he wrote the x86-64 HPET code.
+ 
+Can you add some background of the thread?
 
-Oops, no, PIT must be running at least when the system is busy.
-Otherwise time won't get updated during load, as we never get to the
-idle loop.
-
-Tony
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

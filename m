@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbULTG3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbULTGkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbULTG3z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 01:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbULTG3M
+	id S261434AbULTGkW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 01:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbULTGkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 01:29:12 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:6581 "EHLO
+	Mon, 20 Dec 2004 01:40:21 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:8117 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261429AbULTGO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 01:14:56 -0500
+	id S261434AbULTGO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 01:14:58 -0500
 Cc: openib-general@openib.org
-In-Reply-To: <200412192214.qTsUPCeCMCi5dvjR@topspin.com>
+In-Reply-To: <200412192214.LiAN0y3IR8YkPxhM@topspin.com>
 X-Mailer: Roland's Patchbomber
-Date: Sun, 19 Dec 2004 22:14:53 -0800
-Message-Id: <200412192214.Lv59G3vg3yqeEo9J@topspin.com>
+Date: Sun, 19 Dec 2004 22:14:57 -0800
+Message-Id: <200412192214.OnqdUjlwc4A94uzk@topspin.com>
 Mime-Version: 1.0
 To: linux-kernel@vger.kernel.org
 From: Roland Dreier <roland@topspin.com>
 X-SA-Exim-Connect-IP: 127.0.0.1
 X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v4][4/24] Add InfiniBand MAD (management datagram) support (public headers)
+Subject: [PATCH][v4][6/24] Add InfiniBand MAD (management datagram) support (private headers)
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
 X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 20 Dec 2004 06:14:55.0067 (UTC) FILETIME=[394852B0:01C4E65B]
+X-OriginalArrivalTime: 20 Dec 2004 06:14:57.0864 (UTC) FILETIME=[3AF31C80:01C4E65B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add public headers for handling InfiniBand MADs (management
-datagrams), including sending and receiving MADs as well as passing
-MADs on to local agents.
+Add MAD layer private implementation headers.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/include/ib_mad.h	2004-12-19 22:04:13.037777849 -0800
-@@ -0,0 +1,404 @@
++++ linux-bk/drivers/infiniband/core/agent.h	2004-12-19 22:04:13.613692980 -0800
+@@ -0,0 +1,55 @@
 +/*
 + * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
 + * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
@@ -76,375 +74,26 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * $Id$
 + */
 +
-+#if !defined( IB_MAD_H )
-+#define IB_MAD_H
++#ifndef __AGENT_H_
++#define __AGENT_H_
 +
-+#include <ib_verbs.h>
++extern spinlock_t ib_agent_port_list_lock;
 +
-+/* Management base version */
-+#define IB_MGMT_BASE_VERSION			1
++extern int ib_agent_port_open(struct ib_device *device,
++			      int port_num);
 +
-+/* Management classes */
-+#define IB_MGMT_CLASS_SUBN_LID_ROUTED		0x01
-+#define IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE	0x81
-+#define IB_MGMT_CLASS_SUBN_ADM			0x03
-+#define IB_MGMT_CLASS_PERF_MGMT			0x04
-+#define IB_MGMT_CLASS_BM			0x05
-+#define IB_MGMT_CLASS_DEVICE_MGMT		0x06
-+#define IB_MGMT_CLASS_CM			0x07
-+#define IB_MGMT_CLASS_SNMP			0x08
-+#define IB_MGMT_CLASS_VENDOR_RANGE2_START	0x30
-+#define IB_MGMT_CLASS_VENDOR_RANGE2_END		0x4F
++extern int ib_agent_port_close(struct ib_device *device, int port_num);
 +
-+/* Management methods */
-+#define IB_MGMT_METHOD_GET			0x01
-+#define IB_MGMT_METHOD_SET			0x02
-+#define IB_MGMT_METHOD_GET_RESP			0x81
-+#define IB_MGMT_METHOD_SEND			0x03
-+#define IB_MGMT_METHOD_TRAP			0x05
-+#define IB_MGMT_METHOD_REPORT			0x06
-+#define IB_MGMT_METHOD_REPORT_RESP		0x86
-+#define IB_MGMT_METHOD_TRAP_REPRESS		0x07
++extern int agent_send(struct ib_mad_private *mad,
++		      struct ib_grh *grh,
++		      struct ib_wc *wc,
++		      struct ib_device *device,
++		      int port_num);
 +
-+#define IB_MGMT_METHOD_RESP			0x80
-+
-+#define IB_MGMT_MAX_METHODS			128
-+
-+#define IB_QP0		0
-+#define IB_QP1		__constant_htonl(1)
-+#define IB_QP1_QKEY	0x80010000
-+
-+struct ib_grh {
-+	u32		version_tclass_flow;
-+	u16		paylen;
-+	u8		next_hdr;
-+	u8		hop_limit;
-+	union ib_gid	sgid;
-+	union ib_gid	dgid;
-+} __attribute__ ((packed));
-+
-+struct ib_mad_hdr {
-+	u8	base_version;
-+	u8	mgmt_class;
-+	u8	class_version;
-+	u8	method;
-+	u16	status;
-+	u16	class_specific;
-+	u64	tid;
-+	u16	attr_id;
-+	u16	resv;
-+	u32	attr_mod;
-+} __attribute__ ((packed));
-+
-+struct ib_rmpp_hdr {
-+	u8	rmpp_version;
-+	u8	rmpp_type;
-+	u8	rmpp_rtime_flags;
-+	u8	rmpp_status;
-+	u32	seg_num;
-+	u32	paylen_newwin;
-+} __attribute__ ((packed));
-+
-+struct ib_mad {
-+	struct ib_mad_hdr	mad_hdr;
-+	u8			data[232];
-+} __attribute__ ((packed));
-+
-+struct ib_rmpp_mad {
-+	struct ib_mad_hdr	mad_hdr;
-+	struct ib_rmpp_hdr	rmpp_hdr;
-+	u8			data[220];
-+} __attribute__ ((packed));
-+
-+struct ib_vendor_mad {
-+	struct ib_mad_hdr	mad_hdr;
-+	struct ib_rmpp_hdr	rmpp_hdr;
-+	u8			reserved;
-+	u8			oui[3];
-+	u8			data[216];
-+} __attribute__ ((packed));
-+
-+struct ib_mad_agent;
-+struct ib_mad_send_wc;
-+struct ib_mad_recv_wc;
-+
-+/**
-+ * ib_mad_send_handler - callback handler for a sent MAD.
-+ * @mad_agent: MAD agent that sent the MAD.
-+ * @mad_send_wc: Send work completion information on the sent MAD.
-+ */
-+typedef void (*ib_mad_send_handler)(struct ib_mad_agent *mad_agent,
-+				    struct ib_mad_send_wc *mad_send_wc);
-+
-+/**
-+ * ib_mad_snoop_handler - Callback handler for snooping sent MADs.
-+ * @mad_agent: MAD agent that snooped the MAD.
-+ * @send_wr: Work request information on the sent MAD.
-+ * @mad_send_wc: Work completion information on the sent MAD.  Valid
-+ *   only for snooping that occurs on a send completion.
-+ *
-+ * Clients snooping MADs should not modify data referenced by the @send_wr
-+ * or @mad_send_wc.
-+ */
-+typedef void (*ib_mad_snoop_handler)(struct ib_mad_agent *mad_agent,
-+				     struct ib_send_wr *send_wr,
-+				     struct ib_mad_send_wc *mad_send_wc);
-+
-+/**
-+ * ib_mad_recv_handler - callback handler for a received MAD.
-+ * @mad_agent: MAD agent requesting the received MAD.
-+ * @mad_recv_wc: Received work completion information on the received MAD.
-+ *
-+ * MADs received in response to a send request operation will be handed to
-+ * the user after the send operation completes.  All data buffers given
-+ * to registered agents through this routine are owned by the receiving
-+ * client, except for snooping agents.  Clients snooping MADs should not
-+ * modify the data referenced by @mad_recv_wc.
-+ */
-+typedef void (*ib_mad_recv_handler)(struct ib_mad_agent *mad_agent,
-+				    struct ib_mad_recv_wc *mad_recv_wc);
-+
-+/**
-+ * ib_mad_agent - Used to track MAD registration with the access layer.
-+ * @device: Reference to device registration is on.
-+ * @qp: Reference to QP used for sending and receiving MADs.
-+ * @recv_handler: Callback handler for a received MAD.
-+ * @send_handler: Callback handler for a sent MAD.
-+ * @snoop_handler: Callback handler for snooped sent MADs.
-+ * @context: User-specified context associated with this registration.
-+ * @hi_tid: Access layer assigned transaction ID for this client.
-+ *   Unsolicited MADs sent by this client will have the upper 32-bits
-+ *   of their TID set to this value.
-+ * @port_num: Port number on which QP is registered
-+ */
-+struct ib_mad_agent {
-+	struct ib_device	*device;
-+	struct ib_qp		*qp;
-+	ib_mad_recv_handler	recv_handler;
-+	ib_mad_send_handler	send_handler;
-+	ib_mad_snoop_handler	snoop_handler;
-+	void			*context;
-+	u32			hi_tid;
-+	u8			port_num;
-+};
-+
-+/**
-+ * ib_mad_send_wc - MAD send completion information.
-+ * @wr_id: Work request identifier associated with the send MAD request.
-+ * @status: Completion status.
-+ * @vendor_err: Optional vendor error information returned with a failed
-+ *   request.
-+ */
-+struct ib_mad_send_wc {
-+	u64			wr_id;
-+	enum ib_wc_status	status;
-+	u32			vendor_err;
-+};
-+
-+/**
-+ * ib_mad_recv_buf - received MAD buffer information.
-+ * @list: Reference to next data buffer for a received RMPP MAD.
-+ * @grh: References a data buffer containing the global route header.
-+ *   The data refereced by this buffer is only valid if the GRH is
-+ *   valid.
-+ * @mad: References the start of the received MAD.
-+ */
-+struct ib_mad_recv_buf {
-+	struct list_head	list;
-+	struct ib_grh		*grh;
-+	struct ib_mad		*mad;
-+};
-+
-+/**
-+ * ib_mad_recv_wc - received MAD information.
-+ * @wc: Completion information for the received data.
-+ * @recv_buf: Specifies the location of the received data buffer(s).
-+ * @mad_len: The length of the received MAD, without duplicated headers.
-+ *
-+ * For received response, the wr_id field of the wc is set to the wr_id
-+ *   for the corresponding send request.
-+ */
-+struct ib_mad_recv_wc {
-+	struct ib_wc		*wc;
-+	struct ib_mad_recv_buf	recv_buf;
-+	int			mad_len;
-+};
-+
-+/**
-+ * ib_mad_reg_req - MAD registration request
-+ * @mgmt_class: Indicates which management class of MADs should be receive
-+ *   by the caller.  This field is only required if the user wishes to
-+ *   receive unsolicited MADs, otherwise it should be 0.
-+ * @mgmt_class_version: Indicates which version of MADs for the given
-+ *   management class to receive.
-+ * @oui: Indicates IEEE OUI when mgmt_class is a vendor class
-+ *   in the range from 0x30 to 0x4f. Otherwise not used.
-+ * @method_mask: The caller will receive unsolicited MADs for any method
-+ *   where @method_mask = 1.
-+ */
-+struct ib_mad_reg_req {
-+	u8	mgmt_class;
-+	u8	mgmt_class_version;
-+	u8	oui[3];
-+	DECLARE_BITMAP(method_mask, IB_MGMT_MAX_METHODS);
-+};
-+
-+/**
-+ * ib_register_mad_agent - Register to send/receive MADs.
-+ * @device: The device to register with.
-+ * @port_num: The port on the specified device to use.
-+ * @qp_type: Specifies which QP to access.  Must be either
-+ *   IB_QPT_SMI or IB_QPT_GSI.
-+ * @mad_reg_req: Specifies which unsolicited MADs should be received
-+ *   by the caller.  This parameter may be NULL if the caller only
-+ *   wishes to receive solicited responses.
-+ * @rmpp_version: If set, indicates that the client will send
-+ *   and receive MADs that contain the RMPP header for the given version.
-+ *   If set to 0, indicates that RMPP is not used by this client.
-+ * @send_handler: The completion callback routine invoked after a send
-+ *   request has completed.
-+ * @recv_handler: The completion callback routine invoked for a received
-+ *   MAD.
-+ * @context: User specified context associated with the registration.
-+ */
-+struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
-+					   u8 port_num,
-+					   enum ib_qp_type qp_type,
-+					   struct ib_mad_reg_req *mad_reg_req,
-+					   u8 rmpp_version,
-+					   ib_mad_send_handler send_handler,
-+					   ib_mad_recv_handler recv_handler,
-+					   void *context);
-+
-+enum ib_mad_snoop_flags {
-+	/*IB_MAD_SNOOP_POSTED_SENDS	   = 1,*/
-+	/*IB_MAD_SNOOP_RMPP_SENDS	   = (1<<1),*/
-+	IB_MAD_SNOOP_SEND_COMPLETIONS	   = (1<<2),
-+	/*IB_MAD_SNOOP_RMPP_SEND_COMPLETIONS = (1<<3),*/
-+	IB_MAD_SNOOP_RECVS		   = (1<<4)
-+	/*IB_MAD_SNOOP_RMPP_RECVS	   = (1<<5),*/
-+	/*IB_MAD_SNOOP_REDIRECTED_QPS	   = (1<<6)*/
-+};
-+
-+/**
-+ * ib_register_mad_snoop - Register to snoop sent and received MADs.
-+ * @device: The device to register with.
-+ * @port_num: The port on the specified device to use.
-+ * @qp_type: Specifies which QP traffic to snoop.  Must be either
-+ *   IB_QPT_SMI or IB_QPT_GSI.
-+ * @mad_snoop_flags: Specifies information where snooping occurs.
-+ * @send_handler: The callback routine invoked for a snooped send.
-+ * @recv_handler: The callback routine invoked for a snooped receive.
-+ * @context: User specified context associated with the registration.
-+ */
-+struct ib_mad_agent *ib_register_mad_snoop(struct ib_device *device,
-+					   u8 port_num,
-+					   enum ib_qp_type qp_type,
-+					   int mad_snoop_flags,
-+					   ib_mad_snoop_handler snoop_handler,
-+					   ib_mad_recv_handler recv_handler,
-+					   void *context);
-+
-+/**
-+ * ib_unregister_mad_agent - Unregisters a client from using MAD services.
-+ * @mad_agent: Corresponding MAD registration request to deregister.
-+ *
-+ * After invoking this routine, MAD services are no longer usable by the
-+ * client on the associated QP.
-+ */
-+int ib_unregister_mad_agent(struct ib_mad_agent *mad_agent);
-+
-+/**
-+ * ib_post_send_mad - Posts MAD(s) to the send queue of the QP associated
-+ *   with the registered client.
-+ * @mad_agent: Specifies the associated registration to post the send to.
-+ * @send_wr: Specifies the information needed to send the MAD(s).
-+ * @bad_send_wr: Specifies the MAD on which an error was encountered.
-+ *
-+ * Sent MADs are not guaranteed to complete in the order that they were posted.
-+ */
-+int ib_post_send_mad(struct ib_mad_agent *mad_agent,
-+		     struct ib_send_wr *send_wr,
-+		     struct ib_send_wr **bad_send_wr);
-+
-+/**
-+ * ib_coalesce_recv_mad - Coalesces received MAD data into a single buffer.
-+ * @mad_recv_wc: Work completion information for a received MAD.
-+ * @buf: User-provided data buffer to receive the coalesced buffers.  The
-+ *   referenced buffer should be at least the size of the mad_len specified
-+ *   by @mad_recv_wc.
-+ *
-+ * This call copies a chain of received RMPP MADs into a single data buffer,
-+ * removing duplicated headers.
-+ */
-+void ib_coalesce_recv_mad(struct ib_mad_recv_wc *mad_recv_wc,
-+			  void *buf);
-+
-+/**
-+ * ib_free_recv_mad - Returns data buffers used to receive a MAD to the
-+ *   access layer.
-+ * @mad_recv_wc: Work completion information for a received MAD.
-+ *
-+ * Clients receiving MADs through their ib_mad_recv_handler must call this
-+ * routine to return the work completion buffers to the access layer.
-+ */
-+void ib_free_recv_mad(struct ib_mad_recv_wc *mad_recv_wc);
-+
-+/**
-+ * ib_cancel_mad - Cancels an outstanding send MAD operation.
-+ * @mad_agent: Specifies the registration associated with sent MAD.
-+ * @wr_id: Indicates the work request identifier of the MAD to cancel.
-+ *
-+ * MADs will be returned to the user through the corresponding
-+ * ib_mad_send_handler.
-+ */
-+void ib_cancel_mad(struct ib_mad_agent *mad_agent,
-+		   u64 wr_id);
-+
-+/**
-+ * ib_redirect_mad_qp - Registers a QP for MAD services.
-+ * @qp: Reference to a QP that requires MAD services.
-+ * @rmpp_version: If set, indicates that the client will send
-+ *   and receive MADs that contain the RMPP header for the given version.
-+ *   If set to 0, indicates that RMPP is not used by this client.
-+ * @send_handler: The completion callback routine invoked after a send
-+ *   request has completed.
-+ * @recv_handler: The completion callback routine invoked for a received
-+ *   MAD.
-+ * @context: User specified context associated with the registration.
-+ *
-+ * Use of this call allows clients to use MAD services, such as RMPP,
-+ * on user-owned QPs.  After calling this routine, users may send
-+ * MADs on the specified QP by calling ib_mad_post_send.
-+ */
-+struct ib_mad_agent *ib_redirect_mad_qp(struct ib_qp *qp,
-+					u8 rmpp_version,
-+					ib_mad_send_handler send_handler,
-+					ib_mad_recv_handler recv_handler,
-+					void *context);
-+
-+/**
-+ * ib_process_mad_wc - Processes a work completion associated with a
-+ *   MAD sent or received on a redirected QP.
-+ * @mad_agent: Specifies the registered MAD service using the redirected QP.
-+ * @wc: References a work completion associated with a sent or received
-+ *   MAD segment.
-+ *
-+ * This routine is used to complete or continue processing on a MAD request.
-+ * If the work completion is associated with a send operation, calling
-+ * this routine is required to continue an RMPP transfer or to wait for a
-+ * corresponding response, if it is a request.  If the work completion is
-+ * associated with a receive operation, calling this routine is required to
-+ * process an inbound or outbound RMPP transfer, or to match a response MAD
-+ * with its corresponding request.
-+ */
-+int ib_process_mad_wc(struct ib_mad_agent *mad_agent,
-+		      struct ib_wc *wc);
-+
-+#endif /* IB_MAD_H */
++#endif	/* __AGENT_H_ */
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/include/ib_smi.h	2004-12-19 22:04:13.062774166 -0800
-@@ -0,0 +1,96 @@
++++ linux-bk/drivers/infiniband/core/agent_priv.h	2004-12-19 22:04:13.636689591 -0800
+@@ -0,0 +1,64 @@
 +/*
 + * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
 + * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
@@ -483,62 +132,227 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * $Id$
 + */
 +
-+#if !defined( IB_SMI_H )
-+#define IB_SMI_H
++#ifndef __IB_AGENT_PRIV_H__
++#define __IB_AGENT_PRIV_H__
 +
++#include <linux/pci.h>
++
++#define SPFX "ib_agent: "
++
++struct ib_agent_send_wr {
++	struct list_head send_list;
++	struct ib_ah *ah;
++	struct ib_mad_private *mad;
++	DECLARE_PCI_UNMAP_ADDR(mapping)
++};
++
++struct ib_agent_port_private {
++	struct list_head port_list;
++	struct list_head send_posted_list;
++	spinlock_t send_list_lock;
++	int port_num;
++	struct ib_mad_agent *dr_smp_agent;    /* DR SM class */
++	struct ib_mad_agent *lr_smp_agent;    /* LR SM class */
++	struct ib_mad_agent *perf_mgmt_agent; /* PerfMgmt class */
++	struct ib_mr *mr;
++};
++
++#endif	/* __IB_AGENT_PRIV_H__ */
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/drivers/infiniband/core/mad_priv.h	2004-12-19 22:04:13.660686054 -0800
+@@ -0,0 +1,194 @@
++/*
++ * Copyright (c) 2004, Voltaire, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * $Id$
++ */
++
++#ifndef __IB_MAD_PRIV_H__
++#define __IB_MAD_PRIV_H__
++
++#include <linux/pci.h>
++#include <linux/kthread.h>
++#include <linux/workqueue.h>
 +#include <ib_mad.h>
++#include <ib_smi.h>
 +
-+#define IB_LID_PERMISSIVE			0xFFFF
 +
-+#define IB_SMP_DATA_SIZE			64
-+#define IB_SMP_MAX_PATH_HOPS			64
++#define PFX "ib_mad: "
 +
-+struct ib_smp {
-+	u8	base_version;
-+	u8	mgmt_class;
-+	u8	class_version;
-+	u8	method;
-+	u16	status;
-+	u8	hop_ptr;
-+	u8	hop_cnt;
-+	u64	tid;
-+	u16	attr_id;
-+	u16	resv;
-+	u32	attr_mod;
-+	u64	mkey;
-+	u16	dr_slid;
-+	u16	dr_dlid;
-+	u8	reserved[28];
-+	u8	data[IB_SMP_DATA_SIZE];
-+	u8	initial_path[IB_SMP_MAX_PATH_HOPS];
-+	u8	return_path[IB_SMP_MAX_PATH_HOPS];
++#define IB_MAD_QPS_CORE		2 /* Always QP0 and QP1 as a minimum */
++
++/* QP and CQ parameters */
++#define IB_MAD_QP_SEND_SIZE	128
++#define IB_MAD_QP_RECV_SIZE	512
++#define IB_MAD_SEND_REQ_MAX_SG	2
++#define IB_MAD_RECV_REQ_MAX_SG	1
++
++#define IB_MAD_SEND_Q_PSN	0
++
++/* Registration table sizes */
++#define MAX_MGMT_CLASS		80
++#define MAX_MGMT_VERSION	8
++#define MAX_MGMT_OUI		8
++#define MAX_MGMT_VENDOR_RANGE2	IB_MGMT_CLASS_VENDOR_RANGE2_END - \
++				IB_MGMT_CLASS_VENDOR_RANGE2_START + 1
++
++struct ib_mad_list_head {
++	struct list_head list;
++	struct ib_mad_queue *mad_queue;
++};
++
++struct ib_mad_private_header {
++	struct ib_mad_list_head mad_list;
++	struct ib_mad_recv_wc recv_wc;
++	DECLARE_PCI_UNMAP_ADDR(mapping)
 +} __attribute__ ((packed));
 +
-+#define IB_SMP_DIRECTION			__constant_htons(0x8000)
++struct ib_mad_private {
++	struct ib_mad_private_header header;
++	struct ib_grh grh;
++	union {
++		struct ib_mad mad;
++		struct ib_rmpp_mad rmpp_mad;
++		struct ib_smp smp;
++	} mad;
++} __attribute__ ((packed));
 +
-+/* Subnet management attributes */
-+#define IB_SMP_ATTR_NOTICE			__constant_htons(0x0002)
-+#define IB_SMP_ATTR_NODE_DESC			__constant_htons(0x0010)
-+#define IB_SMP_ATTR_NODE_INFO			__constant_htons(0x0011)
-+#define IB_SMP_ATTR_SWITCH_INFO			__constant_htons(0x0012)
-+#define IB_SMP_ATTR_GUID_INFO			__constant_htons(0x0014)
-+#define IB_SMP_ATTR_PORT_INFO			__constant_htons(0x0015)
-+#define IB_SMP_ATTR_PKEY_TABLE			__constant_htons(0x0016)
-+#define IB_SMP_ATTR_SL_TO_VL_TABLE		__constant_htons(0x0017)
-+#define IB_SMP_ATTR_VL_ARB_TABLE		__constant_htons(0x0018)
-+#define IB_SMP_ATTR_LINEAR_FORWARD_TABLE	__constant_htons(0x0019)
-+#define IB_SMP_ATTR_RANDOM_FORWARD_TABLE	__constant_htons(0x001A)
-+#define IB_SMP_ATTR_MCAST_FORWARD_TABLE		__constant_htons(0x001B)
-+#define IB_SMP_ATTR_SM_INFO			__constant_htons(0x0020)
-+#define IB_SMP_ATTR_VENDOR_DIAG			__constant_htons(0x0030)
-+#define IB_SMP_ATTR_LED_INFO			__constant_htons(0x0031)
-+#define IB_SMP_ATTR_VENDOR_MASK			__constant_htons(0xFF00)
++struct ib_mad_agent_private {
++	struct list_head agent_list;
++	struct ib_mad_agent agent;
++	struct ib_mad_reg_req *reg_req;
++	struct ib_mad_qp_info *qp_info;
 +
-+static inline u8
-+ib_get_smp_direction(struct ib_smp *smp)
-+{
-+	return ((smp->status & IB_SMP_DIRECTION) == IB_SMP_DIRECTION);
-+}
++	spinlock_t lock;
++	struct list_head send_list;
++	struct list_head wait_list;
++	struct work_struct timed_work;
++	unsigned long timeout;
++	struct list_head local_list;
++	struct work_struct local_work;
 +
-+#endif /* IB_SMI_H */
++	atomic_t refcount;
++	wait_queue_head_t wait;
++	u8 rmpp_version;
++};
++
++struct ib_mad_snoop_private {
++	struct ib_mad_agent agent;
++	struct ib_mad_qp_info *qp_info;
++	int snoop_index;
++	int mad_snoop_flags;
++	atomic_t refcount;
++	wait_queue_head_t wait;
++};
++
++struct ib_mad_send_wr_private {
++	struct ib_mad_list_head mad_list;
++	struct list_head agent_list;
++	struct ib_mad_agent *agent;
++	struct ib_send_wr send_wr;
++	struct ib_sge sg_list[IB_MAD_SEND_REQ_MAX_SG];
++	u64 wr_id;			/* client WR ID */
++	u64 tid;
++	unsigned long timeout;
++	int retry;
++	int refcount;
++	enum ib_wc_status status;
++};
++
++struct ib_mad_local_private {
++	struct list_head completion_list;
++	struct ib_mad_private *mad_priv;
++	struct ib_send_wr send_wr;
++	struct ib_sge sg_list[IB_MAD_SEND_REQ_MAX_SG];
++	u64 wr_id;			/* client WR ID */
++	u64 tid;
++};
++
++struct ib_mad_mgmt_method_table {
++	struct ib_mad_agent_private *agent[IB_MGMT_MAX_METHODS];
++};
++
++struct ib_mad_mgmt_class_table {
++	struct ib_mad_mgmt_method_table *method_table[MAX_MGMT_CLASS];
++};
++
++struct ib_mad_mgmt_vendor_class {
++	u8	oui[MAX_MGMT_OUI][3];
++	struct ib_mad_mgmt_method_table *method_table[MAX_MGMT_OUI];
++};
++
++struct ib_mad_mgmt_vendor_class_table {
++	struct ib_mad_mgmt_vendor_class *vendor_class[MAX_MGMT_VENDOR_RANGE2];
++};
++
++struct ib_mad_mgmt_version_table {
++	struct ib_mad_mgmt_class_table *class;
++	struct ib_mad_mgmt_vendor_class_table *vendor;
++};
++
++struct ib_mad_queue {
++	spinlock_t lock;
++	struct list_head list;
++	int count;
++	int max_active;
++	struct ib_mad_qp_info *qp_info;
++};
++
++struct ib_mad_qp_info {
++	struct ib_mad_port_private *port_priv;
++	struct ib_qp *qp;
++	struct ib_mad_queue send_queue;
++	struct ib_mad_queue recv_queue;
++	struct list_head overflow_list;
++	spinlock_t snoop_lock;
++	struct ib_mad_snoop_private **snoop_table;
++	int snoop_table_size;
++	atomic_t snoop_count;
++};
++
++struct ib_mad_port_private {
++	struct list_head port_list;
++	struct ib_device *device;
++	int port_num;
++	struct ib_cq *cq;
++	struct ib_pd *pd;
++	struct ib_mr *mr;
++
++	spinlock_t reg_lock;
++	struct ib_mad_mgmt_version_table version[MAX_MGMT_VERSION];
++	struct list_head agent_list;
++	struct workqueue_struct *wq;
++	struct work_struct work;
++	struct ib_mad_qp_info qp_info[IB_MAD_QPS_CORE];
++};
++
++#endif	/* __IB_MAD_PRIV_H__ */
 

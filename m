@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131095AbQKRCBM>; Fri, 17 Nov 2000 21:01:12 -0500
+	id <S130901AbQKRCJx>; Fri, 17 Nov 2000 21:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131173AbQKRCBC>; Fri, 17 Nov 2000 21:01:02 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3722 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131154AbQKRCAw>;
-	Fri, 17 Nov 2000 21:00:52 -0500
-Date: Fri, 17 Nov 2000 20:30:44 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS Kernel Panic in 2.4.0-10(11)
-In-Reply-To: <3A15D50A.6818516A@timpanogas.org>
-Message-ID: <Pine.GSO.4.21.0011172026480.18150-100000@weyl.math.psu.edu>
+	id <S131022AbQKRCJn>; Fri, 17 Nov 2000 21:09:43 -0500
+Received: from raven.toyota.com ([205.180.183.200]:56848 "EHLO
+	raven.toyota.com") by vger.kernel.org with ESMTP id <S130901AbQKRCJ1>;
+	Fri, 17 Nov 2000 21:09:27 -0500
+Message-ID: <3A15DDCB.42B0F208@toyota.com>
+Date: Fri, 17 Nov 2000 17:39:23 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: test11-pre7 compile failure
+In-Reply-To: <Pine.LNX.4.10.10011171720410.5987-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just a quick heads-up -
 
+looks like the md fixes broke something -
 
-On Fri, 17 Nov 2000, Jeff V. Merkey wrote:
+In file included from /usr/src/linux/include/linux/pagemap.h:17,
+                 from /usr/src/linux/include/linux/locks.h:9,
+                 from /usr/src/linux/include/linux/raid/md.h:37,
+                 from init/main.c:25:
+/usr/src/linux/include/linux/highmem.h: In function `bh_kmap':
+/usr/src/linux/include/linux/highmem.h:23: structure has no member named
+`p_page'
+In file included from /usr/src/linux/include/linux/raid/md.h:51,
+                 from init/main.c:25:
+/usr/src/linux/include/linux/raid/md_k.h: In function `pers_to_level':
+/usr/src/linux/include/linux/raid/md_k.h:39: warning: control reaches end of
+non-void function
+make: *** [init/main.o] Error 1
 
-> 	
-> This is probably a configuration mismatch of some kind, but I just
-> finished building my 2.4.0 RPM skeletons and am installting them from
-> our latest CD burn, and I am seeing the following 
-> problem when I upgrade our 2.2.17 kernel versions with 2.4.0-test10,
-> then reboot them under 2.4:
-> 
-> request_module[block-major-3]:  Root fs not mounted
-> VFS cannot open root device "301" or 03:01
-> Please append a correct "root=" boot option 
-> Kernel panic: VFS: Unable to mount root fs on 03:01.
-
-IDE built as module. Root on IDE disk. Apparently, no initrd in sight.
-Check your .config and either don't make IDE a module or enable initrd
-and make sure to put the modules into initrd image.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

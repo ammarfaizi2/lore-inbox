@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264059AbUCZJge (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 04:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbUCZJge
+	id S264043AbUCZJjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 04:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263991AbUCZJjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 04:36:34 -0500
-Received: from server2.netdiscount.de ([217.13.198.2]:14489 "EHLO
-	server2.netdiscount.de") by vger.kernel.org with ESMTP
-	id S264059AbUCZJgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 04:36:33 -0500
-Date: Fri, 26 Mar 2004 10:36:19 +0100
-From: Christian Leber <christian@leber.de>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with remap_page_range/mmap
-Message-ID: <20040326093619.GA15965@core.home>
-References: <20040325234804.GA29507@core.home> <20040326071739.B2637@infradead.org>
+	Fri, 26 Mar 2004 04:39:25 -0500
+Received: from gprs214-219.eurotel.cz ([160.218.214.219]:640 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264117AbUCZJjX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 04:39:23 -0500
+Date: Fri, 26 Mar 2004 01:18:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2][RFC] add detailed error values to block layer
+Message-ID: <20040326001808.GA5110@elf.ucw.cz>
+References: <4059AC04.3060109@cs.wisc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040326071739.B2637@infradead.org>
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
+In-Reply-To: <4059AC04.3060109@cs.wisc.edu>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 07:17:39AM +0000, Christoph Hellwig wrote:
+Hi!
 
-> You can't call remap_page_range on normal kernel pages.  It works only
-> if you mark them PG_reserved, but even that use is usually not a good idea.
+> +enum {
+> +	BLK_SUCCESS,
+> +	BLK_ERR,		/* Generic error like -EIO */
+> +	BLK_FATAL_DEV,		/* Fatal driver error */
 
-It also didn´t work with PG_reserved.
-What would be the good idea? I need at least 8 at least 4MB (2MB are enough for 2.4)
-big physical memory pieces for DMA, mapped to userspace.
+	perhaps this should be fatal *device* error?
 
-What is the reason why it doesn´t work? There seems to be no special
-remap_page_range for ia64.
+> +	BLK_FATAL_TRNSPT,	/* Fatal transport error */
+> +	BLK_FATAL_DRV,		/* Fatal driver error */
+> +	BLK_RETRY_DEV,		/* Device error, I/O may be retried */
+> +	BLK_RETRY_TRNSPT,	/* Transport error, I/O may retried */
+> +	BLK_RETRY_DRV,		/* Driver error, I/O may be retried */
+> +};
+> +
+> +/*
+>   * end_request() and friends. Must be called with the request queue spinlock
+>   * acquired. All functions called within end_request() _must_be_ atomic.
+>   *
 
-
-
-Christian Leber
 
 -- 
-  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
-   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)
-  Translation: <http://gnuhh.org/work/fsf-europe/augustinus.html>
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263960AbTJ1NK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 08:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTJ1NK2
+	id S263961AbTJ1NTz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 08:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTJ1NTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 08:10:28 -0500
-Received: from [202.68.142.226] ([202.68.142.226]:23013 "HELO smtp1.iitb.ac.in")
-	by vger.kernel.org with SMTP id S263960AbTJ1NK0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 08:10:26 -0500
-Subject: kernel 2.6.0-test9 does not boot
-From: Amitay Isaacs <amitay@aero.iitb.ac.in>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: CASDE, Aerospace Engineering, IIT Bombay
-Message-Id: <1067346608.3938.32.camel@maxwell.aero.iitb.ac.in>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 28 Oct 2003 18:40:09 +0530
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Oct 2003 08:19:54 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18949 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263961AbTJ1NTx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 08:19:53 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: status of ipchains in 2.6?
+Date: 28 Oct 2003 13:09:41 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bnlpql$pmq$1@gatekeeper.tmr.com>
+References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com> <20031028015032.734caf21.davem@redhat.com>
+X-Trace: gatekeeper.tmr.com 1067346581 26330 192.168.12.62 (28 Oct 2003 13:09:41 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <20031028015032.734caf21.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+| On Mon, 27 Oct 2003 17:27:22 -0800
+| David Mosberger <davidm@napali.hpl.hp.com> wrote:
+| 
+| > I recently discovered that ipchains is rather broken.  I noticed the
+| > problem on ia64, but suspect that it's likely to affect all 64-bit
+| > platforms (if not 32-bit platforms).  A more detailed description of
+| > the problem I'm seeing is here:
+| > 
+| > 	http://tinyurl.com/sm9d
+| > 
+| > Unlike ipchains, iptables works perfectly fine, so perhaps we just
+| > need to update Kconfig to discourage ipchains on ia64 (and/or other
+| > 64-bit platforms)?
+| 
+| Might want to post this to the netfilter lists or netdev....
+| Nah, that might actually get the bug fixed.
+| 
+| linux-kernel is always the wrong place to report networking
+| problems, most networking developers do not read linux-kernel.
+| They do read netdev@oss.sgi.com so please post things there.
 
-Kernel 2.6.0-test9 was compiled as following
+The other side of the problem is that most people reading here don't
+read netdev, so you don't trigger the "I have that too, and didn't
+report it because I thought it was just me" replies. That's an imperfect
+way to run the world, but it does reflect human nature.
 
-make allmodconfig
-make bzImage
-make modules
+I personally hesitate to post to netdev until I have really researched
+a problem, as opposed to reporting that something working in testN
+fails in test{N+1}. Given my free time, that often means that someone
+else reports a bug (usually here) first.
 
-Attempt at booting with this kernel resulted in following message
-and machine freeze.
-
--------------------------------------------------------------------
-ide: Assuming 33MHz system bus speed for PIO modes; override with     
-    idebus=xx
-pnp: the driver 'ide' has been registered
-Using anticipatory io scheduler
-hda: 8032MB, CHS=1024/255/63
-devfs_mk_dir: invalid argument. <6> hda:
--------------------------------------------------------------------
-
-Kernel was booted with
-foll-------------------------------------------------------------------
-owing commandline in grub
-
-    kernel /boot/vmlinuz-2.6.0-test9 ro root=/dev/hda1 debug
-
-The actual hard disk parameters as reported by kernel 2.4.20 are
-
--------------------------------------------------------------------
-hda: WDC WD200EB-11BHF0, ATA DISK drive
-blk: queue c03c9f40, I/O limit 4095Mb (mask 0xffffffff)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: host protected area => 1
-hda: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=2434/255/63,
-UDMA(100)
--------------------------------------------------------------------
-
-After manual tracing the kernel source, found following call tree 
-
-idedisk_attach (drivers/ide/ide-disk.c:1840)
-  add_disk (drivers/genhd/genhd.c:193)
-  register_disk (fs/partitions/check.c:335)
-    devfs_add_partitioned (fs/partitions/devfs.c:80)
-      devfs_mk_dir()
-
-printk revealed that devfs_mk_dir() is getting called with a
-0-byte string. What is going wrong? 
-
-
-Amitay.
+Your continued reminders when appropriate are useful, perhaps an
+occasional forward of a message would be as well.
 -- 
-I have always wished that my computer would be as easy to use 
-as my telephone. My wish has come true. I no longer know how 
-to use my telephone.  - Bjarne Stroustrup
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

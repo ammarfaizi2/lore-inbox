@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310435AbSDMUAC>; Sat, 13 Apr 2002 16:00:02 -0400
+	id <S310470AbSDMUU3>; Sat, 13 Apr 2002 16:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310470AbSDMUAB>; Sat, 13 Apr 2002 16:00:01 -0400
-Received: from Ptrillia.EUnet.sk ([193.87.242.40]:3456 "EHLO meduna.org")
-	by vger.kernel.org with ESMTP id <S310468AbSDMUAA>;
-	Sat, 13 Apr 2002 16:00:00 -0400
-From: Stanislav Meduna <stano@meduna.org>
-Message-Id: <200204131841.g3DIfH401783@meduna.org>
-Subject: Re: [Linux-usb-users] Re: uhci locks up in 2.4.19-pre6
-To: johannes@erdfelt.com (Johannes Erdfelt)
-Date: Sat, 13 Apr 2002 20:41:17 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-In-Reply-To: <20020413121522.A8314@sventech.com> from "Johannes Erdfelt" at apr 13, 2002 12:15:22
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310517AbSDMUU2>; Sat, 13 Apr 2002 16:20:28 -0400
+Received: from bnathan.remote.ics.uci.edu ([128.195.36.198]:32239 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S310470AbSDMUU2>; Sat, 13 Apr 2002 16:20:28 -0400
+Subject: Re: Very trace tcp issue on 2.2.19
+To: public@dgmo.org
+Date: Sat, 13 Apr 2002 13:20:50 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m1sn5zq4n6.fsf@mo.optusnet.com.au> from "public@dgmo.org" at Apr 13, 2002 08:22:53 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20020413202050.6C12C897E0@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> Apply these patches. They should be in -pre7 (or -rc1, depending on what
-> Marcelo calls it).
+> I've got an app (backup program) writing large
+> quantities over data over a TCP connection from
+> one 2.2.19 kernel to another.
 > 
-> This should fix all outstanding lockups and performance problems with
-> uhci.c. Let me know how it goes for you.
+> My problem is that after a while, the connection simply
+> hangs. The application on the local side is sleeping
+> in read(), netstat on the local side show an empty
+> receive Q.
+> 
+> Netstat on the remote site show a large send Q:
+[snip]
 
-Yup, seems to work now and printing is back to normal too. Thanks.
+There have been networking fixes since 2.2.19; you might want to try
+2.2.21-rc3 (or if that's not possible, 2.2.20) and see if that improves
+anything.
 
-Regards
--- 
-                                   Stano
-
+-Barry K. Nathan <barryn@pobox.com>

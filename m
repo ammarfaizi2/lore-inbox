@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbUDFInH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 04:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUDFInH
+	id S263664AbUDFIsw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 04:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUDFIsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 04:43:07 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53774 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263662AbUDFInD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 04:43:03 -0400
-Date: Tue, 6 Apr 2004 09:42:58 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4: disabling SCSI support not possible
-Message-ID: <20040406094258.A15945@flint.arm.linux.org.uk>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	linux-kernel@vger.kernel.org
-References: <406D65FE.9090001@broadnet-mediascape.de> <6uad1uv7kr.fsf@zork.zork.net> <20040402144216.A12306@flint.arm.linux.org.uk> <20040402165941.GA29046@kroah.com> <20040402181630.B12306@flint.arm.linux.org.uk> <c4slos$6tq$1@gatekeeper.tmr.com>
+	Tue, 6 Apr 2004 04:48:52 -0400
+Received: from law10-f82.law10.hotmail.com ([64.4.15.82]:29708 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263664AbUDFIsu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 04:48:50 -0400
+X-Originating-IP: [64.40.39.168]
+X-Originating-Email: [quazgaa@hotmail.com]
+From: "Quazgaa Scwhaa" <quazgaa@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Disappearing cursor with vesafb
+Date: Tue, 06 Apr 2004 01:48:49 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <c4slos$6tq$1@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Apr 05, 2004 at 06:17:14PM -0400
+Content-Type: text/plain; format=flowed
+Message-ID: <Law10-F82X7oG3AvUzk00032908@hotmail.com>
+X-OriginalArrivalTime: 06 Apr 2004 08:48:49.0544 (UTC) FILETIME=[FAE23080:01C41BB3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 06:17:14PM -0400, Bill Davidsen wrote:
-> Intuitive isn't the issue, if you can't figure out why you can't turn 
-> off SCSI, you leave it on, which you need to make USB storage work. If 
-> you're trying to make a small kernel you presumably would have turned 
-> off USB if you didn't want it. The other way, if you can turn on USB w/o 
-> SCSI, it won't work, and people thing Linux is broken.
+Hello, I have been living with a randomly (and frequently) disappearing 
+cursor (console/vterm) using vesafb for uh well lets see my whole friggin 
+life. as long as ive been using vesafb anyway, which is a long time. =(  
+Since nobody seems to know or care perhaps this email will at least let 
+someone know.  At this very moment I am still running on 2.6.2-rc1 , but 
+this disappearing cursor phenomena has been true since 2.4.  I havent run a 
+distribution of linux in about 2 years so I forget if this was true (or if i 
+was even using vesafb) back when i was running debian. I use the following 
+to get a red block cursor:
 
-When I hit it, I was trying to build a kernel for test purposes, so I
-didn't want all the drivers turned on.  I found I couldn't turn off
-SCSI and continued anyway turning other things off.  However, USB appears
-_after_ SCSI, you can not go through the configuration logically to turn
-off features.  Moreover, you do not get any suggestion when attempting
-to turn SCSI off that you need to turn off USB.
+echo -e '\033[?17;0;64c'
 
-> Chances are that most people wouldn't have USB on if they didn't want 
-> it, but there's no downside to doing this.
+This block cursor does not have the disappearing problem. however, I like 
+the more traditional blinking underscore for working in vi and such, so I do
 
-The x86 default configuration has USB + USB Storage turned on.  It makes
-it _non-trivial_ to turn SCSI off unless you have prior knowledge that
-you need to turn USB off before hand.
+echo -e '\033[?82c'
 
-> > (b) have kconfig tell you why you can't turn off the option.
-> 
-> I thought that was what (a) did.
+to get the blinking underscore.  This cursor (on all terminals which i use 
+this style of cursor) somewhat randomly disappears with great frequency. 
+i.e. there is no visible cursor at all. and again allthewhile my red block 
+cursors are unaffected. The following things instigate the disappearance of 
+my cursor:  Switching to X and back to console, and any other kind of 
+switching to a graphical sort of mode, be it framebuffer apps like graphical 
+links, mplayer, etc.  Also the console screen blanking after 10 or however 
+many minutes screensaver type of deal.  The thing is that it is somewhat 
+random where I can switch to X and back a few times and all is well and then 
+the next time the cursor disappears.  Or maybe the first time I switch to X 
+and back the cursor will disappear, etc.  On some rarer occasions i think it 
+happens even if i do nothing more than switch from a vterm with a blinking 
+underscore cursor to one with a red block and then back.
 
-No - the configuration system just doesn't let you turn SCSI off.  No
-complaint, no warning, no nothing.  It just won't change the symbol.
+Also note that I have seen this exact same behavior on machines and linux 
+systems other than my own, including knoppix.
 
-> > Silently preventing options being turned off with no obvious reason
-> > is a pretty major misfeature.
-> 
-> Compared to enabling USB storage with no hope of having it work? Adding 
-> user info is desirable, but making it easy, or even possible, to build a 
->   non-working config is a lot more of a problem. You haven't compiled on 
-> a slow machine lately, forcing config combinations which work is a 
-> benefit of kconfig.
+Also again, I usually just do 'reset' to get my cursors back, though this is 
+random as well ie whether it works or not, depending which vterm i do it 
+from, etc. For example it works more often if i switch to a vterm that hasnt 
+been logged in yet, or if i log out and log back in, then do reset.
 
-Umm, you're talking to an ARM developer who builds some kernels natively.
-I suspect that your definition of "slow" is actually faster than my
-definition of the same.
+If anyone has anything to say about this please CC me (quazgaa@hotmail.com) 
+thanks.
 
-> If you want it broken you have to edit the config code. That's a good thing.
+_________________________________________________________________
+Watch LIVE baseball games on your computer with MLB.TV, included with MSN 
+Premium! 
+http://join.msn.com/?page=features/mlb&pgmarket=en-us/go/onm00200439ave/direct/01/
 
-Read what I'm saying.  *Silently* preventing options being turned off
-with *no* *obvious* *reason* is a pretty major misfeature.
-
-I hope the emphasis will highlight the problem more clearly.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

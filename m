@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264065AbTJ1SAk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 13:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTJ1SAk
+	id S261151AbTJ1R5D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbTJ1R5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 13:00:40 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:46607 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264065AbTJ1SAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 13:00:39 -0500
-Date: Tue, 28 Oct 2003 18:00:38 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       dri-devel <dri-devel@lists.sourceforge.net>
-Subject: Re: Multiple drivers for same hardware:, was: DRM and pci_driver
- conversion
-In-Reply-To: <Pine.LNX.4.44.0310232132410.4894-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0310281752390.5142-100000@phoenix.infradead.org>
+	Tue, 28 Oct 2003 12:57:03 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:16073 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261151AbTJ1R5B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 12:57:01 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16286.44522.275791.73904@napali.hpl.hp.com>
+Date: Tue, 28 Oct 2003 09:56:58 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.or
+Subject: Re: status of ipchains in 2.6?
+In-Reply-To: <20031028015032.734caf21.davem@redhat.com>
+References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com>
+	<20031028015032.734caf21.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Tue, 28 Oct 2003 01:50:32 -0800, "David S. Miller" <davem@redhat.com> said:
 
-> Since they have to co-operate some way on the resources _anyway_, they'll 
-> just need to work it out amongst themselves.
-> 
-> One common case is to have a "arbitration driver" that tends to do the
-> actual low-level accesses and is one level of abstraction over the
-> hardware (papers over trivial differences in hardware). An example of this
-> would be the old-style ISA DMA infrastructure (now happily pretty much
-> dead), where the "DMA driver" was just a trivial layer that had some basic
-> allocation/deallocation and had somewhat nicer access routines than the
-> raw IO accesses, but didn't do much more.
+  DaveM> On Mon, 27 Oct 2003 17:27:22 -0800 David Mosberger
+  DaveM> <davidm@napali.hpl.hp.com> wrote:
 
-I already have thought ahead about this issue. That is why one of the 
-major changes to the framebuffer layer was to seperate the driver data 
-into struct fb_info and a struct xxx_par. The idea was the data in struct 
-fb_info was for the framebuffer layer and the data in struct xxx_par could 
-be shared with other interfaces like DRI. The par idea can be extended 
-further and we could use a common structure between a low level text mode
-console driver and a graphics driver. For example mdacon and hgafb. 
+  >> I recently discovered that ipchains is rather broken.  I noticed
+  >> the problem on ia64, but suspect that it's likely to affect all
+  >> 64-bit platforms (if not 32-bit platforms).  A more detailed
+  >> description of the problem I'm seeing is here:
 
+  >> http://tinyurl.com/sm9d
 
+  >> Unlike ipchains, iptables works perfectly fine, so perhaps we
+  >> just need to update Kconfig to discourage ipchains on ia64
+  >> (and/or other 64-bit platforms)?
 
+  DaveM> Might want to post this to the netfilter lists or netdev....
+  DaveM> Nah, that might actually get the bug fixed.
+
+$ fgrep -i ipchain MAINTAINERS
+$
+
+Might want to consider updating the MAINTAINERS file?
+
+	--david

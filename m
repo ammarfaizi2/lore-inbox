@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUHSI5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUHSJAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUHSI5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUHSI5D
+	id S264213AbUHSJAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUHSJAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:57:03 -0400
-Received: from [80.188.250.22] ([80.188.250.22]:46539 "EHLO
-	thinkpad.gardas.net") by vger.kernel.org with ESMTP id S264085AbUHSIyO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:54:14 -0400
-Date: Thu, 19 Aug 2004 10:54:00 +0200 (CEST)
-From: Karel Gardas <kgardas@objectsecurity.com>
-X-X-Sender: karel@thinkpad.gardas.net
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM T22/APM suspend does not work with yenta_socket module loaded
- on 2.6.8.1
-In-Reply-To: <20040819094702.A546@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.43.0408191050420.1006-100000@thinkpad.gardas.net>
+	Thu, 19 Aug 2004 05:00:09 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:24262 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264213AbUHSI5r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 04:57:47 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: PF_MEMALLOC in 2.6
+Date: Thu, 19 Aug 2004 10:59:02 +0200
+User-Agent: KMail/1.6.2
+Cc: arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
+References: <20040818235523.383737cd@lembas.zaitcev.lan>
+In-Reply-To: <20040818235523.383737cd@lembas.zaitcev.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408191059.02628.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Aug 2004, Russell King wrote:
+Am Donnerstag, 19. August 2004 08:55 schrieb Pete Zaitcev:
+> The PF_MEMALLOC is required on usb-storage threads in 2.4, because ext3
+> will deadlock and otherwise misbehave when it's trying to write out
+> dirty pages under memory pressure.
 
-> On Thu, Aug 19, 2004 at 10:16:04AM +0200, Karel Gardas wrote:
-> > I've found that APM suspend is not working on my IBM T22 properly, when
-> > cardbus services are loaded. I've identified the problematic piece of code
-> > as a yenta_socket module -- when I stop cardmgr and unload this module,
-> > suspend starts to work.
->
-> So it doesn't even work with cardmgr stopped and yenta loaded?
+Can you tell where it hangs? 2.6 passes GFP_NOIO around. If we
+have an error about that somewhere we need to find it because
+it may also affect the error handlers which do not operate in that
+context.
 
-Yes, cardmgr stopped and all modules loaded (including yenta) results in
-non-functioning suspend. Also I've forgotten to mention that my cardmgr is
-version 3.1.33...
-
-> Have you tried removing any cards plugged in to the sockets?
-
-I don't have any cards in any socket.
-
-> You could try grabbing the cbdump program from pcmcia.arm.linux.org.uk
-> and trying to identify whether there's any differences in the register
-> settings of the Cardbus bridges - between having no yenta module loaded
-> and having yenta loaded with the sockets suspended using:
->
-> echo 3 > /sys/class/pcmcia_socket/pcmcia_socket0/device/power/state
-> echo 3 > /sys/class/pcmcia_socket/pcmcia_socket1/device/power/state
->
-> (echo 0 to these files to resume the sockets.)
-
-Will try and hopefully report results this week.
-
-Thanks,
-
-Karel
---
-Karel Gardas                  kgardas@objectsecurity.com
-ObjectSecurity Ltd.           http://www.objectsecurity.com
-
+	Regards
+		Oliver

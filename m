@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262559AbUCEMRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUCEMRJ
+	id S262543AbUCEMTm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:19:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUCEMTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:17:09 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:16297 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S262559AbUCEMQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:16:51 -0500
-Subject: Re: nicksched v30
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <4048204E.8000807@cyberone.com.au>
-References: <4048204E.8000807@cyberone.com.au>
-Content-Type: text/plain
-Message-Id: <1078488995.13256.1.camel@midux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 14:16:35 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Mar 2004 07:19:42 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:30215 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262543AbUCEMTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 07:19:40 -0500
+Date: Fri, 5 Mar 2004 09:18:19 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: Johnny Strom <jonny.strom@netikka.fi>
+cc: linux-kernel@vger.kernel.org, <jr@xor.at>
+Subject: Re: Multiple oopses with 2.4.25
+In-Reply-To: <40463DD9.1040200@netikka.fi>
+Message-ID: <Pine.LNX.4.44.0403050914450.2678-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-05 at 08:38, Nick Piggin wrote:
-> http://www.kerneltrap.org/~npiggin/v30.gz
-> 
-> Applies to kernel 2.6.4-rc1-mm2.
-> Run X at about nice -10 or -15.
-> Please report interactivity problems with the default scheduler
-> before using this one etc etc.
-> 
-> Thanks
-Same patch for 2.6.4-rc2? mm breaks up a few things for me :(
 
-        Markus
+
+On Wed, 3 Mar 2004, Johnny Strom wrote:
+
+> 
+> Hi
+> 
+> It seems that I have the same problem as in this
+> mail:
+> 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0403.0/0635.html
+> 
+> 
+> I also get multiple oopse's with 2.4.25 plus the latest
+> ipsec kernel patch form http://www.freeswan.org/.
+> 
+> I have to reset the computer to get it working again,
+> below is the oopse's:
+
+Dear fellows,
+
+I have seen similar reports. 
+
+Can you find out which kernel does not exhibit the behaviour with the same
+freeswan/grsec patches ?
+
 

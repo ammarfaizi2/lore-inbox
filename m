@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271730AbTG2OUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271741AbTG2OUw
+	id S271827AbTG2OMm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271833AbTG2OMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:20:52 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:16911 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S271730AbTG2OUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:20:30 -0400
-Date: Tue, 29 Jul 2003 16:20:25 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: adri <adri@archetti.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1/2 won't let me use keyboard
-Message-ID: <20030729142025.GA2180@win.tue.nl>
-References: <20030728214523.GA485@inwind.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728214523.GA485@inwind.it>
-User-Agent: Mutt/1.3.25i
+	Tue, 29 Jul 2003 10:12:42 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:8721 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S271827AbTG2OK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:10:58 -0400
+Message-ID: <3F2682EF.2040702@techsource.com>
+Date: Tue, 29 Jul 2003 10:21:35 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O10int for interactivity
+References: <200307280112.16043.kernel@kolivas.org> <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 11:45:23PM +0200, adri wrote:
 
-> I have a problem compiling 2.6.0-test1, and later 2.6.0-test2.
-> booting the kernel goes well, but when i try to log in my system,
-> keyboard seems to be crazy, and when i press a key, it writes the same
-> key for almost 4 times, so it is very impossible log in.
-> /var/log/syslog don't seems to have something strange.
 
-Could you compile i8042.c with #define DEBUG instead of #undef DEBUG
-and report what that yields in the syslog?
+Valdis.Kletnieks@vt.edu wrote:
+
+> I'm guessing that the anticipatory scheduler is the culprit here.  Soon as I figure
+> out the incantations to use the deadline scheduler, I'll report back....
+> 
+
+It would be unfortunate if AS and the interactivity scheduler were to 
+conflict.  Is there a way we can have them talk to each other and have 
+AS boost some I/O requests for tasks which are marked as interactive?
+
+It would sacrifice some throughput for the sake of interactivity, which 
+is what the interactivity patches do anyhow.  This is a reasonable 
+compromise.
 

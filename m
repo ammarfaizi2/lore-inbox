@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265229AbTIDRGo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 13:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTIDRGn
+	id S265270AbTIDRNq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 13:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbTIDRNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 13:06:43 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4481 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265229AbTIDRGk
+	Thu, 4 Sep 2003 13:13:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48516 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265270AbTIDRNh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 13:06:40 -0400
-Date: Thu, 4 Sep 2003 13:09:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: David Lang <david.lang@digitalinsight.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: serial console on x86
-In-Reply-To: <Pine.LNX.4.44.0309040939230.18624-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.53.0309041301060.6201@chaos>
-References: <Pine.LNX.4.44.0309040939230.18624-100000@dlang.diginsite.com>
+	Thu, 4 Sep 2003 13:13:37 -0400
+Message-ID: <3F5772B2.402@pobox.com>
+Date: Thu, 04 Sep 2003 13:13:22 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix ppc ioremap prototype
+References: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003, David Lang wrote:
+Linus Torvalds wrote:
+> I think that in the 2.7.x timeframe, the right thing to do is definitely:
+>  - move towards using "struct resource" and "ioremap_resource()"
+>  - make resource sizes potentially be larger (ie use "u64" instead of 
+>    "unsigned long")
 
-> I am attempting to install linux (debian 3 based) on some dual athlon
-> boxes with no video card. The BIOS does include serial console
-> capabilities
->
-> once the system is installed I have no problem booting from the hard
-> drive, but when I attempt to boot from a CD to install (ISOLINUX custom
-> boot disk) I see the lilo prompt, the loading kernel message, the loading
-> initrd.gz message and then it prints 'Ready.' and reboots the same
-> bootdisk will work just fine if I install a video card in the machine (and
-> the same kernel with lilo boots just fine without a video card after it
-> gets installed)
->
-> any ideas why the kernel may crash before printing any messages in this
-> situation? I've tried this with 2.4.17 and 2.4.22 with the exact same
-> results.
->
-> David Lang
 
-	append="console=ttyS0,9600"
-... in the lilo configuration works fine in the exact same kernels
-you cite. However, the CD install does not have the console changed
-so it will probably not work. The BIOS is never used past the point
-where the OS is physically loaded so it makes no difference
-if you have "serial console capabilities" in the BIOS.
+Would still be nice to have a sysdata or struct device pointer in struct 
+resource, then.  I'm not a fan of wacky 
+bus-info-encoded-in-another-number schemes.
 
-You can readily make an 'init' that opens a serial port if the
-console failed to open. That's done all the while in embedded
-systems. You just can't get that off a "distribution disk".
+	Jeff
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
 

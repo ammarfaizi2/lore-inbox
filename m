@@ -1,90 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132898AbRDSTYS>; Thu, 19 Apr 2001 15:24:18 -0400
+	id <S133006AbRDST0i>; Thu, 19 Apr 2001 15:26:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133005AbRDSTYI>; Thu, 19 Apr 2001 15:24:08 -0400
-Received: from hermes.sistina.com ([208.210.145.141]:14867 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S132898AbRDSTXz>;
-	Thu, 19 Apr 2001 15:23:55 -0400
-Date: Thu, 19 Apr 2001 14:24:00 -0500
-From: AJ Lewis <lewis@sistina.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jes Sorensen <jes@linuxcare.com>, linux-kernel@vger.kernel.org,
-        linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
-        Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
-        riel@conectiva.com.br, linux-lvm@sistina.com
-Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
-Message-ID: <20010419142400.E10345@sistina.com>
-In-Reply-To: <20010419132927.D10345@sistina.com> <E14qJhd-0007oR-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tMbDGjvJuJijemkf"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E14qJhd-0007oR-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Apr 19, 2001 at 08:02:50PM +0100
+	id <S133005AbRDST03>; Thu, 19 Apr 2001 15:26:29 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:47869 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S133006AbRDST0O>; Thu, 19 Apr 2001 15:26:14 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104191924.f3JJODWr015608@webber.adilger.int>
+Subject: Re: ext2 inode size (on-disk)
+In-Reply-To: <Pine.GSO.4.21.0104191345400.16930-100000@weyl.math.psu.edu>
+ "from Alexander Viro at Apr 19, 2001 02:02:03 pm"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Thu, 19 Apr 2001 13:24:12 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Al writes:
+> > I had always assumed that it would be a power-of-two size, but since it
+> > is an undocumented option to mke2fs, I suppose it was never really
+> > intended to be used.  It appears, however, that the mke2fs code
+> > doesn't do ANY checking on the parameter, so you could concievably make
+> > the inode size SMALLER than the current size, and this would DEFINITELY
+> > be bad as well.
+> 
+> In some sense it does - it dies if you've passed it not a power of two ;-)
+> I don't think that segfault is a good way to report the problem, though...
 
---tMbDGjvJuJijemkf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Strange, I run "mke2fs -I 192 /dev/hdc2" and do not have a segfault or any
+problems with e2fsck or debugfs on the resulting filesystem.  I'm running
+1.20-WIP, but I don't think anything was changed in this area for some time.
 
-On Thu, Apr 19, 2001 at 08:02:50PM +0100, Alan Cox wrote:
-> Well their approach to patches that fix bugs is to reject emails. They've=
- done
-> that to stuff I've reported any many others. So there is a problem. And i=
-ts
-> kind of hard to discuss a problem when you are being moderated out of exi=
-stance.
+However, looking at the output from dumpe2fs shows it is packing inodes
+across block boundaries (inode_size = 192, inodes_per_group = 16144,
+inode_blocks_per_group = 757).  It is also not filling the last inode
+table block (which would give us 16149 inodes).
 
-Hmm...i guess there is a communication issue here.  It sounds like the
-message that our ML server was sending was misleading.  We were not
-rejecting mail because of content.  The ML server was rejecting it because
-the address was not subscribed.  Our idea was that we don't want spam.=20
-If it's completely unmoderated, then we will get a *lot* of spam.
+Also, looking at the disk, it shows garbage data in the space after the
+end of the normal inode, and ext2 should always zero-fill unused fields.
 
-Did anyone bother to e-mail the list admins?  Perhaps it was too difficult
-to figure out who to mail about this, but I know for a fact that Rik van
-Riel and Jens Axboe could post to linux-lvm@sistina.com.  It would have been
-nice if they had mentioned something to us.
+Basically, packing inodes across block boundaries is TOTALLY broken.
+This can lead to all sorts of data corruption issues if one block is
+written to disk, and the other is not.  For that matter, the same would
+hold true with any not-power-of-two inode size.  In this case, the
+inode will still be crossing a hard disk sector boundary, and have the
+(small) possibility that part of the inode is written and part is not.
 
-> The openlvm list is open to existing LVM hackers too..
+In this light, the safe inode sizes are 128 (current size), 256, and 512.
 
-True, but it seems silly to duplicate the load if it's not necessary.
+> > mke2fs will always set up the filesystem this way, and there is no real
+> > reason NOT to do that.  If you are using a filesystem block for the inode
+> > table, it is pointless to leave part of it empty, because you can't use
+> > it for anything else anyways.
+> 
+> It's not that simple - if you need 160 bytes per inode rounding it up
+> to the next power of two will lose a lot. On 4Kb fs it will be
+> 16 inodes per block instead of 25 - 36% loss...
 
-Regards,
---=20
-AJ Lewis
-Sistina Software Inc.                  Voice:  612-379-3951
-1313 5th St SE, Suite 111              Fax:    612-379-3952
-Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
-http://www.sistina.com
+What I was getting at, is that no matter what size of inode we are using,
+we should ALWAYS fill the last inode table block as full as possible.  Once
+you have allocated a block to the inode table, it should be filled with
+as many inodes as fit in a single block.  To do anything else is a waste.
 
-Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
-648
-Get my key at: http://www.sistina.com/~lewis/gpgkey
- (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
+For example, with 160 byte inodes, and a 4k inode table block, we can fit
 
------Begin Obligatory Humorous Quote----------------------------------------
-Sometimes I have a difficult time handling myself in social situations.
-I just start scampering around neurotically, frantically jumping all
-over guests. I think it all goes back to when I was raised in the wild
-by miniature schnauzers.
------End Obligatory Humorous Quote------------------------------------------
+4096 / 160 = 25 inodes into this block (with 96 bytes remaining)
 
---tMbDGjvJuJijemkf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+There is no reason to only have 1 or 2 or 17 inodes in this block.  If we
+assume we are not crossing a block boundary with the inode, then
+inodes_per_group = n * inodes_per_block, where n = number of inode blocks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Cheers, Andreas
 
-iD8DBQE63ztQpE6/iGtdjLERAinvAJ4urN6/tQyEfUB2sCRuwhRJuv7m/gCfXlKP
-tidskjA851qXF8RG/HUK42s=
-=lek6
------END PGP SIGNATURE-----
-
---tMbDGjvJuJijemkf--
+PS - is this a code cleanup issue, or do you have some reason that you want
+     to increase the inode size?
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

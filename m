@@ -1,95 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265176AbUAPRVx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 12:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbUAPRVx
+	id S265512AbUAPRNz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 12:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAPRNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 12:21:53 -0500
-Received: from ce.fis.unam.mx ([132.248.33.1]:16021 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id S265176AbUAPRVs (ORCPT
+	Fri, 16 Jan 2004 12:13:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39085 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265512AbUAPRNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 12:21:48 -0500
-Subject: Re: True story: "gconfig" removed root folder...
-From: Max Valdez <maxvalde@fis.unam.mx>
-To: Doug McNaught <doug@mcnaught.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>,
-       kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <87ptdl2q7l.fsf@asmodeus.mcnaught.org>
-References: <1074177405.3131.10.camel@oebilgen>
-	 <Pine.LNX.4.58.0401151558590.27223@serv>
-	 <87ptdl2q7l.fsf@asmodeus.mcnaught.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PpR5SThzo3BKrhsEqth9"
-Message-Id: <1074273646.12093.3.camel@garaged.homeip.net>
+	Fri, 16 Jan 2004 12:13:53 -0500
+Subject: Re: 2.6.1-mm4 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20040115225948.6b994a48.akpm@osdl.org>
+References: <20040115225948.6b994a48.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1074273246.4603.16.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 16 Jan 2004 11:20:46 -0600
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 16 Jan 2004 09:14:06 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
---=-PpR5SThzo3BKrhsEqth9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
 
-I rather have my /root dir removed (nothing there), than my user home,
-that would be very bad for me
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-Max
+***********************************************************************
+For both defconfig and allnoconfig, there are hundreds of the following
+warnings:
 
-On Thu, 2004-01-15 at 09:20, Doug McNaught wrote:
-> Roman Zippel <zippel@linux-m68k.org> writes:
->=20
-> > On Thu, 15 Jan 2004, Ozan Eren Bilgen wrote:
-> >
-> >> Today I downloaded 2.6.1 kernel and tried to configure it with "make
-> >> gconfig". After all changes I selected "Save As" and clicked "/root"
-> >> folder to save in. Then I clicked "OK", without giving a file name. I
-> >> expected that it opens root folder and lists contents. But this magic
-> >> configurator removed (rm -Rf) my root folder and created a file named
-> >> "root". It was a terrible experience!..
-> >
-> > I only did a quick check with menuconfig. Are you sure it's really
-> > removed? It should still be there as "/root.old".
-> > I probably should change the behaviour of the save routine to behave
-> > differently for directories as argument, but it doesn't remove it.
-> > (Changing gconfig to only accept files in the save request would probab=
-ly
-> > be nice too...)
->=20
-> The real lesson here is "don't compile your kernel as root".  There's
-> no need to do so.
->=20
-> -Doug
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-Linux garaged 2.6.1-mm1 #3 SMP Sat Jan 10 13:18:40 CST 2004 i686 Pentium II=
-I (Coppermine) GenuineIntel GNU/Linux
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GS/S d- s: a-29 C++(+++) ULAHI+++ P+ L++>+++ E--- W++ N* o-- K- w++++ O- M-=
-- V-- PS+ PE Y-- PGP++ t- 5- X+ R tv++ b+ DI+++ D- G++ e++ h+ r+ z**
-------END GEEK CODE BLOCK------
-gpg-key: http://garaged.homeip.net/gpg-key.txt
+`CONFIG_X86_L1_CACHE_SHIFT' undeclared here (not in a function)
+requested alignment is not a constant
 
---=-PpR5SThzo3BKrhsEqth9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+CONFIG_X86_L1_CACHE_SHIFT is not defined in defconfig and allnoconfig.
+***********************************************************************
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+John
 
-iD8DBQBACB1tNNkpVEFxW78RArnTAJ0fGDU0+isT3OHo1fKN6WrpltZ/aACgpcdN
-765JCIRUF4c8kvk/4s2auUM=
-=w/YX
------END PGP SIGNATURE-----
-
---=-PpR5SThzo3BKrhsEqth9--
 

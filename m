@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbTJASX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 14:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTJASX5
+	id S262714AbTJASZI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 14:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbTJASZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 14:23:57 -0400
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:33970 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261239AbTJASXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 14:23:53 -0400
-Subject: What Processor family for Centrino Pentium M?
-From: Jonathan Brown <jbrown@emergence.uk.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ee/oD2++QYPjzgTgfkFI"
-Message-Id: <1065032627.9643.57.camel@localhost>
+	Wed, 1 Oct 2003 14:25:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23209 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262714AbTJASYm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 14:24:42 -0400
+Date: Wed, 1 Oct 2003 19:24:40 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Makan Pourzandi <Makan.Pourzandi@ericsson.ca>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
+       Vincent Roy <vincent.roy@ericsson.ca>,
+       David Gordon <davidgordonca@yahoo.ca>, socrate@infoiasi.ro
+Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification for binaries
+Message-ID: <20031001182440.GV7665@parcelfarce.linux.theplanet.co.uk>
+References: <3F733FD3.60502@ericsson.ca> <20031001102631.GC398@elf.ucw.cz> <3F7AD795.1040001@ericsson.ca> <20031001141718.GT7665@parcelfarce.linux.theplanet.co.uk> <3F7B1987.3050104@ericsson.ca>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 01 Oct 2003 19:23:47 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F7B1987.3050104@ericsson.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 01, 2003 at 02:14:31PM -0400, Makan Pourzandi wrote:
+> Hi Viro,
+> 
+> Obviously, I failed to show that the main functionality of digsig is to 
+> avoid the execution of __normal__ rootkits, Trojan horses and other 
+> malicious binaries on your system. 
 
---=-Ee/oD2++QYPjzgTgfkFI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Is the Pentium M a P3 or a P4? What should I set in my kernel config?
-
---=20
-Jonathan Brown
-http://emergence.uk.net/
-
-
---=-Ee/oD2++QYPjzgTgfkFI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/exuzBzOIZcLkrTMRAjQbAKDIsJkKJKwtzgJgmfF+Z3Im6yikwACgzP6d
-dzO+2hD7jpjCerY3Br74ngI=
-=wnMs
------END PGP SIGNATURE-----
-
---=-Ee/oD2++QYPjzgTgfkFI--
-
+<shrug> so in a month rootkits get updated and we are back to square 1,
+with additional mess from patch...

@@ -1,55 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRD3SBR>; Mon, 30 Apr 2001 14:01:17 -0400
+	id <S130487AbRD3SHR>; Mon, 30 Apr 2001 14:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130487AbRD3SBI>; Mon, 30 Apr 2001 14:01:08 -0400
-Received: from relay.freedom.net ([207.107.115.209]:2830 "HELO relay")
-	by vger.kernel.org with SMTP id <S129346AbRD3SAt>;
-	Mon, 30 Apr 2001 14:00:49 -0400
-X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQGxN/XUp2wou/BItPTRXoPTmEtJNm2VBxQhqWe23c95u4DDxdSYF3Xc
-Date: Mon, 30 Apr 2001 12:00:19 -0600
-Old-From: cacook@freedom.net
-MIME-Version: 1.0
-To: mistral@stev.org, linux-kernel@vger.kernel.org
-Subject: Re: Common GUI Config for All Users
-In-Reply-To: <Pine.LNX.4.33.0104301204300.25695-100000@viper.haque.net> <20010430161138Z132686-409+1697@vger.kernel.org> <200104301856.f3UIurQ23170@cyrix.home>
-Content-Type: text/plain; charset = "us-ascii" 
-Content-Transfer-Encoding: 7bit
-From: cacook@freedom.net
-Message-Id: <20010430180058Z129346-409+1737@vger.kernel.org>
+	id <S130507AbRD3SHJ>; Mon, 30 Apr 2001 14:07:09 -0400
+Received: from dutidad.twi.tudelft.nl ([130.161.158.199]:23692 "EHLO dutidad")
+	by vger.kernel.org with ESMTP id <S130487AbRD3SG6>;
+	Mon, 30 Apr 2001 14:06:58 -0400
+Date: Mon, 30 Apr 2001 20:06:56 +0200
+From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com, goemon@anime.net
+Subject: Re: 2.4.4 Sound corruption [PATCH]
+Message-ID: <20010430200656.A8835@dutidad.twi.tudelft.nl>
+Reply-To: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+In-Reply-To: <20010430030626.A7981@dutidad.twi.tudelft.nl> <E14uH0V-0008Hk-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14uH0V-0008Hk-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 05:58:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was my point... Mohammad WAS the only one to help and not criticize.
 
-I did not pass along the crap I got from the 'bad attitudes', like Jasper Jans, Mark Hahn, & Paul Dunne.  All grief, no guidance nor respect.  Tough to be a newbie.
---
-C.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The best way out is always through.
-      - Robert Frost  A Servant to Servants, 1914
+On Mon, Apr 30, 2001 at 05:58:40PM +0100, Alan Cox wrote:
+> > Attached is a patch to the quirks.c in linux kernel 2.4.4 that fixes the
+> > sound corruption problem (thanks to Dan Hollis for the info).  Do I have to
+> > send this anywhere else as well?
+> 
+> It seems very broken
+> 
+> > -	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	quirk_vialatency },
+> > +	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686,	quirk_vialatency },
+> 
+> You are hacking the wrong chip..
 
+That's the first version I sent which was admittedly broken.  About 20
+minutes later I sent the fixed version (mail with subject: "Re: 2.4.4 Sound
+corruption [PATCH] NEW, ignore previous patch").  In case you can't find
+this, I've re-attached the patch.
 
-James Stevenson wrote:
+Regards,
+Charl
 
-> Hi
->
-> >Thank you for the =constructive= answer Mohammad.  I have thusfar only received criticism for my question, with no further
-> >  information, which I think is destructive to the spirit of the list, and to the culture.
->
-> i belive he did give you extra information look at the section below
-> is it just me or is there a web site address in there.
-> also dont expect information to be handed to you on a plate.
->
-> >> This list doesn't deal with what you are asking. Try
-> >> http://www.linux.com and see if anything/anyone there can help you.
->
-> --
-> ---------------------------------------------
-> Check Out: http://stev.org
-> E-Mail: mistral@stev.org
->   6:50pm  up 6 days,  5:38,  4 users,  load average: 0.95, 1.13, 0.83
+-- 
+charl p. botha      | computer graphics and cad/cam 
+http://cpbotha.net/ | http://www.cg.its.tudelft.nl/
 
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="via686a_sound_corruption_patch.diff"
 
+--- quirks.c-2.4.4	Mon Apr 30 01:50:36 2001
++++ quirks.c	Mon Apr 30 03:54:08 2001
+@@ -88,23 +88,44 @@
+  *	VIA Apollo KT133 needs PCI latency patch
+  *	Made according to a windows driver based patch by George E. Breese
+  *	see PCI Latency Adjust on http://www.viahardware.com/download/viatweak.shtm
++ *      Also see http://home.tiscalinet.de/au-ja/review-kt133a-1-en.html for
++ *      the info on which Mr Breese based his work.
+  */
+ static void __init quirk_vialatency(struct pci_dev *dev)
+ {
+ 	u8 r70;
+-
+-	printk(KERN_INFO "Applying VIA PCI latency patch.\n");
+-	/*
+-	 *    In register 0x70, mask off bit 2 (PCI Master read caching)
+-	 *    and 1 (Delay Transaction)
++	u8 rev;
++	struct pci_dev *vt82c686;
++   
++   
++	/* we want to look for a VT82C686 south bridge, and then apply the via latency
++	 * patch if we find that it's a 686B (by revision) <cpbotha@ieee.org>
+ 	 */
+-	pci_read_config_byte(dev, 0x70, &r70);
+-	r70 &= 0xf9;
+-	pci_write_config_byte(dev, 0x70, r70);
+-	/*
+-	 *    Turn off PCI Latency timeout (set to 0 clocks)
+-	 */
+-	pci_write_config_byte(dev, 0x75, 0x80);
++	vt82c686 = pci_find_device(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, NULL);
++	if (vt82c686)   
++     	{
++		pci_read_config_byte(vt82c686, PCI_CLASS_REVISION, &rev);
++        	/* 0x40 - 0x4f == 686B, 0x10 - 0x2f == 686A; thanks Dan Hollis */
++		if (rev >= 0x40 && rev <= 0x4f)
++		{
++        		printk(KERN_INFO "Applying VIA PCI latency patch (found VT82C686B).\n");
++			/*
++	 		 *    In register 0x70, mask off bit 2 (PCI Master read caching)
++	 		 *    and 1 (Delay Transaction)
++	 		 */
++			pci_read_config_byte(dev, 0x70, &r70);
++			r70 &= 0xf9;
++			pci_write_config_byte(dev, 0x70, r70);
++			/*
++	 	 	 *    Turn off PCI Latency timeout (set to 0 clocks)
++	 	 	 */
++			pci_write_config_byte(dev, 0x75, 0x80);
++		}
++		else
++		{
++			printk(KERN_INFO "Found VT82C686A, not applying VIA latency patch.\n");
++		}
++	} /* if (vt82c686) ... */
+ }
+ 
+ /*
 
-
+--WIyZ46R2i8wDzkSu--

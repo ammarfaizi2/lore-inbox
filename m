@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTLEPuj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 10:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbTLEPuj
+	id S264240AbTLEQBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 11:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbTLEQBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 10:50:39 -0500
-Received: from h80ad26ab.async.vt.edu ([128.173.38.171]:14731 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264281AbTLEPui (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 10:50:38 -0500
-Message-Id: <200312051550.hB5FoUps012486@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: David Schwartz <davids@webmaster.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause? 
-In-Reply-To: Your message of "Thu, 04 Dec 2003 22:34:37 PST."
-             <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_155175630P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 05 Dec 2003 10:50:30 -0500
+	Fri, 5 Dec 2003 11:01:16 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:41602
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264256AbTLEQBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 11:01:13 -0500
+Date: Fri, 5 Dec 2003 11:00:11 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Paul Rolland <rol@witbe.net>
+cc: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: WARNING: MP table in the EBDA can be UNSAFE
+In-Reply-To: <200312051518.hB5FIQD29335@tag.witbe.net>
+Message-ID: <Pine.LNX.4.58.0312051053481.10913@montezuma.fsmlabs.com>
+References: <200312051518.hB5FIQD29335@tag.witbe.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_155175630P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 5 Dec 2003, Paul Rolland wrote:
 
-On Thu, 04 Dec 2003 22:34:37 PST, David Schwartz said:
+> Our Linux, running on an IBM X-Series 445, says :
+> (excerpt from dmesg) :
+>
+> found SMP MP-table at 0009dd40
+> hm, page 0009d000 reserved twice.
+> hm, page 0009e000 reserved twice.
+> hm, page 0009e000 reserved twice.
+> hm, page 0009f000 reserved twice.
+> WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!
 
-> 	So you're argument is that it's impossible to use the header file without
-> creating a derived work, hence permission to use the header file is
-> permission to create the derived work.
+This bit is ok and can be safely ignored.
 
-Right.  And getting the permission to create the derived work is contingent on your
-agreeing that if it is distributed, the derived work is GPL.
+> LAPIC (acpi_id[0x0000] id[0x0] enabled[1])
+> CPU 0 (0x0000) enabledProcessor #0 Pentium 4(tm) XEON(tm) APIC version 16
+>
+> LAPIC (acpi_id[0x0001] id[0x12] enabled[1])
+> CPU 1 (0x1200) enabled<4>Processor #18 INVALID - (Max ID: 16).
+> LAPIC (acpi_id[0x0002] id[0x20] enabled[1])
+> CPU 1 (0x2000) enabled<4>Processor #32 INVALID - (Max ID: 16).
+> LAPIC (acpi_id[0x0003] id[0x32] enabled[1])
+> CPU 1 (0x3200) enabled<4>Processor #50 INVALID - (Max ID: 16).
+>
+> Is there any known solution to re-enable the CPU 1, CPU 2 and CPU 3 ?
+>
+> Is this an IBM bug ?
 
-> This supports my argument that you
-> can create a derived work without agreeing to the GPL. Thanks.
+Did you compile your kernel with the following option?
+IBM x440 Summit/EXA support
 
-It's quite possible and legal to *create* a derived work without agreeing to the
-GPL.  However, the only things you can legally *do* with the work are use it
-on your own system, and brag about how cool your code is.
-
-You most certainly can't distribute it as non-GPL.
-
-
---==_Exmh_155175630P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/0KlGcC3lWbTT17ARAkUKAJoCs1iRmd45l9vVB4umXOqd1lIBwgCdH9Wj
-pfMehFRVeomtAeU/zvdU9ng=
-=PssY
------END PGP SIGNATURE-----
-
---==_Exmh_155175630P--
+CONFIG_X86_SUMMIT

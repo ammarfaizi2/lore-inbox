@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbTF2TpV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 15:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTF2TpV
+	id S264965AbTF2TtP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 15:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTF2Ts7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:45:21 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:15312 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id S263633AbTF2Tok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:44:40 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
+	Sun, 29 Jun 2003 15:48:59 -0400
+Received: from pdbn-d9bb86ae.pool.mediaWays.net ([217.187.134.174]:23046 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S264869AbTF2TsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:48:01 -0400
+Date: Sun, 29 Jun 2003 22:02:15 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
 To: Jamie Lokier <jamie@shareable.org>
+Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
 Subject: Re: Dell vs. GPL
-Date: Sun, 29 Jun 2003 21:58:52 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
+Message-ID: <20030629200215.GA17291@citd.de>
 References: <200306291624.47221.gallir@uib.es> <20030629195003.GF26258@mail.jlokier.co.uk>
-In-Reply-To: <20030629195003.GF26258@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306292158.52878.gallir@uib.es>
+In-Reply-To: <20030629195003.GF26258@mail.jlokier.co.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 June 2003 21:50, Jamie Lokier shaped the electrons to shout:
+On Sun, Jun 29, 2003 at 08:50:03PM +0100, Jamie Lokier wrote:
 > Ricardo Galli wrote:
-> > Indeed. Those people don't realise that their "copyright" law is
-> > different to the almost the rest of the world.
-> >
+> > Indeed. Those people don't realise that their "copyright" law is different to 
+> > the almost the rest of the world. 
+> 
 > > In most of Europe there in no "The Copyright", but "authors' or
 > > moral rights" ("derechos de autor", "droit d'auteur") and
 > > "exploitation rights" (or economic rights).
-> >
+> 
 > > Author/moral rights cannot be jeopardized.
->
+> 
 > Except when the work is a computer program.  Check the law sometime!
->
-> I recall there is a special exception for computer programs in either
-> UK or EU law - I forget which, perhaps both.  This exception means
-> that if I compose some music for a publisher, I cannot give up moral
-> rights to the work - which means I always have a right to be credited
-> as author or something like that, and nobody can take that away.
-> However, if I compose a computer program for a publisher, my moral
-> right to be credited _is_ taken away.
->
-> This _only_ applies to computer programmers.  Bah!
 
-IANAL, but I cant read:
-
-http://europa.eu.int/scadplus/leg/en/lvb/l26027.htm
-
---------------
-Council Directive 91/250/EEC of 14 May 1991 on the legal protection of 
-computer programmes. 
-
-3.1 Obligation on Member States to protect computer programmes, by copyright, 
-as literary works within the meaning of the Berne Convention for the
-Protection of Literary and Artistic Works.
-
-...
-
-3.3 In general, the author of a computer programme is the natural or legal 
-person or group of natural persons who created it. Where collective works are 
-recognized by the legislation of a Member State, the person considered by the 
-legislation of that Member State to have created the work is deemed to be its 
-author. In the case of a programme created by a group of natural persons, the 
-exclusive rights are owned jointly. Where a computer programme is created by 
-an employee in the execution of his duties or following the instructions 
-given by his employer, the employer alone will be entitled to exercise all 
-economic rights in the programme, unless otherwise provided for by contract.
-^^^^^^^^^^^^^^^
+You have mixed that with PATENT law.
 
 
-Note that it only mentions "economic rights".
 
+
+Bis denn
 
 -- 
-  ricardo galli       GPG id C8114D34
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

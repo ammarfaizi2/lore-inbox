@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270858AbRHNVBd>; Tue, 14 Aug 2001 17:01:33 -0400
+	id <S270867AbRHNVIN>; Tue, 14 Aug 2001 17:08:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270843AbRHNVBY>; Tue, 14 Aug 2001 17:01:24 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:5644 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S270841AbRHNVBQ>; Tue, 14 Aug 2001 17:01:16 -0400
-Message-ID: <3B79919F.131ACAE6@zip.com.au>
-Date: Tue, 14 Aug 2001 14:01:19 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac4 i686)
-X-Accept-Language: en
+	id <S270866AbRHNVID>; Tue, 14 Aug 2001 17:08:03 -0400
+Received: from mail.zabbadoz.net ([195.2.176.194]:10761 "EHLO
+	mail.zabbadoz.net") by vger.kernel.org with ESMTP
+	id <S270869AbRHNVHr>; Tue, 14 Aug 2001 17:07:47 -0400
+Date: Tue, 14 Aug 2001 23:07:44 +0200 (CEST)
+From: "Bjoern A. Zeeb" <bzeeb+linuxkernel@zabbadoz.net>
+To: Chris Crowther <chrisc@shad0w.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CDP handler for linux
+In-Reply-To: <Pine.LNX.4.33.0108142137300.3810-100000@monolith.shad0w.org.uk>
+Message-ID: <Pine.BSF.4.30.0108142300240.38503-100000@noc.zabbadoz.net>
 MIME-Version: 1.0
-To: J Troy Piper <jtp@dok.org>
-CC: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: [BUG] linux-2.4.7-ac7 Assertion failure in journal_revoke() at 
- revoke.c:307
-In-Reply-To: <20010814153255.A1377@dok.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Troy Piper wrote:
-> 
-> Greetings all,
-> 
-> I have hit a kernel BUG in revoke.c in kernel 2.4.7-ac7 twice today while
-> attempting to perform the same operation (patching stock 2.4.8 kernel src
-> with "patch -p1 <  patch-2.4.8-ac4").  Syslog entries follow.  Please
-> email me if you want/need my kernel config or any other information.
-> 
+On Tue, 14 Aug 2001, Chris Crowther wrote:
 
-If possible, could you please use kernel 2.4.8 with the patch
-http://www.zip.com.au/~akpm/ext3-2.4-0.9.6-248.gz applied?
+> 	Hmm, looking at CDP there isn't really any reason to put it in
+> userspace either, it doesn't need to be configured, it doesn't pass
 
-Enable buffer tracing in config.  If it happens again, we'll
-get lots of nice info which will tell us what happened.
+That's wrong:
 
-Also, please run `e2fsck -f' against the affected filesystem - if
-it's already in an incorrect state ext3 perhaps could have become
-confused.
+cisco-switch(config)#cdp ?
+  advertise-v2  CDP sends version-2 advertisements
+  holdtime      Specify the holdtime (in sec) to be sent in packets
+  timer         Specify the rate at which CDP packets are sent (in sec)
+  run
 
-Thanks.
+it can be enabled/disables on a per interface base.
+
+There are also some different output possibilitites on cisco:
+sh cdp
+and:
+sh cdp run
+sh cdp timer
+sh cdp traffic
+and (no the interesting parts within here):
+sh cdp neigh <detail>
+sh cdp entry <*> <WORD>
+sh cdp interface ..
+
+
+> at the neighbor summary.  I can't see any real advantages of running it as
+> a daemon as opposed to a kernel component.
+
+portability ? linux is not the only OS in world. Think about running
+on *BSD, Solaris, AIX, HPUX, ...
+
+
+-- 
+Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
+56 69 73 69 74				http://www.zabbadoz.net/
+

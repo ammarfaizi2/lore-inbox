@@ -1,182 +1,362 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315232AbSEaMiX>; Fri, 31 May 2002 08:38:23 -0400
+	id <S315235AbSEaMpk>; Fri, 31 May 2002 08:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSEaMiW>; Fri, 31 May 2002 08:38:22 -0400
-Received: from [194.233.250.58] ([194.233.250.58]:34820 "EHLO
-	mail.fillmore-labs.com") by vger.kernel.org with ESMTP
-	id <S315232AbSEaMiU> convert rfc822-to-8bit; Fri, 31 May 2002 08:38:20 -0400
-Message-ID: <00d901c208a0$0bd9ae00$fa82a8c0@atlantis>
-From: "Oliver Eikemeier" <eikemeier@fillmore-labs.com>
-To: "\"linux-kernel mailing list\"" <linux-kernel@vger.kernel.org>
-Subject: via ide udma & ibm hd freezes kernel
-Date: Fri, 31 May 2002 14:38:20 +0200
-Organization: Fillmore Labs GmbH
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S315239AbSEaMpj>; Fri, 31 May 2002 08:45:39 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:21255 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S315235AbSEaMph>;
+	Fri, 31 May 2002 08:45:37 -0400
+Date: Fri, 31 May 2002 16:50:45 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] FAT fs printk() cleanup
+Message-ID: <20020531125045.GA310@pazke.ipt>
+Mail-Followup-To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XOIedfhf+7KOe/yw"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Uname: Linux pazke 2.5.19 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm using SuSE Linux 8.0 with a 2.4.18 kernel, and a machine with a VIA vt82c686b southbridge. The system runs very stable with only one (Western Digital) hard disk on ide bus 0, but when I add a second (IBM) hard disk configured as slave, the kernel freezes when I'm accessing the second disk (after *some accesses, i.e. when I can copy 10 small files on it, it freezes on the third). I read the mailing list, lost of people seem to have problems with this configuration, but most advices are to change the cable, which I did.
-
-Symptoms are: the hard disk LED is on, the machine freezes (no blinking cursor on the text console, no remote access) or the caps lock & scroll lock LEDs on the keyboard flash, same lockup.
-
-I had the same problems with FreeBSD:
-
-"UDMA ICRC error writing fsbn 127590847 of 63795392-63795423 (ad1s1 bn 1275908 47; cn 7942 tn 41 sn 34) retrying"
-
-and I could get the system stable by switching to udma33, so I tried the same on linux:
-
-> hdparm -c1 -m16 -X66 -d1 /dev/hda
-> hdparm -c1 -m16 -X66 -d1 /dev/hdb
-
-but the kernel still hangs. Maybe someone can point me to a solution, please CC: me personally, because I'm not subscribed to this list.
-
-Thanks
-    Oliver
-
-> dmesg
-
-[...]
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-hda: WDC WD200EB-00CSF0, ATA DISK drive
-hdb: IC35L080AVVA07-0, ATA DISK drive
-hdc: DVD-ROM DDU1621, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-blk: queue c033ce24, I/O limit 4095Mb (mask 0xffffffff)
-hda: safely enabled flush
-hda: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
-blk: queue c033cf74, I/O limit 4095Mb (mask 0xffffffff)
-hdb: safely enabled flush
-hdb: 160836480 sectors (82348 MB) w/1863KiB Cache, CHS=10011/255/63, UDMA(100)
-hdc: no flushcache support
-hdc: ATAPI 40X DVD-ROM drive, 512kB Cache
-[...]
-
-> cat /proc/ide/via
-
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.34
-South Bridge:                       VIA vt82c686b
-Revision:                           ISA 0x40 IDE 0x6
-Highest DMA rate:                   UDMA100
-BM-DMA base:                        0xd000
-PCI clock:                          33.3MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:               no                  no
-Post Write Buffer:             no                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   80w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA      UDMA       PIO       PIO
-Address Setup:       30ns      30ns      30ns     120ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns      90ns      90ns     330ns
-Data Recovery:       30ns      30ns      30ns     270ns
-Cycle Time:          60ns      60ns     120ns     600ns
-Transfer Rate:   33.3MB/s  33.3MB/s  16.6MB/s   3.3MB/s
-
-> lspci -vvxxx
-
-[...]
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Region 4: I/O ports at d000 [size=16]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 06 11 71 05 07 00 90 02 06 8a 01 01 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 d0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 c0 00 00 00 00 00 00 00 ff 00 00 00
-40: 0b 02 09 35 1c 1c c0 00 a8 20 20 20 03 00 20 20
-50: 03 07 e4 e4 34 00 00 00 a8 a8 a8 a8 00 00 00 00
-60: 00 02 00 00 00 00 00 00 00 02 00 00 00 00 00 00
-70: 02 01 00 00 00 00 00 00 02 01 00 00 00 00 00 00
-80: 00 a0 77 07 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 06 00 71 05 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[...]
-
-> hdparm -vi /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2434/255/63, sectors = 39102336, start = 0
-
- Model=WDC WD200EB-00CSF0, FwRev=04.01B04, SerialNo=WD-WMAAV2466224
- Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
- RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=39102336
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
- AdvancedPM=no
- Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 ATA-5
-
-> hdparm -vi /dev/hdb
-
-/dev/hdb:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 10011/255/63, sectors = 160836480, start = 0
-
- Model=IC35L080AVVA07-0, FwRev=VA4OA50K, SerialNo=VNC402A4C6WUPA
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
- BuffType=DualPortCache, BuffSize=1863kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=160836480
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
- AdvancedPM=yes: disabled (255)
- Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-2 ATA-3 ATA-4 ATA-5
- Kernel Drive Geometry LogicalCHS=10011/255/63 PhysicalCHS=159560/16/63
+--XOIedfhf+7KOe/yw
+Content-Type: multipart/mixed; boundary="huq684BweRXVnRxX"
+Content-Disposition: inline
 
 
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+
+Patch (against 2.5.19) adds proper printk level into fat fs driver.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch-printk-fat-2.5.19"
+Content-Transfer-Encoding: quoted-printable
+
+diff -urN -X /usr/share/dontdiff linux.vanilla/fs/fat/cache.c linux/fs/fat/=
+cache.c
+--- linux.vanilla/fs/fat/cache.c	Fri May 31 16:34:46 2002
++++ linux/fs/fat/cache.c	Fri May 31 16:45:48 2002
+@@ -52,7 +52,7 @@
+ 	}
+ 	b =3D sbi->fat_start + (first >> sb->s_blocksize_bits);
+ 	if (!(bh =3D fat_bread(sb, b))) {
+-		printk("FAT: bread(block %d) in fat_access failed\n", b);
++		printk(KERN_ERR "FAT: bread(block %d) in fat_access failed\n", b);
+ 		return -EIO;
+ 	}
+ 	if ((first >> sb->s_blocksize_bits) =3D=3D (last >> sb->s_blocksize_bits)=
+) {
+@@ -60,7 +60,7 @@
+ 	} else {
+ 		if (!(bh2 =3D fat_bread(sb, b+1))) {
+ 			fat_brelse(sb, bh);
+-			printk("FAT: bread(block %d) in fat_access failed\n",
++			printk(KERN_ERR "FAT: bread(block %d) in fat_access failed\n",
+ 			       b + 1);
+ 			return -EIO;
+ 		}
+@@ -227,7 +227,7 @@
+ 		    && walk->start_cluster =3D=3D first
+ 		    && walk->file_cluster =3D=3D f_clu) {
+ 			if (walk->disk_cluster !=3D d_clu) {
+-				printk("FAT: cache corruption inode=3D%lu\n",
++				printk(KERN_ERR "FAT: cache corruption inode=3D%lu\n",
+ 					inode->i_ino);
+ 				spin_unlock(&fat_cache_lock);
+ 				fat_cache_inval_inode(inode);
+diff -urN -X /usr/share/dontdiff linux.vanilla/fs/fat/inode.c linux/fs/fat/=
+inode.c
+--- linux.vanilla/fs/fat/inode.c	Fri May 31 16:34:46 2002
++++ linux/fs/fat/inode.c	Fri May 31 16:46:39 2002
+@@ -300,7 +300,7 @@
+ 			else *debug =3D 1;
+ 		}
+ 		else if (!strcmp(this_char,"fat")) {
+-			printk("FAT: fat option is obsolete, "
++			printk(KERN_WARNING "FAT: fat option is obsolete, "
+ 			       "not supported now\n");
+ 		}
+ 		else if (!strcmp(this_char,"quiet")) {
+@@ -308,7 +308,7 @@
+ 			else opts->quiet =3D 1;
+ 		}
+ 		else if (!strcmp(this_char,"blocksize")) {
+-			printk("FAT: blocksize option is obsolete, "
++			printk(KERN_WARNING "FAT: blocksize option is obsolete, "
+ 			       "not supported now\n");
+ 		}
+ 		else if (!strcmp(this_char,"sys_immutable")) {
+@@ -675,39 +675,39 @@
+ 	sb_min_blocksize(sb, 512);
+ 	bh =3D sb_bread(sb, 0);
+ 	if (bh =3D=3D NULL) {
+-		printk("FAT: unable to read boot sector\n");
++		printk(KERN_ERR "FAT: unable to read boot sector\n");
+ 		goto out_fail;
+ 	}
+=20
+ 	b =3D (struct fat_boot_sector *) bh->b_data;
+ 	if (!b->reserved) {
+ 		if (!silent)
+-			printk("FAT: bogus number of reserved sectors\n");
++			printk(KERN_ERR "FAT: bogus number of reserved sectors\n");
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+ 	if (!b->fats) {
+ 		if (!silent)
+-			printk("FAT: bogus number of FAT structure\n");
++			printk(KERN_ERR "FAT: bogus number of FAT structure\n");
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+ 	if (!b->secs_track) {
+ 		if (!silent)
+-			printk("FAT: bogus sectors-per-track value\n");
++			printk(KERN_ERR "FAT: bogus sectors-per-track value\n");
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+ 	if (!b->heads) {
+ 		if (!silent)
+-			printk("FAT: bogus number-of-heads value\n");
++			printk(KERN_ERR "FAT: bogus number-of-heads value\n");
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+ 	media =3D b->media;
+ 	if (!FAT_VALID_MEDIA(media)) {
+ 		if (!silent)
+-			printk("FAT: invalid media value (0x%02x)\n", media);
++			printk(KERN_ERR "FAT: invalid media value (0x%02x)\n", media);
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+@@ -718,7 +718,7 @@
+ 	    || (logical_sector_size < 512)
+ 	    || (PAGE_CACHE_SIZE < logical_sector_size)) {
+ 		if (!silent)
+-			printk("FAT: bogus logical sector size %d\n",
++			printk(KERN_ERR "FAT: bogus logical sector size %d\n",
+ 			       logical_sector_size);
+ 		brelse(bh);
+ 		goto out_invalid;
+@@ -727,14 +727,14 @@
+ 	if (!sbi->cluster_size
+ 	    || (sbi->cluster_size & (sbi->cluster_size - 1))) {
+ 		if (!silent)
+-			printk("FAT: bogus cluster size %d\n",
++			printk(KERN_ERR "FAT: bogus cluster size %d\n",
+ 			       sbi->cluster_size);
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+=20
+ 	if (logical_sector_size < sb->s_blocksize) {
+-		printk("FAT: logical sector size too small for device"
++		printk(KERN_ERR "FAT: logical sector size too small for device"
+ 		       " (logical sector size =3D %d)\n", logical_sector_size);
+ 		brelse(bh);
+ 		goto out_fail;
+@@ -743,13 +743,13 @@
+ 		brelse(bh);
+=20
+ 		if (!sb_set_blocksize(sb, logical_sector_size)) {
+-			printk("FAT: unable to set blocksize %d\n",
++			printk(KERN_ERR "FAT: unable to set blocksize %d\n",
+ 			       logical_sector_size);
+ 			goto out_fail;
+ 		}
+ 		bh =3D sb_bread(sb, 0);
+ 		if (bh =3D=3D NULL) {
+-			printk("FAT: unable to read boot sector"
++			printk(KERN_ERR "FAT: unable to read boot sector"
+ 			       " (logical sector size =3D %lu)\n",
+ 			       sb->s_blocksize);
+ 			goto out_fail;
+@@ -782,7 +782,7 @@
+=20
+ 		fsinfo_bh =3D sb_bread(sb, sbi->fsinfo_sector);
+ 		if (fsinfo_bh =3D=3D NULL) {
+-			printk("FAT: bread failed, FSINFO block"
++			printk(KERN_ERR "FAT: bread failed, FSINFO block"
+ 			       " (sector =3D %lu)\n", sbi->fsinfo_sector);
+ 			brelse(bh);
+ 			goto out_fail;
+@@ -790,7 +790,7 @@
+=20
+ 		fsinfo =3D (struct fat_boot_fsinfo *)fsinfo_bh->b_data;
+ 		if (!IS_FSINFO(fsinfo)) {
+-			printk("FAT: Did not find valid FSINFO signature.\n"
++			printk(KERN_WARNING "FAT: Did not find valid FSINFO signature.\n"
+ 			       "     Found signature1 0x%08x signature2 0x%08x"
+ 			       " (sector =3D %lu)\n",
+ 			       CF_LE_L(fsinfo->signature1),
+@@ -810,7 +810,7 @@
+ 	sbi->dir_entries =3D
+ 		CF_LE_W(get_unaligned((unsigned short *)&b->dir_entries));
+ 	if (sbi->dir_entries & (sbi->dir_per_block - 1)) {
+-		printk("FAT: bogus directroy-entries per block\n");
++		printk(KERN_ERR "FAT: bogus directroy-entries per block\n");
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+@@ -841,7 +841,7 @@
+ 	}
+ 	if (FAT_FIRST_ENT(sb, media) !=3D first) {
+ 		if (!silent) {
+-			printk("FAT: invalid first entry of FAT "
++			printk(KERN_ERR "FAT: invalid first entry of FAT "
+ 			       "(0x%x !=3D 0x%x)\n",
+ 			       FAT_FIRST_ENT(sb, media), first);
+ 		}
+@@ -863,28 +863,28 @@
+ 	if (! sbi->nls_disk) {
+ 		/* Fail only if explicit charset specified */
+ 		if (sbi->options.codepage !=3D 0) {
+-			printk("FAT: codepage %s not found\n", buf);
++			printk(KERN_ERR "FAT: codepage %s not found\n", buf);
+ 			goto out_fail;
+ 		}
+ 		sbi->options.codepage =3D 0; /* already 0?? */
+ 		sbi->nls_disk =3D load_nls_default();
+ 	}
+ 	if (!silent)
+-		printk("FAT: Using codepage %s\n", sbi->nls_disk->charset);
++		printk(KERN_INFO "FAT: Using codepage %s\n", sbi->nls_disk->charset);
+=20
+ 	/* FIXME: utf8 is using iocharset for upper/lower conversion */
+ 	if (sbi->options.isvfat) {
+ 		if (sbi->options.iocharset !=3D NULL) {
+ 			sbi->nls_io =3D load_nls(sbi->options.iocharset);
+ 			if (!sbi->nls_io) {
+-				printk("FAT: IO charset %s not found\n",
++				printk(KERN_ERR "FAT: IO charset %s not found\n",
+ 				       sbi->options.iocharset);
+ 				goto out_fail;
+ 			}
+ 		} else
+ 			sbi->nls_io =3D load_nls_default();
+ 		if (!silent)
+-			printk("FAT: Using IO charset %s\n",
++			printk(KERN_INFO "FAT: Using IO charset %s\n",
+ 			       sbi->nls_io->charset);
+ 	}
+=20
+@@ -901,7 +901,7 @@
+ 	insert_inode_hash(root_inode);
+ 	sb->s_root =3D d_alloc_root(root_inode);
+ 	if (!sb->s_root) {
+-		printk("FAT: get root inode failed\n");
++		printk(KERN_ERR "FAT: get root inode failed\n");
+ 		goto out_fail;
+ 	}
+ 	if(i >=3D 0) {
+@@ -1089,7 +1089,7 @@
+ 	}
+ 	lock_kernel();
+ 	if (!(bh =3D fat_bread(sb, i_pos >> MSDOS_SB(sb)->dir_per_block_bits))) {
+-		printk("dev =3D %s, ino =3D %d\n", sb->s_id, i_pos);
++		printk(KERN_ERR "dev =3D %s, ino =3D %d\n", sb->s_id, i_pos);
+ 		fat_fs_panic(sb, "msdos_write_inode: unable to read i-node block");
+ 		unlock_kernel();
+ 		return;
+diff -urN -X /usr/share/dontdiff linux.vanilla/fs/fat/misc.c linux/fs/fat/m=
+isc.c
+--- linux.vanilla/fs/fat/misc.c	Fri May 31 16:34:46 2002
++++ linux/fs/fat/misc.c	Fri May 31 16:45:48 2002
+@@ -49,10 +49,10 @@
+ 	if (not_ro)
+ 		s->s_flags |=3D MS_RDONLY;
+=20
+-	printk("FAT: Filesystem panic (dev %s)\n"
++	printk(KERN_ERR "FAT: Filesystem panic (dev %s)\n"
+ 	       "    %s\n", s->s_id, panic_msg);
+ 	if (not_ro)
+-		printk("    File system has been set read-only\n");
++		printk(KERN_ERR "    File system has been set read-only\n");
+ }
+=20
+=20
+@@ -75,7 +75,7 @@
+ 				if (!strncmp(extension,walk,3)) return 0;
+ 			return 1;	/* default binary conversion */
+ 		default:
+-			printk("Invalid conversion mode - defaulting to "
++			printk(KERN_WARNING "Invalid conversion mode - defaulting to "
+ 			    "binary.\n");
+ 			return 1;
+ 	}
+@@ -105,14 +105,14 @@
+=20
+ 	bh =3D fat_bread(sb, MSDOS_SB(sb)->fsinfo_sector);
+ 	if (bh =3D=3D NULL) {
+-		printk("FAT bread failed in fat_clusters_flush\n");
++		printk(KERN_ERR "FAT bread failed in fat_clusters_flush\n");
+ 		return;
+ 	}
+=20
+ 	fsinfo =3D (struct fat_boot_fsinfo *)bh->b_data;
+ 	/* Sanity check */
+ 	if (!IS_FSINFO(fsinfo)) {
+-		printk("FAT: Did not find valid FSINFO signature.\n"
++		printk(KERN_ERR "FAT: Did not find valid FSINFO signature.\n"
+ 		       "     Found signature1 0x%08x signature2 0x%08x"
+ 		       " (sector =3D %lu)\n",
+ 		       CF_LE_L(fsinfo->signature1), CF_LE_L(fsinfo->signature2),
+@@ -205,7 +205,7 @@
+ 		mark_inode_dirty(inode);
+ 	}
+ 	if (file_cluster !=3D (inode->i_blocks >> (cluster_bits - 9))) {
+-		printk ("file_cluster badly computed!!! %d <> %ld\n",
++		printk (KERN_ERR "file_cluster badly computed!!! %d <> %ld\n",
+ 			file_cluster, inode->i_blocks >> (cluster_bits - 9));
+ 		fat_cache_inval_inode(inode);
+ 	}
+@@ -240,7 +240,7 @@
+ 	} else {
+ 		for ( ; sector < last_sector; sector++) {
+ 			if (!(bh =3D fat_getblk(sb, sector)))
+-				printk("FAT: fat_getblk() failed\n");
++				printk(KERN_ERR "FAT: fat_getblk() failed\n");
+ 			else {
+ 				memset(bh->b_data, 0, sb->s_blocksize);
+ 				fat_set_uptodate(sb, bh, 1);
+@@ -357,7 +357,7 @@
+=20
+ 	*bh =3D fat_bread(sb, sector);
+ 	if (*bh =3D=3D NULL) {
+-		printk("FAT: Directory bread(block %d) failed\n", sector);
++		printk(KERN_ERR "FAT: Directory bread(block %d) failed\n", sector);
+ 		/* skip this block */
+ 		*pos =3D (iblock + 1) << sb->s_blocksize_bits;
+ 		goto next;
+
+--huq684BweRXVnRxX--
+
+--XOIedfhf+7KOe/yw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE893GlBm4rlNOo3YgRAgSxAJ9nMbx39bV1VExCvoaMcYYpgjisQQCfWak7
+HKvulusgUkTGzlLonJ4mlaQ=
+=5tue
+-----END PGP SIGNATURE-----
+
+--XOIedfhf+7KOe/yw--

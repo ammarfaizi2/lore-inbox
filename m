@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132915AbRAGOtK>; Sun, 7 Jan 2001 09:49:10 -0500
+	id <S133003AbRAGPBt>; Sun, 7 Jan 2001 10:01:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133051AbRAGOsu>; Sun, 7 Jan 2001 09:48:50 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:55437 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S132915AbRAGOsm>; Sun, 7 Jan 2001 09:48:42 -0500
-Date: Sun, 7 Jan 2001 15:49:13 +0100 (CET)
-From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
-Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
-To: David Ford <david@linux.com>
-cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+	id <S133051AbRAGPBk>; Sun, 7 Jan 2001 10:01:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26892 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S133003AbRAGPB1>;
+	Sun, 7 Jan 2001 10:01:27 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101071502.f07F2vY08119@flint.arm.linux.org.uk>
 Subject: Re: [PATCH] new bug report script
-In-Reply-To: <3A588082.BCE1F971@linux.com>
-Message-ID: <Pine.LNX.4.30.0101071545320.7104-100000@gandalf.math.uni-mannheim.de>
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 7 Jan 2001 15:02:56 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14FGfM-0002jO-00@the-village.bc.nu> from "Alan Cox" at Jan 07, 2001 02:19:21 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, David Ford wrote:
+Alan Cox writes:
+> > ./arch/arm/lib/extractconstants.pl
+> 
+> None of these are needed for normal build/use/bug reporting work. In fact
+> if you look at script_asm you'll see we go to great pains to ship prebuilt
+> files too
 
-> > Why can't I assume that perl is installed? It can be found on every
-> > standard Linux/Unix installation.
->
-> No it can't.  Perl isn't on any of my distributions as part of the standard
-> installation.
+Whoops. ;(
 
-Ok, I was wrong. I'm used to perl, I've seen perl on every Linux
-installation and on almost every Unix installation I've been working
-with.
-
-> > My script is intended for the one who likes to provide bug reports but is
-> > too lazy to look up all the information or simply is not sure about what
-> > to include.
->
-> Why can't it be done in sh?
-
-I can be done in sh, surely. I only tried to promote my perl version
-because I've done it in perl and nobody told me earlier that perl is not
-liked in the kernel tree - and I've seen some perl scripts there.
-
-I guess I'll have to convert the script to sh.
-
-
-Matthias
-
+I've already got a fix for this one though using grep and sed.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

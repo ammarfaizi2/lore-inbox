@@ -1,160 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbVAUV6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVAUWC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbVAUV6a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVAUV5Q
+	id S262535AbVAUWC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAUWAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:57:16 -0500
-Received: from waste.org ([216.27.176.166]:29913 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262532AbVAUVlW (ORCPT
+	Fri, 21 Jan 2005 17:00:47 -0500
+Received: from waste.org ([216.27.176.166]:30681 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262535AbVAUVlX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:41:22 -0500
+	Fri, 21 Jan 2005 16:41:23 -0500
 Date: Fri, 21 Jan 2005 15:41:07 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6.314297600@selenic.com>
-Message-Id: <7.314297600@selenic.com>
-Subject: [PATCH 6/12] random pt4: Replace SHA with faster version
+In-Reply-To: <8.314297600@selenic.com>
+Message-Id: <9.314297600@selenic.com>
+Subject: [PATCH 8/12] random pt4: Move halfmd4 to lib
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A replacement SHA routine that's slightly larger, but over twice as
-fast. It's also faster and much smaller than the cryptolib version.
-
-             size      speed    buffer size
-original:    350B      2.3us     320B
-cryptolib:  5776B      1.2us      80B
-this code:   466B      1.0us     320B
-alternate:  2112B      1.0us      80B
+Move half-MD4 hash to /lib where we can share it with htree.
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: rnd/lib/sha1.c
+Index: rnd2/drivers/char/random.c
 ===================================================================
---- rnd.orig/lib/sha1.c	2005-01-12 21:27:15.445196197 -0800
-+++ rnd/lib/sha1.c	2005-01-12 21:28:24.051449644 -0800
-@@ -1,18 +1,16 @@
- /*
-- * SHA transform algorithm, taken from code written by Peter Gutmann,
-- * and placed in the public domain.
-+ * SHA transform algorithm, originally taken from code written by
-+ * Peter Gutmann, and placed in the public domain.
-  */
+--- rnd2.orig/drivers/char/random.c	2005-01-20 09:42:08.922390869 -0800
++++ rnd2/drivers/char/random.c	2005-01-20 09:50:02.465019321 -0800
+@@ -1325,47 +1325,6 @@
+ #define K2 013240474631UL
+ #define K3 015666365641UL
  
- #include <linux/kernel.h>
--#include <linux/string.h>
- #include <linux/cryptohash.h>
- 
- /* The SHA f()-functions.  */
- 
--#define f1(x,y,z)   (z ^ (x & (y ^ z)))		/* Rounds  0-19: x ? y : z */
--#define f2(x,y,z)   (x ^ y ^ z)			/* Rounds 20-39: XOR */
--#define f3(x,y,z)   ((x & y) + (z & (x ^ y)))	/* Rounds 40-59: majority */
--#define f4(x,y,z)   (x ^ y ^ z)			/* Rounds 60-79: XOR */
-+#define f1(x,y,z)   (z ^ (x & (y ^ z)))		/* x ? y : z */
-+#define f2(x,y,z)   (x ^ y ^ z)			/* XOR */
-+#define f3(x,y,z)   ((x & y) + (z & (x ^ y)))	/* majority */
- 
- /* The SHA Mysterious Constants */
- 
-@@ -26,64 +24,53 @@
-  *
-  * @digest: 160 bit digest to update
-  * @data:   512 bits of data to hash
-- * @W:      80 words of workspace
-+ * @W:      80 words of workspace, caller should clear
-  *
-  * This function generates a SHA1 digest for a single. Be warned, it
-  * does not handle padding and message digest, do not confuse it with
-  * the full FIPS 180-1 digest algorithm for variable length messages.
-  */
--void sha_transform(__u32 *digest, const char *data, __u32 *W)
-+void sha_transform(__u32 *digest, const char *in, __u32 *W)
- {
--	__u32 A, B, C, D, E;
--	__u32 TEMP;
--	int i;
-+	__u32 a, b, c, d, e, t, i;
- 
--	memset(W, 0, sizeof(W));
- 	for (i = 0; i < 16; i++)
--		W[i] = be32_to_cpu(((const __u32 *)data)[i]);
--	/*
--	 * Do the preliminary expansion of 16 to 80 words.  Doing it
--	 * out-of-line line this is faster than doing it in-line on
--	 * register-starved machines like the x86, and not really any
--	 * slower on real processors.
--	 */
--	for (i = 0; i < 64; i++) {
--		TEMP = W[i] ^ W[i+2] ^ W[i+8] ^ W[i+13];
--		W[i+16] = rol32(TEMP, 1);
-+		W[i] = be32_to_cpu(((const __u32 *)in)[i]);
-+
-+	for (i = 0; i < 64; i++)
-+		W[i+16] = rol32(W[i+13] ^ W[i+8] ^ W[i+2] ^ W[i], 1);
-+
-+	a = digest[0];
-+	b = digest[1];
-+	c = digest[2];
-+	d = digest[3];
-+	e = digest[4];
-+
-+	for (i = 0; i < 20; i++) {
-+		t = f1(b, c, d) + K1 + rol32(a, 5) + e + W[i];
-+		e = d; d = c; c = rol32(b, 30); b = a; a = t;
- 	}
- 
--	/* Set up first buffer and local data buffer */
--	A = digest[ 0 ];
--	B = digest[ 1 ];
--	C = digest[ 2 ];
--	D = digest[ 3 ];
--	E = digest[ 4 ];
+-/*
+- * Basic cut-down MD4 transform.  Returns only 32 bits of result.
+- */
+-static __u32 halfMD4Transform (__u32 const buf[4], __u32 const in[8])
+-{
+-	__u32 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
 -
--	/* Heavy mangling, in 4 sub-rounds of 20 iterations each. */
--	for (i = 0; i < 80; i++) {
--		if (i < 40) {
--			if (i < 20)
--				TEMP = f1(B, C, D) + K1;
--			else
--				TEMP = f2(B, C, D) + K2;
--		} else {
--			if (i < 60)
--				TEMP = f3(B, C, D) + K3;
--			else
--				TEMP = f4(B, C, D) + K4;
--		}
--		TEMP += rol32(A, 5) + E + W[i];
--		E = D; D = C; C = rol32(B, 30); B = A; A = TEMP;
-+	for (; i < 40; i ++) {
-+		t = f2(b, c, d) + K2 + rol32(a, 5) + e + W[i];
-+		e = d; d = c; c = rol32(b, 30); b = a; a = t;
- 	}
+-	/* Round 1 */
+-	ROUND(F, a, b, c, d, in[0] + K1,  3);
+-	ROUND(F, d, a, b, c, in[1] + K1,  7);
+-	ROUND(F, c, d, a, b, in[2] + K1, 11);
+-	ROUND(F, b, c, d, a, in[3] + K1, 19);
+-	ROUND(F, a, b, c, d, in[4] + K1,  3);
+-	ROUND(F, d, a, b, c, in[5] + K1,  7);
+-	ROUND(F, c, d, a, b, in[6] + K1, 11);
+-	ROUND(F, b, c, d, a, in[7] + K1, 19);
+-
+-	/* Round 2 */
+-	ROUND(G, a, b, c, d, in[1] + K2,  3);
+-	ROUND(G, d, a, b, c, in[3] + K2,  5);
+-	ROUND(G, c, d, a, b, in[5] + K2,  9);
+-	ROUND(G, b, c, d, a, in[7] + K2, 13);
+-	ROUND(G, a, b, c, d, in[0] + K2,  3);
+-	ROUND(G, d, a, b, c, in[2] + K2,  5);
+-	ROUND(G, c, d, a, b, in[4] + K2,  9);
+-	ROUND(G, b, c, d, a, in[6] + K2, 13);
+-
+-	/* Round 3 */
+-	ROUND(H, a, b, c, d, in[3] + K3,  3);
+-	ROUND(H, d, a, b, c, in[7] + K3,  9);
+-	ROUND(H, c, d, a, b, in[2] + K3, 11);
+-	ROUND(H, b, c, d, a, in[6] + K3, 15);
+-	ROUND(H, a, b, c, d, in[1] + K3,  3);
+-	ROUND(H, d, a, b, c, in[5] + K3,  9);
+-	ROUND(H, c, d, a, b, in[0] + K3, 11);
+-	ROUND(H, b, c, d, a, in[4] + K3, 15);
+-
+-	return buf[1] + b;	/* "most hashed" word */
+-	/* Alternative: return sum of all words? */
+-}
+-
+ #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
  
--	/* Build message digest */
--	digest[0] += A;
--	digest[1] += B;
--	digest[2] += C;
--	digest[3] += D;
--	digest[4] += E;
-+	for (; i < 60; i ++) {
-+		t = f3(b, c, d) + K3 + rol32(a, 5) + e + W[i];
-+		e = d; d = c; c = rol32(b, 30); b = a; a = t;
-+	}
-+
-+	for (; i < 80; i ++) {
-+		t = f2(b, c, d) + K4 + rol32(a, 5) + e + W[i];
-+		e = d; d = c; c = rol32(b, 30); b = a; a = t;
-+	}
+ static __u32 twothirdsMD4Transform (__u32 const buf[4], __u32 const in[12])
+@@ -1550,7 +1509,7 @@
+ 	hash[2]=(sport << 16) + dport;
+ 	hash[3]=keyptr->secret[11];
  
--	/* W is wiped by the caller */
-+	digest[0] += a;
-+	digest[1] += b;
-+	digest[2] += c;
-+	digest[3] += d;
-+	digest[4] += e;
+-	seq = halfMD4Transform(hash, keyptr->secret) & HASH_MASK;
++	seq = half_md4_transform(hash, keyptr->secret) & HASH_MASK;
+ 	seq += keyptr->count;
+ 	/*
+ 	 *	As close as possible to RFC 793, which
+@@ -1591,7 +1550,7 @@
+ 	hash[2] = keyptr->secret[10];
+ 	hash[3] = keyptr->secret[11];
+ 
+-	return halfMD4Transform(hash, keyptr->secret);
++	return half_md4_transform(hash, keyptr->secret);
  }
  
- /*
+ /* Generate secure starting point for ephemeral TCP port search */
+@@ -1609,7 +1568,7 @@
+ 	hash[2] = dport ^ keyptr->secret[10];
+ 	hash[3] = keyptr->secret[11];
+ 
+-	return halfMD4Transform(hash, keyptr->secret);
++	return half_md4_transform(hash, keyptr->secret);
+ }
+ 
+ #ifdef CONFIG_SYN_COOKIES
+Index: rnd2/lib/halfmd4.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ rnd2/lib/halfmd4.c	2005-01-20 09:47:02.741932065 -0800
+@@ -0,0 +1,61 @@
++#include <linux/kernel.h>
++#include <linux/cryptohash.h>
++
++/* F, G and H are basic MD4 functions: selection, majority, parity */
++#define F(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
++#define G(x, y, z) (((x) & (y)) + (((x) ^ (y)) & (z)))
++#define H(x, y, z) ((x) ^ (y) ^ (z))
++
++/*
++ * The generic round function.  The application is so specific that
++ * we don't bother protecting all the arguments with parens, as is generally
++ * good macro practice, in favor of extra legibility.
++ * Rotation is separate from addition to prevent recomputation
++ */
++#define ROUND(f, a, b, c, d, x, s)	\
++	(a += f(b, c, d) + x, a = (a << s) | (a >> (32 - s)))
++#define K1 0
++#define K2 013240474631UL
++#define K3 015666365641UL
++
++/*
++ * Basic cut-down MD4 transform.  Returns only 32 bits of result.
++ */
++__u32 half_md4_transform(__u32 const buf[4], __u32 const in[8])
++{
++	__u32 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
++
++	/* Round 1 */
++	ROUND(F, a, b, c, d, in[0] + K1,  3);
++	ROUND(F, d, a, b, c, in[1] + K1,  7);
++	ROUND(F, c, d, a, b, in[2] + K1, 11);
++	ROUND(F, b, c, d, a, in[3] + K1, 19);
++	ROUND(F, a, b, c, d, in[4] + K1,  3);
++	ROUND(F, d, a, b, c, in[5] + K1,  7);
++	ROUND(F, c, d, a, b, in[6] + K1, 11);
++	ROUND(F, b, c, d, a, in[7] + K1, 19);
++
++	/* Round 2 */
++	ROUND(G, a, b, c, d, in[1] + K2,  3);
++	ROUND(G, d, a, b, c, in[3] + K2,  5);
++	ROUND(G, c, d, a, b, in[5] + K2,  9);
++	ROUND(G, b, c, d, a, in[7] + K2, 13);
++	ROUND(G, a, b, c, d, in[0] + K2,  3);
++	ROUND(G, d, a, b, c, in[2] + K2,  5);
++	ROUND(G, c, d, a, b, in[4] + K2,  9);
++	ROUND(G, b, c, d, a, in[6] + K2, 13);
++
++	/* Round 3 */
++	ROUND(H, a, b, c, d, in[3] + K3,  3);
++	ROUND(H, d, a, b, c, in[7] + K3,  9);
++	ROUND(H, c, d, a, b, in[2] + K3, 11);
++	ROUND(H, b, c, d, a, in[6] + K3, 15);
++	ROUND(H, a, b, c, d, in[1] + K3,  3);
++	ROUND(H, d, a, b, c, in[5] + K3,  9);
++	ROUND(H, c, d, a, b, in[0] + K3, 11);
++	ROUND(H, b, c, d, a, in[4] + K3, 15);
++
++	return buf[1] + b;	/* "most hashed" word */
++	/* Alternative: return sum of all words? */
++}
++
+Index: rnd2/lib/Makefile
+===================================================================
+--- rnd2.orig/lib/Makefile	2005-01-20 09:42:08.920391124 -0800
++++ rnd2/lib/Makefile	2005-01-20 09:47:44.147653284 -0800
+@@ -5,7 +5,8 @@
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+ 	 kobject.o kref.o idr.o div64.o parser.o int_sqrt.o \
+-	 bitmap.o extable.o kobject_uevent.o prio_tree.o sha1.o
++	 bitmap.o extable.o kobject_uevent.o prio_tree.o \
++	 sha1.o halfmd4.o
+ 
+ ifeq ($(CONFIG_DEBUG_KOBJECT),y)
+ CFLAGS_kobject.o += -DDEBUG
+Index: rnd2/include/linux/cryptohash.h
+===================================================================
+--- rnd2.orig/include/linux/cryptohash.h	2005-01-20 09:42:09.077371110 -0800
++++ rnd2/include/linux/cryptohash.h	2005-01-20 09:47:02.986900834 -0800
+@@ -7,4 +7,6 @@
+ void sha_init(__u32 *buf);
+ void sha_transform(__u32 *digest, const char *data, __u32 *W);
+ 
++__u32 half_md4_transform(__u32 const buf[4], __u32 const in[8]);
++
+ #endif

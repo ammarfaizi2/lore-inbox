@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268004AbUIUTaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268010AbUIUTbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268004AbUIUTaV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUIUTaU
+	id S268010AbUIUTbW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 15:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIUTbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:30:20 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:15161 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S268004AbUIUTaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:30:16 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>
-X-Message-Flag: Warning: May contain useful information
-References: <1095758630.3332.133.camel@gaston>
-	<1095761113.30931.13.camel@localhost.localdomain>
-	<1095766919.3577.138.camel@gaston>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 21 Sep 2004 12:30:13 -0700
-In-Reply-To: <1095766919.3577.138.camel@gaston> (Benjamin Herrenschmidt's
- message of "Tue, 21 Sep 2004 21:41:59 +1000")
-Message-ID: <523c1bpghm.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
+	Tue, 21 Sep 2004 15:31:22 -0400
+Received: from gprs214-135.eurotel.cz ([160.218.214.135]:8325 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268010AbUIUTbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 15:31:17 -0400
+Date: Tue, 21 Sep 2004 21:31:04 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: acpi-devel <acpi-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] exposing ACPI objects in sysfs
+Message-ID: <20040921193104.GC30425@elf.ucw.cz>
+References: <1095716476.5360.61.camel@tdi> <20040921122428.GB2383@elf.ucw.cz> <1095785315.6307.6.camel@tdi> <20040921172625.GA30425@elf.ucw.cz> <1095789614.24751.31.camel@tdi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 21 Sep 2004 19:30:14.0358 (UTC) FILETIME=[6B04C760:01C4A011]
+Content-Disposition: inline
+In-Reply-To: <1095789614.24751.31.camel@tdi>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible to use __raw_*() in portable code?  I have some places
-in my code where non-byte-swap IO functions would be useful, but on
-ppc64, __raw_*() doesn't know about EEH.  Clearly I don't want to
-teach portable code about IO_TOKEN_TO_ADDR etc. so it seems I'm out of
-luck.  I end up doing the fairly insane:
+Hi!
 
-	writel(swab32(val), addr);
+>    So, I think the library wrapper will need to deal with the 32/64 bit
+> problem or we'll have to translate data structures to strictly defined
+> sizes.  Any other thoughts on how this could be done?  I'm concerned
+> about alignment issues too, so this is definitely an area that could use
+> some work.
 
-instead of what I really mean, which is:
+You can't count on library. On 32-bit only system, noone will debug
+the library. Then 64-bit extensions came. 64-bit kernel has to be
+binary compatible with 32-bit applications.
 
-	__raw_writel(cpu_to_be32(val), addr);
+> > Perhaps ioctl is really right thing to use here? read() should not
+> > have side effects and it solves 32/64 bit problem.
+> 
+>    If it solved the entire 32/64 bit problem, an ioctl would probably be
+> the right choice.  But it doesn't AFAICT.  I also like how this
+> implementation fits into the existing ACPI sysfs tree and that you can
+> get useful info simply by cat'ing a file.  Thanks,
 
-I'm also a little worried that m68k, sh64 and s390 at least don't
-define __raw_* functions.
-
-Thanks,
-  Roland
+Well, you also get nasty sideeffects by simply catting the
+file. ioctl() does not solve entire 32/64 bit problem, but it at least
+makes the problem solvable.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

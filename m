@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbUC2REx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 12:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUC2RD4
+	id S263021AbUC2RQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 12:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbUC2RPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 12:03:56 -0500
-Received: from ns.suse.de ([195.135.220.2]:6302 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262983AbUC2Qs7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 11:48:59 -0500
-Subject: [PATCH] loop setup calling bd_set_size too soon
-From: Chris Mason <mason@suse.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1080578929.20683.126.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 11:48:50 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 12:15:15 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:1257 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S263014AbUC2RNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 12:13:11 -0500
+Date: Mon, 29 Mar 2004 12:09:37 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       <areiter@preventsys.com>, <rmk+serial@arm.linux.org.uk>,
+       <tytso@mit.edu>
+Subject: Re: Subject: Re: NULL pointer in proc_pid_stat -- oops.
+In-Reply-To: <87d66vd9dk.fsf@devron.myhome.or.jp>
+Message-ID: <Pine.GSO.4.33.0403291204360.14589-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 29 Mar 2004, OGAWA Hirofumi wrote:
+>> >  if (task->tty) {
+>> >   tty_pgrp = task->tty->pgrp;
+>> >   tty_nr = new_encode_dev(tty_devnum(task->tty));
+>> >  }
+>> >
+>> > Some place doesn't take the any lock for ->tty.
+>> > I think we need to take the lock for ->tty.
+>>
+>> Probably this isn't the thing for 2.6.xx,
+>
+>Ah, sorry for confusing. This is 2.6.x (maybe also 2.4.x).
+>
+>e.g. the above take the task_lock(). But disassociate_ctty() just take
+>read_lock(&tasklist_lock), etc. etc. So looks like racy.
 
-I think Andrew and I managed to mismerge the loop setup race fix. 
-loop_set_fd is using get_capacity() to read the size of the disk and
-sending that to bd_set_size.
+Yes, there is a race condition.  I never chased it back to the specifics.
+I just did this:
+===== tty.h 1.23 vs 1.24 =====
+--- 1.23/include/linux/tty.h    Wed Sep 24 02:15:15 2003
++++ 1.24/include/linux/tty.h    Wed Feb 11 18:29:20 2004
+@@ -404,7 +404,16 @@
 
-But, it is doing this before calling set_capacity, so the size being
-used is wrong.  This should clean things up:
+ static inline dev_t tty_devnum(struct tty_struct *tty)
+ {
+-       return MKDEV(tty->driver->major, tty->driver->minor_start) + tty->index;
++       int ret = 0;
++
++       if(!tty) {
++               printk(KERN_CRIT "tty_devnum(): NULL tty (%p)\n", tty);
++       } else if(!tty->driver) {
++               printk(KERN_CRIT "tty_devnum(): NULL tty->driver (%p)\n", tty->d
+river);
++       } else
++       ret = MKDEV(tty->driver->major, tty->driver->minor_start) + tty->index;
++
++       return ret;
+ }
 
-Index: linux.t/drivers/block/loop.c
-===================================================================
---- linux.t.orig/drivers/block/loop.c	2004-03-29 10:47:07.809522824 -0500
-+++ linux.t/drivers/block/loop.c	2004-03-29 10:53:24.376275976 -0500
-@@ -687,7 +687,6 @@ static int loop_set_fd(struct loop_devic
- 	lo->transfer = NULL;
- 	lo->ioctl = NULL;
- 	lo->lo_sizelimit = 0;
--	bd_set_size(bdev,(loff_t)get_capacity(disks[lo->lo_number])<<9);
- 	lo->old_gfp_mask = mapping_gfp_mask(mapping);
- 	mapping_set_gfp_mask(mapping, lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
- 
-@@ -702,6 +701,7 @@ static int loop_set_fd(struct loop_devic
- 	lo->lo_queue->unplug_fn = loop_unplug;
- 
- 	set_capacity(disks[lo->lo_number], size);
-+	bd_set_size(bdev, size << 9);
- 
- 	set_blocksize(bdev, lo_blocksize);
- 
+ #endif /* __KERNEL__ */
 
+We were seeing this with some application(s) that called the java keytool
+a bit too often.  (We moved the calls to directly calling the keytool
+classes.)
 
+"Works for me" :-)
+
+--Ricky
 
 

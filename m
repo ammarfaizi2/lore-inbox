@@ -1,96 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVAJTzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbVAJTyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVAJTzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 14:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVAJTzC
+	id S262519AbVAJTyb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 14:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVAJTwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 14:55:02 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48293 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262522AbVAJTxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:53:19 -0500
-Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
-From: Stephen Pollei <stephen_pollei@comcast.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, postmaster@list.drzeus.cx,
-       postmaster@stusta.mhn.de, spf discuss <spf-discuss@v2.listbox.com>
-In-Reply-To: <20050110184307.GB2903@stusta.de>
-References: <20050110184307.GB2903@stusta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-nw3HzEkannKaB6TqR03g"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Jan 2005 11:55:09 -0800
-Message-Id: <1105386915.980.10.camel@fury>
-Mime-Version: 1.0
+	Mon, 10 Jan 2005 14:52:03 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2193 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262511AbVAJTsI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:48:08 -0500
+Date: Mon, 10 Jan 2005 14:43:18 -0500
+Message-Id: <200501101943.j0AJhId3028056@redrum.boston.redhat.com>
+From: Peter Martuccelli <peterm@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: peterm@redhat.com, sgrubb@redhat.com, rl@hellgate.ch, akpm@osdl.com
+Subject: [PATCH 2.6.10] audit return code and log format fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-nw3HzEkannKaB6TqR03g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hello Andrew,
 
-On Mon, 2005-01-10 at 10:43, Adrian Bunk wrote:
+A couple of one liners to resolve two issues that have come up
+regarding audit.  Roger reported a problem with 
+audit.c:audit_receive_skb which improperly negates the errno
+argument when netlink_ack is called.  The second issue was reported
+by Steve on the linux-audit list, auditsc.s:audit_log_exit using %u 
+instead of %d in the audit_log_format call.
 
-Perhaps a better approach might be to try and resolve why your emails
-got rejected. Are there invalid spf records involved? Is something at
-list.drzeus.cx misconfigured ?
+Please incorporate the patch in the next version.
 
-> <wbsd-devel@list.drzeus.cx>:
-> Connected to 213.115.189.212 but sender was rejected.
-> Remote host said: 417 SPF error mailout.stusta.mhn.de: Address does not=20
-> pass the
-> +Sender Policy Framework
-> I'm not going to try again; this message has been in the queue too long.
->=20
-> <drzeus-wbsd@drzeus.cx>:
-> Connected to 213.115.189.212 but sender was rejected.
-> Remote host said: 417 SPF error mailout.stusta.mhn.de: Address does not=20
-> pass the
-> +Sender Policy Framework
-> I'm not going to try again; this message has been in the queue too long.
->=20
-> <--  snip  -->
->=20
->=20
->=20
-> IMHO lists rejecting emails based on some non-standard extension don't=20
-> belong into MAINTAINERS.
->=20
->=20
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->=20
-> --- linux-2.6.10-mm2-full/MAINTAINERS.old	2005-01-10 19:20:32.000000000 +=
-0100
-> +++ linux-2.6.10-mm2-full/MAINTAINERS	2005-01-10 19:26:24.000000000 +0100
-> @@ -2539,8 +2539,6 @@
-> =20
->  W83L51xD SD/MMC CARD INTERFACE DRIVER
->  P:	Pierre Ossman
-> -M:	drzeus-wbsd@drzeus.cx
-> -L:	wbsd-devel@list.drzeus.cx
->  W:	http://projects.drzeus.cx/wbsd
->  S:	Maintained
+Please note, there is a mailing list available for audit discussion at 
+https://www.redhat.com/archives/linux-audit/
+
+Signed-off-by: Peter Martuccelli <peterm@redhat.com>
+               Steve Grubb <sgrubb@redhat.com>
+               Roger Luethi <rl@hellgate.ch>
 
 
---=20
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=3D2455954990164098214
-http://stephen_pollei.home.comcast.net/
-GPG Key fingerprint =3D EF6F 1486 EC27 B5E7 E6E1  3C01 910F 6BB5 4A7D 9677
+Regards,
 
---=-nw3HzEkannKaB6TqR03g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Peter
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+diffstat:
+ audit.c   |    2 +-
+ auditsc.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-iD8DBQBB4t2ckQ9rtUp9lncRArgNAJ9f0ZO0Lm1ks4ciQSDK2bo0H8FOKwCfeF4f
-u5daZTZVfkvvtlzW9Bp8b0I=
-=ymAh
------END PGP SIGNATURE-----
-
---=-nw3HzEkannKaB6TqR03g--
+diff -Naurp linux-2.6.10-pristine/kernel/audit.c linux-2.6.10/kernel/audit.c
+--- linux-2.6.10-pristine/kernel/audit.c	2004-12-24 16:35:50.000000000 -0500
++++ linux-2.6.10/kernel/audit.c	2005-01-07 15:37:22.329915776 -0500
+@@ -419,7 +419,7 @@ static int audit_receive_skb(struct sk_b
+ 		if (rlen > skb->len)
+ 			rlen = skb->len;
+ 		if ((err = audit_receive_msg(skb, nlh))) {
+-			netlink_ack(skb, nlh, -err);
++			netlink_ack(skb, nlh, err);
+ 		} else if (nlh->nlmsg_flags & NLM_F_ACK)
+ 			netlink_ack(skb, nlh, 0);
+ 		skb_pull(skb, rlen);
+diff -Naurp linux-2.6.10-pristine/kernel/auditsc.c linux-2.6.10/kernel/auditsc.c
+--- linux-2.6.10-pristine/kernel/auditsc.c	2004-12-24 16:35:24.000000000 -0500
++++ linux-2.6.10/kernel/auditsc.c	2005-01-07 15:37:17.675623336 -0500
+@@ -591,7 +591,7 @@ static void audit_log_exit(struct audit_
+ 	if (context->personality != PER_LINUX)
+ 		audit_log_format(ab, " per=%lx", context->personality);
+ 	if (context->return_valid)
+-		audit_log_format(ab, " exit=%u", context->return_code);
++		audit_log_format(ab, " exit=%d", context->return_code);
+ 	audit_log_format(ab,
+ 		  " a0=%lx a1=%lx a2=%lx a3=%lx items=%d"
+ 		  " pid=%d loginuid=%d uid=%d gid=%d"
 

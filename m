@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281180AbRK3Xa3>; Fri, 30 Nov 2001 18:30:29 -0500
+	id <S281181AbRK3Xak>; Fri, 30 Nov 2001 18:30:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281191AbRK3XaU>; Fri, 30 Nov 2001 18:30:20 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:13804 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S281180AbRK3XaE>;
-	Fri, 30 Nov 2001 18:30:04 -0500
-Date: Sat, 1 Dec 2001 00:29:56 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: OT: svscan and the hard disk
-Message-ID: <20011201002956.A3050@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011130123323.CED6DFA61@bugs.unl.edu.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011130123323.CED6DFA61@bugs.unl.edu.ar>
-User-Agent: Mutt/1.3.23i
+	id <S281191AbRK3Xaa>; Fri, 30 Nov 2001 18:30:30 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:1548 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S281184AbRK3XaV>;
+	Fri, 30 Nov 2001 18:30:21 -0500
+Date: Fri, 30 Nov 2001 15:26:59 -0800 (PST)
+From: <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.5.1-pre4 scsi.c/scsi_lib.c
+Message-ID: <Pine.LNX.4.33L2.0111301523490.6115-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 30 November 2001, at 09:33:21 -0300,
-Martín Marqués wrote:
+Patch to 2.5.1-pre4 fixes error in scsi_lib.c
+and warnings in scsi.c.
 
-> Any thoughts on what DJB thinks of the Linux FS?
-> 
-> Sorry for him, each day I convince myself of not using Qmail ever!
-> 
-Does this means that the opinions of those who don't think like you
-doesn't quality, or worth being taken into account ?.
+I haven't seen these corrections yet...
 
-How many times a week do you hear "subsystem X is broken", or "kernel
-developer Y fucked this" on this list ?. Is this different from the same
-facts, but being said by someone (DJB) who obviously has many people
-against, for several reasons (many of them, non-technical ones) ?
+~Randy
 
-PS: first and last email from my part on this subject.
+
+--- linux/drivers/scsi/scsi.c.org	Fri Nov 30 11:50:11 2001
++++ linux/drivers/scsi/scsi.c	Fri Nov 30 15:15:19 2001
+@@ -2430,7 +2430,7 @@
+ 		for (SDpnt = shpnt->host_queue; SDpnt; SDpnt = SDpnt->next) {
+ 			for (SCpnt = SDpnt->device_queue; SCpnt; SCpnt = SCpnt->next) {
+ 				/*  (0) h:c:t:l (dev sect nsect cnumsec sg) (ret all flg) (to/cmd to ito) cmd snse result %d %x      */
+-				printk(KERN_INFO "(%3d) %2d:%1d:%2d:%2d (%6s %4ld %4ld %4ld %4x %1d) (%1d %1d 0x%2x) (%4d %4d %4d) 0x%2.2x 0x%2.2x 0x%8.8x\n",
++				printk(KERN_INFO "(%3d) %2d:%1d:%2d:%2d (%6s %4ld %4ld %4d %4x %1d) (%1d %1d 0x%2x) (%4d %4d %4d) 0x%2.2x 0x%2.2x 0x%8.8x\n",
+ 				       i++,
+
+ 				       SCpnt->host->host_no,
+@@ -2476,12 +2476,12 @@
+ 					entry = queue_head->next;
+ 					do {
+ 						req = blkdev_entry_to_request(entry);
+-						printk("(%s %d %ld %ld %ld) ",
++						printk("(%s %d %lu %lu %u) ",
+ 						   kdevname(req->rq_dev),
+ 						       req->cmd,
+ 						       req->sector,
+ 						       req->nr_sectors,
+-						req->current_nr_sectors);
++						       req->current_nr_sectors);
+ 					} while ((entry = entry->next) != queue_head);
+ 					printk("\n");
+ 				}
+--- linux/drivers/scsi/scsi_lib.c.org	Fri Nov 30 11:50:11 2001
++++ linux/drivers/scsi/scsi_lib.c	Fri Nov 30 13:53:03 2001
+@@ -582,7 +582,7 @@
+ 	 */
+ 	if (good_sectors > 0) {
+ 		SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, %d sectors done.\n",
+-					      req->nr_sectors good_sectors));
++					      req->nr_sectors, good_sectors));
+ 		SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n ", SCpnt->use_sg));
+
+ 		req->errors = 0;
 
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
 

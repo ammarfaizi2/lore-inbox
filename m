@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282919AbRK0LiH>; Tue, 27 Nov 2001 06:38:07 -0500
+	id <S282918AbRK0Lib>; Tue, 27 Nov 2001 06:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282918AbRK0Lh5>; Tue, 27 Nov 2001 06:37:57 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:59660 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S282916AbRK0Lhq>;
-	Tue, 27 Nov 2001 06:37:46 -0500
-Date: Tue, 27 Nov 2001 12:37:24 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-        torvalds@transmeta.com, andrea@suse.de
-Subject: Re: VM tests on 5 recent kernels
-Message-Id: <20011127123724.04df2308.skraw@ithnet.com>
-In-Reply-To: <20011127021513.A228@earthlink.net>
-In-Reply-To: <20011127021513.A228@earthlink.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S282916AbRK0LiS>; Tue, 27 Nov 2001 06:38:18 -0500
+Received: from sr3.terra.com.br ([200.176.3.18]:40642 "EHLO sr3.terra.com.br")
+	by vger.kernel.org with ESMTP id <S282918AbRK0LiI>;
+	Tue, 27 Nov 2001 06:38:08 -0500
+Message-ID: <3C037B1E.1000501@terra.com.br>
+Date: Tue, 27 Nov 2001 09:38:06 -0200
+From: Piter Punk <piterpk@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: How do  I add a drive to the DMA blacklist?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001 02:15:13 -0500
-rwhron@earthlink.net wrote:
+Valkai Elod wrote:
 
-> 
-> 5 recent kernels:
-> 
-> mtest01		Averages for 10 mtest01 runs
-> -------
-> mtest01 allocates and writes to 80% of virtual memory.
-> Listen to mp3 sampled at 128k.
-> 
-> mp3 on 2.4.16 skipped more than 2.4.15-pre6.
-> 2.4.15-pre6 and 2.5.1-pre1 did best.  (fastest time, highest mp3 play).  
-> 2.4.16-vm is a patch from http://surriel.com/patches/ 
+On Mon, 26 Nov 2001, Mark Hymers wrote:
 
-I am pretty astonished about the differences between 2.4.16 and 2.5.1-pre1. Can
-anybody point out some relevant difference between the two regarding such a
-test case?
 
-Regards,
-Stephan
+On Sun, 25, Nov, 2001 at 06:17:08PM -0500, Jonathan Kamens spoke thus..
+
+Actually, while this subject is being brought up, if I don't do:
+/sbin/hdparm -d0 /dev/hdc
+on bootup, my system locks up randomly.  Looks like a DMA issue with my
+hdc drive.. Details are:
+
+/proc/ide/hdc/model:
+QUANTUM FIREBALLlct08 26
+
+
+This seems to confirm my doubts about Quantum lct drives' sanity. I'm
+having two drives: a Quantum CX 13G, and a Maxtor 40G@5400. Both work with
+UDMA33 (mb doesn't support more). When i put a QUANTUM FIREBALL lct20 20G
+drive in my rack, random lockups occur. I'd put all Quantum LCT drives on
+the blacklist!
+
+My Quantum Fireball lct20 works fine, and i work in UDMA 5, without any 
+problems...
+
+Ok, i have a problem, in Ultra 5 i can't got same performance of other (no 
+cheap) HDs...
+
+$ hdparm -i /dev/hda
+
+/dev/hda:
+
+Model=QUANTUM FIREBALLlct20 20, FwRev=APL.0900, SerialNo=552114732078
+Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+BuffType=DualPortCache, BuffSize=418kB, MaxMultSect=8, MultSect=off
+CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=39876480
+IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+PIO modes: pio0 pio1 pio2 pio3 pio4
+DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+AdvancedPM=no
+Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3 ATA-4 
+ATA-5
+
+-- 
+   ____________
+  / Piter PUNK \_____________________________________________________
+|                                                                   |
+|      |        E-Mail: piterpk@terra.com.br         (personal)     |
+|     .|.               roberto.freires@gds-corp.com (professional) |
+|     /V\                                                           |
+|    // \\      UIN: 116043354  Homepage: www.piterpunk.hpg.com.br  |
+|   /(   )\                                                         |
+|    ^`~'^         ----> Slackware Linux - The Best One! <----      |
+|   #105432                                                         |
+`-------------------------------------------------------------------'
 

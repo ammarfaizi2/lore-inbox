@@ -1,98 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277949AbRKMSVk>; Tue, 13 Nov 2001 13:21:40 -0500
+	id <S277942AbRKMSZk>; Tue, 13 Nov 2001 13:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277942AbRKMSVa>; Tue, 13 Nov 2001 13:21:30 -0500
-Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:54796
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S277918AbRKMSVR>; Tue, 13 Nov 2001 13:21:17 -0500
-Date: Tue, 13 Nov 2001 10:21:06 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: PATCH: scsi_scan.c: emulate windows behavior
-Message-ID: <20011113102106.A23110@one-eyed-alien.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Kernel Developer List <linux-kernel@vger.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S278042AbRKMSZb>; Tue, 13 Nov 2001 13:25:31 -0500
+Received: from modem-3983.lemur.dialup.pol.co.uk ([217.135.143.143]:42253 "EHLO
+	Mail.MemAlpha.cx") by vger.kernel.org with ESMTP id <S277942AbRKMSZT>;
+	Tue, 13 Nov 2001 13:25:19 -0500
+Posted-Date: Tue, 13 Nov 2001 14:41:43 GMT
+Date: Tue, 13 Nov 2001 14:41:42 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+cc: Kai Henningsen <kaih@khms.westfalen.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <20011111204305.A16792@unthought.net>
+Message-ID: <Pine.LNX.4.21.0111130027030.12260-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jakob.
 
---aVD9QWMuhilNxW9f
-Content-Type: multipart/mixed; boundary="k1lZvvs/B4yU6o8G"
-Content-Disposition: inline
+>>> Sure, implement arbitrary precision arithmetic in every single app
+>>> out there using /proc....
 
+>> Bullshit. Implement whatever arithmetic is right *for your problem*.
+>> And notice when the value you get doesn't fit so you can tell the
+>> user he needs a newer version. That's all.
+>> 
+>> There's no reason whatsoever to care what data type the kernel used.
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> So my program runs for two months and then aborts with an error
+> because some counter just happened to no longer fit into whatever
+> type I assumed it was ?
+>
+> Come on - you just can't code like that...
 
-I would have sworn we already patched this, but now I can find no record of
-it.
+There are certain assumptions you can make about any given variable
+without even seeing a specific value for it. For example:
 
-Attached is a one-liner patch to scsi_scan.c, which changes the length of
-the INQUIRY data request from 255 bytes to 36 bytes.  This subtle change
-makes Linux act more like Win/MacOS and other popular OSes, and reduces
-incompatibility with a broad range of out-of-spec devices that will simply
-die if asked for more than the required minimum of 36 bytes.
+ 1. Does it make sense for the value to be negative? If not, use an
+    unsigned variable.
 
-Did we patch this before?  I can't find it in the l-k archives, but I'm
-almost positive we have.  I remeber this because this problem plagues some
-USB devices, which just crash if you ask for more than 36 bytes of data.
+    As an example, no systems can validly have a negative uptime, as
+    that implies that it hasn't yet started running. It is for this
+    very reason that a supposedly Roman coin inscribed with the date
+    "37 BC" was known to be counterfeit - who measures time from an
+    event that hasn't yet happenned?
 
-Patch is attached.  Please apply.
+ 2. Does it make sense for the variable to report fractional values?
+    If not, use integral variables.
 
-Matt
+    As an example, it makes no sense to have a fractional number of
+    CPU's in a particular system - or, for that matter, for a given
+    family to have the fabled 2.4 children !!!
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+ 3. If fractional values do make sense, what accuracy is needed, and
+    would it make sense to use scaled integers rather than reals?
 
-G:  Let me guess, you started on the 'net with AOL, right?
-C:  WOW! d00d! U r leet!
-					-- Greg and Customer=20
-User Friendly, 2/12/1999
+    As an example, fractional values make sense for the current time
+    but the need for accuracy indicates that scaled integers rather
+    than reals are to be preferred, with the integers recording time
+    in units of whatever fraction of a second is deemed sufficiently
+    accurate for the intended purpose whilst still giving a practical
+    range that can be stored.
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="scsi_scan.patch"
+    To take this one step further, and push the next version of the
+    Y2K problem as far into the future as possible whilst providing
+    a sufficient accuracy for most tasks nowadays, one could use a
+    64-bit unsigned variable for the current time, but, rather than
+    storing the number of seconds since epoch in it, store the
+    number of xths of a second instead.
 
---- linux/drivers/scsi/scsi_scan.old	Tue Nov 13 10:12:19 2001
-+++ linux/drivers/scsi/scsi_scan.c	Tue Nov 13 10:13:58 2001
-@@ -543,7 +543,7 @@
- 		scsi_cmd[1] = 0;	/* SCSI_3 and higher, don't touch */
- 	scsi_cmd[2] = 0;
- 	scsi_cmd[3] = 0;
--	scsi_cmd[4] = 255;
-+	scsi_cmd[4] = 36;		/* 36 bytes, just like Win/MacOS */
- 	scsi_cmd[5] = 0;
- 	SRpnt->sr_cmd_len = 0;
- 	SRpnt->sr_data_direction = SCSI_DATA_READ;
+    As an example of this, a 64-bit unsigned value that measures the
+    number of 40 ns intervals from Jan 1 00:00:00 UTC 1970 onwards
+    will roll over at Jan 29 15:31:14 UTC 13661. This is a over 45%
+    further in the future than the Y10K rollover seen elsewhere...
 
---k1lZvvs/B4yU6o8G--
+		( 13661 - 2000 )
+		---------------- * 100 % = 145.762 %
+		( 10000 - 2000 )
 
---aVD9QWMuhilNxW9f
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+    With an interval of 40 ns one can accurately convert to seconds
+    for backwards compatibility by simply dividing by 25,000,000.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+ 4. Is there any inherent limit on the range it can take? If not, use
+    the largest available variables of the relevant type.
 
-iD8DBQE78WSSz64nssGU+ykRAtgOAKCUb7m1YaBOltXU8W8mL9DSNK3NrwCghvZX
-Grti3poFhKO19Cc4eiIOCzs=
-=U1Qd
------END PGP SIGNATURE-----
+I've been doing this for 25 years now, and I've never regretted it.
 
---aVD9QWMuhilNxW9f--
+Best wishes from Riley.
+

@@ -1,81 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129813AbRBZTV0>; Mon, 26 Feb 2001 14:21:26 -0500
+	id <S129399AbRBZTar>; Mon, 26 Feb 2001 14:30:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129823AbRBZTVR>; Mon, 26 Feb 2001 14:21:17 -0500
-Received: from rachael.franken.de ([193.175.24.38]:44810 "EHLO
-	rachael.franken.de") by vger.kernel.org with ESMTP
-	id <S129813AbRBZTVG>; Mon, 26 Feb 2001 14:21:06 -0500
-Date: Mon, 26 Feb 2001 20:13:08 +0100
-From: Matthias Bruestle <m@mbsks.franken.de>
-To: Junichi Morita <jun1m@mars.dti.ne.jp>
-Cc: linux-kernel@vger.kernel.org, tridge@linuxcare.com
-Subject: Re: Power management on Sony C1Vx
-Message-ID: <20010226201308.K5112@mbsks.franken.de>
-In-Reply-To: <20010225205521.C3253@mbsks.franken.de> <200102261648.BAA09972@smtp8.dti.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200102261648.BAA09972@smtp8.dti.ne.jp>; from jun1m@mars.dti.ne.jp on Tue, Feb 27, 2001 at 01:48:26AM +0900
+	id <S129710AbRBZTah>; Mon, 26 Feb 2001 14:30:37 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:8712 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S129399AbRBZTaW>;
+	Mon, 26 Feb 2001 14:30:22 -0500
+Date: Mon, 26 Feb 2001 20:29:49 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: weird /proc/ide/hdx/settings
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3A9AAEAD.2CEEDD2A@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <Pine.LNX.4.10.10102242109550.24823-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mahlzeit
+Andre Hedrick wrote:
+> 
+> Zero is a counting number. 0->255 == 1->256.
 
+I don't understand.
+This doesn't explain (value) is bigger than (max).
 
-On Tue, Feb 27, 2001 at 01:48:26AM +0900, Junichi Morita wrote:
-> I think ... This <Fn+Fxx> keys controled by SPIC(Sony Programmable I/O Control Device).
-> Download a picturebook application from
->  http://samba.org/picturebook/
-> and make it.
+Are you saying that (value) is counted from 1 , while
+(max) ( and min too ? ) is counted from 0 ?
 
-Done.
+david
 
-> and check with this command...
->  # capture -j
-> then press <Fn+Fxx> keys. May be you can see the press event...
-> Here is a event data...
->  <Fn+ESC>  : event 0x10 0x29  &  event 0x10 0x28
->  <Fn+F1>   : event 0x11    ------ same -----
->  <Fn+F2>   :       0x12
->     :                :    <F3> -> <F11> : 0x13 -> 0x1b
+> On Fri, 23 Feb 2001, David Balazic wrote:
+> 
+> > Running kernel 2.4.2 :
+> >
+> > cat /proc/ide/hdc/settings
+> >
+> > name                    value           min             max             mode
+> > ----                    -----           ---             ---             ----
+> > bios_cyl                89355           0               65535           rw
+> > bios_head               16              0               255             rw
+> > bios_sect               63              0               63              rw
+> > breada_readahead        4               0               127             rw
+> > bswap                   0               0               1               r
+> > current_speed           69              0               69              rw
+> > file_readahead          0               0               2097151         rw
+> > ide_scsi                0               0               1               rw
+> > init_speed              12              0               69              rw
+> > io_32bit                1               0               3               rw
+> > keepsettings            0               0               1               rw
+> > lun                     0               0               7               rw
+> > max_kb_per_request      128             1               127             rw
+> > multcount               0               0               8               rw
+> > nice1                   1               0               1               rw
+> > nowerr                  0               0               1               rw
+> > number                  2               0               3               rw
+> > pio_mode                write-only      0               255             w
+> > slow                    0               0               1               rw
+> > unmaskirq               1               0               1               rw
+> > using_dma
+> > --------------------%X---------------
+> >
+> > max_kb_per_request  has value 128 , but max is 127 !?
+> >
+> > max for multcount is 8 , but my drive supports 16 sectors. ( see hdparm output below )
+> > If I set multcount to 8 sectors ( hdparm -m 8 /dev/hdc )
+> > then /proc/ide/hdc/settings will show :
+> > multcount               4               0               8               rw
+> >
+> > The values are divided by 2. Why ?
+> >
+> >
+> > hdparm -i /dev/hdc  :
+> >
+> > /dev/hdc:
+> >
+> >  Model=IBM-DTLA-307045, FwRev=TX6OA60A, SerialNo=YMEYMML9342
+> >  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+> >  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+> >  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
+> >  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=90069840
+> >  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+> >  PIO modes: pio0 pio1 pio2 pio3 pio4
+> >  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+> >
+> > IDE interface is VIA xxx686b ( ATA-100 )
+> > IDE driver is VIA IDE v4.3
+> >
+> > --
+> > David Balazic
+> > --------------
+> > "Be excellent to each other." - Bill & Ted
+> > - - - - - - - - - - - - - - - - - - - - - -
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> Andre Hedrick
+> Linux ATA Development
+> ASL Kernel Development
+> -----------------------------------------------------------------------------
+> ASL, Inc.                                     Toll free: 1-877-ASL-3535
+> 1757 Houret Court                             Fax: 1-408-941-2071
+> Milpitas, CA 95035                            Web: www.aslab.com
 
-Works, but it seams a bit flakey. Sometimes I get 0xXX 0x29 and 0xXX 0x28
-and sometimes only 0xXX 0x28. The "jog dial" is even more flakey. This
-has the third variation of no events at all.
-
-> > - standby makes the display black, but switches not the backlights off.
-> >   The only way to go back to normal is by switching to a text console
-> >   and then back to X.
-> Recompile the your Kernel with "Enable console blanking using APM" option.
-> then the backlights off.(only text console)
-> I checked Kernel 2.2.17,2.2.18 & 2.4.2
-
-The C1Vx does support as I have now heard in principle no APM, so I
-would have to use ACPI. If I want to use ACPI I cannot compile in APM,
-else it tries to use APM. A way to switch of the backlights, which
-works very reliable, is shuting the notebook. :)
-
-> My VAIO could(can) go into suspend mode....but never wakeup.
-> as same as APM case.
-
-I seams every C1Vx does other things.
-
-> You can use the internal USB-Memory-Stick device with Kernel 2.2.18 and usb-storage module.
-
-"modprobe usb-storage" does dectect the floppy, does detect the memory
-stick (prorietary crap) and hangs then forever. (With 2.4.2 and 2.4.2-ac3)
-
-> and the sound module is ymfpci.
-> take care about ymfpci module... because, some time I get a NOISE!!!
-
-I had this also, the I installed the ALSA driver and no problems again
-with it.
-
-
-Mahlzeit
-
-endergone Zwiebeltuete
 
 -- 
-live free or die
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

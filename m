@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbSKHOHc>; Fri, 8 Nov 2002 09:07:32 -0500
+	id <S262040AbSKHONG>; Fri, 8 Nov 2002 09:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbSKHOHc>; Fri, 8 Nov 2002 09:07:32 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:16888 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262038AbSKHOHb>; Fri, 8 Nov 2002 09:07:31 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3DCBC2E3.5040503@convergence.de> 
-References: <3DCBC2E3.5040503@convergence.de>  <28280.1036753951@passion.cambridge.redhat.com> 
-To: Holger Waechtler <holger@convergence.de>
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Switch DVB to generic crc32. 
+	id <S262045AbSKHONG>; Fri, 8 Nov 2002 09:13:06 -0500
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:34178 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262040AbSKHONF>;
+	Fri, 8 Nov 2002 09:13:05 -0500
+Date: Fri, 8 Nov 2002 09:19:31 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.19 + patch-20-pre11 Broken NVidia FB
+Message-ID: <20021108141931.GA1319@rdlg.net>
+Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Nov 2002 14:14:09 +0000
-Message-ID: <16466.1036764849@passion.cambridge.redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-holger@convergence.de said:
->  the crc32 table was defined because the same driver works for 2.4
-> kernels, there we need our own crc32 implementation.
 
-JFFS2 in 2.4 has the same problem. The fix is to backport the 2.5 crc32 
-code so that 2.4 isn't gratuitously different. That patch has been sent to 
-Alan already, I believe it's going to be sent to Marcelo for 2.4.21-pre1.
+  Rebuilt my home machine last night.  Used my 2.4.18 .config file as
+passing it down the chain as always.  Made the kernel with the standard
+alias and rebooted.  BRIGHT GREEN screen.  Rebooted to an older 2.4.18
+kernel, changed a few options, no go.  On a guess I removed the
+FrameBuffer option from the console menu and tried again.  Box is up and
+working great.  In addition, when the FB was compiled into the kernel or
+as a module X wouldn't work, said it couldn't find the NVidia kernel
+module.  Excluding the kernel frame buffer worked great.
 
---
-dwmw2
+P4-2Ghz, 1Gig of ram, GForce3-64Meg.
 
+Robert
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: FC96D405
+                               
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
 

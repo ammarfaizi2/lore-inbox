@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUHaQ2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUHaQ3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUHaQ2v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268757AbUHaQ2u
+	id S263743AbUHaQ3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUHaQ3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:28:50 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:60863 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262406AbUHaQ05
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:26:57 -0400
-Subject: Re: [RFC] buddy allocator without bitmap(2) [0/3]
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <41345491.1020209@jp.fujitsu.com>
-References: <41345491.1020209@jp.fujitsu.com>
-Content-Type: text/plain
-Message-Id: <1093969590.26660.4806.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 31 Aug 2004 09:26:30 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Aug 2004 12:29:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40324 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268760AbUHaQ3h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 12:29:37 -0400
+Date: Tue, 31 Aug 2004 09:29:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+cc: Tim Fairchild <tim@bcs4me.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: K3b and 2.6.9?
+In-Reply-To: <41341A31.3050301@bio.ifi.lmu.de>
+Message-ID: <Pine.LNX.4.58.0408310926310.2295@ppc970.osdl.org>
+References: <200408301047.06780.tim@bcs4me.com> <1093871277.30082.7.camel@localhost.localdomain>
+ <200408311151.25854.tim@bcs4me.com> <Pine.LNX.4.58.0408301917360.2295@ppc970.osdl.org>
+ <41341A31.3050301@bio.ifi.lmu.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-31 at 03:36, Hiroyuki KAMEZAWA wrote:
-> Disadvantage:
->   - using one more PG_xxx flag.
->   - If mem_map is not aligned, reserve one page as a victim for buddy allocater.
+
+
+On Tue, 31 Aug 2004, Frank Steiner wrote:
+
+> Linus Torvalds wrote:
 > 
-> How about this approach ?
+> > Ehh.. This seems to imply that K3b opens the device for _reading_ when it 
+> > wants to burn a CD-ROM. 
+> 
+> It seems that this problem is not K3B-only:
 
-Granted, we have some free wiggle room in page->flags right now, but
-using another bit effectively shifts the entire benefit of your patch. 
-Instead of getting rid of the buddy bitmaps, you simply consume a
-page->flag instead.  While you don't have to allocate anything (because
-of the page->flags use), the number of bits consumed in the operation is
-still the same as before.  And the patch is getting more complex by the
-minute.
+Yes. I suspect that these projects have at least looked at each other, so 
+it's probably a problem that has its basis in cdrecord or some "original" 
+program.
 
-Something ate your patch:
+And yes, opening for reading used to work. After all, you didn't need a 
+"write()" system call, and the ioctl functions didn't use to check. It's a 
+potential security problem, and one that 2.6.8 fixed, and I don't think 
+we're willing to go back to the old setup.
 
-   * Global page accounting.  One instance per CPU.  Only unsigned longs are
-@@ -290,6 +297,9 @@ extern unsigned long __read_page_state(u
-  #define SetPageCompound(page) set_bit(PG_compound, &(page)->flags)
-  #define ClearPageCompound(page)       clear_bit(PG_compound, &(page)->flags)
+And trust me - I absolutely _hate_ breaking user-level programs. I'd love
+to unbreak it from the kernel, but in this case I don't see any
+alternatives, really.
 
-+#define PageBuddyend(page)      test_bit(PG_buddyend, &(page)->flags)
-+#define SetPageBuddyend(page)   set_bit(PG_buddyend, &(page)->flags)
-+
-  #ifdef CONFIG_SWAP
-  #define PageSwapCache(page)   test_bit(PG_swapcache, &(page)->flags)
-  #define SetPageSwapCache(page)        set_bit(PG_swapcache, &(page)->flags)
-
-
--- Dave
-
+			Linus

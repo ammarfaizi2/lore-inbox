@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264923AbTFCD5e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 23:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbTFCD5e
+	id S264924AbTFCEB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 00:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbTFCEB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 23:57:34 -0400
-Received: from waste.org ([209.173.204.2]:29380 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264923AbTFCD5d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 23:57:33 -0400
-Date: Mon, 2 Jun 2003 23:10:54 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jody Pearson <J.Pearson@cern.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Documentation / code sample wanted.
-Message-ID: <20030603041054.GM23715@waste.org>
-References: <Pine.LNX.4.44.0306021939490.31408-100000@lxplus077.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306021939490.31408-100000@lxplus077.cern.ch>
-User-Agent: Mutt/1.3.28i
+	Tue, 3 Jun 2003 00:01:59 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:19842
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264924AbTFCEB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 00:01:58 -0400
+Date: Tue, 3 Jun 2003 00:03:42 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Con Kolivas <kernel@kolivas.org>
+cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       Paul P Komkoff Jr <i@stingr.net>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI interrupt storm (was Re: Linux 2.4.21rc6-ac1)
+In-Reply-To: <200306031201.09642.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.50.0306030002010.14455-100000@montezuma.mastecende.com>
+References: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com>
+ <200306031012.07832.kernel@kolivas.org> <200306031201.09642.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 07:40:52PM +0200, Jody Pearson wrote:
+On Tue, 3 Jun 2003, Con Kolivas wrote:
 
-> I am looking for some source code or a document which outlines how to open 
-> a TCP connection within kernel space.
+> At least I can provide you with the acpi info from dmesg when it booted, and 
+> I'll try Zwane's hack in the near future to see if it helps.
 
-Take a look at nbd or Cisco's iSCSI driver.
- 
-> For more information, I basically want to emulate a userland 
-> gethostbyname() in kernel space.
+Andrew, i picked this up on the tailend of another bug report, there 
+should be a new one opened but i haven't checked. I presume the tree you 
+have in 2.5.70 and 2.4.21rc6-ac1 are relatively the same.
 
-That gets ugly quickly. There are a lot of options and complexity
-needed to handle even the simplest name resolution robustly. It almost
-certainly makes more sense to do this in userspace and pass the result
-down to the kernel.
+http://bugzilla.kernel.org/show_bug.cgi?id=370
 
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+function.linuxpower.ca

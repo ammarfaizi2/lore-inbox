@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266258AbUHQORv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUHQOSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266258AbUHQORv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUHQOPD
+	id S265654AbUHQOSC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUHQOSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:15:03 -0400
-Received: from pop.gmx.de ([213.165.64.20]:16611 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268280AbUHQOL4 (ORCPT
+	Tue, 17 Aug 2004 10:18:01 -0400
+Received: from holomorphy.com ([207.189.100.168]:688 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265654AbUHQOPb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:11:56 -0400
-X-Authenticated: #1725425
-Date: Tue, 17 Aug 2004 16:27:35 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: [PATCH] update defines in cdrom.h
-Message-Id: <20040817162735.23acde4b.Ballarin.Marc@gmx.de>
-In-Reply-To: <1092661385.20528.25.camel@localhost.localdomain>
-References: <411FD919.9030702@comcast.net>
-	<20040816143817.0de30197.Ballarin.Marc@gmx.de>
-	<1092661385.20528.25.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 17 Aug 2004 10:15:31 -0400
+Date: Tue, 17 Aug 2004 07:15:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm1
+Message-ID: <20040817141529.GP11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040816143710.1cd0bd2c.akpm@osdl.org> <20040817125459.GO11200@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040817125459.GO11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds four commands defined in mmc4 spec to cdrom.h. I used the
-official names and simply added the GPCMD prefix. This is a prerequisite
-for improving filtering.
+On Mon, Aug 16, 2004 at 02:37:10PM -0700, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm1
 
-Some commands that are used in software but not mentioned in specs are
-still missing.
+On Tue, Aug 17, 2004 at 05:54:59AM -0700, William Lee Irwin III wrote:
+> Hmm. Got this on a JS20.
+> Elapsed time since release of system processors: 0 mins 32 secs
+[...]
 
-Marc
+A firmware upgrade seems to have taken care of this.
 
 
---- linux-2.6.8/include/linux/cdrom.h.orig	2004-08-14 12:26:34.000000000 +0200
-+++ linux-2.6.8/include/linux/cdrom.h	2004-08-17 16:14:41.580823560 +0200
-@@ -481,4 +481,8 @@
- #define GPCMD_WRITE_10			    0x2a
- #define GPCMD_WRITE_AND_VERIFY_10	    0x2e
-+#define GPCMD_READ_BUFFER_CAPACITY	    0x5C
-+#define GPCMD_SEND_CUE			    0x5D
-+#define GPCMD_ERASE			    0x2C
-+#define GPCMD_SEND_DVD_STRUCTURE	    0xBF
- /* This is listed as optional in ATAPI 2.6, but is (curiously) 
-  * missing from Mt. Fuji, Table 57.  It _is_ mentioned in Mt. Fuji
+-- wli

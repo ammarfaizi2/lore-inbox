@@ -1,98 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272843AbRIGUlb>; Fri, 7 Sep 2001 16:41:31 -0400
+	id <S272848AbRIGUxc>; Fri, 7 Sep 2001 16:53:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272844AbRIGUlV>; Fri, 7 Sep 2001 16:41:21 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:64091 "HELO
-	pirx.hexapodia.org") by vger.kernel.org with SMTP
-	id <S272843AbRIGUlK>; Fri, 7 Sep 2001 16:41:10 -0400
-Date: Fri, 7 Sep 2001 15:41:29 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
-Subject: USB IRQ routing problems on Via Apollo Pro 133A
-Message-ID: <20010907154129.B9370@hexapodia.org>
-In-Reply-To: <20010906004520.A2891@hexapodia.org> <20010906202536.A11264@middle.of.nowhere>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010906202536.A11264@middle.of.nowhere>; from thunder7@xs4all.nl on Thu, Sep 06, 2001 at 08:25:36PM +0200
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+	id <S272849AbRIGUxX>; Fri, 7 Sep 2001 16:53:23 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:65042 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272848AbRIGUxD>; Fri, 7 Sep 2001 16:53:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Martin MOKREJ? <mmokrejs@natur.cuni.cz>
+Subject: Re: __alloc_pages: 0-order allocation failed.
+Date: Fri, 7 Sep 2001 23:00:21 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.21.0109071502390.170-100000@prfdec.natur.cuni.cz> 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010907205321Z16323-26184+70@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Moving from private mail to linux-kernel]
-
-On Thu, Sep 06, 2001 at 08:25:36PM +0200, thunder7@xs4all.nl wrote:
-> You have missed something all right. In the later kernels, the output of
-> 'dmesg' mentions:
+On September 7, 2001 10:43 pm, Daniel Phillips wrote:
+> On September 7, 2001 03:06 pm, Martin MOKREJ? wrote:
+> > On Tue, 4 Sep 2001, Daniel Phillips wrote:
+> > 
+> > > On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
+> > > > Hi,
+> > > >   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
+> > > > enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
+> > > > physically. Althougj I've found many report to linux-kernel list during
+> > > > past months, not a real solution. Maybe only:
+> > > > http://www.alsa-project.org/archive/alsa-devel/msg08629.html
+> > > 
+> > > Try 2.4.10-pre4.
+> > 
+> > 
+> > Wow, I've just now realized that I get two types of error message:
+> > __alloc_pages: 0-order allocatiocation failed (gfp=0x70/1).
+> > __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+> > 
+> > We are using LVM and ReiserFS, HIGMEM kernel.
+> > 
+> > Maybe it helps to track it down. Any ideas?
 > 
-> PCI: Probing PCI hardware
-[snip]
-> PCI: Enabling Via external APIC routing
-> PCI: Via IRQ fixup for 00:07.2, from 9 to 3
-> PCI: Via IRQ fixup for 00:07.3, from 9 to 3
+> printk has a limited amount of space for buffering messages, a ring buffer 
+> (sort of) and will start dropping text when the buffer fills up, so as not
+> to slow the kernel down and/or interfere with interrupts.  So that is why
+> two lines of output got combined above, they are all the same message.
 > 
-> Those last 2 lines are the ones that are new (since 2.4.5 or so, I guess
-> - it was back in June, anyway)
+> The gfp=0x70/1 identifies the failure as GFP_NOIO, PF_MEMALLOC, which by
+> process of eliminate, comes from alloc_bounce_page.  Marcelo's patch for
+> bounce buffer allocation is *not* in 2.4.10-pre4, so we haven't proved
+> anything yet.
+> 
+> You can get the patch from Marcelo's post on lkml on Aug 22 under the
+> subject "Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on
+> 7899P)".  Note the correction posted in his next message in the thread.
+> It applies to 2.4.9.  Please try it and see if these failures go away.
+> 
+> This patch *should* be in the main tree soon.  Some testing by you would
+> help a lot.
 
-Hrm.  Depending on what I enable in the BIOS, I do get similar lines,
-but even then my USB controller doesn't work.  On the current boot for
-example, I have
-
-PCI: Enabling Via external APIC routing
-PCI: Via IRQ fixup for 00:07.2, from 9 to 3
-
-and the usb-uhci driver shows up in /proc/interrupts:
-
-           CPU0       CPU1
-  0:     384195     341825    IO-APIC-edge  timer
-  1:       4166       4032    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  9:          0          0          XT-PIC  acpi
- 12:      39181      39875    IO-APIC-edge  PS/2 Mouse
- 14:       5362       5509    IO-APIC-edge  ide0
- 15:          0          0    IO-APIC-edge  ide1
- 17:      13441      13344   IO-APIC-level  eth0
- 18:        284        304   IO-APIC-level  es1371
- 19:          0          0   IO-APIC-level  usb-uhci
-NMI:          0          0
-LOC:     725968     725967
-ERR:          0
-MIS:          0
-
-But there are still no interrupts getting from the USB controller to
-the CPU.  I get the standard
-
-hub.c: port 1 connection change
-hub.c: port 1, portstatus 300, change 3, 1.5 Mb/s
-hub.c: port 2 connection change
-hub.c: port 2, portstatus 101, change 3, 12 Mb/s
-usb-uhci.c: v1.251:USB Universal Host Controller Interface driver
-hub.c: port 2, portstatus 103, change 0, 12 Mb/s
-hub.c: USB new device connect on bus1/2, assigned device number 2
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=2 (error=-110)
-
-and /proc/interrupts continues to show 0 interrupts on line 19.
-
-If I switch back to MPS1.1, the USB controller moves to IRQ 9 (shared
-with the acpi controller) but the behavior is the same.  If I toggle
-"PnP OS" in the BIOS, I see no relevant differences.  I've tried turning
-off and on just about everything of relevance; no change.
-
-Booting a non-APIC kernel makes it work, of course.
-
-The system is a Tyan Tiger 133A, Via Apollo Pro 133A chipset, SMP,
-currently running 2.4.9.  Complete dmesg, lspci -vvvvxxxx, and
-/proc/interrupts are at
-http://web.hexapodia.org/~adi/straum/usb/
-
-Thanks for any help.  Feel free to CC me on replies; I am on the list,
-but procmail is a harsh mistress.
-
-(Related question:  Why the '& 0xf' in the calculation of newirq in
-quirk_via_irqpic?)
-
--andy
+Correction, it's in Linus's tree all write, with some changed names.  So...
+conclusion: Marcelo's approach is not airtight.  Or there was an error in
+translation.  Arjan has a patch going in soon to the -ac tree, so stay
+tuned.

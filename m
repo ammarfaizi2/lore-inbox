@@ -1,85 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271393AbTHDGm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 02:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271396AbTHDGm0
+	id S271407AbTHDHY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 03:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271411AbTHDHY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 02:42:26 -0400
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:36102 "EHLO
-	babylon.d2dc.net") by vger.kernel.org with ESMTP id S271393AbTHDGmZ
+	Mon, 4 Aug 2003 03:24:57 -0400
+Received: from mail.gmx.net ([213.165.64.20]:17311 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S271407AbTHDHYy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 02:42:25 -0400
-Date: Mon, 4 Aug 2003 02:42:22 -0400
-From: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: Michael Frank <mflt1@micrologica.com.hk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2-mm3-1: Badness in class_dev_release followed by 5 NFS server hangs
-Message-ID: <20030804064222.GA11379@babylon.d2dc.net>
-Mail-Followup-To: Joshua Kwan <joshk@triplehelix.org>,
-	Michael Frank <mflt1@micrologica.com.hk>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030803135641.49d6316e.akpm@osdl.org> <200308040953.42110.mflt1@micrologica.com.hk> <20030804044728.GC5786@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-In-Reply-To: <20030804044728.GC5786@triplehelix.org>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
-User-Agent: Mutt/1.5.4i
+	Mon, 4 Aug 2003 03:24:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: Steven Micallef <steven.micallef@world.net>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: chroot() breaks syslog() ?
+Date: Mon, 4 Aug 2003 09:23:47 +0200
+User-Agent: KMail/1.4.3
+References: <6416776FCC55D511BC4E0090274EFEF5080024A9@exchange.world.net>
+In-Reply-To: <6416776FCC55D511BC4E0090274EFEF5080024A9@exchange.world.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308040923.51241.torsten.foertsch@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Monday 04 August 2003 07:27, Steven Micallef wrote:
+> Hi all,
+>
+> I've stumbled onto what seems to have broken somewhere between 2.4.8 and
+> 2.4.18 (sorry, I've been unable to test it on a later version just yet).
+> Basically, when using chroot(), syslog() calls don't work.
+>
+> The following simple example is broken on 2.4.18:
+>
+> #include    <stdio.h>
+> #include    <sys/syslog.h>
+>
+> int main(void) {
+>     chroot("/home/steve");
+>     syslog(LOG_ALERT, "TEST");
+> }
 
-On Sun, Aug 03, 2003 at 09:47:28PM -0700, Joshua Kwan wrote:
-> On Mon, Aug 04, 2003 at 11:10:08AM +0800, Michael Frank wrote:
-> > OK, What about the NFS hangs there are more now, also some short in dur=
-ation=20
-> >=20
-> > Aug  4 04:22:02 mhfl4 kernel: nfs: server mhfl2 not responding, still t=
-rying
-> > Aug  4 04:22:02 mhfl4 kernel: nfs: server mhfl2 OK
-> > Aug  4 04:23:59 mhfl4 kernel: nfs: server mhfl2 not responding, still t=
-rying
-> > Aug  4 04:23:59 mhfl4 kernel: nfs: server mhfl2 OK
->=20
-> Interesting, I also see *many* of these on my laptop running
-> 2.6.0-test2-mm2. The NFS server is running 2.4.21.
+consider syslogd's -a option. Or simply call openlog(3) with LOG_NDELAY before 
+chroot(). Or place the first call to syslog() before chroot(). Syscall() does 
+not close the socket between calls.
 
-Likewise, though I've never seen the 'OK' bit, it has been happening for
-a long while in 2.5.x, however it seems to go away with NFS over TCP.
-(Not a fix, but a workaround that does the job for me.)
+int main(void) {
+  openlog( "klaus", LOG_NDELAY, LOG_NEWS);
+  chroot("/tmp");
+  printf( "before\n" ); fflush( stdout );
+  syslog(LOG_ALERT, "TEST1");
+  printf( "between\n" ); fflush( stdout );
+  syslog(LOG_ALERT, "TEST2");
+}
 
-Zephaniah E. Hull.
+strace give the following output:
 
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
+...
 
-"I would rather spend 10 hours reading someone else's source code than
-10 minutes listening to Musak waiting for technical support which
-isn't."
-(By Dr. Greg Wettstein, Roger Maris Cancer Center)
+socket(PF_UNIX, SOCK_DGRAM, 0)          = 3
+fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
+connect(3, {sin_family=AF_UNIX, path="/dev/log"}, 16) = 0
+chroot("/tmp")                          = 0
 
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+...
 
+write(1, "before\n", 7before
+)                 = 7
+
+...
+
+send(3, "<57>Aug  4 07:17:09 klaus: TEST1", 32, 0) = 32
+rt_sigaction(SIGPIPE, {SIG_DFL}, NULL, 8) = 0
+write(1, "between\n", 8between
+)                = 8
+
+...
+
+send(3, "<57>Aug  4 07:17:09 klaus: TEST2", 32, 0) = 32
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE/LgBORFMAi+ZaeAERAre5AJ9ixb8XexdqrDsILi3oIxurKdZOZQCfTWiI
-pHdBURW2qHEpbIG5x1pMvxE=
-=dIY7
+iD8DBQE/LgoGwicyCTir8T4RAqbzAJ9SPwFSnLyinG0C+ya/uTJRR4vwGQCeLxiV
+ilmX6A7oJjou6ympLhFsDC4=
+=mfSg
 -----END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--

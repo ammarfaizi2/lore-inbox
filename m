@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUHZA6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUHZBB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUHZA6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 20:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUHZA6W
+	id S266646AbUHZBB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 21:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUHZA6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 20:58:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23443 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266603AbUHZA40 (ORCPT
+	Wed, 25 Aug 2004 20:58:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41353 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266543AbUHZA5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 20:56:26 -0400
-Date: Wed, 25 Aug 2004 17:56:08 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Tim Hockin <thockin@hockin.org>,
-       LKML <linux-kernel@vger.kernel.org>, Rik van Riel <riel@redhat.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Hans Reiser <reiser@namesys.com>
-Subject: Re: Using fs views to isolate untrusted processes: I need an assistant architect in the USA for Phase I of a DARPA funded linux kernel project
-Message-ID: <20040825175608.Y1973@build.pdx.osdl.net>
-References: <410D96DC.1060405@namesys.com> <Pine.LNX.4.44.0408251624540.5145-100000@chimarrao.boston.redhat.com> <20040825205618.GA7992@hockin.org> <30958D95-F6ED-11D8-A7C9-000393ACC76E@mac.com> <412D2BD2.2090408@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <412D2BD2.2090408@sun.com>; from Michael.Waychison@Sun.COM on Wed, Aug 25, 2004 at 08:16:18PM -0400
+	Wed, 25 Aug 2004 20:57:22 -0400
+Date: Wed, 25 Aug 2004 20:57:09 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.58.0408260204050.22259@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mike Waychison (Michael.Waychison@Sun.COM) wrote:
-> This provides minimal protection if any: the user may remount any block
-> devices on any given tree in his 'namespace' (in the sense of "that is
-> what we call a mount-table in Linux").  *
+On Thu, 26 Aug 2004, Mikulas Patocka wrote:
+> On Wed, 25 Aug 2004, Linus Torvalds wrote:
 
-Namespaces aren't currently expressive enough, and have caveats like
-these, and can't express detailed access controls.
+> > One way to solve it is to just realize that a final slash at the end
+> > implies pretty strongly that you want to treat it as a directory. So what
+> > you do is:
+> 
+> Stupid question: who will use it? And why?
 
-> If I understand what Hans is looking to get done, he's asking for
-> someone to architect a system where any given process can be restricted
-> to seeing/accessing a subset of the namespace (in the sense of "a tree
-> of directories/files").  Eg: process Foo is allowed access to write to
-> /etc/group, but _not_ allowed access to /etc/shadow, under any
-> circumstances && Foo will be run as root.  Hell, maybe Foo is never able
-> to even _see_ /etc/shadow (making it a true shadow file :).
+I've got a stupid question too.  How do you back up these
+things ?
 
-This has already been done.  LSM provides the infrastructure, things
-like LIDS and SubDomain do this fairly directly.  SELinux does this as
-well using types as an intermediary.
+If your backup program reads them as a file and restores
+them as a file, you might lose your directory-inside-the-file
+magic.
 
-thanks,
--chris
+If your backup program dives into the file despite stat()
+saying it's a file and you restore your backup, how are the
+"file is a file" semantics preserved ?
+
+Obviously this is something that needs to be sorted out at
+the VFS layer.  A filesystem specific backup and restore
+program isn't desirable, if only because then there'd be
+no way for Hans's users to switch to reiser5 in 2010 ;)
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

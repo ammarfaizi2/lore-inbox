@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbTFZXGG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 19:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTFZXGG
+	id S262358AbTFZXRH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 19:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTFZXRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 19:06:06 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:62226 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S263319AbTFZW7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 18:59:13 -0400
-Message-ID: <3EFB7E90.1090902@techsource.com>
-Date: Thu, 26 Jun 2003 19:15:28 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: joe briggs <jbriggs@briggsmedia.com>, Edward Tandi <ed@efix.biz>,
-       reiser@namesys.com, Artur Jasowicz <kernel@mousebusiness.com>,
-       Brian Jackson <brian@brianandsara.net>,
-       Bart SCHELSTRAETE <Bart.SCHELSTRAETE@dhl.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: AMD MP, SMP, Tyan 2466, REISERFS I/O error
-References: <BB1F47F5.17533%kernel@mousebusiness.com> <3EFA2939.2060005@techsource.com> <1056583075.31265.22.camel@wires.home.biz> <200306260825.54076.jbriggs@briggsmedia.com> <20030626115525.GA13194@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jun 2003 19:17:07 -0400
+Received: from aneto.able.es ([212.97.163.22]:46997 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262358AbTFZXRF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 19:17:05 -0400
+Date: Fri, 27 Jun 2003 01:31:17 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kill extra printk prototype
+Message-ID: <20030626233117.GO3827@werewolf.able.es>
+References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Jun 27, 2003 at 00:03:02 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 06.27, Marcelo Tosatti wrote:
+> 
+> Hello,
+> 
+> Here goes -pre2 with a big number of changes, including the new aic7xxx
+> driver.
+> 
+> I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
+> short.
+> 
 
-Oleg Drokin wrote:
+Alredy declared in kernel.h.
 
-> Is not this is one of those heavy-PCI loaded boxes that ocasionally corrupt
-> data when PCI is overloaded? 
-> The log you quoted shows that suddenly tree nodes have incorrect content
-> (and the i/o error is because reiserfs does not know what to do with such nodes).
-> (and we hope to push the patch that will print device where error have occured
-> soon).
-
-
-The PCI spec doesn't allow more than four slots per bus.  Some boards 
-try to put on 5 or 6 slots anyhow, violating the spec.  It's no wonder 
-there are so many problems with those boards.
-
-You can often get them to work anyhow, but it involves swapping cards 
-around in slots until you find an arrangement that works, but it's still 
-unreliable.
+--- linux/include/asm-i386/spinlock.h.orig    2002-10-15 10:12:25.000000000 +0100
++++ linux/include/asm-i386/spinlock.h 2002-10-15 10:12:35.000000000 +0100
+@@ -6,9 +6,6 @@
+ #include <asm/page.h>
+ #include <linux/config.h>
+ 
+-extern int printk(const char * fmt, ...)
+-	__attribute__ ((format (printf, 1, 2)));
+-
+ /* It seems that people are forgetting to
+  * initialize their spinlocks properly, tsk tsk.
+  * Remember to turn this off in 2.4. -ben
 
 
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))

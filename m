@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbUBNRHj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 12:07:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUBNRGS
+	id S262564AbUBNRF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 12:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUBNRF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 12:06:18 -0500
-Received: from verein.lst.de ([212.34.189.10]:43226 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262686AbUBNRGJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 12:06:09 -0500
-Date: Sat, 14 Feb 2004 18:06:00 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, jsimmons@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] back out fbdev sysfs support
-Message-ID: <20040214170600.GA16147@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Linus Torvalds <torvalds@osdl.org>, jsimmons@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20040214165037.GA15985@lst.de> <Pine.LNX.4.58.0402140857520.13436@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Feb 2004 12:05:58 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:5308 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262564AbUBNRF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 12:05:57 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Emmeran Seehuber <rototor@rototor.de>
+Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
+Date: Sat, 14 Feb 2004 12:05:52 -0500
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <200402112344.23378.rototor@rototor.de> <200402130223.00339.dtor_core@ameritech.net> <200402140928.18473.rototor@rototor.de>
+In-Reply-To: <200402140928.18473.rototor@rototor.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402140857520.13436@home.osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402141205.52316.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 14, 2004 at 09:02:12AM -0800, Linus Torvalds wrote:
-> Sorry, but at this point I WOULD NOT EVEN TAKE IT ANY MORE.
+On Saturday 14 February 2004 04:28 am, Emmeran Seehuber wrote:
+> On Friday 13 February 2004 07:23, Dmitry Torokhov wrote:
+> [...]
+> >
+> > Do you have an active multiplexing controller and does passing i8042.nomux
+> > option help?
+> It seems so. At least passing this kernel option makes my PS/2 trackball work 
+> again :)
 > 
-> That's just how I work: if somebody maintains his own tree and builds up a 
-> lot of patches, that's _his_ problem. I'm not going to replace things 
-> totally unless there is some really fundamental reason I would have to. 
-> And quite frankly, the most common "fundamental reason" is that the 
-> maintainer has not done his job.
+> Thank you!
 > 
-> I want controlled patches that do one thing at a time. Not a 2GB untested 
-> dump.
+> cu,
+>   Emmy
+> 
 
-Hey, that's not what I meant.  Sorry for the silly language.  I'm the
-last one to argue in favour of a single big diff.  But all the driver
-fixes are easily separatable, in fact benh probably still has all the
-individual diffs for all the mac drivers.
+Could you please #define DEBUG in drivers/input/serio/i8042.c and post your
+dmesg? Also, what kind of PC is that (manufacturer/model)?
 
-What I meant is that the FB maintainer should try to get the existing
-fixes merged before adding dubious features.
+Thank you.
 
+--
+Dmitry

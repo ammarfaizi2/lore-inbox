@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289318AbSAIKrk>; Wed, 9 Jan 2002 05:47:40 -0500
+	id <S289331AbSAIKva>; Wed, 9 Jan 2002 05:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289330AbSAIKr1>; Wed, 9 Jan 2002 05:47:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63495 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289327AbSAIKq7>;
-	Wed, 9 Jan 2002 05:46:59 -0500
-Date: Wed, 9 Jan 2002 11:46:38 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: admin@nextframe.net, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] drivers/scsi/psi240i.c - io_request_lock fix
-Message-ID: <20020109114638.S19814@suse.de>
-In-Reply-To: <20020108150738.B6168@sexything> <3C3B9853.740E71DA@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C3B9853.740E71DA@torque.net>
+	id <S289328AbSAIKvW>; Wed, 9 Jan 2002 05:51:22 -0500
+Received: from [194.206.157.151] ([194.206.157.151]:14022 "EHLO
+	iis000.microdata.fr") by vger.kernel.org with ESMTP
+	id <S289327AbSAIKvH>; Wed, 9 Jan 2002 05:51:07 -0500
+Message-ID: <17B78BDF120BD411B70100500422FC6309E410@IIS000>
+From: Bernard Dautrevaux <Dautrevaux@microprocess.com>
+To: "'dewar@gnat.com'" <dewar@gnat.com>, bernd@gams.at, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] C undefined behavior fix
+Date: Wed, 9 Jan 2002 11:41:31 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08 2002, Douglas Gilbert wrote:
-> Morten Helgesen wrote:
-> > 
-> > Hey Linus and the rest of you.
-> > 
-> > A simple fix for the io_request_lock issue leftovers in drivers/scsi/psi240i.c.
-> > Not tested, but compiles. Diffed against 2.5.2-pre10. Please apply.
-> > 
+> -----Original Message-----
+> From: dewar@gnat.com [mailto:dewar@gnat.com]
+> Sent: Wednesday, January 09, 2002 11:42 AM
+> To: bernd@gams.at; gcc@gcc.gnu.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] C undefined behavior fix
 > 
-> Morten,
-> There is a bit more involved than just switching
-> io_request_lock to host_lock. The former is global
-> so it could be called from anywhere.
 > 
-> >From the look of this line in the patch:
-> > +       struct Scsi_Host *host = PsiHost[irq - 10];
+> <<Especially if there are cases were this optimization yields 
+> a slower =
 > 
-> It will work if the first controller is allocated irq 10,
-> the second one irq 11, etc.   Unlikely ...
+> access (or even worse indirect bugs).
+> E.g. if the referenced "volatile short" is a hardware register and the
+> access is multiplexed over a slow 8 bit bus.  There are 
+> embedded systems
+> around where this is the case and the (cross-)compiler has no way to
+> know this (except it can be told by the programmer).
+> >>
+> 
+> Well that of course is a situation where the compiler is 
+> being deliberately
+> misinformed as to the relative costs of various machine 
+> instructions, and
+> that is definitely a problem. One can even imagine hardware 
+> (not such a hard
+> feat, one of our customers had such hardware) where a word 
+> access works, but
+> a byte access fails due to hardware shortcuts, 
 
-Irk yes, that is very ugly! And it's even used currently in the driver
-as well. How about passing the scsi host as device_id for the isr
-instead?
+Tht's quite often the case with MMIO, and the only portable way to give a
+hint to the compiler that it should refrain from optimizing is "volatile";
+that's why I think the compiler should not do this optimization on volatile
+objects at all.
 
--- 
-Jens Axboe
+	Bernard
 
+--------------------------------------------
+Bernard Dautrevaux
+Microprocess Ingenierie
+97 bis, rue de Colombes
+92400 COURBEVOIE
+FRANCE
+Tel:	+33 (0) 1 47 68 80 80
+Fax:	+33 (0) 1 47 88 97 85
+e-mail:	dautrevaux@microprocess.com
+		b.dautrevaux@usa.net
+-------------------------------------------- 

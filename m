@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131976AbRDJOX0>; Tue, 10 Apr 2001 10:23:26 -0400
+	id <S131990AbRDJOas>; Tue, 10 Apr 2001 10:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbRDJOXQ>; Tue, 10 Apr 2001 10:23:16 -0400
-Received: from ns.suse.de ([213.95.15.193]:51717 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131976AbRDJOXC>;
-	Tue, 10 Apr 2001 10:23:02 -0400
-Date: Tue, 10 Apr 2001 16:22:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: David Schleef <ds@schleef.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
-        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-Message-ID: <20010410162202.A18129@gruyere.muc.suse.de>
-In-Reply-To: <20010410053105.B4144@stm.lbl.gov> <Pine.LNX.3.96.1010410155723.28395A-100000@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1010410155723.28395A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Tue, Apr 10, 2001 at 04:10:28PM +0200
+	id <S132039AbRDJOaa>; Tue, 10 Apr 2001 10:30:30 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:11795 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S131986AbRDJOaJ>;
+	Tue, 10 Apr 2001 10:30:09 -0400
+Date: Tue, 10 Apr 2001 10:29:59 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: Ofer Fryman <ofer@shunra.co.il>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-net@vger.kernel.org'" <linux-net@vger.kernel.org>
+Subject: Re: network cards (drivers) performance.
+In-Reply-To: <F1629832DE36D411858F00C04F24847A11DF8B@SALVADOR>
+Message-ID: <Pine.LNX.4.30.0104101019280.28062-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 04:10:28PM +0200, Mikulas Patocka wrote:
-> Timers more precise than 100HZ aren't probably needed - as MIN_RTO is 0.2s
-> and MIN_DELACK is 0.04s, TCP would hardly benefit from them.
+On Tue, 10 Apr 2001, Ofer Fryman wrote:
 
-On networking bandwidth shaping and traffic control generally need higher precision timers.
-There are also people who don't like the minimum 10ms delay for non-busy wait, it's
-apparently a problem for some apps.
+> Has any one tested the performance of the Tulip or AMD cards (or any other
+> network card) on any Linux version, with any CPU and any chip-set?
 
--Andi
+Wow... that's a pretty broad question!
+
+Yes I have had very good performance with the 'recent' tulip cards:
+
+# lspci | grep DECchip
+04:08.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
+04:09.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
+
+I have been able to tunnel about 186 Mbits/s on a P3Xeon/866 on any 2.4.{1,3}
+kernel with two of the above cards (tulip driver).  Note that this means
+full duplex was on and the box was forwarding a total of 186 MBits of data
+fron one NIC to another; actually it was 93 in each direction.  Fast
+routing (a la CONFIG_NET_FASTROUTE) was _not_ compiled into the kernel.
+
+B.
+
+-- 
+	WebSig: http://www.jukie.net/~bart/sig/
+
+

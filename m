@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbTA1Gtm>; Tue, 28 Jan 2003 01:49:42 -0500
+	id <S264910AbTA1Gzo>; Tue, 28 Jan 2003 01:55:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264919AbTA1Gtl>; Tue, 28 Jan 2003 01:49:41 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:16305 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264883AbTA1Gtl>; Tue, 28 Jan 2003 01:49:41 -0500
-Date: Mon, 27 Jan 2003 22:58:53 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jason Papadopoulos <jasonp@boo.net>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
-Message-ID: <884740000.1043737132@titus>
-In-Reply-To: <3.0.6.32.20030127224726.00806c20@boo.net>
-References: <3.0.6.32.20030127224726.00806c20@boo.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S264919AbTA1Gzo>; Tue, 28 Jan 2003 01:55:44 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26190 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S264910AbTA1Gzn>; Tue, 28 Jan 2003 01:55:43 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: kexec reboot code buffer
+References: <3E31AC58.2020802@us.ibm.com> <m1znppco1w.fsf@frodo.biederman.org>
+	<3E35AAE4.10204@us.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jan 2003 00:04:19 -0700
+In-Reply-To: <3E35AAE4.10204@us.ibm.com>
+Message-ID: <m1r8ax69ho.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is yet another holding action, a port of my page coloring patch
-> to the 2.5 kernel. This is a minimal port (x86 only) intended to get
-> some testing done; once again the algorithm used is the same as in 
-> previous patches. There are several cleanups and removed 2.4-isms that
-> make the code somewhat more compact, though.
-> 
-> I'll be experimenting with other coloring schemes later this week.
-> 
-> www.boo.net/~jasonp/page_color-2.5.59-20030127.patch
-> 
-> Feedback of any sort welcome.
+Dave Hansen <haveblue@us.ibm.com> writes:
 
-I took a 16-way NUMA-Q (700MHz P3 Xeon's w/2MB L2 cache) and ran some 
-cpu-intensive benchmarks (kernel compile on warm cache with -j32 and
--j 256, SDET 1 - 128 users, and numaschedbench with 1 to 64 processes, 
-which is a memory thrasher to test node affinity of memory operations), 
-and compared to virgin 2.5.59 - no measurable difference on any test. 
-Sorry,
+> Eric W. Biederman wrote:
+> > Dave Hansen <haveblue@us.ibm.com> writes:
+> >>On my system, it appears to lock up in:
+> >>kimage_alloc_reboot_code_pages()
+> >>after the kexec -l.
+> > 
+> > 
+> > O.k. It should come out of it eventually from what I have
+> > seen described, the current algorithm is definitely inefficient on
+> > your machine.
+> 
+> It does appear to completely hang in the free loop.  Something funny is
+> happening there.  I'll try to provide more details later.  BTW, do you
+> mind updating your patches for 2.5.59?  
 
-M.
+I will give it a shot shortly I have been intensely busy just
+lately so find the free second is a bit difficult.  At the same
 
+> I'm having some other problems
+> and I want to make sure it isn't my bad merging that's at fault :)
+
+I don't recall any merging issues at all with the stock kernel, just
+a some slight line changes.
+> 
+> > And being able to allocate from 3GB instead of just 1GB is
+> > much more polite.  The question then is how do I specify the zones
+> > properly.
+> 
+> Actually, I think that using lowmem is OK.  The machine is going away
+> soon anyway, and the necessary memory is a very small portion,
+> especially on a machine with this much RAM.
+
+I agree that lowmem for the common case is fine.  For kexec on panic,
+and a some weird cases using high mem is beneficial.  I don't have
+a problem with changing it back to just lowmem for the time being.
+ 
+Eric

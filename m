@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269871AbTGKKdU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 06:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269872AbTGKKdU
+	id S269868AbTGKKag (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 06:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269869AbTGKKag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 06:33:20 -0400
-Received: from netcore.fi ([193.94.160.1]:54539 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id S269871AbTGKKdM (ORCPT
+	Fri, 11 Jul 2003 06:30:36 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:59627 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269868AbTGKKaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 06:33:12 -0400
-Date: Fri, 11 Jul 2003 13:47:48 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-cc: mika.liljeberg@welho.com, <andre@tomt.net>, <linux-kernel@vger.kernel.org>,
-       <netdev@oss.sgi.com>
-Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
-In-Reply-To: <20030711.194713.21412719.yoshfuji@linux-ipv6.org>
-Message-ID: <Pine.LNX.4.44.0307111347090.27351-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+	Fri, 11 Jul 2003 06:30:35 -0400
+Date: Fri, 11 Jul 2003 03:45:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: rathamahata@php4.ru, linux-kernel@vger.kernel.org
+Subject: Re: [Bug 898] New: Very HIGH File & VM system latencies and system
+ stop responding while extracting big tar  archive file.
+Message-Id: <20030711034510.30065dc2.akpm@osdl.org>
+In-Reply-To: <3F0E8A22.6020700@cyberone.com.au>
+References: <111930000.1057904059@[10.10.2.4]>
+	<200307111346.39731.rathamahata@php4.ru>
+	<3F0E8A22.6020700@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jul 2003, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
-> In article <Pine.LNX.4.44.0307111301520.27036-100000@netcore.fi> (at Fri, 11 Jul 2003 13:03:54 +0300 (EEST)), Pekka Savola <pekkas@netcore.fi> says:
-> 
-> > > We have but we cannot; it is refcnt'ed.
-> > 
-> > I don't understand what you mean.  Refcnt'ed by a userland process, so 
-> > that if you'd want the subnet-router anycast address, the whole time a 
-> > process (like radvd) should be running.. or what?
-> 
-> Kernel has refcnt for subnet router anycast address.
-> Ref/dereference from userspace is done via socket.
-> You cannot derefer subnet router anycast address 
-> from userspace if the socket hasn't refered it.
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+> You're sure 2.5.74 got processes stuck in D? That means its possibly
+>  a driver bug. If you can get 2.5.75 to hang, please also try with
+>  elevator=deadline. Thank you.
 
-So?  The point is that subnet router anycast address *could* be referenced 
-explicitly by a user-land socket (e.g. by radvd), not kernel at all.
+No, this will be the reiserfs bug.
 
--- 
-Pekka Savola                 "You each name yourselves king, yet the
-Netcore Oy                    kingdom bleeds."
-Systems. Networks. Security. -- George R.R. Martin: A Clash of Kings
+--- 25/fs/reiserfs/tail_conversion.c~reiserfs-dirty-memory-fix	2003-07-10 22:22:54.000000000 -0700
++++ 25-akpm/fs/reiserfs/tail_conversion.c	2003-07-10 22:22:54.000000000 -0700
+@@ -191,7 +191,7 @@ unmap_buffers(struct page *page, loff_t 
+ 	bh = next ;
+       } while (bh != head) ;
+       if ( PAGE_SIZE == bh->b_size ) {
+-	ClearPageDirty(page);
++	clear_page_dirty(page);
+       }
+     }
+   } 
+
+_
 

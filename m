@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129586AbQKWCtX>; Wed, 22 Nov 2000 21:49:23 -0500
+        id <S129514AbQKWCtw>; Wed, 22 Nov 2000 21:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129529AbQKWCtM>; Wed, 22 Nov 2000 21:49:12 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:54982 "EHLO
-        freya.yggdrasil.com") by vger.kernel.org with ESMTP
-        id <S129514AbQKWCsw>; Wed, 22 Nov 2000 21:48:52 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 22 Nov 2000 18:18:48 -0800
-Message-Id: <200011230218.SAA04398@baldur.yggdrasil.com>
-To: jgarzik@mandrakesoft.com
-Subject: Re: Patch(?): pci_device_id tables for linux-2.4.0-test11/drivers/block
-Cc: linux-kernel@vger.kernel.org
+        id <S129529AbQKWCtn>; Wed, 22 Nov 2000 21:49:43 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:42784 "EHLO
+        deliverator.sgi.com") by vger.kernel.org with ESMTP
+        id <S129514AbQKWCtS>; Wed, 22 Nov 2000 21:49:18 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel-2.4.0-test11 crashed again; this time i send you the Oops-message 
+In-Reply-To: Your message of "Wed, 22 Nov 2000 20:58:28 CDT."
+             <200011230158.eAN1wSr138515@saturn.cs.uml.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 23 Nov 2000 13:19:05 +1100
+Message-ID: <3445.974945945@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->"Adam J. Richter" wrote:
->>         Just to avoid duplication of effort, I am posting this preliminary
->> patch which adds PCI MODULE_DEVICE_TABLE declarations to the three PCI
->> drivers in linux-2.4.0-test11/drivers/block.  In response to input from
->> Christoph Hellwig, I have reduced my threshhold on using named initializers
->> to three entries, although I think that may be going to far, as I would
->> really like to keep the number of files that initialize the pci_device_id
->> arrays this way low so that changing struct pci_device_id remains feasible.
+On Wed, 22 Nov 2000 20:58:28 -0500 (EST), 
+"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
+>The infamous LINK_FIRST infrastructure was sort of half-way done.
+>
+>It would be best to cause drivers with an unspecified link order
+>to move around a bit, so that errors may be discovered more quickly.
 
->*This* is the over-engineering attitude I was talking about.  The only
->reason why you are preferring named initializers is because
->pci_device_id MIGHT be changed.  And if it is changed, it makes the
->changeover just tad easier.
+The "other" list in LINK_FIRST is sorted by name.  It could be changed
+to a random sort, probably based on a hash of size and mtime.  It would
+be relatively expensive so would have to be restricted to a "exercise
+the kernel" CONFIG option.
 
-	It is also much easier to spot an initialization bug, if, say,
-a class is being initialized with a class_mask.  It also make the
-code much more self-documenting.  I frequently have to bring up a copy
-of include/linux/pci.h to decipher usb_devicde_id tables.
+>LINK_FIRST is pretty coarse. One would want a topological sort,
+>or at least LINK_0 through LINK_9 _without_ anything else.
 
->For that, you ugly up the code and make it
->more difficult to maintain.
+There is no need for multiple LINK_n entries, the objects partition
+neatly into three groups.  LINK_FIRST objects, in the order they are
+defined.  The rest of the objects (object list - (LINK_FIRST +
+LINK_LAST), in an undefined order.  LINK_LAST objects, in the order
+they are defined.
 
-	I think this makes it easier to maintain, especially by
-driver authors who want to think more about their pet hardware than
-how a generic kernel data structure is ordered.
+If you can come up with a concrete link order example that cannot be
+handled by a three partition model then I will listen.  Otherwise it is
+just over engineering.
 
-	Also bear in mind that once these drivers are ported to the
-new PCI interface, many will use pci_device_id->driver_data, which
-will cause all of the entries that are not in "field:value" form to
-no longer fit on one line anyhow. 
-	
-
->_I_ am one of the people that works on maintaining these random PCI
->drivers that no one gives a shit about.
-
-	I don't believe that using "field:value" format makes centralized
-maintenance harder, but, if you find it that way, you should consider
-the position of driver author a driver author who is more
-knowledgeable about the hardware and has less repetitive need to
-memorize the arrangement of an obscure kernel data structure.  The
-__initdata vs __devinitdata for the pci_device_id tables is the same
-sort of issue.  I believe that named initializers also make it easier
-for developers whose focus is not on the central kernel data structures
-to spot and fix bugs and develop new drivers, and that this is a more
-scalable approach to kernel development.
-
-	In any case, if you want, I would be happy to send you patches
-that include only the changes that do the initilization anonymously.
-Until those appear in Linus's releases, I see it is a more definitely
-positive contribution on my part to focus on writing pci_device_id
-tables for other drivers that lack them.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

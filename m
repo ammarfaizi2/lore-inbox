@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318045AbSIJT20>; Tue, 10 Sep 2002 15:28:26 -0400
+	id <S318062AbSIJTcz>; Tue, 10 Sep 2002 15:32:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318058AbSIJT20>; Tue, 10 Sep 2002 15:28:26 -0400
-Received: from waste.org ([209.173.204.2]:43228 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318045AbSIJT2Z>;
-	Tue, 10 Sep 2002 15:28:25 -0400
-Date: Tue, 10 Sep 2002 14:32:28 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-       david-b@pacbell.net, mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-ID: <20020910193228.GL31597@waste.org>
-References: <20020910.111627.00809211.davem@redhat.com> <Pine.LNX.4.44.0209101132320.3280-100000@home.transmeta.com>
+	id <S318060AbSIJTcy>; Tue, 10 Sep 2002 15:32:54 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:2730 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318058AbSIJTcx>;
+	Tue, 10 Sep 2002 15:32:53 -0400
+Date: Tue, 10 Sep 2002 12:37:32 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+Message-ID: <20020910123732.A15175@eng2.beaverton.ibm.com>
+References: <20020910114257.A13614@eng2.beaverton.ibm.com> <Pine.LNX.4.44.0209101145550.1032-100000@cherise.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209101132320.3280-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.44.0209101145550.1032-100000@cherise.pdx.osdl.net>; from mochel@osdl.org on Tue, Sep 10, 2002 at 12:00:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 11:40:27AM -0700, Linus Torvalds wrote:
+On Tue, Sep 10, 2002 at 12:00:47PM -0700, Patrick Mochel wrote:
 > 
-> On Tue, 10 Sep 2002, David S. Miller wrote:
-> >    
-> >    IMO we should have ASSERT() and OHSHIT(),
+> On Tue, 10 Sep 2002, Patrick Mansfield wrote:
+> 
+> > On Tue, Sep 10, 2002 at 10:21:53AM -0700, Patrick Mochel wrote:
+> > > Easy: you map the unique identifier of the device to a name in userspace.  
+> > > In our utopian future, /sbin/hotplug is called with that unique ID as one
+> > > of its parameters. It searches for, and finds names based on the ID is. If
+> > > the name(s) already exist, then it doesn't continue.
+> > > 
+> > > 
+> > > 	-pat
 > > 
-> > I fully support the addition of an OHSHIT() macro.
+> > But then if the md or volume manager wants to do multi-path IO it
+> > will not be able to find all of the names in userspace since the
+> > extra ones (second path and on) have been dropped.
 > 
-> Oh, please no. We'd end up with endless asserts in the networking layer, 
-> just because David would find it amusing. 
+> Which is it that you want? One canonical name or all the paths? I supplied
+> a solution for the former in my repsonse. The latter is solved via the
+> exposure of the paths in driverfs, which has been discussed previously.
 > 
-> I can just see it now - code bloat hell.
 > 
-> And no, I still don't like ASSERT().
-> 
-> I think the approach should clearly spell what the trouble level is:
-> 
-> 	DEBUG(x != y, "x=%d, y=%d\n", x, y);
-> 
-> 	WARN(x != y, "crap happens: x=%d y=%d\n", x, y);
-> 
-> 	FATAL(x != y, "Aiee: x=%d y=%d\n", x, y);
-> 
-> where the DEBUG one gets compiled out normally (or has some nice per-file
-> way of being enabled/disabled - a perfect world would expose the on/off in
-> devicefs as a per-file entity when kernel debugging is on), WARN continues
-> but writes a message (and normally does _not_ get compiled out), and FATAL
-> is like our current BUG_ON().
+> 	-pat
 
-Which still leaves the question, does it really make sense for
-FATAL/BUG to forcibly kill the machine? If the bug is truly fatal,
-presumably the machine kills itself in short order anyway, otherwise
-we might have a shot at recording the situation. A more useful
-distinction might be in terms of risk of damaging filesystems (or perhaps
-hardware) if we continue, something like BROKEN/DANGEROUSLY_BROKEN.
+For scsi multi-path, one name; without scsi multi-path (or for individual
+paths that are not exposed in driverfs) each path probably needs to show up
+in user space with a different name so md or other volume managers can use
+them.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+-- Patrick Mansfield

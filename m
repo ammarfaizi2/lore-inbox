@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbTLWR6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTLWR6g
+	id S262063AbTLWR4b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLWR4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:58:36 -0500
-Received: from peabody.ximian.com ([141.154.95.10]:40675 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262081AbTLWR4k
+	Tue, 23 Dec 2003 12:56:30 -0500
+Received: from CPE-24-163-213-80.mn.rr.com ([24.163.213.80]:14223 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S262063AbTLWR41
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:56:40 -0500
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-From: Rob Love <rml@ximian.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-In-Reply-To: <20031223163904.A8589@infradead.org>
-References: <20031223002126.GA4805@kroah.com>
-	 <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com>
-	 <20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur>
-	 <20031223163904.A8589@infradead.org>
+	Tue, 23 Dec 2003 12:56:27 -0500
+Subject: reiser4 breaks vmware
+From: Shawn <core@enodev.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1072202194.3472.19.camel@fur>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Tue, 23 Dec 2003 12:56:34 -0500
 Content-Transfer-Encoding: 7bit
+Message-Id: <1072202167.8127.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 11:56:07 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-23 at 11:39, Christoph Hellwig wrote:
+Forgive my line-wraps, but the following (among other do_mmap_pgoff
+related snippets) break vmware.
 
-> I disagree. For fully static devices like the mem devices the udev indirection
-> is completely superflous.
+Couple questions out of this:
+1. Does anyone care enough to produce a patch for vmware's module?
+2. What does this change accomplish for reiser4?
 
-I see your point, so I really do not want to argue, but here is my
-rationale for why everything should be done seamlessly via udev:
+diff -ruN linux-2.6.0-test9/arch/i386/kernel/sys_i386.c
+linux-2.6.0-test9-reiser4/arch/i386/kernel/sys_i386.c 
+--- linux-2.6.0-test9/arch/i386/kernel/sys_i386.c       Sat Oct 25
+22:44:51 2003 
++++ linux-2.6.0-test9-reiser4/arch/i386/kernel/sys_i386.c       Thu Nov
+13 15:39:47 2003 
+@@ -56,7 +56,7 @@ 
+        } 
 
-In a nutshell, we want a single, clean, automatic solution to device
-naming.  If some "static" devices are hard coded, we introduce a special
-case.  Why do that?  Why have special cases when udev can seamlessly
-manage the whole thing?  Say we decide to remove /dev/foo in the kernel
-- that should be reflected in udev simply by way of it no longer being
-created on boot.
+        down_write(&current->mm->mmap_sem); 
+-       error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff); 
++       error = do_mmap_pgoff(current->mm, file, addr, len, prot, flags,
+pgoff); 
+        up_write(&current->mm->mmap_sem); 
 
-That is my thoughts.  I dislike special casing.  And without it, udev
-can seamlessly handle everything, automatically.
-
-But I _do_ see your point.  It is silly to generate a hotplug event for
-a static device on every boot, etc. etc.  But I think the cleanliness of
-not special casing certain devices in the udev solution is worth it.
-
-	Rob Love
-
-
+        if (file)

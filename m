@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262814AbSJEXkY>; Sat, 5 Oct 2002 19:40:24 -0400
+	id <S262827AbSJEXnv>; Sat, 5 Oct 2002 19:43:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262815AbSJEXkY>; Sat, 5 Oct 2002 19:40:24 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16903 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262814AbSJEXkW>; Sat, 5 Oct 2002 19:40:22 -0400
-Date: Sat, 5 Oct 2002 16:47:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Maksim (Max)  Krasnyanskiy" <maxk@qualcomm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK 1/6] 2.5.x Bluetooth subsystem update. Core.
-In-Reply-To: <1033856154.6656.87.camel@champ.qualcomm.com>
-Message-ID: <Pine.LNX.4.44.0210051638440.1587-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262829AbSJEXnv>; Sat, 5 Oct 2002 19:43:51 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:14503 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S262827AbSJEXnu>; Sat, 5 Oct 2002 19:43:50 -0400
+Date: Sat, 5 Oct 2002 19:49:33 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Cc: Larry McVoy <lm@work.bitmover.com>
+Subject: Re: New BK License Problem?
+Message-ID: <20021005234933.GA10979@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Larry McVoy <lm@work.bitmover.com>
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <3D9EE4C9.4090604@namesys.com> <20021005225310.GA10667@Master.Wizards> <20021005162144.H11375@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021005162144.H11375@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 5 Oct 2002, Maksim (Max)  Krasnyanskiy wrote:
+On Sat, Oct 05, 2002 at 04:21:44PM -0700, Larry McVoy wrote:
+> On Sat, Oct 05, 2002 at 06:53:10PM -0400, Murray J. Root wrote:
+> > > Seems like a pretty straightforward violation of the anti-trust laws, 
+> > > and a conspiracy to restrain trade.  Hope Larry votes for Bush's 
+> > > reelection, cause Bush judges will keep Larry safe from the law on this 
+> > > for sure.
+> > > 
+> > Yup - a blatant and outright violation.
 > 
-> You can either pull all of them from:
-> 	bk://linux-bt.bkbits.net/bt-2.5
+> Then by all means, file a lawsuit if that's what you feel.
+> 
+My only intent is to offer potential defenses should you choose to
+go after any kernel hackers. Beyond that - I don't care. Put whatever
+you want into the license.
 
-Ok, pulled. But _please_ do this the regular way next time. There's even a 
-script to help you do it in linux/Documentation/BK-usage/bk-mak-sum, which 
-does it all for you for BK patches.
-
-(many people end up doing their own thing, you don't have to use that
-particular script, of course. But the important thing I want is that the
-_email_ should contain enough information to make a good first pass
-judgement on what the patch does, and in particular it is important for me
-to see what a "bk pull" will actually change.)
-
-That's why the "diffstat" is important to me if I do a BK pull - and why I 
-want to see the patches as plaintext if I apply stuff to generic files.. 
-
-So:
- - if you use BK (which is great - your tree looked fine and the only real 
-   problem was that I had to verify it separately by hand first), please 
-   send one email for the "bk pull", and include a diffstat for the whole 
-   thing in that one email.
-
- - if you use patches, please send them as clear-text in the email itself, 
-   and don't think that I want to go fetch them separately from some other 
-   site.
-
-For optimal exposure, do both - this is what Greg KH does for USB stuff
-(he sends the BK email to me and to the kernel list, and sends individual
-patches to the kernel list only). Which really helps the people who don't
-want to use BK for some reason.
-
-			Linus
-
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 

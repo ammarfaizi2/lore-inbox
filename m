@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315250AbSD3XfR>; Tue, 30 Apr 2002 19:35:17 -0400
+	id <S315264AbSD3XhW>; Tue, 30 Apr 2002 19:37:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315264AbSD3XfQ>; Tue, 30 Apr 2002 19:35:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15881 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315250AbSD3XfQ>; Tue, 30 Apr 2002 19:35:16 -0400
-Subject: Re: Kernel 2.4.x and ASUS A7M266-D
-To: dave@cs.curtin.edu.au (David Shirley)
-Date: Wed, 1 May 2002 00:53:29 +0100 (BST)
-Cc: marco.schwarz@gmx.net (Marco Schwarz), linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020430092619.0323f3e8@pop.cs.curtin.edu.au> from "David Shirley" at Apr 30, 2002 09:27:21 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315269AbSD3XhV>; Tue, 30 Apr 2002 19:37:21 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:63710 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S315264AbSD3XhU>;
+	Tue, 30 Apr 2002 19:37:20 -0400
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0724CDAD@ORSMSX108>
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] InfiniBand S/W project started on SourceForge
+Date: Tue, 30 Apr 2002 16:37:15 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E172hR4-0000kQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We are using 2.4.18 with that board and it works fine.
-> Just have to choose MPS1.1 in the BIOS...
+Hi all,
 
-Ditto.
+	An InfiniBand S/W project has been open on sourceforge.net
+http://sourceforge.net/projects/infiniband.
 
-I had great pain with the bios, and the manual but the board itself is
-really nice and I'm very happy with that part of it.
+	The site contains early reference code for an
+	             InfiniBand Transport and OS infrastructure 
+	             Virtual NIC Driver
+	              IP LAN emulation driver that runs over InfiniBand
+	              SCSI RDMA Protocol (SRP) driver
+	              VIPL
+
+	The project  intends to develop a production ready InfiniBand S/W
+stack (using the existing code as a reference)
+	and solicits participation from all interested parties in industry
+and the Linux community at large.  The goal of the project
+	is to produce an InfiniBand S/W OS infrastructure worthy of
+inclusion in standard Linux distributions. 
+
+	Refer to the Home Page on the SourceForge project for project
+descriptions, details, and a list of contacts. 
+

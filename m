@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280978AbRLAF3G>; Sat, 1 Dec 2001 00:29:06 -0500
+	id <S283976AbRLAFnh>; Sat, 1 Dec 2001 00:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283931AbRLAF24>; Sat, 1 Dec 2001 00:28:56 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:51647 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S280978AbRLAF2l>; Sat, 1 Dec 2001 00:28:41 -0500
-Subject: 2.4.17-pre2 having dma problems with atapi devices
-From: safemode <safemode@speakeasy.net>
+	id <S283977AbRLAFn2>; Sat, 1 Dec 2001 00:43:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60433 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283976AbRLAFnV>; Sat, 1 Dec 2001 00:43:21 -0500
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 01 Dec 2001 00:28:39 -0500
-Message-Id: <1007184520.408.0.camel@psuedomode>
-Mime-Version: 1.0
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+Date: Sat, 1 Dec 2001 05:37:32 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9u9qas$1eo$1@penguin.transmeta.com>
+In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr>
+X-Trace: palladium.transmeta.com 1007185378 6702 127.0.0.1 (1 Dec 2001 05:42:58 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 1 Dec 2001 05:42:58 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to write to a cd at 8x, which i could do in prior kernels
-(2.4.15-prex and before), but now i'm getting cdrecord errors and
-sometimes dma timeouts.  Seems that data is being corrupted somewhere
-again.  I got this kind of performance when i had it on the promise
-controller and when i moved it back to my via controller it worked
-perfectly.  
+In article <3C085FF3.813BAA57@wanadoo.fr>,
+Pierre Rousselet  <pierre.rousselet@wanadoo.fr> wrote:
+>As far as I can see,
+>
+>when CONFIG_DEBUG_KERNEL is set
+>  and 
+>when devfsd is started at boot time
+>I get an Oops when remounting, rw the root fs :
+>
+>Unable to handle kernel request at va 5a5a5a5e
 
-Ide controller:  
- VIA vt82c686a (rev 22) IDE UDMA66 controller
+POISON_BYTE is 0x5a. Something in devfs is using a pointer from a data
+structure that was already free'd, and was thus corrupted by poisoning.
 
-CDR : CREATIVE CD-RW RW8438E, ATAPI CD/DVD-ROM drive 
-(set as master and DMA set by kernel)
+(the above is almost certainly just a pointer dereference off 0x5a5a5a5a
+with an offset of 4 for some entry at the beginning of a structure,
+which is why you get the final "5e" in the page fault address). 
 
-setting to a lower write speed allows successful writes.  
+>It boots OK with devfsd when CONFIG_DEBUG_KERNEL is not set.
+>It boots OK without devfsd when CONFIG_DEBUG_KERNEL is set (then devfsd
+>can be started after login).
 
+Well, not poisoning the free'd memory makes it "work" only in the sense
+that usually the free'd memory hasn't been re-allocated yet, so you
+don't see the bug even if it is still there.
 
-cdrecord error:
-/usr/bin/cdrecord: Input/output error. send opc: scsi sendcmd: no error
-CDB:  54 01 00 00 00 00 00 00 00 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 03 00 00 00 00 0A 00 00 00 00 73 03 00 00
-Sense Key: 0x3 Medium Error, Segment 0
-Sense Code: 0x73 Qual 0x03 (power calibration area error) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 17.724s timeout 60s
-/usr/bin/cdrecord: Resource temporarily unavailable. OPC failed.
-/usr/bin/cdrecord: fifo had 64 puts and 0 gets.
-/usr/bin/cdrecord: fifo was 0 times empty and 0 times full, min fill was
-100%.
+Richard Gooch probably wants a full stack trace, with symbols. Which
+should show it fairly clearly. At least EIP and the first few "stack
+trace" entries..
 
-The dma errors weren't very special,  same old dma timeout and reset
-messages.    The cds are perfectly fine, i use the same one that errored
-at 4x and it reads fine after burn.   
-
-
-
+		Linus

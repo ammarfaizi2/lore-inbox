@@ -1,95 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVCQOpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVCQOt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVCQOpg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 09:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVCQOpg
+	id S262164AbVCQOt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 09:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVCQOt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 09:45:36 -0500
-Received: from gw.alcove.fr ([81.80.245.157]:64746 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S262161AbVCQOpY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 09:45:24 -0500
-Date: Thu, 17 Mar 2005 15:45:22 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Larry McVoy <lm@bitmover.com>
-Subject: BKCVS broken ?
-Message-ID: <20050317144522.GK22936@hottah.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Larry McVoy <lm@bitmover.com>
+	Thu, 17 Mar 2005 09:49:56 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:9491 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262164AbVCQOtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 09:49:53 -0500
+Message-Id: <200503170816.j2H8GOEV004208@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/5] I8K driver facelift 
+In-Reply-To: Your message of "Wed, 16 Mar 2005 14:38:50 MST."
+             <4238A76A.3040408@tuxrocks.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com>
+            <4238A76A.3040408@tuxrocks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1111047384_3991P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Mar 2005 03:16:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current bkcvs export is broken, several recent changesets are
-missing from it.
+--==_Exmh_1111047384_3991P
+Content-Type: text/plain; charset=us-ascii
 
-This occurs at least in the mm/ directory, but I haven't verified
-if other directories are not affected. I detected this problem
-because the head of bkcvs doesn't compile anymore and shows errors
-in mm/* missing symbols.
+On Wed, 16 Mar 2005 14:38:50 MST, Frank Sorenson said:
+> Okay, I replaced the sysfs_ops with ops of my own, and now all the show
+> and store functions also accept the name of the attribute as a parameter.
+> This lets the functions know what attribute is being accessed, and allows
+> us to create attributes that share show and store functions, so things
+> don't need to be defined at compile time (I feel slightly evil!).
+> 
+> This patch puts the correct number of temp sensors and fans into sysfs,
+> and only exposes power_status if enabled by the power_status module
+> parameter.
 
-One example:
+Works for me:
 
-Take this changeset from Changeset,v:
--------------------------------------------------------------
-1.27702
-log
-@[PATCH] orphaned pagecache memleak fix
+[/sys/bus/platform/drivers/i8k/i8k]2 ls -l
+total 0
+lrwxrwxrwx  1 root root    0 Mar 17 03:02 bus -> ../../../bus/platform
+-r--r--r--  1 root root 4096 Mar 17 03:02 cpu_temp
+-rw-r--r--  1 root root 4096 Mar 17 03:01 detach_state
+lrwxrwxrwx  1 root root    0 Mar 17 03:02 driver -> ../../../bus/platform/drivers/i8k
+-r--r--r--  1 root root 4096 Mar 17 03:02 fan1_speed
+-rw-r--r--  1 root root 4096 Mar 17 03:02 fan1_state
+-r--r--r--  1 root root 4096 Mar 17 03:02 fan2_speed
+-rw-r--r--  1 root root 4096 Mar 17 03:02 fan2_state
+drwxr-xr-x  2 root root    0 Mar 17 03:02 power
+-r--r--r--  1 root root 4096 Mar 17 03:02 power_status
+-r--r--r--  1 root root 4096 Mar 17 03:02 temp1
+-r--r--r--  1 root root 4096 Mar 17 03:02 temp2
 
-Chris found that with data journaling a reiserfs pagecache may be truncate
-while still pinned.  The truncation removes the page->mapping, but the page
-is still listed in the VM queues because it still has buffers.  Then during
-the journaling process, a buffer is marked dirty and that sets the PG_dirty
-bitflag as well (in mark_buffer_dirty).  After that the page is leaked
-because it's both dirty and without a mapping.
+The valyes of the fan* settings, and cpu_temp match what's reported in /proc/i8k.
 
-So we must allow pages without mapping and dirty to reach the PagePrivate
-check.  The page->mapping will be checked again right after the PagePrivate
-check.
+temp1 is the same as cpu_temp.  temp2 is running about 7C higher and
+is still unidentified (though probably the NVidia chip).
 
-Signed-off-by: Andrea Arcangeli <andrea@@suse.de>
-Signed-off-by: Andrew Morton <akpm@@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@@osdl.org>
+I'll give Dmitry's sysfs/array stuff a test tomorrow-ish unless Greg has
+comments before then.
 
-BKrev: 4234d7beMW4wcFI6ltxdMMhApwDmuA
--------------------------------------------------------------
+--==_Exmh_1111047384_3991P
+Content-Type: application/pgp-signature
 
-Looking at
-http://linux.bkbits.net:8080/linux-2.6/gnupatch@4234d7beMW4wcFI6ltxdMMhApwDmuA
-shows this changeset should contain a delta for mm/vmscan.c
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-However, mm/vmscan.c,v contains:
--------------------------------------------------------------
-head    1.238;  
-access;
-symbols;
-locks; strict; 
-comment @ * @;
-expand  @o@;
+iD8DBQFCOTzYcC3lWbTT17ARAuYCAJ4qDAF2N+Jx7bh8X6fAtKk6XB+k1gCg3hYS
+DQNXP8jIQs8rypqoK+kW9qY=
+=XleQ
+-----END PGP SIGNATURE-----
 
-
-1.238
-date    2005.03.10.17.06.39;    author pj;      state Exp;
-branches;
-next    1.237;  
-....
-1.238
-log
-@cpusets - big numa cpu and memory placement
-
-(Logical change 1.27465)
-@
--------------------------------------------------------------
-
-The 'Logical change 1.27702' is missing from the file...
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+--==_Exmh_1111047384_3991P--

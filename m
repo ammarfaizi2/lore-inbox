@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129666AbQKGOmu>; Tue, 7 Nov 2000 09:42:50 -0500
+	id <S129673AbQKGOtc>; Tue, 7 Nov 2000 09:49:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129673AbQKGOmk>; Tue, 7 Nov 2000 09:42:40 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:30965 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129666AbQKGOmb>;
-	Tue, 7 Nov 2000 09:42:31 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A070BEF.7712DEDB@didntduck.org> 
-In-Reply-To: <3A070BEF.7712DEDB@didntduck.org>  <200011061924.QAA31314@srv1-for.for.zaz.com.br> 
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: forop066@zaz.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Calling module symbols from inside the kernel ! 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 07 Nov 2000 14:41:42 +0000
-Message-ID: <13979.973608102@redhat.com>
+	id <S130360AbQKGOtN>; Tue, 7 Nov 2000 09:49:13 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:58635 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129673AbQKGOtF>; Tue, 7 Nov 2000 09:49:05 -0500
+Message-Id: <200011071447.eA7Elvw30830@pincoya.inf.utfsm.cl>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage - modutils design 
+In-Reply-To: Message from Keith Owens <kaos@ocs.com.au> 
+   of "Wed, 08 Nov 2000 00:33:03 +1100." <13692.973603983@ocs3.ocs-net> 
+Date: Tue, 07 Nov 2000 11:47:57 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens <kaos@ocs.com.au> said:
 
-bgerst@didntduck.org said:
->  You will need to use a function pointer hook that the module fills in
-> when it is loaded.  For an example look at devpts_upcall_new and
-> devpts_upcall_kill in fs/devpts/inode.c.  The hooks are resident in
-> the kernel and are exported so the module can see them.  The caller
-> then needs to check if the hook is null and optionally request the
-> module be loaded.
+[...]
 
-get_module_symbol() does this for you without having to use such a hook
+> It makes no sense to allow duplicate module names in the same kernel
+> tree.  "modprobe foo" - which one gets loaded?
 
-/me runs
-
-
-:)
-
-
---
-dwmw2
-
-
+Why the tree then?
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

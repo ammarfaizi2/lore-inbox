@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSFJLnb>; Mon, 10 Jun 2002 07:43:31 -0400
+	id <S311710AbSFJLzN>; Mon, 10 Jun 2002 07:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSFJLna>; Mon, 10 Jun 2002 07:43:30 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:7174 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S293203AbSFJLna>;
-	Mon, 10 Jun 2002 07:43:30 -0400
-Message-ID: <3D04831D.2060207@evision-ventures.com>
-Date: Mon, 10 Jun 2002 12:44:45 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Miles Lane <miles@megapathdsl.net>
-CC: linux-kernel@vger.kernel.org, Gert Vervoort <Gert.Vervoort@wxs.nl>
+	id <S311749AbSFJLzM>; Mon, 10 Jun 2002 07:55:12 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:8135 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S311710AbSFJLzL>; Mon, 10 Jun 2002 07:55:11 -0400
+Date: Mon, 10 Jun 2002 13:27:03 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Miles Lane <miles@megapathdsl.net>, <linux-kernel@vger.kernel.org>,
+        Gert Vervoort <Gert.Vervoort@wxs.nl>
 Subject: Re: 2.5.21: "ata_task_file: unknown command 50"
-In-Reply-To: <3D0382B7.20306@megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3D04831D.2060207@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0206101326200.18155-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> Gert wrote:
->  > kernel 2.5.21 hangs with repeating the message "ata_task_file: 
-> unknown command 50" forever.
+On Mon, 10 Jun 2002, Martin Dalecki wrote:
 
+> Miles Lane wrote:
+> > Gert wrote:
+> >  > kernel 2.5.21 hangs with repeating the message "ata_task_file: 
+> > unknown command 50" forever.
+> 
+> 
+> IDE 86 should fix it.
 
-IDE 86 should fix it.
+What is command 50?
+
+Thanks,
+	Zwane
+-- 
+http://function.linuxpower.ca
+		
 

@@ -1,82 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289876AbSAWXPC>; Wed, 23 Jan 2002 18:15:02 -0500
+	id <S290200AbSAWXVB>; Wed, 23 Jan 2002 18:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290200AbSAWXOv>; Wed, 23 Jan 2002 18:14:51 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:8464 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S290192AbSAWXOm>;
-	Wed, 23 Jan 2002 18:14:42 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200201232314.g0NNEXe457847@saturn.cs.uml.edu>
-Subject: Re: Athlon/AGP issue update
-To: benh@kernel.crashing.org
-Date: Wed, 23 Jan 2002 18:14:33 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        davem@redhat.com (David S. Miller), drobbins@gentoo.org,
-        linux-kernel@vger.kernel.org, andrea@suse.de, alan@redhat.com,
-        akpm@zip.com.au, vherva@niksula.hut.fi, lwn@lwn.net, paulus@samba.org
-In-Reply-To: <20020123171419.29358@mailhost.mipsys.com> from "benh@kernel.crashing.org" at Jan 23, 2002 06:14:19 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S290192AbSAWXUw>; Wed, 23 Jan 2002 18:20:52 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:12943 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S290200AbSAWXUf>; Wed, 23 Jan 2002 18:20:35 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: timothy.covell@ashavan.org
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Date: Thu, 24 Jan 2002 00:20:28 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.40.0201222310260.13313-100000@infcip10.uni-trier.de> <200201232018.g0NKI9Q06525@dydimus.dreamhost.com> <200201232248.g0NMmqL01292@home.ashavan.org.>
+In-Reply-To: <200201232248.g0NMmqL01292@home.ashavan.org.>
+Cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020123232045Z290200-13997+8995@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-benh@kernel.crashing.org writes:
-> [Albert Cahalan]
-
->> AGP might be non-coherent. If so, then the CPU should use a
->> non-coherent mapping to avoid useless memory bus traffic.
->> User code has access to some cache control instructions,
->> so one may mark the memory cacheable for better performance
->> even when it is non-coherent. ("flush when you're done")
+On Thursday, 24. January 2002 23:50, you wrote:
+> On Wednesday 23 January 2002 14:18, you wrote:
+> > On Thursday, 24. January 2002 06:14, Timothy Covell wrote:
+> > > I'm confused by all of the posts and websites that
+> > > I've read.   In particular, some of the wattage and
+> > > temperature claims seem outrageous.   So, here's
+> > > what I've been able to discover
+> > >
+> > > 1. According to AMD specs, the model 3 Duron's don't
+> > > use more that 40 Watts maximum.
+> > >
+> > > 2. With my Duron 800 on a KT133A chipset
+> > > running folding@home and seti@home
+> > > continuously, LM sensors reports:
+> > >
+> > > SYS Temp: +45.2°C
+> >
+> > What should this number mean?
+> > Shouldn't this be the CPU temperature?
 >
-> That's unfortunately not enough. The mapping of the page to
-> userland and the in-kernel mapping of the AGP aperture are done
-> with non-cacheable attribute.
-
-This is the slowest choice, but will work correctly.
-
-It is better to make the user do explicit "dcbf", etc.
-on cached memory. (use non-coherent mappings to avoid
-wasting memory bus cycles on cache coherency traffic)
-As long as users go through a library, they won't mind.
-
-> _BUT_, that same memory is also
-> mapped as part of the RAM linear mapping of the kernel (the
-> BAT mapping on PPC). The problem happens when some code working
-> near the end of a different page via this linear mapping cause
-> a speculative access to happen on the next page. This will have
-> the side-effect of loading the cache with a line from the page
-> used by AGP.
+> This corresponds to what my BIOS says is the CPU temp.
 >
-> I think PPC does only speculative reads, but even those (non dirty
-> cache lines) may cause trouble in our case.
+> > > CPU Temp: +35.1°C
+> >
+> > Mobo?
+>
+> This corresponds to what my BIOS says is the system temp.
+>
+> > > SBr Temp: +25.8°C
+> >
+> > Case?
+>
+> That's my guess as well.
 
-Speculative reads only cause trouble if:
+OK, I see.
 
-1. they are cached by an access through the BAT mapping
-2. reads through the uncached page mapping use the cache
-3. user code cares... AGP memory is for WRITING video frames, yes?
+The BIOS numbers are all mostly wrong. When you are in the BIOS config (the 
+Del or ESC key thing)...;-)  The CPU is running without any IDLE cycles at 
+all.
 
-Speculative writes are like speculative reads, unless the PPC
-is stupid enough to set the dirty bit even when the write does
-not get performed.
+> > I think this is much to high. Read my other post.
+>
+> Too high for a duron 800 running seti@home type loads nonstop?
 
-> Now, we have to check if the PPC is allowed to do speculative
-> reads accross page boundaries. If it's the case, then we are screwed
-> and I will have to cleanup the code allowing the kernel to run without
-> the BAT mapping (with a performance impact unfortunately).
+Yes, sorry. I overlooked that.
 
-It's a waste to use BAT mappings for the kernel anyway, because
-we try to keep the huge computations and graphics in userspace.
-With page tables under BAT mappings, privileged user code could
-be allowed to steal BAT registers for locked memory or IO memory.
+> I think that this is the expected temperature.
 
-So at the very least, you can keep the BAT mappings enabled
-until user code wants AGP memory or is allowed to have the
-BAT registers. When the user is done, the BAT registers may
-be used to cover kernel space again. Other than the memory
-used for page tables, there doesn't seem to be any harm in
-having page tables that match the BAT registers in use.
+What I expect is:
+
++45°C CPU
+The sensor under the CPU 'cause only the Morgan and Athlon XP/MP have the new 
+integrated sensor but only "latest" mobos support it. Not your KT133A based 
+one.
+
++35°C mobo (but I haven't anyone with sensor seen so far)
+Could be the CPU -10°C what's sometimes the case with some mobo manufactures.
+
++25°C System (the case temperature)
+With your system load.
+
+An idle system should look like this:
+
+CPU		23-25°C	(with IDLE and BUS GRANT)
+system (case)	20-23°C	(room temperature)
+
+At any time (full load) the case temperature shouldn't go over 40°C with all 
+stuff running (gfx, disks, lan, etc.). Recommendations from AMD and Intel. 
+
+> I've come to the conclusion that the lm_sensors stuff is crap,
+
+No, they have the frame work in place but need the usefull bits.
+That's we are hunting for...
+
+> but not totally because of the authors.  It looks like the manufacturers
+> like VIA are not very helpful to the project.....
+
+Very true!
+
+Regards,
+	Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264403AbTFPWqK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264407AbTFPWqJ
+	id S264432AbTFPWqU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTFPWqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:46:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:23505 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264403AbTFPWqE (ORCPT
+	Mon, 16 Jun 2003 18:46:20 -0400
+Received: from main.gmane.org ([80.91.224.249]:61122 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264432AbTFPWqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:46:04 -0400
-Date: Mon, 16 Jun 2003 15:55:33 -0700 (PDT)
-Message-Id: <20030616.155533.63022973.davem@redhat.com>
-To: girouard@us.ibm.com
-Cc: stekloff@us.ibm.com, janiceg@us.ibm.com, jgarzik@pobox.com,
-       kenistonj@us.ibm.com, lkessler@us.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: patch for common networking error messages
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OFC2446DB8.6D4DA3ED-ON85256D47.007C79EE@us.ibm.com>
-References: <OFC2446DB8.6D4DA3ED-ON85256D47.007C79EE@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Mon, 16 Jun 2003 18:46:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.5.71 compile error on alpha
+Date: 17 Jun 2003 01:00:01 +0200
+Message-ID: <yw1xhe6pzkzy.fsf@zaphod.guide>
+References: <3EEE4A14.4090505@g-house.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Janice Girouard <girouard@us.ibm.com>
-   Date: Mon, 16 Jun 2003 17:50:08 -0500
-   
-   One possible suggestion would be to submit more than one stdmsgs.h
-   files.  One a legacy file, and one that is more consistent from
-   message to message.. shooting for a gradual migration.
+Christian Kujau <evil@g-house.de> writes:
 
-Let me know when you're back on planet earth ok?
+> i have an alpha here, running 2.5.70 for weeks now. the patch to 2.5.71
+> applied with no errors (i did "make clean" before this) but it won't
+> compile:
+> 
+> # make vmlinux modules modules_install
+> 
+> ...
+> 
+>    CC      arch/alpha/kernel/srmcons.o
+> arch/alpha/kernel/srmcons.c:269: warning: `srmcons_ops' defined but not used
+> make[2]: *** [arch/alpha/kernel/srmcons.o] Error 1
+> make[1]: *** [arch/alpha/kernel] Error 2
+> make: *** [vmlinux] Error 2
 
-Standardizing strings is an absolutely FRUITLESS exercise.
+Not looking at the code, I guess you could just remove the definition
+of srmcons_ops from srmcons.c.
 
-If you want events, standardize events and push them over
-a queueing based communications channel to userspace, namely
-using netlink sockets.
+-- 
+Måns Rullgård
+mru@users.sf.net
+

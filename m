@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264554AbTFAMUy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 08:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTFAMUx
+	id S264569AbTFAMVO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 08:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbTFAMVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 08:20:53 -0400
-Received: from public1-brig1-3-cust85.brig.broadband.ntl.com ([80.0.159.85]:20489
-	"EHLO reg_kipling.kenmoffat.uklinux.net") by vger.kernel.org
-	with ESMTP id S264554AbTFAMUx (ORCPT
+	Sun, 1 Jun 2003 08:21:14 -0400
+Received: from tag.witbe.net ([81.88.96.48]:38159 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S264569AbTFAMVM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 08:20:53 -0400
-Date: Sun, 1 Jun 2003 13:34:13 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-X-X-Sender: ken@reg_kipling
-To: gcoady@bendigo.net.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 -ac zip ppa --  'mount: /dev/sda4 is not a valid block
- device'
-In-Reply-To: <dgdidvo52kn1jhpt3dqsitidql172bbj07@4ax.com>
-Message-ID: <Pine.LNX.4.53.0306011331330.30199@reg_kipling>
-References: <2j5idv0eh05vpva8tqkd4lc97bbh3dhack@4ax.com>
- <dgdidvo52kn1jhpt3dqsitidql172bbj07@4ax.com>
+	Sun, 1 Jun 2003 08:21:12 -0400
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Michael Frank'" <mflt1@micrologica.com.hk>,
+       "'Lionel Elie Mamane'" <lionel@mamane.lu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SCO's claims seem empty
+Date: Sun, 1 Jun 2003 14:34:34 +0200
+Message-ID: <015601c3283a$287730e0$2101a8c0@witbe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <200306011756.38586.mflt1@micrologica.com.hk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jun 2003, Grant wrote:
+Hello,
 
-> Hi there,
->
-> A followup: kernel 2.4.21-rc6-ac1 also fails to recognise
-> the zip ppa /dev/sda4 as a block device.
->
-> Cheers,
-> Grant.
->
+Maybe some more news next week :
 
- Maybe a stupid question, but I'm assuming you have this as a module.
-Have you loaded the module before trying to access the device ?
+http://www.crn.com/sections/BreakingNews/dailyarchives.asp?ArticleID=42313
 
-Ken
--- 
-Live Long or Prosper! No, wait, that wasn't it...
+> 
+> On Sunday 01 June 2003 17:22, Lionel Elie Mamane wrote:
+> > On Sun, Jun 01, 2003 at 09:56:42AM +0200, Paul Rolland wrote:
+> > > It seems they removed everything related to this case 
+> from the Press 
+> > > Release page.
+> > >
+> > > Anyone knows why ?
+> >
+> > Might be related to 
+> > http://www.linuxtag.org/2003/de/press/releases.xsp?id=3
+> 
+> This page announces that LinuxTag sent a  notice to SCO 
+> germany demanding from SCO to ceise claiming linux infringes 
+> on SCO rights 
+> 
+> ---
+> 
+> > http://www.heise.de/newsticker/data/hps-31.05.03-003/
+> 
+> Announces temporary restraining order against SCO germany 
+http://lwn.net/Articles/34351/
+
+

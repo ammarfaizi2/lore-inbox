@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUJ1RnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbUJ1RuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbUJ1RnY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbUJ1RnX
+	id S263016AbUJ1RuA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1Rt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:43:23 -0400
-Received: from fms.tor.istop.com ([66.11.182.43]:6533 "EHLO
-	maximus.fullmotions.com") by vger.kernel.org with ESMTP
-	id S261728AbUJ1RnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:43:14 -0400
-Subject: Re: SSH and 2.6.9
-From: Danny Brow <dan@fullmotions.com>
-To: Rajsekar <raj--cutme--sekar@cse.iDELTHISitm.ernet.in>,
-       Kernel-List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3u0sfs0fm.fsf@rajsekar.pc>
-References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
-	 <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
-	 <1098912301.4535.1.camel@hanzo.fullmotions.com>
-	 <1098913797.3495.0.camel@hanzo.fullmotions.com>
-	 <m3u0sfs0fm.fsf@rajsekar.pc>
-Content-Type: text/plain
-Date: Thu, 28 Oct 2004 13:44:14 -0400
-Message-Id: <1098985454.9722.9.camel@hanzo.fullmotions.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 13:49:57 -0400
+Received: from alog0418.analogic.com ([208.224.222.194]:6272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263016AbUJ1RtZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:49:25 -0400
+Date: Thu, 28 Oct 2004 13:46:56 -0400 (EDT)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Phy Prabab <phyprabab@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Help understanding memory layout
+In-Reply-To: <20041028172125.67969.qmail@web51808.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0410281332160.14514@chaos.analogic.com>
+References: <20041028172125.67969.qmail@web51808.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-28 at 14:07 +0530, Rajsekar wrote:
->  No, that is not the actual problem (even though it seems to solve it).
-> The thing is, /dev/tty should be rw for everyone.
-> What happens is (it happened to me and CONFIG_LEGACY_PTYS is `n' in my
-> case),  that ssh tries to open /dev/tty and fails and ends up trying to use
-> ssh-askpass (some other way to ask for password).
-> 
-> But I am still not sure how CONFIG_LEGACY_PTYS=n solves it.
-> 
-> Change the permissions of /dev/tty to something like 0666 or if you have
-> udev, edit the permissions.d/* files
-> 
-> Please give me your feedback.
-> 
+On Thu, 28 Oct 2004, Phy Prabab wrote:
 
- I think when udev creates the ptys nodes dynamically it corrupts the
-Legacy ones already create. With CONFIG_LEGACY_PTYS turned off there
-never created and udev is free to do what it wants. It could be the
-complete reverse though.
+> Hello,
+>
+> I need some help understanding memory layout of
+> applications within memory under linux.  I am using
+> the command "pmap" to understand where all the
+> elements of my application are laying and found that I
+> just do not understand how and why it is layed out in
+> a particular fashion.  Is there documentation that
+> could help me understand memory management under
+> Linux?
+>
+> Thank you for your time.
+> Phy
 
-By the way th settings in permissions.d are 660 for most things
-including ptys. I'm running slackware.
 
-Dan.
+You can look in /proc/PID/maps to see where memory-mapped
+stuff exists. PID is the process-ID number.
 
+You can also use printf("%p\n", function); to get the
+offset of any function in your code. Using this same
+method, you can also print the offset of anything that
+can be labeled in your code.
+
+These offsets are only useful for mental
+masturbation. If your application needs to know
+the layout of its code and data it is severely
+broken and needs to be fixed. All data elements
+are accessible using conventional language methods
+such as pointers, array elements, and structure
+members.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

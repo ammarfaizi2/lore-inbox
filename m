@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbTKTLcw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 06:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTKTLcw
+	id S261686AbTKTM3H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 07:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTKTM3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 06:32:52 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:6922 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261614AbTKTLcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 06:32:51 -0500
-Date: Thu, 20 Nov 2003 11:32:49 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Zinx Verituse <zinx@epicsol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] cuecat serio driver for linux 2.6.0-test9
-Message-ID: <20031120113249.A30030@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Zinx Verituse <zinx@epicsol.org>, linux-kernel@vger.kernel.org
-References: <20031120014514.GA4573@bliss>
+	Thu, 20 Nov 2003 07:29:06 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:40355 "EHLO
+	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S261686AbTKTM3B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 07:29:01 -0500
+Date: Thu, 20 Nov 2003 12:28:38 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>, ink@jurassic.park.msu.ru
+Subject: Simplification in pbus_size_mem
+Message-ID: <20031120122838.GA4575@malvern.uk.w2k.superh.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>, ink@jurassic.park.msu.ru
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031120014514.GA4573@bliss>; from zinx@epicsol.org on Wed, Nov 19, 2003 at 07:45:14PM -0600
+X-OS: Linux 2.4.22 i686
+User-Agent: Mutt/1.5.4i
+X-OriginalArrivalTime: 20 Nov 2003 12:29:45.0741 (UTC) FILETIME=[FB2FD3D0:01C3AF61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 07:45:14PM -0600, Zinx Verituse wrote:
-> Well, my cuecat driver is ready for testing.
-> 
-> http://zinx.xmms.org/cuecat/cuecat-2.6-0.0.2.tar.gz
-> 
-> It does not use the same output format as the driver floating around
-> for 2.2.x/2.4.x kernels.
-> 
-> It currently requires a patch which changes the order serio drivers
-> are searched in (the newest driver is searched first now), and adds
-> a function to walk through the serio port list.
-> 
-> I'm hoping the patch will be included in to the kernel at some point
-> in time -- It's available separately at:
-> 	http://zinx.xmms.org/cuecat/linux-2.6.0-test9-serio.diff
-> 
-> The driver has some pitfalls, such as standing between -all- serio
-> devices capable of supporting a cuecat, and not just the ones with
-> a cuecat on them (And it has no way to specify which ports to use),
-> but hopefully I'll think of a good way to fix that before 0.0.3.
-> 
-> The major number is dynamicly allocated -- If you aren't using devfs,
-> check /proc/devices.
-> The minor number for reading all cuecats is 0, and the minor number
-> for individual cuecats is their [driver-assigned] index plus 1.
-> Recommended names are:
-> 	/dev/cuecat/cuecats
-> 	/dev/cuecat/0
-> 	/dev/cuecat/1
-> and so on.
+The following patch is against 2.4, but the 2.6 code looks identical.
 
-Hmm?  A 2.6 input driver shouldn't create devices bz itself but rather use
-the input core to communicated with the upper drivers like evdev or moused..
+===== setup-bus.c 1.6 vs edited =====
+--- 1.6/drivers/pci/setup-bus.c Thu Dec 12 22:14:01 2002
++++ edited/setup-bus.c  Thu Nov 20 11:54:28 2003
+@@ -311,18 +311,8 @@
+                }
+        }
+ 
+-       align = 0;
+-       min_align = 0;
+-       for (order = 0; order <= max_order; order++) {
+-               unsigned long align1 = 1UL << (order + 20);
++       min_align = 1UL << (max_order + 20);
+ 
+-               if (!align)
+-                       min_align = align1;
+-               else if (ROUND_UP(align + min_align, min_align) < align1)
+-                       min_align = align1 >> 1;
+-               align += aligns[order];
+-       }
+-       size = ROUND_UP(size, min_align);
+        if (!size) {
+                b_res->flags = 0;
+                return;
 
+
+This is fixing the allocation on a system which looks like this
+
+* 96Mb PCI memory aperture
+* Kyro graphics card, requiring 64Mb + 768kb prefetchable
+* USB card requiring 4x4k non-prefetchable
+
+Without the change, 'min_align' is computed as 32Mb (the algorithm in the
+loop basically seems to make 'min_align' end up as 1/2 the largest
+alignment requirement that was found?), hence in the pass where the
+prefetchable block is sized, 'size' ends up as 96Mb, which means there
+is no space left in which to place the non-prefetchable blocks for the
+USB card.
+
+With the patch above, the alignment requirement for the prefetchable
+memory actually ends up as the alignment required for the framebuffer,
+and the size isn't rounded up unnecessarily.  The USB card gets
+allocated successfully as a result.
+
+I couldn't be sure what the code in the loop is attempting to do, so I'm
+sure I'm overlooking something subtle.  Any comments?
+
+-- 
+Richard \\\ SuperH Core+Debug Architect /// .. At home ..
+  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
+Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk

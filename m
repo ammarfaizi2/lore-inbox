@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132416AbRDPXqu>; Mon, 16 Apr 2001 19:46:50 -0400
+	id <S132418AbRDPXrU>; Mon, 16 Apr 2001 19:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132418AbRDPXql>; Mon, 16 Apr 2001 19:46:41 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:40200 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S132416AbRDPXq2>; Mon, 16 Apr 2001 19:46:28 -0400
-From: smaneesh@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-cc: lse tech <lse-tech@lists.sourceforge.net>, Keith Owens <kaos@ocs.com.au>,
-        Rusty Russell <rusty@linuxcare.com.au>,
-        Andrew Mortan <andrewm@uow.edu.au>,
-        "A. N. kuznetsov" <kuznet@ms2.inr.ac.ru>,
-        David Miller <davem@redhat.com>, ak@suse.de, anton@samba.org,
-        tridge@samba.org, sct@redhat.com
-Message-ID: <CA256A30.008269BD.00@d73mta05.au.ibm.com>
-Date: Mon, 16 Apr 2001 18:13:24 +0530
-Subject: IGNORE earlier mails from me, mailed today 
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132419AbRDPXrK>; Mon, 16 Apr 2001 19:47:10 -0400
+Received: from mail.gci.com ([205.140.80.57]:25605 "EHLO daytona.gci.com")
+	by vger.kernel.org with ESMTP id <S132418AbRDPXq4>;
+	Mon, 16 Apr 2001 19:46:56 -0400
+Message-ID: <BF9651D8732ED311A61D00105A9CA3150446DA08@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: esr@snark.thyrsus.com, linux-kernel@vger.kernel.org
+Subject: RE: CML2 1.1.3 release announcement
+Date: Mon, 16 Apr 2001 15:46:44 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It also appears that upon a re-configuration of 2.4.3 from 2.2.17:
+
+> cd /usr/src/linux
+> cp ../linux-2.2.17/.config .
+> make oldconfig
+
+where the old configuration did not include FrameBuffer support,
+then performing an Xconfig to tweak some settings and enable FB,
+no default fonts were allocated.  This is contrary to CML1 behavoir.
+
+> grep ^CONFIG_FB .config
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_FB_MACH64=y
 
 
-
-Hello All,
-
-Please ignore all mails from me, sent out today. I tried switching my
-mailer to KMail from mutt and KMail has decided to mail out all
-the stuff in my outbox which were sent earlier through mutt. I
-will stay away from KMail :-(
-
-Iam extermely sorry for any inconvenience this may have caused.
-
-Maneesh
-
-
-Maneesh Soni
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA
-Phone: +91-80-5262355 Extn: 2717
-email: smaneesh@in.ibm.com
-
+however CML1, after only selecting the applicable drivers gives:
+> grep ^CONFIG_FB ~/myotherbox-2.4.3.config
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_FB_VGA16=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_VGA_PLANES=y
 

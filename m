@@ -1,55 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269370AbUI3RqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269371AbUI3Rtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269370AbUI3RqD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 13:46:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269374AbUI3RqD
+	id S269371AbUI3Rtf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 13:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUI3Rtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 13:46:03 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:17129 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S269370AbUI3RqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 13:46:00 -0400
-Date: Thu, 30 Sep 2004 19:42:44 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mlock(1)
-Message-ID: <20040930174244.GL22008@dualathlon.random>
-References: <41547C16.4070301@pobox.com> <20040924132247.W1973@build.pdx.osdl.net> <1096060045.10800.4.camel@localhost.localdomain> <20040924225900.GY3309@dualathlon.random> <1096069581.3591.23.camel@desktop.cunninghams> <20040925010759.GA3309@dualathlon.random> <1096114881.5937.18.camel@desktop.cunninghams> <20040925145315.GJ3309@dualathlon.random> <20040928084850.GA18819@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040928084850.GA18819@elf.ucw.cz>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Thu, 30 Sep 2004 13:49:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4305 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269371AbUI3Rs7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 13:48:59 -0400
+Date: Thu, 30 Sep 2004 10:48:50 -0700 (PDT)
+From: Judith Lebzelter <judith@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Judith Lebzelter <judith@osdl.org>, <linux-aio@kvack.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: OSDL aio-stress results on latest kernels show buffered random
+ read issue
+In-Reply-To: <20040929204628.0ffdf10e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.33.0409300917290.4332-100000@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 10:48:50AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > There must be some way of being able to check the password is correct
-> > > without compromising security by encrypting static text and storing it
-> > > at a known location! Darned if I know what it is though.
-> > 
-> > good point! Maybe we can pick random signed chars in a 4k block and
-> > guarantee their sum is always -123456. Would that be secure against
-> > plaintext attack right? It's more like a checksum than a magic number,
-> > but it should be a lot more secure than the "double" typo probability
-> > (and this way the password will be asked only once during resume).
-> > Generating those random numbers will not be the easiest thing though.
-> 
-> Actually, better solution probably is to encrypt 32-bit zero.
-> 
-> Then, you have 1:2^32 probability of accepting wrong password, still
-> if you try to brute-force it, you'll find many possible passwords.
+On Wed, 29 Sep 2004, Andrew Morton wrote:
 
-this is just the first step an attacker needs to rule out all the
-impossible passwords and extend the crack to the other known bits. I
-don't think it's secure. My suggestion OTOH sounds completely secure
-(though much harder to implement).
+> Judith Lebzelter <judith@osdl.org> wrote:
+> >
+> > Hello;
+> >
+> > I am running aio-stress on the most recent kernels and have
+> > found that on linux-2.6.8, 2.6.9-rc2 and 2.6.9-rc2-mm4 the
+> > performance of buffered random reads is poor compared to the
+> > buffered random writes:
+> >
+> >                2.6.8      2.6.9-rc2     2.6.9-rc2-mm4
+> >              --------------------------------------------
+> > random write 35.66 MB/s   34.80 MB/s    29.89 MB/s
+> > random read   7.69 MB/s    7.50 MB/s     7.68 MB/s
+> >
+> > ** 2CPU hosts with striped Megaraid. 1G RAM. 4G File.
+> >
+> >
+> > This shows up on our 4CPU host as well. (striped AACRAID.4G
+> > RAM. 8G File):
+> >              2.6.9-rc2     2.6.9-rc2-mm4   2.6.9-rc2-mm1
+> >              -------------------------------------------
+> > random write 31.36 MB/s     18.92 MB/s      18.97 MB/s
+> > random read  11.13 MB/s      9.74 MB/s      11.05 MB/s
+> >
+> >
+> > There seems to be an issue with the reads.  Usually, reads
+> > should be at least as fast as writes of the same type.
+> >
+> > Also, there seems to be a substantial drop-off in the performance
+> > of AIO buffered-random writes in the mm kernels. (14% on 2CPU,
+> > 40% on 4CPU)
+> >
+>
+> Well one would expect writes to be much faster than reads because writes
+> usually do not involve performing physical I/O, and when pagecache
+> writeback finally happens it has vastly more data to work with and hence
+> can schedule I/O more efficiently.
+>
+> Unless you are using O_SYNC or fsync(), in which case ignore the above.
+
+It should be doing an fsync() between the write and read stages.  For all
+other types of reads the performance is substantially better than the
+writes.
+                       2.6.9-rc2-mm4
+Direct Random write:     11.17 MB/s
+Direct Random read:      44.71 MB/s
+
+>
+> The regression within random write performance is unexpected.  Can you
+> please provide a URL to the current version of the test tool, and a
+> description of how you are invoking it?  What sort of I/O system, what
+> filesystem, etc.
+
+I am running aio-stress from Chris Mason;  you can get it from OSDL's
+aio-stress test kit:
+  bk clone bk://developer.osdl.org/stp-tests/aio-stress
+
+This is how I call it (with only one file):
+    aio-stress -o 2 -o 3 -s 4g -r 64k -l -L <files_name>
+
+The 2 CPU host has MegaRAID, with 5 18G disks, striped.  The 4CPU has
+Adaptec 2200S x2, with 5 18G disks, striped.
+
+The filesystem is ext2.
+
+>
+> Thanks.
+>
+

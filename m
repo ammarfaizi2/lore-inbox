@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273345AbRI3MUk>; Sun, 30 Sep 2001 08:20:40 -0400
+	id <S273333AbRI3MQ3>; Sun, 30 Sep 2001 08:16:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273349AbRI3MU3>; Sun, 30 Sep 2001 08:20:29 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:31975 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S273345AbRI3MUP>; Sun, 30 Sep 2001 08:20:15 -0400
-Date: Sun, 30 Sep 2001 06:19:04 -0600
-Message-Id: <200109301219.f8UCJ4H16858@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch] Race between init_idle and reschedule_idle
-In-Reply-To: <1076429074.1001803809@[10.10.1.2]>
-In-Reply-To: <1076429074.1001803809@[10.10.1.2]>
+	id <S273345AbRI3MQU>; Sun, 30 Sep 2001 08:16:20 -0400
+Received: from colorfullife.com ([216.156.138.34]:19979 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S273333AbRI3MQL>;
+	Sun, 30 Sep 2001 08:16:11 -0400
+Message-ID: <3BB70D24.8C4367DC@colorfullife.com>
+Date: Sun, 30 Sep 2001 14:16:36 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Oliver Seemann <oseemann@cs.tu-berlin.de>, linux-kernel@vger.kernel.org
+Subject: Re: rtl8139 nic dies with load (2.4.10, kt266)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh writes:
-> Thanks to Alan Cox & Andrew Morton for showing me how to serialise
-> the cpus to make the panic legible. The following patch holds back
-> the boot cpu at the end of smp_init until all the secondarys have
-> done init_idle:
+> no matter if ftp or smb, when transferring files over eth0 to a win2k
+> pc (3com nic), after some seconds or mbytes transfer, suddenly all
+> network activity on eth0 dies. the adsl connection over eth1 remains
+> alive.
 
-One thing that bothers me about your patch is how it limits the number
-of CPU's to the number of bits in an unsigned long. While I realise
-there are other places that do the same (last time I looked), we
-shouldn't be perpeturating these kinds of limitations.
+Could you enable debugging in the 8139too driver and send us the dmesg
+log?
 
-I'd suggest you use an atomic_t instead. Increment for each CPU, and
-decrement when each CPU is ready. Just test for 0 in your wait loop.
-One less piece of code we have to overhaul later.
+Around line 170 in linux/drivers/net/8139too.c
+replace
+	#undef RTL8139_DEBUG
+with
+	#define RTL8139_DEBUG	1
 
-				Regards,
+Recompile, reboot, load eth0 until it locks up, and send us the dmesg
+output.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+--
+	Manfred

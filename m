@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTFXTxS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 15:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFXTxS
+	id S262368AbTFXTya (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 15:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTFXTya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 15:53:18 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:4613 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261188AbTFXTxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 15:53:18 -0400
-Subject: Re: Large backwards time steps panic 2.5.73
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <1056484203.1033.192.camel@w-jstultz2.beaverton.ibm.com>
-References: <1056472020.2085.81.camel@mulgrave> 
-	<1056484203.1033.192.camel@w-jstultz2.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 Jun 2003 15:07:16 -0500
-Message-Id: <1056485244.1825.173.camel@mulgrave>
+	Tue, 24 Jun 2003 15:54:30 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:60715 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262368AbTFXTyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 15:54:04 -0400
+Date: Tue, 24 Jun 2003 13:09:02 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "jds" <jds@soltis.cc>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Panic in 2.5.73-mm1 OOps part.
+Message-Id: <20030624130902.3d9090e9.akpm@digeo.com>
+In-Reply-To: <20030624191740.M38428@soltis.cc>
+References: <20030624191740.M38428@soltis.cc>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jun 2003 20:08:13.0634 (UTC) FILETIME=[579E7220:01C33A8C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-24 at 14:50, john stultz wrote:
-> On Tue, 2003-06-24 at 09:26, James Bottomley wrote:
-> > The above trace is from a HP PA-RISC machine running 2.5.73-pa1.
+"jds" <jds@soltis.cc> wrote:
+>
 > 
-> Hmm. Odd. What is the HZ frequency on this machine? 
+> 
+> Hi Andrew:
+> 
+> 
+>     I have kernel panic when boot with kernel 2.5.73-mm1, in kernel 2.5.73
+> working good.
+> 
 
-On the kernel with the panic, 100.  If I build a 64 bit kernel (which I
-haven't done for .73 yet) I'll get 1000
-
-James
-
-
-
+Please disable CONFIG_BLK_DEV_NBD.   We're working on it.

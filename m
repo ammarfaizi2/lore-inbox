@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSCKTrs>; Mon, 11 Mar 2002 14:47:48 -0500
+	id <S290823AbSCKTti>; Mon, 11 Mar 2002 14:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSCKTrj>; Mon, 11 Mar 2002 14:47:39 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:29312 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S288019AbSCKTrf>; Mon, 11 Mar 2002 14:47:35 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 11 Mar 2002 11:51:30 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <Pine.LNX.4.10.10203111133080.10583-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0203111147210.936-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290983AbSCKTta>; Mon, 11 Mar 2002 14:49:30 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29875 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290965AbSCKTsy>; Mon, 11 Mar 2002 14:48:54 -0500
+Date: Mon, 11 Mar 2002 12:48:43 -0700
+Message-Id: <200203111948.g2BJmhs13326@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bcrl@redhat.com, whitney@math.berkeley.edu, linux-kernel@vger.kernel.org
+Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
+In-Reply-To: <20020310.183033.67792009.davem@redhat.com>
+In-Reply-To: <200203110205.g2B25Ar05044@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+	<20020310.180456.91344522.davem@redhat.com>
+	<20020310212210.A27870@redhat.com>
+	<20020310.183033.67792009.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Andre Hedrick wrote:
+David S. Miller writes:
+>    From: Benjamin LaHaise <bcrl@redhat.com>
+>    Date: Sun, 10 Mar 2002 21:22:10 -0500
+>    
+>    That's my fault.  The version of the driver in the kernel atm sucks in 
+>    performance; I'll try to spend the day needed on the driver this week 
+>    and it should get up to ~800mbit from the current mess.  Getting NAPI 
+>    in the kernel would help... ;-)
+> 
+> Syskonnect sk98 with jumbo frames gets ~107MB/sec TCP bandwidth
+> without NAPI, there is no reason other cards cannot go full speed as
+> well.
+> 
+> NAPI is really only going to help with high packet rates not with
+> thinks like raw bandwidth tests.
 
-> On Mon, 11 Mar 2002, Martin Dalecki wrote:
-> >
-> > That is only a list of voters over the document there.
-> > This doesn't imply that you co-authored it.
-> > And finally this isn't a voting over the standard itself
-> > but rather about the submission of a draft to the
-> > standard body.
-> >
-> > (Clear thinking can be pesky isn't it?)
->
-> You deserve to be the Maintainer, You have even out classed me in being a
-> total ASS and that is mighty hard to do.  You have ONE-UPED-ME.
-> I am impressed.
->
-> > > Listed between Iomega and LSI Logic
-> > >
-> > > But know I will not allow you to torque me anymore.
-> > > You will get a patch that effectively removes the patch submitted to for
-> > > 2.5.3.  Unfortunately all the functionality will be gone too, so the
-> > > driver will be crippled again and that is saddening.
-> >
-> > Thank you very much right now I can do a diff between 2.5.3 and 2.5.4
-> > myself actually. I would be rather interrested in the
-> > "plain interface" without any parsing in between.
-> > (Which is the reason I didn't remove the parse code thus far...).
->
-> You are the Maintainer go take it out yourself unless you need help.
-> Oh, I forgot you did ask for help ... my bad.
+You're saying that people should just go and use jumbo frames? Isn't
+that a problem for mixed 10/100/1000 LANs?
 
-When you guys finished beating each other would you mind trying to solve
-the IDE timer issue that still hit my 2.5.6 ( not pre3 Linus sorry, i
-swear i didn't drink :) ). Please ...
+				Regards,
 
-
-
-
-- Davide
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

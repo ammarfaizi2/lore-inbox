@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbTL2DGt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 22:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTL2DGt
+	id S262566AbTL2DZN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 22:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTL2DZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 22:06:49 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:55182 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262540AbTL2DGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 22:06:48 -0500
-Date: Sun, 28 Dec 2003 19:06:39 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: akmiller@nzol.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide: "lost interrupt" with 2.6.0
-Message-ID: <20031229030639.GF1882@matchmail.com>
-Mail-Followup-To: akmiller@nzol.net, linux-kernel@vger.kernel.org
-References: <1072661969.3fef85d204077@webmail.nzol.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072661969.3fef85d204077@webmail.nzol.net>
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Dec 2003 22:25:13 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:51609 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262566AbTL2DZH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 22:25:07 -0500
+Date: Mon, 29 Dec 2003 11:19:07 +0800 (CST)
+From: "Zhu, Yi" <yi.zhu@intel.com>
+X-X-Sender: chuyee@mazda.sh.intel.com
+Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix make kernel rpm bug (revised)
+In-Reply-To: <Pine.LNX.4.44.0312251035320.16217-100000@mazda.sh.intel.com>
+Message-ID: <Pine.LNX.4.44.0312291113340.10106-100000@mazda.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29, 2003 at 02:39:30PM +1300, akmiller@nzol.net wrote:
-> It also doesn't work correctly with the Linux 2.4.20(using the installation
-> kernel off the RedHat 9 disk). It is confirmed to work with 2.4.2, as well as
-> with the 2.2.x series.
 
-Try narrowing down where in the 2.4 series the problem started, and use only
-stock (kernel.org) kernels as dist kernels (redhat, etc.) since the dist
-kernels have many patches that modify the behaviour of the kernel.
+Thanks for Jeff and Russell King's help, I now revised the patch as
+below.
 
-Do you have trouble with:
 
-2.4.18?
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	Wed Dec 10 13:47:52 2003
++++ b/Makefile	Wed Dec 10 13:47:52 2003
+@@ -872,7 +872,7 @@
+ 	$(CONFIG_SHELL) $(srctree)/scripts/mkversion > $(objtree)/.tmp_version;\
+ 	mv -f $(objtree)/.tmp_version $(objtree)/.version;
+ 
+-	$(RPM) -ta ../$(KERNELPATH).tar.gz
++	$(RPM) --target $(UTS_MACHINE) -ta ../$(KERNELPATH).tar.gz
+ 	rm ../$(KERNELPATH).tar.gz
+ 
+ # Brief documentation of the typical targets used
+diff -Nru a/scripts/mkspec b/scripts/mkspec
+--- a/scripts/mkspec	Wed Dec 10 13:47:52 2003
++++ b/scripts/mkspec	Wed Dec 10 13:47:52 2003
+@@ -9,7 +9,7 @@
+ #	Patched for non-x86 by Opencon (L) 2002 <opencon@rio.skydome.net>
+ #
+ # That's the voodoo to see if it's a x86.
+-ISX86=`arch | grep -ie i.86`
++ISX86=`echo ${ARCH:=\`arch\`} | grep -ie i.86`
+ if [ ! -z $ISX86 ]; then
+ 	PC=1
+ else
 
-2.4.20?
 
-2.4.22?
+Thanks,
+-- 
+-----------------------------------------------------------------
+Opinions expressed are those of the author and do not represent
+Intel Corp.
+
+-yi
+

@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282579AbRKZVfL>; Mon, 26 Nov 2001 16:35:11 -0500
+	id <S282601AbRKZVjB>; Mon, 26 Nov 2001 16:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282580AbRKZVfD>; Mon, 26 Nov 2001 16:35:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62982 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282579AbRKZVet>; Mon, 26 Nov 2001 16:34:49 -0500
-Subject: Re: Async UDP I/O?
-To: braymond@fvc.com (Brian Raymond)
-Date: Mon, 26 Nov 2001 21:43:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <6A5AF4EA59EB214BB0267741CE2C86EF0E07F5@neptune.cuseeme.com> from "Brian Raymond" at Nov 26, 2001 04:07:02 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S282584AbRKZVhh>; Mon, 26 Nov 2001 16:37:37 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:16843 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S282580AbRKZVgW>;
+	Mon, 26 Nov 2001 16:36:22 -0500
+Date: Mon, 26 Nov 2001 22:36:18 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCEMENT] Linux 2.0.40-pre3
+Message-ID: <20011126223618.T5770@khan.acc.umu.se>
+In-Reply-To: <20011126215828.P5770@khan.acc.umu.se> <3C02B464.4030100@stesmi.com> <20011126223254.S5770@khan.acc.umu.se> <3C02B5E3.8060004@stesmi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E168TX1-00070O-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3C02B5E3.8060004@stesmi.com>; from stesmi@stesmi.com on Mon, Nov 26, 2001 at 10:36:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> regard to async UDP traffic but haven't had much luck so I thought I would
-> throw this out to the list.
+On Mon, Nov 26, 2001 at 10:36:35PM +0100, Stefan Smietanowski wrote:
+> Hi.
+> 
+> >>>Here comes another one. Unless I receive some more patches, the next
+> >>>patch will be the first release-candidate for v2.0.40
+> >>>
+> >>>
+> >>>2.0.40pre3
+> >>>
+> >>Didn't you just say that you do -preN _with_ a leading "-" ?
+> >>
+> >>Mail subject and mail contents is different.
+> >>
+> > 
+> > I mean that I use it in the Makefile EXTRAVERSION
+> 
+> Why not use it everywhere ? Or do you consider there to be a valid 
+> difference?
 
-What do you mean by "asynchronous UDP" - all UDP is asynchronous. You ask
-it to send it and it gets queued or dropped somewhere - its not subject
-to flow control like TCP
+No, more of a thinko :-)
 
-Can you explain more ?
 
-Alan
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

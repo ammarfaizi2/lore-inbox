@@ -1,89 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289754AbSAJWsk>; Thu, 10 Jan 2002 17:48:40 -0500
+	id <S289761AbSAJWva>; Thu, 10 Jan 2002 17:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289747AbSAJWsa>; Thu, 10 Jan 2002 17:48:30 -0500
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:25861 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S289753AbSAJWsM>; Thu, 10 Jan 2002 17:48:12 -0500
-Date: Thu, 10 Jan 2002 14:48:03 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Timothy Covell <timothy.covell@ashavan.org>
-Cc: Nelson Mok <nmok@cse.Buffalo.EDU>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI ID wars [was:  USB Sandisk SDDR-31 problems in 2.4.9 - 2.4.17]
-Message-ID: <20020110144803.F21482@one-eyed-alien.net>
-Mail-Followup-To: Timothy Covell <timothy.covell@ashavan.org>,
-	Nelson Mok <nmok@cse.Buffalo.EDU>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0201100411100.25549-100000@yeager.cse.Buffalo.EDU> <20020110133534.C21482@one-eyed-alien.net> <200201102237.g0AMbASr031936@svr3.applink.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="f61P+fpdnY2FZS1u"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201102237.g0AMbASr031936@svr3.applink.net>; from timothy.covell@ashavan.org on Thu, Jan 10, 2002 at 04:33:22PM -0600
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
+	id <S289758AbSAJWvU>; Thu, 10 Jan 2002 17:51:20 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48846 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289761AbSAJWvM>;
+	Thu, 10 Jan 2002 17:51:12 -0500
+Date: Fri, 11 Jan 2002 01:48:36 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+In-Reply-To: <20020110135758.C15171@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---f61P+fpdnY2FZS1u
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 10 Jan 2002, Mike Kravetz wrote:
 
-Actually, device IDs are handed out by the SCSI mid-layer.  The low-level
-drivers don't even have an easy way to figure it out.
+> If I run 3 cpu-hog tasks on a 2 CPU system, then 1 task will get an
+> entire CPU while the other 2 tasks share the other CPU (easily
+> verified by a simple test program). On previous versions of the
+> scheduler 'balancing' this load was achieved by the global nature of
+> time slices. No task was given a new time slice until the time slices
+> of all runnable tasks had expired.  In the current scheduler, the
+> decision to replenish time slices is made at a local (pre-CPU) level.
+> I assume the load balancing code should take care of the above
+> workload?  OR is this the behavior we desire? [...]
 
-Matt
+Arguably this is the most extreme situation - every other distribution
+(2:3, 3:4) is much less problematic. Will this cause problems? We could
+make the fairness-balancer more 'sharp' so that it will oscillate the
+length of the two runqueues at a slow pace, but it's still caching loss.
 
-On Thu, Jan 10, 2002 at 04:33:22PM -0600, Timothy Covell wrote:
-> On Thursday 10 January 2002 15:35, Matthew Dharm wrote:
-> > The "stall at shutdown" is a known problem.  I'm testing a patch now...=
- as
-> > soon as I see my last patchset incorporated into the kernels, I'll send=
- it
-> > out for inclusion.
-> >
-> > As for the USB device "hiding" your SCSI device... how odd.   I've never
-> > heard of that before.
-> >
-> > Matt
->=20
-> Does it hide your SCSI device or just shift the SCSI IDs such that
-> /dev/scd0 becomes /dev/scd1?  =20
->=20
->=20
-> And that brings up a question concerning whether there is a defined
-> way of assigning SCSI IDs.    I'm assume that it's "every driver for
-> itself".
->=20
->=20
-> ---
-> timothy.covell@ashavan.org.
+> We certainly have optimal cache use.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+indeed. The question is, should we migrate processes around just to get
+100% fairness in 'top' output? The (implicit) cost of a task migration
+(caused by the destruction & rebuilding of cache state) can be 10
+milliseconds easily on a system with big caches.
 
-G:  Money isn't everything, A.J.
-AJ: Who convinced you of that?
-G:  The Chief, at my last salary review.
-					-- Mike and Greg
-User Friendly, 11/3/1998
+	Ingo
 
---f61P+fpdnY2FZS1u
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8Phojz64nssGU+ykRAq7PAKDOfuzdFgJbgZOmKoN/AkbVLaWhrACg5eHY
-AmUHwY8J5Zrf9GpCMvH4wQY=
-=FClV
------END PGP SIGNATURE-----
-
---f61P+fpdnY2FZS1u--

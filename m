@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVCNSeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVCNSez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVCNSeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNSeY
+	id S261660AbVCNSez (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVCNSez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 13:34:24 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:20170 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261659AbVCNSeU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 13:34:20 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 14 Mar 2005 13:34:55 -0500
+Received: from user-0c6slog.cable.mindspring.com ([24.110.87.16]:44727 "EHLO
+	sleekfreak.ath.cx") by vger.kernel.org with ESMTP id S261660AbVCNSev
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 13:34:51 -0500
+Date: Mon, 14 Mar 2005 12:55:01 -0500 (EST)
+From: shogunx <shogunx@sleekfreak.ath.cx>
+To: Wiktor <victorjan@poczta.onet.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Building server-farm
+In-Reply-To: <4235D474.1000102@poczta.onet.pl>
+Message-ID: <Pine.LNX.4.44.0503141252320.25050-100000@sleekfreak.ath.cx>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 0/6] PCI Express Advanced Error Reporting Driver
-Date: Mon, 14 Mar 2005 10:34:15 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408070BAE@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 0/6] PCI Express Advanced Error Reporting Driver
-Thread-Index: AcUm2jNFoybHcdnXRiis+UL/glWmBgB6RvrA
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Greg KH" <greg@kroah.com>, "long" <tlnguyen@snoqualmie.dp.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 14 Mar 2005 18:34:16.0629 (UTC) FILETIME=[6D887E50:01C528C4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, March 11, 2005 11:21 PM Greg KH wrote:
->> 
->> -	Report the errors to user.
->>
->This is done through the syslog, right?  Is that acceptable?
+On Mon, 14 Mar 2005, Wiktor wrote:
 
-Reporting the errors to user can be written automatically to
-/var/log/messages or be manually consumed through the syslog. I am not
-sure whether it is acceptable or not, but I like your below suggestion. 
-
->It looks like you are logging a lot of stuff, all without a kernel log
->level, which is going to really mess up syslog parsers.
+> Hi,
 >
->Have you thought about just providing userspace with access to the
-error
->message, in binary form, from a sysfs file, and causing a kevent to
-wake
->userspace up to know to read from the file?  That way all of the
-parsing
->of the error log can be done in userspace, and there is no formatting
-of
->the messages from within the kernel.
+> I'm looking for a way to connect multiple linux systems into one big
+> machine (server-farm) and I can't find any way of enabling it in kernel.
+>   Is this feature supported?
 
-Again, I like this suggestion.
+Parallel Processing is not currently part of the mainstream linux kernel.
+I have an openmosix patched kernel at http:/gnuveau.net under open-source
+software downloads.  It supports parallel processing and global shared
+memory.  you could use nfs for the disks.  Not sure about the networking.
 
-Thanks,
-Long
+Enjoy,
+Scott
+
+
+> If not, how can I build cluster from, let's
+> say, 5 machines (I'm interestied in sharing of processes, memory, disk
+> space and network interface). Thanks for replies.
+>
+> --
+> May the Source be with you
+> Wiktor
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+sleekfreak pirate broadcast
+http://sleekfreak.ath.cx:81/
+

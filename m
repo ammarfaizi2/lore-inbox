@@ -1,340 +1,375 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269476AbUINSDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269511AbUINRxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269476AbUINSDw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 14:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269640AbUINSA6
+	id S269511AbUINRxD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269531AbUINRta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 14:00:58 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:2255 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S269495AbUINRt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 13:49:59 -0400
-Date: Tue, 14 Sep 2004 10:49:57 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       dwmw2@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add MTD map driver for Intel IXP2000 NPU
-Message-ID: <20040914174957.GB12350@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Tue, 14 Sep 2004 13:49:30 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:26563 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S269520AbUINRn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:43:57 -0400
+Message-Id: <200409141847.i8EIlZ4W003422@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML - Cleaning up
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Date: Tue, 14 Sep 2004 14:47:35 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is a whole lot of "obviously won't break anything" changes, 
+including
+	renaming the UML console functions more consistently
+	notes to myself
+	code movement
+	making some functions static
+	error path cleanup
+	printk fixes
 
-Linus, Andrew,
-
-The following patch adds the MTD map driver for Intel's IXP2000 NPU. 
-The driver is already in MTD CVS and I've gotten the OK from David 
-to push it upstream.
-
-Please apply,
-~Deepak
-
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-
-diff -uNr -X dontdiff linux-2.6-rmk/drivers/mtd/maps/Makefile linux-2.5-bk/drivers/mtd/maps/Makefile
---- linux-2.6-rmk/drivers/mtd/maps/Makefile	2004-09-13 16:55:03.000000000 -0700
-+++ linux-2.5-bk/drivers/mtd/maps/Makefile	2004-09-14 10:26:25.000000000 -0700
-@@ -62,5 +62,6 @@
- obj-$(CONFIG_MTD_NOR_TOTO)	+= omap-toto-flash.o
- obj-$(CONFIG_MTD_MPC1211)	+= mpc1211.o
- obj-$(CONFIG_MTD_IXP4XX)	+= ixp4xx.o
-+obj-$(CONFIG_MTD_IXP2000)	+= ixp2000.o
- obj-$(CONFIG_MTD_WRSBC8260)	+= wr_sbc82xx_flash.o
- obj-$(CONFIG_MTD_DMV182)	+= dmv182.o
-diff -uNr -X dontdiff linux-2.6-rmk/drivers/mtd/maps/ixp2000.c linux-2.5-bk/drivers/mtd/maps/ixp2000.c
---- linux-2.6-rmk/drivers/mtd/maps/ixp2000.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.5-bk/drivers/mtd/maps/ixp2000.c	2004-09-14 10:26:31.000000000 -0700
-@@ -0,0 +1,281 @@
-+/*
-+ * $Id: ixp2000.c,v 1.1 2004/09/02 00:13:41 dsaxena Exp $
-+ *
-+ * drivers/mtd/maps/ixp2000.c
-+ *
-+ * Mapping for the Intel XScale IXP2000 based systems
-+ *
-+ * Copyright (C) 2002 Intel Corp.
-+ * Copyright (C) 2003-2004 MontaVista Software, Inc.
-+ *
-+ * Original Author: Naeem M Afzal <naeem.m.afzal@intel.com>
-+ * Maintainer: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ * 
-+ */
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+	
+Index: 2.6.9-rc2/arch/um/drivers/stdio_console.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/drivers/stdio_console.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/drivers/stdio_console.c	2004-09-14 13:30:33.000000000 -0400
+@@ -191,7 +191,7 @@
+ 
+ late_initcall(stdio_init);
+ 
+-static void console_write(struct console *console, const char *string, 
++static void uml_console_write(struct console *console, const char *string, 
+ 			  unsigned len)
+ {
+ 	struct line *line = &vts[console->index];
+@@ -203,22 +203,22 @@
+ 		up(&line->sem);
+ }
+ 
+-static struct tty_driver *um_console_device(struct console *c, int *index)
++static struct tty_driver *uml_console_device(struct console *c, int *index)
+ {
+ 	*index = c->index;
+ 	return console_driver;
+ }
+ 
+-static int console_setup(struct console *co, char *options)
++static int uml_console_setup(struct console *co, char *options)
+ {
+ 	return(0);
+ }
+ 
+ static struct console stdiocons = {
+ 	name:		"tty",
+-	write:		console_write,
+-	device:		um_console_device,
+-	setup:		console_setup,
++	write:		uml_console_write,
++	device:		uml_console_device,
++	setup:		uml_console_setup,
+ 	flags:		CON_PRINTBUFFER,
+ 	index:		-1,
+ };
+Index: 2.6.9-rc2/arch/um/drivers/xterm.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/drivers/xterm.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/drivers/xterm.c	2004-09-14 13:30:33.000000000 -0400
+@@ -83,6 +83,7 @@
+ "    are 'xterm=gnome-terminal,-t,-x'.\n\n"
+ );
+ 
++/* XXX This badly needs some cleaning up in the error paths */
+ int xterm_open(int input, int output, int primary, void *d, char **dev_out)
+ {
+ 	struct xterm_chan *data = d;
+Index: 2.6.9-rc2/arch/um/kernel/process.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/process.c	2004-09-14 13:30:32.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/process.c	2004-09-14 13:30:33.000000000 -0400
+@@ -139,16 +139,6 @@
+ 	return(arg.pid);
+ }
+ 
+-void suspend_new_thread(int fd)
+-{
+-	char c;
+-
+-	os_stop_process(os_getpid());
+-
+-	if(os_read_file(fd, &c, sizeof(c)) != sizeof(c))
+-		panic("read failed in suspend_new_thread");
+-}
+-
+ static int ptrace_child(void *arg)
+ {
+ 	int pid = os_getpid();
+Index: 2.6.9-rc2/arch/um/kernel/sigio_kern.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/sigio_kern.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/sigio_kern.c	2004-09-14 13:30:33.000000000 -0400
+@@ -16,7 +16,7 @@
+ /* Protected by sigio_lock() called from write_sigio_workaround */
+ static int sigio_irq_fd = -1;
+ 
+-irqreturn_t sigio_interrupt(int irq, void *data, struct pt_regs *unused)
++static irqreturn_t sigio_interrupt(int irq, void *data, struct pt_regs *unused)
+ {
+ 	read_sigio_fd(sigio_irq_fd);
+ 	reactivate_fd(sigio_irq_fd, SIGIO_WRITE_IRQ);
+@@ -25,10 +25,14 @@
+ 
+ int write_sigio_irq(int fd)
+ {
+-	if(um_request_irq(SIGIO_WRITE_IRQ, fd, IRQ_READ, sigio_interrupt,
++	int err;
 +
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/map.h>
-+#include <linux/mtd/partitions.h>
-+#include <linux/ioport.h>
-+#include <linux/device.h>
-+
-+#include <asm/io.h>
-+#include <asm/hardware.h>
-+#include <asm/mach-types.h>
-+#include <asm/mach/flash.h>
-+
-+#include <linux/reboot.h>
-+
-+struct ixp2000_flash_info {
-+	struct		mtd_info *mtd;
-+	struct		map_info map;
-+	struct		mtd_partition *partitions;
-+	struct		resource *res;
-+	int		nr_banks;
-+};
-+
-+static inline unsigned long flash_bank_setup(struct map_info *map, unsigned long ofs)
-+{	
-+	unsigned long (*set_bank)(unsigned long) = 
-+		(unsigned long(*)(unsigned long))map->map_priv_2;
-+
-+	return (set_bank ? set_bank(ofs) : ofs);
-+}
-+
-+#ifdef __ARMEB__
-+/*
-+ * Rev A0 and A1 of IXP2400 silicon have a broken addressing unit which 
-+ * causes the lower address bits to be XORed with 0x11 on 8 bit accesses 
-+ * and XORed with 0x10 on 16 bit accesses. See the spec update, erratta 44.
-+ */
-+static int errata44_workaround = 0;
-+
-+static inline unsigned long address_fix8_write(unsigned long addr)
++	err = um_request_irq(SIGIO_WRITE_IRQ, fd, IRQ_READ, sigio_interrupt,
+ 			  SA_INTERRUPT | SA_SAMPLE_RANDOM, "write sigio", 
+-			  NULL)){
+-		printk("write_sigio_irq : um_request_irq failed\n");
++			     NULL);
++	if(err){
++		printk("write_sigio_irq : um_request_irq failed, err = %d\n",
++		       err);
+ 		return(-1);
+ 	}
+ 	sigio_irq_fd = fd;
+Index: 2.6.9-rc2/arch/um/kernel/skas/process.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/skas/process.c	2004-09-14 13:30:32.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/skas/process.c	2004-09-14 13:30:33.000000000 -0400
+@@ -375,28 +375,6 @@
+ 	siglongjmp(initial_jmpbuf, 4);
+ }
+ 
+-int new_mm(int from)
+-{
+-	struct proc_mm_op copy;
+-	int n, fd = os_open_file("/proc/mm",
+-				 of_cloexec(of_write(OPENFLAGS())), 0);
+-
+-	if(fd < 0)
+-		return(fd);
+-
+-	if(from != -1){
+-		copy = ((struct proc_mm_op) { .op 	= MM_COPY_SEGMENTS,
+-					      .u 	= 
+-					      { .copy_segments	= from } } );
+-		n = os_write_file(fd, &copy, sizeof(copy));
+-		if(n != sizeof(copy)) 
+-			printk("new_mm : /proc/mm copy_segments failed, "
+-			       "err = %d\n", -n);
+-	}
+-
+-	return(fd);
+-}
+-
+ void switch_mm_skas(int mm_fd)
+ {
+ 	int err;
+Index: 2.6.9-rc2/arch/um/kernel/skas/process_kern.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/skas/process_kern.c	2004-09-14 13:30:33.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/skas/process_kern.c	2004-09-14 13:30:33.000000000 -0400
+@@ -22,6 +22,7 @@
+ #include "frame.h"
+ #include "kern.h"
+ #include "mode.h"
++#include "proc_mm.h"
+ 
+ static atomic_t using_sysemu;
+ int sysemu_supported;
+@@ -196,6 +197,28 @@
+ 	return(0);
+ }
+ 
++int new_mm(int from)
 +{
-+	if (errata44_workaround) {
-+		return (addr ^ 3);
++	struct proc_mm_op copy;
++	int n, fd;
++
++	fd = os_open_file("/proc/mm", of_cloexec(of_write(OPENFLAGS())), 0);
++	if(fd < 0)
++		return(fd);
++
++	if(from != -1){
++		copy = ((struct proc_mm_op) { .op 	= MM_COPY_SEGMENTS,
++					      .u 	= 
++					      { .copy_segments	= from } } );
++		n = os_write_file(fd, &copy, sizeof(copy));
++		if(n != sizeof(copy)) 
++			printk("new_mm : /proc/mm copy_segments failed, "
++			       "err = %d\n", -n);
 +	}
-+	return addr;
-+}
-+#else
 +
-+#define address_fix8_write(x)	(x)
-+#endif
-+
-+static map_word ixp2000_flash_read8(struct map_info *map, unsigned long ofs)
-+{
-+	map_word val;
-+
-+	val.x[0] =  *((u8 *)(map->map_priv_1 + flash_bank_setup(map, ofs)));
-+	return val;
++	return(fd);
 +}
 +
-+/*
-+ * We can't use the standard memcpy due to the broken SlowPort
-+ * address translation on rev A0 and A1 silicon and the fact that
-+ * we have banked flash.
-+ */
-+static void ixp2000_flash_copy_from(struct map_info *map, void *to,
-+			      unsigned long from, ssize_t len)
+ void init_idle_skas(void)
+ {
+ 	cpu_tasks[current_thread->cpu].pid = os_getpid();
+Index: 2.6.9-rc2/arch/um/kernel/tt/process_kern.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/tt/process_kern.c	2004-09-14 13:30:30.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/tt/process_kern.c	2004-09-14 13:30:33.000000000 -0400
+@@ -128,6 +128,17 @@
+ 	os_close_file(current->thread.mode.tt.switch_pipe[1]);
+ }
+ 
++void suspend_new_thread(int fd)
 +{
-+	from = flash_bank_setup(map, from);
-+	while(len--) 
-+		*(__u8 *) to++ = *(__u8 *)(map->map_priv_1 + from++);
++	int err;
++	char c;
++
++	os_stop_process(os_getpid());
++	err = os_read_file(fd, &c, sizeof(c));
++	if(err != sizeof(c))
++		panic("read failed in suspend_new_thread, err = %d", -err);
 +}
 +
-+static void ixp2000_flash_write8(struct map_info *map, map_word d, unsigned long ofs)
-+{
-+	*(__u8 *) (address_fix8_write(map->map_priv_1 +
-+				      flash_bank_setup(map, ofs))) = d.x[0];
-+}
-+
-+static void ixp2000_flash_copy_to(struct map_info *map, unsigned long to,
-+			    const void *from, ssize_t len)
-+{
-+	to = flash_bank_setup(map, to);
-+	while(len--) {
-+		unsigned long tmp = address_fix8_write(map->map_priv_1 + to++);
-+		*(__u8 *)(tmp) = *(__u8 *)(from++);
-+	}
-+}
-+
-+
-+static int ixp2000_flash_remove(struct device *_dev)
-+{
-+	struct platform_device *dev = to_platform_device(_dev);
-+	struct flash_platform_data *plat = dev->dev.platform_data;
-+	struct ixp2000_flash_info *info = dev_get_drvdata(&dev->dev);
-+
-+	dev_set_drvdata(&dev->dev, NULL);
-+
-+	if(!info)
-+		return 0;
-+
-+	if (info->mtd) {
-+		del_mtd_partitions(info->mtd);
-+		map_destroy(info->mtd);
-+	}
-+	if (info->map.map_priv_1)
-+		iounmap((void *) info->map.map_priv_1);
-+
-+	if (info->partitions) {
-+		kfree(info->partitions); }
-+
-+	if (info->res) {
-+		release_resource(info->res);
-+		kfree(info->res);
-+	}
-+
-+	if (plat->exit)
-+		plat->exit();
-+
-+	return 0;
-+}
-+
-+
-+static int ixp2000_flash_probe(struct device *_dev)
-+{
-+	static const char *probes[] = { "RedBoot", "cmdlinepart", NULL };
-+	struct platform_device *dev = to_platform_device(_dev);
-+	struct ixp2000_flash_data *ixp_data = dev->dev.platform_data;
-+	struct flash_platform_data *plat; 
-+	struct ixp2000_flash_info *info;
-+	unsigned long window_size;
-+	int err = -1;
+ void schedule_tail(task_t *prev);
+ 
+ static void new_thread_handler(int sig)
+@@ -162,6 +173,12 @@
+ 	local_irq_enable();
+ 	if(!run_kernel_thread(fn, arg, &current->thread.exec_buf))
+ 		do_exit(0);
 +	
-+	if (!ixp_data)
-+		return -ENODEV;
-+
-+	plat = ixp_data->platform_data;
-+	if (!plat)
-+		return -ENODEV;
-+
-+	window_size = dev->resource->end - dev->resource->start + 1;
-+	dev_info(_dev, "Probe of IXP2000 flash(%d banks x %dM)\n", 
-+			ixp_data->nr_banks, ((u32)window_size >> 20));
-+
-+	if (plat->width != 1) {
-+		dev_err(_dev, "IXP2000 MTD map only supports 8-bit mode, asking for %d\n",
-+				plat->width * 8);
-+		return -EIO;
-+	}
-+
-+	info = kmalloc(sizeof(struct ixp2000_flash_info), GFP_KERNEL);
-+	if(!info) {
-+		err = -ENOMEM;
-+		goto Error;
-+	}	
-+	memzero(info, sizeof(struct ixp2000_flash_info));
-+
-+	dev_set_drvdata(&dev->dev, info);
-+
-+	/*
-+	 * Tell the MTD layer we're not 1:1 mapped so that it does
-+	 * not attempt to do a direct access on us.
++	/* XXX No set_user_mode here because a newly execed process will
++	 * immediately segfault on its non-existent IP, coming straight back
++	 * to the signal handler, which will call set_user_mode on its way
++	 * out.  This should probably change since it's confusing.
 +	 */
-+	info->map.phys = NO_XIP;
-+	
-+	info->nr_banks = ixp_data->nr_banks;
-+	info->map.size = ixp_data->nr_banks * window_size;
-+	info->map.bankwidth = 1;
-+
-+	/*
-+ 	 * map_priv_2 is used to store a ptr to to the bank_setup routine
-+ 	 */
-+	info->map.map_priv_2 = (u32) ixp_data->bank_setup;
-+
-+	info->map.name = dev->dev.bus_id;
-+	info->map.read = ixp2000_flash_read8;
-+	info->map.write = ixp2000_flash_write8;
-+	info->map.copy_from = ixp2000_flash_copy_from;
-+	info->map.copy_to = ixp2000_flash_copy_to;
-+
-+	info->res = request_mem_region(dev->resource->start, 
-+			dev->resource->end - dev->resource->start + 1, 
-+			dev->dev.bus_id);
-+	if (!info->res) {
-+		dev_err(_dev, "Could not reserve memory region\n");
-+		err = -ENOMEM;
-+		goto Error;
-+	}
-+
-+	info->map.map_priv_1 =
-+	    (unsigned long) ioremap(dev->resource->start, 
-+				    dev->resource->end - dev->resource->start + 1);
-+	if (!info->map.map_priv_1) {
-+		dev_err(_dev, "Failed to ioremap flash region\n");
-+		err = -EIO;
-+		goto Error;
-+	}
-+
-+	/*
-+	 * Setup read mode for FLASH
-+	 */
-+	*IXP2000_SLOWPORT_FRM = 1;
-+
-+#if defined(__ARMEB__)
-+	/*
-+	 * Enable errata 44 workaround for NPUs with broken slowport
-+	 */
-+
-+	errata44_workaround = ixp2000_has_broken_slowport();
-+	dev_info(_dev, "Errata 44 workaround %s\n",
-+	       errata44_workaround ? "enabled" : "disabled");
-+#endif
-+
-+	info->mtd = do_map_probe(plat->map_name, &info->map);
-+	if (!info->mtd) {
-+		dev_err(_dev, "map_probe failed\n");
-+		err = -ENXIO;
-+		goto Error;
-+	}
-+	info->mtd->owner = THIS_MODULE;
-+
-+	err = parse_mtd_partitions(info->mtd, probes, &info->partitions, 0);
-+	if (err > 0) {
-+		err = add_mtd_partitions(info->mtd, info->partitions, err);
-+		if(err)
-+			dev_err(_dev, "Could not parse partitions\n");
-+	}
-+
-+	if (err)
-+		goto Error;
-+
-+	return 0;
-+
-+Error:
-+	ixp2000_flash_remove(_dev);
-+	return err;
-+}
-+
-+static struct device_driver ixp2000_flash_driver = {
-+	.name		= "IXP2000-Flash",
-+	.bus		= &platform_bus_type,
-+	.probe		= &ixp2000_flash_probe,
-+	.remove		= &ixp2000_flash_remove
-+};
-+
-+static int __init ixp2000_flash_init(void)
-+{
-+	return driver_register(&ixp2000_flash_driver);
-+}
-+
-+static void __exit ixp2000_flash_exit(void)
-+{
-+	driver_unregister(&ixp2000_flash_driver);
-+}
-+
-+module_init(ixp2000_flash_init);
-+module_exit(ixp2000_flash_exit);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
-+
+ }
+ 
+ static int new_thread_proc(void *stack)
+Index: 2.6.9-rc2/arch/um/kernel/tt/tracer.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/tt/tracer.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/tt/tracer.c	2004-09-14 13:30:33.000000000 -0400
+@@ -330,7 +330,8 @@
+ 					continue;
+ 				}
+ 				tracing = 0;
+-				if(do_syscall(task, pid)) sig = SIGUSR2;
++				if(do_syscall(task, pid))
++					sig = SIGUSR2;
+ 				else clear_singlestep(task);
+ 				break;
+ 			case SIGPROF:
+Index: 2.6.9-rc2/arch/um/kernel/umid.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/umid.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/umid.c	2004-09-14 13:30:33.000000000 -0400
+@@ -43,7 +43,7 @@
+ 	}
+ 
+ 	if(strlen(name) > UMID_LEN - 1)
+-		(*printer)("Unique machine name is being truncated to %s "
++		(*printer)("Unique machine name is being truncated to %d "
+ 			   "characters\n", UMID_LEN);
+ 	strlcpy(umid, name, sizeof(umid));
+ 
+@@ -199,17 +199,20 @@
+ static int __init set_uml_dir(char *name, int *add)
+ {
+ 	if((strlen(name) > 0) && (name[strlen(name) - 1] != '/')){
+-		uml_dir = malloc(strlen(name) + 1);
++		uml_dir = malloc(strlen(name) + 2);
+ 		if(uml_dir == NULL){
+ 			printf("Failed to malloc uml_dir - error = %d\n",
+ 			       errno);
+ 			uml_dir = name;
++			/* Return 0 here because do_initcalls doesn't look at
++			 * the return value.
++			 */
+ 			return(0);
+ 		}
+ 		sprintf(uml_dir, "%s/", name);
+ 	}
+ 	else uml_dir = name;
+-	return 0;
++	return(0);
+ }
+ 
+ static int __init make_uml_dir(void)
+Index: 2.6.9-rc2/arch/um/kernel/user_util.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/kernel/user_util.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/kernel/user_util.c	2004-09-14 13:30:33.000000000 -0400
+@@ -88,11 +88,11 @@
+ 				       errno);
+ 			}
+ 			else if(WIFEXITED(status)) 
+-				printk("process exited with status %d\n", 
+-				       WEXITSTATUS(status));
++				printk("process %d exited with status %d\n", 
++				       pid, WEXITSTATUS(status));
+ 			else if(WIFSIGNALED(status))
+-				printk("process exited with signal %d\n", 
+-				       WTERMSIG(status));
++				printk("process %d exited with signal %d\n", 
++				       pid, WTERMSIG(status));
+ 			else if((WSTOPSIG(status) == SIGVTALRM) ||
+ 				(WSTOPSIG(status) == SIGALRM) ||
+ 				(WSTOPSIG(status) == SIGIO) ||
+@@ -108,8 +108,8 @@
+ 				ptrace(cont_type, pid, 0, WSTOPSIG(status));
+ 				continue;
+ 			}
+-			else printk("process stopped with signal %d\n", 
+-				    WSTOPSIG(status));
++			else printk("process %d stopped with signal %d\n", 
++				    pid, WSTOPSIG(status));
+ 			panic("wait_for_stop failed to wait for %d to stop "
+ 			      "with %d\n", pid, sig);
+ 		}
+Index: 2.6.9-rc2/arch/um/os-Linux/file.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/os-Linux/file.c	2004-09-14 13:30:30.000000000 -0400
++++ 2.6.9-rc2/arch/um/os-Linux/file.c	2004-09-14 13:30:33.000000000 -0400
+@@ -187,7 +187,8 @@
+ 
+ 	if((fcntl(master, F_SETFL, flags | O_NONBLOCK | O_ASYNC) < 0) ||
+ 	   (fcntl(master, F_SETOWN, os_getpid()) < 0)){
+-		printk("fcntl F_SETFL or F_SETOWN failed, errno = %d\n", errno);
++		printk("fcntl F_SETFL or F_SETOWN failed, errno = %d\n", 
++		       errno);
+ 		return(-errno);
+ 	}
+ 
+Index: 2.6.9-rc2/arch/um/os-Linux/process.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/os-Linux/process.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/os-Linux/process.c	2004-09-14 13:30:33.000000000 -0400
+@@ -42,9 +42,9 @@
+ 	}
+ 	os_close_file(fd);
+ 	pc = ARBITRARY_ADDR;
+-	if(sscanf(buf, "%*d " COMM_SCANF " %*c %*d %*d %*d %*d %*d %*d %*d %*d "
++	if(sscanf(buf, "%*d " COMM_SCANF " %*c %*d %*d %*d %*d %*d %*d %*d "
+ 		  "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d "
+-		  "%*d %*d %*d %*d %lu", &pc) != 1){
++		  "%*d %*d %*d %*d %*d %lu", &pc) != 1){
+ 		printk("os_process_pc - couldn't find pc in '%s'\n", buf);
+ 	}
+ 	return(pc);
+Index: 2.6.9-rc2/arch/um/sys-i386/ptrace_user.c
+===================================================================
+--- 2.6.9-rc2.orig/arch/um/sys-i386/ptrace_user.c	2004-09-14 13:30:22.000000000 -0400
++++ 2.6.9-rc2/arch/um/sys-i386/ptrace_user.c	2004-09-14 13:30:33.000000000 -0400
+@@ -42,7 +42,8 @@
+ 		if(ptrace(PTRACE_POKEUSER, pid, &dummy->u_debugreg[i],
+ 			  regs[i]) < 0)
+ 			printk("write_debugregs - ptrace failed on "
+-			       "register %d, errno = %d\n", errno);
++			       "register %d, value = 0x%x, errno = %d\n", i, 
++			       regs[i], errno);
+ 	}
+ }
+ 
+More recent patches modify files in tidy.
 
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment
-and will die here like rotten cabbages." - Number 6

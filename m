@@ -1,14 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUARESa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 23:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266214AbUARESa
+	id S266242AbUAREYF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 23:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUAREYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 23:18:30 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:53909 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266209AbUARES3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 23:18:29 -0500
+	Sat, 17 Jan 2004 23:24:05 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:50571 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266242AbUAREX4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 23:23:56 -0500
 content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
@@ -16,29 +17,200 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 8BIT
 Subject: RE: ACPI: problem on ASUS PR-DLS533
 X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Sun, 18 Jan 2004 12:18:21 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CE8@PDSMSX403.ccr.corp.intel.com>
+Date: Sun, 18 Jan 2004 12:23:49 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CE9@PDSMSX403.ccr.corp.intel.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: ACPI: problem on ASUS PR-DLS533
-Thread-Index: AcPbk3n8NMOrSt++TZ6kTk04TB+lZwB5kyxQ
+Thread-Index: AcPcM+nRRwhcJO6cTCObgbew7Iv7FwBRtFwg
 From: "Yu, Luming" <luming.yu@intel.com>
-To: "Andrew Walrond" <andrew@walrond.org>,
-       "Stephan von Krawczynski" <skraw@ithnet.com>
-Cc: <andreas@xss.co.at>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Jan 2004 04:18:22.0029 (UTC) FILETIME=[1BE5A7D0:01C3DD7A]
+To: "Stephan von Krawczynski" <skraw@ithnet.com>,
+       "Andreas Haumer" <andreas@xss.co.at>
+Cc: <marcelo.tosatti@cyclades.com>, <andrew@walrond.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Jan 2004 04:23:50.0310 (UTC) FILETIME=[DF915C60:01C3DD7A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> unfortunately neither 2.4.23 or 2.4.24 will boot from the 
-> Mylex 170 Raid card 
-> (DAC960) with ACPI enabled, so I never get to lspci :(
+I missed this thread for a few days, What's the conclusion?
 
-Are you sure, you can verify it with acpi=off.
+Thanks,
+Luming
 
+> -----Original Message-----
+> From: Stephan von Krawczynski [mailto:skraw@ithnet.com] 
+> Sent: Friday, January 16, 2004 9:23 PM
+> To: Andreas Haumer
+> Cc: marcelo.tosatti@cyclades.com; andrew@walrond.org; Yu, 
+> Luming; linux-kernel@vger.kernel.org
+> Subject: Re: ACPI: problem on ASUS PR-DLS533
 > 
-> I could perhaps capture the boot messages over serial port, 
-> if that would be 
-> helpful?
 > 
-Yes, it's good thing to me.
+> 
+> > For the system I noticed the ACPI problems (Asus PR-DLS533),
+> > the regression occured after 2.4.21
+> > 
+> > With pristine 2.4.21 the system could boot with ACPI enabled,
+> > but with the new ACPI patches introduced with the 2.4.21-ac
+> > series (and integrated in the 2.4.x series later on) it did not.
+> > 
+> > Does your board have several PCI busses (lspci -v) ?
+> 
+> You asked ;-)
+> The last two entries are the controllers in question.
+> 
+> 
+> 00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (rev 23)
+> 	Flags: fast devsel
+> 
+> 00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+> 	Flags: bus master, medium devsel, latency 32
+> 
+> 00:00.2 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+> 	Flags: medium devsel
+> 
+> 00:00.3 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+> 	Flags: medium devsel
+> 
+> 00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet 
+> Pro 100] (rev 0d)
+> 	Subsystem: Intel Corp. EtherExpress PRO/100 S Server Adapter
+> 	Flags: bus master, medium devsel, latency 32, IRQ 18
+> 	Memory at ef000000 (32-bit, non-prefetchable) [size=4K]
+> 	I/O ports at d800 [size=64]
+> 	Memory at ee800000 (32-bit, non-prefetchable) [size=128K]
+> 	Expansion ROM at febf0000 [disabled] [size=64K]
+> 	Capabilities: [dc] Power Management version 2
+> 
+> 00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet 
+> Pro 100] (rev 0d)
+> 	Subsystem: Intel Corp. EtherExpress PRO/100 S Server Adapter
+> 	Flags: bus master, medium devsel, latency 32, IRQ 18
+> 	Memory at ee000000 (32-bit, non-prefetchable) [size=4K]
+> 	I/O ports at d400 [size=64]
+> 	Memory at ed800000 (32-bit, non-prefetchable) [size=128K]
+> 	Expansion ROM at febe0000 [disabled] [size=64K]
+> 	Capabilities: [dc] Power Management version 2
+> 
+> 00:04.0 VGA compatible controller: ATI Technologies Inc 
+> Radeon RV200 QW [Radeon 7500] (prog-if 00 [VGA])
+> 	Subsystem: C.P. Technology Co. Ltd RV200 QW [Radeon 
+> 7500 PCI Dual Display]
+> 	Flags: bus master, stepping, medium devsel, latency 32, IRQ 25
+> 	Memory at f0000000 (32-bit, prefetchable) [size=128M]
+> 	I/O ports at d000 [size=256]
+> 	Memory at ed000000 (32-bit, non-prefetchable) [size=64K]
+> 	Expansion ROM at effe0000 [disabled] [size=128K]
+> 	Capabilities: [50] Power Management version 2
+> 
+> 00:05.0 Multimedia audio controller: Creative Labs SB Live! 
+> EMU10k1 (rev 07)
+> 	Subsystem: Creative Labs SBLive! Player 5.1
+> 	Flags: bus master, medium devsel, latency 32, IRQ 26
+> 	I/O ports at b800 [size=32]
+> 	Capabilities: [dc] Power Management version 1
+> 
+> 00:05.1 Input device controller: Creative Labs SB Live! 
+> MIDI/Game Port (rev 07)
+> 	Subsystem: Creative Labs Gameport Joystick
+> 	Flags: bus master, medium devsel, latency 32
+> 	I/O ports at b400 [size=8]
+> 	Capabilities: [dc] Power Management version 1
+> 
+> 00:07.0 VGA compatible controller: ATI Technologies Inc Rage 
+> XL (rev 27) (prog-if 00 [VGA])
+> 	Subsystem: Asustek Computer, Inc.: Unknown device 1234
+> 	Flags: bus master, stepping, medium devsel, latency 32, IRQ 19
+> 	Memory at ec000000 (32-bit, non-prefetchable) 
+> [disabled] [size=16M]
+> 	I/O ports at b000 [disabled] [size=256]
+> 	Memory at eb800000 (32-bit, non-prefetchable) 
+> [disabled] [size=4K]
+> 	Expansion ROM at effc0000 [disabled] [size=128K]
+> 	Capabilities: [5c] Power Management version 2
+> 
+> 00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
+> 	Subsystem: ServerWorks CSB5 South Bridge
+> 	Flags: bus master, medium devsel, latency 32
+> 
+> 00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 
+> 93) (prog-if 8a [Master SecP PriP])
+> 	Subsystem: ServerWorks CSB5 IDE Controller
+> 	Flags: bus master, medium devsel, latency 64
+> 	I/O ports at <ignored>
+> 	I/O ports at <ignored>
+> 	I/O ports at <ignored>
+> 	I/O ports at <ignored>
+> 	I/O ports at 9400 [size=16]
+> 
+> 00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB 
+> Controller (rev 05) (prog-if 10 [OHCI])
+> 	Subsystem: ServerWorks OSB4/CSB5 OHCI USB Controller
+> 	Flags: bus master, medium devsel, latency 32, IRQ 11
+> 	Memory at eb000000 (32-bit, non-prefetchable) [size=4K]
+> 
+> 00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
+> 	Subsystem: ServerWorks: Unknown device 0230
+> 	Flags: bus master, medium devsel, latency 0
+> 
+> 01:02.0 RAID bus controller: 3ware Inc 3ware 7000-series 
+> ATA-RAID (rev 01)
+> 	Subsystem: 3ware Inc 3ware 7000-series ATA-RAID
+> 	Flags: bus master, medium devsel, latency 32, IRQ 17
+> 	I/O ports at 9000 [size=16]
+> 	Memory at ea800000 (32-bit, non-prefetchable) [size=16]
+> 	Memory at ea000000 (32-bit, non-prefetchable) [size=8M]
+> 	Expansion ROM at <unassigned> [disabled] [size=64K]
+> 	Capabilities: [40] Power Management version 1
+> 
+> 01:03.0 Network controller: AVM Audiovisuelles MKTG & 
+> Computer System GmbH Fritz!PCI v2.0 ISDN (rev 01)
+> 	Subsystem: AVM Audiovisuelles MKTG & Computer System 
+> GmbH Fritz!PCI v2.0 ISDN
+> 	Flags: medium devsel, IRQ 20
+> 	Memory at e9800000 (32-bit, non-prefetchable) [size=32]
+> 	I/O ports at 8800 [size=32]
+> 	Capabilities: [40] Power Management version 2
+> 
+> 01:04.0 Ethernet controller: Broadcom Corporation NetXtreme 
+> BCM5701 Gigabit Ethernet (rev 15)
+> 	Subsystem: 3Com Corporation 3C996B-T 1000Base-T
+> 	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 21
+> 	Memory at e9000000 (64-bit, non-prefetchable) [size=64K]
+> 	Capabilities: [40] PCI-X non-bridge device.
+> 	Capabilities: [48] Power Management version 2
+> 	Capabilities: [50] Vital Product Data
+> 	Capabilities: [58] Message Signalled Interrupts: 64bit+ 
+> Queue=0/3 Enable-
+> 
+> 02:02.0 Ethernet controller: Broadcom Corporation NetXtreme 
+> BCM5701 Gigabit Ethernet (rev 15)
+> 	Subsystem: 3Com Corporation 3C996B-T 1000Base-T
+> 	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 24
+> 	Memory at e8800000 (64-bit, non-prefetchable) [size=64K]
+> 	Capabilities: [40] PCI-X non-bridge device.
+> 	Capabilities: [48] Power Management version 2
+> 	Capabilities: [50] Vital Product Data
+> 	Capabilities: [58] Message Signalled Interrupts: 64bit+ 
+> Queue=0/3 Enable-
+> 
+> 02:03.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+> 	Subsystem: Adaptec AIC-7899P U160/m
+> 	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 22
+> 	BIST result: 00
+> 	I/O ports at 7800 [disabled] [size=256]
+> 	Memory at e8000000 (64-bit, non-prefetchable) [size=4K]
+> 	Expansion ROM at efde0000 [disabled] [size=128K]
+> 	Capabilities: [dc] Power Management version 2
+> 
+> 02:03.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+> 	Subsystem: Adaptec AIC-7899P U160/m
+> 	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 23
+> 	BIST result: 00
+> 	I/O ports at 7400 [disabled] [size=256]
+> 	Memory at e7800000 (64-bit, non-prefetchable) [size=4K]
+> 	Expansion ROM at efdc0000 [disabled] [size=128K]
+> 	Capabilities: [dc] Power Management version 2
+> 
+> 
+> 

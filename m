@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265087AbTFYU4U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbTFYU4U
+	id S265089AbTFYUzp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbTFYUzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:56:20 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:62946 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S265087AbTFYU4R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:56:17 -0400
-Date: Wed, 25 Jun 2003 23:09:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Paul.Clements@steeleye.com, torvalds@transmeta.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Cc: ldl@aros.net, steve@chygwyn.com
-Subject: NBD maintainer change [was Re: Anyone for NBD maintainer]
-Message-ID: <20030625210945.GD5164@elf.ucw.cz>
-References: <20030625175849.GB4988@elf.ucw.cz> <Pine.LNX.4.10.10306251645580.11076-100000@clements.sc.steeleye.com>
+	Wed, 25 Jun 2003 16:55:45 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:63952 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265089AbTFYUzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:55:43 -0400
+Date: Wed, 25 Jun 2003 14:09:44 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Robert White <rwhite@casabyte.com>
+Cc: Larry McVoy <lm@bitmover.com>, Werner Almesberger <wa@almesberger.net>,
+       Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030625210944.GB11956@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Robert White <rwhite@casabyte.com>, Larry McVoy <lm@bitmover.com>,
+	Werner Almesberger <wa@almesberger.net>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
+References: <20030625034930.GA11956@work.bitmover.com> <PEEPIDHAKMCGHDBJLHKGCEDODBAA.rwhite@casabyte.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10306251645580.11076-100000@clements.sc.steeleye.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGCEDODBAA.rwhite@casabyte.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Jun 25, 2003 at 01:35:09PM -0700, Robert White wrote:
+> That is very sad.  The fact that I know that I am not the kind of salesman
+> one needs to be to run a business does not magically disqualify me from all
+> business knowledge.  
 
-> > BTW Anyone wanting to become nbd maintainer? I'm not much interested
-> > in nbd these days...
-> 
-> I would like to take this on, if you don't want to do it anymore. I've
-> been keeping up with the nbd source for quite a while now, so I think
-> I'm ready to give it a shot.
+I'm a pool player, or used to be.  In pool, as with many competitive sports,
+you get better by playing against people who are better than you.  You learn
+from their actions, etc.  It's perhaps more short term fun to play someone
+less skilled but you don't learn anything doing so.
 
-Linus, I no longer have time/interest in maintaining NBD. Please
-apply,
+The fact that you aren't someone who has run a business doesn't, as you 
+say, necessarily mean that you are less skilled but it certainly, without
+any room for disagreement, means you are less experienced.  Experience is
+a valuable thing, to me if not to you.  A very valuable thing.  I'm not
+discounting your words, I've read them, thought about them, and decided
+that I value them less than I value information coming from people with
+experience in running a business.
 
-								Pavel
+Please remember that I'm an engineer first and a business guy second.
+I already know how to do software development, build and ship a product,
+build and grow a team, etc.  Of course I can be better at that, I'm just
+saying that this isn't some business drone telling you how the world works.
+I've also started and grown a business and that has taught me an enormous
+amount that I do not believe you understand.  Why?  Because I used to think
+just like you and running the business changed my mind.  What are the 
+chances that running a business would change yours?  In my opinion, very
+close to 100%.  We can argue forever about this and it's pointless, you
+aren't arguing from a similar set of experiences so it's never going to
+work.
 
---- clean/MAINTAINERS	2003-06-24 12:27:38.000000000 +0200
-+++ linux/MAINTAINERS	2003-06-25 23:03:26.000000000 +0200
-@@ -1265,8 +1265,8 @@
- S:	Maintained
- 
- NETWORK BLOCK DEVICE
--P:	Pavel Machek
--M:	pavel@atrey.karlin.mff.cuni.cz
-+P:	Paul Clements
-+M:	Paul.Clements@steeleye.com
- S:	Maintained
- 
- NETWORK DEVICE DRIVERS
-
-
+It's not personal, it's just an observation that experience counts for 
+a hell of lot more than theories.  
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

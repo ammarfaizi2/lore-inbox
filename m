@@ -1,368 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUHVXJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUHVXMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267918AbUHVXJu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 19:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267890AbUHVXJT
+	id S267826AbUHVXMp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 19:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUHVXMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 19:09:19 -0400
-Received: from home.powernetonline.com ([66.84.210.20]:55992 "EHLO
-	home.uspower.net") by vger.kernel.org with ESMTP id S267760AbUHVXGP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 19:06:15 -0400
-Date: Sun, 22 Aug 2004 23:07:30 +0000
-From: John Lenz <lenz@cs.wisc.edu>
-Subject: Re: Backlight and LCD module patches [2]
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-References: <20040617223517.59a56c7e.zap@homelink.ru>
-	<20040725215917.GA7279@hydra.mshome.net> <20040813232739.GB5063@kroah.com>
-In-Reply-To: <20040813232739.GB5063@kroah.com> (from greg@kroah.com on Fri
-	Aug 13 18:27:40 2004)
-X-Mailer: Balsa 2.2.3
-Message-Id: <1093216050l.8554l.1l@hydra>
+	Sun, 22 Aug 2004 19:12:44 -0400
+Received: from vscan02.westnet.com.au ([203.10.1.132]:8136 "EHLO
+	vscan02.westnet.com.au") by vger.kernel.org with ESMTP
+	id S267826AbUHVXIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 19:08:32 -0400
+Message-ID: <4129276A.4090001@fraser.ipv6.net.au>
+Date: Mon, 23 Aug 2004 09:08:26 +1000
+From: Paul Fraser <paul@fraser.ipv6.net.au>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-T/vEKs5aLIgBN7kqRq8T"
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Trivial IPv6-for-Fedora HOWTO
+References: <4129236E.9020205@pobox.com>
+In-Reply-To: <4129236E.9020205@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-T/vEKs5aLIgBN7kqRq8T
-Content-Type: text/plain; charset=ISO-8859-1; DelSp=Yes; Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You can also get an IPv6 tunnel at http://tunnelbroker.ipv6.net.au/ that 
+will give you your own IPv6 tunnel and allocation. This isn't just an 
+Australian site either - you can get either AU or US tunnels, and you 
+can apply and use it anywhere in the world.
 
-On 08/13/04 18:27:40, Greg KH wrote:
->=20
-> Care to provide a proposed implementation of this functionality?
+Cheers,
 
-Here is an updated patch.  The only difference between the previous one =20
-and this one was a broken continue; statement.  I tried to continue the =20
-outer loop from inside an inner loop.  Instead I just use a goto.
-
---=-T/vEKs5aLIgBN7kqRq8T
-Content-Type: text/x-patch; charset=us-ascii; name=class_match.patch
-Content-Disposition: attachment; filename=class_match.patch
-Content-Transfer-Encoding: quoted-printable
+Paul Fraser
+paul@fraser.ipv6.net.au
 
 
-#
-# Patch managed by http://www.holgerschurig.de/patcher.html
-#
-
---- linux/include/linux/device.h~class_match
-+++ linux/include/linux/device.h
-@@ -147,6 +147,7 @@
- 	struct subsystem	subsys;
- 	struct list_head	children;
- 	struct list_head	interfaces;
-+	struct list_head	matches;
-=20
- 	struct class_attribute		* class_attrs;
- 	struct class_device_attribute	* class_dev_attrs;
-@@ -187,6 +188,8 @@
- 	void			* class_data;	/* class-specific data */
-=20
- 	char	class_id[BUS_ID_SIZE];	/* unique to this class */
-+
-+	struct list_head	matched_classes;
- };
-=20
- static inline void *
-@@ -240,6 +243,16 @@
- extern int class_interface_register(struct class_interface *);
- extern void class_interface_unregister(struct class_interface *);
-=20
-+struct class_match {
-+	struct class*	class1;
-+	struct class*	class2;
-+
-+	int (*match)(struct class_device *dev1, struct class_device *dev2);
-+};
-+
-+extern int class_match_register(struct class_match *match);
-+extern void class_match_unregister(struct class_match *match);
-+
- /* interface for class simple stuff */
- extern struct class_simple *class_simple_create(struct module *owner, char=
- *name);
- extern void class_simple_destroy(struct class_simple *cs);
-@@ -248,6 +261,7 @@
- extern int class_simple_set_hotplug(struct class_simple *,=20
- 	int (*hotplug)(struct class_device *dev, char **envp, int num_envp, char =
-*buffer, int buffer_size));
- extern void class_simple_device_remove(dev_t dev);
-+extern void class_simple_set_match(struct class_simple *cs, struct class_m=
-atch *match, int location);
-=20
-=20
- struct device {
---- linux/drivers/base/class_simple.c~class_match
-+++ linux/drivers/base/class_simple.c
-@@ -214,3 +214,13 @@
- 	}
- }
- EXPORT_SYMBOL(class_simple_device_remove);
-+
-+extern void class_simple_set_match(struct class_simple *cs, struct class_m=
-atch *match, int location)
-+{
-+	if (location =3D=3D 1) {
-+		match->class1 =3D &cs->class;
-+	} else if (location =3D=3D 2) {
-+		match->class2 =3D &cs->class;
-+	}
-+}
-+EXPORT_SYMBOL(class_simple_set_match);
---- linux/drivers/base/class.c~class_match
-+++ linux/drivers/base/class.c
-@@ -139,6 +139,7 @@
-=20
- 	INIT_LIST_HEAD(&cls->children);
- 	INIT_LIST_HEAD(&cls->interfaces);
-+	INIT_LIST_HEAD(&cls->matches);
- 	error =3D kobject_set_name(&cls->subsys.kset.kobj, cls->name);
- 	if (error)
- 		return error;
-@@ -306,6 +307,134 @@
-=20
- static decl_subsys(class_obj, &ktype_class_device, &class_hotplug_ops);
-=20
-+static spinlock_t class_match_lock =3D SPIN_LOCK_UNLOCKED;
-+
-+struct class_match_node {
-+	struct class_match *match;
-+	struct class_device *dev;
-+	struct list_head node;
-+};
-+/* Makes the calls to class_match->match functions and connects devices to=
-gether */
-+static void class_match_check(struct class_device *dev)
-+{
-+	struct class *parent =3D dev->class;
-+	struct class_match_node *match_node, *other_match_node;
-+
-+	struct class *other_class;
-+	struct class_device *other_device;
-+=09
-+	int ret;
-+
-+	spin_lock(&class_match_lock);
-+
-+	down_read(&parent->subsys.rwsem);
-+	list_for_each_entry(match_node, &parent->matches, node) {
-+		/* call the match() function and try and match devices together */
-+		if (parent =3D=3D match_node->match->class1) {
-+			other_class =3D match_node->match->class2;
-+		} else if (parent =3D=3D match_node->match->class2) {
-+			other_class =3D match_node->match->class1;
-+		} else {
-+			other_class =3D NULL;
-+		}
-+
-+		if (other_class) {
-+			down_read(&other_class->subsys.rwsem);
-+
-+			list_for_each_entry(other_device, &other_class->children, node) {
-+				/* first check if this device is already matched... */
-+				list_for_each_entry(other_match_node, &other_device->matched_classes, =
-node) {
-+					if (other_match_node->match =3D=3D match_node->match) {
-+						goto already_matched;
-+					}
-+				}
-+
-+				/* now call the match function */
-+				if (parent =3D=3D match_node->match->class1) {
-+					ret =3D match_node->match->match(dev, other_device);
-+				} else {
-+					ret =3D match_node->match->match(other_device, dev);
-+				}
-+				if (ret) {
-+
-+					/* now add this to the matched_classes lists */
-+					other_match_node =3D (struct class_match_node *) kmalloc(sizeof(struc=
-t class_match_node), GFP_KERNEL);
-+					if (other_match_node) {
-+						other_match_node->dev =3D other_device;
-+						other_match_node->match =3D match_node->match;
-+
-+						list_add_tail(&other_match_node->node, &dev->matched_classes);
-+						sysfs_create_link(&dev->kobj, &other_device->kobj, other_class->name=
-);
-+					}
-+
-+					other_match_node =3D (struct class_match_node *) kmalloc(sizeof(struc=
-t class_match_node), GFP_KERNEL);
-+					if (other_match_node) {
-+						other_match_node->dev =3D dev;
-+						other_match_node->match =3D match_node->match;
-+
-+						list_add_tail(&other_match_node->node, &other_device->matched_classe=
-s);
-+						sysfs_create_link(&other_device->kobj, &dev->kobj, parent->name);
-+					}
-+				=09
-+					break;
-+				}
-+already_matched:;
-+			}
-+			up_read(&other_class->subsys.rwsem);
-+		}
-+	}
-+	up_read(&parent->subsys.rwsem);
-+
-+	spin_unlock(&class_match_lock);
-+}
-+
-+static void class_match_unlink(struct class_device *class_dev)
-+{
-+	struct class * parent =3D class_dev->class;
-+	struct class_match_node *match_node, *other_match_node, *temp_match_node;
-+	struct class *other_class;
-+
-+	spin_lock(&class_match_lock);
-+
-+	down_read(&parent->subsys.rwsem);
-+
-+	/* remove symlinks from devices matched to this device */
-+	list_for_each_entry(match_node, &class_dev->matched_classes, node) {
-+		if (parent =3D=3D match_node->match->class1) {
-+			other_class =3D match_node->match->class2;
-+		} else if (parent =3D=3D match_node->match->class2) {
-+			other_class =3D match_node->match->class1;
-+		} else {
-+			/* should never happen */
-+			other_class =3D NULL;
-+		}
-+		if (other_class) {
-+			list_for_each_entry_safe(other_match_node, temp_match_node, &match_node=
-->dev->matched_classes, node) {
-+				if (match_node->match =3D=3D other_match_node->match) {
-+					list_del(&other_match_node->node);
-+					kfree(other_match_node);
-+					sysfs_remove_link(&match_node->dev->kobj, parent->name);
-+					break;
-+				}
-+			}
-+		}
-+	}
-+
-+	/* free entries in matched_classes */
-+	list_for_each_entry_safe(match_node, temp_match_node, &class_dev->matched=
-_classes, node) {
-+		list_del(&match_node->node);
-+		if (parent =3D=3D match_node->match->class1) {
-+			sysfs_remove_link(&class_dev->kobj, match_node->match->class2->name);
-+		} else {
-+			sysfs_remove_link(&class_dev->kobj, match_node->match->class1->name);
-+		}
-+		kfree(match_node);
-+	}
-+
-+	up_read(&parent->subsys.rwsem);
-+
-+	spin_unlock(&class_match_lock);
-+}
-=20
- static int class_device_add_attrs(struct class_device * cd)
- {
-@@ -345,6 +474,7 @@
- 	kobj_set_kset_s(class_dev, class_obj_subsys);
- 	kobject_init(&class_dev->kobj);
- 	INIT_LIST_HEAD(&class_dev->node);
-+	INIT_LIST_HEAD(&class_dev->matched_classes);
- }
-=20
- int class_device_add(struct class_device *class_dev)
-@@ -378,6 +508,7 @@
- 			if (class_intf->add)
- 				class_intf->add(class_dev);
- 		up_write(&parent->subsys.rwsem);
-+		class_match_check(class_dev);
- 	}
- 	class_device_add_attrs(class_dev);
- 	class_device_dev_link(class_dev);
-@@ -408,6 +539,7 @@
- 			if (class_intf->remove)
- 				class_intf->remove(class_dev);
- 		up_write(&parent->subsys.rwsem);
-+		class_match_unlink(class_dev);
- 	}
-=20
- 	class_device_dev_unlink(class_dev);
-@@ -505,7 +637,64 @@
- 	class_put(parent);
- }
-=20
-+int class_match_register(struct class_match *match)
-+{
-+	struct class_match_node *match_node;
-+=09
-+	if (!match)
-+		return -ENODEV;
-+	if (!match->class1 || !match->class2)
-+		return -ENODEV;
-+	if (!match->match || match->class1 =3D=3D match->class2)
-+		return -EINVAL;
-=20
-+	spin_lock(&class_match_lock);
-+=09
-+	match_node =3D (struct class_match_node *) kmalloc(sizeof(struct class_ma=
-tch_node), GFP_KERNEL);
-+	if (match_node) {
-+		match_node->match =3D match;
-+		match_node->dev =3D NULL;
-+		down_write(&match->class1->subsys.rwsem);
-+		list_add_tail(&match_node->node, &match->class1->matches);
-+		up_write(&match->class1->subsys.rwsem);
-+	} else {
-+		return -ENOMEM;
-+	}
-+
-+	match_node =3D (struct class_match_node *) kmalloc(sizeof(struct class_ma=
-tch_node), GFP_KERNEL);
-+	if (match_node) {
-+		match_node->match =3D match;
-+		match_node->dev =3D NULL;
-+		down_write(&match->class2->subsys.rwsem);
-+		list_add_tail(&match_node->node, &match->class2->matches);
-+		up_write(&match->class2->subsys.rwsem);
-+	} else {
-+		return -ENOMEM;
-+	}
-+
-+	spin_unlock(&class_match_lock);
-+=09
-+	return 0;
-+}
-+
-+void class_match_unregister(struct class_match *match)
-+{
-+	struct class_device *class_dev;
-+
-+	if (!match)
-+		return;
-+	if (!match->class1 || !match->class2)
-+		return;
-+	if (!match->match || match->class1 =3D=3D match->class2)
-+		return;
-+=09
-+	/* we only need to call class_match_unlink on one of the class devices */
-+
-+	down_read(&match->class1->subsys.rwsem);
-+	list_for_each_entry(class_dev, &match->class1->children, node)
-+		class_match_unlink(class_dev);
-+	up_read(&match->class1->subsys.rwsem);
-+}
-=20
- int __init classes_init(void)
- {
-@@ -542,3 +731,5 @@
-=20
- EXPORT_SYMBOL(class_interface_register);
- EXPORT_SYMBOL(class_interface_unregister);
-+EXPORT_SYMBOL(class_match_register);
-+EXPORT_SYMBOL(class_match_unregister);
-
-
---=-T/vEKs5aLIgBN7kqRq8T--
-
+Jeff Garzik wrote:
+> 
+> So, thanks to David Woodhouse for showing me how to do this.  IPv6 
+> appears to be very, very close to a Just Works(tm) state.
+> 
+> These instructions are for Fedora Core 2 users, and describe how to set 
+> up IPv6 automatically tunnelling (6to4) on an IPv4 network.  If you are 
+> stuck on an IPv4-only network (like most of us), this enables 
+> communication with IPv6 hosts quickly, easily, and transparently.
+> 
+> (this HOWTO is archived at http://yyz.us/ipv6-fc2-howto.html)
+> 
+> 
+> Simple setup:
+> 
+> 1) Append to /etc/sysconfig/network
+> 
+> NETWORKING_IPV6=yes
+> IPV6_DEFAULTDEV=tun6to4
+> 
+> 2) Append to /etc/sysconfig/ifcfg-eth0
+> 
+> IPV6INIT=yes
+> IPV6TO4INIT=yes
+> 
+> 3) Reboot or restart your network interface.
+> 
+> That's it!
+> 
+> 
+> 
+> If you have an iptables ipv4 firewall, you'll want to
+> 
+> F1) allow ipv6 tunnelled packets to pass through to ip6tables, by 
+> allowing protocol 41
+> 
+> iptables -A block -p 41 -j ACCEPT
+> ("block" is a custom chain on my firewall)
+> 
+> F2) duplicate your ipv4 firewall rules for ipv6, using ip6tables.  Some 
+> things, like masquerade, are not applicable to ipv6.
+> 
+> 
+> 
+> If you have an ipv4 NATing firewall, which serves as a router for a 
+> local network, you'll want to set up radvd and routing rules, so that 
+> your hosts autoconfigure ipv6 automatically based on your router's 
+> advertisements, and also so that your hosts truly speak native ipv6 
+> without tunneling [the router does the tunnel wrap/unwrap].
+> 
+> R1.1) in /etc/radvd.conf, set "interface ethX" to reflect your router's 
+> local LAN interface (eth1 on my own firewall).
+> 
+> R1.2) in radvd.conf, comment out "example of a standard prefix" prefix 
+> {} block
+> 
+> R1.3) in radvd.conf, edit the line "prefix 0:0:0:1234::/64" and change 
+> "1234" to a network number of your choice.
+> 
+> R1.4) in radvd.conf, edit line "Base6to4Interface ppp0" to reflect the 
+> interface doing the 6to4 tunnelling (eth0 on my own firewall).
+> 
+> R2) add routing rules for the local network.
+> 
+>     # ip -6 route add 2002:184a:9ba9:1010::/64 dev eth1
+>     # ip -6 addr add 2002:184a:9ba9:1010::1 dev eth1
+> 
+> You cat get the 2002:... address (your 6to4 address, formed from your 
+> ipv4 address) from your ifconfig.  In this example, "eth1" is my local 
+> LAN interface.  eth0 is the interface to my ISP (DSL modem).
+> 
+> Here is what my ifconfig output looks like, after everything is set up 
+> on my router/firewall:
+> 
+> eth0      Link encap:Ethernet  HWaddr 00:00:21:DE:DE:B5
+>           inet addr:24.74.155.XXX  Bcast:255.255.255.255 Mask:255.255.248.0
+>           inet6 addr: fe80::200:21ff:fede:deb5/64 Scope:Link
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:8759136 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:2238155 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:1000
+>           RX bytes:1647432957 (1571.1 Mb)  TX bytes:166256535 (158.5 Mb)
+>           Interrupt:209 Base address:0x8c00
+> 
+> eth1      Link encap:Ethernet  HWaddr 00:C0:9F:39:CD:B0
+>           inet addr:10.10.10.1  Bcast:10.10.10.255  Mask:255.255.255.0
+>           inet6 addr: 2002:184a:9ab9:110::1/128 Scope:Global
+>           inet6 addr: 2002:184a:9ab9:110:2c0:9fff:fe39:cdb0/64 Scope:Global
+>           inet6 addr: fe80::2c0:9fff:fe39:cdb0/64 Scope:Link
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:9073144 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:10916350 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:1000
+>           RX bytes:1820645725 (1736.3 Mb)  TX bytes:3611957866 (3444.6
+>           Base address:0xece0 Memory:fe3e0000-fe400000
+> 
+> lo        Link encap:Local Loopback
+>           inet addr:127.0.0.1  Mask:255.0.0.0
+>           inet6 addr: ::1/128 Scope:Host
+>           UP LOOPBACK RUNNING  MTU:16436  Metric:1
+>           RX packets:440 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:440 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:0
+>           RX bytes:54209 (52.9 Kb)  TX bytes:54209 (52.9 Kb)
+> 
+> tun6to4   Link encap:IPv6-in-IPv4
+>           inet6 addr: 2002:184a:9ab9::1/16 Scope:Global
+>           UP RUNNING NOARP  MTU:1480  Metric:1
+>           RX packets:1520 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:1614 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:0
+>           RX bytes:886384 (865.6 Kb)  TX bytes:224041 (218.7 Kb)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

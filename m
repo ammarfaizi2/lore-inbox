@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270325AbTHGQzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 12:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270326AbTHGQzH
+	id S270447AbTHGRA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 13:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270453AbTHGRA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 12:55:07 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:57349 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270325AbTHGQzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 12:55:01 -0400
-Date: Thu, 7 Aug 2003 12:53:27 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21]: nbd ksymoops-report
-In-Reply-To: <200308071604.06015.bernd.schubert@pci.uni-heidelberg.de>
-Message-ID: <Pine.LNX.4.10.10308071245130.13289-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Aug 2003 13:00:26 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:33928 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S270447AbTHGRAT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 13:00:19 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 7 Aug 2003 19:02:11 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Greg KH <greg@kroah.com>
+Subject: Re: [patch] v4l: sysfs'ify videodev
+Message-ID: <20030807170211.GA3620@bytesex.org>
+References: <20030807154342.GA818@bytesex.org> <20030807165519.A32452@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030807165519.A32452@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Aug 2003, Bernd Schubert wrote:
+On Thu, Aug 07, 2003 at 04:55:19PM +0100, Russell King wrote:
+> On Thu, Aug 07, 2003 at 05:43:42PM +0200, Gerd Knorr wrote:
+> > +static void video_release(struct class_device *cd)
+> > +{
+> > +	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
+> >  
+> > -static struct proc_dir_entry *video_dev_proc_entry = NULL;
+> > -struct proc_dir_entry *video_proc_entry = NULL;
+> > -EXPORT_SYMBOL(video_proc_entry);
+> > -LIST_HEAD(videodev_proc_list);
+> > +#if 1 /* needed until all drivers are fixed */
+> > +	if (!vfd->release)
+> > +		return;
+> > +#endif
+> > +	vfd->release(vfd);
+> > +}
+> 
+> Ok, so you're allowing the release to happen elsewhere.  How are you
+> ensuring that the code which vfd->release points to hasn't been
+> unloaded before the video device has been released,
 
-> every time when nbd-client disconnects a nbd-device the decoded oops 
-> from below will happen. 
-> This only happens after we upgraded from 2.4.20 to 2.4.21, 
-> so I guess the backported update from 2.5.50 causes this. 
+Which exact corner case you are refering to?  video_release() being
+called _after_ video_unregister_device() returns due to a sysfs file
+being busy?  Doesn't sysfs refcounting take care of that?  If not
+module_{get|put}(vfd->fops->owner) at sensible places should fix that.
+get in video_unregister_device(), put in video_release()?
 
-Yes, it's definitely related to this...
+> or, even, how
+> are you preventing the module containing the above code being
+> removed before all video devices have been released?
 
+videodev.ko simply can't be unloaded while v4l drivers are loaded
+due to symbol references.
 
-> Aug  6 17:24:31 goedel kernel: Process nbd-client (pid: 650, stackpage=d61a5000)
+  Gerd
 
-Are you using the v2.0 nbd-client from nbd.sf.net?
-
-
-> Code;  d89e2be7 <[nbd]nbd_ioctl+353/480>
-> 00000000 <_EIP>:
-> Code;  d89e2be7 <[nbd]nbd_ioctl+353/480>   <=====
->    0:   8b 50 08                  mov    0x8(%eax),%edx   <=====
-> Code;  d89e2bea <[nbd]nbd_ioctl+356/480>
->    3:   6a 03                     push   $0x3
-> Code;  d89e2bec <[nbd]nbd_ioctl+358/480>
->    5:   50                        push   %eax
-> Code;  d89e2bed <[nbd]nbd_ioctl+359/480>
->    6:   8b 42 28                  mov    0x28(%edx),%eax
-> Code;  d89e2bf0 <[nbd]nbd_ioctl+35c/480>
->    9:   ff d0                     call   *%eax
-
-
-This corresponds to the following source:
-
-lo->sock->ops->shutdown(lo->sock, SEND_SHUTDOWN|RCV_SHUTDOWN);
-
-Somehow, lo->sock is NULL here. The only way I see that this could
-happen is if NBD_CLEAR_SOCK got called out of order (or you're 
-using some non-standard nbd-client).
-
-I guess it would be best to protect the NULLing of lo->sock 
-in NBD_CLEAR_SOCK just in case, anyway.
-
-Would you be willing to test a patch against 2.4.21?
-
---
-Paul
-
+-- 
+sigfault

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291210AbSBLWLB>; Tue, 12 Feb 2002 17:11:01 -0500
+	id <S291213AbSBLWQB>; Tue, 12 Feb 2002 17:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291213AbSBLWKx>; Tue, 12 Feb 2002 17:10:53 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:14333 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S291210AbSBLWKr>; Tue, 12 Feb 2002 17:10:47 -0500
-Date: Wed, 13 Feb 2002 00:10:26 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Bill Davidsen <davidsen@tmr.com>, Padraig Brady <padraig@antefacto.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-Message-ID: <20020212221025.GH1105@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Padraig Brady <padraig@antefacto.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C695035.6040902@antefacto.com> <Pine.LNX.3.96.1020212132711.6082B-100000@gatekeeper.tmr.com> <20020212140624.R9826@lynx.turbolabs.com>
+	id <S291215AbSBLWPw>; Tue, 12 Feb 2002 17:15:52 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:2688 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S291213AbSBLWPi>;
+	Tue, 12 Feb 2002 17:15:38 -0500
+Date: Tue, 12 Feb 2002 14:15:33 -0800
+From: Bob Miller <rem@osdl.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.4 Can't use spin_lock_* with wait_queue_head_t object.
+Message-ID: <20020212141533.A7653@doc.pdx.osdl.net>
+In-Reply-To: <20020212120100.A7619@doc.pdx.osdl.net> <Pine.LNX.3.95.1020212162231.10673A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020212140624.R9826@lynx.turbolabs.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.3.95.1020212162231.10673A-100000@chaos.analogic.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 02:06:24PM -0700, you [Andreas Dilger] wrote:
+On Tue, Feb 12, 2002 at 04:23:39PM -0500, Richard B. Johnson wrote:
+
+> On Tue, 12 Feb 2002, Bob Miller wrote:
 > 
-> You can also extract it from an uncompressed kernel (vmlinux) or the
-> module with "strings <file> | grep '[A-Z]*=[ym]$'".  It is simple
-> enough to search for the gzip magic (1f 8b 08 00 at about 16-18kB)
-> in a zImage or bzImage, and then pipe it to gunzip and strings as above.
+> > There is code in sched.c that uses the spin_lock_* interfaces to acquire and
+> > release the lock in the wait_queue_head_t embedded in the struct completion.
+> > 
+> Isn't it just that the spin_lock wasn't initialized at the start?
+> 
 
-Such script could live in /usr/src/linux/scripts. The same script could
-perhaps extract the version string as well. Anybody got a clue how to find
-it reliably? Is this reliable 
+No.  The DECLARE_COMPLETION() macro was called in the case that oops'd.
 
-strings /boot/bzImage |
- egrep '^[0-9]+\.[0-9]\.+.*\(.*@.*\).*[0-9]+:[0-9]+:[0-9]+' | 
- head -1
+The problem is that when wait.h:USE_RW_WAIT_QUEUE_SPINLOCK is set
+the type of lock in the wait_queue_head_t changes from being a
+spinlock_t to a rwlock_t.
+
+If you also set CONFIG_DEBUG_SPINLOCK, the wq_lock_t in the
+wait_queue_head_t is initialized with a rwlock_t magic number
+(0xdeaf1eed), but the spin_lock_XXX() code checks for the spinlock_t
+magic number (0xdead4ead) and calls BUG() when the check fails.
 
 
--- v --
-
-v@iki.fi
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Software Development Lab			Phone: 503.626.2455 Ext. 17

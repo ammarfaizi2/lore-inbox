@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318519AbSHUR0s>; Wed, 21 Aug 2002 13:26:48 -0400
+	id <S318468AbSHURab>; Wed, 21 Aug 2002 13:30:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318529AbSHUR0r>; Wed, 21 Aug 2002 13:26:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60689 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318519AbSHUR0r>;
-	Wed, 21 Aug 2002 13:26:47 -0400
-Message-ID: <3D63D0DC.271B6130@zip.com.au>
-Date: Wed, 21 Aug 2002 10:41:48 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       Thomas Molina <tmolina@cox.net>
-Subject: Re: Race in pagevec code
-References: <20020821154535.11432.qmail@thales.mathematik.uni-ulm.de>
-Content-Type: text/plain; charset=us-ascii
+	id <S318500AbSHURab>; Wed, 21 Aug 2002 13:30:31 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:2544 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318468AbSHURaa>; Wed, 21 Aug 2002 13:30:30 -0400
+Subject: Re: [PATCH] tsc-disable_B9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, john stultz <johnstul@us.ibm.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
+       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
+In-Reply-To: <20020821171725.GJ1117@dualathlon.random>
+References: <1028860246.1117.34.camel@cog>
+	<20020815165617.GE14394@dualathlon.random>
+	<1029496559.31487.48.camel@irongate.swansea.linux.org.uk>
+	<15708.64483.439939.850493@kim.it.uu.se>
+	<20020821131223.GB1117@dualathlon.random>
+	<1029939024.26425.49.camel@irongate.swansea.linux.org.uk>
+	<20020821143323.GF1117@dualathlon.random>
+	<1029942115.26411.81.camel@irongate.swansea.linux.org.uk>
+	<20020821161317.GI1117@dualathlon.random>
+	<1029947135.26845.98.camel@irongate.swansea.linux.org.uk> 
+	<20020821171725.GJ1117@dualathlon.random>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Aug 2002 18:34:17 +0100
+Message-Id: <1029951257.26411.112.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Ehrhardt wrote:
+On Wed, 2002-08-21 at 18:17, Andrea Arcangeli wrote:
+> > Fixed in the -ac tree for the non APM triggered case because we use
+> > cpufreq code
 > 
-> ...
->       Both processors succeeded in bringing the page_count to zero,
->       i.e. both processors will add the page to their own
->       pages_to_free_list.
+> if the reduced loops is supposed to work fine what was there left to fix?
 
-This is why __pagevec_release() has the refcount check inside the lock.
-If someone else grabbed a ref to the page (also inside the lock) via
-the LRU, __pagevec_release doesn't free it.
+Support for doing it right in case someone finds a marginal component
+where it doesnt. Incidentally the APM case is it appears fixable.
 
-So the rule could be stated as: the page gets freed when there are
-no references to it, presence on the LRU counts as a reference,
-serialisation is via pagemap_lru_lock.
- 
-> ..
+> > And you can test that with notsc. Oh and you might also want the code
+> > that makes notsc on a tsc only kernel print a warning btw. badtsc lets
+> > you say "I have a brain cell" notsc lets you select "clueless app
+> > checking mode"
 > 
-> I don't have a fix but I think the only real solution is to
-> increment the page count if a page is on a lru list. After all
-> this is a reference to the page.
+> what's wrong with a sysctl to specify you have a brain cell? I'm not
+> advocating not to let you specify you have a brain cell, I'm only don't
+> see why we should assume it when we very know apps will break silenty,
+> and that it will be not noticeable except with subtle breakage after
+> some runtime in -ac.
 
-One would think so, but that doesn't really change anything.
+The default behaviours are unchanged. badtsc is simply an extra mode. If
+anything the new tree is far better because "notsc" on a 686 kernel
+actually warns people it is being ignored. Thats the important bit.
+Badtsc is just a handy thing.
 
-I agree the locking and reffing in there is really nasty.  It 
-doesn't help that I put four, repeat four bugs in the 20-line
-__page_cache_release().  __pagevec_release() is, I think, OK.
-
-It would be much simpler to grab the lock each time
-page_cache_release() is executed, but our performance targets
-for 2.5 preclude that.
-
-The page->pte.chain != NULL problems predate the locking changes.
-We haven't found that one yet.

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287639AbRLaUbC>; Mon, 31 Dec 2001 15:31:02 -0500
+	id <S287644AbRLaUic>; Mon, 31 Dec 2001 15:38:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287646AbRLaUaw>; Mon, 31 Dec 2001 15:30:52 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:35521 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S287639AbRLaUai>;
-	Mon, 31 Dec 2001 15:30:38 -0500
-Date: Mon, 31 Dec 2001 21:30:24 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: Micah Anderson <micah@riseup.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20 crashing every other day
-Message-ID: <20011231213024.A22942@fafner.intra.cogenit.fr>
-In-Reply-To: <20011231115217.P19151@riseup.net>
+	id <S287481AbRLaUiW>; Mon, 31 Dec 2001 15:38:22 -0500
+Received: from peabody.ximian.com ([141.154.95.10]:17163 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP
+	id <S287642AbRLaUiO>; Mon, 31 Dec 2001 15:38:14 -0500
+Subject: 2.4.17 not booting on ThinkPad
+From: Kevin Breit <mrproper@ximian.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99+cvs.2001.12.21.18.01 (Preview Release)
+Date: 31 Dec 2001 15:44:35 -0600
+Message-Id: <1009835075.1404.0.camel@192>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011231115217.P19151@riseup.net>; from micah@riseup.net on Mon, Dec 31, 2001 at 11:52:17AM -0800
-X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micah Anderson <micah@riseup.net> :
-[data corruption]
-> This is an AMD 800mhz system with 256MB RAM, every partition, except
-[...]
-> 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 03)
+Hey,
+        For some reason, beyond my comprehension, 2.4.17 doesn't seem to
+want to boot on my IBM iSeries 1300 1171-NM1 laptop.
+        To compile the kernel, I took RedHat 7.2's config-i686 file,
+moved it into .config, ran a make oldconfig, and ran the kernel.  The
+boot dies when I get to:
 
-See:
-<URL:http://www.uwsg.iu.edu/hypermail/linux/kernel/0109.1/0690.html>
-<URL:http://www.cs.Helsinki.fi/linux/linux-kernel/2001-48/0958.html>
-<URL:http://www.cs.Helsinki.fi/linux/linux-kernel/2001-48/1113.html>
+hda: 19640880 sectors (10056 MB) w/384KiB Cache, CHS=1222/255/63,
+UDMA(33)
+ide-floppy driver 0.97.sv
+Partition check:
+ hda: hda1 hda2 hda3
 
-> 00:11.0 Ethernet controller: 3Com Corporation 3c900B-TPO [Etherlink XL TPO] (rev 04)
-> Linux 2.2.20RAID (root@sarai) (gcc 2.95.2 20000220 ) #2 1CPU [sarai.(none)]
-                                     ^^^^^^
-Buggy compiler. Drop it. 
+The hard disk light stays on and the system freezes entirely (as in Caps
+Lock won't work either).
 
---
-Ueimor
+If anyone has any pointers, I'd appreciate the help!
+
+Thanks
+
+Kevin Breit
+

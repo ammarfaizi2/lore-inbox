@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265510AbSJSEke>; Sat, 19 Oct 2002 00:40:34 -0400
+	id <S265511AbSJSEnf>; Sat, 19 Oct 2002 00:43:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265511AbSJSEke>; Sat, 19 Oct 2002 00:40:34 -0400
-Received: from zero.aec.at ([193.170.194.10]:14086 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S265510AbSJSEke>;
-	Sat, 19 Oct 2002 00:40:34 -0400
-Date: Sat, 19 Oct 2002 06:45:56 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jeff Dike <jdike@karaya.com>, Andi Kleen <ak@muc.de>,
-       john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
-Message-ID: <20021019044556.GA22201@averell>
-References: <20021019031002.GA16404@averell> <200210190450.XAA06161@ccure.karaya.com> <20021019041019.GI23930@dualathlon.random>
+	id <S265512AbSJSEnf>; Sat, 19 Oct 2002 00:43:35 -0400
+Received: from adsl-66-125-254-44.dsl.sntc01.pacbell.net ([66.125.254.44]:3485
+	"EHLO fiorano.interclypse.net") by vger.kernel.org with ESMTP
+	id <S265511AbSJSEne>; Sat, 19 Oct 2002 00:43:34 -0400
+Subject: 3COM 3C990 NIC
+From: Christopher Keller <cnkeller@interclypse.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Oct 2002 21:49:36 -0700
+Message-Id: <1035002976.3086.4.camel@maranello.interclypse.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021019041019.GI23930@dualathlon.random>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 06:10:19AM +0200, Andrea Arcangeli wrote:
-> On Fri, Oct 18, 2002 at 11:49:59PM -0500, Jeff Dike wrote:
-> > ak@muc.de said:
-> > > Guess you'll have some problems then with UML on x86-64, which always
-> > > uses vgettimeofday. But it's only used for gettimeofday() currently,
-> > > perhaps it's  not that bad when the UML child runs with the host's
-> > > time.
-> > 
-> > It's not horrible, but it's still broken.  There are people who depend
-> > on UML being able to keep its own time separately from the host.
-> > 
-> > > I guess it would be possible to add some support for UML to map own
-> > > code over the vsyscall reserved locations. UML would need to use the
-> > > syscalls then. But it'll be likely ugly. 
-> > 
-> > Yeah, it would be.
-> > 
-> > My preferred solution would be for libc to ask the kernel where the vsyscall
-> > area is.  That's reasonably clean and virtualizable.  Andrea doesn't like it
-> > because it adds a few instructions to the vsyscall address calculation.
-> 
-> yes, my preferred solution is still a runtime /proc entry that turns off
-> vsyscalls completely by root so you could trap gettimeofday/time via the
-> usual ptrace. That would be zero cost. Of course this would be needed
+Is anyone maintaining the 3C990 driver? I'm using the code from 3COM and
+it doesn't look like it's been kept up to date with the various kernel
+changes. I'm also using the latest Red Hat kernel in case it matters. 
 
-Ok, a sysctl that modifies a variable in the vsyscall page and is
-tested by the code. That would be an option, I agree.
+When compiling with SMP support, I'm getting the following errors during
+a depmod -ae
 
-For the locked TSC code we will need something like that anyways,
-so that locked TSC can force a syscall.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.18-17.8.0smp/kernel/drivers/net/3c990.o
+depmod:         pci_write_config_byte
+depmod:         eth_type_trans
+depmod:         __wake_up
+depmod:         __kfree_skb
+depmod:         alloc_skb
+depmod:         init_etherdev
+depmod:         kmalloc
+depmod:         pci_free_consistent
+depmod:         pci_find_class
+depmod:         pci_read_config_byte
+depmod:         cpu_raise_softirq
+depmod:         free_irq
+depmod:         unregister_netdev
+depmod:         __out_of_line_bug
+depmod:         iounmap
+depmod:         pci_alloc_consistent
+depmod:         interruptible_sleep_on_timeout
+depmod:         __ioremap
+depmod:         pci_read_config_word
+depmod:         kfree
+depmod:         request_irq
+depmod:         netif_rx
+depmod:         skb_over_panic
+depmod:         jiffies
+depmod:         softnet_data
+depmod:         printk
+depmod:         __const_udelay
 
--Andi
+I get no problems in the single processor compile & depmod. Can these be
+safely ignored? The SMP #define simply includes the spinlock stuff.
+
+#ifdef SMP
+#include <linux/spinlock.h>
+#endif
+-- 
+Homepage: http://interclypse.net
+Registered Linux user #215241 (http://counter.li.org/)
+

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbUACMgu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 07:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUACMgu
+	id S262015AbUACMyv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 07:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbUACMyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 07:36:50 -0500
-Received: from gprs214-81.eurotel.cz ([160.218.214.81]:53632 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261190AbUACMgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 07:36:49 -0500
-Date: Sat, 3 Jan 2004 13:37:55 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       len.brown@intel.com
-Subject: ACPI: document acpi_sleep option
-Message-ID: <20040103123755.GA387@elf.ucw.cz>
+	Sat, 3 Jan 2004 07:54:51 -0500
+Received: from dyn-213-36-173-35.ppp.tiscali.fr ([213.36.173.35]:33542 "EHLO
+	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S262015AbUACMyu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 07:54:50 -0500
+Date: Sat, 3 Jan 2004 13:54:33 +0100
+From: Witukind <witukind@nsbm.kicks-ass.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: udev - please help me to understand
+Message-Id: <20040103135433.09eb97b7.witukind@nsbm.kicks-ass.org>
+In-Reply-To: <20040103010010.GA14823@werewolf.able.es>
+References: <microsoft-free.87r7yiinaj.fsf@eicq.dnsalias.org>
+	<20040102202316.GD4992@kroah.com>
+	<20040103010010.GA14823@werewolf.able.es>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 3 Jan 2004 02:00:10 +0100
+"J.A. Magallon" <jamagallon@able.es> wrote: 
+> IE, I want a working and race free devfs, and this is udev.
 
-acpi_sleep option should be documented, too. Please apply.
-
-								Pavel
-
-Index: linux.new/Documentation/kernel-parameters.txt
-===================================================================
---- linux.new.orig/Documentation/kernel-parameters.txt	2003-12-25 13:28:48.000000000 +0100
-+++ linux.new/Documentation/kernel-parameters.txt	2003-12-25 13:29:08.000000000 +0100
-@@ -90,6 +90,10 @@
- 			off -- disabled ACPI for systems with default on
- 			ht -- run only enough ACPI to enable Hyper Threading
- 			See also Documentation/pm.txt.
-+
-+	acpi_sleep=	[HW,ACPI] Sleep options
-+			Format: { s3_bios, s3_mode }
-+			See Documentation/power/video.txt
-  
- 	ad1816=		[HW,OSS]
- 			Format: <io>,<irq>,<dma>,<dma2>
-
+Well udev != devfs. I think it's two different ways to solve a same problem.
+What I wonder now is why do we need both /proc and sysfs?
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Jabber: heimdal@jabber.org

@@ -1,95 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270154AbTGUO7W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270158AbTGUO7W
+	id S270175AbTGUPBi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270173AbTGUPBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:59:22 -0400
-Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:29865
-	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S270154AbTGUO7T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:59:19 -0400
-Message-ID: <27683.216.12.38.216.1058800462.squirrel@www.ghz.cc>
-Date: Mon, 21 Jul 2003 11:14:22 -0400 (EDT)
-Subject: "apm: suspend: Unable to enter requested state" in 2.5.x/2.6.0test1
-From: "Charles Lepple" <clepple@ghz.cc>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
-References: 
-In-Reply-To: 
+	Mon, 21 Jul 2003 11:01:37 -0400
+Received: from melchior.nerv-un.net ([216.179.91.90]:40453 "EHLO nerv-un.net")
+	by vger.kernel.org with ESMTP id S270151AbTGUPAl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 11:00:41 -0400
+Date: Mon, 21 Jul 2003 11:08:21 -0400
+From: Mike Kershaw <dragorn@melchior.nerv-un.net>
+To: Javier Achirica <achirica@telefonica.net>
+Cc: Christoph Hellwig <hch@infradead.org>, Daniel Ritz <daniel.ritz@gmx.ch>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Subject: Re: [PATCH 2.5] fixes for airo.c
+Message-ID: <20030721150821.GA18134@melchior.nerv-un.net>
+References: <20030721133757.A24319@infradead.org> <Pine.SOL.4.30.0307211543010.25549-100000@tudela.mad.ttd.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0307211543010.25549-100000@tudela.mad.ttd.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a ThinkPad 770, and under 2.4.x (including .21 and several RedHat
-.18-x kernels, FWIW), it would suspend and even hibernate nicely (if all
-PCMCIA cards were removed).
 
-In 2.5.x (where x > 66, and maybe earlier) and 2.6.0test1, the machine
-doesn't suspend. If I either press the suspend hotkey (Fn-F4), close the
-lid, or invoke "apm --suspend", the suspend LED starts to blink, and I get
-these messages:
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jul 19 10:46:32 lemur apmd[587]: System Suspend
-Jul 19 10:46:52 lemur kernel: uhci-hcd 00:01.2: suspend to state 3 Jul 19
-10:46:52 lemur kernel: apm: suspend: Unable to enter requested state
+Grargh.  At work all weekend.  Didn't have time to make a real patch.
 
-followed by a few beeps, and then the LEDs indicate a non-suspended state.
-After a couple of seconds, the screen returns to normal.
+Anyhow - Proposed changes to airo.c for rfmonitor mode.  I've been working
+on making it quiet (not continually probing) and on making it enter "true"
+rfmon mode (right now it doesn't, which is why user-controlled channel
+hopping doesn't work).  Both of these are "special case" stuff that doesn't
+affect normal users, but are near and dear to my own pursuits. :P
 
-Here are the powr mgmt configuration options I used for 2.6.0test1:
+I've succeeded in the first, but not the second, so I hadn't released any
+changed driver code.  The first is actually a very simple change - in the=
+=20
+code block that puts the driver into rfmon mode (around line 2480 on my=20
+code) after setting:
+config.rmode =3D RXMODE_RFMON | RXMODE_DISABLE_802_3_HEADER;
+or=20
+config.rmode =3D RXMODE_RFMON_ANYBSS | RXMODE_DISABLE_802_3_HEADER;
 
-  # Power management options (ACPI, APM)
-  #
-  CONFIG_PM=y
-  # CONFIG_SOFTWARE_SUSPEND is not set
+it should set:
+config.scanMode =3D SCANMODE_PASSIVE;
 
-  #
-  # ACPI Support
-  #
-  # CONFIG_ACPI is not set
-  CONFIG_APM=m
-  # CONFIG_APM_IGNORE_USER_SUSPEND is not set
-  CONFIG_APM_DO_ENABLE=y
-  CONFIG_APM_CPU_IDLE=y
-  # CONFIG_APM_DISPLAY_BLANK is not set
-  # CONFIG_APM_RTC_IS_GMT is not set
-  # CONFIG_APM_ALLOW_INTS is not set
-  # CONFIG_APM_REAL_MODE_POWER_OFF is not set
+and in the code block exiting rfmon mode, after:
+config.opmode =3D 0;
+it should set:
+config.scanMode =3D SCANMODE_ACTIVE;
 
-CONFIG_APM_ALLOW_INTS doesn't seem to matter, as the APM code detects that
-it is an IBM machine, and enables interrupts during APM calls
-unconditionally:
+With my testing this stops the probing in rfmon (good) and doesn't have any
+negative impacts.  More testing is, of course, a good idea.
 
-  lemur:~$ dmesg|grep -iw apm
-  IBM machine detected. Enabling interrupts during APM calls.
-  apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
+I can try to come up with an exact diff but I figured I should get something
+out while everyone is discussing changes, and I don't know how much time I'm
+going to have in the coming weeks.
 
-I have diddled with a few of the other options with no noticeable effect.
-Also, I have tried reducing the number of loaded drivers (booting
-single-user, not loading any modules but those needed for disk and console
-I/O).
+-m
 
-As time permits, I will try and test this on other kernel versions.
-However, I feel like I am poking around in the dark. Any ideas as to what
-may be preventing suspend from working? I'm not too familiar with the
-details of APM, but my impression was that APM is BIOS-driven. So there
-should not be any random device drivers preventing suspend (as could
-happen with ACPI), right?
+--=20
+I like my coffee like I like my friends -- Dark, and bitter.
 
-ACPI doesn't even work with this hardware in Win98 or Win2k, (plain 770s;
-later 770s supposedly support it) and the latest kernels won't even
-attempt to work with it. Otherwise, I'd be bugging the linux-acpi people.
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Any advice would be appreciated. I am more than willing to pepper the
-kernel APM code with printks if necessary to debug this, but I am going to
-need a bit of guidance to do that effectively.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--- 
-Charles Lepple <ghz.cc!clepple>
-http://www.ghz.cc/charles/
+iD8DBQE/HAHk17KIInOLvbERAjUmAKCffVkSErNL0zETLt6W+ER4HeLCggCePZv1
+ud7SL9cS4wujEluogOGrlZI=
+=Y723
+-----END PGP SIGNATURE-----
 
+--UugvWAfsgieZRqgk--

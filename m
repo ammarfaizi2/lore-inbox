@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287552AbSBVV0o>; Fri, 22 Feb 2002 16:26:44 -0500
+	id <S293001AbSBVVay>; Fri, 22 Feb 2002 16:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293003AbSBVV0e>; Fri, 22 Feb 2002 16:26:34 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:46604 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287552AbSBVV01>; Fri, 22 Feb 2002 16:26:27 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 22 Feb 2002 13:28:48 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Aloni <da-x@gmx.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org>
-Message-ID: <Pine.LNX.4.44.0202221326180.1484-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293003AbSBVVao>; Fri, 22 Feb 2002 16:30:44 -0500
+Received: from codepoet.org ([166.70.14.212]:25063 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S293001AbSBVVab>;
+	Fri, 22 Feb 2002 16:30:31 -0500
+Date: Fri, 22 Feb 2002 14:30:14 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Greg KH <greg@kroah.com>
+Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+Message-ID: <20020222213014.GB30290@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Greg KH <greg@kroah.com>,
+	=?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020222200750.GE9558@kroah.com> <20020221221842.V1779-100000@gerard> <20020222204157.GG9558@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020222204157.GG9558@kroah.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Feb 2002, Dan Aloni wrote:
+On Fri Feb 22, 2002 at 12:41:57PM -0800, Greg KH wrote:
+> 
+> Right now I just point people to the Adaptec cards when they complain
+> about their controllers not working with hotplug :)
 
-> The attached patch implements C exceptions in the kernel, which *don't*
-> depend on special support from the compiler. This is a 'request for
-> comments'. The patch is very initial, should not be applied.
->
-> I actually got this code to work in the kernel:
->
->         try {
->                 printk("TEST: before throwing \n");
->                 throw(1000);
->                 printk("TEST: won't run\n");
->         }
->         catch(unsigned long, value) {
->                 printk("TEST: caught: %ld\n", value);
->         } yrt;
->
-> I know it would a *hugh* task to get all existing code in the kernel
-> to use exceptions, but the design allows exceptions to be used locally
-> within the local call branches in *new* code. Basically, exception
-> handling needs to be added only to functions who call functions which
-> already use exceptions.
->
-> Although this patch is against 2.4, it should go to 2.5 (2.5.5-dj1
-> currently breaks here, so I am temporarily developing it using 2.4)
->
-> This patch implements only for i386 at the moment. Theoretically can be
-> ported to other archs. Of course, the arch dependant functions in this
-> code are separated for the ease of porting.
->
-> I haven't written it with interrupts and SMP in mind. I wonder what
-> are the race conditions and what should be protected there.
->
-> For unhandled exceptions, there's a possibility to add a function that
-> printk's the information about the unhandled exception (file, line
-> number, etc), and optionally calls panic() or BUG().
->
-> The code supports re-throwing from catches.
->
-> Last thing: I must get rid of that yrt closer macro. Suggestions?
+Well, even aic7xxx actually don't do hotplug correctly either.
+Or more accurately, with my Adaptec 1480B I can hotplug, and I
+can then hot-unplug, but I can't hotplug again...  Just try
+pulling the 1480 card and then doing a 
+    cat /proc/scsi/aic7xxx/0
+some time and watch all the fireworks,
 
-Is today the 1st of April ? You kidding, don't you ?
+ -Erik
 
-
-
-- Davide
-
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265043AbUFGUkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265047AbUFGUmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265043AbUFGUkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 16:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265048AbUFGUkw
+	id S265047AbUFGUmH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 16:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFGUmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 16:40:52 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:22999 "EHLO
+	Mon, 7 Jun 2004 16:42:06 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:23511 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265043AbUFGUkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 16:40:49 -0400
-Subject: Re: [PATCH 2.4] jffs2 aligment problems
-From: David Woodhouse <dwmw2@infradead.org>
+	id S265047AbUFGUln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 16:41:43 -0400
+Date: Mon, 7 Jun 2004 21:41:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Greg Weeks <greg.weeks@timesys.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0406071218240.1637@ppc970.osdl.org>
-References: <40C484F9.20504@timesys.com>
-	 <200406071736.53101.tglx@linutronix.de>
-	 <Pine.LNX.4.58.0406070900010.6162@ppc970.osdl.org>
-	 <20040607174147.I28526@flint.arm.linux.org.uk>
-	 <1086635643.29255.46.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0406071218240.1637@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Mon, 07 Jun 2004 21:39:31 +0100
-Message-Id: <1086640771.29255.57.camel@localhost.localdomain>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.7-rc3
+Message-ID: <20040607204142.GA26986@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 (1.5.8-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-07 at 12:22 -0700, Linus Torvalds wrote:
-> I don't see it as a correctness issue, I see it as a performance issue.
-
-In the case in question it's very much _not_ a performance issue. We're
-writing a buffer to FLASH memory. The time it takes to read the word
-from RAM is entirely lost in the noise compared with the time it takes
-to write it to the flash.
-
-Most of the time the buffer passed to the flash write routines will be
-word-aligned. Occasionally it'll be unaligned but since there's a
-distinct correlation between those arches on which we can't do fixups
-and those machines on which flash is primary storage, putting
-get_unaligned() in is a _correctness_ issue. And I don't care that it
-might be slightly slower in the common case; as I said, it's in the
-noise.
-
-> Yes, the old ARM chips that can't do unaligned accesses and can't even 
-> trap on them probably have a number of cases where they literally do the 
-> wrong thing, and I think most people will say "tough luck, don't do that 
-> then". 
-
-Not just old ARM chips. Some new chips too; especially MMU-less ones.
-
-> But get_unaligned() makes sense quite apart from that usage too. Notably, 
-> many architectures can cheaply do unaligned accesses when they are known 
-> to be unaligned, but take thousands of cycles to fix up traps. Alpha comes 
-> to mind, and this was actually what "get_unaligned()" was really designed 
-> for.
-
-Yes. That's why I suggested we should have two forms -- for 'possibly'
-and 'probably' unaligned.
-
-> > Anything which _could_ be unaligned should be marked as such, even if we
-> > do have two levels ('possibly unaligned', 'probably unaligned') where
-> > the latter behaves purely as an optimisation on most arches, just like
-> > our current get_unaligned() does.
+On Mon, Jun 07, 2004 at 12:32:45PM -0700, Linus Torvalds wrote:
 > 
-> Right now we might as well consider the "get_unaligned()" to be a "quite 
-> possibly unaligned" as opposed to "this just _might_ be unaligned".
+> Ok, let's calm down for a while before the final 2.6.7.
+> 
+> -rc3 does a lot of sparse type cleanup, mainly thanks to Al Viro (but his
+> work ended up getting some other people involved too, since the list of
+> sparse warnings isn't as daunting any more). Some of that has unearthed 
+> real bugs which Al fixed.
+> 
+> But there are DRM, AGP, cpufreq, sparc64, and input updates there too. See 
+> the appended shortlog for more details,
 
-Yes. That's why I was told to remove our current get_unaligned() from
-the flash drivers. I'm perfectly happy to put it back.
+This one here:
 
+diff -Nru a/include/linux/netfilter_arp.h b/include/linux/netfilter_arp.h
+--- a/include/linux/netfilter_arp.h     2004-06-07 21:58:09 +02:00
++++ b/include/linux/netfilter_arp.h     2004-06-07 21:58:09 +02:00
+@@ -17,4 +17,5 @@
+ #define NF_ARP_FORWARD 2
+ #define NF_ARP_NUMHOOKS        3
 
--- 
-dwmw2
++static DECLARE_MUTEX(arpt_mutex);
+ #endif /* __LINUX_ARP_NETFILTER_H */
+
+looks perfectly fucked up.  This way every file including netfilter_arp.h
+will get it's own copy of arpt_mutex which certainly doesn't help
+synchronization.
+
+But in fact I can only see a single file actually using it, that's
+arp_tables.c where it was defined previously.  What's going on here?
 

@@ -1,106 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263427AbSIPX5A>; Mon, 16 Sep 2002 19:57:00 -0400
+	id <S263433AbSIQAMX>; Mon, 16 Sep 2002 20:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263433AbSIPX5A>; Mon, 16 Sep 2002 19:57:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31244 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263427AbSIPX46>;
-	Mon, 16 Sep 2002 19:56:58 -0400
-Message-ID: <3D8670D4.9040801@mandrakesoft.com>
-Date: Mon, 16 Sep 2002 20:01:24 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S263435AbSIQAMX>; Mon, 16 Sep 2002 20:12:23 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:23182 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263433AbSIQAMW> convert rfc822-to-8bit;
+	Mon, 16 Sep 2002 20:12:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: "Mark Knecht" <mknecht@controlnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: APIC IRQs
+Date: Mon, 16 Sep 2002 17:17:02 -0700
+User-Agent: KMail/1.4.1
+References: <000301c25da9$38b92870$b50aa8c0@mknecht>
+In-Reply-To: <000301c25da9$38b92870$b50aa8c0@mknecht>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org, todd-lkml@osogrande.com,
-       hadi@cyberus.ca, tcw@tempest.prismnet.com, netdev@oss.sgi.com,
-       pfeather@cs.unm.edu
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-References: <3D86645F.5030401@mandrakesoft.com>	<20020916.160210.70782700.davem@redhat.com>	<3D866DD5.4080207@mandrakesoft.com> <20020916.164343.128145825.davem@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------060600040500080402020405"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209161717.02057.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060600040500080402020405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 16 September 2002 10:48 am, Mark Knecht wrote:
+> Hi,
+>    Sorry for the intrusion. I'm working in the Linux audio areas and am
+> looking for information on how IRQ priorities are handled when using APIC
+> under Linux. Google searches have not yielded much for me. I'm a hardware
+> guy, so code stubs are probably not the best answer, but I'm interested in
+> most anything on the subject.
+>
+>    Can someone point me towards any non-developer information on this
+> subject? HOWTOs, explanations, whatever? Mostly just looking for how to
+> best configure audio cards and disk controllers to get the lowest latencies
+> in this specific application. I understand the traditional model quite
+> well, so even a doc that talked about the differences would be very
+> helpful.
+>
+>    Thanks in advance!
+>
+> With best regards,
+> Mark
+>
 
-David S. Miller wrote:
->    From: Jeff Garzik <jgarzik@mandrakesoft.com>
->    Date: Mon, 16 Sep 2002 19:48:37 -0400
-> 
->    I dunno when it happened, but 2.5.x now returns EINVAL for all 
->    file->file cases.
->    
->    In 2.4.x, if sendpage is NULL, file_send_actor in mm/filemap.c faked a 
->    call to fops->write().
->    In 2.5.x, if sendpage is NULL, EINVAL is unconditionally returned.
->    
-> 
-> What if source and destination file and offsets match?
+Mark,
 
+The current Linux kernel does not use the Task Priority Register (TPR) to set 
+interrupt priority levels in the classic Unix splX() fashion.  Instead, the 
+TPR is set to zero at boot and left there for the life of the kernel.  (I 
+have a patch out to change this.)
 
-The same data is written out.  No deadlock.
-(unless the attached test is wrong)
+Linux interrupt routines are expected to be fast and return quickly, so the OS 
+does do not use the priority hardware or enable interrupts during their 
+execution.  One notable exception is the IDE interrupt handler when operating 
+in port I/O mode.  It will re-enable interrupts while it is servicing an IDE 
+device.
 
-	Jeff
+For APICs, when two interrupts are present when interrupts are enabled, the 
+one with the highest interrupt vector number will be taken first.  Vectors 
+are statically assigned to the PCI slots, starting at 0x40 or 0x41.  So, the 
+last PCI interrupt source in the MPS table will be the highest priority.  
+However, I don't think that the MPS table spec specifies any kind of order.  
+The interrupt source records are sorted however the BIOS wishes.  Usually, 
+they will be sorted by slot number, but that is not guaranteed.
 
+ACPI's ordering is more predictable.  The last pin of the last I/O APIC 
+mentioned in the PCI Routing Table (PRT) will have the highest vector number.
 
-
---------------060600040500080402020405
-Content-Type: text/plain;
- name="sendfile-test-2.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sendfile-test-2.c"
-
-#include <sys/sendfile.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <stdio.h>
-
-int main (int argc, char *argv[])
-{
-	int in, out;
-	struct stat st;
-	off_t off = 0;
-	ssize_t rc;
-
-	in = open("test.data", O_RDONLY);
-	if (in < 0) {
-		perror("test.data read");
-		return 1;
-	}
-
-	fstat(in, &st);
-
-	out = open("test.data", O_WRONLY);
-	if (out < 0) {
-		perror("test.data write");
-		return 1;
-	}
-
-	rc = sendfile(out, in, &off, st.st_size);
-	if (rc < 0) {
-		perror("sendfile");
-		close(in);
-		unlink("out");
-		close(out);
-		return 1;
-	}
-
-	close(in);
-	close(out);
-	return 0;
-}
-
-
---------------060600040500080402020405--
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

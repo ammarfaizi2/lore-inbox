@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282468AbRKZT4X>; Mon, 26 Nov 2001 14:56:23 -0500
+	id <S282446AbRKZTwb>; Mon, 26 Nov 2001 14:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282459AbRKZTzE>; Mon, 26 Nov 2001 14:55:04 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:4554 "EHLO
-	e33.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S282456AbRKZTxo>; Mon, 26 Nov 2001 14:53:44 -0500
-Message-ID: <3C029DCA.7080200@us.ibm.com>
-Date: Mon, 26 Nov 2001 11:53:46 -0800
-From: "David C. Hansen" <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011110
-X-Accept-Language: en-us
+	id <S282430AbRKZTwO>; Mon, 26 Nov 2001 14:52:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45317 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282459AbRKZTvZ>; Mon, 26 Nov 2001 14:51:25 -0500
+Subject: Re: EINTR vs ERESTARTSYS, ERESTARTSYS not defined
+To: phil-linux-kernel@ipal.net (Phil Howard)
+Date: Mon, 26 Nov 2001 19:59:40 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011122083623.A18057@vega.ipal.net> from "Phil Howard" at Nov 22, 2001 08:36:23 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Flavio Stanchina <flavio.stanchina@tin.it>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove needless BKL from release functions
-In-Reply-To: <200111231047.fANAlA105874@ns.caldera.de> <3C028008.6000605@us.ibm.com> <20011126194153.MIQN11444.fep23-svc.tin.it@there>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E168Rum-0006Za-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Flavio Stanchina wrote:
+> In user space I have to define __KERNEL__ to get programs to compile
+> when coded to know about all possible (valid?) values of errno from
+> system calls.  As seen from strace:
 
->Look closer, it doesn't check 'handler' (it couldn't).
->
-Silly me... Thanks.
-
-
+Beware of strace data. Record the actual syscall returns in your program.
+strace sees restarts, your app doesnt

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132406AbRDCSMT>; Tue, 3 Apr 2001 14:12:19 -0400
+	id <S132407AbRDCSYn>; Tue, 3 Apr 2001 14:24:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132413AbRDCSMA>; Tue, 3 Apr 2001 14:12:00 -0400
-Received: from sangam.sce.carleton.ca ([134.117.4.4]:43146 "EHLO
-	sangam.sce.carleton.ca") by vger.kernel.org with ESMTP
-	id <S132405AbRDCSL6>; Tue, 3 Apr 2001 14:11:58 -0400
-Message-ID: <3ACA123D.1090200@sce.carleton.ca>
-Date: Tue, 03 Apr 2001 14:11:09 -0400
-From: john knox <jknox@sce.carleton.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.14-6.1.1 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
+	id <S132414AbRDCSYd>; Tue, 3 Apr 2001 14:24:33 -0400
+Received: from [212.183.11.206] ([212.183.11.206]:3083 "EHLO
+	grips_nts2.grips.com") by vger.kernel.org with ESMTP
+	id <S132407AbRDCSY0>; Tue, 3 Apr 2001 14:24:26 -0400
+Message-ID: <3ACA150E.5AA55ABE@grips.com>
+Date: Tue, 03 Apr 2001 20:23:10 +0200
+From: jury gerold <gjury@grips.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: de-AT, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: gigabit bonding
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Harald Dunkel <harri@synopsys.COM>
+CC: Linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS? How reliable is it? Is this the future?
+In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi -
+I use reiserfs on
+a) P3(450) machine 440BX/ZX Chipset 82371AB PIIX4 IDE UDMA33
+b) athlon(1100) VIA KT133 something IDE UDMA33
 
-I have 2 dell power edge 6300 boxes,
-each with 4 processors and 2 intel
-717037 ethernet cards running rh 6.2,
-kernel 2.2.14-6.1.1smp.  I have
-installed the latest intel nic driver
-that I could find - v3.0.7.  The machines
-are identical except for the scsi
-controllers.
+On both of them i have spurious small file garbage problems
+during compiling.
 
-On one machine, I could bond the cards
-to one ip and all was well - on the
-other, the cards worked if brought up
-singly, but bonding never set the mac
-of the 2nd card to that of the 1st,
-although ifenslave doesn't report
-errors.  I can change the mac with
-ifconfig and the card(s) work fine.
+There was no situation with real trouble, no permanent damage,
+restarting the job solved the problem all the time.
 
-I tried swapping the 2 pairs of cards
-from one machine to the other - now
-neither pair will bond, although all
-4 still work singly.
+I could not find a real corrupt file on disk.
+It seems to me like the corruption happens in memory only.
+(just an impression)
+The machine with less memory triggers it more likely.
 
-Any guesses as to where I can go next?
+On 2.4.3-pre6 a file that has not been changed for months
+was sometimes not found.
 
-	john
-
+I have no problems on the ext2 partitions.

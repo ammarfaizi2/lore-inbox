@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264918AbUAFV6z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 16:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265350AbUAFV6z
+	id S264501AbUAFWEd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 17:04:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbUAFWEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 16:58:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5337 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264918AbUAFV6y (ORCPT
+	Tue, 6 Jan 2004 17:04:32 -0500
+Received: from mail.sns.it ([192.84.155.4]:42380 "EHLO sns.it")
+	by vger.kernel.org with ESMTP id S264501AbUAFWEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 16:58:54 -0500
-Date: Tue, 6 Jan 2004 14:00:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: geert@linux-m68k.org, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net, jsimmons@infradead.org
-Subject: Re: [Linux-fbdev-devel] [PATCH] VT locking
-Message-Id: <20040106140002.6806757b.akpm@osdl.org>
-In-Reply-To: <1073425440.773.10.camel@gaston>
-References: <1073349182.9504.175.camel@gaston>
-	<Pine.GSO.4.58.0401061725250.5752@waterleaf.sonytel.be>
-	<1073425440.773.10.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 6 Jan 2004 17:04:31 -0500
+Date: Tue, 6 Jan 2004 23:04:28 +0100
+To: linux-kernel@vger.kernel.org
+Subject: nfs and UDP
+Message-ID: <20040106220428.GA14397@tonelli.sns.it>
+Reply-To: mennucc1@debian.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Mail-Followup-To: mennucc1@debian.org
+From: debdev@tonelli.sns.it (A Mennucc1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> Andrew, the only bits of the kernel/printk.c that are supposed to get
-> to your tree are related to is_console_locked() at this point. The
-> force_printk_to_btext is a debug tool that allow to route all printk's
-> to some early-boot output mecanism, though it would eventually be
-> acceptable upstream with Geert's idea of arch_printk...
 
-That's OK, it's just in there for a soak-test at present - this stuff is
-quite a long way away, yes?
+hi
 
-It's probably just easiest for you to work against current -bk, send me a
-single rolled up patch whenever you have new things for people to test. 
-When we're happy with it all we can do a bk merge of everything.
+(sorry if this is a duplicate, but I did not find the archives
+for this list)
+
+I am using  2.6.0, for all my computers.
+
+On my server, I have 2 net cards: one only for ADSL with PPPoE,
+the other for the local network, and I use masquerading between the two.
+
+Today I tried to set up NFS on the server, and  it does not work ok.
+
+NFS seems to have no problems in writing large files, but it 
+goes haywire when I start compiling the kernel on the NFS client
+(the kernel is inside the NFS mount): on the client I see these messages 
+
+ kernel: UDP: short packet: From 192.168.1.1:0 0/136 to 192.168.1.2:1
+ kernel: UDP: short packet: From 192.168.1.1:8224 8224/128 to 192.168.1.2:8224
+(many of these)
+
+and even this very astounding message
+
+ kernel: UDP: short packet: From 212.216.112.112:6299 33691/126 to 192.168.1.2:256
+
+and NFS does not work; but I am pretty sure that the local net is OK
+(I use it a lot )
+I also tried to ping at the same time when I was experiencing
+the problem, and ping works ok.
+
+Am I the only one seeing this?
+
+a.
+
+-- 
+Andrea Mennucc
+ "one houndred and fifty - the chicken sings"

@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSH0Pf5>; Tue, 27 Aug 2002 11:35:57 -0400
+	id <S316342AbSH0Pel>; Tue, 27 Aug 2002 11:34:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316430AbSH0Pf5>; Tue, 27 Aug 2002 11:35:57 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:65488 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S316408AbSH0Pf4>;
-	Tue, 27 Aug 2002 11:35:56 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>, <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: readsw/writesw readsl/writesl
-Date: Tue, 27 Aug 2002 08:46:31 +0200
-Message-Id: <20020827064632.27053@192.168.4.1>
-In-Reply-To: <20020827.003027.26962443.davem@redhat.com>
-References: <20020827.003027.26962443.davem@redhat.com>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+	id <S316408AbSH0Pel>; Tue, 27 Aug 2002 11:34:41 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:42127 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S316342AbSH0Pek>; Tue, 27 Aug 2002 11:34:40 -0400
+Date: Tue, 27 Aug 2002 16:39:31 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Dave Jones <davej@suse.de>,
+       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] M386 flush_one_tlb invlpg
+Message-ID: <Pine.LNX.4.44.0208271635050.2362-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The only reason insl() exists is because the x86 has special
->instructions to perform that operation.
->
->It used to be an optimization when cpus were really slow.
->
->No cpu to my knowledge has special instructions to readsl et al.  and
->on no cpu would be faster than a hand coded loop.
->
->In fact I would instead vote to delete {in,out}s{b,w,l}() and friends.
->:-)
+CONFIG_M386 kernel running on PPro+ processor with X86_FEATURE_PGE may
+set _PAGE_GLOBAL bit: then __flush_tlb_one must use invlpg instruction.
 
-The problem with that approach is that the "s" versions must also take
-care of byte swapping (or rather _not_ byteswapping while the non-"s"
-do the byteswapping).
+The need for this was shown by a recent HyperThreading discussion.
+Marc Dietrich reported (LKML 22 Aug) that CONFIG_M386 CONFIG_SMP kernel
+on P4 Xeon did not support HT: his dmesg showed acpi_tables_init failed
+from bad table data due to unflushed TLB: he confirms patch fixes it.
 
-So we would need to have raw_{in,out}{b,w,l}. Currently, it's not
-possible to implement {in,out}s{b,w,l} in an efficient way because of
-that.
+No tears would be shed if CONFIG_M386 could not support HT, but bad TLB
+is trouble.  Same CONFIG_M386 bug affects CONFIG_HIGHMEM's kmap_atomic,
+and potentially dmi_scan (now using set_fixmap via bt_ioremap).  Though
+it's true that none of these uses really needs _PAGE_GLOBAL bit itself.
 
-Then we would also need to expose the io_barrier for CPUs like PPC
+I just sent the 2.4.20-pre4 asm-i386/pgtable.h patch to Marcelo:
+here's patch against 2.5.31 or current BK: please apply.
 
-etc...
+Hugh
 
-I tend to think that makes us expose too much CPU-specific things, which
-is why I'd rather have the {read,write}s{b,w,l} versions provided by the
-arch so those can be done "the right way" in the arch code, and drivers
-not care about some of the gory details.
-
-Ben.
-
+--- 2.5.31/include/asm-i386/tlbflush.h	Tue Jun  4 14:27:14 2002
++++ linux/include/asm-i386/tlbflush.h	Tue Aug 27 15:30:53 2002
+@@ -45,11 +45,19 @@
+ 			__flush_tlb();					\
+ 	} while (0)
+ 
+-#ifndef CONFIG_X86_INVLPG
+-#define __flush_tlb_one(addr) __flush_tlb()
++#define __flush_tlb_single(addr) \
++	__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
++
++#ifdef CONFIG_X86_INVLPG
++# define __flush_tlb_one(addr) __flush_tlb_single(addr)
+ #else
+-#define __flush_tlb_one(addr) \
+-__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
++# define __flush_tlb_one(addr)						\
++	do {								\
++		if (cpu_has_pge)					\
++			__flush_tlb_single(addr);			\
++		else							\
++			__flush_tlb();					\
++	} while (0)
+ #endif
+ 
+ /*
 

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287255AbRL2XqI>; Sat, 29 Dec 2001 18:46:08 -0500
+	id <S287276AbRL2Xrs>; Sat, 29 Dec 2001 18:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287250AbRL2XqA>; Sat, 29 Dec 2001 18:46:00 -0500
-Received: from ns.suse.de ([213.95.15.193]:48910 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287270AbRL2Xpo>;
-	Sat, 29 Dec 2001 18:45:44 -0500
-Date: Sun, 30 Dec 2001 00:45:41 +0100 (CET)
+	id <S287275AbRL2Xrl>; Sat, 29 Dec 2001 18:47:41 -0500
+Received: from ns.suse.de ([213.95.15.193]:54286 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287269AbRL2Xr0>;
+	Sat, 29 Dec 2001 18:47:26 -0500
+Date: Sun, 30 Dec 2001 00:47:24 +0100 (CET)
 From: Dave Jones <davej@suse.de>
-To: Stewart Smith <stewart@softhome.net>
-Cc: <timothy.covell@ashavan.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <5DF55AEA-FCB4-11D5-880A-00039350C45A@softhome.net>
-Message-ID: <Pine.LNX.4.33.0112300038040.1336-100000@Appserv.suse.de>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <20011229153840.C21760@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0112300046140.1336-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Dec 2001, Stewart Smith wrote:
+On Sat, 29 Dec 2001, Larry McVoy wrote:
 
-> What about instead of tracking bugs and if they've been squashed. Why
-> don't we build a database of known bugs with different kernel versions.
-> i.e. You can go to the site and get a complete list of every single bug
-> that people have entered about 2.0.36 you're still running on that box
-> under the stairs.
-> People could then 'vote' on the bug, so we could keep track of what's a
-> big problem for a lot of people, and what's something that just one
-> person found not to work.
+[You liked the ascii, so you get to see it again 8) ]
 
-Congratulations, you just invented bugzilla 8)
-The only thing I dislike about bugzilla (and lookalikes) is that
-someone has to go through them pruning them, updating them etc
-and this is a lot of work.
-Look at $vendor_of_choice's bugzilla entry for the kernel.
-You'll see hundreds, nay, thousands of reports filed.
+> > h h h h h
+> > \ | | | /
+> >  m  m m
+> >   \ |/
+> >   ttt
+> >    |
+> >    l
+> >
+> > h - random j hacker working on same file/subsystem different goals
+> > m - maintainer for file/subsys
+> > t - "forked" tree maintainer (-ac, -dj, -aa etc..)
+> > l - Linus
 
-It's an immense amount of data to track.
-Some people have no problem with this, others loath it.
+> In my message above, I specifically asked about any one area, asking if
+> there was parallel development in that area.  So far, noone has said "yes".
+> If the answer was "yes", somebody in your fanin (nice ascii, BTW :) is
+> merging.  So the answer is either
+> If it is "someone", who is it?
 
-The advantage email has over this are too numerous to list,
-but they start with the fact that lots of kernel developers are
-lazy[*]. 2-3 keypresses to archive a patch for looking at later/merging
-are about the level of involvement thats aimed for.
-Having to start a browser, go to the bugzilla site, log in, search/browse
-for bugs etc.. way too involved.
+Yes.
+"m", and to a lesser extent, "t"
 
 Dave.
 
-[*] In the sense that if life can be made easier, it should be.
 
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk

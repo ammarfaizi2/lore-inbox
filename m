@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317473AbSHCTZP>; Sat, 3 Aug 2002 15:25:15 -0400
+	id <S317488AbSHCTiG>; Sat, 3 Aug 2002 15:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSHCTZO>; Sat, 3 Aug 2002 15:25:14 -0400
-Received: from pl204.dhcp.adsl.tpnet.pl ([217.98.31.204]:1697 "EHLO
-	blurp.slackware.pl") by vger.kernel.org with ESMTP
-	id <S317473AbSHCTY4>; Sat, 3 Aug 2002 15:24:56 -0400
-Date: Sat, 3 Aug 2002 21:26:49 +0200 (CEST)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.33.0208032115080.32383-100000@blurp.slackware.pl>
+	id <S317504AbSHCTiF>; Sat, 3 Aug 2002 15:38:05 -0400
+Received: from phobos.hpl.hp.com ([192.6.19.124]:41969 "EHLO phobos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317488AbSHCTiF>;
+	Sat, 3 Aug 2002 15:38:05 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15692.12781.344389.519591@napali.hpl.hp.com>
+Date: Sat, 3 Aug 2002 12:41:33 -0700
+To: frankeh@watson.ibm.com
+Cc: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Gerrit Huizenga <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>,
+       <wli@holomorpy.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: large page patch (fwd) (fwd)
+In-Reply-To: <200208031441.29353.frankeh@watson.ibm.com>
+References: <15691.22889.22452.194180@napali.hpl.hp.com>
+	<Pine.LNX.4.44.0208022125040.2694-100000@home.transmeta.com>
+	<15691.24200.512998.875390@napali.hpl.hp.com>
+	<200208031441.29353.frankeh@watson.ibm.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> On Sat, 3 Aug 2002 14:41:29 -0400, Hubertus Franke <frankeh@watson.ibm.com> said:
 
-The problem I reported once, still exist in 2.4.19. See my previous emails
-for the reference:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102495067602135&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102277249800423&w=2
-It is fixed in -ac series though.
+  Hubertus> But I'd like to point out that superpages are there to
+  Hubertus> reduce the number of TLB misses by providing larger
+  Hubertus> coverage. Simply providing page coloring will not get you
+  Hubertus> there.
 
-As Bartek Zolnierkiewicz pointed me, the problem was introduced by two
-factors:
- - checking the return value of pci_enable_device(dev)
- - some settings problem with PCI resources -- BIOS/controller does
-prepare them for XP
-(these are more-less Bartek's words).
+Yes, I agree.
 
-What helped me was using fixup_device_piix() from -ac in
-ide_scan_pcidev(). My controler's ID is DEVID_ICH3M.
-It is used in a different, more generic way in -ac, so I don't post the
-patch.
+It appears that Juan Navarro, the primary author behind the Rice
+project, is working on breaking down the superpage benefits they
+observed.  That would tell us how much benefit is due to page-coloring
+and how much is due to TLB effects.  Here in our lab, we do have some
+(weak) empirical evidence that some of the SPECint benchmarks benefit
+primarily from page-coloring, but clearly there are others that are
+TLB limited.
 
-Alan, Marcelo: is there any chance that this change will be ported from
--ac in 2.4.20?
-
-many thanks to Bartek,
-pkot
--- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
-
-
-
-
-
-
-
-
-
-
-
+	--daivd

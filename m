@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269112AbRHBU0c>; Thu, 2 Aug 2001 16:26:32 -0400
+	id <S269127AbRHBU3C>; Thu, 2 Aug 2001 16:29:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269115AbRHBU0W>; Thu, 2 Aug 2001 16:26:22 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:28088 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S269112AbRHBU0I>;
-	Thu, 2 Aug 2001 16:26:08 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 2 Aug 2001 20:25:42 GMT
-Message-Id: <200108022025.UAA114868@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] vxfs fix
-Cc: hch@caldera.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        viro@math.psu.edu
+	id <S269118AbRHBU2w>; Thu, 2 Aug 2001 16:28:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:20746 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S269127AbRHBU2q>; Thu, 2 Aug 2001 16:28:46 -0400
+Date: Thu, 2 Aug 2001 17:28:48 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <Pine.LNX.4.33L.0108021714070.5582-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0108021728130.5582-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Let me try again
+On Thu, 2 Aug 2001, Rik van Riel wrote:
+> On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
+>
+> > I'm about the zillionth person to complain about this problem on
+> > this list.  It is completely unacceptable to say that I can't
+> > use the memory on my machines because the kernel is too hungry
+> > for cache.
+>
+> Fully agreed. The problem is that getting a solution which
+> works in a multizoned VM isn't all that easy, otherwise we
+> would have fixed it ages ago ...
 
-OK - now I see what you mean, but I think you misunderstand.
-The system call mount(2) has an obligatory parameter "type".
-The kernel never guesses.
+Well, actually there are a few known solutions to this
+problem, but they are not really an option for the 2.4
+series since they require large code changes...
 
-[Apart from the situation at boot time, where it knows the
-device and guesses the type. This is bad, and I hope it
-will go away. Some types are very difficult to distinguish.]
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
-So, the kernel only does what it is told.
 
-But mount(8) has users, and they are a lazy bunch.
-Instead of saying "mount -t iso9660 image /mnt -o loop,ro"
-they type "mount image /mnt" and hope that mount(8) can
-figure out the rest. And mount(8) knows about the magic numbers
-of a handful of filesystems, and if one of these is recognized
-it will try that type. Otherwise it will just try all remaining
-types in /proc/filesystems. It is this guessing that leads to
-crashes in case the kernel succeeds in mounting garbage.
-
-Andries
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

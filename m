@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRGELJn>; Thu, 5 Jul 2001 07:09:43 -0400
+	id <S264416AbRGELJd>; Thu, 5 Jul 2001 07:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264345AbRGELJd>; Thu, 5 Jul 2001 07:09:33 -0400
-Received: from [203.126.57.231] ([203.126.57.231]:28424 "HELO
-	mail.celestix.com") by vger.kernel.org with SMTP id <S264329AbRGELJS>;
-	Thu, 5 Jul 2001 07:09:18 -0400
-Date: Thu, 5 Jul 2001 18:52:43 +0800
-From: Thibaut Laurent <thibaut@celestix.com>
-To: Mircea Damian <dmircea@kappa.ro>
+	id <S264345AbRGELJX>; Thu, 5 Jul 2001 07:09:23 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44038 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264279AbRGELJJ>; Thu, 5 Jul 2001 07:09:09 -0400
+Subject: Re: 2.4.[56] kernel + xfree 4.1.0
+To: justin@soze.net (Justin Guyett)
+Date: Thu, 5 Jul 2001 12:09:14 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-Message-Id: <20010705185243.2e3a942e.thibaut@celestix.com>
-In-Reply-To: <20010705104650.A2820@linux.kappa.ro>
-In-Reply-To: <20010704232816.B590@marvin.mahowi.de>
-	<20010705104650.A2820@linux.kappa.ro>
-Organization: Celestix Networks Pte Ltd
-X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.33.0107041930090.32139-100000@gw.soze.net> from "Justin Guyett" at Jul 04, 2001 07:51:37 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15I70U-0002Lw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> mistaken?  If X isn't going to restore previous graphics modes, it doesn't
+> seem to matter what mode the console was in, framebuffer or not, it still
+> needs to be fixed regardless.
+> 
+> I'm presuming then that this is something the regular console driver needs
+> to deal with?
 
-I posted a message 2 weeks ago regarding this bug, though I can't trigger the
-kernel panic every time (see original post). My CPU is a MediaGX, and
-Manfred's one is a 6x86MX. What about yours ?
-After my first unsuccessful attempt with a 2.4.6-pre3, I tried several other
-2.4.6-preX and 2.4.5-acX kernels. All 2.4.6 (since pre1) seem to be
-affected, and so do the latest ac's. I don't have tested 2.4.7-pre[12] yet,
-but looking at the changelog, I doubt the fix is in.
-
-Original post for the behaviour on my box:
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0106.2/0778.html
-Note: the kernel panic mentioned in the original post is the same "kernel BUG
-at softirq.c:206!" thing.
-
-Regards,
-
-Thibaut
+All XFree86 problems. The kernel intentionally does not want to know about all
+the things XFree knows about video cards. Possibly the kernel needs an ioctl
+so XFree can ask 'and what do you think the display is right now' but thats
+all, and its something I've so far seen no request for
 

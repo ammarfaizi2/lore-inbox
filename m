@@ -1,93 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVBAWqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVBAWva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbVBAWqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVBAWoq
+	id S262155AbVBAWva (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 17:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAWuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:44:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23988 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262149AbVBAWlR (ORCPT
+	Tue, 1 Feb 2005 17:50:39 -0500
+Received: from waste.org ([216.27.176.166]:19940 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262158AbVBAWse (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:41:17 -0500
-Message-ID: <42000122.90104@osdl.org>
-Date: Tue, 01 Feb 2005 14:22:26 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 1 Feb 2005 17:48:34 -0500
+Date: Tue, 1 Feb 2005 14:48:24 -0800
+From: Matt Mackall <mpm@selenic.com>
 To: Chris Wedgwood <cw@f00f.org>
-CC: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2/8] lib/sort: Replace qsort in XFS
+Message-ID: <20050201224824.GF2493@waste.org>
 References: <6.416337461@selenic.com> <7.416337461@selenic.com> <5.416337461@selenic.com> <6.416337461@selenic.com> <3.416337461@selenic.com> <4.416337461@selenic.com> <2.416337461@selenic.com> <3.416337461@selenic.com> <20050201222915.GA9285@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20050201222915.GA9285@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+On Tue, Feb 01, 2005 at 02:29:15PM -0800, Chris Wedgwood wrote:
 > On Mon, Jan 31, 2005 at 01:34:59AM -0600, Matt Mackall wrote:
 > 
-> 
->>+#define qsort xfs_sort
->>+static inline void xfs_sort(void *a, size_t n, size_t s,
->>+			int (*cmp)(const void *,const void *))
->>+{
->>+	sort(a, n, s, cmp, 0);
->>+}
->>+
-> 
+> > +#define qsort xfs_sort
+> > +static inline void xfs_sort(void *a, size_t n, size_t s,
+> > +			int (*cmp)(const void *,const void *))
+> > +{
+> > +	sort(a, n, s, cmp, 0);
+> > +}
+> > +
 > 
 > why not just:
 > 
 > #define qsort(a, n, s, cmp)	sort(a, n, s, cmp, NULL)
-> 
-> 
-> 
+
+Side-effect avoidance habit, not applicable here.
+
 > On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
 > 
+> > Switch NFS ACLs to lib/sort
 > 
->>Switch NFS ACLs to lib/sort
-> 
-> 
->>+	sort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
->>+	     cmp_acl_entry, 0);
-> 
+> > +	sort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
+> > +	     cmp_acl_entry, 0);
 > 
 > There was a thread about stlye and I though the concensurs for null
 > pointers weas to use NULL and not 0?
 
-Yes, otherwise sparse complains... and maybe Linus  :)
-
-
-> On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
-> 
-> 
->>Eep. cpuset uses bubble sort on a data set that's potentially O(#
->>processes). Switch to lib/sort.
-> 
-> 
->>+	sort(pidarray, npids, sizeof(pid_t), cmppid, 0);
-> 
-> 
-> and there?
-> 
-> 
-> 
-> On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
-> 
-> 
->>Replace exception table insertion sort with lib/sort
-> 
-> 
->>+	sort(start, finish - start, sizeof(struct exception_table_entry),
->>+	     cmp_ex, 0);
-> 
-> 
-> and there?
-
+Was it? Grumble. Ok, I'll fix these up.
 
 -- 
-~Randy
+Mathematics is the supreme nostalgia of our time.

@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279674AbRJ3AJL>; Mon, 29 Oct 2001 19:09:11 -0500
+	id <S279688AbRJ3ATb>; Mon, 29 Oct 2001 19:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279664AbRJ3AIy>; Mon, 29 Oct 2001 19:08:54 -0500
-Received: from t02-11.ra.uc.edu ([129.137.228.35]:25984 "EHLO cartman")
-	by vger.kernel.org with ESMTP id <S279662AbRJ3AIr>;
-	Mon, 29 Oct 2001 19:08:47 -0500
-Date: Mon, 29 Oct 2001 19:08:17 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139too termination
-Message-ID: <20011029190817.B320@cartman>
-In-Reply-To: <20011029181029.A320@cartman> <3BDDE5DF.71917D8F@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BDDE5DF.71917D8F@zip.com.au>
-User-Agent: Mutt/1.3.23i
-From: Robert Kuebel <kuebelr@email.uc.edu>
+	id <S279689AbRJ3ATV>; Mon, 29 Oct 2001 19:19:21 -0500
+Received: from waste.org ([209.173.204.2]:31328 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S279688AbRJ3ATN>;
+	Mon, 29 Oct 2001 19:19:13 -0500
+Date: Mon, 29 Oct 2001 18:23:31 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] random.c bugfix
+In-Reply-To: <20011029163920.F806@lynx.no>
+Message-ID: <Pine.LNX.4.30.0110291814100.30096-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 	tp->diediedie = 1;
-> 	wmb();
-> 	ret = kill_proc(...);
-> 
-> and test the flag in rtl8139_thread().
-> 
+On Mon, 29 Oct 2001, Andreas Dilger wrote:
 
-i had something like that in mind.
+> On Oct 29, 2001  10:58 -0600, Oliver Xymoron wrote:
+> > > > (*) I don't know enough about the hash functions to know how to add a
+> > > >     few odd bytes into the store in a useful and safe way.  We don't
+> > > >     really want to discard them either - think if a user-space random
+> > > >     daemon on an otherwise entropy-free system only writes one byte at
+> > > >     a time...
+> > >
+> > > I'm no expert either, but padding with anything (zeroes?) to get the right
+> > > length should be safe, no?
+> >
+> > No. A 4-byte accumulator is the right answer. We have to be careful here
+> > though - the actual entropy might be in the partial words, we have to
+> > account for it conservatively.
+>
+> In a large majority of the cases, there are only full-word entropy additions.
+> The only time we need to deal with sub-word additions is from random_write()
+> and from the equivalent ioctl.  It also appears that we do this when filling
+> the secondary pool, but that is OK because we periodically dump far more
+> entropy into the secondary pool than we could possibly lose through rounding
+> errors.
 
-> The tricky part is teaching the thread to ignore the
-> spurious signals - the signal_pending() state needs to be
-> cleared.  I think flush_signals() is the way to do this.
-> See context_thread() for an example.
-> 
->            spin_lock_irq(&curtask->sigmask_lock);
->            flush_signals(curtask);
->            recalc_sigpending(curtask);
->            spin_unlock_irq(&curtask->sigmask_lock);
-> 
-> The recalc_sigpending() here appears to be unnecessary...
-> 
+They're not rounding errors per se though. This is what I mean by
+conservative accounting. If you have three extra bytes, you must assume
+that they're worth a full 24 bits of entropy. Throwing them away is fairly
+expensive.
 
-what about changing doing
-	spin_lock_irq(&current->sigmask_lock);
-	sigfillset(&current->blocked);	/* block all sig's */
-	recalc_sigpending(current);
-	spin_unlock_irq(&current->sigmask_lock);
+> Having an accumulator would only handle a rarely-used corner case.  We
+> could just as easily fix any user-space entropy daemon to write at least
+> 4 bytes at a time.  Alternately, we could "pad" with enough bytes from
+> the random pool, and not accumulate at all.
 
-instead of 
+Padding -from the pool- is acceptable (and simple enough a slow path to
+add to the low-level function). Padding with constants is bad and padding
+with zeros tends to be really bad.
 
-	spin_lock_irq(&current->sigmask_lock);
-	sigemptyset(&current->blocked);  
-	recalc_sigpending(current);
-	spin_unlock_irq(&current->sigmask_lock);
+> In any case, this is in the noise compared to not using the input data
+> at all (which I fixed in the other patch).
 
-and replacing the signal_pending() stuff in the loops of
-rtl8139_thread() with checks for tp->diediedie?
+Any of this made it into recent kernels yet? Backport to 2.2 might be a
+good idea too..
 
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUEPLac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263563AbUEPLw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbUEPLac (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 07:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUEPLac
+	id S263563AbUEPLw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 07:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUEPLw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 07:30:32 -0400
-Received: from [62.38.236.120] ([62.38.236.120]:31180 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id S263574AbUEPLaa (ORCPT
+	Sun, 16 May 2004 07:52:56 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:53449 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263563AbUEPLwx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 07:30:30 -0400
-From: "P. Christeas" <p_christ@hol.gr>
-To: Jan De Luyck <lkml@kcore.org>
-Subject: [2.6.6] Synaptics driver is 'jumpy'
-Date: Sun, 16 May 2004 14:27:44 +0300
-User-Agent: KMail/1.6.2
-Cc: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405161427.44859.p_christ@hol.gr>
+	Sun, 16 May 2004 07:52:53 -0400
+Date: Sun, 16 May 2004 13:52:43 +0200 (MEST)
+Message-Id: <200405161152.i4GBqh00007266@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org
+Subject: Re: [PATCH][1/7] perfctr-2.7.2 for 2.6.6-mm2: core
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello List,
-> 
-> Since installing 2.6.6 on my trusty laptop, I can't use the built-in 
-synaptics
-> touchpad anymore. The tracking is totally broken:
-> 
-> When you touch-drag on the touchpad, the mouse cursor will jump to where you
-> stopped your action approx. 1/1.5 seconds _after_ your move. This makes 
-using
-> the touchpad virtually impossible.
-> 
-> This problem is not present under 2.6.5, which I'm running right now.
-> Same .config.
-> 
-> Nothing seems to show up in the logs that could reflect any problem.
-> 
-> Any pointers?
-> 
-> Jan
-> 
+On Sat, 15 May 2004 22:39:37 -0700, Andrew Morton wrote:
+>Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>>
+>>  The per-process perfctrs used to be accessed via /proc/pid/perfctr,
+>>  but the /proc/pid/-now-denotes-that-posixy-process-grop-thingy
+>>  change in 2.6 broke that, so I went away from /proc/pid/ last year.
+>> 
+>>  The per-process perfctrs would need their own file system mount point,
+>>  with files or directories named by actual kernel task id. readdir()
+>>  won't be fun to implement. The top-level access point can certainly
+>>  be in a special fs, the question is whether I must go further and
+>>  do that also for the individual control data fields?
+>> 
+>>  The global-mode perfctrs could be accessed via /dev/cpu/$cpu/gperfctr
+>>  for per-cpu operations, and /dev/cpu/gperfctr/$file for global
+>>  operations (like start and stop). However, global-mode perfctrs
+>>  are considerably less important than per-process perfctrs, and
+>>  I'd rather remove them until the per-process stuff is done.
+>
+>Well standing back and squinting at the problem:
+>
+>As it collects samples globally, oprofile is a system-wide thing.  And a
+>filesytem is a system-wide thing too, so one maps onto the other nicely.
+>
+>But perfctr is a *per process* thing, and that doesn't map onto a
+>filesystem abstraction very well at all.
+>
+>So unless someone comes up with a cunning way of getting your square peg
+>into a filesystem's round hole, I'd be inclined to stick with a syscall
+>interface.  Six syscalls would be preferable to
+>one-which-contains-a-switch-statement, please.
 
-Under normal load this shouldn't happen. It could only have to do with 
-interrupts from PS/2 port.
-However, this shows the actual problem with using Synaptics' absolute mode. I 
-vote against having this as the default setting.
-In the absolute mode, the CPU must process the absolute movements of the 
-finger in order to translate them to mouse movements. That means that, under 
-some system load, the mouse will not respond smoothly any more. I wouldn't 
-like to have increased priority or so just for the mouse.
-In the relative mode, the touchpad processor calculates the movements and 
-queues them as mouse events to the PS/2. This buffering provides smooth 
-movement even under heavy CPU usage. The downside is that in relative mode, 
-the touchpad has no adjustments (only default ones) and no extra features 
-(Z-axis, scroll zones). It may even not have the middle button (which I'm 
-missing most)
-Perhaps we should ask Synaptics for a better relative mode. AFAIK the PIC 
-processor inside the touchpad is not upgradeable, but future models could 
-offer better code..
+If I drop the global-mode counters I'll still need seven calls:
+six for the per-process counters, and one get-information call.
+There is information that user-space needs which no other
+kernel interface provides (AFAIK): the timebase-to-core multiplier
+on PowerPC, and the set of forbidden(*) CPUs on x86/x86_64.
+I also export several CPU feature flags. One of them, the
+"can use overflow interrupt counters" flag, can't be detected
+by user-space from the CPU type alone since it also depends
+on local APIC availability, which in turn depends on kernel
+.config, DMI scan, and kernel boot options.
 
-Try running the touchpad in relative mode, with 'options psmouse proto=exps' 
-at /etc/modprobe.conf, which disables the Synaptics (i.e. absolute mode).
+I think I can eliminate the structure marshalling code, but
+it will require padding structures with dummy fields for
+future hardware extensions.
 
+So seven syscalls, sys_vperfctr+0,...,sys_vperfctr+6, no
+global-mode counters, and no marshalling code. Sounds Ok?
+
+/Mikael
+
+(*) You can thank Intel's HT P4 for that. Hyperthreaded P4s are
+_asymmetric_ wrt the availability of the performance counters.
+The solution is to restrict processes to thread #0 in each physical
+CPU, but users must be told about this so they don't try to change
+affinity to one of the forbidden (non-thread-#0) CPUs.
+There are safety checks in place, so if they do so anyway their
+counters are terminated before any damage is done.

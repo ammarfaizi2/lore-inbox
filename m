@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbULPXnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbULPXow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbULPXnB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:43:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbULPXnA
+	id S262202AbULPXow (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbULPXnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:43:00 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:15397 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262195AbULPXmW
+	Thu, 16 Dec 2004 18:43:13 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:6692 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262202AbULPXlc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:42:22 -0500
-Date: Fri, 17 Dec 2004 00:42:46 +0100
+	Thu, 16 Dec 2004 18:41:32 -0500
+Date: Fri, 17 Dec 2004 00:41:53 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Online version of Documentation/DocBook
-Message-ID: <20041216234246.GB15485@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20041216075504.GK31835@admingilde.org>
+To: Christian Bj??levik <nafallo@magicalforest.se>, rusty@rustcorp.com.au
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Debian-Kernel <debian-kernel@lists.debian.org>
+Subject: Re: PROBLEM: Cross-compiling fails (patch included)
+Message-ID: <20041216234153.GA15485@mars.ravnborg.org>
+Mail-Followup-To: Christian Bj??levik <nafallo@magicalforest.se>,
+	rusty@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>,
+	Debian-Kernel <debian-kernel@lists.debian.org>
+References: <41C1D4A5.3080503@magicalforest.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041216075504.GK31835@admingilde.org>
+In-Reply-To: <41C1D4A5.3080503@magicalforest.se>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 08:55:04AM +0100, Martin Waitz wrote:
-> hoi :)
+On Thu, Dec 16, 2004 at 07:32:05PM +0100, Christian Bj??levik wrote:
+>  Hi there!
 > 
-> for those interested: I created an online version of the Linux DocBook
-> documentation.  It is automatically updated from the bkcvs gateway.
-> 
-> It's available at http://tali.admingilde.org/linux-docbook/
+> When using kernel-package (Debian specific kernel-management) to 
+> cross-compile a kernel in a i386-chroot on my x86_64 laptop 
+> modules_install fails when trying to depmod things. Since we should not 
+> depmod those things if the arch being built isn't the same as 'uname -m' 
+> I wrote a patch for the Makefile to test those conditions.
 
-Good initiative - thanks!
+Similar versions has been posted before.
+But the right fix is to fix module-init-tools - therefore they have not
+been applied.
+
+Rusty - any progress in this?
 
 	Sam

@@ -1,77 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317598AbSHHP2f>; Thu, 8 Aug 2002 11:28:35 -0400
+	id <S317604AbSHHPd7>; Thu, 8 Aug 2002 11:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSHHP2e>; Thu, 8 Aug 2002 11:28:34 -0400
-Received: from mons.uio.no ([129.240.130.14]:2510 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S317598AbSHHP2e>;
-	Thu, 8 Aug 2002 11:28:34 -0400
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.30+] Second attempt at a shared credentials patch
-References: <23130000.1028818693@baldur.austin.ibm.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 08 Aug 2002 17:32:05 +0200
-In-Reply-To: <23130000.1028818693@baldur.austin.ibm.com>
-Message-ID: <shsofcdfjt6.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317606AbSHHPd6>; Thu, 8 Aug 2002 11:33:58 -0400
+Received: from mail.lmcg.wisc.edu ([144.92.101.145]:20635 "EHLO
+	mail.lmcg.wisc.edu") by vger.kernel.org with ESMTP
+	id <S317604AbSHHPd6>; Thu, 8 Aug 2002 11:33:58 -0400
+Date: Thu, 8 Aug 2002 10:37:27 -0500 (CDT)
+Message-Id: <200208081537.KAA09749@radium.lmcg.wisc.edu>
+From: Daniel Forrest <forrest@lmcg.wisc.edu>
+To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+CC: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>,
+       "'trond.myklebust@fys.uio.no'" <trond.myklebust@fys.uio.no>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'pollard@tomcat.admin.navo.hpc.mil'" 
+	<pollard@tomcat.admin.navo.hpc.mil>,
+       "'bcrl@redhat.com'" <bcrl@redhat.com>,
+       "'cks@utcc.utoronto.ca'" <cks@utcc.utoronto.ca>
+In-reply-to: <EE83E551E08D1D43AD52D50B9F511092E114E5@ntserver2> (message from
+	Gregory Giguashvili on Thu, 8 Aug 2002 16:57:59 +0200)
+Subject: Re: O_SYNC option doesn't work (2.4.18-3)
+Reply-to: Daniel Forrest <forrest@lmcg.wisc.edu>
+References: <EE83E551E08D1D43AD52D50B9F511092E114E5@ntserver2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave McCracken <dmccr@us.ibm.com> writes:
+Gregory Giguashvili <Gregoryg@ParadigmGeo.com> writes:
 
-     > This patch allows tasks to share credentials via a flag to
-     > clone().
+>> The above sequence works OK, but it's still problematic since it
+>> doesn't ensure that the data is coming from the server instead of
+>> NFS cache. In one of my previous discussions on this list, I was
+>> told to use the following technique to flush NFS buffers. It turns
+>> out that acquiring write lock using fcntl (F_SETLK) interface acts
+>> as NFS write barrier and flushes all the file NFS buffers. So, the
+>> above sequence would result in the following one:
+>> 
+>> - lock_file (doesn't have to be a lockd lock)
+>> - open_file (O_SYNC)
+>> - if (read) fcntl (F_SETLK) (doing lock/unlock here to flush NFS buffers)
+>> - read/write file
+>> - if (write) fcntl (F_SETLK) (doing lock/unlock here to flush NFS buffers)
+>> - close_file
+>> - unlock_file
 
-     > This version fixes the problem with exec() that Linus found.
-     > Tasks that call exec() get their own copy of the credentials at
-     > that point.
+I have been working in a mixed Linux/Solaris environment and this is
+what works for me.  (>40 machines reading/writing/modifying the same
+files at the same time for hundreds of iterations with no errors.)
 
-     > The URL is here because it's too big to include in email:
+- open()
 
-     > http://www.ibm.com/linux/ltc/patches/misc/cred-2.5.30-3.diff.gz
+  To get a file descriptor that can be locked
 
-What the hell is that change to fs/nfs/dir.c below all about? Try
-mounting an NFSv2 partition with that applied...
+- fcntl(F_SETLK)
 
-Instead of doing this as one big unreadable monolithic patch and
-risking getting things wrong like in the above case, it would be nice
-if you could go via a set of wrapper functions:
+  To ensure that all other clients have written their data to the file
+  and to clear the client cache
 
-#define get_current_uid() (current->uid)
-#define set_current_uid(a) current->uid = a
-.
-.
-.
+- fchmod()
 
-...
+  File attributes (most importantly file size) were cached when the
+  file was opened, these may change between that time and when the
+  lock is granted, a side effect of fchmod() is to refresh the file
+  attributes from the server
 
-That would allow you to make the changes to the lower level filesystem
-code in smaller babysteps, and make the actual move to 'struct cred' a
-trivial patch...
+- lseek() / read() / write()
+
+  If appending, it is important to lseek(SEEK_END) at this point to
+  make sure you are at the true end of file
+
+- close()
+
+  This will flush any data written and remove the lock
 
 
-As I argued before when Ben first presented this, that will also allow
-us the flexibility to change the structure at a later date. Several
-filesystems could benefit from a shared *BSD-style 'struct ucred' to
-replace the tuple current->{ fsuid, fsgid, groups }.
+If anyone experiments with this with systems other than Linux/Solaris
+I would be interested in knowing if it works there also.
 
-Cheers,
-  Trond
-
-diff -Nru a/fs/nfs/dir.c b/fs/nfs/dir.c
---- a/fs/nfs/dir.c      Wed Aug  7 09:08:23 2002
-+++ b/fs/nfs/dir.c      Wed Aug  7 09:08:23 2002
-@@ -1237,9 +1237,6 @@
-
-        lock_kernel();
-
--       if (!NFS_PROTO(inode)->access)
--               goto out_notsup;
--
-        cred = rpcauth_lookupcred(NFS_CLIENT(inode)->cl_auth, 0);
-        if (cache->cred == cred
-            && time_before(jiffies, cache->jiffies + NFS_ATTRTIMEO(inode))) {
-
+-- 
++----------------------------------+----------------------------------+
+| Daniel K. Forrest                | Laboratory for Molecular and     |
+| forrest@lmcg.wisc.edu            | Computational Genomics           |
+| (608)262-9479                    | University of Wisconsin, Madison |
++----------------------------------+----------------------------------+

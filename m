@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271777AbRHUSXA>; Tue, 21 Aug 2001 14:23:00 -0400
+	id <S271779AbRHUSYK>; Tue, 21 Aug 2001 14:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271779AbRHUSWu>; Tue, 21 Aug 2001 14:22:50 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:45830 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S271777AbRHUSWn>;
-	Tue, 21 Aug 2001 14:22:43 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: /dev/random in 2.4.6
-Date: 21 Aug 2001 18:19:29 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9lu8nh$n5v$2@abraham.cs.berkeley.edu>
-In-Reply-To: <Pine.LNX.4.30.0108200942060.4612-100000@waste.org> <605104920.998386381@[169.254.45.213]>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 998417969 23743 128.32.45.153 (21 Aug 2001 18:19:29 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 21 Aug 2001 18:19:29 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S271780AbRHUSYA>; Tue, 21 Aug 2001 14:24:00 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:43423 "EHLO snfc21.pbi.net")
+	by vger.kernel.org with ESMTP id <S271779AbRHUSXm>;
+	Tue, 21 Aug 2001 14:23:42 -0400
+Date: Tue, 21 Aug 2001 11:22:46 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: PROBLEM : PCI hotplug crashes with 2.4.9
+To: Pierre JUHEN <pierre.juhen@wanadoo.fr>
+Cc: Greg KH <greg@kroah.com>, mj@suse.cz, linux-kernel@vger.kernel.org,
+        linux-hotplug-devel@lists.sourceforge.net
+Message-id: <0b5c01c12a6e$47b68e40$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <3B816617.F5C1CD24@wanadoo.fr> <20010820123625.A31374@kroah.com>
+ <08d401c129ca$94ebd2a0$6800000a@brownell.org> <3B82A2C5.48E4DFC@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux-kernel  wrote:
->Equally, I do not want want to read /dev/urandom (and not block) which, in
->an absence of entropy, is (arguably) cryptographically weaker (see below).
+> I was a bit lazy, writing by memory : you are right the system says
+>
+> "pcimodules is scanning more than 00:00.0"
+>
+> but onluy this line and crashes. Under 2.4.6, it scans all the pci
+> adresses.
 
-This doesn't make any sense to me.  You're using SSL, so you already
-have to trust MD5 and SHA.  The only way that /dev/urandom might even
-plausibly be in trouble is if those hash functions are broken, but in
-this case SSL is in even worse trouble.  If you're using the random
-numbers for cryptographic purposes, you might as well use /dev/urandom.
-Your fears about weaknesses in /dev/urandom seem to completely unfounded.
+Then you should be able to try reproducing this by hand,
+without hotplug scripts at all.  Is it "pcimodules" that's making
+it crash?  Or is it the subsequent "modprobe" commands?
+Neither of those is supposed to be able to crash the kernel.
 
-There is a perfectly good technical solution available, and it is called
-/dev/urandom.  I hope this reassures you...
+You should be able to track this down pretty easily.  Disable
+the /etc/hotplug/pci.rc script for a moment ("pci.rc-"), boot, then
+run it by hand like "sh -x pci.rc start".  That's pretty much the way
+it's done at boot time, except that by passing the "-x" you get
+some nice debug output, and will be able to see what user
+mode command caused the crash.
 
->The point is simple: We say to authors of cryptographic applications
->(ssl, ssh etc.) that they should use /dev/random, because /dev/urandom
->is not cryptographically strong enough.
+- Dave
 
-Whoever says this is simply wrong.  There are a few isolated scenarios
-where /dev/urandom is not sufficient and where /dev/random is needed,
-but they are very rare, and they have nothing to do with weaknesses in
-/dev/urandom (they have to do with recovering from host compromises,
-and they're a second- or third-order concern).
+
+

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130257AbRB1QYW>; Wed, 28 Feb 2001 11:24:22 -0500
+	id <S130264AbRB1Q1C>; Wed, 28 Feb 2001 11:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130253AbRB1QYM>; Wed, 28 Feb 2001 11:24:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33552 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130257AbRB1QX7>;
-	Wed, 28 Feb 2001 11:23:59 -0500
-Date: Wed, 28 Feb 2001 17:23:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Holluby István <holluby@interware.hu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: mke2fs /dev/loop0
-Message-ID: <20010228172345.K21518@suse.de>
-In-Reply-To: <20010228164151.H21518@suse.de> <Pine.LNX.3.95.1010228111048.5030A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1010228111048.5030A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Feb 28, 2001 at 11:16:02AM -0500
+	id <S130267AbRB1Q0x>; Wed, 28 Feb 2001 11:26:53 -0500
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:28942 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S130264AbRB1Q0j>; Wed, 28 Feb 2001 11:26:39 -0500
+Date: Wed, 28 Feb 2001 08:26:25 -0800 (PST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Per Erik Stendahl <PerErik@onedial.se>
+cc: "'James A. Sutherland'" <jas88@cam.ac.uk>,
+        "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Unmounting and ejecting the root fs on shutdown.
+In-Reply-To: <E44E649C7AA1D311B16D0008C73304460933B1@caspian.prebus.uppsala.se>
+Message-ID: <Pine.LNX.4.32.0102280824091.24482-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28 2001, Richard B. Johnson wrote:
-> Wrong. The report showed a response to a command. Nothing was reported
-> to have been mounted through the loop device. Instead, the raw command
-> `mke2fs /dev/loop0` was reported. Performing such a command on early
-> linux versions resulted in this:
-> 
-> Script started on Wed Feb 28 11:10:11 2001
-> mke2fs /dev/loop0
-> mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-> mke2fs: Device size reported to be zero.  Invalid partition specified, or
-> 	partition table wasn't reread after running fdisk, due to
-> 	a modified partition being busy and in use.  You may need to reboot
-> 	to re-read your partition table.
-> 
-> # exit
-> exit
 
-This was the report:
+	Hello Per ,  Yah I can understand high volume lists ;-)
+	But combined with the dropping of a copy of the iso-image
+	you create ,  A Howto ???  Please .  Tia , JimL
 
-	[on mke2fs]
-	This command hangs my system. It works for a 100K file, but it
-	hangs my system, if the file is 470M. It does not matter, if the
-	disk is SCSI or ide.
-
-so you pretty much have to assume that he's losetup the files first.
-How else could he state that it works for a 100k file, but not for
-a 470m one?
-
-BLKGETSIZE will return the device size, nothing unexpected here.
-
--- 
-Jens Axboe
+On Wed, 28 Feb 2001, Per Erik Stendahl wrote:
+> Oops, I almost missed this one. High-volume mailinglists... :-)
+> > > 	Hello Per ,  Has anyone gotten back to you on this subject ?
+> > > 	I as well am very interested in any information about releiving
+> > > 	this difficulty .  Tia ,  JimL
+> > Such a CD would be very nice; one or two people do have this already,
+> > though. Have you tried using a ramdisk for root, and mounting
+> > the CD as
+> > /usr?
+> Well, doing this on your own certainly will teach you a lot about
+> Linux I tell you. :-)
+> I still dont know how to make the kernel unlock and eject the CD on
+> shutdown. I haven't been able to pinpoint the shutdown sequence in
+> the kernel sources yet. :-)
+> What I do know now is how to make the kernel not lock the CD in the
+> first place. Simply ioctl(/dev/cdrom, CDROM_CLEAR_OPTIONS, CDO_LOCK)
+> from /linuxrc in the initrd. This way I can remove the CD anytime
+> I please which is enough for me. And I dont have to patch the kernel.
+> Mounting a ramdisk for / is doable (I think) but kludgy since you have
+> to symlink or mount so many subdirectories. Right now I only have /var
+> in a ramdisk (and why _WHY_ is /etc/mtab located in /etc and not
+> in /var??).
+> Anyways the CD works - and yes, being able to boot Linux w/o touching
+> the harddrives or the network is nice! :-) I might even put it on the
+> web once I get it cleaned up. Though the ISO is ~200 Mb.
+> Cheers
+> /Per Erik Stendahl
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 

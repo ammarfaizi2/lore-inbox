@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTLJCnA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 21:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLJCnA
+	id S263453AbTLJCsw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 21:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTLJCsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 21:43:00 -0500
-Received: from web20022.mail.yahoo.com ([216.136.225.24]:33899 "HELO
-	web20022.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263299AbTLJCm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 21:42:59 -0500
-Message-ID: <20031210024258.26284.qmail@web20022.mail.yahoo.com>
-Date: Tue, 9 Dec 2003 18:42:58 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: [NFS client] NFS locks not released on abnormal process termination
-To: Philippe Troin <phil@fifi.org>, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-In-Reply-To: <8765gpvnfv.fsf@ceramic.fifi.org>
+	Tue, 9 Dec 2003 21:48:52 -0500
+Received: from imap.gmx.net ([213.165.64.20]:40324 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263453AbTLJCsv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 21:48:51 -0500
+Date: Wed, 10 Dec 2003 03:48:50 +0100 (MET)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20031210004120.GB2196@kroah.com>
+Subject: Re: Badness in kobject_get at lib/kobject.c:439
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <4932.1071024530@www43.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've ran test overnight on four boxen, and no locks were lost.
-> I guess you can send this patch to Marcello now.
->
-Excellent work!
-
-> > There are still 2 other issues with the generic POSIX locking code.
-> > Both issues have to do with CLONE_VM and have been raised on
-> > linux-kernel & linux-fsdevel. Unfortunately they met with no response,
-> > so I'm unable to pursue...
+> On Wed, Dec 10, 2003 at 01:36:25AM +0100, Svetoslav Slavtchev wrote:
+> > 
+> > the attached oops couldn't happen in vanilla kernel ?
+> > or should i try without the ruby patches ?
 > 
-> Can we help? Pointers?
-Let me know if/how I can help.
+> Can you try it without the ruby patches?  I have no idea what is
+> contained in them.
+> 
 
-Again, great work.
+may be i should stop seti@home, but the kernel is compiling without them :-)
 
-thanks,
--Kenny
+the ruby patch adds a multi-user console support,
+and changes a lot of stiff in the vt subsystem
 
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+will report when i have results
+
+best,
+
+svetljo
+
+-- 
++++ GMX - die erste Adresse für Mail, Message, More +++
+Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
+
+

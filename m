@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270179AbTGMI4A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 04:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270180AbTGMI4A
+	id S270474AbTGNAhM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 20:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270480AbTGNAhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 04:56:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43450 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270179AbTGMIz6 (ORCPT
+	Sun, 13 Jul 2003 20:37:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1735 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270474AbTGNAhF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 04:55:58 -0400
-Date: Sun, 13 Jul 2003 11:01:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: RFC on io-stalls patch
-Message-ID: <20030713090116.GU843@suse.de>
-References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva> <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com> <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
+	Sun, 13 Jul 2003 20:37:05 -0400
+Date: Sun, 13 Jul 2003 17:42:42 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: TCP IP Offloading Interface
+Message-Id: <20030713174242.3ceb8213.davem@redhat.com>
+In-Reply-To: <200307140046.h6E0kcMQ021180@turing-police.cc.vt.edu>
+References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
+	<20030713004818.4f1895be.davem@redhat.com>
+	<52u19qwg53.fsf@topspin.com>
+	<20030713160200.571716cf.davem@redhat.com>
+	<20030713233503.GA31793@work.bitmover.com>
+	<20030713164003.21839eb4.davem@redhat.com>
+	<20030713235424.GB31793@work.bitmover.com>
+	<20030713165323.3fc2601f.davem@redhat.com>
+	<200307140046.h6E0kcMQ021180@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058034751.13318.95.camel@tiny.suse.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 12 2003, Chris Mason wrote:
-> On Sat, 2003-07-12 at 03:37, Jens Axboe wrote:
+On Sun, 13 Jul 2003 20:46:38 -0400
+Valdis.Kletnieks@vt.edu wrote:
+
+> On Sun, 13 Jul 2003 16:53:23 PDT, "David S. Miller" said:
 > 
-> > > I believe the new way provides better overall read performance in the
-> > > presence of lots of writes.
-> > 
-> > I fail to see the logic in that. Reads are now treated fairly wrt
-> > writes, but it would be really easy to let writes consume the entire
-> > capacity of the queue (be it all the requests, or just going oversized).
-> > 
-> > I think the oversized logic is flawed right now, and should only apply
-> > to writes. Always let reads get through. And don't let writes consume
-> > the last 1/8th of the requests, or something like that at least. I'll
-> > try and do a patch for pre4.
+> > I really don't see why receive is so much of a big deal
+> > compared to send, and we do a send side version of this
+> > stuff already with zero problems.
 > 
-> If we don't apply oversized checks to reads, what keeps a big streaming
-> reader from starving out all the writes?
+> Well.... there's optimizations you can do on the send side..
 
-It's just so much easier to full the queue with writes than with reads.
+I consider the send side complete covered already.  We don't
+touch any of the data portion, we only put together the
+headers.
 
-> The current patch provides a relatively fixed amount of work to get a
-> request, and I don't think we should allow that to be bypassed.  We
-> might want to add a special case for synchronous reads (like bread), via
-> a b_state bit that tells the block layer an immediate unplug is coming
-> soon.  That way the block layer can ignore the oversized checks, grant a
-> request and unplug right away, hopefully lowering the total number of
-> unplugs the synchronous reader has to wait through.
-> 
-> Anyway, if you've got doubts about the current patch, I'd be happy to
-> run a specific benchmark you think will show the bad read
-> characteristics.
+> It's hard to do tricks like that when you don't know (for instance) how
+> many IP option fields the packet has until you've already started sucking
+> the packet off the wire - at which point either the NIC itself has to be clever
+> (Hmm, there's that IP offload again) or you have literally about 30 CPU cycles
+> to do interrrupt latency *and* decide what to do....
 
-No I don't have anything specific, it just seems like a bad heuristic to
-get rid of. I can try and do some testing tomorrow. I do feel strongly
-that we should at least make sure to reserve a few requests for reads
-exclusively, even if you don't agree with the oversized check. Anything
-else really contradicts all the io testing we have done the past years
-that shows how important it is to get a read in ASAP. And doing that in
-the middle of 2.4.22-pre is a mistake imo, if you don't have numbers to
-show that it doesn't matter for the quick service of reads.
+There are cards, both existing and in development, that have
+very simple header parsing engines you can program to do stuff
+like this, it isn't hard at all.
 
--- 
-Jens Axboe
+But this is only half of the problem, you need a flow cache and
+clever RX buffer management as well to make the RX side zero-copy
+stuff work.
 

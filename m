@@ -1,53 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132383AbRAaQ40>; Wed, 31 Jan 2001 11:56:26 -0500
+	id <S129784AbRAaQ6g>; Wed, 31 Jan 2001 11:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132289AbRAaQ4Q>; Wed, 31 Jan 2001 11:56:16 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:19215 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S132356AbRAaQ4A>;
-	Wed, 31 Jan 2001 11:56:00 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: J Brook <jbk@postmark.net>
-Date: Wed, 31 Jan 2001 17:54:37 MET-1
+	id <S129825AbRAaQ60>; Wed, 31 Jan 2001 11:58:26 -0500
+Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:38841 "EHLO
+	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
+	id <S129784AbRAaQ6M>; Wed, 31 Jan 2001 11:58:12 -0500
+Message-ID: <3A784412.28B455A1@ftel.co.uk>
+Date: Wed, 31 Jan 2001 16:57:54 +0000
+From: Paul Flinders <P.Flinders@ftel.co.uk>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Matrox G450 problems with 2.4.0 and xfree
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <142905C63D47@vcnet.vc.cvut.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+CC: mlord@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: Problems with Promise IDE controller under 2.4.1
+In-Reply-To: <Pine.LNX.4.10.10101310833300.14252-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jan 01 at 17:41, J Brook wrote:
-> 
->  I don't have Windows installed on my machine, but I find that if I
-> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
-> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
+Talking of the Promise are there any plans to support re-enabling
+of the 2nd channel for boards which have an on-board FastTrak?
 
-Yes, they use same secret code... At least I think...
-
-> restart to 2.4 with FB acceleration enabled. This generally works
-> fine for me.
-> 
->  This isn't generally too much of a problem because 2.4.x is so
-> stable
-> I don't have to reboot for weeks!
-
-You can reboot any number of times you want. Just do not unplug
-powercord from computer...
- 
->  I'm willing to try out some patches if that would be useful.
-
-Problem is that I really do not have any idea what's wrong - as
-after any change I do to driver, I cannot know for sure whether
-after boot it works because of I worked around some problem, or
-because of hardware powered up in `correct' state...
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

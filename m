@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129113AbRBAI4g>; Thu, 1 Feb 2001 03:56:36 -0500
+	id <S129389AbRBAJB1>; Thu, 1 Feb 2001 04:01:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129389AbRBAI41>; Thu, 1 Feb 2001 03:56:27 -0500
-Received: from 13dyn174.delft.casema.net ([212.64.76.174]:31504 "EHLO
+	id <S129454AbRBAJBS>; Thu, 1 Feb 2001 04:01:18 -0500
+Received: from 13dyn174.delft.casema.net ([212.64.76.174]:34832 "EHLO
 	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129113AbRBAI4U>; Thu, 1 Feb 2001 03:56:20 -0500
-Message-Id: <200102010856.JAA05537@cave.bitwizard.nl>
-Subject: Re: drive/block device write scheduling, buffer flushing?
-In-Reply-To: <20010131185120.B3287@home.ds9a.nl> from bert hubert at "Jan 31,
- 2001 06:51:21 pm"
-To: bert hubert <ahu@ds9a.nl>
-Date: Thu, 1 Feb 2001 09:56:12 +0100 (MET)
-CC: Nathan Black <NBlack@md.aacisd.com>, linux-kernel@vger.kernel.org
+	id <S129389AbRBAJBF>; Thu, 1 Feb 2001 04:01:05 -0500
+Message-Id: <200102010901.KAA05572@cave.bitwizard.nl>
+Subject: Re: Linuxrc runs with PID 7
+In-Reply-To: <20010131192338.19211.qmail@web117.yahoomail.com> from Paul Powell
+ at "Jan 31, 2001 11:23:38 am"
+To: Paul Powell <moloch16@yahoo.com>
+Date: Thu, 1 Feb 2001 10:01:03 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
 From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
@@ -21,29 +21,39 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> On Wed, Jan 31, 2001 at 11:52:25AM -0500, Nathan Black wrote:
-> > I was wondering if there is a way to make the kernel write to disk faster. 
-> > I need to maintain a 10 MB /sec write rate to a 10K scsi disk in a computer,
-> > but it caches and doesn't start writing to disk until I hit about 700 MB. At
-> > that point, it pauses(presumably while the kernel is flushing some of the
-> > buffers) and I will have missed data that I am trying to capture.
+Paul Powell wrote:
+> This is a followup question to my previous question
+> "Why isn't init at PID 1."
 > 
-> try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
-> this sounds like an application for a raw device, whereby you can write
-> directly to the disk, with no caching in between.
+> Previoulsy I was calling init from within linuxrc. 
+> Linuxrc was a sash script, so the sash script
+> supposedly had PID 1.  Now I've removed the script and
+> have a C program for linuxrc.
+> 
+> I'm still not running at PID 1 but at 7.  The linuxrc
+> program looks like:
+> 
+> int main(int argc, char* argv[])
+> {
+>    printf("PID = %i\n", getpid());
+> }
+> 
+> When I boot and linuxrc is executed, PID equals 7.
+> 
+> Any ideas as to why this is and how I can run at PID
+> 1?
 
-But you'll probably need to use "buffer" too. 
+Yes, I've noticed this too. 
 
-   capture | buffer -m 128m > outputfile
+I concluded that to the kernel there is something magic about
+"init=/bin/someprogram":  The program doesn't get PID 1 anymore. 
 
-Otherwise the "fsync" can block you for say 1/10th of a second,
-causing loss of a few frames. (10MB per seconds sure sounds like
-video).
+I used to have a script there fire up X and then exec init inside an
+Xterm. I gave up on this after that junk started happening.
 
+Oh, and Init refuses to be useful if it doesn't end up with PID 1. 
 
-Roger. 
-
+			Roger. 
 
 -- 
 ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **

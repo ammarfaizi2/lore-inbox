@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269111AbUJEQYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269877AbUJEQUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269111AbUJEQYS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 12:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269945AbUJEQXc
+	id S269877AbUJEQUr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 12:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269654AbUJEQJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 12:23:32 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:63972 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S269210AbUJEQWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 12:22:32 -0400
-Date: Tue, 5 Oct 2004 09:22:01 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-Message-ID: <20041005162201.GC18567@cup.hp.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com> <200410050843.44265.jbarnes@engr.sgi.com>
+	Tue, 5 Oct 2004 12:09:40 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:4527 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S270002AbUJEQBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 12:01:19 -0400
+Subject: Re: Core scsi layer crashes in 2.6.8.1
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Mark Lord <lsml@rtr.ca>
+Cc: Oliver Neukum <oliver@neukum.org>, Anton Blanchard <anton@samba.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4162C474.8010505@rtr.ca>
+References: <1096401785.13936.5.camel@localhost.localdomain>	<4162B345.9000806@rtr.ca>
+	<1096988167.2064.7.camel@mulgrave> 	<200410051749.22245.oliver@neukum.org>
+	<1096991666.2064.25.camel@mulgrave>  <4162C474.8010505@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 05 Oct 2004 11:01:02 -0500
+Message-Id: <1096992068.1765.32.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410050843.44265.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 08:43:44AM -0700, Jesse Barnes wrote:
-... 
-> >   arch/ia64/pci/pci.c
+On Tue, 2004-10-05 at 10:57, Mark Lord wrote:
+> James Bottomley wrote:
+> >
+> > It would add quite a bit of complexity to the reference counted
+> > aynchronous model to try and force synchronicity between queuecommand
+> > and scsi_remove_host in the mid-layer.  Therefore it's much easier to
+> > let the LLD decide what to do with the command.
 > 
-> It looks like the only non-codingstyle change here is to make pci_root_ops 
-> non-static (and btw, some of the CodingStyle fixups look wrong).  If it needs 
-> to be non-static, it should be declared in a header file so we don't have to 
-> extern it in sn_pci_fixup_bus.
+> Presumably the same is also true for scsi_remove_device() ?
 
-pci_root_ops should be static. It's only intended for ACPI.
-Maybe rename pci_root_ops to "acpi_pci_ops" would make that clearer.
+Yes.
 
-If SN2 platform needs hacks, then define "sn2_acpi_pci_ops" someplace
-in the SN2 specific source code. In this case, SN2 will also 
-need to continue to NOT use pci_acpi_scan_root() and define it's
-own discovery. When SN2 firmware can support pci_acpi_scan_root(),
-then it would make sense to drop the SN2 specific PCI discovery and pci_ops.
-And both can co-exist - SN2 code can check which version of firmware
-is installed and invoke ia64 ACPI support if that is known to work.
+James
 
-If SN2 needs something defined in the ACPI spec but missing from ia64
-ACPI support, add the missing bits to arch/ia64/pci/pci.c.
-It just shouldn't interfere with current use.
 
-hth,
-grant

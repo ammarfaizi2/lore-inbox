@@ -1,990 +1,311 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293193AbSCAOum>; Fri, 1 Mar 2002 09:50:42 -0500
+	id <S293237AbSCAOwm>; Fri, 1 Mar 2002 09:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293219AbSCAOuh>; Fri, 1 Mar 2002 09:50:37 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24210 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293193AbSCAOuZ>; Fri, 1 Mar 2002 09:50:25 -0500
-Date: Fri, 1 Mar 2002 20:13:32 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [Patch] Performance improvements with scalable statistics counters
-Message-ID: <20020301201332.A26176@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293219AbSCAOwe>; Fri, 1 Mar 2002 09:52:34 -0500
+Received: from fairchild-196.adsl.newnet.co.uk ([213.131.187.196]:58047 "HELO
+	pinus") by vger.kernel.org with SMTP id <S293201AbSCAOwK>;
+	Fri, 1 Mar 2002 09:52:10 -0500
+Date: Fri, 1 Mar 2002 14:43:07 +0000 (GMT)
+From: Steve Hill <steve@navaho.co.uk>
+X-X-Sender: <steve@sorbus.navaho>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Patch] ALi M7101 watchdog
+Message-ID: <Pine.LNX.4.33.0203011427520.9334-200000@sorbus.navaho>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="665600-1915745409-1014993787=:9334"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-We did some measurements by modifying the loopback driver to use scalable
-statistics counters, and the results follow...
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Recall that this approach uses per-cpu versions for counters instead of a 
-shared global location; reducing counter cacheline bouncing thus 
-improving SMP performance. Particularly useful for frequently updated
-statistics counters used in the kernel. The implementation uses a per-cpu 
-dynamic word allocator.  For the UP case, the interfaces wrap onto the 
-usual global shared counter.
-
-Results:
--------
-
-1. Running tbench with 40 clients on loopback interface on 8 way smp.
-   (Throughput in MB/sec averaged for 10 runs)
-
-Cpus	Vanilla kernel		Statctr mods to lo	% improvement
-----	-------------		------------------	-------------
- 8	72.69243		78.45725		7.93
- 7	71.88495		73.35581		2.04
- 6	77.65202		78.95159		1.67
- 5	83.02133		90.67332		9.21
- 4	83.77254		84.41258		0.76
- 3	73.32989		74.73163		1.91
- 2	56.27168		57.20956		1.67
-
-2. Kernprof PC sample profile count in loopback_xmit (This is the lo routine
-   which is modified to use scalable statistics counters). This was for 4 runs
-   of tbench 40 on the loopback interface 
-   (kernprof -b -c all -d time  -f 20000 -t pc) 
-
-Cpus	Vanilla Kernel		Statctr mods to lo	% less time spent
-----	-------------		------------------	-----------------
- 8	217844  		66648			69.40
- 7	136920  		65836			51.91
- 6	134528  		64739			51.87
- 5	131168  		62214			52.56
- 4	119877  		65441			45.40
- 3	123957  		63022			49.15
- 2	125826  		59127			53.00
+--665600-1915745409-1014993787=:9334
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-You can find microbenchmark comparisons and interface/implementation details on
-http://lse.sourceforge.net/counters/statctr.html
+Attached is a patch against the 2.4.17 tree to provide a /dev/watchdog 
+interface to the watchdog in the ALi M7101 PMU (as used in Cobalt's x86 
+kit - Raq3/4, Qube3, etc).
 
-Measurements above were made on a 2.4.16 kernel.  Find the statctr and lo 
-modification patches for 2.5.5 below.  
+It takes notice of the CONFIG_WDT_NOWAYOUT option and will kick the 
+watchdog timer when the system goes down for a reboot so it pulls the 
+reset (as far as I can tell this is the only way to reboot Cobalt 
+machines?)
 
-Comments, suggestions welcome.
+I have done preliminary testing on a Cobalt Raq 4 and it seems good - 
+please CC any comments / questions to me.
 
-Regards,
-Kiran
+-- 
 
-PS: Note that you cannot compile any other network driver if lo patch is 
-applied too..
+- Steve Hill
+System Administrator         Email: steve@navaho.co.uk
+Navaho Technologies Ltd.       Tel: +44-870-7034015
 
-Statctr Patch:
---------------
-
-diff -ruN linux-2.5.5/include/linux/pcpu_alloc.h statctr-2.5.5/include/linux/pcpu_alloc.h
---- linux-2.5.5/include/linux/pcpu_alloc.h	Thu Jan  1 05:30:00 1970
-+++ statctr-2.5.5/include/linux/pcpu_alloc.h	Fri Mar  1 11:38:16 2002
-@@ -0,0 +1,75 @@
-+/*
-+ * Per-CPU Word allocator.
-+ *
-+ * Inspired by the freelist maintanance of the slab allocator implementation
-+ *  (in mm/slab.c)
-+ *
-+ * Copyright (c) International Business Machines Corp., 2001
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Author:              Ravikiran Thirumalai <kiran@in.ibm.com>
-+ *
-+ * include/linux/pcpu_alloc.h
-+ *
-+ */
-+#ifndef _LINUX_PCPU_ALLOC_H
-+#define _LINUX_PCPU_ALLOC_H
-+ 
-+#ifdef __KERNEL__
-+
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/threads.h>
-+#include <linux/sched.h>
-+
-+/* Prototypes */
-+#ifdef	CONFIG_SMP
-+
-+typedef struct pcpu_ctr_s {
-+	void *arr[NR_CPUS];	/* Pcpu counter array */
-+	void *blkp;		/* Pointer to block from which ctr was 
-+				   allocated from (for use with free code) */
-+} pcpu_ctr_t;
-+
-+extern pcpu_ctr_t *pcpu_ctr_alloc(int);
-+extern void pcpu_ctr_free(pcpu_ctr_t *);
-+extern void __init pcpu_ctr_sys_init(void);
-+
-+#define PCPU_CTR(ctr, cpuid) ((unsigned long *)ctr->arr[cpuid])
-+
-+#else	/* CONFIG_SMP */
-+
-+#include <linux/slab.h>
-+
-+typedef unsigned long pcpu_ctr_t;
-+
-+static inline pcpu_ctr_t *pcpu_ctr_alloc(int flags) 
-+{
-+	return(kmalloc(sizeof(pcpu_ctr_t), flags));
-+}
-+
-+static inline void pcpu_ctr_free(pcpu_ctr_t *ptr)
-+{
-+	kfree(ptr);
-+}
-+
-+#define pcpu_ctr_sys_init() do { } while (0)    
-+
-+#endif  /* CONFIG_SMP */
-+ 
-+#endif  /* __KERNEL__ */
-+ 
-+#endif  /* _LINUX_PCPU_ALLOC_H */
-diff -ruN linux-2.5.5/include/linux/statctr.h statctr-2.5.5/include/linux/statctr.h
---- linux-2.5.5/include/linux/statctr.h	Thu Jan  1 05:30:00 1970
-+++ statctr-2.5.5/include/linux/statctr.h	Fri Mar  1 12:22:27 2002
-@@ -0,0 +1,171 @@
-+/*
-+ * Scalable Statistics Counters.
-+ *
-+ * Visit http://lse.sourceforge.net/counters for detailed explanation of
-+ *  Scalable Statistic Counters 
-+ *
-+ * Copyright (c) International Business Machines Corp., 2001
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Author:              Ravikiran Thirumalai <kiran@in.ibm.com>
-+ *
-+ * include/linux/statctr.h
-+ *
-+ */
-+
-+#if     !defined(_LINUX_STATCTR_H)
-+#define _LINUX_STATCTR_H
-+ 
-+#if     defined(__KERNEL__)
-+
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/sched.h>
-+#include <linux/pcpu_alloc.h>
-+
-+#ifdef	CONFIG_SMP
-+typedef struct {
-+	pcpu_ctr_t *ctr;
-+} statctr_t;
-+
-+#else
-+typedef unsigned long statctr_t;
-+#endif
-+
-+
-+/* prototypes */
-+#ifdef	CONFIG_SMP 
-+extern int statctr_init(statctr_t *, unsigned long);
-+extern void statctr_cleanup(statctr_t *);
-+extern int statctr_ninit(statctr_t *, unsigned long, int);
-+extern void statctr_ncleanup(statctr_t *, int);
-+#else
-+#define statctr_init(stctr, val)	({*(stctr) = (val); 0;})
-+#define statctr_cleanup(stctr)	do { } while (0)
-+
-+static inline int 
-+statctr_ninit(statctr_t *stctr, unsigned long val, int no)
-+{
-+	int i;
-+	for(i=0; i < no; i++) {
-+		*(stctr) = val;
-+		stctr++;
-+	}
-+	return 0;
-+}
-+
-+#define statctr_ncleanup(st, bn)	do { } while (0)
-+
-+#endif	/* CONFIG_SMP */
-+
-+/* inlines */
-+#ifdef	CONFIG_SMP
-+/** 
-+ * statctr_inc - Increment the statistics counter by one.
-+ * @stctr: Statistics counter 
-+ *
-+ * Increments the counter by one.  Internally only the per-cpu counter is 
-+ * incremented.
-+ */
-+
-+static inline void statctr_inc(statctr_t *stctr)
-+{
-+	(*PCPU_CTR(stctr->ctr, smp_processor_id()))++;
-+}
-+
-+/**
-+ * statctr_dec - Deccrement the statistics counter by one.
-+ * @stctr: Statistics counter
-+ *
-+ * Decrements the counter by one.  Internally only the per-cpu counter is
-+ * incremented.
-+ */
-+ 
-+static inline void statctr_dec(statctr_t *stctr)
-+{
-+	(*PCPU_CTR(stctr->ctr, smp_processor_id()))--;
-+}
-+
-+/**
-+ * statctr_set - Set the statistics counter to value passed.
-+ * @stctr: Statistcs counter
-+ * @val: Value to be set..
-+ *
-+ * Sets the statistics counter. If statctr_read() is invoked after a counter 
-+ * is set, return value of statctr_read shud reflect the value set.
-+ */
-+ 
-+static inline void statctr_set(statctr_t *stctr, unsigned long val)
-+{
-+	int i;
-+	*PCPU_CTR(stctr->ctr, 0) = val;
-+	for (i=1; i < smp_num_cpus; i++) {
-+		*PCPU_CTR(stctr->ctr, i) = 0;
-+	}
-+}
-+
-+/**
-+ * statctr_read - Returns the counter value.
-+ * @stctr: Statistics counter
-+ *
-+ * Reads all of the other per-cpu versions of this counter, consolidates them
-+ * and returns to the caller.
-+ */
-+ 
-+static inline long statctr_read(statctr_t *stctr)
-+{
-+	int i;
-+	unsigned long res = 0;
-+	for( i=0; i < smp_num_cpus; i++ )
-+		res += *PCPU_CTR(stctr->ctr, i);
-+	return res;
-+}
-+
-+/**
-+ * statctr_add - Adds the passed val to the counter value.
-+ * @stctr: Statistics counter
-+ * @val: Addend
-+ *
-+ */
-+ 
-+static inline void statctr_add(statctr_t *stctr, unsigned long val)
-+{
-+        *PCPU_CTR(stctr->ctr, smp_processor_id()) += val;
-+}
-+
-+/**
-+ * statctr_sub - Subtracts the passed val from the counter value.
-+ * @stctr: Statistics counter
-+ * @val: Subtrahend
-+ *
-+ */
-+ 
-+static inline void statctr_sub(statctr_t *stctr, unsigned long val)
-+{
-+        *PCPU_CTR(stctr->ctr, smp_processor_id()) -= val;
-+}
-+#else /* CONFIG_SMP */
-+#define statctr_inc(stctr)	((*(stctr))++)
-+#define statctr_dec(stctr) ((*(stctr))--)
-+#define statctr_read(stctr) (*stctr)
-+#define statctr_set(stctr,val) (*(stctr) = (val))
-+#define statctr_add(stctr,val) ((*(stctr))+=(val))
-+#define statctr_sub(stctr,val) ((*(stctr))-=(val))
-+#endif
-+
-+#endif  /* __KERNEL__ */
-+ 
-+#endif  /* _LINUX_STATCTR_H */
-diff -ruN linux-2.5.5/init/main.c statctr-2.5.5/init/main.c
---- linux-2.5.5/init/main.c	Wed Feb 20 07:40:56 2002
-+++ statctr-2.5.5/init/main.c	Fri Mar  1 11:38:16 2002
-@@ -27,6 +27,7 @@
- #include <linux/iobuf.h>
- #include <linux/bootmem.h>
- #include <linux/tty.h>
-+#include <linux/pcpu_alloc.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -383,6 +384,7 @@
- 	 *	make syscalls (and thus be locked).
- 	 */
- 	smp_init();
-+	pcpu_ctr_sys_init();
- 
- 	/* Do the rest non-__init'ed, we're now alive */
- 	rest_init();
-diff -ruN linux-2.5.5/kernel/Makefile statctr-2.5.5/kernel/Makefile
---- linux-2.5.5/kernel/Makefile	Wed Feb 20 07:40:57 2002
-+++ statctr-2.5.5/kernel/Makefile	Fri Mar  1 11:38:16 2002
-@@ -10,7 +10,7 @@
- O_TARGET := kernel.o
- 
- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
--		printk.o 
-+		printk.o statctr.o
- 
- obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
- 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
-@@ -20,6 +20,7 @@
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += ksyms.o
- obj-$(CONFIG_PM) += pm.o
-+obj-$(CONFIG_SMP) += statctr.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-diff -ruN linux-2.5.5/kernel/statctr.c statctr-2.5.5/kernel/statctr.c
---- linux-2.5.5/kernel/statctr.c	Thu Jan  1 05:30:00 1970
-+++ statctr-2.5.5/kernel/statctr.c	Fri Mar  1 12:13:36 2002
-@@ -0,0 +1,104 @@
-+/*
-+ * Scalable Statistics Counters.
-+ *
-+ * Visit http://lse.sourceforge.net/counters for detailed explanation of
-+ *  Scalable Statistic Counters
-+ *  
-+ * Copyright (c) International Business Machines Corp., 2001
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Author:              Ravikiran Thirumalai <kiran@in.ibm.com>
-+ *
-+ * kernel/statctr.c
-+ *
-+ */
-+
-+#include <linux/pcpu_alloc.h>
-+#include <linux/statctr.h>
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+
-+/**
-+ * statctr_init - Sets up the statistics counter
-+ * @ctr: Pointer to statctr_t type; counter to be initialised
-+ * @val: Initialization value.
-+ *
-+ * Allocates memory to a statistics counter. Returns 0 on successful
-+ * allocation and non zero otherwise
-+ */
-+int statctr_init(statctr_t *stctr, unsigned long val)
-+{
-+	stctr->ctr = pcpu_ctr_alloc(GFP_ATOMIC);
-+	if(!stctr->ctr) 
-+		return -1;
-+	statctr_set(stctr, val);
-+	return 0;
-+}
-+
-+/**
-+ * statctr_cleanup - Perform cleanup functions on a statctr counter
-+ * @ctr: Pointer to statctr_t type;
-+ */
-+void statctr_cleanup(statctr_t *stctr)
-+{
-+	pcpu_ctr_free(stctr->ctr);
-+}
-+
-+/**
-+ * statctr_ninit - Inits a bunch of contiguos statctrs
-+ * @ctr: Ptr to first ctr to be inited in the bunch
-+ * @val: Val to be set
-+ * @no : No of ctrs to be inited
-+ *
-+ * Inits a bunch of contigious statctrs.  Useful when statctrs
-+ * are used as arrays or in "packed" structures.
-+ * Returns non zero if inits fail
-+ */
-+int statctr_ninit(statctr_t *stctr, unsigned long val, int no)
-+{
-+        int i;
-+        for(i=0; i < no; i++) {
-+                if(statctr_init(&stctr[i], val))
-+                        goto cleanup;
-+        }
-+        return 0;
-+ 
-+cleanup:
-+	i--;
-+        for(; i >= 0; i--) {
-+                statctr_cleanup(&stctr[i]);
-+        }
-+	return -1;
-+}
-+
-+/**
-+ * statctr_ncleanup - cleans up a bunch of contiguos statctrs
-+ * @ctr: Ptr to first ctr to be inited in the bunch
-+ * @no : No of ctrs to be inited
-+ *
-+ */
-+void statctr_ncleanup(statctr_t *stctr, int no)
-+{
-+        int i;
-+        for(i=0; i < no; i++) 
-+                statctr_cleanup(&stctr[i]);
-+}
-+
-+EXPORT_SYMBOL(statctr_init);
-+EXPORT_SYMBOL(statctr_cleanup);
-+EXPORT_SYMBOL(statctr_ninit);
-+EXPORT_SYMBOL(statctr_ncleanup);
-+
-diff -ruN linux-2.5.5/mm/Makefile statctr-2.5.5/mm/Makefile
---- linux-2.5.5/mm/Makefile	Wed Feb 20 07:41:04 2002
-+++ statctr-2.5.5/mm/Makefile	Fri Mar  1 11:38:16 2002
-@@ -9,11 +9,12 @@
- 
- O_TARGET := mm.o
- 
--export-objs := shmem.o filemap.o mempool.o page_alloc.o
-+export-objs := shmem.o filemap.o mempool.o page_alloc.o pcpu_alloc.o
- 
- obj-y	 := memory.o mmap.o filemap.o mprotect.o mlock.o mremap.o \
- 	    vmalloc.o slab.o bootmem.o swap.o vmscan.o page_io.o \
- 	    page_alloc.o swap_state.o swapfile.o numa.o oom_kill.o \
- 	    shmem.o highmem.o mempool.o
- 
-+obj-$(CONFIG_SMP) += pcpu_alloc.o 
- include $(TOPDIR)/Rules.make
-diff -ruN linux-2.5.5/mm/pcpu_alloc.c statctr-2.5.5/mm/pcpu_alloc.c
---- linux-2.5.5/mm/pcpu_alloc.c	Thu Jan  1 05:30:00 1970
-+++ statctr-2.5.5/mm/pcpu_alloc.c	Fri Mar  1 11:38:16 2002
-@@ -0,0 +1,346 @@
-+/*
-+ * Per-CPU Counter allocator.
-+ *
-+ * Inspired by the freelist maintanance of the slab allocator implementation
-+ *  (in mm/slab.c)
-+ *
-+ * Copyright (c) International Business Machines Corp., 2001
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Author:              Ravikiran Thirumalai <kiran@in.ibm.com>
-+ *
-+ * mm/pcpu_alloc.c
-+ *
-+ */
-+
-+#include <linux/pcpu_alloc.h> 
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/cache.h>
-+
-+#include <asm/hardirq.h>
-+
-+#define PCPU_CTR_SIZE  (sizeof(unsigned long))
-+#define PCPU_CTR_LINE_SIZE  (SMP_CACHE_BYTES)
-+#define	PCPU_CTR_OBJS_IN_BLK  (PCPU_CTR_LINE_SIZE / PCPU_CTR_SIZE)
-+
-+#define	PCPU_CTR_CACHE_NAME		"pcpuctr"
-+
-+/*
-+ * The block control structure for pcpu_ctr_t objects ...
-+ */
-+struct pcpu_ctr_blk {
-+        void             	*lineaddr[NR_CPUS]; /* Array of pointers to 
-+						       per cpu cachelines */
-+        struct list_head        linkage;   /* Linkage for pcpu_ctr_blk s */
-+        unsigned int            usecount;  /* To decide when to free this 
-+					      block */
-+	
-+	/* Free list maintanance for objs on blk */
-+	int			freearr[PCPU_CTR_OBJS_IN_BLK];  
-+					  /* Array linked list as a per
-+					      block freelist.. */
-+	int			freehead;  /* Start of list ..*/
-+};
-+
-+/*
-+ * Main Control structure for pcpu_ctr_t objects ...
-+ */
-+struct pcpu_ctr_ctl {
-+        struct list_head        blks;          /* Head ptr of the list of all 
-+	                           		  blocks in the pcpu_ctr 
-+						  "cache".
-+						  Full, partial first then 
-+						  free..*/
-+        struct list_head        *firstnotfull;
-+        spinlock_t              lock;
-+	kmem_cache_t		*cachep;       /* Cache to alloc per cpu 
-+						  cachelines from */ 
-+};
-+
-+static struct pcpu_ctr_ctl pcpu_ctr_ctl = {
-+	blks:			LIST_HEAD_INIT(pcpu_ctr_ctl.blks),
-+	firstnotfull:		&pcpu_ctr_ctl.blks,
-+	lock:			SPIN_LOCK_UNLOCKED,
-+};
-+
-+/**
-+ *  Allocate a block descriptor structure and initialize it.  Returns addr of
-+ * block descriptor on success
-+ */
-+static struct pcpu_ctr_blk 
-+*pcpu_ctr_blkctl_alloc(struct pcpu_ctr_ctl *ctl, int flags)
-+{
-+        struct pcpu_ctr_blk *blkp;
-+        int i;
-+        if (!(blkp = (struct pcpu_ctr_blk *) 
-+			kmalloc(sizeof(struct pcpu_ctr_blk), flags)))
-+                return blkp;
-+        blkp->usecount = 0;
-+ 
-+        blkp->freehead = 0;
-+        for (i=0; i < PCPU_CTR_OBJS_IN_BLK; i++)
-+                blkp->freearr[i] = i+1;
-+        blkp->freearr[i-1] = -1;	/* Marks the end of the array */
-+ 
-+        return blkp;
-+}
-+
-+/**
-+ * Frees the block descriptor structure
-+ */
-+static void pcpu_ctr_blkctl_free(struct pcpu_ctr_blk *blkp)
-+{
-+	kfree(blkp);
-+}
-+
-+/** 
-+ * Add a "block" to the pcpu_ctr object memory pool.  Returns 0 on failure and 
-+ * 1 on success
-+ */
-+static int pcpu_ctr_mem_grow(struct pcpu_ctr_ctl *ctl, int flags)
-+{
-+        void *addr;
-+        struct pcpu_ctr_blk *blkp;
-+        unsigned int save_flags;
-+        int i;
-+ 
-+        if (!(blkp = pcpu_ctr_blkctl_alloc(ctl, flags)))
-+                return 0;
-+ 
-+        /* Get per cpu cache lines for the block */
-+	for (i=0; i < smp_num_cpus; i++) {
-+		blkp->lineaddr[i] = kmem_cache_alloc(ctl->cachep, flags);
-+		if(!(blkp->lineaddr[i])) 
-+			goto exit1;
-+		memset(blkp->lineaddr[i], 0, PCPU_CTR_LINE_SIZE);
-+        }
-+ 
-+        /* Now that we have the block successfully allocated and instantiated..
-+           add it.....*/
-+        spin_lock_irqsave(&ctl->lock, save_flags);
-+        list_add_tail(&blkp->linkage, &ctl->blks);
-+        if (ctl->firstnotfull == &ctl->blks)
-+                ctl->firstnotfull = &blkp->linkage;
-+        spin_unlock_irqrestore(&ctl->lock, save_flags);
-+        return 1;
-+ 
-+exit1:
-+	/* Free cachelines allocated to this block, and the blk struct..*/
-+	i--;
-+	for (i; i >= 0; i--) 
-+		kmem_cache_free(ctl->cachep, blkp->lineaddr[i]);
-+	pcpu_ctr_blkctl_free(blkp);	
-+        return 0;
-+}
-+
-+/**
-+ * Initialise the main pcpu_ctr_ctl control structure.
-+ */
-+static void pcpu_ctr_init(struct pcpu_ctr_ctl * ctl)
-+{
-+	/*
-+	 * Create cache to serve out cache line sized, cache line 
-+	 * aligned chunks..
-+	 */ 
-+	ctl->cachep = kmem_cache_create(PCPU_CTR_CACHE_NAME,
-+			PCPU_CTR_LINE_SIZE, 0, SLAB_HWCACHE_ALIGN, 
-+			NULL, NULL);
-+	if(!ctl->cachep)
-+		BUG();
-+}
-+	
-+/**
-+ * Initialisation - setup the pcpu_ctr main control structures (pcpu_ctr_ctl)
-+ */
-+void __init pcpu_ctr_sys_init(void)
-+{
-+	pcpu_ctr_init(&pcpu_ctr_ctl);	
-+	if( !pcpu_ctr_mem_grow(&pcpu_ctr_ctl, GFP_ATOMIC))
-+		BUG();		
-+}
-+
-+/**
-+ * Allocs an object from the block.  Returns back the object index.
-+ */
-+static unsigned int
-+__pcpu_ctr_alloc_one(struct pcpu_ctr_ctl *ctl, struct pcpu_ctr_blk *blkp)
-+{
-+        void *objp;
-+        unsigned int objidx;
-+ 
-+        objidx = blkp->freehead;
-+        blkp->freehead = blkp->freearr[objidx];
-+        blkp->usecount++;
-+        if(blkp->freehead < 0) {
-+                /* Last obj allocated. So if this is still first not full,
-+                   change it */
-+                ctl->firstnotfull = blkp->linkage.next;
-+        }
-+ 
-+        return objidx;
-+}
-+
-+/**
-+ * __pcpu_ctr_alloc - Allocate a Per CPU counter
-+ */
-+static pcpu_ctr_t *__pcpu_ctr_alloc(struct pcpu_ctr_ctl *ctl, int flags)
-+{
-+	pcpu_ctr_t *ctr;
-+        struct pcpu_ctr_blk *blkp;
-+        unsigned int save_flags;
-+        struct list_head *l;
-+	unsigned int objidx;
-+	int i;
-+
-+	ctr = kmalloc(sizeof(pcpu_ctr_t), flags);
-+	if (ctr == NULL)
-+		return NULL;
-+ 
-+tryagain:
-+ 
-+        /* Get the block to allocate pcpu_ctr from.. */
-+        spin_lock_irqsave(&ctl->lock, save_flags);
-+        l = ctl->firstnotfull;
-+        if (l == &ctl->blks)
-+                goto unlock_and_get_mem;
-+        blkp = list_entry(l, struct pcpu_ctr_blk, linkage);
-+ 
-+        /* Get the object index from the block */
-+        objidx = __pcpu_ctr_alloc_one(ctl, blkp);
-+        spin_unlock_irqrestore(&ctl->lock, save_flags);
-+        /* Since we hold the lock and firstnotfull is not the
-+           head list, we shud be getting an object alloc here.firstnotfull 
-+	   can be pointing to head of the list when all the blks are 
-+	   full or when there're no blocks left */
-+	for (i=0; i < smp_num_cpus; i++) 
-+		ctr->arr[i] = blkp->lineaddr[i] + objidx*PCPU_CTR_SIZE;
-+	ctr->blkp = (void *)blkp;
-+        return ctr;
-+ 
-+unlock_and_get_mem:
-+ 
-+        spin_unlock_irqrestore(&ctl->lock, save_flags);
-+        if(pcpu_ctr_mem_grow(ctl, flags))
-+                goto tryagain;  /* added another block..try allocing obj ..*/
-+        
-+	/* Unable to get mem for blocks so ret after cleanup.. */
-+	kfree(ctr);
-+        return NULL;
-+}
-+
-+/**
-+ * pcpu_ctr_alloc - Allocate a PCPU ctr.
-+ * @flags: Type of memory to allocate
-+ *	   Can take in all flags kmem_cache_alloc takes in as args.
-+ * 
-+ * Allocates memory to a PCPU counter. Returns NULL on failure. 
-+ */
-+pcpu_ctr_t *pcpu_ctr_alloc(int flags)
-+{
-+	return( __pcpu_ctr_alloc(&pcpu_ctr_ctl, flags));
-+}
-+
-+/**
-+ * pcpu_ctr_blk_destroy - Frees memory associated with a pcpu_ctr block
-+ */
-+static void 
-+pcpu_ctr_blk_destroy(struct pcpu_ctr_ctl *ctl, struct pcpu_ctr_blk *blkp)
-+{
-+	int i;
-+	
-+	/* Return cache line aligned ctr lines back to slab cache */
-+	for (i=0; i< smp_num_cpus; i++) 
-+		kmem_cache_free(ctl->cachep, blkp->lineaddr[i]);
-+
-+	pcpu_ctr_blkctl_free(blkp);
-+}
-+
-+/**
-+ * Frees an object from a block and fixes the freelist accdly.
-+ * Frees the slab cache memory if a block gets empty during free.
-+ */
-+static void __pcpu_ctr_free(struct pcpu_ctr_ctl *ctl, pcpu_ctr_t *ptr)
-+{
-+        struct pcpu_ctr_blk *blkp;
-+        unsigned int objidx;
-+        unsigned int objoffset;
-+        struct list_head *t;
-+	int cpuid = smp_processor_id();
-+        unsigned int save_flags;
-+	
-+        spin_lock_irqsave(&ctl->lock, save_flags);
-+ 
-+        blkp = (struct pcpu_ctr_blk *)ptr->blkp;
-+        objoffset = (unsigned int)(ptr->arr[cpuid] - blkp->lineaddr[cpuid]);
-+        objidx = objoffset / PCPU_CTR_SIZE;
-+
-+	kfree(ptr);
-+
-+        /* Update the block freelist */
-+        blkp->freearr[objidx] = blkp->freehead;
-+        blkp->freehead = objidx;
-+ 
-+        /* Update usage count */
-+        blkp->usecount--;
-+ 
-+        /* Fix block freelist chain */
-+        if (blkp->freearr[objidx] < 0)  {
-+                /* block was previously full and is now just partially full ..
-+                   so make firstnotfull pt to this block and fix list accdly */
-+                t = ctl->firstnotfull;
-+                ctl->firstnotfull = &blkp->linkage;
-+                if (blkp->linkage.next == t) {
-+			spin_unlock_irqrestore(&ctl->lock, save_flags);
-+                        return;
-+		}
-+                list_del(&blkp->linkage);
-+                list_add_tail(&blkp->linkage, t);
-+        	
-+		spin_unlock_irqrestore(&ctl->lock, save_flags);
-+                return;
-+        }
-+ 
-+        if (blkp->usecount == 0) {
-+                /* Block now empty so give mem back to the slab cache */
-+                t = ctl->firstnotfull->prev;
-+ 
-+                list_del(&blkp->linkage);
-+                if (ctl->firstnotfull == &blkp->linkage)
-+                        ctl->firstnotfull = t->next;
-+        	
-+		spin_unlock_irqrestore(&ctl->lock, save_flags);
-+		pcpu_ctr_blk_destroy(ctl, blkp);
-+                return;
-+        }
-+ 
-+        spin_unlock_irqrestore(&ctl->lock, save_flags);
-+        return;
-+}
-+
-+/**
-+ * pcpu_ctr_free - Frees up a PCPU ctr from memory
-+ * @ptr: Pointer to pcpu_ctr_t; 
-+ */ 
-+void pcpu_ctr_free(pcpu_ctr_t *ptr)
-+{
-+	__pcpu_ctr_free(&pcpu_ctr_ctl, ptr);
-+}
-+
-+EXPORT_SYMBOL(pcpu_ctr_alloc);
-+EXPORT_SYMBOL(pcpu_ctr_free);
+        ... Alcohol and calculus don't mix - Don't drink and derive! ...
 
 
-lo driver modifications:
-------------------------
+--665600-1915745409-1014993787=:9334
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.17-alim7101wdt.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0203011443070.9334@sorbus.navaho>
+Content-Description: 
+Content-Disposition: attachment; filename="linux-2.4.17-alim7101wdt.patch"
 
-diff -ruN linux-2.5.5/drivers/net/loopback.c statctrusagelo/drivers/net/loopback.c
---- linux-2.5.5/drivers/net/loopback.c	Wed Feb 20 07:40:56 2002
-+++ statctrusagelo/drivers/net/loopback.c	Fri Mar  1 16:11:35 2002
-@@ -87,10 +87,10 @@
- #endif
- 
- 	dev->last_rx = jiffies;
--	stats->rx_bytes+=skb->len;
--	stats->tx_bytes+=skb->len;
--	stats->rx_packets++;
--	stats->tx_packets++;
-+	statctr_add(&stats->rx_bytes, skb->len);
-+	statctr_add(&stats->tx_bytes, skb->len);
-+	statctr_inc(&stats->rx_packets);
-+	statctr_inc(&stats->tx_packets);
- 
- 	netif_rx(skb);
- 
-@@ -120,7 +120,11 @@
- 	dev->priv = kmalloc(sizeof(struct net_device_stats), GFP_KERNEL);
- 	if (dev->priv == NULL)
- 			return -ENOMEM;
--	memset(dev->priv, 0, sizeof(struct net_device_stats));
-+	if (statctr_ninit((statctr_t *)dev->priv, 0, 23)) {
-+		/* Init failed cleanup.. */
-+		kfree(dev->priv);
-+		return -ENOMEM;
-+	}
- 	dev->get_stats = get_stats;
- 
- 	/*
-diff -ruN linux-2.5.5/include/linux/netdevice.h statctrusagelo/include/linux/netdevice.h
---- linux-2.5.5/include/linux/netdevice.h	Wed Feb 20 07:41:05 2002
-+++ statctrusagelo/include/linux/netdevice.h	Fri Mar  1 16:11:35 2002
-@@ -28,6 +28,7 @@
- #include <linux/if.h>
- #include <linux/if_ether.h>
- #include <linux/if_packet.h>
-+#include <linux/statctr.h>
- 
- #include <asm/atomic.h>
- #include <asm/cache.h>
-@@ -95,35 +96,35 @@
-  
- struct net_device_stats
- {
--	unsigned long	rx_packets;		/* total packets received	*/
--	unsigned long	tx_packets;		/* total packets transmitted	*/
--	unsigned long	rx_bytes;		/* total bytes received 	*/
--	unsigned long	tx_bytes;		/* total bytes transmitted	*/
--	unsigned long	rx_errors;		/* bad packets received		*/
--	unsigned long	tx_errors;		/* packet transmit problems	*/
--	unsigned long	rx_dropped;		/* no space in linux buffers	*/
--	unsigned long	tx_dropped;		/* no space available in linux	*/
--	unsigned long	multicast;		/* multicast packets received	*/
--	unsigned long	collisions;
-+	statctr_t	rx_packets;		/* total packets received	*/
-+	statctr_t	tx_packets;		/* total packets transmitted	*/
-+	statctr_t	rx_bytes;		/* total bytes received 	*/
-+	statctr_t	tx_bytes;		/* total bytes transmitted	*/
-+	statctr_t	rx_errors;		/* bad packets received		*/
-+	statctr_t	tx_errors;		/* packet transmit problems	*/
-+	statctr_t	rx_dropped;		/* no space in linux buffers	*/
-+	statctr_t	tx_dropped;		/* no space available in linux	*/
-+	statctr_t	multicast;		/* multicast packets received	*/
-+	statctr_t	collisions;
- 
- 	/* detailed rx_errors: */
--	unsigned long	rx_length_errors;
--	unsigned long	rx_over_errors;		/* receiver ring buff overflow	*/
--	unsigned long	rx_crc_errors;		/* recved pkt with crc error	*/
--	unsigned long	rx_frame_errors;	/* recv'd frame alignment error */
--	unsigned long	rx_fifo_errors;		/* recv'r fifo overrun		*/
--	unsigned long	rx_missed_errors;	/* receiver missed packet	*/
-+	statctr_t	rx_length_errors;
-+	statctr_t	rx_over_errors;		/* receiver ring buff overflow	*/
-+	statctr_t	rx_crc_errors;		/* recved pkt with crc error	*/
-+	statctr_t	rx_frame_errors;	/* recv'd frame alignment error */
-+	statctr_t	rx_fifo_errors;		/* recv'r fifo overrun		*/
-+	statctr_t	rx_missed_errors;	/* receiver missed packet	*/
- 
- 	/* detailed tx_errors */
--	unsigned long	tx_aborted_errors;
--	unsigned long	tx_carrier_errors;
--	unsigned long	tx_fifo_errors;
--	unsigned long	tx_heartbeat_errors;
--	unsigned long	tx_window_errors;
-+	statctr_t	tx_aborted_errors;
-+	statctr_t	tx_carrier_errors;
-+	statctr_t	tx_fifo_errors;
-+	statctr_t	tx_heartbeat_errors;
-+	statctr_t	tx_window_errors;
- 	
- 	/* for cslip etc */
--	unsigned long	rx_compressed;
--	unsigned long	tx_compressed;
-+	statctr_t	rx_compressed;
-+	statctr_t	tx_compressed;
- };
- 
- 
-diff -ruN linux-2.5.5/net/core/dev.c statctrusagelo/net/core/dev.c
---- linux-2.5.5/net/core/dev.c	Wed Feb 20 07:41:03 2002
-+++ statctrusagelo/net/core/dev.c	Fri Mar  1 16:11:35 2002
-@@ -1691,19 +1691,19 @@
- 	if (stats)
- 		size = sprintf(buffer, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu %10lu %9lu %8lu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
-  		   dev->name,
--		   stats->rx_bytes,
--		   stats->rx_packets, stats->rx_errors,
--		   stats->rx_dropped + stats->rx_missed_errors,
--		   stats->rx_fifo_errors,
--		   stats->rx_length_errors + stats->rx_over_errors
--		   + stats->rx_crc_errors + stats->rx_frame_errors,
--		   stats->rx_compressed, stats->multicast,
--		   stats->tx_bytes,
--		   stats->tx_packets, stats->tx_errors, stats->tx_dropped,
--		   stats->tx_fifo_errors, stats->collisions,
--		   stats->tx_carrier_errors + stats->tx_aborted_errors
--		   + stats->tx_window_errors + stats->tx_heartbeat_errors,
--		   stats->tx_compressed);
-+		   statctr_read(&stats->rx_bytes),
-+		   statctr_read(&stats->rx_packets), statctr_read(&stats->rx_errors),
-+		   statctr_read(&stats->rx_dropped) + statctr_read(&stats->rx_missed_errors),
-+		   statctr_read(&stats->rx_fifo_errors),
-+		   statctr_read(&stats->rx_length_errors) + statctr_read(&stats->rx_over_errors)
-+		   + statctr_read(&stats->rx_crc_errors) + statctr_read(&stats->rx_frame_errors),
-+		   statctr_read(&stats->rx_compressed), statctr_read(&stats->multicast),
-+		   statctr_read(&stats->tx_bytes),
-+		   statctr_read(&stats->tx_packets), statctr_read(&stats->tx_errors), statctr_read(&stats->tx_dropped),
-+		   statctr_read(&stats->tx_fifo_errors), statctr_read(&stats->collisions),
-+		   statctr_read(&stats->tx_carrier_errors) + statctr_read(&stats->tx_aborted_errors)
-+		   + statctr_read(&stats->tx_window_errors) + statctr_read(&stats->tx_heartbeat_errors),
-+		   statctr_read(&stats->tx_compressed));
- 	else
- 		size = sprintf(buffer, "%6s: No statistics available.\n", dev->name);
- 
+ZGlmZiAtdXJOIGxpbnV4LnZhbmlsbGEvRG9jdW1lbnRhdGlvbi9Db25maWd1
+cmUuaGVscCBsaW51eC5jaG9jb2xhdGVjb29raWVkb3VnaC9Eb2N1bWVudGF0
+aW9uL0NvbmZpZ3VyZS5oZWxwDQotLS0gbGludXgudmFuaWxsYS9Eb2N1bWVu
+dGF0aW9uL0NvbmZpZ3VyZS5oZWxwCUZyaSBEZWMgMjEgMTc6NDE6NTMgMjAw
+MQ0KKysrIGxpbnV4LmNob2NvbGF0ZWNvb2tpZWRvdWdoL0RvY3VtZW50YXRp
+b24vQ29uZmlndXJlLmhlbHAJRnJpIE1hciAgMSAwOTo1Mjo1OCAyMDAyDQpA
+QCAtMTczOTgsNiArMTczOTgsMTcgQEANCiAgIG1vZHVsZSwgc2F5IE0gaGVy
+ZSBhbmQgcmVhZCA8ZmlsZTpEb2N1bWVudGF0aW9uL21vZHVsZXMudHh0Pi4g
+IE1vc3QNCiAgIHBlb3BsZSB3aWxsIHNheSBOLg0KIA0KK0FMaSBNNzEwMSBX
+YXRjaGRvZyBUaW1lcg0KK0NPTkZJR19BTElNNzEwMV9XRFQNCisgIFRoaXMg
+aXMgdGhlIGRyaXZlciBmb3IgdGhlIGhhcmR3YXJlIHdhdGNoZG9nIG9uIHRo
+ZSBBTGkgTTcxMDEgUE1VDQorICBhcyB1c2VkIGluIHRoZSB4ODYgQ29iYWx0
+IHNlcnZlcnMuDQorDQorICBUaGlzIGRyaXZlciBpcyBhbHNvIGF2YWlsYWJs
+ZSBhcyBhIG1vZHVsZSAoID0gY29kZSB3aGljaCBjYW4gYmUNCisgIGluc2Vy
+dGVkIGluIGFuZCByZW1vdmVkIGZyb20gdGhlIHJ1bm5pbmcga2VybmVsIHdo
+ZW5ldmVyIHlvdSB3YW50KS4NCisgIFRoZSBtb2R1bGUgaXMgY2FsbGVkIGFs
+aW03MTAxX3dkdC5vLiAgSWYgeW91IHdhbnQgdG8gY29tcGlsZSBpdCBhcyBh
+DQorICBtb2R1bGUsIHNheSBNIGhlcmUgYW5kIHJlYWQgPGZpbGU6RG9jdW1l
+bnRhdGlvbi9tb2R1bGVzLnR4dD4uICBNb3N0DQorICBwZW9wbGUgd2lsbCBz
+YXkgTi4NCisNCiBJQjcwMCBTQkMgV2F0Y2hkb2cgVGltZXINCiBDT05GSUdf
+SUI3MDBfV0RUDQogICBUaGlzIGlzIHRoZSBkcml2ZXIgZm9yIHRoZSBoYXJk
+d2FyZSB3YXRjaGRvZyBvbiB0aGUgSUI3MDAgU2luZ2xlDQpkaWZmIC11ck4g
+bGludXgudmFuaWxsYS9kcml2ZXJzL2NoYXIvQ29uZmlnLmluIGxpbnV4LmNo
+b2NvbGF0ZWNvb2tpZWRvdWdoL2RyaXZlcnMvY2hhci9Db25maWcuaW4NCi0t
+LSBsaW51eC52YW5pbGxhL2RyaXZlcnMvY2hhci9Db25maWcuaW4JTW9uIE5v
+diAxMiAxNzozNDoxNiAyMDAxDQorKysgbGludXguY2hvY29sYXRlY29va2ll
+ZG91Z2gvZHJpdmVycy9jaGFyL0NvbmZpZy5pbglGcmkgTWFyICAxIDA5OjQ3
+OjQzIDIwMDINCkBAIC0xNzAsNiArMTcwLDcgQEANCiAgICB0cmlzdGF0ZSAn
+ICBNaXhjb20gV2F0Y2hkb2cnIENPTkZJR19NSVhDT01XRCANCiAgICB0cmlz
+dGF0ZSAnICBTQkMtNjBYWCBXYXRjaGRvZyBUaW1lcicgQ09ORklHXzYwWFhf
+V0RUDQogICAgdHJpc3RhdGUgJyAgVzgzODc3RiAoRU1BQ1MpIFdhdGNoZG9n
+IFRpbWVyJyBDT05GSUdfVzgzODc3Rl9XRFQNCisgICB0cmlzdGF0ZSAnICBB
+TGkgTTcxMDEgUE1VIFdhdGNoZG9nIFRpbWVyJyBDT05GSUdfQUxJTTcxMDFf
+V0RUDQogICAgdHJpc3RhdGUgJyAgWkYgTWFjaFogV2F0Y2hkb2cnIENPTkZJ
+R19NQUNIWl9XRFQNCiBmaQ0KIGVuZG1lbnUNCmRpZmYgLXVyTiBsaW51eC52
+YW5pbGxhL2RyaXZlcnMvY2hhci9NYWtlZmlsZSBsaW51eC5jaG9jb2xhdGVj
+b29raWVkb3VnaC9kcml2ZXJzL2NoYXIvTWFrZWZpbGUNCi0tLSBsaW51eC52
+YW5pbGxhL2RyaXZlcnMvY2hhci9NYWtlZmlsZQlTdW4gTm92IDExIDE4OjA5
+OjMyIDIwMDENCisrKyBsaW51eC5jaG9jb2xhdGVjb29raWVkb3VnaC9kcml2
+ZXJzL2NoYXIvTWFrZWZpbGUJRnJpIE1hciAgMSAxMDo0MToxMSAyMDAyDQpA
+QCAtMjMzLDYgKzIzMyw3IEBADQogb2JqLSQoQ09ORklHX01BQ0haX1dEVCkg
+Kz0gbWFjaHp3ZC5vDQogb2JqLSQoQ09ORklHX1NIX1dEVCkgKz0gc2h3ZHQu
+bw0KIG9iai0kKENPTkZJR19FVVJPVEVDSF9XRFQpICs9IGV1cm90ZWNod2R0
+Lm8NCitvYmotJChDT05GSUdfQUxJTTcxMDFfV0RUKSArPSBhbGltNzEwMV93
+ZHQubw0KIG9iai0kKENPTkZJR19TT0ZUX1dBVENIRE9HKSArPSBzb2Z0ZG9n
+Lm8NCiANCiBzdWJkaXItJChDT05GSUdfTVdBVkUpICs9IG13YXZlDQpkaWZm
+IC11ck4gbGludXgudmFuaWxsYS9kcml2ZXJzL2NoYXIvYWxpbTcxMDFfd2R0
+LmMgbGludXguY2hvY29sYXRlY29va2llZG91Z2gvZHJpdmVycy9jaGFyL2Fs
+aW03MTAxX3dkdC5jDQotLS0gbGludXgudmFuaWxsYS9kcml2ZXJzL2NoYXIv
+YWxpbTcxMDFfd2R0LmMJVGh1IEphbiAgMSAwMTowMDowMCAxOTcwDQorKysg
+bGludXguY2hvY29sYXRlY29va2llZG91Z2gvZHJpdmVycy9jaGFyL2FsaW03
+MTAxX3dkdC5jCUZyaSBNYXIgIDEgMTQ6MTA6MDcgMjAwMg0KQEAgLTAsMCAr
+MSwzNDggQEANCisvKg0KKyAqCUFMaSBNNzEwMSBQTVUgQ29tcHV0ZXIgV2F0
+Y2hkb2cgVGltZXIgZHJpdmVyIGZvciBMaW51eCAyLjQueA0KKyAqDQorICoJ
+QmFzZWQgb24gdzgzODc3Zl93ZHQuYyBieSBTY290dCBKZW5uaW5ncyA8bWFu
+YWdlbWVudEBvcm8ubmV0Pg0KKyAqCWFuZCB0aGUgQ29iYWx0IGtlcm5lbCBX
+RFQgdGltZXIgZHJpdmVyIGJ5IFRpbSBIb2NraW4NCisgKgkgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDx0aG9ja2luQGNvYmFsdG5l
+dC5jb20+DQorICoNCisgKgkoYykyMDAyIFN0ZXZlIEhpbGwgPHN0ZXZlQG5h
+dmFoby5jby51az4NCisgKiANCisgKiAgVGhlb3J5IG9mIG9wZXJhdGlvbjoN
+CisgKiAgQSBXYXRjaGRvZyBUaW1lciAoV0RUKSBpcyBhIGhhcmR3YXJlIGNp
+cmN1aXQgdGhhdCBjYW4gDQorICogIHJlc2V0IHRoZSBjb21wdXRlciBzeXN0
+ZW0gaW4gY2FzZSBvZiBhIHNvZnR3YXJlIGZhdWx0Lg0KKyAqICBZb3UgcHJv
+YmFibHkga25ldyB0aGF0IGFscmVhZHkuDQorICoNCisgKiAgVXN1YWxseSBh
+IHVzZXJzcGFjZSBkYWVtb24gd2lsbCBub3RpZnkgdGhlIGtlcm5lbCBXRFQg
+ZHJpdmVyDQorICogIHZpYSB0aGUgL3Byb2Mvd2F0Y2hkb2cgc3BlY2lhbCBk
+ZXZpY2UgZmlsZSB0aGF0IHVzZXJzcGFjZSBpcw0KKyAqICBzdGlsbCBhbGl2
+ZSwgYXQgcmVndWxhciBpbnRlcnZhbHMuICBXaGVuIHN1Y2ggYSBub3RpZmlj
+YXRpb24NCisgKiAgb2NjdXJzLCB0aGUgZHJpdmVyIHdpbGwgdXN1YWxseSB0
+ZWxsIHRoZSBoYXJkd2FyZSB3YXRjaGRvZw0KKyAqICB0aGF0IGV2ZXJ5dGhp
+bmcgaXMgaW4gb3JkZXIsIGFuZCB0aGF0IHRoZSB3YXRjaGRvZyBzaG91bGQg
+d2FpdA0KKyAqICBmb3IgeWV0IGFub3RoZXIgbGl0dGxlIHdoaWxlIHRvIHJl
+c2V0IHRoZSBzeXN0ZW0uDQorICogIElmIHVzZXJzcGFjZSBmYWlscyAoUkFN
+IGVycm9yLCBrZXJuZWwgYnVnLCB3aGF0ZXZlciksIHRoZQ0KKyAqICBub3Rp
+ZmljYXRpb25zIGNlYXNlIHRvIG9jY3VyLCBhbmQgdGhlIGhhcmR3YXJlIHdh
+dGNoZG9nIHdpbGwNCisgKiAgcmVzZXQgdGhlIHN5c3RlbSAoY2F1c2luZyBh
+IHJlYm9vdCkgYWZ0ZXIgdGhlIHRpbWVvdXQgb2NjdXJzLg0KKyAqDQorICog
+IFRoaXMgV0RUIGRyaXZlciBpcyBkaWZmZXJlbnQgZnJvbSBtb3N0IG90aGVy
+IExpbnV4IFdEVA0KKyAqICBkcml2ZXJzIGluIHRoYXQgdGhlIGRyaXZlciB3
+aWxsIHBpbmcgdGhlIHdhdGNoZG9nIGJ5IGl0c2VsZiwNCisgKiAgYmVjYXVz
+ZSB0aGlzIHBhcnRpY3VsYXIgV0RUIGhhcyBhIHZlcnkgc2hvcnQgdGltZW91
+dCAoMS42DQorICogIHNlY29uZHMpIGFuZCBpdCB3b3VsZCBiZSBpbnNhbmUg
+dG8gY291bnQgb24gYW55IHVzZXJzcGFjZQ0KKyAqICBkYWVtb24gYWx3YXlz
+IGdldHRpbmcgc2NoZWR1bGVkIHdpdGhpbiB0aGF0IHRpbWUgZnJhbWUuDQor
+ICovDQorDQorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPg0KKyNpbmNsdWRl
+IDxsaW51eC92ZXJzaW9uLmg+DQorI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+
+DQorI2luY2x1ZGUgPGxpbnV4L2Vycm5vLmg+DQorI2luY2x1ZGUgPGxpbnV4
+L2tlcm5lbC5oPg0KKyNpbmNsdWRlIDxsaW51eC90aW1lci5oPg0KKyNpbmNs
+dWRlIDxsaW51eC9zY2hlZC5oPg0KKyNpbmNsdWRlIDxsaW51eC9taXNjZGV2
+aWNlLmg+DQorI2luY2x1ZGUgPGxpbnV4L3dhdGNoZG9nLmg+DQorI2luY2x1
+ZGUgPGxpbnV4L3NsYWIuaD4NCisjaW5jbHVkZSA8bGludXgvaW9wb3J0Lmg+
+DQorI2luY2x1ZGUgPGxpbnV4L2ZjbnRsLmg+DQorI2luY2x1ZGUgPGxpbnV4
+L3NtcF9sb2NrLmg+DQorI2luY2x1ZGUgPGFzbS9pby5oPg0KKyNpbmNsdWRl
+IDxhc20vdWFjY2Vzcy5oPg0KKyNpbmNsdWRlIDxhc20vc3lzdGVtLmg+DQor
+I2luY2x1ZGUgPGxpbnV4L25vdGlmaWVyLmg+DQorI2luY2x1ZGUgPGxpbnV4
+L3JlYm9vdC5oPg0KKyNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQorI2luY2x1
+ZGUgPGxpbnV4L3BjaS5oPg0KKw0KKyNkZWZpbmUgT1VSX05BTUUgImFsaW03
+MTAxX3dkdCINCisNCisjZGVmaW5lIFdEVF9FTkFCTEUgMHg5Qw0KKyNkZWZp
+bmUgV0RUX0RJU0FCTEUgMHg4Qw0KKw0KKyNkZWZpbmUgQUxJXzcxMDFfV0RU
+ICAgIDB4OTINCisjZGVmaW5lIEFMSV9XRFRfQVJNICAgICAweDAxDQorDQor
+LyoNCisgKiBXZSdyZSBnb2luZyB0byB1c2UgYSAxIHNlY29uZCB0aW1lb3V0
+Lg0KKyAqIElmIHdlIHJlc2V0IHRoZSB3YXRjaGRvZyBldmVyeSB+MjUwbXMg
+d2Ugc2hvdWxkIGJlIHNhZmUuICAqLw0KKw0KKyNkZWZpbmUgV0RUX0lOVEVS
+VkFMIChIWi80KzEpDQorDQorLyoNCisgKiBXZSBtdXN0IG5vdCByZXF1aXJl
+IHRvbyBnb29kIHJlc3BvbnNlIGZyb20gdGhlIHVzZXJzcGFjZSBkYWVtb24u
+DQorICogSGVyZSB3ZSByZXF1aXJlIHRoZSB1c2Vyc3BhY2UgZGFlbW9uIHRv
+IHNlbmQgdXMgYSBoZWFydGJlYXQNCisgKiBjaGFyIHRvIC9kZXYvd2F0Y2hk
+b2cgZXZlcnkgMzAgc2Vjb25kcy4NCisgKi8NCisNCisjZGVmaW5lIFdEVF9I
+RUFSVEJFQVQgKEhaICogMzApDQorDQorc3RhdGljIHZvaWQgd2R0X3RpbWVy
+X3BpbmcodW5zaWduZWQgbG9uZyk7DQorc3RhdGljIHN0cnVjdCB0aW1lcl9s
+aXN0IHRpbWVyOw0KK3N0YXRpYyB1bnNpZ25lZCBsb25nIG5leHRfaGVhcnRi
+ZWF0Ow0KK3N0YXRpYyBpbnQgd2R0X2lzX29wZW47DQorc3RhdGljIGludCB3
+ZHRfZXhwZWN0X2Nsb3NlOw0KK3N0cnVjdCBwY2lfZGV2ICoJYWxpbTcxMDFf
+cG11Ow0KKw0KKy8qDQorICoJV2hhY2sgdGhlIGRvZw0KKyAqLw0KKw0KK3N0
+YXRpYyB2b2lkIHdkdF90aW1lcl9waW5nKHVuc2lnbmVkIGxvbmcgZGF0YSkN
+Cit7DQorCS8qIElmIHdlIGdvdCBhIGhlYXJ0YmVhdCBwdWxzZSB3aXRoaW4g
+dGhlIFdEVF9VU19JTlRFUlZBTA0KKwkgKiB3ZSBhZ3JlZSB0byBwaW5nIHRo
+ZSBXRFQgDQorCSAqLw0KKwljaGFyCXRtcDsNCisNCisJaWYodGltZV9iZWZv
+cmUoamlmZmllcywgbmV4dF9oZWFydGJlYXQpKSANCisJew0KKwkJLyogUGlu
+ZyB0aGUgV0RUICh0aGlzIGlzIGFjdHVhbGx5IGEgZGlzYXJtL2FybSBzZXF1
+ZW5jZSkgKi8NCisJCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGFsaW03MTAxX3Bt
+dSwgMHg5MiwgJnRtcCk7DQorCQlwY2lfd3JpdGVfY29uZmlnX2J5dGUoYWxp
+bTcxMDFfcG11LCBBTElfNzEwMV9XRFQsICh0bXAgJiB+QUxJX1dEVF9BUk0p
+KTsNCisJCXBjaV93cml0ZV9jb25maWdfYnl0ZShhbGltNzEwMV9wbXUsIEFM
+SV83MTAxX1dEVCwgKHRtcCB8IEFMSV9XRFRfQVJNKSk7DQorCX0gZWxzZSB7
+DQorCQlwcmludGsoT1VSX05BTUUgIjogSGVhcnRiZWF0IGxvc3QhIFdpbGwg
+bm90IHBpbmcgdGhlIHdhdGNoZG9nXG4iKTsNCisJfQ0KKwkvKiBSZS1zZXQg
+dGhlIHRpbWVyIGludGVydmFsICovDQorCXRpbWVyLmV4cGlyZXMgPSBqaWZm
+aWVzICsgV0RUX0lOVEVSVkFMOw0KKwlhZGRfdGltZXIoJnRpbWVyKTsNCit9
+DQorDQorLyogDQorICogVXRpbGl0eSByb3V0aW5lcw0KKyAqLw0KKw0KK3N0
+YXRpYyB2b2lkIHdkdF9jaGFuZ2UoaW50IHdyaXRldmFsKQ0KK3sNCisJY2hh
+cgl0bXA7DQorDQorCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGFsaW03MTAxX3Bt
+dSwgMHg5MiwgJnRtcCk7DQorCWlmICh3cml0ZXZhbCA9PSBXRFRfRU5BQkxF
+KSBwY2lfd3JpdGVfY29uZmlnX2J5dGUoYWxpbTcxMDFfcG11LCBBTElfNzEw
+MV9XRFQsICh0bXAgfCBBTElfV0RUX0FSTSkpOw0KKwllbHNlIHBjaV93cml0
+ZV9jb25maWdfYnl0ZShhbGltNzEwMV9wbXUsIEFMSV83MTAxX1dEVCwgKHRt
+cCAmIH5BTElfV0RUX0FSTSkpOw0KK30NCisNCitzdGF0aWMgdm9pZCB3ZHRf
+c3RhcnR1cCh2b2lkKQ0KK3sNCisJbmV4dF9oZWFydGJlYXQgPSBqaWZmaWVz
+ICsgV0RUX0hFQVJUQkVBVDsNCisNCisJLyogU3RhcnQgdGhlIHRpbWVyICov
+DQorCXRpbWVyLmV4cGlyZXMgPSBqaWZmaWVzICsgV0RUX0lOVEVSVkFMOwkN
+CisJYWRkX3RpbWVyKCZ0aW1lcik7DQorDQorCXdkdF9jaGFuZ2UoV0RUX0VO
+QUJMRSk7DQorDQorCXByaW50ayhPVVJfTkFNRSAiOiBXYXRjaGRvZyB0aW1l
+ciBpcyBub3cgZW5hYmxlZC5cbiIpOyAgDQorfQ0KKw0KK3N0YXRpYyB2b2lk
+IHdkdF90dXJub2ZmKHZvaWQpDQorew0KKwkvKiBTdG9wIHRoZSB0aW1lciAq
+Lw0KKwlkZWxfdGltZXIoJnRpbWVyKTsNCisNCisJd2R0X2NoYW5nZShXRFRf
+RElTQUJMRSk7DQorDQorCXByaW50ayhPVVJfTkFNRSAiOiBXYXRjaGRvZyB0
+aW1lciBpcyBub3cgZGlzYWJsZWQuLi5cbiIpOw0KK30NCisNCisNCisvKg0K
+KyAqIC9kZXYvd2F0Y2hkb2cgaGFuZGxpbmcNCisgKi8NCisNCitzdGF0aWMg
+c3NpemVfdCBmb3Bfd3JpdGUoc3RydWN0IGZpbGUgKiBmaWxlLCBjb25zdCBj
+aGFyICogYnVmLCBzaXplX3QgY291bnQsIGxvZmZfdCAqIHBwb3MpDQorew0K
+KwkvKiBXZSBjYW4ndCBzZWVrICovDQorCWlmKHBwb3MgIT0gJmZpbGUtPmZf
+cG9zKQ0KKwkJcmV0dXJuIC1FU1BJUEU7DQorDQorCS8qIFNlZSBpZiB3ZSBn
+b3QgdGhlIG1hZ2ljIGNoYXJhY3RlciAqLw0KKwlpZihjb3VudCkgDQorCXsN
+CisJCXNpemVfdCBvZnM7DQorDQorCQkvKiBub3RlOiBqdXN0IGluIGNhc2Ug
+c29tZW9uZSB3cm90ZSB0aGUgbWFnaWMgY2hhcmFjdGVyDQorCQkgKiBmaXZl
+IG1vbnRocyBhZ28uLi4gKi8NCisJCXdkdF9leHBlY3RfY2xvc2UgPSAwOw0K
+Kw0KKwkJLyogbm93IHNjYW4gKi8NCisJCWZvcihvZnMgPSAwOyBvZnMgIT0g
+Y291bnQ7IG9mcysrKQ0KKwkJICBpZihidWZbb2ZzXSA9PSAnVicpDQorCQkJ
+CXdkdF9leHBlY3RfY2xvc2UgPSAxOw0KKw0KKwkJLyogc29tZW9uZSB3cm90
+ZSB0byB1cywgd2Ugc2hvdWxkIHJlc3RhcnQgdGltZXIgKi8NCisJCW5leHRf
+aGVhcnRiZWF0ID0gamlmZmllcyArIFdEVF9IRUFSVEJFQVQ7DQorCQlyZXR1
+cm4gMTsNCisJfTsNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBzc2l6
+ZV90IGZvcF9yZWFkKHN0cnVjdCBmaWxlICogZmlsZSwgY2hhciAqIGJ1Ziwg
+c2l6ZV90IGNvdW50LCBsb2ZmX3QgKiBwcG9zKQ0KK3sNCisJLyogTm8gY2Fu
+IGRvICovDQorCXJldHVybiAtRUlOVkFMOw0KK30NCisNCitzdGF0aWMgaW50
+IGZvcF9vcGVuKHN0cnVjdCBpbm9kZSAqIGlub2RlLCBzdHJ1Y3QgZmlsZSAq
+IGZpbGUpDQorew0KKwlzd2l0Y2goTUlOT1IoaW5vZGUtPmlfcmRldikpIA0K
+Kwl7DQorCQljYXNlIFdBVENIRE9HX01JTk9SOg0KKwkJCS8qIEp1c3QgaW4g
+Y2FzZSB3ZSdyZSBhbHJlYWR5IHRhbGtpbmcgdG8gc29tZW9uZS4uLiAqLw0K
+KwkJCWlmKHdkdF9pc19vcGVuKQ0KKwkJCQlyZXR1cm4gLUVCVVNZOw0KKwkJ
+CS8qIEdvb2QsIGZpcmUgdXAgdGhlIHNob3cgKi8NCisJCQl3ZHRfaXNfb3Bl
+biA9IDE7DQorCQkJd2R0X3N0YXJ0dXAoKTsNCisJCQlyZXR1cm4gMDsNCisN
+CisJCWRlZmF1bHQ6DQorCQkJcmV0dXJuIC1FTk9ERVY7DQorCX0NCit9DQor
+DQorc3RhdGljIGludCBmb3BfY2xvc2Uoc3RydWN0IGlub2RlICogaW5vZGUs
+IHN0cnVjdCBmaWxlICogZmlsZSkNCit7DQorCWxvY2tfa2VybmVsKCk7DQor
+CWlmKE1JTk9SKGlub2RlLT5pX3JkZXYpID09IFdBVENIRE9HX01JTk9SKSAN
+CisJew0KKyNpZmRlZiBDT05GSUdfV0RUX05PV0FZT1VUDQorCQlpZih3ZHRf
+ZXhwZWN0X2Nsb3NlKQ0KKyNlbmRpZg0KKwkJCXdkdF90dXJub2ZmKCk7DQor
+I2lmZGVmIENPTkZJR19XRFRfTk9XQVlPVVQNCisJCWVsc2Ugew0KKwkJCXBy
+aW50ayhPVVJfTkFNRSAiOiBkZXZpY2UgZmlsZSBjbG9zZWQgdW5leHBlY3Rl
+ZGx5LiBXaWxsIG5vdCBzdG9wIHRoZSBXRFQhXG4iKTsNCisJCX0NCisjZW5k
+aWYNCisJfQ0KKwl3ZHRfaXNfb3BlbiA9IDA7DQorCXVubG9ja19rZXJuZWwo
+KTsNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBpbnQgZm9wX2lvY3Rs
+KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlLCB1bnNp
+Z25lZCBpbnQgY21kLA0KKwl1bnNpZ25lZCBsb25nIGFyZykNCit7DQorCXN0
+YXRpYyBzdHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpZGVudD0NCisJew0KKwkJMCwN
+CisJCTEsDQorCQkiQUxpTTcxMDEiDQorCX07DQorCQ0KKwlzd2l0Y2goY21k
+KQ0KKwl7DQorCQlkZWZhdWx0Og0KKwkJCXJldHVybiAtRU5PSU9DVExDTUQ7
+DQorCQljYXNlIFdESU9DX0dFVFNVUFBPUlQ6DQorCQkJcmV0dXJuIGNvcHlf
+dG9fdXNlcigoc3RydWN0IHdhdGNoZG9nX2luZm8gKilhcmcsICZpZGVudCwg
+c2l6ZW9mKGlkZW50KSk/LUVGQVVMVDowOw0KKwkJY2FzZSBXRElPQ19LRUVQ
+QUxJVkU6DQorCQkJbmV4dF9oZWFydGJlYXQgPSBqaWZmaWVzICsgV0RUX0hF
+QVJUQkVBVDsNCisJCQlyZXR1cm4gMDsNCisJfQ0KK30NCisNCitzdGF0aWMg
+c3RydWN0IGZpbGVfb3BlcmF0aW9ucyB3ZHRfZm9wcyA9IHsNCisJb3duZXI6
+CQlUSElTX01PRFVMRSwNCisJbGxzZWVrOgkJbm9fbGxzZWVrLA0KKwlyZWFk
+OgkJZm9wX3JlYWQsDQorCXdyaXRlOgkJZm9wX3dyaXRlLA0KKwlvcGVuOgkJ
+Zm9wX29wZW4sDQorCXJlbGVhc2U6CWZvcF9jbG9zZSwNCisJaW9jdGw6CQlm
+b3BfaW9jdGwNCit9Ow0KKw0KK3N0YXRpYyBzdHJ1Y3QgbWlzY2RldmljZSB3
+ZHRfbWlzY2RldiA9IHsNCisJV0FUQ0hET0dfTUlOT1IsDQorCSJ3YXRjaGRv
+ZyIsDQorCSZ3ZHRfZm9wcw0KK307DQorDQorLyoNCisgKglOb3RpZmllciBm
+b3Igc3lzdGVtIGRvd24NCisgKi8NCisNCitzdGF0aWMgaW50IHdkdF9ub3Rp
+Znlfc3lzKHN0cnVjdCBub3RpZmllcl9ibG9jayAqdGhpcywgdW5zaWduZWQg
+bG9uZyBjb2RlLA0KKwl2b2lkICp1bnVzZWQpDQorew0KKwlpZiAoY29kZT09
+U1lTX0RPV04gfHwgY29kZT09U1lTX0hBTFQpIHdkdF90dXJub2ZmKCk7DQor
+CWlmIChjb2RlPT1TWVNfUkVTVEFSVCkgew0KKwkJLyoNCisJCSAqIENvYmFs
+dCBkZXZpY2VzIGhhdmUgbm8gd2F5IG9mIHJlYm9vdGluZyB0aGVtc2VsdmVz
+IG90aGVyIHRoYW4NCisJCSAqIGdldHRpbmcgdGhlIHdhdGNoZG9nIHRvIHB1
+bGwgcmVzZXQsIHNvIHdlIHJlc3RhcnQgdGhlIHdhdGNoZG9nIG9uDQorCQkg
+KiByZWJvb3Qgd2l0aCBubyBoZWFydGJlYXQNCisJCSAqLw0KKwkJd2R0X2No
+YW5nZShXRFRfRU5BQkxFKTsNCisJCXByaW50ayhPVVJfTkFNRSAiOiBXYXRj
+aGRvZyB0aW1lciBpcyBub3cgZW5hYmxlZCB3aXRoIG5vIGhlYXJ0YmVhdCAt
+IHNob3VsZCByZWJvb3QgaW4gfjEgc2Vjb25kLlxuIik7DQorCX07DQorCXJl
+dHVybiBOT1RJRllfRE9ORTsNCit9DQorIA0KKy8qDQorICoJVGhlIFdEVCBu
+ZWVkcyB0byBsZWFybiBhYm91dCBzb2Z0IHNodXRkb3ducyBpbiBvcmRlciB0
+bw0KKyAqCXR1cm4gdGhlIHRpbWVib21iIHJlZ2lzdGVycyBvZmYuIA0KKyAq
+Lw0KKyANCitzdGF0aWMgc3RydWN0IG5vdGlmaWVyX2Jsb2NrIHdkdF9ub3Rp
+Zmllcj0NCit7DQorCXdkdF9ub3RpZnlfc3lzLA0KKwkwLA0KKwkwDQorfTsN
+CisNCitzdGF0aWMgdm9pZCBfX2V4aXQgYWxpbTcxMDFfd2R0X3VubG9hZCh2
+b2lkKQ0KK3sNCisJd2R0X3R1cm5vZmYoKTsNCisNCisJLyogRGVyZWdpc3Rl
+ciAqLw0KKwltaXNjX2RlcmVnaXN0ZXIoJndkdF9taXNjZGV2KTsNCisNCisJ
+dW5yZWdpc3Rlcl9yZWJvb3Rfbm90aWZpZXIoJndkdF9ub3RpZmllcik7DQor
+fQ0KKw0KK3N0YXRpYyBpbnQgX19pbml0IGFsaW03MTAxX3dkdF9pbml0KHZv
+aWQpDQorew0KKwlpbnQgcmMgPSAtRUJVU1k7DQorCXN0cnVjdCBwY2lfZGV2
+ICoJYWxpMTU0M19zb3V0aDsNCisJY2hhcgkJCXRtcDsNCisNCisJcHJpbnRr
+KEtFUk5fSU5GTyBPVVJfTkFNRSAiOiBTdGV2ZSBIaWxsIDxzdGV2ZUBuYXZh
+aG8uY28udWs+LlxuIik7DQorCWFsaW03MTAxX3BtdSA9IHBjaV9maW5kX2Rl
+dmljZShQQ0lfVkVORE9SX0lEX0FMLCBQQ0lfREVWSUNFX0lEX0FMX003MTAx
+LE5VTEwpOw0KKwlpZiAoIWFsaW03MTAxX3BtdSkgew0KKwkJcHJpbnRrKEtF
+Uk5fSU5GTyBPVVJfTkFNRSAiOiBBTGkgTTcxMDEgUE1VIG5vdCBwcmVzZW50
+IC0gV0RUIG5vdCBzZXRcbiIpOw0KKwkJcmV0dXJuIC1FQlVTWTsNCisJfTsN
+CisJDQorCS8qIFNldCB0aGUgV0RUIGluIHRoZSBQTVUgdG8gMSBzZWNvbmQg
+Ki8NCisJcGNpX3dyaXRlX2NvbmZpZ19ieXRlKGFsaW03MTAxX3BtdSwgQUxJ
+XzcxMDFfV0RULCAweDAyKTsNCisNCisJYWxpMTU0M19zb3V0aCA9IHBjaV9m
+aW5kX2RldmljZShQQ0lfVkVORE9SX0lEX0FMLCBQQ0lfREVWSUNFX0lEX0FM
+X00xNTMzLCBOVUxMKTsNCisJaWYgKCFhbGkxNTQzX3NvdXRoKSB7DQorCQlw
+cmludGsoS0VSTl9JTkZPIE9VUl9OQU1FICI6IEFMaSAxNTQzIFNvdXRoLUJy
+aWRnZSBub3QgcHJlc2VudCAtIFdEVCBub3Qgc2V0XG4iKTsNCisJCXJldHVy
+biAtRUJVU1k7DQorCX07DQorCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGFsaTE1
+NDNfc291dGgsIDB4NWUsICZ0bXApOw0KKwlpZiAoKHRtcCAmIDB4MWUpICE9
+IDB4MTIpIHsNCisJCXByaW50ayhLRVJOX0lORk8gT1VSX05BTUUgIjogQUxp
+IDE1NDMgU291dGgtQnJpZGdlIGRvZXMgbm90IGhhdmUgdGhlIGNvcnJlY3Qg
+cmV2aXNpb24gbnVtYmVyICg/Pz8xMDAxPykgLSBXRFQgbm90IHNldFxuIik7
+DQorCQlyZXR1cm4gLUVCVVNZOw0KKwl9Ow0KKw0KKwlpbml0X3RpbWVyKCZ0
+aW1lcik7DQorCXRpbWVyLmZ1bmN0aW9uID0gd2R0X3RpbWVyX3Bpbmc7DQor
+CXRpbWVyLmRhdGEgPSAxOw0KKwkJDQorCXJjID0gbWlzY19yZWdpc3Rlcigm
+d2R0X21pc2NkZXYpOw0KKwlpZiAocmMpIHJldHVybiByYzsNCisNCisJcmMg
+PSByZWdpc3Rlcl9yZWJvb3Rfbm90aWZpZXIoJndkdF9ub3RpZmllcik7DQor
+CWlmIChyYykgew0KKwkJbWlzY19kZXJlZ2lzdGVyKCZ3ZHRfbWlzY2Rldik7
+DQorCQlyZXR1cm4gcmM7DQorCX07DQorCQ0KKwlwcmludGsoS0VSTl9JTkZP
+IE9VUl9OQU1FICI6IFdEVCBkcml2ZXIgZm9yIEFMaSBNNzEwMSBpbml0aWFs
+aXNlZC5cbiIpOw0KKwkNCisJcmV0dXJuIDA7DQorDQorfQ0KKw0KK21vZHVs
+ZV9pbml0KGFsaW03MTAxX3dkdF9pbml0KTsNCittb2R1bGVfZXhpdChhbGlt
+NzEwMV93ZHRfdW5sb2FkKTsNCisNCitNT0RVTEVfTElDRU5TRSgiR1BMIik7
+DQo=
+--665600-1915745409-1014993787=:9334--
+

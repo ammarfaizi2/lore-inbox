@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVAGX54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVAGX6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVAGX54 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVAGXz4
+	id S261757AbVAGX6T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVAGX6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:55:56 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:61122 "EHLO
+	Fri, 7 Jan 2005 18:58:15 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:62914 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261775AbVAGXxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:53:52 -0500
-Subject: Re: grsecurity 2.1.0 release / 5 Linux kernel advisories (fwd)
+	id S261733AbVAGXyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 18:54:50 -0500
+Subject: Re: uselib()  & 2.6.X?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       marado@student.dei.uc.pt
-In-Reply-To: <20050107134014.3ac297f3.akpm@osdl.org>
-References: <Pine.LNX.4.61.0501071954130.361@student.dei.uc.pt>
-	 <4d8e3fd305010713032aeaa75c@mail.gmail.com>
-	 <20050107134014.3ac297f3.akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, torvalds@osdl.org
+Cc: Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050107170712.GK29176@logos.cnet>
+References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl>
+	 <20050107170712.GK29176@logos.cnet>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105136300.7628.8.camel@localhost.localdomain>
+Message-Id: <1105136446.7628.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 07 Jan 2005 22:49:15 +0000
+Date: Fri, 07 Jan 2005 22:49:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-01-07 at 21:40, Andrew Morton wrote:
-> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> >
-> > the below email seems to be very intersting.
-> 
-> An unprivileged local user can DoS a Linux box to death with malloc and
-> memset, so the RLIMIT_MEMLOCK bug isn't particularly exceptional.  All the
-> others require root anyway.
+Please don't use that for mainline - do_brk_locked doesn;t follow kernel
+convention and in addition you've made every case you miss (eg outside
+code) fail insecure. The original patch you did that I used that adds
+__do_brk() not only follows kernel convention but means anyone with
+external code will end up with it fixed or with a deadlock that is easy
+to track if unlucky.
 
-The moxa one is insufficient too.
+Silent security failure is *bad*
 
-All in -ac7 just brewing now
-
+Alan
+ 

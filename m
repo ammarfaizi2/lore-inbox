@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbTJ1TZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 14:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJ1TZQ
+	id S261614AbTJ1T0R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 14:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJ1T0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 14:25:16 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:28898 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261592AbTJ1TZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 14:25:13 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Tue, 28 Oct 2003 14:26:16 -0500
+Received: from host217-37-214-121.in-addr.btopenworld.com ([217.37.214.121]:61563
+	"HELO filmlight.ltd.uk") by vger.kernel.org with SMTP
+	id S261614AbTJ1T0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 14:26:13 -0500
+Message-ID: <3F9EC2D1.1050707@filmlight.ltd.uk>
+Date: Tue, 28 Oct 2003 19:26:09 +0000
+From: Christopher Fraser <chrisf@filmlight.ltd.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Mouse and keyboard problems with 2.6.0-test9
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16286.49814.27138.219567@napali.hpl.hp.com>
-Date: Tue, 28 Oct 2003 11:25:10 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: status of ipchains in 2.6?
-In-Reply-To: <20031028095747.2cdb57e7.davem@redhat.com>
-References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com>
-	<20031028015032.734caf21.davem@redhat.com>
-	<16286.44522.275791.73904@napali.hpl.hp.com>
-	<20031028095747.2cdb57e7.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 28 Oct 2003 09:57:47 -0800, "David S. Miller" <davem@redhat.com> said:
+I've been having mouse and keyboard problems with kernels since 
+2.6.0-test6 (at least).  The machine I'm testign with has a Supermicro 
+X5DA8 (Intel E7507 chipset) motherboard with two 3Ghz Xeon CPUs and was 
+install with Red Hat 9 and updates modutils, kinitrd etc.
 
-  David> On Tue, 28 Oct 2003 09:56:58 -0800 David Mosberger
-  David> <davidm@napali.hpl.hp.com> wrote:
+When doing large amounts of I/O (we're reading > 300MB/s from disk, 
+processing it and downloading it across AGP) while running XFree86 the 
+psmouse gets into a state where it loses synchronisation and cannot 
+recover. The pointer warps to the top right of the desktop and moving 
+the mouse generates spurious mouse down events.  Switching to a virtual 
+console and back to the X desktop sometimes recovers, but usually not. 
 
-  >> >>>>> On Tue, 28 Oct 2003 01:50:32 -0800, "David S. Miller"
-  >> <davem@redhat.com> said:
+I've tried the psmouse_noext option, various rates including 200 (which 
+seemed to make things better for a while) and the recent psmouse_rate 
+with the rate to 0 without success.  I've also tried a generic Dell 
+wheelmouse and and one of those optical Microsoft Intellimouse things.
 
-  >> $ fgrep -i ipchain MAINTAINERS
+The keyboard problem is that atkbd.c gets into a state where it starts 
+generating message like the following for each key press:
 
-  David> Try netfilter, ipchains is a part of netfilter.
+Unknown key pressed (translated set 2, code 0x0, data 0x0, on 
+isa0060/serio0)
 
-I took ipchains not being mentioned in MAINTAINERS as a sign that
-nobody wanted to hear bug reports about it, hence my choice of lkml.
-Perhaps you prefer to flame people rather than making it easier
-for them to find the right mailing-list?
+These flood the console, making the machine difficult to use.  This 
+mostly happens when I switch between XFree86 and virtual consoles, so it 
+may be due to my generic PS2 keyboard generating spurious release events 
+(as mentioned previously 
+<http://www.ussg.iu.edu/hypermail/linux/kernel/0309.1/2185.html>).  
+Commenting out the warning in atkdb.c makes the console usable again.
 
-	--david
+Any suggestions on things to try would be greatfully appreciated.
+
+Regards,
+
+Christopher.
+

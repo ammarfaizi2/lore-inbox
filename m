@@ -1,242 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263081AbUDGLg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 07:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUDGLg1
+	id S263079AbUDGMjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 08:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUDGMjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 07:36:27 -0400
-Received: from pop.gmx.de ([213.165.64.20]:9436 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263081AbUDGLfZ (ORCPT
+	Wed, 7 Apr 2004 08:39:16 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:48830 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263079AbUDGMjL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 07:35:25 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm2 build problem
-Date: Wed, 7 Apr 2004 13:38:32 +0200
-User-Agent: KMail/1.6.1
-References: <20040407103746.GF20293@charite.de>
-In-Reply-To: <20040407103746.GF20293@charite.de>
-MIME-Version: 1.0
+	Wed, 7 Apr 2004 08:39:11 -0400
+Date: Wed, 7 Apr 2004 14:39:09 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: drivers/char/dz.[ch]: reason for keeping?
+Message-ID: <20040407123909.GZ27362@lug-owl.de>
+Mail-Followup-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Ralf Baechle <ralf@linux-mips.org>
+References: <20040404101241.A10158@flint.arm.linux.org.uk> <20040404111712.GE27362@lug-owl.de> <20040404122958.A14991@flint.arm.linux.org.uk> <20040404120051.GF27362@lug-owl.de> <Pine.LNX.4.55.0404071304170.5705@jurand.ds.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bRBRdwDfUq+EPrFt"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404071338.32897.dominik.karall@gmx.net>
+In-Reply-To: <Pine.LNX.4.55.0404071304170.5705@jurand.ds.pg.gda.pl>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-take a look at the main 2.6.5-mm2 thread. here is a copy of the message:
 
-----------  Forwarded Message  ----------
+--bRBRdwDfUq+EPrFt
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Subject: Re: 2.6.5-mm2
-Date: Wednesday 07 April 2004 09:10
-From: Andrew Morton <akpm@osdl.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Cc: linux-kernel@vger.kernel.org, James Bottomley 
-<James.Bottomley@steeleye.com>
+On Wed, 2004-04-07 13:16:48 +0200, Maciej W. Rozycki <macro@ds2.pg.gda.pl>
+wrote in message <Pine.LNX.4.55.0404071304170.5705@jurand.ds.pg.gda.pl>:
+> On Sun, 4 Apr 2004, Jan-Benedict Glaw wrote:
+> > Interrupt setup is a bit tricky on the VAXen. First, they actually have
+> > separated RX and TX IRQ and these aren't static. IRQ probing needs to be
+> > redone (at least can't be easily copied) since the new dz_init() is
+> > basically a complete new rewrite...
+>=20
+>  I think we need to separate the chipset driver from the=20
+> implementation-specific details.  There are at least three configurations=
+=20
 
-Brice Goglin <Brice.Goglin@ens-lyon.fr> wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5
-> >-mm2/
-> >
->  > - Merged up Ian Kent's autofs4 patches
->  >
->  > - Various fixes and speedups.
->
->  Hi Andrew,
->
->  When building on my Compaq EvoN600c, I get this compile error :
->
->  CC [M]  drivers/scsi/sr.o
->  	    drivers/scsi/sr.c: In function scsi_cd_get':
->  	    drivers/scsi/sr.c:128: error: structure has no member named kobj'
+That might be a good idea...
 
-It looks like Mr SCSI forgot to commit his changes to sr.h.
+> in existence:
+>=20
+> 1. DECstation on-board serial ports for the 3100 (2100) and the 5000/200=
+=20
+> (there are minor differences which can be handled together, I think).
+>=20
+> 2. The PMAC-A TURBOchannel board.  This implies up to 24 ports in a single
+> system if we ever support the DEC 3000/900 (3000/800) Alpha systems; 16
+> ports otherwise. ;-)
+>=20
+> 3. VAX-based systems -- you know the details better.
 
-Here's a backout patch which should get you going again.
+>From my point of view, (1) and (3) are quite similar; the differences
+are mostly:
 
+	- Different base addresses
 
- 25-akpm/drivers/scsi/sr.c |   68
- ++++++---------------------------------------- 1 files changed, 10
- insertions(+), 58 deletions(-)
+	- Separate RX and TX interrupt. This part is tricky because on
+	  VAX, the triggered IRQ needs to be ACKed twice. On the CPU and
+	  on the vsbus controller, as it seems. That is, both VAX IRQ
+	  handlers explicitely ACK their respective vsbus IRQ.
 
-diff -puN drivers/scsi/sr.c~sr-build-fix drivers/scsi/sr.c
---- 25/drivers/scsi/sr.c~sr-build-fix	2004-04-07 00:07:47.559098560 -0700
-+++ 25-akpm/drivers/scsi/sr.c	2004-04-07 00:08:02.302857168 -0700
-@@ -113,28 +113,6 @@ static struct cdrom_device_ops sr_dops =
- 	.generic_packet		= sr_packet,
- };
+	- Register offsets are offset_mips =3D offset_vax * 2.
 
--static void sr_kobject_release(struct kobject *kobj);
--
--static struct kobj_type scsi_cdrom_kobj_type = {
--	.release = sr_kobject_release,
--};
--
--/*
-- * The get and put routines for the struct scsi_cd.  Note this entity
-- * has a scsi_device pointer and owns a reference to this.
-- */
--static inline int scsi_cd_get(struct scsi_cd *cd)
--{
--	if (!kobject_get(&cd->kobj))
--		return -ENODEV;
--	return 0;
--}
--
--static inline void scsi_cd_put(struct scsi_cd *cd)
--{
--	kobject_put(&cd->kobj);
--}
--
- /*
-  * This function checks to see if the media has been changed in the
-  * CDROM drive.  It is possible that we have already sensed a change,
-@@ -446,15 +424,8 @@ static int sr_block_open(struct inode *i
+> Note the existence of #2 above implies there may be two different kinds of
+> such ports in a single system, be it a DECstation or a VAXstation (the
+> 4000 series use these ports as well, don't they?).
 
- static int sr_block_release(struct inode *inode, struct file *file)
- {
--	int ret;
- 	struct scsi_cd *cd = scsi_cd(inode->i_bdev->bd_disk);
--	ret = cdrom_release(&cd->cdi, file);
--	if(ret)
--		return ret;
--
--	scsi_cd_put(cd);
--
--	return 0;
-+	return cdrom_release(&cd->cdi, file);
- }
+They do. ...and I also think that there *may* exist Linux support for
+the 3000 type Alphas at some time. So for TC systems, we need to walk
+through the busses and search for cards, right?
 
- static int sr_block_ioctl(struct inode *inode, struct file *file, unsigned
- cmd, @@ -496,7 +467,7 @@ static int sr_open(struct cdrom_device_i
- 	struct scsi_device *sdev = cd->device;
- 	int retval;
+Also, we should be able to mark specific ports special. First and second
+onboard ports are expected to deal with keyboard and mouse/tablet, so
+they need to advertise this fact towards SERIO subsystem.
 
--	retval = scsi_cd_get(cd);
-+	retval = scsi_device_get(sdev);
- 	if (retval)
- 		return retval;
+I wasn't yet successful in getting the new driver to work on VAX, but
+that's a problem of time (-> I'm currently doing additional payed work)
+and lack of output (-> I'd really try to figure out how to access the
+diagnostic LEDs in the 4000/60 chassis). I hope to finish the additional
+work during upcoming Easter, so I'd continue work after that.
 
-@@ -518,7 +489,7 @@ static int sr_open(struct cdrom_device_i
- 	return 0;
+However, we can right now start to discuss how to split the current
+driver into chip-specific and machine/bus-specific parts. First goal, of
+course, should be to make it work with DECstations and VAXstations (it's
+current users). IIRC, 2.6.x isn't yet expected to work on DECstations,
+so I'll probably start to make it work for VAXen first.
 
- error_out:
--	scsi_cd_put(cd);
-+	scsi_device_put(sdev);
- 	return retval;
- }
+I'm not that familiar with the TC busses. Do you have the same register
+offsets on the TC chips compared to the onboard DZ11? (So are
+register offsets machine specific or bus specific?)
 
-@@ -529,6 +500,7 @@ static void sr_release(struct cdrom_devi
- 	if (cd->device->sector_size > 2048)
- 		sr_set_blocklength(cd, 2048);
+MfG, JBG
 
-+	scsi_device_put(cd->device);
- }
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
- static int sr_probe(struct device *dev)
-@@ -542,18 +514,12 @@ static int sr_probe(struct device *dev)
- 	if (sdev->type != TYPE_ROM && sdev->type != TYPE_WORM)
- 		goto fail;
+--bRBRdwDfUq+EPrFt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
--	if ((error = scsi_device_get(sdev)) != 0)
--		goto fail;
--
- 	error = -ENOMEM;
- 	cd = kmalloc(sizeof(*cd), GFP_KERNEL);
- 	if (!cd)
--		goto fail_put_sdev;
-+		goto fail;
- 	memset(cd, 0, sizeof(*cd));
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--	kobject_init(&cd->kobj);
--	cd->kobj.ktype = &scsi_cdrom_kobj_type;
--
- 	disk = alloc_disk(1);
- 	if (!disk)
- 		goto fail_free;
-@@ -622,8 +588,6 @@ fail_put:
- 	put_disk(disk);
- fail_free:
- 	kfree(cd);
--fail_put_sdev:
--	scsi_device_put(sdev);
- fail:
- 	return error;
- }
-@@ -899,32 +863,20 @@ static int sr_packet(struct cdrom_device
- 	return cgc->stat;
- }
+iD8DBQFAc/ZtHb1edYOZ4bsRAjyVAJ9TRQOUo6geWfN5Kp1Q1bIMOhJyOQCeLtOj
+x7UbugSt38nYaBC9O3M6hf0=
+=1LYF
+-----END PGP SIGNATURE-----
 
--static void sr_kobject_release(struct kobject *kobj)
-+static int sr_remove(struct device *dev)
- {
--	struct scsi_cd *cd = container_of(kobj, struct scsi_cd, kobj);
--	struct scsi_device *sdev = cd->device;
-+	struct scsi_cd *cd = dev_get_drvdata(dev);
-+
-+	del_gendisk(cd->disk);
-
- 	spin_lock(&sr_index_lock);
- 	clear_bit(cd->disk->first_minor, sr_index_bits);
- 	spin_unlock(&sr_index_lock);
-
--	unregister_cdrom(&cd->cdi);
--
- 	put_disk(cd->disk);
--
-+	unregister_cdrom(&cd->cdi);
- 	kfree(cd);
-
--	scsi_device_put(sdev);
--}
--
--static int sr_remove(struct device *dev)
--{
--	struct scsi_cd *cd = dev_get_drvdata(dev);
--
--	del_gendisk(cd->disk);
--
--	scsi_cd_put(cd);
--
- 	return 0;
- }
-
-
-On Wednesday 07 April 2004 12:37, Ralf Hildebrandt wrote:
-> 2.6.5-mm1 builds OK, 2.6.5-mm2 does not:
->
->   CC [M]  drivers/scsi/scsicam.o
->   CC [M]  drivers/scsi/scsi_error.o
->   CC [M]  drivers/scsi/scsi_lib.o
->   CC [M]  drivers/scsi/scsi_scan.o
->   CC [M]  drivers/scsi/scsi_syms.o
->   CC [M]  drivers/scsi/scsi_sysfs.o
->   CC [M]  drivers/scsi/scsi_devinfo.o
->   CC [M]  drivers/scsi/scsi_sysctl.o
->   CC [M]  drivers/scsi/scsi_proc.o
->   CC [M]  drivers/scsi/sd.o
->   CC [M]  drivers/scsi/sr.o
-> drivers/scsi/sr.c: In function scsi_cd_get':
-> drivers/scsi/sr.c:128: error: structure has no member named kobj'
-> drivers/scsi/sr.c: In function scsi_cd_put':
-> drivers/scsi/sr.c:135: error: structure has no member named kobj'
-> drivers/scsi/sr.c: In function sr_probe':
-> drivers/scsi/sr.c:554: error: structure has no member named kobj'
-> drivers/scsi/sr.c:555: error: structure has no member named kobj'
-> drivers/scsi/sr.c: In function sr_kobject_release':
-> drivers/scsi/sr.c:904: error: structure has no member named kobj'
-> drivers/scsi/sr.c:904: warning: type defaults to int' in declaration of
-> __mptr' drivers/scsi/sr.c:904: warning: initialization from incompatible
-> pointer type drivers/scsi/sr.c:904: error: structure has no member named
-> kobj'
-> make[3]: *** [drivers/scsi/sr.o] Error 1
-> make[2]: *** [drivers/scsi] Error 2
-> make[1]: *** [drivers] Error 2
-> make[1]: Leaving directory /usr/src/linux-2.6.5-mm2'
-> make: *** [stamp-build] Error 2
->
-> My .config is here:
-> http://www.stahl.bau.tu-bs.de/~hildeb/satellitepro/kernel-config-2.6
+--bRBRdwDfUq+EPrFt--

@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUIXTJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUIXTMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269080AbUIXTJj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 15:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269096AbUIXTJj
+	id S269096AbUIXTMy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 15:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUIXTMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 15:09:39 -0400
-Received: from waste.org ([209.173.204.2]:21203 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S269080AbUIXTJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 15:09:37 -0400
-Date: Fri, 24 Sep 2004 14:09:03 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: James Morris <jmorris@redhat.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Jean-Luc Cooke <jlcooke@certainkey.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040924190903.GY31237@waste.org>
-References: <20040924174301.GB20320@thunk.org> <Xine.LNX.4.44.0409241440410.8732-100000@thoron.boston.redhat.com>
+	Fri, 24 Sep 2004 15:12:54 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:21010 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269096AbUIXTMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 15:12:53 -0400
+Date: Fri, 24 Sep 2004 20:12:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i386 entry.S problems
+Message-ID: <20040924201251.B30391@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org
+References: <s1543914.047@emea1-mh.id2.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0409241440410.8732-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <s1543914.047@emea1-mh.id2.novell.com>; from JBeulich@novell.com on Fri, Sep 24, 2004 at 04:12:03PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 02:43:07PM -0400, James Morris wrote:
-> On Fri, 24 Sep 2004, Theodore Ts'o wrote:
-> 
-> > have *any* encryption algorithms in the kernel at all.  As to whether
-> > or not cryptoapi needs to be mandatory in the kernel, the question is
-> > aside from /dev/random, do most people need to have crypto in the
-> > kernel?  If they're not using ipsec, or crypto loop devices, etc.,
-> > they might not want to have the crypto api in their kernel
-> > unconditionally.
-> 
-> As far as I know embedded folk do not want the crypto API to be mandatory,
-> although I think Matt Mackall wanted to try and make something work
-> (perhaps a subset just for /dev/random use).
+> +#if !defined(CONFIG_REGPARM) || __GNUC__ < 3
+>  	pushl %ebp
+> +#endif
 
-I want to move a couple critical hash algorithms into lib/ as has been done
-with the CRC code. Then cryptoapi and /dev/random and a couple other
-things (htree comes to mind) could share code without inflicting the
-cryptoapi overhead and context limitations on everyone.
+CONFIG_REGPARM n eeds gcc 3.0 or later
 
-(currently about 4k messages behind on lkml, sorry for not chiming in sooner)
-
--- 
-Mathematics is the supreme nostalgia of our time.

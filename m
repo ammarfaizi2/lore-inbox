@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUHIU1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUHIU1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUHIU1G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267212AbUHIUZQ
+	id S267171AbUHIU1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUHIUXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:25:16 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:41438 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S267198AbUHIUUf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:20:35 -0400
-Date: Mon, 9 Aug 2004 13:20:32 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Bob Deblier <bob.deblier@telenet.be>
-cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: AES assembler optimizations
-In-Reply-To: <1092067328.4332.40.camel@orion>
-Message-ID: <Pine.LNX.4.58.0408091314300.25286@twinlark.arctic.org>
-References: <2riR3-7U5-3@gated-at.bofh.it>  <m3d620v11e.fsf@averell.firstfloor.org>
- <1092067328.4332.40.camel@orion>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Aug 2004 16:23:37 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:47373 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267214AbUHIUVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:21:49 -0400
+Date: Mon, 9 Aug 2004 21:21:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       grif@cs.ucr.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] QLogic ISP2x00: remove needless busyloop
+Message-ID: <20040809212147.A9919@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, grif@cs.ucr.edu,
+	linux-kernel@vger.kernel.org
+References: <200408091252.58547.bjorn.helgaas@hp.com> <20040809210335.A9711@infradead.org> <200408091419.20029.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200408091419.20029.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Mon, Aug 09, 2004 at 02:19:20PM -0600
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Aug 2004, Bob Deblier wrote:
+On Mon, Aug 09, 2004 at 02:19:20PM -0600, Bjorn Helgaas wrote:
+> I don't use it (note the "there's no isp2x00" bit above).  But it's
+> still part of ia64 defconfig (which I don't maintain), and it's easier
+> to tell people "use generic_defconfig" than to tell them to remove
+> CONFIG_SCSI_QLOGIC_FC by hand.
 
-> On Mon, 2004-08-09 at 16:28, Andi Kleen wrote:
-> > Bob Deblier <bob.deblier@telenet.be> writes:
-> >
-> > > Just picked up on KernelTrap that there were some problems with
-> > > optimized AES code; if you wish, I can provide my own LGPL licensed (or
-> > > I can relicense them for you under GPL), as included in the BeeCrypt
-> > > Cryptography Library.
-> > >
-> > > I have generic i586 code and SSE-optimized code available in GNU
-> > > assembler format. Latest version is always available on SourceForge
-> > > (http://sourceforge.net/cvs/?group_id=8924).
-> >
-> > Would be interesting.  Do you have any benchmarks for your code?
->
-> BeeCrypt contains benchmarks in the 'tests' subdirectory. Running of
-> 'make bench' will execute them. Benchmarks results below for repeatedly
-> looping over the same 16K block, produced by 'benchbc', without any
-> tweaks (YMMV):
->
-> P4 2400, with MMX:
-> ECB encrypted 738304 KB in 10.00 seconds = 73823.02 KB/s
+So tell David to fix up the defconfig..
 
-the gladman code achieves ~88MB/s for p4 northwood 2.4GHz... without using
-mmx.
+> In general, I think if a driver is in the tree, it should be fair
+> game for bugfixes.  In fact, I see you did the most recent one to
+> qlogicfc :-)
 
-it looks like your mmx code is 1-2% faster on p-m compared to the gladman
-code though -- nice, just a half hour ago i posted wondering if anyone had
-taken advantage of the 1 cycle mmx on the p2/p3/p-m processors for doing
-the AES XOR steps... and that's what your code does.
-
-unfortunately i don't think that pays off compared to the gladman code on
-other x86 processors.
-
--dean
+That wasn't a bugfix, look harder.

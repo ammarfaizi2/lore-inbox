@@ -1,63 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267784AbUBSDVT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 22:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267806AbUBSDVT
+	id S267674AbUBSCVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 21:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267687AbUBSCVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 22:21:19 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:52998 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S267784AbUBSDVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 22:21:14 -0500
-Message-ID: <40342BD5.9080105@snapgear.com>
-Date: Thu, 19 Feb 2004 13:21:57 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 18 Feb 2004 21:21:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40328 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267674AbUBSCVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 21:21:14 -0500
+Date: Wed, 18 Feb 2004 18:13:50 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "sting sting" <zstingx@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: build error : drivers/char/char.o(__ksymtab+0x110): undefined
+ reference to `
+Message-Id: <20040218181350.0cdd95ab.rddunlap@osdl.org>
+In-Reply-To: <Sea2-F133D4rGVcMNKW000372f6@hotmail.com>
+References: <Sea2-F133D4rGVcMNKW000372f6@hotmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Wed, 18 Feb 2004 23:35:53 +0200 "sting sting" <zstingx@hotmail.com> wrote:
 
-An update of the uClinux (MMU-less) fixups against 2.6.3.
-Nothing much new, just redone against 2.6.3.
+| Hello,
+| I am trying to add a test module to the kernel image (2.4.20).
+| I wrote a simple module, named test.c; I do succeed to build it as a module,
+| perform insmod and rmmod twith it, etc.
+| 
+| Now I want it to be a part of the kernel Image.
+| The kernel itself does pass full build successfully without this change.
+| 
+| I had put test.c under drivers/char;
+| I had added it in the makefile under drivers/char
+| in the follwoing way
+| 
+| obj-$(CONFIG_TEST) += test.o
+| 
+| In config.in under drivers/char I had put :
+|    tristate 'test' CONFIG_TEST
+| 
+| I had run make menuconfig and selceted this character device (test) with *.
+| 
+| 
+| Now when I try to compile it I have an error  about export_symbol.
+| Since this module that have a call to the EXPORT_SYMBOL
+| macro, I had tried to add it to the list of export-objs in that Makefile 
+| (under /drivers/char)
+| but Now , when running make , I have the follwoing error:
+| 
+| rivers/char/char.o(__ksymtab+0x110): undefined reference to `local symbols 
+| in discarded section .text.exit'
+| make: *** [vmlinux] Error 1
+| 
+| any idea which can help will be appreciated.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.3-uc0.patch.gz
+What kernel symbols are you trying to use?
+What are you tring to EXPORT?
 
-Regards
-Greg
+It mostly looks like something in your main .text section is calling
+(or using) something that's in another code section or vice versa.
 
+You might see if one of the scripts from
+http://www.kernelnewbies.org/scripts/
+will help you.  I can't reach that web site right now, but there
+are a couple of scripts there (reference-discarded.pl and
+reference-init.pl) that might help you.
 
+or you can always post source code so that we won't have to guess
+whatever it is you are doing.
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

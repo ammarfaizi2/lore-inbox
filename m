@@ -1,121 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269641AbUJGOK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269660AbUJGOOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269641AbUJGOK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 10:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269659AbUJGOK5
+	id S269660AbUJGOOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 10:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269664AbUJGOOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 10:10:57 -0400
-Received: from mail6.hitachi.co.jp ([133.145.228.41]:19172 "EHLO
-	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S269641AbUJGOK0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 10:10:26 -0400
-Message-ID: <41654E60.40603@sdl.hitachi.co.jp>
-Date: Thu, 07 Oct 2004 23:10:40 +0900
-From: Hideo AOKI <aoki@sdl.hitachi.co.jp>
-Organization: Systems Development Lab., Hitachi, Ltd.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: ja
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ak@muc.de, linux-kernel@vger.kernel.org, riel@redhat.com
-Subject: Re: [PATCH 2.6]  Documentation/filesystems/proc.txt
-References: <2LXI2-3a5-21@gated-at.bofh.it>	<m3ekkd46a8.fsf@averell.firstfloor.org>	<4163E2C0.5050109@sdl.hitachi.co.jp> <20041006155000.46c9acdc.akpm@osdl.org> <416549CE.2070202@sdl.hitachi.co.jp>
-In-Reply-To: <416549CE.2070202@sdl.hitachi.co.jp>
-Content-Type: multipart/mixed;
- boundary="------------020602070309090800020200"
+	Thu, 7 Oct 2004 10:14:54 -0400
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:40667 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269660AbUJGOO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 10:14:28 -0400
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <56697.195.245.190.93.1097157219.squirrel@195.245.190.93>
+Message-ID: <cone.1097158438.547217.10282.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>,
+       =?ISO-8859-1?B?Sy5SLg==?= Foley <kr@cybsft.com>,
+       Florian Schmidt <mista.tapas@gmx.net>, mark_h_johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: voluntary-preempt-2.6.9-rc3-mm3-T3
+Date: Fri, 08 Oct 2004 00:13:58 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020602070309090800020200
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Rui Nuno Capela writes:
 
-Hideo AOKI wrote:
-
-> Andrew Morton wrote:
+>>
+>> please re-download it, this is another bug i've fixed in the re-uploaded
+>> version. Does the new patch work?
+>>
 > 
->> Please send an additional patch to update 
->> Documentation/filesystems/proc.txt
->> and Documentation/sysctl/vm.txt
+> OK. Now it works fine. Thanks Ingo.
 > 
-> Certainly.
+> Maybe I'm just a plain idiot, but wouldn't it be welcome to add another
+> dot number or whatever to the VP filename label? IMHO that should clear
+> things of what actual patch release are we really applying.
 > 
-> Attached patch is a short description for /proc/sys/vm/swap_token_timeout.
+> The crash with jackd wasn't the only one, some other sound apps also failed
+> with similar kernel oopses dumps.
+> 
+> And, just out of curiosity, I've also tested "vanilla" 2.6.9-rc3-mm3 and
+> it looks like suffering from the same illness. So this has to be yet
+> another "feature" of the -mm line ;)
 
-By the way, in Documentation/filesystems/proc.txt, explanation of
-/proc/meminfo is described in section 1.3 (IDE devices in /proc/ide).
-I think that it should be described in section 1.2 (Kernel data).
+Known issue;
 
-Attached patch fixes it. This patch has to be applied after my previous patch is applied.
+Follow this advice:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109714329614794&w=2
 
-Kind regards,
-
-Hideo AOKI
-
-Systems Development Laboratory, Hitachi, Ltd.
-
---------------020602070309090800020200
-Content-Type: text/plain;
- name="doc-fs-proc-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="doc-fs-proc-fix.patch"
-
- proc.txt |   31 ++++++++++++++++---------------
- 1 files changed, 16 insertions(+), 15 deletions(-)
-
-Signed-off-by: Hideo Aoki <aoki@sdl.hitachi.co.jp>
-
-diff -uprN linux-2.6.9-rc3-vm-tuning-doc/Documentation/filesystems/proc.txt linux-2.6.9-rc3-doc-fs-proc-fix/Documentation/filesystems/proc.txt
---- linux-2.6.9-rc3-vm-tuning-doc/Documentation/filesystems/proc.txt	2004-10-07 21:31:37.000000000 +0900
-+++ linux-2.6.9-rc3-doc-fs-proc-fix/Documentation/filesystems/proc.txt	2004-10-07 22:05:46.847650632 +0900
-@@ -350,22 +350,6 @@ available.  In this case, there are 0 ch
- ZONE_DMA, 4 chunks of 2^1*PAGE_SIZE in ZONE_DMA, 101 chunks of 2^4*PAGE_SIZE 
- available in ZONE_NORMAL, etc... 
- 
--
--1.3 IDE devices in /proc/ide
------------------------------
--
--The subdirectory /proc/ide contains information about all IDE devices of which
--the kernel  is  aware.  There is one subdirectory for each IDE controller, the
--file drivers  and a link for each IDE device, pointing to the device directory
--in the controller specific subtree.
--
--The file  drivers  contains general information about the drivers used for the
--IDE devices:
--
--  > cat /proc/ide/drivers 
--  ide-cdrom version 4.53 
--  ide-disk version 1.08 
--
- ..............................................................................
- 
- meminfo:
-@@ -454,6 +438,22 @@ VmallocTotal: total size of vmalloc memo
-  VmallocUsed: amount of vmalloc area which is used
- VmallocChunk: largest contigious block of vmalloc area which is free
- 
-+
-+1.3 IDE devices in /proc/ide
-+----------------------------
-+
-+The subdirectory /proc/ide contains information about all IDE devices of which
-+the kernel  is  aware.  There is one subdirectory for each IDE controller, the
-+file drivers  and a link for each IDE device, pointing to the device directory
-+in the controller specific subtree.
-+
-+The file  drivers  contains general information about the drivers used for the
-+IDE devices:
-+
-+  > cat /proc/ide/drivers 
-+  ide-cdrom version 4.53 
-+  ide-disk version 1.08 
-+
- More detailed  information  can  be  found  in  the  controller  specific
- subdirectories. These  are  named  ide0,  ide1  and  so  on.  Each  of  these
- directories contains the files shown in table 1-4.
-
---------------020602070309090800020200--
+Con
 

@@ -1,164 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUFTXbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUFTXsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUFTXbL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 19:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUFTXbL
+	id S265978AbUFTXsh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 19:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUFTXsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 19:31:11 -0400
-Received: from [213.4.129.150] ([213.4.129.150]:39067 "EHLO telesmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S262391AbUFTXbA convert rfc822-to-8bit
+	Sun, 20 Jun 2004 19:48:37 -0400
+Received: from 213-140-22-71.fastres.net ([213.140.22.71]:64573 "HELO
+	netscape1722.com") by vger.kernel.org with SMTP id S265979AbUFTXsf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 19:31:00 -0400
-Subject: Re: pdc202xx_old serious bug with DMA on 2.6.x series
-From: Adolfo =?ISO-8859-1?Q?Gonz=E1lez_Bl=E1zquez?= 
-	<agblazquez_mailing@telefonica.net>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200406200247.32303.bzolnier@elka.pw.edu.pl>
-References: <1087253451.4817.4.camel@localhost>
-	 <200406191846.32983.bzolnier@elka.pw.edu.pl>
-	 <1087686048.647.9.camel@localhost>
-	 <200406200247.32303.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-15
-Message-Id: <1087774247.627.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 21 Jun 2004 01:30:48 +0200
-Content-Transfer-Encoding: 8BIT
+	Sun, 20 Jun 2004 19:48:35 -0400
+From: DE LOTERIJ PROMOTIONS <deloterij@netscape.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: deloterij@netscape.net
+Subject: AWARD NOTIFICATION / CONFIRMATION
+Date: Mon, 21 Jun 2004 01:48:35 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="cd3b748b-e371-4eeb-b4c8-37e8d68b9d37"
+Message-Id: <S265979AbUFTXsf/20040620234835Z+36@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
 
-The bus was introduced on 2.6.0-test5.
-I tried test1, test2, test3, test4. All OK.
-Then test5, test6 BUGGY.
+This is a multi-part message in MIME format
+--cd3b748b-e371-4eeb-b4c8-37e8d68b9d37
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Hope this boooring task will help... more than spanish players on
-eurocup... bad day :(
-
-
-
-El dom, 20-06-2004 a las 02:47, Bartlomiej Zolnierkiewicz escribió:
-> On Sunday 20 of June 2004 01:00, Adolfo González Blázquez wrote:
-> > Hi,
-> >
-> > Sorry for the delay... I tried 2.5.50 and 2.5.75, and, at least for my
-> > machine, everything seems to be perfect. Then i tried every 2.6 kernel.
-> > All of them have the same buggy behaviour.
-> 
-> First of all thanks for doing this.
-> 
-> > These are the differences between 2.5.75 and 2.6.0 pdc202xx_old.c (sorry
-> > if this is not the correct format, im new here :)
-> >
-> > Hope this will help.
-> >
-> > Adolfo González
-> >
-> > ###################################################################
-> >
-> > --- linux-2.5.75/drivers/ide/pci/pdc202xx_old.c	2003-07-10
-> > 22:15:03.000000000 +0200
-> > +++ linux-2.6.0/drivers/ide/pci/pdc202xx_old.c	2003-12-18
-> > 03:59:53.000000000 +0100
-> > @@ -46,7 +46,6 @@
-> >  #include <asm/io.h>
-> >  #include <asm/irq.h>
-> >
-> > -#include "ide_modes.h"
-> >  #include "pdc202xx_old.h"
-> >
-> >  #define PDC202_DEBUG_CABLE	0
-> > @@ -519,13 +518,15 @@
-> >  		} else {
-> >  			goto fast_ata_pio;
-> >  		}
-> > +		return hwif->ide_dma_on(drive);
-> >  	} else if ((id->capability & 8) || (id->field_valid & 2)) {
-> >  fast_ata_pio:
-> >  no_dma_set:
-> >  		hwif->tuneproc(drive, 5);
-> >  		return hwif->ide_dma_off_quietly(drive);
-> >  	}
-> > -	return hwif->ide_dma_on(drive);
-> > +	/* IORDY not supported */
-> > +	return 0;
-> >  }
-> >
-> >  static int pdc202xx_quirkproc (ide_drive_t *drive)
-> > @@ -749,9 +750,6 @@
-> >  	hwif->tuneproc  = &config_chipset_for_pio;
-> >  	hwif->quirkproc = &pdc202xx_quirkproc;
-> >
-> > -	if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
-> > -		hwif->addressing = (hwif->channel) ? 0 : 1;
-> > -
-> >  	if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
-> >  		hwif->busproc   = &pdc202xx_tristate;
-> >  		hwif->resetproc = &pdc202xx_reset;
-> 
-> In 2.6.0-test5 kernel we allowed LBA48 for PDC20265
-> (after few people reported that it works okay now)
-> but the same patch is also in 2.4 kernels.
-> 
-> There is one important 2.4 vs 2.6 difference here
-> - in 2.6 if the drive is using LBA48 we allow up
-> to 1024KiB large requests (you can check if this is
-> a problem by replacing "65536" by "256" in ide-probe.c).
-> 
-> The other likely candidate for breakage is kernel
-> 2.6.0-test2 which contains DMA timeout fixes.
-> 
-> I can make some patches later in the meantime
-> somebody may test 2.6.0-test[1,2,4,5].
-> 
-> Cheers.
-> 
-> > @@ -928,7 +926,7 @@
-> >  	return 0;
-> >  }
-> >
-> > -static struct pci_device_id pdc202xx_pci_tbl[] __devinitdata = {
-> > +static struct pci_device_id pdc202xx_pci_tbl[] = {
-> >  	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20246, PCI_ANY_ID,
-> > PCI_ANY_ID, 0, 0, 0},
-> >  	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20262, PCI_ANY_ID,
-> > PCI_ANY_ID, 0, 0, 1},
-> >  	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20263, PCI_ANY_ID,
-> > PCI_ANY_ID, 0, 0, 2},
-> >
-> > ###################################################################
-> >
-> > El sáb, 19-06-2004 a las 18:46, Bartlomiej Zolnierkiewicz escribió:
-> > > Hi,
-> > >
-> > > Any news about this issue?
-> > >
-> > > On Tuesday 15 of June 2004 13:33, you wrote:
-> > > > El mar, 15-06-2004 a las 13:15, Marcelo Tosatti escribió:
-> > > > > On Tue, Jun 15, 2004 at 01:20:03AM +0200, Adolfo González Blázquez wrote:
-> > > > > > El mar, 15-06-2004 a las 01:18, Bartlomiej Zolnierkiewicz escribió:
-> > > > > > > On Tuesday 15 of June 2004 00:50, Adolfo González Blázquez wrote:
-> > > > > > > > Hi!
-> > > > > > >
-> > > > > > > Hi,
-> > > > > > >
-> > > > > > > > Lot of users are reporting seriour problems with pdc202xx_old
-> > > > > > > > ide pci driver. Enabling DMA on any device related with this
-> > > > > > > > driver makes the system unusable.
-> > > > > > > >
-> > > > > > > > This seems to happen in all the 2.6.x kernel series.
-> > > > > > >
-> > > > > > > Doing binary search on 2.4->2.6 kernels would help greatly
-> > > > > > > (narrowing problem to a specific kernel versions).
-> > > > > >
-> > > > > > If it helps, I tried 2.6.2, 2.6.4, 2.6.5, and 2.6.7-rc3, and all
-> > > > > > have the bug.
-> > > > >
-> > > > > And which kernels does not exhibit the problem?
-> > > >
-> > > > The 2.4 series it's ok, I'm gonna try with different 2.5.x kernels to
-> > > > see if i can discover when the bug was introduced
-> 
+DE LOTERIJ PROMOTION.
+BS 68-70 ALFONDSTRAAT,
+1003BS,AMSTELVEEN THE NETHERLANDS.
+TEL/FAX NUMBER :+31-206-006-491.
+Ref. Number: 198/1020/2004
+Batch number: D.701246-DLP/04
+Sir/ Madam,
+We are pleased to inform you of the lottery result winners  
+International programmes held on 21th May, 2004.  Your e-mail address 
+was attached to ticket number
+375066623 with your serial number 3772-554/DLP.drew you a  lucky 
+number 30-75-14-20-64-52 which consequently won in the secound (2rd) =
+category,  
+you are therefore been approved for lump sum payment  of US$ 1,000,000 
+(One million United states Dollars) CONGRATULATIONS ! ! ! Due to mix up 
+of some numbers and names, you are advised to keep  your winning 
+information confidential until your claims has been
+processed and your money remitted to you in due course via your nominated =
+bank or otherwise.This is part 
+of our security protocol to avoid double claims and  unwarranted abuse 
+of this programme by some participants.  All participants were selected 
+through an e-mail balloting. This   
+promotional programme takes place every three years.
+To file for your claim, please contact our fiducially agent:
+Mr.Frank O. Blay
+E-mail address: agentblay@netscape.net 
+Tel#:+31-613-729-917.
+Remember, all winning must be claimed not later than 5TH OF JULY
+2004. Please note, in order to avoid unnecessary delays and
+complications, remember to quote your reference number and batch
+number in all correspondence. Furthermore, should there be any
+change of address do inform our agent as soon as possible.
+Once again congratulations .
+Best regards,
+Mrs. Jacky Moore.
+Lottery coordinator.  
+--cd3b748b-e371-4eeb-b4c8-37e8d68b9d37--
 

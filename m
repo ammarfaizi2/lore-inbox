@@ -1,82 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129446AbRCWD5C>; Thu, 22 Mar 2001 22:57:02 -0500
+	id <S129436AbRCWDvd>; Thu, 22 Mar 2001 22:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbRCWD4w>; Thu, 22 Mar 2001 22:56:52 -0500
-Received: from ir.com.au ([210.8.187.18]:27660 "EHLO ir_nt_server2.ir.com.au")
-	by vger.kernel.org with ESMTP id <S129446AbRCWD4d>;
-	Thu, 22 Mar 2001 22:56:33 -0500
-Message-ID: <C0D2F5944500D411AD8A00104B31930E8D3CB3@ir_nt_server2>
-From: Tony.Young@ir.com
-To: linux-kernel@vger.kernel.org
-Subject: /proc/stat disk_io entries
-Date: Fri, 23 Mar 2001 14:55:29 +1100
+	id <S129446AbRCWDvX>; Thu, 22 Mar 2001 22:51:23 -0500
+Received: from chromium11.wia.com ([207.66.214.139]:777 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S129436AbRCWDvL>; Thu, 22 Mar 2001 22:51:11 -0500
+Message-ID: <3ABAC8D4.B464EB9B@chromium.com>
+Date: Thu, 22 Mar 2001 19:53:57 -0800
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "David S. Miller" <davem@redhat.com>, Zach Brown <zab@zabbo.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: user space web server accelerator support
+In-Reply-To: <3AB6D0A5.EC4807E3@chromium.com>
+		<15030.54194.780246.320476@pizda.ninka.net>
+		<3AB6D574.8C123AE9@chromium.com> <15030.54685.535763.403057@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Dave, Zach,
 
-Firstly, my relevant system stats:
-	kernel	linux 2.4.3-pre6
-	hda	IDE Drive
-	hdb	CD drive
-	hdc	IDE Drive
-	hdd	IDE Drive
-	sda	SCSI Drive
+thanks for your help, I've implemented a file descriptor passing mechanism
+very similar to that of Zach's and it worked.
 
-The problem I'm seeing is that IO stats (disk_io) aren't being shown in
-/proc/stats for the 2 harddrives on the second ide controller (hdc and hdd).
+The problem now is performance, fd passing is utterly slow!
 
-I checked the kernel code and found the function kstat_read_proc in
-fs/proc/proc_misc.c which loops through from 0 up to DK_MAX_MAJOR and prints
-out the stats to /proc/stat for each drive. However, DK_MAX_MAJOR is set to
-16 in include/linux/kernel_stat.h, which means that the drives on my second
-ide controller, with a major number of 22, aren't included in the loop.
+On my system (a 1GHz Pentium III + 2G RAM) I can do 1300 SpecWeb99 with a
+khttp-like socket passing mechanism, while I only get something like 500 using
+file descriptor passing. Indeed with fd passing I decrease Apache's
+performance instead of increasing it!
 
-I modified the value of DK_MAX_MAJOR to 23 and rebuilt and /proc/stats now
-shows the 2 missing harddrives. I'm uncomfortable sending in a patch for
-this as I'm not familiar enough with the code to understand the full
-ramifications of changing this value. Considering also that the value 23
-stills doesn't include any tertiary or quaternary ide controllers (33 and
-34) makes me wonder what the correct value should really be.
+I've checked my code several times and I don't believe that I have introduced
+any specific bottleneck of my own (the code actually is quite trivial).
 
-I'm also curious, after considering the above, about whether or not a hash
-table(s) would be better suited to the current implementation of
-2-dimensional arrays for disk stats (dk_drive, dk_drive_rio, dk_drive_wio,
-etc).
+I've profiled the kernel and some interesting differences show:
 
-I've brought this to the list because I'm not sure of the correct solution
-and I couldn't work out if there was a specific maintainer of this code.
+With direct socket passing, 1300 SpecWeb load:
 
-It also seems strange to me that the identifiers for the values for disk_io
-in /proc/stat are (major_number,disk_number) tuples rather than
-(major,minor). The current implementation with my change now shows my first
-ide drive to be identified as (8,0), while my second and third ide drives
-(hdc and hdd) are identified as (22,2) and (22,3) respectively rather than
-(22,0) and (22,1) - I presume because they are the in the 3rd and 4th ide
-positions. Using disk_number instead of minor number also makes it more
-difficult for any user programs reading /proc/stat to trace the entry back
-to a physical device. Any program must make assumptions that major numbers 8
-and 22 refer to /dev/hd* entries, and that disk number 0 translates to 'a',
-1 to 'b', 2 to 'c', etc and can then work out that 22,2 means /dev/hdc.
-These assumption, of course, break with the use of devfs when not using
-devfsd to provide the necessary links.
+  9759 total                                      0.0071
+   902 handle_IRQ_event                           7.5167
+   256 skb_clone                                  0.6957
+   256 do_tcp_sendpages                           0.0954
+   239 tcp_v4_rcv                                 0.1572
+   238 schedule                                   0.1766
+   226 __kfree_skb                                0.9741
+   207 skb_release_data                           1.7845
+   204 tcp_transmit_skb                           0.1541
+   199 d_lookup                                   0.6910
+   190 path_walk                                  0.0973
+   181 ip_output                                  0.6754
+   168 fget                                       2.2105
+   165 do_softirq                                 1.1786
+   158 do_generic_file_read                       0.1287
 
-I welcome any comments, but please CC me directly as I'm not subscribed to
-the list.
+With file descriptor passing, 500 SpecWeb load:
 
-Tony...
---
-Tony Young
-Senior Software Engineer
-Integrated Research Limited
-Level 10, 168 Walker St
-North Sydney, NSW 2060, Australia
-Ph:  +61 2 9966 1066
-Fax: +61 2 9966 1042
-Mob: 0414 649942
+  8621 total                                      0.0063
+  7037 schedule                                   5.2203
+   462 handle_IRQ_event                           3.8500
+   188 __wake_up                                  0.9216
+   114 unix_stream_data_wait                      0.4191
+    81 __switch_to                                0.3750
+    58 schedule_timeout                           0.3718
+    25 d_lookup                                   0.0868
+    20 skb_clone                                  0.0543
+    19 path_walk                                  0.0097
+    17 tcp_transmit_skb                           0.0128
+    17 do_tcp_sendpages                           0.0063
+    17 do_softirq                                 0.1214
+    15 system_call                                0.2679
+    15 sys_rt_sigtimedwait                        0.0207
+
+Zach, have you ever noticed such a performance bottleneck in your phhttpd?
+
+SpecWeb has about 30% of its load as dynamic requests, so the amount of
+forwarding is definitively significative in my case. Sime time ago I measured
+khttp's impact in socket passing and I found that it was negligible
+(forwarding everything to Apache instead of having it directly listening on
+the socket had an impact of a few percent).
+
+My impression from a first look to the profiling data is that the kernel is
+doing a very poor job of scheduling and is ping-ponging between processes...
+like it is not doing any buffering whatsoever and it is doing a contect switch
+for every passed file descriptor.
+
+Any thoughts?
+
+ - Fabio
+
 

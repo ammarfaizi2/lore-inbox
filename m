@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313114AbSDOIsQ>; Mon, 15 Apr 2002 04:48:16 -0400
+	id <S313116AbSDOIwH>; Mon, 15 Apr 2002 04:52:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313115AbSDOIsP>; Mon, 15 Apr 2002 04:48:15 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:57349 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S313114AbSDOIsO>; Mon, 15 Apr 2002 04:48:14 -0400
-Message-ID: <3CBA936B.449A183@aitel.hist.no>
-Date: Mon, 15 Apr 2002 10:46:35 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7-dj3 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-In-Reply-To: <E16wkJq-0004Jl-00@the-village.bc.nu> <20020415065501.3A687740@merlin.webofficenow.com>
+	id <S313117AbSDOIwH>; Mon, 15 Apr 2002 04:52:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:22282 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313116AbSDOIwG>;
+	Mon, 15 Apr 2002 04:52:06 -0400
+Date: Mon, 15 Apr 2002 10:51:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 34
+Message-ID: <20020415085145.GF12608@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com> <3CBA8476.9070208@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+On Mon, Apr 15 2002, Martin Dalecki wrote:
 
-> The killer is that if one person drives the machine into swap, performance
-> melts down for everybody.  THAT is what makes the idea of a multi-headed
-> linux box as a many-way shared workstation seem a lot less workable to me.
+Two comments --
 
-No problem.  This is precisely what "ulimit" is for - prevent single
-users from grabbing too much resources on a multiuser machine.
-Distributions default to not use it because most machines are
-single-user,
-this however is the occation where you need it.  Of course you can
-afford
-more RAM for the 4-user machine, and shared memory for kernel and
-executable
-code helps too...
+Could you please _not_ just rearrange comments or change style in ide-cd
+just for the sake cleaning, it's very annoying when one has patches that
+need to be adapted every time. And it serves zero purpose. Thanks.
 
-Helge Hafting
+I changed the CONFIG_BLK_DEV_IDEPCI stuff to always include the pci_dev
+in the hwgroup, and just leave it at NULL if not defined. This cleans up
+some ifdefs, I think this is the better approach.
+
+I'll sync the latest tcq stuff with you later today, it gets the
+enabling right etc.
+
+And a last comment not directly related to this particular patch -- when
+you include something and change minor stuff along the way, please do it
+in two steps. One that includes a patch, and a second version that
+changes what you want to change. That makes merging _so_ much easier.
+Thanks.
+
+-- 
+Jens Axboe
+

@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVCWPSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVCWPTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbVCWPSw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 10:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCWPSw
+	id S261632AbVCWPTb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 10:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVCWPTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 10:18:52 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:54790 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262683AbVCWPSt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 10:18:49 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: Max Kellermann <max@duempel.org>
+	Wed, 23 Mar 2005 10:19:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26288 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261624AbVCWPTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 10:19:22 -0500
+Date: Wed, 23 Mar 2005 05:49:31 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Horms <horms@verge.net.au>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050323145204.GA23661@roonstrasse.net>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <20050322112628.GA18256@roll>
-	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	 <20050323135317.GA22959@roonstrasse.net> <1111587814.27969.86.camel@nc>
-	 <20050323142753.GA23454@roonstrasse.net> <1111589098.27969.100.camel@nc>
-	 <20050323145204.GA23661@roonstrasse.net>
-Content-Type: text/plain
-Date: Wed, 23 Mar 2005 16:18:47 +0100
-Message-Id: <1111591127.27969.121.camel@nc>
+Subject: Re: [PATCH] Fix sign checks in copy_from_read_buf() in 2.4
+Message-ID: <20050323084931.GA4017@logos.cnet>
+References: <20050323074931.GA3092@verge.net.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323074931.GA3092@verge.net.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 15:52 +0100, Max Kellermann wrote:
 
-> You see, RLIMIT_CPU is worthless in its current implementation.
+Hi Horms,
 
-You are right. Limiting CPU is probably not a good solution anyway.
+On Wed, Mar 23, 2005 at 04:49:35PM +0900, Horms wrote:
+> Applologies if this is already pending, but the signdness fix for
+> copy_from_read_buf() in  2.6 seems to be needed for 2.4 as well.
+> 
+> This relates to the bugs reported in this document
+> http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105808941823955&w=2
+v2.4 does not suffer from the issue mentioned by Guninski because 
+the first argument of the arithmetic comparison is not casted
+to a "signed" value:
 
---
-Natanael Copa
+  n = min((ssize_t)*nr, n);
 
+That was the problem in v2.6, where an unsigned value bigger than 2^31 
+would be treated as a negative signed.
 
+Thanks anyway for pinging me, highly appreciated.
+
+> -- 
+> Horms
+> 
+> Backport of copy_from_read_buf() signedness fix from 2.6
+> 
+> Signed-off-by: Simon Horman <horms@verge.net.au>
+> 
+> ===== drivers/char/n_tty.c 1.7 vs edited =====
+> --- 1.7/drivers/char/n_tty.c	2004-12-16 22:57:23 +09:00
+> +++ edited/drivers/char/n_tty.c	2005-03-23 13:08:37 +09:00
+> @@ -1095,7 +1095,7 @@
+>  
+>  {
+>  	int retval;
+> -	ssize_t n;
+> +	size_t n;
+>  	unsigned long flags;
+>  
+>  	retval = 0;

@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbTESMSg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 08:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTESMSg
+	id S262424AbTESMRL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 08:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTESMRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 08:18:36 -0400
-Received: from boden.synopsys.com ([204.176.20.19]:54412 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP id S262429AbTESMSc
+	Mon, 19 May 2003 08:17:11 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62815 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262424AbTESMRK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 08:18:32 -0400
-Date: Mon, 19 May 2003 14:31:19 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: mikpe@csd.uu.se
-Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
-       linux-laptop@vger.kernel.org
-Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
-Message-ID: <20030519123119.GA20385@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-References: <200305191216.h4JCGONj015081@harpo.it.uu.se>
-Mime-Version: 1.0
+	Mon, 19 May 2003 08:17:10 -0400
+To: Andi Kleen <ak@muc.de>
+Cc: kraxel@suse.de, jsimmons@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
+References: <20030515145640.GA19152@averell>
+	<m1of2233ds.fsf@frodo.biederman.org> <20030519103717.GC15709@averell>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 May 2003 06:26:01 -0600
+In-Reply-To: <20030519103717.GC15709@averell>
+Message-ID: <m1he7r2kdi.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305191216.h4JCGONj015081@harpo.it.uu.se>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mikpe@csd.uu.se, Mon, May 19, 2003 14:16:24 +0200:
-> On Wed, 14 May 2003 11:48:13 +0200, Alex Riesen wrote:
-> >I have an old Compaq Armada 1592DT. The thing goes automagically into
-> >suspend mode after being forgotten for a while. And there is this button
-> >to wake it up (the blue one, above the keyboard).
-> >
-> >Last time i tried to wake it up it produced the attached oops.
-> >"Unknown key"s are probable the blue button.
-> >After printing out the oops, the system went back into suspend.
-> >
-> >-alex
-> >
-> >Suspending devices
-> >Suspending device c03219ac
-> >Unable to handle kernel NULL pointer dereference at virtual address 00000090
-> > printing eip:
-> >c011459f
-> >*pde = 00000000
-> >Oops: 0000 [#1]
-> >CPU:    0
-> >EIP:    0060:[<c011459f>]    Not tainted
-> >EFLAGS: 00010202
-> >EIP is at fix_processor_context+0x5f/0x100
-> >eax: 0000007c   ebx: c5f0e000   ecx: 00000002   edx: 00000000
-> >esi: 00000060   edi: 00000000   ebp: c5f0ff5c   esp: c5f0ff54
-> >ds: 007b   es: 007b   ss: 0068
-> >Process kapmd (pid: 4, threadinfo=c5f0e000 task=c5fbc640)
-> 
-> After receiving Alex' .config and gcc version (3.2.3), I've been
-> able to decipher this. current->mm is NULL in the kapmd task. The call
-> 
-> 	load_LDT(&current->mm->context);	/* This does lldt */
-> 
-> in fix_processor_context() computes the address of context as
-> (current->mm)+0x7c, which is 0x7c. load_LDT_nolock() dereferences
-> 0x7c+0x14 (void *segments = pc->ldt) and the oops follows.
-> 
-> As to _why_ kapmd's current->mm is NULL, I don't know. It isn't
-> when I test APM suspend in 2.5.69-bk. A lot of code dereferences
-> current->mm without checking, so I guess current->mm==NULL is a bug.
-> 
+Andi Kleen <ak@muc.de> writes:
 
-i just go and try it with the latest -bk.
+> On Sat, May 17, 2003 at 12:58:39AM +0200, Eric W. Biederman wrote:
+> > I don't know if this affects the frame buffers per se.
+> > 
+> > But often BIOS's on systems with large amounts of memory configure
+> > overlapping mtrrs (where an uncacheable mtrr would override a larger
+> > cacheable range).  To date this has confused the linux mtrr code when
+> > it tries to modify things, and you cannot properly setup mtrrs.    I
+> > believe this applies to both the fb case as well as X.
+> 
+> Interesting. Perhaps it would be really better to use change_page_attr()
+> with PAT for this. It would avoid these problems.
 
--alex
+At least for x86-64 I would recommend that, as you can count on it existing.
 
+For normal x86 it is more interesting.  But you are less likely to run with 
+lots of memory so this case is less likely to show up. I have already heard
+people seriously discussing 16GB on an off the shelf on an x86-64
+system.  Getting 2GB PC2700 DIMMs is still a bit of a challenge, but
+the practical memory size barrier (3GB per task) is finally gone.
+
+For x86-64 a software ``mtrr'' that maps everything the e820 map says
+is memory as write-back and everything else as uncacheable by default would
+be nice.  As the mtrr interface is already understood by things like X.  And
+there needs to be some data structure that remembers what the page
+cache-ability attributes should be.
+
+Eric

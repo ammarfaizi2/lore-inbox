@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUH3NUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268020AbUH3NYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268014AbUH3NUo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 09:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUH3NUo
+	id S268020AbUH3NYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 09:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268031AbUH3NYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 09:20:44 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:961 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268014AbUH3NUj
+	Mon, 30 Aug 2004 09:24:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64444 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268020AbUH3NYp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 09:20:39 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 30 Aug 2004 14:52:34 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l/bttv: add sanity check (bug #3309)
-Message-ID: <20040830125233.GA1727@bytesex>
-References: <20040830025443.3aad9fa4.akpm@osdl.org>
+	Mon, 30 Aug 2004 09:24:45 -0400
+Date: Mon, 30 Aug 2004 08:10:27 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Peter Holik <peter@holik.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: fix fealnx.c hangs on SMP, 2.4.27
+Message-ID: <20040830111027.GA1961@logos.cnet>
+References: <38386.192.168.1.2.1093850895.squirrel@www.it-technology.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830025443.3aad9fa4.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <38386.192.168.1.2.1093850895.squirrel@www.it-technology.at>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Software Environment: gnomemeeting
-> Problem Description: I have a miropctv (bttv card=1), kernel serie 2.4 have v4l
-> only implementation. Kernel serie 2.6 have v4l2 only implementation (v4l
-> broken). I had to go back to 2.4 to use gnomemeeting (v4l only). Everything is
-> fine in 2.4.x. With 2.6, programs using v4l2 works ok (xawtv, ...); and programs
-> using v4l crash:
+On Mon, Aug 30, 2004 at 09:28:15AM +0200, Peter Holik wrote:
+> static void set_rx_mode(struct net_device *dev)
+> {
+>    spinlock_t *lp = &((struct netdev_private *)dev->priv)->lock;
+>    unsigned long flags;
+>    spin_lock_irqsave(lp, flags);
+>    __set_rx_mode(dev);
+> -  spin_unlock_irqrestore(&lp, flags);
+> +  spin_unlock_irqrestore(lp, flags);
+> }
 
-> Aug 25 19:20:19 zain kernel: kernel BUG at drivers/media/video/bttv-driver.c:1900!
+Peter,
 
-Missing sanity check, overlay is supported for packed pixel formats
-only.  Patch below.  It's not API related btw, the bug can be triggered
-using the v4l2 API as well.
+This has just been merged in v2.4 BK repo. 
 
-  Gerd
 
-diff -u linux-2.6.9-rc1/drivers/media/video/bttv-driver.c linux/drivers/media/video/bttv-driver.c
---- linux-2.6.9-rc1/drivers/media/video/bttv-driver.c	2004-08-25 18:23:10.000000000 +0200
-+++ linux/drivers/media/video/bttv-driver.c	2004-08-30 14:42:43.321218189 +0200
-@@ -1861,6 +1861,8 @@
- 
- 	if (NULL == fh->ovfmt)
- 		return -EINVAL;
-+	if (!(fh->ovfmt->flags & FORMAT_FLAGS_PACKED))
-+		return -EINVAL;
- 	retval = verify_window(&bttv_tvnorms[btv->tvnorm],win,fixup);
- 	if (0 != retval)
- 		return retval;

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316827AbSGHJUg>; Mon, 8 Jul 2002 05:20:36 -0400
+	id <S316833AbSGHKCl>; Mon, 8 Jul 2002 06:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316831AbSGHJUf>; Mon, 8 Jul 2002 05:20:35 -0400
-Received: from 62-190-203-21.pdu.pipex.net ([62.190.203.21]:43781 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S316827AbSGHJUf>; Mon, 8 Jul 2002 05:20:35 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207080927.KAA00734@darkstar.example.net>
-Subject: Re: spurious 8259A interrupt: IRQ7
-To: pat@cs.curtin.edu.au (Patrick Clohessy)
-Date: Mon, 8 Jul 2002 10:27:41 +0100 (BST)
+	id <S316835AbSGHKCk>; Mon, 8 Jul 2002 06:02:40 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:4617 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316833AbSGHKCj>; Mon, 8 Jul 2002 06:02:39 -0400
+Date: Mon, 8 Jul 2002 12:05:04 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Patrick Clohessy <pat@cs.curtin.edu.au>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D2957A9.6D90A916@cs.curtin.edu.au> from "Patrick Clohessy" at Jul 08, 2002 05:13:13 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: spurious 8259A interrupt: IRQ7
+Message-ID: <20020708100504.GM7554@louise.pinerecords.com>
+References: <3D2957A9.6D90A916@cs.curtin.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D2957A9.6D90A916@cs.curtin.edu.au>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 33 days, 9:20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> I was just wondering if anyone could help me solve a problem I'm having.
-> I have installed red hat 7.3 with kernel version 2.4.18 on an AMD Duron
-> 1100 with a ASUS A7V133-C Motherboard, 32MB TNT2 and a 20 GIG Maxtor
-> Viper HD. Whenever the machine boots up, the following error appears :
-> 
-> spurious 8259A interrupt: IRQ7
-> 
 > I have read through quite a few mailing lists and other sources but
 > can't find an adequate solution. One solution I found was to turn off
 > Local APIC support and IO-APIC support in the kernel, which I tried and
 > it worked, but I'd rather not do this. I realise the error isn't of a
 > huge concern but it's still annoying having it appear everytime the
 > machine boots up.
-> 
-> Any help will be greatly appreciated.
 
-Why not just comment out the line in the kernel source that prints the error?  I know it sounds stupid, but it will solve your problem :-).
+Your fix is to just realize that this is a mere warning -- Nothing's
+wrong with your setup.
 
-John.
+If you dig out a thread that came through here abt. two months ago,
+you'll find a comprehensive explanation of what the message means.
+
+T.

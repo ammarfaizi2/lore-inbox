@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270675AbTHAFt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 01:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270673AbTHAFt0
+	id S270669AbTHAFlr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 01:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275037AbTHAFlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 01:49:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52707 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270671AbTHAFtZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 01:49:25 -0400
-Date: Fri, 1 Aug 2003 07:49:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Mukker, Atul" <atulm@lsil.com>
-Cc: "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>
-Subject: Re: [ANNOUNCE] megaraid 2.00.6 patch for kernels without hostlock
-Message-ID: <20030801054923.GM22104@suse.de>
-References: <0E3FA95632D6D047BA649F95DAB60E570185F3CF@EXA-ATLANTA.se.lsil.com>
+	Fri, 1 Aug 2003 01:41:47 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:10484 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S270669AbTHAFlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 01:41:45 -0400
+Subject: Re: Emulating i486 on i386 (was: TSCs are a no-no on i386)
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030731153337.GB1873@lug-owl.de>
+References: <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk>
+	 <20030730203318.GH1873@lug-owl.de> <20030731002230.GE22991@fs.tum.de>
+	 <20030731062252.GM1873@lug-owl.de>
+	 <20030731071719.GA26249@alpha.home.local>
+	 <20030731113838.GU1873@lug-owl.de>
+	 <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>
+	 <20030731121448.GW1873@lug-owl.de> <20030731130130.GY1873@lug-owl.de>
+	 <1059664158.5031.26.camel@workshop.saharacpt.lan>
+	 <20030731153337.GB1873@lug-owl.de>
+Content-Type: text/plain
+Message-Id: <1059716275.5032.31.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570185F3CF@EXA-ATLANTA.se.lsil.com>
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 01 Aug 2003 07:37:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31 2003, Mukker, Atul wrote:
+On Thu, 2003-07-31 at 17:33, Jan-Benedict Glaw wrote:
+> On Thu, 2003-07-31 17:09:19 +0200, Martin Schlemmer <azarah@gentoo.org>
+> wrote in message <1059664158.5031.26.camel@workshop.saharacpt.lan>:
+> > On Thu, 2003-07-31 at 15:01, Jan-Benedict Glaw wrote:
+> > > On Thu, 2003-07-31 14:14:48 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de>
+> > > wrote in message <20030731121448.GW1873@lug-owl.de>:
+> > > > On Thu, 2003-07-31 12:51:09 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk>
+> > > > wrote in message <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>:
+> > > > > On Iau, 2003-07-31 at 12:38, Jan-Benedict Glaw wrote:
+> > > So there we are. Thanks to someone who pointed me to LD_DEBUG et al., I
+> > > see that my _init() is called too late:
+> > > 
+> > > amtus:~/sigill_catcher# LD_DEBUG=all LD_VERBOSE=1
+> > > LD_PRELOAD=./libsigill.so apt-get update 2> ld_infos                                 
+> > > Illegal instruction
+> > > amtus:~/sigill_catcher# grep 'calling init' ld_infos 
+> > > 00691:  calling init: /lib/libc.so.6
+> > > 00691:  calling init: /lib/libdl.so.2
+> > > 00691:  calling init: /lib/libgcc_s.so.1
+> > > 00691:  calling init: /lib/libm.so.6
+> > > 00691:  calling init: /usr/lib/libstdc++.so.5
+> > > 
+> > > As I guessed, libstdc++5's _init() is called before mine (LD_PRELOADed)
+> > > _init() function and thus, I cannot intercept this SIGILL, as it
+> > > seems...
+> > > 
+> > 
+> > You could do what we do with our path sandbox - basically you
+> > use a wrapper that setup the environment (prob not needed in
+> > your case), and then spawn bash with our sandbox lib preloaded,
+> > which then calls whatever should be 'path sandboxed'.
 > 
-> Well, that's definitely a good idea. Expect a new driver with this change.
-> BTW, is there a kernel version beyond which all versions would support per
-> host lock, and I mean a 2.4.x kernel :-)
+> Care to send some URL? I haven't found it ad hoc by Google...
+> 
 
-Unfortunately no, however it is trivial to just add host->lock pointer
-and make it point to io_request_lock. Ditto for q->queue_lock. That wont
-change how the code operates at all. I will probably do that once 2.4.23
-opens, it would make maintaining 2.6/2.4 drivers much easier (and ditto
-for vendor kernels).
+http://www.gentoo.org/cgi-bin/viewcvs.cgi/portage/src/sandbox-1.1/?cvsroot=gentoo-src
+
+
+Cheers,
 
 -- 
-Jens Axboe
+Martin Schlemmer
+Gentoo Linux Developer, Desktop Team
+Cape Town, South Africa
 

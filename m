@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268934AbRHLDK6>; Sat, 11 Aug 2001 23:10:58 -0400
+	id <S268936AbRHLDN2>; Sat, 11 Aug 2001 23:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268936AbRHLDKs>; Sat, 11 Aug 2001 23:10:48 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:50190 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S268934AbRHLDKl>; Sat, 11 Aug 2001 23:10:41 -0400
-Message-ID: <3B75F3A8.24C56BDA@zip.com.au>
-Date: Sat, 11 Aug 2001 20:10:32 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac1 i686)
-X-Accept-Language: en
+	id <S268940AbRHLDNS>; Sat, 11 Aug 2001 23:13:18 -0400
+Received: from zurich.ai.mit.edu ([18.43.0.244]:11786 "EHLO zurich.ai.mit.edu")
+	by vger.kernel.org with ESMTP id <S268936AbRHLDNL>;
+	Sat, 11 Aug 2001 23:13:11 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Booting from USB floppy?
+User-Agent: IMAIL/1.11; Edwin/3.110; MIT-Scheme/7.5.18.pre
 MIME-Version: 1.0
-To: Ralf Baechle <ralf@uni-koblenz.de>
-CC: "ext3-users@redhat.com" <ext3-users@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.6
-In-Reply-To: <3B75DE86.EEDFAFFB@zip.com.au>,
-		<3B75DE86.EEDFAFFB@zip.com.au>; from akpm@zip.com.au on Sat, Aug 11, 2001 at 06:40:22PM -0700 <20010812043841.B8413@bacchus.dhis.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15VlgK-0005GO-00@trixia.ai.mit.edu>
+From: Chris Hanson <cph@zurich.ai.mit.edu>
+Date: Sat, 11 Aug 2001 23:12:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle wrote:
-> 
-> On Sat, Aug 11, 2001 at 06:40:22PM -0700, Andrew Morton wrote:
-> 
-> > - ext3 has for a long time had developer code which allows the target device
-> >   to be turned read-only at the disk device driver level a certain number
-> >   of jiffies after the fs was mounted.  This is to allow scripted testing
-> >   of crash recovery.  This facility has been extended to support two devices;
-> >   one for the filesystem and one for the external journal device.
-> 
-> Would this facility also be able to deal with parts of a device becoming
-> read-only unexpectedly?  Some of the disks I have in RAIDs have the
-> nice habit of disabling write access when overheating.  That's an
-> interesting failure scenario in a RAID system.
+I have been trying to build Debian 2.2 boot/root floppies for the HP
+OmniBook 500 laptop, which (in some configurations) has only a USB
+floppy drive.  I've been unable to get the kernel to load the root
+floppy.  These tests were done using Linux 2.4.6.
 
-Well, that facility is purely for development purposes.  The obvious
-way of testing recovery is to hit the reset button at strategic
-times, which rather sucks.  So what the above IDE driver trick does
-is adds a new mount option `ro-after=3000'.  When this is provided,
-a kernel timer fires 30 seconds after mount and the IDE driver starts
-silently ignoring writes to the underlying device.  It also provides
-a special ioctl() which blocks the caller until the timer has fired.
+At this point, I think this isn't possible without some real work in
+the kernel.  I'd like to get some feedback about whether this is a
+correct deduction.  To that end, here is my analysis.
 
-So we have scripts which do:
+1. The function mount_root() in "fs/super.c" specially detects floppy
+   devices and handles them differently than other devices that might
+   be specified by the "root=" parameter, such as "root=/dev/sda" in
+   this case.  So handling a floppy drive that appears to be a SCSI
+   floppy looks like it can't be done without patching that code.
 
-1: mount fs, set to go read-only in 30 seconds
-2: start some filesystem activity
-3: Block on the timer
-4: wake up, kill off the filesystem activity
-5: unmount the fs
-6: mount the fs (this will run recovery)
-7: unmount the fs
-8: fsck it
-9: repeat with a different read-only interval.
+2. If that is worked around, there is a further problem: the USB
+   storage driver sets up the SCSI translator asynchronously.  Prior
+   to this, the device "/dev/sda" doesn't exist, which means there's a
+   race condition between the USB-SCSI initialization and the boot
+   process accessing the root device.  I discovered this by specifying
+   "root=/dev/sda", and seeing that the kernel didn't initialize the
+   USB floppy device before it tried to open "/dev/sda", and failed
+   with a "no such device" error.  So fixing this would also requiring
+   synchronizing the race -- but it's not clear how you'd figure out
+   that synchronization would even be needed here.
 
-I also have a hacked-on version of dbench which writes
-known-but-variable info into the files, so we can check that
-the contents of whatever files survived the "crash" are correct.
+Does this seem like a reasonably correct analysis of the situation?
+Is it easier than I think?  Is anyone else working on booting from USB
+floppies?
 
-This setup has allowed me to run crash+recovery many thousands
-of times with varying workloads - I'm pretty confident about recovery
-because of this.  The one thing it doesn't cover is the effects
-of disk write caching.
+Please CC me to any replies, since I don't read this list.
 
-As for the RAID problem: if the filesystem has magically turned
-read-only then all you need to do is to unmount it (often hard
-to do, if it's in use), then make it writable and then mount it or
-run fsck against it.  ext3 will perform recovery and all should
-be peachy, until next time...
-
--
+TIA,
+Chris

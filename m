@@ -1,51 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261538AbTCTPMC>; Thu, 20 Mar 2003 10:12:02 -0500
+	id <S261517AbTCTPGP>; Thu, 20 Mar 2003 10:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbTCTPLv>; Thu, 20 Mar 2003 10:11:51 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:38588 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S261538AbTCTPLo>; Thu, 20 Mar 2003 10:11:44 -0500
-Message-ID: <3E79DE70.4050303@pacbell.net>
-Date: Thu, 20 Mar 2003 07:29:52 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
+	id <S261515AbTCTPF1>; Thu, 20 Mar 2003 10:05:27 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:63721 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261513AbTCTPFI>; Thu, 20 Mar 2003 10:05:08 -0500
+Date: Thu, 20 Mar 2003 17:16:01 +0200 (IST)
+From: Shmulik Hen <hshmulik@intel.com>
+X-X-Sender: hshmulik@jrslxjul4.npdj.intel.com
+To: Bonding Developement list <bonding-devel@lists.sourceforge.net>,
+       Bonding Announce list <bonding-announce@lists.sourceforge.net>,
+       Linux Net Mailing list <linux-net@vger.kernel.org>,
+       Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
+       Oss SGI Netdev list <netdev@oss.sgi.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: [patch] (3/8) Add 802.3ad support to bonding
+Message-ID: <Pine.LNX.4.44.0303201627280.10351-100000@jrslxjul4.npdj.intel.com>
 MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-CC: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] PCI MWI cacheline size fix
-References: <20030320135950.A2333@jurassic.park.msu.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
-> This is rather conservative variant of previous patch:
+This patch fixes a hang when enslaving a new slave while incoming traffic 
+is running, that looks like a deadlock between the BR_NETPROTO_LOCK,
+dev->xmit_lock and the bond lock (happens on quad processor machines,
+but KDB back trace wasn't clear enough).
 
-Looks ok, and the previous patch behaved fine on the hardware
-I could test it with.  The changes being: to set the cacheline
-size only on the "prep_mwi" path (vs much earlier), and allow
-cacheline size to be a multiple of the "real" one.
+This patch is against bonding 2.4.20-20030317.
+
+diff -Nuarp linux-2.4.20-bonding-20030317/drivers/net/bonding.c linux-2.4.20-bonding-20030317-devel/drivers/net/bonding.c
+--- linux-2.4.20-bonding-20030317/drivers/net/bonding.c	2003-03-18 17:03:25.000000000 +0200
++++ linux-2.4.20-bonding-20030317-devel/drivers/net/bonding.c	2003-03-18 17:03:26.000000000 +0200
+@@ -295,6 +295,10 @@
+  *	- Fixed hang in bond_release() while traffic is running.		
+  *	  netdev_set_master() must not be called from within the bond lock.
+  *
++ * 2003/03/18 - Tsippy Mendelson <tsippy.mendelson at intel dot com> and
++ *		Shmulik Hen <shmulik.hen at intel dot com>
++ *	- Fixed hang in bond_enslave(): netdev_set_master() must not be
++ *	  called from within the bond lock while traffic is running.
+  */
+ 
+ #include <linux/config.h>
+@@ -1066,14 +1070,12 @@ static int bond_enslave(struct net_devic
+ 			"Warning : no link monitoring support for %s\n",
+ 			slave_dev->name);
+ 	}
+-	write_lock_irqsave(&bond->lock, flags);
+ 
+ 	/* not running. */
+ 	if ((slave_dev->flags & IFF_UP) != IFF_UP) {
+ #ifdef BONDING_DEBUG
+ 		printk(KERN_CRIT "Error, slave_dev is not running\n");
+ #endif
+-		write_unlock_irqrestore(&bond->lock, flags);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1082,12 +1084,10 @@ static int bond_enslave(struct net_devic
+ #ifdef BONDING_DEBUG
+ 		printk(KERN_CRIT "Error, Device was already enslaved\n");
+ #endif
+-		write_unlock_irqrestore(&bond->lock, flags);
+ 		return -EBUSY;
+ 	}
+ 		   
+ 	if ((new_slave = kmalloc(sizeof(slave_t), GFP_ATOMIC)) == NULL) {
+-		write_unlock_irqrestore(&bond->lock, flags);
+ 		return -ENOMEM;
+ 	}
+ 	memset(new_slave, 0, sizeof(slave_t));
+@@ -1100,9 +1100,7 @@ static int bond_enslave(struct net_devic
+ #ifdef BONDING_DEBUG
+ 		printk(KERN_CRIT "Error %d calling netdev_set_master\n", err);
+ #endif
+-		kfree(new_slave);
+-		write_unlock_irqrestore(&bond->lock, flags);
+-		return err;      
++		goto err_free;
+ 	}
+ 
+ 	new_slave->dev = slave_dev;
+@@ -1121,6 +1119,8 @@ static int bond_enslave(struct net_devic
+ 			dev_mc_add (slave_dev, dmi->dmi_addr, dmi->dmi_addrlen, 0);
+ 	}
+ 
++	write_lock_irqsave(&bond->lock, flags);
++	
+ 	bond_attach_slave(bond, new_slave);
+ 	new_slave->delay = 0;
+ 	new_slave->link_failure_count = 0;
+@@ -1259,7 +1259,11 @@ static int bond_enslave(struct net_devic
+ 		new_slave->state == BOND_STATE_ACTIVE ? "n active" : " backup",
+ 		new_slave->link == BOND_LINK_UP ? "n up" : " down");
+ 
++	//enslave is successfull
+ 	return 0;
++err_free:
++	kfree(new_slave);
++	return err;
+ }
+ 
+ /* 
+@@ -1607,6 +1611,9 @@ static int bond_release_all(struct net_d
+ 
+ 		kfree(our_slave);
+ 
++		/* Can be safely called from inside the bond lock
++		   since traffic and timers have already stopped
++		*/
+ 		netdev_set_master(slave_dev, NULL);
+ 
+ 		/* only restore its RUNNING flag if monitoring set it down */
+
+-- 
+| Shmulik Hen                                    |
+| Israel Design Center (Jerusalem)               |
+| LAN Access Division                            |
+| Intel Communications Group, Intel corp.        |
+|                                                |
+| Anti-Spam: shmulik dot hen at intel dot com    |
 
 
-> - assume cacheline size of 32 bytes for all x86s except K7/K8 and P4.
->   Actually it's good for 386/486s as quite a few PCI devices do not support
->   smaller values.
 
-Given the number of people that questioned that K7/K8/P4 logic,
-I'd suggest putting that comment into the pcibios_init() code.
-
-
-> If you all are fine with it, I can make a 2.4 counterpart.
-
-Yes, having that avoid compile-time config is also important.
-
-Thanks for updating this stuff -- it'll be good to know more
-drivers can reduce their PCI/cache overheads.
-
-- Dave
 

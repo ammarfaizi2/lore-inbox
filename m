@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262956AbTCWIFU>; Sun, 23 Mar 2003 03:05:20 -0500
+	id <S262958AbTCWILj>; Sun, 23 Mar 2003 03:11:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262963AbTCWIEM>; Sun, 23 Mar 2003 03:04:12 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:61707 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262962AbTCWIED>;
-	Sun, 23 Mar 2003 03:04:03 -0500
-Date: Sun, 23 Mar 2003 00:14:57 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [PATCH] Yet more i2c driver changes for 2.5.65
-Message-ID: <20030323081456.GH26145@kroah.com>
-References: <20030323080719.GD26145@kroah.com> <20030323081431.GF26145@kroah.com> <20030323081445.GG26145@kroah.com>
+	id <S262964AbTCWILj>; Sun, 23 Mar 2003 03:11:39 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3268 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262958AbTCWILi>; Sun, 23 Mar 2003 03:11:38 -0500
+Date: Sun, 23 Mar 2003 09:22:40 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] parallel port
+Message-ID: <20030323082239.GE6940@fs.tum.de>
+References: <200303230000.h2N00nZX020752@hraefn.swansea.linux.org.uk> <Pine.LNX.4.44.0303221919160.2959-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030323081445.GG26145@kroah.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0303221919160.2959-100000@home.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.889.354.16, 2003/03/22 23:29:40-08:00, greg@kroah.com
+On Sat, Mar 22, 2003 at 07:21:11PM -0800, Linus Torvalds wrote:
 
-i2c: fix up drivers/ieee1394/pcilynx.c due to previous i2c changes.
+> This one causes 
+> 
+> 	drivers/parport/parport_pc.c:2273: warning: implicit declaration of function `rename_region'
+> 	drivers/built-in.o(.text+0x77a8c): In function `parport_pc_probe_port':
+> 	: undefined reference to `rename_region'
+> 
+> for me. I think I complained about that once before already. Tssk, tssk.
 
+It's perhaps a silly question:
+Why did you use a "do ... while  (0)" in your fix?
 
-diff -Nru a/drivers/ieee1394/pcilynx.c b/drivers/ieee1394/pcilynx.c
---- a/drivers/ieee1394/pcilynx.c	Sun Mar 23 00:10:49 2003
-+++ b/drivers/ieee1394/pcilynx.c	Sun Mar 23 00:10:49 2003
-@@ -138,10 +138,12 @@
- }; 
- 
- static struct i2c_adapter bit_ops = {
--	.name			= "PCILynx I2C adapter",
- 	.id 			= 0xAA, //FIXME: probably we should get an id in i2c-id.h
- 	.client_register	= bit_reg,
- 	.client_unregister	= bit_unreg,
-+	.dev			= {
-+		.name		= "PCILynx I2C",
-+	},
- };
- 
- 
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

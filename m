@@ -1,127 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbUDJTqL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 15:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUDJTqL
+	id S261725AbUDJTxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 15:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUDJTxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 15:46:11 -0400
-Received: from pra68-d198.gd.dial-up.cz ([193.85.68.198]:52866 "EHLO
-	penguin.localdomain") by vger.kernel.org with ESMTP id S261717AbUDJTqE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 15:46:04 -0400
-Date: Sat, 10 Apr 2004 21:46:01 +0200
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, tim@cyberelk.net
-Subject: Re: [PATCH 2.6] Class support for ppdev.c
-Message-ID: <20040410194601.GC3612@penguin.localdomain>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, tim@cyberelk.net
-References: <20040410135115.GA3612@penguin.localdomain> <20040410170148.GI1317@kroah.com> <20040410180636.GB3612@penguin.localdomain>
+	Sat, 10 Apr 2004 15:53:08 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:12548 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261725AbUDJTxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 15:53:03 -0400
+Date: Sat, 10 Apr 2004 21:52:56 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Martin Rode <martin.rode@zeroscale.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cp fails in this symlink case, kernel 2.4.25, reiserfs + ext2
+Message-ID: <20040410195256.GA1909@wsdw14.win.tue.nl>
+References: <1081359310.1212.537.camel@marge.pf-berlin.de> <1081365374.11164.24.camel@shaggy.austin.ibm.com> <1081410996.3770.1405.camel@marge.pf-berlin.de> <je1xmy3jr5.fsf@sykes.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040410180636.GB3612@penguin.localdomain>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: sebek64@post.cz (Marcel Sebek)
+In-Reply-To: <je1xmy3jr5.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : mailhost.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 10, 2004 at 08:06:36PM +0200, Marcel Sebek wrote:
-> On Sat, Apr 10, 2004 at 10:01:48AM -0700, Greg KH wrote:
-> > On Sat, Apr 10, 2004 at 03:51:15PM +0200, Marcel Sebek wrote:
-> > > This patch adds class support to ppdev.c.
-> > > 
-> > > The module compiles and loads ok.
-> > 
-> > Looks good, but we really shoulnd't be duplicating the devfs
-> > functionality here.  We should only show the devices that the system
-> > really has present, instead of always showing all of the devices.  Care
-> > to fix your patch up to implement this instead?
-> > 
+On Thu, Apr 08, 2004 at 11:24:14AM +0200, Andreas Schwab wrote:
+
+> >> > 5) cp fails
+> >> > apu:/home/martin/tmp/bug# (cd alpha/beta; cp ../latest/myfile .)
+> >> > cp: cannot stat `../latest/myfile': No such file or directory
+> >> 
+> >> When you cd to alpha/beta, your current directory is really
+> >> .../tmp/bug/beta.  Your shell may remember that you got there through
+> >> the symlink in alpha, but cp will follow .., which is really bug.
+> >
+> > Bug in "cp", "bash" or in the kernel fs-layer? 
 > 
-> Ok. Here is an updated patch.
+> Neither.
 
-And new updated patch. partport_find_number() needs to decrement refcount
-by parport_put_port().
+POSIX is seriously broken here. It is terrible to have a system
+where "cd .." does not go to the directory that is listed by "ls ..".
 
+Thus, one should always set -o physical.
 
-diff -urN linux-2.6/drivers/char/ppdev.c linux-2.6-new/drivers/char/ppdev.c
---- linux-2.6/drivers/char/ppdev.c	2004-04-10 21:38:17.000000000 +0200
-+++ linux-2.6-new/drivers/char/ppdev.c	2004-04-10 21:40:31.000000000 +0200
-@@ -59,6 +59,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/sched.h>
-+#include <linux/device.h>
- #include <linux/devfs_fs_kernel.h>
- #include <linux/ioctl.h>
- #include <linux/parport.h>
-@@ -750,31 +751,58 @@
- 	.release	= pp_release,
- };
- 
-+static struct class_simple *ppdev_class;
-+
- static int __init ppdev_init (void)
- {
--	int i;
-+	int i, err = 0;
-+	struct parport *port;
- 
- 	if (register_chrdev (PP_MAJOR, CHRDEV, &pp_fops)) {
- 		printk (KERN_WARNING CHRDEV ": unable to get major %d\n",
- 			PP_MAJOR);
- 		return -EIO;
- 	}
-+	ppdev_class = class_simple_create(THIS_MODULE, CHRDEV);
-+	if (IS_ERR(ppdev_class)) {
-+		err = PTR_ERR(ppdev_class);
-+		goto out_chrdev;
-+	}
- 	devfs_mk_dir("parports");
- 	for (i = 0; i < PARPORT_MAX; i++) {
--		devfs_mk_cdev(MKDEV(PP_MAJOR, i),
-+		if ((port = parport_find_number(i))) {
-+			class_simple_device_add(ppdev_class, MKDEV(PP_MAJOR, i),
-+				NULL, "parport%d", i);
-+			parport_put_port(port);
-+		}
-+		err = devfs_mk_cdev(MKDEV(PP_MAJOR, i),
- 				S_IFCHR | S_IRUGO | S_IWUGO, "parports/%d", i);
-+		if (err)
-+			goto out_class;
- 	}
- 
- 	printk (KERN_INFO PP_VERSION "\n");
--	return 0;
-+	goto out;
-+
-+out_class:
-+	for (i = 0; i < PARPORT_MAX; i++)
-+		class_simple_device_remove(MKDEV(PP_MAJOR, i));
-+	class_simple_destroy(ppdev_class);
-+out_chrdev:
-+	unregister_chrdev(PP_MAJOR, CHRDEV);
-+out:
-+	return err;
- }
- 
- static void __exit ppdev_cleanup (void)
- {
- 	int i;
- 	/* Clean up all parport stuff */
--	for (i = 0; i < PARPORT_MAX; i++)
-+	for (i = 0; i < PARPORT_MAX; i++) {
-+		class_simple_device_remove(MKDEV(PP_MAJOR, i));
- 		devfs_remove("parports/%d", i);
-+	}
-+	class_simple_destroy(ppdev_class);
- 	devfs_remove("parports");
- 	unregister_chrdev (PP_MAJOR, CHRDEV);
- }
+(We should have had a command "cd.." to go back to where we came from,
+distinct from "cd ..".)
 
--- 
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+But also bash is broken and violates POSIX:
+% pwd
+/foo
+% mkdir abc
+% cd abc
+% pwd
+/foo/abc
+% mv ../abc ../qqq
+% /bin/pwd
+/foo/qqq
+% pwd
+/foo/abc
+% pwd -L
+/foo/abc
+% pwd -P
+%
 
+We see two bugs: "pwd -P" gives no output at all, and "pwd"
+gives the wrong output.
+
+POSIX says:
+       -L     If the PWD environment variable contains  an  abso-
+              lute  pathname  of  the current directory that does
+              not contain the filenames dot or dot-dot, pwd shall
+              write  this pathname to standard output. Otherwise,
+              the -L option shall behave as the -P option.
+
+So, in the situation where PWD contains /foo/abc but that is
+not an absolute pathname of the current directory, the output
+must be /foo/qqq and not $PWD.
+
+Andries

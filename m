@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132643AbRDXBGg>; Mon, 23 Apr 2001 21:06:36 -0400
+	id <S132680AbRDXBJR>; Mon, 23 Apr 2001 21:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132655AbRDXBG0>; Mon, 23 Apr 2001 21:06:26 -0400
-Received: from adsl-64-123-58-70.dsl.stlsmo.swbell.net ([64.123.58.70]:58621
-	"EHLO bigandy.swbell.net") by vger.kernel.org with ESMTP
-	id <S132643AbRDXBGR>; Mon, 23 Apr 2001 21:06:17 -0400
-Date: Mon, 23 Apr 2001 20:06:11 -0500 (CDT)
-From: Andy Carlson <naclos@swbell.net>
-To: linux-kernel@vger.kernel.org
-Subject: Matrox FB console driver
-Message-ID: <Pine.LNX.4.20.0104232001580.188-100000@bigandy>
+	id <S132674AbRDXBJG>; Mon, 23 Apr 2001 21:09:06 -0400
+Received: from m28-mp1-cvx1b.col.ntl.com ([213.104.72.28]:15233 "EHLO
+	[213.104.72.28]") by vger.kernel.org with ESMTP id <S132658AbRDXBIt>;
+	Mon, 23 Apr 2001 21:08:49 -0400
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu>
+	<m2k84jkm1j.fsf@boreas.yi.org.> <20010420190128.A905@bug.ucw.cz>
+	<m2snj3xhod.fsf@bandits.org> <20010424021756.A931@pcep-jamie.cern.ch>
+From: John Fremlin <chief@bandits.org>
+Date: 24 Apr 2001 02:08:40 +0100
+In-Reply-To: <20010424021756.A931@pcep-jamie.cern.ch>
+Message-ID: <m2n197nlyf.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was playing around with a program that I was using to time differences
-between kernels (a silly prime program that puts out 1000000 primes).  I
-noticed a very strange behaviour.  On a fresh boot, with the Penguin
-pictures that the Matrox FB driver puts up, the prime program runs
-1 minute, 30 seconds.  If I reset, it still runs 1M30S.  If I start X,
-and exit, it runs 48 seconds.  Is this a known behaviour?  Thanks.
+Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
 
-Andy Carlson                           |\      _,,,---,,_
-naclos@swbell.net                ZZZzz /,`.-'`'    -.  ;-;;,_
-BJC Health System                     |,4-  ) )-,_. ,\ (  `'-'
-St. Louis, Missouri                  '---''(_/--'  `-'\_)
-Cat Pics: http://andyc.dyndns.org
+[...]
 
+> Are you sure?  A suspend takes about 5-10 seconds on my laptop.
+
+You mean when you tell the apm driver from userspace to suspend?
+
+> (It was noticably faster with 2.3 kernels, btw.  Now it spends a second
+> or two apparently not noticing the APM event (though the BIOS is making
+> the speaker beep), then syncing the disk, 
+
+The BIOS got the event, problem is in BIOS surely?
+
+[...]
+
+-- 
+
+	http://www.penguinpowered.com/~vii

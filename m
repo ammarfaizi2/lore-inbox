@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132520AbRDNSw3>; Sat, 14 Apr 2001 14:52:29 -0400
+	id <S132529AbRDNTZs>; Sat, 14 Apr 2001 15:25:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132521AbRDNSwU>; Sat, 14 Apr 2001 14:52:20 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32274 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132520AbRDNSwN>; Sat, 14 Apr 2001 14:52:13 -0400
-Subject: Re: [PATCH] Re: 8139too: defunct threads
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Sat, 14 Apr 2001 19:53:28 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, stewart@dystopia.lab43.org (Rod Stewart),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3AD88A00.DF54EC12@colorfullife.com> from "Manfred Spraul" at Apr 14, 2001 07:33:52 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132533AbRDNTZi>; Sat, 14 Apr 2001 15:25:38 -0400
+Received: from a-pr9-44.tin.it ([212.216.147.171]:15490 "EHLO
+	eris.discordia.loc") by vger.kernel.org with ESMTP
+	id <S132529AbRDNTZ3>; Sat, 14 Apr 2001 15:25:29 -0400
+Date: Sat, 14 Apr 2001 21:25:25 +0200 (CEST)
+From: Lorenzo Marcantonio <lomarcan@tin.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: SCSI tape corruption problem
+In-Reply-To: <200104140822.KAA30156@vulcan.alphanet.ch>
+Message-ID: <Pine.LNX.4.31.0104142124390.1307-100000@eris.discordia.loc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14oVAp-0005Nj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Rod's init version (from RH 7.0) doesn't reap children that died before
-> it was started. Is that an init bug or should the kernel reap them
-> before the execve?
+On Sat, 14 Apr 2001, Marc SCHAEFER wrote:
 
-I would say thats an init bug
+> Now try this:
+>
+>    cd ~archive
+>    mt -f /dev/tapes/tape0 rewind
+>    tar cvf - . | gzip -9 | dd of=/dev/tapes/tape0 bs=32k
+>
+> and then:
+>
+>    mt -f /dev/tapes/tape0 rewind
+>    dd if=/dev/tapes/tape0 bs=32k | gzip -d | tar --compare -v -f -
+>
+> The above is the proper way to talk to a tape drive through gzip.
 
-> The attached patch reaps all zombies before the execve("/sbin/init").
+I see the blocking part... but in my second experiment I've used ONLY
+dd to put a large file on tape...
 
-That has an implicit race, a zombie can always appear as we are execing init.
-I think init wants fixing
+... still, I've investigated on this because amverify gave me a ton of
+crc errors... (I REALLY hope that amanda uses proper blocking :)
+
+				-- Lorenzo Marcantonio
+
 

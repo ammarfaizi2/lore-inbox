@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTLBQIz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 11:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTLBQIz
+	id S262319AbTLBQLc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 11:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTLBQLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 11:08:55 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:36752 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262251AbTLBQIy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 11:08:54 -0500
-Date: Tue, 2 Dec 2003 11:08:53 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031202160853.GB22608@gtf.org>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <20031202131311.GA10915@physik.tu-cottbus.de> <3FCC95BB.60205@wmich.edu> <20031202160136.GB10915@physik.tu-cottbus.de>
+	Tue, 2 Dec 2003 11:11:32 -0500
+Received: from wsi-204-189.wsi.com ([4.36.204.189]:41344 "EHLO
+	nuttfield.wsicorp.com") by vger.kernel.org with ESMTP
+	id S262319AbTLBQLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 11:11:16 -0500
+Subject: Re: XFS for 2.4
+From: Darrell Michaud <dmichaud@wsi.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0312021346530.13692-100000@logos.cnet>
+References: <Pine.LNX.4.44.0312021346530.13692-100000@logos.cnet>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1070381443.5316.260.camel@atherne>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031202160136.GB10915@physik.tu-cottbus.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 02 Dec 2003 11:10:43 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 05:01:36PM +0100, Ionut Georgescu wrote:
-> I can understand that, but I don't take 2.6 for an answer.  2.4 is not
-> yet dead and it won't be for a long time, just as 2.2 has gotten to
-> 2.2.25, although 2.4.0 was out when, 3 years ago ?
+As a user it would be very beneficial for me to have XFS support in the
+official 2.4 kernel tree. XFS been stable and "2.4 integration-ready"
+for a long time, and 2.4 is going to be used in certain environments for
+a long time, if only because it's easier to upgrade a 2.4 kernel to a
+newer 2.4 kernel than to upgrade to a 2.6 kernel. It seems like an easy
+case to make.
 
-2.4 has continued life, yes.
-
-But the real question is, should 2.4 continue to be developed?
-
-I agree with Marcelo, increasingly the answer should be "No".  New
-features and core changes should be intended for 2.6.  Bug fixes,
-security errata, and the like will always be OK for 2.4.  Just like Alan
-continues to release new 2.2.x releases, when major bugs are found.
-
-There needs to be a progressive tightening of patch acceptance standards
-in 2.4, IMO...  and Marcelo announced he will be doing just that.
-
-	Jeff
+I use other filesystems and some funky drivers as well.. and I'm always
+very happy to see useful backports show up in the 2.4 tree. Thank you!
 
 
+
+On Tue, 2003-12-02 at 10:50, Marcelo Tosatti wrote:
+> On Tue, 2 Dec 2003, Russell Cattelan wrote:
+> 
+> > On Tue, 2003-12-02 at 05:18, Marcelo Tosatti wrote:
+> > [snip] 
+> > > Also I'm not completly sure if the generic changes are fine and I dont
+> > > like the XFS code in general.
+> > Ahh so the real truth comes out.
+> > 
+> > 
+> > Is there a reason for your sudden dislike of the XFS code?
+> 
+> I always disliked the XFS code. 
+> 
+> > or is this just an arbitrary general dislike for unknown or unstated
+> > reasons?
+> 
+> I dont like the style of the code. Thats a personal issue, though, and 
+> shouldnt matter.
+> 
+> The bigger point is that XFS touches generic code and I'm not sure if that 
+> can break something.
+> 
+> Why it matters so much for you to have XFS in 2.4 ? 
+> 
+-- 
+Darrell Michaud <dmichaud@wsi.com>
 

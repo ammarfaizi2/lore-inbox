@@ -1,126 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbUCRJw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 04:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUCRJw1
+	id S262485AbUCRJ5P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 04:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCRJ5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 04:52:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43435 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262497AbUCRJvs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 04:51:48 -0500
-Message-ID: <40597123.8020903@pobox.com>
-Date: Thu, 18 Mar 2004 04:51:31 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tulip (pnic) errors in 2.6.5-rc1
-References: <16473.28514.341276.209224@alkaid.it.uu.se>
-In-Reply-To: <16473.28514.341276.209224@alkaid.it.uu.se>
-Content-Type: multipart/mixed;
- boundary="------------000604010002020205090204"
+	Thu, 18 Mar 2004 04:57:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41895 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262485AbUCRJws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 04:52:48 -0500
+Date: Thu, 18 Mar 2004 01:52:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: macro@ds2.pg.gda.pl, thomas.schlichter@web.de, phil.el@wanadoo.fr,
+       schwab@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+Message-Id: <20040318015236.51c3f31f.akpm@osdl.org>
+In-Reply-To: <16473.28647.29098.129203@alkaid.it.uu.se>
+References: <200403090014.03282.thomas.schlichter@web.de>
+	<20040308162947.4d0b831a.akpm@osdl.org>
+	<20040309070127.GA2958@zaniah>
+	<200403091208.20556.thomas.schlichter@web.de>
+	<Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
+	<20040317102550.2ca7737c.akpm@osdl.org>
+	<Pine.LNX.4.55.0403171946550.14525@jurand.ds.pg.gda.pl>
+	<16473.28647.29098.129203@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000604010002020205090204
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> Maciej W. Rozycki writes:
+>  > On Wed, 17 Mar 2004, Andrew Morton wrote:
+>  > 
+>  > > I still have a couple of NMI patches in -mm:
+>  > > 
+>  > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi_watchdog-local-apic-fix.patch
+>  > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi-1-hz.patch
+>  > > 
+>  > > What should we do with these?
+>  > 
+>  >  I think we should ask Mikael Pettersson as he is the local APIC watchdog 
+>  > expert.  Mikael?
+> 
+> Will do. Is there a problem with them, or do you just want them
+> reviewed for merging into 2.6.5-rc?
+> 
 
-Mikael Pettersson wrote:
-> 2.6.5-rc1 causes my Netgear FA310TX to
-> fill the kernel log with messages like:
+They seem to work OK - I did a batch of testing with various setups.  But a
+retest wouldn't hurt.
 
-There doesn't seem to be anything interesting in the tulip driver 
-changes, but who knows.  Does reverting the attached patch help?
-
-Note the pci_dma_sync_xxx changes in the patch may be required to build, 
-I'm not sure.
-
-	Jeff
-
-
-
---------------000604010002020205090204
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-===== drivers/scsi/libata-core.c 1.26 vs edited =====
---- 1.26/drivers/scsi/libata-core.c	Mon Mar 15 11:43:58 2004
-+++ edited/drivers/scsi/libata-core.c	Thu Mar 18 03:36:13 2004
-@@ -2263,9 +2263,12 @@
- 	mb();	/* make sure PRD table writes are visible to controller */
- 	writel(ap->prd_dma, mmio + ATA_DMA_TABLE_OFS);
- 
--	/* specify data direction */
--	/* FIXME: redundant to later start-dma command? */
--	writeb(rw ? 0 : ATA_DMA_WR, mmio + ATA_DMA_CMD);
-+	/* specify data direction, triple-check start bit is clear */
-+	dmactl = readb(mmio + ATA_DMA_CMD);
-+	dmactl &= ~(ATA_DMA_WR | ATA_DMA_START);
-+	if (!rw)
-+		dmactl |= ATA_DMA_WR;
-+	writeb(dmactl, mmio + ATA_DMA_CMD);
- 
- 	/* clear interrupt, error bits */
- 	host_stat = readb(mmio + ATA_DMA_STATUS);
-@@ -2275,7 +2278,6 @@
- 	ap->ops->exec_command(ap, &qc->tf);
- 
- 	/* start host DMA transaction */
--	dmactl = readb(mmio + ATA_DMA_CMD);
- 	writeb(dmactl | ATA_DMA_START, mmio + ATA_DMA_CMD);
- 
- 	/* Strictly, one may wish to issue a readb() here, to
-@@ -2308,9 +2310,12 @@
- 	/* load PRD table addr. */
- 	outl(ap->prd_dma, ap->ioaddr.bmdma_addr + ATA_DMA_TABLE_OFS);
- 
--	/* specify data direction */
--	/* FIXME: redundant to later start-dma command? */
--	outb(rw ? 0 : ATA_DMA_WR, ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
-+	/* specify data direction, triple-check start bit is clear */
-+	dmactl = inb(ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
-+	dmactl &= ~(ATA_DMA_WR | ATA_DMA_START);
-+	if (!rw)
-+		dmactl |= ATA_DMA_WR;
-+	outb(dmactl, ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
- 
- 	/* clear interrupt, error bits */
- 	host_stat = inb(ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
-@@ -2321,7 +2326,6 @@
- 	ap->ops->exec_command(ap, &qc->tf);
- 
- 	/* start host DMA transaction */
--	dmactl = inb(ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
- 	outb(dmactl | ATA_DMA_START,
- 	     ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
- }
-@@ -2344,14 +2348,16 @@
- 		void *mmio = (void *) ap->ioaddr.bmdma_addr;
- 
- 		/* clear start/stop bit */
--		writeb(0, mmio + ATA_DMA_CMD);
-+		writeb(readb(mmio + ATA_DMA_CMD) & ~ATA_DMA_START,
-+		       mmio + ATA_DMA_CMD);
- 
- 		/* ack intr, err bits */
- 		writeb(host_stat | ATA_DMA_INTR | ATA_DMA_ERR,
- 		       mmio + ATA_DMA_STATUS);
- 	} else {
- 		/* clear start/stop bit */
--		outb(0, ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
-+		outb(inb(ap->ioaddr.bmdma_addr + ATA_DMA_CMD) & ~ATA_DMA_START,
-+		     ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
- 
- 		/* ack intr, err bits */
- 		outb(host_stat | ATA_DMA_INTR | ATA_DMA_ERR,
-
---------------000604010002020205090204--
-
+We mainly need a review and general finish-it-off-and-bless-it please.

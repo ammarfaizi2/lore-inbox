@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269143AbTB0AtO>; Wed, 26 Feb 2003 19:49:14 -0500
+	id <S269146AbTB0BH6>; Wed, 26 Feb 2003 20:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269144AbTB0AtO>; Wed, 26 Feb 2003 19:49:14 -0500
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:34945 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S269143AbTB0AtO>; Wed, 26 Feb 2003 19:49:14 -0500
-Date: Wed, 26 Feb 2003 16:56:19 -0800
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030227005619.GA2756@gnuppy.monkey.org>
-References: <20030225021736.GB4507@gnuppy.monkey.org> <Pine.LNX.3.96.1030226135817.16536A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S269147AbTB0BH6>; Wed, 26 Feb 2003 20:07:58 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:10146 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S269146AbTB0BH5>; Wed, 26 Feb 2003 20:07:57 -0500
+Date: Wed, 26 Feb 2003 17:18:13 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 414] New: pnp patches broke drivers/pcmcia/i82365.c
+Message-ID: <12330000.1046308693@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030226135817.16536A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.3i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 02:31:33PM -0500, Bill Davidsen wrote:
-> On Mon, 24 Feb 2003, Bill Huey wrote:
-> > You don't need data. It's conceptually obvious. 
-> 
->   The mantra of doomed IPOs ill-fated software projects, and the guy down
-> the street who has never invested in a company which was still in business
-> 24 months later. No matter how great the concept it still has to work. 
+http://bugme.osdl.org/show_bug.cgi?id=414
 
-I'm not disagreeing with that, but if you read the previous exchange you'd see
-that I was reacting to what seemed to be an obviously rude dismissal of how
-latency effects both IO performance of a system and trashes the usability of
-the a priority driven scheduler. It's basic computer science.
+           Summary: pnp patches broke drivers/pcmcia/i82365.c
+    Kernel Version: 2.5.63
+            Status: NEW
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: donaldlf@i-55.com
 
->   It's conceptionally obvious that professional programmers working for a
-> major software house will write a better os than a grad student fighting
-> off boredom one summer... in the end you always need data.
 
-Had to read your post a couple of times to make sure that the tone of it
-wasn't charged. :)
+Distribution:rawhide
+Hardware Environment:LX164/Alpha
+Software Environment:redhat
+Problem Description:
+Kernel fails to compile. An pnp update changed an argument list
+breaking existing code.
 
-All I can say now is that I'm working on it. We'll see if it's vaporware
-in the near future.
 
-bill
+Steps to reproduce:
+
+select the i62365 module for pcmicia
+Attempt to compile.
+
 

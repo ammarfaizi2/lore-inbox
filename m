@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUHPWTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267981AbUHPWUB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267977AbUHPWTi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267982AbUHPWTi
+	id S267981AbUHPWUB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267982AbUHPWUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:19:38 -0400
-Received: from cantor.suse.de ([195.135.220.2]:7062 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267977AbUHPWTW (ORCPT
+	Mon, 16 Aug 2004 18:20:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19847 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267981AbUHPWT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:19:22 -0400
-Date: Tue, 17 Aug 2004 00:19:20 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: /bin/ls: cannot read symbolic link /proc/$$/exe: Permission denied
-Message-ID: <20040816221920.GA9059@suse.de>
-References: <20040816133730.GA6463@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040816133730.GA6463@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 16 Aug 2004 18:19:56 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16673.12954.65216.791938@segfault.boston.redhat.com>
+Date: Mon, 16 Aug 2004 18:18:02 -0400
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org
+Subject: [patch] make netpoll budget a bit higher
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Aug 16, Olaf Hering wrote:
+Hi, Matt,
 
-> 
-> For some reasons ls -l /proc/$$/exe doesnt work all time for me,
-> with 2.6.8.1 on ppc64. Sometimes it does, sometimes not. No pattern.
-> A few printks show that this check in proc_pid_readlink() triggers
-> an -EACCES:
-> 
->         current->fsuid != inode->i_uid
-> 
-> proc_pid_readlink(755) error -13 ntptrace(11408) fsuid 100 i_uid 0 0
-> sys_readlink(281) ntptrace(11408) error -13 readlink
+I've upped the poll budget to 16 and added a comment explaining why.  I
+definitely ran into this problem when testing netdump.
 
-bprm.interp_flags contains garbage like 0xc0000001,
-that triggers task->mm->dumpable =0;
+Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
 
-please apply.
-
-Signed-off-by: Olaf Hering <olh@suse.de>
-
-diff -p -purN linux-2.6.8.1.omfg/fs/compat.c linux-2.6.8.1/fs/compat.c
---- linux-2.6.8.1.omfg/fs/compat.c	2004-08-14 12:55:31.000000000 +0200
-+++ linux-2.6.8.1/fs/compat.c	2004-08-17 00:14:56.000000000 +0200
-@@ -1390,6 +1390,7 @@ int compat_do_execve(char * filename,
- 	bprm.sh_bang = 0;
- 	bprm.loader = 0;
- 	bprm.exec = 0;
-+	bprm.interp_flags = 0;
- 	bprm.security = NULL;
- 	bprm.mm = mm_alloc();
- 	retval = -ENOMEM;
-
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+--- linux-2.6.7/net/core/netpoll.c.budget	2004-08-16 12:33:10.176533688 -0400
++++ linux-2.6.7/net/core/netpoll.c	2004-08-16 12:37:15.510237296 -0400
+@@ -61,7 +61,13 @@ static int checksum_udp(struct sk_buff *
+ 
+ void netpoll_poll(struct netpoll *np)
+ {
+-	int budget = 1;
++	/*
++	 * In cases where there is bi-directional communications, reading
++	 * only one message at a time can lead to packets being dropped by
++	 * the network adapter, forcing superfluous retries and possibly
++	 * timeouts.  Thus, we set our budget to a more reasonable value.
++	 */
++	int budget = 16;
+ 
+ 	if(!np->dev || !netif_running(np->dev) || !np->dev->poll_controller)
+ 		return;

@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSEMXXN>; Mon, 13 May 2002 19:23:13 -0400
+	id <S314625AbSEMXZ6>; Mon, 13 May 2002 19:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314681AbSEMXXM>; Mon, 13 May 2002 19:23:12 -0400
-Received: from panzer.kdm.org ([216.160.178.169]:5131 "EHLO panzer.kdm.org")
-	by vger.kernel.org with ESMTP id <S314680AbSEMXXG>;
-	Mon, 13 May 2002 19:23:06 -0400
-Date: Mon, 13 May 2002 17:23:00 -0600
-From: "Kenneth D. Merry" <ken@kdm.org>
-To: linux-kernel@vger.kernel.org
-Cc: viro@math.psu.edu
-Subject: atari partitioning problem?
-Message-ID: <20020513172300.A995@panzer.kdm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314681AbSEMXZ5>; Mon, 13 May 2002 19:25:57 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:5644 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S314625AbSEMXZ4>; Mon, 13 May 2002 19:25:56 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: davidm@hpl.hp.com, Rusty Russell <rusty@rustcorp.com.au>,
+        engebret@vnet.ibm.com, justincarlson@cmu.edu, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, anton@samba.org, ak@suse.de,
+        paulus@samba.org
+Subject: Re: Memory Barrier Definitions 
+In-Reply-To: Your message of "Mon, 13 May 2002 09:50:01 MST."
+             <Pine.LNX.4.44.0205130938380.19524-100000@home.transmeta.com> 
+Date: Tue, 14 May 2002 09:28:19 +1000
+Message-Id: <E177PEp-0001Hm-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Al Viro CCed, since from the changelog for 2.4.11, it looks like he may
-have submitted the patch in question. ]
+In message <Pine.LNX.4.44.0205130938380.19524-100000@home.transmeta.com> you wr
+ite:
+> We're _not_ going to make up a complicated, big fancy new model. We might
+> tweak the current one a bit. And if that means that some architectures get
+> heavier barriers than they strictly need, then so be it. There are two
+> overriding concerns:
+> 
+>  - sanity: maybe it's better to have one mb() that is a sledgehammer but
+>    obvious, than it is to have many subtle variations that are just asking
+>    for subtle bugs.
 
-I was looking through the atari partitioning code (fs/partitions/atari.c)
-in 2.4.18 (from what I can see in 2.4.19-pre8, it hasn't changed) and I
-noticed something (starting at about line 144) that may be a problem:
+NO NO NO.  Look at what actually happens now:
 
-			for (; pi < &rs->icdpart[8] && minor < m_lim; minor++, p
-i++) {
-				/* accept only GEM,BGM,RAW,LNX,SWP partitions */
-				if (!((pi->flg & 1) && OK_id(pi->id)))
-					continue;
-				part_fmt = 2;
-				add_gd_partition (hd, minor,
-						  be32_to_cpu(pi->st),
-						  be32_to_cpu(pi->siz));
-			}
-			printk(" >");
+	void init_bh(int nr, void (*routine)(void))
+	{
+		bh_base[nr] = routine;
+		mb();
+	}
 
-This code changed in 2.4.11, and was previously:
+Now, what is this mb() for?  Are you sure?
 
-      for (; pi < &rs->icdpart[8] && minor < m_lim; minor++, pi++)
-      { 
-        /* accept only GEM,BGM,RAW,LNX,SWP partitions */
-        if (pi->flg & 1 &&
-            (memcmp (pi->id, "GEM", 3) == 0 ||
-             memcmp (pi->id, "BGM", 3) == 0 ||
-             memcmp (pi->id, "LNX", 3) == 0 ||
-             memcmp (pi->id, "SWP", 3) == 0 ||
-             memcmp (pi->id, "RAW", 3) == 0) )
-        { 
-          part_fmt = 2;
-          add_gd_partition (hd, minor, be32_to_cpu(pi->st),
-                            be32_to_cpu(pi->siz));
-        }
-      }
-      printk(" >");
+If we can come up with a better fit between the macros and what the
+code are trying to actually do, we win, even if they all map to the
+same thing *today*.  While we're there, if we can get something that
+fits with different architectures, great.
 
-Note that the test was reversed, but not fully.  You want only active
-partitions of the specified types to be added, but with the code as it is
-now, only partitions that are active and *not* of the correct type will get
-added.
-
-I think that this patch would probably fix the problem, although I don't
-have any hardware to test it.
-
-
-==== //depot/linux-2.4.18/fs/partitions/atari.c#1 - /usr/home/ken/perforce/linux-2.4.18/fs/partitions/atari.c ====
---- /tmp/tmp.20618.0	Mon May 13 17:01:23 2002
-+++ /usr/home/ken/perforce/linux-2.4.18/fs/partitions/atari.c	Mon May 13 16:34:27 2002
-@@ -142,7 +142,7 @@
- 			printk(" ICD<");
- 			for (; pi < &rs->icdpart[8] && minor < m_lim; minor++, pi++) {
- 				/* accept only GEM,BGM,RAW,LNX,SWP partitions */
--				if (!((pi->flg & 1) && OK_id(pi->id)))
-+				if (!((pi->flg & 1) || !OK_id(pi->id)))
- 					continue;
- 				part_fmt = 2;
- 				add_gd_partition (hd, minor,
-
-Ken
--- 
-Kenneth Merry
-ken@kdm.org
+Clearer?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

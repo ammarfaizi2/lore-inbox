@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268767AbUJKRH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269072AbUJKRL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268767AbUJKRH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 13:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUJKREv
+	id S269072AbUJKRL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 13:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUJKRKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 13:04:51 -0400
-Received: from main.gmane.org ([80.91.229.2]:48561 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268767AbUJKRDH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 13:03:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andrew Rodland <arodland@entermail.net>
-Subject: Re: voluntary-preempt T3 latency spikes with fan speed change
-Date: Mon, 11 Oct 2004 13:03:01 -0400
-Message-ID: <ckeec5$id4$1@sea.gmane.org>
-References: <20041009104702.GA14649@mobilat.informatik.uni-bremen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: node135.wireless6.outside.ucf.edu
-User-Agent: KNode/0.8.0
+	Mon, 11 Oct 2004 13:10:51 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:25241 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S269065AbUJKRJF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 13:09:05 -0400
+Message-ID: <416ABE31.3040004@ens-lyon.fr>
+Date: Mon, 11 Oct 2004 19:09:05 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
+References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org> <20041011145628.GA2672@elf.ucw.cz> <416AAC5F.7020109@ens-lyon.fr> <20041011161718.GA1045@elf.ucw.cz>
+In-Reply-To: <20041011161718.GA1045@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torbenh@gmx.de wrote:
+>>On my N600c, suspend-to-RAM seems to complete... but when I try to wake 
+>>up the laptop (by pressing the power button), it blinks strangely and 
+>>then immediately shutdowns instead of resuming...
+> 
+> 
+> Your machine is probabl different from N620c i this regard...
+> 
+> Can you test if it reaches start of wakeup.S? Just insert infinite
+> loop there...
+> 								Pavel
 
-> 
-> hi...
-> 
-> i am seeing latency spikes (ie jack xruns) when the fan of my
-> asus l3d laptop changes speed.
-> 
-> is there any chance to fix this ?
-> i have turned off acpi in the kernel, as this gives me latency spikes
-> all over.
-> 
-> i am quite new to the VP patches, and want to help where i can.
-> 
-> i also got a quite strange latency trace here:
-> 
-> could someone sched some light on this please ?
-> 
+Well, my apologies, the behavior changed recently:
+* S1 seems to work.
+* S3 is so buggy: suspend still seem to complete. Pushing the power 
+button to resume doesn't shutdown the machine anymore: the laptop wakes 
+up but doesn't write or do anything. I'm only able to stop it by 
+pressing the power button.
 
-I can't say for certain, but I'm guessing that your laptop has a deeply
-broken BIOS that implements ACPI and suchlike by using SMM, which blocks
-out interrupts, and there's nothing, I believe, you can do about it.
-Disabling ACPI seems sensible; at least you can avoid causing these delays
-intentionally, but if some sensor interrupt triggers a flip into SMM to
-enable the fan, you're just screwed for a number of milliseconds.
-
-Andrew
-
+Regards,
+Brice Goglin
 

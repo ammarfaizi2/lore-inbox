@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269647AbUJMH3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269650AbUJMHpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269647AbUJMH3b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 03:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269648AbUJMH3b
+	id S269650AbUJMHpT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 03:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269653AbUJMHpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 03:29:31 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:3468 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S269647AbUJMH33
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 03:29:29 -0400
-Date: Wed, 13 Oct 2004 09:28:14 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Danny <dannydaemonic@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mm kernel oops with r8169 & named, PREEMPT
-Message-ID: <20041013072814.GA24066@electric-eye.fr.zoreil.com>
-References: <9625752b041012230068619e68@mail.gmail.com>
+	Wed, 13 Oct 2004 03:45:19 -0400
+Received: from 221-169-69-23.adsl.static.seed.net.tw ([221.169.69.23]:51929
+	"EHLO cola.voip.idv.tw") by vger.kernel.org with ESMTP
+	id S269650AbUJMHpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 03:45:13 -0400
+Subject: Re: 2.6.9-rc4-mm1
+From: Wen-chien Jesse Sung <jesse@opnet.com.tw>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Hideo AOKI <aoki@sdl.hitachi.co.jp>
+In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
+References: <20041011032502.299dc88d.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1097653366.6209.15.camel@libra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9625752b041012230068619e68@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 15:42:46 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny <dannydaemonic@gmail.com> :
-> This is with the network driver r8169 and linux-2.6.9-rc4-mm1.  Same
-> thing happened with linux-2.6.9-rc3-mm3 (but also locked up). 
-> linux-2.6.8.1-mm4 didn't seem to have this problem.  This is very
-> repeatable, if this is an unknown issue let me know (CC please, not on
-> the list) and I will jump through the hoops to get a useful oops.
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/
 
-Try the patch below (courtesy of Jon Mason, whitespaces may be wrong) and
-see 1) if things perform better 2) if "timeout" messages appear in the
-kernel log.
+Hi Andrew,
 
-Oops as well as Cc: netdev@oss.sgi.com are welcome.
+kernel/sysctl.c does not compile if CONFIG_SWAP=n.
 
---- linux-2.6.9-rc4-mm1/drivers/net/r8169.c     2004-10-12 13:59:57.000000000 -0500
-+++ linux-2.6.9-rc4-mm1/drivers/net/r8169.c     2004-10-12 10:51:21.000000000 -0500
-@@ -1680,6 +1680,7 @@ static void rtl8169_unmap_tx_skb(struct
+--- 2.6.9-rc4-mm1/kernel/sysctl.c  (revision 16)
++++ 2.6.9-rc4-mm1/kernel/sysctl.c  (local)
+@@ -813,6 +813,7 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++#ifdef CONFIG_SWAP
+ 	{
+ 		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
+ 		.procname	= "swap_token_timeout",
+@@ -822,6 +823,7 @@
+ 		.proc_handler	= &proc_dointvec_jiffies,
+ 		.strategy	= &sysctl_jiffies,
+ 	},
++#endif
+ 	{ .ctl_name = 0 }
+ };
+ 
+ 
 
- 	pci_unmap_single(pdev, le64_to_cpu(desc->addr), len, PCI_DMA_TODEVICE);
- 	desc->opts2 = 0x00;
-+	desc->opts1 = 0x00;
- 	desc->addr = 0x00;
- 	tx_skb->len = 0;
- }
-
+-- 
+Best Regards,
+Wen-chien Jesse Sung
 

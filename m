@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUFAH20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264916AbUFAHcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264915AbUFAH20 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 03:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbUFAH20
+	id S264916AbUFAHcV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 03:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbUFAHcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 03:28:26 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27866 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264915AbUFAH2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 03:28:24 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: 2.6.7-rc1-mm1
-References: <20040527015259.3525cbbc.akpm@osdl.org>
-	<m165abyegj.fsf@ebiederm.dsl.xmission.com>
-	<20040531233923.0ed6276a.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Jun 2004 01:26:46 -0600
-In-Reply-To: <20040531233923.0ed6276a.akpm@osdl.org>
-Message-ID: <m1vfibwxft.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 1 Jun 2004 03:32:21 -0400
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:42374
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S264916AbUFAHcT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 03:32:19 -0400
+Message-Id: <200406010732.i517WHOm009984@orion.dwf.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: Intel 875 Motherboard cant use 4GB of Memory.
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Tue, 01 Jun 2004 01:32:17 -0600
+From: reg@dwf.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Two questons really:
 
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >
-> > - What happened to the kexec reserve system call number patch that was in mm4?
-> 
-> >    I thought we had that all straightened out.
-> 
-> It was merged into 2.6.7-rc2.
+The BIOS of a Motherboard reports how much memory is available to a 
+user program (Linux) after reserving some memory 'for its own use'
 
-Look like that was brain hiccup on my side.  I looked but I missed
-it the first time I looked at 2.6.7-rc[12].
+What is this memory reserved for?
 
-Thanks Andrew.
+OK, now the subject of this note.
+The Intel D875PZB motherboard has an error in its current BIOS.
 
-Eric
+With a single 1GB stick of memory inserted, it reserves 38MB		 	    (agan my 
+question: what for?) leaving most of the 1GB for the user.
+With two 1GB sticks of memory inserted, it reserves 72MB
+    leaving the user most of the 2GB.
+
+BUT with 4 1GB stick of memory inserted, it reserves 1.46GB
+    which has to be an arithmetic error, leaving the user only 2.6 or so.
+
+So, my second question.
+Is this space just 'gone' until (if?) INTEL fixes the BIOS, or is
+there some way for Linux to 'get it back'.
+
+I have a certain fear of setting 'mem=' not knowing what this
+space is being used for...
+
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
+
+

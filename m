@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264047AbTDWOUg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 10:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTDWOUg
+	id S264051AbTDWOQM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 10:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTDWOQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 10:20:36 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:2802 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S264047AbTDWOUf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 10:20:35 -0400
-Date: Wed, 23 Apr 2003 16:32:29 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Fix SWSUSP & !SWAP
-In-Reply-To: <20030423135100.GA320@elf.ucw.cz>
-Message-ID: <Pine.GSO.4.21.0304231631560.1343-100000@vervain.sonytel.be>
+	Wed, 23 Apr 2003 10:16:12 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:5096 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S264051AbTDWOQH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 10:16:07 -0400
+Date: Wed, 23 Apr 2003 15:57:30 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wanted: A decent assembler
+In-Reply-To: <200304230906_MC3-1-35A3-DF4@compuserve.com>
+Message-ID: <Pine.GSO.3.96.1030423153532.6238C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Pavel Machek wrote:
-> Swsusp without swap makes no sense, but leads to compilation
-> failure. This fixes it. Please apply,
+On Wed, 23 Apr 2003, Chuck Ebbert wrote:
 
-Just wondering, what about MMU-less machines?
+>    "The result of an expression must be an absolute number, or else an
+> offset into a particular section.  If an expression is not absolute,
+> and there is not enough information when `as' sees the expression to
+> know its section, a second pass over the source program might be
+> necessary to interpret the expression--but the second pass is currently
+> not implemented.  `as' aborts with an error message in this situation."
 
-Gr{oetje,eeting}s,
+ But:
 
-						Geert
+    `-'
+          "Subtraction".  If the right argument is absolute, the result
+          has the section of the left argument.  If both arguments are
+          in the same section, the result is absolute.  You may not
+          subtract arguments from different sections.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 1:	pushl $vector-256		# 5-byte instruction
+> 	jmp common_interrupt		# 2 or 5 bytes (8 or 32-bit offset)
+> 2:
+> if 2b-1b > 8			# <============================= ERROR
+> 	irq_align=16			# switch to 16-byte alignment
+> endif
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+ This is a bug in gas.  Please check if it is reproducible with the latest
+release (2.13.2.1) and if so, then file a bug report to
+<bug-binutils@gnu.org>.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129273AbRBNWkz>; Wed, 14 Feb 2001 17:40:55 -0500
+	id <S129354AbRBNWrP>; Wed, 14 Feb 2001 17:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129418AbRBNWkp>; Wed, 14 Feb 2001 17:40:45 -0500
-Received: from 216-175-174-69.client.dsl.net ([216.175.174.69]:6919 "HELO
-	frank.eargle.com") by vger.kernel.org with SMTP id <S129273AbRBNWkd>;
-	Wed, 14 Feb 2001 17:40:33 -0500
-To: "Gord R. Lamb" <glamb@lcis.dyndns.org>
-Subject: Re: Samba performance / zero-copy network I/O
-Message-ID: <982190431.3a8b095f4b3c4@eargle.com>
-Date: Wed, 14 Feb 2001 17:40:31 -0500 (EST)
-From: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.32.0102141548440.27843-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.32.0102141548440.27843-100000@localhost.localdomain>
+	id <S129418AbRBNWrF>; Wed, 14 Feb 2001 17:47:05 -0500
+Received: from smtp3.jp.psi.net ([154.33.63.113]:61451 "EHLO smtp3.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S129354AbRBNWrB>;
+	Wed, 14 Feb 2001 17:47:01 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: /proc/stat missing disk_io info
+Date: Thu, 15 Feb 2001 07:46:56 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGGEBEDBAA.rmager@vgkk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.30.0101242116520.30884-100000@cola.teststation.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting "Gord R. Lamb" <glamb@lcis.dyndns.org>:
+Hi all,
 
-> On Wed, 14 Feb 2001, Jeremy Jackson wrote:
-> 
-> > "Gord R. Lamb" wrote:
-> > > in etherchannel bond, running
-> linux-2.4.1+smptimers+zero-copy+lowlatency)
+	I was wondering why some of my disks don't show up in /proc/stat's disk_io
+line. Specifically, my line says:
 
-Not related to network, but why would you have lowlatency patches on this box?
+disk_io: (2,0):(144,144,288,0,0) (3,0):(35,35,140,0,0)
 
-My testing showed that the lowlatency patches abosolutely destroy a system
-thoughput under heavy disk IO.  Sure, the box stays nice and responsive, but
-something has to give.  On a file server I'll trade console responsivness for IO
-performance any day (might choose the opposite on my laptop).
+This equates to my floppy and first cdrom. I also have a second cdrom (RW)
+and 2 hard disks. Looking at the code (kstat_read_proc in
+fs/proc/proc_misc.c) it is looping only up to DK_MAX_MAJOR which is defined
+as 16 in kernel_stat.h. The problem is that my 2 HDs have a major number of
+22.
 
-My testing wasn't very complete, but heavy dbench and multiple simultaneous file
-copies both showed significantly lower performance with lowlatency enabled, and
-returned to normal when disabled.
+I don't know enough to produce a patch, that is, what should DK_MAX_MAJOR be
+set to, but I believe the above is the problem.
 
-Of course you may have had lowlatency disabled via sysctl but I was mainly
-curious if your results were different.
 
-Later,
-Tom
+
+Thanks,
+
+--Rainer
+

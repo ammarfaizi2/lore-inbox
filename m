@@ -1,60 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267027AbRGJUkA>; Tue, 10 Jul 2001 16:40:00 -0400
+	id <S267139AbRGJUnS>; Tue, 10 Jul 2001 16:43:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267140AbRGJUjs>; Tue, 10 Jul 2001 16:39:48 -0400
-Received: from woodyjr.wcnet.org ([63.174.200.2]:17832 "EHLO woodyjr.wcnet.org")
-	by vger.kernel.org with ESMTP id <S267027AbRGJUjc>;
-	Tue, 10 Jul 2001 16:39:32 -0400
-Message-ID: <001501c10980$f42035a0$fe00000a@cslater>
-From: "C. Slater" <cslater@wcnet.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEKECGAA.davids@webmaster.com>
-Subject: Re: Switching Kernels without Rebooting?
-Date: Tue, 10 Jul 2001 16:43:18 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S267140AbRGJUnI>; Tue, 10 Jul 2001 16:43:08 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:61278 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267139AbRGJUms>; Tue, 10 Jul 2001 16:42:48 -0400
+Date: Tue, 10 Jul 2001 16:42:49 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: johannes@erdfelt.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Fwd: Claim serialization problem
+Message-ID: <20010710164249.B30050@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Johannes,
 
+the attached patch fixed a real problem for me and
+the linux-usb-devel folks agreed it was a good fix.
+Do you mind to push it to Linus? The 2.4.6 still
+has no trace of it.
 
->
-> >     - Replace all saved structures
->
-> > what if the layout of these changes as it often does?
->
-> You would want to convert all structures into a neutral encoding scheme
-> that would support transferring structures across versions. BER comes to
-> mind, as it provides for an easy way to ignore stuff you don't understand
-> and support multiple versions of the same object in a single encoding.
->
-> However, this would be a truly massive task. And the big challenge would
-be
-> what to do when an older kernel doesn't understand something essential. It
-> could be simplified significantly by supporting live replacement only of
-> kernels of the same version, but this seems to defeat much of the purpose.
->
-> DS
+Thanks,
+-- Pete
 
-I don't think that it would be possible to switch kernels when one was not
-properly set up to do it, if thats what you mean. You could only switch
-between kernels that have been compiled to support live switching.
+cc: to linux-kernel in case the maintainer is hit by a bus.
 
-I do see you'r point with the datastructures changeing. We would need to use
-some format that all properly setup kernels could understand, then we would
-only need to write enough to convert the structs to the middle format and
-back when they change. I am not familer with BER, but if it is suitable, it
-may help.
+----- Forwarded message from Pete Zaitcev <zaitcev@redhat.com> -----
 
-Are you saying that swaping the kernels out altogether would be a massive
-task, or that saveing/restoring the datastructures would be a massive task.
+Date: Tue, 29 May 2001 23:07:58 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-usb-devel@lists.sourceforge.net
+Cc: zaitcev@redhat.com
+Subject: Claim serialization problem
+User-Agent: Mutt/1.2.5i
 
-  Colin
+Hi,
 
+I attached a USB tape (Freecom based) to my machine and
+the usb-storage driver registered itself 3 times with SCSI.
+Upon a closer inspection the following was found, approximately:
+
+usb_find_interface_driver () {
+        if (usb_interface_claimed(interface))
+                goto out_err;
+        down(&driver->serialize);
+        private = driver->probe(dev,ifnum,id);
+        up(&driver->serialize);
+	usb_driver_claim_interface(driver, interface, private);
+}
+
+This is wrong even on UP.
+
+Here is a patch that fixes the problem for me:
+
+diff -ur linux-2.4.5/drivers/usb/usb.c linux-2.4.5-tr5/drivers/usb/usb.c
+--- linux-2.4.5/drivers/usb/usb.c	Sat Apr 28 11:28:09 2001
++++ linux-2.4.5-tr5/drivers/usb/usb.c	Tue May 29 18:22:19 2001
+@@ -688,10 +688,12 @@
+ 		return -1;
+ 	}
+ 
++	down(&dev->serialize);
++
+ 	interface = dev->actconfig->interface + ifnum;
+ 
+ 	if (usb_interface_claimed(interface))
+-		return -1;
++		goto out_err;
+ 
+ 	private = NULL;
+ 	for (tmp = usb_driver_list.next; tmp != &usb_driver_list;) {
+@@ -699,7 +701,6 @@
+ 		driver = list_entry(tmp, struct usb_driver, driver_list);
+ 		tmp = tmp->next;
+ 
+-		down(&driver->serialize);
+ 		id = driver->id_table;
+ 		/* new style driver? */
+ 		if (id) {
+@@ -707,7 +708,9 @@
+ 			  	interface->act_altsetting = i;
+ 				id = usb_match_id(dev, interface, id);
+ 				if (id) {
++					down(&driver->serialize);
+ 					private = driver->probe(dev,ifnum,id);
++					up(&driver->serialize);
+ 					if (private != NULL)
+ 						break;
+ 				}
+@@ -717,15 +720,21 @@
+ 				interface->act_altsetting = 0;
+ 		}
+ 		else /* "old style" driver */
++		{
++			down(&driver->serialize);
+ 			private = driver->probe(dev, ifnum, NULL);
++			up(&driver->serialize);
++		}
+ 
+-		up(&driver->serialize);
+ 		if (private) {
+ 			usb_driver_claim_interface(driver, interface, private);
++			up(&dev->serialize);
+ 			return 0;
+ 		}
+ 	}
+ 
++out_err:
++	up(&dev->serialize);
+ 	return -1;
+ }
+ 
+@@ -924,6 +933,8 @@
+ 	atomic_set(&dev->refcnt, 1);
+ 	INIT_LIST_HEAD(&dev->inodes);
+ 	INIT_LIST_HEAD(&dev->filelist);
++
++	init_MUTEX(&dev->serialize);
+ 
+ 	dev->bus->op->allocate(dev);
+ 
+diff -ur linux-2.4.5/include/linux/usb.h linux-2.4.5-tr5/include/linux/usb.h
+--- linux-2.4.5/include/linux/usb.h	Fri May 25 18:02:43 2001
++++ linux-2.4.5-tr5/include/linux/usb.h	Tue May 29 18:12:33 2001
+@@ -595,6 +595,7 @@
+ 	int slow;			/* Slow device? */
+ 
+ 	atomic_t refcnt;		/* Reference count */
++	struct semaphore serialize;
+ 
+ 	unsigned int toggle[2];		/* one bit for each endpoint ([0] = IN, [1] = OUT) */
+ 	unsigned int halted[2];		/* endpoint halts; one bit per endpoint # & direction; */
+
+Two notes about parts missing from the patch:
+ 1. Disconnect is not handled. I think the author intended to handle it
+differently, with a usage count. See the source...
+ 2. Drivers call claim_interface, and it seems they do it safely.
+devio.c brackets it with lock_kernel/unlock_kernel. mdc800.c,
+audio.c and acm.c do not attempt to claim something that they
+do no own, so the old semaphore protects them.
+
+-- Pete
+
+----- End forwarded message -----

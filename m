@@ -1,90 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268909AbTGJEU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 00:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268910AbTGJEU0
+	id S268910AbTGJE2U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 00:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268912AbTGJE2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 00:20:26 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:20148 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268909AbTGJEUY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 00:20:24 -0400
-Date: Wed, 9 Jul 2003 21:30:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: rmk@arm.linux.org.uk, daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org
-Subject: Re: 2.5.74-mm3 yenta-socket oops back
-Message-Id: <20030709213010.1882a898.akpm@osdl.org>
-In-Reply-To: <200307101127.32590.mflt1@micrologica.com.hk>
-References: <200307060039.34263.daniel.ritz@gmx.ch>
-	<20030706231551.B16820@flint.arm.linux.org.uk>
-	<200307101127.32590.mflt1@micrologica.com.hk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jul 2003 00:28:20 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:21775 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S268910AbTGJE2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 00:28:19 -0400
+Date: Thu, 10 Jul 2003 14:42:44 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Jim Keniston <jkenisto@us.ibm.com>
+cc: LKML <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Randy Dunlap <rddunlap@osdl.org>
+Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
+In-Reply-To: <3F0AFFE6.E85FF283@us.ibm.com>
+Message-ID: <Mutt.LNX.4.44.0307101419080.15602-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Frank <mflt1@micrologica.com.hk> wrote:
->
-> 2.5.74-mm3 yenta-socket oopsed on the first boot at the same spot. 
-> 
-> I have successfully used both patches below with -mm1.
-> 
-> --- 1.50/drivers/pcmcia/cs.c    Mon Jun 30 22:22:30 2003
-> +++ edited/cs.c Sat Jul  5 23:58:07 2003
-> @@ -338,13 +338,13 @@
->         socket->erase_busy.next = socket->erase_busy.prev = &socket->erase_busy;
->         INIT_LIST_HEAD(&socket->cis_cache);
->         spin_lock_init(&socket->lock);
-> -
-> -       init_socket(socket);
-> -
->         init_completion(&socket->thread_done);
->         init_waitqueue_head(&socket->thread_wait);
->         init_MUTEX(&socket->skt_sem);
->         spin_lock_init(&socket->thread_lock);
-> +
-> +       init_socket(socket);
-> +
->         ret = kernel_thread(pccardd, socket, CLONE_KERNEL);
->         if (ret < 0)
->                 return ret;
-> 
+On Tue, 8 Jul 2003, Jim Keniston wrote:
 
-This one is clearly correct.
++       kerror_nl = netlink_kernel_create(NETLINK_KERROR, kerror_netlink_rcv);
++       if (kerror_nl == NULL)
++               panic("kerror_init: cannot initialize kerror_nl\n");
 
-> and my patch (may apply with some offset, which I'm about to check
-> into bk anyway):
-> 
-> --- linux/drivers/pcmcia/cs.c.old       Fri Jul  4 10:21:50 2003
-> +++ linux/drivers/pcmcia/cs.c   Sun Jul  6 23:04:10 2003
-> @@ -870,11 +870,13 @@
->  
->  void pcmcia_parse_events(struct pcmcia_socket *s, u_int events)
->  {
-> -       spin_lock(&s->thread_lock);
-> -       s->thread_events |= events;
-> -       spin_unlock(&s->thread_lock);
-> +       if (s->thread) {
-> +               spin_lock(&s->thread_lock);
-> +               s->thread_events |= events;
-> +               spin_unlock(&s->thread_lock);
->  
-> -       wake_up(&s->thread_wait);
-> +               wake_up(&s->thread_wait);
-> +       }
->  } /* pcmcia_parse_events */
+You can simply use NULL instead of passing the dummy kerror_netlink_rcv
+function.
 
-This one may not be.  How did we get here with no thread to handle the
-event?  Do you have an oops trace on this one?
++struct kern_log_entry {
++       __u16   log_kmagic;     /* always LOGREC_KMAGIC */
++       __u16   log_kversion;   /* which version of this struct? */
++       char    log_facility[FACILITY_MAXLEN];  /* e.g., driver name */
 
-Or just stick a
+These fields should generally be specified in ascending order to help with 
+alignment.
 
-	if (!s->thread)
-		dump_stack();
+It may also be worth looking at how the ULOG code batches messages to 
+improve peformance.
 
-in there as well.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+
+
 

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263822AbUDPWmn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263916AbUDPWmX
+	id S263873AbUDPWpe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbUDPWpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:42:23 -0400
-Received: from mail.shareable.org ([81.29.64.88]:56738 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263822AbUDPWf6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:35:58 -0400
-Date: Fri, 16 Apr 2004 23:35:48 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-Message-ID: <20040416223548.GA27540@mail.shareable.org>
-References: <1080771361.1991.73.camel@sisko.scot.redhat.com>
+	Fri, 16 Apr 2004 18:45:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40401 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263917AbUDPWoe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 18:44:34 -0400
+Date: Fri, 16 Apr 2004 15:46:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: msync() needed before munmap() when writing to shared mapping?
+Message-Id: <20040416154652.7ab27e79.akpm@osdl.org>
+In-Reply-To: <20040416220223.GA27084@mail.shareable.org>
+References: <20040416220223.GA27084@mail.shareable.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080771361.1991.73.camel@sisko.scot.redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
-> I've been looking at a discrepancy between msync() behaviour on 2.4.9
-> and newer 2.4 kernels, and it looks like things changed again in
-> 2.5.68.
+Jamie Lokier <jamie@shareable.org> wrote:
+>
+> I've followed the logic from do_munmap() and it looks good:
+> unmap_vmas->zap_pte_range->page_remove_rmap->set_page_dirty.
+> 
+> Can someone confirm this is correct, please?
 
-When you say a discrepancy between 2.4.9 and newer 2.4 kernels, do you
-mean that the msync() behaviour changed during the 2.4 series?
+yup, zap_pte_range() transfers pte dirtiness into pagecache dirtiness when
+tearing down the mapping, leaving the dirty page floating about in
+pagecache for kupdate/kswapd/fsync to catch.  Longstanding behaviour.
 
-If so, what was the change?
-
-Thanks,
--- Jamie

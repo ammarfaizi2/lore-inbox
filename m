@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbTH0Lat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 07:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTH0Lat
+	id S263330AbTH0LbB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 07:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263331AbTH0LbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 07:30:49 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:13271
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263310AbTH0Lar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 07:30:47 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: warudkar@vsnl.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
-Date: Wed, 27 Aug 2003 21:37:42 +1000
-User-Agent: KMail/1.5.3
-References: <200308272138.h7RLciK29987@webmail2.vsnl.net>
-In-Reply-To: <200308272138.h7RLciK29987@webmail2.vsnl.net>
-Cc: Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 27 Aug 2003 07:31:00 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:3532 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S263330AbTH0La6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 07:30:58 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 27 Aug 2003 13:30:55 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org, tejun@aratech.co.kr
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
+Message-Id: <20030827133055.0f7aaf6e.skraw@ithnet.com>
+In-Reply-To: <20030827110417.GY83336@niksula.cs.hut.fi>
+References: <20030729073948.GD204266@niksula.cs.hut.fi>
+	<20030730071321.GV150921@niksula.cs.hut.fi>
+	<Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
+	<20030730181003.GC204962@niksula.cs.hut.fi>
+	<20030827064301.GF150921@niksula.cs.hut.fi>
+	<20030827110417.GY83336@niksula.cs.hut.fi>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308272137.42632.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Aug 2003 07:38, warudkar@vsnl.net wrote:
-> Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org, Rational
-> Rose and Konsole at a time. All of these take extremely long time to
-> startup. (approx > 5 minutes). Kswapd hogs the CPU all the time. X becomes
-> unusable till all of them startup, although I can telnet and run top. Same
-> thing run under 2.4.18 starts up in 3 minutes, X stays usable and kswapd
-> never take more than 2% CPU.
+On Wed, 27 Aug 2003 14:04:17 +0300
+Ville Herva <vherva@niksula.hut.fi> wrote:
 
-Yes I can reproduce this with a memory heavy load as well on low memory 
-(linking at the end of a big kernel compile is standard problem). I actually 
-found the best workaround was to increase the swappiness instead of 
-decreasing it.
+> > You're right, it looks pretty clean and simple. Possibly the only thing I
+> > would try is moving aic away from int 9 to int 10 or so. Int 9 sometimes
+> > interferes with VGA int routing on broken boxes. But that is unlikely
+> > (though simple to test).
+> 
+> I don't think vga interferes with anything: I never run X on the box, and
+> even the text console remains quiescent as nothing is logged.
 
-Try 
-echo 100 > /proc/sys/vm/swappiness
+The thing I ran into once was not really an intensive use of VGA and its ints
+but rather some weird glitches in the boards' int logic that sometimes drove
+the software drivers crazy (was network back then).
 
-time it
-
-then try
-echo 0 > /proc/sys/vm/swappiness
-
-you'll see that at low swappiness kswapd0 can use ridiculous amounts of cpu 
-trying to avoid swap. The default is 60.
-
-Con
-
+Regards,
+Stephan

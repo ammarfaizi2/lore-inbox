@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266989AbRG1TDK>; Sat, 28 Jul 2001 15:03:10 -0400
+	id <S266995AbRG1TDK>; Sat, 28 Jul 2001 15:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbRG1TDB>; Sat, 28 Jul 2001 15:03:01 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:36358 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S266997AbRG1TCt>;
-	Sat, 28 Jul 2001 15:02:49 -0400
-Date: Sat, 28 Jul 2001 16:02:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Matthew Gardiner <kiwiunixman@yahoo.co.nz>,
-        "Philip R. Auld" <pauld@egenera.com>,
-        kernel <linux-kernel@vger.kernel.org>
-Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
-In-Reply-To: <3B62E80A.C732C3F5@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33L.0107281600130.11893-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S266997AbRG1TDB>; Sat, 28 Jul 2001 15:03:01 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56836 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266989AbRG1TCq>; Sat, 28 Jul 2001 15:02:46 -0400
+Subject: Re: ext3-2.4-0.9.4
+To: patl@cag.lcs.mit.edu (Patrick J. LoPresti)
+Date: Sat, 28 Jul 2001 20:03:37 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <s5gsnfh80hw.fsf@egghead.curl.com> from "Patrick J. LoPresti" at Jul 28, 2001 12:46:51 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QZNB-00082q-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 28 Jul 2001, Jeff Garzik wrote:
-> Alan Cox wrote:
-> > The Linux freevxfs module is read only currently. Veritas apparently will be
-> > releasing the genuine article for Linux but binary only with all the mess
-> > that entails
->
-> Isn't that a violation of the GPL, to release binary modules?
+> How does this scheme "risk delivering mail to the wrong person
+> instead"?
 
-Binary modules using only the interfaces exported in /proc/ksyms
-are, under certain readings of the GPL, no less "infected" by the
-GPL than binary programs making system calls.
+With the fsync it looks ok for most cases. It depends on the actions of
+a rename touching only one disk block - which of course it doesn't do. Even
+so with the fsync on a sane fs I cant see that problem occuring
 
-This means binary only modules are ok, as long as they don't need
-changes in the kernel to work.
+> If you have metadata journalling, all you need for this algorithm to
+> work is to have rename() write to the journal before returning.  Is
+> this true for any of the current journalling file systems on Linux?
 
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Ext3 I believe so, Reiserfs I would assume so but Hans can answer
+definitively

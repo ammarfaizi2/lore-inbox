@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131018AbRCPT3P>; Fri, 16 Mar 2001 14:29:15 -0500
+	id <S131020AbRCPT3f>; Fri, 16 Mar 2001 14:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130517AbRCPT2y>; Fri, 16 Mar 2001 14:28:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13323 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130216AbRCPT2u>;
-	Fri, 16 Mar 2001 14:28:50 -0500
-Date: Fri, 16 Mar 2001 19:26:46 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1
-Message-ID: <20010316192646.A8755@flint.arm.linux.org.uk>
-In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> <1886.984737208@redhat.com>
-Mime-Version: 1.0
+	id <S130517AbRCPT30>; Fri, 16 Mar 2001 14:29:26 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:47161 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130216AbRCPT3M>; Fri, 16 Mar 2001 14:29:12 -0500
+Message-ID: <3AB26A9A.9F1B3FAE@redhat.com>
+Date: Fri, 16 Mar 2001 14:33:46 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+CC: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: scsi_scan problem.
+In-Reply-To: <3AB028BE.E8940EE6@redhat.com> <20010314213543.A30816@devserv.devel.redhat.com> <3AB030F6.246C6F23@redhat.com> <3AB24511.EA8BD2A2@yk.rim.or.jp>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1886.984737208@redhat.com>; from dwmw2@infradead.org on Fri, Mar 16, 2001 at 10:06:48AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 16, 2001 at 10:06:48AM +0000, David Woodhouse wrote:
-> Nice work - thanks. One request though, to you and anyone else doing such
-> cleanups - please could you list the affected files separately near the
-> beginning of your mail, so that people can tell at a glance whether there's
-> anything in there that might be their fault.
+Ishikawa wrote:
+> 
+> Hi,
+> 
+> I have an "old" Nakamichi CD changer.
+> ("old" might be important consideration here. )
+> 
+> Should I test the patch submitted and report what I found ?
+> (Or maybe I don't have to bother at this stage at all
+> and  simply wait for the 2.5 development and debugging cycle?)
 
-Also, it'd be nice if the filenames were in alphabetic order.  Both points
-make it much easier to examine the list of affected files.
+It would still be helpful because this problem has to be fixed before 2.5. 
+The only question is whether to fix it with a simple patch such as I just
+submitted, or a more complex patch that uses REPORT LUNs.  Part of that answer
+is how my simple patch works on your device.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-- 
 
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

@@ -1,59 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264258AbTKTFrb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 00:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264268AbTKTFrb
+	id S264268AbTKTFrg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 00:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTKTFrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 00:47:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29877 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264258AbTKTFra
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 00:47:30 -0500
-Date: Thu, 20 Nov 2003 05:47:29 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@oss.sgi.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] 2.6.x experimental net driver updates
-Message-ID: <20031120054729.GC24159@parcelfarce.linux.theplanet.co.uk>
-References: <3FBBA954.6000601@pobox.com> <20031120025423.GB24159@parcelfarce.linux.theplanet.co.uk> <3FBC4FE0.2020705@pobox.com>
+	Thu, 20 Nov 2003 00:47:36 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:32472 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264268AbTKTFrc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 00:47:32 -0500
+Date: Thu, 20 Nov 2003 11:17:07 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>
+Subject: [PATCH] sysfs_remove_dir Vs dcache_readdir race fix
+Message-ID: <20031120054707.GA1724@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FBC4FE0.2020705@pobox.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 12:23:44AM -0500, Jeff Garzik wrote:
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >On Wed, Nov 19, 2003 at 12:33:08PM -0500, Jeff Garzik wrote:
-> >
-> >>Ok, Al Viro's net driver refcounting work is pretty much complete, and 
-> >
-> >
-> >The hell it is.  We are through with legacy probes, we are through with
-> >init_etherdev(), we are practically through with static struct net_device.
-> 
-> hehe :)  I don't mean to suggest that all is clean and pure :)
-> 
-> 
-> >However, we still have weird allocators (I've got almost all of them
-> >done by now, will submit in the next batch) and we still have struct
-> >net_device embedded as a field of other structures in several drivers.
-> 
-> Some of that will be interesting.  ns83820 for example embedded 
-> net_device on purpose...  Ben seemed to think at the time it gave him 
-> some speed, a few less pointer derefs and such.
+Hi,
 
-That's fine, but 83820 should be doing that the other way round.
+sysfs_remove_dir modifies d_subdirs list which results in inconsistency
+when there is concurrent dcache_readdir is going on. I think there
+is no need for sysfs_remove_dir to modify d_subdirs list and removal
+of dentries from d_child list is taken care in the final dput().
 
-Note that for objects allocated by alloc_netdev() we have
-	(char*) dev->priv == (char *)dev + const
-and constant can be found at compile time _if_ we pad in front of
-net_device and add a pointer to allocated block into net_device.
+The folloing patch fixes this race. The patch is tested by running these two
+loops simlutaneously on a SMP box.
 
-So we can have exactly the same structure (modulo padding) and no extra
-dereferencing.  All we need is inlined void *net_priv(struct net_device *);
+#while true; do tree /sys/class/net > /dev/null; done
 
-That, BTW, would be a win for other drivers using alloc_...() and not
-reassigning ->priv (i.e. majority of those beasts).
+#while true; do insmod ./dummy.o; rmmod dummy.o; done
+
+
+o This patch fixes sysfs_remove_dir race with dcache_readdir. There is
+  no need for sysfs_remove_dir to modify the d_subdirs list for the directory
+  being deleted as it is taken care in the final dput. Modifying this list
+  results in inconsistent d_subdirs list and causes infinite loop in 
+  concurrently occuring dcache_readdir.
+
+
+ fs/sysfs/dir.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
+
+diff -puN fs/sysfs/dir.c~sysfs_remove_dir-race-fix fs/sysfs/dir.c
+--- linux-2.6.0-test9-bk24/fs/sysfs/dir.c~sysfs_remove_dir-race-fix	2003-11-20 10:36:13.000000000 +0530
++++ linux-2.6.0-test9-bk24-maneesh/fs/sysfs/dir.c	2003-11-20 10:38:32.000000000 +0530
+@@ -122,8 +122,8 @@ void sysfs_remove_dir(struct kobject * k
+ 	node = dentry->d_subdirs.next;
+ 	while (node != &dentry->d_subdirs) {
+ 		struct dentry * d = list_entry(node,struct dentry,d_child);
+-		list_del_init(node);
+ 
++		node = node->next;
+ 		pr_debug(" o %s (%d): ",d->d_name.name,atomic_read(&d->d_count));
+ 		if (d->d_inode) {
+ 			d = dget_locked(d);
+@@ -139,9 +139,7 @@ void sysfs_remove_dir(struct kobject * k
+ 			spin_lock(&dcache_lock);
+ 		}
+ 		pr_debug(" done\n");
+-		node = dentry->d_subdirs.next;
+ 	}
+-	list_del_init(&dentry->d_child);
+ 	spin_unlock(&dcache_lock);
+ 	up(&dentry->d_inode->i_sem);
+ 
+
+_
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-5044999 Fax: 91-80-5268553
+T/L : 9243696

@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbUEJXo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbUEJXpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbUEJXo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEJXo6
+	id S261989AbUEJXpm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEJXpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:44:58 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:48645 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S262079AbUEJXjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:39:54 -0400
-Message-ID: <40A012A4.7060703@snapgear.com>
-Date: Tue, 11 May 2004 09:39:16 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Mon, 10 May 2004 19:45:14 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:64916 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262035AbUEJXmk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:42:40 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 May 2004 16:42:39 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Valdis.Kletnieks@vt.edu
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement 
+In-Reply-To: <200405102310.i4ANA7Eh022394@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.58.0405101630180.1156@bigblue.dev.mdolabs.com>
+References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org>
+ <1084227460.28663.8.camel@vertex> <Pine.LNX.4.58.0405101521280.1156@bigblue.dev.mdolabs.com>
+ <1084228900.28903.2.camel@vertex>            <Pine.LNX.4.58.0405101548230.1156@bigblue.dev.mdolabs.com>
+ <200405102310.i4ANA7Eh022394@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.6-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Mon, 10 May 2004 Valdis.Kletnieks@vt.edu wrote:
 
-An update of the uClinux (MMU-less) fixups against 2.6.6.
-A lot of things merged in 2.6.6, so only a handful of patches
-for general uClinux and m68knommu.
+> On Mon, 10 May 2004 15:52:58 PDT, Davide Libenzi said:
+> 
+> > And it should not even be that much hard to do, since you can just 
+> > backtrace the the point where the change happened to see if there are 
+> > watchers on the parent directories.
+> 
+> Umm.. can you?  That sounds suspiciously like "given an inode, how
+> do I find the pathname?".
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.6-uc0.patch.gz
-
-Change log:
-
-. integrate armnommu support                   Hyok S. Choi
-. add find_next_bit() to m68knommu bitops.h    me
-. merge with linux-2.6.6                       me
-
-Regards
-Greg
+It'd be from a file* not from an inode* (where you have a dentry and a 
+vfsmount). So *one* path can be found.
 
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+> How do you handle the case of a file that's hard-linked into 2 different
+> directories a "long way" apart in the heirarchy?  It's easy enough to
+> backtrack and find *A* path - the problem is if the watcher was on
+> some *other* directory:
+> 
+> mkdir -p /tmp/a/foo/bar/baz
+> mkdir -p /tmp/b/que/er/ty
+> touch /tmp/a/foo/bar/baz/flag
+> ln /tmp/a/foo/bar/baz/flag /tmp/b/qu/er/ty/flag
+> 
+> If you modify 'flag' again, how do you ensure that you find a watcher on
+> /tmp/a/foo or /tmp/b/qu, given that either or both might be there?
+
+Yep, links are a problem to be implemented right. OTOH I don't think that 
+an rmap-fs can be asked only to solve such problem ;)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- Davide
 

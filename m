@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbUBXVd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUBXVd5
+	id S262478AbUBXVjM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUBXVjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:33:57 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:3984 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262314AbUBXVdy convert rfc822-to-8bit
+	Tue, 24 Feb 2004 16:39:12 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:32467 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262478AbUBXVjJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:33:54 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: PATCH - InfiniBand Access Layer (IBAL)
-Date: Tue, 24 Feb 2004 13:33:37 -0800
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C36C9@orsmsx410.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH - InfiniBand Access Layer (IBAL)
-Thread-Index: AcP7Dqe5sJ8dz4XDSD6nUJf67NQjBgADWu8Q
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "Greg KH" <greg@kroah.com>, "Woodruff, Robert J" <woody@jf.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>
-X-OriginalArrivalTime: 24 Feb 2004 21:33:37.0909 (UTC) FILETIME=[DD218250:01C3FB1D]
+	Tue, 24 Feb 2004 16:39:09 -0500
+Date: Tue, 24 Feb 2004 14:39:08 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Message-ID: <20040224213908.GD1052@smtp.west.cox.net>
+References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402191322.52499.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 11:45:04AM -0800, Greg KH  wrote:
->The
-http://osdn.dl.sourceforge.net/sourceforge/infiniband/patch-2_6_3-iba.bz
-2
->patch is corrupted.
- 
-I may have made a mistake in upload to sourceforge. 
-I tried to upload both a compressed patch file and a compressed 
-tar file for those that do not want to deal with patches. 
-I think it should be Ok now.  
-Jerrie could you download the patch from sourceforge and take a 
-look at it to make sure it is OK. 
+On Thu, Feb 19, 2004 at 01:22:52PM +0530, Amit S. Kale wrote:
 
->Please make those changes and then post the patch here 
->(not just a link, if it's too big, split it up into 
->the logical pieces to fit.)  We can go from there.
+> Hi,
+> 
+> Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
+> Looks good.
+> 
+> Let's first check this in and then do more cleanups.
+> Tom, does it sound ok?
 
-Ok, we will do that too. 
+This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
+could you provide some pointers on how to replicate this in the future?
 
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

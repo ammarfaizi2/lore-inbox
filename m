@@ -1,45 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317778AbSHLKWf>; Mon, 12 Aug 2002 06:22:35 -0400
+	id <S317782AbSHLKXA>; Mon, 12 Aug 2002 06:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317782AbSHLKWf>; Mon, 12 Aug 2002 06:22:35 -0400
-Received: from codepoet.org ([166.70.99.138]:64640 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S317778AbSHLKWe>;
-	Mon, 12 Aug 2002 06:22:34 -0400
-Date: Mon, 12 Aug 2002 04:26:20 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Ani Joshi <ajoshi@unixbox.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] radeonfb update vs 2.4.20-pre1
-Message-ID: <20020812102620.GA4860@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Ani Joshi <ajoshi@unixbox.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20020811212244.GB27048@codepoet.org> <Pine.BSF.4.44.0208120315510.55624-100000@shell.unixbox.com>
+	id <S317786AbSHLKXA>; Mon, 12 Aug 2002 06:23:00 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:42744 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317782AbSHLKWi>; Mon, 12 Aug 2002 06:22:38 -0400
+Subject: Re: PROBLEM: kernel oopses
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joe Radinger <j.radinger@phion.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1029147342.20172.99.camel@yoda.phion>
+References: <1029147342.20172.99.camel@yoda.phion>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Aug 2002 12:48:01 +0100
+Message-Id: <1029152881.16236.159.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSF.4.44.0208120315510.55624-100000@shell.unixbox.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Aug 12, 2002 at 03:18:02AM -0700, Ani Joshi wrote:
-> 
-> These issues are addressed (or should be) in version 0.1.5 of radeonfb
-> which was posted to the fbdev list a month or so ago.  I am waiting on a
-> few other fixes I need to get done before I send an update to Marcelo, but
-> rest assured this will happen in the 2.4.20 cycle.
+On Mon, 2002-08-12 at 11:15, Joe Radinger wrote:
+> here comes my first kernel-bug-report.:
 
-Excellent thanks.  Is the latest and greatest posted somewhere?
+crashes where nvidia binary stuff has been loaded go to nvidia not us.
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

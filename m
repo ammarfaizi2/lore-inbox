@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUD3Wjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUD3Wjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbUD3Wjc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUD3Wjc
+	id S261724AbUD3Wjk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUD3Wjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:39:32 -0400
-Received: from mail.kroah.org ([65.200.24.183]:63184 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261661AbUD3Wjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:39:31 -0400
-Date: Fri, 30 Apr 2004 15:37:23 -0700
-From: Greg KH <greg@kroah.com>
-To: John Cherry <cherry@osdl.org>
+	Fri, 30 Apr 2004 18:39:40 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38618 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261724AbUD3Wjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 18:39:37 -0400
+Date: Sat, 1 May 2004 00:39:28 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: John Cherry <cherry@osdl.org>, Scott Murray <scottm@somanetworks.com>,
+       Greg KH <greg@kroah.com>, eike-hotplug@sf-tec.de
 Cc: Andrew Morton <akpm@osdl.org>,
        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.6-rc3-mm1 (compile stats)
-Message-ID: <20040430223723.GA14535@kroah.com>
+Message-ID: <20040430223928.GA2541@fs.tum.de>
 References: <20040430014658.112a6181.akpm@osdl.org> <1083342188.671.9.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -39,11 +40,20 @@ On Fri, Apr 30, 2004 at 09:23:08AM -0700, John Cherry wrote:
 > is reported only once
 > drivers/pci/hotplug/cpci_hotplug_core.c:97: for each function it appears
 > in.)
+>   CC      drivers/net/tulip/21142.o
 > make[3]: [drivers/pci/hotplug/cpci_hotplug_core.o] Error 1
+>...
 
-Known issue, is now fixed.  My bk-pci tree was at a intermediate state
-when this -mm tree was created (my fault...)
+It seems cpci_hotplug_core.c was forgotten when some changes were made 
+that are in bk-pci...
 
-thanks,
+cu
+Adrian
 
-greg k-h
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

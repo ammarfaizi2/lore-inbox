@@ -1,116 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269683AbUICNTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269686AbUICNWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269683AbUICNTs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 09:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269675AbUICNTr
+	id S269686AbUICNWr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 09:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269675AbUICNWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 09:19:47 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:57791 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S269687AbUICNQj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 09:16:39 -0400
-Date: Fri, 3 Sep 2004 15:16:19 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <642078516.20040903151619@tnonline.net>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-CC: Paul Jakma <paul@clubi.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jamie Lokier <jamie@shareable.org>, Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-In-Reply-To: <1094216718.2679.30.camel@shaggy.austin.ibm.com>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain>
- <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain>
- <20040902161130.GA24932@mail.shareable.org>
- <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>
- <1835526621.20040903014915@tnonline.net>
- <1094165736.6170.19.camel@localhost.localdomain>
- <32810200.20040903020308@tnonline.net>
- <Pine.LNX.4.61.0409030112080.23011@fogarty.jakma.org>
- <142794710.20040903023906@tnonline.net>
- <1094216718.2679.30.camel@shaggy.austin.ibm.com>
+	Fri, 3 Sep 2004 09:22:46 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:63700 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S269687AbUICNWN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 09:22:13 -0400
+Message-ID: <41386FB7.2060804@cs.aau.dk>
+Date: Fri, 03 Sep 2004 15:20:55 +0200
+From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040619)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Christoph Hellwig <hch@infradead.org>
+CC: umbrella-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
+References: <41385FA5.806@cs.aau.dk> <20040903133238.A4145@infradead.org> <413865B4.7080208@cs.aau.dk> <20040903140449.A4253@infradead.org>
+In-Reply-To: <20040903140449.A4253@infradead.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-  
-
-> On Thu, 2004-09-02 at 19:39, Spam wrote:
->>   
->> 
->> > On Fri, 3 Sep 2004, Spam wrote:
->> 
->> >>  Yes, some archive types can't be partially unzipped either. But my
->> >>  point is that it wouldn't be transparent to the application/user in
->> >>  the same way.
->> 
->> > It doesnt matter whether it is transparent to the application. It can
->> > be the application which implements the required level of 
->> > transparency.
->> 
->> > User doesnt care what provides the transparency or how it's 
->> > implemented.
->> 
->>   Indeed. I hope I didn't say otherwise :). Just that I think it will
->>   be very difficult to have this transparency in all apps.
-
-> You're missing the point.  We don't need transparency in all apps.  You
-> can write an application to be as transparent as you want, but you don't
-> need every app to to understand every file format.
-
-  No, but not every user "can write an application" either, or even
-  have the skills to apply patches. What I was talking about wasn't
-  just tar, which itself isn't the best example anyway, but the idea
-  that users can load plugins that will extend the functionality of
-  their filesystems. That idea seem to be to be _much_ better than
-  trying to teach every user how to write applications or patch
-  existing ones.
-
->>  Just
->>   thinking of "nano file.jpg/description.txt" or "ls
->>   file.tar/untar/*.doc".
-
-> I don't do much image editting, but I'm sure there are applications that
-> let you edit the description in a text file.  You can even create a
-> script that extracts it, runs nano, and puts it back into the jpeg.
-
-> This works for me:
-> tar -tf file.tar | grep '\.doc'
-
-> There are userland tools that deal with hundreds of file formats. Use
-> the tool you need, rather than try to have the kernel do everything.
-
-  No, but if I wanted to have an encryption plugin active for some of
-  my files or directories then why should I not be able to? I still
-  want to edit, view and save my encrypted files.
-
-  Again, this was just an example of what could be done with plugins.
-  It is not said that every conceivable plugin will be written, nor
-  loaded per default. Even though plugins cannot today be dynamically
-  used, they will be eventually. Reiser4 is still very young.
-
-  Please separate your thoughts for specific plugins from those of the
-  idea to have plugins at all.
-
-  ~S
-
->>  Sure in some environments like Gnome it could
->>   work, but it still doesn't for the rest of the flora of Linux
->>   programs.
-
-> Just choose the right program.  tar groks tar files, not ls.
+Christoph Hellwig wrote:
+> On Fri, Sep 03, 2004 at 02:38:12PM +0200, Kristian Sørensen wrote:
+> 
+>>Is there another way to get it? We also get an inodepointer from the LSM 
+>>hook. As far as I know, the file struct has an entry called vfs_mount, 
+>>which has an entry called root_mnt - could this be used? (and if so, how 
+>>do I get from the Inode to the file struct? :-/ )
+> 
+> 
+> Witch a struct file you can use d_path which gives you a canonical path
+> in the _current_ _namespace_.
+But we do not have a struct file - just an inode or a dentry :((
 
 
+> What do you want to do with the path anyway?
+We are working on a project called Umbrella, (umbrella.sf.net) which 
+implements processbased mandatory accesscontrol in the Linux kernel. 
+This access control is controlled by "restriction", e.g. by restricting 
+  some process from accessing any given file or directory.
+
+E.g. if a root owned process is restricted from accessing /var/www, and 
+the process is compromised by an attacker, no mater what he does, he 
+would not be able to access this directory.
+
+
+KS

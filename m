@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbTIOINO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 04:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTIOINO
+	id S261633AbTIOIR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 04:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbTIOIR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 04:13:14 -0400
-Received: from rth.ninka.net ([216.101.162.244]:65422 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261290AbTIOINN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 04:13:13 -0400
-Date: Mon, 15 Sep 2003 01:11:59 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: =?ISO-8859-1?B?RGFuaets?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: mroos@linux.ee, linux-kernel@vger.kernel.org
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-Message-Id: <20030915011159.250f3346.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0309141117030.15181-100000@deadlock.et.tudelft.nl>
-References: <Pine.GSO.4.44.0309141155480.22863-100000@math.ut.ee>
-	<Pine.LNX.4.44.0309141117030.15181-100000@deadlock.et.tudelft.nl>
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 15 Sep 2003 04:17:59 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:56704 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261633AbTIOIR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 04:17:58 -0400
+Date: Mon, 15 Sep 2003 09:31:44 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309150831.h8F8Vir6000839@81-2-122-30.bradfords.org.uk>
+To: alan@lxorguk.ukuu.org.uk, john@grabjohn.com
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org, zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Sep 2003 11:35:46 +0200 (CEST)
-Daniël Mantione <daniel@deadlock.et.tudelft.nl> wrote:
+> > That's a non-issue.  300 bytes matters a lot on some systems.  The
+> > fact that there are drivers that are bloated is nothing to do with
+> > it.
+>
+> Its kind of irrelevant when by saying "Athlon" you've added 128 byte
+> alignment to all the cache friendly structure padding.
 
-> Ok. The sparc code has not been modified; something weird is going on. (By
-> the way, the Sparc code could use some design improvement, as a special
-> exception, the Sparc does backcalculation and it is hacky implemented).
+My intention is that we won't have done 128 byte alignments just by
+'supporting' Athlons, only if we want to run fast on Athlons.  A
+distribution kernel that is intended to boot on all CPUs needs
+workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
 
-Any time someone messes with the clock timing code, they always
-break Sparc.
+Obviously using such a kernel for anything other than getting a system
+up and running to compile a better kernel is a Bad Thing, but the
+distributions could supply separate Athlon, PIV, and 386 _optimised_
+kernels.
 
-We have to make assumptions about several things, one of which
-is the clock crystal used because the Sun firmware provides
-no way to just guess this so we just have to know what it is.
+> There are systems
+> where memory matters, but spending a week chasing 300 bytes when you can
+> knock out 50K is a waste of everyones time. Do the 40K problems first
 
-Second, as you mention we reverse calculate the clocks to turn the
-video mode the firmware brought the card up in into the parameters the
-driver wants.
+The 'select a single CPU to support and/optimise for' -> 'select a
+bitmap of CPUs to support' work is being done anyway though, so this
+is more or less just one single IFDEF, which is more like a few
+seconds work, rather than a week.
 
-Please, can we revert your changes if we can't fix Sparc quickly?
-This is a pretty serious regression you've added and I have this
-feeling it's going to stay broke for some time as you go back and
-forth with us trying to resolve this.
+Also, a lot of the 40K problems are in drivers that embedded systems
+simply don't use.
+
+John.

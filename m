@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262911AbSJLMLC>; Sat, 12 Oct 2002 08:11:02 -0400
+	id <S262912AbSJLMRL>; Sat, 12 Oct 2002 08:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbSJLMLC>; Sat, 12 Oct 2002 08:11:02 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:37046 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262911AbSJLMLB>;
-	Sat, 12 Oct 2002 08:11:01 -0400
-Date: Sat, 12 Oct 2002 14:16:50 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] USAGI IPsec
-Message-ID: <20021012121650.GA10827@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <20021012.114330.78212112.yoshfuji@linux-ipv6.org> <20021011.194108.102576152.davem@redhat.com> <20021012111759.GA10104@outpost.ds9a.nl> <20021012.044137.42774593.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012.044137.42774593.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+	id <S262914AbSJLMRL>; Sat, 12 Oct 2002 08:17:11 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:17894 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262912AbSJLMRL> convert rfc822-to-8bit; Sat, 12 Oct 2002 08:17:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: [ANNOUNCE] procps 3.0.1
+Date: Sat, 12 Oct 2002 14:22:29 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, acahalan@cs.uml.edu (Albert D. Cahalan)
+References: <200210120922.g9C9MB219606@saturn.cs.uml.edu>
+In-Reply-To: <200210120922.g9C9MB219606@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210121422.29483.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 04:41:37AM -0700, David S. Miller wrote:
+On Saturday 12 October 2002 11:22, Albert D. Cahalan wrote:
 
-> Also the idea Alexey and I have to move towards a small
-> efficient flow cache shared by IPv4/IPv6 plays into this
-> as well.  There are changesets on their way to Linus tonight
+Hi Albert,
 
-Some people on #lartc were wondering about the use of a route cache if there
-is only one route. It was reported that a single default route on a system
-that talks to many destinations would lead to a huge route cache, which is
-probably not more efficient than looking up the simple route.
+> > Say, can you please, if you want to support kernel 2.5.xx also,
+> > do it right?
+> You're running a 2.2.xx or 2.0.xx non-SMP kernel, aren't you?
+> No problem anymore, get the 3.0.2 release.
+err, I wrote 2.5.xx ?! ... I don't run 2.2.xx nor 2.0.xx kernels!
 
-Would this 'small efficient flow cache' also solve this problem?
+ciao, Marc
 
-Or is this problem a figment of people's imaginations?
 
-> The initial ipsec is intended to be simple, singly linked
-> lists for the spd/sad databases etc.  Making the feature
-> freeze is pretty important right now, full blown flow cache
-> is just performance improvement :)
-
-I know a lot of people are hoping that you make the feature freeze. As said
-before, if there is any help you need, just yell.
-
-Regards,
-
-bert 
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

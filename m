@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbTIPATn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 20:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTIPATn
+	id S261676AbTIPASs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 20:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbTIPASs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 20:19:43 -0400
-Received: from mail.mygisol.com ([207.44.144.6]:1967 "HELO mail.mygisol.com")
-	by vger.kernel.org with SMTP id S261693AbTIPATm (ORCPT
+	Mon, 15 Sep 2003 20:18:48 -0400
+Received: from mail.kroah.org ([65.200.24.183]:7593 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261676AbTIPASr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 20:19:42 -0400
-From: "Jack Stewart" <jack@webtech.co.nz>
-To: "'Dave Jones'" <davej@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Source for Promise PDC20376 Linux Drivers
-Date: Tue, 16 Sep 2003 12:20:54 +1200
-Message-ID: <625CF2D7C3D60245B050C921AB0B0A960F0B09@nzrcsxch01.nzrc.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <625CF2D7C3D60245B050C921AB0B0A964EBA51@nzrcsxch01.nzrc.net>
+	Mon, 15 Sep 2003 20:18:47 -0400
+Date: Mon, 15 Sep 2003 17:17:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI probe, please CC hamilton@sedsystems.ca
+Message-ID: <20030916001730.GA19930@kroah.com>
+References: <3F66441F.3010206@sedsystems.ca> <20030915230949.GA18153@kroah.com> <3F6649A1.6070103@sedsystems.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F6649A1.6070103@sedsystems.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, rats... I hadn't had the chance to look at what was actually in the
-archive.
+On Mon, Sep 15, 2003 at 05:22:09PM -0600, Kendrick Hamilton wrote:
+> Greg,
+>    We don't have a hardware address to use. What I am looking for is a 
+> way to tie it to the slot number. Is there any way of getting the slot 
+> number?
 
------Original Message-----
-From: Dave Jones [mailto:davej@codemonkey.org.uk] On Behalf Of Dave
-Jones
-Sent: Tuesday, September 16, 2003 12:08 PM
-To: Jack Stewart
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Source for Promise PDC20376 Linux Drivers
+Again, do the pci bus ids change between boots?
 
+And no, there usually is not a way to get to the slot number, except for
+machines that happen to have a pci hotplug controller.  They usually
+have some way to map from the slot to the pci devices.
 
-On Tue, Sep 16, 2003 at 10:54:23AM +1200, Jack Stewart wrote:
- > 
- > I just noticed today that Promise appear to have posted source for
-their  > FastTrak TX4000 Linux Drivers along with new binaries for
-Redhat and  > Suse.  I know there have been some efforts to get a driver
-for the  > PDC20376 into the kernel.  Here's hoping this source will
-help?
+thanks,
 
-It's part binary
-
--rw-r--r--    1 davej    davej      201356 Feb 23  2003 ftlib.o
-
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk
-
+greg k-h

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263918AbTIIDU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 23:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbTIIDU2
+	id S263926AbTIIDpF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 23:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTIIDpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 23:20:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30367 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263918AbTIIDU1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 23:20:27 -0400
-Date: Mon, 8 Sep 2003 20:21:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: mingo@redhat.com, drepper@redhat.com, roland@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use group_leader->pgrp (was Re: setpgid and threads)
-Message-Id: <20030908202147.3cba2ecd.akpm@osdl.org>
-In-Reply-To: <1063073637.4004.14.camel@localhost.localdomain>
-References: <1061424262.24785.29.camel@localhost.localdomain>
-	<20030820194940.6b949d9d.akpm@osdl.org>
-	<1063072786.4004.11.camel@localhost.localdomain>
-	<20030908191215.22f501a2.akpm@osdl.org>
-	<1063073637.4004.14.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Sep 2003 23:45:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40323 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263926AbTIIDpB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 23:45:01 -0400
+Message-ID: <3F5D4CB1.3060001@pobox.com>
+Date: Mon, 08 Sep 2003 23:44:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Cherry <cherry@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test5 (compile stats)
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <1063065853.10623.449.camel@cherrypit.pdx.osdl.net>
+In-Reply-To: <1063065853.10623.449.camel@cherrypit.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
->
-> On Mon, 2003-09-08 at 19:12, Andrew Morton wrote:
-> > and to then rename task_struct.pgrp to something else, to pick up any
-> > missed conversions?
+John Cherry wrote:
+> Compile statistics: 2.6.0-test5
+> Compiler: gcc 3.2.2
+> Script: http://developer.osdl.org/~cherry/compile/compregress.sh
 > 
-> Probably a good idea.
-
-Caught a few:
-
-drivers/char/tty_io.c: In function `tty_check_change':
-drivers/char/tty_io.c:332: structure has no member named `pgrp'
-drivers/char/tty_io.c:334: structure has no member named `pgrp'
-
-	if (is_orphaned_pgrp(current->pgrp))
-		return -EIO;
-	(void) kill_pg(current->pgrp,SIGTTOU,1);
-
-should these be converted?
+> Note: the numbers look drastically better, but this is skewed
+>       by the fact that CONFIG_CLEAN_COMPILE is now the default
+>       for defconfig and allmodconfig.
+> 
+>                bzImage       bzImage        modules
+>              (defconfig)  (allmodconfig) (allmodconfig)
 
 
-drivers/char/tty_io.c: In function `tty_open':
-drivers/char/tty_io.c:1409: structure has no member named `pgrp'
+Any chance you can add "bzImage (allyesconfig)"?
 
-		tty->pgrp = current->pgrp;
+Cool stats, thanks.
 
-this one?
+	Jeff
 
-drivers/char/tty_io.c: In function `tiocsctty':
-drivers/char/tty_io.c:1583: structure has no member named `pgrp'
 
-        tty->pgrp = current->pgrp;
 
-and this.  I think so?

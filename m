@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261751AbSI2TYP>; Sun, 29 Sep 2002 15:24:15 -0400
+	id <S261617AbSI2Tlx>; Sun, 29 Sep 2002 15:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261752AbSI2TYP>; Sun, 29 Sep 2002 15:24:15 -0400
-Received: from gate.perex.cz ([194.212.165.105]:22800 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S261751AbSI2TYN>;
-	Sun, 29 Sep 2002 15:24:13 -0400
-Date: Sun, 29 Sep 2002 21:28:48 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Arjan van de Ven <arjanv@fenrus.demon.nl>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
-In-Reply-To: <1033326744.2419.9.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0209292120171.591-100000@pnote.perex-int.cz>
+	id <S261696AbSI2Tlx>; Sun, 29 Sep 2002 15:41:53 -0400
+Received: from host187.south.iit.edu ([216.47.130.187]:1664 "EHLO
+	host187.south.iit.edu") by vger.kernel.org with ESMTP
+	id <S261617AbSI2Tlw>; Sun, 29 Sep 2002 15:41:52 -0400
+Date: Sun, 29 Sep 2002 14:45:43 -0500 (CDT)
+From: Stephen Marz <smarz@host187.south.iit.edu>
+To: Franco Saliola <saliola@polygon.math.cornell.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: kernel BUG in usb-ohci.c:902!
+In-Reply-To: <20020929152906.A5092@main.math.cornell.edu>
+Message-ID: <Pine.LNX.4.44.0209291440270.1544-100000@host187.south.iit.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Sep 2002, Arjan van de Ven wrote:
+On Sun, 29 Sep 2002, Franco Saliola wrote:
 
-> On Sun, 2002-09-29 at 20:51, Jaroslav Kysela wrote:
-> > +	sgbuf = snd_magic_cast(snd_pcm_sgbuf_t, substream->dma_private, return -EINVAL);
+> Hello,
 > 
-> hummmm magic casts?? why ?
-
-We are trying to check if 'void *' pointers in structures are used 
-correctly. It's our tool for debugging.
-
-> > +		ptr = snd_malloc_pci_pages(sgbuf->pci, PAGE_SIZE, &addr);
+> I thought this error may be of interest to someone on this list. My
+> computer called it a kernel BUG. I wasn't sure how much information was
+> needed, so I played it say and filled out the bug reporting form to the
+> best of my ability. If you are only interested in seeing the error
+> message, go all the way to the bottom of the message. It's the last
+> thing in this mail.
 > 
-> what is wrong with the PCI DMA API that makes ALSA wants a private
-> interface/implementation ?
-
-These lines (i386 arch):
-
-        if (hwdev == NULL || ((u32)hwdev->dma_mask != 0xffffffff))
-                gfp |= GFP_DMA;
-        ret = (void *)__get_free_pages(gfp, get_order(size));
-
-Note that some of soundcards have various PCI DMA transfer limits 
-(dma_mask is not set to use full 32-bits). In this case, restricting this 
-hardware to allocate these buffers in first 16MB is not a very good idea.
-Thus, we have own hacks to allocate memory in whole hardware area.
-
-> >  EXPORT_SYMBOL(snd_wrapper_kmalloc);
-> >  EXPORT_SYMBOL(snd_wrapper_kfree);
-> > +EXPORT_SYMBOL(snd_wrapper_vmalloc);
-> > +EXPORT_SYMBOL(snd_wrapper_vfree);
+> I'm not subscribed to this list, please copy me on any replies,
+> thoughts, suggestions. Thank you.
 > 
-> why do you need a wrapper for vfree? 
+> Franco
+> 
+> EIP:	0010:[<d291dd63>]	Not tainted
+> EFLAGS:	00010286
+> eax: 0000003a	ebx: cf46dc10	ecx: 00000000	edx: cebd0000
+> esi: 00000000	edi: 00000002	ebp: c0297ed8	esp: c0297e84
+> ds: 0018   es: 0018   ss: 0018
+> Process swapper (pid: 0, stackpage=c0297000)
+> Stack: d2920f40 cff3ba76 00000002 cf797800 cf46d610 00000202 c025f1f8 00000046
+>        cff37fd8 c0297ecc c01191a8 00000046 00000001 d291f66a cf422000 00000001
+>        00000000 00000002 cecfa800 ce526000 cd558000 c0297ee8 d290e135 cecfa800
+> Call Trace:    [<d2920f40>] [<c01191a8>] [<d291f66a>] [<d290e135>] [<d2a30e2a>]
+>   [<d2a30e10>] [<c0123f2c>] [<c01236ed>] [<c01202e2>] [<c01201d4>] [<c012000a>]
+>   [<c010a416>] [<c010c8c8>] [<c0110018>] [<c01071a4>] [<c0114b35>] [<c0114a80>]
+>   [<c0107212>] [<c0105000>]
+> 
+> Code: 0f 0b 86 03 0a 0e 92 d2 83 c4 0c e9 75 ff ff ff 57 68 15 0e
+>  <0>Kernel panic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing
 
-Debugging. We enumerate all allocations, so we can check for memory leaks.
-I'm happy to say, that our code is very well debugged in this regard.
+I have noticed this problem in 2.5.39 except it occurs with the module 
+uhci-hcd.  I can work around the problem by using the 'nousb' feature that 
+the redhat rc scripts recognize.  I then load the modules by hand with 
+pcmcia initialization first (pcmcia_core->yenta_socket->ds) then usb
+ohci-hcd, uhci-hcd, then ehci-hcd last.  Then I can go ahead and load the 
+hid and usb-storage drivers also.
 
-						Jaroslav
+Regards,
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+Stephen Marz
 

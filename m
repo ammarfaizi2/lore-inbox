@@ -1,102 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317081AbSGHSvC>; Mon, 8 Jul 2002 14:51:02 -0400
+	id <S317091AbSGHSwI>; Mon, 8 Jul 2002 14:52:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317091AbSGHSvB>; Mon, 8 Jul 2002 14:51:01 -0400
-Received: from relay03.valueweb.net ([216.219.253.237]:34823 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S317081AbSGHSvA>; Mon, 8 Jul 2002 14:51:00 -0400
-Message-ID: <3D29DCBC.5ADB7BE8@opersys.com>
-Date: Mon, 08 Jul 2002 14:41:00 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S317101AbSGHSwH>; Mon, 8 Jul 2002 14:52:07 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:2573 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317091AbSGHSwG> convert rfc822-to-8bit;
+	Mon, 8 Jul 2002 14:52:06 -0400
+Message-ID: <3D29DFED.9050004@evision-ventures.com>
+Date: Mon, 08 Jul 2002 20:54:37 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: John Levon <levon@movementarian.org>, Andrew Morton <akpm@zip.com.au>,
-       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Richard Moore <richardj_moore@uk.ibm.com>,
-       bob <bob@watson.ibm.com>
-Subject: Re: Enhanced profiling support (was Re: vm lock contention reduction)
-References: <Pine.LNX.4.44.0207081039390.2921-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Dave Jones <davej@suse.de>
+CC: bert hubert <ahu@ds9a.nl>, Russell King <rmk@arm.linux.org.uk>,
+       Grega Fajdiga <Gregor.Fajdiga@telemach.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Where is Martin Dalecki?
+References: <20020706121859.2b137690.Gregor.Fajdiga@telemach.net> <20020706121838.A5127@flint.arm.linux.org.uk> <20020706112403.GA27254@outpost.ds9a.nl> <3D291934.1030202@evision-ventures.com> <20020708161300.F20087@suse.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Linus Torvalds wrote:
-> On Mon, 8 Jul 2002, John Levon wrote:
-> > How do you see such dentry names being exported to user-space for the
-> > profiling daemon to access ? The current oprofile scheme is, um, less
-> > than ideal ...
+U¿ytkownik Dave Jones napisa³:
+> On Mon, Jul 08, 2002 at 06:46:44AM +0200, Martin Dalecki wrote:
 > 
-> Ok, I'll outline my personal favourite interface, but I'd also better
-> point out that while I've thought a bit about what I'd like to have and
-> how it could be implemented in the kernel, I have _not_ actually tried any
-> of it out, much less thought about what the user level stuff really needs.
-
-Sure. I've done some work on profiling using trace hooks. Hopefully the
-following is useful.
-
-> Anyway, here goes a straw-man:
+>  > The problem was that the free slot you are talking about...
+>  > ... was simple scheduled at a far too early time (10:00) for me to
+>  > get up after having the "session" you can see above.
 > 
->  - I'd associate each profiling event with a dentry/offset pair, simply
->    because that's the highest-level thing that the kernel knows about and
->    that is "static".
+> I missed the actual proposed session, but the notice said otherwise
+> anyway...  http://photos.codemonkey.org.uk/photo.php?id=134670
 
-dentry + offset: on a 32bit machine, this is 8 bytes total per event being
-profiled. This is a lot of information if you are trying you have a high
-volume throughput. You can almost always skip the dentry since you know scheduling
-changes and since you can catch a system-state snapshot at the begining of
-the profiling. After that, the eip is sufficient and can easily be correlated
-to a meaningfull entry in a file in user-space.
+Well at least you see ... there was some leak of communication.
+And please note as well that I was just attending the
+kernel summit. I never even registered for the actual symposium.
 
->  - I'd suggest that the profiler explicitly mark the dentries it wants
->    profiled, so that the kernel can throw away events that we're not
->    interested in. The marking function would return a cookie to user
->    space, and increment the dentry count (along with setting the
->    "profile" flag in the dentry)
+Oh well, oh well...
 
-Or the kernel can completely ignore this sort of selection and leave it
-all to the agent responsible for collecting the events. This is what is
-done in LTT. Currently, you can select one PID, GID, UID, but this
-is easily extendable to include many. Of course if you agree to having
-the task struct have "trace" or "profile" field, then this would be
-much easier.
 
->  - the "cookie" (which would most easily just be the kernel address of the
->    dentry) would be the thing that we give to user-space (along with
->    offset) on profile read. The user app can turn it back into a filename.
-
-That's the typical scheme and the one possible with the data retrieved
-by LTT.
-
-> Whether it is the original "mark this file for profiling" phase that saves
-> away the cookie<->filename association, or whether we also have a system
-> call for "return the path of this cookie", I don't much care about.
-> Details, details.
-> 
-> Anyway, what would be the preferred interface from user level?
-
-The approach LTT takes is that no part in the kernel should actually care
-about the user level needs. Anything in user level that has to modify
-the tracing/profiling makes its requests to the trace driver, /dev/tracer.
-No additional system calls, no special cases in the main kernel code. Only
-3 main files:
-kernel/trace.c: The main entry point for all events (trace_event())
-drivers/trace/tracer.c: The trace driver
-include/linux/trace.h: The trace hook definitions
-
-Cheers,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

@@ -1,76 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263817AbTEFPe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTEFPe0
+	id S263894AbTEFPws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTEFPws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:34:26 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:36481 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263817AbTEFPdu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:33:50 -0400
-Date: Tue, 6 May 2003 11:48:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Simon Kelley <simon@thekelleys.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Binary firmware in the kernel - licensing issues.
-In-Reply-To: <20030506151644.GA19898@fieldses.org>
-Message-ID: <Pine.LNX.4.53.0305061139020.6723@chaos>
-References: <3EB79ECE.4010709@thekelleys.org.uk> <20030506121954.GO24892@mea-ext.zmailer.org>
- <20030506151644.GA19898@fieldses.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 May 2003 11:52:48 -0400
+Received: from www1.mail.lycos.com ([209.202.220.140]:39489 "HELO lycos.com")
+	by vger.kernel.org with SMTP id S263894AbTEFPwp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:52:45 -0400
+To: linux-kernel@vger.kernel.org, "Peder Stray" <peder@ifi.uio.no>
+Date: Tue, 06 May 2003 12:04:54 -0400
+From: "Sumit Narayan" <sumit_uconn@lycos.com>
+Message-ID: <JLMGNFCLNCBCCDAA@mailcity.com>
+Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: sumit_uconn@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: Files truncate on vfat filesystem
+X-Sender-Ip: 137.99.1.12
+Organization: Lycos Mail  (http://www.mail.lycos.com:80)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003, J. Bruce Fields wrote:
+Peder,
 
-> On Tue, May 06, 2003 at 03:19:54PM +0300, Matti Aarnio wrote:
-> > On Tue, May 06, 2003 at 12:38:54PM +0100, Simon Kelley wrote:
-> > > I shall contact Atmel for advice and clarification but my question for
-> > > the list is, what should I ask them to do? It's unlikely that they will
-> > > release the source to the firmware and even if they did I wouldn't want
-> > > firmware source  in the kernel tree since the kernel-build toolchain
-> > > won't be enough to build the firmware. What permissions do they have to
-> > > give to make including this stuff legal and compatible with the rest of
-> > > the kernel?
-> >
-> > Adding a phrase like:  "This firmware binary block is intended to be
-> > used in BSD/GPL licensed driver"   would definitely clarify it.
-> > Possibly adding:
-> >   "Source code/further explanations for this binary block
-> >    are available at file FFFF.F / are not available."
+I think the problem that you are facing is because you umount the disk immediately after transferring the file. Though ls indicates that the file has been transferred, and the size match, the transfer would still be in progress behind the scene, and once you umount, and remove the USB disk, the data is lost, since the transfer was not complete. You are facing this problem randomly, depending on how long you wait after the transfer to remove the disk. This happens when you are transferring large files, and not while using small files. This will happen even when you are transferring large files from your CDs.
+I hope this helps. Just wait for few seconds after the transfer is done, and you wont lose your data anymore.
+
+Regards,
+Sumit 
+--
+
+On 06 May 2003 17:29:12 +020  
+ Peder Stray wrote:
 >
-> It's not Atmel whose permission you need to do this, it's the other
-> kernel developers whose permission you need.  By releasing their code
-> under the GPL, the people who hold copyright on all the other kernel
-> code have essentially given you permission to modify and redistribute
-> their code as long as you make source available for the resulting work.
+>I have a 250GB usb-storage disk i use to transport large files between
+>work and home, I uses vfat (since I haven't found any other good
+>filesystems that don't require me to either be root or have all files
+>worldreadable). Anyways...
 >
-> The question is whether adding this binary blob to the linux kernel
-> violates the license that the kernel developers gave you.  I can't see
-> how Amtel saying it's OK would make it so.
+>Some files get its size truncated to 0 after a while (usually a few
+>minuts, or when i umount the disk). They seem to be the correct size
+>when I do ls -l immediately after i have transfered the files (with cp
+>or rsync, doesn't really matter). Moving files on the disk with mv also
+>seems to trigger the problem sometimes.
 >
-> --Bruce Fields
+>I see that blocks get allocated, but the filesizes are 0. Currently
+>there is a difference of 17GB in the output of df and du.
+>
+>I have also noticed that the size of some directories get truncated too,
+>thus all files copied or moved into those directories dissappear. ls -l
+>in those directories doesn't even show . and ..
+>
+>it seem very inconsistent which files are affected, both in size, length
+>of filename, unusual characters or depth in the filestructure. No
+>messages from the kernel logs.
+>
+>A check of the filesystem from XP reports no errors in the
+>filestructure, and it work 100% there.
+>
+>kernel versions used are are amongst 2.4.18 and 2.4.20, selfcompiled or
+>stock from RH.
+>
+>More details can of course be supplied if anyone have any ideas what to
+>check and how.
+>
+>any comments or help would be much appreciated as the loss of data i
+>experience is more than a little annyoing.
+>
+>-- 
+>  Peder Stray
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-I don't see anybody sending the contents of the PALs, ASICs, and
-other components on your motherboard. Modern machines have all
-those bits loaded upon power-up. Before the power is applied,
-the components aren't even connected. The same is true for
-many disk drive boards, screen-card boards, etc. The manufacturer
-will supply a bucket of bits, plus instructions on how to
-load them into the hardware. I don't see how this violates either
-the wording or the spirit of GPL. The manufacturer certainly
-isn't going to supply the "source", which is the output of a
-graphical program where the Engineers spent the last year
-designing the board. If this kind of BS continues, Linux
-will go the way of the Hippie culture.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+____________________________________________________________
+Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
+http://login.mail.lycos.com/r/referral?aid=27005

@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288811AbSANF5Y>; Mon, 14 Jan 2002 00:57:24 -0500
+	id <S288802AbSANGSJ>; Mon, 14 Jan 2002 01:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288802AbSANF5L>; Mon, 14 Jan 2002 00:57:11 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:8719 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288809AbSANF46>; Mon, 14 Jan 2002 00:56:58 -0500
-Date: Mon, 14 Jan 2002 08:56:56 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] [PATCH] corrupted reiserfs may cause kernel to panic on lookup() sometimes.
-Message-ID: <20020114085656.A4491@namesys.com>
-In-Reply-To: <20020103101830.A2610@namesys.com> <147220000.1010771186@tiny>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <147220000.1010771186@tiny>
-User-Agent: Mutt/1.3.22.1i
+	id <S288809AbSANGSA>; Mon, 14 Jan 2002 01:18:00 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37905 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288802AbSANGRo>;
+	Mon, 14 Jan 2002 01:17:44 -0500
+Date: Mon, 14 Jan 2002 04:17:31 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Adam Kropelin <akropel1@rochester.rr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18pre3-ac1
+In-Reply-To: <m13d19qy9f.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33L.0201140409260.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On 13 Jan 2002, Eric W. Biederman wrote:
+> Rik van Riel <riel@conectiva.com.br> writes:
 
-On Fri, Jan 11, 2002 at 12:46:26PM -0500, Chris Mason wrote:
+> Rik while you are looking at your reverse mapping code, I would like
+> to call to your attention the at least trippling of times for fork.
 
-> >     Certain disk corruptions and i/o errors may cause lookup() to panic,
-> > which is wrong.     This patch fixes the problem.
-> >     Please apply.
-> Hmmm, none of the callers of reiserfs_find_entry have been changed to check
-> for IO_ERROR.  We should at least change reiserfs_add_entry to check for
-> IO_ERROR, so it doesn't try to create a name after getting io error during
-> the lookup.
-Well, in fact reiserfs_add_entry won't do that anyway, consider this code:
-    retval = reiserfs_find_entry (dir, name, namelen, &path, &de);
-    if( retval != NAME_NOT_FOUND ) {
-        if (buffer != small_buf)
-            reiserfs_kfree (buffer, buflen, dir->i_sb);
-        pathrelse (&path);
+Dave McCracken has measured this on his system, it seems to vary
+from between 10% for bash to 400% for a process with 10 MB of memory.
 
-        if (retval != NAME_FOUND) {
-            reiserfs_warning ("zam-7002:" __FUNCTION__ ": \"reiserfs_find_entry\" has returned"
-                              " unexpected value (%d)\n", retval);
-       }
+This is a problem which will need to be solved, a number of designs
+on how to deal with this are ready, implementation needs to be done.
 
-        return -EEXIST;
-    }
+> I wouldn't be surprised if the reason your rmap vm handles things like
+> gcc -j better than the stock kernel is simply the reduced number of
+> processes, due to slower forking.
 
-Though I see other places where code is not that smart. I'll come up with additional patch later today.
-Thanks for noticing.
+I really doubt this, since gcc spends so much more time doing
+real work than forking that the time used in fork can be ignored,
+even if it gets 3 times slower.
 
-Bye,
-    Oleg
+> Just my 2 cents so we don't forget the caveats of the reverse map
+> approach.
+
+The main way we can speed up fork easily is by not copying the
+page tables at all at fork time but filling them in later at page
+fault time. While this might look like it's just moving the overhead
+from one place to another, but for the typical fork()+exec() case it
+means (1) we don't copy the page tables at fork time (2) we don't
+need to free them at exec time (3) after the exec, the parent can
+just take back the complete page tables without having to take COW
+faults on all its pages.
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,131 +1,211 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282799AbRLGHtm>; Fri, 7 Dec 2001 02:49:42 -0500
+	id <S285428AbRLGIHQ>; Fri, 7 Dec 2001 03:07:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282801AbRLGHtc>; Fri, 7 Dec 2001 02:49:32 -0500
-Received: from mail.gmx.net ([213.165.64.20]:26127 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S282799AbRLGHtR>;
-	Fri, 7 Dec 2001 02:49:17 -0500
-Date: Fri, 7 Dec 2001 08:49:10 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] / ALSA-0.9.0beta[9,10]
-Message-Id: <20011207084910.7ec3b9c3.rene.rebe@gmx.net>
-In-Reply-To: <200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <20011207003528.1448673e.rene.rebe@gmx.net>
-	<200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S285426AbRLGIHI>; Fri, 7 Dec 2001 03:07:08 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:7816 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S282812AbRLGIGx>; Fri, 7 Dec 2001 03:06:53 -0500
+Date: Fri, 7 Dec 2001 10:10:08 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: <linux-sound@vger.kernel.org>, <scott@spiteful.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] PM support for opl3sa2.c #3
+In-Reply-To: <Pine.LNX.4.33.0112041036540.22291-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.33.0112071005370.5696-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001 23:09:14 -0700
-Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+This should be the last one, i made a mistake over the control
+register index on the previous ones ;)
 
-> Rene Rebe writes:
-> > At least since 2.4.17-pre4 and -pre5 devfs is not handling
-> > permissions in the right way with ALSA:
-> 
-> Please define what is the "right way".
+Will apply on 2.5.1-pre5+ and 2.4.17-pre3+ (mostly due to the ISAPNP
+changes)
 
-Sorry I toght the commands wabout would be enought:
+--- linux-2.5.1-pre1-preempt/drivers/sound/opl3sa2.c	Fri Dec  7 09:15:14 2001
++++ linux-2.4.17-pre2-rml/drivers/sound/opl3sa2.c	Fri Dec  7 09:17:34 2001
+@@ -55,6 +55,7 @@
+  *                         sb_card.c and awe_wave.c. (Dec 12, 2000)
+  * Scott Murray            Some small cleanups to the init code output.
+  *                         (Jan 7, 2001)
++ * Zwane Mwaikambo	   Added PM support. (Dec 4 2001)
+  *
+  */
 
-As root they are listable and read and writeable (for examples via ls -l,
-cat /dev/dsp > ~/my-speach.snd or cat ~/my-speach.snd > /dev/dsp), ussing
-mpg123 ...
+@@ -62,13 +63,14 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/isapnp.h>
+-
++#include <linux/pm.h>
+ #include "sound_config.h"
 
-> > rene@jackson:/dev > l dsp sound/dsp 
-> > ls: sound/dsp: Permission denied
-> > lr-xr-xr-x   1 root     root            9 Dec  7 00:14 dsp -> sound/dsp
-> > rene@jackson:/dev > cd sound/
-> > bash: cd: sound/: Permission denied
-> > rene@jackson:/dev > 
-> > 
-> > rene@jackson:/dev > l snd
-> > ls: snd/..: Permission denied
-> > ls: snd/.: Permission denied
-> > ls: snd/controlC0: Permission denied
-> > ls: snd/controlC1: Permission denied
-> > ls: snd/timer: Permission denied
-> > ls: snd/midiC0D0: Permission denied
-> > ls: snd/pcmC0D2p: Permission denied
-> > ls: snd/pcmC0D1c: Permission denied
-> > ls: snd/pcmC0D0p: Permission denied
-> > ls: snd/pcmC0D0c: Permission denied
-> > ls: snd/midiC1D0: Permission denied
-> > ls: snd/pcmC1D0p: Permission denied
-> > ls: snd/pcmC1D0c: Permission denied
-> > total 0
-> > 
-> > They all have 666 (or 777 for dirs)!
-> 
-> Are you saying this is good or bad?
+ #include "ad1848.h"
+ #include "mpu401.h"
 
-This is good. The permissions of the files are correct (everyone can use
-sound), but I can (as you see in the command's output) neither access nor
-read/write them as normal user - but all this works as root.
+ /* Useful control port indexes: */
++#define OPL3SA2_PM	     0x01
+ #define OPL3SA2_SYS_CTRL     0x02
+ #define OPL3SA2_IRQ_CONFIG   0x03
+ #define OPL3SA2_DMA_CONFIG   0x06
+@@ -86,6 +88,11 @@
+ #define DEFAULT_MIC    50
+ #define DEFAULT_TIMBRE 0
 
-> > It is possible to this as root.
-> 
-> It's possible to do what? List the inodes? Open then? What?
++/* Power saving modes */
++#define OPL3SA2_PM_MODE1	0x05
++#define OPL3SA2_PM_MODE2	0x04
++#define OPL3SA2_PM_MODE3	0x03
++
+ /* For checking against what the card returns: */
+ #define VERSION_UNKNOWN 0
+ #define VERSION_YMF711  1
+@@ -121,6 +128,10 @@
+ typedef struct opl3sa2_mixerdata_tag {
+ 	unsigned short cfg_port;
+ 	unsigned short padding;
++	unsigned char  reg;
++	unsigned int   in_suspend;
++	struct pm_dev  *pmdev;
++	unsigned int   card;
+ 	unsigned int   volume_l;
+ 	unsigned int   volume_r;
+ 	unsigned int   mic;
+@@ -328,6 +339,20 @@
+ }
 
-Yes. All this is possible as root but not using anothe UID.
 
-> > Also loading the modules gives me:
-> > Dec  7 00:31:58 jackson kernel: devfs: devfs_register(unknown): could not append to parent, err: -17
-> 
-> Two possibilities:
-> 
-> - the module is trying to register "unknown" twice. The old devfs core
->   was forgiving about this (although it was always a driver bug to
->   attempt to create a duplicate). The new core won't let you do that.
->   Error 17 is EEXIST. Please fix the driver
-> 
-> - something in user-space created the "unknown" inode before the
->   driver could create it. This is a configuration bug. It seems
->   Mandrake has boot scripts which indiscriminately "restore" inodes in
->   /dev. This is a bug, because they also restore inodes created by the
++static void opl3sa2_mixer_restore(opl3sa2_mixerdata* devc, int card)
++{
++	if (devc) {
++		opl3sa2_set_volume(devc, devc->volume_l, devc->volume_r);
++		opl3sa2_set_mic(devc, devc->mic);
++
++		if (chipset[card] == CHIPSET_OPL3SA3) {
++			opl3sa3_set_bass(devc, devc->bass_l, devc->bass_r);
++			opl3sa3_set_treble(devc, devc->treble_l, devc->treble_r);
++		}
++	}
++}
++
++
+ static inline void arg_to_vol_mono(unsigned int vol, int* value)
+ {
+ 	int left;
+@@ -892,6 +917,77 @@
 
-I do not restore devices-nodes un reboot.
+ /* End of component functions */
 
->   drivers, whereas they should only be restoring admin-created inodes.
->   Grab devfsd-v1.3.20 which has the RESTORE directive which does this
->   properly, and blow away the part of the Mandrake boot scripts which
->   are causing the problem
++/* Power Management support functions */
++static int opl3sa2_suspend(struct pm_dev *pdev, unsigned char pm_mode)
++{
++	unsigned long flags;
++	opl3sa2_mixerdata *p;
++
++	if (!pdev)
++		return -EINVAL;
++
++	save_flags(flags);
++	cli();
++
++	p = (opl3sa2_mixerdata *) pdev->data;
++	p->in_suspend = 1;
++	switch (pm_mode) {
++	case 1:
++		pm_mode = OPL3SA2_PM_MODE1;
++		break;
++	case 2:
++		pm_mode = OPL3SA2_PM_MODE2;
++		break;
++	case 3:
++		pm_mode = OPL3SA2_PM_MODE3;
++		break;
++	default:
++		pm_mode = OPL3SA2_PM_MODE3;
++		break;
++	}
++
++	/* its supposed to automute before suspending, so we wont bother */
++	opl3sa2_read(p->cfg_port, OPL3SA2_PM, &p->reg);
++	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg | pm_mode);
++
++	restore_flags(flags);
++	return 0;
++}
++
++static int opl3sa2_resume(struct pm_dev *pdev)
++{
++	unsigned long flags;
++	opl3sa2_mixerdata *p;
++
++	if (!pdev)
++		return -EINVAL;
++
++	p = (opl3sa2_mixerdata *) pdev->data;
++	save_flags(flags);
++	cli();
++
++	/* I don't think this is necessary */
++	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg);
++	opl3sa2_mixer_restore(p, p->card);
++	p->in_suspend = 0;
++
++	restore_flags(flags);
++	return 0;
++}
++
++static int opl3sa2_pm_callback(struct pm_dev *pdev, pm_request_t rqst, void *data)
++{
++	unsigned char mode = (unsigned  char)data;
++
++	switch (rqst) {
++		case PM_SUSPEND:
++			return opl3sa2_suspend(pdev, mode);
++
++		case PM_RESUME:
++			return opl3sa2_resume(pdev);
++	}
++	return 0;
++}
 
-I use the devfsd.conf to configure the permission when a device registers.
+ /*
+  * Install OPL3-SA2 based card(s).
+@@ -980,7 +1076,7 @@
+ 				       " of the ISA PNP cards, continuing\n");
+ 				opl3sa2_cards_num--;
+ 				continue;
+-			} else
++			} else
+ 				return -ENODEV;
+ 		}
 
-> FYI: what happens now with duplicates is that the old entry remains,
-> and the new one is discarded. If you really are creating the same
-> entry, there should be no harm, just that annoying message.
+@@ -988,7 +1084,13 @@
+ 		conf_printf(chipset_name[card], &cfg[card]);
+ 		attach_opl3sa2_mss(&cfg_mss[card]);
+ 		attach_opl3sa2_mixer(&cfg[card], card);
+-
++
++		opl3sa2_data[card].card = card;
++		/* register our power management capabilities */
++		opl3sa2_data[card].pmdev = pm_register(PM_ISA_DEV, card, opl3sa2_pm_callback);
++		if (opl3sa2_data[card].pmdev)
++			opl3sa2_data[card].pmdev->data = &opl3sa2_data[card];
++
+ 		/*
+ 		 * Set the Yamaha 3D enhancement mode (aka Ymersion) if asked to and
+ 		 * it's supported.
+@@ -1033,6 +1135,9 @@
+ 	int card;
 
-The device-nodes seems to be all there they work as root, but not as normal
-user. But it seems to be a ALSA issue, because only the ALSA nodes have this
-strange behaviour ... ?
+ 	for(card = 0; card < opl3sa2_cards_num; card++) {
++		if (opl3sa2_data[card].pmdev)
++			pm_unregister(opl3sa2_data[card].pmdev);
++
+ 	        if(cfg_mpu[card].slots[1] != -1) {
+ 			unload_opl3sa2_mpu(&cfg_mpu[card]);
+ 		}
 
-> 				Regards,
-> 
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
-
-Have to leave now - can respond again in 8 hours ...
-
-k33p h4ck1n6
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

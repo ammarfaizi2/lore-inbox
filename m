@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265815AbUAVQ0O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 11:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266050AbUAVQ0O
+	id S264916AbUAVTGu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266346AbUAVTGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 11:26:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1427 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265815AbUAVQ0L (ORCPT
+	Thu, 22 Jan 2004 14:06:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10120 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264916AbUAVTGr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 11:26:11 -0500
-Subject: Re: 2.6.2-rc1-mm1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20040122013501.2251e65e.akpm@osdl.org>
-References: <20040122013501.2251e65e.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1074788769.29125.1.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jan 2004 08:26:09 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jan 2004 14:06:47 -0500
+Date: Thu, 22 Jan 2004 11:05:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Karol Kozimor <sziwan@hell.org.pl>, "Georg C. F. Greve" <greve@gnu.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
+Subject: RE: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
+In-Reply-To: <16400.6262.97863.651276@alkaid.it.uu.se>
+Message-ID: <Pine.LNX.4.58.0401221044440.2172@home.osdl.org>
+References: <88056F38E9E48644A0F562A38C64FB6082D0B8@scsmsx403.sc.intel.com>
+ <16400.6262.97863.651276@alkaid.it.uu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+On Thu, 22 Jan 2004, Mikael Pettersson wrote:
+> 
+> To handle both cases the code should do one of those "is intergrated"
+> tests we alreay have several of in apic.c. I can fix that, but not
+> until tomorrow.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+Even then I'd like to hear _why_ it would be a problem to bypass the
+divider on an external LAPIC. The original patch comes with a message
+explicitly saying that it was never even tested on such an external LAPIC, 
+and doing a google newsgroup search doesn't find any replies to that
+post.
 
-Error Summary (individual module builds):
+So it's entirely possible that the code was bogus to begin with, and just 
+never mattered..
 
-   drivers/net: 0 warnings, 1 errors
-   drivers/scsi/aic7xxx: 0 warnings, 1 errors
+I actually have some really old Intel manuals, including one for the
+i82489DX (actually, it's just one part of a "Pentium Processors and
+Related Products" manual). And while I see the register definition (and 
+yes, it documents the CLKIN/TMBASE/DIVIDER usage), I don't see anything 
+that actually says that you shouldn't just use CLKIN.
 
+Do we have any real reason to care? We calculate the counter value
+dynamically anyway, so the only "bug" might be that on one of those old
+i82489DX machines we might report a frequency value that is off by a
+factor of 16. Which should just make the user really happy ("cool, my APIC
+is running at 256 MHz!").
 
-Warning Summary (individual module builds):
+Hmm?
 
-   drivers/block: 1 warnings, 0 errors
-   drivers/cdrom: 3 warnings, 0 errors
-   drivers/char: 4 warnings, 0 errors
-   drivers/ide: 29 warnings, 0 errors
-   drivers/message: 1 warnings, 0 errors
-   drivers/mtd: 23 warnings, 0 errors
-   drivers/net: 7 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/scsi/pcmcia: 4 warnings, 0 errors
-   drivers/scsi: 33 warnings, 0 errors
-   drivers/serial: 1 warnings, 0 errors
-   drivers/telephony: 5 warnings, 0 errors
-   drivers/usb: 2 warnings, 0 errors
-   drivers/video/aty: 3 warnings, 0 errors
-   drivers/video/console: 2 warnings, 0 errors
-   drivers/video/matrox: 5 warnings, 0 errors
-   drivers/video/sis: 1 warnings, 0 errors
-   drivers/video: 8 warnings, 0 errors
-   sound/isa: 3 warnings, 0 errors
-   sound/oss: 33 warnings, 0 errors
-
-John
-
-
-
+			Linus

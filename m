@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbSJTQXG>; Sun, 20 Oct 2002 12:23:06 -0400
+	id <S263215AbSJTQi5>; Sun, 20 Oct 2002 12:38:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbSJTQXF>; Sun, 20 Oct 2002 12:23:05 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:23510 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S263208AbSJTQXC>; Sun, 20 Oct 2002 12:23:02 -0400
-Date: Sun, 20 Oct 2002 18:28:47 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] don't #include tqueue.h in drivers/net/wan/cycx_main.c
-Message-ID: <20021020162847.GD1820@admingilde.org>
-References: <Pine.NEB.4.44.0210201634170.28761-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1sNVjLsmu1MXqwQ/"
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0210201634170.28761-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.4i
+	id <S263218AbSJTQi5>; Sun, 20 Oct 2002 12:38:57 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:4281 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S263215AbSJTQi5>; Sun, 20 Oct 2002 12:38:57 -0400
+Date: Sun, 20 Oct 2002 10:44:58 -0600
+Message-Id: <200210201644.g9KGiwh13964@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [LARGE patch 23/124] sets sent over and over again Re: [PATCH]
+	ext2/3 updates for 2.5.44 (1/11): Default mount options in superblock
+In-Reply-To: <1035108575.3130.10.camel@localhost.localdomain>
+References: <E183CUa-0007Yq-00@snap.thunk.org>
+	<1035108575.3130.10.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven writes:
+> I hereby politely ask EVERYONE who wants to (re)posts large patchsets,
+> to at minimum try to follow something like the following politeness
+> guidelines
 
---1sNVjLsmu1MXqwQ/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<aol>
+Agreed! The ext2/ext3/ACL/ext-attr and s390 patchkits are really bad
+offenders (sorry, guys:-). This has been annoying me for a while too.
+</aol>
 
-hi :)
+I'd suggest that even the first sending of a patchkit should be a
+single thread, so it can be deleted in one fell swoop for those who
+don't have the time or the interest to read the patches.
 
-On Sun, Oct 20, 2002 at 04:37:49PM +0200, Adrian Bunk wrote:
-> -#include <linux/tqueue.h>	/* for kernel task queues */
+I'd like to see the first message explain what the patchkit does, and
+provide a diffstat for the entire patchkit.
 
-that is not the only file still including tqueue.h:
+As Russell suggested, having this scripted is probably a good idea. It
+would also make it easy to add a 5 or 10 minute delay between sending
+the introductory message and the patches. That helps people who don't
+sort their mailboxes :-)
 
-=2E/drivers/acorn/block/mfmhd.c:#include <linux/tqueue.h>
-=2E/drivers/char/dz.c:#include <linux/tqueue.h>
-=2E/drivers/char/specialix.c:#include <linux/tqueue.h>
-=2E/drivers/char/vme_scc.c:#include <linux/tqueue.h>
-=2E/drivers/ieee1394/ieee1394_types.h:#include <linux/tqueue.h>
-=2E/drivers/macintosh/adb.c:#include <linux/tqueue.h>
-=2E/drivers/media/video/planb.c:#include <linux/tqueue.h>
-=2E/drivers/message/fusion/mptlan.h:#include <linux/tqueue.h>
-=2E/drivers/net/wan/cycx_main.c:#include <linux/tqueue.h>
-=2E/drivers/s390/net/lcs.c:#include <linux/tqueue.h>
-=2E/drivers/sbus/char/aurora.c:#include <linux/tqueue.h>
-=2E/drivers/scsi/pcmcia/nsp_cs.c:#include <linux/tqueue.h>
-=2E/drivers/scsi/mesh.c:#include <linux/tqueue.h>
+				Regards,
 
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.
-			Benjamin Franklin  (1706 - 1790)
-
---1sNVjLsmu1MXqwQ/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9stm/j/Eaxd/oD7IRAnBpAKCDZ5UlOgOEG8ydTAebBxqmhNxbRACeIJbl
-9Ss4Ut/Ligz3eLLLfusZdH8=
-=nWCa
------END PGP SIGNATURE-----
-
---1sNVjLsmu1MXqwQ/--
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

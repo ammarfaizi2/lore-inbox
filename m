@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271654AbRHQNXr>; Fri, 17 Aug 2001 09:23:47 -0400
+	id <S271657AbRHQNeK>; Fri, 17 Aug 2001 09:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271653AbRHQNXh>; Fri, 17 Aug 2001 09:23:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:25733 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271650AbRHQNXT>; Fri, 17 Aug 2001 09:23:19 -0400
-Date: Fri, 17 Aug 2001 09:23:29 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Strange macros set HZ value for timer channel zero
-Message-ID: <Pine.LNX.3.95.1010817091911.6570A-100000@chaos.analogic.com>
+	id <S271653AbRHQNeB>; Fri, 17 Aug 2001 09:34:01 -0400
+Received: from dfmail.f-secure.com ([194.252.6.39]:38413 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S271650AbRHQNdo>; Fri, 17 Aug 2001 09:33:44 -0400
+Date: Fri, 17 Aug 2001 16:47:35 +0300 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Wes Felter <wmf@austin.ibm.com>
+cc: Eduardo =?ISO-8859-1?Q?Cort=E9s?= <the_beast@softhome.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: limit cpu
+In-Reply-To: <997991934.20279.11.camel@arlab191.austin.ibm.com>
+Message-ID: <Pine.LNX.4.30.0108171208310.2660-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-To whomever maintains the timer code, greetings.
+On 16 Aug 2001, Wes Felter wrote:
+> On 16 Aug 2001 03:21:58 +0200, Eduardo Cortés wrote:
+> > i want to know if linux can limit the max cpu usage (not cpu time) per user,
+> > like freebsd login classes. I see /etc/security/limits.conf and ulimit from
+> > bash, but they limit the max cpu time, not de max cpu usage (%cpu).
+> There are a couple of patches:
 
-When using Linux on the AMD SC520 chip, the system time will
-not be correct because the PIT clock is 1.1882 MHz instead of
-the usual 1.19318 MHz. Therefore, I put a conditional value
-in ../linux/include/asm/timex.h .
+A quick summary below, maybe somebody wants to work on this issue,
 
-#ifndef _ASMi386_TIMEX_H
-#define _ASMi386_TIMEX_H
+> http://www.cs.umass.edu/~lass/software/qlinux/
 
-#include <linux/config.h>
-#include <asm/msr.h>
-#ifdef SC520
-#define CLOCK_TICK_RATE	1188200 /* Underlying HZ */
-#else
-#define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
-#endif
+Last modified: Thu Jul 1 14:52:41 EDT 1999
+it patches neither 2.2.19 nor 2.4.9 (or other recent kernels)
 
-Something is wrong! I now gain 3 hours in a 12 hour period. There
-are some calculations performed somewhere that result in the
-wrong divisor for the timer (PIT). I don't understand any of the
-SHIFT stuff, nor FINE_TUNE stuff. It all seems bogus although
-it might be the "new math" that's biting me.
+> http://fairsched.sourceforge.net/
 
-The correct value for 100 Hz should be 1188200/100 = 11882 = 0x2e6a
-for the divisor. If I hard-code the value as a divisor in
-/usr/src/linux/arch/i386/kernel/i8259.c,  it works. If I use the
-#defines and macros in the headers, it doesn't.
+Last updated on 11 July 2000
+it patches neither 2.2.19 nor 2.4.9 (or other recent kernels)
 
+> http://www.surriel.com/patches/2.3/2.3.99-3-schedpatch5
 
-Cheers,
-Dick Johnson
+Last modified: Tue Apr  4 15:43:40 2000
+it patches neither 2.2.19 nor 2.4.9 (or other recent kernels)
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Eduardo, as it was mentioned before, you can "mimic" CPU usage
+limitation using the 'priority' item in /etc/security/limits.conf that's
+basically sets the nice(1) values. It made some people happy.
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+	Szaka
 

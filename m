@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSFPGfz>; Sun, 16 Jun 2002 02:35:55 -0400
+	id <S315941AbSFPGdX>; Sun, 16 Jun 2002 02:33:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSFPGfy>; Sun, 16 Jun 2002 02:35:54 -0400
-Received: from adsl-216-62-201-136.dsl.austtx.swbell.net ([216.62.201.136]:58767
+	id <S315942AbSFPGdX>; Sun, 16 Jun 2002 02:33:23 -0400
+Received: from adsl-216-62-201-136.dsl.austtx.swbell.net ([216.62.201.136]:58255
 	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S315942AbSFPGfx>; Sun, 16 Jun 2002 02:35:53 -0400
-Subject: Re: Dual Athlon 2000 XP MP nightmare
+	id <S315941AbSFPGdW>; Sun, 16 Jun 2002 02:33:22 -0400
+Subject: Re: how to find memory leak in the kernel?
 From: Austin Gonyou <austin@digitalroadkill.net>
-To: Hugh <hugh@nospam.com>
-Cc: linux-kernel@vger.kernel.org, coles@vip.kos.netDear
-In-Reply-To: <3D0BE1AC.3080202@nospam.com>
+To: Sanjay Kumar <kumar_sanjai@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020616055754.9098.qmail@web9603.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
 X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 16 Jun 2002 01:35:02 -0500
-Message-Id: <1024209302.26299.4.camel@UberGeek>
+Date: 16 Jun 2002 01:32:31 -0500
+Message-Id: <1024209151.26323.1.camel@UberGeek>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It does most sound like some mis-behaving kernel code. No hard locks it
-sounds like...but kernel panics and no joy. I'd for sure recommend KDB
-for this chore, it will at least shed light on the misbehaving piece.
+There is a kernel profiler, have you checked FM for that? I've seen the
+link there before. Also, is electric fence possible, or gprof? Never
+tried them for kernel stuff...just a thought.
 
-On Sat, 2002-06-15 at 19:54, Hugh wrote:
-> Dear Steve, Richard, and others,
+On Sun, 2002-06-16 at 00:57, Sanjay Kumar wrote:
+> Hi, 
 > 
-> >I'm not sure that what I'm experiencing is a kernel problem, but I >thought
-> >I would stick my foot in the door nonetheless, since I have no real
-> >indication of what is going on.
-> >
-....
+> We are suspecting that our code in kernel is leaking memory.
+> Please tell me some of available tools which I can use for
+> finding the memory leak in kernel.
 > 
-> That was when I returned the motherboard the second time.
-> The first time, the board gave me a CMOS error.   The third time, the
-> board even did not give me the first beep.  I now think that I should
-> have bought the Tyan board instead of the ASUS.
+> Thanks a lot.
 > 
-> Regards,
-> 
-> G. Hugh Song
+> Sanjay
 > 
 > 
-> 
-> 
-> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! - Official partner of 2002 FIFA World Cup
+> http://fifaworldcup.yahoo.com
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

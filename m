@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264291AbTDOFXq (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264293AbTDOFXp (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 01:23:45 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:309 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S264291AbTDOFXo (for <rfc822;linux-kernel@vger.kernel.org>);
+	id S264272AbTDOFXo (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264293AbTDOFXo (for <rfc822;linux-kernel-outgoing>);
 	Tue, 15 Apr 2003 01:23:44 -0400
-Date: Mon, 14 Apr 2003 22:35:37 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.67-mm3
-Message-Id: <20030414223537.45808bd9.akpm@digeo.com>
-In-Reply-To: <20030415051534.GE706@holomorphy.com>
-References: <20030414015313.4f6333ad.akpm@digeo.com>
-	<20030415020057.GC706@holomorphy.com>
-	<20030415041759.GA12487@holomorphy.com>
-	<20030414213114.37dc7879.akpm@digeo.com>
-	<20030415043947.GD706@holomorphy.com>
-	<20030414215541.0aff47bc.akpm@digeo.com>
-	<20030415051534.GE706@holomorphy.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Received: from granite.he.net ([216.218.226.66]:50698 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S264272AbTDOFXn (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 01:23:43 -0400
+Date: Mon, 14 Apr 2003 22:35:39 -0700
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USB speedtouch: discard packets for non-existant vcc's
+Message-ID: <20030415053539.GB8761@kroah.com>
+References: <200304121349.39418.baldrick@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Apr 2003 05:35:27.0919 (UTC) FILETIME=[D24DF3F0:01C30310]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304121349.39418.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Mon, Apr 14, 2003 at 09:55:41PM -0700, Andrew Morton wrote:
-> > Sort-of.  The code is doing two things.
-> > a) Make sure that all the relevant pte's are established in the correct
-> >    state so we don't take a fault while holding the subsequent atomic kmap.
-> >    This is just an optimisation.  If we _do_ take the fault while holding
-> >    an atomic kmap, we fall back to sleeping kmap, and do the whole copy
-> >    again.  It almost never happens.
-> 
-> This is the easy part; we're basically just prefaulting.
+On Sat, Apr 12, 2003 at 01:49:39PM +0200, Duncan Sands wrote:
+> I broke part of the udsl_decode_rawcell logic in a previous patch, leading to
+> possible hangs on startup/shutdown.  I've attached the 2.4 and 2.5 versions.
+> Thanks to Subodh Srivastava and Ted Phelps for their bug reports.  Here is the
+> 2.5 patch included inline for reference:
 
-btw, this may sound like a lot of futzing about, but the other day I
-timed four concurrent instances of
+Applied to my 2.4 and 2.5 trees, thanks.
 
-	dd if=/dev/zero of=$i bs=1 count=1M
-
-on the four-way.  2.5 ran eight times faster than 2.4.  2.4's kmap_lock
-contention was astonishing.
-
+greg k-h

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319529AbSIMFoU>; Fri, 13 Sep 2002 01:44:20 -0400
+	id <S316996AbSIMFxT>; Fri, 13 Sep 2002 01:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319532AbSIMFoU>; Fri, 13 Sep 2002 01:44:20 -0400
-Received: from packet.digeo.com ([12.110.80.53]:4562 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S319529AbSIMFoT>;
-	Fri, 13 Sep 2002 01:44:19 -0400
-Message-ID: <3D817F94.4F4171FD@digeo.com>
-Date: Thu, 12 Sep 2002 23:03:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] per-zone kswapd process
-References: <3D817BC8.785F5C44@digeo.com> <619179322.1031870337@[10.10.2.3]>
+	id <S319532AbSIMFxT>; Fri, 13 Sep 2002 01:53:19 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:36104 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316996AbSIMFxS>; Fri, 13 Sep 2002 01:53:18 -0400
+Date: Fri, 13 Sep 2002 07:58:01 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Tony Gale <gale@syntax.dstl.gov.uk>
+Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Message-ID: <20020913055801.GK14900@louise.pinerecords.com>
+References: <200209121553.g8CFrrEh003646@dstl.gov.uk> <1031846624.17349.23.camel@syntax.dstl.gov.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2002 05:47:29.0776 (UTC) FILETIME=[0C2A1700:01C25AE9]
+Content-Disposition: inline
+In-Reply-To: <1031846624.17349.23.camel@syntax.dstl.gov.uk>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 16 days, 22:08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> ..
-> Can we make a simple default of 1 per node, which is what 99%
-> of people want, and then make it more complicated later if people
-> complain? It's really pretty easy:
-> 
-> for (node = 0; node < numnodes; ++node) {
->         kswapd = kick_off_kswapd_for_node(node);
->         kswapd->cpus_allowed = node_to_cpus(node);
-> }
+> > > >EXT2 is a very capable filesystem, and has *years* of proven 
+> > > >reliability. That's why I'm not going to switch away from it for 
+> > > >critical work any time soon. 
+> So does XFS. It just happens to be measured in IRIX years.
 
-Seems sane.
- 
-> Or whatever the current cpus_allowed method is. All we seem to need
-> is node_to_cpus ... I can give that to you tommorow with no problem,
-> it's trivial.
+Don't forget you're talking four megabytes of ported code.
 
-Tomorrow sounds too early - it'd be nice to get some before-n-after
-performance testing to go along with that patch ;)
+By the way, just out of curiosity, would someone kindly have a go at
+summarizing what's going on inside XFS that would justify its sources
+being almost six times the size of reiserfs?  I have read the XFS
+feature list carefully, however, I still fail to see where the great
+difference is.
+
+T.

@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVARQuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVARQzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVARQuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 11:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVARQuP
+	id S261350AbVARQzu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 11:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVARQzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 11:50:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13535 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261347AbVARQuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 11:50:06 -0500
-Date: Tue, 18 Jan 2005 11:49:51 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Fruhwirth Clemens <clemens@endorphin.org>
-cc: Michal Ludvig <michal@logix.cz>, Andrew Morton <akpm@osdl.org>,
-       <cryptoapi@lists.logix.cz>, "David S. Miller" <davem@davemloft.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers
- at a time
-In-Reply-To: <1105793137.16065.17.camel@ghanima>
-Message-ID: <Xine.LNX.4.44.0501181147490.24891-100000@thoron.boston.redhat.com>
+	Tue, 18 Jan 2005 11:55:50 -0500
+Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:53771 "EHLO
+	smtp-vbr3.xs4all.nl") by vger.kernel.org with ESMTP id S261350AbVARQzm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 11:55:42 -0500
+From: "Udo van den Heuvel" <udovdh@xs4all.nl>
+To: "'Luc Saillard'" <luc@saillard.org>,
+       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: VIA Rhine ethernet driver bug
+Date: Tue, 18 Jan 2005 17:55:34 +0100
+Message-ID: <000701c4fd7e$874a5a00$450aa8c0@hierzo>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+In-Reply-To: <20050117154540.GA2642@sd291.sivit.org>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Jan 2005, Fruhwirth Clemens wrote:
+Hello,
 
-> However, developing two different APIs isn't particular efficient. I
-> know, at the moment there isn't much choice, as J.Morris hasn't commited
-> to acrypto in anyway.
+> -----Original Message-----
+> From: Luc Saillard [mailto:luc@saillard.org] 
+> Sent: maandag 17 januari 2005 16:46
+> To: Marcelo Tosatti
+> Cc: Udo van den Heuvel; linux-kernel@vger.kernel.org
+> Subject: Re: VIA Rhine ethernet driver bug
+> 
+> 
+> On Mon, Jan 17, 2005 at 10:04:27AM -0200, Marcelo Tosatti wrote:
+> > On Sat, Jan 15, 2005 at 12:43:33PM +0100, Udo van den Heuvel wrote:
+> 
+> > > On my firewall (VIA EPIA CL-6000 with VIA Rhine network 
+> chips running FC3
+> > > and custom kernels) I see messages like:
+> > 
+> > What kernel version are you using? Its important to inform that.
 
-There is also the OCF port (OpenBSD crypto framework) to consider, if 
-permission to dual license from the original authors can be obtained.
+Problem is in all kernel versions since 1999 or so.
+I am at 2.6.10-mm2, experimented with older via-rhince.c drivers.
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+> It's not a critical bug, but if we can resolv the bug ...
+
+If it drops the link with the net I do think it IS critical.
+Most of the time occurences of this bug do make my pppd choke.
+
+ifconfig eth1 down
+ifconfig eth1 up
+
+helps.
+
+
+How can we nail the cause? Fix the bug partly or completely?
+Suggestions are very welcome.
+
+Thanks,
+Udo
 
 

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266010AbSLSSnq>; Thu, 19 Dec 2002 13:43:46 -0500
+	id <S265936AbSLSSsc>; Thu, 19 Dec 2002 13:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266020AbSLSSnq>; Thu, 19 Dec 2002 13:43:46 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:60319 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266010AbSLSSno>;
-	Thu, 19 Dec 2002 13:43:44 -0500
-Date: Thu, 19 Dec 2002 18:49:58 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Eli Carter <eli.carter@inet.com>
-Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, lm@bitmover.com, lm@work.bitmover.com,
-       torvalds@transmeta.com, vonbrand@inf.utfsm.cl, akpm@digeo.com
-Subject: Re: Dedicated kernel bug database
-Message-ID: <20021219184958.GA6837@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Eli Carter <eli.carter@inet.com>, John Bradford <john@grabjohn.com>,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-	lm@bitmover.com, lm@work.bitmover.com, torvalds@transmeta.com,
-	vonbrand@inf.utfsm.cl, akpm@digeo.com
-References: <200212191335.gBJDZRDL000704@darkstar.example.net> <3E020660.9020507@inet.com>
+	id <S265939AbSLSSsc>; Thu, 19 Dec 2002 13:48:32 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:15851 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265936AbSLSSsa>;
+	Thu, 19 Dec 2002 13:48:30 -0500
+Date: Thu, 19 Dec 2002 10:56:30 -0800
+To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@ines.ro>,
+       James McKenzie <james@fishsoup.dhs.org>,
+       Christian Gennerat <christian.gennerat@polytechnique.org>,
+       Martin Lucina <mato@kotelna.sk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] : donauboe IrDA driver (resend)
+Message-ID: <20021219185630.GC6703@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20021219024632.GB1746@bougret.hpl.hp.com> <1040310314.1225.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E020660.9020507@inet.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1040310314.1225.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 11:48:16AM -0600, Eli Carter wrote:
- > >Also, we could have a non-web interface, (telnet or gopher to the bug
- > >DB, or control it by E-Mail).
- > Can you interface with bugzilla's database backend maybe?  It seems like 
- > refactoring bugzilla might be better?
+On Thu, Dec 19, 2002 at 05:05:16PM +0200, Dumitru Ciobarcianu wrote:
+> 
+> Hello,
+> 
+> This module does not load all the time for me.
+> If I do an "modprobe donauboe" it gives something like:
+> 
+[...]
+> 
+> If I try a few more times it will finally load...
+> 
+> The kernel is 2.4.20.0.pp.9 (RH rawhide kernel - 2.4.20-ac1 based) +
+> acpi20021205 . I don't know why lspci shows "Toshiba Tecra 8100". The
+> machine is an Toshiba Satellite Pro 4320.
 
-It's an annoyance to me that the current bugzilla we use can only
-do 1 way email. Ie, I receive email when things change, but I can't
-reply to that mail and have my comments auto-added.
-Other bugzillas can do this, so I think either some switch needs
-to be enabled, or theres some extension not present.
-(I'm a complete bugzilla weenie, and no nothing about how its set up).
+	As I don't have this hardware, I fully depend on people trying
+the code to know if it works or not. This driver has been for 6 months
+in kernel 2.5.X and on my web page (and advertised on the IrDA mailing
+list), and it's only today that I get the first negative bug report.
+	I really wonder what I do wrong. Maybe I should throw untested
+code straight in 2.4.X, like other people do, that may bring the bug
+report faster.
 
- > >It could warn the user if they attach an un-decoded oops that their
- > >bug report isn't as useful as it could be, and if they mention a
- > >distribution kernel version, that it's not a tree that the developers
- > >will necessarily be familiar with
- > Perhaps a more generalized hook into bugzilla for 'validating' a bug 
- > report, then code specific validators for kernel work?
+	From my casual look at the driver code, it looks like the
+hardware self test is failing. There is a way to disable this self
+test via module parameter "do_probe". Maybe you want to check that.
+	Also, would you mind sending this bug report to all three
+maintainers of the driver ? Also : would you mind sending the log
+output of the old toshoboe driver (assuming it works - does it ?).
 
-Its a nice idea, but I think it's a lot of effort to get it right,
-when a human can look at the dump, realise its not decoded, and
-send a request back in hardly any time at all.
-I also don't trust things like this where if something goes wrong,
-we could lose the bug report. People are also more likely to ping-pong
-,argue or "how do I..." with a human than they are with an automated robot.
+	Have fun...
 
+	Jean
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+P.S. : Full e-mail is at :
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=104031025012364&w=2

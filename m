@@ -1,66 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270447AbTHGRA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 13:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270453AbTHGRA0
+	id S270443AbTHGRGt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 13:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270444AbTHGRGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 13:00:26 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:33928 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S270447AbTHGRAT
+	Thu, 7 Aug 2003 13:06:49 -0400
+Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:1664 "EHLO
+	bigred.russwhit.org") by vger.kernel.org with ESMTP id S270443AbTHGRGr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 13:00:19 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 7 Aug 2003 19:02:11 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Greg KH <greg@kroah.com>
-Subject: Re: [patch] v4l: sysfs'ify videodev
-Message-ID: <20030807170211.GA3620@bytesex.org>
-References: <20030807154342.GA818@bytesex.org> <20030807165519.A32452@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030807165519.A32452@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.3i
+	Thu, 7 Aug 2003 13:06:47 -0400
+Date: Thu, 7 Aug 2003 10:03:55 -0700 (PDT)
+From: Russell Whitaker <russ@ashlandhome.net>
+X-X-Sender: russ@bigred.russwhit.org
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fw: 2.6.0: lp not working
+In-Reply-To: <20030807082248.3c08c9ac.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.53.0308070952340.215@bigred.russwhit.org>
+References: <20030806130452.722d7fb2.rddunlap@osdl.org>
+ <20030806223820.5578d282.rddunlap@osdl.org> <Pine.LNX.4.53.0308070222360.357@bigred.russwhit.org>
+ <20030807082248.3c08c9ac.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 04:55:19PM +0100, Russell King wrote:
-> On Thu, Aug 07, 2003 at 05:43:42PM +0200, Gerd Knorr wrote:
-> > +static void video_release(struct class_device *cd)
-> > +{
-> > +	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
-> >  
-> > -static struct proc_dir_entry *video_dev_proc_entry = NULL;
-> > -struct proc_dir_entry *video_proc_entry = NULL;
-> > -EXPORT_SYMBOL(video_proc_entry);
-> > -LIST_HEAD(videodev_proc_list);
-> > +#if 1 /* needed until all drivers are fixed */
-> > +	if (!vfd->release)
-> > +		return;
-> > +#endif
-> > +	vfd->release(vfd);
-> > +}
-> 
-> Ok, so you're allowing the release to happen elsewhere.  How are you
-> ensuring that the code which vfd->release points to hasn't been
-> unloaded before the video device has been released,
 
-Which exact corner case you are refering to?  video_release() being
-called _after_ video_unregister_device() returns due to a sysfs file
-being busy?  Doesn't sysfs refcounting take care of that?  If not
-module_{get|put}(vfd->fops->owner) at sensible places should fix that.
-get in video_unregister_device(), put in video_release()?
 
-> or, even, how
-> are you preventing the module containing the above code being
-> removed before all video devices have been released?
+On Thu, 7 Aug 2003, Randy.Dunlap wrote:
 
-videodev.ko simply can't be unloaded while v4l drivers are loaded
-due to symbol references.
+> On Thu, 7 Aug 2003 02:31:53 -0700 (PDT) Russell Whitaker <russ@ashlandhome.net> wrote:
+>
+> | On Wed, 6 Aug 2003, Randy.Dunlap wrote:
+> |
+> | > | Date: Tue, 5 Aug 2003 22:43:17 -0700 (PDT)
+> | > | From: Russell Whitaker <russ@ashlandhome.net>
+> | > | To: linux-kernel@vger.kernel.org
+> | > | Subject: 2.6.0: lp not working
+> | > |
+> | > |
+> | > | Hi
+> | > | Edited lilo.conf so I can boot either kernel-2.6.0-test2
+> | > | (default) or kernel-2.4.21, using hda1.
+> | > |
+> | > | lpr a small file, no print. ctrl-alt-del and rebooted using
+> | > | 2.4.21, file printed. Checked the two config files and could
+> | > | not find any difference in this area.
+> | > |
+> | > | Printer is a Panasonic dot-matrix running in text mode.
+> | > | Also using patch bk5.
+> | >
+> | > Is "Parallel Printer support" built into your kernel or built as a
+> | > module?  If built as a module, are you sure that the module is
+> | > loaded?  If modular, please provide contents of /proc/modules
+> | > when you try to print.
+> | >
+> | Built as a module
+> | Found lp.ko in /lib/modules/2.6.0-test2-bk4/kernel/drivers/char
+> | lp <file> then lpq shows <file> in queue
+> |
+> | contents of /proc/modules
+> | ipt_LOG 5376 1 - Live 0xf891a000
+> | ipt_limit 2496 1 - Live 0xf8915000
+> | ipt_state 1792 2 - Live 0xf8913000
+> | iptable_filter 2752 1 - Live 0xf88d3000
+> | ip_tables 22080 4 ipt_LOG,ipt_limit,ipt_state,iptable_filter, Live 0xf88d8000
+> | ip_conntrack_ftp 72308 0 - Live 0xf88fe000
+> | ip_conntrack 43092 2 ipt_state,ip_conntrack_ftp, Live 0xf88df000
+> | ide_cd 41536 0 - Live 0xf88ba000
+> | cdrom 35168 1 ide_cd, Live 0xf88c6000
+>
+> I guess I don't get it.  Why isn't "lp" listed in /proc/modules?
+> Did you load it or is that the problem -- that it's not being
+> auto-loaded?
+> Does the <file> print if you load the lp module?
+>
+By golly I think you got it - it's not being auto-loaded.
+As su, "modeprobe lp"  and the file printed.
+Sorry I didn't think of that myself.
 
-  Gerd
-
--- 
-sigfault
+Thanks,
+  Russ

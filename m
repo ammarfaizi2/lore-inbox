@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293348AbSC0XEG>; Wed, 27 Mar 2002 18:04:06 -0500
+	id <S293337AbSC0XV3>; Wed, 27 Mar 2002 18:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293402AbSC0XD4>; Wed, 27 Mar 2002 18:03:56 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:9395 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S293348AbSC0XDp>; Wed, 27 Mar 2002 18:03:45 -0500
-Date: Wed, 27 Mar 2002 16:20:10 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: Re: Putrid Elevator Behavior 2.4.18/19
-Message-ID: <20020327162010.A25809@vger.timpanogas.org>
-In-Reply-To: <20020320120455.A19074@vger.timpanogas.org> <20020320220241.GC29857@matchmail.com> <20020320152008.A19978@vger.timpanogas.org> <20020320152504.B19978@vger.timpanogas.org> <3C9935CA.38E6F56F@zip.com.au> <20020320234552.A21740@vger.timpanogas.org> <20020325181645.A17171@vger.timpanogas.org> <20020326014219.GA3536@matchmail.com> <20020326100330.A20201@vger.timpanogas.org> <20020327070325.GA20703@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293521AbSC0XVT>; Wed, 27 Mar 2002 18:21:19 -0500
+Received: from insgate.stack.nl ([131.155.140.2]:38925 "HELO skynet.stack.nl")
+	by vger.kernel.org with SMTP id <S293337AbSC0XVH>;
+	Wed, 27 Mar 2002 18:21:07 -0500
+Date: Thu, 28 Mar 2002 00:21:01 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Andre Hedrick <andre@linux-ide.org>, Wakko Warner <wakko@animx.eu.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE and hot-swap disk caddies
+In-Reply-To: <3CA25A1A.31572.2DCF314@localhost>
+Message-ID: <20020328001733.E78593-100000@snail.stack.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 27, 2002 at 08:03:25AM +0100, Jens Axboe wrote:
-> On Tue, Mar 26 2002, Jeff V. Merkey wrote:
-> > > 
-> > > That's good news.
-> > > 
-> > > Are you still working on the A/B list patch?  I'd imagine that it could make
-> > > several problems easier to fix in the block layer.
-> > > 
-> > 
-> > Yes.  I am asking Darren Major, who wrote the A/B implementation 
-> > in NetWare to review the patch before we submit it.  It may affect
-> > some drivers.  We are verifying that the change I instrumented 
-> > will not break anything.
-> 
-> I'm curious how you are doing this cleanly in 2.4. There are lots of
-> places in the kernel that do direct list management on the queue_head.
-> Are you adding two separate hidden lists and splicing content to the
-> queue_head?
+On Wed, 27 Mar 2002, Pedro M. Rodrigues wrote:
+>    You can. Acard for instance makes devices for that. They plug at
+> the end of an ide cdrom or harddisk, and interface with scsi. They
+> have two models, a 20MB/s one, and an UltraWide model that goes
+> up to 40MB/s. It has a small risc cpu and you can even upgrade their
+> firmware. A friend of mine ordered one to plug a dvd reader in an
+> external scsi box he had lying around - he had all his computer drive
+> bays used. He said it worked fine and didn't notice any performance
+> hit even when playing dvd's.
 
-Correct.  I am still reviewing drivers and kernel code to ascertain 
-whether I am not leaving any holes.  I have spliced it as a non-obtrusive 
-implementation that preserves the existing code with no changes.  
+Indeed you can... But you disconnect from a SCSI bus then, which is in
+fact off topic :) I'm willing to assume those devices are hot-pluggable,
+but it is not what we want. Besides, I wonder if it isn't cheaper to buy a
+decent SCSI device than an IDE device with converter.
 
-Some of the drivers may have problems if they cache the head address
-of the current list.
-
-> 
-> 2.5 has this done much more cleanly (of course I'm very biased). See the
-> deadline I/O scheduler patch I've posted before, stuff like this can be
-> done a lot cleaner there. Internal I/O scheduler structures are
-> completely hidden from drivers.
-> 
-
-2.5 would be nice, but 2.4.X needs it too and this is the kernel we are 
-using for our development and testing, so we will need it there.  
-
-
-Jeff
+Jos
 

@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbUDBKZO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 05:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbUDBKZN
+	id S263578AbUDBKYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 05:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbUDBKYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 05:25:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29582 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263587AbUDBKZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 05:25:08 -0500
-Date: Fri, 2 Apr 2004 02:23:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Hartmann <andihartmann@freenet.de>
-Cc: mason@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: Very poor performance with 2.6.4
-Message-Id: <20040402022348.00d55268.akpm@osdl.org>
-In-Reply-To: <406D21F6.8080005@A88c0.a.pppool.de>
-References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
-	<20040328200710.66a4ae1a.akpm@osdl.org>
-	<4067BF2C.8050801@p3EE060D4.dip0.t-ipconnect.de>
-	<1080570227.20685.93.camel@watt.suse.com>
-	<406D21F6.8080005@A88c0.a.pppool.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Apr 2004 05:24:51 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:41737 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263578AbUDBKYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 05:24:49 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Date: Fri, 2 Apr 2004 12:21:15 +0200
+User-Agent: KMail/1.6.1
+Cc: Christoph Hellwig <hch@infradead.org>, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>, hugh@veritas.com, vrajesh@umich.edu,
+       linux-mm@kvack.org
+References: <20040402001535.GG18585@dualathlon.random> <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org>
+In-Reply-To: <20040402104334.A871@infradead.org>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404021221.15197@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann <andihartmann@freenet.de> wrote:
->
-> Now, I tested 2.6.5-rc3-mm4. Same procedure.
->  The good news first:
->  2.6.5-rc3-mm4 is nearly as fast as 2.4.25 - it is about 2% slower than 
->  2.4.25 (with preemption turned on).
-> 
->  Now the bad news:
->  The system-processor-time is unchanged abnormal high: it is 34% (!) higher 
->  than in 2.4.25 (and about 1% more than in 2.4.6).
-> 
-> 
->  Btw: Did the other profile outputs help to find the problem?
-> 
->  These are the profile-values for an example run (make of kernel 2.6.5rc2) 
->  with 2.6.5rc3mm4:
+On Friday 02 April 2004 11:43, Christoph Hellwig wrote:
 
-Spending a lot of time on do_softirq() while compiling stuff is peculiar.
+Hi Christoph,
 
-What device drivers are running at the time?  disk/network/usb/etc?
+> I got lots of the following OOPSEs with 2.6.5-rc3aa2 on a powerpc running
+> the xfs testsuite (with the truncate fix applied):
+
+What truncate fix? Sorry if I missed that.
+
+dunno if the below is causing your trouble, but is that intentional that 
+page_cache_release(page) is called twice?
+
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} 
+--exclude .arch-ids 2.6.5-rc3/mm/page_io.c xx/mm/page_io.c
+--- 2.6.5-rc3/mm/page_io.c      2002-12-15 04:18:17.000000000 +0100
++++ xx/mm/page_io.c     2004-04-02 05:32:57.381688904 +0200
+@@ -161,7 +176,13 @@ int rw_swap_page_sync(int rw, swp_entry_
+                ret = swap_writepage(page, &swap_wbc);
+                wait_on_page_writeback(page);
+        }
+-       page->mapping = NULL;
++
++       lock_page(page);
++       remove_from_page_cache(page);
++       unlock_page(page);
++       page_cache_release(page);
++       page_cache_release(page);       /* For add_to_page_cache() */
+
+
+
+ciao, Marc

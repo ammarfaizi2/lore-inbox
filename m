@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbSLIAM1>; Sun, 8 Dec 2002 19:12:27 -0500
+	id <S261934AbSLIARG>; Sun, 8 Dec 2002 19:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbSLIAM1>; Sun, 8 Dec 2002 19:12:27 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:11996 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261908AbSLIAM0>; Sun, 8 Dec 2002 19:12:26 -0500
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+	id <S261973AbSLIARG>; Sun, 8 Dec 2002 19:17:06 -0500
+Received: from [129.63.8.2] ([129.63.8.2]:30737 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S261934AbSLIARF>;
+	Sun, 8 Dec 2002 19:17:05 -0500
+Date: Sun, 8 Dec 2002 19:24:29 -0500 (EST)
+Message-Id: <200212090024.gB90OTN25818@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Four function buttons on DELL Latitude X200
-In-Reply-To: <m3d6ocjd81.fsf@Janik.cz>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.18-xfs (i686))
-Message-Id: <E18LBeK-00046y-00@calista.inka.de>
-Date: Mon, 09 Dec 2002 01:19:52 +0100
+Cc: nleroy@cs.wisc.edu, acahalan@cs.uml.edu
+Subject: Re: Detecting threads vs processes with ps or /proc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m3d6ocjd81.fsf@Janik.cz> you wrote:
-> this patch add support for four functions key on DELL Latitude X200.
 
-we need a more generic appoach to handle those key codes for various
-extensions. I think a pure software reconfiguration of the keymaps or a
-daemon trakcing the raw codes is fine. Perhaps we can make something like a
-hook into the kernel where all untrapped function keys are send to in raw
-format?
+Robert Love writes:
+> On Fri, 2002-12-06 at 14:56, Nick LeRoy wrote:
+>
+>> I was considerring doing something like this as well.  From your
+>> experience,  does it work reliably?
+>
+> It never fails to detect threads (no false negatives).
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Testing the algorithm on idle test processes won't show
+this damn-obvious race condition:
+
+1. you read the first thread's info
+2. the second thread calls mmap() and/or takes a page fault
+3. you read the second thread's info
+
+> It does sometimes detect child processes that forked but did not exec as
+> threads (false positives).  The failure case is when a program forks,
+> does not call exec, and the children go on to execute the exact same
+> code (so they look and act just like threads, but they have unique
+> addresses spaces).
+>
+> One thing to note: if you can modify the kernel and procps, you can just
+> export the value of task->mm out of /proc.  It is a gross hack, and
+> perhaps a security issue, but that will work 100%.  Same ->mm implies
+> thread.
+
+This forces sorting, which is slow and eats memory.
+It's better to list the ->mm peers in a proc file.
+For example, a /proc/42/mm-peers file containing
+a simple list of the peers.
+
+There's still a race condition, but at least it only
+involves threads that get created during the /proc scan.
+
+There's also the problem with new-style threads simply not
+being listed anywhere. Crackers are going to love it if
+the Linux 2.6 kernel has a built-in way to hide things.

@@ -1,71 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbTH0T5q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 15:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTH0T5q
+	id S262102AbTH0T5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 15:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTH0T5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 15:57:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62625 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262122AbTH0T5k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 15:57:40 -0400
-Date: Wed, 27 Aug 2003 12:41:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Okrain Genady <mafteah@mafteah.co.il>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Some errors with 2.6.0-test4-mm2
-Message-Id: <20030827124120.2f93c976.akpm@osdl.org>
-In-Reply-To: <200308271047.47794.mafteah@mafteah.co.il>
-References: <200308271047.47794.mafteah@mafteah.co.il>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Aug 2003 15:57:15 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:31104 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262102AbTH0T5I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 15:57:08 -0400
+Date: Wed, 27 Aug 2003 15:58:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: root@mauve.demon.co.uk
+cc: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: usb-storage: how to ruin your hardware(?)
+In-Reply-To: <200308271933.UAA14620@mauve.demon.co.uk>
+Message-ID: <Pine.LNX.4.53.0308271535060.5064@chaos>
+References: <200308271933.UAA14620@mauve.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okrain Genady <mafteah@mafteah.co.il> wrote:
+On Wed, 27 Aug 2003 root@mauve.demon.co.uk wrote:
+
+> >
+> > On Wed, 27 Aug 2003, H.Rosmanith (Kernel Mailing List) wrote:
+> >
+> > > > > "after the first write the flash device failed entirely". That doen't
+> <snip>
+> > Remember when AT Class machines had a BIOS that allowed you
+> > to low-level format hard drives? When early IDE drives came
+> > out, persons tried to format them and they got destroyed.
+> > So, BIOS vendors took away the format capability.
+> >
+> > The IDE drive companies started a lie that was repeated so
+> > often that it seemed true. It was that IDE drives didn't
+> > have 'formatters' and, therefore, could only be formatted
+> > at the factory. Of course, if this was true, how come
+> > the format command did anything??  The truth was that
 >
-> This error started with -mm2:
-> 
-> # lilo
-> <1>Unable to handle kernel NULL pointer dereference at virtual address 
-> 00000000
->  printing eip:
-> c029f9b2
-> *pde = 00000000
-> Oops: 0000 [#4]
-> PREEMPT
-> CPU:    0
-> EIP:    0060:[<c029f9b2>]    Tainted: PF  VLI
-> EFLAGS: 00010246
-> EIP is at generic_ide_ioctl+0x352/0x8b0
-> eax: 00000000   ebx: bfffec70   ecx: 0000e7a2   edx: 00000000
-> esi: bfffec68   edi: c87ca000   ebp: c87cbf68   esp: c87cbf2c
-> ds: 007b   es: 007b   ss: 0068
-> Process lilo (pid: 5503, threadinfo=c87ca000 task=c8eac080)
-> Stack: c03c76db 0000064e c7853200 fffffff2 00000000 00000000 e7a20003 c04ccb8c
->        cfa7e000 c87cbf9c c0153b66 cf5ae6c0 cfd33e40 c02a3a60 cf619680 c87cbf90
->        c0268235 cfd33e40 00000301 bfffec68 bfffec68 00000001 00000301 c7853200
-> Call Trace:
->  [<c0153b66>] filp_open+0x66/0x70
->  [<c02a3a60>] idedisk_ioctl+0x0/0x30
+> This is actually true, and has been since around 80Mb or so.
+> There is no absolute positioning information on the disk drive that can
+> be used to lay down new positioning information for the tracks.
+> Before this, there used to be a stepper motor that could position the
+> head at track 743, or a seperate head that read track information from
+> a dedicated surface.
+>
 
-Al has sent through a fix for this.
+No. Embedded servo-tracks have been used for this. Once a track is
+written at the factory, even if the sectors are corrupt, it can
+still be used for servo position because even corrupt data has
+the spectral information necessary for the servo to find the
+center of the track. The only possible problem is that you can't
+find even one good sector to verify the track information. Both
+the track number and the sector number is in the sector header.
 
+You can low-level format many/most/all SCSI disks and ESDI disks
+even though they also have embedded servo and voice-coil
+positioners with no stepper motors and no feedback except from
+the track information that you re-write.
 
-diff -puN include/linux/genhd.h~large-dev_t-12-fix include/linux/genhd.h
---- 25/include/linux/genhd.h~large-dev_t-12-fix	2003-08-27 10:36:32.000000000 -0700
-+++ 25-akpm/include/linux/genhd.h	2003-08-27 10:36:32.000000000 -0700
-@@ -197,7 +197,7 @@ extern void rand_initialize_disk(struct 
- 
- static inline sector_t get_start_sect(struct block_device *bdev)
- {
--	return bdev->bd_part->start_sect;
-+	return bdev->bd_contains == bdev ? 0 : bdev->bd_part->start_sect;
- }
- static inline sector_t get_capacity(struct gendisk *disk)
- {
+Embedded servos work because the magnetic domains are always
+too large for the data bits. This means that the system
+ends up acting like a low-pass filter. The phase through
+this filter changes, depending upon the position of the
+head relative to when it was written. The servo nulls the
+phase-shift to be what it was when the track was written.
+This gets the head to the center of the track.
 
-_
+You do need some kind of independent positioner to write
+the first tracks at the factory. Most use a 'formatter'
+fixture that contains the feedback hardware necessary to do this.
+
+Prototype drives get tracks written entirely using a software
+approximation method where the first track is written slightly
+off from the home position,  the next tracks are written
+where the read-level from the previous write has fallen
+6 dB (50%), as the positioner current is 'bumped' to overcome
+friction and move to the next incremental track location.
+
+This is not done for production drives because it is too
+slow. However, this will allow the designer to experimentally
+determine the maximim possible capacity of the drive, i.e.,
+maximum number of cylinders.
+
+> > these drives stored their parameters on the disk platters.
+> > If you re-wrote the first real sectors on the drive, the
+>
+> This is more likely the problem, but
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

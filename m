@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSCKSZQ>; Mon, 11 Mar 2002 13:25:16 -0500
+	id <S286311AbSCKS24>; Mon, 11 Mar 2002 13:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285424AbSCKSZI>; Mon, 11 Mar 2002 13:25:08 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:17793 "EHLO
-	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S285720AbSCKSZB>; Mon, 11 Mar 2002 13:25:01 -0500
-Subject: Re: 23 second kernel compile (aka which patches help scalibility on
-	NUMA)
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-In-Reply-To: <126403558.1015667602@[10.10.2.3]>
-In-Reply-To: <20020309164305.GA2914@codepoet.org> 
-	<126403558.1015667602@[10.10.2.3]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 11 Mar 2002 10:23:37 -0800
-Message-Id: <1015871017.1276.48.camel@wookie-laptop.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S285720AbSCKS2r>; Mon, 11 Mar 2002 13:28:47 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62214
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S285424AbSCKS2j>; Mon, 11 Mar 2002 13:28:39 -0500
+Date: Mon, 11 Mar 2002 10:27:36 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <E16kUED-0001GB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10203111018460.10583-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Ours is only a 16 way 500MHz machine but I do have 16 GB of memory
-and we could stripe stuff across 80 disk drives. :-)
+On Mon, 11 Mar 2002, Alan Cox wrote:
 
-Tim
+> > Does the fact that MS XP Service Pack #2 having as similar taskfile
+> > command passthrough method mean anything ... Oh Oh, but there is no
+> > Service Pack #1 how could one know this ... guess my friend some of us are
+> > in the business and you are trying to get there and I wish you success.
+> 
+> Actually helping him by getting him info like that would be perhaps more
+> productive than grinning from on high ?
 
-On Sat, 2002-03-09 at 09:53, Martin J. Bligh wrote:
-> --On Saturday, March 09, 2002 9:43 AM -0700 Erik Andersen <andersen@codepoet.org> wrote:
-> > On Fri Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
-> >> "time make -j32 bzImage" is now down to 23 seconds.
-> >> (16 way NUMA-Q, 700MHz P3's, 4Gb RAM).
-> > [-----------snip---------]
-> >> Any other suggestions are welcome. I'd also be interested
-> > 
-> > I suggest that you should give me your computer.  ;-) 
+I would but he is equivalent to Linus and will not listen to facts.
+
+> > Funny you should mention that point ... The "flagged taskfile code" is a
+> > project to allow for NATIVE DFT support in Linux.  Nice screw job you did
+> > to IBM.
 > 
-> There's a very similar machine that's publicly available
-> in the OSDL (http://www.osdlab.org). I don't think they'll
-> let you take it home, but access is half way there ;-)
+> Ok so whats native DFT and where does he (and I for that matter) read about
+> it ?
 > 
-> M.
+> > The SPEC does does not address CFA hardware, goto CFA to get their ruleset.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+> The URL is http://www.compactflash.org/specdl1.htm btw if anyone wants that
+> one. Its got fun stuff like how to password protect your cf cards but I
+> don't seem to remember PM stuff in it ?
+
+Sorry there is a mix up, since MicroDrives are fixed disk that miss report
+by design, you have mix the two to get it right.  However I will check
+with IBM again on the specifics for you.
+
+Cheers,
+
+Andre Hedrick
+The Second Linux X-IDE guy
 

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131308AbQKLXXQ>; Sun, 12 Nov 2000 18:23:16 -0500
+	id <S129092AbQKLX3r>; Sun, 12 Nov 2000 18:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131389AbQKLXXH>; Sun, 12 Nov 2000 18:23:07 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:39180 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S131308AbQKLXWt>; Sun, 12 Nov 2000 18:22:49 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDCBE@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Michael Rothwell'" <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: RE: latest 2.2.18-X patch?
-Date: Sun, 12 Nov 2000 15:22:27 -0800
+	id <S129116AbQKLX3h>; Sun, 12 Nov 2000 18:29:37 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:10504 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129092AbQKLX3b>;
+	Sun, 12 Nov 2000 18:29:31 -0500
+Message-ID: <3A0F27B6.3B4CF1AC@mandrakesoft.com>
+Date: Sun, 12 Nov 2000 18:28:54 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
+        Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4.0.11.3: sysctl.h fixes
+In-Reply-To: <200011121430.JAA22978@havoc.gtf.org> <14863.8573.827836.127665@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp.??.kernel.org/pub/linux/kernel/v2.2
-for linux-2.2.17.tar.{gz,bz2}
-and then ftp.??.kernel.org.pub/linux/kernel/people/alan/2.2.18pre
-for pre-patch-2.2.18-21.{gz,bz2}
-
-Yes (USB backport).
-
-~Randy_________________________________________
-|randy.dunlap_at_intel.com        503-677-5408|
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------ 
-
-> From: Michael Rothwell [mailto:rothwell@holly-springs.nc.us]
+Neil Brown wrote:
+> The declaration of:
 > 
-> Where's the best place to get the latest 2.2.18 kernel? And does it
-> include the USB backport?
-> -
+>   struct file;
+> 
+> in sysctl.h is a bit counter intuitive isn't it?
 
+Nope.  It's a useful technique that I was reminded of recently by DaveM.
+
+Have you ever looked at the -nasty- include nesting that occurs because
+key kernel headers include other key kernel headers all the time?  Its
+way past time to reverse that trend.  Using "struct foo;" at the
+beginning of the header simply passes on the task of including the
+definiton for 'struct foo' down the line, avoiding another level of
+include nesting.
+
+
+But... that said.  Provided no other kernel code is similarly broken,
+your fix to md.c, Neil, is definitely superior to adding includes and
+'struct file;' to sysctl.h.
+
+	Jeff
+
+
+-- 
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

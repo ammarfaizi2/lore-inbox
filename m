@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262702AbRE0CAk>; Sat, 26 May 2001 22:00:40 -0400
+	id <S262703AbRE0CJX>; Sat, 26 May 2001 22:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262703AbRE0CAV>; Sat, 26 May 2001 22:00:21 -0400
-Received: from mail.alphalink.com.au ([203.24.205.7]:18784 "EHLO
-	mail.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S262702AbRE0CAR>; Sat, 26 May 2001 22:00:17 -0400
-Message-ID: <3B1061FC.EB18967A@alphalink.com.au>
-Date: Sun, 27 May 2001 12:10:04 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
-MIME-Version: 1.0
-To: Jaswinder Singh <jaswinder.singh@3disystems.com>
-CC: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+	id <S262704AbRE0CJN>; Sat, 26 May 2001 22:09:13 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:23625 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S262703AbRE0CJI>; Sat, 26 May 2001 22:09:08 -0400
+Message-ID: <028d01c0e651$fd055b20$52a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "Greg Banks" <gnb@alphalink.com.au>
+Cc: "CML2" <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>,
+        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <20010525012200.A5259@thyrsus.com> <3B0F3268.A671BC7A@pocketpenguins.com> <002401c0e5aa$0049a000$47a6b3d0@Toshiba> <3B0F8042.90DD5C5D@pocketpenguins.com> <005801c0e614$b49a0120$44a6b3d0@Toshiba> <3B105492.5300778F@pocketpenguins.com> <018001c0e649$8111c380$52a6b3d0@Toshiba> <3B105882.4551E232@alphalink.com.au> <01c701c0e64c$4ff78b60$52a6b3d0@Toshiba> <3B106066.F416D241@alphalink.com.au>
 Subject: Re: [kbuild-devel] Configure.help entries wanted
-In-Reply-To: <E153pEG-0008RL-00@the-village.bc.nu> <01ce01c0e64c$b6cc01e0$52a6b3d0@Toshiba>
-Content-Type: text/plain; charset=us-ascii
+Date: Sat, 26 May 2001 19:08:53 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaswinder Singh wrote:
+"Greg Banks" <gnb@alphalink.com.au> wrote:
+> > 
+> > Can we use "HP Jornada 600 series" inspite of "WindowsCE machine" ?
 > 
-> "Alan Cox" <alan@lxorguk.ukuu.org.uk> wrote :
+>   Sorry, I'm not sure what you mean here.
+>
+
+forget about it ;)
+ 
 > 
-> >
-> > Handwriting recognition with fscrib works very well indeed.
-> >
+>   But Compaq is playing nice in a way HP (or at least the division
+> that makes Jornadas) isn't.  Furthermore the ARM port is older.
 > 
-> But not in Linux SH , there is so Touch Panel Interface in Linux SH yet :(
 
-  I have some code which could become the basis for such a thing.
-It's a touch panel driver for the DMIDA but it also has a device-
-independent layer which does supersampling, scaling, provides
-raw and cooked Linux Input interfaces, and a /proc interface to
-allow the calibration app to control the scaling.
+Thats why Compaq's iPAQ are in much demand :)
 
-  Unfortunately I can't release it yet for (ahem) legal reasons.
+Best Regards,
 
-  Anyway the limitation with handwriting recognition is not getting
-the data out of the hardware but recognising the sample stream as
-characters.  This is *difficult*.
-
-Greg.
+Jaswinder.
 -- 
-If it's a choice between being a paranoid, hyper-suspicious global
-village idiot, or a gullible, mega-trusting sheep, I don't look
-good in mint sauce.                      - jd, slashdot, 11Feb2000.
+These are my opinions not 3Di.
+
+

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263859AbTFTSCN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 14:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTFTSCM
+	id S264037AbTFTSQw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 14:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbTFTSQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 14:02:12 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:64419 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263859AbTFTSCJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 14:02:09 -0400
-Subject: Re: 2.5.72: wall-clock time advancing too rapidly?
-From: john stultz <johnstul@us.ibm.com>
-To: Wiktor Wodecki <wodecki@gmx.de>
-Cc: Andy Pfiffer <andyp@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030620140136.GD1038@gmx.de>
-References: <1056039012.3879.5.camel@andyp.pdx.osdl.net>
-	 <1056058206.18644.532.camel@w-jstultz2.beaverton.ibm.com>
-	 <20030620140136.GD1038@gmx.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056132551.18636.541.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Jun 2003 11:09:12 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jun 2003 14:16:52 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:44749 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264037AbTFTSQu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 14:16:50 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: ACPI source releases updated (20030619)
+Date: Fri, 20 Jun 2003 11:30:49 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A2FE@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ACPI source releases updated (20030619)
+Thread-Index: AcM3WhTvdhavGCuWTJuB2bdN+RX3DQ==
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: <acpi-devel@lists.sourceforge.net>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Jun 2003 18:30:49.0829 (UTC) FILETIME=[12C99150:01C3375A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-20 at 07:01, Wiktor Wodecki wrote:
-> same here, time is running way too fast. Kernel 2.5.72-mm1, see attached
-> config for config. The cpu is a Pentium III (Coppermine) wit speedstep
-> enabled.
+Hi all,
 
-Speedstep and the lost-ticks compensation code in the TSC time source
-are fighting. Booting w/ "clock=pit" will let you work around it, but
-I'm working on trying to make it automatically fall back. 
+New Linux 2.4 and 2.5 patches are now available from
+http://sf.net/projects/acpi. Big thanks to the asus-acpi team, as well
+as all the other people who have been tracking down bugs and submitting
+fixes lately.
 
-This is being tracked in Bug #827.
-http://bugme.osdl.org/show_bug.cgi?id=827
+Regards -- Andy
 
-thanks
--john
+----------------------------------------
+19 June 2003.  Summary of changes for version 20030619:
 
+1) Linux:
+
+acpiphp update (Takayoshi Kochi)
+
+Export acpi_disabled for sonypi (Stelian Pop)
+
+Mention acpismp=force in config help
+
+Re-add acpitable.c and acpismp=force. This improves backwards
+compatibility and also cleans up the code to a significant
+degree.
+
+Add ASUS Value-add driver (Karol Kozimor and Julien Lerouge)
+
+2) ACPI CA Core Subsystem:
+
+Fix To/FromBCD, eliminating the need for an arch-specific
+#define.
+
+Do not acquire a semaphore in the S5 shutdown path.
+
+Fix ex_digits_needed for 0. (Takayoshi Kochi)
+
+Fix sleep/stall code reversal. (Andi Kleen)
+
+Revert a change having to do with control method calling
+semantics.
+
+
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
 

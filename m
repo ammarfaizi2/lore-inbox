@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265189AbRGBN2n>; Mon, 2 Jul 2001 09:28:43 -0400
+	id <S265100AbRGBNpu>; Mon, 2 Jul 2001 09:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265100AbRGBN2d>; Mon, 2 Jul 2001 09:28:33 -0400
-Received: from smtp1.fw.nextra.de ([212.169.185.140]:45741 "EHLO fw.nextra.de")
-	by vger.kernel.org with ESMTP id <S265085AbRGBN2W> convert rfc822-to-8bit;
-	Mon, 2 Jul 2001 09:28:22 -0400
-content-class: urn:content-classes:message
+	id <S265120AbRGBNpl>; Mon, 2 Jul 2001 09:45:41 -0400
+Received: from zodiac.mimuw.edu.pl ([193.0.99.1]:45740 "HELO
+	students.mimuw.edu.pl") by vger.kernel.org with SMTP
+	id <S265100AbRGBNpd>; Mon, 2 Jul 2001 09:45:33 -0400
+Date: Mon, 2 Jul 2001 15:46:18 +0200 (CEST)
+From: Cezary Kaliszyk <ck189400@zodiac.mimuw.edu.pl>
+To: "Philip V. Neves" <pneves@telus.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Possible problem with IDE device driver in kernel.
+In-Reply-To: <97010223353900.00997@rasputan>
+Message-ID: <Pine.LNX.4.30.0107021543150.830-100000@orka>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: AW: VM Requirement Document - v0.0
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-Date: Mon, 2 Jul 2001 15:27:55 +0100
-Message-ID: <10AA1A316C98214F8C73CB26D96CEAD8435BC7@bn-ex-01.intern.nextra.de>
-Thread-Topic: VM Requirement Document - v0.0
-Thread-Index: AcD/1W8o/DUJjtM2T7C/53TEvY6X7gDLY4nA
-From: "Jens Hoffmann" <J.Hoffmann@nextra.de>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2 Jan 1997, Philip V. Neves wrote:
 
-> My laptop has 256mb of ram, 
-> but every day 
-> it runs the updatedb for locate. 
+> I would like to report a bug that I've seen in a few linux kernels now. This
+> may be a serious problem with the IDE controler software because it may cause
+> a hard drive to ware out over a period of time. I've noticed for a long time
+> that when linux is loaded the hard drive light on my computer goes on and
+> stays on. It never turns off. If I boot with windows the light turns off. I
+> think it may be the device driver that forgets to turn of the light. Could
+> one of you please confirm if this is a problem with the kernel and get back
+> to me if it is not.
+>
+> Thank you,
+>
+>
+> Philip V. Neves
 
-The remedy here is simple: Do not run updatedb from cron,
-but only when you made changes.
+I experience the same feature, but not only in Linux.
 
-Greetings,
-   Jens
+BeOS, FreeBSD, NetBSD, OpenBSD do not turn off the IDE light.
+
+The manual for my main board (GA-6BXDS) sais that the light does not
+turn off if no SCSI devices are attached to the board and SCSI is set to
+'off' in the BIOS. But even if I turn it on, the light is constantly lit.
+
+If I use a kernel compiled for Pentium (not PII which I really have) the
+lamp does turn off sometimes (I mean with some kernels, I don't see any
+other regularity).
+
+I'm using a western Digital Caviar disk (WDC AC29100D) for over 2 years
+now, and everything but for the light is fine.
+
+Cezary Kaliszyk
+
+
+

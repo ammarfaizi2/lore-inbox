@@ -1,101 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262910AbVDBAIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVDBAgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262910AbVDBAIN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVDBAF5
+	id S261632AbVDBAgE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbVDBAdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:05:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:33756 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262910AbVDAXsP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:15 -0500
-Cc: eike-hotplug@sf-tec.de
-Subject: [PATCH] PCI Hotplug: only call ibmphp_remove_resource() if argument is not NULL
-In-Reply-To: <1112399271636@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:51 -0800
-Message-Id: <11123992711809@kroah.com>
+	Fri, 1 Apr 2005 19:33:11 -0500
+Received: from waste.org ([216.27.176.166]:25533 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261632AbVDBAb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 19:31:28 -0500
+Date: Fri, 1 Apr 2005 16:31:08 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] quiet ide-cd warning
+Message-ID: <20050402003108.GO15453@waste.org>
+References: <20050401201111.GH15453@waste.org> <424DDD6D.3010204@tls.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424DDD6D.3010204@tls.msk.ru>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.10, 2005/03/17 13:54:51-08:00, eike-hotplug@sf-tec.de
+On Sat, Apr 02, 2005 at 03:46:53AM +0400, Michael Tokarev wrote:
+> Matt Mackall wrote:
+> >This shuts up a potential uninitialized variable warning.
+> 
+> Potential warning or potential uninitialized use?
+> The code was right before the change, and if the compiler
+> generates such a warning on it, it's the compiler who
+> should be fixed, not the code: it's obvious the variable
+> can't be used uninitialized here, and moving the things
+> around like that makes the code misleading and hard to
+> understand...
 
-[PATCH] PCI Hotplug: only call ibmphp_remove_resource() if argument is not NULL
+It's a compiler problem.
 
-If we call ibmphp_remove_resource() with a NULL argument it will write
-a warning. We can avoid this here because we already look if the argument
-will be NULL before (and we ignore the return code anyway).
+With gcc 3.3.5:
 
-Signed-off-by: Rolf Eike Beer <eike-hotplug@sf-tec.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+drivers/ide/ide-cd.c: In function `cdrom_analyze_sense_data':
+drivers/ide/ide-cd.c:433: warning: `s' might be used uninitialized in
+this function
 
+Looks like the compiler's being stupid about my earlier patch which
+makes printk an inline (and it's the only thing in the tree to do so).
+gcc-snapshot doesn't complain.
 
- drivers/pci/hotplug/ibmphp_pci.c |   20 ++++++++++++--------
- 1 files changed, 12 insertions(+), 8 deletions(-)
+> /mjt
+> 
+> >Signed-off-by: Matt Mackall <mpm@selenic.com>
+> >
+> >Index: af/drivers/ide/ide-cd.c
+> >===================================================================
+> >--- af.orig/drivers/ide/ide-cd.c	2005-04-01 11:17:37.000000000 -0800
+> >+++ af/drivers/ide/ide-cd.c	2005-04-01 11:55:09.000000000 -0800
+> >@@ -430,7 +430,7 @@ void cdrom_analyze_sense_data(ide_drive_
+> > #if VERBOSE_IDE_CD_ERRORS
+> > 	{
+> > 		int i;
+> >-		const char *s;
+> >+		const char *s = "bad sense key!";
+> > 		char buf[80];
+> > 
+> > 		printk ("ATAPI device %s:\n", drive->name);
+> >@@ -445,8 +445,6 @@ void cdrom_analyze_sense_data(ide_drive_
+> > 
+> > 		if (sense->sense_key < ARY_LEN(sense_key_texts))
+> > 			s = sense_key_texts[sense->sense_key];
+> >-		else
+> >-			s = "bad sense key!";
+> > 
+> > 		printk("%s -- (Sense key=0x%02x)\n", s, sense->sense_key);
+> > 
+> >
 
-
-diff -Nru a/drivers/pci/hotplug/ibmphp_pci.c b/drivers/pci/hotplug/ibmphp_pci.c
---- a/drivers/pci/hotplug/ibmphp_pci.c	2005-04-01 15:36:56 -08:00
-+++ b/drivers/pci/hotplug/ibmphp_pci.c	2005-04-01 15:36:56 -08:00
-@@ -1317,10 +1317,11 @@
- 					err ("cannot find corresponding PFMEM resource to remove\n");
- 					return -EIO;
- 				}
--				if (pfmem)
-+				if (pfmem) {
- 					debug ("pfmem->start = %x\n", pfmem->start);
- 
--				ibmphp_remove_resource (pfmem);
-+					ibmphp_remove_resource(pfmem);
-+				}
- 			} else {
- 				/* regular memory */
- 				debug ("start address of mem is %x\n", start_address);
-@@ -1328,10 +1329,11 @@
- 					err ("cannot find corresponding MEM resource to remove\n");
- 					return -EIO;
- 				}
--				if (mem)
-+				if (mem) {
- 					debug ("mem->start = %x\n", mem->start);
- 
--				ibmphp_remove_resource (mem);
-+					ibmphp_remove_resource(mem);
-+				}
- 			}
- 			if (tmp_address & PCI_BASE_ADDRESS_MEM_TYPE_64) {
- 				/* takes up another dword */
-@@ -1427,20 +1429,22 @@
- 					err ("cannot find corresponding PFMEM resource to remove\n");
- 					return -EINVAL;
- 				}
--				if (pfmem)
-+				if (pfmem) {
- 					debug ("pfmem->start = %x\n", pfmem->start);
- 
--				ibmphp_remove_resource (pfmem);
-+					ibmphp_remove_resource(pfmem);
-+				}
- 			} else {
- 				/* regular memory */
- 				if (ibmphp_find_resource (bus, start_address, &mem, MEM) < 0) {
- 					err ("cannot find corresponding MEM resource to remove\n");
- 					return -EINVAL;
- 				}
--				if (mem)
-+				if (mem) {
- 					debug ("mem->start = %x\n", mem->start);
- 
--				ibmphp_remove_resource (mem);
-+					ibmphp_remove_resource(mem);
-+				}
- 			}
- 			if (tmp_address & PCI_BASE_ADDRESS_MEM_TYPE_64) {
- 				/* takes up another dword */
-
+-- 
+Mathematics is the supreme nostalgia of our time.

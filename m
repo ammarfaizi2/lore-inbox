@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVBQLks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVBQMKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVBQLks (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 06:40:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVBQLks
+	id S262232AbVBQMKi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 07:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVBQMKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 06:40:48 -0500
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:35539 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262069AbVBQLkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 06:40:42 -0500
-Subject: Re: NTFS - Kernel memory leak in driver for kernel 2.4.28?
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Martin Bogomolni <martinbogo@gmail.com>
-Cc: linux-os@analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <712fce105021609163a605f51@mail.gmail.com>
-References: <712fce1050216082847bec092@mail.gmail.com>
-	 <Pine.LNX.4.61.0502161151370.10018@chaos.analogic.com>
-	 <712fce105021609163a605f51@mail.gmail.com>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Thu, 17 Feb 2005 11:40:31 +0000
-Message-Id: <1108640432.7281.8.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Thu, 17 Feb 2005 07:10:34 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.71]:37028 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262232AbVBQMKb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 07:10:31 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Nigel Cunningham <ncunningham@cyclades.com>, mhf@berlios.de
+Subject: Re: [Linux-fbdev-devel] Re: i810 BUG summary. Was Re: [SoftwareSuspend-devel] [Announce] 2.1.7 for 2.6.11-rc4
+Date: Thu, 17 Feb 2005 20:09:58 +0800
+User-Agent: KMail/1.5.4
+Cc: SoftwareSuspend Development 
+	<softwaresuspend-devel@lists.berlios.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, pavel@suse.cz,
+       akpm@osdl.org
+References: <42141C01.nail5A31PHQ9L@berlios.de> <1108615165.4471.13.camel@desktop.cunningham.myip.net.au>
+In-Reply-To: <1108615165.4471.13.camel@desktop.cunningham.myip.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Disposition: inline
+Message-Id: <200502172010.01473.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-16 at 09:16 -0800, Martin Bogomolni wrote:
-> I should say that the malloc() succeeds, but the 16mb I need for the
-> buffer are not available.  Since there is no swap/page file in the
-> embedded environment, there isn't enough memory left afterwards for
-> the buffer.
-> 
-> After taking another look at the problem, the kernel has a lot of
-> memory tied up in the inode and dentry cache.   I've tuned
-> /proc/sys/vm/vm_cache_scan_ratio, vm_mapped_ratio, vm_vfs_scan_ratio
-> with no real success in shrinking the amount of memory used by these
-> caches.
-> 
-> Is there a way to tune and shring the overall amount of memory the
-> kernel attempts to use for the dentry/inode cache, or make it much,
-> much more aggressive at clearing it?
+On Thursday 17 February 2005 12:39, Nigel Cunningham wrote:
+> Hi Michael.
+>
+> Perhaps this belongs with the framebuffer devel guys? I'll copy them
+> now. Antonio et al, have I called it right?
 
-Are you using the old (1.x) or new (2.x) ntfs driver?
+Is he using a framebuffer console or vgacon?
 
-If you are using the old one you could try using the new driver.  That
-should be a lot better than the old one in terms of how much memory it
-uses.  You can get an outdated patch (but should still work) for the new
-driver here:
+Tony
 
-http://sourceforge.net/project/showfiles.php?group_id=13956&package_id=21892
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,83 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVATWv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVATWzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262204AbVATWv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVATWv5
+	id S262205AbVATWzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVATWzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:51:57 -0500
-Received: from smtp07.auna.com ([62.81.186.17]:16783 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S262204AbVATWvq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:51:46 -0500
-Date: Thu, 20 Jan 2005 22:51:42 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [patch 3/3] spinlock fix #3: type-checking spinlock primitives,
- x86
-To: linux-kernel@vger.kernel.org
-References: <20050120114317.GA29876@elte.hu>
-	<20050120115947.GA31305@elte.hu> <20050120120905.GA3493@elte.hu>
-In-Reply-To: <20050120120905.GA3493@elte.hu> (from mingo@elte.hu on Thu Jan
-	20 13:09:05 2005)
-X-Mailer: Balsa 2.2.6
-Message-Id: <1106261502l.7080l.0l@werewolf.able.es>
+	Thu, 20 Jan 2005 17:55:05 -0500
+Received: from innocence-lost.us ([66.93.152.112]:57231 "EHLO
+	innocence-lost.net") by vger.kernel.org with ESMTP id S262205AbVATWy6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 17:54:58 -0500
+Date: Thu, 20 Jan 2005 15:54:57 -0700 (MST)
+From: jnf <jnf@innocence-lost.us>
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux capabilities ?
+In-Reply-To: <20050120134918.N469@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.61.0501201547230.24484@fhozvffvba.vaabprapr-ybfg.arg>
+References: <Pine.LNX.4.61.0501201053070.24484@fhozvffvba.vaabprapr-ybfg.arg>
+ <20050120134918.N469@build.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="=-TO5RHc5WYTTg8qLztRrx"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-TO5RHc5WYTTg8qLztRrx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Chris, thank you for the response.
+
+>
+> This is not exactly safe.  It was removed on purpose.  See this paper:
+> http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
+
+I will read the paper before commenting on it further, however I cannot
+see what dangers it would really provide that a setuid program doesnt
+already have- other than the ability to give another non-root process root
+like abilities. However, the more I ponder it, it seems as if you could
+accomplish a lot of things with a set of ACL's and Capabilities (think
+compartmentalizing everything from each other where no one thing has full
+control of anything other than its particular subsystem).
+
+>
+> BTW, CAP_SYS_ADMIN is a lot of privileges, so even this would not be as
+> secure as you might hope.
+
+Yes, I am fully aware of that, I had previously written in a current->uid
+check as well to get around the capabilities problem, however it didn't
+work so I took it out. Portability isn't as much as an issue as 'making it
+work on this box'.
+
+>
+> 3 doesn't require any permissions.  It's like doing 'dmesg.'
+
+Hrm, am I missing something? Oh wait, duh, I misread that line. ;]
+
+> Since /proc/kmsg is 0400 you need CAP_DAC_READ_SEARCH (don't necessarily
+> need full override).  Otherwise, you are right, you do need CAP_SYS_ADMIN.
+> Or just use syslog(2) directly, and you'll avoid the DAC requirement.
+
+Hrm, even a chmod of it didn't appear to really affect things?
+I will investigate the CAP_DAC_READ_SEARCH and see how that works, I
+appreciate the response.
 
 
-On 2005.01.20, Ingo Molnar wrote:
->=20
-> this patch would have caught the bug in -BK-curr (that patch #1 fixes),
-> via a compiler warning. Test-built/booted on x86.
->=20
-> 	Ingo
->=20
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
->=20
-> --- linux/include/asm-i386/spinlock.h.orig
-> +++ linux/include/asm-i386/spinlock.h
-> @@ -36,7 +36,10 @@ typedef struct {
-> =20
->  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
-> =20
-> -#define spin_lock_init(x)	do { *(x) =3D SPIN_LOCK_UNLOCKED; } while(0)
-> +static inline void spin_lock_init(spinlock_t *lock)
+> The best way is to drop the caps from within the syslogd.  Otherwise
+> you will gain/lose all caps on execve() due to the way caps actually
+> effectively follow uids.  Here, I threw together an example of some
+> other bits of code I have laying around (run it as root).
 
-Will have any real effect if you add things like:
-
-+static inline void spin_lock_init(spinlock_t *lock) __attribute__((__pure_=
-_));
-
-??
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam4 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #2
+Thank you, when I get a second I will take a look through it. I've already
+written a couple programs to set/get capabilities, so I am aware of the
+interface/api, it was just that even with the capabilities it was not
+working ;]
+Either way I will take a look through the code, I appreciate the reply.
 
 
---=-TO5RHc5WYTTg8qLztRrx
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+> thanks,
+> -chris
+> --
+> Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+>
 
-iD8DBQBB8DX+RlIHNEGnKMMRAkBpAJ4rVWijoxBJYxhmRFePtXvIfzBPggCfXLI5
-GMbO9jkjGtu/ve4COaT1wnk=
-=avOj
------END PGP SIGNATURE-----
+cheers,
 
---=-TO5RHc5WYTTg8qLztRrx--
-
+jnf

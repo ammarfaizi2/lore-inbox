@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267665AbUH1Tlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267687AbUH1Tor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267665AbUH1Tlu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUH1Tlt
+	id S267687AbUH1Tor (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267671AbUH1Tor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:41:49 -0400
-Received: from alias.nmd.msu.ru ([193.232.127.67]:24848 "EHLO alias.nmd.msu.ru")
-	by vger.kernel.org with ESMTP id S267665AbUH1Tll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:41:41 -0400
-Date: Sat, 28 Aug 2004 23:41:40 +0400
-From: Alexander Lyamin <flx@msu.ru>
-To: flx@msu.ru, Christophe Saout <christophe@saout.de>,
-       Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-       reiserfs-list@namesys.com
-Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
-Message-ID: <20040828194140.GL6746@alias>
-Reply-To: flx@msu.ru
-Mail-Followup-To: flx@msu.ru, Christophe Saout <christophe@saout.de>,
-	Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-	reiserfs-list@namesys.com
-References: <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040828111807.GC6746@alias> <20040828161113.GA27278@delft.aura.cs.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040828161113.GA27278@delft.aura.cs.cmu.edu>
-X-Operating-System: Linux 2.6.5-7.104-smp
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
-User-Agent: Mutt/1.5.6i
+	Sat, 28 Aug 2004 15:44:47 -0400
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:59871 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S267708AbUH1ToZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 15:44:25 -0400
+Message-ID: <4130E094.1010309@backtobasicsmgmt.com>
+Date: Sat, 28 Aug 2004 12:44:20 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
+Subject: 2.6.9-rc1 bk-current v2 mount "stale file handle" problems
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sat, Aug 28, 2004 at 12:11:14PM -0400, Jan Harkes wrote:
-> On Sat, Aug 28, 2004 at 03:18:07PM +0400, Alexander Lyamin wrote:
-> 
-> It will get there, just consider it constructive criticism. If we can
-> help resolve or refute the technical issues, all the better. We might
-> even end up with improvements or extensions to the VFS or MM making life
-> easier for everyone.
+I just upgraded two of my boxes here to 2.6.9-rc1 pulled from BitKeeper 
+a few hours ago. One of them is my NFS server, using the kernel NFS 
+daemon and serving XFS filesystems. The other is an NFS root client, 
+using the kernel's autoconfiguration and NFS root mounting (using all 
+default mount options).
 
-That would be nice. Some nice points too (metas/metas in just noice tough).
+After booting the NFS client, I had very strange behavior when creating 
+symlinks on the NFS root if the link target path began with '.'. Just 
+this sequence:
 
--- 
-"the liberation loophole will make it clear.."
-lex lyamin
+# mkdir foo
+# cd foo
+# ln -sf . test1
+# ln -sf . test2
+...
+
+Would result in a successfully created link but an error message from ln 
+reporting "stale NFS file handle".
+
+Switching the NFS root client's mount to v3 from v2 seems to have 
+avoided the problem.

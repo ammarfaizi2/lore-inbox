@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264378AbVBEH77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265297AbVBEIQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264378AbVBEH77 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 02:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbVBEH76
+	id S265297AbVBEIQd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 03:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbVBEIQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 02:59:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59570 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265652AbVBEH7r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 02:59:47 -0500
-Date: Sat, 5 Feb 2005 08:59:37 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Manish Lachwani <mlachwani@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.37-02
-Message-ID: <20050205075936.GA22103@elte.hu>
-References: <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <20050104064013.GA19528@nietzsche.lynx.com> <20050104094518.GA13868@elte.hu> <20050115133454.GA8748@elte.hu> <20050122122915.GA7098@elte.hu> <20050201201402.GA31930@elte.hu> <1107481908.27584.448.camel@localhost.localdomain> <1107483490.27584.459.camel@localhost.localdomain> <1107583350.27584.473.camel@localhost.localdomain>
+	Sat, 5 Feb 2005 03:16:33 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:8626 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S265297AbVBEIQW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 03:16:22 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e47339105020418306a4c2c93@mail.gmail.com>
+References: <20050122134205.GA9354@wsc-gmbh.de>
+	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
+	 <9e47339105020321031ccaabb@mail.gmail.com> <420367CF.7060206@gmx.net>
+	 <20050204163019.GC1290@elf.ucw.cz>
+	 <9e4733910502040931955f5a6@mail.gmail.com>
+	 <1107569089.8575.35.camel@tyrosine>
+	 <9e4733910502041809738017a7@mail.gmail.com>
+	 <1107569842.8575.44.camel@tyrosine>
+	 <9e47339105020418306a4c2c93@mail.gmail.com>
+Date: Sat, 05 Feb 2005 08:15:35 +0000
+Message-Id: <1107591336.8575.51.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107583350.27584.473.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [RFC] Reliable video POSTing on resume
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-02-04 at 21:30 -0500, Jon Smirl wrote:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> I suspect the problem in that case is a compressed VBIOS. Some laptops
+> compress the VBIOS and the system BIOS into a single ROM and then
+> expand them at power on. Sounds like this is not happening on resume.
+> To get around the problem copy the image from C000:0 before suspend to
+> a place in preserved RAM where wakeup.S can find it and then copy it
+> back to C000:0 on resume. To test for this checksum C000:0 before
+> suspend and after and see if it has changed.
 
-> 	while(unlikely(error == IN_WAKEUP)) {
-> 		cpu_relax();
-> 		error = queue.status;
-> 	}
-> 
-> So, what looks to be happening is that as soon as the parent wakes up
-> the child, the child preempts the parent, and hits this while loop.
-> But since the child is a realtime task, with the highest priority of
-> the system, it starves the system. Of course this is a UP and I don't
-> think this will show a problem on an SMP machine. 
+No, that's not what's happening. If you disassemble the code at
+c000:blah in a laptop, you'll often find that it jumps off to a
+completely different section of address space. During POST, that
+contains video BIOS. After POST, it may be something like USB boot
+support. Without reading it directly out of flash, it's not possible to
+recover that code.
 
-hm - i had a fix in this area in the -V0.7 series. Then i thought this
-is a performance fix only and dropped it eventually, but could you give
-it a go - does it fix the deadlock?
+> You can always do a simple test. If a program like vbios.vm86 or
+> vbetool can reset the card, then there is no reason wakeup.S shouldn't
+> be able to do it too if the environment is set up correctly.
 
-	Ingo
+These tools can cause machines to hang, even if run immediately after
+boot (and without X running). On other machines, things are less bad -
+they just switch the backlight off instead. On some machines (Thinkpads
+are quite good in this respect), they'll work nicely.
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 
---- linux/ipc/sem.c.orig
-+++ linux/ipc/sem.c
-@@ -359,12 +371,18 @@ static void update_queue (struct sem_arr
- 			struct sem_queue *n;
- 			remove_from_queue(sma,q);
- 			n = q->next;
-+			/*
-+			 * Make sure that the wakeup doesnt preempt
-+			 * _this_ CPU prematurely. (on PREEMPT_RT)
-+			 */
-+			preempt_disable();
- 			q->status = IN_WAKEUP;
- 			wake_up_process(q->sleeper);
- 			/* hands-off: q will disappear immediately after
- 			 * writing q->status.
- 			 */
- 			q->status = error;
-+			preempt_enable();
- 			q = n;
- 		} else {
- 			q = q->next;

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275784AbRJBDQE>; Mon, 1 Oct 2001 23:16:04 -0400
+	id <S275789AbRJBD1R>; Mon, 1 Oct 2001 23:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275789AbRJBDPz>; Mon, 1 Oct 2001 23:15:55 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62842 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S275784AbRJBDPq>; Mon, 1 Oct 2001 23:15:46 -0400
-To: Nilmoni Deb <ndeb@ece.cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fs/ext2/namei.c: dir link/unlink bug? [Re: mv changes dir timestamp
-In-Reply-To: <Pine.LNX.3.96L.1011001150851.16650A-100000@d-alg.ece.cmu.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Oct 2001 21:06:44 -0600
-In-Reply-To: <Pine.LNX.3.96L.1011001150851.16650A-100000@d-alg.ece.cmu.edu>
-Message-ID: <m1vghy3fln.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275805AbRJBD1H>; Mon, 1 Oct 2001 23:27:07 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:48859 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S275789AbRJBD0x>;
+	Mon, 1 Oct 2001 23:26:53 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.10 is available 
+Date: Tue, 02 Oct 2001 13:26:55 +1000
+Message-ID: <19641.1001993215@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nilmoni Deb <ndeb@ece.cmu.edu> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On 1 Oct 2001, Eric W. Biederman wrote:
-> 
-> > Or vice versa, as touch will also go back in time.
-> 
-> This is not a good idea because once the user has to remember the exact
-> time stamp before the move and put that on the moved dir using touch.
+Content-Type: text/plain; charset=us-ascii
 
-You add a mv -p option to do it for you.
- 
-> > My question is which semantics are desirable, and why.  I conceed
-> > that something has changed.  And that changing the functionality back
-> > to the way it was before may be desireable.  But given that the
-> > directory is in fact changed my gut reaction is that the new behavior
-> > is more correct than the old behavior.
-> 
-> U r right but most users won't care too much about the ".." link inside
-> each dir. Its the other files that really count. If the other files
-> remain unchanged then they consider the dir as unchanged.
+Content-Type: text/plain; charset=us-ascii
 
-O.k. So nothing breaks and we just have a suprising change to more
-correct behavior.  Given that I don't see the case for making a special
-case in the code.  
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-Eric
+modutils-2.4.10.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.10-1.src.rpm       As above, in SRPM format
+modutils-2.4.10-1.i386.rpm      Compiled with gcc 2.96 20000731,
+				glibc 2.2.2.
+modutils-2.4.10-1.ia64.rpm      Compiled with gcc 2.96-ia64-20000731,
+				glibc-2.2.3.
+patch-modutils-2.4.10.gz        Patch from modutils 2.4.9 to 2.4.10.
+
+Related kernel patches.
+
+patch-2.4.2-persistent.gz       Adds persistent data and generic string
+				support to kernel 2.4.2 onwards.  Optional.
+
+Changelog extract
+
+	* Remove duplicate patch for sh, Tom Rini.
+	* Handle empty multi-line modinfo fields, reported by Bill Nottingham.
+	* Add obj_find_relsym(), standard method of finding relocation symbols.
+	* Default char-major-4 (tty) to off for s390.  S390 group via Redhat.
+	* Support GPL only exported symbols (EXPORT_SYMBOL_GPL).
+
+That last addition goes with the new EXPORT_SYMBOL_GPL() macro in
+kernels 2.4.10-ac2 and 2.4.11-pre2 onwards.  If your code uses
+EXPORT_SYMBOL_GPL() then you *must* use modutils >= 2.4.10.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE7uTP+i4UHNye0ZOoRArzrAJ0QgzGu/JzWtrfD2jtCArLIBhZYjQCfTJHt
+qDAa6krIptE5BqREUMBU2dY=
+=accJ
+-----END PGP SIGNATURE-----
+

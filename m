@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbTFJNld (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 09:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbTFJNld
+	id S262742AbTFJNno (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 09:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTFJNno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 09:41:33 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:19916 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262032AbTFJNlc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 09:41:32 -0400
-Date: Tue, 10 Jun 2003 15:55:10 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Cc: davem@redhat.com
-Subject: [PATCHLET] 2.5.70 invalid icmp broadcast.
-Message-ID: <Pine.LNX.4.51.0306101546040.28518@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jun 2003 09:43:44 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:59396 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262497AbTFJNnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 09:43:41 -0400
+Date: Tue, 10 Jun 2003 14:57:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.5 patch] let COMX depend on PROC_FS
+Message-ID: <20030610145721.A27349@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>,
+	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+	Adrian Bunk <bunk@fs.tum.de>
+References: <20030610142614.A25666@infradead.org> <Pine.GSO.4.00.10306101549360.13214-100000@kempelen.iit.bme.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.00.10306101549360.13214-100000@kempelen.iit.bme.hu>; from silicon@inf.bme.hu on Tue, Jun 10, 2003 at 03:51:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Jun 10, 2003 at 03:51:09PM +0200, Pásztor Szilárd wrote:
+> Is the case the same with the SCSI drivers, IDE drivers, network core,
+> filesystems and everything that creates directories and file entries in
+> procfs?
 
-I noticed this a couple of weeks ago in the kernel log:
-150.254.39.135 sent an invalid to a broadcast.
-
-I decided to make the kernel be more verbose about it. Here is a patch
-that would show:
-150.254.39.135 sent an invalid ICMP type 11, code 0 error to a broadcast: 150.254.39.255 on eth1
-
-Please apply.
-
-Regards,
-Maciej
-
-diff -Nru linux-2.5.68.bak/net/ipv4/icmp.c linux-2.5.70/net/ipv4/icmp.c
---- linux-2.5.68.bak/net/ipv4/icmp.c	2003-05-17 14:56:11.000000000 +0200
-+++ linux-2.5.70/net/ipv4/icmp.c	2003-06-09 13:21:37.000000000 +0200
-@@ -663,8 +659,12 @@
- 	    inet_addr_type(iph->daddr) == RTN_BROADCAST) {
- 		if (net_ratelimit())
- 			printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP "
--					    "error to a broadcast.\n",
--			       NIPQUAD(skb->nh.iph->saddr));
-+					    "type %u, code %u "
-+					    "error to a broadcast: %u.%u.%u.%u on %s\n",
-+			       NIPQUAD(iph->saddr),
-+			       icmph->type, icmph->code,
-+			       NIPQUAD(iph->daddr),
-+			       skb->dev->name);
- 		goto out;
- 	}
+No.  The problem with comx is that unlike other driver it doesn't
+not use the published procfs API but instead tries to implemented
+half of an own filesystem abusing procfs infrastructure.
 

@@ -1,68 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVBGUMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVBGURN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVBGUMf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVBGUKm
+	id S261311AbVBGURN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 15:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVBGUPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:10:42 -0500
-Received: from slartibartfast.pa.net ([66.59.111.182]:47304 "EHLO
-	slartibartfast.pa.net") by vger.kernel.org with ESMTP
-	id S261296AbVBGUIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 15:08:34 -0500
-Date: Mon, 7 Feb 2005 15:08:24 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ML-uml-user <user-mode-linux-user@lists.sourceforge.net>,
-       William Stearns <wstearns@pobox.com>
-Subject: Re: Linux Virtual Network Device
-In-Reply-To: <4207C6E6.3080602@tiscali.de>
-Message-ID: <Pine.LNX.4.61.0502071504390.6565@sparrow>
-References: <4207C6E6.3080602@tiscali.de>
+	Mon, 7 Feb 2005 15:15:37 -0500
+Received: from alog0414.analogic.com ([208.224.222.190]:18304 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261301AbVBGUOP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 15:14:15 -0500
+Date: Mon, 7 Feb 2005 15:12:20 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: bjorn.helgaas@hp.com
+cc: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [SERIAL] add TP560 data/fax/modem support
+In-Reply-To: <1107805182.8074.35.camel@piglet>
+Message-ID: <Pine.LNX.4.61.0502071508130.24378@chaos.analogic.com>
+References: <1107805182.8074.35.camel@piglet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good afternoon, Matthias-Christian,
- 	(This isn't a linux kernel development issue; please do further 
-discussion on the uml-user mailing list only.)
 
-On Mon, 7 Feb 2005, Matthias-Christian Ott wrote:
+I thought somebody promised to add a pci_route_irq(dev) or some
+such so that the device didn't have to be enabled before
+the IRQ was correct.
 
-> I have the following the problem:
-> I have server which is connected to the internet via a gateway, on this 
-> server I want to run some uml machines. I want "equip" every uml machine with 
-> virtual network device (virX [e.g.; the name doesn't matter]). The virtual 
-> devices should be something like the "lo" device and their ip addresses 
-> shouldn't be used by the internet (I'm looking for something like 127.0.0.1). 
-> I want to give each uml machine a host name (e.g. xxx.myserver.mydomain.com), 
-> requests should be masqueraded (by bind or dnsmasq?) by their dns name 
-> (1.myserver.mydomain.com is 127.0.0.2 [vir0]). How to do this?
+I first reported this bad IRQ problem back in December of 2004.
+Has the new function been added?
+
+
+On Mon, 7 Feb 2005, Bjorn Helgaas wrote:
+
+> Claim Topic TP560 data/fax/voice modem.  This device reports as class 0x0780,
+> so we don't claim it by default:
 >
-> Links or Tutorials are welcome (I just found some outdated stuff on the uml 
-> website)
+> 	00:0d.0 Class 0780: 151f:0000
+> 		Subsystem: 151f:0000
+> 		Interrupt: pin A routed to IRQ 11
+> 		Region 0: I/O ports at a400 [size=8]
+> 	00: 1f 15 00 00 01 00 00 02 00 00 80 07 00 00 00 00
+> 	10: 01 a4 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 	20: 00 00 00 00 00 00 00 00 00 00 00 00 1f 15 00 00
+> 	30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 00 00
+>
+> Some rc.serial scripts extract IRQ and I/O port information from
+> /proc/pci and stuff it into an unused port using setserial.  That
+> doesn't work reliably anymore because pci_enable_device() is never
+> called, so the IRQ may not be enabled.
+>
+> Thanks to Evan Clarke for reporting and helping debug this problem.
+>
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+>
+> ===== drivers/serial/8250_pci.c 1.48 vs edited =====
+> --- 1.48/drivers/serial/8250_pci.c	2004-11-21 23:42:29 -07:00
+> +++ edited/drivers/serial/8250_pci.c	2005-02-07 12:00:32 -07:00
+> @@ -2212,6 +2212,13 @@
+> 		0, pbn_exar_XR17C158 },
+>
+> 	/*
+> +	 * Topic TP560 Data/Fax/Voice 56k modem (reported by Evan Clarke)
+> +	 */
+> +	{	PCI_VENDOR_ID_TOPIC, PCI_DEVICE_ID_TOPIC_TP560,
+> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+> +		pbn_b0_1_115200 },
+> +
+> +	/*
+> 	 * These entries match devices with class COMMUNICATION_SERIAL,
+> 	 * COMMUNICATION_MODEM or COMMUNICATION_MULTISERIAL
+> 	 */
+> ===== include/linux/pci_ids.h 1.200 vs edited =====
+> --- 1.200/include/linux/pci_ids.h	2005-01-30 23:33:43 -07:00
+> +++ edited/include/linux/pci_ids.h	2005-02-07 11:56:14 -07:00
+> @@ -1972,6 +1972,9 @@
+> #define PCI_DEVICE_ID_BCM4401		0x4401
+> #define PCI_DEVICE_ID_BCM4401B0		0x4402
+>
+> +#define PCI_VENDOR_ID_TOPIC		0x151f
+> +#define PCI_DEVICE_ID_TOPIC_TP560	0x0000
+> +
+> #define PCI_VENDOR_ID_ENE		0x1524
+> #define PCI_DEVICE_ID_ENE_1211		0x1211
+> #define PCI_DEVICE_ID_ENE_1225		0x1225
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
- 	Please give these a try as a start.
-
-http://www.stearns.org/slartibartfast/uml-coop.current.html#networking
-http://www.stearns.org/slartibartfast/rc.uml-net
-
- 	Cheers,
- 	- Bill
-
----------------------------------------------------------------------------
- 	"Power concedes nothing without a demand. It never did, and it
-never will.  Find out just what people will submit to, and you have
-found out the exact amount of injustice and wrong which will be imposed
-upon them; and these will continue until they are resisted with either
-words or blows, or with both.  The limits of tyrants are prescribed by
-the endurance of those whom they oppress."
- 	-- Frederick Douglass, August 4, 1857
-(Courtesy of Eric S. Raymond)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
-rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
---------------------------------------------------------------------------
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,107 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313814AbSDPSiI>; Tue, 16 Apr 2002 14:38:08 -0400
+	id <S313818AbSDPSoF>; Tue, 16 Apr 2002 14:44:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313815AbSDPSiH>; Tue, 16 Apr 2002 14:38:07 -0400
-Received: from mail.gmx.net ([213.165.64.20]:53778 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313814AbSDPSiH>;
-	Tue, 16 Apr 2002 14:38:07 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Stefan Riha <s.riha@gmx.at>
-Reply-To: s.riha@gmx.at
-To: linux-kernel@vger.kernel.org
-Subject: some problems with paride
-Date: Tue, 16 Apr 2002 20:37:25 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <02041620341700.02864@linux>
-Content-Transfer-Encoding: 8bit
+	id <S313820AbSDPSoE>; Tue, 16 Apr 2002 14:44:04 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:14404 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S313818AbSDPSoD>;
+	Tue, 16 Apr 2002 14:44:03 -0400
+Date: Tue, 16 Apr 2002 20:43:29 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org,
+        Martin Dalecki <dalecki@evision-ventures.com>
+Subject: Re: [PATCH] IDE TCQ #4
+Message-Id: <20020416204329.4c71102f.sebastian.droege@gmx.de>
+In-Reply-To: <20020416180914.GR1097@suse.de>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.jPOuSAbgMMj,2X"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have asked the question on the parport mailing list on torque.net but 
-nobody have an answere for me. One people on the parport list has sayed to 
-me, that i should ask my question on the linux kernel mailing list.
-Now i hope that you can help me witch this question.
+--=.jPOuSAbgMMj,2X
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Now my question:
+On Tue, 16 Apr 2002 20:09:14 +0200
+Jens Axboe <axboe@suse.de> wrote:
 
-I want to use my Freecom portable CD-RW writer (2x2x24) under Linux.
-The writer is with a Freecom parallel port cable connected to my computer.
-For testing i have connected the writer on a 486 computer.
-Now i have installed RedHat 6.2 and when i want to mount a data CD i get the
-following errors.
-Now i have Installed Suse 7.2 and i get the same errors when i want to mount
-the data CD.
+> On Tue, Apr 16 2002, Sebastian Droege wrote:
+> > Hi,
+> > just one short question:
+> > My hda supports TCQ but my hdb doesn't
+> > Is it safe to enable TCQ in kernel config?
+> 
+> yes, should be safe.
+> 
+> -- 
+> Jens Axboe
+> 
+Ok it really works ;)
+But there's another problem in 2.5.8 with ide patches until 37 applied (they don't appear with 2.5.8 and ide patches until 35), the unexpected interrupts (look at the relevant dmesg output at the bottom). They appear with and without TCQ enabled.
+If you need more informations, just ask :)
 
-Now an concrete description of what i have done under RedHat 6.2
+Bye
 
-#lsmod
-Module        Size    Used    by
-lockd         31912    1      (autoclean)
-sunrpc        53604    1      (autoclean) [locked]
-rtl8139       12132    1      (autoclean)
+Uniform Multi-Platform E-IDE driver ver.:7.0.0
+ide: system bus speed 33MHz
+Intel Corp. 82371AB PIIX4 IDE: IDE controller on PCI slot 00:07.1
+Intel Corp. 82371AB PIIX4 IDE: chipset revision 1
+Intel Corp. 82371AB PIIX4 IDE: not 100% native mode: will probe irqs later
+PIIX: Intel Corp. 82371AB PIIX4 IDE UDMA33 controller on pci00:07.1
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: IBM-DTTA-351010, ATA DISK drive
+hdb: WDC WD800BB-00BSA0, ATA DISK drive
+hdc: CD-W512EB, ATAPI CD/DVD-ROM drive
+hdd: CD-532E-B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide: unexpected interrupt 0 14
+hda: tagged command queueing enabled, command queue depth 32
+hda: 19807200 sectors (10141 MB) w/466KiB Cache, CHS=19650/16/63, UDMA(33)
+ide: unexpected interrupt 0 14
+hdb: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
+ide: unexpected interrupt 1 15
+Partition check:
+ /dev/ide/host0/bus0/target0/lun0: [PTBL] [1232/255/63] p1 p2
+ /dev/ide/host0/bus0/target1/lun0: p1 p2
+--=.jPOuSAbgMMj,2X
+Content-Type: application/pgp-signature
 
-#modprobe paride
-paride: version 1.04 installed
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-#modprobe friq
-paride: friq registered as protocol 0
+iD8DBQE8vHDUe9FFpVVDScsRAk0dAKCxYWT3vZE3ej292MUk+Kyk+c5cAwCg6sZZ
+bvwlzbDplNkx2pDtK17fgzo=
+=x+9n
+-----END PGP SIGNATURE-----
 
-#modprobe pcd
-pcd: pcd version 1.07, major 46, nice 0
-pcd0: Sharing parport0 at 0x378
-pcd0: friq 1.01, Freecom IQ ASCI-2 adapter at 0x378, mode 4 (EPP-32), delay
-1
-pcd0: Master R/RW 2x2x24
+--=.jPOuSAbgMMj,2X--
 
-#lsmod
-Module                  Size  Used by
-parport_probe           3272   0  (autoclean)
-parport_pc              7400   1  (autoclean)
-pcd                    11556   0  (unused)
-friq                    8544   1 
-paride                  3532   1  [pcd friq]
-parport                 7516   1  [parport_probe parport_pc paride]
-lockd                  31912   1  (autoclean)
-sunrpc                 53604   1  (autoclean) [lockd]
-rtl8139                12132   1  (autoclean)
-
-Als nächstes wollte ich eine Daten CD mounten:
-
-#mount /dev/pcd0 /mnt/cdrom
-pcd0: WARNING: ATAPI phase errors
-pcd0: Stuck DRQ 
-pcd0: lock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: read block before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-end_request: I/O error, dev 2e:00 (PCD), sector 2 
-/dev/pcd0: Eingabe-/Ausgabefehler
-pcd0: unlock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-mount: blockorientiertes Gerät /dev/pcd0 ist schreibgeschützt, es wird im
-       Nur-Lese-Modus gemountet
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2  
-pcd0: unlock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: unlock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-mount: Kein Medium gefunden
-
-I hope you can help me.
-
-MFG
-Stefan Riha

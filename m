@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267681AbTAMPif>; Mon, 13 Jan 2003 10:38:35 -0500
+	id <S267387AbTAMPj3>; Mon, 13 Jan 2003 10:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267719AbTAMPif>; Mon, 13 Jan 2003 10:38:35 -0500
-Received: from mail.netline.net.au ([203.28.52.8]:31164 "EHLO
-	whale.netline.net.au") by vger.kernel.org with ESMTP
-	id <S267681AbTAMPie>; Mon, 13 Jan 2003 10:38:34 -0500
-Date: Tue, 14 Jan 2003 02:47:18 +1100
-From: Jeff Waugh <jdub@perkypants.org>
-To: zbrown@tumblerings.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Kernel Traffic reaches #200
-Message-ID: <20030113154718.GR25562@lazarus.home.spankyhouse.net>
-References: <E18Y6b2-0006H3-00@renegade>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18Y6b2-0006H3-00@renegade>
-User-Agent: Mutt/1.4i
-Reply-By: Fri Jan 17 02:43:39 EST 2003
-X-Operating-System: Linux 2.4.20-xfs i686
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Uptime: 02:43:39 up 5 days, 13:34,  4 users,  load average: 0.16, 0.30, 0.19
+	id <S267633AbTAMPj3>; Mon, 13 Jan 2003 10:39:29 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:53647 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267387AbTAMPjX>; Mon, 13 Jan 2003 10:39:23 -0500
+Date: Mon, 13 Jan 2003 09:48:12 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <tridge@samba.org>
+Subject: Re: [PATCH] Check compiler version, SMP and PREEMPT. 
+In-Reply-To: <20030113065148.A685A2C07D@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0301130938500.24477-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<quote who="zbrown@tumblerings.org">
+On Mon, 13 Jan 2003, Rusty Russell wrote:
 
-> Kernel Traffic #200
-> by Zack Brown
+> I've only updated the x86 linker script, since the other archs'
+> compile will break as soon as they set CONFIG_MODULES=y (there are 40
+> linker scripts in the tree, and I don't want to patch them all again).
+> 
+> You now get:
+> ext2: version magic 'non-SMP,preempt,gcc-2.95' != kernel 'SMP,preempt,gcc-2.95'
 
-Congratulations again, Zack. Still reading every issue, and Kernel Traffic
-still rocks. :-)
+I mostly agree with this, in particular since I've been planning to 
+reimplement module version checking (not modversions, though that's on the 
+list, too) for some time now.
 
-  http://www.uwsg.iu.edu/hypermail/linux/kernel/0101.0/0125.html
+My plan was to first of all use the normal version string ("2.5.55-preX") 
+and add letters for the critical config options, like "S" for SMP, "P" for 
+preempt and so on. However, following this discussion, I suppose using 
+entire words like "SMP", "preempt" etc is clearer and nobody cares about 
+saving 10 bytes in vmlinux.
 
-Another 100? I hope so!
+I think it may, as kaos pointed out, also be necessary to allow for
+architecture specific config options, like the processor type.
 
-Thank you!
+The implementation I have in mind would not generate the special section 
+with that string inside a header but rather add it during the "ld -o 
+module.ko" step (one of the reasons why I introduced that), in order to 
+avoid unnecessary recompiles when e.g. the version changes from "-preN" to 
+"-preN+1", which was a major concern people had with the old module 
+version string.
 
-- Jeff
+Do you agree on doing it that way?
 
--- 
-    "Learning and doing is the true spirit of free software -- learning     
-   without doing gets you academic sterility, and doing without learning    
-    is all too often the way things are done in proprietary software." -    
-                                Raph Levien                                 
+--Kai
+
+
+

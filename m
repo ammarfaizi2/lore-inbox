@@ -1,86 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbTIABOi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 21:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTIABOg
+	id S262540AbTIABKe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 21:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTIABKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 21:14:36 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:65413 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262567AbTIABNf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 21:13:35 -0400
-Date: Sun, 31 Aug 2003 18:13:34 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
+	Sun, 31 Aug 2003 21:10:34 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41190
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262540AbTIABK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 21:10:27 -0400
+Date: Mon, 1 Sep 2003 03:10:55 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.53.0308311742420.2043@twinlark.arctic.org>
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030901011055.GE11503@dualathlon.random>
+References: <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random> <20030901001819.GC29239@mail.jlokier.co.uk> <20030901002815.GB11503@dualathlon.random> <20030901005041.GC31531@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901005041.GC31531@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Aug 2003, Jamie Lokier wrote:
+On Mon, Sep 01, 2003 at 01:50:41AM +0100, Jamie Lokier wrote:
+> Andrea Arcangeli wrote:
+> > Depending on the connect/sec of the http server (not bkbits, for the
+> > largest part of the conversation I couldn't know about the http server,
+> > Larry only mentioned the bkbits.net clone until recently), the
+> > "reservation" margin will have to change: the less connect/sec the
+> > smaller margin Larry will need to reserve, the more connect/sec the
+> > bigger marging will be necessary.
+> 
+> Hi Andrea,
+> 
+> Above a certain connection rate, no amount of margin is enough.  The
+> connections are a SYN flood.
+> 
+> You need to take into account the peak rate, which varies from second
+> to second, due to simple statistics plus the tendency of the net to
+> make traffic burstier than it started.
+> 
+> Above a certain number of packets/sec, competing VoIP traffic degrades
+> - a little added latency is equivalent to dropping with VoIP.  That
+> translates to dropouts in the audio.  Acceptable for hackers talking
+> over a flakey line, but not corporate telephony.
+> 
+> At Larry's server, inbound connection rate resembles a low-level SYN
+> flood, which is enough to poke holes in VoIP latency.
 
-> I already got a surprise (to me): my Athlon MP is much slower
-> accessing multiple mappings which are within 32k of each other, than
-> mappings which are further apart, although it is coherent.  The L1
-> data cache is 64k.  (The explanation is easy: virtually indexed,
-> physically tagged cache moves data among cache lines, possibly via L2).
+Yes. if you check my very first email in this thread, you will see I
+said "it has to work, unless you're under syn-flood ;)".
 
-opteron has 64KiB / 2-way L1 which means 15-bits of indexing... which
-totally predicts the 32KiB spacing i saw someone else post about.
+this is obvious, I'm not arguing about that. From Larry's description of
+the problem it couldn't be a syn flood, but it was a bkbits.net clone
+thing or checkout or whatever non syn intensive.
 
-tm8000 also has some virtual aliasing and your test detects it properly...
-but i'm probably not supposed to say anything about that :)
+now apparently bkbits.net has nothing to do with it, and it's all about
+the http server. Then of course the syn overhead may become noticeable
+but things have changed totally from the original description of the
+problem (the bkbits.net clone thing).
 
-there's a real oddity i found on p4 just yesterday.  i was doing some
-pointer-chasing experiments, and i set up two 8192B shared mappings to the
-same file, for example:
+however keep in mind you will somehow throttle the number of syns too,
+unless every single syn arrives to the webserver from a different user
+(unlikely).
 
-0x50000000 => /var/tmp/foo offset 0
-0x50002000 => /var/tmp/foo offset 0
-
-then i set up a 4 element cycle:
-
-0x50000000 => 0x50001004 => 0x50002008 => 0x5000300c => 0x50000000
-
-when i do this it seems to trip up a p4 badly ... i'm seeing 3000 cycles
-per load on a 2.4GHz p4, and 300 cycles per load on a 2.4GHz xeon.  the
-crazy thing is that small variations in the experiment (such as longer
-cycles) make the oddity go away!
-
-i've placed my hack here <http://arctic.org/~dean/noah/chase.c>.
-
-
-> This suggests scope for improving x86 kernel performance in the areas
-> of kmap() and shared library / executable mappings, by good choice of
-> _virtual_ addresses.  This doesn't require a cache colouring
-> page allocator, so maybe it's a new avenue?
-
-i was trying to use wli's pgcl patch to test out larger clustering, but it
-still has some perf problems which i never got enough time to dig into
-further :)  this approach might be better than just colouring.
-
-here's what i've found tripping up virtual aliasing on processors which
-have this "feature":
-
-- shared use empty_zero_page trips up virtual aliasing for things like BSS
-  -- especially if the program for some reason doesn't typically have to
-  write before reading.  this is pretty easy to fix (there's even an
-  example fix in the mips architecture, i believe R4000 or something)
-
-- kernel and user mappings differ in the virtual index bits.  this means
-  CoW will trip up virtual aliases amongst other things.  i imagine it
-  means network checksum calculation on write(2) data will trip up virtual
-  aliases.  this is more of a pain to fix in a way which is nice on SMP.
-
-- physical pages change their virtual index bits each alloc/free.
-
-mind you overall i'm not sure that i'm seeing any perf loss due to this
-sort of thing...
-
--dean
+Andrea

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbRGAQXe>; Sun, 1 Jul 2001 12:23:34 -0400
+	id <S265215AbRGAQrd>; Sun, 1 Jul 2001 12:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265207AbRGAQXY>; Sun, 1 Jul 2001 12:23:24 -0400
-Received: from datafoundation.com ([209.150.125.194]:32004 "EHLO
-	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S265205AbRGAQXH>; Sun, 1 Jul 2001 12:23:07 -0400
-Date: Sun, 1 Jul 2001 12:22:11 -0400 (EDT)
-From: John Jasen <jjasen@datafoundation.com>
-To: Dylan Griffiths <Dylan_G@bigfoot.com>
-cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
-In-Reply-To: <3B3E29B0.8B9AB310@bigfoot.com>
-Message-ID: <Pine.LNX.4.30.0107011219580.1608-100000@flash.datafoundation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265214AbRGAQrW>; Sun, 1 Jul 2001 12:47:22 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:5090 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S265208AbRGAQrM>;
+	Sun, 1 Jul 2001 12:47:12 -0400
+Date: Mon, 2 Jul 2001 04:42:52 +1200
+To: Daniel Harvey <daniel@amristar.com.au>
+Cc: linux-laptop@mobilix.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux SLOW on Compaq Armada 110 PIII Speedstep
+Message-ID: <20010702044252.B14170@weta.f00f.org>
+In-Reply-To: <NEBBJDBLILDEDGICHAGAEENECFAA.daniel@amristar.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <NEBBJDBLILDEDGICHAGAEENECFAA.daniel@amristar.com.au>
+User-Agent: Mutt/1.3.18i
+From: cw@f00f.org (Chris Wedgwood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jun 2001, Dylan Griffiths wrote:
+On Sun, Jul 01, 2001 at 11:36:51PM +0800, Daniel Harvey wrote:
 
-> I'd love to do some of this, but since the box is now being shipped to a
-> colo facility in New York, I don't really have a choice in the matter.
->
-> Hopefully someone here doing SMP + EEPro100 can see if they can reproduce
-> the issue (2.4.5 kernel).
+> The Compaq Armada doesn't appear to have a BIOS setting for the
+> power settings.
 
-I've had issues with the Intel cards, as well.
+> I still don't get the fact that one kernel will run fast, while the
+> rest do the real SLOW thing.
 
-What revision of the card is it?
+Not answering your question, but you might want to try:
 
-Have you tried the drivers available from Intel, to see if they do a
-better job? In my case, they didn't.
+Download the source-RPM for the 'fast' kernel, and also the virgin
+version of the same kernel, and then diff them to see what changes
+have been made.
 
-I've also had reports, for a linux-2.2.x kernel, that sometimes its
-guesswork as to whether stock kernel eepro100, the intel e100 driver, or
-Don Becker's eepro100 will work on the beasts.
-
-HTH.
+If you are lucky, the RPM itself my have the virgin data and diffs, I
+don't know much about RPMS, but I'm pretty sure this is possible.
 
 
+You are looking for changes outside of linux/drivers/, probably in
+linux/archo/i386 or linux/kernel. Hopefully there aren't too many of
+these.
 
+Also, you want the .config file that was used, try using that against
+a virgin kernel first, and see if that changes anything, if not, then
+do diff the above (diff -Nur virgin-kernel/ redhat-kernel/) and see
+what falls out.
+
+
+
+   --cw

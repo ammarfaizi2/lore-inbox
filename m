@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272872AbTHKS7I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272988AbTHKS6F
+	id S273111AbTHKTN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273019AbTHKTLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:58:05 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:23253 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S272975AbTHKS40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:56:26 -0400
-Date: Mon, 11 Aug 2003 20:55:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@bytesex.org>,
-       Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
-       Christoph Bartelmus <columbus@hit.handshake.de>,
-       LIRC list <lirc-list@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811185519.GI2627@elf.ucw.cz>
-References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de>
+	Mon, 11 Aug 2003 15:11:54 -0400
+Received: from b.smtp-out.sonic.net ([208.201.224.39]:8347 "HELO
+	b.smtp-out.sonic.net") by vger.kernel.org with SMTP id S273015AbTHKTLq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:11:46 -0400
+X-envelope-info: <dhinds@sonic.net>
+Date: Mon, 11 Aug 2003 12:00:48 -0700
+From: David Hinds <dhinds@sonic.net>
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       dahinds@users.sourceforge.net
+Subject: Re: PCI1410 Interrupt Problems
+Message-ID: <20030811120048.A13992@sonic.net>
+References: <20030807000914.J16116@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308112028300.10344-100000@gfrw1044.bocc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811175642.GC2053@convergence.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0308112028300.10344-100000@gfrw1044.bocc.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > We can drop /dev/lirc*, and use input events with received codes, but I
-> > > think that lircd is still needed to translate them into userland
-> > > commands...
-> > 
-> > That translation isn't done by lircd, but by the lirc_client library.
-> > This is no reason for keeping lircd as event dispatcher, the input layer
-> > would do equally well (with liblirc_client picking up events from
-> > /dev/input/event<x> instead of lircd).
+On Mon, Aug 11, 2003 at 08:33:23PM +0200, Jochen Friedrich wrote:
+> Hi Russell,
 > 
-> IMHO there's one problem:
+> > Unfortunately, there are some hacks in the kernel at the moment which
+> > mess up the Cardbus IRQ routing by touching this register - the kernel
+> > should not be the one to play with hardware design specific register
+> > settings, especially when they are applied without thought across
+> > many hardware variants.
 > 
-> If a remote control has e.g. a "1" key this doesn't mean that a user
-> wants a "1" to be written into your editor while editing source code.
-> The "1" key on a remote control simply has a differnt _meaning_ than
-> the "1" key on your keyboard -- depending of course on what the user
-> thinks this key should mean.
+> after thinking a bit, i believe, you're right here. Initially, i just
+> wanted to have an option to mess with this register, but there is already
+> the setpci tool which can do exactly this. So for now, i just added the
+> setpci command to my modules.conf and i'm set.
+> 
+> It's just a shame that PCI/Cardbus bridge manufacturers try to save a few
+> cents by not soldering the configuration EEPROM to their board and supply
+> some specialized drivers for Win just to make their crap work. So if you
+> place 2 different cards in the same PC with the same PCI1410 but different
+> pin mapping, you're doomed...
 
-That only means that the key on remote should be labeled
-"KEY_PROGRAM1" not "KEY_1".
+I do think there is room for having some sane default settings to be
+used when an unconfigured bridge is detected.  For most of the TI
+bridges, there is only one reasonable default for how to enable PCI
+interrupt delivery.  The important part here is "unconfigured bridge":
+never fool with interrupt delivery on a bridge that has been set up
+by the BIOS, which covers essentially all laptops.
 
-> - users should be able to prevent remote keys from being fed into
->   the normal keyboard input queue; non lirc aware programs should
->   not recieve these events
->   (OTOH, if you use an IR keyboard...)
-
-This is same as multimedia keys on PS/2 keyboards.
-
-> - IR events should reach the applications independant of X keyboard
->   focus (well, maybe; the user should be able to decide)
-
-Again this is the same as multimedia keys on PS/2 keyboards. It may
-need to be solved, but we'd have to solve that anyway.
-
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-- Dave

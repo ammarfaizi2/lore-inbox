@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129229AbQJ3LPe>; Mon, 30 Oct 2000 06:15:34 -0500
+	id <S129431AbQJ3LQe>; Mon, 30 Oct 2000 06:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129244AbQJ3LPZ>; Mon, 30 Oct 2000 06:15:25 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:23815 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S129229AbQJ3LPP>; Mon, 30 Oct 2000 06:15:15 -0500
-Message-Id: <200010301115.MAA10601@magma.cs.uni-dortmund.de>
-Date: Mon, 30 Oct 2000 12:15:13 +0100 (MET)
-From: Christoph Pleger <pleger@carmin.cs.uni-dortmund.de>
-Reply-To: Christoph Pleger <pleger@carmin.cs.uni-dortmund.de>
-Subject: FIFO-Scheduling in Kernel 2.2
-To: linux-kernel@vger.kernel.org
+	id <S129410AbQJ3LQY>; Mon, 30 Oct 2000 06:16:24 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:41883 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129244AbQJ3LQE>; Mon, 30 Oct 2000 06:16:04 -0500
+Date: Mon, 30 Oct 2000 12:12:16 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        mj@suse.cz
+Subject: Re: Questions on lack of piix4 usb interrupts
+In-Reply-To: <200010301014.CAA05591@adam.yggdrasil.com>
+Message-ID: <Pine.GSO.3.96.1001030120306.11987B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: ZwO/m2HIn59zfzkMTK3+rw==
-X-Mailer: dtmail 1.2.1 CDE Version 1.2.1 SunOS 5.6 sun4m sparc 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 30 Oct 2000, Adam J. Richter wrote:
 
-I experienced problems in programs which used priorities under FIFO-Scheduling 
-with Kernel 2.2 although these programs worked well with Kernel 2.0. 
+> 	My question is: could I get a slightly more detailed
+> explanation of what exactly the quirk_piix3usb routine was
+> trying to fix so I can better understand if I am bumping into
+> the same problem?  Do I understand correctly that the piix3 fixup
+> makes the current uhci drivers unusable on the effected hardware?
 
-I read in this list that other people had the same problems.
+ It disables the HC's IRQ as it's stuck asserted otherwise.  With another
+device sharing the IRQ you receive a never-ending storm of interrupts,
+which is wrong and also hurts performance badly -- basically after an EOI
+you receive another interrupt as soon as an IRQ controller can feed it. 
+The USB driver is expected to reenable the IRQ and handle it.  If no USB
+driver gets installed the IRQ remains disabled as expected.
 
-Is any solution (a newer kernel version or a special patch) available for that
-problem?
-
-Christoph
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

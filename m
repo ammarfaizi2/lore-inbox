@@ -1,77 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVAaXHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVAaXNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVAaXHe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVAaXHe
+	id S261424AbVAaXNU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVAaXNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:07:34 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:20668 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261420AbVAaXHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:07:02 -0500
-Date: Tue, 1 Feb 2005 00:06:57 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Steve Bergman <steve@rueb.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Performance of iptables-restore on large rule sets
-Message-ID: <20050131230657.GP6878@sunbeam.de.gnumonks.org>
-References: <41FA8ADE.6080708@rueb.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yUmmepPgoWmUqRhm"
-Content-Disposition: inline
-In-Reply-To: <41FA8ADE.6080708@rueb.com>
-User-Agent: Mutt/1.5.6+20040907i
-X-Spam-Score: -2.4 (--)
+	Mon, 31 Jan 2005 18:13:20 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:47547 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261424AbVAaXNG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:13:06 -0500
+Date: Tue, 1 Feb 2005 00:12:56 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Tom Zanussi <zanussi@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
+       karim@opersys.com
+Subject: Re: [PATCH] relayfs redux, part 2
+In-Reply-To: <16890.38062.477373.644205@tut.ibm.com>
+Message-ID: <Pine.LNX.4.61.0501312247150.30794@scrub.home>
+References: <16890.38062.477373.644205@tut.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---yUmmepPgoWmUqRhm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 28 Jan 2005, Tom Zanussi wrote:
 
-On Fri, Jan 28, 2005 at 12:56:30PM -0600, Steve Bergman wrote:
-> I have a large rule set (~53000 rules) that I sometimes load using=20
-> iptables-restore.  (It takes almost an hour.
+> +static inline int rchan_create_file(const char *chanpath,
+> +				    struct dentry **dentry,
+> +				    struct rchan_buf *data)
+> +{
+> +	int err;
+> +	const char * fname;
+> +	struct dentry *topdir;
+> +
+> +	err = rchan_create_dir(chanpath, &fname, &topdir);
+> +	if (err && (err != -EEXIST))
+> +		return err;
+> +
+> +	err = relayfs_create_file(fname, topdir, dentry, data, S_IRUSR);
+> +
+> +	return err;
+> +}
 
-That's really slow.  I've seen multiple minutes, but an hour?  What kind
-of system is this?  How does the ruleset look like?  Maybe some dns
-resolvals are timing out?
+What protects topdir from being removed inbetween?
+Why is necessary to let the user create/remove files/dirs at all?
 
-> Googling around tells me that the loop detection code in the kernel is=20
-> slow with large rule sets. =20
+> +void *relay_reserve(struct rchan *chan,
+> +                   unsigned length,
+> +                   int cpu)
+> +{
+> +       unsigned offset;
+> +       struct rchan_buf *buffer;
+> +
+> +       buffer = relay_get_buffer(chan, cpu);
+> +
+> +       while(1) {
+> +               offset = local_add_return(&buffer->offset, length);
+> +               if (likely(offset + length <= buffer->bufsize))
+> +                       break;
+> +               buffer = relay_switch_buffer(buffer, offset, length);
+> +               if (buffer == NULL)
+> +                       return NULL;
+> +       }
+> +
+> +       return buffer->data + offset;
+> +}
+> +
+> [..]
+> +
+> +unsigned relay_write(struct rchan *chan,
+> +		     const void *data,
+> +		     unsigned length)
+> +{
+> +	int cpu;
+> +	char *reserved;
+> +	unsigned count = 0;
+> +
+> +	cpu = get_cpu();
+> +
+> +	reserved = relay_reserve(chan, length, cpu);
+> +	if(reserved) {
+> +		memcpy(reserved, data, length);
+> +		count = length;
+> +	}
+> +
+> +	put_cpu();
+> + 
+> +	return count;
+> +}
 
-That's wrong.  What used to be slow is libiptc.  iptables-1.2.11 should
-actually already be significantly faster than all prior versions.
+For the first version I would suggest to use just local_irq_save/_restore.
+Getting it right with local_add_return is not trivial and I'm pretty sure 
+your relay_switch_buffer() gets it wrong, e.g. the caller for whom (offset 
+< bufsize) must close the subbuffer. Also buffer->data in relay_reserve 
+may have become invalid (e.g. by an interrupt just before it).
 
-Please try the current pre-1.3.0 snapshots from
-ftp://ftp.netfilter.org/pub/iptables/snapshot
+You can also move all the rchan_buf members which are not written to in 
+the event path and which are common to all channels back to rchan.
+relay_write should so look more like this:
 
-Please report back if they solve your performance issue.
+unsigned int relay_write(struct rchan *chan, const void *data, 
+			 unsigned int length)
+{
+	struct rchan_buf *buffer;
+	unsigned long flags;
 
-> Steve Bergman
---=20
-- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
+	local_irq_save(flags);
+	buffer = chan->buff[smp_processor_id()];
+	if (unlikely(buffer->offset + length > chan->size)) {
+		if (relay_switch_buffer(chan, buffer)) {
+			length = 0;
+			goto out;
+		}
+	}
+	memcpy(buffer->data + offset, data, length);
+	buffer->offset += length;
+out:
+	local_irq_restore(flags);
+	return length;
+}
 
---yUmmepPgoWmUqRhm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+relay_reserve() should be more or less obvious from this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB/roRXaXGVTD0i/8RAkNEAKCiT+dUOXGxEYS6SYDT4nrsK3pCQQCcDaKm
-sJFP3/teLxlbactauvcqnFk=
-=GuuK
------END PGP SIGNATURE-----
-
---yUmmepPgoWmUqRhm--
+bye, Roman

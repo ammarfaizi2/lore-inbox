@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317429AbSGZJX4>; Fri, 26 Jul 2002 05:23:56 -0400
+	id <S317469AbSGZJZc>; Fri, 26 Jul 2002 05:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317432AbSGZJX4>; Fri, 26 Jul 2002 05:23:56 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:27892 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317429AbSGZJXz>; Fri, 26 Jul 2002 05:23:55 -0400
-Subject: Re: 2.4.19-rc3-ac3 ide_map_buffer/ide_unmap_buffer
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Charles R. Anderson" <cra@WPI.EDU>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020725193806.U7778@angus.ind.WPI.EDU>
-References: <20020725193806.U7778@angus.ind.WPI.EDU>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Jul 2002 11:41:35 +0100
-Message-Id: <1027680095.13428.27.camel@irongate.swansea.linux.org.uk>
+	id <S317498AbSGZJZb>; Fri, 26 Jul 2002 05:25:31 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:9453 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S317469AbSGZJZb>;
+	Fri, 26 Jul 2002 05:25:31 -0400
+Date: Fri, 26 Jul 2002 11:28:46 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Linux Weekly News dying - any help?
+Message-ID: <20020726092846.GA3542@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 00:38, Charles R. Anderson wrote:
-> 
-> Which one should I apply? I'm inclined to keep the Red Hat bits, since
-> the ac3 ide_unmap_buffer does nothing.
-> 
-> [For anyone wondering, I have a new Dell with an Intel 845G chipset for
-> which I would like DMA support, etc.  I'm attempting to merge
-> 2.4.19-rc3-ac3 with Red Hat's patches.  If anyone has a simple patch for
-> 82801DB IDE DMA support which applies to 2.4.18 I'd be much obliged.]
+I read this last Thursday on lwn.net:
 
-Thats a non trivial merge. I don't think there is anything in the base
-RH that matters except for big (1Gb plus) servers that isnt in -ac. You
-can also pick up the rawhide kernel if you are brave 
+	The end result is that next week's LWN Weekly Edition (August 1)
+	will be the last. This has not been an easy decision to make, to say
+	the least. But, barring some sort of last minute miracle (do contact
+	us if you have one, please!), we do not see any alternative
 
+We bought some advertising on LWN but can of course not keep them alive
+ourselves. Does anybody here have ideas on how to keep them in business?
+
+See http://lwn.net
+
+Regards,
+
+bert hubert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

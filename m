@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283342AbRK2RVv>; Thu, 29 Nov 2001 12:21:51 -0500
+	id <S283340AbRK2RYv>; Thu, 29 Nov 2001 12:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283340AbRK2RVm>; Thu, 29 Nov 2001 12:21:42 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:21509 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S283331AbRK2RV1>; Thu, 29 Nov 2001 12:21:27 -0500
-Message-ID: <3C066E78.6060208@namesys.com>
-Date: Thu, 29 Nov 2001 20:20:56 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: en-us
+	id <S283339AbRK2RYl>; Thu, 29 Nov 2001 12:24:41 -0500
+Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:26755 "EHLO
+	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S283331AbRK2RYY>; Thu, 29 Nov 2001 12:24:24 -0500
+Message-Id: <200111291724.fATHOMP4005554@backfire.WH8.TU-Dresden.De>
+Content-Type: text/plain; charset=US-ASCII
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Networkadministrator WH8/DD/Germany
+To: linux-kernel@vger.kernel.org
+Subject: msdos.o and vfat.o doesn't have a valid licence
+Date: Thu, 29 Nov 2001 18:24:22 +0100
+X-Mailer: KMail [version 1.3.2]
+X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-To: jd@epcnet.de
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: statfs and reiserfs
-In-Reply-To: <24719656.avixxmail@nexx.epcnet.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-we believe we are following the official standard.  If you find we err 
-on this, let us know, but I think we used to set the fields to 0 and 
-then found out it should be -1.
+Hi all.
 
-Hans
+I just discovered that vfat.o and msdos.o doen't have a licence.
 
+Why?
 
+backfire:~# modprobe vfat
+Warning: loading /lib/modules/2.4.16-pre1/kernel/fs/vfat/vfat.o will taint 
+the kernel: no license
 
+This warning is bogus because the kernel _is_ already tainted.
+
+-Gregor

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265855AbUBCGMb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 01:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbUBCGMb
+	id S265878AbUBCGaE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 01:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265876AbUBCGaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 01:12:31 -0500
-Received: from webhost1.sirion.net.au ([203.63.163.20]:25092 "EHLO
-	webhost1.sirion.net.au") by vger.kernel.org with ESMTP
-	id S265855AbUBCGMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 01:12:30 -0500
-In-Reply-To: <6FF5C83C-55FA-11D8-AC00-000A95CEEE4E@computeraddictions.com.au>
-References: <6FF5C83C-55FA-11D8-AC00-000A95CEEE4E@computeraddictions.com.au>
-Mime-Version: 1.0 (Apple Message framework v612)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <E9A39380-560F-11D8-8E3C-000A95CEEE4E@computeraddictions.com.au>
+	Tue, 3 Feb 2004 01:30:04 -0500
+Received: from ns.ucwb.org.au ([202.45.120.126]:59663 "EHLO mail.ucwb.org.au")
+	by vger.kernel.org with ESMTP id S265878AbUBCGaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 01:30:01 -0500
+Subject: Re: Problems with input on 2.6
+From: Kevin Shanahan <kmshanah@ucwb.org.au>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040203055321.GB25849@ss1000.ms.mff.cuni.cz>
+References: <1075786498.6803.43.camel@localhost>
+	 <20040203055321.GB25849@ss1000.ms.mff.cuni.cz>
+Content-Type: text/plain
+Organization: UnitingCare Wesley Bowden Inc.
+Message-Id: <1075789828.9311.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 03 Feb 2004 17:00:29 +1030
 Content-Transfer-Encoding: 7bit
-Cc: LinuxSA ML <linuxsa@linuxsa.org.au>, linux-kernel@vger.kernel.org
-From: Ryan Verner <xfesty@computeraddictions.com.au>
-Subject: Re: Promise PDC20269 (Ultra133 TX2) + Software RAID
-Date: Tue, 3 Feb 2004 16:42:15 +1030
-To: Ryan Verner <xfesty@computeraddictions.com.au>
-X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/02/2004, at 2:08 PM, Ryan Verner wrote:
-> And the machine is randomly locking up, and of course, on reboot, the 
-> raid array is rebuilt.  Ouch.  Any clues as to why?  I'm sure the hard 
-> drive hasn't failed as it's brand new; I suspect a chipset 
-> compatibility problem or something.
+On Tue, 2004-02-03 at 16:23, Rudo Thomas wrote:
+> Some of the questions you ask are answered in the Input FAQ that was posted
+> just few days ago. Search the archives.
 
-Definitely seems to be this.  Swapped the drives back over to the 
-onboard-IDE chipset, which is much slower (raid rebuilds at only 
-7MB/sec instead of 25), but certainly none of these problems.
+Sorry, I can't believe I missed that. Yes, I removed the 2nd pointer
+definition from XF86Config-4 and this has fixed the double clicking and
+movement precision issues.
 
-Known issue?
+Sorry for the noise.
 
-R
+Regards,
+Kevin.
 
---
-
-Signature space for rent.
 

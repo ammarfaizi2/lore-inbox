@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316606AbSE0NTO>; Mon, 27 May 2002 09:19:14 -0400
+	id <S316607AbSE0NZM>; Mon, 27 May 2002 09:25:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316607AbSE0NTN>; Mon, 27 May 2002 09:19:13 -0400
-Received: from spook.vger.org ([213.204.128.210]:61621 "HELO
-	kenny.worldonline.se") by vger.kernel.org with SMTP
-	id <S316606AbSE0NTM>; Mon, 27 May 2002 09:19:12 -0400
-Date: Mon, 27 May 2002 15:56:22 +0200 (CEST)
-From: me@vger.org
-To: Simen Timian Thoresen <simentt@dolphinics.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/hd[ijkl] only using udma (not udma 100)
-In-Reply-To: <200205271306.g4RD6Bi11479@scispor.dolphinics.no>
-Message-ID: <Pine.LNX.4.21.0205271552081.7794-100000@kenny.worldonline.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316608AbSE0NZL>; Mon, 27 May 2002 09:25:11 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:64252 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316611AbSE0NZK>; Mon, 27 May 2002 09:25:10 -0400
+Subject: Re: i8259 and IO-APIC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Eric Lemoine <Eric.Lemoine@ens-lyon.fr>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1022502939.12203.81.camel@pc-16.office.scali.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 May 2002 15:27:01 +0100
+Message-Id: <1022509621.11811.278.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 May 2002, Simen Timian Thoresen wrote:
+On Mon, 2002-05-27 at 13:35, Terje Eggestad wrote:
+> I'm a bit curious my self, in theory the IO_APIC should drastically
+> reduce interrupt latency. An x86 has two interrupt pins, IRQ and NMI.
 
-> > Hi,
-> > 
-> > Ive got a machine running debian test dist and 2.4.18. The machine has two
-> > promise ata100 tx2 controller cards. My question is why does the devices
-> > hde to hdh use udma100 but devices hdi to hdl only use udma. Note on this
-> > is that the devices hdi to hdl did i have to make myself (dont know if
-> > there is some other configure possibility). All drives are the same model.
-> 
-> I'm basically observing the same thing - 5 drives connected alone on their own 
-> ata100 channels (1 on a Via southbridge, 4 on HPT370 channels).
-> 
-> 
-> I'm seing speeds 33, 44, 66 and 69 as when examining /proc/ide/hdx/settings. 
-> There are 2 differing types of drives, but all are ATA100 capable.
->  
-> This is also with 2.4.18, originally slackware 7.1
-> 
+The APIC reduces processing overhead. The APIC bus on the pentium III is
+pretty slow (I believe its a serial 4 wire bus or similar). On the
+Athlon and Pentium IV it seems to be a lot faster.
 
-I booted with:
-linux ide0=autotune ide1=autotune ide2=autotune ide3=autotune
+In the case of a livelock the problem is probably the cost of handling
+the IRQ and poking slowly at the chip. Latency is pretty immaterial here
+compared with irq servicing overheads.
 
-and now all drives are running just (U)DMA and speeds on the 3 first
-droped to 15m/s.
-
-The settings file you gave here, is there some possibility to configure
-settings there? I see things like current_speed and init_speed that would
-be nice to try and tweak.
-
+Alan
 

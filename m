@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263277AbSJCMcG>; Thu, 3 Oct 2002 08:32:06 -0400
+	id <S261223AbSJCMXQ>; Thu, 3 Oct 2002 08:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263272AbSJCMcG>; Thu, 3 Oct 2002 08:32:06 -0400
-Received: from 62-190-218-74.pdu.pipex.net ([62.190.218.74]:12548 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261273AbSJCMcF>; Thu, 3 Oct 2002 08:32:05 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210031136.g93BaLsB000284@darkstar.example.net>
-Subject: Re: RAID backup
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Thu, 3 Oct 2002 12:36:20 +0100 (BST)
-Cc: jakob@unthought.net, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-In-Reply-To: <200210031326.47386.roy@karlsbakk.net> from "Roy Sigurd Karlsbakk" at Oct 03, 2002 01:26:47 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261224AbSJCMXQ>; Thu, 3 Oct 2002 08:23:16 -0400
+Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:54403 "EHLO
+	ringstrom.mine.nu") by vger.kernel.org with ESMTP
+	id <S261223AbSJCMXP>; Thu, 3 Oct 2002 08:23:15 -0400
+Date: Thu, 3 Oct 2002 14:28:44 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: tori@boris.prodako.se
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.40: AT keyboard input problem
+In-Reply-To: <20021003141021.A38642@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0210031427260.14274-100000@boris.prodako.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Might it not be a good idea to DD the raw contents of each disk to a tape
-> > drive, just incase you fubar the array?  It would be time consuming, but at
-> > least you could restore your data in the event that it gets corrupted.
+On Thu, 3 Oct 2002, Vojtech Pavlik wrote:
+
+> On Thu, Oct 03, 2002 at 02:08:26PM +0200, Tobias Ringstrom wrote:
+> > On Thu, 3 Oct 2002, Vojtech Pavlik wrote:
+> > 
+> > > Yes, please try with #I8042_DEBUG_IO enabled, try all the suspicious key
+> > > combinations and add comments to the log file which is which. This will
+> > > allow me to fix it properly.
+> > 
+> > I hope this is enough.  There are more combinations, I'm sure.  I hope 
+> > that it is one bug causing them all, though.
 > 
-> er
+> Perfect, thanks.
 > 
-> 16 120GB disks?
+> Are you possible to reproduce it when you use "i8042_direct" on the
+> kernel command line?
 
-A fast, large tape backup :-)
+No, the problem went away.
 
-Seriously, if this is crucial data, (E.G. solution to Fermat's last theorum), I was just pointing out that you can backup, even without mounting the disks.
+/Tobias
 
-John.

@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267364AbTCESRI>; Wed, 5 Mar 2003 13:17:08 -0500
+	id <S267480AbTCESX2>; Wed, 5 Mar 2003 13:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267383AbTCESRI>; Wed, 5 Mar 2003 13:17:08 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:47347 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S267364AbTCESRG>; Wed, 5 Mar 2003 13:17:06 -0500
-Subject: RE: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       kai.bankett@ontika.net, mingo@redhat.com,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-In-Reply-To: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
-References: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qt1yLcvLzkFbRRJFeKoY"
-Organization: 
-Message-Id: <1046888812.1539.4.camel@laptop.fenrus.com>
+	id <S267481AbTCESX2>; Wed, 5 Mar 2003 13:23:28 -0500
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:1284 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id <S267480AbTCESX1>; Wed, 5 Mar 2003 13:23:27 -0500
+Message-Id: <200303051833.h25IXtAx086878@sirius.nix.badanka.com>
+Date: Wed, 5 Mar 2003 19:33:54 +0100
+From: Henrik Persson <nix@socialism.nu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel issue
+In-Reply-To: <20030305182213.GB13420@gtf.org>
+References: <F83FprhMOgRGkQ6mByS00023670@hotmail.com>
+	<20030305182213.GB13420@gtf.org>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 05 Mar 2003 19:26:52 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 5 Mar 2003 13:22:13 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
---=-qt1yLcvLzkFbRRJFeKoY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> I'm curious if you asked the same thing of Microsoft, FreeBSD, OpenBSD,
+> and every other operating system vendor, or are you just ignorant of how
+> the world works in general?
 
-On Wed, 2003-03-05 at 05:21, Kamble, Nitin A wrote:
-> There are few issues we found with the user level daemon approach.
->  =20
->    Static binding compatibility: With the user level daemon, users can
-> not =20
-> use the /proc/irq/i/smp_affinity interface for the static binding of
-> interrupts.
+He's probably just ignorant. It's not linux that is the problem when it
+comes to military..uh..thingies.. Politics that doesn't have anything to
+do with linux or something that involves linux, or at least something that
+way, should IMHO stay outside of LKML..
 
-no they can just write/change the config file, with a gui if needed
+Free software for everyone means free software for everyone, US.mil
+included.
 
->=20
->   There is some information which is only available in the kernel today,
-
-there's also some information only available to userspace today that the
-userspace daemon can and does use.
-
-> Also the future implementation might need more kernel data. This is
-> important for interfaces such as NAPI, where interrupts handling changes
-> on the fly.
-
-ehm. almost. but napi isn't it ....
-
-and the userspace side can easily have a system vendor provided file
-that represents all kinds of very specific system info about the numa
-structure..... working with every kernel out there.
-
-
---=-qt1yLcvLzkFbRRJFeKoY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+ZkFsxULwo51rQBIRAvmnAJ91kXexX3irCPCHl37KLhRU1ieT2wCgka62
-nx2Qz5D2Ugw17CLpHOGbv+A=
-=cfau
------END PGP SIGNATURE-----
-
---=-qt1yLcvLzkFbRRJFeKoY--
+-- 
+Henrik Persson
+e-mail: nix@socialism.nu
+WWW: http://nix.badanka.com            ICQ: 26019058
+PGP-key: http://nix.badanka.com/pgp    PGP-KeyID: 0x43B68116

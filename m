@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267820AbUG3UOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267816AbUG3UNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267820AbUG3UOI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 16:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267821AbUG3UOI
+	id S267816AbUG3UNv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 16:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267820AbUG3UNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 16:14:08 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:7561 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S267820AbUG3UN5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 16:13:57 -0400
-Date: Fri, 30 Jul 2004 22:13:57 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730201357.GA5391@ucw.cz>
-References: <20040730194634.GA4851@ucw.cz> <20040730200359.80825.qmail@web14922.mail.yahoo.com> <20040730201052.GA5249@ucw.cz>
+	Fri, 30 Jul 2004 16:13:51 -0400
+Received: from adsl-64-109-89-108.dsl.chcgil.ameritech.net ([64.109.89.108]:55441
+	"EHLO redscar") by vger.kernel.org with ESMTP id S267816AbUG3UNm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 16:13:42 -0400
+Subject: Re: [PATCH] Improve pci_alloc_consistent wrapper on preemptive
+	kernels
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040730130238.0f68f5e7.akpm@osdl.org>
+References: <20040730190227.29913e23.ak@suse.de> 
+	<20040730130238.0f68f5e7.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Jul 2004 16:13:39 -0400
+Message-Id: <1091218419.1968.46.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040730201052.GA5249@ucw.cz>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do I understand it correctly that the ROM-in-sysfs hack is intended only
-> for debugging? If it is so, I do not see why we should do anything complicated
-> in order to avoid root shooting himself in the foot.
+On Fri, 2004-07-30 at 16:02, Andrew Morton wrote:
+> We're paying for past sins here.  I think it would be better to create a
+> new version of pci_alloc_consistent() which takes gfp_flags, then migrate
+> the drivers you care about to use it.  That way the benefit is available on
+> non-preempt kernels too.
+> 
+> The ultimate aim of course would be to deprecate then remove the old
+> function.
 
-... for which the config space access code already sets the precedent --
-there exist (rare) devices which have configuration registers with side
-effects on reads, making it possible to produce SCSI errors or even crash
-the system by just dumping the config space. Even on these devices, the
-kernel does not attempt to forbid reading of these registers via sysfs.
+True, that's why it was added for dma_alloc_coherent().
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-A bug in the code is worth two in the documentation.
+Is there any need for a new wrapper?  Why not just use
+dma_alloc_coherent() from now on?
+
+James
+
+

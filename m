@@ -1,187 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313059AbSC0Rf4>; Wed, 27 Mar 2002 12:35:56 -0500
+	id <S313060AbSC0Rm1>; Wed, 27 Mar 2002 12:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSC0Rfg>; Wed, 27 Mar 2002 12:35:36 -0500
-Received: from elin.scali.no ([62.70.89.10]:22532 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S313059AbSC0RfY>;
-	Wed, 27 Mar 2002 12:35:24 -0500
-Date: Wed, 27 Mar 2002 18:35:09 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
-        "Maciej W. Rocycki" <macro@ds2.pg.gda.pl>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-In-Reply-To: <Pine.LNX.4.33.0203132006310.28859-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.30.0203271830540.15401-200000@elin.scali.no>
+	id <S313061AbSC0RmS>; Wed, 27 Mar 2002 12:42:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51727 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313060AbSC0RmE>;
+	Wed, 27 Mar 2002 12:42:04 -0500
+Message-ID: <3CA203FA.262EB621@zip.com.au>
+Date: Wed, 27 Mar 2002 09:40:10 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1493843526-51997581-1017250509=:15401"
+To: Alois Treindl <alois@astro.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oops with kjournald in SMP 2.4.16
+In-Reply-To: <Pine.HPX.4.21.0203271410460.15639-100000@as73.astro.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Alois Treindl wrote:
+> 
+> I had an OOPS and kernel crash last night,
+> on a dual CPU 2.4.16 (Dell Poweredge 2450, dual 933 Mhz P3, 1.75 gb RAM).
+> 
+> The system had been up for about 100 days without reboot.
+> 
+> I use the ext3 file system with 3 SCSI disks and various NFS clients
+> attached to this file server.
+> 
 
---1493843526-51997581-1017250509=:15401
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+[ oops in slab allocation for bh_cachep ]
 
-On Wed, 13 Mar 2002, Ingo Molnar wrote:
+This looks like random memory corruption - someone wrote somewhere
+where they shouldn't have.
 
->
-> On Wed, 13 Mar 2002, Martin Wilck wrote:
->
-> > First of all, we see that virtually 100% of all IRQs are handled by
-> > CPU 0. I have seen this reported a number of times before. I guess it
-> > can become a severe performance problem in IRQ-intensive situations.
->
-> i've written a patch for this, it's enclosed in this email. It implements
-> a brownean motion of IRQs, based on load patterns. The concept works
-> really well on Foster CPUs - eg. it will redirect IRQs to idle CPUs - but
-> if all CPUs are idle then the IRQs are randomly and evenly distributed
-> between CPUs.
->
-> (the patch can be made cheaper, but i've kept the overhead per-IRQ for the
-> time being to have more flexibility.)
->
-> let me know whether this fixes your problem,
->
+For a while we were seeing a lot of these.  Around 2.4.14 to 2.4.17.
+I have twenty or thirty different reports saved away.
 
-Hi Ingo,
+But they seem to have stopped.  It's beginning to look like whatever
+it was got fixed somehow.
 
-I've tested your patch with a 2.4.18 kernel on a few SMP systems : i860,
-Plumas (E7500), 760MP(X), ServerWorks HE-SL and ServerWorks LE. It works
-fine in all cases. I had to modify the patch a little bit in order to make
-it compile on uniprocessor. I've attached the modified patch.
+> 
+> Does anyone recognize this problem, and has it been fixed in later kernels?
+> 
 
-Will this patch be included in 2.4.19 ?
+Possibly so, yes.  2.4.16 is suspect in this regard.
 
-Regards,
- --
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
-
---1493843526-51997581-1017250509=:15401
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.18-irqbalancing.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0203271835090.15401@elin.scali.no>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-2.4.18-irqbalancing.patch"
-
-LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJVHVlIEZlYiAgNSAxMzox
-MTozNSAyMDAyDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJVHVlIEZlYiAg
-NSAxMzoxMjo0OCAyMDAyDQpAQCAtMTE4LDYgKzExOCwxMSBAQA0KICNkZWZp
-bmUgY2FuX3NjaGVkdWxlKHAsY3B1KSBcDQogCSgocCktPmNwdXNfcnVubmFi
-bGUgJiAocCktPmNwdXNfYWxsb3dlZCAmICgxIDw8IGNwdSkpDQoNCitpbnQg
-aWRsZV9jcHUoaW50IGNwdSkNCit7DQorCXJldHVybiBjcHVfY3VycihjcHUp
-ID09IGlkbGVfdGFzayhjcHUpOw0KK30NCisNCiAjZWxzZQ0KDQogI2RlZmlu
-ZSBpZGxlX3Rhc2soY3B1KSAoJmluaXRfdGFzaykNCi0tLSBsaW51eC9pbmNs
-dWRlL2xpbnV4L3NjaGVkLmgub3JpZwlUdWUgRmViICA1IDEzOjEzOjA5IDIw
-MDINCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L3NjaGVkLmgJVHVlIEZlYiAg
-NSAxMzoxNDowMCAyMDAyDQpAQCAtMTQ0LDYgKzE0NCw3IEBADQoNCiBleHRl
-cm4gdm9pZCBzY2hlZF9pbml0KHZvaWQpOw0KIGV4dGVybiB2b2lkIGluaXRf
-aWRsZSh2b2lkKTsNCitleHRlcm4gaW50IGlkbGVfY3B1KGludCBjcHUpOw0K
-IGV4dGVybiB2b2lkIHNob3dfc3RhdGUodm9pZCk7DQogZXh0ZXJuIHZvaWQg
-Y3B1X2luaXQgKHZvaWQpOw0KIGV4dGVybiB2b2lkIHRyYXBfaW5pdCh2b2lk
-KTsNCi0tLSBsaW51eC9pbmNsdWRlL2FzbS1pMzg2L2hhcmRpcnEuaC5vcmln
-CVR1ZSBGZWIgIDUgMTM6MTA6MzkgMjAwMg0KKysrIGxpbnV4L2luY2x1ZGUv
-YXNtLWkzODYvaGFyZGlycS5oCVR1ZSBGZWIgIDUgMTM6MTQ6MDAgMjAwMg0K
-QEAgLTEyLDYgKzEyLDcgQEANCiAJdW5zaWduZWQgaW50IF9fbG9jYWxfYmhf
-Y291bnQ7DQogCXVuc2lnbmVkIGludCBfX3N5c2NhbGxfY291bnQ7DQogCXN0
-cnVjdCB0YXNrX3N0cnVjdCAqIF9fa3NvZnRpcnFkX3Rhc2s7IC8qIHdhaXRx
-dWV1ZSBpcyB0b28gbGFyZ2UgKi8NCisJdW5zaWduZWQgbG9uZyBpZGxlX3Rp
-bWVzdGFtcDsNCiAJdW5zaWduZWQgaW50IF9fbm1pX2NvdW50OwkvKiBhcmNo
-IGRlcGVuZGVudCAqLw0KIH0gX19fX2NhY2hlbGluZV9hbGlnbmVkIGlycV9j
-cHVzdGF0X3Q7DQoNCi0tLSBsaW51eC9hcmNoL2kzODYva2VybmVsL2lvX2Fw
-aWMuYy5vcmlnCVR1ZSBGZWIgIDUgMTM6MTA6MzcgMjAwMg0KKysrIGxpbnV4
-L2FyY2gvaTM4Ni9rZXJuZWwvaW9fYXBpYy5jCVR1ZSBGZWIgIDUgMTM6MTU6
-MjMgMjAwMg0KQEAgLTI4LDYgKzI4LDcgQEANCiAjaW5jbHVkZSA8bGludXgv
-Y29uZmlnLmg+DQogI2luY2x1ZGUgPGxpbnV4L3NtcF9sb2NrLmg+DQogI2lu
-Y2x1ZGUgPGxpbnV4L21jMTQ2ODE4cnRjLmg+DQorI2luY2x1ZGUgPGxpbnV4
-L2NvbXBpbGVyLmg+DQoNCiAjaW5jbHVkZSA8YXNtL2lvLmg+DQogI2luY2x1
-ZGUgPGFzbS9zbXAuaD4NCkBAIC0xNjMsNiArMTY0LDg2IEBADQogCQkJY2xl
-YXJfSU9fQVBJQ19waW4oYXBpYywgcGluKTsNCiB9DQoNCitzdGF0aWMgdm9p
-ZCBzZXRfaW9hcGljX2FmZmluaXR5ICh1bnNpZ25lZCBpbnQgaXJxLCB1bnNp
-Z25lZCBsb25nIG1hc2spDQorew0KKwl1bnNpZ25lZCBsb25nIGZsYWdzOw0K
-Kw0KKwkvKg0KKwkgKiBPbmx5IHRoZSBmaXJzdCA4IGJpdHMgYXJlIHZhbGlk
-Lg0KKwkgKi8NCisJbWFzayA9IG1hc2sgPDwgMjQ7DQorCXNwaW5fbG9ja19p
-cnFzYXZlKCZpb2FwaWNfbG9jaywgZmxhZ3MpOw0KKwlfX0RPX0FDVElPTigx
-LCA9IG1hc2ssICkNCisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmaW9hcGlj
-X2xvY2ssIGZsYWdzKTsNCit9DQorDQorI2lmIENPTkZJR19TTVANCisNCit0
-eXBlZGVmIHN0cnVjdCB7DQorCXVuc2lnbmVkIGludCBjcHU7DQorCXVuc2ln
-bmVkIGxvbmcgdGltZXN0YW1wOw0KK30gX19fX2NhY2hlbGluZV9hbGlnbmVk
-IGlycV9iYWxhbmNlX3Q7DQorDQorc3RhdGljIGlycV9iYWxhbmNlX3QgaXJx
-X2JhbGFuY2VbTlJfSVJRU10gX19jYWNoZWxpbmVfYWxpZ25lZA0KKwkJCT0g
-eyBbIDAgLi4uIE5SX0lSUVMtMSBdID0geyAxLCAwIH0gfTsNCisNCitleHRl
-cm4gdW5zaWduZWQgbG9uZyBpcnFfYWZmaW5pdHkgW05SX0lSUVNdOw0KKw0K
-KyNkZWZpbmUgSURMRV9FTk9VR0goY3B1LG5vdykgXA0KKwkJKGlkbGVfY3B1
-KGNwdSkgJiYgKChub3cpIC0gaXJxX3N0YXRbKGNwdSldLmlkbGVfdGltZXN0
-YW1wID4gMSkpDQorDQorI2RlZmluZSBJUlFfQUxMT1dFRChjcHUsYWxsb3dl
-ZF9tYXNrKSBcDQorCQkoKDEgPDwgY3B1KSAmIChhbGxvd2VkX21hc2spKQ0K
-Kw0KK3N0YXRpYyB1bnNpZ25lZCBsb25nIG1vdmUoaW50IGN1cnJfY3B1LCB1
-bnNpZ25lZCBsb25nIGFsbG93ZWRfbWFzaywgdW5zaWduZWQgbG9uZyBub3cs
-IGludCBkaXJlY3Rpb24pDQorew0KKwlpbnQgc2VhcmNoX2lkbGUgPSAxOw0K
-KwlpbnQgY3B1ID0gY3Vycl9jcHU7DQorDQorCWdvdG8gaW5zaWRlOw0KKw0K
-KwlkbyB7DQorCQlpZiAodW5saWtlbHkoY3B1ID09IGN1cnJfY3B1KSkNCisJ
-CQlzZWFyY2hfaWRsZSA9IDA7DQoraW5zaWRlOg0KKwkJaWYgKGRpcmVjdGlv
-biA9PSAxKSB7DQorCQkJY3B1Kys7DQorCQkJaWYgKGNwdSA+PSBzbXBfbnVt
-X2NwdXMpDQorCQkJCWNwdSA9IDA7DQorCQl9IGVsc2Ugew0KKwkJCWNwdS0t
-Ow0KKwkJCWlmIChjcHUgPT0gLTEpDQorCQkJCWNwdSA9IHNtcF9udW1fY3B1
-cy0xOw0KKwkJfQ0KKwl9IHdoaWxlICghSVJRX0FMTE9XRUQoY3B1LGFsbG93
-ZWRfbWFzaykgfHwNCisJCQkoc2VhcmNoX2lkbGUgJiYgIUlETEVfRU5PVUdI
-KGNwdSxub3cpKSk7DQorDQorCXJldHVybiBjcHU7DQorfQ0KKw0KKyNlbmRp
-Zg0KKw0KK3N0YXRpYyBpbmxpbmUgdm9pZCBiYWxhbmNlX2lycShpbnQgaXJx
-KQ0KK3sNCisjaWYgQ09ORklHX1NNUA0KKwlpcnFfYmFsYW5jZV90ICplbnRy
-eSA9IGlycV9iYWxhbmNlICsgaXJxOw0KKwl1bnNpZ25lZCBsb25nIG5vdyA9
-IGppZmZpZXM7DQorDQorCWlmICh1bmxpa2VseShlbnRyeS0+dGltZXN0YW1w
-ICE9IG5vdykpIHsNCisJCXVuc2lnbmVkIGxvbmcgYWxsb3dlZF9tYXNrOw0K
-KwkJaW50IHJhbmRvbV9udW1iZXI7DQorDQorCQlyZHRzY2wocmFuZG9tX251
-bWJlcik7DQorCQlyYW5kb21fbnVtYmVyICY9IDE7DQorDQorCQlhbGxvd2Vk
-X21hc2sgPSBjcHVfb25saW5lX21hcCAmIGlycV9hZmZpbml0eVtpcnFdOw0K
-KwkJZW50cnktPnRpbWVzdGFtcCA9IG5vdzsNCisJCWVudHJ5LT5jcHUgPSBt
-b3ZlKGVudHJ5LT5jcHUsIGFsbG93ZWRfbWFzaywgbm93LCByYW5kb21fbnVt
-YmVyKTsNCisJCXNldF9pb2FwaWNfYWZmaW5pdHkoaXJxLCAxIDw8IGVudHJ5
-LT5jcHUpOw0KKwl9DQorI2VuZGlmDQorfQ0KKw0KIC8qDQogICogc3VwcG9y
-dCBmb3IgYnJva2VuIE1QIEJJT1NzLCBlbmFibGVzIGhhbmQtcmVkaXJlY3Rp
-b24gb2YgUElSUTAtNyB0bw0KICAqIHNwZWNpZmljIENQVS1zaWRlIElSUXMu
-DQpAQCAtNjUzLDggKzczNCw3IEBADQogfQ0KDQogLyoNCi0gKiBTZXQgdXAg
-dGhlIDgyNTlBLW1hc3RlciBvdXRwdXQgcGluIGFzIGJyb2FkY2FzdCB0byBh
-bGwNCi0gKiBDUFVzLg0KKyAqIFNldCB1cCB0aGUgODI1OUEtbWFzdGVyIG91
-dHB1dCBwaW46DQogICovDQogdm9pZCBfX2luaXQgc2V0dXBfRXh0SU5UX0lS
-UTBfcGluKHVuc2lnbmVkIGludCBwaW4sIGludCB2ZWN0b3IpDQogew0KQEAg
-LTExNzQsNiArMTI1NCw3IEBADQogICovDQogc3RhdGljIHZvaWQgYWNrX2Vk
-Z2VfaW9hcGljX2lycSh1bnNpZ25lZCBpbnQgaXJxKQ0KIHsNCisJYmFsYW5j
-ZV9pcnEoaXJxKTsNCiAJaWYgKChpcnFfZGVzY1tpcnFdLnN0YXR1cyAmIChJ
-UlFfUEVORElORyB8IElSUV9ESVNBQkxFRCkpDQogCQkJCQk9PSAoSVJRX1BF
-TkRJTkcgfCBJUlFfRElTQUJMRUQpKQ0KIAkJbWFza19JT19BUElDX2lycShp
-cnEpOw0KQEAgLTEyMTMsNiArMTI5NCw3IEBADQogCXVuc2lnbmVkIGxvbmcg
-djsNCiAJaW50IGk7DQoNCisJYmFsYW5jZV9pcnEoaXJxKTsNCiAvKg0KICAq
-IEl0IGFwcGVhcnMgdGhlcmUgaXMgYW4gZXJyYXR1bSB3aGljaCBhZmZlY3Rz
-IGF0IGxlYXN0IHZlcnNpb24gMHgxMQ0KICAqIG9mIEkvTyBBUElDICh0aGF0
-J3MgdGhlIDgyMDkzQUEgYW5kIGNvcmVzIGludGVncmF0ZWQgaW50byB2YXJp
-b3VzDQpAQCAtMTI2OCwxOSArMTM1MCw2IEBADQogfQ0KDQogc3RhdGljIHZv
-aWQgbWFza19hbmRfYWNrX2xldmVsX2lvYXBpY19pcnEgKHVuc2lnbmVkIGlu
-dCBpcnEpIHsgLyogbm90aGluZyAqLyB9DQotDQotc3RhdGljIHZvaWQgc2V0
-X2lvYXBpY19hZmZpbml0eSAodW5zaWduZWQgaW50IGlycSwgdW5zaWduZWQg
-bG9uZyBtYXNrKQ0KLXsNCi0JdW5zaWduZWQgbG9uZyBmbGFnczsNCi0JLyoN
-Ci0JICogT25seSB0aGUgZmlyc3QgOCBiaXRzIGFyZSB2YWxpZC4NCi0JICov
-DQotCW1hc2sgPSBtYXNrIDw8IDI0Ow0KLQ0KLQlzcGluX2xvY2tfaXJxc2F2
-ZSgmaW9hcGljX2xvY2ssIGZsYWdzKTsNCi0JX19ET19BQ1RJT04oMSwgPSBt
-YXNrLCApDQotCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmlvYXBpY19sb2Nr
-LCBmbGFncyk7DQotfQ0KDQogLyoNCiAgKiBMZXZlbCBhbmQgZWRnZSB0cmln
-Z2VyZWQgSU8tQVBJQyBpbnRlcnJ1cHRzIG5lZWQgZGlmZmVyZW50IGhhbmRs
-aW5nLA0KLS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvaXJxLmMub3JpZwlU
-dWUgRmViICA1IDEzOjEwOjM0IDIwMDINCisrKyBsaW51eC9hcmNoL2kzODYv
-a2VybmVsL2lycS5jCVR1ZSBGZWIgIDUgMTM6MTE6MTUgMjAwMg0KQEAgLTEw
-NzYsNyArMTA3Niw3IEBADQoNCiBzdGF0aWMgc3RydWN0IHByb2NfZGlyX2Vu
-dHJ5ICogc21wX2FmZmluaXR5X2VudHJ5IFtOUl9JUlFTXTsNCg0KLXN0YXRp
-YyB1bnNpZ25lZCBsb25nIGlycV9hZmZpbml0eSBbTlJfSVJRU10gPSB7IFsw
-IC4uLiBOUl9JUlFTLTFdID0gfjBVTCB9Ow0KK3Vuc2lnbmVkIGxvbmcgaXJx
-X2FmZmluaXR5IFtOUl9JUlFTXSA9IHsgWzAgLi4uIE5SX0lSUVMtMV0gPSB+
-MFVMIH07DQogc3RhdGljIGludCBpcnFfYWZmaW5pdHlfcmVhZF9wcm9jIChj
-aGFyICpwYWdlLCBjaGFyICoqc3RhcnQsIG9mZl90IG9mZiwNCiAJCQlpbnQg
-Y291bnQsIGludCAqZW9mLCB2b2lkICpkYXRhKQ0KIHsNCg0K
---1493843526-51997581-1017250509=:15401--
+-

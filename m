@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTDQVHj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 17:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTDQVHj
+	id S262609AbTDQVPp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 17:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTDQVPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 17:07:39 -0400
-Received: from mail.hks.com ([63.125.197.5]:27024 "EHLO mail.hks.com")
-	by vger.kernel.org with ESMTP id S261710AbTDQVHi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 17:07:38 -0400
-Subject: context switch code question
-From: Robert Schweikert <Robert.Schweikert@abaqus.com>
-To: linux-kernel@vger.kernel.org
-Cc: Robert Schweikert <rjschwei@abaqus.com>
-Content-Type: text/plain
+	Thu, 17 Apr 2003 17:15:45 -0400
+Received: from [80.190.48.67] ([80.190.48.67]:26387 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262609AbTDQVPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 17:15:44 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrew Morton <akpm@digeo.com>, Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [patch] Fix orlov allocator boundary case
+Date: Thu, 17 Apr 2003 23:27:09 +0200
+User-Agent: KMail/1.5.1
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <20030417111303.706d7246.shemminger@osdl.org> <20030417122142.39d27f73.akpm@digeo.com>
+In-Reply-To: <20030417122142.39d27f73.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: ABAQUS
-Message-Id: <1050614372.2227.161.camel@cheetah.hks.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 17 Apr 2003 17:19:32 -0400
+Content-Disposition: inline
+Message-Id: <200304172327.09876.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone please point me to the context switching code. I am
-interested in the context switch structure and the values that are
-saved. I am chasing a weird problem with some numerical code that uses
-mmx instructions to get flush to zero to work. Specifically I am calling
-the
+On Thursday 17 April 2003 21:21, Andrew Morton wrote:
 
-_MM_SET_FLUSH_TO_ZERO_MODE
+Hi Andrew,
 
-macro which in turn ends up calling _mm_setcsr(), wherever that might be
-implemented.
+> OK, here be the fix.
+> I'm a bit peeved that this wasn't discovered until it hit Linus's tree.
+> Weren't these patches in -mjb as well?
+I guess this is also true for the ext3 code?
 
-What I am trying to figure out is a.) is this register value properly
-set/reset during context switch and b.) is this particular register
-properly transfered when the process gets moved to another CPU. 
+I am using the orlov stuff for 2.4.21* maintained by Theodore and Steven.
 
-I assume that this is a configurable option in the kernel since PII and
-Pentium do not have this instruction, and thus it could just be that my
-kernel is not configured correctly.
-
-I tried to find this type of info without posting but failed.
-
-Thanks,
-Robert
--- 
-Robert Schweikert <Robert.Schweikert@abaqus.com>
-ABAQUS
+ciao, Marc

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130346AbQKRFDy>; Sat, 18 Nov 2000 00:03:54 -0500
+	id <S131094AbQKRFJh>; Sat, 18 Nov 2000 00:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131094AbQKRFDp>; Sat, 18 Nov 2000 00:03:45 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:22028 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130346AbQKRFDb>;
-	Sat, 18 Nov 2000 00:03:31 -0500
+	id <S131219AbQKRFJ1>; Sat, 18 Nov 2000 00:09:27 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:30988 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131094AbQKRFJM>;
+	Sat, 18 Nov 2000 00:09:12 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
-        kobras@tat.physik.uni-tuebingen.de, koenig@tat.physik.uni-tuebingen.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: BUG: isofs broken (2.2 and 2.4) 
-In-Reply-To: Your message of "Fri, 17 Nov 2000 17:21:53 -0800."
-             <Pine.LNX.4.10.10011171720410.5987-100000@penguin.transmeta.com> 
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+cc: linux-kernel@vger.kernel.org, kdb@oss.sgi.com, aprasad@in.ibm.com
+Subject: Re: test11-pre6 still very broken 
+In-Reply-To: Your message of "Fri, 17 Nov 2000 20:00:49 -0000."
+             <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 18 Nov 2000 15:33:23 +1100
-Message-ID: <20566.974522003@ocs3.ocs-net>
+Date: Sat, 18 Nov 2000 15:38:59 +1100
+Message-ID: <20616.974522339@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000 17:21:53 -0800 (PST), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->There's a test11-pre7 there now, and I'd really ask people to check out
->the isofs changes because slight worry about those is what held me up from
->just calling it test11 outright.
->
->It's almost guaranteed to be better than what we had before, but anyway..
->
->		Linus
+On Fri, 17 Nov 2000 20:00:49 +0000 (GMT), 
+Tigran Aivazian <tigran@aivazian.fsnet.co.uk> wrote:
+>The mysterious lockups in test11-pre5 continue in test11-pre6. It is very
+>difficult because the lockups appear to be kdb-specific (and kdb itself
+>goes mad) but when there is no kdb there is very little useful information
+>one can extract from a dead system...
 
-namei.c: In function `isofs_find_entry':
-namei.c:130: warning: passing arg 2 of `get_joliet_filename' from incompatible pointer type
-namei.c:130: warning: passing arg 3 of `get_joliet_filename' from incompatible pointer type
+ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.6-2.4.0-test11-pre7.gz
 
+Assorted bug fixes from my work in progress tree, including one that
+fixes a race between user space use of debug and kdb, ltrace trips this.
+
+Some people have reported keyboard lockups after leaving kdb.  I have
+not been able to reproduce this problem, let me know if you still see
+it.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

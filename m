@@ -1,51 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbUCBT1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 14:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbUCBT1b
+	id S261748AbUCBTsn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 14:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbUCBTsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 14:27:31 -0500
-Received: from mail.kroah.org ([65.200.24.183]:17895 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261747AbUCBT1a (ORCPT
+	Tue, 2 Mar 2004 14:48:43 -0500
+Received: from ns.suse.de ([195.135.220.2]:477 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261748AbUCBTsl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 14:27:30 -0500
-Date: Tue, 2 Mar 2004 11:26:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Jens Axboe <axboe@suse.de>,
-       Daniel Robbins <drobbins@gentoo.org>, linux-kernel@vger.kernel.org,
-       Mike@kordik.net, kpfleming@backtobasicsmgmt.com
-Subject: Re: [PATCH] Re: 2.6.3-bk9 QA testing: firewire good, USB printing dead
-Message-ID: <20040302192631.GA2820@kroah.com>
-References: <1077933682.14653.23.camel@wave.gentoo.org> <20040228021040.GA14836@kroah.com> <20040229095139.GH3149@suse.de> <20040301074348.GA7646@ip68-4-255-84.oc.oc.cox.net> <40448799.5030508@grupopie.com>
+	Tue, 2 Mar 2004 14:48:41 -0500
+Subject: [PATCH] ext2 -ENOSPC bug
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Message-Id: <1078257067.3932.53.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40448799.5030508@grupopie.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 02 Mar 2004 14:51:07 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 02, 2004 at 01:09:45PM +0000, Paulo Marques wrote:
-> Barry K. Nathan wrote:
-> 
-> > 
-> >+		/* We must increment writecount here, and not at the
-> >+		 * end of the loop. Otherwise, the final loop iteration may
-> >+		 * be skipped, leading to incomplete printer output.
-> >+		 */
-> 
-> 
-> You are correct.
-> 
-> 
-> I'm affraid this is my fault, for correcting a bug and letting another one 
-> take its place :(
-> 
-> It seems that this patch squashes them both. It should go in ASAP.
+Hello everyone,
 
-This patch is already in Linus's tree.
+find_group_other looks buggy for ext2 and ext3 in 2.6, it can cause
+-ENOSPC errors when the fs has plenty of free room.
 
-thanks,
+To hit the bug, you need a filesystem where:
 
-greg k-h
+parent_group has no free blocks (but might have free inodes)
+Every other group has with free inodes has no free blocks.
+
+That gets you down to the final linear search in find_group_other.  The
+linear search has two bugs:
+
+group = parent_group + 1; means we start searching at parent_group + 2
+because the loop increments group before using it.
+
+for(i = 2 ; i < ngroups ; i++) means we don't search through all the
+groups.
+
+The end result is that parent_group and parent_group + 1 are not checked
+for free inodes in the final linear search.  ext3 has the same problem,
+my patch below fixes both but is largely untested.
+
+I've got an image available that shows the bug if people are interested.
+
+-chris
+
+Index: linux.t/fs/ext2/ialloc.c
+===================================================================
+--- linux.t.orig/fs/ext2/ialloc.c	2004-02-05 16:56:28.000000000 -0500
++++ linux.t/fs/ext2/ialloc.c	2004-03-02 14:23:20.284235337 -0500
+@@ -431,8 +431,8 @@
+ 	 * That failed: try linear search for a free inode, even if that group
+ 	 * has no free blocks.
+ 	 */
+-	group = parent_group + 1;
+-	for (i = 2; i < ngroups; i++) {
++	group = parent_group;
++	for (i = 0; i < ngroups; i++) {
+ 		if (++group >= ngroups)
+ 			group = 0;
+ 		desc = ext2_get_group_desc (sb, group, &bh);
+Index: linux.t/fs/ext3/ialloc.c
+===================================================================
+--- linux.t.orig/fs/ext3/ialloc.c	2004-02-05 16:56:28.000000000 -0500
++++ linux.t/fs/ext3/ialloc.c	2004-03-02 14:45:52.910477449 -0500
+@@ -398,8 +398,8 @@
+ 	 * That failed: try linear search for a free inode, even if that group
+ 	 * has no free blocks.
+ 	 */
+-	group = parent_group + 1;
+-	for (i = 2; i < ngroups; i++) {
++	group = parent_group;
++	for (i = 0; i < ngroups; i++) {
+ 		if (++group >= ngroups)
+ 			group = 0;
+ 		desc = ext3_get_group_desc (sb, group, &bh);
+
+

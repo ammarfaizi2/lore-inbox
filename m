@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbULIQVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbULIQ1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbULIQVu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 11:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULIQVu
+	id S261543AbULIQ1A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 11:27:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULIQ07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 11:21:50 -0500
-Received: from cpe-66-27-170-242.socal.rr.com ([66.27.170.242]:15540 "EHLO
-	bsd.clones.net") by vger.kernel.org with ESMTP id S261540AbULIQVr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 11:21:47 -0500
-Date: Thu, 9 Dec 2004 08:21:50 -0800 (PST)
-From: Glendon Gross <gross@clones.net>
-To: linux-kernel@vger.kernel.org
-cc: glendon144@hotmail.com
-Subject: Burning CD's and 2.6.9 
-Message-ID: <Pine.NEB.4.44.0412090810570.27084-100000@bsd.clones.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	Thu, 9 Dec 2004 11:26:59 -0500
+Received: from oss.sgi.com ([192.48.159.27]:37279 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id S261543AbULIQ05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 11:26:57 -0500
+Date: Thu, 9 Dec 2004 08:25:37 -0800
+From: Robin Holt <holt@oss.sgi.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Limit the route hash size.
+Message-ID: <20041209082537.A1262@oss.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just built 2.6.9 and have been playing with the config to try to enable
-support for my EMPREX 8x DVD burner.  It works exceptionally well under
-2.4.26.   I can use cdrecord and also growisofs to make audio and data
-DVD's.
+I got the following from the boot of one of our really large machines:
+IP: routing cache hash table of 33554432 buckets, 524288Kbytes
 
-I read a little of the discussion about the new devfs code on the list
-archive.  I respect Linus' stated desires to avoid an unnecessary HAL in
-the dev filesystem.  So I'm wondering, is it time to write a new CD and
-DVD low-level authoring tool to replace cdrecord, such as FreeBSD's
-"burncd"?   What I've always liked about cdrecord is not the SCSI
-numbering system (although it works well under 2.4.26 because my SCSI
-emulation shows up as the 2nd SCSI "bus", as in the following:
+I have done a lot of testing with the rt_hash_table.  I would like to
+propose that for the overwhelming majority of machines, the default size
+is wrong.
 
-Script started on Thu 09 Dec 2004 08:16:51 AM PST
-root@optiplex:/home/gross# cdrecord -sb canbus
-Cdrecord-Clone 2.01 (i686-pc-linux-gnu) Copyright (C) 1995-2004 Jörg Schilling
-Linux sg driver version: 3.1.25
-Using libscg version 'schily-0.8'.
-scsibus1:
-	1,0,0	100) *
-	1,1,0	101) *
-	1,2,0	102) *
-	1,3,0	103) 'IBM     ' 'DDRS-34560      ' 'S97B' Disk
-	1,4,0	104) *
-	1,5,0	105) *
-	1,6,0	106) *
-	1,7,0	107) *
-scsibus2:
-	2,0,0	200) 'DVDRW   ' 'IDE1008         ' '0055' Removable CD-ROM
-	2,1,0	201) *
-	2,2,0	202) *
-	2,3,0	203) *
-	2,4,0	204) *
-	2,5,0	205) *
-	2,6,0	206) *
-	2,7,0	207) *
-root@optiplex:/home/gross# uname -a
-Linux optiplex 2.4.26 #2 Mon Jun 14 19:05:05 PDT 2004 i686 unknown unknown GNU/Linux
-root@optiplex:/home/gross# exit
+It is currently based on numphyspages().  I would suggest that the
+majority of machines will never need more than a single page of memory
+for this hash.  In my testing, I found a single 16k page would only get an
+11% fill in a fairly heavily used production machine on a large network.
 
-Script done on Thu 09 Dec 2004 08:17:01 AM PST
+The only place where the large route cache seems to make sense is for
+larger servers that are servicing internet connections from many sites.
+Since the cache is completely flushed every 10 minutes by default, the
+above machine would have to be adding 55,924 routes per second that were
+ideally distrbuted throughout the hash space to even fill every bucket.
 
-I've set up a lilo config menu to boot 2.6.9 or 2.4.26 because the device
-is not recognized under 2.6.9.    When it is recognized, I get a warning
-that ide-scsi is deprecated for cd recording.
+The patch I am proposing is as follows.  For the sites that need larger
+route hashes, they can use the rhash_entries command line option to set
+it as desired.
 
-So what do you think, is it time to write a general tool for audio CD
-authoring that has all the features of cdrecord?  What I like about
-cdrecord is not the interface but rather the hardware-specific features
-that just about guarantee that any drive will work.
+Signed-off-by: Robin Holt <holt@sgi.com>
 
 
-Regards,
-
-Glendon Gross
-Linux and Unix Enthusiast
-http://clones.net
-
+diff -Naur linux-orig/net/ipv4/route.c linux/net/ipv4/route.c
+--- linux-orig/net/ipv4/route.c	2004-12-09 09:00:06 -06:00
++++ linux/net/ipv4/route.c	2004-12-09 08:56:33 -06:00
+@@ -2728,7 +2728,7 @@
+ 	if (!ipv4_dst_ops.kmem_cachep)
+ 		panic("IP: failed to allocate ip_dst_cache\n");
+ 
+-	goal = num_physpages >> (26 - PAGE_SHIFT);
++	goal = 0;
+ 	if (rhash_entries)
+ 		goal = (rhash_entries * sizeof(struct rt_hash_bucket)) >> PAGE_SHIFT;
+ 	for (order = 0; (1UL << order) < goal; order++)

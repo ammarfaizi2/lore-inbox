@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312931AbSDEO7v>; Fri, 5 Apr 2002 09:59:51 -0500
+	id <S313062AbSDEQlg>; Fri, 5 Apr 2002 11:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312935AbSDEO7m>; Fri, 5 Apr 2002 09:59:42 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:44020 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312931AbSDEO72>; Fri, 5 Apr 2002 09:59:28 -0500
-Message-Id: <5.1.0.14.2.20020405155322.01ff3b40@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 05 Apr 2002 15:59:33 +0100
-To: vda@port.imtp.ilyichevsk.odessa.ua
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [DEADLOCK] automount, kupdated: D state
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200204051319.g35DJXX25033@Port.imtp.ilyichevsk.odessa.ua>
+	id <S313074AbSDEQl0>; Fri, 5 Apr 2002 11:41:26 -0500
+Received: from ns.suse.de ([213.95.15.193]:14354 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313062AbSDEQlJ>;
+	Fri, 5 Apr 2002 11:41:09 -0500
+Date: Fri, 5 Apr 2002 18:41:03 +0200
+From: Dave Jones <davej@suse.de>
+To: svetljo <galia@st-peter.stw.uni-erlangen.de>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@thebarn.com
+Subject: Re: REPOST : linux-2.5.5-xfs-dj1 - 2.5.7-dj2  (raid0_make_request bug)
+Message-ID: <20020405184103.F14828@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	svetljo <galia@st-peter.stw.uni-erlangen.de>,
+	linux-kernel@vger.kernel.org, linux-xfs@thebarn.com
+In-Reply-To: <3CAD8B9D.8070902@st-peter.stw.uni-erlangen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19:22 05/04/02, Denis Vlasenko wrote:
->I was saving my daily work on an IDE disk.
->I use automounter. On an attempt to mount it several processes
->got stuck in D state.
->
->kernel: 2.5.7 + new NTFS driver
->ps and ksymoopsed parts of Alt-Sysrq-T output are attached.
->ksymoops warnings trimmed except automount.dump.ksymoops
->(they were the same).
+On Fri, Apr 05, 2002 at 01:33:49PM +0200, svetljo wrote:
+ > i'm having some interesting troubles
+ > i have lvm over soft RAID-0 with LV's formated with XFS and JFS
+ > i can work with the JFS LV's,
+ >    but i can not with the XFS one's, i can not mount them ( no troubles
+ > with XFS normal partitions)
+ > so i'd like to ask is this problem with XFS or with raid or lvm
+ > and is there a way to fix it
 
- From looking at the information supplied, NTFS doesn't seem to be 
-involved. The processes seem to be stuck trying to write dirty buffers as 
-well as in nfs and pipefs - buffers could never get dirtied by the current 
-NTFS as it is entirely read-only.
-
-btw. You had sent a problem report about cyrillic names with NTFS and I 
-suggested to try the new NTFS driver but you never got back to me whether 
-that fixed it or not... How is the new driver behaving? Are you stil seing 
-problems or is everything working fine now?
-
-Best regards,
-
-Anton
-
+IIRC, this was reported a while ago, and it was something to do with
+XFS creating too large requests that upset the raid code.
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-IRC: #ntfs on irc.openprojects.net / ICQ: 8561279
-WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTIAASf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 20:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTIAASf
+	id S263122AbTIAAeP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 20:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTIAAeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 20:18:35 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:17801 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263107AbTIAASb
+	Sun, 31 Aug 2003 20:34:14 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:11217 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263122AbTIAAeN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 20:18:31 -0400
-Date: Mon, 1 Sep 2003 01:18:19 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
+	Sun, 31 Aug 2003 20:34:13 -0400
+Date: Sun, 31 Aug 2003 17:33:59 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@suse.de>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Pascal Schmidt <der.eremit@email.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030901001819.GC29239@mail.jlokier.co.uk>
-References: <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random>
+Message-ID: <20030901003359.GE18458@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Pascal Schmidt <der.eremit@email.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <1062370358.12058.8.camel@dhcp23.swansea.linux.org.uk> <20030831230219.GD24409@dualathlon.random> <20030831230728.GA4918@work.bitmover.com> <20030831232224.GF24409@dualathlon.random> <20030901001239.GB18458@work.bitmover.com> <20030901001940.GD29239@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030831231305.GE24409@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030901001940.GD29239@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Sun, Aug 31, 2003 at 03:56:39PM -0700, Larry McVoy wrote:
-> > Yet you keep insisting it will work.  Why?  What is the theory that says
-> > you can keep the other end of the T1 line from being congested when you
-> > don't have control over that router?  And that router has several 100Mbit
+On Mon, Sep 01, 2003 at 01:19:40AM +0100, Jamie Lokier wrote:
+> Larry McVoy wrote:
+> > But all the open answers don't come close to offering what 3com does.
 > 
-> it's absolutely trivial, your end only needs to drop 99% of your
-> outgoing acks and their incoming packets for every connection but voip
-> while you are at the phone, you won't kill the connections but everybody
-> but your voip will work. the exponential backoff and sstrash on the
-> other and will rate limit everything immediatly.
+> Have you looked at what Asterisk and Bayonne do?
+> If so, is an important feature missing which you use?
 
-Let's work it out.  We assume 99% means drop virtually everything:
-
-  Every 19 seconds on average, 24x7, a new HTTP connection.
-
-  Rate is not uniform throughout the day.  Let's take a wild guess and
-  say it is 10 times higher at peak times.
-
-  That's one connection every 1.9 seconds.
-
-  Let's assume you drop 99% of outgoing ACKs.
-
-  Then all connecting remote clients will retry their SYNs until they
-  get a connection or a timeout.  Default tcp_syn_retries (assuming Linux
-  clients) is 5.
-
-  That's one SYN every 0.38 seconds.   -> bad but not awful.
-
-Plus existing connections.  Let's pretend each connection take 100 seconds.
-
-  That's 100/1.9 or 52 concurrent connections, roughly.
-
-  Each of those will retry with an ACK if it has any pending ACK or data.
-
-  When you start using the phone, that's 100 ACKs total,
-  approximately, with exponential backoff.    --> bad but not awful.
-
-These calculations are horrendously inaccurate, but should be ok
-within a couple of orders of magnitude.
-
-So, near-total annihilation of bkbits.net when Larry or any of his
-team are on the phone should work.  You can either integrate the phone
-system with netfilter so it is automatic when a customer calls.
-Trivial ;)  Or disable bkbits.net during Larry's working day. ;)
-
--- Jamie
+Hunt groups.  I want incoming sales and support calls to go to group
+of people.  All the "virtual PBX" solutions do a lame hunt where they
+ring the first guy 3 times, then the next guy 3 times, etc.  The 3com
+rings everyone at the same time.  Believe it or not, if you guys call
+for support I want someone to pick up the phone *right now*.  If you
+or our commercial customers are having nasty BK problems I don't want
+you to wait while the stupid phone system goes hunting around looking
+for someone who isn't out to lunch or whatever.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUKOFLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbUKOFkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUKOFLt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 00:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUKOFLt
+	id S261454AbUKOFkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 00:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbUKOFkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 00:11:49 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:13324 "HELO
+	Mon, 15 Nov 2004 00:40:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57350 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261443AbUKOFLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 00:11:47 -0500
-Date: Mon, 15 Nov 2004 06:02:32 +0100
+	id S261454AbUKOFkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 00:40:17 -0500
+Date: Mon, 15 Nov 2004 06:29:21 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] SCSI: misc possible cleanups
-Message-ID: <20041115050232.GB2235@stusta.de>
-References: <20041115020432.GK2249@stusta.de> <1100494253.24811.9.camel@mulgrave>
+To: Linus Torvalds <torvalds@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc2 doesn't boot
+Message-ID: <20041115052920.GB7510@stusta.de>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <20041115040710.GA2235@stusta.de> <Pine.LNX.4.58.0411142040470.2222@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1100494253.24811.9.camel@mulgrave>
+In-Reply-To: <Pine.LNX.4.58.0411142040470.2222@ppc970.osdl.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 14, 2004 at 10:50:46PM -0600, James Bottomley wrote:
-> On Sun, 2004-11-14 at 20:04, Adrian Bunk wrote:
-> > This patch below does:
-> > - remove unused code
+On Sun, Nov 14, 2004 at 08:48:22PM -0800, Linus Torvalds wrote:
 > 
-> Erm, some of the code you're trying to remove was recently added as
-> enablers for fibre channel drivers, like this:
 > 
-> [...]
+> On Mon, 15 Nov 2004, Adrian Bunk wrote:
+> > io scheduler deadline registered
+> > io scheduler cfq registered
+> > 
+> > ---->  2.6.10-rc2 stops here
+> > 
+> > loop: loaded (max 8 devices)
 > 
-> >  drivers/scsi/scsi_transport_fc.c  |  202 ------------------------------
+> Strange. There is not a lot in between those two registrations. The "cfq 
+> registered" comes from cfq_init(), and the "loop: loaded" thing comes from 
+> loop_init(), and in between them in the link there is just floppy.o.
 > 
-> It's really not safe to remove code without understanding why it's there
-> in the first place.
+> And I don't see that _any_ of those three has changed. Yes, cfq got an 
+> __exit added to its exit function, and floppy got __initdata added, but 
+> neither of those should make any difference what-so-ever.
+> 
+> Just for interest, what happens if you disable floppy support? It doesn't 
+> look like you have a floppy on that system..
 
-That's exactly why I wrote:
+Bingo.
 
-<--  snip  -->
+I don't have a floppy and floppy support is disabled in the BIOS.
 
-It is meant for review and not for being applied immediately.
-It should simply demonstrate with users are possible with the current 
-in-kernel users today.
+And thinking about it, I had exactly the same problem in -mm three 
+months ago (the thread subject was "2.6.8-rc4-mm1 doesn't boot").
+(I didn't think it might be the same problem again since this was so
+ long ago...).
 
-<--  snip  -->
+It seems Bjorns "PCI: remove unconditional PCI ACPI IRQ routing" was 
+merged now into your tree, but his patch to fix floppy.c wasn't 
+merged...
 
-OK, the last wasn't a correct sentence.
-
-I wanted to say:
-It should simply demonstrate with changes are possible with the current 
-in-kernel users.
-
-> James
+> 		Linus
 
 cu
 Adrian

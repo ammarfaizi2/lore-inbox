@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264825AbRF1W7N>; Thu, 28 Jun 2001 18:59:13 -0400
+	id <S264827AbRF1XFD>; Thu, 28 Jun 2001 19:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264827AbRF1W7D>; Thu, 28 Jun 2001 18:59:03 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:521 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S264825AbRF1W6v>;
-	Thu, 28 Jun 2001 18:58:51 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: Ben LaHaise <bcrl@redhat.com>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
-In-Reply-To: <15163.44990.304436.360220@pizda.ninka.net> <Pine.LNX.4.33.0106281830480.32276-100000@toomuch.toronto.redhat.com> <15163.45534.977835.569473@pizda.ninka.net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 29 Jun 2001 00:55:47 +0200
-In-Reply-To: "David S. Miller"'s message of "Thu, 28 Jun 2001 15:38:22 -0700 (PDT)"
-Message-ID: <d3pubo9pu4.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S264838AbRF1XEx>; Thu, 28 Jun 2001 19:04:53 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:63503 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264830AbRF1XEn>; Thu, 28 Jun 2001 19:04:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: hunghochak@netscape.net (Ho Chak Hung), linux-kernel@vger.kernel.org
+Subject: Re: Is an outside module supposed to use page cache?
+Date: Fri, 29 Jun 2001 01:07:41 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <1EA7E4FA.3574845C.0F76C228@netscape.net>
+In-Reply-To: <1EA7E4FA.3574845C.0F76C228@netscape.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <0106290107410B.00419@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+On Thursday 28 June 2001 20:16, Ho Chak Hung wrote:
+> Hi,
+> I am trying to develop a module that makes use of the page cache(by
+> allocating a LOT of pages use page_cache_alloc and then add_to_page_cache).
+> However, I got some unresolved symbols error during insmod.(because the
+> symbols related to lru_cache_add.... etc are not exported?) . I am just
+> wondering if I am not building a file system but at the same time want to
+> allocate a lot of pages of physical memory to store something that has no
+> backup storage as a file, should I add it to the page cache? Any advice
+> would be greatly appreciated
 
-David> There are so many issues with 64-bit DAC support, that many of
-David> the people whining in this thread have not even considered, and
-David> these very issues will be what shapes the eventual API to use.
+Why not use vmalloc?
 
-David> For example.  I have IOMMU's on my machine, there is no real
-David> need to use 64-bit DAC in %99 of cases.  In fact, DAC transfers
-David> run slower because they cannot use the DMA caching in the PCI
-David> controller.
+If you must, just export the symbols you need, write your code, then either:
 
-David> How do you represent this with the undocumented API ia64 has
-David> decided to use?  You can't convey this information to the
-David> driver, because the driver may say "I don't care if it's
-David> slower, I want the large addressing because otherwise I'd
-David> consume or overflow the IOMMU resources".  How do you say "SAC
-David> is preferred for performance" with ia64's API?  You can't.
+  a) Explain to Linus why the world needs those symbols exported
+  b) Refine your approach to do it without those symbols
 
-Thats easy, you use the IOMMU in pci_alloc_consistent() and friends
-and return a 32bit address in that case. Most cards will simply issue
-a SAC cycle if the upper 32 bits in the DMA address are zero, the ones
-that don't are broken.
-
-This way you automatically get support for the situation Ben mentioned
-as well, when doing large allocs and the IOMMU is full you return a
-full 64 bit address.
-
-Jes
+--
+Daniel

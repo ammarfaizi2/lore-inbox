@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTKPUVP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 15:21:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTKPUVP
+	id S262794AbTKPUUO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 15:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTKPUUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 15:21:15 -0500
-Received: from mail.gmx.de ([213.165.64.20]:1704 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263137AbTKPUVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 15:21:12 -0500
-X-Authenticated: #4512188
-Message-ID: <3FB7DCF9.5090205@gmx.de>
-Date: Sun, 16 Nov 2003 21:24:25 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
-X-Accept-Language: de-de, de, en-us, en
+	Sun, 16 Nov 2003 15:20:14 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:7088 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262794AbTKPUUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 15:20:10 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       vojtech@ucw.cz
+Subject: Re: Corrected drivermodel for i8042.c
+Date: Sun, 16 Nov 2003 15:20:03 -0500
+User-Agent: KMail/1.5.4
+References: <20031116131134.GA301@elf.ucw.cz>
+In-Reply-To: <20031116131134.GA301@elf.ucw.cz>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-References: <20031116192643.GB15439@zip.com.au>
-In-Reply-To: <20031116192643.GB15439@zip.com.au>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311161520.03425.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT wrote:
+On Sunday 16 November 2003 08:11 am, Pavel Machek wrote:
 
- > I just noticed major interactivity problems whilst ogging one of my
+>
+> +static int i8042_resume_port(struct serio *port)
+> +{
+> +	struct serio_dev *dev = port->dev;
+> +	if (dev) {
+> +		dev->disconnect(port);
+> +		dev->connect(port, dev);
+> +	}
+> +}
 
-[...]
+You want to do that event if there was nothing attached to the port
+as a mouse might get plugged in while the box is suspended. I think
+serio_rescan() is more appropriate (it will do a disconnect if needed
+for you).
 
- > Doh. :/ This is the first time this has been so bad that I've felt
- > it was worth writing about. :/
+Overall there is a problem with disconnect/connect method as it will 
+cause a new input device created for the same hardware if old input
+device is held open by some process. If ever serio_reconnect patches
+will make in the tree then serio_reconnect() can be used instead of
+serio_rescan() as it will try to keep the same input device.
 
-
-Yup, I was using a patched mm3 so I wanted to try the plain one, but due 
-to your post, I can conclude it really is mm3 which is really bad. I 
-noticed this as well. Using Nick's CPU scheduler things are not thaaat 
-bad, but still far from mm2. I think there is some major problem 
-introduced to mm3. Without Nicks patch doing an emerge/compiling, even 
-my mouse heavily stutters like hell, regradless of the used io 
-scheduler. With Nick's patch the mouse is rather OK, but the rest if the 
-system is still not really usable. It is not a HD problem...
-
-Going back to mm2 (patched mm2) and everything it fine again.
-
-Athlon XP 1900MHz
-1GB DDR RAM
-NFORCE2 Chipset
-
-Prakash
-
-
+Dmitry

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUGXS0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUGXSb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUGXS0d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 14:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUGXS0d
+	id S262079AbUGXSb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 14:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUGXSb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 14:26:33 -0400
-Received: from d-zg10-254.net4u.hr ([217.14.210.254]:14464 "HELO
-	eagle.earth.my") by vger.kernel.org with SMTP id S262006AbUGXS0c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 14:26:32 -0400
-From: mnalis@voyager.hr
-Date: Sat, 24 Jul 2004 20:26:27 +0200
-To: Jeff Woods <Kazrak+kernel@cesmail.net>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Matija Nalis <mnalis-umsdos@voyager.hr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] remove UMSDOS
-Message-ID: <20040724182627.GA3767@eagle.earth.my>
-References: <20040711112821.GC4701@fs.tum.de> <6.1.1.1.0.20040711120748.041c8e60@no.incoming.mail>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6.1.1.1.0.20040711120748.041c8e60@no.incoming.mail>
-User-Agent: Mutt/1.4i
+	Sat, 24 Jul 2004 14:31:29 -0400
+Received: from wit.mht.bme.hu ([152.66.80.190]:55184 "EHLO wit.wit.mht.bme.hu")
+	by vger.kernel.org with ESMTP id S262079AbUGXSb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 14:31:28 -0400
+Date: Sat, 24 Jul 2004 20:31:26 +0200 (CEST)
+From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
+To: linux-kernel@vger.kernel.org
+Subject: via-velocy problem
+Message-ID: <Pine.LNX.4.44.0407242015350.4553-100000@wit.wit.mht.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 11, 2004 at 12:17:32PM -0600, Jeff Woods wrote:
-> At 7/11/2004 01:28 PM +0200, Adrian Bunk wrote:
-> >UMSDOS in 2.6 is broken, and it seems no one needs it enough to bother 
-> >fixing it.
+Hello,
 
-Just to notify anybody interested that I have started working on fixing
-UMSDOS support for 2.6 kernels (as there still seems to be some people
-wanting it). 
+I have a via-velocity gigabit ethernet controller on my Abit KV8pro
+motherboard. I tried it with kernel 2.6.7-rc1, 2.6.7-rc2 and the
+2.6.7-rc1-mm1 drivermodule in 2.6.7-rc2 on A Debian SID.
 
-Patch that enables UMSDOS to compile and insmod is available at 
-http://linux.voyager.hr/umsdos/
-It still doesn't work (triggers kernel BUG() after few write ops), 
-but I'll post another announcements when I get it in working condition.
+If I load it at the command promt, it seems to be working without any
+problem. I can set up an IP address etc.
 
+If I load it at boot time (/etc/modules) Debian's network setup fails.
 
--- 
-Opinions above are GNU-copylefted.
+It seems to me that the problem is caused by "ifup -a". There is a screen
+shot (sorry I'm lazy to type in).
+
+http://wit.mht.bme.hu/~kubi/kernelpanic_via-velocity.jpg
+
+How can I test the driver more precisely?
+
+Best regards,
+Kubi
+

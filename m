@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293373AbSCFJCJ>; Wed, 6 Mar 2002 04:02:09 -0500
+	id <S293378AbSCFJFL>; Wed, 6 Mar 2002 04:05:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293378AbSCFJB7>; Wed, 6 Mar 2002 04:01:59 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:54692 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S293373AbSCFJBs>; Wed, 6 Mar 2002 04:01:48 -0500
-Date: Wed, 6 Mar 2002 10:47:24 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with 3c905B nic
-In-Reply-To: <200203060842.g268gfq21995@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.44.0203061045130.2839-100000@netfinity.realnet.co.sz>
+	id <S293379AbSCFJFC>; Wed, 6 Mar 2002 04:05:02 -0500
+Received: from scentra.dntcj.ro ([193.226.99.17]:65162 "EHLO scentra.dntcj.ro")
+	by vger.kernel.org with ESMTP id <S293378AbSCFJEt>;
+	Wed, 6 Mar 2002 04:04:49 -0500
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: scentra.dntcj.ro
+Message-ID: <3C85DAD4.4060504@dntcj.ro>
+Date: Wed, 06 Mar 2002 11:01:08 +0200
+From: Dimtiriu Vlad <dim@dntcj.ro>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Same problem with 3c905B nic
+In-Reply-To: <200203060842.g268gfq21995@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.3.0(snapshot 20010925) (scentra.dntcj.ro)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Denis Vlasenko wrote:
 
-> Hi,
-> 
-> I have a NFS client which was connected to the server directly
-> by crossover cable. 100mbit Enternet was working as expected
-> (~10mbytes/sec peak). Recently I had to move to different
-> location and now I'm connected to the same server through
-> stack of four HP ProCurve 4000M switches.
-> Now I'm getting ~2mbytes/sec peak.
+    The same problem here:
 
-Can you verify your negotiated link status?
- 
-> Since I boot from network I have NIC drivers compiled in,
-> tried to instruct 3c59x.c to be more verbose with
-> ether=0,0,0x8200,eth0 with no success... why?
+*    3Com Corporation 3cSOHO100-TX Hurricane
 
-Out of interest, where does 0x8200 come from? 
+*    /etc/modules.conf
+     options 3c59x debug=3 rx_copybreak=300
+   
+Mar  6 11:02:54 lambda kernel: dev->watchdog_timeo=500
+Mar  6 11:02:54 lambda kernel: eth1: MII transceiver has status 786d.
+Mar  6 11:02:54 lambda kernel: eth1: Media selection timer finished,
+Autonegotiate.
+Mar  6 11:02:54 lambda kernel: eth2: Media selection timer
+tick happened, Autonegotiate.
+Mar  6 11:02:54 lambda kernel: dev->watchdog_timeo=500
+Mar  6 11:02:54 lambda kernel: eth2: MII transceiver has status 786d.
+Mar  6 11:02:54 lambda kernel: eth2: Media selection timer finished,
+Autonegotiate.
+Mar  6 11:03:10 lambda kernel: eth2: vortex_error(), status=0xe481
 
-> I put debug printk in the source, it does not print:
->         if (dev->mem_start) {
->                 /*
->                  * The 'options' param is passed in as the third arg to the
->                  * LILO 'ether=' argument for non-modular use
->                  */
->                 option = dev->mem_start;
-> ===>            printk(KERN_DEBUG "VDA: ether=xx,xx,0x%08x,xxx\n",dev->mem_start);
->         }
-> 
-> Ok, I have recompiled drivers/net/3c59x.c with vortex_debug=4
-> set manually and now I see I'm having problems.
-> 
-> Do someone know what's up here?
 
-Could you elaborate more on which particular problem you're having. This 
-looks like a mixed bag.
-
-Regards,
-	Zwane
-
+Those twho NICs are connected into a CenterCom
+3016SL 10MB/s HUB.
 

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264695AbUEYUAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264780AbUEYUER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264695AbUEYUAR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 16:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUEYUAQ
+	id S264780AbUEYUER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 16:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUEYUEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 16:00:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13484 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264695AbUEYUAH (ORCPT
+	Tue, 25 May 2004 16:04:16 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:8862 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264780AbUEYUEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 16:00:07 -0400
-Date: Tue, 25 May 2004 12:59:28 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: knobi@knobisoft.de
-Cc: flind@haystack.mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: Multicast problems between 2.4.20 and 2.4.21?
-Message-Id: <20040525125928.444087a4.davem@redhat.com>
-In-Reply-To: <20040525181510.68862.qmail@web13902.mail.yahoo.com>
-References: <20040525103843.0c764c47.davem@redhat.com>
-	<20040525181510.68862.qmail@web13902.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 May 2004 16:04:15 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: root@chaos.analogic.com
+Subject: Re: very low performance on SCSI disks if device node is in tmpfs
+Date: Tue, 25 May 2004 22:02:54 +0200
+User-Agent: KMail/1.6.2
+Cc: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
+References: <20040525184732.GB26661@suse.de> <20040525193458.GA21120@suse.de> <Pine.LNX.4.53.0405251540410.803@chaos>
+In-Reply-To: <Pine.LNX.4.53.0405251540410.803@chaos>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405252202.54745.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 May 2004 11:15:10 -0700 (PDT)
-Martin Knoblauch <knobi@knobisoft.de> wrote:
+Am Dienstag, 25. Mai 2004 21:44 schrieb Richard B. Johnson:
+> On Tue, 25 May 2004, Olaf Hering wrote:
+> 
+> >  On Tue, May 25, Richard B. Johnson wrote unrelated stuff:
+> >
+> 
+> It is not unrelated stuff. If you think it is, you will
+> come to an incorrect conclusion with your experiments.
+> As I stated, you are not actually communicating with a
+> device-file except for the initial open().
 
->   what is the name of the sysctl, and when was it added to 2.4? What
-> about 2.6.x?
+Exactly therefore the results are so extremely odd.
+Either looking up a device node is very expensive, or we have an
+unknown phenomenon.
 
-/proc/sys/net/ipv4/conf/${DEV}/force_igmp_version
-
-Replace ${DEV} with a specific device name, "default", or "all"
-as desired.
-
-It got added to 2.4.25 I believe, and yes 2.6.x has it too.
+	Regards
+		Oliver

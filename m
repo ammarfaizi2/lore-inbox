@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUIZSZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUIZSfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUIZSZl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 14:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUIZSZk
+	id S261610AbUIZSfI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 14:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUIZSfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 14:25:40 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:63500 "EHLO smtp.sys.beep.pl")
-	by vger.kernel.org with ESMTP id S261474AbUIZSZj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 14:25:39 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.9rc2+bk hangs at: ACPI: IRQ9 SCI: Level Trigger or Checking 'hlt' instruction... OK.
-Date: Sun, 26 Sep 2004 20:23:48 +0200
-User-Agent: KMail/1.7
-References: <200409260518.26590.arekm@pld-linux.org>
-In-Reply-To: <200409260518.26590.arekm@pld-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Sun, 26 Sep 2004 14:35:08 -0400
+Received: from gprs214-244.eurotel.cz ([160.218.214.244]:45696 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261610AbUIZSfD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 14:35:03 -0400
+Date: Sun, 26 Sep 2004 20:34:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Stefan Seyfried <seife@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
+Message-ID: <20040926183449.GA28810@elf.ucw.cz>
+References: <200409251214.28743.rjw@sisk.pl> <200409261202.34138.rjw@sisk.pl> <200409261345.10565.rjw@sisk.pl> <200409261906.10635.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409262023.48626.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+In-Reply-To: <200409261906.10635.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 of September 2004 05:18, Arkadiusz Miskiewicz wrote:
-> My kernel (2.6.9rc2+cset-20040926_0006) hangs at:
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> ACPI: IRQ9 SCI: Level Trigger.
->
-> Previous working kernel running here was 2.6.9rc2+20040914_1622.
-More information.
+Hi!
 
-This is unrelated to ACPI since kernel compiled without ACPI also hangs at:
-,,Checking 'hlt' instruction... OK.''.
+> [-- snip --]
+> >  swsusp: Image: 11145 Pages
+> >  swsusp: Pagedir: 0 Pages
+> > Writing data to swap (11145 pages)...   0%
+> > 
+> > Here I have to press the red button unless I want to wait for a couple of 
+> > hours.  I'll send you more info when there's more.
+> 
+> I figured out that the slowdown occurs in device_resume(), so I put a printk() 
+> in dpm_resume(), like this:
 
-Something else is broken. Two other people confirmed the problem for me.
+When you hit "writing data to swap", device_resume should be no longer
+happening.
+
+Try to unload all modules etc, see if it goes away. If not, fix sysrq
+to work for you, and look at backtrace.
+								Pavel
 -- 
-Arkadiusz Mi¶kiewicz                    PLD/Linux Team
-http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268223AbUIWSNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268167AbUIWSNC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268223AbUIWSNw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 14:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIWSNL
+	id S268167AbUIWSNC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 14:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIWSKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 14:13:11 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:46270 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268216AbUIWSL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 14:11:57 -0400
-Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: ak@muc.de, gandalf@wlug.westbo.se
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095962839.4974.965.camel@cube>
+	Thu, 23 Sep 2004 14:10:48 -0400
+Received: from mail2.ywesee.com ([62.12.131.38]:16353 "HELO debian.ywesee.com")
+	by vger.kernel.org with SMTP id S268167AbUIWSKX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 14:10:23 -0400
+Date: Thu, 23 Sep 2004 20:10:19 +0200
+From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Unloading the modules crashes as well
+Message-ID: <20040923201019.346c8ad0@zrr.local>
+Organization: ywesee - intellectual capital connected
+X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 23 Sep 2004 14:07:20 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
-> Martin Josefsson <gandalf@wlug.westbo.se> writes:
+Hi
 
->> Ever heard of iptables?
->
-> Except that it doesn't have usable 32bit emulation
-> on x86-64. 32bit userland on x86-64 kernel cannot
-> use iptables, they have to use ipchains.
->
-> I would ask for to not drop ipchains until this is fixed.
+If I do /sbin/rmmod hcfusbhw my system crashes as well.
 
-Who is doing a 32-bit userland on x86-64, and WTF for?
-Why do they not also run a 32-bit kernel?
+I got the newest version of module-init-tools installed:
+module-init-tools-3.1-pre5
 
+Any hints?
 
+Thanks
+Zeno
+
+-- 
+Mit freundlichen Grüssen / best regards
+
+Zeno Davatz
+Verkauf & Akquisition
+
++41 1 350 85 86
+
+www.ywesee.com > intellectual capital connected > www.oddb.org

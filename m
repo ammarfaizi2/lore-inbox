@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265780AbSKAUuy>; Fri, 1 Nov 2002 15:50:54 -0500
+	id <S265773AbSKAUhU>; Fri, 1 Nov 2002 15:37:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265781AbSKAUuy>; Fri, 1 Nov 2002 15:50:54 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:19208 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S265780AbSKAUux>; Fri, 1 Nov 2002 15:50:53 -0500
-Message-ID: <3DC2EA6D.1070200@namesys.com>
-Date: Fri, 01 Nov 2002 23:56:13 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-CC: Nikita Danilov <Nikita@Namesys.COM>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: reiser4 [0/8] overview
-References: <200210311910.48774.m.c.p@wolk-project.de> <15809.29694.883782.811063@laputa.namesys.com> <200210311931.08347.m.c.p@wolk-project.de>
-In-Reply-To: <200210311910.48774.m.c.p@wolk-project.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265774AbSKAUhU>; Fri, 1 Nov 2002 15:37:20 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:54800 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id <S265773AbSKAUhS>;
+	Fri, 1 Nov 2002 15:37:18 -0500
+Date: Fri, 1 Nov 2002 21:43:37 +0100
+From: romieu@fr.zoreil.com
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+Message-ID: <20021101214337.A12326@electric-eye.fr.zoreil.com>
+References: <20021031181252.GB24027@tapu.f00f.org> <Pine.LNX.4.44.0210311040080.1526-100000@penguin.transmeta.com> <20021031194351.GA24676@tapu.f00f.org> <apu6cd$4db$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <apu6cd$4db$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Nov 01, 2002 at 03:25:01PM +0000
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
+Linus Torvalds <torvalds@transmeta.com> :
+[...]
+> Maybe not. The only numbers I have is the slowness of PCI.
 
->Does not occur with ReiserFS 3 from 2.5.45 nor with any other FS doing those 
->small stress test. My personal impression is that Reiser4 is slower than 3 but 
->that might be because of above debugging.
->
->I hope this helps.
->
->ciao, Marc
->
->
->  
->
-Please give us a script which is slower than v3 for us to reproduce 
-with, and we will start analyzing it.
+Issue 'openssl speed' and wait for more numbers.
 
--- 
-Hans
+Short lived hybrid sessions kill (not that this or any of the current 
+reasons for asynchronous crypto really matters imho).
 
+Instant benchmark:
+                  sign    verify    sign/s verify/s
+rsa 1024 bits   0.0148s   0.0008s     67.7   1198.6 (PIV 2GHz)
+                  sign    verify    sign/s verify/s
+rsa 1024 bits   0.0478s   0.0026s     20.9    381.6 (PII 350MHz)
 
+The 'numbers' are in 1000s of bytes per second processed.
+type              8 bytes  64 bytes  256 bytes  1024 bytes  8192 bytes
+des ede3         3930.00k  4027.43k   4032.30k    4002.19k    3973.12k (PIV)
+type              8 bytes  64 bytes  256 bytes  1024 bytes  8192 bytes
+des ede3         1058.51k  1061.25k   1090.70k    1097.44k    1091.36k (PII)
+
+blowfish is ~10x faster btw.
+
+--
+Ueimor 

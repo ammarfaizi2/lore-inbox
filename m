@@ -1,104 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135937AbREJUGQ>; Thu, 10 May 2001 16:06:16 -0400
+	id <S136008AbREJUK1>; Thu, 10 May 2001 16:10:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136114AbREJUGG>; Thu, 10 May 2001 16:06:06 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:48524 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135937AbREJUF4>; Thu, 10 May 2001 16:05:56 -0400
-Date: Thu, 10 May 2001 16:05:50 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
+	id <S136114AbREJUKQ>; Thu, 10 May 2001 16:10:16 -0400
+Received: from dentin.eaze.net ([216.228.128.151]:21252 "EHLO xirr.com")
+	by vger.kernel.org with ESMTP id <S136008AbREJUKC>;
+	Thu, 10 May 2001 16:10:02 -0400
+Date: Thu, 10 May 2001 15:13:13 -0500
+From: SodaPop <soda@xirr.com>
+Message-Id: <200105102013.PAA22503@xirr.com>
 To: linux-kernel@vger.kernel.org
-Cc: David Brownell <david-b@pacbell.net>, zaitcev@redhat.com,
-        rmk@arm.linux.org.uk
-Subject: Re: pci_pool_free from IRQ
-Message-ID: <20010510160550.A32083@devserv.devel.redhat.com>
-In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu> <E14xFD5-0000hh-00@the-village.bc.nu> <15096.27479.707679.544048@pizda.ninka.net> <050701c0d80f$8f876ca0$6800000a@brownell.org> <15096.38109.228916.621891@pizda.ninka.net> <20010509143020.A22522@devserv.devel.redhat.com> <15097.39445.646189.834699@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15097.39445.646189.834699@pizda.ninka.net>; from davem@redhat.com on Wed, May 09, 2001 at 12:27:17PM -0700
+Subject: null pointer dereference in ibmtr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about this (with documentation fixes by David-B):
+When inserting the ibmtr.o module in any of the 2.4 series kernels, I get a
+null pointer crash.  Latest try was 2.4.4.  Ksymoops:
 
-diff -ur -X dontdiff linux-2.4.4/Documentation/DMA-mapping.txt linux-2.4.4-niph/Documentation/DMA-mapping.txt
---- linux-2.4.4/Documentation/DMA-mapping.txt	Thu Apr 19 08:38:48 2001
-+++ linux-2.4.4-niph/Documentation/DMA-mapping.txt	Thu May 10 12:29:22 2001
-@@ -240,6 +240,7 @@
- 
- where dev, size are the same as in the above call and cpu_addr and
- dma_handle are the values pci_alloc_consistent returned to you.
-+This function may not be called in interrupt context.
- 
- If your driver needs lots of smaller memory regions, you can write
- custom code to subdivide pages returned by pci_alloc_consistent,
-@@ -262,7 +263,8 @@
- sleeping context (f.e. in_interrupt is true or while holding SMP
- locks), pass SLAB_ATOMIC.  If your device has no boundary crossing
- restrictions, pass 0 for alloc; passing 4096 says memory allocated
--from this pool must not cross 4KByte boundaries.
-+from this pool must not cross 4KByte boundaries (but at that time it
-+may be better to go for pci_alloc_consistent directly instead).
- 
- Allocate memory from a pci pool like this:
- 
-@@ -270,21 +272,23 @@
- 
- flags are SLAB_KERNEL if blocking is permitted (not in_interrupt nor
- holding SMP locks), SLAB_ATOMIC otherwise.  Like pci_alloc_consistent,
--this returns two values, cpu_addr and dma_handle,
-+this returns two values, cpu_addr and dma_handle.
- 
- Free memory that was allocated from a pci_pool like this:
- 
- 	pci_pool_free(pool, cpu_addr, dma_handle);
- 
- where pool is what you passed to pci_pool_alloc, and cpu_addr and
--dma_handle are the values pci_pool_alloc returned.
-+dma_handle are the values pci_pool_alloc returned. This function
-+may be called in interrupt context.
- 
- Destroy a pci_pool by calling:
- 
- 	pci_pool_destroy(pool);
- 
- Make sure you've called pci_pool_free for all memory allocated
--from a pool before you destroy the pool.
-+from a pool before you destroy the pool. This function may not
-+be called in interrupt context.
- 
- 			DMA Direction
- 
-diff -ur -X dontdiff linux-2.4.4/Documentation/pci.txt linux-2.4.4-niph/Documentation/pci.txt
---- linux-2.4.4/Documentation/pci.txt	Sun Sep 17 09:45:06 2000
-+++ linux-2.4.4-niph/Documentation/pci.txt	Thu May 10 12:33:03 2001
-@@ -60,8 +60,8 @@
- 	remove		Pointer to a function which gets called whenever a device
- 			being handled by this driver is removed (either during
- 			deregistration of the driver or when it's manually pulled
--			out of a hot-pluggable slot). This function can be called
--			from interrupt context.
-+			out of a hot-pluggable slot). This function always gets
-+			called from process context, so it can sleep.
- 	suspend,	Power management hooks -- called when the device goes to
- 	resume		sleep or is resumed.
- 
---- linux-2.4.4/drivers/pci/pci.c	Thu Apr 19 08:38:48 2001
-+++ linux-2.4.4-niph/drivers/pci/pci.c	Thu May 10 12:36:28 2001
-@@ -1701,8 +1701,11 @@
- 	set_bit (block, &page->bitmap [map]);
- 	if (waitqueue_active (&pool->waitq))
- 		wake_up (&pool->waitq);
--	else if (!is_page_busy (pool->blocks_per_page, page->bitmap))
--		pool_free_page (pool, page);
-+	/*
-+	 * Resist a temptation to do
-+	 *    if (!is_page_busy(bpp, page->bitmap)) pool_free_page(pool, page);
-+	 * it is not interrupt safe. Better have empty pages hang around.
-+	 */
- 	spin_unlock_irqrestore (&pool->lock, flags);
- }
- 
+Unable to handle kernel paging request at virtual address 7a000018
+c012861e
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012861e>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000170   ebx: 00000001     ecx: 00000170       edx: 00000000
+esi: c1321080   edi: c13210dc     ebp: c9ca3800       esp: c0203ee8
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c02030000)
+Stack: c0188efd c1321080 00000000 c0188f37 c1321080 c1321080 c0189067 c1321080
+       c1321080 c1321080 c01905c3 c1321080 c1321080 c9ff8ca0 c01903bb c1321080
+       c9ca3800 c01ff12c c1321080 c01ff12c c0189067 c1321080 c9ca3800 c01ff12c
+Call Trace: [<c0188efd>] [<c0188f37>] [<c0189067>] [<c01905c3>] [<c01903bb>] [<c018c219>] [<c018c3f5>]
+       [<c0115b7e>] [<c0107ef9>] [<c0105160>] [<c0106be0>] [<c0105160>] [<c0100018>] [<c0105183>] [<c01051de>]
+       [<c0105000>] [<c0100198>]
+Code: 8b 41 18 85 c0 7c 11 ff 49 14 0f 94 c0 84 c0 74 07 89 c8 e8
+
+>>EIP; c012861e <__free_pages+2/1c>   <=====
+Trace; c0188efd <skb_release_data+3d/6c>
+Trace; c0188f37 <kfree_skbmem+b/54>
+Trace; c0189067 <__kfree_skb+e7/f0>
+Trace; c01905c3 <snap_rcv+9b/a4>
+Trace; c01903bb <p8022_rcv+6b/98>
+Trace; c018c219 <deliver_to_old_ones+71/80>
+Trace; c018c3f5 <net_rx_action+11d/200>
+Trace; c0115b7e <do_softirq+4a/6c>
+Trace; c0107ef9 <do_IRQ+a1/b4>
+Trace; c0105160 <default_idle+0/28>
+Trace; c0106be0 <ret_from_intr+0/20>
+Trace; c0105160 <default_idle+0/28>
+Trace; c0100018 <startup_32+18/a5>
+Trace; c0105183 <default_idle+23/28>
+Trace; c01051de <cpu_idle+36/4c>
+Trace; c0105000 <init+0/150>
+Trace; c0100198 <L6+0/2>
+Code;  c012861e <__free_pages+2/1c>
+00000000 <_EIP>:
+Code;  c012861e <__free_pages+2/1c>   <=====
+   0:   8b 41 18                  movl   0x18(%ecx),%eax   <=====
+Code;  c0128621 <__free_pages+5/1c>
+   3:   85 c0                     testl  %eax,%eax
+Code;  c0128623 <__free_pages+7/1c>
+   5:   7c 11                     jl     18 <_EIP+0x18> c0128636 <__free_pages+1a/1c>
+Code;  c0128625 <__free_pages+9/1c>
+   7:   ff 49 14                  decl   0x14(%ecx)
+Code;  c0128628 <__free_pages+c/1c>
+   a:   0f 94 c0                  sete   %al
+Code;  c012862b <__free_pages+f/1c>
+   d:   84 c0                     testb  %al,%al
+Code;  c012862d <__free_pages+11/1c>
+   f:   74 07                     je     18 <_EIP+0x18> c0128636 <__free_pages+1a/1c>
+Code;  c012862f <__free_pages+13/1c>
+  11:   89 c8                     movl   %ecx,%eax
+Code;  c0128631 <__free_pages+15/1c>
+  13:   e8 00 00 00 00            call   18 <_EIP+0x18> c0128636 <__free_pages+1a/1c>
+
+
+
+
+Cpu info:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 3
+model name      : Pentium II (Klamath)
+stepping        : 4
+cpu MHz         : 299.946316
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov mmx
+bogomips        : 299.01
+
+
+
+The token ring card is ISA, not pci.  It has worked fine for years under 2.2.*
+
+Any ideas?
+
+-dennis T

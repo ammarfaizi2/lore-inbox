@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289326AbSA1TJd>; Mon, 28 Jan 2002 14:09:33 -0500
+	id <S289331AbSA1TMx>; Mon, 28 Jan 2002 14:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289331AbSA1TJY>; Mon, 28 Jan 2002 14:09:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6662 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289326AbSA1TJM>;
-	Mon, 28 Jan 2002 14:09:12 -0500
-Message-ID: <3C55A028.3FD71164@zip.com.au>
-Date: Mon, 28 Jan 2002 11:02:00 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S289334AbSA1TMq>; Mon, 28 Jan 2002 14:12:46 -0500
+Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:901 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289331AbSA1TMc>;
+	Mon, 28 Jan 2002 14:12:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "" <simon@baydel.com>, Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+Date: Mon, 28 Jan 2002 20:17:06 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com> <3C54D1CB.23664.50D4C3@localhost>
+In-Reply-To: <3C54D1CB.23664.50D4C3@localhost>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Don't use dbench for benchmarks
-In-Reply-To: <20020128144319.67654.qmail@web9203.mail.yahoo.com>,
-		<20020128144319.67654.qmail@web9203.mail.yahoo.com> <E16VGmX-0000BQ-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VHH9-0000Ba-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On January 28, 2002 05:21 am,  wrote:
+> First of all I would like to thank all the people that responded to my 
+> mail. Unfortunately the numbers I am using are not restricted to 
+> powers of two so I could not simply shift the data. I have decided to 
+> use the div64.h solution and it seems to work well. 
 > 
-> On January 28, 2002 03:43 pm, Alex Davis wrote:
-> > > Continuing that theme: please don't use dbench for benchmarks.  At all.
-> > > It's an unreliable indicator of anything in particular except perhaps
-> > > stability.  Please, use something else for your benchmarks.
-> >
-> > What do you suggest as an acceptable benchmark???
+> I have looked at this header file and I do not understand the asm 
+> syntax. 
 > 
-> A benchmark that tests disk/file system create/read/write/delete throughput,
-> as dbench is supposed to?  Though I haven't used it personally, others
-> (Arjan) have suggested tiobench:
+> In particular the only x86 div instruction I know only returns a 32 bit 
+> div result. Because I don't understand the div64 header I cannot 
+> see how a 64 bit result is calculated.
+
+This particular macro can't do that.  However, 64bits/32bits = 64bits is
+easily calculated with two 64/32 hardware divides, in assembly.
+
+> I also tried this header in a regular application. This failed to return 
+> the modulus although it works in a module.
 > 
->   http://tiobench.sourceforge.net/
-> 
+> Is this asm syntax documented anywhere ? 
 
-Also http://www.iozone.org/
+It's painful, isn't it?  And no, I don't know where it's documented.
 
-Really, iozone isn't a benchmark as much as the "engine" of
-a benchmark.  It has so many options that you can use it
-to build higher-level, more intelligent test suites by invoking it
-in specific ways.  read/write, mmap, MS_SYNC, MS_ASYNC, O_DIRECT,
-aio, O_SYNC, fsync(), multiple threads, ...
-
-
-
--
+--
+Daniel

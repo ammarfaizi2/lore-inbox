@@ -1,87 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267476AbSKQJjv>; Sun, 17 Nov 2002 04:39:51 -0500
+	id <S267473AbSKQJtf>; Sun, 17 Nov 2002 04:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267478AbSKQJjv>; Sun, 17 Nov 2002 04:39:51 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:30735 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267476AbSKQJjr>; Sun, 17 Nov 2002 04:39:47 -0500
-Date: Sun, 17 Nov 2002 07:46:37 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] hugetlbfs: fix up header file cleanups
-Message-ID: <20021117094637.GC27699@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S267480AbSKQJtf>; Sun, 17 Nov 2002 04:49:35 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:56850 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S267473AbSKQJte>;
+	Sun, 17 Nov 2002 04:49:34 -0500
+Date: Sun, 17 Nov 2002 10:56:32 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: lan based kgdb
+Message-ID: <20021117095632.GN4545@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021116182454.GH19061@waste.org> <Pine.LNX.4.44.0211161025500.15838-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ztcJpsdPpsnnlAp8"
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211161025500.15838-100000@home.transmeta.com>
 User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+X-Operating-System: Linux mail 2.4.18 
+x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+x-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-	Please pull from:
+--ztcJpsdPpsnnlAp8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-master.kernel.org:/home/acme/BK/includes-2.5
+On Sat, 2002-11-16 10:33:57 -0800, Linus Torvalds <torvalds@transmeta.com>
+wrote in message <Pine.LNX.4.44.0211161025500.15838-100000@home.transmeta.c=
+om>:
+> On Sat, 16 Nov 2002, Oliver Xymoron wrote:
+> >=20
+> > LAN latencies should be low enough that waiting on an ACK for each
+> > packet will do just fine for error correction. If someone wants to do
+> > remote debugging, they can ssh into a debugging machine on the same LAN.
+>=20
+> Basically, I don't personally care too much for kgdb itself, but I see a
+> asynchronous LAN console as a more generic tool for just doing not just
+> kernel debugging, but management in general. syslogd is fine for when the
 
-	In this tree there will be several similar changesets.
+=2E..which reminds me to DEC's MOP (Maintainence and Operator's Protocol),
+which is ethernet (but not IP) based remote console and a mixture of
+bootp/tftp. Sure, we won't (yet) go as far as sending the next kernel to
+boot via our new console protocol to kexec(), but wait for the very
+first S-Records to arrive:-p
 
-- Arnaldo
+MfG, JBG
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
+   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
 
-===================================================================
+--ztcJpsdPpsnnlAp8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-ChangeSet@1.847, 2002-11-17 07:30:35-02:00, acme@conectiva.com.br
-  Fix up after header file cleanups: add <linux/mount.h> to
-  hugetlbfs that got it implicitly before.
+iD8DBQE912fQHb1edYOZ4bsRAjbAAJ9vDl6zpH7D26J4LdMo8ncAi3owSQCfW44j
+lCT7L/LpkW4NNe2QQ5cJhzI=
+=ngWU
+-----END PGP SIGNATURE-----
 
-
- inode.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
---- a/fs/hugetlbfs/inode.c	Sun Nov 17 07:34:08 2002
-+++ b/fs/hugetlbfs/inode.c	Sun Nov 17 07:34:08 2002
-@@ -11,6 +11,7 @@
- #include <asm/current.h>
- #include <linux/sched.h>		/* remove ASAP */
- #include <linux/fs.h>
-+#include <linux/mount.h>
- #include <linux/file.h>
- #include <linux/writeback.h>
- #include <linux/pagemap.h>
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.847
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch9137
-M'XL(`)!BUST``]V476O;,!2&KZ-?<2"7(_8YEBU_L)2LW2<=-&3T:NQ"D>78
-MU+:"+6<M^,=/2=<4LC"VL=W,%MCX2*_?H_=!4[CM=9=-I&HTF\)[T]MLHDRK
-ME:UVTE.F\=:=*ZR,<06_-(WV+Z_]JE7UD.M^%G@1<^6EM*J$G>[Z;$(>/WZQ
-M#UN=359OWMU^?+5B;#Z'JU*V&_U)6YC/F37=3M9YOY"VK$WKV4ZV?:/MX<?C
-M<>H8(`;NCBCF&(F1!(;QJ"@GDB'I'(,P$2';][`X]7ZB0D0QID$2X4B!(&2O
-M@;PDC`$#G\@G]Q)G'#,>S3#($.&L*+P@F"&[A+_;P!53\+:ZAV$+LK"Z@U++
-MW#V*JM:@:BW;8=MG(/,<7M95.]S[C1E:ZY47SHA;6PX;;>MUT8,MI86-L5"Y
-MT6SK2E6V?H"U+DRG/78-1"DE;/D<!YO]YL482F07(.^VS2*O-MKL>_[\M"-?
-MQJ+WCX8<,";7GGK,`#E1PL,P&#$5B4M"J)PC7ZLU*15&ZORF_T3P$*I3P)&G
-M(A`'T,[-WC/W#_PR64KI&*BZ1E:UUVK[2[*$"6+H(!QYS$5\0)'_`"+^WR`^
-M!G8#L^[K83BPEF>S^P-`/Q`'8M/OA]6IU>=S2Y5:W?5#,\_3*!5%)-@WGDZN
-%!A<%````
-`
-end
+--ztcJpsdPpsnnlAp8--

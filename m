@@ -1,266 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTEAL5v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 07:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbTEAL5v
+	id S261238AbTEAMAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 08:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTEAMAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 07:57:51 -0400
-Received: from oker.escape.de ([194.120.234.254]:12466 "EHLO oker.escape.de")
-	by vger.kernel.org with ESMTP id S261227AbTEAL5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 07:57:44 -0400
-To: linux-kernel@vger.kernel.org
-Subject: tiny patch for sys_time() and sys_stime()
-From: Urs Thuermann <urs@isnogud.escape.de>
-Date: 01 May 2003 14:09:36 +0200
-Message-ID: <m2of2m3m2n.fsf@isnogud.escape.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	Thu, 1 May 2003 08:00:35 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:6064 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id S261238AbTEAMAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 08:00:32 -0400
+Message-ID: <3EB10F21.5070509@coyotegulch.com>
+Date: Thu, 01 May 2003 08:12:17 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Beating the Monopoly [was: Why DRM exists]
+References: <20030430135919.GB32300@work.bitmover.com> <Pine.LNX.4.44.0304301047050.23589-100000@mooru.gurulabs.com> <20030430172107.GA25347@work.bitmover.com>
+In-Reply-To: <20030430172107.GA25347@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of years ago, when some 2.0.x kernel was current, I did a
-patch for the time() and stime() system call, which I also sent for
-inclusion, AFAIR to LKML.  However I didn't get any response to it.
+Larry McVoy wrote:
+> That line of reasoning, by the way, only works if they are a monopoly,
+> i.e., it doesn't work real well for BK, there are lots of other source
+> management systems.  But it works very well for things like Word,
+> that's a de facto standard, contrary to what some people here believe
+> it is bloody difficult to negotiate a contract in anything but Word.
+> Try sending a lawyer anything else and you'll see what I mean.
 
-Now I see that the patch went partially in, i.e. for the sys_time()
-syscall but not sys_stime().
+Monopolies *can* be beaten.
 
-These syscalls were implemented as they are still in 2.0.40-rc6 and
-2.2.25 like this
+The original dominator was Wordstar; when CP/M machines were replaced by 
+DOS-based PCs, Wordstar failed to keep up with the trends, and was 
+replaced by an easier-to-use and more capable product, Word Perfect. 
+Ever try sending a legal document in anythign but Word Perfect in the 
+late 1980s, and you'll know what I mean.
 
+One upon a time, Word Perfect ruled, and Word was a new and minor player 
+in the word processing market. Businesses and organizations standardized 
+on Word Perfect; it was impossible to work unless you could read/write 
+Word Perfect. The incompetence of Novell and Corel combined with Word's 
+"better" integration with other MS products to end Word Perfect's dominance.
 
-    asmlinkage int sys_time(int * tloc)
-    {
-    	    int i;
-    
-    	    /* SMP: This is fairly trivial. We grab CURRENT_TIME and 
-    	       stuff it to user space. No side effects */
-    	    i = CURRENT_TIME;
-    	    if (tloc) {
-    		    if (put_user(i,tloc))
-    			    i = -EFAULT;
-    	    }
-    	    return i;
-    }
+Historically, monopolies lose to superior competitors; it's survival of 
+the fittest. Sometimes, "fittest" == least expensive -- but in most 
+cases, better features, ease of use, and progressive thinking beat out 
+monopolies that rest on their laurels.
 
-where CURRENT_TIME is defined as xtime.tv_sec and
-    
-    asmlinkage int sys_stime(int * tptr)
-    {
-    	    int value;
-    
-    	    if (!capable(CAP_SYS_TIME))
-    		    return -EPERM;
-    	    if (get_user(value, tptr))
-    		    return -EFAULT;
-    	    write_lock_irq(&xtime_lock);
-    	    xtime.tv_sec = value;
-    	    xtime.tv_usec = 0;
-    	    time_adjust = 0;	/* stop active adjtime() */
-    	    time_status |= STA_UNSYNC;
-    	    time_maxerror = NTP_PHASE_LIMIT;
-    	    time_esterror = NTP_PHASE_LIMIT;
-    	    write_unlock_irq(&xtime_lock);
-    	    return 0;
-    }
+Microsoft has not done anything revolutionary (or even evolutionary) 
+with Word (or Windows, for that matter) in many, many years. I loved the 
+original DOS-based Word, and versions of Word through about 6.0 -- then 
+the bloat began, with Microsoft tacking on useless features, like an 
+animal species evolving exaggerated characteristics when all other 
+evolution has stopped.
 
-Both calls do not take into account the hardware timer, which may
-cause the time read or set to be offset by almost one tick.
-sys_settimeofday() and sys_gettimeofday() do take into account the
-value of the hardware timer (i8254 or tsc on x86).
+Linus has the right attitude: Make Linux the best kernel possible, and 
+people will use it.
 
-My patch was to make sys_time() and sys_stime() to be just wrappers to
-do_gettimeofday() and do_settimeofday().  In 2.4.17 this was done
-for sys_time() but not sys_stime().  In 2.5.x the macro CURRENT_TIME
-was replaced by an inline function get_seconds() which also only does
-return the value of xtime.tv_sec.
+The key is to meet people's needs, to be more effective in a given niche 
+than the competition. But that won't happen if free software 
+concentrates on cloning over bold evolution. Give Word users special 
+"help", like Word gave Word Perfect users; make a strealined word 
+processor that integrates modern design. Dare to be better.
 
-I append patches for 2.0.40-rc6, 2.2.25, 2.4.20-rc1 and 2.5.68 which
-make both, sys_time() and sys_stime() just wrappers for the
-do_{get,set}timeofday() calls.  This looks cleaner, eliminates a small
-amount of code duplication of code already present in
-do_{get,set}timeofday, and it reduces the possibility of overseeing
-necessary changes, like the call to clock_was_set() in the 2.5.x
-version of do_settimeofday() for some architectures.
+> That's what I meant by chasing.  If you are chasing the leader you are
+> automatically more at risk because you are trying to play in the leader's
+> playing field and they can change the rules to screw you up.  You build
+> a better playing field and you turn the tables, now the leader is the
+> follower and they have to play by your rules.
 
-For 2.5.x and 2.6 kernels I'd actually like too see these calls
-eliminated completely, as is the case for alpha and ia64 already.
+Precisely.
 
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Professional programming for science and engineering;
+Interesting and unusual bits of very free code.
 
-urs
-
-
-diff -ru linux-2.0.40-rc6/kernel/time.c linux-2.0.40-rc6-ut/kernel/time.c
---- linux-2.0.40-rc6/kernel/time.c	1998-06-04 00:17:50.000000000 +0200
-+++ linux-2.0.40-rc6-ut/kernel/time.c	2003-04-04 20:14:48.000000000 +0200
-@@ -52,9 +52,11 @@
-  */
- asmlinkage int sys_time(int * tloc)
- {
-+	struct timeval now;
- 	int i;
- 
--	i = CURRENT_TIME;
-+	do_gettimeofday(&now);
-+	i = now.tv_sec;
- 	if (tloc) {
- 		int error = verify_area(VERIFY_WRITE, tloc, sizeof(*tloc));
- 		if (error)
-@@ -73,6 +75,7 @@
- asmlinkage int sys_stime(int * tptr)
- {
- 	int error, value;
-+	struct timeval new_tv;
- 
- 	if (!suser())
- 		return -EPERM;
-@@ -80,15 +83,9 @@
- 	if (error)
- 		return error;
- 	value = get_user(tptr);
--	cli();
--	xtime.tv_sec = value;
--	xtime.tv_usec = 0;
--	time_adjust = 0;	/* stop active adjtime() */
--	time_status |= STA_UNSYNC;
--	time_state = TIME_ERROR;	/* p. 24, (a) */
--	time_maxerror = NTP_PHASE_LIMIT;
--	time_esterror = NTP_PHASE_LIMIT;
--	sti();
-+	new_tv.tv_sec  = value;
-+	new_tv.tv_usec = 0;
-+	do_settimeofday(&new_tv);
- 	return 0;
- }
- 
-
-
-
-
-
-diff -ru linux-2.2.25/kernel/time.c linux-2.2.25-ut/kernel/time.c
---- linux-2.2.25/kernel/time.c	2001-03-25 18:31:02.000000000 +0200
-+++ linux-2.2.25-ut/kernel/time.c	2003-04-04 18:18:17.000000000 +0200
-@@ -73,11 +73,11 @@
-  */
- asmlinkage int sys_time(int * tloc)
- {
-+	struct timeval now;
- 	int i;
- 
--	/* SMP: This is fairly trivial. We grab CURRENT_TIME and 
--	   stuff it to user space. No side effects */
--	i = CURRENT_TIME;
-+	do_gettimeofday(&now);
-+	i = now.tv_sec;
- 	if (tloc) {
- 		if (put_user(i,tloc))
- 			i = -EFAULT;
-@@ -95,19 +95,15 @@
- asmlinkage int sys_stime(int * tptr)
- {
- 	int value;
-+	struct timeval new_tv;
- 
- 	if (!capable(CAP_SYS_TIME))
- 		return -EPERM;
- 	if (get_user(value, tptr))
- 		return -EFAULT;
--	write_lock_irq(&xtime_lock);
--	xtime.tv_sec = value;
--	xtime.tv_usec = 0;
--	time_adjust = 0;	/* stop active adjtime() */
--	time_status |= STA_UNSYNC;
--	time_maxerror = NTP_PHASE_LIMIT;
--	time_esterror = NTP_PHASE_LIMIT;
--	write_unlock_irq(&xtime_lock);
-+	new_tv.tv_sec  = value;
-+	new_tv.tv_usec = 0;
-+	do_settimeofday(&new_tv);
- 	return 0;
- }
- 
-
-
-
-
-
-diff -ru linux-2.4.20-rc1/kernel/time.c linux-2.4.20-rc1-ut/kernel/time.c
---- linux-2.4.20-rc1/kernel/time.c	2003-04-04 17:41:41.000000000 +0200
-+++ linux-2.4.20-rc1-ut/kernel/time.c	2003-04-04 20:39:14.000000000 +0200
-@@ -74,21 +74,15 @@
- asmlinkage long sys_stime(int * tptr)
- {
- 	int value;
-+	struct timeval new_tv;
- 
- 	if (!capable(CAP_SYS_TIME))
- 		return -EPERM;
- 	if (get_user(value, tptr))
- 		return -EFAULT;
--	write_lock_irq(&xtime_lock);
--	vxtime_lock();
--	xtime.tv_sec = value;
--	xtime.tv_usec = 0;
--	vxtime_unlock();
--	time_adjust = 0;	/* stop active adjtime() */
--	time_status |= STA_UNSYNC;
--	time_maxerror = NTP_PHASE_LIMIT;
--	time_esterror = NTP_PHASE_LIMIT;
--	write_unlock_irq(&xtime_lock);
-+	new_tv.tv_sec  = value;
-+	new_tv.tv_usec = 0;
-+	do_settimeofday(&new_tv);
- 	return 0;
- }
- 
-
-
-
-
-
-diff -ru linux-2.5.68/kernel/time.c linux-2.5.68-ut/kernel/time.c
---- linux-2.5.68/kernel/time.c	2003-05-01 12:26:40.000000000 +0200
-+++ linux-2.5.68-ut/kernel/time.c	2003-05-01 12:29:10.000000000 +0200
-@@ -49,11 +49,11 @@
-  */
- asmlinkage long sys_time(int * tloc)
- {
-+	struct timeval now; 
- 	int i;
- 
--	/* SMP: This is fairly trivial. We grab CURRENT_TIME and 
--	   stuff it to user space. No side effects */
--	i = get_seconds();
-+	do_gettimeofday(&now);
-+	i = now.tv_sec;
- 	if (tloc) {
- 		if (put_user(i,tloc))
- 			i = -EFAULT;
-@@ -71,20 +71,15 @@
- asmlinkage long sys_stime(int * tptr)
- {
- 	int value;
-+	struct timeval new_tv;
- 
- 	if (!capable(CAP_SYS_TIME))
- 		return -EPERM;
- 	if (get_user(value, tptr))
- 		return -EFAULT;
--	write_seqlock_irq(&xtime_lock);
--	xtime.tv_sec = value;
--	xtime.tv_nsec = 0;
--	last_time_offset = 0;
--	time_adjust = 0;	/* stop active adjtime() */
--	time_status |= STA_UNSYNC;
--	time_maxerror = NTP_PHASE_LIMIT;
--	time_esterror = NTP_PHASE_LIMIT;
--	write_sequnlock_irq(&xtime_lock);
-+	new_tv.tv_sec  = value;
-+	new_tv.tv_usec = 0;
-+	do_settimeofday(&new_tv);
- 	return 0;
- }
- 

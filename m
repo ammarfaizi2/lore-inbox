@@ -1,31 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262008AbRETSpW>; Sun, 20 May 2001 14:45:22 -0400
+	id <S262133AbRETSrW>; Sun, 20 May 2001 14:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262133AbRETSpM>; Sun, 20 May 2001 14:45:12 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15373 "EHLO
+	id <S262135AbRETSrM>; Sun, 20 May 2001 14:47:12 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:17165 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262008AbRETSpE>; Sun, 20 May 2001 14:45:04 -0400
-Date: Sun, 20 May 2001 11:44:37 -0700 (PDT)
+	id <S262133AbRETSrF>; Sun, 20 May 2001 14:47:05 -0400
+Date: Sun, 20 May 2001 11:46:33 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: add page argument to copy/clear_user_page
-In-Reply-To: <15111.38049.614837.978468@tango.paulus.ozlabs.org>
-Message-ID: <Pine.LNX.4.21.0105201143560.7553-100000@penguin.transmeta.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Matthew Wilcox <matthew@wil.cx>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <20010520112351.A32544@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0105201144580.7553-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 20 May 2001, Paul Mackerras wrote:
+On Sun, 20 May 2001, Russell King wrote:
+>
+> On Sat, May 19, 2001 at 08:26:20PM -0700, Linus Torvalds wrote:
+> > You're missing the point.
 > 
-> The patch below adds a page * argument to copy_user_page and
-> clear_user_page.
+> I don't think Richard is actually.  I think Richard has hit a nail
+> dead on its head.
+> 
+> > It's ok to do "read()/write()" on structures.
+> 
+> Ok, we can read()/write() structures.  So someone invents the following
+> structure:
+> 
+> 	struct foo {
+> 		int cmd;
+> 		void *data;
+> 	} foo;
+> 
+> Now they use write(fd, &foo, sizeof(foo)); Haven't they just swapped
+> the ioctl() interface for write() instead?
 
-If you add the page argument, why leave the old arguments lingering there
-at all? They only create confusion, and add no information. 
+Wrong.
+
+Nobody will expect the above to work, and everybody will agree that the
+above is a BUG if the read() call will actually follow the pointer.
+
+Read my email. And read the last line: "psychology is important".
+
+Step #1 in programming: understand people.
 
 		Linus
 

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291559AbSBHMcw>; Fri, 8 Feb 2002 07:32:52 -0500
+	id <S291560AbSBHMfc>; Fri, 8 Feb 2002 07:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291560AbSBHMcm>; Fri, 8 Feb 2002 07:32:42 -0500
-Received: from ns.caldera.de ([212.34.180.1]:35021 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S291559AbSBHMcb>;
-	Fri, 8 Feb 2002 07:32:31 -0500
-Date: Fri, 8 Feb 2002 13:31:07 +0100
-Message-Id: <200202081231.g18CV7e31341@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: mingo@elte.hu (Ingo Molnar)
-Cc: Martin Wirth <Martin.Wirth@dlr.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>, akpm <akpm@zip.com.au>,
-        torvalds <torvalds@transmet.com>, rml <rml@tech9.net>,
-        nigel <nigel@nrg.org>
-To: yodaiken <yodaiken@fsmlabs.com>
-Subject: Re: [RFC] New locking primitive for 2.5
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <Pine.LNX.4.33.0202072305480.2976-100000@localhost.localdomain>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
+	id <S291562AbSBHMfW>; Fri, 8 Feb 2002 07:35:22 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:1296 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S291560AbSBHMfF>;
+	Fri, 8 Feb 2002 07:35:05 -0500
+Message-ID: <3C63C5EF.4050403@evision-ventures.com>
+Date: Fri, 08 Feb 2002 13:34:55 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020129
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
+        vojtech@ucw.cz, andre@linuxdiskcert.org
+Subject: Re: ide cleanup
+In-Reply-To: <20020206205332.GA3217@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0202072305480.2976-100000@localhost.localdomain> you wrote:
-> i think one example *could* be to turn inode->i_sem into a combi-lock. Eg.
-> generic_file_llseek() could use the spin variant.
+Pavel Machek wrote:
 
-No.  i_sem should be split into a spinlock for short-time accessed
-fields that get written to even if the file content is only read (i.e.
-atime) and a read-write semaphore.
+>Hi!
+>
+>IDE is
+>* infested with polish notation
+>
+I don't see any polish notation there. Could you please explain what you 
+mean with this note?
+Other then this - the patch does good.... BTW. There is the issue of 
+multiple
+block strategy routines in ide-disk.c and the selection of 16 ver. 32 
+bit transfers could
+be simplified as well, since the particular code in question is 
+blatantly over-optimized.
+
+
 

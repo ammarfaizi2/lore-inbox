@@ -1,118 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbTBOPbi>; Sat, 15 Feb 2003 10:31:38 -0500
+	id <S262602AbTBOPgv>; Sat, 15 Feb 2003 10:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbTBOPbi>; Sat, 15 Feb 2003 10:31:38 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:55078
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262500AbTBOPbg>; Sat, 15 Feb 2003 10:31:36 -0500
-Date: Sat, 15 Feb 2003 10:38:03 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
-In-Reply-To: <200302151531.QAA01646@faui11.informatik.uni-erlangen.de>
-Message-ID: <Pine.LNX.4.50.0302151036420.16012-100000@montezuma.mastecende.com>
-References: <200302151531.QAA01646@faui11.informatik.uni-erlangen.de>
+	id <S262604AbTBOPgv>; Sat, 15 Feb 2003 10:36:51 -0500
+Received: from mrw.demon.co.uk ([194.222.96.226]:22144 "HELO mrw.demon.co.uk")
+	by vger.kernel.org with SMTP id <S262602AbTBOPgu> convert rfc822-to-8bit;
+	Sat, 15 Feb 2003 10:36:50 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Mark Watts <m.watts@mrw.demon.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.61 and ELSA Passive Isdn cards...
+Date: Sat, 15 Feb 2003 15:46:51 +0000
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302151546.51952.m.watts@mrw.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Feb 2003, Ulrich Weigand wrote:
+Hi,
 
-> Zwane Mwaikambo wrote:
-> 
-> > +		if (cpu_online(i) && ((1UL << i) && mask))
-> 
-> That's still '&&' instead of '&'.
+Trying to compile 2.5.61 on an Athlon. (with K7 optimisations)
 
-*sigh*
+make && make modules_install appear to work fine, but the last thing I see 
+before being dumped back to the prompt is this:
 
-Index: linux-2.5.60/arch/s390/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/s390/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/s390/kernel/smp.c	10 Feb 2003 22:15:54 -0000	1.1.1.1
-+++ linux-2.5.60/arch/s390/kernel/smp.c	15 Feb 2003 15:36:07 -0000
-@@ -102,27 +102,34 @@
-  * in the system.
-  */
- 
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--			int wait)
- /*
-- * [SUMMARY] Run a function on all other CPUs.
-- * <func> The function to run. This must be fast and non-blocking.
-- * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-- * <wait> If true, wait (atomically) until function has completed on other CPUs.
-- * [RETURNS] 0 on success, else a negative status code. Does not return until
-- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask: The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-  *
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
- {
- 	struct call_data_struct data;
--	int cpus = num_online_cpus()-1;
-+	int i, cpu, num_cpus;
- 
--	/* FIXME: get cpu lock -hc */
--	if (cpus <= 0)
-+	cpu = get_cpu();
-+	mask &= ~(1UL << cpu);
-+	num_cpus = hweight32(mask);
-+	if (num_cpus == 0) {
-+		put_cpu_no_resched();
- 		return 0;
-+	}
- 
- 	data.func = func;
- 	data.info = info;
-@@ -134,18 +141,26 @@
- 	spin_lock(&call_lock);
- 	call_data = &data;
- 	/* Send a message to all other CPUs and wait for them to respond */
--        smp_ext_bitcall_others(ec_call_function);
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i) && ((1UL << i) & mask))
-+			smp_ext_bitcall(i, ec_call_function);
-+	}
- 
- 	/* Wait for response */
--	while (atomic_read(&data.started) != cpus)
-+	while (atomic_read(&data.started) != num_cpus)
- 		barrier();
- 
- 	if (wait)
--		while (atomic_read(&data.finished) != cpus)
-+		while (atomic_read(&data.finished) != num_cpus)
- 			barrier();
- 	spin_unlock(&call_lock);
--
-+	put_cpu_no_resched();
- 	return 0;
-+}
-+
-+int smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
- }
- 
- static inline void do_send_stop(void)
+WARNING: /lib/modules/2.5.61/kernel/drivers/isdn/hisax/hisax.ko needs unknown 
+symbol kstat__per_cpu
+
+
+FIrst question - has anyone had this card working in 2.5.x ?
+Second, is this a known problem or am I doing something daft?
+
+
+I've grepped the kernel tree and the only references I can find are:
+
+[root@rebecca linux-2.5.61]# grep -R kstat__per_cpu *
+Binary file arch/i386/kernel/irq.o matches
+Binary file arch/i386/kernel/built-in.o matches
+arch/m68knommu/platform/5307/entry.S:   leal    kstat__per_cpu+STAT_IRQ,%a0
+arch/m68knommu/platform/5307/entry.S:   leal    kstat__per_cpu+STAT_IRQ,%a0
+Binary file drivers/isdn/hisax/config.o matches
+Binary file drivers/isdn/hisax/hisax.o matches
+Binary file drivers/isdn/hisax/hisax.ko matches
+Binary file fs/proc/proc_misc.o matches
+Binary file fs/proc/proc.o matches
+Binary file fs/proc/built-in.o matches
+Binary file fs/built-in.o matches
+Binary file kernel/sched.o matches
+Binary file kernel/built-in.o matches
+System.map:c03b2c40 D kstat__per_cpu
+Binary file vmlinux matches
+
+
+I have modutils-2.4.21-14 and module-init-tools-0.9.9 (both from rusty on 
+kernel.org)
+
+Under 2.4.20, the card is reported by lspci -v as:
+
+00:0d.0 Network controller: Elsa AG QuickStep 1000 (rev 02)
+        Subsystem: Elsa AG QuickStep 1000
+        Flags: medium devsel, IRQ 11
+        Memory at eb001000 (32-bit, non-prefetchable) [size=128]
+        I/O ports at e400 [size=128]
+        I/O ports at e800 [size=4]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+
+Thanks,
+
+Mark.
+

@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271186AbRHONut>; Wed, 15 Aug 2001 09:50:49 -0400
+	id <S271187AbRHONvj>; Wed, 15 Aug 2001 09:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271187AbRHONu3>; Wed, 15 Aug 2001 09:50:29 -0400
-Received: from rasta.silver.com.ua ([193.41.160.2]:45580 "EHLO
-	mail.silver.com.ua") by vger.kernel.org with ESMTP
-	id <S271186AbRHONuX>; Wed, 15 Aug 2001 09:50:23 -0400
-Date: Wed, 15 Aug 2001 16:50:25 +0300 (EEST)
-From: Zakhar Kirpichenko <zakhar@silver.com.ua>
+	id <S271192AbRHONv3>; Wed, 15 Aug 2001 09:51:29 -0400
+Received: from athena.intergrafix.net ([206.245.154.69]:4828 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S271187AbRHONvQ>; Wed, 15 Aug 2001 09:51:16 -0400
+Date: Wed, 15 Aug 2001 09:51:29 -0400 (EDT)
+From: Admin Mailing Lists <mlist@intergrafix.net>
 To: linux-kernel@vger.kernel.org
-Subject: disk quota + 2.4.3 and higher -- OOPS
-Message-ID: <Pine.LNX.4.10.10108151641270.10516-100000@rasta.silver.com.ua>
+Subject: Re: 2.4.8 Resource leaks + limits
+In-Reply-To: <3B7A0F01.DC4CAE4@pobox.com>
+Message-ID: <Pine.LNX.4.10.10108150949160.9584-100000@athena.intergrafix.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+i would think to put global limits in /proc or in a flat text /etc
+and per user limits in something like /etc/passwd or /etc/shadow?
+Is it against any standard to have extra fields in those files?
 
-	Hello over there.
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
 
-	Sorry for offtopic (may be), but disk quotas don't work on Red Hat
-Linux 7.1 and kernels 2.2.x and 2.4.x. Quota tools installed from RPM
-package provided in standard RH distribution: quota-3.00-4, 2.4.2-2 kernel
-sources taken from the dist too. Other kernel versions support quota
-partially: repquota gives some quota statistics, but the kernel doesn't
-update quota data until 'quotacheck' is run manually. Disk quotas don't
-work too - even when repquota shows some limits, 'quota' doesn't and any
-user can write to the fs inspite of the disk limits.
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
 
-	Please, help if you have any ideas.
+On Tue, 14 Aug 2001, J Sloan wrote:
+
+> dmaynor@iceland.oit.gatech.edu wrote:
+> 
+> > > This is why you mainly find per-process stuff in all the limits.
+> > >
+> > > Linux has had (for a while now) a "struct user" that is actually quickly
+> > > accessible through a direct pointer off every process that is associated
+> > > with that user, and we could (and _will_) start adding these kinds of
+> > > limits. However, part of the problem is that because the limits haven't
+> > > historically existed, there is also no accepted and nice way of setting
+> > > the limits.
+> > So when you do impose this, where will it be setable, will there be a flat file in /etc
+> > like solaris, or compile time for the kernel?
+> 
+> Eh?
+> 
+> Why wouldn't it be like most parameters in Linux,
+> e.g. dynamically adjustable via a sysctl or /proc?
+> 
+> IMHO, of course...
+> 
+> cu
+> 
+> jjs
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

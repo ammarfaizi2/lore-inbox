@@ -1,70 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbTI3O41 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 10:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTI3O40
+	id S261553AbTI3PIw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbTI3PIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 10:56:26 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:56071 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261556AbTI3O4Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 10:56:24 -0400
-Date: Tue, 30 Sep 2003 16:56:21 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Pau Aliagas <linuxnow@newtral.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: multimedia keys not working in 2.6.0-test6
-Message-ID: <20030930145621.GA1297@win.tue.nl>
-References: <Pine.LNX.4.44.0309301351220.2486-100000@pau.intranet.ct>
+	Tue, 30 Sep 2003 11:08:52 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:58108 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261553AbTI3PIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 11:08:48 -0400
+Date: Tue, 30 Sep 2003 16:08:25 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       richard.brunner@amd.com
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20030930150825.GD5507@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jamie Lokier <jamie@shareable.org>, akpm@osdl.org,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org,
+	richard.brunner@amd.com
+References: <20030930073814.GA26649@mail.jlokier.co.uk> <20030930132211.GA23333@redhat.com> <20030930133936.GA28876@mail.shareable.org> <20030930135324.GC5507@redhat.com> <20030930144526.GC28876@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309301351220.2486-100000@pau.intranet.ct>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030930144526.GC28876@mail.shareable.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 01:54:59PM +0200, Pau Aliagas wrote:
+On Tue, Sep 30, 2003 at 03:45:26PM +0100, Jamie Lokier wrote:
 
-> These are the messages I get when pressing P1 and P2 in my laptop.
-> 
-> kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x153, data 0x74, on isa0060/serio0).
-> kernel: atkbd.c: Unknown key released (translated set 2, code 0x153, data 0xf4, on isa0060/serio0).
-> 
-> Email and browser keys report a correct code and I can bind thm to any app 
-> using xbindkeys, but with thes two there's no way.
+ > > And those people are wrong. If they want to save bloat, instead of
+ > > 'fixing' things by removing <1 page of .text, how about working on
+ > > some of the real problems like shrinking some of the growth of various
+ > > data structures that actually *matter*.
+ > How about both?
 
-These keys produce scancode e0 74. Untranslated e0 53.
-Entry 0x153 of atkbd_set2_keycode[] is 0, that is why
-the key is called unknown.
+Sounds like wasted effort, in the same sense that rewriting a crap
+algorithm in assembly won't be better than using a more efficient
+algorithm in C.
 
-The normal way of assigning a keycode is by using setkeycodes.
-This uses the KDSETKEYCODE ioctl, but it is broken at present.
+ > I'm talking about people with embedded 486s or old 486s donated.  P4s
+ > are abundant in RAM
 
-The reason is that it is written to use 0-127 for scancode xx
-and 128-255 for scancode pair e0 xx. (Translated set2, of course.)
-However, the current kernel untranslates what the keyboard sends
-and then uses a scancode-to-keycode mapping for untranslated set 2.
-That breaks this ioctl.
-Moreover, it uses a shift of 256 instead of 128 for e0.
-That also breaks this ioctl.
+Mine has 256MB. Sure its a huge amount in comparison to how we kitted
+out 486s a few years back, but still hardly an abundance in todays bloatware..
 
-So, today the easiest way of getting these keys to work is to
-edit kernel source: linux/drivers/input/keyboard/atkbd.c
-and adapt atkbd_set2_keycode[0x153]. This is the line
- 226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
-if I am not mistaken, of which you want to change the fourth
-number, the third zero, to the desired keycode.
+ > but 2MB is still not unheard of in the small
+ > boxes, and in 2MB, 512 bytes of code (which is about the size of the
+ > prefetch workaround) is more significant.
 
-In the meantime we can worry about the best way to fix this ioctl.
+I'l be *amazed* if you manage to get a 2.6 kernel to boot and function
+efficiently in 2MB without config'ing away a lot of the 'growth' like
+sysfs. (Sidenote: Before some loon actually tries this, by function
+efficiently, I mean is actually usable for some purpose, not "it booted
+to a bash prompt")
+ 
+ > > F00F workaround was enabled on every kernel that is possible
+ > > to boot on affected hardware last time I looked.
+ > > This is what you seem to be missing, it's not optional.
+ > > If its possible to boot that kernel on affected hardware, 
+ > > it needs errata workarounds.
+ > 
+ > We have a few confusing issues here.
+ > 
+ > 1. First, your point about affected hardware.
+ > 
+ >    - I don't see anything that prevents a PPro-compiled kernel from booting
+ >      on a P5MMX with the F00F erratum.
 
-Andries
+Compiled with -m686 - Uses CMOV, won't boot.
+
+ >    - Nor do I see anything that prevents a PII-compiled kernel from booting
+ >      on a PPro with the store ordering erratum (X86_PPRO_FENCE).
+
+Correct. As noted in another mail, it arguably should contain the
+workaround.
+
+ >    Perhaps it's this apparent hypocrisy which needs healing.
+
+Agreed.
+
+ > 2. I'm not sure if you're criticising the other chap who wants
+ >    rid of the AMD errata workaround, or my X86_PREFETCH_FIXUP code.
+
+My criticism was twofold.
+
+1. The splitting of X86_FEATURE_XMM into X86_FEATURE_XMM_PREFETCH and
+   X86_FEATURE_3DNOW_PREFETCH doesn't seem to really buy us anything
+   other than complication.
+2. THis chunk...
+
++       /* Prefetch works ok? */
++#ifndef CONFIG_X86_PREFETCH_FIXUP
++       if (c->x86_vendor != X86_VENDOR_AMD || c->x86 < 6)
++#endif
++       {
++               if (cpu_has(c, X86_FEATURE_XMM))
++                       set_bit(X86_FEATURE_XMM_PREFETCH, c->x86_capability);
++               if (cpu_has(c, X86_FEATURE_3DNOW))
++                       set_bit(X86_FEATURE_3DNOW_PREFETCH, c->x86_capability);
++       }
+
+- If we haven't set CONFIG_X86_PREFETCH_FIXUP (say a P4 kernel), this
+  code path isn't taken, and we end up not doing prefetches on P4's too
+  as you're not setting X86_FEATURE_XMM_PREFETCH anywhere else, and apply_alternatives
+  leaves them as NOPs.
+- Newer C3s are 686's with prefetch, this nobbles them too.
 
 
-By the way - what keyboard do you have?
-e0 74 is not a very common code.
-Could you collect the scancodes and keycaps for the multimedia
-or other unusual keys using "showkey -s" and mail to aeb@cwi.nl ?
-I would like to add your data to the database at
-  http://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
+ >    In case you hadn't fully grokked it, my code doesn't disable the
+ >    workaround!  It simply substitutes it for a smaller, slightly
+ >    slower one, on kernels which are not optimised for AMD.
 
+See above. Or have I missed something ?
+
+ >    Given that, I'm not sure what the thrust of your argument is.
+
+It's possible I'm missing something silly..
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbRBFS5W>; Tue, 6 Feb 2001 13:57:22 -0500
+	id <S129383AbRBFS7M>; Tue, 6 Feb 2001 13:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRBFS5C>; Tue, 6 Feb 2001 13:57:02 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:36466 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129092AbRBFS4v>; Tue, 6 Feb 2001 13:56:51 -0500
-Date: Tue, 6 Feb 2001 13:54:45 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
+	id <S129754AbRBFS7C>; Tue, 6 Feb 2001 13:59:02 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:27658 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129383AbRBFS6n>;
+	Tue, 6 Feb 2001 13:58:43 -0500
+Date: Tue, 6 Feb 2001 19:58:04 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
         Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
@@ -17,43 +18,37 @@ cc: "Stephen C. Tweedie" <sct@redhat.com>,
         <kiobuf-io-devel@lists.sourceforge.net>,
         Ingo Molnar <mingo@redhat.com>
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.30.0102061932040.7249-100000@elte.hu>
-Message-ID: <Pine.LNX.4.30.0102061338380.15204-100000@today.toronto.redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0102061338380.15204-100000@today.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.30.0102061955380.7919-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Ingo Molnar wrote:
 
-> If you are merging based on (device, offset) values, then that's lowlevel
-> - and this is what we have been doing for years.
->
-> If you are merging based on (inode, offset), then it has flaws like not
-> being able to merge through a loopback or stacked filesystem.
+On Tue, 6 Feb 2001, Ben LaHaise wrote:
 
-I disagree.  Loopback filesystems typically have their data contiguously
-on disk and won't split up incoming requests any further.
+> 	- reduce the overhead in submitting block ios, especially for
+> 	  large ios. Look at the %CPU usages differences between 512 byte
+> 	  blocks and 4KB blocks, this can be better.
 
-Here are the points I'm trying to address:
+my system is already submitting 4KB bhs. If anyone's raw-IO setup submits
+512 byte bhs thats a problem of the raw IO code ...
 
-	- reduce the overhead in submitting block ios, especially for
-	  large ios. Look at the %CPU usages differences between 512 byte
-	  blocks and 4KB blocks, this can be better.
-	- make asynchronous io possible in the block layer.  This is
-	  impossible with the current ll_rw_block scheme and io request
-	  plugging.
-	- provide a generic mechanism for reordering io requests for
-	  devices which will benefit from this.  Make it a library for
-	  drivers to call into.  IDE for example will probably make use of
-	  it, but some high end devices do this on the controller.  This
-	  is the important point: Make it OPTIONAL.
+> 	- make asynchronous io possible in the block layer.  This is
+> 	  impossible with the current ll_rw_block scheme and io request
+> 	  plugging.
 
-You mentioned non-spindle base io devices in your last message.  Take
-something like a big RAM disk.  Now compare kiobuf base io to buffer head
-based io.  Tell me which one is going to perform better.
+why is it impossible?
 
-		-ben
+> You mentioned non-spindle base io devices in your last message.  Take
+> something like a big RAM disk. Now compare kiobuf base io to buffer
+> head based io. Tell me which one is going to perform better.
+
+roughly equal performance when using 4K bhs. And a hell of a lot more
+complex and volatile code in the kiobuf case.
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

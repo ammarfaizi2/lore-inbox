@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312817AbSDXX03>; Wed, 24 Apr 2002 19:26:29 -0400
+	id <S312846AbSDXXv0>; Wed, 24 Apr 2002 19:51:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312834AbSDXX03>; Wed, 24 Apr 2002 19:26:29 -0400
-Received: from s2.org ([195.197.64.39]:59291 "EHLO kalahari.s2.org")
-	by vger.kernel.org with ESMTP id <S312817AbSDXX01>;
-	Wed, 24 Apr 2002 19:26:27 -0400
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.9 - HPT366 ide unexpected interrupts
-In-Reply-To: <3CC5BAA3.3080705@wanadoo.fr>
-From: Jarno Paananen <jpaana@s2.org>
-Date: 25 Apr 2002 02:26:25 +0300
-Message-ID: <m3u1q0smou.fsf@kalahari.s2.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S312850AbSDXXvZ>; Wed, 24 Apr 2002 19:51:25 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3084 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312846AbSDXXvY>; Wed, 24 Apr 2002 19:51:24 -0400
+From: Daniel Quinlan <quinlan@transmeta.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15559.17638.605450.368606@transmeta.com>
+Date: Wed, 24 Apr 2002 16:51:02 -0700 (PDT)
+To: linux-kernel@vger.kernel.org
+Cc: Johan Adolfsson <johan.adolfsson@axis.com>, quinlan@transmeta.com
+Subject: Re: [PATCH and RFC] Compact time in cramfs 
+In-Reply-To: <Pine.LNX.4.33.0204241009040.24998-100000@ado-2.axis.se>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: quinlan@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
+Johan Adolfsson writes:
 
-| PIII 650/Abit BE6 HPT366(ide2, ide3)
-| 
-| dmesg gives 482 times the same line :
-| ide: unexpected interrupt 0 11
-| 
-| sylogd logs the same :
-| ide: unexpected interrupt 0 11
-| last message repeated 1820 times
-| last message repeated 4251 times
-| last message repeated 272 times
-| last message repeated 69 times
-| 
-| # cat /proc/interrupts
-|             CPU0
-|    0:     166782          XT-PIC  timer
-|    1:       6631          XT-PIC  keyboard
-|    2:          0          XT-PIC  cascade
-|    8:          0          XT-PIC  rtc
-|    9:       4456          XT-PIC  Ensoniq AudioPCI, usb-uhci
-|   10:          0          XT-PIC  eth0
-|   11:      10854          XT-PIC  ide2, ide3
-|   12:      30840          XT-PIC  PS/2 Mouse
-|   15:          1          XT-PIC  ide1
-| NMI:          0
-| LOC:     166737
-| ERR:          0
+> The following patch gives a cramfs filesystem a single timestamp
+> stored in the superblock. It uses the "future" field so no space is
+> wasted.  mkcramfs uses the newest mtime or ctime from the
+> filesystem.
 
-I get this same "error" with hpt370 controller (Abit KT7A-RAID),
-but only if I have more than one disk attached. I recently added a
-second disk to the second controller and got this since. Everything
-seems to work ok so it might be only something the ide-driver
-doesn't understand when one chip has two ide-busses sharing the
-same interrupt. I commented the printk out from ide.c and haven't
-had any problems with it.
+Agreed, it seems like a good idea to have a filesystem timestamp.
 
-// Jarno
+The future field should probably be saved for use as the offset of a
+"secondary superblock" (or something like that) rather than squandered
+for one field.  At least, I think that was the original intent for the
+field and it has always been my plan.
+
+Maybe it would be easiest to overload the super.fsid.edition field?
+Then you could have an option (probably a backward-compatible flag in
+the superblock, but could be compile-time or mount-time) that indicates
+that the edition number is a timestamp.
+
+- Dan

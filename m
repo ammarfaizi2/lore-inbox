@@ -1,74 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266011AbUFIWXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266021AbUFIWXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbUFIWXB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 18:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUFIWXB
+	id S266021AbUFIWXu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 18:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUFIWXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 18:23:01 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:61364 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S266011AbUFIWW6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 18:22:58 -0400
-Message-ID: <40C78DC0.6080405@g-house.de>
-Date: Thu, 10 Jun 2004 00:22:56 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix minor typo in Documentation/as-iosched.txt
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------020401090200010206010902"
+	Wed, 9 Jun 2004 18:23:49 -0400
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:8188 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S266016AbUFIWXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 18:23:36 -0400
+Subject: PATCH: 2.6.7-rc3 drivers/scsi/cpqfcTSinit.c several user/kernel
+	pointer bugs
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: linux-scsi@vger.kernel.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Jun 2004 15:23:34 -0700
+Message-Id: <1086819814.14180.86.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020401090200010206010902
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Since "ioc" is copied from user-space, vendor_cmd = ioc.argp cannot be trusted,
+so derefing vendor_cmd via expressions like "vendor_cmd->len" is unsafe.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Let me know if you have any questions, and I apologize if I've made a mistake 
+in my analysis.
 
-/sys/block/*/iosched/ seems to be /sys/block/*/queue/iosched/ in recent
-2.6 kernels.
+Best,
+Rob
 
-signed-off by: evil@g-house.de
-(do we need this too for Documentation/ "patches"?)
 
-Thanks,
-Christian.
-- --
-BOFH excuse #400:
+--- linux-2.6.7-rc3-full/drivers/scsi/cpqfcTSinit.c.orig	Wed Jun  9 12:20:15 2004
++++ linux-2.6.7-rc3-full/drivers/scsi/cpqfcTSinit.c	Wed Jun  9 12:18:50 2004
+@@ -556,7 +556,7 @@ int cpqfcTS_ioctl( struct scsi_device *S
+   struct scsi_cmnd *DumCmnd;
+   int i, j;
+   VENDOR_IOCTL_REQ ioc;
+-  cpqfc_passthru_t *vendor_cmd;
++  cpqfc_passthru_t vendor_cmd;
+   Scsi_Device *SDpnt;
+   Scsi_Request *ScsiPassThruReq;
+   cpqfc_passthru_private_t *privatedata;
+@@ -590,12 +590,14 @@ int cpqfcTS_ioctl( struct scsi_device *S
+         if( copy_from_user( &ioc, arg, sizeof( VENDOR_IOCTL_REQ)))
+ 		return( -EFAULT);
+ 
+-	vendor_cmd = ioc.argp;  // i.e., CPQ specific command struct
++        // CPQ specific command struct
++	if (copy_from_user(&vendor_cmd, ioc.argp, sizeof(vendor_cmd)))
++		return (-EFAULT); 
+ 
+ 	// If necessary, grab a kernel/DMA buffer
+-	if( vendor_cmd->len)
++	if( vendor_cmd.len)
+ 	{
+-  	  buf = kmalloc( vendor_cmd->len, GFP_KERNEL);
++  	  buf = kmalloc( vendor_cmd.len, GFP_KERNEL);
+ 	  if( !buf)
+ 	    return -ENOMEM;
+ 	}
+@@ -613,10 +615,10 @@ int cpqfcTS_ioctl( struct scsi_device *S
+ 		return -ENOMEM;
+ 	}
+ 
+-	if (vendor_cmd->rw_flag == VENDOR_WRITE_OPCODE) {
+-		if (vendor_cmd->len) { // Need data from user?
+-        		if (copy_from_user(buf, vendor_cmd->bufp, 
+-						vendor_cmd->len)) {
++	if (vendor_cmd.rw_flag == VENDOR_WRITE_OPCODE) {
++		if (vendor_cmd.len) { // Need data from user?
++        		if (copy_from_user(buf, vendor_cmd.bufp, 
++						vendor_cmd.len)) {
+ 				kfree(buf);
+ 				cpqfc_free_private_data(cpqfcHBAdata, 
+ 					ScsiPassThruReq->upper_private_data);
+@@ -625,7 +627,7 @@ int cpqfcTS_ioctl( struct scsi_device *S
+ 			}
+ 		}
+ 		ScsiPassThruReq->sr_data_direction = SCSI_DATA_WRITE; 
+-	} else if (vendor_cmd->rw_flag == VENDOR_READ_OPCODE) {
++	} else if (vendor_cmd.rw_flag == VENDOR_READ_OPCODE) {
+ 		ScsiPassThruReq->sr_data_direction = SCSI_DATA_READ; 
+ 	} else
+ 		// maybe this means a bug in the user app
+@@ -642,12 +644,12 @@ int cpqfcTS_ioctl( struct scsi_device *S
+ 	// FC Link events with our "worker thread".
+ 
+ 	privatedata = ScsiPassThruReq->upper_private_data;
+-	privatedata->bus = vendor_cmd->bus;
+-	privatedata->pdrive = vendor_cmd->pdrive;
++	privatedata->bus = vendor_cmd.bus;
++	privatedata->pdrive = vendor_cmd.pdrive;
+ 	
+         // eventually gets us to our own _quecommand routine
+ 	scsi_wait_req(ScsiPassThruReq, 
+-		&vendor_cmd->cdb[0], buf, vendor_cmd->len, 
++		&vendor_cmd.cdb[0], buf, vendor_cmd.len, 
+ 		10*HZ,  // timeout
+ 		1);	// retries
+         result = ScsiPassThruReq->sr_result;
+@@ -655,12 +657,12 @@ int cpqfcTS_ioctl( struct scsi_device *S
+         // copy any sense data back to caller
+         if( result != 0 )
+ 	{
+-	  memcpy( vendor_cmd->sense_data, // see struct def - size=40
++	  memcpy( vendor_cmd.sense_data, // see struct def - size=40
+ 		  ScsiPassThruReq->sr_sense_buffer, 
+ 		  sizeof(ScsiPassThruReq->sr_sense_buffer) <
+-                  sizeof(vendor_cmd->sense_data)           ?
++                  sizeof(vendor_cmd.sense_data)           ?
+                   sizeof(ScsiPassThruReq->sr_sense_buffer) :
+-                  sizeof(vendor_cmd->sense_data)
++                  sizeof(vendor_cmd.sense_data)
+                 ); 
+ 	}
+         SDpnt = ScsiPassThruReq->sr_device;
+@@ -669,9 +671,9 @@ int cpqfcTS_ioctl( struct scsi_device *S
+         ScsiPassThruReq = NULL;
+ 
+ 	// need to pass data back to user (space)?
+-	if( (vendor_cmd->rw_flag == VENDOR_READ_OPCODE) &&
+-	     vendor_cmd->len )
+-        if(  copy_to_user( vendor_cmd->bufp, buf, vendor_cmd->len))
++	if( (vendor_cmd.rw_flag == VENDOR_READ_OPCODE) &&
++	     vendor_cmd.len )
++        if(  copy_to_user( vendor_cmd.bufp, buf, vendor_cmd.len))
+ 		result = -EFAULT;
+ 
+         if( buf) 
 
-We are Microsoft.  What you are experiencing is not a problem; it is an
-undocumented feature.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAx43A+A7rjkF8z0wRAsJFAKCuq2SVJd++wQv3YgMEqcnLQvJJawCdFSkx
-eVDpqBZGtoZKsRIgPVa7KJs=
-=YAxK
------END PGP SIGNATURE-----
-
---------------020401090200010206010902
-Content-Type: text/plain;
- name="as-iosched.txt.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="as-iosched.txt.diff"
-
-LS0tIGxpbnV4LTIuNi9Eb2N1bWVudGF0aW9uL2FzLWlvc2NoZWQudHh0Lm9yaWcJMjAwNC0w
-Ni0wOSAyMjo1OTowMy4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi9Eb2N1bWVudGF0
-aW9uL2FzLWlvc2NoZWQudHh0CTIwMDQtMDYtMDkgMjM6MDA6MDcuMDAwMDAwMDAwICswMjAw
-CkBAIC0xMzIsNyArMTMyLDcgQEAKIFR1bmluZyB0aGUgYW50aWNpcGF0b3J5IElPIHNjaGVk
-dWxlcgogLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiBXaGVuIHVzaW5n
-ICdhcycsIHRoZSBhbnRpY2lwYXRvcnkgSU8gc2NoZWR1bGVyIHRoZXJlIGFyZSA1IHBhcmFt
-ZXRlcnMgdW5kZXIKLS9zeXMvYmxvY2svKi9pb3NjaGVkLy4gQWxsIGFyZSB1bml0cyBvZiBt
-aWxsaXNlY29uZHMuCisvc3lzL2Jsb2NrLyovcXVldWUvaW9zY2hlZC8uIEFsbCBhcmUgdW5p
-dHMgb2YgbWlsbGlzZWNvbmRzLgogCiBUaGUgcGFyYW1ldGVycyBhcmU6CiAqIHJlYWRfZXhw
-aXJlCg==
---------------020401090200010206010902--

@@ -1,72 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270447AbVBFH3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270981AbVBFHgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270447AbVBFH3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 02:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270613AbVBFH3W
+	id S270981AbVBFHgn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 02:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbVBFHgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 02:29:22 -0500
-Received: from smtpout.mac.com ([17.250.248.46]:47819 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S270447AbVBFHZu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 02:25:50 -0500
-In-Reply-To: <9e473391050205224960767ad0@mail.gmail.com>
-References: <9e4733910502051745c25d6f@mail.gmail.com> <20050206040526.GA2908@redhat.com> <9e4733910502052158491b5ce3@mail.gmail.com> <20050206060839.GA19330@redhat.com> <9e473391050205224960767ad0@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <48A69787-7810-11D9-82FF-000393ACC76E@mac.com>
+	Sun, 6 Feb 2005 02:36:42 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:26554 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262481AbVBFHgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 02:36:23 -0500
+Message-ID: <4205C8EF.2000604@yahoo.com.au>
+Date: Sun, 06 Feb 2005 18:36:15 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, bstroesser@fujitsu-siemens.com,
+       roland@redhat.com, jdike@addtoit.com, blaisorblade_spam@yahoo.it,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix wait_task_inactive race (was Re: Race condition in
+ ptrace)
+References: <42021E35.8050601@fujitsu-siemens.com> <4202C18F.5010605@yahoo.com.au> <42036C2C.5040503@fujitsu-siemens.com> <4203F40C.8040707@yahoo.com.au> <20050204143917.1f9507cb.akpm@osdl.org> <4204020F.2000501@yahoo.com.au> <42044D17.5040703@yahoo.com.au> <42058E52.8030306@yahoo.com.au> <20050206071935.GA19991@elte.hu>
+In-Reply-To: <20050206071935.GA19991@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Intel AGP support attaching to wrong PCI IDs
-Date: Sun, 6 Feb 2005 02:25:31 -0500
-To: Jon Smirl <jonsmirl@gmail.com>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 06, 2005, at 01:49, Jon Smirl wrote:
-> X on GL is already written and is part of the xserver project. This
-> will run on the standalone OpenGL stack. Combine this with Cairo/Glitz
-> and we have a graphics system that can compete with Windows Longhorn.
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>>When a task is put to sleep, it is dequeued from the runqueue
+>>while it is still running. The problem is that the runqueue
+>>lock can be dropped and retaken in schedule() before the task
+>>actually schedules off, and wait_task_inactive did not account
+>>for this.
+> 
+> 
+> ugh. This has been the Nth time we got bitten by the fundamental
+> unrobustness of non-atomic scheduling on some architectures ...
+> (And i'll say the N+1th time that this is not good.)
+> 
 
-Why compete with vaporware (mostly)? If you really want to see a 
-complete
-modern graphics system, check out OS X.  See the below screenshots for
-one example.
+This is actually due to wake_sleeping_dependent and
+dependent_sleeper dropping the runqueue lock.
 
-http://tjhsst.edu/~kmoffett/2k4-1.png
-http://tjhsst.edu/~kmoffett/2k4-2.png
+Actually idle_balance can (in rare cases) drop the lock as well,
+which I didn't notice earlier, so it is something that we
+have been doing forever. The smtnice locking has just exposed
+the problem for us, so I wrongfully bashed it earlier *blush*.
 
-The rendered window from 2k4 has been distorted by the windowing system
-post-processing using a mesh transform.  It runs just as quickly this
-way as it does full screen normally, at least as far as I can tell
-while playing. :-D A truely well-performing graphics system should be
-able to handle multiple applications processing to generate a single
-output stream without effort.  I also ran some informal and simple
-end-user-style tests a while back where I rapidly switched between and
-moved around the following windows (each distorted in the same way):
-	1)	A UT2k4 window playing a demo
-	2)	A couple translucent terminal windows continuously scrolling
-		text
-	3)	A DVD player window playing The Matrix
-	4)	A couple Quicktime player windows with movies running
+> 
+>>+static int task_onqueue(runqueue_t *rq, task_t *p)
+>>+{
+>>+	return (p->array || task_running(rq, p));
+>>+}
+> 
+> 
+> the fix looks good, but i'd go for the simplified oneliner patch below. 
+> I dont like the name 'task_onqueue()', a because a task is 'on the
+> queue' when it has p->array != NULL. The task is running when it's
+> task_running().  On architectures with nonatomic scheduling a task may
+> be running while not on the queue and external observers with the
+> runqueue lock might notice this - and wait_task_inactive() has to take
+> care of this case. I'm not sure how introducing a function named
+> "task_onqueue()" will make the situation any clearer.
+> 
+> ok?
+> 
 
-The best part was: ~60 FPS on everything, despite the distortions,
-translucency, rapid movement, DVD playing, etc.  I hope that when the
-new linux graphics and Soft-RT stuff is done it will be able to achieve
-similar performance. If my coding skills were a little more up to
-snuff, I would try to help out, but as it is, I fear I'd just muddy
-the waters :-\.
+Well just because there is a specific condition that both callsites
+require. That is, the task is neither running nor on the runqueue.
 
-Cheers,
-Kyle Moffett
+While task_onqueue is technically wrong if you're looking down into
+the fine details of the priority queue management, I think it is OK
+to go up a level of abstraction and say that the task is
+"on the runqueue" if it is either running or waiting to run.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+It is really the one condition that is made un-intuitive due to the
+locking in schedule(), so I thought formalising it would be better.
+Suggestions for a better name welcome? ;)
+
+Your one liner would fix the problem too, of course. The important
+thing at this stage is that it gets fixed for 2.6.11.
+
+Thanks,
+Nick
 
 

@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUIGSYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUIGSck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268360AbUIGSYg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 14:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268334AbUIGSXW
+	id S268421AbUIGSck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 14:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268400AbUIGSbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 14:23:22 -0400
-Received: from mail.mellanox.co.il ([194.90.237.34]:22936 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S268314AbUIGSSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:18:04 -0400
-Date: Tue, 7 Sep 2004 21:16:41 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040907181641.GB2154@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20040907134517.GA1016@mellanox.co.il> <20040907141524.GA13862@wotan.suse.de> <20040907142530.GB1016@mellanox.co.il> <20040907142945.GB20981@wotan.suse.de> <20040907143702.GC1016@mellanox.co.il> <20040907144452.GC20981@wotan.suse.de> <20040907144543.GA1340@mellanox.co.il> <20040907151022.GA32287@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907151022.GA32287@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 7 Sep 2004 14:31:52 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51963 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268356AbUIGSZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 14:25:51 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <413DFC06.5070604@namesys.com>
+Date: Tue, 07 Sep 2004 11:20:54 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+CC: David Masover <ninja@slaphack.com>,
+       Christer Weinigel <christer@weinigel.se>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
+       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
+       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Christoph Hellwig <hch@lst.de>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Chris Wedgwood <cw@f00f.org>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain> <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se> <413DA8EE.nailA301JQ74H@pluto.uni-freiburg.de>
+In-Reply-To: <413DA8EE.nailA301JQ74H@pluto.uni-freiburg.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Andi Kleen (ak@suse.de) "Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
-> On Tue, Sep 07, 2004 at 05:45:43PM +0300, Michael S. Tsirkin wrote:
-> > > > > but I cannot think of a good alternative. 
-> > > > > 
-> > > > 
-> > > > Maybe one entry point with a flag?
-> > > 
-> > > That would be IMHO far uglier than two. 
-> > > 
-> > > -Andi
-> > >
-> > 
-> > What would be a good name? ioctl32/ioctl64? ioctl_compat/ioctl_native?
-> 
-> Later two sound ok to me.
-> 
+Gunnar Ritter wrote:
 
-Wait, I think that a properly coded ioctl can always
-figure out this is a compat call by looking at the command
-(see example below).
-So maybe we can live with just one new entry point with these
-semantics?
+>
+>
+>You cannot just 'modify cp'. 
+>
+People who think that POSIX is the objective rather than the least 
+common denominator of OS design have had their head screwed on backwards 
+to better look at where their competitors used to be.
 
-MST
+However, I agree that streams suck.  That is why reiser4 just has files 
+and directories and not streams.  Our files and directories just happen 
+to be able to do all that streams can do.
 
-Example:
-
-my_ioctl.h
-
-//This structure size is different on 32 and 64 bit systems
-struct my_foo {
-  long foobar;
-};
-
-#define FOO _IOR(MY_MAGIC,0,struct my_foo)
-
-//
-my_ioctl.c
-
-struct my_foo32 {
-  int foobar;
-};
-#define FOO32 _IOR(MY_MAGIC,0,struct my_foo32)
-
-static int ioctl_native (struct inode *inode, struct file *file, unsigned int
-    opcode, unsigned long udata_l);
-static int ioctl_compat (struct inode *inode, struct file *file, unsigned int
-    opcode, unsigned long udata_l);
-
-static int ioctl (struct inode *inode, struct file *file, unsigned int
-    opcode, unsigned long udata_l)
-{
-  switch (opcode)
-  {
-    case FOO32:
-      return ioctl_compat(inode,file,opcode,udata_l);
-    case FOO:
-    default:
-      return ioctl_native(inode,file,opcode,udata_l);
-  }
-}
-
+Hans

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUIQKaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268669AbUIQKa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268674AbUIQKaj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 06:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbUIQKaj
+	id S268669AbUIQKa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 06:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268670AbUIQKa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 06:30:39 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:4563 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S268674AbUIQKaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 06:30:35 -0400
-From: Michael Scondo <michael.scondo@arcor.de>
-Reply-To: michael.scondo@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: vfat bug - solved
-Date: Fri, 17 Sep 2004 12:30:07 +0200
-User-Agent: KMail/1.7
-References: <200409170013.20712.michael.scondo@arcor.de> <20040917020405.GB2573@MAIL.13thfloor.at>
-In-Reply-To: <20040917020405.GB2573@MAIL.13thfloor.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 17 Sep 2004 06:30:26 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:14094 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268669AbUIQK1g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 06:27:36 -0400
+Date: Fri, 17 Sep 2004 20:27:20 +1000
+To: Martin Bouzek <martin.bouzek@radas-atc.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, davem@davemloft.net,
+       netdev@oss.sgi.com
+Subject: Re: Minor IPSec bug + solution
+Message-ID: <20040917102720.GA14579@gondor.apana.org.au>
+References: <E1C83f1-0002X7-00@gondolin.me.apana.org.au> <1095413173.2708.106.camel@mabouzek>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409171230.07524.michael.scondo@arcor.de>
+In-Reply-To: <1095413173.2708.106.camel@mabouzek>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 17. September 2004 04:04 schrieb Herbert Poetzl:
-> On Fri, Sep 17, 2004 at 12:13:20AM +0200, Michael Scondo wrote:
-> > Hello..
-> > I've just compiled a new kernel ( 2.6.8.1 ), and now I'm not able to
-> > mount my fat32 partitions anymore.
-> >
-> > mount /dev/hda7 /mnt
-> > mount: wrong fs type, bad option, bad superblock on /dev/hda7,
-> >        or too many mounted file systems
-> >
-> > :-(
-> >
-> > Every works still fine with 2.6.4, but I'm not sure, whether this occurs
-> > due to a bug in the kernel or because a wrong build process.
-> > Therefore I'm posting this to the list.
+On Fri, Sep 17, 2004 at 11:26:13AM +0200, Martin Bouzek wrote:
 >
-> check the kernel ring buffer (dmesg) for codepages which
-> are requested but not found (or other strange messages)
-> which appear when you 'try' to mount the filesystem
->
-> HTH,
-> Herbert
+> > > function. For tunnels it returns 
+> > > 
+> > > tmpl->optional && !xfrm_state_addr_cmp(tmpl, x, family);
+> 
+> Well, I am not expierienced with the networking kernel code,
+> nevertheless I still think the check is not correct. 
 
-Yes, the module fat wasn´t able to find cp437 as well as the charset 
-iso8859-1. ( both configured as default )
-If I pass the options "-o codepage=850,iocharset=iso8859-15" to mount, 
-everything works fine.
-Maybe, I should have been a little bit more watchful while configuring.
-But weren't it sensible to provide a mechanism, which prevent's such a silly 
-configuration ?
-
-Thanks a lot 
-Micha
-
-
-
+If you change the && to ||, then an ESP tunnel SA marked as required
+can be matched by a simple IPIP SA with the same addresses.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

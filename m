@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282388AbRKXHe3>; Sat, 24 Nov 2001 02:34:29 -0500
+	id <S282393AbRKXHjt>; Sat, 24 Nov 2001 02:39:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282389AbRKXHeT>; Sat, 24 Nov 2001 02:34:19 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:26892 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S282388AbRKXHeF>; Sat, 24 Nov 2001 02:34:05 -0500
-Date: Fri, 23 Nov 2001 23:33:51 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: First new fbdev driver
-Message-ID: <Pine.LNX.4.10.10111232320130.20244-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282389AbRKXHjj>; Sat, 24 Nov 2001 02:39:39 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:21890 "EHLO
+	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S282390AbRKXHja>;
+	Sat, 24 Nov 2001 02:39:30 -0500
+Date: Sat, 24 Nov 2001 00:33:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, zab@zabbo.net
+Subject: No recording on maestro3 (hp omnibook xe3)
+Message-ID: <20011124003330.A106@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hi folks!!!
+When I do cat /dev/dsp, I get no data, and 
 
-   As some might know I have been working for the last year in my spare
-time on the linux console project. Well it ended up as a total rewrite of
-the tty/console layer. In the new design the the tty/console layer is
-composed of seperate subsystems which can exist independently outside of
-the tty layer. Thus the tty layer is constructed from these subsystems.
-This makes for a cleaner mor emodular design. Some of things done are:
+Nov 24 00:31:55 amd kernel: read: chip lockup? dmasz 65536 fragsz 64 count 0 hwptr 0 swptr 0
+Nov 24 00:31:58 amd last message repeated 3 times
 
-1) New framebuffer api. This new api allows the fbramebuffer layer to
-   exist without a framebuffer console. This makes for a much simpler 
-   api and much smaller code. Plus on embedded devices like a iPAQ have
-   a VT console doesn't make sense. Okay a stowaway does change that. 
-   But it would be nice if the VT system was modular and loadable :-)
-   This is what we are working at. Pretty much complete.
-
-2) Moving all the keyboards and other input devices over to the input
-   api. Also makes for a nice modular design. Alot of work done.
-
-3) Rewrite of the serial layer to be more like the parport layer. Here
-   we have a hardware layer that registers ports and then we bind
-   device interface drivers to specific ports. It makes no sense to use
-   a serial tty to talk to a serial joystick for example. Plus their is a
-   extra cost of going threw needless layers. This is partially complete
-   but needs alot fo work.
-
-So expect patches. I also look forward to working with people to port
-devices over to these new APIs. Thank you.
-
-
+in the log. Is there way to help me? linux 2.4.14
+							Pavel
+-- 
+<sig in construction>

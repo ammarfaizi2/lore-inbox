@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVB1UZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVB1U2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVB1UZG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:25:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVB1UZG
+	id S261711AbVB1U2e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVB1U2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:25:06 -0500
-Received: from soundwarez.org ([217.160.171.123]:14235 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261710AbVB1UYv (ORCPT
+	Mon, 28 Feb 2005 15:28:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:10908 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261711AbVB1U2S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:24:51 -0500
-Date: Mon, 28 Feb 2005 21:24:43 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: split kobject creation and hotplug event generation
-Message-ID: <20050228202443.GA25248@vrfy.org>
-References: <20050226055316.GA14317@vrfy.org> <20050228194642.GA21323@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228194642.GA21323@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 28 Feb 2005 15:28:18 -0500
+Date: Mon, 28 Feb 2005 12:29:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: two pipe bugfixes
+In-Reply-To: <20050228195556.GL8880@opteron.random>
+Message-ID: <Pine.LNX.4.58.0502281227300.25732@ppc970.osdl.org>
+References: <20050228042544.GA8742@opteron.random>
+ <Pine.LNX.4.58.0502272143500.25732@ppc970.osdl.org> <20050228190437.GI8880@opteron.random>
+ <Pine.LNX.4.58.0502281113380.25732@ppc970.osdl.org> <20050228195556.GL8880@opteron.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28, 2005 at 11:46:42AM -0800, Greg KH wrote:
-> On Sat, Feb 26, 2005 at 06:53:16AM +0100, Kay Sievers wrote:
-> > This splits the implicit generation of a hotplug events from
-> > kobject_add() and kobject_del(), to give the user of of these
-> > functions control over the time the event is created.
-> > 
-> > The kobject_register() and unregister functions still have the same
-> > behavior and emit the events by themselves.
-> > 
-> > The class, block and device core is changed now to emit the hotplug
-> > event _after_ the "dev" file, the "device" symlink and the default
-> > attributes are created. This will save udev from spinning in a stat() loop
-> > to wait for the files to appear, which is expensive if we have a lot of
-> > concurrent events.
+
+
+On Mon, 28 Feb 2005, Andrea Arcangeli wrote:
 > 
-> So, does this solve the issue that everyone has been complaining about
-> for years with the hotplug event happening before the sysfs files are
-> present?
+> Thanks, I'll check it in the next bk snapshot.
 
-I expect most of them, yes. It is not a guarantee, cause drivers can and will
-create attributes at any time. :) But the most interesting default ones, that
-people tend to expect at event time will be there _before_ the event happens.
+Here's my version of the poll changes. The EPIPE one is just your original 
+first patch hunk (with a properly updated commit message).
 
-To get this for the whole system and not only the class+block core, a few remainig
-places that use kobject_register() need to be changed to use kobject_add(), but
-that is a trivial change and nice too, cause it cleans up some error pathes, where
-a device needs to be unregistered in the same function and it emits two completely
-useless events for that.
+		Linus
 
-> And if we add this, can we pretty much get rid of all of the
-> wait_for_sysfs like logic in udev?
+-----
 
-Yes, that was the motivation to do this. With all the hotplug env vars
-we have now, we can throw out all the compiled-in lists and if some crazy
-devices still need to wait, we can add something to udev's rule logic, that a
-configured rule will wait for that file to show up.
-
-Thanks,
-Kay
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/28 08:36:14-08:00 torvalds@ppc970.osdl.org 
+#   Make pipe "poll()" take direction of pipe into account.
+#   
+#   The pipe code has traditionally not cared about which end-point of the
+#   pipe you are polling, meaning that if you poll the write-only end of a
+#   pipe, it will still set the "this pipe is readable" bits if there is
+#   data to be read on the read side.
+#   
+#   That makes no sense, and together with the new bigger buffers breaks
+#   python-twisted.
+#   
+#   Based on debugging/patch by Andrea Arcangeli and testcase from
+#   Thomas Crhak
+# 
+# fs/pipe.c
+#   2005/02/28 08:36:06-08:00 torvalds@ppc970.osdl.org +11 -6
+#   Make pipe "poll()" take direction of pipe into account.
+# 
+diff -Nru a/fs/pipe.c b/fs/pipe.c
+--- a/fs/pipe.c	2005-02-28 12:28:35 -08:00
++++ b/fs/pipe.c	2005-02-28 12:28:35 -08:00
+@@ -398,13 +398,18 @@
+ 
+ 	/* Reading only -- no need for acquiring the semaphore.  */
+ 	nrbufs = info->nrbufs;
+-	mask = (nrbufs > 0) ? POLLIN | POLLRDNORM : 0;
+-	mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
++	mask = 0;
++	if (filp->f_mode & FMODE_READ) {
++		mask = (nrbufs > 0) ? POLLIN | POLLRDNORM : 0;
++		if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
++			mask |= POLLHUP;
++	}
+ 
+-	if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
+-		mask |= POLLHUP;
+-	if (!PIPE_READERS(*inode))
+-		mask |= POLLERR;
++	if (filp->f_mode & FMODE_WRITE) {
++		mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
++		if (!PIPE_READERS(*inode))
++			mask |= POLLERR;
++	}
+ 
+ 	return mask;
+ }

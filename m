@@ -1,200 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbUCJK5I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 05:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCJK5I
+	id S261978AbUCJLJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 06:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCJLJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 05:57:08 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:40084 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262571AbUCJK4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 05:56:07 -0500
-Date: Wed, 10 Mar 2004 11:53:06 +0100
-From: Vincent Touquet <vincent.touquet@pandora.be>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.25 clock problems on Athlon MP
-Message-ID: <20040310105306.GC19130@moo.mine.dnsalias.org>
-Reply-To: Vincent Touquet <vincent.touquet@pandora.be>
+	Wed, 10 Mar 2004 06:09:51 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:9223 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id S261978AbUCJLJr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 06:09:47 -0500
+Date: Wed, 10 Mar 2004 12:09:41 +0100
+To: Pavel Machek <pavel@suse.cz>
+Cc: patches@x86-64.org, kernel list <linux-kernel@vger.kernel.org>,
+       Cpufreq mailing list <cpufreq@www.linux.org.uk>, davej@redhat.com
+Subject: Re: powernow-k8 updates
+Message-ID: <20040310110941.GC28592@poupinou.org>
+References: <20040309214830.GA1240@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040309214830.GA1240@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
+From: Bruno Ducrot <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 09, 2004 at 10:48:31PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> This adds powernow-k8-acpi driver, which likes on more machines than
+> powernow-k8, but depends on acpi. I'd like to get this into
+> 2.6.5... Does it look okay?
+> 
+> Also if you have problems with your eMachines cpufreq, apply this and
+> switch to -acpi driver. It should fix it for you.
+> 								Pavel
+> 
+> 
+> --- clean/arch/i386/kernel/cpu/cpufreq/Kconfig	2004-02-05 01:53:54.000000000 +0100
+> +++ linux/arch/i386/kernel/cpu/cpufreq/Kconfig	2004-03-03 23:07:26.000000000 +0100
+> @@ -93,6 +93,19 @@
+>  	depends on CPU_FREQ && EXPERIMENTAL
+>  	help
+>  	  This adds the CPUFreq driver for mobile AMD Opteron/Athlon64 processors.
+> +	  It relies on old "PST" tables. Unfortunately, many BIOSes get this table
+> +	  wrong. 
+> +
+> +	  For details, take a look at linux/Documentation/cpu-freq. 
+> +
+> +	  If in doubt, say N.
+> +
+> +config X86_POWERNOW_K8_ACPI
+> +	tristate "AMD Opteron/Athlon64 PowerNow! using ACPI"
+> +	depends on CPU_FREQ && EXPERIMENTAL
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Why there is no dependency with ACPI here?
 
-With the attached config, I get weird clock problems on our
-Athlon MP box. When looking at the kdm greeter, the seconds
-on the clock sometimes go forward and sometimes go backward ...
-The clock has lost monotonicity.
+...
 
-Another symptom of this is as follows: when pinging a certain
-host, the replies arrive in a few ms, but the elapsed time is
-sometimes displayed as a huge number (eg. 46152871 ms [from 
-memory]), which shows that time has gone backwards during the 
-sending and the arrival of the ping, which breaks the latency
-estimate (trying to fit a negative value in an unsigned value).
+> --- clean/arch/i386/kernel/cpu/cpufreq/powernow-k8-acpi.c	2004-03-03 12:30:35.000000000 +0100
+> +++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k8-acpi.c	2004-03-06 00:31:44.000000000 +0100
+> @@ -0,0 +1,987 @@
+> +/*
+> + *   (c) 2003, 2004 Advanced Micro Devices, Inc.
+> + *  Your use of this code is subject to the terms and conditions of the
+> + *  GNU general public license version 2. See COPYING or
 
-The same box does not exhibit these problems in the 2.4.21 kernel.
+...
 
-Sorry, I didn't have time yet to search the archives for this problem.
-So if a patch already exists, sorry for the redundancy :)
+> +/*
+> + * Each processor may have
+> + * a different number of entries in its array. I.e., processor 0 may have
+> + * 3 pstates, processor 1 may have 5 pstates.
+> + */
 
-I will also be happy to provide more information when the machine is
-available again.
+No.  That will break current ACPI v2.0c specification.  All processors
+shall have the same number of states.  More, they have to support the
+same set of pairs of frequency/power consuption.
 
-best regards,
+If that is not acceptable by AMD, then you have to contact ACPI SIG
+at <http://www.acpi.info/> in order to change specs.
 
-Vincent
+...
 
-PS: attached: .config / lspci -vvv / lsmod
+For the last time, why on earth you still do not consider the ACPI
+perflib.  Links to the cpufreq-developper mailing list with even a kind
+of public access have been posted.  That will eliminate the following
+functions amongst other things.  Look at drivers/acpi/processor.c
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="config.gz"
-Content-Transfer-Encoding: base64
+> +static u32 query_ac(void)
+> +{
+> +	acpi_status rc;
+> +	unsigned long state;
+> +
+> +	if (psrh) {
+> +		rc = acpi_evaluate_integer(psrh, NULL, NULL, &state);
+> +		if (ACPI_SUCCESS(rc)) {
+> +			if (state == 1)
+> +				return POW_AC;
+> +			else if (state == 0)
+> +				return POW_BAT;
+> +			else
+> +				printk(EFX "psr state %lx\n", state);
+> +		}
+> +		else {
+> +			printk(EFX "error %x evaluating psr\n", rc );
+> +		}
+> +	}
+> +	return POW_UNK;
+> +}
+> +
+> +/* gives us the (optional) battery/thermal restrictions */
+> +static int process_ppc(acpi_handle objh)
+> +{
+> +	acpi_status rc;
+> +	unsigned long state;
+> +
+> +	if (objh) {
+> +		ppch = objh;
+> +	} else {
+> +		if (ppch) {
+> +			objh = ppch;
+> +		} else {
+> +			rstps = 0;
+> +			return 0;   
+> +		}
+> +	}
+> +
+> +	if (num_online_cpus() > 1) {
+> +		/* For future thermal support (next release?), rstps needs   */
+> +		/* to be per processor, and handled for the SMP case. Later. */
+> +		dprintk(EFX "ignoring attempt to restrict pstates for SMP\n");
+> +	}
+> +	else {
+> +		rc = acpi_evaluate_integer(objh, NULL, NULL, &state);
+> +		if (ACPI_SUCCESS(rc)) {
+> +			rstps = state & 0x0f;
+> +			//dprintk(DFX "pstate restrictions %x\n", rstps);
+> +			if (!seenrst)
+> +				seenrst = rstps;
+> +		}
+> +		else {
+> +			rstps = 0;
+> +			printk(EFX "error %x processing ppc\n", rc);
+> +			return -ENODEV;
+> +		}
+> +	}
+> +	return 0;
+> +}
 
-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
-ZRfAk2PrRXpUQlNGYB/f1Aj+H26E7kQTTgAA
+-- 
+Bruno Ducrot
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="lsmod.gz"
-Content-Transfer-Encoding: base64
-
-H4sICD/zTkAAA2xzbW9kAG2OwQ7CIBBE73wFRz00WSiF7UfoxXg2tUsMiS2JQIx+vYingnPZ
-ZPJmdg6e0t3yRif3zu45WOLX19c4+sjj5NZoiTk5d9NCZtDbUA9S5QN8l9aUo3v2xN6goLpd
-IAJsyfC4LL4BuVBCY0Xe2rlZEg1WnY5sF+bg6k5QP5JZAWVHpUFBAUQB/vxSOI66AB/PQOal
-QAEAAA==
-
---ZGiS0Q5IWpPtfppv
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="lspci.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---ZGiS0Q5IWpPtfppv--
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317211AbSFXASO>; Sun, 23 Jun 2002 20:18:14 -0400
+	id <S317212AbSFXAXe>; Sun, 23 Jun 2002 20:23:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317212AbSFXASN>; Sun, 23 Jun 2002 20:18:13 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40895 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317211AbSFXASM>; Sun, 23 Jun 2002 20:18:12 -0400
-Date: Sun, 23 Jun 2002 17:16:34 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>
-cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, Robert Love <rml@mvista.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, hbaum@us.ibm.com, cleverdj@us.ibm.com
-Subject: Re: [patch] 2.4.19-pre10-ac2: O(1) scheduler merge, -A3.
-Message-ID: <4198761039.1024852593@[10.10.2.3]>
-In-Reply-To: <20020618071626.GO22961@holomorphy.com>
-References: <20020618071626.GO22961@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317214AbSFXAXd>; Sun, 23 Jun 2002 20:23:33 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:64264 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S317212AbSFXAXc>; Sun, 23 Jun 2002 20:23:32 -0400
+Subject: Re: Gain, 2.5.24 breaks Evolution
+From: Miles Lane <miles@megapathdsl.net>
+To: Felipe Alfaro Solana <felipe_alfaro@msn.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1024833114.1385.11.camel@teapot>
+References: <1024833114.1385.11.camel@teapot>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 23 Jun 2002 17:19:30 -0700
+Message-Id: <1024877971.16413.4.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jun 17, 2002 at 11:00:26AM +0200, Ingo Molnar wrote:
->> irqbalance uses the set_ioapic_affinity() method to set affinity. The
->> clustered APIC code is broken if it doesnt handle this properly. (i dont
->> have such hardware so i cant tell, but it indeed doesnt appear to handle
->> this case properly.) By wrapping around at node boundary the irqbalance
->> code will work just fine.
+On Sun, 2002-06-23 at 04:51, Felipe Alfaro Solana wrote:
+> Hello,
 > 
-> Perhaps a brief look at the code will help. Please forgive my
-> non-preservation of whitespace as I cut and pasted it.
+> I don't want to be flamed. I know this question has been raised before
+> but I haven't been able to find an answer looking at the mail archives.
+> 
+> Why does 2.5.24 break applications like Evolution 1.0.7 or Ximian Gnome
+> Control Center 1.5.13? In both cases, using some functionality that
+> spawns new processes causes both applications to hang up. Has anyone
+> discovered the cause for this? Do you think it will be fixed soon? I'm a
+> little worried about this.
 
-IIRC, I set up the IOAPICs to use physical mode broadcast
-on all quads - physical broadcasts are quad-local, and thus
-the interrupt is always processesed by a cpu on the quad
-where it originated. Much simpler than trying to correctly
-program clustered logical mode broadcasts differently for
-every quad.
+I have conversed with Michael Meeks and Mark McLoughlin about this
+problem.  They agree that this is a bug in either the 2.5 kernel
+or in ORBit 1.x.  ORBit interacts with the kernel at a pretty
+low level in some places.  Neither Michael or Mark have time to
+look into this problem at the moment, since they are both busily
+working on the Gnome 2.0 release and neither of them have a test
+machine with the 2.5 kernel installed.
 
-You also don't want to end up reprogramming the IO-APICs
-cross-quad, you want a per-node thread to do this. We have
-2 IO-APICs per node.
+So, you and I will just have to be patient.  Eventually, this will
+get tracked down and fixed.
 
-Whilst balancing of some form is definitely valuable for a P4,
-I'm less convinced it's worthwhile for a P3 system. I presume
-what you're trying to achieve is cache warmth for the interrupt
-handling code at the expense of the cost of constantly reprogramming
-the IO-APICs. 
+Best wishes,
 
-At the very least, we need to have a simple disable config option 
-in order to benchmark whether this change is worthwhile for each subarchitecture.
-
-M.
+	Miles
 
 

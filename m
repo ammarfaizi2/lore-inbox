@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316606AbSGNNZh>; Sun, 14 Jul 2002 09:25:37 -0400
+	id <S316567AbSGNNcW>; Sun, 14 Jul 2002 09:32:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316611AbSGNNZg>; Sun, 14 Jul 2002 09:25:36 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:34688 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316606AbSGNNZf>; Sun, 14 Jul 2002 09:25:35 -0400
-Date: Sun, 14 Jul 2002 15:26:53 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141326.g6EDQr42019083@burner.fokus.gmd.de>
-To: linux-kernel@vger.kernel.org
+	id <S316611AbSGNNcV>; Sun, 14 Jul 2002 09:32:21 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:51186 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316567AbSGNNcV>; Sun, 14 Jul 2002 09:32:21 -0400
 Subject: Re: IDE/ATAPI in 2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200207141317.g6EDHEaK019069@burner.fokus.gmd.de>
+References: <200207141317.g6EDHEaK019069@burner.fokus.gmd.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 14 Jul 2002 15:44:31 +0100
+Message-Id: <1026657871.13885.41.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2002-07-14 at 14:17, Joerg Schilling wrote:
+> Did you ever looks at the ATAPI specs?
+> 
+> ATAPI _is_ SCSI over IDE with a few "bugs"/deviations:
 
->Thunder wrote:
+In other words as he said ATAPI is not SCSI
 
->I got a drive at home which is from 1996 and doesn't do ATAPI. It's some 
->Mitsumi indestructible, but I can't tell you details since I won't be at 
->home within the next few weeks.
-
-What can you do with the drive - besides using it as CD-ROM?
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

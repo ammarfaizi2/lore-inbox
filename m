@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286296AbRLJQBe>; Mon, 10 Dec 2001 11:01:34 -0500
+	id <S286300AbRLJQFe>; Mon, 10 Dec 2001 11:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286298AbRLJQBS>; Mon, 10 Dec 2001 11:01:18 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:9860 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S286297AbRLJQBL>; Mon, 10 Dec 2001 11:01:11 -0500
-Date: Mon, 10 Dec 2001 11:00:06 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: "Peter J. Braam" <braam@clusterfs.com>, Nathan Scott <nathans@sgi.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
-Subject: Re: [PATCH] Revised extended attributes interface
-In-Reply-To: <20011210155628.E1919@redhat.com>
-Message-ID: <Pine.LNX.4.40.0112101059020.7362-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286299AbRLJQFY>; Mon, 10 Dec 2001 11:05:24 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8979 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S286298AbRLJQFJ>; Mon, 10 Dec 2001 11:05:09 -0500
+Date: Mon, 10 Dec 2001 17:04:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: John Clemens <john@deater.net>
+Cc: Cory Bell <cory.bell@usa.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-ID: <20011210170405.B24663@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011209131332.A37@toy.ucw.cz> <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-	Hello Stephen ,  Is this the only attribution ?
-	Just love those 'we won't share security info with you unless you
-	are member or pay.' .  Sorry ,  JimL
+> > > > Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
+> > > > know what interrupt is right for maestro3, also on omnibook? ;-).
+> 
+> I've updated my bios on my Pavilion N5430 and guess what is shows on
+> the bios boot screen (if you disable the bios splash screen)... Omnibook
+> XE3.  They are one in the same, at least model number wise.  weird,
+> considering there are no AMD omnibooks..
 
-On Mon, 10 Dec 2001, Stephen C. Tweedie wrote:
+I *do* have AMD omnibook on my table.
 
-> Hi,
->
-> On Mon, Dec 10, 2001 at 08:00:03AM -0700, Peter J. Braam wrote:
-> > On Mon, Dec 10, 2001 at 11:52:09AM +0000, Stephen C. Tweedie wrote:
-> >
-> > > * Sub-IDs.
-> > >
-> > > There was a beautiful paper presented at a recent Usenix in which the
-> > > concept of user-manageable sub-ids was presented.
-> >
-> > Stephen, Do you have a ref for that?
->
-> http://www.usenix.org/publications/library/proceedings/usenix01/freenix01/ioannidis.html
->
-> Cheers,
->  Stephen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+> > Ouch, you said you have maestro on irq5. And does it *work*? For me,
+> > it plays mp3 but repeats portions even on wrong interrupt.
+> 
+> My maestro is on IRQ 5, and the pIRQ table says it should be on IRQ 5, and
+> it works fine. Earlier 2.4 kernels (before .8 or .9) had all sorts of
+> problems with the maestro3 (actually Allegro-1), but i haven't had any
+> problems in a while.. Try ALSA, see if that fixes your problems.
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Interrupts are not comming. If I hook it on irq11 (usb), and make usb
+generate interrupts, it plays.
 
+> > > apply to both. If you want to help get the BIOS updated (the root cause,
+> > > IMHO), please call HP support and reference case number 1429683616 (that
+> > > 9 may be a 4 - my handwriting is horrible). That's the case I logged
+> > > with thim about the broken PIR table (USB irq showing 9; being 11) and
+> > > failure to enable sse on athlon 4/duron/xp chips.
+> 
+> Good luck.. I emailed HP support, and got the "we're forwarding your
+> request to the BIOS people".. and that was 4 months ago.
+> 
+> Ohh, and Marcelo accepted the K7/SSE patch for 2.4.17, so no need for that
+> patch anymore..
+
+I do not much care about sse, but I'd prefer my sound working :-(.
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVCBJiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVCBJmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVCBJiI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:38:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCBJiI
+	id S262244AbVCBJmd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVCBJmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:38:08 -0500
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:22583
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S262243AbVCBJiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:38:03 -0500
-Message-ID: <42258974.4080104@ev-en.org>
-Date: Wed, 02 Mar 2005 09:37:56 +0000
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Dickson <paul@permanentmail.com>
-Cc: dickson@permanentmail.com, linux-os@analogic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Network speed Linux-2.6.10
-References: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com>	<20050301175143.04cbbe64.dickson@permanentmail.com>	<422510BA.1010305@ev-en.org> <20050301202400.36259d94.paul@permanentmail.com>
-In-Reply-To: <20050301202400.36259d94.paul@permanentmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 04:42:33 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28687 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262244AbVCBJmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 04:42:31 -0500
+Date: Wed, 2 Mar 2005 10:42:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Missing 'noinline' and '__compiler_offsetof' for GCC4+
+Message-ID: <20050302094230.GB4608@stusta.de>
+References: <1109755008.19535.16.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109755008.19535.16.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Dickson wrote:
-> On Wed, 02 Mar 2005 01:02:50 +0000, Baruch Even wrote:
-> 
->>>Might this be related to the broken BicTCP implementations in the 2.6.6+
->>>kernels?  A fix was added around 2.6.11-rc3 or 4.
->>
->>Unlikely, the problem with BIC would have shown itself only at high 
->>speeds over long latency links, not over a lan connection.
-> 
-> I only mentioned the possibility because I saw the same profile given by
-> the PDF (the link was mentioned in the patch) while downloading gnoppix
-> via my cable modem.  The oscillations of speed varied from 40K to 500+K.
-> The average ended up around 270K.  (I was using wget for the download).
+On Wed, Mar 02, 2005 at 09:16:47AM +0000, David Woodhouse wrote:
 
-If it is indeed BIC than we have a bug where it doesn't shut itself off 
-for low latencies. Since we don't test this case extensively here (we 
-work to improve high-speed and just make sure we don't ruin slower 
-speeds) I can't say it's impossible, try turning BIC off and see if it 
-helps.
+> At some point we'll want to create 'compiler-gcc4.h' but probably not
+> until it's going to be actually differ from 'compiler-gcc+.h'. Because
+> they only get out of date if they're not used by anyone...
+>...
 
-Due to the scenario that the OP gave it is more likely something to do 
-with auto-detection somewhere along the way or a driver bug. It is also 
-possible that I'm mistaken and it is BIC, never hurts to check.
+The solution already in -mm is:
+- compiler-gcc+.h removed because it was never updated
+- compiler-gcc4.h created, contains compiler-gcc+.h plus the two fixes 
+  you noted
 
-Baruch
+> dwmw2
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

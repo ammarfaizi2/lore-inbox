@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271311AbTGWUus (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 16:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTGWUus
+	id S271313AbTGWUvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 16:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271316AbTGWUvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 16:50:48 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:32531 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S271311AbTGWUur (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 16:50:47 -0400
-Date: Wed, 23 Jul 2003 22:59:27 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-       Adrian Bunk <bunk@fs.tum.de>, "Adam J. Richter" <adam@yggdrasil.com>,
-       <andersen@codepoet.org>, <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-In-Reply-To: <Pine.LNX.4.10.10307231202520.13376-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0307232234350.717-100000@serv>
-References: <Pine.LNX.4.10.10307231202520.13376-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Jul 2003 16:51:13 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19464 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271313AbTGWUvL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 16:51:11 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.0-test1: some modules refuse to autoload
+Date: 23 Jul 2003 20:58:45 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bfmsu5$l2k$1@gatekeeper.tmr.com>
+References: <20030717215139.GA19877@glitch.localdomain>
+X-Trace: gatekeeper.tmr.com 1058993925 21588 192.168.12.62 (23 Jul 2003 20:58:45 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <20030717215139.GA19877@glitch.localdomain>,
+Greg Norris  <haphazard@kc.rr.com> wrote:
 
-On Wed, 23 Jul 2003, Andre Hedrick wrote:
+| I'm currently running Debian sid, with module-init-tools 0.9.13-pre.
+| I've defined the alias "block-major-22 ide-cd", and verified that both
+| "modprobe -nv block-major-22" and "modprobe -nv ide-cd" give the
+| expected results.  When I try to mount a CD, however, I get the message
+| "/dev/hdc not a valid block device".  Browsing the system logfiles, I
+| don't see any indication that a module load was even attempted.
+| Everything works fine if I load the ide-cd module manually first.
 
-> GPL provides no means to enable the author/copyright holder to defend and
-> recover legal fees occurred during discovery and litigation.
-
-What you're forgetting is that the goal of the GPL is to promote freedom 
-not prosecution. You don't do this via litigations, this way you only 
-alienate everyone, but you don't win support for free software.
-The free software movement is a social movement not a legal movement. In 
-court you only reach short term effects, but if people vote with their 
-wallet you can achieve a lot more profound results.
-
-bye, Roman
-
+Is hdd set to anything special? And is hdc set to cdrom? If not, try an
+explicit "hdc=cdrom" on the boot line. I have had to do this on several
+systems, in spite of dmesg telling me the kernel knows that it's a CD.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,474 +1,253 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbTBTB73>; Wed, 19 Feb 2003 20:59:29 -0500
+	id <S265094AbTBTCBf>; Wed, 19 Feb 2003 21:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbTBTB72>; Wed, 19 Feb 2003 20:59:28 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:51973 "HELO
+	id <S265097AbTBTCBC>; Wed, 19 Feb 2003 21:01:02 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:60933 "HELO
 	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S265065AbTBTB7G>; Wed, 19 Feb 2003 20:59:06 -0500
-Subject: [PATCH] Spelling fixes for handeling -> handling and others in 25
-	files.
+	id <S265094AbTBTB7g>; Wed, 19 Feb 2003 20:59:36 -0500
+Subject: [PATCH] Spelling fixes for relevent -> relevant in 15 files.
 From: Steven Cole <elenstev@mesatop.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.2-5mdk 
-Date: 19 Feb 2003 19:00:26 -0700
-Message-Id: <1045706428.10680.492.camel@localhost.localdomain>
+Date: 19 Feb 2003 19:00:57 -0700
+Message-Id: <1045706458.5965.500.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the following spelling fixes:
+This patch provides spelling fixes for the following:
 
-handel      -> handle
-handeling   -> handling
-handeled    -> handled
-handeler    -> handler
+relevent    -> relevant
+irrelevent  -> irrelevant
 
- arch/mips/math-emu/dp_add.c             |    4 ++--
- arch/mips/math-emu/dp_div.c             |    4 ++--
- arch/mips/math-emu/dp_mul.c             |    2 +-
- arch/mips/math-emu/dp_sub.c             |    4 ++--
- arch/mips/math-emu/ieee754dp.c          |    2 +-
- arch/mips/math-emu/ieee754sp.c          |    2 +-
- arch/mips/math-emu/sp_add.c             |    4 ++--
- arch/mips/math-emu/sp_div.c             |    4 ++--
- arch/mips/math-emu/sp_mul.c             |    2 +-
- arch/mips/math-emu/sp_sub.c             |    4 ++--
- arch/mips64/math-emu/dp_add.c           |    4 ++--
- arch/mips64/math-emu/dp_div.c           |    4 ++--
- arch/mips64/math-emu/dp_mul.c           |    2 +-
- arch/mips64/math-emu/dp_sub.c           |    4 ++--
- arch/mips64/math-emu/ieee754dp.c        |    2 +-
- arch/mips64/math-emu/ieee754sp.c        |    2 +-
- arch/mips64/math-emu/sp_add.c           |    4 ++--
- arch/mips64/math-emu/sp_div.c           |    4 ++--
- arch/mips64/math-emu/sp_mul.c           |    2 +-
- arch/mips64/math-emu/sp_sub.c           |    4 ++--
- drivers/char/epca.c                     |    6 +++---
- drivers/char/ftape/zftape/zftape-vtbl.h |    2 +-
- drivers/media/radio/radio-terratec.c    |    2 +-
- drivers/net/wan/sdla_x25.c              |    2 +-
- net/wanrouter/af_wanpipe.c              |    2 +-
- 25 files changed, 39 insertions(+), 39 deletions(-)
+ arch/arm/kernel/entry-armo.S   |    2 +-
+ arch/arm/kernel/entry-armv.S   |    8 ++++----
+ arch/arm/mm/proc-arm6_7.S      |    2 +-
+ arch/v850/kernel/ma.c          |    2 +-
+ arch/v850/kernel/rte_ma1_cb.c  |    2 +-
+ drivers/acpi/hardware/hwregs.c |    2 +-
+ drivers/char/rio/list.h        |    2 +-
+ drivers/char/rio/rioparam.c    |    2 +-
+ drivers/char/rio/rioroute.c    |    2 +-
+ drivers/i2c/i2c-algo-ibm_ocp.c |    2 +-
+ drivers/isdn/hisax/rawhdlc.c   |    2 +-
+ drivers/serial/sa1100.c        |    2 +-
+ fs/adfs/dir_f.c                |    2 +-
+ fs/afs/vnode.c                 |    2 +-
+ kernel/futex.c                 |    2 +-
+ 15 files changed, 18 insertions(+), 18 deletions(-)
 
-diff -ur linux-2.5-current/arch/mips/math-emu/dp_add.c linux/arch/mips/math-emu/dp_add.c
---- linux-2.5-current/arch/mips/math-emu/dp_add.c	Wed Feb 19 07:34:51 2003
-+++ linux/arch/mips/math-emu/dp_add.c	Wed Feb 19 07:59:31 2003
-@@ -73,7 +73,7 @@
- 		return x;
+diff -ur linux-2.5-current/arch/arm/kernel/entry-armo.S linux/arch/arm/kernel/entry-armo.S
+--- linux-2.5-current/arch/arm/kernel/entry-armo.S	Wed Feb 19 07:34:50 2003
++++ linux/arch/arm/kernel/entry-armo.S	Wed Feb 19 14:03:22 2003
+@@ -426,7 +426,7 @@
+ 		mov	r2, #0
+ 		tst	r4, #1 << 20		@ Check to see if it is a write instruction
+ 		orreq	r2, r2, #FAULT_CODE_WRITE @ Indicate write instruction
+-		mov	r1, r4, lsr #22		@ Now branch to the relevent processing routine
++		mov	r1, r4, lsr #22		@ Now branch to the relevant processing routine
+ 		and	r1, r1, #15 << 2
+ 		add	pc, pc, r1
+ 		movs	pc, lr
+diff -ur linux-2.5-current/arch/arm/kernel/entry-armv.S linux/arch/arm/kernel/entry-armv.S
+--- linux-2.5-current/arch/arm/kernel/entry-armv.S	Wed Feb 19 07:34:51 2003
++++ linux/arch/arm/kernel/entry-armv.S	Wed Feb 19 14:03:22 2003
+@@ -1026,7 +1026,7 @@
+ 		mrs	lr, spsr
+ 		str	lr, [r13, #4]			@ save spsr_IRQ
+ 		@
+-		@ now branch to the relevent MODE handling routine
++		@ now branch to the relevant MODE handling routine
+ 		@
+ 		mov	r13, #PSR_I_BIT | MODE_SVC
+ 		msr	spsr_c, r13			@ switch to SVC_32 mode
+@@ -1067,7 +1067,7 @@
+ 		mrs	lr, spsr
+ 		str	lr, [r13, #4]
+ 		@
+-		@ now branch to the relevent MODE handling routine
++		@ now branch to the relevant MODE handling routine
+ 		@
+ 		mov	r13, #PSR_I_BIT | MODE_SVC
+ 		msr	spsr_c, r13			@ switch to SVC_32 mode
+@@ -1109,7 +1109,7 @@
+ 		mrs	lr, spsr
+ 		str	lr, [r13, #4]			@ save spsr_ABT
+ 		@
+-		@ now branch to the relevent MODE handling routine
++		@ now branch to the relevant MODE handling routine
+ 		@
+ 		mov	r13, #PSR_I_BIT | MODE_SVC
+ 		msr	spsr_c, r13			@ switch to SVC_32 mode
+@@ -1150,7 +1150,7 @@
+ 		mrs	lr, spsr
+ 		str	lr, [r13, #4]			@ save spsr_UND
+ 		@
+-		@ now branch to the relevent MODE handling routine
++		@ now branch to the relevant MODE handling routine
+ 		@
+ 		mov	r13, #PSR_I_BIT | MODE_SVC
+ 		msr	spsr_c, r13			@ switch to SVC_32 mode
+diff -ur linux-2.5-current/arch/arm/mm/proc-arm6_7.S linux/arch/arm/mm/proc-arm6_7.S
+--- linux-2.5-current/arch/arm/mm/proc-arm6_7.S	Wed Feb 19 07:35:08 2003
++++ linux/arch/arm/mm/proc-arm6_7.S	Wed Feb 19 14:03:22 2003
+@@ -97,7 +97,7 @@
+ 		tst	r4, r4, lsr #21			@ C = bit 20
+ 		sbc	r1, r1, r1			@ r1 = C - 1
+ 		and	r2, r4, #15 << 24
+-		add	pc, pc, r2, lsr #22		@ Now branch to the relevent processing routine
++		add	pc, pc, r2, lsr #22		@ Now branch to the relevant processing routine
+ 		movs	pc, lr
  
-
--		/* Inifity handeling 
-+		/* Inifity handling
+ 		b	Ldata_unknown
+diff -ur linux-2.5-current/arch/v850/kernel/ma.c linux/arch/v850/kernel/ma.c
+--- linux-2.5-current/arch/v850/kernel/ma.c	Wed Feb 19 07:34:43 2003
++++ linux/arch/v850/kernel/ma.c	Wed Feb 19 14:03:22 2003
+@@ -61,7 +61,7 @@
+ 	   specific chips may have more).  */
+ 	if (chan < 2) {
+ 		unsigned bits = 0x3 << (chan * 3);
+-		/* Specify that the relevent pins on the chip should do
++		/* Specify that the relevant pins on the chip should do
+ 		   serial I/O, not direct I/O.  */
+ 		MA_PORT4_PMC |= bits;
+ 		/* Specify that we're using the UART, not the CSI device.  */
+diff -ur linux-2.5-current/arch/v850/kernel/rte_ma1_cb.c linux/arch/v850/kernel/rte_ma1_cb.c
+--- linux-2.5-current/arch/v850/kernel/rte_ma1_cb.c	Wed Feb 19 07:35:16 2003
++++ linux/arch/v850/kernel/rte_ma1_cb.c	Wed Feb 19 14:03:22 2003
+@@ -93,7 +93,7 @@
+ 		/* Turn on the timer.  */
+ 		NB85E_TIMER_C_TMCC0 (tc) |= NB85E_TIMER_C_TMCC0_CAE;
+ 
+-	/* Make sure the relevent port0/port1 pins are assigned
++	/* Make sure the relevant port0/port1 pins are assigned
+ 	   interrupt duty.  We used INTP001-INTP011 (don't screw with
+ 	   INTP000 because the monitor uses it).  */
+ 	MA_PORT0_PMC |= 0x4;	/* P02 (INTP001) in IRQ mode.  */
+diff -ur linux-2.5-current/drivers/acpi/hardware/hwregs.c linux/drivers/acpi/hardware/hwregs.c
+--- linux-2.5-current/drivers/acpi/hardware/hwregs.c	Wed Feb 19 07:35:16 2003
++++ linux/drivers/acpi/hardware/hwregs.c	Wed Feb 19 14:03:22 2003
+@@ -370,7 +370,7 @@
+ 
+ 		/*
+ 		 * Status Registers are different from the rest.  Clear by
+-		 * writing 1, writing 0 has no effect.  So, the only relevent
++		 * writing 1, writing 0 has no effect.  So, the only relevant
+ 		 * information is the single bit we're interested in, all others should
+ 		 * be written as 0 so they will be left unchanged
  		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -92,7 +92,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips/math-emu/dp_div.c linux/arch/mips/math-emu/dp_div.c
---- linux-2.5-current/arch/mips/math-emu/dp_div.c	Wed Feb 19 07:34:41 2003
-+++ linux/arch/mips/math-emu/dp_div.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling 
-+		/* Infinity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -89,7 +89,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return ieee754dp_inf(xs ^ ys);
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips/math-emu/dp_mul.c linux/arch/mips/math-emu/dp_mul.c
---- linux-2.5-current/arch/mips/math-emu/dp_mul.c	Wed Feb 19 07:34:57 2003
-+++ linux/arch/mips/math-emu/dp_mul.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling */
-+		/* Infinity handling */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_ZERO):
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_INF):
-diff -ur linux-2.5-current/arch/mips/math-emu/dp_sub.c linux/arch/mips/math-emu/dp_sub.c
---- linux-2.5-current/arch/mips/math-emu/dp_sub.c	Wed Feb 19 07:35:07 2003
-+++ linux/arch/mips/math-emu/dp_sub.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -91,7 +91,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips/math-emu/ieee754dp.c linux/arch/mips/math-emu/ieee754dp.c
---- linux-2.5-current/arch/mips/math-emu/ieee754dp.c	Wed Feb 19 07:35:06 2003
-+++ linux/arch/mips/math-emu/ieee754dp.c	Wed Feb 19 07:59:31 2003
-@@ -99,7 +99,7 @@
- }
- 
-
--/* generate a normal/denormal number with over,under handeling
-+/* generate a normal/denormal number with over,under handling
-  * sn is sign
-  * xe is an unbiased exponent
-  * xm is 3bit extended precision value.
-diff -ur linux-2.5-current/arch/mips/math-emu/ieee754sp.c linux/arch/mips/math-emu/ieee754sp.c
---- linux-2.5-current/arch/mips/math-emu/ieee754sp.c	Wed Feb 19 07:34:52 2003
-+++ linux/arch/mips/math-emu/ieee754sp.c	Wed Feb 19 07:59:31 2003
-@@ -100,7 +100,7 @@
- }
- 
-
--/* generate a normal/denormal number with over,under handeling
-+/* generate a normal/denormal number with over,under handling
-  * sn is sign
-  * xe is an unbiased exponent
-  * xm is 3bit extended precision value.
-diff -ur linux-2.5-current/arch/mips/math-emu/sp_add.c linux/arch/mips/math-emu/sp_add.c
---- linux-2.5-current/arch/mips/math-emu/sp_add.c	Wed Feb 19 07:35:16 2003
-+++ linux/arch/mips/math-emu/sp_add.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -91,7 +91,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips/math-emu/sp_div.c linux/arch/mips/math-emu/sp_div.c
---- linux-2.5-current/arch/mips/math-emu/sp_div.c	Wed Feb 19 07:35:16 2003
-+++ linux/arch/mips/math-emu/sp_div.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling 
-+		/* Infinity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -89,7 +89,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return ieee754sp_inf(xs ^ ys);
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips/math-emu/sp_mul.c linux/arch/mips/math-emu/sp_mul.c
---- linux-2.5-current/arch/mips/math-emu/sp_mul.c	Wed Feb 19 07:35:03 2003
-+++ linux/arch/mips/math-emu/sp_mul.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling */
-+		/* Infinity handling */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_ZERO):
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_INF):
-diff -ur linux-2.5-current/arch/mips/math-emu/sp_sub.c linux/arch/mips/math-emu/sp_sub.c
---- linux-2.5-current/arch/mips/math-emu/sp_sub.c	Wed Feb 19 07:34:53 2003
-+++ linux/arch/mips/math-emu/sp_sub.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -91,7 +91,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips64/math-emu/dp_add.c linux/arch/mips64/math-emu/dp_add.c
---- linux-2.5-current/arch/mips64/math-emu/dp_add.c	Wed Feb 19 07:35:22 2003
-+++ linux/arch/mips64/math-emu/dp_add.c	Wed Feb 19 07:59:31 2003
-@@ -73,7 +73,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -92,7 +92,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips64/math-emu/dp_div.c linux/arch/mips64/math-emu/dp_div.c
---- linux-2.5-current/arch/mips64/math-emu/dp_div.c	Wed Feb 19 07:34:37 2003
-+++ linux/arch/mips64/math-emu/dp_div.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling 
-+		/* Infinity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -89,7 +89,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return ieee754dp_inf(xs ^ ys);
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips64/math-emu/dp_mul.c linux/arch/mips64/math-emu/dp_mul.c
---- linux-2.5-current/arch/mips64/math-emu/dp_mul.c	Wed Feb 19 07:35:23 2003
-+++ linux/arch/mips64/math-emu/dp_mul.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling */
-+		/* Infinity handling */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_ZERO):
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_INF):
-diff -ur linux-2.5-current/arch/mips64/math-emu/dp_sub.c linux/arch/mips64/math-emu/dp_sub.c
---- linux-2.5-current/arch/mips64/math-emu/dp_sub.c	Wed Feb 19 07:34:58 2003
-+++ linux/arch/mips64/math-emu/dp_sub.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -91,7 +91,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips64/math-emu/ieee754dp.c linux/arch/mips64/math-emu/ieee754dp.c
---- linux-2.5-current/arch/mips64/math-emu/ieee754dp.c	Wed Feb 19 07:35:16 2003
-+++ linux/arch/mips64/math-emu/ieee754dp.c	Wed Feb 19 07:59:31 2003
-@@ -99,7 +99,7 @@
- }
- 
-
--/* generate a normal/denormal number with over,under handeling
-+/* generate a normal/denormal number with over,under handling
-  * sn is sign
-  * xe is an unbiased exponent
-  * xm is 3bit extended precision value.
-diff -ur linux-2.5-current/arch/mips64/math-emu/ieee754sp.c linux/arch/mips64/math-emu/ieee754sp.c
---- linux-2.5-current/arch/mips64/math-emu/ieee754sp.c	Wed Feb 19 07:35:03 2003
-+++ linux/arch/mips64/math-emu/ieee754sp.c	Wed Feb 19 07:59:31 2003
-@@ -100,7 +100,7 @@
- }
- 
-
--/* generate a normal/denormal number with over,under handeling
-+/* generate a normal/denormal number with over,under handling
-  * sn is sign
-  * xe is an unbiased exponent
-  * xm is 3bit extended precision value.
-diff -ur linux-2.5-current/arch/mips64/math-emu/sp_add.c linux/arch/mips64/math-emu/sp_add.c
---- linux-2.5-current/arch/mips64/math-emu/sp_add.c	Wed Feb 19 07:34:52 2003
-+++ linux/arch/mips64/math-emu/sp_add.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -91,7 +91,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips64/math-emu/sp_div.c linux/arch/mips64/math-emu/sp_div.c
---- linux-2.5-current/arch/mips64/math-emu/sp_div.c	Wed Feb 19 07:35:22 2003
-+++ linux/arch/mips64/math-emu/sp_div.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling 
-+		/* Infinity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -89,7 +89,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return ieee754sp_inf(xs ^ ys);
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/arch/mips64/math-emu/sp_mul.c linux/arch/mips64/math-emu/sp_mul.c
---- linux-2.5-current/arch/mips64/math-emu/sp_mul.c	Wed Feb 19 07:34:52 2003
-+++ linux/arch/mips64/math-emu/sp_mul.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Infinity handeling */
-+		/* Infinity handling */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_ZERO):
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_INF):
-diff -ur linux-2.5-current/arch/mips64/math-emu/sp_sub.c linux/arch/mips64/math-emu/sp_sub.c
---- linux-2.5-current/arch/mips64/math-emu/sp_sub.c	Wed Feb 19 07:34:56 2003
-+++ linux/arch/mips64/math-emu/sp_sub.c	Wed Feb 19 07:59:31 2003
-@@ -72,7 +72,7 @@
- 		return x;
- 
-
--		/* Inifity handeling 
-+		/* Inifity handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_INF):
-@@ -91,7 +91,7 @@
- 	case CLPAIR(IEEE754_CLASS_INF, IEEE754_CLASS_DNORM):
- 		return x;
- 
--		/* Zero handeling 
-+		/* Zero handling
- 		 */
- 
- 	case CLPAIR(IEEE754_CLASS_ZERO, IEEE754_CLASS_ZERO):
-diff -ur linux-2.5-current/drivers/char/epca.c linux/drivers/char/epca.c
---- linux-2.5-current/drivers/char/epca.c	Wed Feb 19 07:35:02 2003
-+++ linux/drivers/char/epca.c	Wed Feb 19 07:59:31 2003
-@@ -2743,11 +2743,11 @@
- 
- 		/* ---------------------------------------------------------------
- 			Command sets channels iflag structure on the board. Such things 
--			as input soft flow control, handeling of parity errors, and
--			break handeling are all set here.
-+			as input soft flow control, handling of parity errors, and
-+			break handling are all set here.
- 		------------------------------------------------------------------- */
- 
--		/* break handeling, parity handeling, input stripping, flow control chars */
-+		/* break handling, parity handling, input stripping, flow control chars */
- 		fepcmd(ch, SETIFLAGS, (unsigned int) ch->fepiflag, 0, 0, 0);
- 	}
- 
-diff -ur linux-2.5-current/drivers/char/ftape/zftape/zftape-vtbl.h linux/drivers/char/ftape/zftape/zftape-vtbl.h
---- linux-2.5-current/drivers/char/ftape/zftape/zftape-vtbl.h	Wed Feb 19 07:34:55 2003
-+++ linux/drivers/char/ftape/zftape/zftape-vtbl.h	Wed Feb 19 07:59:31 2003
-@@ -176,7 +176,7 @@
- 				      const zft_position *pos);
- 
- /* this function decrements the zft_seg_pos counter if we are right
-- * at the beginning of a segment. This is to handel fsfm/bsfm -- we
-+ * at the beginning of a segment. This is to handle fsfm/bsfm -- we
-  * need to position before the eof mark.  NOTE: zft_tape_pos is not
-  * changed 
-  */
-diff -ur linux-2.5-current/drivers/media/radio/radio-terratec.c linux/drivers/media/radio/radio-terratec.c
---- linux-2.5-current/drivers/media/radio/radio-terratec.c	Wed Feb 19 07:34:56 2003
-+++ linux/drivers/media/radio/radio-terratec.c	Wed Feb 19 07:59:31 2003
-@@ -129,7 +129,7 @@
- 	long rest;
-      
- 	unsigned char buffer[25];		/* we have to bit shift 25 registers */
--	freq = freq1/160;			/* convert the freq. to a nice to handel value */
-+	freq = freq1/160;			/* convert the freq. to a nice to handle value */
- 	for(i=24;i>-1;i--)
- 		buffer[i]=0;
- 
-diff -ur linux-2.5-current/drivers/net/wan/sdla_x25.c linux/drivers/net/wan/sdla_x25.c
---- linux-2.5-current/drivers/net/wan/sdla_x25.c	Wed Feb 19 07:35:06 2003
-+++ linux/drivers/net/wan/sdla_x25.c	Wed Feb 19 07:59:31 2003
-@@ -3064,7 +3064,7 @@
- 
- 		/* Bug Fix: Mar 14 2000
-                  * The Protocol violation error conditions were  
--                 * not handeled previously */
-+                 * not handled previously */
- 
- 		switch (mb->cmd.pktType & 0x7F){
- 
-diff -ur linux-2.5-current/net/wanrouter/af_wanpipe.c linux/net/wanrouter/af_wanpipe.c
---- linux-2.5-current/net/wanrouter/af_wanpipe.c	Wed Feb 19 07:35:21 2003
-+++ linux/net/wanrouter/af_wanpipe.c	Wed Feb 19 07:59:31 2003
-@@ -674,7 +674,7 @@
- /*============================================================
-  * wanpipe_delayed_tarnsmit
+diff -ur linux-2.5-current/drivers/char/rio/list.h linux/drivers/char/rio/list.h
+--- linux-2.5-current/drivers/char/rio/list.h	Wed Feb 19 07:35:15 2003
++++ linux/drivers/char/rio/list.h	Wed Feb 19 14:03:22 2003
+@@ -111,7 +111,7 @@
+ /*
+ ** can_remove_receive( PacketP, PortP ) returns non-zero if PKT_IN_USE is set
+ ** for the next packet on the queue. It will also set PacketP to point to the
+-** relevent packet, [having cleared the PKT_IN_USE bit]. If PKT_IN_USE is clear,
++** relevant packet, [having cleared the PKT_IN_USE bit]. If PKT_IN_USE is clear,
+ ** then can_remove_receive() returns 0.
+ */
+ #if defined(MIPS) || defined(nx6000) || defined(drs6000) || defined(UWsparc)
+diff -ur linux-2.5-current/drivers/char/rio/rioparam.c linux/drivers/char/rio/rioparam.c
+--- linux-2.5-current/drivers/char/rio/rioparam.c	Wed Feb 19 07:35:24 2003
++++ linux/drivers/char/rio/rioparam.c	Wed Feb 19 14:03:22 2003
+@@ -714,7 +714,7 @@
+ /*
+ ** can_remove_receive(PktP,P) returns non-zero if PKT_IN_USE is set
+ ** for the next packet on the queue. It will also set PktP to point to the
+-** relevent packet, [having cleared the PKT_IN_USE bit]. If PKT_IN_USE is clear,
++** relevant packet, [having cleared the PKT_IN_USE bit]. If PKT_IN_USE is clear,
+ ** then can_remove_receive() returns 0.
+ */
+ int
+diff -ur linux-2.5-current/drivers/char/rio/rioroute.c linux/drivers/char/rio/rioroute.c
+--- linux-2.5-current/drivers/char/rio/rioroute.c	Wed Feb 19 07:35:01 2003
++++ linux/drivers/char/rio/rioroute.c	Wed Feb 19 14:03:22 2003
+@@ -521,7 +521,7 @@
+       /*
+       ** If either of the modules on this unit is read-only or write-only
+       ** or none-xprint, then we need to transfer that info over to the
+-      ** relevent ports.
++      ** relevant ports.
+       */
+       if ( HostP->Mapping[ThisUnit].SysPort != NO_PORT )
+       {
+diff -ur linux-2.5-current/drivers/i2c/i2c-algo-ibm_ocp.c linux/drivers/i2c/i2c-algo-ibm_ocp.c
+--- linux-2.5-current/drivers/i2c/i2c-algo-ibm_ocp.c	Wed Feb 19 07:35:05 2003
++++ linux/drivers/i2c/i2c-algo-ibm_ocp.c	Wed Feb 19 14:03:22 2003
+@@ -758,7 +758,7 @@
+         // Check to see if the bus is busy
+         //
+         ret = iic_inb(adap, iic->extsts);
+-        // Mask off the irrelevent bits
++        // Mask off the irrelevant bits
+         ret = ret & 0x70;
+         // When the bus is free, the BCS bits in the EXTSTS register are 0b100
+         if(ret != 0x40) return IIC_ERR_LOST_ARB;
+diff -ur linux-2.5-current/drivers/isdn/hisax/rawhdlc.c linux/drivers/isdn/hisax/rawhdlc.c
+--- linux-2.5-current/drivers/isdn/hisax/rawhdlc.c	Wed Feb 19 07:34:43 2003
++++ linux/drivers/isdn/hisax/rawhdlc.c	Wed Feb 19 14:03:22 2003
+@@ -34,7 +34,7 @@
+  * end-of-frame would occur), so the transmitter performs
+  * "bit-stuffing" - inserting a zero bit after every five one bits,
+  * irregardless of the original bit after the five ones.  Byte
+- * ordering is irrelevent at this point - the data is treated as a
++ * ordering is irrelevant at this point - the data is treated as a
+  * string of bits, not bytes.  Since no more than 5 ones may now occur
+  * in a row, the flag sequence, with its 6 ones, is unique.
   *
-- *	Transmit bottom half handeler. It dequeues packets
-+ *	Transmit bottom half handler. It dequeues packets
-  *      from sk->write_queue and passes them to the 
-  *      driver.  If the driver is busy, the packet is 
-  *      re-enqueued.  
-
+diff -ur linux-2.5-current/drivers/serial/sa1100.c linux/drivers/serial/sa1100.c
+--- linux-2.5-current/drivers/serial/sa1100.c	Wed Feb 19 07:34:42 2003
++++ linux/drivers/serial/sa1100.c	Wed Feb 19 14:03:22 2003
+@@ -327,7 +327,7 @@
+ 			sa1100_rx_chars(sport, regs);
+ 		}
+ 
+-		/* Clear the relevent break bits */
++		/* Clear the relevant break bits */
+ 		if (status & (UTSR0_RBB | UTSR0_REB))
+ 			UART_PUT_UTSR0(sport, status & (UTSR0_RBB | UTSR0_REB));
+ 
+diff -ur linux-2.5-current/fs/adfs/dir_f.c linux/fs/adfs/dir_f.c
+--- linux-2.5-current/fs/adfs/dir_f.c	Wed Feb 19 07:35:05 2003
++++ linux/fs/adfs/dir_f.c	Wed Feb 19 14:03:22 2003
+@@ -259,7 +259,7 @@
+ 
+ /*
+  * get a directory entry.  Note that the caller is responsible
+- * for holding the relevent locks.
++ * for holding the relevant locks.
+  */
+ int
+ __adfs_dir_get(struct adfs_dir *dir, int pos, struct object_info *obj)
+diff -ur linux-2.5-current/fs/afs/vnode.c linux/fs/afs/vnode.c
+--- linux-2.5-current/fs/afs/vnode.c	Wed Feb 19 07:34:56 2003
++++ linux/fs/afs/vnode.c	Wed Feb 19 14:03:22 2003
+@@ -272,7 +272,7 @@
+ /*****************************************************************************/
+ /*
+  * break any outstanding callback on a vnode
+- * - only relevent to server that issued it
++ * - only relevant to server that issued it
+  */
+ int afs_vnode_give_up_callback(afs_vnode_t *vnode)
+ {
+diff -ur linux-2.5-current/kernel/futex.c linux/kernel/futex.c
+--- linux-2.5-current/kernel/futex.c	Wed Feb 19 07:34:50 2003
++++ linux/kernel/futex.c	Wed Feb 19 14:03:22 2003
+@@ -39,7 +39,7 @@
+ 
+ /*
+  * We use this hashed waitqueue instead of a normal wait_queue_t, so
+- * we can wake only the relevent ones (hashed queues may be shared):
++ * we can wake only the relevant ones (hashed queues may be shared):
+  */
+ struct futex_q {
+ 	struct list_head list;
 
 
 

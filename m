@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265011AbSKANfg>; Fri, 1 Nov 2002 08:35:36 -0500
+	id <S265003AbSKANda>; Fri, 1 Nov 2002 08:33:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265016AbSKANfg>; Fri, 1 Nov 2002 08:35:36 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:27786 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S265011AbSKANfe>;
-	Fri, 1 Nov 2002 08:35:34 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Theodore Ts'o" <tytso@mit.edu>
-Date: Fri, 1 Nov 2002 14:41:28 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [Ext2-devel] Re: Htree ate my hard drive, was: post-hal
-Cc: Duncan Sands <baldrick@wanadoo.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, adilger@clusterfs.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <6457F663908@vcnet.vc.cvut.cz>
+	id <S265004AbSKANda>; Fri, 1 Nov 2002 08:33:30 -0500
+Received: from main.gmane.org ([80.91.224.249]:32953 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S265003AbSKANd3>;
+	Fri, 1 Nov 2002 08:33:29 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: 2.5.45 : Intermezzo [still] broken ?
+Date: Fri, 01 Nov 2002 08:40:57 -0500
+Message-ID: <apu04s$60l$1@main.gmane.org>
+References: <3DC27B7C.5F02F35F@gatwick.westerngeco.slb.com>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Trace: main.gmane.org 1036157916 6165 130.127.121.177 (1 Nov 2002 13:38:36 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Fri, 1 Nov 2002 13:38:36 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Oct 02 at 17:03, Theodore Ts'o wrote:
-> On Thu, Oct 31, 2002 at 01:19:23PM +0200, Petr Vandrovec wrote:
-> >     
-> > Nobody answered it at that time, and it happened at least 5 times
-> > again to me - until I modified initscripts to do unconditional
-> > reboot if "fsck /" did ANY modifications to filesystem.
-> > 
+Loic Jaquemet wrote:
+
+> Non-existing header files ...
 > 
-> In fact, e2fsck should return an exit code which indicates that the
-> systme should be rebooted if an fsck the root filesystem makes any
-> changes to the filesystem.  See the man page to fsck(8) for a
-> definition of fsck's exit codes, but if (exit_status & 2) is non-zero,
-> the init scripts **should** reboot.  
+> Intermezzo was built as a module.
+> 
+> make -f scripts/Makefile.build obj=fs/intermezzo
+>    rm -f fs/intermezzo/built-in.o; ar rcs fs/intermezzo/built-in.o
+>   gcc -Wp,-MD,fs/intermezzo/.cache.o.d -D__KERNEL__ -Iinclude -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpr
+> eferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic -nostdinc
+> -iwithprefix include -DMODULE -include include/linux/modversions.h
+> -DKBUILD_BASENAME=cache   -c -o
+> fs/intermezzo/cache.o fs/intermezzo/cache.c
+> Dans le fichier inclus à partir de fs/intermezzo/cache.c:42:
+> include/linux/intermezzo_fs.h:30:34: linux/intermezzo_lib.h: Aucun
+> fichier ou répertoire de ce type
+> include/linux/intermezzo_fs.h:31:34: linux/intermezzo_idl.h: Aucun
+> fichier ou répertoire de ce type
+> [...]
+> Dans le fichier inclus à partir de fs/intermezzo/cache.c:42:
+> include/linux/intermezzo_fs.h: Au niveau supérieur:
+> include/linux/intermezzo_fs.h:919: AVERTISSEMENT: « struct kml_rec »
+> déclaré à l'intérieur de la liste de paramètres
+> include/linux/intermezzo_fs.h:920: AVERTISSEMENT: « struct kml_rec »
+> déclaré à l'intérieur de la liste de paramètres
+> make[2]: *** [fs/intermezzo/cache.o] Erreur 1
+> make[1]: *** [fs/intermezzo] Erreur 2
+> make: *** [fs] Erreur 2
 
-There is something wrong then...
- 
-> Unfortunately, not all distributions get this right.  However, your
-> analysis is right.  If fsck needs to make any modifications to the
-> root filesystem, which is mounted read-only, it is possible for the
-> corrupted filesystem elements to still be cached in memory, and then
-> written back out to disk when the filesystem is remounted read/write.  
+Look in the mailing list archives on the intermezzo sourceforge project 
+page, you'll find a patch which resolves this.  However, the maintainers 
+said they still think it won't work even if it does compile.
 
-Debian does:
+Cheers,
+Nicholas
 
-force=""
-fix="-a"
-spinner="-C"
-fsck $spinner $force $fix /
-if [ $? -gt 1 ]
-then
-   echo "fsck failed..."
-   ...
-   /sbin/sulogin
-   reboot -f
-fi
 
-which would catch return value '2' or any combination of 2 with anything
-else. But fsck returns 1 - File system errors corrected. I just added 
-check for $? -eq 1, doing immediate reboot in such case in 
-/etc/init.d/checkroot.sh.
-
-But I must admit that I did not checked whether 'system should be rebooted'
-bit was not generated by e2fsck, or whether it was dropped by fsck wrapper,
-or whether there is some addon patch in Debian fsck package.
-
-System is debian unstable, currently using (e2)fsck 1.30-WIP, 30-Sep-2002.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                

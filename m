@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVBOQF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVBOQHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVBOQF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 11:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVBOQF5
+	id S261770AbVBOQHf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 11:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVBOQHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 11:05:57 -0500
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:58635 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S261768AbVBOQFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 11:05:52 -0500
-Date: Tue, 15 Feb 2005 10:05:23 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: The ALPS touchpad fix: will it be in -rc5?
-Message-ID: <20050215160522.GA13694@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.6i
+	Tue, 15 Feb 2005 11:07:34 -0500
+Received: from postman.ripe.net ([193.0.0.199]:36535 "EHLO postman.ripe.net")
+	by vger.kernel.org with ESMTP id S261770AbVBOQHQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 11:07:16 -0500
+Message-ID: <42121E5B.2010503@colitti.com>
+Date: Tue, 15 Feb 2005 17:07:55 +0100
+From: Lorenzo Colitti <lorenzo@colitti.com>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: s0348365@sms.ed.ac.uk
+Cc: Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+References: <20050214211105.GA12808@elf.ucw.cz> <200502150605.11683.s0348365@sms.ed.ac.uk> <4211E729.1090305@colitti.com> <200502151317.15633.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200502151317.15633.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RIPE-Spam-Level: 
+X-RIPE-Spam-Tests: ALL_TRUSTED,BAYES_00
+X-RIPE-Spam-Status: N 0.120259 / -5.9
+X-RIPE-Signature: 4db30108bcfd119583b25cb61e4664fa
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all.
+Alistair John Strachan wrote:
+>>.config attached.
+> 
+> As recommended elsewhere in this thread, I'm not using any sort of framebuffer 
+> driver, but vesafb IS compiled in (but no vga= option is present). Does it 
+> need to be compiled out completely?
 
-I just built -rc4, and it looks like Dmitry's ALPS touchpad fix
-  (http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/0199.html) didn't
-  make it in.  Is it percolating up the chain and just didn't make the
-  deadline, or did it accidentally get dropped?
-Thanks!
+I don't remember, maybe you can deduce it from the .config I sent?
 
--Joseph
--- 
-Joseph===============================================trelane@digitasaru.net
-      Graduate Student in Physics, Freelance Free Software Developer
+> I have acpi_sleep=s3_bios on cmdline. I am not using swsusp2 (and I can't see 
+> how this is at all related to software suspend).
+
+It works with or without swsusp2.
+
+> Perhaps it is the machine BIOS. Which version do you have?
+
+I think it's vF.0F from July 2004.
+
+
+Cheers,
+Lorenzo

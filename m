@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266640AbSK1SPE>; Thu, 28 Nov 2002 13:15:04 -0500
+	id <S265320AbSK1SMX>; Thu, 28 Nov 2002 13:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbSK1SPE>; Thu, 28 Nov 2002 13:15:04 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:46231 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266640AbSK1SPD>; Thu, 28 Nov 2002 13:15:03 -0500
-Subject: Re: drivers/pci/quirks.c / Re: Linux v2.5.50
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Sebastian Benoit <benoit-lists@fb12.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20021128173007.GB930@suse.de>
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com>
-	<20021128111528.A28437@turing.fb12.de>
-	<1038500743.10021.1.camel@irongate.swansea.linux.org.uk>
-	<20021128200207.A23822@jurassic.park.msu.ru>  <20021128173007.GB930@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Nov 2002 18:54:12 +0000
-Message-Id: <1038509652.10168.28.camel@irongate.swansea.linux.org.uk>
+	id <S266601AbSK1SMX>; Thu, 28 Nov 2002 13:12:23 -0500
+Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:46976 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S265320AbSK1SMW>;
+	Thu, 28 Nov 2002 13:12:22 -0500
+Date: Thu, 28 Nov 2002 13:22:59 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Possible Linux Theme Song :)
+Message-ID: <20021128132259.GA364@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, greg@kroah.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-28 at 17:30, Dave Jones wrote:
-> On Thu, Nov 28, 2002 at 08:02:07PM +0300, Ivan Kokshaysky wrote:
-> 
->  > +static void __devinit quirk_ati_exploding_mce(struct pci_dev *dev)
->  > +{
->  > +	printk(KERN_INFO "ATI Northbridge, reserving I/O ports 0x3b0 to 0x3bb.\n");
->  > +	/* Mae rhaid in i beidio a edrych ar y lleoliad I/O hyn */
-> 
-> You gotta be kidding me ?  Amusing as the welsh language may be,
-> comments really should be readable to more than 0.01% of those likely
-> to be looking at them.
+Hi Linus,
 
-Some people have no sense of humour.
+I just ran across this song, recorded by Lyle Lovett.  As you can see, he really
+likes penguins.  If you'd like to hear the song, I'd be glad to send you a tape.
 
+Best Wishes,
+Adam
 
+Album: I Love Everybody
+Title: Penguins
+
+I go for Penguins
+I don't go for fancy cars
+For diamond rings
+Or movie stars
+I go for penguins
+Oh Lord I go for penguins
+
+Throw your money out the door
+We'll just sit around
+And watch it snow
+I go for penguins
+Oh Lord I go for penguins
+
+Penguins are so sensitive
+Penguins are so sensitive
+Penguins are so sensitive
+To my needs
+To my needs
+To my needs
+To my needs
+--Lyle Lovett

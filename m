@@ -1,131 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130352AbQLED4l>; Mon, 4 Dec 2000 22:56:41 -0500
+	id <S130469AbQLEEBv>; Mon, 4 Dec 2000 23:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130469AbQLED4b>; Mon, 4 Dec 2000 22:56:31 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44561 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130352AbQLED4V>; Mon, 4 Dec 2000 22:56:21 -0500
-Date: Mon, 4 Dec 2000 19:20:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
-        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: test12-pre5
-Message-ID: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
+	id <S130579AbQLEEBm>; Mon, 4 Dec 2000 23:01:42 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1714 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130469AbQLEEB2>;
+	Mon, 4 Dec 2000 23:01:28 -0500
+Date: Mon, 4 Dec 2000 22:31:00 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <andrewm@uow.edu.au>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] inode dirty blocks
+In-Reply-To: <Pine.LNX.4.10.10012041840240.1904-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0012042211310.7166-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ok, this contains one of the fixes for the dirty inode buffer list (the
-other fix is pending, simply because I still want to understand why it
-would be needed at all). Al?
 
-Also, it has the final installment of the PageDirty handling, and now
-officially direct IO can work by just marking the physical page dirty and
-be done with it. NFS along with all filesystems have been converted, the
-one hold-out still being smbfs.
+On Mon, 4 Dec 2000, Linus Torvalds wrote:
 
-Who works on smbfs these days? I see two ways of fixing smbfs now that
-"writepage()" only gets an anonymous page and no "struct file" information
-any more (this also fixes the double page unlock that Andrew saw).
+> 
+> 
+> On Tue, 5 Dec 2000, Andrew Morton wrote:
+> > 
+> > 	- test12-pre4
+> > 	- aviro bforget patch 
+> 
+> Is the bforget patch really needed?
+> 
+> If clear_inode() gets rid of dirty buffers, I don't see how new dirty
+> buffers can magically appear. I may have missed part of the discussion on
+> all this.
 
- - disable shared mmap over smbfs (very easily done by just setting
-   writepage to NULL)
+Well, to start with you don't want random bh's floating around on the
+inode's list. With the current code truncate()+fsync() can send a lot
+of already freed stuff to disk. Even though we can survive that (making
+clear_inode() to get rid of the list will save you from corruption)...
+it doesn't look like a good idea.
 
- - fetch the dentry that writepage needs by just looking at the
-   inode->i_dentry list and/or just make the smbfs page cache host be the
-   dentry instead of the inode like other filesystems. The first approach
-   assumes that all paths are equal for writeout, the second one assumes
-   that there are no hard linking going on in smbfs.
+BTW, in the current form clear_inode() doesn't get rid of the dirty
+buffers. It misses the pages that became anonymous and it misses the
+metadata that became freed. We can do that, but I'ld rather avoid
+leaving these buffer_heads on the inode's list - stuff that got freed
+has no business to be accessible from in-core inode.
 
-Somebody more knowledgeable than I will have to make the decision
-(otherwise I'll just end up disabling shared mmap - I doubt anybody really
-uses it anyway, but it would be more polite to just support it).
+> I think that the second patch from Al (the inode dirty meta-data) is the
+> _real_ fix, and I don't see why the bforget changes should matter.
 
-NOTE! There's another change to "writepage()" semantics than just dropping
-the "struct file": the new writepage() is supposed to mirror the logic of
-readpage(), and unlock the page when it is done with it. This allows the
-VM system more visibility into what IO is pending (which the VM doesn't
-take advantage of yet, but now it can _truly_ use the same logic for both
-swapout and for dirty file writeback).
-
-The other change is that I forward-ported the ymfpci driver from 2.2.18,
-as it works better than the ALSA one on my now-to-be-main-laptop ;)
-
-[ Alan - I ahve your patches in my incoming queue still, I wanted to get
-  an interim version out to check with Al on the block list and the VM
-  stuff with Rik and people. ]
-
-		Linus
-
-----
- - pre5:
-    - Jaroslav Kysela: ymfpci driver
-    - me: get rid of bogus MS_INVALIDATE semantics
-    - me: final part of the PageDirty() saga
-    - Rusty Russell: 4-way SMP iptables fix
-    - Al Viro: oops - bad ext2 inode dirty block bug
-
- - pre4:
-    - Andries Brouwer: final isofs pieces.
-    - Kai Germaschewski: ISDN
-    - play CD audio correctly, don't stop after 12 minutes.
-    - Anton Altaparmakov: disable NTFS mmap for now, as it doesn't work. 
-    - Stephen Tweedie: fix inode dirty block handling
-    - Bill Hartner: reschedule_idle - prefer right cpu
-    - Johannes Erdfelt: USB updates
-    - Alan Cox: synchronize
-    - Richard Henderson: alpha updates and optimizations
-    - Geert Uytterhoeven: fbdev could be fooled into crashing fix
-    - Trond Myklebust: NFS filehandles in inode rather than dentry
-
- - pre3:
-    - me: more PageDirty / swapcache handling
-    - Neil Brown: raid and md init fixes
-    - David Brownell: pci hotplug sanitization.
-    - Kanoj Sarcar: mips64 update
-    - Kai Germaschewski: ISDN sync
-    - Andreas Bombe: ieee1394 cleanups and fixes
-    - Johannes Erdfelt: USB update
-    - David Miller: Sparc and net update
-    - Trond Myklebust: RPC layer SMP fixes
-    - Thomas Sailer: mixed sound driver fixes
-    - Tigran Aivazian: use atomic_dec_and_lock() for free_uid()
-
- - pre2:
-    - Peter Anvin: more P4 configuration parsing
-    - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
-      do the right thing.
-    - Keith Owens: make mdule loading use the right struct module size
-    - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
-    - Alan Cox: various random documentation etc
-    - Dario Ballabio: EATA and u14-34f update
-    - Ivan Kokshaysky: unbreak alpha ruffian
-    - Richard Henderson: PCI bridge initialization on alpha
-    - Zach Brown: correct locking in Maestro driver
-    - Geert Uytterhoeven: more m68k updates
-    - Andrey Savochkin: eepro100 update
-    - Dag Brattli: irda update
-    - Johannes Erdfelt: USB update
-
- - pre1: (for ISDN synchronization _ONLY_! Not complete!)
-    - Byron Stanoszek: correct decimal precision for CPU MHz in
-      /proc/cpuinfo
-    - Ollie Lho: SiS pirq routing.
-    - Andries Brouwer: isofs cleanups
-    - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
-    - me: be stricter about what we accept as a PCI bridge setup.
-    - me: always set PCI interrupts to be level-triggered when we enable them.
-    - me: updated PageDirty and swap cache handling
-    - Peter Anvin: update A20 code to work without keyboard controller
-    - Kai Germaschewski: ISDN updates
-    - Russell King: ARM updates
-    - Geert Uytterhoeven: m68k updates
+We can survive without them (modulo patch to clear_inode()), but...
+BTW, there is another reason why we want to have separate function
+for freeing the stuff: we may want to mark them clean. If they are
+already under IO it will do nothing, but if they are merely dirty...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

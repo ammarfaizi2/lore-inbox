@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261972AbREZW7G>; Sat, 26 May 2001 18:59:06 -0400
+	id <S262060AbREZW7G>; Sat, 26 May 2001 18:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262009AbREZW65>; Sat, 26 May 2001 18:58:57 -0400
+	id <S262137AbREZW64>; Sat, 26 May 2001 18:58:56 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261864AbREZW6r>;
-	Sat, 26 May 2001 18:58:47 -0400
-Date: Sat, 26 May 2001 19:04:57 +0100 (BST)
-From: Dave Gilbert <gilbertd@treblig.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5: Duplicate PCI devices (new pciutils fixed it)
-In-Reply-To: <15119.56639.163937.257003@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.10.10105261850530.750-100000@tardis.home.dave>
+	by vger.kernel.org with ESMTP id <S262164AbREZW6l>;
+	Sat, 26 May 2001 18:58:41 -0400
+Message-ID: <007f01c0e618$6907db20$44a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "Mariam George" <mariam_reeny@yahoo.com>, <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <20010526124840.261.qmail@web12304.mail.yahoo.com>
+Subject: Re: QOS &fair queuing modules- can't load
+Date: Sat, 26 May 2001 12:16:46 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, David S. Miller wrote:
+>    Let me put across my situation. I need to load the
+> modules for QOS & Fair Queuing . I have compiled my
+> kernel with modular support for these modules. When I
+> try to load these modules a series of error messages
+> all indicating unresolved symbols are coming. The
+> unresolved symbols  are all defined in
+> /usr/src/linux/include/net/pkt_sched.h.
+> I have checked out /proc/ksyms file and these symbols
+> are listed there,
 
-> 
-> Dave Gilbert writes:
->  > /proc/pci seems to be only listing it once.
-> 
-> lspci uses /prov/bus/pci/${BUS}/${DEVICE}
-> so likely it is showing up twice there.
+Are you fulfilling all the requirements for modules , means are you include
+proper files and defines module's term while compling your modules , just a
+guess.
 
-Hmm nope - /proc/bus/pci has two entries '00' and devices
-Devices has 5 lines in it; corresponding to the real 5 devices.
-The 00 directory has 5 files in it.
+Better do one thing , define something in kernel , export it in
+arch/i386/i386_ksyms.c file and check are you able to get that symbols or
+not ?
 
-Hmm - ah - cancel the report - I've just got pciutils 2.1.8 down and it is
-now happy.  Should there be a version ref for pciutils in
-Documentation/Changes?
+Jaswinder.
+--
+These are my opinions not 3Di.
 
-Dave
-
--- 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
 

@@ -1,92 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbUATU1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 15:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUATU1W
+	id S265742AbUATUgI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 15:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265750AbUATUgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 15:27:22 -0500
-Received: from quake.mweb.co.za ([196.2.45.85]:39102 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id S265776AbUATU1M (ORCPT
+	Tue, 20 Jan 2004 15:36:08 -0500
+Received: from gprs214-112.eurotel.cz ([160.218.214.112]:22402 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265742AbUATUf7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 15:27:12 -0500
-Date: Tue, 20 Jan 2004 22:27:09 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux@brodo.de, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: limit-timer_pm-printk-storms.patch
-Message-Id: <20040120222709.5e011cd8.bonganilinux@mweb.co.za>
-In-Reply-To: <20040120115751.5e4441bc.akpm@osdl.org>
-References: <20040120212514.43e31237.bonganilinux@mweb.co.za>
-	<20040120115751.5e4441bc.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
+	Tue, 20 Jan 2004 15:35:59 -0500
+Date: Tue, 20 Jan 2004 21:35:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>, Steve Gonczi <steve@relicore.com>,
+       Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: kgdb 2.0.5
+Message-ID: <20040120203529.GC9691@elf.ucw.cz>
+References: <200401201743.39640.amitkale@emsyssoft.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401201743.39640.amitkale@emsyssoft.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi!
 
-On Tue, 20 Jan 2004 11:57:51 -0800
-Andrew Morton <akpm@osdl.org> wrote:
-
-> Bongani Hlope <bonganilinux@mweb.co.za> wrote:
-> >
-> > This patch has been inspired by the limit-IO-error-printk-storms patch. On my PII when I enable 
-> > CONFIG_X86_PM_TIMER this gets called a lot of times, I guess my VIA chipset is too broken to play with this.
-> > 
-> > <example>
-> > ...
-> > Jan 19 04:21:46 bongani kernel: bad pmtmr read: (15567390, 15567423, 15567393)
-> > Jan 19 04:21:46 bongani kernel: bad pmtmr read: (1746710, 1746719, 1746713)
-> > Jan 19 04:21:47 bongani kernel: bad pmtmr read: (2239982, 2239999, 2239986)
+> kgdb 2.0.5 is available at 
+> http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.5.tar.bz2
 > 
-> Does the PM timer actually do the right thing once these printk's are
-> suppressed?
+> ChangeLog
+> 2004-01-20 Amit S. Kale <amitkale@emsyssoft.com>
+>         * Created a ring buffer for kgdb ethernet packets. Several
+>         fixes and changes to kgdb on ethernet.
 > 
+> 2004-01-20 TimeSys Corporation
+>         * Fixed a problem with not responding to Ctrl+C during priting of
+>         console messages through gdb.
+> 
+> I have pasted below eth.patch for review. When using the ethernet interface, 
+> gdb times out several times. It receives packets and junk instead of acks. I 
+> see following type of messages out of 8139too.c on the console 
+> "eth0:Out-of-sync dirty pointer, 15 vs. 20."
+> 
+> Any comments/suggestions/fixes on this patch are most welcome.
 
-No this is just to reduce the noise, my /var/log/messages file is about 33M in size
+Okay, so you wanted comments :-)
 
-> If not, it would be better to recover somehow - presumably by blacklisting
-> this machine or by falling back to a different time source.  Possible?
 
-I think it is better to blacklist for know because according to the comment on that function
-it is suppose to e workaround for some broken chipsets.
+@@ -2031,12 +2031,14 @@
+  obj-$(CONFIG_VORTEX) += 3c59x.o
+ Index: linux/drivers/net/kgdb_eth.c
+ ===================================================================
+---- linux.orig/drivers/net/kgdb_eth.c	2004-01-17 14:58:20.000000000 +0100
+-+++ linux/drivers/net/kgdb_eth.c	2004-01-17 14:58:20.000000000 +0100
+-@@ -0,0 +1,588 @@
++--- linux.orig/drivers/net/kgdb_eth.c	2004-01-20 14:29:19.000000000 +0100
+++++ linux/drivers/net/kgdb_eth.c	2004-01-20 14:29:19.000000000 +0100
++@@ -0,0 +1,704 @@
+ +/*
+ + * Network interface GDB stub
+ + *
+++ * Copyright (C), 2004 Amit S. Kale 
+++ *
+ + * Written by San Mehat (nettwerk@biodome.org)
+ + * Based upon 'gdbserial' by David Grothe (dave@gcom.com)
+ + * and Scott Foehner (sfoehner@engr.sgi.com)
+@@ -2045,6 +2047,8 @@
+ + * and wangdi <wangdi@clusterfs.com>.
+ + *
+ + * Restructured for generic a gdb interface 
+++ * Reveral changes to make it free of device driver changes.
+++ * Added internal buffers for this interface.
+ + * 	by Amit S. Kale <amitkale@emsyssoft.com>
+ + * Some cleanups by Pavel Machek <pavel@suse.cz>
+ + */
+@@ -2100,9 +2104,107 @@
+ +static int		kgdbeth_sendbufchars;
+ +static irqreturn_t	(*kgdbeth_irqhandler)(int, void *, struct pt_regs *) = NULL;
+ +
+-+int		kgdbeth_is_trapped;
+ +struct net_device *kgdb_netdevice = NULL;
+ +
+++/* Indicates dept of recursion for xmitlock hold */
+++static int xlockholdcount = 0;
 
- 
-[root@bongani bongani]# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev 01)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 47)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 02)
-00:07.3 Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
-00:09.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 07)
-00:0a.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
-00:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
+This should be xlock_hold_count according to CodingStyle.
 
->From dmesg
+++/* Holds xmitlock of the ethernet device 
+++ * Recursive calls allowed */
+++static void kgdbeth_holdxlock(void)
+++{
 
-ACPI: RSDP (v000 VIA691                                    ) @ 0x000f5f70
-ACPI: RSDT (v001 AWARD  AWRDACPI 0x30302e31 AWRD 0x00000000) @ 0x0fff3000
-ACPI: FADT (v001 AWARD  AWRDACPI 0x30302e31 AWRD 0x00000000) @ 0x0fff3040
-ACPI: DSDT (v001  AWARD AWRDACPI 0x00001000 MSFT 0x0100000a) @ 0x00000000
+Why not calling it simply kgdbeth_lock()?
 
---Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314
-Content-Type: application/pgp-signature
+++	if (spin_is_locked(&kgdb_netdevice->xmit_lock)) {
+++		if (kgdb_netdevice->xmit_lock_owner == smp_processor_id()) {
+++			goto gotit;
+++		}
+++	}
+++	spin_lock(&kgdb_netdevice->xmit_lock);
+++	kgdb_netdevice->xmit_lock_owner = smp_processor_id();
+++
+++gotit:
+++	xlockholdcount++;
+++}
+++
+++/* releases xmitlock of the ethernet device 
+++ * Recursive calls allowed */
+++static void kgdbeth_relxlock(void)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+kgdbeth_unlock()?
 
-iD8DBQFADY8y+pvEqv8+FEMRArjoAJwPcwx08cdI4jBycFeWPlQbvHjD0gCgkONT
-RNgxAMEhR3bkuzSB27PUe4M=
-=3Fma
------END PGP SIGNATURE-----
+ +int
+ +kgdbeth_hook(void)
+ +{
+-+	char kgdb_netdev[16];
+ +	extern void kgdb_respond_ok(void);
+ +	struct irqaction *ia_ptr;
+++	int i;
+ +
+-+	sprintf(kgdb_netdev, "eth%d", kgdb_eth);
+++	sprintf(kgdb_netdevname, "eth%d", kgdb_eth);
 
---Signature=_Tue__20_Jan_2004_22_27_09_+0200_R4cOWtUGOWzcs314--
+kgdb_netdev_name?
+
+@@ -2183,11 +2283,11 @@
+ +	memcpy(eth->h_source, kgdb_localmac, kgdb_netdevice->addr_len);
+ +	memcpy(eth->h_dest, kgdb_remotemac, kgdb_netdevice->addr_len);
+ +
+-+	spin_lock(&kgdb_netdevice->xmit_lock);
+-+	kgdb_netdevice->xmit_lock_owner = smp_processor_id();
+ +	kgdb_netdevice->hard_start_xmit(skb, kgdb_netdevice);
+-+	kgdb_netdevice->xmit_lock_owner = -1;
+-+	spin_unlock(&kgdb_netdevice->xmit_lock);
+++	if (atomic_read(&skb->users) != 1) {
+++		BUG();
+++	}
+++	kgdbeth_relxlock();
+ +}
+ +
+ +static void kgdbeth_flush(void)
+
+BUG_ON(atomic_read() != 1)?
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

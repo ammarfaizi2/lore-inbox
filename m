@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbRHKKqs>; Sat, 11 Aug 2001 06:46:48 -0400
+	id <S266488AbRHKLDL>; Sat, 11 Aug 2001 07:03:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266251AbRHKKqi>; Sat, 11 Aug 2001 06:46:38 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:47628 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S265844AbRHKKqa>; Sat, 11 Aug 2001 06:46:30 -0400
-Date: Sat, 11 Aug 2001 11:46:14 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel lockups on dual-Athlon board -- help wanted
-In-Reply-To: <20010811062349.A1769@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0108111145530.4433-100000@tahallah.demon.co.uk>
+	id <S266673AbRHKLDC>; Sat, 11 Aug 2001 07:03:02 -0400
+Received: from CPE-61-9-149-76.vic.bigpond.net.au ([61.9.149.76]:41198 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S266488AbRHKLCu>;
+	Sat, 11 Aug 2001 07:02:50 -0400
+Message-ID: <3B750F77.FAA9A123@eyal.emu.id.au>
+Date: Sat, 11 Aug 2001 20:56:55 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-ac8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: quintaq@yahoo.co.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Errors compiling emu10k1 module under 2.4.8
+In-Reply-To: <20010811101557Z266921-760+224@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Aug 2001, Eric S. Raymond wrote:
+quintaq@yahoo.co.uk wrote:
+> 
+> Hi,
+> 
+> I just d/ld the 2.4.8 patch and compilation of emu10k1 fails with :
+> 
+> main.o(.modinfo+0x20): multiple definition of `__module_author'
+> joystick.o(.modinfo+0x80): first defined here
+> ld: Warning: size of symbol `__module_author' changed from 67 to 81 in
+> main.o
+> main.o(.modinfo+0x80): multiple definition of `__module_description'
+> joystick.o(.modinfo+0xe0): first defined here
+> ld: Warning: size of symbol `__module_description' changed from 83 to 96 in
+> main.o
+> main.o: In function `init_module':
+> main.o(.text+0x1878): multiple definition of `init_module'
+> joystick.o(.text+0x240): first defined here
+> ld: Warning: size of symbol `init_module' changed from 64 to 67 in main.o
+> main.o: In function `cleanup_module':
+> main.o(.text+0x18bc): multiple definition of `cleanup_module'
+> joystick.o(.text+0x280): first defined here
+> make[3]: *** [emu10k1.o] Error 1
 
-> 6. Here's a weird one.  When the kernel is running, the power switch
->    has to be pressed down for 4 seconds to power down the machine.  But
->    during a lockup it powers down the machine instantly.
->
-> What we're seeing suggests some bad interaction between the SMP
-> support and the hardware.  But item 7 hints that power management
-> could be involved, even though we have it configured out.
+Seems that joystick.c wants to be a module by itself, so it cannot be
+linked with the rest of the modules here.
 
-You appear to be missing item 7.
+Removing 'joystick.o' from drivers/sound/emu10k1/Makefile solves the
+compile problem, but I do not know that it is the correct solution.
 
--- 
-Sigfault: Witty message dumped.
-
-http://www.tahallah.demon.co.uk
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

@@ -1,915 +1,416 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319146AbSHTCoa>; Mon, 19 Aug 2002 22:44:30 -0400
+	id <S319147AbSHTC6z>; Mon, 19 Aug 2002 22:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319147AbSHTCoa>; Mon, 19 Aug 2002 22:44:30 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:43742 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S319146AbSHTCoT>; Mon, 19 Aug 2002 22:44:19 -0400
-Subject: [RFC][PATCH] linux-2.4.31_timer-change_A1
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 19 Aug 2002 19:32:43 -0700
-Message-Id: <1029810763.1220.236.camel@cog>
+	id <S319148AbSHTC6z>; Mon, 19 Aug 2002 22:58:55 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:25285 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319147AbSHTC6u>; Mon, 19 Aug 2002 22:58:50 -0400
+Message-Id: <200208200302.g7K32Hc11706@w-gaughen.beaverton.ibm.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+Reply-to: gone@us.ibm.com
+From: Patricia Gaughen <gone@us.ibm.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] (1/2) discontigmem support for i386 against 2.4.20pre4: 
+ paddr_to_pfn
 Mime-Version: 1.0
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_12466350080"
+Date: Mon, 19 Aug 2002 20:02:16 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, all,
-	Ok, here is my next revision, hopefully to be met with something other
-then silence :) I've caught the corner case I had earlier, and cleaned
-up how timers are selected and added. Let me know if you have any
-comments/flames.
+This is a multipart MIME message.
 
-thanks
--john
+--==_Exmh_12466350080
+Content-Type: text/plain; charset=us-ascii
 
+This patch was written by Martin Bligh.
 
-diff -Nru a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
---- a/arch/i386/kernel/Makefile	Mon Aug 19 18:31:47 2002
-+++ b/arch/i386/kernel/Makefile	Mon Aug 19 18:31:47 2002
-@@ -6,12 +6,12 @@
+It changes all references of node_start_paddr and zone_start_paddr 
+to node_start_pfn and zone_start_pfn.  This change is required to support PAE
+for i386 discontigmem.  A version of this patch is in the 2.4 aa tree.
+
+Here's Martin's previous discussion regarding these changes:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101925939829917&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101925421326030&w=2
+
+I've tested this patch on the following configurations: UP, SMP, SMP PAE, 
+multiquad, multiquad PAE, multiquad DISCONTIGMEM, multiquad DISCONTIGMEM PAE.
+
+Any and all feedback regarding this patch is greatly appreciated.
+
+Thanks,
+Pat
+
+-- 
+Patricia Gaughen (gone@us.ibm.com)
+IBM Linux Technology Center
+http://www.ibm.com/linux/ltc/
+
+--==_Exmh_12466350080
+Content-Type: application/x-patch ; name="linux-2.4.20-pre4_paddr-to-pfn_A1.patch"
+Content-Description: linux-2.4.20-pre4_paddr-to-pfn_A1.patch
+Content-Disposition: attachment; filename="linux-2.4.20-pre4_paddr-to-pfn_A1.patch"
+
+diff -Nru a/arch/alpha/mm/numa.c b/arch/alpha/mm/numa.c
+--- a/arch/alpha/mm/numa.c	Mon Aug 19 18:48:57 2002
++++ b/arch/alpha/mm/numa.c	Mon Aug 19 18:48:57 2002
+@@ -294,7 +294,7 @@
+ 			zones_size[ZONE_DMA] = dma_local_pfn;
+ 			zones_size[ZONE_NORMAL] = (end_pfn - start_pfn) - dma_local_pfn;
+ 		}
+-		free_area_init_node(nid, NODE_DATA(nid), NULL, zones_size, start_pfn<<PAGE_SHIFT, NULL);
++		free_area_init_node(nid, NODE_DATA(nid), NULL, zones_size, start_pfn, NULL);
+ 		lmax_mapnr = PLAT_NODE_DATA_STARTNR(nid) + PLAT_NODE_DATA_SIZE(nid);
+ 		if (lmax_mapnr > max_mapnr) {
+ 			max_mapnr = lmax_mapnr;
+@@ -372,7 +372,7 @@
+ 		totalram_pages += free_all_bootmem_node(NODE_DATA(nid));
  
- O_TARGET := kernel.o
+ 		lmem_map = NODE_MEM_MAP(nid);
+-		pfn = NODE_DATA(nid)->node_start_paddr >> PAGE_SHIFT;
++		pfn = NODE_DATA(nid)->node_start_pfn;
+ 		for (i = 0; i < PLAT_NODE_DATA_SIZE(nid); i++, pfn++)
+ 			if (page_is_ram(pfn) && PageReserved(lmem_map+i))
+ 				reservedpages++;
+diff -Nru a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+--- a/arch/arm/mm/init.c	Mon Aug 19 18:48:57 2002
++++ b/arch/arm/mm/init.c	Mon Aug 19 18:48:57 2002
+@@ -558,7 +558,7 @@
+ 		arch_adjust_zones(node, zone_size, zhole_size);
  
--export-objs     := mca.o msr.o i386_ksyms.o time.o
-+export-objs     := mca.o msr.o i386_ksyms.o time.o timer_pit.o
+ 		free_area_init_node(node, pgdat, 0, zone_size,
+-				bdata->node_boot_start, zhole_size);
++				bdata->node_boot_start >> PAGE_SHIFT, zhole_size);
+ 	}
  
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
- 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
- 		pci-dma.o i386_ksyms.o i387.o bluesmoke.o dmi_scan.o \
--		bootflag.o
-+		bootflag.o timer.o timer_pit.o timer_tsc.o
- 
- obj-y				+= cpu/
- obj-$(CONFIG_MCA)		+= mca.o
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Mon Aug 19 18:31:47 2002
-+++ b/arch/i386/kernel/time.c	Mon Aug 19 18:31:47 2002
-@@ -52,6 +52,7 @@
- #include <asm/mpspec.h>
- #include <asm/uaccess.h>
- #include <asm/processor.h>
-+#include <asm/timer.h>
- 
- #include <linux/mc146818rtc.h>
- #include <linux/timex.h>
-@@ -67,201 +68,16 @@
- 
- u64 jiffies_64;
- 
--unsigned long cpu_khz;	/* Detected as we calibrate the TSC */
--
--/* Number of usecs that the last interrupt was delayed */
--static int delay_at_last_interrupt;
--
--static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
--
--/* Cached *multiplier* to convert TSC counts to microseconds.
-- * (see the equation below).
-- * Equal to 2^32 * (1 / (clocks per usec) ).
-- * Initialized in time_init.
-- */
--unsigned long fast_gettimeoffset_quotient;
- 
- extern rwlock_t xtime_lock;
- extern unsigned long wall_jiffies;
- 
- spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
- 
--static inline unsigned long do_fast_gettimeoffset(void)
--{
--	register unsigned long eax, edx;
--
--	/* Read the Time Stamp Counter */
--
--	rdtsc(eax,edx);
--
--	/* .. relative to previous jiffy (32 bits is enough) */
--	eax -= last_tsc_low;	/* tsc_low delta */
--
--	/*
--         * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient
--         *             = (tsc_low delta) * (usecs_per_clock)
--         *             = (tsc_low delta) * (usecs_per_jiffy / clocks_per_jiffy)
--	 *
--	 * Using a mull instead of a divl saves up to 31 clock cycles
--	 * in the critical path.
--         */
--
--	__asm__("mull %2"
--		:"=a" (eax), "=d" (edx)
--		:"rm" (fast_gettimeoffset_quotient),
--		 "0" (eax));
--
--	/* our adjusted time offset in microseconds */
--	return delay_at_last_interrupt + edx;
--}
--
--#define TICK_SIZE tick
--
--spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
--EXPORT_SYMBOL(i8253_lock);
- 
- extern spinlock_t i8259A_lock;
- 
--#ifndef CONFIG_X86_TSC
--
--/* This function must be called with interrupts disabled 
-- * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
-- * 
-- * However, the pc-audio speaker driver changes the divisor so that
-- * it gets interrupted rather more often - it loads 64 into the
-- * counter rather than 11932! This has an adverse impact on
-- * do_gettimeoffset() -- it stops working! What is also not
-- * good is that the interval that our timer function gets called
-- * is no longer 10.0002 ms, but 9.9767 ms. To get around this
-- * would require using a different timing source. Maybe someone
-- * could use the RTC - I know that this can interrupt at frequencies
-- * ranging from 8192Hz to 2Hz. If I had the energy, I'd somehow fix
-- * it so that at startup, the timer code in sched.c would select
-- * using either the RTC or the 8253 timer. The decision would be
-- * based on whether there was any other device around that needed
-- * to trample on the 8253. I'd set up the RTC to interrupt at 1024 Hz,
-- * and then do some jiggery to have a version of do_timer that 
-- * advanced the clock by 1/1024 s. Every time that reached over 1/100
-- * of a second, then do all the old code. If the time was kept correct
-- * then do_gettimeoffset could just return 0 - there is no low order
-- * divider that can be accessed.
-- *
-- * Ideally, you would be able to use the RTC for the speaker driver,
-- * but it appears that the speaker driver really needs interrupt more
-- * often than every 120 us or so.
-- *
-- * Anyway, this needs more thought....		pjsg (1993-08-28)
-- * 
-- * If you are really that interested, you should be reading
-- * comp.protocols.time.ntp!
-- */
--
--static unsigned long do_slow_gettimeoffset(void)
--{
--	int count;
--
--	static int count_p = LATCH;    /* for the first call after boot */
--	static unsigned long jiffies_p = 0;
--
--	/*
--	 * cache volatile jiffies temporarily; we have IRQs turned off. 
--	 */
--	unsigned long jiffies_t;
--
--	/* gets recalled with irq locally disabled */
--	spin_lock(&i8253_lock);
--	/* timer count may underflow right here */
--	outb_p(0x00, 0x43);	/* latch the count ASAP */
--
--	count = inb_p(0x40);	/* read the latched count */
--
--	/*
--	 * We do this guaranteed double memory access instead of a _p 
--	 * postfix in the previous port access. Wheee, hackady hack
--	 */
-- 	jiffies_t = jiffies;
--
--	count |= inb_p(0x40) << 8;
--	
--        /* VIA686a test code... reset the latch if count > max + 1 */
--        if (count > LATCH) {
--                outb_p(0x34, 0x43);
--                outb_p(LATCH & 0xff, 0x40);
--                outb(LATCH >> 8, 0x40);
--                count = LATCH - 1;
--        }
--	
--	spin_unlock(&i8253_lock);
--
--	/*
--	 * avoiding timer inconsistencies (they are rare, but they happen)...
--	 * there are two kinds of problems that must be avoided here:
--	 *  1. the timer counter underflows
--	 *  2. hardware problem with the timer, not giving us continuous time,
--	 *     the counter does small "jumps" upwards on some Pentium systems,
--	 *     (see c't 95/10 page 335 for Neptun bug.)
--	 */
--
--/* you can safely undefine this if you don't have the Neptune chipset */
--
--#define BUGGY_NEPTUN_TIMER
--
--	if( jiffies_t == jiffies_p ) {
--		if( count > count_p ) {
--			/* the nutcase */
--
--			int i;
--
--			spin_lock(&i8259A_lock);
--			/*
--			 * This is tricky when I/O APICs are used;
--			 * see do_timer_interrupt().
--			 */
--			i = inb(0x20);
--			spin_unlock(&i8259A_lock);
--
--			/* assumption about timer being IRQ0 */
--			if (i & 0x01) {
--				/*
--				 * We cannot detect lost timer interrupts ... 
--				 * well, that's why we call them lost, don't we? :)
--				 * [hmm, on the Pentium and Alpha we can ... sort of]
--				 */
--				count -= LATCH;
--			} else {
--#ifdef BUGGY_NEPTUN_TIMER
--				/*
--				 * for the Neptun bug we know that the 'latch'
--				 * command doesnt latch the high and low value
--				 * of the counter atomically. Thus we have to 
--				 * substract 256 from the counter 
--				 * ... funny, isnt it? :)
--				 */
--
--				count -= 256;
--#else
--				printk("do_slow_gettimeoffset(): hardware timer problem?\n");
--#endif
--			}
--		}
--	} else
--		jiffies_p = jiffies_t;
--
--	count_p = count;
--
--	count = ((LATCH-1) - count) * TICK_SIZE;
--	count = (count + LATCH/2) / LATCH;
--
--	return count;
--}
--
--static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
--
--#else
--
--#define do_gettimeoffset()	do_fast_gettimeoffset()
--
--#endif
-+struct timer_opts* timer;
- 
- /*
-  * This version of gettimeofday has microsecond resolution
-@@ -273,7 +89,7 @@
- 	unsigned long usec, sec;
- 
- 	read_lock_irqsave(&xtime_lock, flags);
--	usec = do_gettimeoffset();
-+	usec = timer->get_offset();
- 	{
- 		unsigned long lost = jiffies - wall_jiffies;
- 		if (lost)
-@@ -301,7 +117,7 @@
- 	 * wall time.  Discover what correction gettimeofday() would have
- 	 * made, and then undo it!
+ 	/*
+diff -Nru a/arch/cris/mm/init.c b/arch/cris/mm/init.c
+--- a/arch/cris/mm/init.c	Mon Aug 19 18:48:57 2002
++++ b/arch/cris/mm/init.c	Mon Aug 19 18:48:57 2002
+@@ -361,7 +361,7 @@
+ 	 * mem_map page array.
  	 */
--	tv->tv_usec -= do_gettimeoffset();
-+	tv->tv_usec -= timer->get_offset();
- 	tv->tv_usec -= (jiffies - wall_jiffies) * (1000000 / HZ);
  
- 	while (tv->tv_usec < 0) {
-@@ -462,8 +278,6 @@
- #endif
+-	free_area_init_node(0, 0, 0, zones_size, PAGE_OFFSET, 0);
++	free_area_init_node(0, 0, 0, zones_size, PAGE_OFFSET >> PAGE_SHIFT, 0);
+ 
  }
  
--static int use_tsc;
--
- /*
-  * This is the same as the above, except we _also_ save the current
-  * Time Stamp Counter value at the time of the timer interrupt, so that
-@@ -482,34 +296,7 @@
- 	 */
- 	write_lock(&xtime_lock);
+diff -Nru a/arch/mips64/sgi-ip27/ip27-memory.c b/arch/mips64/sgi-ip27/ip27-memory.c
+--- a/arch/mips64/sgi-ip27/ip27-memory.c	Mon Aug 19 18:48:57 2002
++++ b/arch/mips64/sgi-ip27/ip27-memory.c	Mon Aug 19 18:48:57 2002
+@@ -253,7 +253,7 @@
  
--	if (use_tsc)
--	{
--		/*
--		 * It is important that these two operations happen almost at
--		 * the same time. We do the RDTSC stuff first, since it's
--		 * faster. To avoid any inconsistencies, we need interrupts
--		 * disabled locally.
--		 */
--
--		/*
--		 * Interrupts are just disabled locally since the timer irq
--		 * has the SA_INTERRUPT flag set. -arca
--		 */
--	
--		/* read Pentium cycle counter */
--
--		rdtscl(last_tsc_low);
--
--		spin_lock(&i8253_lock);
--		outb_p(0x00, 0x43);     /* latch the count ASAP */
--
--		count = inb_p(0x40);    /* read the latched count */
--		count |= inb(0x40) << 8;
--		spin_unlock(&i8253_lock);
--
--		count = ((LATCH-1) - count) * TICK_SIZE;
--		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
--	}
-+	timer->mark_offset();
-  
- 	do_timer_interrupt(irq, NULL, regs);
+ 		zones_size[ZONE_DMA] = end_pfn + 1 - start_pfn;
+ 		free_area_init_node(node, NODE_DATA(node), 0, zones_size, 
+-						start_pfn << PAGE_SHIFT, 0);
++						start_pfn, 0);
+ 		if ((PLAT_NODE_DATA_STARTNR(node) + 
+ 					PLAT_NODE_DATA_SIZE(node)) > pagenr)
+ 			pagenr = PLAT_NODE_DATA_STARTNR(node) +
+diff -Nru a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+--- a/arch/sh/mm/init.c	Mon Aug 19 18:48:57 2002
++++ b/arch/sh/mm/init.c	Mon Aug 19 18:48:57 2002
+@@ -127,11 +127,11 @@
+ 			zones_size[ZONE_DMA] = max_dma - start_pfn;
+ 			zones_size[ZONE_NORMAL] = low - max_dma;
+ 		}
+-		free_area_init_node(0, NODE_DATA(0), 0, zones_size, __MEMORY_START, 0);
++		free_area_init_node(0, NODE_DATA(0), 0, zones_size, __MEMORY_START >> PAGE_SHIFT, 0);
+ #ifdef CONFIG_DISCONTIGMEM
+ 		zones_size[ZONE_DMA] = __MEMORY_SIZE_2ND >> PAGE_SHIFT;
+ 		zones_size[ZONE_NORMAL] = 0;
+-		free_area_init_node(1, NODE_DATA(1), 0, zones_size, __MEMORY_START_2ND, 0);
++		free_area_init_node(1, NODE_DATA(1), 0, zones_size, __MEMORY_START_2ND >> PAGE_SHIFT, 0);
+ #endif
+  	}
+ }
+diff -Nru a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
+--- a/arch/sparc/mm/srmmu.c	Mon Aug 19 18:48:57 2002
++++ b/arch/sparc/mm/srmmu.c	Mon Aug 19 18:48:57 2002
+@@ -1244,7 +1244,7 @@
+ 		zholes_size[ZONE_HIGHMEM] = npages - calc_highpages();
  
-@@ -561,99 +348,9 @@
+ 		free_area_init_node(0, NULL, NULL, zones_size,
+-				    phys_base, zholes_size);
++				    phys_base >> PAGE_SHIFT, zholes_size);
+ 	}
+ }
  
- static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
+diff -Nru a/arch/sparc/mm/sun4c.c b/arch/sparc/mm/sun4c.c
+--- a/arch/sparc/mm/sun4c.c	Mon Aug 19 18:48:57 2002
++++ b/arch/sparc/mm/sun4c.c	Mon Aug 19 18:48:57 2002
+@@ -2048,7 +2048,7 @@
+ 		zholes_size[ZONE_HIGHMEM] = npages - calc_highpages();
  
--/* ------ Calibrate the TSC ------- 
-- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-- * Too much 64-bit arithmetic here to do this cleanly in C, and for
-- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-- * output busy loop as low as possible. We avoid reading the CTC registers
-- * directly because of the awkward 8-bit access mechanism of the 82C54
-- * device.
-- */
--
--#define CALIBRATE_LATCH	(5 * LATCH)
--#define CALIBRATE_TIME	(5 * 1000020/HZ)
--
--static unsigned long __init calibrate_tsc(void)
--{
--       /* Set the Gate high, disable speaker */
--	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
--
--	/*
--	 * Now let's take care of CTC channel 2
--	 *
--	 * Set the Gate high, program CTC channel 2 for mode 0,
--	 * (interrupt on terminal count mode), binary count,
--	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
--	 */
--	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
--	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
--	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
--
--	{
--		unsigned long startlow, starthigh;
--		unsigned long endlow, endhigh;
--		unsigned long count;
--
--		rdtsc(startlow,starthigh);
--		count = 0;
--		do {
--			count++;
--		} while ((inb(0x61) & 0x20) == 0);
--		rdtsc(endlow,endhigh);
--
--		last_tsc_low = endlow;
--
--		/* Error: ECTCNEVERSET */
--		if (count <= 1)
--			goto bad_ctc;
--
--		/* 64-bit subtract - gcc just messes up with long longs */
--		__asm__("subl %2,%0\n\t"
--			"sbbl %3,%1"
--			:"=a" (endlow), "=d" (endhigh)
--			:"g" (startlow), "g" (starthigh),
--			 "0" (endlow), "1" (endhigh));
--
--		/* Error: ECPUTOOFAST */
--		if (endhigh)
--			goto bad_ctc;
--
--		/* Error: ECPUTOOSLOW */
--		if (endlow <= CALIBRATE_TIME)
--			goto bad_ctc;
--
--		__asm__("divl %2"
--			:"=a" (endlow), "=d" (endhigh)
--			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
--
--		return endlow;
--	}
--
--	/*
--	 * The CTC wasn't reliable: we got a hit on the very first read,
--	 * or the CPU was so fast/slow that the quotient wouldn't fit in
--	 * 32 bits..
--	 */
--bad_ctc:
--	return 0;
--}
--
--static struct device device_i8253 = {
--	.name	       	= "i8253",
--	.bus_id		= "0040",
--};
--
--static int time_init_driverfs(void)
--{
--	return register_sys_device(&device_i8253);
--}
--
--__initcall(time_init_driverfs);
--
- void __init time_init(void)
+ 		free_area_init_node(0, NULL, NULL, zones_size,
+-				    phys_base, zholes_size);
++				    phys_base >> PAGE_SHIFT, zholes_size);
+ 	}
+ 
+ 	cnt = 0;
+diff -Nru a/arch/sparc64/mm/init.c b/arch/sparc64/mm/init.c
+--- a/arch/sparc64/mm/init.c	Mon Aug 19 18:48:57 2002
++++ b/arch/sparc64/mm/init.c	Mon Aug 19 18:48:57 2002
+@@ -1434,7 +1434,7 @@
+ 		zholes_size[ZONE_DMA] = npages - pages_avail;
+ 
+ 		free_area_init_node(0, NULL, NULL, zones_size,
+-				    phys_base, zholes_size);
++				    phys_base >> PAGE_SHIFT, zholes_size);
+ 	}
+ 
+ 	device_scan();
+diff -Nru a/include/asm-alpha/mmzone.h b/include/asm-alpha/mmzone.h
+--- a/include/asm-alpha/mmzone.h	Mon Aug 19 18:48:57 2002
++++ b/include/asm-alpha/mmzone.h	Mon Aug 19 18:48:57 2002
+@@ -52,14 +52,14 @@
+ 
+ #if 1
+ #define PLAT_NODE_DATA_LOCALNR(p, n)	\
+-	(((p) - PLAT_NODE_DATA(n)->gendata.node_start_paddr) >> PAGE_SHIFT)
++	(((p) >> PAGE_SHIFT) - PLAT_NODE_DATA(n)->gendata.node_start_pfn)
+ #else
+ static inline unsigned long
+ PLAT_NODE_DATA_LOCALNR(unsigned long p, int n)
  {
--	extern int x86_udelay_tsc;
--	
-+		
- 	xtime.tv_sec = get_cmos_time();
- 	xtime.tv_usec = 0;
+ 	unsigned long temp;
+-	temp = p - PLAT_NODE_DATA(n)->gendata.node_start_paddr;
+-	return (temp >> PAGE_SHIFT);
++	temp = p >> PAGE_SHIFT;
++	return temp - PLAT_NODE_DATA(n)->gendata.node_start_pfn;
+ }
+ #endif
  
-@@ -684,34 +381,8 @@
-  
-  	dodgy_tsc();
-  	
--	if (cpu_has_tsc) {
--		unsigned long tsc_quotient = calibrate_tsc();
--		if (tsc_quotient) {
--			fast_gettimeoffset_quotient = tsc_quotient;
--			use_tsc = 1;
--			/*
--			 *	We could be more selective here I suspect
--			 *	and just enable this for the next intel chips ?
--			 */
--			x86_udelay_tsc = 1;
--#ifndef do_gettimeoffset
--			do_gettimeoffset = do_fast_gettimeoffset;
--#endif
--
--			/* report CPU clock rate in Hz.
--			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
--			 * clock/second. Our precision is about 100 ppm.
--			 */
--			{	unsigned long eax=0, edx=1000;
--				__asm__("divl %2"
--		       		:"=a" (cpu_khz), "=d" (edx)
--        	       		:"r" (tsc_quotient),
--	                	"0" (eax), "1" (edx));
--				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
--			}
--		}
--	}
--
-+	timer = select_timer();
-+	
- #ifdef CONFIG_VISWS
- 	printk("Starting Cobalt Timer system clock\n");
+@@ -96,7 +96,7 @@
+  * and returns the kaddr corresponding to first physical page in the
+  * node's mem_map.
+  */
+-#define LOCAL_BASE_ADDR(kaddr)	((unsigned long)__va(NODE_DATA(KVADDR_TO_NID(kaddr))->node_start_paddr))
++#define LOCAL_BASE_ADDR(kaddr)	((unsigned long)__va(NODE_DATA(KVADDR_TO_NID(kaddr))->node_start_pfn << PAGE_SHIFT))
  
-diff -Nru a/arch/i386/kernel/timer.c b/arch/i386/kernel/timer.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timer.c	Mon Aug 19 18:31:47 2002
-@@ -0,0 +1,28 @@
-+#include <linux/kernel.h>
-+
-+#include <asm/timer.h>
-+
-+/*list of externed timers*/
-+extern struct timer_opts timer_pit;
-+extern struct timer_opts timer_tsc;
-+
-+/*list of timers, ordered by preference*/
-+struct timer_opts* timers[] = {
-+	&timer_tsc,
-+	&timer_pit
-+};
-+
-+#define NR_TIMERS (sizeof(timers)/sizeof(timers[0]))
-+
-+/* iterates through the list of timers, returning the first 
-+ * one that initializes successfully.
-+ */
-+struct timer_opts* select_timer(void)
-+{
-+	int i;
-+	for(i=0; i < NR_TIMERS; i++)
-+		if(timers[i]->init())
-+			return timers[i];
-+	panic("select_timer: Cannot find a suitable timer\n");
-+	return 0;
-+}
-diff -Nru a/arch/i386/kernel/timer_pit.c b/arch/i386/kernel/timer_pit.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timer_pit.c	Mon Aug 19 18:31:47 2002
-@@ -0,0 +1,180 @@
-+#include <linux/spinlock.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <asm/timer.h>
-+#include <asm/io.h>
-+
-+/*fwd declarations*/
-+int init_pit(void);
-+void mark_offset_pit(void);
-+unsigned long get_offset_pit(void);
-+
-+/*tsc timer_opts struct*/
-+struct timer_opts timer_pit = {
-+	init: init_pit, 
-+	mark_offset: mark_offset_pit, 
-+	get_offset: get_offset_pit
-+};
-+
-+
-+extern spinlock_t i8259A_lock;
-+spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
-+EXPORT_SYMBOL(i8253_lock);
-+
-+
-+static struct device device_i8253 = {
-+	.name	       	= "i8253",
-+	.bus_id		= "0040",
-+};
-+
-+static int time_init_driverfs(void)
-+{
-+	return register_sys_device(&device_i8253);
-+}
-+
-+__initcall(time_init_driverfs);
-+
-+
-+
-+
-+int init_pit(void)
-+{
-+	return 1;
-+}
-+
-+void mark_offset_pit(void)
-+{
-+	/*nothing needed*/
-+}
-+
-+
-+/* This function must be called with interrupts disabled 
-+ * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
-+ * 
-+ * However, the pc-audio speaker driver changes the divisor so that
-+ * it gets interrupted rather more often - it loads 64 into the
-+ * counter rather than 11932! This has an adverse impact on
-+ * do_gettimeoffset() -- it stops working! What is also not
-+ * good is that the interval that our timer function gets called
-+ * is no longer 10.0002 ms, but 9.9767 ms. To get around this
-+ * would require using a different timing source. Maybe someone
-+ * could use the RTC - I know that this can interrupt at frequencies
-+ * ranging from 8192Hz to 2Hz. If I had the energy, I'd somehow fix
-+ * it so that at startup, the timer code in sched.c would select
-+ * using either the RTC or the 8253 timer. The decision would be
-+ * based on whether there was any other device around that needed
-+ * to trample on the 8253. I'd set up the RTC to interrupt at 1024 Hz,
-+ * and then do some jiggery to have a version of do_timer that 
-+ * advanced the clock by 1/1024 s. Every time that reached over 1/100
-+ * of a second, then do all the old code. If the time was kept correct
-+ * then do_gettimeoffset could just return 0 - there is no low order
-+ * divider that can be accessed.
-+ *
-+ * Ideally, you would be able to use the RTC for the speaker driver,
-+ * but it appears that the speaker driver really needs interrupt more
-+ * often than every 120 us or so.
-+ *
-+ * Anyway, this needs more thought....		pjsg (1993-08-28)
-+ * 
-+ * If you are really that interested, you should be reading
-+ * comp.protocols.time.ntp!
-+ */
-+
-+unsigned long get_offset_pit(void)
-+{
-+	int count;
-+
-+	static int count_p = LATCH;    /* for the first call after boot */
-+	static unsigned long jiffies_p = 0;
-+
-+	/*
-+	 * cache volatile jiffies temporarily; we have IRQs turned off. 
-+	 */
-+	unsigned long jiffies_t;
-+
-+	/* gets recalled with irq locally disabled */
-+	spin_lock(&i8253_lock);
-+	/* timer count may underflow right here */
-+	outb_p(0x00, 0x43);	/* latch the count ASAP */
-+
-+	count = inb_p(0x40);	/* read the latched count */
-+
-+	/*
-+	 * We do this guaranteed double memory access instead of a _p 
-+	 * postfix in the previous port access. Wheee, hackady hack
-+	 */
-+ 	jiffies_t = jiffies;
-+
-+	count |= inb_p(0x40) << 8;
-+	
-+        /* VIA686a test code... reset the latch if count > max + 1 */
-+        if (count > LATCH) {
-+                outb_p(0x34, 0x43);
-+                outb_p(LATCH & 0xff, 0x40);
-+                outb(LATCH >> 8, 0x40);
-+                count = LATCH - 1;
-+        }
-+	
-+	spin_unlock(&i8253_lock);
-+
-+	/*
-+	 * avoiding timer inconsistencies (they are rare, but they happen)...
-+	 * there are two kinds of problems that must be avoided here:
-+	 *  1. the timer counter underflows
-+	 *  2. hardware problem with the timer, not giving us continuous time,
-+	 *     the counter does small "jumps" upwards on some Pentium systems,
-+	 *     (see c't 95/10 page 335 for Neptun bug.)
-+	 */
-+
-+/* you can safely undefine this if you don't have the Neptune chipset */
-+
-+#define BUGGY_NEPTUN_TIMER
-+
-+	if( jiffies_t == jiffies_p ) {
-+		if( count > count_p ) {
-+			/* the nutcase */
-+
-+			int i;
-+
-+			spin_lock(&i8259A_lock);
-+			/*
-+			 * This is tricky when I/O APICs are used;
-+			 * see do_timer_interrupt().
-+			 */
-+			i = inb(0x20);
-+			spin_unlock(&i8259A_lock);
-+
-+			/* assumption about timer being IRQ0 */
-+			if (i & 0x01) {
+ #define LOCAL_MAP_NR(kvaddr) \
+ 	(((unsigned long)(kvaddr)-LOCAL_BASE_ADDR(kvaddr)) >> PAGE_SHIFT)
+diff -Nru a/include/asm-alpha/pgtable.h b/include/asm-alpha/pgtable.h
+--- a/include/asm-alpha/pgtable.h	Mon Aug 19 18:48:57 2002
++++ b/include/asm-alpha/pgtable.h	Mon Aug 19 18:48:57 2002
+@@ -193,9 +193,9 @@
+ #ifndef CONFIG_DISCONTIGMEM
+ #define PAGE_TO_PA(page)	((page - mem_map) << PAGE_SHIFT)
+ #else
+-#define PAGE_TO_PA(page) \
+-		((((page)-page_zone(page)->zone_mem_map) << PAGE_SHIFT) \
+-		+ page_zone(page)->zone_start_paddr)
++#define PAGE_TO_PA(page)					\
++		((((page)-page_zone(page)->zone_mem_map) +	\
++		 page_zone(page)->zone_start_pfn) << PAGE_SHIFT)
+ #endif
+ 
+ #ifndef CONFIG_DISCONTIGMEM
+@@ -214,7 +214,7 @@
+ 	unsigned long pfn;							\
+ 										\
+ 	pfn = ((unsigned long)((page)-page_zone(page)->zone_mem_map)) << 32;	\
+-	pfn += page_zone(page)->zone_start_paddr << (32-PAGE_SHIFT);		\
++	pfn += page_zone(page)->zone_start_pfn << 32;				\
+ 	pte_val(pte) = pfn | pgprot_val(pgprot);				\
+ 										\
+ 	pte;									\
+diff -Nru a/include/asm-mips64/mmzone.h b/include/asm-mips64/mmzone.h
+--- a/include/asm-mips64/mmzone.h	Mon Aug 19 18:48:57 2002
++++ b/include/asm-mips64/mmzone.h	Mon Aug 19 18:48:57 2002
+@@ -27,7 +27,7 @@
+ #define PLAT_NODE_DATA_STARTNR(n)    (PLAT_NODE_DATA(n)->gendata.node_start_mapnr)
+ #define PLAT_NODE_DATA_SIZE(n)	     (PLAT_NODE_DATA(n)->gendata.node_size)
+ #define PLAT_NODE_DATA_LOCALNR(p, n) \
+-		(((p) - PLAT_NODE_DATA(n)->gendata.node_start_paddr) >> PAGE_SHIFT)
++		(((p) >> PAGE_SHIFT) - PLAT_NODE_DATA(n)->gendata.node_start_pfn)
+ 
+ #define numa_node_id()	cputocnode(current->processor)
+ 
+diff -Nru a/include/asm-mips64/pgtable.h b/include/asm-mips64/pgtable.h
+--- a/include/asm-mips64/pgtable.h	Mon Aug 19 18:48:57 2002
++++ b/include/asm-mips64/pgtable.h	Mon Aug 19 18:48:57 2002
+@@ -488,8 +488,8 @@
+ #define PAGE_TO_PA(page)	((page - mem_map) << PAGE_SHIFT)
+ #else
+ #define PAGE_TO_PA(page) \
+-		((((page) - page_zone(page)->zone_mem_map) << PAGE_SHIFT) \
+-		  + (page_zone(page)->zone_start_paddr))
++		((((page) - page_zone(page)->zone_mem_map) \
++		  + (page_zone(page)->zone_start_pfn)) << PAGE_SHIFT)
+ #endif
+ #define mk_pte(page, pgprot)						\
+ ({									\
+diff -Nru a/include/asm-parisc/pgtable.h b/include/asm-parisc/pgtable.h
+--- a/include/asm-parisc/pgtable.h	Mon Aug 19 18:48:57 2002
++++ b/include/asm-parisc/pgtable.h	Mon Aug 19 18:48:57 2002
+@@ -283,8 +283,8 @@
+ 
+ #ifdef CONFIG_DISCONTIGMEM
+ #define PAGE_TO_PA(page) \
+-		((((page)-(page)->zone->zone_mem_map) << PAGE_SHIFT) \
+-		+ ((page)->zone->zone_start_paddr))
++		((((page)-(page)->zone->zone_mem_map) \
++		+ (page)->zone->zone_start_pfn) << PAGE_SHIFT)
+ #else
+ #define PAGE_TO_PA(page) ((page - mem_map) << PAGE_SHIFT)
+ #endif
+diff -Nru a/include/linux/blkdev.h b/include/linux/blkdev.h
+--- a/include/linux/blkdev.h	Mon Aug 19 18:48:57 2002
++++ b/include/linux/blkdev.h	Mon Aug 19 18:48:57 2002
+@@ -156,7 +156,7 @@
+ #ifndef CONFIG_DISCONTIGMEM
+ 	if (page - mem_map <= q->bounce_pfn)
+ #else
+-	if ((page - page_zone(page)->zone_mem_map) + (page_zone(page)->zone_start_paddr >> PAGE_SHIFT) <= q->bounce_pfn)
++	if (((page - page_zone(page)->zone_mem_map) + page_zone(page)->zone_start_pfn) <= q->bounce_pfn)
+ #endif
+ 		return bh;
+ 
+diff -Nru a/include/linux/mm.h b/include/linux/mm.h
+--- a/include/linux/mm.h	Mon Aug 19 18:48:57 2002
++++ b/include/linux/mm.h	Mon Aug 19 18:48:57 2002
+@@ -364,8 +364,8 @@
+ #else /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
+ 
+ #define page_address(page)						\
+-	__va( (((page) - page_zone(page)->zone_mem_map) << PAGE_SHIFT)	\
+-			+ page_zone(page)->zone_start_paddr)
++	__va( (((page) - page_zone(page)->zone_mem_map) 	\
++			+ page_zone(page)->zone_start_pfn) << PAGE_SHIFT)
+ 
+ #endif /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
+ 
+@@ -509,7 +509,7 @@
+ 
+ extern void free_area_init(unsigned long * zones_size);
+ extern void free_area_init_node(int nid, pg_data_t *pgdat, struct page *pmap,
+-	unsigned long * zones_size, unsigned long zone_start_paddr, 
++	unsigned long * zones_size, unsigned long zone_start_pfn, 
+ 	unsigned long *zholes_size);
+ extern void mem_init(void);
+ extern void show_mem(void);
+diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
+--- a/include/linux/mmzone.h	Mon Aug 19 18:48:57 2002
++++ b/include/linux/mmzone.h	Mon Aug 19 18:48:57 2002
+@@ -82,7 +82,8 @@
+ 	 */
+ 	struct pglist_data	*zone_pgdat;
+ 	struct page		*zone_mem_map;
+-	unsigned long		zone_start_paddr;
++	/* zone_start_pfn == zone_start_paddr >> PAGE_SHIFT */
++	unsigned long		zone_start_pfn;
+ 	unsigned long		zone_start_mapnr;
+ 
+ 	/*
+@@ -133,7 +134,7 @@
+ 	struct page *node_mem_map;
+ 	unsigned long *valid_addr_bitmap;
+ 	struct bootmem_data *bdata;
+-	unsigned long node_start_paddr;
++	unsigned long node_start_pfn;
+ 	unsigned long node_start_mapnr;
+ 	unsigned long node_size;
+ 	int node_id;
+diff -Nru a/mm/numa.c b/mm/numa.c
+--- a/mm/numa.c	Mon Aug 19 18:48:57 2002
++++ b/mm/numa.c	Mon Aug 19 18:48:57 2002
+@@ -22,11 +22,11 @@
+  * Should be invoked with paramters (0, 0, unsigned long *[], start_paddr).
+  */
+ void __init free_area_init_node(int nid, pg_data_t *pgdat, struct page *pmap,
+-	unsigned long *zones_size, unsigned long zone_start_paddr, 
++	unsigned long *zones_size, unsigned long zone_start_pfn, 
+ 	unsigned long *zholes_size)
+ {
+ 	free_area_init_core(0, &contig_page_data, &mem_map, zones_size, 
+-				zone_start_paddr, zholes_size, pmap);
++				zone_start_pfn, zholes_size, pmap);
+ }
+ 
+ #endif /* !CONFIG_DISCONTIGMEM */
+@@ -59,7 +59,7 @@
+  * Nodes can be initialized parallely, in no particular order.
+  */
+ void __init free_area_init_node(int nid, pg_data_t *pgdat, struct page *pmap,
+-	unsigned long *zones_size, unsigned long zone_start_paddr, 
++	unsigned long *zones_size, unsigned long zone_start_pfn, 
+ 	unsigned long *zholes_size)
+ {
+ 	int i, size = 0;
+@@ -68,7 +68,7 @@
+ 	if (mem_map == (mem_map_t *)NULL)
+ 		mem_map = (mem_map_t *)PAGE_OFFSET;
+ 
+-	free_area_init_core(nid, pgdat, &discard, zones_size, zone_start_paddr,
++	free_area_init_core(nid, pgdat, &discard, zones_size, zone_start_pfn,
+ 					zholes_size, pmap);
+ 	pgdat->node_id = nid;
+ 
+diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
+--- a/mm/page_alloc.c	Mon Aug 19 18:48:57 2002
++++ b/mm/page_alloc.c	Mon Aug 19 18:48:57 2002
+@@ -701,7 +701,7 @@
+  *   - clear the memory bitmaps
+  */
+ void __init free_area_init_core(int nid, pg_data_t *pgdat, struct page **gmap,
+-	unsigned long *zones_size, unsigned long zone_start_paddr, 
++	unsigned long *zones_size, unsigned long zone_start_pfn, 
+ 	unsigned long *zholes_size, struct page *lmem_map)
+ {
+ 	unsigned long i, j;
+@@ -709,9 +709,6 @@
+ 	unsigned long totalpages, offset, realtotalpages;
+ 	const unsigned long zone_required_alignment = 1UL << (MAX_ORDER-1);
+ 
+-	if (zone_start_paddr & ~PAGE_MASK)
+-		BUG();
+-
+ 	totalpages = 0;
+ 	for (i = 0; i < MAX_NR_ZONES; i++) {
+ 		unsigned long size = zones_size[i];
+@@ -739,7 +736,7 @@
+ 	}
+ 	*gmap = pgdat->node_mem_map = lmem_map;
+ 	pgdat->node_size = totalpages;
+-	pgdat->node_start_paddr = zone_start_paddr;
++	pgdat->node_start_pfn = zone_start_pfn;
+ 	pgdat->node_start_mapnr = (lmem_map - mem_map);
+ 	pgdat->nr_zones = 0;
+ 
+@@ -791,9 +788,9 @@
+ 
+ 		zone->zone_mem_map = mem_map + offset;
+ 		zone->zone_start_mapnr = offset;
+-		zone->zone_start_paddr = zone_start_paddr;
++		zone->zone_start_pfn = zone_start_pfn;
+ 
+-		if ((zone_start_paddr >> PAGE_SHIFT) & (zone_required_alignment-1))
++		if ((zone_start_pfn) & (zone_required_alignment-1))
+ 			printk("BUG: wrong zone alignment, it will crash\n");
+ 
+ 		/*
+@@ -808,8 +805,12 @@
+ 			SetPageReserved(page);
+ 			INIT_LIST_HEAD(&page->list);
+ 			if (j != ZONE_HIGHMEM)
+-				set_page_address(page, __va(zone_start_paddr));
+-			zone_start_paddr += PAGE_SIZE;
 +				/*
-+				 * We cannot detect lost timer interrupts ... 
-+				 * well, that's why we call them lost, don't we? :)
-+				 * [hmm, on the Pentium and Alpha we can ... sort of]
++				 * The shift left won't overflow because the
++				 * ZONE_NORMAL is below 4G.
 +				 */
-+				count -= LATCH;
-+			} else {
-+#ifdef BUGGY_NEPTUN_TIMER
-+				/*
-+				 * for the Neptun bug we know that the 'latch'
-+				 * command doesnt latch the high and low value
-+				 * of the counter atomically. Thus we have to 
-+				 * substract 256 from the counter 
-+				 * ... funny, isnt it? :)
-+				 */
-+
-+				count -= 256;
-+#else
-+				printk("do_slow_gettimeoffset(): hardware timer problem?\n");
-+#endif
-+			}
-+		}
-+	} else
-+		jiffies_p = jiffies_t;
-+
-+	count_p = count;
-+
-+	count = ((LATCH-1) - count) * TICK_SIZE;
-+	count = (count + LATCH/2) / LATCH;
-+
-+	return count;
-+}
-diff -Nru a/arch/i386/kernel/timer_tsc.c b/arch/i386/kernel/timer_tsc.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timer_tsc.c	Mon Aug 19 18:31:47 2002
-@@ -0,0 +1,210 @@
-+#include <linux/spinlock.h>
-+#include <linux/init.h>
-+#include <linux/timex.h>
-+
-+#include <asm/timer.h>
-+#include <asm/io.h>
-+
-+/*fwd declarations*/
-+int init_tsc(void);
-+void mark_offset_tsc(void);
-+unsigned long get_offset_tsc(void);
-+
-+/*tsc timer_opts struct*/
-+struct timer_opts timer_tsc = {
-+	init: init_tsc, 
-+	mark_offset: mark_offset_tsc, 
-+	get_offset: get_offset_tsc
-+};
-+
-+
-+/************************************************************/
-+extern int x86_udelay_tsc;
-+extern spinlock_t i8253_lock;
-+
-+static int use_tsc;
-+unsigned long cpu_khz;	/* Detected as we calibrate the TSC */
-+
-+/* # usecs that the last interrupt was delayed */
-+static int delay_at_last_interrupt;
-+
-+static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
-+
-+/* Cached *multiplier* to convert TSC counts to microseconds.
-+ * (see the equation below).
-+ * Equal to 2^32 * (1 / (clocks per usec) ).
-+ * Initialized in time_init.
-+ */
-+unsigned long fast_gettimeoffset_quotient;
-+
-+
-+
-+#define CALIBRATE_LATCH	(5 * LATCH)
-+#define CALIBRATE_TIME	(5 * 1000020/HZ)
-+
-+/* ------ Calibrate the TSC ------- 
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-+ * Too much 64-bit arithmetic here to do this cleanly in C, and for
-+ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-+ * output busy loop as low as possible. We avoid reading the CTC registers
-+ * directly because of the awkward 8-bit access mechanism of the 82C54
-+ * device.
-+ */
-+
-+static unsigned long __init calibrate_tsc(void)
-+{
-+       /* Set the Gate high, disable speaker */
-+	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
-+
-+	/*
-+	 * Now let's take care of CTC channel 2
-+	 *
-+	 * Set the Gate high, program CTC channel 2 for mode 0,
-+	 * (interrupt on terminal count mode), binary count,
-+	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
-+	 */
-+	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
-+	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
-+	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
-+
-+	{
-+		unsigned long startlow, starthigh;
-+		unsigned long endlow, endhigh;
-+		unsigned long count;
-+
-+		rdtsc(startlow,starthigh);
-+		count = 0;
-+		do {
-+			count++;
-+		} while ((inb(0x61) & 0x20) == 0);
-+		rdtsc(endlow,endhigh);
-+
-+		last_tsc_low = endlow;
-+
-+		/* Error: ECTCNEVERSET */
-+		if (count <= 1)
-+			goto bad_ctc;
-+
-+		/* 64-bit subtract - gcc just messes up with long longs */
-+		__asm__("subl %2,%0\n\t"
-+			"sbbl %3,%1"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"g" (startlow), "g" (starthigh),
-+			 "0" (endlow), "1" (endhigh));
-+
-+		/* Error: ECPUTOOFAST */
-+		if (endhigh)
-+			goto bad_ctc;
-+
-+		/* Error: ECPUTOOSLOW */
-+		if (endlow <= CALIBRATE_TIME)
-+			goto bad_ctc;
-+
-+		__asm__("divl %2"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
-+
-+		return endlow;
-+	}
-+
-+	/*
-+	 * The CTC wasn't reliable: we got a hit on the very first read,
-+	 * or the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+bad_ctc:
-+	return 0;
-+}
-+
-+
-+
-+int init_tsc(void)
-+{
-+	if (cpu_has_tsc) {
-+		unsigned long tsc_quotient = calibrate_tsc();
-+		if (tsc_quotient) {
-+			fast_gettimeoffset_quotient = tsc_quotient;
-+			use_tsc = 1;
-+			/*
-+			 *	We could be more selective here I suspect
-+			 *	and just enable this for the next intel chips ?
-+			 */
-+			x86_udelay_tsc = 1;
-+
-+			/* report CPU clock rate in Hz.
-+			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-+			 * clock/second. Our precision is about 100 ppm.
-+			 */
-+			{	unsigned long eax=0, edx=1000;
-+				__asm__("divl %2"
-+		       		:"=a" (cpu_khz), "=d" (edx)
-+        	       		:"r" (tsc_quotient),
-+	                	"0" (eax), "1" (edx));
-+				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
-+			}
-+			return 1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+
-+
-+
-+void mark_offset_tsc(void)
-+{
-+	int count;
-+	/*
-+	 * It is important that these two operations happen almost at
-+	 * the same time. We do the RDTSC stuff first, since it's
-+	 * faster. To avoid any inconsistencies, we need interrupts
-+	 * disabled locally.
-+	 */
-+
-+	/*
-+	 * Interrupts are just disabled locally since the timer irq
-+	 * has the SA_INTERRUPT flag set. -arca
-+	 */
-+
-+	/* read Pentium cycle counter */
-+	rdtscl(last_tsc_low);
-+
-+	spin_lock(&i8253_lock);
-+	outb_p(0x00, 0x43);     /* latch the count ASAP */
-+
-+	count = inb_p(0x40);    /* read the latched count */
-+	count |= inb(0x40) << 8;
-+	spin_unlock(&i8253_lock);
-+
-+	count = ((LATCH-1) - count) * TICK_SIZE;
-+	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
-+}
-+
-+unsigned long get_offset_tsc(void)
-+{
-+	register unsigned long eax, edx;
-+
-+	/* Read the Time Stamp Counter */
-+
-+	rdtsc(eax,edx);
-+
-+	/* .. relative to previous jiffy (32 bits is enough) */
-+	eax -= last_tsc_low;	/* tsc_low delta */
-+
-+	/*
-+         * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient
-+         *             = (tsc_low delta) * (usecs_per_clock)
-+         *             = (tsc_low delta) * (usecs_per_jiffy / clocks_per_jiffy)
-+	 *
-+	 * Using a mull instead of a divl saves up to 31 clock cycles
-+	 * in the critical path.
-+         */
-+
-+	__asm__("mull %2"
-+		:"=a" (eax), "=d" (edx)
-+		:"rm" (fast_gettimeoffset_quotient),
-+		 "0" (eax));
-+
-+	/* our adjusted time offset in microseconds */
-+	return delay_at_last_interrupt + edx;
-+}
-diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/timer.h	Mon Aug 19 18:31:47 2002
-@@ -0,0 +1,13 @@
-+
-+#ifndef _ASMi386_TIMER_H
-+#define _ASMi386_TIMER_H
-+
-+struct timer_opts{
-+	int (*init)(void);
-+	void (*mark_offset)(void);
-+	unsigned long (*get_offset)(void);
-+};
-+
-+#define TICK_SIZE tick
-+struct timer_opts* select_timer(void);
-+#endif
++				set_page_address(page, __va(zone_start_pfn << PAGE_SHIFT));
++			zone_start_pfn++;
+ 		}
+ 
+ 		offset += size;
 
+--==_Exmh_12466350080--
 
 

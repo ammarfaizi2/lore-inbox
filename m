@@ -1,135 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261505AbTCOUNn>; Sat, 15 Mar 2003 15:13:43 -0500
+	id <S261508AbTCOUO0>; Sat, 15 Mar 2003 15:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbTCOUNn>; Sat, 15 Mar 2003 15:13:43 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49806 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261505AbTCOUNl>;
-	Sat, 15 Mar 2003 15:13:41 -0500
-Date: Sat, 15 Mar 2003 12:24:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] remove BKL from ext2's readdir
-Message-Id: <20030315122432.1e3f8bd5.akpm@digeo.com>
-In-Reply-To: <m3smto4cjd.fsf@lexa.home.net>
-References: <m3vfyluedb.fsf@lexa.home.net>
-	<20030315023614.3e28e67b.akpm@digeo.com>
-	<20030315030322.792fa598.akpm@digeo.com>
-	<m3wuj0fvls.fsf@lexa.home.net>
-	<20030315121125.48294975.akpm@digeo.com>
-	<m3smto4cjd.fsf@lexa.home.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261530AbTCOUOZ>; Sat, 15 Mar 2003 15:14:25 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:51912 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261508AbTCOUOV>;
+	Sat, 15 Mar 2003 15:14:21 -0500
+Date: Sat, 15 Mar 2003 21:25:09 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: dan carpenter <d_carpenter@sbcglobal.net>
+Cc: Zwane Mwaikambo <zwane@holomorphy.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, wrlk@riede.org
+Subject: Re: Any hope for ide-scsi (error handling)?
+Message-ID: <20030315202509.GA4374@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	dan carpenter <d_carpenter@sbcglobal.net>,
+	Zwane Mwaikambo <zwane@holomorphy.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, wrlk@riede.org
+References: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com> <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net> <Pine.LNX.4.50.0303151453010.9158-100000@montezuma.mastecende.com> <200303152012.h2FKCulK283698@pimout2-ext.prodigy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Mar 2003 20:24:18.0648 (UTC) FILETIME=[DB172580:01C2EB30]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303152012.h2FKCulK283698@pimout2-ext.prodigy.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas <bzzz@tmi.comex.ru> wrote:
->
-> fs/ext2/dir.c:
+On Sat, Mar 15, 2003 at 03:52:21AM +0100, dan carpenter wrote:
+> > >
+> > >    887          spin_lock_irqsave(&ide_lock, flags);
+> > >    888          while (HWGROUP(drive)->handler) {
+> > >    889                  HWGROUP(drive)->handler = NULL;
+> > >    890                  schedule_timeout(1);
+> > >    891          }
+> > >
+> > > Here is at least one bad call to schedule() in
+> > > static int idescsi_reset (Scsi_Cmnd *cmd)
+> >
+> > Apart from the schedule with the ide_lock held, what is that code actually
+> > doing?
+> >
+> > 	Zwane
 > 
-> struct file_operations ext2_dir_operations = {
->         .read           = generic_read_dir,
->         .readdir        = ext2_readdir,
->         .ioctl          = ext2_ioctl,
->         .fsync          = ext2_sync_file,
-> };
+> Hm...  Good question.  I have no idea what the while loop is for.
 
-ah, OK.  How about this?
+A construct like this was suggested for use in swsusp too to make sure that
+only *one* request is outstanding for a controler. This was also mentioned
+to be the unclean way and that there are taskfile interfaces which are
+cleaner.
 
-diff -puN fs/ext2/dir.c~lseek-ext2_readdir fs/ext2/dir.c
---- 25/fs/ext2/dir.c~lseek-ext2_readdir	2003-03-15 03:20:22.000000000 -0800
-+++ 25-akpm/fs/ext2/dir.c	2003-03-15 12:21:56.000000000 -0800
-@@ -259,8 +259,6 @@ ext2_readdir (struct file * filp, void *
- 	int need_revalidate = (filp->f_version != inode->i_version);
- 	int ret = 0;
- 
--	lock_kernel();
--
- 	if (pos > inode->i_size - EXT2_DIR_REC_LEN(1))
- 		goto done;
- 
-@@ -313,7 +311,6 @@ done:
- 	filp->f_pos = (n << PAGE_CACHE_SHIFT) | offset;
- 	filp->f_version = inode->i_version;
- 	UPDATE_ATIME(inode);
--	unlock_kernel();
- 	return 0;
- }
- 
-@@ -660,6 +657,7 @@ not_empty:
- }
- 
- struct file_operations ext2_dir_operations = {
-+	.llseek		= generic_file_llseek,
- 	.read		= generic_read_dir,
- 	.readdir	= ext2_readdir,
- 	.ioctl		= ext2_ioctl,
-diff -puN fs/ext3/dir.c~lseek-ext2_readdir fs/ext3/dir.c
---- 25/fs/ext3/dir.c~lseek-ext2_readdir	2003-03-15 03:20:22.000000000 -0800
-+++ 25-akpm/fs/ext3/dir.c	2003-03-15 12:22:14.000000000 -0800
-@@ -37,10 +37,11 @@ static int ext3_release_dir (struct inod
- 				struct file * filp);
- 
- struct file_operations ext3_dir_operations = {
-+	.llseek		= generic_file_llseek,
- 	.read		= generic_read_dir,
- 	.readdir	= ext3_readdir,		/* we take BKL. needed?*/
- 	.ioctl		= ext3_ioctl,		/* BKL held */
--	.fsync		= ext3_sync_file,		/* BKL held */
-+	.fsync		= ext3_sync_file,	/* BKL held */
- #ifdef CONFIG_EXT3_INDEX
- 	.release	= ext3_release_dir,
- #endif
-@@ -98,8 +99,7 @@ static int ext3_readdir(struct file * fi
- 	struct super_block * sb;
- 	int err;
- 	struct inode *inode = filp->f_dentry->d_inode;
--
--	lock_kernel();
-+	int ret = 0;
- 
- 	sb = inode->i_sb;
- 
-@@ -110,8 +110,8 @@ static int ext3_readdir(struct file * fi
- 	     ((inode->i_size >> sb->s_blocksize_bits) == 1))) {
- 		err = ext3_dx_readdir(filp, dirent, filldir);
- 		if (err != ERR_BAD_DX_DIR) {
--			unlock_kernel();
--			return err;
-+			ret = err;
-+			goto out;
- 		}
- 		/*
- 		 * We don't set the inode dirty flag since it's not
-@@ -191,8 +191,8 @@ revalidate:
- 				filp->f_pos = (filp->f_pos |
- 						(sb->s_blocksize - 1)) + 1;
- 				brelse (bh);
--				unlock_kernel();
--				return stored;
-+				ret = stored;
-+				goto out;
- 			}
- 			offset += le16_to_cpu(de->rec_len);
- 			if (le32_to_cpu(de->inode)) {
-@@ -222,8 +222,8 @@ revalidate:
- 		brelse (bh);
- 	}
- 	UPDATE_ATIME(inode);
--	unlock_kernel();
--	return 0;
-+out:
-+	return ret;
- }
- 
- #ifdef CONFIG_EXT3_INDEX
-diff -puN fs/ext2/file.c~lseek-ext2_readdir fs/ext2/file.c
+Bert.
 
-_
-
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting

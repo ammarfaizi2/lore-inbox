@@ -1,90 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286630AbRLVBwu>; Fri, 21 Dec 2001 20:52:50 -0500
+	id <S286645AbRLVCFY>; Fri, 21 Dec 2001 21:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286632AbRLVBwk>; Fri, 21 Dec 2001 20:52:40 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:42928 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S286630AbRLVBwf>; Fri, 21 Dec 2001 20:52:35 -0500
-Date: Sat, 22 Dec 2001 01:54:04 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj5
-Message-ID: <20011222015404.A10114@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S286644AbRLVCFP>; Fri, 21 Dec 2001 21:05:15 -0500
+Received: from svr3.applink.net ([206.50.88.3]:2322 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286636AbRLVCFF>;
+	Fri, 21 Dec 2001 21:05:05 -0500
+Message-Id: <200112220204.fBM24rSr022372@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: World Domination Now! <linux-kernel@vger.kernel.org>,
+        Chris Ricker <kaboom@gatech.edu>
+Subject: Re: Configure.help editorial policy
+Date: Fri, 21 Dec 2001 20:01:10 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0112211313160.30646-100000@verdande.oobleck.net>
+In-Reply-To: <Pine.LNX.4.33.0112211313160.30646-100000@verdande.oobleck.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mostly resync stuff.
+On Friday 21 December 2001 14:24, Chris Ricker wrote:
+> On Fri, 21 Dec 2001, Timothy Covell wrote:
+> > On Friday 21 December 2001 13:12, David Weinehall wrote:
+> > [snip]
+> >
+> > > Whatever the choice ends up being, KB is always incorrect, unless you
+> > > intend to specify some strange formula where the number of bytes (B)
+> > > combined with the temperature in Kelvin (K) has anything to do with
+> > > things.
+> > >
+> > >
+> > >
+> > > /David Weinehall
+> >
+> > The way the metric prefixes work is that multiplicative prefixes are
+> > capitalized and divisional prefixes are in lower case.
+>
+> Nonsense.  Some of what you're calling multiplicative prefixes (as if they
+> weren't *all* multiplicative ;-) are capitalized, and others are not.  kilo
+> (10^3) is k, hecto (10^2) is h, and deca (10^1) is da, for example.  See
+> <http://www.bipm.fr/enus/6_Publications/si/si-brochure.html> for the
+> official guidelines (page 23 if you read English, and page 28 if you read
+> French).
 
-Patch against 2.5.1 vanilla is available from:
-http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj5.diff.bz2
-
-Some of these fixes still haven't found their way back to Marcelo yet
-but should show up in 2.4.17-rc3 / 2.4.18pre1 with any luck.
-
-2.5.1-dj5
-o   Merge 2.5.2pre1.
-o   Merge 2.4.17final.
-o   Gravis ultrasound PnP update		(Andrey Panin)
-
-
-2.5.1-dj4
-o   Merge with 2.4.17-rc2
-    | Most was already here, more or less just fixes for
-    | reiserfs & netfilter, and some VM changes.
-
-
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
-
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
+Dude, I don't know why you are being so pedantic on this.
+You pointed to the stupid exceptions instead of the norm.
+100% of the negative power prefixes ARE lower case, and all of the
+positive power prefixes ARE UPPERCASE except those three stupid 
+exceptions which you cited.  Here, SI is being stupid.    Uppercase 
+is a GOOD IDEA (TM).  And, NIST should fix this because the
+point of standards is to create logical consistancy so that people
+don't get into these stupid discussions.
 
 
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
+Finally, I'm an American, so that means if someone tells me to do
+something stupid, I tell them where they can shove it.     
 
+
+>
+> More relevant to the whole Configure.help discussion, if you want to
+> pedantic, official SI guidelines also state on the same page that:
+>
+> "These SI prefixes refer strictly to powers of 10.  They should not be used
+> to indicate powers of 2 (for example, one kilobit represents 1000 bits and
+> not 1024 bits)."
+
+And I already agreed to this, as have most of the others.
+
+>
+> later,
+> chris
+>
 
 -- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+timothy.covell@ashavan.org.

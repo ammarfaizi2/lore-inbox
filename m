@@ -1,83 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291349AbSAaV6D>; Thu, 31 Jan 2002 16:58:03 -0500
+	id <S291352AbSAaV7o>; Thu, 31 Jan 2002 16:59:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291353AbSAaV5y>; Thu, 31 Jan 2002 16:57:54 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:241 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291354AbSAaV5d>;
-	Thu, 31 Jan 2002 16:57:33 -0500
-Date: Thu, 31 Jan 2002 14:56:55 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        lm@bitmover.com
-Subject: Re: real BK usage (was: A modest proposal -- We need a patch penguin)
-Message-ID: <20020131145655.W763@lynx.adilger.int>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <garzik@havoc.gtf.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, lm@bitmover.com
-In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com> <1012354692.1777.4.camel@stomata.megapathdsl.net> <20020130080504.JUTO18525.femail19.sdc1.sfba.home.com@there> <20020130034746.K32317@havoc.gtf.org> <a38ekv$1is$1@penguin.transmeta.com> <20020130050708.D11267@havoc.gtf.org> <20020130102458.B763@lynx.adilger.int> <20020130093459.P23269@work.bitmover.com> <20020130130319.G763@lynx.adilger.int> <20020131091110.K1519@work.bitmover.com>
+	id <S291353AbSAaV71>; Thu, 31 Jan 2002 16:59:27 -0500
+Received: from zero.tech9.net ([209.61.188.187]:56076 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S291352AbSAaV6T>;
+	Thu, 31 Jan 2002 16:58:19 -0500
+Subject: Re: [PATCH] 2.5: further llseek cleanup (1/3)
+From: Robert Love <rml@tech9.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0201311649460.17860-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0201311649460.17860-100000@weyl.math.psu.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 31 Jan 2002 17:04:23 -0500
+Message-Id: <1012514664.3213.186.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020131091110.K1519@work.bitmover.com>; from lm@bitmover.com on Thu, Jan 31, 2002 at 09:11:10AM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 31, 2002  09:11 -0800, Larry McVoy wrote:
-> On Wed, Jan 30, 2002 at 01:03:19PM -0700, Andreas Dilger wrote:
-> > Yes, technically it works fine, but practically not.  For example, I want
-> > to test _all_ of the changes I make, and to test them each individually
-> > is a lot of work.  Putting them all in the same tree, and testing them
-> > as a group is a lot less work.  More importantly, this is how people do
-> > their work in real life, so we don't want to change how people work to
-> > fit the tool, but vice versa.
+On Thu, 2002-01-31 at 16:51, Alexander Viro wrote:
+>
+> On 31 Jan 2002, Robert Love wrote:
+> > I'd be happy to keep Coda using the new generic_file_llseek if Al Viro
+> > agrees with you.  Al?
 > 
-> This thread has been about the idea of being able to send any one of those
-> changes out in isolation, right?  That's the problem we are solving.
+> I'm OK with that.
 
-But what you are proposing is that I keep N trees for each of my N changes
-against the baseline, keep all of those N trees up-to-date, compile
-and reboot each of the N kernels for each local or upstream change, and
-possibly have N! different kernels to test each combination of changes.
+OK, updated patch in my ftp as well as attached below.
 
-> But your statement is that you want to test them all at once, testing
-> them one at a time is too much work.
+Linus, this patch supersedes the previous patch #1.  2 and 3 are
+separate and up for inclusion.
 
-I guess I wasn't very clear then.  I will probably test changes I make
-in _order_, but not necessarily in _isolation_.  I may also not test
-_every_ change I make individually if it is fairly minor and "obvious".
-If the changes are orthogonal, testing kernel+A and testing kernel+A+B
-should be enough to tell me that B works without A.  That means I should
-be able to send out B without everyone needing A in order to test it.
+	Robert Love
 
-> Doesn't that mean that you don't even know if these changes compile, let
-> alone run, when you send them out individually?  You haven't tested them,
-> you've only tested the set of them as one unit.
-
-It boils down to "how much testing is enough" for each of the separate
-changes.  Is eyeballing them enough?  Is compiling enough?  Is a single
-reboot enough?  I don't have N machines, let alone N!, to test each of
-the N changes I have in my tree individually.
-
-There is also value in saying "I've had this patch in my kernel for X
-{days,weeks,months} and it works fine", and by your statement above I
-could only do this with a single change.
-
-What I'm saying is that I will code a specific change A, test it, and then
-usually go on to code the next change B in the tree that has A in it.
-Yes, in some cases testing B in isolation is needed (big changes, or
-changes which need to be benchmarked in isolation).  In general you
-wouldn't make change A if it wasn't worthwhile, and after it's done why
-would you not want to continue using it?
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+diff -urN linux-2.5.3/fs/ncpfs/file.c linux/fs/ncpfs/file.c
+--- linux-2.5.3/fs/ncpfs/file.c	Thu Jan 31 01:08:54 2002
++++ linux/fs/ncpfs/file.c	Thu Jan 31 01:09:47 2002
+@@ -281,7 +281,7 @@
+ 
+ struct file_operations ncp_file_operations =
+ {
+-	llseek:		generic_file_llseek,
++	llseek:		remote_llseek,
+ 	read:		ncp_file_read,
+ 	write:		ncp_file_write,
+ 	ioctl:		ncp_ioctl,
+diff -urN linux-2.5.3/fs/nfs/file.c linux/fs/nfs/file.c
+--- linux-2.5.3/fs/nfs/file.c	Thu Jan 31 01:08:54 2002
++++ linux/fs/nfs/file.c	Thu Jan 31 01:09:47 2002
+@@ -41,7 +41,7 @@
+ static int  nfs_fsync(struct file *, struct dentry *dentry, int datasync);
+ 
+ struct file_operations nfs_file_operations = {
+-	llseek:		generic_file_llseek,
++	llseek:		remote_llseek,
+ 	read:		nfs_file_read,
+ 	write:		nfs_file_write,
+ 	mmap:		nfs_file_mmap,
+diff -urN linux-2.5.3/fs/read_write.c linux/fs/read_write.c
+--- linux-2.5.3/fs/read_write.c	Thu Jan 31 01:08:54 2002
++++ linux/fs/read_write.c	Thu Jan 31 01:12:09 2002
+@@ -51,6 +51,31 @@
+ 	return retval;
+ }
+ 
++loff_t remote_llseek(struct file *file, loff_t offset, int origin)
++{
++	long long retval;
++
++	lock_kernel();
++	switch (origin) {
++		case 2:
++			offset += file->f_dentry->d_inode->i_size;
++			break;
++		case 1:
++			offset += file->f_pos;
++	}
++	retval = -EINVAL;
++	if (offset>=0 && offset<=file->f_dentry->d_inode->i_sb->s_maxbytes) {
++		if (offset != file->f_pos) {
++			file->f_pos = offset;
++			file->f_reada = 0;
++			file->f_version = ++event;
++		}
++		retval = offset;
++	}
++	unlock_kernel();
++	return retval;
++}
++
+ loff_t no_llseek(struct file *file, loff_t offset, int origin)
+ {
+ 	return -ESPIPE;
+diff -urN linux-2.5.3/fs/smbfs/file.c linux/fs/smbfs/file.c
+--- linux-2.5.3/fs/smbfs/file.c	Thu Jan 31 01:08:54 2002
++++ linux/fs/smbfs/file.c	Thu Jan 31 01:09:47 2002
+@@ -381,7 +381,7 @@
+ 
+ struct file_operations smb_file_operations =
+ {
+-	llseek:		generic_file_llseek,
++	llseek:		remote_llseek,
+ 	read:		smb_file_read,
+ 	write:		smb_file_write,
+ 	ioctl:		smb_ioctl,
+diff -urN linux-2.5.3/include/linux/fs.h linux/include/linux/fs.h
+--- linux-2.5.3/include/linux/fs.h	Thu Jan 31 01:08:54 2002
++++ linux/include/linux/fs.h	Thu Jan 31 01:10:37 2002
+@@ -1449,6 +1449,7 @@
+ extern void do_generic_file_read(struct file *, loff_t *, read_descriptor_t *, read_actor_t);
+ extern loff_t no_llseek(struct file *file, loff_t offset, int origin);
+ extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin);
++extern loff_t remote_llseek(struct file *file, loff_t offset, int origin);
+ extern ssize_t generic_read_dir(struct file *, char *, size_t, loff_t *);
+ extern int generic_file_open(struct inode * inode, struct file * filp);
+ 
+diff -urN linux-2.5.3/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.5.3/kernel/ksyms.c	Thu Jan 31 01:08:54 2002
++++ linux/kernel/ksyms.c	Thu Jan 31 01:10:06 2002
+@@ -251,6 +251,7 @@
+ EXPORT_SYMBOL(vfs_statfs);
+ EXPORT_SYMBOL(generic_read_dir);
+ EXPORT_SYMBOL(generic_file_llseek);
++EXPORT_SYMBOL(remote_llseek);
+ EXPORT_SYMBOL(no_llseek);
+ EXPORT_SYMBOL(__pollwait);
+ EXPORT_SYMBOL(poll_freewait);
 

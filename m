@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVBOTuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVBOTvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVBOTuD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVBOTtY
+	id S261849AbVBOTvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVBOTug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:49:24 -0500
-Received: from gprs214-212.eurotel.cz ([160.218.214.212]:18117 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261845AbVBOTrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:47:49 -0500
-Date: Tue, 15 Feb 2005 20:47:10 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Norbert Preining <preining@logic.at>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-Message-ID: <20050215194710.GE7338@elf.ucw.cz>
-References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
+	Tue, 15 Feb 2005 14:50:36 -0500
+Received: from ext-ch1gw-6.online-age.net ([64.37.194.14]:15279 "EHLO
+	ext-ch1gw-6.online-age.net") by vger.kernel.org with ESMTP
+	id S261850AbVBOTtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:49:05 -0500
+From: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, sergio@sergiomb.no-ip.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Tue, 15 Feb 2005 20:48:13 +0100
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give	dev=/dev/hdX as device
+Message-ID: <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
+References: <1108426832.5015.4.camel@bastov> <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org> <1108486952.4618.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1108486952.4618.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Feb 15, 2005 at 05:02:35PM +0000, Alan Cox wrote:
+> On Maw, 2005-02-15 at 02:25, Randy.Dunlap wrote:
+> > It means:  don't use the ide-scsi driver.  Support for it is
+> > lagging (not well-maintained) because it's really not needed for
+> > burning CDs.  Just use the ide-cd driver (module) and
+> > specify the CD burner device as /dev/hdX.
+> 
+> This information is unfortunately *WRONG*. The base 2.6 ide-cd driver is
+> vastly inferior to ide-scsi. The ide-scsi layer knows about proper error
+> reporting, end of media and other things that ide-cd does not.
+> 
+> The -ac ide-cd knows some of the stuff that ide-cd needs to and works
+> with various drive/disk combinations the base code doesn't but ide-scsi
+> still handles CD's better.
+> 
+> Alan
 
-> - Sometimes I have to make a Sysrq-s (sync) to get some stuff running
->   (eg logging in from the console hangs after input of passwd, calling
->   sysrq-s makes it continue). I had a similar effect when logging in
->   AFTER resuming (for the resume I had only gdm running but wasn't
->   logged in) the GNOME starting screen stayed there indefinitely, no
->   change. Even after restarting the X server and retrying.
->   Logging in with twm session DID work without any problem.
->   Do you have any idea what this could be?
+I can confirm that. Creating a correct  iso image from a CD is a
+major pain w/o ide-scsi. Depending on what one has done before the iso
+image is missing some data at the end most of the time.
+(paired with lots of kernel error messages)
 
-Does it happen with swsusp? Is it in any way reproducible? Maybe
-commenting out refrigerator would help....
+Testing was done here using Joerg Schilling's sdd:
 
-								Pavel
+sdd ivsize=`isosize /dev/cdxxx` if=/dev/cdxxx of=/dev/null \
+	bs=<several block sizes from 2048 up tried,does not matter>
+
+and most of the time it results in bad iso images....
+
+Gretings
+Karl
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Karl Kiniger   mailto:karl.kiniger@med.ge.com
+GE Medical Systems Kretztechnik GmbH & Co OHG
+Tiefenbach 15       Tel: (++43) 7682-3800-710
+A-4871 Zipf Austria Fax: (++43) 7682-3800-47

@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262953AbSJBDnA>; Tue, 1 Oct 2002 23:43:00 -0400
+	id <S262954AbSJBDsU>; Tue, 1 Oct 2002 23:48:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262954AbSJBDnA>; Tue, 1 Oct 2002 23:43:00 -0400
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:49734 "HELO
-	laura.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S262953AbSJBDnA>; Tue, 1 Oct 2002 23:43:00 -0400
-From: brian@worldcontrol.com
-Date: Tue, 1 Oct 2002 20:48:25 -0700
-To: linux-kernel@vger.kernel.org
-Subject: swsusp 2.4.18 vs 2.5.40
-Message-ID: <20021002034825.GA1892@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-No-Archive: yes
-X-Noarchive: yes
+	id <S262956AbSJBDsT>; Tue, 1 Oct 2002 23:48:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:17555 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262954AbSJBDsT>;
+	Tue, 1 Oct 2002 23:48:19 -0400
+Date: Tue, 1 Oct 2002 23:53:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "David S. Miller" <davem@redhat.com>
+cc: greg@kroah.com, linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: 2.5.39 + evms 1.2.0 burn test
+In-Reply-To: <20021001.203131.48516382.davem@redhat.com>
+Message-ID: <Pine.GSO.4.21.0210012349280.9782-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Litzinger writes:
 
->[swsusp in 2.4.18 works pretty well but...]
 
-Pavel Machek <pavel@suse.cz> writes:
+On Tue, 1 Oct 2002, David S. Miller wrote:
 
->Yep, swsusp is not really meant to work in 2.4.X. Get latest 2.5.X...  
->and add IDE patches so it does not eat your disk...                    
+> sed 's/usb_kbd_free_buffers/usb_kbd_free_mem/' <usbkbd.c >usbkbd_fixed.c
 
-Ok, I've compiled and tried 2.5.40.
+'s/usb_kbd_free_buffers/usb_kbd_free_mem/g', surely?
 
-Zip. Nada. swsusp doesn't show up at all.  If I compile with SMP
-turned on I get a message about swsusp being incompatible with
-SMP.  Running UP it doesn't show up in the boot log, though it
-looks to be compiled.
+> mv usbkbd_fixed.c usbkbd.c
+> make
 
-It also doesn't show in the SysRq help list.
+Umm...  ed (ex, actually) scripts declared off-limits, so now it's sed, eh?
 
-echo'ing things to /proc/acpi/sleep does nothing.
-
--- 
-Brian Litzinger

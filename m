@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbUDCVEt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 16:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUDCVEt
+	id S261982AbUDCV0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 16:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUDCV0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 16:04:49 -0500
-Received: from opersys.com ([64.40.108.71]:23814 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261981AbUDCVEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 16:04:48 -0500
-Message-ID: <406F2851.6050304@opersys.com>
-Date: Sat, 03 Apr 2004 16:10:41 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: khandelw@cs.fsu.edu
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.16
-References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>	<406C79E4.1060700@opersys.com> <1081012426.5c22c66499b13@system.cs.fsu.edu>	<406F21CB.8070908@opersys.com> <1081026049.f64d5288b5aaa@system.cs.fsu.edu>
-In-Reply-To: <1081026049.f64d5288b5aaa@system.cs.fsu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Apr 2004 16:26:13 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:47180 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S261982AbUDCV0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 16:26:11 -0500
+Date: Sat, 03 Apr 2004 15:25:58 -0600
+From: Matt Gulick <gulickconsulting@direcway.com>
+Subject: Re: media removed indication!
+In-reply-to: <1118873EE1755348B4812EA29C55A9721770B9@esnmail.esntechnologies.co.in>
+To: "Jinu M." <jinum@esntechnologies.co.in>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Reply-to: gulickconsulting@direcway.com
+Message-id: <1081027558.5180.2.camel@localhost.localdomain>
+Organization: Gulick Consulting
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1118873EE1755348B4812EA29C55A9721770B9@esnmail.esntechnologies.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-04-02 at 06:38, Jinu M. wrote:
+> Hi all,
+> 
+> We are working on the removable media support for our disk driver. 
+> 
+> I have a couple of questions.
+> 
+> How do you ask the file system to stop sending buffers to our disk driver (request function) when the media is removed?
+> 
+> If a disk is already mounted when the media is removed is there a way to stop all IO and umount the disk automatically?
+> 
+> Any pointers on the same will be of great help.
 
-khandelw@cs.fsu.edu wrote:
-> The Patches/ directory of LTT is empty. Do I need to download the patches from
-> somewhere else? The installation of LTT suggests that we need to patch the
-> kernel.
+Jinu,
 
-The patch was posted to ltt-dev:
-http://www.listserv.shafik.org/pipermail/ltt-dev/2004-March/000561.html
+There is a tread on the Linux-SCSI list dealing with an issue of removable media and associated error.  You might want to check there.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+The thread is "bug 2400"
+
+Matt
+
+----------------------------------------
+Matt Gulick
+Sr. Staff Engineer
+Adaptec, Inc.
+gulickconsulting@direcway.com
+matt_gulick@adaptec.com
+(715) 426-0884
+
 

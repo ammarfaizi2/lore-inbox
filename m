@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274405AbRJEXK4>; Fri, 5 Oct 2001 19:10:56 -0400
+	id <S274434AbRJEXLG>; Fri, 5 Oct 2001 19:11:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274424AbRJEXKr>; Fri, 5 Oct 2001 19:10:47 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:7684 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274405AbRJEXKg>;
-	Fri, 5 Oct 2001 19:10:36 -0400
-Date: Fri, 5 Oct 2001 16:16:00 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        george anzinger <george@mvista.com>,
-        Benjamin LaHaise <bcrl@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Context switch times
-In-Reply-To: <E15pe0t-0007wz-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0110051611310.1523-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274424AbRJEXK5>; Fri, 5 Oct 2001 19:10:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:12424 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274434AbRJEXKu>;
+	Fri, 5 Oct 2001 19:10:50 -0400
+Date: Fri, 05 Oct 2001 16:11:05 -0700 (PDT)
+Message-Id: <20011005.161105.78709492.davem@redhat.com>
+To: cwidmer@iiic.ethz.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unnecessary retransmit from network stack
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200110051229.f95CTvN00624@mail.swissonline.ch>
+In-Reply-To: <200110051229.f95CTvN00624@mail.swissonline.ch>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Oct 2001, Alan Cox wrote:
+   From: Christian Widmer <cwidmer@iiic.ethz.ch>
+   Date: Fri, 5 Oct 2001 14:29:53 +0200
 
-> > > This damps down task thrashing a bit, and for the cpu hogs it gets the
-> > > desired behaviour - which is that the all run their full quantum in the
-> > > background one after another instead of thrashing back and forth
-> >
-> > What if we give to  prev  a priority boost P=F(T) where T is the time
-> > prev  is ran before the current schedule ?
->
-> That would be the wrong key. You can argue certainly that it is maybe
-> appropriate to use some function based on remaining scheduler ticks, but
-> that already occurs as the scheduler ticks is the upper bound for priority
-> band
+   why does net_dev.hard_start_xmit get called multiple times 
+   with the same tcp packet?  
+   
+Because the ACK is not coming back for those packets within the RTO
+(which for a local network is very low).  Check your TCP dumps,
+the ACKs of the original data packets are being dropped in transit.
 
-No, i mean T = (Tstart - Tend) where :
-
-Tstart = time the current ( prev ) task has been scheduled
-Tend   = current time ( in schedule() )
-
-Basically it's the total time the current ( prev ) task has had the CPU
-
-
-
-- Davide
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

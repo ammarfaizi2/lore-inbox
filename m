@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263937AbTKZCXv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 21:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263956AbTKZCXv
+	id S263895AbTKZCsc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 21:48:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTKZCsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 21:23:51 -0500
-Received: from mx1.verat.net ([217.26.64.139]:29569 "EHLO mx1.verat.net")
-	by vger.kernel.org with ESMTP id S263937AbTKZCXt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 21:23:49 -0500
-From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@verat.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-textX: kernel parameters...
-Date: Wed, 26 Nov 2003 03:22:38 +0100
-User-Agent: KMail/1.5.93
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200311260322.44018.toptan@verat.net>
+	Tue, 25 Nov 2003 21:48:32 -0500
+Received: from rth.ninka.net ([216.101.162.244]:23940 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S263895AbTKZCsb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 21:48:31 -0500
+Date: Tue, 25 Nov 2003 18:48:25 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: piggin@cyberone.com.au, icerbofh@hotmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Fire Engine??
+Message-Id: <20031125184825.648aae7c.davem@redhat.com>
+In-Reply-To: <20031126021111.GA10193@work.bitmover.com>
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
+	<3FC40663.6050602@cyberone.com.au>
+	<20031126021111.GA10193@work.bitmover.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 25 Nov 2003 18:11:11 -0800
+Larry McVoy <lm@bitmover.com> wrote:
 
+> I used to think otherwise, while I was a Sun employee, and Sun employee #1
+> pointed out to me that CPUs and memory were getting faster more quickly than
+> the TOE type answers could come to market.  He was right then and he seems
+> to still be right.
 
-	For 2.4.xx series it is enough to append this:
+Maybe this was at least partially the impetus behind his recent
+departure from the company.  And if not the impetus, a possible straw
+that broke the camel's back.
 
-video=radeon:1024X768-8@100
+How fast will cpus be when Sun actually deploys this stuff?
 
-	to get frame buffer console set to 1024x768, this does not work with 
-2.6.0-testX. Radeon frame buffer is compiled in kernel. All I get is 80x30 
-chars console with 60Hz refresh rate, and when penguin is displayed I get 
-random coloured random chars on the right side of logo...
-	I've asked this a while ago (during 2.5.5X phase) and did not get any answer, 
-at least none that does the job.
+A commodity x86 U1 box at that time will probably have 6+ GHZ
+cpus in it, and super-duper-DDR or whatever the current memory
+technology will be.  Why do I need Sun's TOE crap in this box?
+Where's all that precious CPU I need to be saving?
 
-	Beside this annoyance, 2.6.0 series work excellent for me...
-- -- 
-Regards,
-Toplica Tanaskovic
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+This stuff isn't really useful for huge database servers either.
 
-iD8DBQE/xA5ztKJqksC6c0sRAj6YAKCqZVj2Ul/pwcM0g4SXs3vNT708uQCgtKF2
-OGp1nLtH1piXwarhNHBioUY=
-=YUC1
------END PGP SIGNATURE-----
+Where do they plan to do, put Solaris10 on iSCSI drives?  ROFL! :)
+
+These days Sun is already several laps behind before the green flag
+even comes out to start the race.

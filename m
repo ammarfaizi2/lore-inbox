@@ -1,107 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265097AbTCEVzT>; Wed, 5 Mar 2003 16:55:19 -0500
+	id <S265578AbTCEWCk>; Wed, 5 Mar 2003 17:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbTCEVzT>; Wed, 5 Mar 2003 16:55:19 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50410 "HELO
+	id <S265667AbTCEWCk>; Wed, 5 Mar 2003 17:02:40 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44778 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265097AbTCEVzS>; Wed, 5 Mar 2003 16:55:18 -0500
-Date: Wed, 5 Mar 2003 23:05:42 +0100
+	id <S265578AbTCEWCi>; Wed, 5 Mar 2003 17:02:38 -0500
+Date: Wed, 5 Mar 2003 23:13:02 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: CaT <cat@zip.com.au>, laforge@netfilter.org
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.5 patch] remove EXPORT_NO_SYMBOLS from ip6tables code
-Message-ID: <20030305220542.GM20423@fs.tum.de>
-References: <20030305153259.GE2075@zip.com.au>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: [2.5 patch] remove EXPORT_NO_SYMBOLS from amd7xx_tco
+Message-ID: <20030305221302.GN20423@fs.tum.de>
+References: <Pine.LNX.4.44.0303041944390.3122-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030305153259.GE2075@zip.com.au>
+In-Reply-To: <Pine.LNX.4.44.0303041944390.3122-100000@home.transmeta.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 02:32:59AM +1100, CaT wrote:
-
+On Tue, Mar 04, 2003 at 07:48:33PM -0800, Linus Torvalds wrote:
 >...
-> net/ipv6/netfilter/ip6t_hbh.o(.bss+0x0): multiple definition of `EXPORT_NO_SYMBOLS'
-> net/ipv6/netfilter/ip6t_rt.o(.bss+0x0): first defined here
+> Summary of changes from v2.5.63 to v2.5.64
+> ============================================
+>...
+> Dave Jones <davej@codemonkey.org.uk>:
+>...
+>   o [WATCHDOG] Merge AMD 766/768 TCO Timer/Watchdog driver from 2.4
 >...
 
-The patch that added new ip6tables matches in 2.5.64 added seven 
-occurances of the obsolete EXPORT_NO_SYMBOLS. The patch below removes 
-them.
+
+amd7xx_tco.c contains the obsolete EXPORT_NO_SYMBOLS. The following 
+patch corrects this bug:
+
+
+--- linux-2.5.64-notfull/drivers/char/watchdog/amd7xx_tco.c.old	2003-03-05 23:07:47.000000000 +0100
++++ linux-2.5.64-notfull/drivers/char/watchdog/amd7xx_tco.c	2003-03-05 23:08:19.000000000 +0100
+@@ -369,5 +369,4 @@
+ MODULE_AUTHOR("Zwane Mwaikambo <zwane@commfireservices.com>");
+ MODULE_DESCRIPTION("AMD 766/768 TCO Timer Driver");
+ MODULE_LICENSE("GPL");
+-EXPORT_NO_SYMBOLS;
+ 
+
 
 cu
 Adrian
 
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ah.c.old	2003-03-05 22:57:24.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ah.c	2003-03-05 22:57:41.000000000 +0100
-@@ -9,7 +9,6 @@
- #include <linux/netfilter_ipv6/ip6_tables.h>
- #include <linux/netfilter_ipv6/ip6t_ah.h>
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("IPv6 AH match");
- MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_dst.c.old	2003-03-05 22:58:18.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_dst.c	2003-03-05 22:58:31.000000000 +0100
-@@ -15,7 +15,6 @@
- 
- #define HOPBYHOP	0
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- #if HOPBYHOP
- MODULE_DESCRIPTION("IPv6 HbH match");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_esp.c.old	2003-03-05 22:59:57.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_esp.c	2003-03-05 23:00:03.000000000 +0100
-@@ -9,7 +9,6 @@
- #include <linux/netfilter_ipv6/ip6_tables.h>
- #include <linux/netfilter_ipv6/ip6t_esp.h>
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("IPv6 ESP match");
- MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_frag.c.old	2003-03-05 23:00:04.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_frag.c	2003-03-05 23:00:10.000000000 +0100
-@@ -11,7 +11,6 @@
- #include <linux/netfilter_ipv6/ip6_tables.h>
- #include <linux/netfilter_ipv6/ip6t_frag.h>
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("IPv6 FRAG match");
- MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_hbh.c.old	2003-03-05 23:00:11.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_hbh.c	2003-03-05 23:00:17.000000000 +0100
-@@ -15,7 +15,6 @@
- 
- #define HOPBYHOP	1
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- #if HOPBYHOP
- MODULE_DESCRIPTION("IPv6 HbH match");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ipv6header.c.old	2003-03-05 23:00:17.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ipv6header.c	2003-03-05 23:00:24.000000000 +0100
-@@ -14,7 +14,6 @@
- #include <linux/netfilter_ipv6/ip6_tables.h>
- #include <linux/netfilter_ipv6/ip6t_ipv6header.h>
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("IPv6 headers match");
- MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_rt.c.old	2003-03-05 23:00:24.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_rt.c	2003-03-05 23:00:30.000000000 +0100
-@@ -11,7 +11,6 @@
- #include <linux/netfilter_ipv6/ip6_tables.h>
- #include <linux/netfilter_ipv6/ip6t_rt.h>
- 
--EXPORT_NO_SYMBOLS;
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("IPv6 RT match");
- MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVCIPzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVCIP4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVCIPzj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 10:55:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVCIPxc
+	id S261963AbVCIP4G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 10:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVCIP4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 10:53:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45293 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261490AbVCIPwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 10:52:45 -0500
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
-	ule  for LSI Logic's SAS based MegaRAID controllers
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC1C@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CC1C@exa-atlanta>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 16:52:40 +0100
-Message-Id: <1110383560.6280.121.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 9 Mar 2005 10:56:05 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:32471 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261948AbVCIPys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 10:54:48 -0500
+Message-ID: <422F1ABC.5010505@nortel.com>
+Date: Wed, 09 Mar 2005 09:48:12 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: szonyi calin <caszonyi@yahoo.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: RFD: Kernel release numbering
+References: <20050308233619.69796.qmail@web52910.mail.yahoo.com>
+In-Reply-To: <20050308233619.69796.qmail@web52910.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> . And since this is compile time
-> system-wide property, I kept it as driver global.
+szonyi calin wrote:
 
-that step I don't understand... why is it a global *VARIABLE* if it's
-compile time system-wide property...
+> Let me tell you what i understood from this thread:
+> 2.6.12 "almost stable"
+> 2.6.13 devel (new drivers,fixes  and stuff -- may be broken)
+> 2.6.14 (based on 2.6.13) tries to became stable again
+> 2.6.15 also devel (see above)
+> 2.6.16 (based on 2.6.15) also tries to became stable again
+> 
+> So we will _want_ to have a stable kernel (like 2.4 now) but 
+> this will never happen (see above) 
 
+No.  Linus' proposal was shouted down.
 
+What is happening is that Linus will continue to release 2.6.x as usual, 
+with no even/odd stuff.
+
+Then a review committee will maintain 2.6.x.y (where y starts at 1 and 
+increments).  This will contain obvious fixes against 2.6.x.  When Linus 
+comes out with 2.6.x+1, then they will start a new stable tree 2.6.x+1.y.
+
+Please see the thread entitled "[RFC] -stable, how it's going to work.", 
+started by Greg KH for more information on the "stable" release process.
+
+Chris

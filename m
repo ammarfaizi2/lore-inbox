@@ -1,34 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268333AbUJDCYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268331AbUJDCdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268333AbUJDCYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 22:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268331AbUJDCYi
+	id S268331AbUJDCdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 22:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268334AbUJDCdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 22:24:38 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:61158 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S268346AbUJDCYc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 22:24:32 -0400
-Date: Sun, 3 Oct 2004 19:24:31 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Marcus Metzler <mocm@mocm.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Efficeon
-In-Reply-To: <16735.62032.169017.247720@mocm.de>
-Message-ID: <Pine.LNX.4.61.0410031921220.17980@twinlark.arctic.org>
-References: <16735.62032.169017.247720@mocm.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 3 Oct 2004 22:33:09 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:1690 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268331AbUJDCdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 22:33:03 -0400
+Date: Mon, 04 Oct 2004 11:38:32 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+In-reply-to: <20041001182221.GA3191@logos.cnet>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-mm@kvack.org, akpm@osdl.org, Nick Piggin <piggin@cyberone.com.au>,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org
+Message-id: <4160B7A8.7010607@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
+References: <20041001182221.GA3191@logos.cnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Oct 2004, Marcus Metzler wrote:
 
-> I was just wondering which CPU options I should choose for compiling a
-> kernel for an Efficeon?
-> Crusoe seems to work fine.
+how about inserting this if-sentense ?
 
-crusoe is similar to a 586 whereas efficeon is similar to a p4.  i use 
-either pentium4 or pentium-m (or 686 if i want a generic kernel).
+-- Kame
 
--dean
+Marcelo Tosatti wrote:
+> +int coalesce_memory(unsigned int order, struct zone *zone)
+> +{
+<snip>
+
+> +		while (entry != &area->free_list) {
+> +			int ret;
+> +			page = list_entry(entry, struct page, lru);
+> +			entry = entry->next;
+> +
+
+   +              if (((page_to_pfn(page) - zone->zone_start_pfn) & (1 << toorder)) {
+
+> +			pwalk = page;
+> +
+> +			/* Look backwards */
+> +
+> +			for (walkcount = 1; walkcount<nr_pages; walkcount++) {
+                         ..................
+> +			}
+> +
+   +               } else {
+> +forward:
+> +
+> +			pwalk = page;
+> +
+> +			/* Look forward, skipping the page frames from this 
+> +			  high order page we are looking at */
+> +
+> +			for (walkcount = (1UL << torder); walkcount<nr_pages; 
+> +					walkcount++) {
+> +				pwalk = page+walkcount;
+> +
+> +				ret = can_move_page(pwalk);
+> +
+> +				if (ret) 
+> +					nr_freed_pages++;
+> +				else
+> +					goto loopey;
+> +
+> +				if (nr_freed_pages == nr_pages)
+> +					goto success;
+> +			}
+> +
+   +                }
+

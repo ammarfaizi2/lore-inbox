@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265353AbUBFSSc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265577AbUBFSSb
+	id S265641AbUBFSW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265646AbUBFSW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:18:31 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40400 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265353AbUBFSSa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:18:30 -0500
-Message-Id: <200402061815.i16IFhY07073@owlet.beaverton.ibm.com>
-To: Anton Blanchard <anton@samba.org>
-cc: piggin@cyberone.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mjbligh@us.ibm.com, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1 
-In-reply-to: Your message of "Fri, 06 Feb 2004 21:30:10 +1100."
-             <20040206103010.GI19011@krispykreme> 
-Date: Fri, 06 Feb 2004 10:15:43 -0800
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Fri, 6 Feb 2004 13:22:28 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25520 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265641AbUBFSWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:22:22 -0500
+Date: Fri, 6 Feb 2004 10:22:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+Message-ID: <20040206182200.GE32116@kroah.com>
+References: <fa.h1qu7q8.n6mopi@ifi.uio.no> <402240F9.3050607@gadsdon.giointernet.co.uk> <20040205182614.GG13075@kroah.com> <20040206144729.GJ1042@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040206144729.GJ1042@phunnypharm.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Good stuff, I just gave the patch a spin and things seem a little
-    calmer. However Im still seeing a lot of balancing going on within a
-    node.
+On Fri, Feb 06, 2004 at 09:47:30AM -0500, Ben Collins wrote:
+> On Thu, Feb 05, 2004 at 10:26:14AM -0800, Greg KH wrote:
+> > On Thu, Feb 05, 2004 at 01:11:21PM +0000, Robert Gadsdon wrote:
+> > > 2.6.2-mm1 tombstone "Badness in kobject_get....." when booting:
+> > 
+> > Oooh, not nice.  That means a kobject is being used before it has been
+> > initialized.  Glad to see that check finally helps out...
+> 
+> Doesn't sound like a bug in ieee1394. This bus for each is done on the
+> ieee1394_bus_type, which is registered way ahead of time. Nothing is in
+> that device list that didn't come from device_register(). Has something
+> new changed to where I need to prep the device more before passing it to
+> device_register()?
 
-This is a clearly recognizable edge case, so I'll try drawing this up on
-some paper and see if I can suggest another patch.  There's no good reason
-to move one lone process from a particular processor to another idle one.
+No, not at all.  You are initializing the structure to 0 before setting
+any fields in it, right?  But that wouldn't be the symptom we are seeing
+here...
 
-But it also approaches a question that's come up before:  if you have 2
-tasks on processor A and 1 on processor B, do you move one from A to B?
-One argument is that the two tasks on A will take twice as long as
-the one on B if you do nothing.  But another says that bouncing a task
-around can't correct the overall imbalance and so is wasteful.  I know
-of benchmarks where both behaviors are considered important.  Thoughts?
+thanks,
 
-Rick
+greg k-h

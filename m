@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130875AbRAEVfe>; Fri, 5 Jan 2001 16:35:34 -0500
+	id <S129790AbRAEVlE>; Fri, 5 Jan 2001 16:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131234AbRAEVfZ>; Fri, 5 Jan 2001 16:35:25 -0500
-Received: from ns.caldera.de ([212.34.180.1]:49159 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S130875AbRAEVfS>;
-	Fri, 5 Jan 2001 16:35:18 -0500
-Date: Fri, 5 Jan 2001 22:34:59 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: MM/VM todo list
-Message-ID: <20010105223459.A12653@caldera.de>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010105222624.A11770@caldera.de> <Pine.LNX.4.21.0101051927040.1295-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S129933AbRAEVky>; Fri, 5 Jan 2001 16:40:54 -0500
+Received: from tamqfl1-ar1-128-154.dsl.gtei.net ([4.33.128.154]:3065 "EHLO
+	linus.southpark") by vger.kernel.org with ESMTP id <S129790AbRAEVku>;
+	Fri, 5 Jan 2001 16:40:50 -0500
+Message-ID: <3A563F5A.9B50B2B3@leoninedev.com>
+Date: Fri, 05 Jan 2001 16:40:42 -0500
+From: Bryan Mayland <bmayland@leoninedev.com>
+Organization: Leonine Development, Inc.
+X-Mailer: Mozilla 4.73 [en] (Windows NT 5.0; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Gerd Knorr <kraxel@bytesex.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
+In-Reply-To: <3A55FAC9.9EB4C967@leoninedev.com> <E14Ea7x-00081J-00@the-village.bc.nu> <20010105183344.A2445@goldbach.in-berlin.de>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.21.0101051927040.1295-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Jan 05, 2001 at 07:27:38PM -0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 07:27:38PM -0200, Rik van Riel wrote:
-> > No other then filesystem IO (page/buffercache) is actively tied
-> > to the VM, so there should be no problems.
-> 
-> Not right now, no. But if you know what is possible
-> (and planned) with the kiobuf layer, you should think
-> twice about this idea...
+Gerd Knorr wrote:
 
-I don't think so.  The only place were IO actively interferes with
-the VM is of the 'write this out when memory gets low' type thing,
-and you don't really want this outside filesystems/blockdevices.
+> Well, vesafb really depends on what the vesa bios says...
 
-There are some VM tricks that are usefull for IO (COW, map_user_kiobuf),
-but these operate always on pages (maybe containered by kiobufs, but that
-should be of minor interest for the VM).
+    Exactly my problem.  In my laptop, I have a NeoMagic 2160 which does not have use
+the last 64k of video for sound buffer like the NeoMagic 256es do yet it still
+reports that the memory is not video memory.  Both XFree86 and SVGALib hard code the
+amout of available video memory based on the PCI id of the neomagic device, which
+tells me that there might not be a way to detect it properly.  What I'm suggesting is
+that we "Avoid the probe!" (which is fun to say), and add a way for the user to
+override the amount of memory detected by the VESA int 0x10 call.  There is only
+about 10 lines of code requited to make the change, and it can't break anything if
+you don't turn it on.
 
-	Christoph
+    I wish there was a way to detect that the code wrapped memory before the hardware
+did, but that would be un-possible to probe (AFAIK).  You can detect that ywrap isn't
+working properly by writing a magic number to offset 0, and attempt to read if from
+offset [memsize], and see if you get the same value back.  This doesn't fix the
+problem, it just assertains if it is working properly or not.
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+> That's why it has all may-have-problems features turned off by default:
+> no ywrap, no mtrr.  At least it was this way last time I touched it.
+
+    I was pretty suprised ywrap worked at all on my system.  The speed increased over
+"redraw" is quite dramatic.
+
+    So what do you say.  Can we use my patch to allow the user to override the VESA
+detected memory size... or does anyone else have a better plan?
+
+Bry
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

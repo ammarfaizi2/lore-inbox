@@ -1,104 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUH2SOD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268250AbUH2SQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268232AbUH2SOD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 14:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUH2SOC
+	id S268250AbUH2SQm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 14:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268253AbUH2SQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 14:14:02 -0400
-Received: from nysv.org ([213.157.66.145]:25538 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S268232AbUH2SNy (ORCPT
+	Sun, 29 Aug 2004 14:16:42 -0400
+Received: from holomorphy.com ([207.189.100.168]:13231 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268250AbUH2SQe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 14:13:54 -0400
-Date: Sun, 29 Aug 2004 21:12:10 +0300
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Spam <spam@tnonline.net>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Hans Reiser <reiser@namesys.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040829181210.GD26192@nysv.org>
-References: <1732169380.20040827224404@tnonline.net> <200408291521.i7TFLsQk028363@localhost.localdomain> <10558145.20040829185217@tnonline.net> <16690.4288.260815.847844@thebsh.namesys.com>
+	Sun, 29 Aug 2004 14:16:34 -0400
+Date: Sun, 29 Aug 2004 11:16:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
+Message-ID: <20040829181627.GR5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Roger Luethi <rl@hellgate.ch>, linux-kernel@vger.kernel.org,
+	Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
+References: <20040827122412.GA20052@k3.hellgate.ch> <20040827162308.GP2793@holomorphy.com> <20040828194546.GA25523@k3.hellgate.ch> <20040828195647.GP5492@holomorphy.com> <20040828201435.GB25523@k3.hellgate.ch> <20040829160542.GF5492@holomorphy.com> <20040829170247.GA9841@k3.hellgate.ch> <20040829172022.GL5492@holomorphy.com> <20040829175245.GA32117@k3.hellgate.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16690.4288.260815.847844@thebsh.namesys.com>
-User-Agent: Mutt/1.5.6i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+In-Reply-To: <20040829175245.GA32117@k3.hellgate.ch>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ This will probably go down in history as the most pointless message
-  ever, I just told Nik on IRC I'd take it up on the list :) ]
+On Sun, 29 Aug 2004 10:20:22 -0700, William Lee Irwin III wrote:
+>> get_tgid_list() is a sad story I don't have time to go into in depth.
+>> The short version is that larger systems are extremely sensitive to
+>> hold time for writes on the tasklist_lock, and this being on scales
+>> not needing SGI participation to tell us (though scales beyond personal
+>> financial resources still).
 
-On Sun, Aug 29, 2004 at 09:22:08PM +0400, Nikita Danilov wrote:
->Spam writes:
+On Sun, Aug 29, 2004 at 07:52:45PM +0200, Roger Luethi wrote:
+> I am confident that this problem (as far as process monitoring is
+> concerned) could be addressed with differential notification.
 
->Hmm... drag-and-drop also doesn't work constently over all
->applications. Let's put it into kernel.
+I'm a bit squeamish about that given that mmlist_lock and tasklist_lock
+are both problematic and yet another global structure to fiddle with in
+the process creation and destruction path threatens similar trouble.
 
-What I'm after is that the file system should be able to store
-any arbitrary metadata. No matter what the format is.
+Also, what guarantee is there that the notification events come
+sufficiently slowly for a single task to process, particularly when that
+task may not have a whole cpu's resources to marshal to the task?
+Queueing them sounds less than ideal due to resource consumption, and
+if notifications are dropped most of the efficiency gains are lost. So
+I question that a bit.
 
-Maybe I was a bit harsh on XML in my previous email, but whatever.
+I have a vague notion that userspace should intelligently schedule
+inquiries so requests are made at a rate the app can process and so
+that the app doesn't consume excessive amounts of cpu. In such an
+arrangement screen refresh events don't trigger a full scan of the
+tasklist, but rather only an incremental partial rescan of it, whose
+work is limited for the above cpu bandwidth concerns.
 
->Seriously, kernel prformance is critical to the system, and to achieve
->high performance all kernel code runs in single address space (actually,
->in portion of address spaces of user processes shared by all
->processes). All shared system state is located there. This means that
->bug in a kernel affects whole system. This means that kernel should be
->kept as simple as possible (and a bit more simple).
 
-I do agree here. But is it seriously such a big issue to implement
-the files-as-dirs kind of thing?
+On Sun, 29 Aug 2004 10:20:22 -0700, William Lee Irwin III wrote:
+>> scanf() is still very pronounced here; I wonder how well-optimized
+>> glibc's implementation is, or if otherwise it may be useful to
+>> circumvent it with a more specialized parser if its generality
+>> requirements preclude faster execution.
 
-Be it overloading MAY_READ so it works with chdir or implementing openat
-or whatever it takes.
+On Sun, Aug 29, 2004 at 07:52:45PM +0200, Roger Luethi wrote:
+> I'd much rather remove unnecessary overhead than optimize code for
+> overhead processing. Note that number() takes out 7% and that's the
+> _kernel_ printing numbers for user space to parse back. And __d_lookup
+> is another /proc souvenir you get to keep as long as you use /proc.
 
-I don't think this should be much more, if any more, than the capability
-to store this data. Which Reiser4 does. But moved from the Reiser4
-level to the VFS level. Right?
+I'm expecting very very long lifetimes for legacy kernel versions and
+userspace predating the merge of nproc, so it's not entirely irrelevant,
+though backports aren't exactly something I relish.
 
->This is why only things that cannot be done efficiently in the user
->level are put into kernel. And political agendas of various camps of
->user-level developers change nothing here.
 
-What I'd want to do is to be able to write a Reiser4 plugin that suits
-my needs for something. Not that I'd even know how to, but that's a
-matter of time.
+On Sun, 29 Aug 2004 10:20:22 -0700, William Lee Irwin III wrote:
+>> It looks like I'm going after the right culprit(s) for the lower-level
+>> algorithms from this.
 
-Are there other means of doing this than Reiser? I mean Reiser4 plugin
-functionality by other means.
+On Sun, Aug 29, 2004 at 07:52:45PM +0200, Roger Luethi wrote:
+> Well __task_mem is promiment here because I don't call other computation
+> functions. vmstat ain't cheap, and wchan is horribly expensive if the
+> kernel does the ksym translation. Etc. pp.
 
->>   Still.  Why do you oppose plugins, streams and meta files? The could
->>   be   valuable   and  easy  to use tools for many purposes. One could
->>   be  would be advanced ACLs defined as a meta-file using XML format.
->POSIX has standard ACL API in C (well, "eternal draft" only), one can
->use it to extract ACLs from kernel and convert it to any format to one's
->heart content. Advantage of this is that when XML goes out of fashion (I
->hope this wouldn't yet happen when you will read this message), kernel
->API will remain intact.
+task_mem() is generally prominent when the processes have large numbers
+of vmas, and also due to acquisition of ->mmap_sem.
 
-Aa, this apparently is an argument against XML parsing in the kernel,
-not the idea that if someone wanted ACLs, that are in XML format, and
-could not use them (because the kernel doesn't parse), he should be
-able to write such a plugin.
 
-Besides, let's say the Reiser4 XML-ACL plugin has a parser that actually
-DOES something. For argument's sake. Would it not be up to the individual
-user to disable this plugin? I'd assume it's possible to write plugins
-so that they do not affect anything but themselves, meaning this parser.
-
-Of course the problem of copying a file with XML-ACLs to another Reiser4
-fs without support for them should be thought of. But I guess this is
-where you take the shortest route; the XML-ACL files are intact in the
-file's metadata, but totally unusable?
-
--- 
-mjt
-
+-- wli

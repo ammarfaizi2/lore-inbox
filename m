@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286541AbRL0TpZ>; Thu, 27 Dec 2001 14:45:25 -0500
+	id <S286554AbRL0TrX>; Thu, 27 Dec 2001 14:47:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286556AbRL0TpO>; Thu, 27 Dec 2001 14:45:14 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:37900 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286541AbRL0TpB>; Thu, 27 Dec 2001 14:45:01 -0500
-Message-ID: <3C2B7981.EDCBEFA@zip.com.au>
-Date: Thu, 27 Dec 2001 11:41:53 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S286556AbRL0TrP>; Thu, 27 Dec 2001 14:47:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52485 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S286554AbRL0TrI>; Thu, 27 Dec 2001 14:47:08 -0500
+Date: Thu, 27 Dec 2001 17:46:51 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andre Hedrick <andre@linux-ide.org>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: your mail
-In-Reply-To: <Pine.LNX.4.10.10112271008350.24428-100000@master.linux-ide.org> <Pine.LNX.4.33.0112271025590.1052-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <Pine.LNX.4.33.0112271126550.1052-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0112271742470.12225-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> The other part of the bio rewrite has been to get rid of another coupling:
-> the coupling between "struct buffer_head" (which is used for a limited
-> kind of memory management by a number of filesystems) and the act of
-> actually just doing IO.
-> 
-> I used to think that we could just relegate "struct buffer_head" to _be_
-> the IO entity, but it turns out to be much easier to just split off the IO
-> part, which is why you now have a separate "bio" structure for the block
-> IO part, and the buffer_head stuff uses that to get the work done.
-> 
+On Thu, 27 Dec 2001, Linus Torvalds wrote:
+> On Thu, 27 Dec 2001, Rik van Riel wrote:
+> >
+> > Of course the patch will be updated when needed, but I still
+> > have a few 6-month old patches lying around that still work
+> > as expected and don't need any change.
+>
+> Sure. Automatic re-mailing can be part of the maintainership, if the
+> testing of the validity of the patch is also automated (ie add a
+> automated note that says that it has been verified).
 
-So... would it be correct to say that there won't be any large
-changes to the buffer_head concept in 2.5?
+Patch-bombing you with useless stuff has never been my
+objective. I just want to make sure valid patches get
+re-sent to you as long as there is a reason to believe
+they still need to be sent.
+
+As soon as any hint arrives that the patch shouldn't be
+sent right now (a change was made to any of the files the
+patch applies to, I see something suspect in the changelog,
+the patch was applied, a reply was mailed to the patch...)
+the patch will be moved away for manual inspection.
+
+I guess I'll also build in some kind of backoff to make sure
+the patch gets sent less often if you're not interested or too
+busy.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

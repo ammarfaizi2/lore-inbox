@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318305AbSIBOLa>; Mon, 2 Sep 2002 10:11:30 -0400
+	id <S318304AbSIBOUn>; Mon, 2 Sep 2002 10:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318308AbSIBOL3>; Mon, 2 Sep 2002 10:11:29 -0400
-Received: from jalon.able.es ([212.97.163.2]:61436 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S318305AbSIBOL2>;
-	Mon, 2 Sep 2002 10:11:28 -0400
-Date: Mon, 2 Sep 2002 16:15:43 +0200
+	id <S318308AbSIBOUn>; Mon, 2 Sep 2002 10:20:43 -0400
+Received: from jalon.able.es ([212.97.163.2]:30205 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S318304AbSIBOUm>;
+	Mon, 2 Sep 2002 10:20:42 -0400
+Date: Mon, 2 Sep 2002 16:24:55 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: -aa VM status wrt standard kernel
-Message-ID: <20020902141543.GA6543@werewolf.able.es>
+Cc: andre@linuxdiskcert.org
+Subject: IDE patches status
+Message-ID: <20020902142455.GC6543@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
@@ -21,36 +22,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi all...
 
-Back from summer holidays, and trying to catch the train again...
+I have seen the new IDE patch at http://www.linuxdiskcert.org/:
 
-I gave up in 2.4.20-pre1. I have built now -pre5, and saw that some things
-from -aa tree (or newer versions) went into mainline:
+http://www.linuxdiskcert.org/ide-2.4.20-pre4-ac2.1.patch.bz2
 
-(from patch-2.4.20.log)
-pre1 -> pre2:
- <hch@lst.de>:
-  o small VM updates from -aa (1/5)
-  o small VM updates from -aa (2/5)
-  o small VM updates from -aa (4/5)
-  o small VM updates from -aa (5/5)
-  o minor VM changes from -aa (2/3)
-  o minor VM changes from -aa (3/3)
-  o Re: [PATCH] small VM updates from -aa (3/5)
+It is done against -pre4-ac4 (highmem IO was introduced in -pre2, so I
+suppose it is highio-aware).
 
- Jens Axboe <axboe@suse.de>:
-  o Add block IO directly from highmem support
-pre4 ->pre5:
-Scott Feldman <scott.feldman@intel.com>:
-  o e100 net driver update 1/3...
-  o e1000 net driver update 1/5...
-
-small bits for SMP, like alignments and so on.
-
-I have tried to dig into MARC archives but found no message. Anyone has
-a pointer to read what went in ?
-
-BTW: Andrea, is there any -aa cooking ? I am trying to merge the rest of the
-latest I had...
+Ist not there any version for plain 2.4.19 ? Does it depend on any
+specific bits from -ac ? If yes, would this bit easily extracted ?
 
 TIA
 

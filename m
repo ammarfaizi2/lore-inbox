@@ -1,60 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUCHWLT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUCHWLP
+	id S261331AbUCHWPs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:15:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUCHWPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:11:15 -0500
-Received: from nms.rz.uni-kiel.de ([134.245.1.2]:1263 "EHLO uni-kiel.de")
-	by vger.kernel.org with ESMTP id S261370AbUCHWKX convert rfc822-to-8bit
+	Mon, 8 Mar 2004 17:15:48 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36848 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261331AbUCHWPi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:10:23 -0500
-From: Mike Gabriel <mgabriel@ecology.uni-kiel.de>
-Reply-To: mgabriel@ecology.uni-kiel.de
-To: linux-kernel@vger.kernel.org
-Subject: all people's firewire hds working?
-Date: Mon, 8 Mar 2004 23:08:45 +0100
-User-Agent: KMail/1.6
+	Mon, 8 Mar 2004 17:15:38 -0500
+Message-ID: <404CF07D.1090303@mvista.com>
+Date: Mon, 08 Mar 2004 14:15:25 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403082308.45892.mgabriel@ecology.uni-kiel.de>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       trini@kernel.crashing.org, pavel@ucw.cz
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+References: <200403081504.30840.amitkale@emsyssoft.com> <200403081545.09916.amitkale@emsyssoft.com> <20040308022602.766be828.akpm@osdl.org> <200403081619.16771.amitkale@emsyssoft.com>
+In-Reply-To: <200403081619.16771.amitkale@emsyssoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi there,
+Amit S. Kale wrote:
+> On Monday 08 Mar 2004 3:56 pm, Andrew Morton wrote:
+> 
+>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>
+>>>Here are features that are present only in full kgdb:
+>>> 1. Thread support  (aka info threads)
+>>
+>>argh, disaster.  I discussed this with Tom a week or so ago when it looked
+>>like this it was being chopped out and I recall being told that the
+>>discussion was referring to something else.
+>>
+>>Ho-hum, sorry.  Can we please put this back in?
+> 
+> 
+> Err., well this is one of the particularly dirty parts of kgdb. That's why 
+> it's been kept away. It takes care of correct thread backtraces in some rare 
+> cases.
+> 
+> If you consider it an absolutely must, we can do something so that the dirty 
+> part is kept away and info threads almost always works.
+> 
 
-is anyone able to use firewire hds (mine is a notebook-ide-drive, 40gb, in 
-real life) with kernel 2.6.3?
+Amit,
 
-my syslog always complains:
-> ieee1394: ConfigROM quadlet transaction error for node 00:1023 
+I think we should just put the info threads in the core.  No attempt to do any 
+trace back from kgdb.  Let them all show up in the switch code.  I have a script 
+(gdb macro) that will give a rather decent "info threads" display.  Oh, we need 
+to add one other responce to kgdb for the process info gdb command.
 
-if you google for this line, you find loads of posters having the same 
-problem, but no one has provided them any answers.
+  * This query allows the target stub to return an arbitrary string
+  * (or strings) giving arbitrary information about the target process.
+  * This is optional; the target stub isn't required to implement it.
+  *
+  * Syntax: qfProcessInfo        request first string
+  *         qsProcessInfo        request subsequent string
+  * reply:  'O'<hex-encoded-string>
+  *         'l'                  last reply (empty)
+  */
+What we want here is the thread name.
 
-thus, i wonder, if all the other ide firewire drives on this nice planet are 
-working fine under 2.6.x ...
+Here is the macro set:
 
-BTW: mine is with working fine under kernel 2.4.xx, but i tend to be 
-progressive (i.e. 2.6.x-ish)
+set var $low_sched=0
 
-any ideas?
+define do_threads
+   if (void)$low_sched==(void)0
+	set_b
+   end
+   thread apply all do_th_lines
+end
 
-mike gabriel
+define do_th_lines
+   set var $do_th_co=0
+   while ($pc > $low_sched) && ($pc < $high_sched)
+     up-silent
+     set var $do_th_co=$do_th_co+1
+   end
+   if $do_th_co==0
+     info remote-process
+     bt
+   else
+     up-silent
+     info remote-process
+     down
+   end
+end
+
+define set_b
+   set var $low_sched=scheduling_functions_start_here
+   set var $high_sched=scheduling_functions_end_here
+end
+
+
+~
 
 -- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-Oekologiezentrum
-Christian-Albrecht-Universität zu Kiel
-- netzwerkteam -
-Mike Gabriel
-Olshausenstr 75.
-24118 Kiel
-
-fon: +49 431 880-1186
-mail: mgabriel@ecology.uni-kiel.de
-www: http://www.ecology.uni-kiel.de, http://zope.ecology.uni-kiel.de
-     

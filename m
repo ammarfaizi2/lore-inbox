@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273345AbTG3TYy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 15:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273355AbTG3TYy
+	id S273355AbTG3T1G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273358AbTG3T1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 15:24:54 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:8634 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S273345AbTG3TW0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 15:22:26 -0400
-Date: Wed, 30 Jul 2003 21:18:01 +0200 (MEST)
-Message-Id: <200307301918.h6UJI19q020560@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: albert@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: another must-fix: major PS/2 mouse problem
-Cc: 0@pervalidus.tk, akpm@osdl.org, linux-yoann@ifrance.com, pavel@ucw.cz,
-       vojtech@suse.cz, zwane@arm.linux.org.uk
+	Wed, 30 Jul 2003 15:27:06 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:1808 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S273355AbTG3TZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 15:25:37 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Shawn <core@enodev.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Buffer I/O error on device hde3, logical block 4429
+Date: Wed, 30 Jul 2003 21:25:27 +0200
+User-Agent: KMail/1.5.2
+References: <1059585712.11341.24.camel@localhost> <1059592520.11341.47.camel@localhost>
+In-Reply-To: <1059592520.11341.47.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307302125.27898.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Jul 2003 08:29:32 -0400, Albert Cahalan wrote:
->> > > psmouse.c: Lost synchronization, throwing 3 bytes away.
->> > > psmouse.c: Lost synchronization, throwing 1 bytes away.
->> > > 
->> > > Arrrrgh! The TSC is my only good time source!
->> > 
->> > Arrrgh!  More PS/2 problems!
->> > 
->> > I think the lost synchronisation is the problem, would you agree?
->> > 
->> > The person who fixes this gets a Nobel prize.
-...
->It won't make the mouse run well. Maybe you'd stop the
->mouse from going crazy from time to time, but there'd
->still temporary freezes from time to time. (not OK!)
+On Wednesday 30 July 2003 21:15, Shawn wrote:
 
-FWIW, the problems my Dell Latitude had with the external
-mice I use with it were significantly reduced once I added
-"psmouse_noext" to the kernel's command line. That one
-change eliminated all lost sync messages and general craziness
-after resumes from suspended state.
+Hi,
 
-To make the mouse move at proper speed w/o jerkiness I
-also had to tweak the rate and scaling programmed into it
-to match 2.4 defaults. (rate 100, scale 2:1)
+> It appears Mike Galbraith has seen something similar in -vanilla.
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/1987.html
+> Does anyone have any interest at all in pursuing this? Hopefully? I'm
+> glad to try and be the pig of Guinea. Kill piggy!
 
-In fairness, only my old Latitude has these PS/2 issues.
+> > I am running 2.6.0-test2-mm1, and upon boot have received a gift of many
+> > "Buffer I/O error on device hde3" messages in my log. After they quit,
+> > they never seem to come back.
+hmm, I had the same errors yesterday and the culprit was a "data=writeback" 
+for a reiserfs partition. 2.6 don't know about data= for reiserfs.
 
-/Mikael
+Could it be your problem too?
+
+ciao, Marc
+

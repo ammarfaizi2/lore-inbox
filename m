@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316889AbSFAGqr>; Sat, 1 Jun 2002 02:46:47 -0400
+	id <S316988AbSFAG4b>; Sat, 1 Jun 2002 02:56:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316989AbSFAGqq>; Sat, 1 Jun 2002 02:46:46 -0400
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:39126 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316889AbSFAGqp>; Sat, 1 Jun 2002 02:46:45 -0400
-Message-ID: <3CF86DBA.2050008@wanadoo.fr>
-Date: Sat, 01 Jun 2002 08:46:18 +0200
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.5.19 devfs partition naming
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316989AbSFAG4a>; Sat, 1 Jun 2002 02:56:30 -0400
+Received: from mail.gmx.de ([213.165.64.20]:16071 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316988AbSFAG4a>;
+	Sat, 1 Jun 2002 02:56:30 -0400
+Date: Sat, 1 Jun 2002 09:55:20 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Link order madness :-(
+Message-ID: <20020601065520.GA11951@callisto.yi.org>
+In-Reply-To: <20020531172122.A27675@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have to give this to grub for being able to mount the root fs 
-(/dev/hde3) at boot time :
+On Fri, May 31, 2002 at 05:21:22PM -0700, Jean Tourrilhes wrote:
+> 	I was trying to make the IrDA stack work when compiled in the
+> kernel in 2.5.X (as opposed to modular). In 2.4.X, it sort of work,
+> but whoever made changes to the IrDA init in 2.5.X obviously didn't
+> bother to check what he was doing and check his changes.
+> 	So, I was trying to fix that, and I found a problem with
+> kernel link order.
 
-root=/dev//dev/ata/host2/bus0/target0/lun0/part2
+It is possible that recent kbuild changes caused that.
 
-Is it a typo in the naming of partition for devfs ?
+[snip]
+> 	As both the random driver and the irda drivers are at the same
+> init level, there is no way to enforce those dependancies. Currently,
+> the IrDA drivers are loaded before the IrDA stack (== kaboom).
+> 	Personally, I found it a bit strange the the random driver is
+> initialised so late in the game when the whole networking code (at
+> leasxt) depends on it.
+> 
+> 	Please advise...
 
-Pierre
+I remember something like this happened awhile back with the IDE driver, 
+trying to call a function in the cdrom driver before it was initialized.
+
+There is a dirty workaround for this problem: Use a local static variable 
+to condition the modules' initialization, and make each module call
+its init function inside every of its exported function, so this 
+'init-on-demand' will make sure the init code runs before the other 
+module's code.
+
+BTW, does the new driver model addresses this problem? 
+
 -- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
-
+Dan Aloni
+da-x@gmx.net

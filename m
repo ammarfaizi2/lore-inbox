@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUL1HSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbUL1HWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUL1HSA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 02:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbUL1HRj
+	id S261757AbUL1HWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 02:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUL1HWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 02:17:39 -0500
+	Tue, 28 Dec 2004 02:22:11 -0500
 Received: from umhlanga.stratnet.net ([12.162.17.40]:52561 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262098AbUL1Fxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 00:53:52 -0500
+	id S262099AbUL1Fxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 00:53:53 -0500
 Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
        openib-general@openib.org
-In-Reply-To: <200412272151.XKAQkznglOHW39xJ@topspin.com>
+In-Reply-To: <200412272151.JEARwZ80axXxZD2Q@topspin.com>
 X-Mailer: Roland's Patchbomber
-Date: Mon, 27 Dec 2004 21:51:17 -0800
-Message-Id: <200412272151.JEARwZ80axXxZD2Q@topspin.com>
+Date: Mon, 27 Dec 2004 21:51:18 -0800
+Message-Id: <200412272151.3Lde9MPbD7ODIUdu@topspin.com>
 Mime-Version: 1.0
 To: davem@davemloft.net
 From: Roland Dreier <roland@topspin.com>
 X-SA-Exim-Connect-IP: 127.0.0.1
 X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v5][20/24] Add IPoIB multicast & partition code
+Subject: [PATCH][v5][21/24] Add InfiniBand userspace MAD support
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
 X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 28 Dec 2004 05:51:18.0657 (UTC) FILETIME=[40574F10:01C4ECA1]
+X-OriginalArrivalTime: 28 Dec 2004 05:51:19.0439 (UTC) FILETIME=[40CEA1F0:01C4ECA1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add functions for handling IPoIB multicast and multiple partitions.
+Add a driver that provides a character special device for each
+InfiniBand port.  This device allows userspace to send and receive
+MADs via write() and read() (with some control operations implemented
+as ioctls).
+
+All operations are 32/64 clean and have been tested with 32-bit
+userspace running on a ppc64 kernel.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
+--- linux-bk.orig/drivers/infiniband/core/Makefile	2004-12-27 21:48:20.847897490 -0800
++++ linux-bk/drivers/infiniband/core/Makefile	2004-12-27 21:48:27.528914067 -0800
+@@ -1,6 +1,6 @@
+ EXTRA_CFLAGS += -Idrivers/infiniband/include
+ 
+-obj-$(CONFIG_INFINIBAND) +=	ib_core.o ib_mad.o ib_sa.o
++obj-$(CONFIG_INFINIBAND) +=	ib_core.o ib_mad.o ib_sa.o ib_umad.o
+ 
+ ib_core-y :=			packer.o ud_header.o verbs.o sysfs.o \
+ 				device.o fmr_pool.o cache.o
+@@ -8,3 +8,5 @@
+ ib_mad-y :=			mad.o smi.o agent.o
+ 
+ ib_sa-y :=			sa_query.o
++
++ib_umad-y :=			user_mad.o
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/ulp/ipoib/ipoib_multicast.c	2004-12-27 21:48:27.157968669 -0800
-@@ -0,0 +1,981 @@
++++ linux-bk/drivers/infiniband/core/user_mad.c	2004-12-27 21:48:27.576907002 -0800
+@@ -0,0 +1,738 @@
 +/*
 + * Copyright (c) 2004 Topspin Communications.  All rights reserved.
 + *
@@ -68,1134 +90,837 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + *
-+ * $Id: ipoib_multicast.c 1362 2004-12-18 15:56:29Z roland $
++ * $Id: user_mad.c 1389 2004-12-27 22:56:47Z roland $
 + */
 +
-+#include <linux/skbuff.h>
-+#include <linux/rtnetlink.h>
-+#include <linux/ip.h>
-+#include <linux/in.h>
-+#include <linux/igmp.h>
-+#include <linux/inetdevice.h>
-+#include <linux/delay.h>
-+#include <linux/completion.h>
-+
-+#include "ipoib.h"
-+
-+#ifdef CONFIG_INFINIBAND_IPOIB_DEBUG
-+int mcast_debug_level;
-+
-+module_param(mcast_debug_level, int, 0644);
-+MODULE_PARM_DESC(mcast_debug_level,
-+		 "Enable multicast debug tracing if > 0");
-+#endif
-+
-+static DECLARE_MUTEX(mcast_mutex);
-+
-+/* Used for all multicast joins (broadcast, IPv4 mcast and IPv6 mcast) */
-+struct ipoib_mcast {
-+	struct ib_sa_mcmember_rec mcmember;
-+	struct ipoib_ah          *ah;
-+
-+	struct rb_node    rb_node;
-+	struct list_head  list;
-+	struct completion done;
-+
-+	int                 query_id;
-+	struct ib_sa_query *query;
-+
-+	unsigned long created;
-+	unsigned long backoff;
-+
-+	unsigned long flags;
-+	unsigned char logcount;
-+
-+	struct list_head  neigh_list;
-+
-+	struct sk_buff_head pkt_queue;
-+
-+	struct net_device *dev;
-+};
-+
-+struct ipoib_mcast_iter {
-+	struct net_device *dev;
-+	union ib_gid       mgid;
-+	unsigned long      created;
-+	unsigned int       queuelen;
-+	unsigned int       complete;
-+	unsigned int       send_only;
-+};
-+
-+static void ipoib_mcast_free(struct ipoib_mcast *mcast)
-+{
-+	struct net_device *dev = mcast->dev;
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct ipoib_neigh *neigh, *tmp;
-+	unsigned long flags;
-+
-+	ipoib_dbg_mcast(netdev_priv(dev),
-+			"deleting multicast group " IPOIB_GID_FMT "\n",
-+			IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+	spin_lock_irqsave(&priv->lock, flags);
-+
-+	list_for_each_entry_safe(neigh, tmp, &mcast->neigh_list, list) {
-+		ipoib_put_ah(neigh->ah);
-+		*to_ipoib_neigh(neigh->neighbour) = NULL;
-+		neigh->neighbour->ops->destructor = NULL;
-+		kfree(neigh);
-+	}
-+
-+	spin_unlock_irqrestore(&priv->lock, flags);
-+
-+	if (mcast->ah)
-+		ipoib_put_ah(mcast->ah);
-+
-+	while (!skb_queue_empty(&mcast->pkt_queue)) {
-+		struct sk_buff *skb = skb_dequeue(&mcast->pkt_queue);
-+
-+		skb->dev = dev;
-+		dev_kfree_skb_any(skb);
-+	}
-+
-+	kfree(mcast);
-+}
-+
-+static struct ipoib_mcast *ipoib_mcast_alloc(struct net_device *dev,
-+					     int can_sleep)
-+{
-+	struct ipoib_mcast *mcast;
-+
-+	mcast = kmalloc(sizeof (*mcast), can_sleep ? GFP_KERNEL : GFP_ATOMIC);
-+	if (!mcast)
-+		return NULL;
-+
-+	memset(mcast, 0, sizeof (*mcast));
-+
-+	init_completion(&mcast->done);
-+
-+	mcast->dev = dev;
-+	mcast->created = jiffies;
-+	mcast->backoff = HZ;
-+	mcast->logcount = 0;
-+
-+	INIT_LIST_HEAD(&mcast->list);
-+	INIT_LIST_HEAD(&mcast->neigh_list);
-+	skb_queue_head_init(&mcast->pkt_queue);
-+
-+	mcast->ah    = NULL;
-+	mcast->query = NULL;
-+
-+	return mcast;
-+}
-+
-+static struct ipoib_mcast *__ipoib_mcast_find(struct net_device *dev, union ib_gid *mgid)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct rb_node *n = priv->multicast_tree.rb_node;
-+
-+	while (n) {
-+		struct ipoib_mcast *mcast;
-+		int ret;
-+
-+		mcast = rb_entry(n, struct ipoib_mcast, rb_node);
-+
-+		ret = memcmp(mgid->raw, mcast->mcmember.mgid.raw,
-+			     sizeof (union ib_gid));
-+		if (ret < 0)
-+			n = n->rb_left;
-+		else if (ret > 0)
-+			n = n->rb_right;
-+		else
-+			return mcast;
-+	}
-+
-+	return NULL;
-+}
-+
-+static int __ipoib_mcast_add(struct net_device *dev, struct ipoib_mcast *mcast)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct rb_node **n = &priv->multicast_tree.rb_node, *pn = NULL;
-+
-+	while (*n) {
-+		struct ipoib_mcast *tmcast;
-+		int ret;
-+
-+		pn = *n;
-+		tmcast = rb_entry(pn, struct ipoib_mcast, rb_node);
-+
-+		ret = memcmp(mcast->mcmember.mgid.raw, tmcast->mcmember.mgid.raw,
-+			     sizeof (union ib_gid));
-+		if (ret < 0)
-+			n = &pn->rb_left;
-+		else if (ret > 0)
-+			n = &pn->rb_right;
-+		else
-+			return -EEXIST;
-+	}
-+
-+	rb_link_node(&mcast->rb_node, pn, n);
-+	rb_insert_color(&mcast->rb_node, &priv->multicast_tree);
-+
-+	return 0;
-+}
-+
-+static int ipoib_mcast_join_finish(struct ipoib_mcast *mcast,
-+				   struct ib_sa_mcmember_rec *mcmember)
-+{
-+	struct net_device *dev = mcast->dev;
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	int ret;
-+
-+	mcast->mcmember = *mcmember;
-+
-+	/* Set the cached Q_Key before we attach if it's the broadcast group */
-+	if (!memcmp(mcast->mcmember.mgid.raw, priv->dev->broadcast + 4,
-+		    sizeof (union ib_gid)))
-+		priv->qkey = be32_to_cpu(priv->broadcast->mcmember.qkey);
-+
-+	if (!test_bit(IPOIB_MCAST_FLAG_SENDONLY, &mcast->flags)) {
-+		if (test_and_set_bit(IPOIB_MCAST_FLAG_ATTACHED, &mcast->flags)) {
-+			ipoib_warn(priv, "multicast group " IPOIB_GID_FMT
-+				   " already attached\n",
-+				   IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+			return 0;
-+		}
-+
-+		ret = ipoib_mcast_attach(dev, be16_to_cpu(mcast->mcmember.mlid),
-+					 &mcast->mcmember.mgid);
-+		if (ret < 0) {
-+			ipoib_warn(priv, "couldn't attach QP to multicast group "
-+				   IPOIB_GID_FMT "\n",
-+				   IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+			clear_bit(IPOIB_MCAST_FLAG_ATTACHED, &mcast->flags);
-+			return ret;
-+		}
-+	}
-+
-+	{
-+		/*
-+		 * For now we set static_rate to 0.  This is not
-+		 * really correct: we should look at the rate
-+		 * component of the MC member record, compare it with
-+		 * the rate of our local port (calculated from the
-+		 * active link speed and link width) and set an
-+		 * inter-packet delay appropriately.
-+		 */
-+		struct ib_ah_attr av = {
-+			.dlid	       = be16_to_cpu(mcast->mcmember.mlid),
-+			.port_num      = priv->port,
-+			.sl	       = mcast->mcmember.sl,
-+			.static_rate   = 0,
-+			.ah_flags      = IB_AH_GRH,
-+			.grh	       = {
-+				.flow_label    = be32_to_cpu(mcast->mcmember.flow_label),
-+				.hop_limit     = mcast->mcmember.hop_limit,
-+				.sgid_index    = 0,
-+				.traffic_class = mcast->mcmember.traffic_class
-+			}
-+		};
-+
-+		av.grh.dgid = mcast->mcmember.mgid;
-+
-+		mcast->ah = ipoib_create_ah(dev, priv->pd, &av);
-+		if (!mcast->ah) {
-+			ipoib_warn(priv, "ib_address_create failed\n");
-+		} else {
-+			ipoib_dbg_mcast(priv, "MGID " IPOIB_GID_FMT
-+					" AV %p, LID 0x%04x, SL %d\n",
-+					IPOIB_GID_ARG(mcast->mcmember.mgid),
-+					mcast->ah->ah,
-+					be16_to_cpu(mcast->mcmember.mlid),
-+					mcast->mcmember.sl);
-+		}
-+	}
-+
-+	/* actually send any queued packets */
-+	while (!skb_queue_empty(&mcast->pkt_queue)) {
-+		struct sk_buff *skb = skb_dequeue(&mcast->pkt_queue);
-+
-+		skb->dev = dev;
-+
-+		if (!skb->dst || !skb->dst->neighbour) {
-+			/* put pseudoheader back on for next time */
-+			skb_push(skb, sizeof (struct ipoib_pseudoheader));
-+		}
-+
-+		if (dev_queue_xmit(skb))
-+			ipoib_warn(priv, "dev_queue_xmit failed to requeue packet\n");
-+	}
-+
-+	return 0;
-+}
-+
-+static void
-+ipoib_mcast_sendonly_join_complete(int status,
-+				   struct ib_sa_mcmember_rec *mcmember,
-+				   void *mcast_ptr)
-+{
-+	struct ipoib_mcast *mcast = mcast_ptr;
-+	struct net_device *dev = mcast->dev;
-+
-+	if (!status)
-+		ipoib_mcast_join_finish(mcast, mcmember);
-+	else {
-+		if (mcast->logcount++ < 20)
-+			ipoib_dbg_mcast(netdev_priv(dev), "multicast join failed for "
-+					IPOIB_GID_FMT ", status %d\n",
-+					IPOIB_GID_ARG(mcast->mcmember.mgid), status);
-+
-+		/* Flush out any queued packets */
-+		while (!skb_queue_empty(&mcast->pkt_queue)) {
-+			struct sk_buff *skb = skb_dequeue(&mcast->pkt_queue);
-+
-+			skb->dev = dev;
-+
-+			dev_kfree_skb_any(skb);
-+		}
-+
-+		/* Clear the busy flag so we try again */
-+		clear_bit(IPOIB_MCAST_FLAG_BUSY, &mcast->flags);
-+	}
-+
-+	complete(&mcast->done);
-+}
-+
-+static int ipoib_mcast_sendonly_join(struct ipoib_mcast *mcast)
-+{
-+	struct net_device *dev = mcast->dev;
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct ib_sa_mcmember_rec rec = {
-+#if 0				/* Some SMs don't support send-only yet */
-+		.join_state = 4
-+#else
-+		.join_state = 1
-+#endif
-+	};
-+	int ret = 0;
-+
-+	if (!test_bit(IPOIB_FLAG_OPER_UP, &priv->flags)) {
-+		ipoib_dbg_mcast(priv, "device shutting down, no multicast joins\n");
-+		return -ENODEV;
-+	}
-+
-+	if (test_and_set_bit(IPOIB_MCAST_FLAG_BUSY, &mcast->flags)) {
-+		ipoib_dbg_mcast(priv, "multicast entry busy, skipping\n");
-+		return -EBUSY;
-+	}
-+
-+	rec.mgid     = mcast->mcmember.mgid;
-+	rec.port_gid = priv->local_gid;
-+	rec.pkey     = be16_to_cpu(priv->pkey);
-+
-+	ret = ib_sa_mcmember_rec_set(priv->ca, priv->port, &rec,
-+				     IB_SA_MCMEMBER_REC_MGID		|
-+				     IB_SA_MCMEMBER_REC_PORT_GID	|
-+				     IB_SA_MCMEMBER_REC_PKEY		|
-+				     IB_SA_MCMEMBER_REC_JOIN_STATE,
-+				     1000, GFP_ATOMIC,
-+				     ipoib_mcast_sendonly_join_complete,
-+				     mcast, &mcast->query);
-+	if (ret < 0) {
-+		ipoib_warn(priv, "ib_sa_mcmember_rec_set failed (ret = %d)\n",
-+			   ret);
-+	} else {
-+		ipoib_dbg_mcast(priv, "no multicast record for " IPOIB_GID_FMT
-+				", starting join\n",
-+				IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+		mcast->query_id = ret;
-+	}
-+
-+	return ret;
-+}
-+
-+static void ipoib_mcast_join_complete(int status,
-+				      struct ib_sa_mcmember_rec *mcmember,
-+				      void *mcast_ptr)
-+{
-+	struct ipoib_mcast *mcast = mcast_ptr;
-+	struct net_device *dev = mcast->dev;
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+
-+	ipoib_dbg_mcast(priv, "join completion for " IPOIB_GID_FMT
-+			" (status %d)\n",
-+			IPOIB_GID_ARG(mcast->mcmember.mgid), status);
-+
-+	if (!status && !ipoib_mcast_join_finish(mcast, mcmember)) {
-+		mcast->backoff = HZ;
-+		down(&mcast_mutex);
-+		if (test_bit(IPOIB_MCAST_RUN, &priv->flags))
-+			queue_work(ipoib_workqueue, &priv->mcast_task);
-+		up(&mcast_mutex);
-+		complete(&mcast->done);
-+		return;
-+	}
-+
-+	if (status == -EINTR) {
-+		complete(&mcast->done);
-+		return;
-+	}
-+
-+	if (status && mcast->logcount++ < 20) {
-+		if (status == -ETIMEDOUT || status == -EINTR) {
-+			ipoib_dbg_mcast(priv, "multicast join failed for " IPOIB_GID_FMT
-+					", status %d\n",
-+					IPOIB_GID_ARG(mcast->mcmember.mgid),
-+					status);
-+		} else {
-+			ipoib_warn(priv, "multicast join failed for "
-+				   IPOIB_GID_FMT ", status %d\n",
-+				   IPOIB_GID_ARG(mcast->mcmember.mgid),
-+				   status);
-+		}
-+	}
-+
-+	mcast->backoff *= 2;
-+	if (mcast->backoff > IPOIB_MAX_BACKOFF_SECONDS)
-+		mcast->backoff = IPOIB_MAX_BACKOFF_SECONDS;
-+
-+	mcast->query = NULL;
-+
-+	down(&mcast_mutex);
-+	if (test_bit(IPOIB_MCAST_RUN, &priv->flags)) {
-+		if (status == -ETIMEDOUT)
-+			queue_work(ipoib_workqueue, &priv->mcast_task);
-+		else
-+			queue_delayed_work(ipoib_workqueue, &priv->mcast_task,
-+					   mcast->backoff * HZ);
-+	} else
-+		complete(&mcast->done);
-+	up(&mcast_mutex);
-+
-+	return;
-+}
-+
-+static void ipoib_mcast_join(struct net_device *dev, struct ipoib_mcast *mcast,
-+			     int create)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct ib_sa_mcmember_rec rec = {
-+		.join_state = 1
-+	};
-+	ib_sa_comp_mask comp_mask;
-+	int ret = 0;
-+
-+	ipoib_dbg_mcast(priv, "joining MGID " IPOIB_GID_FMT "\n",
-+			IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+	rec.mgid     = mcast->mcmember.mgid;
-+	rec.port_gid = priv->local_gid;
-+	rec.pkey     = be16_to_cpu(priv->pkey);
-+
-+	comp_mask =
-+		IB_SA_MCMEMBER_REC_MGID		|
-+		IB_SA_MCMEMBER_REC_PORT_GID	|
-+		IB_SA_MCMEMBER_REC_PKEY		|
-+		IB_SA_MCMEMBER_REC_JOIN_STATE;
-+
-+	if (create) {
-+		comp_mask |=
-+			IB_SA_MCMEMBER_REC_QKEY		|
-+			IB_SA_MCMEMBER_REC_SL		|
-+			IB_SA_MCMEMBER_REC_FLOW_LABEL	|
-+			IB_SA_MCMEMBER_REC_TRAFFIC_CLASS;
-+
-+		rec.qkey	  = priv->broadcast->mcmember.qkey;
-+		rec.sl		  = priv->broadcast->mcmember.sl;
-+		rec.flow_label	  = priv->broadcast->mcmember.flow_label;
-+		rec.traffic_class = priv->broadcast->mcmember.traffic_class;
-+	}
-+
-+	ret = ib_sa_mcmember_rec_set(priv->ca, priv->port, &rec, comp_mask,
-+				     mcast->backoff * 1000, GFP_ATOMIC,
-+				     ipoib_mcast_join_complete,
-+				     mcast, &mcast->query);
-+
-+	if (ret < 0) {
-+		ipoib_warn(priv, "ib_sa_mcmember_rec_set failed, status %d\n", ret);
-+
-+		mcast->backoff *= 2;
-+		if (mcast->backoff > IPOIB_MAX_BACKOFF_SECONDS)
-+			mcast->backoff = IPOIB_MAX_BACKOFF_SECONDS;
-+
-+		down(&mcast_mutex);
-+		if (test_bit(IPOIB_MCAST_RUN, &priv->flags))
-+			queue_delayed_work(ipoib_workqueue,
-+					   &priv->mcast_task,
-+					   mcast->backoff);
-+		up(&mcast_mutex);
-+	} else
-+		mcast->query_id = ret;
-+}
-+
-+void ipoib_mcast_join_task(void *dev_ptr)
-+{
-+	struct net_device *dev = dev_ptr;
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+
-+	if (!test_bit(IPOIB_MCAST_RUN, &priv->flags))
-+		return;
-+
-+	if (ib_query_gid(priv->ca, priv->port, 0, &priv->local_gid))
-+		ipoib_warn(priv, "ib_gid_entry_get() failed\n");
-+	else
-+		memcpy(priv->dev->dev_addr + 4, priv->local_gid.raw, sizeof (union ib_gid));
-+
-+	if (!priv->broadcast) {
-+		priv->broadcast = ipoib_mcast_alloc(dev, 1);
-+		if (!priv->broadcast) {
-+			ipoib_warn(priv, "failed to allocate broadcast group\n");
-+			down(&mcast_mutex);
-+			if (test_bit(IPOIB_MCAST_RUN, &priv->flags))
-+				queue_delayed_work(ipoib_workqueue,
-+						   &priv->mcast_task, HZ);
-+			up(&mcast_mutex);
-+			return;
-+		}
-+
-+		memcpy(priv->broadcast->mcmember.mgid.raw, priv->dev->broadcast + 4,
-+		       sizeof (union ib_gid));
-+
-+		spin_lock_irq(&priv->lock);
-+		__ipoib_mcast_add(dev, priv->broadcast);
-+		spin_unlock_irq(&priv->lock);
-+	}
-+
-+	if (!test_bit(IPOIB_MCAST_FLAG_ATTACHED, &priv->broadcast->flags)) {
-+		ipoib_mcast_join(dev, priv->broadcast, 0);
-+		return;
-+	}
-+
-+	while (1) {
-+		struct ipoib_mcast *mcast = NULL;
-+
-+		spin_lock_irq(&priv->lock);
-+		list_for_each_entry(mcast, &priv->multicast_list, list) {
-+			if (!test_bit(IPOIB_MCAST_FLAG_SENDONLY, &mcast->flags)
-+			    && !test_bit(IPOIB_MCAST_FLAG_BUSY, &mcast->flags)
-+			    && !test_bit(IPOIB_MCAST_FLAG_ATTACHED, &mcast->flags)) {
-+				/* Found the next unjoined group */
-+				break;
-+			}
-+		}
-+		spin_unlock_irq(&priv->lock);
-+
-+		if (&mcast->list == &priv->multicast_list) {
-+			/* All done */
-+			break;
-+		}
-+
-+		ipoib_mcast_join(dev, mcast, 1);
-+		return;
-+	}
-+
-+	{
-+		struct ib_port_attr attr;
-+
-+		if (!ib_query_port(priv->ca, priv->port, &attr))
-+			priv->local_lid = attr.lid;
-+		else
-+			ipoib_warn(priv, "ib_query_port failed\n");
-+	}
-+
-+	priv->mcast_mtu = ib_mtu_enum_to_int(priv->broadcast->mcmember.mtu) -
-+		IPOIB_ENCAP_LEN;
-+	dev->mtu = min(priv->mcast_mtu, priv->admin_mtu);
-+
-+	ipoib_dbg_mcast(priv, "successfully joined all multicast groups\n");
-+
-+	clear_bit(IPOIB_MCAST_RUN, &priv->flags);
-+	netif_carrier_on(dev);
-+}
-+
-+int ipoib_mcast_start_thread(struct net_device *dev)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+
-+	ipoib_dbg_mcast(priv, "starting multicast thread\n");
-+
-+	down(&mcast_mutex);
-+	if (!test_and_set_bit(IPOIB_MCAST_RUN, &priv->flags))
-+		queue_work(ipoib_workqueue, &priv->mcast_task);
-+	up(&mcast_mutex);
-+
-+	return 0;
-+}
-+
-+int ipoib_mcast_stop_thread(struct net_device *dev)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct ipoib_mcast *mcast;
-+
-+	ipoib_dbg_mcast(priv, "stopping multicast thread\n");
-+
-+	down(&mcast_mutex);
-+	clear_bit(IPOIB_MCAST_RUN, &priv->flags);
-+	cancel_delayed_work(&priv->mcast_task);
-+	up(&mcast_mutex);
-+
-+	flush_workqueue(ipoib_workqueue);
-+
-+	if (priv->broadcast && priv->broadcast->query) {
-+		ib_sa_cancel_query(priv->broadcast->query_id, priv->broadcast->query);
-+		priv->broadcast->query = NULL;
-+		ipoib_dbg_mcast(priv, "waiting for bcast\n");
-+		wait_for_completion(&priv->broadcast->done);
-+	}
-+
-+	list_for_each_entry(mcast, &priv->multicast_list, list) {
-+		if (mcast->query) {
-+			ib_sa_cancel_query(mcast->query_id, mcast->query);
-+			mcast->query = NULL;
-+			ipoib_dbg_mcast(priv, "waiting for MGID " IPOIB_GID_FMT "\n",
-+					IPOIB_GID_ARG(mcast->mcmember.mgid));
-+			wait_for_completion(&mcast->done);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+int ipoib_mcast_leave(struct net_device *dev, struct ipoib_mcast *mcast)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct ib_sa_mcmember_rec rec = {
-+		.join_state = 1
-+	};
-+	int ret = 0;
-+
-+	if (!test_and_clear_bit(IPOIB_MCAST_FLAG_ATTACHED, &mcast->flags))
-+		return 0;
-+
-+	ipoib_dbg_mcast(priv, "leaving MGID " IPOIB_GID_FMT "\n",
-+			IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+	rec.mgid     = mcast->mcmember.mgid;
-+	rec.port_gid = priv->local_gid;
-+	rec.pkey     = be16_to_cpu(priv->pkey);
-+
-+	/* Remove ourselves from the multicast group */
-+	ret = ipoib_mcast_detach(dev, be16_to_cpu(mcast->mcmember.mlid),
-+				 &mcast->mcmember.mgid);
-+	if (ret)
-+		ipoib_warn(priv, "ipoib_mcast_detach failed (result = %d)\n", ret);
-+
-+	/*
-+	 * Just make one shot at leaving and don't wait for a reply;
-+	 * if we fail, too bad.
-+	 */
-+	ret = ib_sa_mcmember_rec_delete(priv->ca, priv->port, &rec,
-+					IB_SA_MCMEMBER_REC_MGID		|
-+					IB_SA_MCMEMBER_REC_PORT_GID	|
-+					IB_SA_MCMEMBER_REC_PKEY		|
-+					IB_SA_MCMEMBER_REC_JOIN_STATE,
-+					0, GFP_ATOMIC, NULL,
-+					mcast, &mcast->query);
-+	if (ret < 0)
-+		ipoib_warn(priv, "ib_sa_mcmember_rec_delete failed "
-+			   "for leave (result = %d)\n", ret);
-+
-+	return 0;
-+}
-+
-+void ipoib_mcast_send(struct net_device *dev, union ib_gid *mgid,
-+		      struct sk_buff *skb)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct ipoib_mcast *mcast;
-+
-+	/*
-+	 * We can only be called from ipoib_start_xmit, so we're
-+	 * inside tx_lock -- no need to save/restore flags.
-+	 */
-+	spin_lock(&priv->lock);
-+
-+	mcast = __ipoib_mcast_find(dev, mgid);
-+	if (!mcast) {
-+		/* Let's create a new send only group now */
-+		ipoib_dbg_mcast(priv, "setting up send only multicast group for "
-+				IPOIB_GID_FMT "\n", IPOIB_GID_ARG(*mgid));
-+
-+		mcast = ipoib_mcast_alloc(dev, 0);
-+		if (!mcast) {
-+			ipoib_warn(priv, "unable to allocate memory for "
-+				   "multicast structure\n");
-+			dev_kfree_skb_any(skb);
-+			goto out;
-+		}
-+
-+		set_bit(IPOIB_MCAST_FLAG_SENDONLY, &mcast->flags);
-+		mcast->mcmember.mgid = *mgid;
-+		__ipoib_mcast_add(dev, mcast);
-+		list_add_tail(&mcast->list, &priv->multicast_list);
-+	}
-+
-+	if (!mcast->ah) {
-+		if (skb_queue_len(&mcast->pkt_queue) < IPOIB_MAX_MCAST_QUEUE)
-+			skb_queue_tail(&mcast->pkt_queue, skb);
-+		else
-+			dev_kfree_skb_any(skb);
-+
-+		if (mcast->query)
-+			ipoib_dbg_mcast(priv, "no address vector, "
-+					"but multicast join already started\n");
-+		else if (test_bit(IPOIB_MCAST_FLAG_SENDONLY, &mcast->flags))
-+			ipoib_mcast_sendonly_join(mcast);
-+
-+		/*
-+		 * If lookup completes between here and out:, don't
-+		 * want to send packet twice.
-+		 */
-+		mcast = NULL;
-+	}
-+
-+out:
-+	if (mcast && mcast->ah) {
-+		if (skb->dst            &&
-+		    skb->dst->neighbour &&
-+		    !*to_ipoib_neigh(skb->dst->neighbour)) {
-+			struct ipoib_neigh *neigh = kmalloc(sizeof *neigh, GFP_ATOMIC);
-+
-+			if (neigh) {
-+				kref_get(&mcast->ah->ref);
-+				neigh->ah  	= mcast->ah;
-+				neigh->neighbour = skb->dst->neighbour;
-+				*to_ipoib_neigh(skb->dst->neighbour) = neigh;
-+				list_add_tail(&neigh->list, &mcast->neigh_list);
-+			}
-+		}
-+
-+		ipoib_send(dev, skb, mcast->ah, IB_MULTICAST_QPN);
-+	}
-+
-+	spin_unlock(&priv->lock);
-+}
-+
-+void ipoib_mcast_dev_flush(struct net_device *dev)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	LIST_HEAD(remove_list);
-+	struct ipoib_mcast *mcast, *tmcast, *nmcast;
-+	unsigned long flags;
-+
-+	ipoib_dbg_mcast(priv, "flushing multicast list\n");
-+
-+	spin_lock_irqsave(&priv->lock, flags);
-+	list_for_each_entry_safe(mcast, tmcast, &priv->multicast_list, list) {
-+		nmcast = ipoib_mcast_alloc(dev, 0);
-+		if (nmcast) {
-+			nmcast->flags =
-+				mcast->flags & (1 << IPOIB_MCAST_FLAG_SENDONLY);
-+
-+			nmcast->mcmember.mgid = mcast->mcmember.mgid;
-+
-+			/* Add the new group in before the to-be-destroyed group */
-+			list_add_tail(&nmcast->list, &mcast->list);
-+			list_del_init(&mcast->list);
-+
-+			rb_replace_node(&mcast->rb_node, &nmcast->rb_node,
-+					&priv->multicast_tree);
-+
-+			list_add_tail(&mcast->list, &remove_list);
-+		} else {
-+			ipoib_warn(priv, "could not reallocate multicast group "
-+				   IPOIB_GID_FMT "\n",
-+				   IPOIB_GID_ARG(mcast->mcmember.mgid));
-+		}
-+	}
-+
-+	if (priv->broadcast) {
-+		nmcast = ipoib_mcast_alloc(dev, 0);
-+		if (nmcast) {
-+			nmcast->mcmember.mgid = priv->broadcast->mcmember.mgid;
-+
-+			rb_replace_node(&priv->broadcast->rb_node,
-+					&nmcast->rb_node,
-+					&priv->multicast_tree);
-+
-+			list_add_tail(&priv->broadcast->list, &remove_list);
-+		}
-+
-+		priv->broadcast = nmcast;
-+	}
-+
-+	spin_unlock_irqrestore(&priv->lock, flags);
-+
-+	list_for_each_entry(mcast, &remove_list, list) {
-+		ipoib_mcast_leave(dev, mcast);
-+		ipoib_mcast_free(mcast);
-+	}
-+}
-+
-+void ipoib_mcast_dev_down(struct net_device *dev)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	unsigned long flags;
-+
-+	/* Delete broadcast since it will be recreated */
-+	if (priv->broadcast) {
-+		ipoib_dbg_mcast(priv, "deleting broadcast group\n");
-+
-+		spin_lock_irqsave(&priv->lock, flags);
-+		rb_erase(&priv->broadcast->rb_node, &priv->multicast_tree);
-+		spin_unlock_irqrestore(&priv->lock, flags);
-+		ipoib_mcast_leave(dev, priv->broadcast);
-+		ipoib_mcast_free(priv->broadcast);
-+		priv->broadcast = NULL;
-+	}
-+}
-+
-+void ipoib_mcast_restart_task(void *dev_ptr)
-+{
-+	struct net_device *dev = dev_ptr;
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
-+	struct dev_mc_list *mclist;
-+	struct ipoib_mcast *mcast, *tmcast;
-+	LIST_HEAD(remove_list);
-+	unsigned long flags;
-+
-+	ipoib_dbg_mcast(priv, "restarting multicast task\n");
-+
-+	ipoib_mcast_stop_thread(dev);
-+
-+	spin_lock_irqsave(&priv->lock, flags);
-+
-+	/*
-+	 * Unfortunately, the networking core only gives us a list of all of
-+	 * the multicast hardware addresses. We need to figure out which ones
-+	 * are new and which ones have been removed
-+	 */
-+
-+	/* Clear out the found flag */
-+	list_for_each_entry(mcast, &priv->multicast_list, list)
-+		clear_bit(IPOIB_MCAST_FLAG_FOUND, &mcast->flags);
-+
-+	/* Mark all of the entries that are found or don't exist */
-+	for (mclist = dev->mc_list; mclist; mclist = mclist->next) {
-+		union ib_gid mgid;
-+
-+		memcpy(mgid.raw, mclist->dmi_addr + 4, sizeof mgid);
-+
-+		/* Add in the P_Key */
-+		mgid.raw[4] = (priv->pkey >> 8) & 0xff;
-+		mgid.raw[5] = priv->pkey & 0xff;
-+
-+		mcast = __ipoib_mcast_find(dev, &mgid);
-+		if (!mcast || test_bit(IPOIB_MCAST_FLAG_SENDONLY, &mcast->flags)) {
-+			struct ipoib_mcast *nmcast;
-+
-+			/* Not found or send-only group, let's add a new entry */
-+			ipoib_dbg_mcast(priv, "adding multicast entry for mgid "
-+					IPOIB_GID_FMT "\n", IPOIB_GID_ARG(mgid));
-+
-+			nmcast = ipoib_mcast_alloc(dev, 0);
-+			if (!nmcast) {
-+				ipoib_warn(priv, "unable to allocate memory for multicast structure\n");
-+				continue;
-+			}
-+
-+			set_bit(IPOIB_MCAST_FLAG_FOUND, &nmcast->flags);
-+
-+			nmcast->mcmember.mgid = mgid;
-+
-+			if (mcast) {
-+				/* Destroy the send only entry */
-+				list_del(&mcast->list);
-+				list_add_tail(&mcast->list, &remove_list);
-+
-+				rb_replace_node(&mcast->rb_node,
-+						&nmcast->rb_node,
-+						&priv->multicast_tree);
-+			} else
-+				__ipoib_mcast_add(dev, nmcast);
-+
-+			list_add_tail(&nmcast->list, &priv->multicast_list);
-+		}
-+
-+		if (mcast)
-+			set_bit(IPOIB_MCAST_FLAG_FOUND, &mcast->flags);
-+	}
-+
-+	/* Remove all of the entries don't exist anymore */
-+	list_for_each_entry_safe(mcast, tmcast, &priv->multicast_list, list) {
-+		if (!test_bit(IPOIB_MCAST_FLAG_FOUND, &mcast->flags) &&
-+		    !test_bit(IPOIB_MCAST_FLAG_SENDONLY, &mcast->flags)) {
-+			ipoib_dbg_mcast(priv, "deleting multicast group " IPOIB_GID_FMT "\n",
-+					IPOIB_GID_ARG(mcast->mcmember.mgid));
-+
-+			rb_erase(&mcast->rb_node, &priv->multicast_tree);
-+
-+			/* Move to the remove list */
-+			list_del(&mcast->list);
-+			list_add_tail(&mcast->list, &remove_list);
-+		}
-+	}
-+	spin_unlock_irqrestore(&priv->lock, flags);
-+
-+	/* We have to cancel outside of the spinlock */
-+	list_for_each_entry(mcast, &remove_list, list) {
-+		ipoib_mcast_leave(mcast->dev, mcast);
-+		ipoib_mcast_free(mcast);
-+	}
-+
-+	if (test_bit(IPOIB_FLAG_ADMIN_UP, &priv->flags))
-+		ipoib_mcast_start_thread(dev);
-+}
-+
-+struct ipoib_mcast_iter *ipoib_mcast_iter_init(struct net_device *dev)
-+{
-+	struct ipoib_mcast_iter *iter;
-+
-+	iter = kmalloc(sizeof *iter, GFP_KERNEL);
-+	if (!iter)
-+		return NULL;
-+
-+	iter->dev = dev;
-+	memset(iter->mgid.raw, 0, sizeof iter->mgid);
-+
-+	if (ipoib_mcast_iter_next(iter)) {
-+		ipoib_mcast_iter_free(iter);
-+		return NULL;
-+	}
-+
-+	return iter;
-+}
-+
-+void ipoib_mcast_iter_free(struct ipoib_mcast_iter *iter)
-+{
-+	kfree(iter);
-+}
-+
-+int ipoib_mcast_iter_next(struct ipoib_mcast_iter *iter)
-+{
-+	struct ipoib_dev_priv *priv = netdev_priv(iter->dev);
-+	struct rb_node *n;
-+	struct ipoib_mcast *mcast;
-+	int ret = 1;
-+
-+	spin_lock_irq(&priv->lock);
-+
-+	n = rb_first(&priv->multicast_tree);
-+
-+	while (n) {
-+		mcast = rb_entry(n, struct ipoib_mcast, rb_node);
-+
-+		if (memcmp(iter->mgid.raw, mcast->mcmember.mgid.raw,
-+			   sizeof (union ib_gid)) < 0) {
-+			iter->mgid      = mcast->mcmember.mgid;
-+			iter->created   = mcast->created;
-+			iter->queuelen  = skb_queue_len(&mcast->pkt_queue);
-+			iter->complete  = !!mcast->ah;
-+			iter->send_only = !!(mcast->flags & (1 << IPOIB_MCAST_FLAG_SENDONLY));
-+
-+			ret = 0;
-+
-+			break;
-+		}
-+
-+		n = rb_next(n);
-+	}
-+
-+	spin_unlock_irq(&priv->lock);
-+
-+	return ret;
-+}
-+
-+void ipoib_mcast_iter_read(struct ipoib_mcast_iter *iter,
-+			   union ib_gid *mgid,
-+			   unsigned long *created,
-+			   unsigned int *queuelen,
-+			   unsigned int *complete,
-+			   unsigned int *send_only)
-+{
-+	*mgid      = iter->mgid;
-+	*created   = iter->created;
-+	*queuelen  = iter->queuelen;
-+	*complete  = iter->complete;
-+	*send_only = iter->send_only;
-+}
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/ulp/ipoib/ipoib_vlan.c	2004-12-27 21:48:27.219959544 -0800
-@@ -0,0 +1,177 @@
-+/*
-+ * Copyright (c) 2004 Topspin Communications.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: ipoib_vlan.c 1349 2004-12-16 21:09:43Z roland $
-+ */
-+
-+#include <linux/version.h>
 +#include <linux/module.h>
-+
 +#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/seq_file.h>
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/fs.h>
++#include <linux/cdev.h>
++#include <linux/pci.h>
++#include <linux/dma-mapping.h>
++#include <linux/poll.h>
++#include <linux/rwsem.h>
++#include <linux/kref.h>
++#include <linux/ioctl32.h>
 +
 +#include <asm/uaccess.h>
 +
-+#include "ipoib.h"
++#include <ib_mad.h>
++#include <ib_user_mad.h>
 +
-+static ssize_t show_parent(struct class_device *class_dev, char *buf)
++MODULE_AUTHOR("Roland Dreier");
++MODULE_DESCRIPTION("InfiniBand userspace MAD packet access");
++MODULE_LICENSE("Dual BSD/GPL");
++
++enum {
++	IB_UMAD_MAX_PORTS  = 256,
++	IB_UMAD_MAX_AGENTS = 32
++};
++
++struct ib_umad_port {
++	int                    devnum;
++	struct cdev            dev;
++	struct class_device    class_dev;
++	struct ib_device      *ib_dev;
++	struct ib_umad_device *umad_dev;
++	u8                     port_num;
++};
++
++struct ib_umad_device {
++	int                  start_port, end_port;
++	struct kref          ref;
++	struct ib_umad_port  port[0];
++};
++
++struct ib_umad_file {
++	struct ib_umad_port *port;
++	spinlock_t           recv_lock;
++	struct list_head     recv_list;
++	wait_queue_head_t    recv_wait;
++	struct rw_semaphore  agent_mutex;
++	struct ib_mad_agent *agent[IB_UMAD_MAX_AGENTS];
++	struct ib_mr        *mr[IB_UMAD_MAX_AGENTS];
++};
++
++struct ib_umad_packet {
++	struct ib_user_mad mad;
++	struct ib_ah      *ah;
++	struct list_head   list;
++	DECLARE_PCI_UNMAP_ADDR(mapping)
++};
++
++static dev_t base_dev;
++static spinlock_t map_lock;
++static DECLARE_BITMAP(dev_map, IB_UMAD_MAX_PORTS);
++
++static void ib_umad_add_one(struct ib_device *device);
++static void ib_umad_remove_one(struct ib_device *device);
++
++static int queue_packet(struct ib_umad_file *file,
++			struct ib_mad_agent *agent,
++			struct ib_umad_packet *packet)
 +{
-+	struct net_device *dev =
-+		container_of(class_dev, struct net_device, class_dev);
-+	struct ipoib_dev_priv *priv = netdev_priv(dev);
++	int ret = 1;
 +
-+	return sprintf(buf, "%s\n", priv->parent->name);
-+}
-+static CLASS_DEVICE_ATTR(parent, S_IRUGO, show_parent, NULL);
-+
-+int ipoib_vlan_add(struct net_device *pdev, unsigned short pkey)
-+{
-+	struct ipoib_dev_priv *ppriv, *priv;
-+	char intf_name[IFNAMSIZ];
-+	int result;
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	ppriv = netdev_priv(pdev);
-+
-+	down(&ppriv->vlan_mutex);
-+
-+	/*
-+	 * First ensure this isn't a duplicate. We check the parent device and
-+	 * then all of the child interfaces to make sure the Pkey doesn't match.
-+	 */
-+	if (ppriv->pkey == pkey) {
-+		result = -ENOTUNIQ;
-+		goto err;
-+	}
-+
-+	list_for_each_entry(priv, &ppriv->child_intfs, list) {
-+		if (priv->pkey == pkey) {
-+			result = -ENOTUNIQ;
-+			goto err;
-+		}
-+	}
-+
-+	snprintf(intf_name, sizeof intf_name, "%s.%04x",
-+		 ppriv->dev->name, pkey);
-+	priv = ipoib_intf_alloc(intf_name);
-+	if (!priv) {
-+		result = -ENOMEM;
-+		goto err;
-+	}
-+
-+	set_bit(IPOIB_FLAG_SUBINTERFACE, &priv->flags);
-+
-+	priv->pkey = pkey;
-+
-+	memcpy(priv->dev->dev_addr, ppriv->dev->dev_addr, INFINIBAND_ALEN);
-+	priv->dev->broadcast[8] = pkey >> 8;
-+	priv->dev->broadcast[9] = pkey & 0xff;
-+
-+	result = ipoib_dev_init(priv->dev, ppriv->ca, ppriv->port);
-+	if (result < 0) {
-+		ipoib_warn(ppriv, "failed to initialize subinterface: "
-+			   "device %s, port %d",
-+			   ppriv->ca->name, ppriv->port);
-+		goto device_init_failed;
-+	}
-+
-+	result = register_netdev(priv->dev);
-+	if (result) {
-+		ipoib_warn(priv, "failed to initialize; error %i", result);
-+		goto register_failed;
-+	}
-+
-+	priv->parent = ppriv->dev;
-+
-+	if (ipoib_create_debug_file(priv->dev))
-+		goto debug_failed;
-+
-+	if (ipoib_add_pkey_attr(priv->dev))
-+		goto sysfs_failed;
-+
-+	if (class_device_create_file(&priv->dev->class_dev,
-+				     &class_device_attr_parent))
-+		goto sysfs_failed;
-+
-+	list_add_tail(&priv->list, &ppriv->child_intfs);
-+
-+	up(&ppriv->vlan_mutex);
-+
-+	return 0;
-+
-+sysfs_failed:
-+	ipoib_delete_debug_file(priv->dev);
-+
-+debug_failed:
-+	unregister_netdev(priv->dev);
-+
-+register_failed:
-+	ipoib_dev_cleanup(priv->dev);
-+
-+device_init_failed:
-+	free_netdev(priv->dev);
-+
-+err:
-+	up(&ppriv->vlan_mutex);
-+	return result;
-+}
-+
-+int ipoib_vlan_delete(struct net_device *pdev, unsigned short pkey)
-+{
-+	struct ipoib_dev_priv *ppriv, *priv, *tpriv;
-+	int ret = -ENOENT;
-+
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
-+	ppriv = netdev_priv(pdev);
-+
-+	down(&ppriv->vlan_mutex);
-+	list_for_each_entry_safe(priv, tpriv, &ppriv->child_intfs, list) {
-+		if (priv->pkey == pkey) {
-+			unregister_netdev(priv->dev);
-+			ipoib_dev_cleanup(priv->dev);
-+
-+			list_del(&priv->list);
-+
-+			kfree(priv);
-+
++	down_read(&file->agent_mutex);
++	for (packet->mad.id = 0;
++	     packet->mad.id < IB_UMAD_MAX_AGENTS;
++	     packet->mad.id++)
++		if (agent == file->agent[packet->mad.id]) {
++			spin_lock_irq(&file->recv_lock);
++			list_add_tail(&packet->list, &file->recv_list);
++			spin_unlock_irq(&file->recv_lock);
++			wake_up_interruptible(&file->recv_wait);
 +			ret = 0;
 +			break;
 +		}
-+	}
-+	up(&ppriv->vlan_mutex);
++
++	up_read(&file->agent_mutex);
 +
 +	return ret;
 +}
++
++static void send_handler(struct ib_mad_agent *agent,
++			 struct ib_mad_send_wc *send_wc)
++{
++	struct ib_umad_file *file = agent->context;
++	struct ib_umad_packet *packet =
++		(void *) (unsigned long) send_wc->wr_id;
++
++	dma_unmap_single(agent->device->dma_device,
++			 pci_unmap_addr(packet, mapping),
++			 sizeof packet->mad.data,
++			 DMA_TO_DEVICE);
++	ib_destroy_ah(packet->ah);
++
++	if (send_wc->status == IB_WC_RESP_TIMEOUT_ERR) {
++		packet->mad.status = ETIMEDOUT;
++
++		if (!queue_packet(file, agent, packet))
++			return;
++	}
++
++	kfree(packet);
++}
++
++static void recv_handler(struct ib_mad_agent *agent,
++			 struct ib_mad_recv_wc *mad_recv_wc)
++{
++	struct ib_umad_file *file = agent->context;
++	struct ib_umad_packet *packet;
++
++	if (mad_recv_wc->wc->status != IB_WC_SUCCESS)
++		goto out;
++
++	packet = kmalloc(sizeof *packet, GFP_KERNEL);
++	if (!packet)
++		goto out;
++
++	memset(packet, 0, sizeof *packet);
++
++	memcpy(packet->mad.data, mad_recv_wc->recv_buf.mad, sizeof packet->mad.data);
++	packet->mad.status        = 0;
++	packet->mad.qpn 	  = cpu_to_be32(mad_recv_wc->wc->src_qp);
++	packet->mad.lid 	  = cpu_to_be16(mad_recv_wc->wc->slid);
++	packet->mad.sl  	  = mad_recv_wc->wc->sl;
++	packet->mad.path_bits 	  = mad_recv_wc->wc->dlid_path_bits;
++	packet->mad.grh_present   = !!(mad_recv_wc->wc->wc_flags & IB_WC_GRH);
++	if (packet->mad.grh_present) {
++		/* XXX parse GRH */
++		packet->mad.gid_index 	  = 0;
++		packet->mad.hop_limit 	  = 0;
++		packet->mad.traffic_class = 0;
++		memset(packet->mad.gid, 0, 16);
++		packet->mad.flow_label 	  = 0;
++	}
++
++	if (queue_packet(file, agent, packet))
++		kfree(packet);
++
++out:
++	ib_free_recv_mad(mad_recv_wc);
++}
++
++static ssize_t ib_umad_read(struct file *filp, char __user *buf,
++			    size_t count, loff_t *pos)
++{
++	struct ib_umad_file *file = filp->private_data;
++	struct ib_umad_packet *packet;
++	ssize_t ret;
++
++	if (count < sizeof (struct ib_user_mad))
++		return -EINVAL;
++
++	spin_lock_irq(&file->recv_lock);
++
++	while (list_empty(&file->recv_list)) {
++		spin_unlock_irq(&file->recv_lock);
++
++		if (filp->f_flags & O_NONBLOCK)
++			return -EAGAIN;
++
++		if (wait_event_interruptible(file->recv_wait,
++					     !list_empty(&file->recv_list)))
++			return -ERESTARTSYS;
++
++		spin_lock_irq(&file->recv_lock);
++	}
++
++	packet = list_entry(file->recv_list.next, struct ib_umad_packet, list);
++	list_del(&packet->list);
++
++	spin_unlock_irq(&file->recv_lock);
++
++	if (copy_to_user(buf, &packet->mad, sizeof packet->mad))
++		ret = -EFAULT;
++	else
++		ret = sizeof packet->mad;
++
++	kfree(packet);
++	return ret;
++}
++
++static ssize_t ib_umad_write(struct file *filp, const char __user *buf,
++			     size_t count, loff_t *pos)
++{
++	struct ib_umad_file *file = filp->private_data;
++	struct ib_umad_packet *packet;
++	struct ib_mad_agent *agent;
++	struct ib_ah_attr ah_attr;
++	struct ib_sge      gather_list;
++	struct ib_send_wr *bad_wr, wr = {
++		.opcode      = IB_WR_SEND,
++		.sg_list     = &gather_list,
++		.num_sge     = 1,
++		.send_flags  = IB_SEND_SIGNALED,
++	};
++	u8 method;
++	u64 *tid;
++	int ret;
++
++	if (count < sizeof (struct ib_user_mad))
++		return -EINVAL;
++
++	packet = kmalloc(sizeof *packet, GFP_KERNEL);
++	if (!packet)
++		return -ENOMEM;
++
++	if (copy_from_user(&packet->mad, buf, sizeof packet->mad)) {
++		kfree(packet);
++		return -EFAULT;
++	}
++
++	if (packet->mad.id < 0 || packet->mad.id >= IB_UMAD_MAX_AGENTS) {
++		ret = -EINVAL;
++		goto err;
++	}
++
++	down_read(&file->agent_mutex);
++
++	agent = file->agent[packet->mad.id];
++	if (!agent) {
++		ret = -EINVAL;
++		goto err_up;
++	}
++
++	/*
++	 * If userspace is generating a request that will generate a
++	 * response, we need to make sure the high-order part of the
++	 * transaction ID matches the agent being used to send the
++	 * MAD.
++	 */
++	method = ((struct ib_mad_hdr *) packet->mad.data)->method;
++
++	if (!(method & IB_MGMT_METHOD_RESP)       &&
++	    method != IB_MGMT_METHOD_TRAP_REPRESS &&
++	    method != IB_MGMT_METHOD_SEND) {
++		tid = &((struct ib_mad_hdr *) packet->mad.data)->tid;
++		*tid = cpu_to_be64(((u64) agent->hi_tid) << 32 |
++				   (be64_to_cpup(tid) & 0xffffffff));
++	}
++
++	memset(&ah_attr, 0, sizeof ah_attr);
++	ah_attr.dlid          = be16_to_cpu(packet->mad.lid);
++	ah_attr.sl            = packet->mad.sl;
++	ah_attr.src_path_bits = packet->mad.path_bits;
++	ah_attr.port_num      = file->port->port_num;
++	if (packet->mad.grh_present) {
++		ah_attr.ah_flags = IB_AH_GRH;
++		memcpy(ah_attr.grh.dgid.raw, packet->mad.gid, 16);
++		ah_attr.grh.flow_label 	   = packet->mad.flow_label;
++		ah_attr.grh.hop_limit  	   = packet->mad.hop_limit;
++		ah_attr.grh.traffic_class  = packet->mad.traffic_class;
++	}
++
++	packet->ah = ib_create_ah(agent->qp->pd, &ah_attr);
++	if (IS_ERR(packet->ah)) {
++		ret = PTR_ERR(packet->ah);
++		goto err_up;
++	}
++
++	gather_list.addr = dma_map_single(agent->device->dma_device,
++					  packet->mad.data,
++					  sizeof packet->mad.data,
++					  DMA_TO_DEVICE);
++	gather_list.length = sizeof packet->mad.data;
++	gather_list.lkey   = file->mr[packet->mad.id]->lkey;
++	pci_unmap_addr_set(packet, mapping, gather_list.addr);
++
++	wr.wr.ud.mad_hdr     = (struct ib_mad_hdr *) packet->mad.data;
++	wr.wr.ud.ah          = packet->ah;
++	wr.wr.ud.remote_qpn  = be32_to_cpu(packet->mad.qpn);
++	wr.wr.ud.remote_qkey = be32_to_cpu(packet->mad.qkey);
++	wr.wr.ud.timeout_ms  = packet->mad.timeout_ms;
++
++	wr.wr_id            = (unsigned long) packet;
++
++	ret = ib_post_send_mad(agent, &wr, &bad_wr);
++	if (ret) {
++		dma_unmap_single(agent->device->dma_device,
++				 pci_unmap_addr(packet, mapping),
++				 sizeof packet->mad.data,
++				 DMA_TO_DEVICE);
++		goto err_up;
++	}
++
++	up_read(&file->agent_mutex);
++
++	return sizeof packet->mad;
++
++err_up:
++	up_read(&file->agent_mutex);
++
++err:
++	kfree(packet);
++	return ret;
++}
++
++static unsigned int ib_umad_poll(struct file *filp, struct poll_table_struct *wait)
++{
++	struct ib_umad_file *file = filp->private_data;
++
++	/* we will always be able to post a MAD send */
++	unsigned int mask = POLLOUT | POLLWRNORM;
++
++	poll_wait(filp, &file->recv_wait, wait);
++
++	if (!list_empty(&file->recv_list))
++		mask |= POLLIN | POLLRDNORM;
++
++	return mask;
++}
++
++static int ib_umad_reg_agent(struct ib_umad_file *file, unsigned long arg)
++{
++	struct ib_user_mad_reg_req ureq;
++	struct ib_mad_reg_req req;
++	struct ib_mad_agent *agent;
++	int agent_id;
++	int ret;
++
++	down_write(&file->agent_mutex);
++
++	if (copy_from_user(&ureq, (void __user *) arg, sizeof ureq)) {
++		ret = -EFAULT;
++		goto out;
++	}
++
++	if (ureq.qpn != 0 && ureq.qpn != 1) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	for (agent_id = 0; agent_id < IB_UMAD_MAX_AGENTS; ++agent_id)
++		if (!file->agent[agent_id])
++			goto found;
++
++	ret = -ENOMEM;
++	goto out;
++
++found:
++	req.mgmt_class         = ureq.mgmt_class;
++	req.mgmt_class_version = ureq.mgmt_class_version;
++	memcpy(req.method_mask, ureq.method_mask, sizeof req.method_mask);
++	memcpy(req.oui,         ureq.oui,         sizeof req.oui);
++
++	agent = ib_register_mad_agent(file->port->ib_dev, file->port->port_num,
++				      ureq.qpn ? IB_QPT_GSI : IB_QPT_SMI,
++				      &req, 0, send_handler, recv_handler,
++				      file);
++	if (IS_ERR(agent)) {
++		ret = PTR_ERR(agent);
++		goto out;
++	}
++
++	file->agent[agent_id] = agent;
++
++	file->mr[agent_id] = ib_get_dma_mr(agent->qp->pd, IB_ACCESS_LOCAL_WRITE);
++	if (IS_ERR(file->mr[agent_id])) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	if (put_user(agent_id,
++		     (u32 __user *) (arg + offsetof(struct ib_user_mad_reg_req, id)))) {
++		ret = -EFAULT;
++		goto err_mr;
++	}
++
++	ret = 0;
++	goto out;
++
++err_mr:
++	ib_dereg_mr(file->mr[agent_id]);
++
++err:
++	file->agent[agent_id] = NULL;
++	ib_unregister_mad_agent(agent);
++
++out:
++	up_write(&file->agent_mutex);
++	return ret;
++}
++
++static int ib_umad_unreg_agent(struct ib_umad_file *file, unsigned long arg)
++{
++	u32 id;
++	int ret = 0;
++
++	down_write(&file->agent_mutex);
++
++	if (get_user(id, (u32 __user *) arg)) {
++		ret = -EFAULT;
++		goto out;
++	}
++
++	if (id < 0 || id >= IB_UMAD_MAX_AGENTS || !file->agent[id]) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	ib_dereg_mr(file->mr[id]);
++	ib_unregister_mad_agent(file->agent[id]);
++	file->agent[id] = NULL;
++
++out:
++	up_write(&file->agent_mutex);
++	return ret;
++}
++
++static int ib_umad_ioctl(struct inode *inode, struct file *filp,
++			 unsigned int cmd, unsigned long arg)
++{
++	switch (cmd) {
++	case IB_USER_MAD_REGISTER_AGENT:
++		return ib_umad_reg_agent(filp->private_data, arg);
++	case IB_USER_MAD_UNREGISTER_AGENT:
++		return ib_umad_unreg_agent(filp->private_data, arg);
++	default:
++		return -ENOIOCTLCMD;
++	}
++}
++
++static int ib_umad_open(struct inode *inode, struct file *filp)
++{
++	struct ib_umad_port *port =
++		container_of(inode->i_cdev, struct ib_umad_port, dev);
++	struct ib_umad_file *file;
++
++	file = kmalloc(sizeof *file, GFP_KERNEL);
++	if (!file)
++		return -ENOMEM;
++
++	memset(file, 0, sizeof *file);
++
++	spin_lock_init(&file->recv_lock);
++	init_rwsem(&file->agent_mutex);
++	INIT_LIST_HEAD(&file->recv_list);
++	init_waitqueue_head(&file->recv_wait);
++
++	file->port = port;
++	filp->private_data = file;
++
++	return 0;
++}
++
++static int ib_umad_close(struct inode *inode, struct file *filp)
++{
++	struct ib_umad_file *file = filp->private_data;
++	int i;
++
++	for (i = 0; i < IB_UMAD_MAX_AGENTS; ++i)
++		if (file->agent[i]) {
++			ib_dereg_mr(file->mr[i]);
++			ib_unregister_mad_agent(file->agent[i]);
++		}
++
++	kfree(file);
++
++	return 0;
++}
++
++static struct file_operations umad_fops = {
++	.owner 	 = THIS_MODULE,
++	.read 	 = ib_umad_read,
++	.write 	 = ib_umad_write,
++	.poll 	 = ib_umad_poll,
++	.ioctl 	 = ib_umad_ioctl,
++	.open 	 = ib_umad_open,
++	.release = ib_umad_close
++};
++
++static struct ib_client umad_client = {
++	.name   = "umad",
++	.add    = ib_umad_add_one,
++	.remove = ib_umad_remove_one
++};
++
++static ssize_t show_dev(struct class_device *class_dev, char *buf)
++{
++	struct ib_umad_port *port =
++		container_of(class_dev, struct ib_umad_port, class_dev);
++
++	return print_dev_t(buf, port->dev.dev);
++}
++static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
++
++static ssize_t show_ibdev(struct class_device *class_dev, char *buf)
++{
++	struct ib_umad_port *port =
++		container_of(class_dev, struct ib_umad_port, class_dev);
++
++	return sprintf(buf, "%s\n", port->ib_dev->name);
++}
++static CLASS_DEVICE_ATTR(ibdev, S_IRUGO, show_ibdev, NULL);
++
++static ssize_t show_port(struct class_device *class_dev, char *buf)
++{
++	struct ib_umad_port *port =
++		container_of(class_dev, struct ib_umad_port, class_dev);
++
++	return sprintf(buf, "%d\n", port->port_num);
++}
++static CLASS_DEVICE_ATTR(port, S_IRUGO, show_port, NULL);
++
++static void ib_umad_release_dev(struct kref *ref)
++{
++	struct ib_umad_device *dev =
++		container_of(ref, struct ib_umad_device, ref);
++
++	kfree(dev);
++}
++
++static void ib_umad_release_port(struct class_device *class_dev)
++{
++	struct ib_umad_port *port =
++		container_of(class_dev, struct ib_umad_port, class_dev);
++
++	cdev_del(&port->dev);
++	clear_bit(port->devnum, dev_map);
++	kref_put(&port->umad_dev->ref, ib_umad_release_dev);
++}
++
++static struct class umad_class = {
++	.name    = "infiniband_mad",
++	.release = ib_umad_release_port
++};
++
++static ssize_t show_abi_version(struct class *class, char *buf)
++{
++	return sprintf(buf, "%d\n", IB_USER_MAD_ABI_VERSION);
++}
++static CLASS_ATTR(abi_version, S_IRUGO, show_abi_version, NULL);
++
++static void ib_umad_add_one(struct ib_device *device)
++{
++	struct ib_umad_device *umad_dev;
++	int s, e, i;
++
++	if (device->node_type == IB_NODE_SWITCH)
++		s = e = 0;
++	else {
++		s = 1;
++		e = device->phys_port_cnt;
++	}
++
++	umad_dev = kmalloc(sizeof *umad_dev +
++			   (e - s + 1) * sizeof (struct ib_umad_port),
++			   GFP_KERNEL);
++	if (!umad_dev)
++		return;
++
++	memset(umad_dev, 0, sizeof *umad_dev +
++	       (e - s + 1) * sizeof (struct ib_umad_port));
++
++	kref_init(&umad_dev->ref);
++
++	umad_dev->start_port = s;
++	umad_dev->end_port   = e;
++
++	for (i = s; i <= e; ++i) {
++		umad_dev->port[i - s].umad_dev = umad_dev;
++		kref_get(&umad_dev->ref);
++
++		spin_lock(&map_lock);
++		umad_dev->port[i - s].devnum =
++			find_first_zero_bit(dev_map, IB_UMAD_MAX_PORTS);
++		if (umad_dev->port[i - s].devnum >= IB_UMAD_MAX_PORTS) {
++			spin_unlock(&map_lock);
++			goto err;
++		}
++		set_bit(umad_dev->port[i - s].devnum, dev_map);
++		spin_unlock(&map_lock);
++
++		umad_dev->port[i - s].ib_dev   = device;
++		umad_dev->port[i - s].port_num = i;
++
++		cdev_init(&umad_dev->port[i - s].dev, &umad_fops);
++		umad_dev->port[i - s].dev.owner = THIS_MODULE;
++		kobject_set_name(&umad_dev->port[i - s].dev.kobj,
++				 "umad%d", umad_dev->port[i - s].devnum);
++		if (cdev_add(&umad_dev->port[i - s].dev, base_dev +
++			     umad_dev->port[i - s].devnum, 1))
++			goto err;
++
++		umad_dev->port[i - s].class_dev.class = &umad_class;
++		umad_dev->port[i - s].class_dev.dev   = device->dma_device;
++		snprintf(umad_dev->port[i - s].class_dev.class_id,
++			 BUS_ID_SIZE, "umad%d", umad_dev->port[i - s].devnum);
++		if (class_device_register(&umad_dev->port[i - s].class_dev))
++			goto err_class;
++
++		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
++					     &class_device_attr_dev))
++			goto err_class;
++		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
++					     &class_device_attr_ibdev))
++			goto err_class;
++		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
++					     &class_device_attr_port))
++			goto err_class;
++	}
++
++	ib_set_client_data(device, &umad_client, umad_dev);
++
++	return;
++
++err_class:
++	cdev_del(&umad_dev->port[i - s].dev);
++	clear_bit(umad_dev->port[i - s].devnum, dev_map);
++
++err:
++	while (--i >= s)
++		class_device_unregister(&umad_dev->port[i - s].class_dev);
++
++	kref_put(&umad_dev->ref, ib_umad_release_dev);
++}
++
++static void ib_umad_remove_one(struct ib_device *device)
++{
++	struct ib_umad_device *umad_dev = ib_get_client_data(device, &umad_client);
++	int i;
++
++	if (!umad_dev)
++		return;
++
++	for (i = 0; i <= umad_dev->end_port - umad_dev->start_port; ++i)
++		class_device_unregister(&umad_dev->port[i].class_dev);
++
++	kref_put(&umad_dev->ref, ib_umad_release_dev);
++}
++
++static int __init ib_umad_init(void)
++{
++	int ret;
++
++	spin_lock_init(&map_lock);
++
++	ret = alloc_chrdev_region(&base_dev, 0, IB_UMAD_MAX_PORTS,
++				  "infiniband_mad");
++	if (ret) {
++		printk(KERN_ERR "user_mad: couldn't get device number\n");
++		goto out;
++	}
++
++	ret = class_register(&umad_class);
++	if (ret) {
++		printk(KERN_ERR "user_mad: couldn't create class infiniband_mad\n");
++		goto out_chrdev;
++	}
++
++	ret = class_create_file(&umad_class, &class_attr_abi_version);
++	if (ret) {
++		printk(KERN_ERR "user_mad: couldn't create abi_version attribute\n");
++		goto out_class;
++	}
++
++	ret = ib_register_client(&umad_client);
++	if (ret) {
++		printk(KERN_ERR "user_mad: couldn't register ib_umad client\n");
++		goto out_class;
++	}
++
++	/* Our ioctls are 32/64 clean */
++	ret  = register_ioctl32_conversion(IB_USER_MAD_REGISTER_AGENT,   NULL);
++	ret |= register_ioctl32_conversion(IB_USER_MAD_UNREGISTER_AGENT, NULL);
++	if (ret) {
++		printk(KERN_ERR "user_mad: couldn't register ioctl32 conversions\n");
++		goto out_client;
++	}
++
++	return 0;
++
++out_client:
++	ib_unregister_client(&umad_client);
++
++out_class:
++	class_unregister(&umad_class);
++
++out_chrdev:
++	unregister_chrdev_region(base_dev, IB_UMAD_MAX_PORTS);
++
++out:
++	return ret;
++}
++
++static void __exit ib_umad_cleanup(void)
++{
++	unregister_ioctl32_conversion(IB_USER_MAD_REGISTER_AGENT);
++	unregister_ioctl32_conversion(IB_USER_MAD_UNREGISTER_AGENT);
++	ib_unregister_client(&umad_client);
++	class_unregister(&umad_class);
++	unregister_chrdev_region(base_dev, IB_UMAD_MAX_PORTS);
++}
++
++module_init(ib_umad_init);
++module_exit(ib_umad_cleanup);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/drivers/infiniband/include/ib_user_mad.h	2004-12-27 21:48:27.631898908 -0800
+@@ -0,0 +1,123 @@
++/*
++ * Copyright (c) 2004 Topspin Communications.  All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * $Id: ib_user_mad.h 1389 2004-12-27 22:56:47Z roland $
++ */
++
++#ifndef IB_USER_MAD_H
++#define IB_USER_MAD_H
++
++#include <linux/types.h>
++#include <linux/ioctl.h>
++
++/*
++ * Increment this value if any changes that break userspace ABI
++ * compatibility are made.
++ */
++#define IB_USER_MAD_ABI_VERSION	2
++
++/*
++ * Make sure that all structs defined in this file remain laid out so
++ * that they pack the same way on 32-bit and 64-bit architectures (to
++ * avoid incompatibility between 32-bit userspace and 64-bit kernels).
++ */
++
++/**
++ * ib_user_mad - MAD packet
++ * @data - Contents of MAD
++ * @id - ID of agent MAD received with/to be sent with
++ * @status - 0 on successful receive, ETIMEDOUT if no response
++ *   received (transaction ID in data[] will be set to TID of original
++ *   request) (ignored on send)
++ * @timeout_ms - Milliseconds to wait for response (unset on receive)
++ * @qpn - Remote QP number received from/to be sent to
++ * @qkey - Remote Q_Key to be sent with (unset on receive)
++ * @lid - Remote lid received from/to be sent to
++ * @sl - Service level received with/to be sent with
++ * @path_bits - Local path bits received with/to be sent with
++ * @grh_present - If set, GRH was received/should be sent
++ * @gid_index - Local GID index to send with (unset on receive)
++ * @hop_limit - Hop limit in GRH
++ * @traffic_class - Traffic class in GRH
++ * @gid - Remote GID in GRH
++ * @flow_label - Flow label in GRH
++ *
++ * All multi-byte quantities are stored in network (big endian) byte order.
++ */
++struct ib_user_mad {
++	__u8	data[256];
++	__u32	id;
++	__u32	status;
++	__u32	timeout_ms;
++	__u32	qpn;
++	__u32   qkey;
++	__u16	lid;
++	__u8	sl;
++	__u8	path_bits;
++	__u8	grh_present;
++	__u8	gid_index;
++	__u8	hop_limit;
++	__u8	traffic_class;
++	__u8	gid[16];
++	__u32	flow_label;
++};
++
++/**
++ * ib_user_mad_reg_req - MAD registration request
++ * @id - Set by the kernel; used to identify agent in future requests.
++ * @qpn - Queue pair number; must be 0 or 1.
++ * @method_mask - The caller will receive unsolicited MADs for any method
++ *   where @method_mask = 1.
++ * @mgmt_class - Indicates which management class of MADs should be receive
++ *   by the caller.  This field is only required if the user wishes to
++ *   receive unsolicited MADs, otherwise it should be 0.
++ * @mgmt_class_version - Indicates which version of MADs for the given
++ *   management class to receive.
++ * @oui: Indicates IEEE OUI when mgmt_class is a vendor class
++ *   in the range from 0x30 to 0x4f. Otherwise not used.
++ */
++struct ib_user_mad_reg_req {
++	__u32	id;
++	__u32	method_mask[4];
++	__u8	qpn;
++	__u8	mgmt_class;
++	__u8	mgmt_class_version;
++	__u8    oui[3];
++};
++
++#define IB_IOCTL_MAGIC		0x1b
++
++#define IB_USER_MAD_REGISTER_AGENT	_IOWR(IB_IOCTL_MAGIC, 1, \
++					      struct ib_user_mad_reg_req)
++
++#define IB_USER_MAD_UNREGISTER_AGENT	_IOW(IB_IOCTL_MAGIC, 2, __u32)
++
++#endif /* IB_USER_MAD_H */
 

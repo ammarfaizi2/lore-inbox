@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265632AbSJSRNn>; Sat, 19 Oct 2002 13:13:43 -0400
+	id <S265630AbSJSRL7>; Sat, 19 Oct 2002 13:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265633AbSJSRNn>; Sat, 19 Oct 2002 13:13:43 -0400
-Received: from [203.199.93.15] ([203.199.93.15]:21009 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S265632AbSJSRNl>; Sat, 19 Oct 2002 13:13:41 -0400
-From: "arun4linux" <arun4linux@indiatimes.com>
-Message-Id: <200210191654.WAA24415@WS0005.indiatimes.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "arun4linux" <arun4linux@indiatimes.com>
-Subject: mmap doubts
-Date: Sat, 19 Oct 2002 22:18:24 +0530
-X-URL: http://indiatimes.com
-Content-Type: text/plain; charset=us-ascii
+	id <S265631AbSJSRL7>; Sat, 19 Oct 2002 13:11:59 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:59523 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265630AbSJSRL6>; Sat, 19 Oct 2002 13:11:58 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 19 Oct 2002 10:26:28 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-Reply-To: <20021019065916.GB17553@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0210191020240.1434-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 19 Oct 2002, Mark Mielke wrote:
 
-  As per our requirement, we are exporting the hardware personalities (Base Addresses) to the user space by implementing mmap(). (We write device driver for application specific PCI based controllers)
+> On Fri, Oct 18, 2002 at 05:55:21PM -0700, John Myers wrote:
+> > So whether or not a proposed set of epoll semantics is consistent with
+> > your Platonic ideal of "use the fd until EAGAIN" is simply not an issue.
+> > What matters is what works best in practice.
+>
+> >From this side of the fence: One vote for "use the fd until EAGAIN" being
+> flawed. If I wanted a method of monopolizing the event loop with real time
+> priorities, I would implement real time priorities within the event loop.
 
-  I would like to know how mmap() works actually. I meant the flow, address translations, etc.
-
-  Will there be any cache problem, if we use mmap()?
-
-  I also want to know how ring 3 and ring 0 matters in mmap() as we export ring 0 address to user space (ring 3). ( we work on intel platform). 
-
-Will there be any time delay if we use mmap() and access hardware in the user space?
-
-  It would be helpful, if you any one of you could explain/answer my doubts.
-
-  Have a nice time.
-
-Warm Regards
-
-Arun
-
+You don't need to "use the fd until EAGAIN", you can consume even only
+byte out of 10000 and stop using the fd. As long as you keep such fd in
+your ready-list. As soon as you receive an EAGAIN from that fd, you remove
+it from your ready-list and the next time you'll go to fish for events it
+will reemerge as soon as it'll have something for you. The concept is very
+simple, "you don't have to go waiting for events for a given fd before
+having consumed its I/O space".
 
 
 
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+- Davide
 
- Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
-
-Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
 

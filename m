@@ -1,55 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131642AbQL3BZC>; Fri, 29 Dec 2000 20:25:02 -0500
+	id <S131922AbQL3B1C>; Fri, 29 Dec 2000 20:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131922AbQL3BYx>; Fri, 29 Dec 2000 20:24:53 -0500
-Received: from cd168990-a.ctjams1.mb.wave.home.com ([24.108.112.42]:7428 "EHLO
-	cd168990-a.ctjams1.mb.wave.home.com") by vger.kernel.org with ESMTP
-	id <S131642AbQL3BYp>; Fri, 29 Dec 2000 20:24:45 -0500
-Date: Fri, 29 Dec 2000 18:59:23 -0600
-From: Evan Thompson <evaner@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: VIA IDE controller strangeness (2.4.0-test12/test13-pre5)
-Message-ID: <20001229185923.A477@evaner.penguinpowered.com>
-Reply-To: evaner@bigfoot.com
-Mail-Followup-To: Evan Thompson <evaner@bigfoot.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S132135AbQL3B0w>; Fri, 29 Dec 2000 20:26:52 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:44041 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S131922AbQL3B0s>; Fri, 29 Dec 2000 20:26:48 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Dave Gilbert <gilbertd@treblig.org>
+Date: Sat, 30 Dec 2000 11:56:04 +1100 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <14925.12964.995179.63899@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
+In-Reply-To: message from Dave Gilbert on Friday December 29
+In-Reply-To: <14924.64601.485759.167765@notabene.cse.unsw.edu.au>
+	<Pine.LNX.4.10.10012292252450.26235-100000@tardis.home.dave>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----(CC answer please)---
+On Friday December 29, gilbertd@treblig.org wrote:
+> On Sat, 30 Dec 2000, Neil Brown wrote:
+> 
+> > > So where did the gilbertd directory go ?
 
-I'm having a strange problem with my IDE controller.  I believe (and that's what Windows and the m/b manufaturer -- PC Chips -- say) that I have a VIA PCI BusMaster IDE controller, and I've had some strange history with it.  I've asked many people before on various help services, and I was able to fix my problem with the 2.2 series, but now my fix does not work.
+It suffered the curse of the 8-character file name....
 
-THE PROBLEM:
-------------
+> > 
+> > Can you get a tcpdump (-s 1024) of the network traffic while this is
+> > happening?
+> 
+> Yep; to avoid posting to the list I've put it at:
+> http://www.treblig.org/nfs_bug_netlog
+> 
+> its 14K and is the output of:
+> 
+>  /usr/sbin/tcpdump -vv -x -s 1024 host sol and tardis > /tmp/netlog 2>&1
+> 
 
-Ever since the 2.2 kernel series (I remeber this working properly in 2.0.36, without the conflicts), I would get hdc: lost interrupt during boot up, and my system would take bloody ages to boot up and load a CD.  I tracked it down to a strange IRQ conflict in which Linux would try to assign both the primary and secondary IDE channels IRQ 14, causing IRQ conflicts galore.  I was able to fix this by giving the kernel
+Well......
+The trace contains a number of lookup requests.
+For example, there is a lookup of "samba" which contains the
+encoded file name:
 
-ide1=0x170,0x376,15
+0000 0005 7361 6d62 6100
+          s a  m b  a
 
-at boot time.  This has worked for 2.2.12-.17 and Alan's 2.2.18pre21 (I haven't compiled the official 2.2.18 yet, but I'm sure it will work).
+The "0000 0005" is the file name length.
+The corresponding part of the lookup request for gilbertd looks like:
 
-I wanted to try the new 2.4.0-test series, and the first I tried was -test11, and from what I recall (other things weren't working properly then), this fix still worked, but now, with -test12, I am now getting the following error repeated for a very long time (then I reboot) with the same parameters:
+6572 7464 6572 7464 0072 7464
+e r  t d  e r  t d    r  t d
 
-ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-hdb: lost interrupt
+Note there is no leading length count.  This is not actually
+surprising when you look at  
+  net/sunrpc/xdr.c:xdr_decode_string
 
-Also, I get "spurious 8259A interrupt: IRQ 7" if I leave it for a while.  I tried -test13-pre5 on somebody on #KernelNewbies' suggestion, and I get the same error.  Scrolling up, I see that the kernel messages show that ide0 is on IRQ 14 and ide1 is on 15.  I noticed that hda is using DMA, and hdb is using UDMA33, but I don't believe that that is the problem.
+If the length of the string is a multiple of 4, there is no spare
+following byte to be a nul terminator for the string, so the whole
+string is copied back 4 bytes using memmove.  This change takes place
+in the actual packet in the network buffer which is why tcpdump sees
+it's effect.  But you would expect to see:
 
-THE QUESTION:
--------------
+6769 6c62 6572 7464 0072 7464
+g i  l b  e r  t d    r  t d
 
-How do I fix this, or is it a (un)known problem in the newer development versions?  If you have the answer, could you please CC me as well for I don't subscribe to this mailing list (sorry!).  Thanks a bunch.
--- 
-| Evan A. Thompson                     | He's more fun than trying to skinny  | 
-| evaner@bigfoot.com                   | dip in the beach in winter...        |
-| http://evaner.penguinpowered.com     |    ...in Winnipeg.                   |
-| ICQ: 2233067 / AIM + MSN: Evaner517  |  (GnuPG key avaiable upon request.)  |
+but you don't.  Why?
+
+My only guess is that memmove is doing the wrong thing, and moving
+from the end of the string instead of from the start.
+What architecture are you doing this on? Your signature lists 4!:-)
+
+Could you
+  gdb vmlinux
+  disassemble xdr_decode_string
+  disassemble memmove
+
+and see if the code looks right?
+
+You might like to try:
+
+ 1/ move gilbertd to gilbertdd and see if you can then access it over
+    nfs.
+ 2/ create a file called "ertdertd" and see if you get that when you
+    try to access gilbertd
+
+> Thanks,
+> 
+> Dave
+> 
+> -- 
+>  ---------------- Have a happy GNU millennium! ----------------------   
+> / Dr. David Alan Gilbert      | Running GNU/Linux on       |  Happy  \ 
+> \   gro.gilbert @ treblig.org |  Alpha, x86, ARM and SPARC |  In Hex /
+>  \ ___________________________|___ http://www.treblig.org  |________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

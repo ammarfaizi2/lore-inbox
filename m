@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263464AbTECWvE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 18:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTECWvE
+	id S263448AbTECWsK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 18:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTECWsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 18:51:04 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:28944 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263459AbTECWu7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 18:50:59 -0400
-Date: Sat, 03 May 2003 17:03:11 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Aic7xxx and Aic79xx Driver Updates
-Message-ID: <1430760000.1052002991@aslan.scsiguy.com>
-In-Reply-To: <Pine.LNX.4.44.0305021117270.1667-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0305021117270.1667-100000@home.transmeta.com>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 May 2003 18:48:09 -0400
+Received: from [128.173.39.159] ([128.173.39.159]:22146 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263448AbTECWsI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 18:48:08 -0400
+Message-Id: <200305032300.h43N0UX9006675@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature 
+In-Reply-To: Your message of "Sat, 03 May 2003 13:19:52 -0000."
+             <20030503131952.5560.qmail@science.horizon.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030503131952.5560.qmail@science.horizon.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-884826295P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Sat, 03 May 2003 19:00:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 2 May 2003, James Bottomley wrote:
->> 
->> I'm not asking for any changes to the way you do 2.4, just for 2.5 where
->> we have no vendor versions to support and there should only be a single
->> tree.
+--==_Exmh_-884826295P
+Content-Type: text/plain; charset=us-ascii
+
+On Sat, 03 May 2003 13:19:52 -0000, linux@horizon.com  said:
+
+> An interesting question arises: is the number of useful interpreter
+> functions (system, popen, exec*) sufficiently low that they could be
+> removed from libc.so entirely and only staticly linked, so processes
+> that didn't use them wouldn't even have them in their address space,
+> and ones that did would have them at less predictible addresses?
 > 
-> The way the backwards-compatibility is _meant_ to work is that a driver 
-> can just do this:
-> 
-> 	#ifndef IRQ_RETVAL
-> 	  typedef void irqreturn_t;
-> 	  #define IRQ_NONE
-> 	  #define IRQ_HANDLED
-> 	  #define IRQ_RETVAL(x)
-> 	#endif
+> Right now, I'm thinking only of functions that end up calling execve();
+> are there any other sufficiently powerful interpreters hiding in common
+> system libraries?  regexec()?
 
-I switched the drivers to using this yesterday.
+This does absolutely nothing to stop an exploit from providing its own
+inline version of execve().  There's nothing in libc that a process can't
+do itself, inline.
 
-	#ifndef IRQ_RETVAL
-	  typedef void irqreturn_t;
-	  #define IRQ_RETVAL(x)
-	#endif
+A better bet is using an LSM module that prohibits exec() calls from any
+unauthorized combinations of running program/user/etc.
 
-Updated BK send and tar files are here:
+--==_Exmh_-884826295P
+Content-Type: application/pgp-signature
 
-http://people.FreeBSD.org/~gibbs/linux/SRC/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---
-Justin
+iD8DBQE+tEoNcC3lWbTT17ARAripAJ9CT/0UGQ3KQ5u+/MjV2cjTeJpeHQCgrRYR
+al88z3WLrN8yW9tKXEMW2tE=
+=Q9gK
+-----END PGP SIGNATURE-----
 
+--==_Exmh_-884826295P--

@@ -1,95 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVCBUqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVCBUrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbVCBUqB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 15:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVCBUqB
+	id S262482AbVCBUrV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 15:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbVCBUrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 15:46:01 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:64216 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262484AbVCBUpn (ORCPT
+	Wed, 2 Mar 2005 15:47:21 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:42643 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262482AbVCBUqg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 15:45:43 -0500
-Message-ID: <4226180F.1090200@colorfullife.com>
-Date: Wed, 02 Mar 2005 20:46:23 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, justin@expertron.co.za,
+	Wed, 2 Mar 2005 15:46:36 -0500
+Date: Wed, 2 Mar 2005 15:46:26 -0500
+From: "John L. Males" <jlmales@softhome.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: jlmales@softhome.net, gene.heskett@verizon.net,
        linux-kernel@vger.kernel.org
-Subject: Re: Tracing memory leaks (slabs) in 2.6.9+ kernels?
-References: <4225768B.3010005@expertron.co.za>	<20050302012444.4ed05c23.akpm@osdl.org>	<87ekeyb2bn.fsf@devron.myhome.or.jp> <20050302083222.058ce1b9.akpm@osdl.org>
-In-Reply-To: <20050302083222.058ce1b9.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------050703040206060303000608"
+Subject: Re[03]: Problems with SCSI tape rewind / verify on 2.4.29
+Message-Id: <20050302154626.65bc03e5.jlmales@softhome.net>
+In-Reply-To: <20050302143440.GA2543@logos.cnet>
+References: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B886@ratbert.vale-housing.co.uk>
+	<20050302120332.GA27882@logos.cnet>
+	<200503021208.51480.gene.heskett@verizon.net>
+	<20050302143440.GA2543@logos.cnet>
+Reply-To: jlmales@softhome.net
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.8.2-SrtRecipientSMTPAuthNDateSmartAcctSaveAllOpnNxtMsg (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="=_jive-3537-1109796395-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050703040206060303000608
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
+
+--=_jive-3537-1109796395-0001-2
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Andrew Morton wrote:
+Hi Marcello,
 
->OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->  
->
->>Andrew Morton <akpm@osdl.org> writes:
->>
->> > +		slab_bufctl(slabp)[objnr] = (unsigned long)caller;
->>
->> Umm... this patch looks strange..
->>
->> slab_bufctl() returns "kmem_bufctl_t *", but kmem_bufctl_t is
->> "unsigned short".
->>    
->>
->
->Good point.   This seems to work.
->
->  
->
-Two updates are needed for the leak detection in recent kernels:
-- set kmem_bufctl_t back to unsigned long
-- relax the check in check_slabuse, something like the attached patch.
 
-Note that the patch is not tested.
+********** Reply Seperator **********
 
---
-    Manfred
+On (Wed) 2005-03-02 11:34:41 -0300 
+Marcelo Tosatti wrote in Message-ID: 20050302143440.GA2543@logos.cnet
 
---------------050703040206060303000608
-Content-Type: text/plain;
- name="patch-recent-leak"
+To: Gene Heskett <gene.heskett@verizon.net>
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
+Date: Wed, 2 Mar 2005 11:34:41 -0300
+
+> 
+> n Wed, Mar 02, 2005 at 12:08:51PM -0500, Gene Heskett wrote:
+> > On Wednesday 02 March 2005 07:03, Marcelo Tosatti wrote:
+> > >On Wed, Mar 02, 2005 at 11:15:42AM -0000, Mark Yeatman wrote:
+> > >> Hi
+> > >>
+> > >> Never had to log a bug before, hope this is correctly done.
+> > >>
+> > >> Thanks
+> > >>
+> > >> Mark
+> > >>
+> > >> Detail....
+> > >>
+> > >> [1.] One line summary of the problem:
+> > >> SCSI tape drive is refusing to rewind after backup to allow
+> > >verify> and causing illegal seek error
+
+In my experiences with this problem that I am sure is exactly the same
+issue, the tape in fact does rewind after creating the tar to then
+perfore the --verify option.  The illegal see error seems to arise
+after the rewind or more correctly bsf commands may be being used (but
+not confirmed this yet, another test I need to do in few days).  For
+sure the tape is positionted back.  I know as I have also done this
+test with larger directories and know and have heard the tape take
+long time to naturally get back to the start of tar file to be able to
+perform the --verify option.  That said I am using a DLT drive. 
+Perhpas with different drivers or tape drivers this issue may have
+variations on theme and behaviour with net result the same error
+message and/or root cause.
+
+> > >>
+> > >> [2.] Full description of the problem/report:
+> > >> On backup the tape drive is reporting the following error and
+> > >> failing it's backups.
+> > >>
+> > >> tar: /dev/st0: Warning: Cannot seek: Illegal seek
+> > >>
+> > >> I have traced this back to failing at an upgrade of the kernel
+> > >to> 2.4.29 on Feb 8th. The backups have not worked since.
+> > >Replacement> Drives have been tried and cables to no avail. I
+> > >noticed in the> the changelog that a patch by Solar Designer to
+> > >the Scsi tape> return code had been made.
+
+Last kernel to work correctly in 2.4 branch was 2.4.26.  Kernel
+versions 2.4.27, 2.4.28 and 2.4.29 all fail based on my experience
+with DLT SCSI based tape.
+
+> > >
+> > >v2.6 also contains the same problem BTW.
+> > >
+> > >Try this:
+> > >
+> > >--- a/drivers/scsi/st.c.orig 2005-03-02 09:02:13.637158144 -0300
+> > >+++ b/drivers/scsi/st.c 2005-03-02 09:02:20.208159200 -0300
+> > >@@ -3778,7 +3778,6 @@
+> > >  read:  st_read,
+> > >  write:  st_write,
+> > >  ioctl:  st_ioctl,
+> > >- llseek:  no_llseek,
+> > >  open:  st_open,
+> > >  flush:  st_flush,
+> > >  release: st_release,
+> > >-
+> > 
+> > Interesting Marcelo.  How long has this been true in 2.6?
+
+In the 2.6 tree the tar --verify works with 2.6.7, but fails with
+2.6.9. I am unable to test 2.6.8, but based on research of the code
+changes of 2.6.8 compared to the changes made in 2.4.27 re llseek I
+would expect 2.6.8 to fail as well with my DLT SCSI tape. 
+
+> 
+> Actually I just checked and it seems v2.6 is not using "no_llseek".
+> 
+> However John L. Males reports the same problem with v2.6 - John,
+> care to retest with v2.6.10 ?
+
+My ability to test a 2.6.x kernel is limited to what 2.6.x kernel I
+can find on a livecd.  The 2.6.7 and 2.6.9 kernel tests I conducted
+were using Knoppix 3.6 and 3.7.  I do not have means at this time, nor
+time, to build up a dedicated drive to test 2.6.x kernels.  If someone
+knows of or can build a 2.6.10 kernel on a live CD I will be happy to
+do the test.  That said, I looked at the patch for 2.6.10 and seems
+alot of changes were made to st.c in 2.6.10.  I did not see, but could
+of missed in looking, any lseek related change in 2.6.10.  Given how
+it seems the test I ran with the change in st.c Marcell suggested what
+is the expected thought on this issue with 2.6.10?  I am just asking
+from curiousity.  Again, if someone can tell me of a live cd or can
+easly make a live cd with the 2.6.10 kernel I can test this issue wiht
+2.6.10.  Perhaps there is someone else with a DLT/SCSI tape driver
+that could test this tar --verify issue on 2.6.10?
+
+> 
+> > I thought I had an amanda problem, and eventually went to virtual 
+> > tapes on disk, largely because of this.  However, I have to say it
+> > is working better than tapes ever did here.  Unforch, that 200GB
+> > disk is certainly a single point of failure I don't relish
+> > thinking about...
+> 
+> :)
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+02 March 2005 (15:00 -) 15:46
+
+
+==================================================================
+
+
+"Boooomer ... Boom Boom, how are you Boom Boom"
+"Meoaaaawwwww, meoaaaaaawwww" as Boomer loudly announces
+     intent Boomer is coming for attention
+Loved to kneed arm and lick arm with Boomers very large
+     tongue
+Able to catch, or at least hit, almost any object in flight
+     withing reach of front paws
+Boomer 1985 (Born), Adopted 04 September 1991
+04 September 1991 - 08 February 2000 18:50
+
+"How are you Mr. Sylvester?"
+"... Grunt Grunt" ... quick licks of nose
+Rolls over for pet and stomac rub when Dad arrives home
+     and grunting
+Runs back and forth from study, tilts head as glowing green
+     eyes stare for "attention please", grunts and meows,
+     repeats run, tilt head and stare few times for good
+     measure, grunts and meows
+Lays on floor just outside study to guard Dad
+Loved to groom Miss Mahogany, and let Mahogany cuddle beside
+Sylvester 1989 (estimated Born)
+Found in building mail area noon hour 09 Feburary 1992
+09 February 1992 - 19 January 2003 23:25
+
+"Hello Miss Chicago 'White Sox', how are you 'Chico'?"
+"Grunt" (thank you) ... as put out food for Chicago
+"MEEEEEOOOOWWWW" So loud the world stops
+A very determined Miss "White Sox"
+AKA "Chico" ... Cheryl Crawford used as nickname
+Loved to chase kibble slid down hall floor,
+     bat about and then eat
+Loved to hook paw in dish to toss out a single kibble
+     at time, dart at as moved, then eat ... "Crunches"
+Chicago "White Sox", "Chico" August 1989 (born),
+     adopted 04 February 1991
+05 October 2004 06:52 Quite "Grunts" ....
+                      as lay Chicago on bed for last time
+04 February 1991 - 05 October 2004 07:32
+
+
+--=_jive-3537-1109796395-0001-2
+Content-Type: application/pgp-signature
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-recent-leak"
 
---- 2.6/mm/slab.c	2005-03-02 20:44:47.738737171 +0100
-+++ build-2.6/mm/slab.c	2005-03-02 20:44:15.290618759 +0100
-@@ -2645,18 +2642,10 @@
- 		red1 = *dbg_redzone1(cachep, objp);
- 		red2 = *dbg_redzone2(cachep, objp);
- 
--		/* simplest case: marked as inactive */
--		if (red1 == RED_INACTIVE && red2 == RED_INACTIVE)
--			continue;
--
--		/* tricky case: if the bufctl value is BUFCTL_ALLOC, then
--		 * the object is either allocated or somewhere in a cpu
--		 * cache. The cpu caches are lockless and there might be
--		 * a concurrent alloc/free call, thus we must accept random
--		 * combinations of RED_ACTIVE and _INACTIVE
-+		/* leak detection stores the caller address in the bufctl,
-+		 * thus random combinations of active and inactive are ok
- 		 */
--		if (slab_bufctl(slabp)[i] == BUFCTL_ALLOC &&
--				(red1 == RED_INACTIVE || red1 == RED_ACTIVE) &&
-+		if ((red1 == RED_INACTIVE || red1 == RED_ACTIVE) &&
- 				(red2 == RED_INACTIVE || red2 == RED_ACTIVE))
- 			continue;
- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
---------------050703040206060303000608--
+iD8DBQFCJiYqsrsjS27q9xYRApflAKDUgFcVGX/8gDLPIYWDQ0YbJQDIKQCfRpLU
+su+KBKuv7h/yjjqYiXLHjAw=
+=VO2S
+-----END PGP SIGNATURE-----
+
+--=_jive-3537-1109796395-0001-2--

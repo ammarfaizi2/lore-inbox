@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289057AbSAIWhL>; Wed, 9 Jan 2002 17:37:11 -0500
+	id <S289056AbSAIWmv>; Wed, 9 Jan 2002 17:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289056AbSAIWgz>; Wed, 9 Jan 2002 17:36:55 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:32521 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289057AbSAIWgh>;
-	Wed, 9 Jan 2002 17:36:37 -0500
-Date: Wed, 9 Jan 2002 20:36:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matt Dainty <matt@bodgit-n-scarper.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Where's all my memory going?
-In-Reply-To: <E16OMpF-0001pj-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0201092034590.2985-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289065AbSAIWmc>; Wed, 9 Jan 2002 17:42:32 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:14093 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S289056AbSAIWmL>; Wed, 9 Jan 2002 17:42:11 -0500
+Date: Wed, 9 Jan 2002 22:41:59 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Eric Raymond <esr@thyrsus.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+In-Reply-To: <20020109154742.B28755@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0201092238100.29914-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Alan Cox wrote:
+On Wed, 9 Jan 2002, Eric S. Raymond wrote:
 
-> > However, over time, (30-45 minutes), more and more memory seems to just
-> > disappear from the system until it looks like this, (note that swap is
-> > hardly ever touched):
->
-> I don't see any disappearing memory. Remember that Linux will
-> intentionally keep memory filled with cache pages when it is possible.
+> The underlying problem is that dmidecode needs access to kmem, and I
+> can't assume that the person running my configurator will be root.
 
-Matt's system seems to go from 900 MB free to about
-300 MB (free + cache).
+But you can "su -c" (also sudo, I suppose).  If that person
+doesn't have root, then building a kernel isn't going to do
+them much good.
 
-I doubt qmail would eat 600 MB of RAM (it might, I
-just doubt it) so I'm curious where the RAM is going.
-
-Matt, do you see any suspiciously high numbers in
-/proc/slabinfo ?
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Matthew.
 

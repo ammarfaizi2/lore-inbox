@@ -1,78 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbTJXGLT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 02:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTJXGLT
+	id S262048AbTJXGjv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 02:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTJXGiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 02:11:19 -0400
-Received: from mail.kroah.org ([65.200.24.183]:28321 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262015AbTJXGLS (ORCPT
+	Fri, 24 Oct 2003 02:38:52 -0400
+Received: from dp.samba.org ([66.70.73.150]:6595 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262037AbTJXGir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 02:11:18 -0400
-Date: Thu, 23 Oct 2003 23:06:53 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB fixes for 2.6.0-test8
-Message-ID: <20031024060652.GA3617@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Oct 2003 02:38:47 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: tharbaugh@lnxi.com
+Cc: linux-kernel@vger.kernel.org
+Cc: Eric Biederman <ebiederman@lnxi.com>
+Subject: Re: [BUG][PATCH] BIOS reserved regions block iomem registration 
+In-reply-to: Your message of "22 Oct 2003 12:57:43 CST."
+             <1066849062.6281.190.camel@tubarao> 
+Date: Fri, 24 Oct 2003 14:21:36 +1000
+Message-Id: <20031024063847.4CF072C0FA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <1066849062.6281.190.camel@tubarao> you write:
+> arch/i386/kernel/setup.c:register_memory() marks e820 memory regions -
+> some of which are "reserved".  These "reserved" regions prevent FLASH
+> chip drivers from registering the memory range occupied by BIOS code:
 
-Here are some USB fixes for 2.6.0-test8.  They are all small bugfixes or
-add some new device ids to the ftdi_sio and usb-storage drivers.
+Not trivial, sorry.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/usb-2.6
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
- drivers/usb/class/audio.c          |    4 +
- drivers/usb/class/cdc-acm.c        |   82 +++++++++++++++++++------------------
- drivers/usb/core/message.c         |   12 ++---
- drivers/usb/core/usb.c             |    3 +
- drivers/usb/gadget/inode.c         |    4 -
- drivers/usb/media/vicam.c          |    1 
- drivers/usb/misc/brlvger.c         |    1 
- drivers/usb/net/usbnet.c           |    7 ++-
- drivers/usb/serial/ftdi_sio.c      |   52 ++++++++++++-----------
- drivers/usb/serial/ftdi_sio.h      |   13 ++++-
- drivers/usb/serial/io_edgeport.c   |    1 
- drivers/usb/storage/unusual_devs.h |   14 +++++-
- 12 files changed, 115 insertions(+), 79 deletions(-)
------
-
-
-<car.busse:gmx.de>:
-  o USB: one more digicam for unusual_devs.h
-
-Alan Stern:
-  o USB: fix for earlier unusual_devs.h patch
-
-Arnaldo Carvalho de Melo:
-  o leaking info on drivers/usb
-
-David Brownell:
-  o USB: usb enumeration clears full speed ep0 state
-  o USB: fix usb-storage self-deadlock
-  o USB: ACM USB modem fixes
-
-David T. Hollis:
-  o USB: ax8817x fixes in usbnet.c
-
-Greg Kroah-Hartman:
-  o USB: gadget fixes for 64bit processor warnings
-
-Ian Abbott:
-  o USB: ftdi_sio - Perle UltraPort new ids - 2 of 2
-  o USB: ftdi_sio - Perle UltraPort new ids - 1 of 2
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

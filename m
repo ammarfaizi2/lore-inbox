@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131704AbRAAIxM>; Mon, 1 Jan 2001 03:53:12 -0500
+	id <S129455AbRAAKVa>; Mon, 1 Jan 2001 05:21:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131778AbRAAIxC>; Mon, 1 Jan 2001 03:53:02 -0500
-Received: from bill.trinity.unimelb.edu.au ([203.28.240.2]:38150 "HELO
-	bill.trinity.unimelb.edu.au") by vger.kernel.org with SMTP
-	id <S131704AbRAAIwt>; Mon, 1 Jan 2001 03:52:49 -0500
-Date: Mon, 1 Jan 2001 19:22:15 +1100
-From: Tim Bell <bhat@trinity.unimelb.edu.au>
+	id <S130580AbRAAKVU>; Mon, 1 Jan 2001 05:21:20 -0500
+Received: from [213.167.220.121] ([213.167.220.121]:36359 "EHLO
+	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
+	id <S129455AbRAAKVG>; Mon, 1 Jan 2001 05:21:06 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Oops using mke2fs on software raid-0 with pre7
-Message-ID: <20010101192215.A30076@trinity.unimelb.edu.au>
-In-Reply-To: <20001231160323.A15940@trinity.unimelb.edu.au>
-Mime-Version: 1.0
+Subject: Re: 2.4.0-prerelease compile error in (maybe) mkiss
+In-Reply-To: <Pine.LNX.4.30.0101010911590.769-100000@prime.sun.ac.za>
+Reply-To: Pierfrancesco Caci <p.caci@tin.it>
+From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
+Date: 01 Jan 2001 10:50:29 +0100
+In-Reply-To: Hans Grobler's message of "Mon, 1 Jan 2001 10:04:46 +0200 (SAST)"
+Message-ID: <873df3lhy2.fsf@penny.ik5pvx.ampr.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001231160323.A15940@trinity.unimelb.edu.au>; from bhat@trinity.unimelb.edu.au on Sun, Dec 31, 2000 at 04:03:23PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+:-> "Hans" == Hans Grobler <grobh@sun.ac.za> writes:
 
-> Oops while using mke2fs on software raid-0 device with pre7.
 
-After extensive testing of different configurations and many more
-oopsen, I've found that this was due to memory errors.  Sorry if I
-wasted anyone's time.
 
-Tim.
+    > diff -u4Nr -X dontdiff linux-2.4.0-prerelease.orig/drivers/net/setup.c linux-2.4.0-prerelease/drivers/net/setup.c
+    > --- linux-2.4.0-prerelease.orig/drivers/net/setup.c	Mon Dec 11 21:38:29 2000
+    > +++ linux-2.4.0-prerelease/drivers/net/setup.c	Mon Jan  1 07:21:15 2001
+[...]
+
+
+your patchlet helped compiling cleanly. Still have to see if it
+actually works (I have a couple of apt-get running, must
+wait till they finish...)
+
+Pf
+
+
+
+
 -- 
-Tim Bell - bhat@trinity.unimelb.edu.au - System Administrator & Programmer
-    Trinity College, Royal Parade, Parkville, Victoria, 3052, Australia
+
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.0-test10 #1 Wed Nov 8 22:58:01 CET 2000 i686 unknown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

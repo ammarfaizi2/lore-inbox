@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJAQaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUJAQcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUJAQaB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJAQaB
+	id S264443AbUJAQcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 12:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUJAQcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:30:01 -0400
-Received: from conn.mc.mpls.visi.com ([208.42.156.2]:56706 "EHLO
-	conn.mc.mpls.visi.com") by vger.kernel.org with ESMTP
-	id S264377AbUJAQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:27:13 -0400
-Message-ID: <415D84A3.6010105@steinerpoint.com>
-Date: Fri, 01 Oct 2004 11:24:03 -0500
-From: Al Borchers <alborchers@steinerpoint.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+	Fri, 1 Oct 2004 12:32:16 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:34437 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264443AbUJAQcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 12:32:10 -0400
+Message-ID: <415D8661.3000406@nortelnetworks.com>
+Date: Fri, 01 Oct 2004 10:31:29 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: new locking in change_termios breaks USB serial drivers
-References: <415D3408.8070201@steinerpoint.com> <1096630567.21871.4.camel@localhost.localdomain>
+To: Paul Jackson <pj@sgi.com>
+CC: Robert Love <rml@novell.com>, ttb@tentacle.dhs.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch] inotify: make user visible types portable
+References: <1096410792.4365.3.camel@vertex>	<1096583108.4203.86.camel@betsy.boston.ximian.com>	<20040930155704.16d71cec.pj@sgi.com>	<1096608925.4803.2.camel@localhost>	<20040930234436.097e6dfe.pj@sgi.com>	<1096616399.4803.26.camel@localhost>	<20041001084009.6b33c1a1.pj@sgi.com>	<1096645624.7676.18.camel@betsy.boston.ximian.com> <20041001091325.7fbc6971.pj@sgi.com>
+In-Reply-To: <20041001091325.7fbc6971.pj@sgi.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> How much of a problem is this, would it make more sense to make the
-> termios locking also include a semaphore to serialize driver side events
-> and not the spin lock ?
+Paul Jackson wrote:
+> Robert wrote:
+> 
+>>The structure needs to be used exactly the same between the kernel and
+>>the user.  We both agree to that, right?  It is user visible.
+> 
+> 
+> Certainly the ABI, yes.  These stubborn beasts called computers that we
+> labour over just won't work otherwise.
+> 
+> I'd have no objections to the user header spelling "__u32" where the
+> kernel header spelled "u32".
 
-Its a design decision for the tty layer.  You should choose whatever is
-best there and the drivers will have to adapt.
+I believe there is a long-term goal to separate out the userspace-visible part 
+of the kernel headers into a separate header area, and include them into the kernel.
 
-I don't know how many tty drivers have assumed that set_termios can sleep,
-like the USB serial drivers have.  If that is an implicit part of tty API
-that other drivers depend on, then, if possible, it seems much better to keep
-the API the same and continue to allow set_termios to sleep.
+Even without that, the headers are periodically extracted and cleaned up.  Why 
+make that job harder than it needs to be?
 
-I think the USB serial drivers can just queue up urbs to the device
-with commands to set the termios settings and return without waiting
-for those urbs to complete.  There are potential synchronization issues,
-however.  The termios settings might go into different USB queues than
-the data, and so it is possible that data sent immediately after a
-set_termios might get to the device before the new termios settings.
-
-To correctly support TCSETAW/TCSETSW the USB serial drivers would have to
-have two different versions of set_termios--a non sleeping one to be called
-through the tty API and a sleeping one to use with TCSETAW/TCSETSW ioctls
-so the ioctl would not return until the settings were guaranteed to have
-taken effect.  Not many USB serial drivers support TCSETAW/TCSETSW now.
-
--- Al
-
+Chris
 

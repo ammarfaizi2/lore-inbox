@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268504AbUH3Phz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUH3Piy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268504AbUH3Phz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 11:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268505AbUH3Phy
+	id S268497AbUH3Piy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 11:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268505AbUH3Pix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 11:37:54 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:15234 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268503AbUH3Phi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 11:37:38 -0400
-Subject: Re: [PATCH] Allow cluster-wide flock
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ken Preslan <kpreslan@redhat.com>
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040830151945.GA16894@potassium.msp.redhat.com>
-References: <20040830151945.GA16894@potassium.msp.redhat.com>
+	Mon, 30 Aug 2004 11:38:53 -0400
+Received: from [144.51.25.10] ([144.51.25.10]:40104 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S268503AbUH3Pit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 11:38:49 -0400
+Subject: Re: [PATCH]SELinux performance improvement by RCU (Re: RCU issue
+	with SELinux)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil>
+	 <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093876517.30190.3.camel@localhost.localdomain>
+Organization: National Security Agency
+Message-Id: <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 30 Aug 2004 15:35:19 +0100
+Date: Mon, 30 Aug 2004 11:35:19 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-30 at 16:19, Ken Preslan wrote:
-> Hi,
+On Mon, 2004-08-30 at 07:17, Kaigai Kohei wrote:
+> I fixed the take-3 patch according to your and Paul's suggestions.
 > 
-> Below is a patch that lets a cluster filesystem (such as GFS) implement
-> flock across a the cluster.  Please apply.
+> The attached take-4 patches replace the avc_lock in security/selinux/avc.c
+> by the lock-less read access with RCU.
 
-flock affects local node only traditionally and applications expect high
-performance from it. Our documentation merely says
+Thanks.  Was there a reason you didn't move the rcu_read_lock call after
+the avc_insert call per the suggestion of Paul McKenney, or was that
+just an oversight?  No need to send a new patch, just ack whether or not
+you meant to switch the order there.
 
-       flock(2) does not lock files over NFS.  Use fcntl(2) instead:
-that does
-       work  over  NFS,  given  a  sufficiently  recent version of Linux
-and a
-       server which supports locking.
-
-I'm not sure how we should count GFS but other than noting a need to
-think about it I see no problems with a cluster being "local"
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

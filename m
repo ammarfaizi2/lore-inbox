@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267473AbTBUO7v>; Fri, 21 Feb 2003 09:59:51 -0500
+	id <S267494AbTBUPGN>; Fri, 21 Feb 2003 10:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267474AbTBUO7v>; Fri, 21 Feb 2003 09:59:51 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:40361 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S267473AbTBUO7s>;
-	Fri, 21 Feb 2003 09:59:48 -0500
-Date: Fri, 21 Feb 2003 17:09:53 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: The linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Genericish floppy-driver problem ? (2.4/2.5)
-Message-ID: <20030221150953.GK1073@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S267495AbTBUPGM>; Fri, 21 Feb 2003 10:06:12 -0500
+Received: from vbws78.voicebs.com ([66.238.160.78]:59921 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S267494AbTBUPGL>; Fri, 21 Feb 2003 10:06:11 -0500
+Message-ID: <3E5642B3.4080104@didntduck.org>
+Date: Fri, 21 Feb 2003 10:16:03 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: javaman <javaman@katamail.com>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH 2.5.x, 2.4.x ...] very small
+References: <20030221144448Z267481-29901+571@vger.kernel.org>
+In-Reply-To: <20030221144448Z267481-29901+571@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my Dell Laptop, I have a 3.5" diskette driver plugin, which
-works fine, when I do normal things, but earlier this week I had
-a "mystery diskette" to decode, and pull data out.
+javaman wrote:
+> A very small patch (my first patch :-) for Documentation/spinlocks.txt:
+> it replace "IFF" with "IF" ;-)
+> 
+> bye,
+> Paolo
+> 
+> --- Documentation/spinlocks.txt.orig	Fri Feb 21 15:02:01 2003
+> +++ Documentation/spinlocks.txt	Fri Feb 21 15:02:44 2003
+> @@ -136,7 +136,7 @@
+>  
+>  If you have a case where you have to protect a data structure across
+>  several CPU's and you want to use spinlocks you can potentially use
+> -cheaper versions of the spinlocks. IFF you know that the spinlocks are
+> +cheaper versions of the spinlocks. IF you know that the spinlocks are
+>  never used in interrupt handlers, you can use the non-irq versions:
+>  
+>  	spin_lock(&lock);
+> 
 
-The diskette in question was written in a "DD" driver, but used
-media was of "HD" type.  The end result was that its format was
-"wrong" for the media, and reading it failed.
-A quick transformation of a "HD" diskette into a "DD" type is
-explained at site:
+This is wrong.  IFF means "If and only if".
 
-   http://fdutils.linux.lu/disk-id.html
-
-where there are also many tests to discover things about the diskette data 
-format.   To read the "DD format in HD media" diskette successfully, 
-"rate=2" parameter was necessary in tests done in that page to determine
-various parameters of the diskette.
-(That is, a "taped-up-DD" media is formatted into 720 kB capacity, and
- then the tape is removed getting a "DD in disguise" media format)
+--
+				Brian Gerst
 
 
-While using that utility with 2.4.20-redhat-rawhide-xyz kernel,
-and following the instructions to determine what the data really
-is in there, execution of command:
-
-  fdrawcmd read 0  1 0 1 2  0 0x1b 0xff length=10240 need_seek track=1 >/dev/null
-
-did cause the floppy driver to yield some kernel error dump, and
-any floppy command after that did return EXIO error.  Only reboot
-restored the driver back to sanity.
-
-A sticky error state is, of course, considerable as a bug in this case.
-Is this really worth the effort to fix ?  I am not sure.
-
-The Floppy driver (drivers/block/floppy.c) does not appear to have
-listed MAINTAINER, but many people have touched on it over the years.
-
-/Matti Aarnio

@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbUKHAI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbUKHARx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbUKHAI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 19:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUKHAIZ
+	id S261716AbUKHARx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 19:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUKHARx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 19:08:25 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:4077 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261715AbUKHAIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 19:08:23 -0500
-Message-ID: <418EB8EB.30405@kolivas.org>
-Date: Mon, 08 Nov 2004 11:08:11 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Sun, 7 Nov 2004 19:17:53 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:14291 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S261716AbUKHARw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 19:17:52 -0500
+Date: Sun, 7 Nov 2004 19:15:33 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: <linux-kernel@vger.kernel.org>, Andy Lutomirski <luto@myrealbox.com>
+Subject: Re: 32-bit segfaults on x86_64 in recent mm kernels
+In-Reply-To: <200411072253.34806.rjw@sisk.pl>
+Message-ID: <Pine.GSO.4.33.0411071910540.9358-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why my computer freeze completely with xawtv ?
-References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch>
-In-Reply-To: <20041108000229.GC5360@magma.epfl.ch>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig4D39C74F6DD1CACFEBC6DA16"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4D39C74F6DD1CACFEBC6DA16
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 7 Nov 2004, Rafael J. Wysocki wrote:
+>This is because of the flex mmap patch for x86-64.  You can try the following
+>workaround from Andi Kleen:
+...
+> #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
+>-int sysctl_legacy_va_layout;
+>+int sysctl_legacy_va_layout = 1;
+> #endif
 
-Gregoire Favre wrote:
-> On Mon, Nov 08, 2004 at 10:53:46AM +1100, Con Kolivas wrote:
-> 
-> Hello again :-)
-> 
-> 
->>Gregoire Favre wrote:
->>
->>>I use DVB with VDR, but I can do the crash all the time without VDR, all
->>>I have to do is to have xawtv running and having a process that write
->>>fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
->>>same result). If I don't have xawtv running I can't make crashing my
->>>system which is rock stable :-)
->>
->>Is xawtv running as root or with real time privileges? That could do it.
-> 
-> 
-> Normally I start xawtv this way:
-> xawtv -c /dev/v4l/video0 -geometry 770x580-0-0 -xvport 61 & as a normal
-> user, but I don't know what real time privileges are ?
-> I haven't modified in any way xawtv :
-> -rwxr-xr-x  1 root root 243K Oct 12 09:36 /usr/bin/xawtv
+One does not need to patch the kernel to do this...
 
-What does 'top' show as the PRI for xawtv?
+	% sysctl -w vm.legacy_va_layout=1
 
-Con
+(some systems process an /etc/sysctl.conf during boot)
 
---------------enig4D39C74F6DD1CACFEBC6DA16
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Of course, if you need 32bit apps before that can be set during boot-up,
+messing with the kernel will be necessary.  I will point out, the sysctl
+var totally disables flex mmap.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+--Ricky
 
-iD8DBQFBjrjrZUg7+tp6mRURAs6cAKCNCO/3qup5OdL7cCKHDaQnWM9cyACghrMz
-Fa2M3lbLuM1Wcb7wm8d36is=
-=ljqN
------END PGP SIGNATURE-----
 
---------------enig4D39C74F6DD1CACFEBC6DA16--

@@ -1,82 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274802AbTGaPqT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272545AbTGaPof
+	id S272461AbTGaQC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273020AbTGaQC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:44:35 -0400
-Received: from pop.univ-lyon1.fr ([134.214.100.7]:25276 "EHLO
-	pop.univ-lyon1.fr") by vger.kernel.org with ESMTP id S272550AbTGaPn7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:43:59 -0400
-Message-ID: <3F2934DA.2050708@creatis.insa-lyon.fr>
-Date: Thu, 31 Jul 2003 17:25:14 +0200
-From: Mathieu Malaterre <Mathieu.Malaterre@creatis.insa-lyon.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: fr, en, en-us
+	Thu, 31 Jul 2003 12:02:28 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:25517 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S272461AbTGaQC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:02:26 -0400
+Date: Thu, 31 Jul 2003 09:01:53 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm1 results
+Message-ID: <61330000.1059667311@[10.10.2.4]>
+In-Reply-To: <200308010135.57514.kernel@kolivas.org>
+References: <5110000.1059489420@[10.10.2.4]> <200308010113.02866.kernel@kolivas.org> <59900000.1059664740@[10.10.2.4]> <200308010135.57514.kernel@kolivas.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: "Scott L. Burson" <gyro@zeta-soft.com>
-Cc: linux-kernel@vger.kernel.org, hw.support@amd.com
-Subject: Re: Spinlock performance on Athlon MP (2.4)
-References: <16168.12542.850631.294911@kali.zeta-soft.com>
-In-Reply-To: <16168.12542.850631.294911@kali.zeta-soft.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott L. Burson wrote:
-> Hi,
+> On Fri, 1 Aug 2003 01:19, Martin J. Bligh wrote:
+>> >> Does this help interactivity a lot, or was it just an experiment?
+>> >> Perhaps it could be less agressive or something?
+>> > 
+>> > Well basically this is a side effect of selecting out the correct cpu
+>> > hogs in the interactivity estimator. It seems to be working ;-) The more
+>> > cpu hogs they are the lower dynamic priority (higher number) they get,
+>> > and the more likely they are to be removed from the active array if they
+>> > use up their full timeslice. The scheduler in it's current form costs
+>> > more to resurrect things from the expired array and restart them, and the
+>> > cpu hogs will have to wait till other less cpu hogging tasks run.
+>> > 
+>> > How do we get around this? I'll be brave here and say I'm not sure we
+>> > need to, as cpu hogs have a knack of slowing things down for everyone,
+>> > and it is best not just for interactivity for this to happen, but for
+>> > fairness.
+>> > 
+>> > I suspect a lot of people will have something to say on this one...
+>> 
+>> Well, what you want to do is prioritise interactive tasks over cpu hogs.
+>> What *seems* to be happening is you're just switching between cpu hogs
+>> more ... that doesn't help anyone really. I don't have an easy answer
+>> for how to fix that, but it doesn't seem desireable to me - we need some
+>> better way of working out what's interactive, and what's not.
 > 
-> First, and probably the reason you haven't heard more complaints about the
-> problem, its severity is evidently dependent on the size of main memory.  At
-> 512MB it doesn't seem to be much of a problem (right, Mathieu?). 
+> Indeed and now that I've thought about it some more, there are 2 other 
+> possible contributors
+> 
+> 1. Tasks also round robin at 25ms. Ingo said he's not sure if that's too low, 
+> and it definitely drops throughput measurably but slightly.
+> A simple experiment is changing the timeslice granularity in sched.c and see 
+> if that fixes it to see if that's the cause.
+> 
+> 2. Tasks waiting for 1 second are considered starved, so cpu hogs running with 
+> their full timeslice used up when something is waiting that long will be 
+> expired. That used to be 10 seconds.
+> Changing starvation limit will show if that contributes.
 
-Right. I have 1.5 GB and can reproduce the problem.
-And 'append mem=512M' in lilo made things works nicely too.
+Ah. If I'm doing a full "make -j" I have almost 100 tasks per cpu.
+if it's 25ms or 100ms timeslice that's 2.5 or 10s to complete the
+timeslice. Won't that make *everyone* seem starved? Not sure that's
+a good idea ... reminds me of Dilbert: "we're going to focus particularly
+on ... everything!" ;-)
 
-> At 2.5GB,
-> which is what I have, it can be quite serious.  For instance, if I start two
-> `find' processes at the roots of different filesystems, the system can spend
-> (according to `top') 95% - 98% of its time in the kernel.  It even gets
-> worse than that, but `top' stops updating -- in fact, the system can seem
-> completely frozen, but it does recover eventually.  Stopping or killing one
-> of the `find' processes brings it back fairly quickly, though it can take a
-> while to accomplish that.
+M.
 
-In fact, last week I had such bad warm reboots that I opened the box and 
-all of a sudden everythings was working fine again.
-
-So I would say I have a problem of low power supply or fan. And I think 
-I have read some post about it in the past:
-
-[System Starvation under heavy io load with HIGHMEM4G]
-http://www.ussg.iu.edu/hypermail/linux/kernel/0303.2/1435.html
-
-[Tyan 2460/Dual Athlon MP hangs]
-http://www.ussg.iu.edu/hypermail/linux/kernel/0207.0/0040.html
-
-Eventhought I have a Tyan S2460, I read that:
-[The Thunder K7 is an Extended ATX board, measuring 12 × 13 inches. It 
-only supports Registered DDR PC1600/2100 memory, so your old DIMMs won't 
-work. Your old power supply won't work either. The Thunder K7 needs an 
-extra 8-pin power connector. It's not the same extra power connector 
-that Intel Pentium 4 Xeon-based motherboards need either, so you must 
-get a special power supply that currently only will work with this one 
-board.]
-http://www.linuxjournal.com/bg/advice/ulb_02.php
-
-What do you think of it ?
-
-Here is my uptime:
-
-$ uptime
-   5:15pm  up 3 days,  3:18, 13 users,  load average: 0.08, 0.25, 0.21
-And I have been running rather heavy jobs ('make -j') with a lot of IO...
-
-One final thing, I am pretty novice at those things, so please 
-appologize if I said something completely dumb.
-
-my 2 cents,
-mathieu
 

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290083AbSA3QmS>; Wed, 30 Jan 2002 11:42:18 -0500
+	id <S290059AbSA3Qks>; Wed, 30 Jan 2002 11:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290045AbSA3Qkx>; Wed, 30 Jan 2002 11:40:53 -0500
-Received: from bitmover.com ([192.132.92.2]:56741 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290060AbSA3QkA>;
-	Wed, 30 Jan 2002 11:40:00 -0500
-Date: Wed, 30 Jan 2002 08:39:59 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
-        Jeff Garzik <garzik@havoc.gtf.org>,
+	id <S290063AbSA3Qjm>; Wed, 30 Jan 2002 11:39:42 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:60614 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S290045AbSA3Qi0>;
+	Wed, 30 Jan 2002 11:38:26 -0500
+Date: Wed, 30 Jan 2002 19:35:03 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
         Rob Landley <landley@trommello.org>,
-        Miles Lane <miles@megapathdsl.net>, Chris Ricker <kaboom@gatech.edu>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130083959.J23269@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jochen Friedrich <jochen@scram.de>, Larry McVoy <lm@bitmover.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Jeff Garzik <garzik@havoc.gtf.org>,
-	Rob Landley <landley@trommello.org>,
-	Miles Lane <miles@megapathdsl.net>,
-	Chris Ricker <kaboom@gatech.edu>,
-	World Domination Now! <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020130080642.E18381@work.bitmover.com> <Pine.NEB.4.33.0201301731530.16245-100000@www2.scram.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.NEB.4.33.0201301731530.16245-100000@www2.scram.de>; from jochen@scram.de on Wed, Jan 30, 2002 at 05:34:12PM +0100
+In-Reply-To: <20020130083254.H23269@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0201301933390.11022-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 05:34:12PM +0100, Jochen Friedrich wrote:
-> Hi Larry,
-> 
-> > with the difference being that BK has an optional way of wrapping
-> > them up in uuencode (or whatever) so that mailers don't stomp on them.
-> 
-> isn't that just the same as sending them as attchment? And isn't that
-> discouraged?
 
-We have a generic wrapping/unwrapping mechanism.  The wrapping can be as
-draconian as a uuencode/mimencoded attachment or as light as a crc envelope.
-We don't care, we're mechanism providers in this area, not policy setters.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Wed, 30 Jan 2002, Larry McVoy wrote:
+
+> How much of the out order stuff goes away if you could send changes
+> out of order as long as they did not overlap (touch the same files)?
+
+could this be made: 'as long as they do not touch the same lines of code,
+taking 3 lines of context into account'? (ie. unified diff definition of
+'collisions' context.)
+
+	Ingo
+

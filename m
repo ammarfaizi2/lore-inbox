@@ -1,59 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318635AbSHPQkb>; Fri, 16 Aug 2002 12:40:31 -0400
+	id <S318546AbSHPQrV>; Fri, 16 Aug 2002 12:47:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318638AbSHPQka>; Fri, 16 Aug 2002 12:40:30 -0400
-Received: from admin.nni.com ([216.107.0.51]:9476 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S318635AbSHPQka>;
-	Fri, 16 Aug 2002 12:40:30 -0400
-Date: Fri, 16 Aug 2002 12:44:15 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre2-ac3 stops responding
-Message-Id: <20020816124415.467e662e.arodland@noln.com>
-In-Reply-To: <3D5D287C.F4AE3797@wanadoo.fr>
-References: <Pine.LNX.4.44L.0208161036170.1430-100000@imladris.surriel.com>
-	<3D5D287C.F4AE3797@wanadoo.fr>
-X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S318552AbSHPQrV>; Fri, 16 Aug 2002 12:47:21 -0400
+Received: from wasala.fi ([212.50.129.162]:8463 "EHLO wasala.fi")
+	by vger.kernel.org with ESMTP id <S318546AbSHPQrU>;
+	Fri, 16 Aug 2002 12:47:20 -0400
+Date: Fri, 16 Aug 2002 19:50:57 +0300
+From: Antti Salmela <asalmela@iki.fi>
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.4.20-pre1-ac3, SMP (Dual PIII)
+Message-ID: <20020816195057.A26010@wasala.fi>
+References: <20020814145454.A21254@wasala.fi> <1029328630.26226.21.camel@irongate.swansea.linux.org.uk> <20020814161037.A22388@wasala.fi> <1029331629.26227.36.camel@irongate.swansea.linux.org.uk> <20020814185505.A23923@wasala.fi> <20020814173057.18028.qmail@thales.mathematik.uni-ulm.de> <1029375182.28236.31.camel@irongate.swansea.linux.org.uk> <20020816141718.4766.qmail@thales.mathematik.uni-ulm.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020816141718.4766.qmail@thales.mathematik.uni-ulm.de>; from ehrhardt@mathematik.uni-ulm.de on Fri, Aug 16, 2002 at 04:17:18PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002 18:29:48 +0200
-Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr> wrote:
+On Fri, Aug 16, 2002 at 04:17:18PM +0200, Christian Ehrhardt wrote:
+> On Thu, Aug 15, 2002 at 02:33:02AM +0100, Alan Cox wrote:
+> > Thanks - your analysis is informative to say the least. It looks like
+> > the PIV load balancing code is the problem. 
+> 
+> The (untested) patch below should correct this problem along with
+> a locking oddity (last hunk) that IMHO either needs fixing or a BIG
+> comment. Be prepared for a few (up to 4) lines of fuzz due to additional
+> BUG_ONs in both versions of the file.
 
-> Rik van Riel wrote:
-> > 
-> > On Fri, 16 Aug 2002, Jean-Luc Coulon wrote:
-> > 
-> > > 2nd while running:
-> > > ------------------
-> > > If I have high disk activity, the system stops responding for a
-> > > while, it does not accepts any key action nor mouse movement. It
-> > > starts running normally after few seconds.
-> /dev/hda2:
-> multcount    =  1 (on)
-> IO_support   =  1 (32-bit)
-> unmaskirq    =  0 (off)
-> using_dma    =  0 (off)
-> keepsettings =  0 (off)
-> readonly     =  0 (off)
-> readahead    =  8 (on)
-> geometry     = 3649/255/63, sectors = 29302560, start = 9767520
-> HDIO_GET_IDENTITY failed: Invalid argument
-> 
-> [root@debian-f5ibh] ~ # hdparm -d1 /dev/hda2
-> 
-> /dev/hda2:
-> setting using_dma to 1 (on)
-> HDIO_SET_DMA failed: Invalid argument
-> using_dma    =  0 (off)
-> 
-how about umaskirq (hdparm -u1) ? that should help quite a bit, if it
-works.
+With this patch I could boot 2.4.20-pre2-ac3 and it has now run nearly an
+hour without any problems.
 
-oh, and by the way, does it matter that you're doing hdparm on a
-partition rather than the wholedisk?
+>      regards   Christian Ehrhardt
+> 
+> [1] http://www.atnf.csiro.au/people/rgooch/benchmarks/linux-scheduler.html
+> 
+> 
+> --- /usr/src/linux-2.4.20-pre1-ac3/kernel/sched.c	Thu Aug 15 20:03:01 2002
+> +++ sched.c	Fri Aug 16 16:15:57 2002
+> @@ -769,7 +772,7 @@
+>  			set_tsk_need_resched(p);
+>  
+>  			/* put it at the end of the queue: */
+> -			dequeue_task(p, rq->active);
+> +			dequeue_task(p, p->array);
+>  			enqueue_task(p, rq->active);
+>  		}
+>  		goto out;
+> @@ -785,7 +788,7 @@
+>  	if (p->sleep_avg)
+>  		p->sleep_avg--;
+>  	if (!--p->time_slice) {
+> -		dequeue_task(p, rq->active);
+> +		dequeue_task(p, p->array);
+>  		set_tsk_need_resched(p);
+>  		p->prio = effective_prio(p);
+>  		p->time_slice = TASK_TIMESLICE(p);
+> @@ -1396,7 +1399,7 @@
+>  	 */
+>  	if (likely(current->prio == MAX_PRIO-1)) {
+>  		if (current->time_slice <= 1) {
+> -			dequeue_task(current, rq->active);
+> +			dequeue_task(current, array);
+>  			enqueue_task(current, rq->expired);
+>  		} else
+>  			current->time_slice--;
+> @@ -1411,7 +1414,7 @@
+>  		list_add_tail(&current->run_list, array->queue + current->prio);
+>  		__set_bit(current->prio, array->bitmap);
+>  	}
+> -	spin_unlock(&rq->lock);
+> +	rq_unlock (rq);
+>  
+>  	schedule();
+>  
+
+-- 
+Antti Salmela

@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVAMRed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVAMRfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVAMRed (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVAMRbt
+	id S261327AbVAMRfh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVAMRfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:31:49 -0500
-Received: from cc15144-a.groni1.gr.home.nl ([217.120.147.78]:22426 "HELO
-	boetes.org") by vger.kernel.org with SMTP id S261269AbVAMRam (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:30:42 -0500
-Date: Thu, 13 Jan 2005 18:30:38 +0059
-From: Han Boetes <han@mijncomputer.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: propolice support for linux
-Message-ID: <20050113173100.GC14127@boetes.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050113163733.GB14127@boetes.org> <41E6AAE4.3010706@tmr.com>
+	Thu, 13 Jan 2005 12:35:24 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:44004 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261328AbVAMReF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 12:34:05 -0500
+Subject: Re: RAIT device driver feasibility
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ludovic Drolez <ludovic.drolez@linbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41E6AB59.4000808@linbox.com>
+References: <41E696F4.3070700@linbox.com>
+	 <1105630888.4664.54.camel@localhost.localdomain>
+	 <41E6AB59.4000808@linbox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105633782.4664.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E6AAE4.3010706@tmr.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 16:29:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Han Boetes wrote:
-> > And I got two warnings about `int __guard = '\0\0\n\777';'
-> >
-> > lib/propolice.c:15:15: warning: octal escape sequence out of range
-> > lib/propolice.c:15:15: warning: multi-character character constant
->
-> Unless you foresee a port of Linux to some 36 bit hardware (like 
-> MULTICS) with nine bit bytes, is there a reason not to us \377? I have 
-> used 36 (and 48) bit hardware, but I don't expect it to ever get a Linux 
-> port.
+On Iau, 2005-01-13 at 17:09, Ludovic Drolez wrote:
+> > Why kernel space - why not a user space shared library you can add to
+> > other tape apps?
+> 
+> A shared library which would override read(), write() in the program ? Why not...
+> 
+> But do you think you can chain/bounce, ioctl(), read(), writes from a char 
+> driver to another ?
 
-Could you please refrain from using rhetorical questions, since
-they really obscure what you are trying explain and only appear to
-intend to embarrass me.
+I was thinking more of an easy to use shared library and adapting the
+various tape archiving apps to be able to use it, not emulation
 
-If I understand right what you just said I would suggest you would
-have say something like: ``This should most likely be \377. \777
-is intended for 36 bit hardware.''
-
-
-
-# Han

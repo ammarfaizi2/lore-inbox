@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275097AbRJYPok>; Thu, 25 Oct 2001 11:44:40 -0400
+	id <S275110AbRJYPqb>; Thu, 25 Oct 2001 11:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275098AbRJYPob>; Thu, 25 Oct 2001 11:44:31 -0400
-Received: from geos.coastside.net ([207.213.212.4]:3003 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S275097AbRJYPoX>; Thu, 25 Oct 2001 11:44:23 -0400
+	id <S275098AbRJYPqU>; Thu, 25 Oct 2001 11:46:20 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:51085 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S275126AbRJYPqI>; Thu, 25 Oct 2001 11:46:08 -0400
+Date: Thu, 25 Oct 2001 11:46:30 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Steve Lord <lord@sgi.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Frontgate Lab <mdiwan@wagweb.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel compiler
+Message-ID: <20011025114630.K25384@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <alan@lxorguk.ukuu.org.uk> <200110251527.f9PFRIx15728@jen.americas.sgi.com>
 Mime-Version: 1.0
-Message-Id: <p05100304b7fde3463344@[207.213.214.37]>
-In-Reply-To: <9r9asg$7jr$1@ncc1701.cistron.net>
-In-Reply-To: <9r8icv$ukh$1@ncc1701.cistron.net> <20011025082001.B764@hq2>
- <9r9asg$7jr$1@ncc1701.cistron.net>
-Date: Thu, 25 Oct 2001 08:44:09 -0700
-To: "Rob Turk" <r.turk@chello.nl>, linux-kernel@vger.kernel.org
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [RFC] New Driver Model for 2.5
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110251527.f9PFRIx15728@jen.americas.sgi.com>; from lord@sgi.com on Thu, Oct 25, 2001 at 10:27:18AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 5:22 PM +0200 10/25/01, Rob Turk wrote:
->  > I'm failing  to imagine a good case for suspending a system that has a
->>  tape drive on it.
->>
->
->Well, maybe the tape example wasn't all that good. The state information
->(wide/sync negotiation) still needs to be retained for all SCSI 
->devices though.
+On Thu, Oct 25, 2001 at 10:27:18AM -0500, Steve Lord wrote:
+> Just for information, none of the Redhat compilers (the 2.96 leg) build
+> all of XFS correctly, see this bug for info:
+> 
+> http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=54571
 
-Any driver that uses SCSI bus reset for last-resort error recovery 
-(and I think it's pretty typical) needs to be able to renegotiate the 
-connection. Maybe even after a SCSI device reset; I don't recall. So 
-initiating that negotiation as part of (or after) resume doesn't seem 
-all that burdensome.
+Yeah, but it is a longstanding reload bug you can get bitten on other code
+in 2.95.x, 3.0.x or 3.1 too, you just have to stress the compiler hard and
+have bad luck.
 
-You need that anyway for "deep sleep" that powers down devices completely.
--- 
-/Jonathan Lundell.
+	Jakub

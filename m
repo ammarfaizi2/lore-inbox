@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLOWHa>; Fri, 15 Dec 2000 17:07:30 -0500
+	id <S129340AbQLOWHk>; Fri, 15 Dec 2000 17:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129352AbQLOWHU>; Fri, 15 Dec 2000 17:07:20 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:36368 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129183AbQLOWHK>;
-	Fri, 15 Dec 2000 17:07:10 -0500
-Date: Fri, 15 Dec 2000 22:36:27 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Matt D. Robinson" <yakker@alacritech.com>
-Cc: Alexander Viro <viro@math.psu.edu>, LA Walsh <law@sgi.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linus's include file strategy redux
-Message-ID: <20001215223627.U573@almesberger.net>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <Pine.GSO.4.21.0012141900140.10441-100000@weyl.math.psu.edu> <20001215152137.K599@almesberger.net> <3A3A7284.DE48A381@alacritech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A3A7284.DE48A381@alacritech.com>; from yakker@alacritech.com on Fri, Dec 15, 2000 at 11:35:32AM -0800
+	id <S129982AbQLOWHb>; Fri, 15 Dec 2000 17:07:31 -0500
+Received: from [63.109.193.245] ([63.109.193.245]:48379 "EHLO
+	ninigret.metatel.office") by vger.kernel.org with ESMTP
+	id <S129340AbQLOWHS>; Fri, 15 Dec 2000 17:07:18 -0500
+Message-Id: <200012152137.QAA04624@ninigret.metatel.office>
+From: Rafal Boni <rafal.boni@eDial.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.16 Q: unexpected page/buffer cache behaviour
+X-Mailer: NMH 1.0 / EXMH 2.1.1
+Date: Fri, 15 Dec 2000 16:37:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt D. Robinson wrote:
-> I personally think the definition of an environment variable to point to
-> a header file location is the right way to go.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I see two disadvantages of this, compared to a script:
- - need to hard-code a default (unless we assume the variables are always
-   set)
- - the way how environment variables are propagated
+Content-Type: text/plain; charset=us-ascii
 
-A script-based approach has the advantage that one can make a single
-change (to a file) that instantly affects the whole local environment
-(be this system-wide, per-user, or whatever). So there's no risk of
-typing "make" to that forgotten xterm and an incompatible build
-starts.
+[...please CC me on replies, as I generally only read the list via the
+ archives...]
 
-I like environment variables as a means to override auto-detected
-defaults, though.
+I've asked the list before on a similar topic and haven't gotten any
+replies, but it's happening again with a different kernel version and
+I'm still stumped.
 
-Also, environment variables don't solve the problem of conveniently
-providing other compiler arguments (the kmodcc idea - the problem is
-very old, but I think it's still not solved).
+I have a couple of boxes that are doing network serving, but don't 
+generally do a lot of disk I/O.  I'm worried that on these boxes,
+my page + buffer caches take up ~ 95% of memory [*] (the boxes in 
+question both have 2Gb, but are running a redhat-supplied 2.2.16-3 RPM, 
+which means they only see 1Gb "normally" and the rest as BigMem).
 
-- Werner
+[*] Due to use of BigMem, they actually take up 41% of physical memory,
+but 95% of non-BigMem memory.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+Currently, here's what /proc/meminfo says:
+MemTotal:   2074428 kB
+MemFree:    1178500 kB
+MemShared:     5492 kB
+Buffers:     287264 kB
+Cached:      571040 kB
+BigTotal:   1179644 kB
+BigFree:    1166052 kB
+SwapTotal:  1028120 kB
+SwapFree:   1027284 kB
+
+Note: of the 894784kB of non-BigMem memory, 858304kB is buffers + cache!
+
+This all would be wonderful, but at times when the boxes need a surplus of
+memory, they end up hanging for multiple seconds while buffers are flushed
+to disk.  
+
+Since I'm running an HA setup with the Linux-HA heartbeat package, the 
+several-second pause causes the node to throw its' hands up as it has not
+seen even its' own heartbeat in a few seconds (since the machine is effec-
+tively locked up flushing stuff to disk).  Now the backup node tends to do
+the same thing at about the same time, and our HA solution has just shut
+down the service 8-<
+
+However bad this is, the above is just a symptom of the seemingly unchecked
+buffer/page cache growth.  SHould I just set a real high limit for freepages,
+(which seems like a hack and will fail later on), or is there a better way
+out of this rathole?  
+
+Should linux be caching stuff that aggresively even in situations where disk
+I/O is at a minimum (the size of the buffer + page caches holds probably 2/3
+of the contents of the disk, so I'm astounded that it's gotten that big 8-).
+
+Thanks for any ideas,
+- --rafal
+
+- ----
+Rafal Boni                                               rafal.boni@eDial.com
+ PGP key C7D3024C, print EA49 160D F5E4 C46A 9E91  524E 11E0 7133 C7D3 024C
+    Need to get a hold of me?  http://800.eDial.com/rafal.boni@eDial.com
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.0 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE6Oo8FEeBxM8fTAkwRAvXmAKC8U4IYV657wRp596Ie6FydO29bTQCcDWEZ
++tLZfXUhQhTpwUM7/vODCcA=
+=k1Zi
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

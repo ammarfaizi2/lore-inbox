@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262967AbSJGKah>; Mon, 7 Oct 2002 06:30:37 -0400
+	id <S262970AbSJGKia>; Mon, 7 Oct 2002 06:38:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262969AbSJGKah>; Mon, 7 Oct 2002 06:30:37 -0400
-Received: from 62-190-216-92.pdu.pipex.net ([62.190.216.92]:11015 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S262967AbSJGKaf>; Mon, 7 Oct 2002 06:30:35 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210071044.g97Ai838001683@darkstar.example.net>
-Subject: Re: LILO probs
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Mon, 7 Oct 2002 11:44:07 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210071057.16311.roy@karlsbakk.net> from "Roy Sigurd Karlsbakk" at Oct 07, 2002 10:57:16 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262974AbSJGKi3>; Mon, 7 Oct 2002 06:38:29 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51095 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262970AbSJGKi3>;
+	Mon, 7 Oct 2002 06:38:29 -0400
+Date: Mon, 07 Oct 2002 03:36:44 -0700 (PDT)
+Message-Id: <20021007.033644.85392050.davem@redhat.com>
+To: simon@baydel.com
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DA16A9B.7624.4B0397@localhost>
+References: <20021005.212832.102579077.davem@redhat.com>
+	<1033923206.21282.28.camel@irongate.swansea.linux.org.uk>
+	<3DA16A9B.7624.4B0397@localhost>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Disk /dev/hda: 16 heads, 63 sectors, 38792 cylinders
-> > > >
-> > > > Nr AF  Hd Sec  Cyl  Hd Sec  Cyl    Start     Size ID
-> > > >  1 80   1   1    0  15  63  609       63   614817 83
-> > > >  2 00   0   1  610  15  63 1023   614880 10486224 83
-> > > >  3 00  15  63 1023  15  63 1023 11101104  4194288 83
-> > > >  4 00  15  63 1023  15  63 1023 15295392 23806944 0f
-> > > >  5 00  15  63 1023  15  63 1023       63  2097585 83
-> > > >  6 00  15  63 1023  15  63 1023       63  1048257 83
-> > > >  7 00  15  63 1023  15  63 1023       63  1048257 82
-> > > >  8 00  15  63 1023  15  63 1023       63 19612593 83
-> >
-> > It's a very confusing table, but more importantly it seems to imply that
-> > /dev/hda{5,6,7,8} all start at cylinder 63, and end in a variety of places.
-> >
-> > If this is an accurate representation of the partition table on this disk,
-> > I would suggest you recover what you can from it, and start over.
-> >
-> > Better would be to have a look at the partition table with something that
-> > can fix it, like fdisk, sfdisk or parted. Example:
-> >
-> > sfdisk -l /dev/hda
-> 
-> hm
-> 
-> root@pbx /usr/src/asterisk># sfdisk -l /dev/hda
-> 
-> Disk /dev/hda: 38792 cylinders, 16 heads, 63 sectors/track
-> Units = cylinders of 516096 bytes, blocks of 1024 bytes, counting from 0
-> 
->    Device Boot Start     End   #cyls   #blocks   Id  System
-> /dev/hda1   *      0+    609     610-   307408+  83  Linux
-> /dev/hda2        610   11012   10403   5243112   83  Linux
-> /dev/hda3      11013   15173    4161   2097144   83  Linux
-> /dev/hda4      15174   38791   23618  11903472    f  Win95 Ext'd (LBA)
-> /dev/hda5      15174+  17254    2081-  1048792+  83  Linux
-> /dev/hda6      17255+  18294    1040-   524128+  83  Linux
-> /dev/hda7      18295+  19334    1040-   524128+  82  Linux swap
-> /dev/hda8      19335+  38791   19457-  9806296+  83  Linux
-> 
-> just lists the table
-> 
-> but - it works, but I need to boot off a floppy, and I really don't want to 
-> start over reinstalling this.
-> 
-> any ideas how I can make LILO/GRUB work with this?
+   From: "" <simon@baydel.com>
+   Date: Mon, 7 Oct 2002 11:06:03 +0100
 
-When you say, 'boot off a floppy', what do you mean:
+   No one else can run these drivers so 
+   how could I expect someone else to maintain them ?
 
-1. Boot a raw kernel image from a floppy
+This is a common misconception.  When sweeping API changes
+are made to fix some bug or whatever, if your driver is in
+the tree the person making the API change will update your
+driver or add a comment saying "the new API does this, I
+couldn't figure out how to do that with your driver, please
+update" in a comment.
 
-or
+You get free work like this just as a side effect of being
+in the tree.
 
-2. Boot a floppy containing LILO/GRUB?
+It will also be sanity build checked by lots of people who
+run the current kernels through a "enable everything" configuration.
+   
+   However I can not understand how it would be practical for many
+   organizations  to  release code under the GPL for specific hardware.
 
-If you mean 1, you are accessing the hard disk with the BIOS.
+See above.
 
-If you mean 2, you are never accessing the hard disk with the BIOS.
+   This to some companies is too much to give 
+   away. Perhaps someone could educate me on this point ?
+   
+You talked about an interrupt controller, a serial port, lack of VGA,
+and lack of RTC on your system... doesn't sound like any ground
+breaking hardware to me.
 
-John.
+Franks a lot,
+David S. Miller
+davem@redhat.com

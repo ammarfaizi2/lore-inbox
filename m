@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbTFTMyf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 08:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTFTMyf
+	id S261182AbTFTNQK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 09:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFTNQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 08:54:35 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:61057 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S263103AbTFTMye (ORCPT
+	Fri, 20 Jun 2003 09:16:10 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:12449 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261182AbTFTNQI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 08:54:34 -0400
-Subject: Re: 2.5.72: SCSI tape error handling
-In-Reply-To: <Pine.LNX.4.52.0306201505210.755@kai.makisara.local>
- "from Kai Makisara at Jun 20, 2003 03:11:29 pm"
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Date: Fri, 20 Jun 2003 08:08:34 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	Fri, 20 Jun 2003 09:16:08 -0400
+Message-ID: <3EF30C59.1070206@colorfullife.com>
+Date: Fri, 20 Jun 2003 15:30:01 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Neil Moore <neil@s-z.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unix code in Linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20030620130834.BCA4C4F01@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Makisara wrote:
-> st does not currently return error for any write problems except when at
-> EOT. The following one-liner fixes the bug (probably mangled by my mail
-> client):
-> 
-> (...)
+Neil wrote:
+
+>Is there any reason to replace this
+>code? 
 >
-> Thanks for the report.
+Yes, it's ugly as hell.
+As far as I can see, the only user of ate_malloc are a few rmalloc 
+calls. There is one rmalloc_align call, but afaics the function is not 
+implemented.
 
-Thank *you* for the fix!  With disk drive capacities greatly
-outstripping my budgetary ability to buy tape drives that are up to the
-task, I don't know how much longer I'll consider tape to be a viable
-backup option, but I can now hang in there a bit longer :-).
+The code is filled with #defines that rename linux functions - 
+mutex_spinlock, spin_lock_destroy(), whatever.
+There is so much renaming that they even create a prototype for a #define:
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+> arch/ia64/sn/io/sn1/pcibr.c
+> L40: #define rmalloc atealloc
+> L331: extern uint64_t rmalloc(struct map *mp, size_t size);
+
+(it seems sn1 got killed recently, I searched in lxr.linux.no)
+
+AFAICS ate_malloc should die, and the rmalloc callers should use 
+request_resource & friends from <linux/ioport.h>.
+
+--
+    Manfred
+

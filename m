@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132599AbRDKO7U>; Wed, 11 Apr 2001 10:59:20 -0400
+	id <S132595AbRDKPBK>; Wed, 11 Apr 2001 11:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132598AbRDKO7K>; Wed, 11 Apr 2001 10:59:10 -0400
-Received: from m292-mp1-cvx1a.col.ntl.com ([213.104.69.36]:35712 "EHLO
-	[213.104.69.36]") by vger.kernel.org with ESMTP id <S132596AbRDKO7F>;
-	Wed, 11 Apr 2001 10:59:05 -0400
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE817@orsmsx35.jf.intel.com>
-	<20010411012354.E4214@grulic.org.ar>
-From: John Fremlin <chief@bandits.org>
-Date: 11 Apr 2001 15:59:00 +0100
-In-Reply-To: John R Lenton's message of "Wed, 11 Apr 2001 01:23:54 -0300"
-Message-ID: <m2g0ffh497.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S132600AbRDKPBA>; Wed, 11 Apr 2001 11:01:00 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:61174 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S132595AbRDKPAv>;
+	Wed, 11 Apr 2001 11:00:51 -0400
+Date: Wed, 11 Apr 2001 17:00:45 +0200 (MEST)
+From: Andreas Franck <afranck@gmx.de>
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: dhowells@cambridge.redhat.com, torvalds@transmeta.com, andrewm@uow.edu.au,
+        bcrl@redhat.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <16847.987000228@warthog.cambridge.redhat.com>
+Subject: Re: [PATCH] 2nd try: i386 rw_semaphores fix
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0000112505@gmx.net
+X-Authenticated-IP: [137.226.38.42]
+Message-ID: <24940.987001245@www17.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- John R Lenton <john@grulic.org.ar> writes:
+Hello David,
 
-[...]
+> I've been discussing it with some other kernel and GCC people, and they
+> think
+> that only "memory" is required.
 
-> Just today a friend saw my box shutdown via the powerbutton and
-> wondered if he coudln't set his up to trigger a different event
-> (actually two: he wanted his sister - the guilty party - zapped, and
-> a webcam shot of her face to prove it)...
+Hmm.. I just looked at my GCC problem report from December, perhaps you're
+interested, too:
 
-That is in fact possible (given that you have the zapper) on certain
-hardware with my pmpolicy patch
+http://gcc.gnu.org/ml/gcc-bugs/2000-12/msg00554.html
 
-        http://john.snoop.dk/programs/linux/offbutton
+The example in there compiles out-of-the box and is much easier to
+experiment on than the whole kernel :-)
 
-It uses APM instead of ACPI because ACPI doesn't work on my
-computer. I have an updated version of the patch for 2.4.2, but I
-haven't got round to uploading it.
+It should reflect the situation in the kernel as of December 2000, where no
+outputs were declared at all.
+
+I can try this examples again with current GCC snapshots and will see if I
+can find a working solution without reserving more registers.
+
+> Apart from the risk of breaking it, you mean? Well, "=m" seems to reserve
+> an
+> extra register to hold a second copy of the semaphore address, probably
+> since
+> it thinks EAX might get clobbered.
+> 
+> Also, as a minor point, it probably ought to be "+m" not "=m".
+
+Perhaps, I'm no real expert on this things, and "=m" worked for me, so
+I used it :)
+
+Greetings,
+Andreas
 
 -- 
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
 
-	http://www.penguinpowered.com/~vii

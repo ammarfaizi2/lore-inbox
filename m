@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVBVTD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVBVTFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVBVTD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVBVTCk
+	id S261329AbVBVTFt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 14:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBVTFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:02:40 -0500
-Received: from rain.plan9.de ([193.108.181.162]:56735 "EHLO rain.plan9.de")
-	by vger.kernel.org with ESMTP id S261332AbVBVTB4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:01:56 -0500
-Date: Tue, 22 Feb 2005 20:01:49 +0100
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Alex Adriaanse <alex.adriaanse@gmail.com>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Odd data corruption problem with LVM/ReiserFS
-Message-ID: <20050222190149.GB9590@schmorp.de>
-Mail-Followup-To: Andreas Steinmetz <ast@domdv.de>,
-	Alex Adriaanse <alex.adriaanse@gmail.com>,
-	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-References: <93ca3067050220212518d94666@mail.gmail.com> <4219C811.5070906@domdv.de>
+	Tue, 22 Feb 2005 14:05:19 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:56887 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261329AbVBVTEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 14:04:24 -0500
+Date: Tue, 22 Feb 2005 11:04:12 -0800
+From: Greg KH <gregkh@suse.de>
+To: Malcolm Rowe <malcolm-linux@farside.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block
+Message-ID: <20050222190412.GA23687@suse.de>
+References: <courier.4217CBC9.000027C1@mail.farside.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4219C811.5070906@domdv.de>
-X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
-       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
+In-Reply-To: <courier.4217CBC9.000027C1@mail.farside.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 21, 2005 at 12:37:53PM +0100, Andreas Steinmetz <ast@domdv.de> wrote:
-> >Anyway, what do you guys think could be the problem?  Could it be that
-> >the LVM / Device Mapper snapshot feature is solely responsible for
-> >this corruption?  (I'm sure there's a reason it's marked
-> >Experimental).
+On Sat, Feb 19, 2005 at 11:29:13PM +0000, Malcolm Rowe wrote:
+> Greg, 
 > 
-> I don't think so - I changed from reiserfs to ext3 without changing the 
-> underlying dm/raid5 and this seems to work properly.
+> Following the discussion in [1], the attached patch creates /sys/class/block
+> as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7. 
+> 
+> Please cc: me on any replies - I'm not subscribed to the mailing list. 
 
-I use both reiserfs and ext3 on lvm/dm on raid.
+Hm, your patch is linewrapped, and can't be applied :(
 
-Both filesystems have issues when restoring from backup (i.e. very heavy
-write activity).
+But more importantly:
 
-I did report this to the linux kernel, and got as reply that there are
-indeed races *somewhere*, but as of yet there is no fix.
+> @@ -406,6 +420,7 @@
+> static void disk_release(struct kobject * kobj)
+> {
+> 	struct gendisk *disk = to_disk(kobj);
+> +	sysfs_remove_link(&class_subsys.kset.kobj, "block");
+> 	kfree(disk->random);
+> 	kfree(disk->part);
+> 	free_disk_stats(disk); 
 
-The symptoms are _not_ I/O errors (but until I see logs I wouldn't believe
-you that there are real I/O errors), but usually too-high block numbers.
+Did you try to remove a disk (like a usb device) and see what happens
+here?  Hint, this isn't the proper place to remove the symlink...
 
-A reboot fixes this for both ext3 and reiserfs (i.e. the error is gone).
+thanks,
 
-You might want to explore this problem and decide for yourself if it's caused
-by I/O errors (in which case you have a disk problem) or "just" filesystem
-corruption.
-
--- 
-                The choice of a
-      -----==-     _GNU_
-      ----==-- _       generation     Marc Lehmann
-      ---==---(_)__  __ ____  __      pcg@goof.com
-      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
-      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE
+greg k-h

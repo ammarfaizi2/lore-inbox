@@ -1,178 +1,404 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbRBFVpy>; Tue, 6 Feb 2001 16:45:54 -0500
+	id <S129664AbRBFVxo>; Tue, 6 Feb 2001 16:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130079AbRBFVpp>; Tue, 6 Feb 2001 16:45:45 -0500
-Received: from ensta.ensta.fr ([147.250.1.1]:3334 "EHLO ensta.ensta.fr")
-	by vger.kernel.org with ESMTP id <S129759AbRBFVp3>;
-	Tue, 6 Feb 2001 16:45:29 -0500
-Date: Tue, 6 Feb 2001 22:44:51 +0100
-From: Francois romieu <romieu@ensta.fr>
+	id <S129786AbRBFVxf>; Tue, 6 Feb 2001 16:53:35 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:60428 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129664AbRBFVx1>; Tue, 6 Feb 2001 16:53:27 -0500
+From: Stefani Seibold <stefani@seibold.net>
+Date: Tue, 6 Feb 2001 22:52:16 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Subject: patch for 2.4.1 disable printk and panic messages
 To: linux-kernel@vger.kernel.org
-Cc: apdim@grecian.net
-Subject: [PATCH] drivers/media/radio/radio-maxiradio.c - 2.4.1-ac4
-Message-ID: <20010206224451.A24412@ensta.fr>
-Reply-To: Francois romieu <romieu@cogenit.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E14QEjh-0006Vq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uX-Organisation: Marie's fan club - I
+Cc: Stefani@seibold.net
+MIME-Version: 1.0
+Message-Id: <01020622521600.07635@deepthought.seibold.net>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes:
-- pci_enable_device return value wasn't checked,
-- unbalanced video_register_device if late failure in radio_install,
-- request_region is now done on the whole resource size (if it's wrong, the
-magic value "4" deserves a small comment imho),
-- new pci interface beautification (may help the multi-devices case).
-Test:
-- it compiles great (TM)
+Hi,
 
-Diff output is rather weird
+this is an updated release of my patch for disabling all kernel
+messages. It is usefull on deep embedded systems with no human interactions
+and for rescue discs where the diskspace is always to less.
 
---- linux-2.4.1-ac4.orig/drivers/media/radio/radio-maxiradio.c	Tue Feb  6 21:48:07 2001
-+++ linux-2.4.1-ac4/drivers/media/radio/radio-maxiradio.c	Tue Feb  6 22:31:02 2001
-@@ -308,80 +308,77 @@
+To Linus: What must i do, to get this patch in the offical kernel?
+
+To Zack Brown: Not all kernel hackers are boys. I am by definition a girl ;-)
+ 
+Greetings,
+Stefani
+
+-----patch for 2.4.1disable printk and panic -----
+
+diff -u --recursive --new-file linux/CREDITS linux.noprintk/CREDITS
+--- linux/CREDITS	Sun Dec 31 18:27:57 2000
++++ linux.noprintk/CREDITS	Fri Jan 26 10:51:19 2001
+@@ -2396,6 +2396,14 @@
+ S: Oldenburg
+ S: Germany
+ 
++N: Stefani Seibold
++E: Stefani@Seibold.net
++D: Option to disable all kernel messages by overload printk with a
++D: dummy macro (saves a lot of disk- and ramspace for embedded systems
++D: and rescue disks).
++S: Munich
++S: Germany
++
+ N: Darren Senn
+ E: sinster@darkwater.com
+ D: Whatever I notice needs doing (so far: itimers, /proc)
+diff -u --recursive --new-file linux/Documentation/Configure.help 
+linux.noprintk/Documentation/Configure.help
+--- linux/Documentation/Configure.help	Thu Jan  4 22:00:55 2001
++++ linux.noprintk/Documentation/Configure.help	Sun Jan 28 10:57:29 2001
+@@ -12224,6 +12224,14 @@
+   If unsure, say Y, or else you won't be able to do much with your new
+   shiny Linux system :-)
+ 
++Disable kernel messages
++CONFIG_NOPRINTK
++  This option allows you to disable all kernel messages by overriding
++  the printk function a dummy macro.
++  On small embedded systems, this save a lot of rom and ram space. On
++  server or desktop systems you want human readable outputs, so it is
++  normally the best choice to say N to this option.
++
+ Support for console on virtual terminal
+ CONFIG_VT_CONSOLE
+   The system console is the device which receives all kernel messages
+diff -u --recursive --new-file linux/arch/alpha/config.in 
+linux.noprintk/arch/alpha/config.in
+--- linux/arch/alpha/config.in	Fri Dec 29 23:07:19 2000
++++ linux.noprintk/arch/alpha/config.in	Sun Jan 28 10:56:21 2001
+@@ -359,6 +359,7 @@
+ fi
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ 
+ bool 'Legacy kernel start address' CONFIG_ALPHA_LEGACY_START_ADDRESS
+ 
+diff -u --recursive --new-file linux/arch/arm/config.in 
+linux.noprintk/arch/arm/config.in
+--- linux/arch/arm/config.in	Thu Nov 16 21:51:28 2000
++++ linux.noprintk/arch/arm/config.in	Sun Jan 28 10:55:58 2001
+@@ -414,6 +414,7 @@
+ bool 'Verbose user fault messages' CONFIG_DEBUG_USER
+ bool 'Include debugging information in kernel binary' CONFIG_DEBUG_INFO
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ if [ "$CONFIG_CPU_26" = "y" ]; then
+    bool 'Disable pgtable cache' CONFIG_NO_PGT_CACHE
+ fi
+diff -u --recursive --new-file linux/arch/i386/config.in 
+linux.noprintk/arch/i386/config.in
+--- linux/arch/i386/config.in	Fri Dec 29 23:35:47 2000
++++ linux.noprintk/arch/i386/config.in	Sun Jan 28 10:56:04 2001
+@@ -366,4 +366,5 @@
+ 
+ #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ endmenu
+diff -u --recursive --new-file linux/arch/ia64/config.in 
+linux.noprintk/arch/ia64/config.in
+--- linux/arch/ia64/config.in	Thu Jan  4 21:50:17 2001
++++ linux.noprintk/arch/ia64/config.in	Sun Jan 28 10:56:07 2001
+@@ -249,6 +249,7 @@
+ fi
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ bool 'Early printk support (requires VGA!)' CONFIG_IA64_EARLY_PRINTK
+ bool 'Turn on compare-and-exchange bug checking (slow!)' 
+CONFIG_IA64_DEBUG_CMPXCHG
+ bool 'Turn on irq debug checks (slow!)' CONFIG_IA64_DEBUG_IRQ
+diff -u --recursive --new-file linux/arch/m68k/config.in 
+linux.noprintk/arch/m68k/config.in
+--- linux/arch/m68k/config.in	Thu Jan  4 22:00:55 2001
++++ linux.noprintk/arch/m68k/config.in	Sun Jan 28 10:56:09 2001
+@@ -538,4 +538,5 @@
+ 
+ #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ endmenu
+diff -u --recursive --new-file linux/arch/mips/config.in 
+linux.noprintk/arch/mips/config.in
+--- linux/arch/mips/config.in	Thu Nov 16 21:51:28 2000
++++ linux.noprintk/arch/mips/config.in	Sun Jan 28 10:56:12 2001
+@@ -397,4 +397,5 @@
+   bool 'Remote GDB kernel debugging' CONFIG_REMOTE_DEBUG
+ fi
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ endmenu
+diff -u --recursive --new-file linux/arch/mips64/config.in 
+linux.noprintk/arch/mips64/config.in
+--- linux/arch/mips64/config.in	Wed Nov 29 06:42:04 2000
++++ linux.noprintk/arch/mips64/config.in	Sun Jan 28 10:56:31 2001
+@@ -266,4 +266,5 @@
+ fi
+ bool 'Remote GDB kernel debugging' CONFIG_REMOTE_DEBUG
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ endmenu
+diff -u --recursive --new-file linux/arch/parisc/config.in 
+linux.noprintk/arch/parisc/config.in
+--- linux/arch/parisc/config.in	Tue Dec  5 21:29:39 2000
++++ linux.noprintk/arch/parisc/config.in	Sun Jan 28 10:56:34 2001
+@@ -204,5 +204,6 @@
+ 
+ #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ endmenu
+ 
+diff -u --recursive --new-file linux/arch/ppc/config.in 
+linux.noprintk/arch/ppc/config.in
+--- linux/arch/ppc/config.in	Thu Nov 16 21:51:28 2000
++++ linux.noprintk/arch/ppc/config.in	Sun Jan 28 10:56:01 2001
+@@ -332,6 +332,7 @@
+ comment 'Kernel hacking'
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ bool 'Include kgdb kernel debugger' CONFIG_KGDB
+ bool 'Include xmon kernel debugger' CONFIG_XMON
+ endmenu
+diff -u --recursive --new-file linux/arch/sh/config.in 
+linux.noprintk/arch/sh/config.in
+--- linux/arch/sh/config.in	Thu Jan  4 22:19:13 2001
++++ linux.noprintk/arch/sh/config.in	Sun Jan 28 10:55:55 2001
+@@ -260,6 +260,7 @@
+ comment 'Kernel hacking'
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ bool 'Use LinuxSH standard BIOS' CONFIG_SH_STANDARD_BIOS
+ if [ "$CONFIG_SH_STANDARD_BIOS" = "y" ]; then
+    bool 'GDB Stub kernel debug' CONFIG_DEBUG_KERNEL_WITH_GDB_STUB
+diff -u --recursive --new-file linux/arch/sparc/config.in 
+linux.noprintk/arch/sparc/config.in
+--- linux/arch/sparc/config.in	Wed Nov 29 06:53:44 2000
++++ linux.noprintk/arch/sparc/config.in	Sun Jan 28 10:56:26 2001
+@@ -261,4 +261,5 @@
+ comment 'Kernel hacking'
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ endmenu
+diff -u --recursive --new-file linux/arch/sparc64/config.in 
+linux.noprintk/arch/sparc64/config.in
+--- linux/arch/sparc64/config.in	Thu Nov 16 21:51:28 2000
++++ linux.noprintk/arch/sparc64/config.in	Sun Jan 28 10:56:29 2001
+@@ -335,5 +335,6 @@
+ comment 'Kernel hacking'
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Disable kernel messages' CONFIG_NOPRINTK
+ #bool 'ECache flush trap support at ta 0x72' CONFIG_EC_FLUSH_TRAP
+ endmenu
+diff -u --recursive --new-file linux/include/asm-i386/spinlock.h 
+linux.noprintk/include/asm-i386/spinlock.h
+--- linux/include/asm-i386/spinlock.h	Thu Jan  4 23:50:46 2001
++++ linux.noprintk/include/asm-i386/spinlock.h	Sun Jan 28 12:16:17 2001
+@@ -5,8 +5,10 @@
+ #include <asm/rwlock.h>
+ #include <asm/page.h>
+ 
++#ifndef CONFIG_NOPRINTK
+ extern int printk(const char * fmt, ...)
+ 	__attribute__ ((format (printf, 1, 2)));
++#endif
+ 
+ /* It seems that people are forgetting to
+  * initialize their spinlocks properly, tsk tsk.
+diff -u --recursive --new-file linux/include/linux/kernel.h 
+linux.noprintk/include/linux/kernel.h
+--- linux/include/linux/kernel.h	Mon Dec 11 21:49:54 2000
++++ linux.noprintk/include/linux/kernel.h	Mon Jan 29 21:03:40 2001
+@@ -48,8 +48,15 @@
+ struct semaphore;
+ 
+ extern struct notifier_block *panic_notifier_list;
++#ifdef CONFIG_NOPRINTK
++
++#define panic(format, args...) ((format ,## args),panic_nomsg())
++
++NORET_TYPE void panic_nomsg(void) ATTRIB_NORET;
++#else
+ NORET_TYPE void panic(const char * fmt, ...)
+ 	__attribute__ ((NORET_AND format (printf, 1, 2)));
++#endif
+ NORET_TYPE void do_exit(long error_code)
+ 	ATTRIB_NORET;
+ NORET_TYPE void up_and_exit(struct semaphore *, long)
+@@ -68,8 +75,15 @@
+ 
+ extern int session_of_pgrp(int pgrp);
+ 
++#ifdef CONFIG_NOPRINTK
++#define printk(format, args...) ((format ,## args),(int)0)
++
++#else
++
+ asmlinkage int printk(const char * fmt, ...)
+ 	__attribute__ ((format (printf, 1, 2)));
++#endif
++
+ 
+ extern int console_loglevel;
+ 
+diff -u --recursive --new-file linux/kernel/ksyms.c 
+linux.noprintk/kernel/ksyms.c
+--- linux/kernel/ksyms.c	Wed Jan  3 01:45:37 2001
++++ linux.noprintk/kernel/ksyms.c	Sun Jan 28 10:56:51 2001
+@@ -440,8 +440,10 @@
+ EXPORT_SYMBOL(nr_running);
+ 
+ /* misc */
++#ifndef CONFIG_NOPRINTK
+ EXPORT_SYMBOL(panic);
+ EXPORT_SYMBOL(printk);
++#endif
+ EXPORT_SYMBOL(sprintf);
+ EXPORT_SYMBOL(vsprintf);
+ EXPORT_SYMBOL(kdevname);
+diff -u --recursive --new-file linux/kernel/panic.c 
+linux.noprintk/kernel/panic.c
+--- linux/kernel/panic.c	Mon Oct 16 21:58:51 2000
++++ linux.noprintk/kernel/panic.c	Sun Jan 28 12:13:47 2001
+@@ -43,18 +43,25 @@
+  *	This function never returns.
+  */
+  
++#ifdef CONFIG_NOPRINTK
++NORET_TYPE void panic_nomsg(void)
++#else
+ NORET_TYPE void panic(const char * fmt, ...)
++#endif
  {
- }
+-	static char buf[1024];
+-	va_list args;
+ #if defined(CONFIG_ARCH_S390)
+         unsigned long caller = (unsigned long) __builtin_return_address(0);
+ #endif
  
--
--inline static __u16 radio_install(struct pci_dev *pcidev);
--
- MODULE_AUTHOR("Dimitromanolakis Apostolos, apdim@grecian.net");
- MODULE_DESCRIPTION("Radio driver for the Guillemot Maxi Radio FM2000 radio.");
++#ifndef CONFIG_NOPRINTK
++	static char buf[1024];
++	va_list args;
++
+ 	va_start(args, fmt);
+ 	vsprintf(buf, fmt, args);
+ 	va_end(args);
+ 	printk(KERN_EMERG "Kernel panic: %s\n",buf);
++#endif
+ 	if (in_interrupt())
+ 		printk(KERN_EMERG "In interrupt handler - not syncing\n");
+ 	else if (!current->pid)
+@@ -70,6 +77,9 @@
  
- EXPORT_NO_SYMBOLS;
+ 	notifier_call_chain(&panic_notifier_list, 0, NULL);
  
--void __exit maxiradio_radio_exit(void)
-+static int __devinit maxiradio_init_one(struct pci_dev *pdev, struct pci_device_id *ent)
- {
--	video_unregister_device(&maxiradio_radio);
-+	if(!request_region(pci_resource_start(pdev, 0),
-+	                   pci_resource_len(pdev, 0), "Maxi Radio FM 2000")) {
-+	        printk(KERN_ERR "radio-maxiradio: can't reserve I/O ports\n");
-+	        goto err_out;
-+	}
-+	if (pci_enable_device(pdev))
-+	        goto err_out_free_region;
- 
--	release_region(radio_unit.io,4);
--}
-+	radio_unit.io = pci_resource_start(pdev, 0);
-+	init_MUTEX(&radio_unit.lock);
-+	maxiradio_radio.priv = &radio_unit;
- 
--int __init maxiradio_radio_init(void)
--{
--	struct pci_dev *pcidev = NULL;
--	int found;
--	
--	if(!pci_present())
--		return -ENODEV;
--	
--	found = 0;
--
--	pcidev = pci_find_device(PCI_VENDOR_ID_GUILLEMOT, 
--							PCI_DEVICE_ID_GUILLEMOT_MAXIRADIO,
--						  pcidev);
--							
--	found += radio_install(pcidev);
--		
--	if(found == 0) {
--		printk(KERN_INFO "radio-maxiradio: no devices found.\n");
--		return -ENODEV;
-+	if(video_register_device(&maxiradio_radio, VFL_TYPE_RADIO)==-1) {
-+	        printk("radio-maxiradio: can't register device!");
-+	        goto err_out_free_region;
++#ifdef CONFIG_NOPRINTK
++	machine_restart(NULL);
++#else
+ 	if (panic_timeout > 0)
+ 	{
+ 		/*
+@@ -93,6 +103,7 @@
+ 		printk("Press L1-A to return to the boot prom\n");
  	}
- 
+ #endif
++#endif
+ #if defined(CONFIG_ARCH_S390)
+         disabled_wait(caller);
+ #endif
+@@ -101,3 +112,18 @@
+ 		CHECK_EMERGENCY_SYNC
+ 	}
+ }
 +
-+	printk(KERN_INFO "radio-maxiradio: version "
-+	       DRIVER_VERSION
-+	       " time "
-+	       __TIME__ "  "
-+	       __DATE__
-+	       "\n");
++#ifdef CONFIG_NOPRINTK
++#undef panic
 +
-+	printk(KERN_INFO "radio-maxiradio: found Guillemot MAXI Radio device (io = 0x%x)\n",
-+	       radio_unit.io);
- 	return 0;
--}
- 
--module_init(maxiradio_radio_init);
--module_exit(maxiradio_radio_exit);
-+err_out_free_region:
-+	release_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
-+err_out:
-+	return -ENODEV;
-+}
- 
--inline static __u16 radio_install(struct pci_dev *pcidev)
-+static void __devexit maxiradio_remove_one(struct pci_dev *pdev)
- {
--	radio_unit.io = pcidev->resource[0].start;
-+	video_unregister_device(&maxiradio_radio);
-+	release_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
-+}
- 
--	pci_enable_device(pcidev);
--	maxiradio_radio.priv = &radio_unit;
--	init_MUTEX(&radio_unit.lock);
--	
--	if(video_register_device(&maxiradio_radio, VFL_TYPE_RADIO)==-1) {
--		printk("radio-maxiradio: can't register device!");
--			return 0;
--		}
--		
--		
--	printk(KERN_INFO "radio-maxiradio: version "
--	       DRIVER_VERSION 
--	       "\n");
--					 
--	printk(KERN_INFO 
--		"radio-maxiradio: found Guillemot MAXI Radio device (io = 0x%x)\n",
--		radio_unit.io
--		);
--
--
--	if(!request_region(radio_unit.io, 4, "Maxi Radio FM 2000"))
--		{
--			printk(KERN_ERR "radio-maxiradio: port 0x%x already in use\n",
--			radio_unit.io);
--			
--			return 0;
--		}
-+static struct pci_device_id maxiradio_pci_tbl[] __devinitdata = {
-+	{ PCI_VENDOR_ID_GUILLEMOT, PCI_DEVICE_ID_GUILLEMOT_MAXIRADIO,
-+		PCI_ANY_ID, PCI_ANY_ID, },
-+	{ 0,}
-+};
-+MODULE_DEVICE_TABLE(pci, maxiradio_pci_tbl);
++#include <linux/module.h>
 +
-+static struct pci_driver maxiradio_driver = {
-+	name:		"rqdio-maxiradio",
-+	id_table:	maxiradio_pci_tbl,
-+	probe:		maxiradio_init_one,
-+	remove:		maxiradio_remove_one,
-+};
-+
-+int __init maxiradio_radio_init(pdev)
++NORET_TYPE void panic(const char * fmt, ...)
 +{
-+	return pci_register_driver(&maxiradio_driver);
++	panic_nomsg();
 +}
++
++EXPORT_SYMBOL_NOVERS(panic);
++
++#endif
++
+diff -u --recursive --new-file linux/kernel/printk.c 
+linux.noprintk/kernel/printk.c
+--- linux/kernel/printk.c	Sun Dec 31 03:16:13 2000
++++ linux.noprintk/kernel/printk.c	Sun Jan 28 10:57:23 2001
+@@ -25,7 +25,9 @@
+ #define LOG_BUF_LEN	(16384)
+ #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
  
--	return 1;
-+void __exit maxiradio_radio_exit(void)
-+{
-+	pci_unregister_driver(&maxiradio_driver);
++#ifndef CONFIG_NOPRINTK
+ static char buf[1024];
++#endif
+ 
+ /* printk's without a loglevel use this.. */
+ #define DEFAULT_MESSAGE_LOGLEVEL 4 /* KERN_WARNING */
+@@ -251,6 +253,20 @@
+ 	return do_syslog(type, buf, len);
  }
  
-+module_init(maxiradio_radio_init);
-+module_exit(maxiradio_radio_exit);
++
++#ifdef CONFIG_NOPRINTK
++#undef printk
++
++#include <linux/module.h>
++
++asmlinkage int printk(const char *fmt, ...)
++{
++	return 0;
++}
++
++EXPORT_SYMBOL_NOVERS(printk);
++
++#else
+ asmlinkage int printk(const char *fmt, ...)
+ {
+ 	va_list args;
+@@ -311,6 +327,7 @@
+ 	wake_up_interruptible(&log_wait);
+ 	return i;
+ }
++#endif
+ 
+ void console_print(const char *s)
+ {
+diff -u --recursive --new-file linux/Makefile linux.noprintk/Makefile
+--- linux/Makefile	Thu Jan  4 22:48:13 2001
++++ linux.noprintk/Makefile	Mon Jan 29 20:51:51 2001
+@@ -89,6 +90,10 @@
+ 
+ CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer 
+-fno-strict-aliasing
+ AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
++
++ifneq ($(CONFIG_NOPRINTK),)
++CFLAGS += -Wno-unused
++endif
+ 
+ #
+ # ROOT_DEV specifies the default root-device when making the image.
 
--- 
-Ueimor
+-------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

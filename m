@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265280AbUATJUO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 04:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUATJUO
+	id S265291AbUATJUT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 04:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbUATJUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 04:20:14 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:13267 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265280AbUATJUK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 04:20:10 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 20 Jan 2004 10:30:54 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v4l-05 add infrared remote support
-Message-ID: <20040120093054.GC18096@bytesex.org>
-References: <20040115115611.GA16266@bytesex.org> <20040120020710.8F8F62C280@lists.samba.org>
+	Tue, 20 Jan 2004 04:20:19 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:717 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S265291AbUATJUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 04:20:15 -0500
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Re: TG3: very high CPU usage
+Date: Tue, 20 Jan 2004 10:17:38 +0100
+Organization: privat
+Message-ID: <buirni$2t4$1@A88a8.a.pppool.de>
+References: <fa.g9joqss.1nneajs@ifi.uio.no> <fa.e29fqcc.sick10@ifi.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040120020710.8F8F62C280@lists.samba.org>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@fu.berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
+X-Accept-Language: de, en-us, en
+In-Reply-To: <fa.e29fqcc.sick10@ifi.uio.no>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 12:55:39PM +1100, Rusty Russell wrote:
-> In message <20040115115611.GA16266@bytesex.org> you write:
-> > +static int repeat = 1;
-> > +MODULE_PARM(repeat,"i");
-> > +MODULE_PARM_DESC(repeat,"auto-repeat for IR keys (default: on)");
-> > +
-> > +static int debug = 0;    /* debug level (0,1,2) */
-> > +MODULE_PARM(debug,"i");
-> 
-> Please replace the MODULE_PARM lines with the modern form:
-> 
-> 	module_param(repeat, bool, 0644);
-> 	module_param(debug, int, 0644);
+Hi,
 
-No.  The code in question must also build on 2.4 kernels which don't
-have module_param().  And I don't want to clutter up the code with
-#ifdefs unless I absolutely have to.
+I searched for tg3 in lkml and found one more posting, dealing with these 
+problems (subject):
 
-I'll do for the bttv ir support, that is 2.6 only anyway due to the
-usage of tasklets.
+bcm5705 with tg3 driver and high rx load -> bad system responsiveness
 
-  Gerd
+There really seems to be a problem. Ronald Wahl pointed out, that the 
+driver from
+http://www.broadcom.com/drivers/downloaddrivers.php does not have the 
+problem. Maybe, we could both look for drivers from the hardware producer 
+and test them? I will do it when I'm back at work in two weeks.
 
--- 
-"... und auch das ganze Wochenende oll" -- Wetterbericht auf RadioEins
+
+Regards,
+Andreas Hartmann

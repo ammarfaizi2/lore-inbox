@@ -1,38 +1,35 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154789AbQDKS3r>; Tue, 11 Apr 2000 14:29:47 -0400
-Received: by vger.rutgers.edu id <S154833AbQDKSYO>; Tue, 11 Apr 2000 14:24:14 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:30467 "EHLO pneumatic-tube.sgi.com") by vger.rutgers.edu with ESMTP id <S154776AbQDKSOk>; Tue, 11 Apr 2000 14:14:40 -0400
-From: kanoj@google.engr.sgi.com (Kanoj Sarcar)
-Message-Id: <200004111814.LAA74654@google.engr.sgi.com>
+Received: by vger.rutgers.edu via listexpand id <S154190AbQDLKIX>; Wed, 12 Apr 2000 06:08:23 -0400
+Received: by vger.rutgers.edu id <S154240AbQDLKHi>; Wed, 12 Apr 2000 06:07:38 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:4397 "EHLO smtp1.cern.ch") by vger.rutgers.edu with ESMTP id <S154098AbQDLKCE>; Wed, 12 Apr 2000 06:02:04 -0400
+Date: Wed, 12 Apr 2000 12:02:44 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Manfred Spraul <manfreds@colorfullife.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, "Stephen C. Tweedie" <sct@redhat.com>, "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk, kanoj@google.engr.sgi.com, linux-kernel@vger.rutgers.edu, linux-mm@kvack.org, torvalds@transmeta.com
 Subject: Re: zap_page_range(): TLB flush race
-To: manfreds@colorfullife.com (Manfred Spraul)
-Date: Tue, 11 Apr 2000 11:14:11 -0700 (PDT)
-Cc: andrea@suse.de (Andrea Arcangeli), sct@redhat.com (Stephen C. Tweedie), davem@redhat.com (David S. Miller), alan@lxorguk.ukuu.org.uk, linux-kernel@vger.rutgers.edu, linux-mm@kvack.org, torvalds@transmeta.com
-In-Reply-To: <38F364B3.5A4A45D9@colorfullife.com> from "Manfred Spraul" at Apr 11, 2000 07:45:23 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Message-ID: <20000412120244.G24128@pcep-jamie.cern.ch>
+References: <Pine.LNX.4.21.0004111824090.19969-100000@maclaurin.suse.de> <38F364B3.5A4A45D9@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <38F364B3.5A4A45D9@colorfullife.com>; from Manfred Spraul on Tue, Apr 11, 2000 at 07:45:23PM +0200
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> 
-> Yes. 
+Manfred Spraul wrote:
 > Can we ignore the munmap+access case?
 > I'd say that if 2 threads race with munmap+access, then the behaviour is
 > undefined.
 > Tlb flushes are expensive, I'd like to avoid the second tlb flush as in
 > Kanoj's patch.
-> 
 
-To handle clones on SMP systems properly, you have to stop at least other
-threads from writing to the page during unmap time, and possibly loading
-the old translation during translation-changing time. Probably the only
-generic way to do this is to twiddle the ptes and flush the tlb's, unless
-you start making big chunks of code architecture dependent. Note that in
-my patch, in most cases, the tlb flush position has changed, not the 
-number of flushes ....
+No, you can't ignore it.  A variation called mprotect+access is used by
+garbage collection systems that expect to receive SEGVs when access is
+to a protected region.
 
-Kanoj
+At very least, you'd have to document the race very clearly, and provide
+a workaround.
+
+-- Jamie
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

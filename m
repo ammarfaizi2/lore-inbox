@@ -1,103 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUEENEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUEEM4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264648AbUEENEI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 09:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264666AbUEEND5
+	id S264643AbUEEM4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 08:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264644AbUEEMzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 09:03:57 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:8879 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S264662AbUEENCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 09:02:47 -0400
-Subject: Re: [Linux-NTFS-Dev] Re: [BUG] 2.6.5 ntfs
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: m.gibula@conecto.pl, ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0405051423360.28183-100000@mlf.linux.rulez.org>
-References: <Pine.LNX.4.21.0405051423360.28183-100000@mlf.linux.rulez.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service
-Message-Id: <1083762029.916.59.camel@imp.csi.cam.ac.uk>
+	Wed, 5 May 2004 08:55:09 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:62904 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264645AbUEEMwF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 08:52:05 -0400
+Date: Wed, 5 May 2004 18:29:02 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>
+Subject: [RFC 4/6] sysfs backing store ver 0.5
+Message-ID: <20040505125902.GE1244@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040505125702.GA1244@in.ibm.com> <20040505125755.GB1244@in.ibm.com> <20040505125815.GC1244@in.ibm.com> <20040505125833.GD1244@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 05 May 2004 14:00:30 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040505125833.GD1244@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-05 at 13:47, Szakacsits Szabolcs wrote:
-> On Wed, 5 May 2004, Anton Altaparmakov wrote:
-> 
-> > > NTFS-fs error: ntfs_decompress(): Failed. Returning -EOVERFLOW.
-> 
-> I'm aware at least ntfsprogs mapping pairs decompression doesn't check
-> upper boundary and this can cause problems on corrupted NTFS. This might
-> or might not have anything to do with the above.
 
-Would you care to point out what code in particular is unbounded?  All
-the code is checking for overflows as far as I am aware and will give
-you an io error on any corrupt ntfs...
 
-> > > NTFS-fs error (device hde4): ntfs_read_compressed_block(): ntfs_decompress() 
-> > > failed in inode 0x78a with error code 75. Skipping this compression block.
-> > > 
-> > > But no oops ... 
-> > > If you want I can run whatever is necessary.
-> > 
-> > If you run "chkdsk /f" from windows on this partition, does it detect
-> > any errors?
-> 
-> It would be nice to get the NTFS metadata first (please see below).  
-> However I also suspect, it's again an NTFS corruption that the Windows
-> driver tolerates/handles better ...
+=> changes in version 0.5
+  o Use a new struct sysfs_symlink to save information
+    about the symlink name and the pointer to target kobject.
+    This was required to accomodate the latest changes in symlink
+    code in sysfs which implements readlink and follow_link
+    operations.
 
-Too late and it is not.  chkdsk detected no errors.
+=> changes in version 0.4
+  o Nil, just re-diffed
 
-> > Assuming chkdsk doesn't detect and fix any errors, this would definitely
-> > be worth investigating.  I don't think it has anything to do with the
-> > oops but I would very much like a copy of this inode because it might
-> > mean our decompression code has a bug in it and I want to check this
-> > out.  To create a copy, I will assume you have the latest ntfsprogs
-> > installed, then use ntfscat to dump your $MFT like this:
-> > 
-> > ntfscat -i 0 /dev/hde4 > ~/mymftdump
-> 
-> What's wrong with the below instead?
-> 
-> 	ntfsclone --metadata --output ntfsmeta.img /dev/hde4
-> 	tar -cjSf ntfsmeta.img.tar.bz2 ntfsmeta.img
-> 
-> It has everything needed, zeros all the unused space for best compression,
-> wipes private resident user data and it's even mountable. The compressed
-> NTFS metadata is usually max 1-5 MB (of course please send it off-list).
+=> changes in version 0.3
+  o Nil, just re-diffed
 
-It is still too big for people with modems and gives the same (ok, a bit
-smaller) as the ntfscat method...  Otherwise nothing wrong with it of
-course.  I now have the inode in question btw.  Note the ntfsclone still
-doesn't give you the compressed data stream of the inode you want so it
-is no more useful than the approach I described...
+=> changes in version 0.2
+  o symlink name passed to sysfs_create_link() can be destroyed by the
+    caller. So, the symlink name should be allocated and copied to the
+    corresponding sysfs dirent instead of directly using the given name
+    string. The allocated string is freed when the corresponding sysfs_dirent
+    is freed through sysfs_put()
 
-> If the ntfsclone consistency check wouldn't pass I have a patch that
-> disables it (if time allows I'm just working on the refactoring of the
-> relevant ntfsprogs utils for this purpose and having an ntfsck).
-> 
-> >   [Error: Formatting error: Non-hexadecimal character in QP encoding]
-> 
-> Apparently Sourceforge still doesn't like quoted-printable 
-> Content-Transfer-Encoding ...
+=================
+  o sysfs_create_link() now does not create a dentry but allocates a
+    sysfs_dirent and links it to the parent kobject.
 
-)-:  Not much I can do about it.  AFAICS Evolution cannot send email in
-any other way...
+  o sysfs_dirent corresponding to symlink has an array of two string. One of
+    them is the name of the symlink and the second one is the target path of the
+    symlink
 
-Best regards,
 
-	Anton
+ fs/sysfs/symlink.c |   42 +++++++++++++++++++++++++++++-------------
+ 1 files changed, 29 insertions(+), 13 deletions(-)
+
+diff -puN fs/sysfs/symlink.c~sysfs-leaves-symlink fs/sysfs/symlink.c
+--- linux-2.6.6-rc3-mm1/fs/sysfs/symlink.c~sysfs-leaves-symlink	2004-05-05 10:55:14.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/fs/sysfs/symlink.c	2004-05-05 10:55:14.000000000 +0530
+@@ -13,7 +13,7 @@ static struct inode_operations sysfs_sym
+ 	.follow_link = sysfs_follow_link,
+ };
+ 
+-static int init_symlink(struct inode * inode)
++int init_symlink(struct inode * inode)
+ {
+ 	inode->i_op = &sysfs_symlink_inode_operations;
+ 	return 0;
+@@ -53,6 +53,30 @@ static void fill_object_path(struct kobj
+ 	}
+ }
+ 
++static int sysfs_add_link(struct sysfs_dirent * parent_sd, char * name, 
++			    struct kobject * target)
++{
++	struct sysfs_dirent * sd;
++	struct sysfs_symlink * sl;
++
++	sl = kmalloc(sizeof(*sl), GFP_KERNEL);
++	if (!sl)
++		return -ENOMEM;
++
++	sl->link_name = kmalloc(strlen(name) + 1, GFP_KERNEL);
++	strcpy(sl->link_name, name);
++	sl->target_kobj = kobject_get(target);
++
++	sd = sysfs_new_dirent(parent_sd, sl, SYSFS_KOBJ_LINK);
++	if (sd) {
++		sd->s_mode = S_IFLNK|S_IRWXUGO;
++		return 0;
++	}
++
++	kfree(sl);
++	return -ENOMEM;
++}
++
+ /**
+  *	sysfs_create_link - create symlink between two objects.
+  *	@kobj:	object whose directory we're creating the link in.
+@@ -62,21 +86,13 @@ static void fill_object_path(struct kobj
+ int sysfs_create_link(struct kobject * kobj, struct kobject * target, char * name)
+ {
+ 	struct dentry * dentry = kobj->dentry;
+-	struct dentry * d;
+ 	int error = 0;
+ 
++	if (!name)
++		return -EINVAL;
++
+ 	down(&dentry->d_inode->i_sem);
+-	d = sysfs_get_dentry(dentry,name);
+-	if (!IS_ERR(d)) {
+-		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
+-		if (!error)
+-			/* 
+-			 * associate the link dentry with the target kobject 
+-			 */
+-			d->d_fsdata = kobject_get(target);
+-		dput(d);
+-	} else 
+-		error = PTR_ERR(d);
++	error = sysfs_add_link(dentry->d_fsdata, name, target);
+ 	up(&dentry->d_inode->i_sem);
+ 	return error;
+ }
+
+_
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ &
-http://www-stu.christs.cam.ac.uk/~aia21/
-
-
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

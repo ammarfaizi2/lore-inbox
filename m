@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293510AbSC2S0F>; Fri, 29 Mar 2002 13:26:05 -0500
+	id <S310435AbSC2S2Z>; Fri, 29 Mar 2002 13:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293680AbSC2SZz>; Fri, 29 Mar 2002 13:25:55 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:17125 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293245AbSC2SZi>;
-	Fri, 29 Mar 2002 13:25:38 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S310252AbSC2S2R>; Fri, 29 Mar 2002 13:28:17 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65291 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310435AbSC2S2F>; Fri, 29 Mar 2002 13:28:05 -0500
+Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only version
+To: mtopper@xarch.tu-graz.ac.at
+Date: Fri, 29 Mar 2002 18:42:17 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Ruth.Ivimey-Cook@ivimey.org (Ruth Ivimey-Cook),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <Pine.LNX.4.21.0203291914160.9946-100000@xarch.tu-graz.ac.at> from "mtopper@xarch.tu-graz.ac.at" at Mar 29, 2002 07:15:10 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15524.45472.231096.377756@napali.hpl.hp.com>
-Date: Fri, 29 Mar 2002 10:25:36 -0800
-To: arjan@fenrus.demon.nl
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic show_stack facility
-In-Reply-To: <200203291716.g2THGNq08251@fenrus.demon.nl>
-X-Mailer: VM 7.01 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-Id: <E16r1KL-0001kI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 29 Mar 2002 17:16:23 GMT, arjan@fenrus.demon.nl said:
+> > point where on the hole the painting and bolt tightening is all that needs
+> > doing. The 2.4 tree suffered serious earthquake damage in 2.4.10 which
+> > hasn't entirely been fixed yet.
+> 
+> Okay...ah...in this case: What, precisely, *is* the problem since 2.4.10 ?
 
-  >> BTW: this is not at all an ia64-specific issue.  It applies to
-  >> any arch that doesn't maintain a frame pointer on the stack.
-  >> Basic compiler technology.
-
-  Arjan> oh you mean like x86 ?
-
-As far as I know, the x86 version of show_trace() still relies on the
-fact that (a) return addresses are stored on the memory stack, (b)
-they are stored in the order in which the routines were called, and
-(c) that there aren't too many other values on the stack that look
-like kernel text addresses.  As long as an x86 compiler uses the CALL
-instruction, that should be the case.  But this certainly isn't the
-case for all architectures (though I do agree that it is a heuristic
-should work reasonably well for several architectures).
-
-	--david
+Linus changed the VM and chunks of the block layer in 2.4.10, that set back
+stability work very seriously. It was a mistake but it happened, and most
+of the repair work is done now. Not all of it. We've also gained things like
+file system direct I/O as a result, so long term it may pay off, even
+though it should have gone into 2.5 for stabilizing first

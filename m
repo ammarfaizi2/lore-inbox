@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131549AbQLVBJE>; Thu, 21 Dec 2000 20:09:04 -0500
+	id <S131392AbQLVBLP>; Thu, 21 Dec 2000 20:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131505AbQLVBIz>; Thu, 21 Dec 2000 20:08:55 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38920 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131392AbQLVBIk>; Thu, 21 Dec 2000 20:08:40 -0500
-Date: Thu, 21 Dec 2000 16:37:30 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jan Niehusmann <jan@gondor.com>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        adilger@turbolinux.com
-Subject: Re: [PATCH] Re: fs corruption with invalidate_buffers()
-In-Reply-To: <20001222010334.A984@gondor.com>
-Message-ID: <Pine.LNX.4.10.10012211634440.945-100000@penguin.transmeta.com>
+	id <S131505AbQLVBLE>; Thu, 21 Dec 2000 20:11:04 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25104 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131392AbQLVBKw>; Thu, 21 Dec 2000 20:10:52 -0500
+Subject: Re: vm 2.2.18 (stock kernel) process hara-kiri's
+To: roel@grobbebol.xs4all.nl (Roeland Th. Jansen)
+Date: Fri, 22 Dec 2000 00:29:23 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001222001909.A20766@grobbebol.xs4all.nl> from "Roeland Th. Jansen" at Dec 22, 2000 12:19:09 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E149G5N-0003qF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I thought the 2.2.18 vm would be better :-)... nver have seen so much
+> VM: do_try_to_free_pages failed for...  messages.
 
-
-On Fri, 22 Dec 2000, Jan Niehusmann wrote:
-> 
-> This is the result - against test12-pre7, but works well with 
-> test13-pre3:
-
-This looks bogus.
-
-You can't test "bh->b_next!=0", because that is entirely meaningless.
-
-b_next can be NULL either because the buffer isn't hashed, or because the
-buffer _is_ hashed, but just happens to be last on the hash chain.
-
-So testing "bh->b_next" doesn't actually tell you anything at all.
-
-		Linus
+Try 2.2.19pre2 or higher
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

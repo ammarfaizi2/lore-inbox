@@ -1,86 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbULAIt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbULAItO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbULAIt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 03:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbULAIt0
+	id S261331AbULAItO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 03:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULAItO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 03:49:26 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:32153 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261334AbULAItR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 03:49:17 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Andrew Grover <andy.grover@gmail.com>
-Subject: Re: "extern inline" purge? was: Re: [PATCH] fix "extern inline"
-Date: Wed, 1 Dec 2004 09:43:36 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <m2y8hapakk.wl%ysato@users.sourceforge.jp> <c0a09e5c04113017333c85c7e2@mail.gmail.com>
-In-Reply-To: <c0a09e5c04113017333c85c7e2@mail.gmail.com>
+	Wed, 1 Dec 2004 03:49:14 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:8177 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261331AbULAItE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 03:49:04 -0500
+Date: Wed, 1 Dec 2004 09:48:29 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: vince@arm.linux.org.uk,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Linux 2.4.29-pre1 (was: Re: [PATCH] vga16fb: Fix frame buffer
+ bad memory mapping)
+In-Reply-To: <20041130112947.GB3041@dmt.cyclades>
+Message-ID: <Pine.GSO.4.61.0412010946090.21508@waterleaf.sonytel.be>
+References: <200411252301.iAPN1mo4023046@hera.kernel.org>
+ <Pine.GSO.4.61.0411271640560.13674@waterleaf.sonytel.be>
+ <20041130112947.GB3041@dmt.cyclades>
 MIME-Version: 1.0
-Message-Id: <200412010943.36834.arnd@arndb.de>
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_4QYrB5fiBYdE+kq";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Nov 2004, Marcelo Tosatti wrote:
+> On Sat, Nov 27, 2004 at 04:54:12PM +0100, Geert Uytterhoeven wrote:
+> > On Thu, 25 Nov 2004, Linux Kernel Mailing List wrote:
+> > > ChangeSet 1.1543, 2004/11/25 13:16:49-02:00, vince@arm.linux.org.uk
+> > > 
+> > > 	[PATCH] vga16fb: Fix frame buffer bad memory mapping
+> > > 	
+> > > 	The vga16fb driver uses a direct ioremap on 0xa00000 to gain access to
+> > > 	the vga card. This is wrong on architectures other than x86, every
+> > > 	other driver uses VGA_MAP_MEM macro from vga.h to ensure the correct
+> > > 	memory mapping.
+> > > 	
+> > > 	All this patch does is add the mapping macro this has been tested and
+> > > 	works on ARM systems The driver no longer maps parts of kernel
+> > > 	workspace and modifies it.
+> > 
+> > This fix is not correct!
+> > 
+> > > diff -Nru a/drivers/video/vga16fb.c b/drivers/video/vga16fb.c
+> > > --- a/drivers/video/vga16fb.c	2004-11-25 15:01:51 -08:00
+> > > +++ b/drivers/video/vga16fb.c	2004-11-25 15:01:51 -08:00
+> > > @@ -142,7 +142,7 @@
+> > >  	memset(fix, 0, sizeof(struct fb_fix_screeninfo));
+> > >  	strcpy(fix->id,"VGA16 VGA");
+> > >  
+> > > -	fix->smem_start = VGA_FB_PHYS;
+> > > +	fix->smem_start = VGA_MAP_MEM(VGA_FB_PHYS);
+> > >  	fix->smem_len = VGA_FB_PHYS_LEN;
+> > >  	fix->type = FB_TYPE_VGA_PLANES;
+> > >  	fix->visual = FB_VISUAL_PSEUDOCOLOR;
+> > 
+> > fix->smem_start: Although I agree VGA_FB_PHYS is not the correct value on
+> > machines other than PC, VGA_MAP_MEM(VGA_FB_PHYS) is not appropriate either,
+> > because fix->smem_start is supposed to be a CPU _physical_ address, not a
+> > virtual address.
+> > 
+> > However, this value isn't really used, except by (very rare) userspace that
+> > wants to mmap the frame buffer through /dev/mem instead of /dev/fb*, so an
+> > incorrect value doesn't really harm.
+> > 
+> > > @@ -896,7 +896,7 @@
+> > >  
+> > >  	/* XXX share VGA_FB_PHYS region with vgacon */
+> > >  
+> > > -        vga16fb.video_vbase = ioremap(VGA_FB_PHYS, VGA_FB_PHYS_LEN);
+> > > +        vga16fb.video_vbase = ioremap(VGA_MAP_MEM(VGA_FB_PHYS), VGA_FB_PHYS_LEN);
+> > >  	if (!vga16fb.video_vbase) {
+> > >  		printk(KERN_ERR "vga16fb: unable to map device\n");
+> > >  		return -ENOMEM;
+> > 
+> > ioremap(): VGA_MAP_MEM() already a _virtual_ address:
+> > 
+> > | include/asm-alpha/vga.h:#define VGA_MAP_MEM(x)   ((unsigned long) ioremap((x), 0))
+> > | include/asm-arm/vga.h:#define VGA_MAP_MEM(x)     (PCIMEM_BASE + (x))
+> > | include/asm-i386/vga.h:#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
+> > | include/asm-ia64/vga.h:#define VGA_MAP_MEM(x)    ((unsigned long) ioremap((x), 0))
+> > | include/asm-mips/vga.h:#define VGA_MAP_MEM(x) ((unsigned long)0xb0000000 + (unsigned long)(x))
+> > | include/asm-ppc/vga.h:#define VGA_MAP_MEM(x) (x + vgacon_remap_base)
+> > | include/asm-ppc64/vga.h:#define VGA_MAP_MEM(x) ((unsigned long) ioremap((x), 0))
+> > | include/asm-sparc64/vga.h:#define VGA_MAP_MEM(x) (x)
+> > | include/asm-x86_64/vga.h:#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
+> > 
+> > Doing a double ioremap(), or ioremap(phys_to_virt()) will break for sure...
+> > 
+> > BTW, on (PReP/CHRP) PPC ioremap() on ISA memory space `just works' because
+> > __ioremap() adds _ISA_MEM_BASE to the passed pointer if it's smaller than
+> > 16*1024*1024. And yes, vga16fb used to work fine on my CHRP LongTrail
+> > (before the machine itself died :-(.
+> > 
+> > Yes, ISA memory space is a mess to do right in a portable way...
+> 
+> Geert, 
+> 
+> I'll guest I'll just revert the whole change then... Do you have a
 
---Boundary-02=_4QYrB5fiBYdE+kq
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Yes, please.
 
-On Middeweken 01 Dezember 2004 02:33, Andrew Grover wrote:
-> On Wed, 10 Nov 2004 13:55:23 +0900, Yoshinori Sato
-> <ysato@users.sourceforge.jp> wrote:
-> > Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
-> > -extern __inline__ int generic_fls(int x)
-> > +static __inline__ int generic_fls(int x)
->=20
-> Along the lines of this patch, can I ask... if a patch were created to
-> replace all instances of "extern inline" with "static inline" would
-> that be a good thing or a waste of time? I found a 3 year old thread
-> (Jul 27 2001, "Re: [PATCH] gcc-3.0.1 and 2.4.7-ac1") where it sounded
-> like a good thing to do, but obviously there are some still around.
+> better suggestion? 
 
-If anyone uses extern inline in the way that it is intended, i.e.
-provide an inline function in a header and an out-of-line version
-of the same function in some C file, that breaks.
+Replacing
 
-It would be pointless to use extern inline this way now, since we define=20
-inline to mean always_inline in the kernel, but gcc will give you a=20
-compile error when it sees the same function defined both as 'static
-inline' and as 'extern'. The correct fix is to convert 'extern inline'
-to 'static inline' and at the same time remove any external definitions
-of the same function.
+    vga16fb.video_vbase = ioremap(VGA_FB_PHYS, VGA_FB_PHYS_LEN);
 
-Another point that has been mentioned before is that forcing inline
-to always_inline is not really a good idea. My personal preference
-would be to convert all uses of 'extern inline' that are meant as
-'this breaks if it is not inline' to something like 'static=20
-__always_inline' instead of plain 'static inline'. Then maybe some
-day the annotations get good enough to leave the decision
-to the compiler for the regular case.
+by
 
-	Arnd <><
+    vga16fb.video_vbase = VGA_MAP_MEM(VGA_FB_PHYS);
 
+will probably work, since that's what vgacon does, but I'd like to see it
+tested first anyway.
 
+Gr{oetje,eeting}s,
 
---Boundary-02=_4QYrB5fiBYdE+kq
-Content-Type: application/pgp-signature
-Content-Description: signature
+						Geert
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-iD8DBQBBrYQ45t5GS2LDRf4RAldLAJ9GGiKfsGWcDOo63z12ma4enGd+pwCgmNW6
-/nIqJqgKVF63i/70FthfcUc=
-=Z/MF
------END PGP SIGNATURE-----
-
---Boundary-02=_4QYrB5fiBYdE+kq--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

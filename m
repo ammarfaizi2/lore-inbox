@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276643AbRJPTZu>; Tue, 16 Oct 2001 15:25:50 -0400
+	id <S276647AbRJPT1k>; Tue, 16 Oct 2001 15:27:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276646AbRJPTZk>; Tue, 16 Oct 2001 15:25:40 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:26026 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S276643AbRJPTZ0>; Tue, 16 Oct 2001 15:25:26 -0400
-Date: Tue, 16 Oct 2001 20:05:53 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: some bugs in preparsing directives
-Message-ID: <20011016200553.B22449@flint.arm.linux.org.uk>
-In-Reply-To: <20011016120201.S6667@dspnet.fr.eu.org>
+	id <S276650AbRJPT1a>; Tue, 16 Oct 2001 15:27:30 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:37899 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S276647AbRJPT1P> convert rfc822-to-8bit;
+	Tue, 16 Oct 2001 15:27:15 -0400
+Date: Tue, 16 Oct 2001 21:27:47 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Oops while inserting sym53c8xx.o
+Message-ID: <20011016212747.C31480@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011016.022902.74752070.davem@redhat.com> <20011016205934.M356-100000@gerard>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011016120201.S6667@dspnet.fr.eu.org>; from reiga@dspnet.fr.eu.org on Tue, Oct 16, 2001 at 12:02:01PM +0200
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20011016205934.M356-100000@gerard>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 16, 2001 at 12:02:01PM +0200, Jean-Luc Leger wrote:
-> * drivers/acorn/scsi/ecoscsi.c : #endif missing at the end of file
-> -> the #if directive is in line 235
+On Tue, 2001-10-16 21:16:30 +0200, Gérard Roudier <groudier@free.fr>
+wrote in message <20011016205934.M356-100000@gerard>:
+> sym-2.1.15 is available for download from ftp.tux.org. If you have time
+> for giving it a try on some large memory machine, you may let me know
+> the results.
 
-Thanks.
+I could test it on my dual Athlon, currently 1GB mem. However, I'll
+upgrade these days to 1G6B... Unfortunately, my SYM53c8xx based
+board is 32bit PCI, not 64bit... That will matter, won't it?
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+MfG, JBG
 
+-- 
+Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481

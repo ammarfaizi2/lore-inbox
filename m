@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280665AbRKYDFs>; Sat, 24 Nov 2001 22:05:48 -0500
+	id <S280669AbRKYDM7>; Sat, 24 Nov 2001 22:12:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280669AbRKYDFj>; Sat, 24 Nov 2001 22:05:39 -0500
-Received: from viper.haque.net ([66.88.179.82]:59523 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S280665AbRKYDFd>;
-	Sat, 24 Nov 2001 22:05:33 -0500
-Date: Sat, 24 Nov 2001 22:05:27 -0500
-Subject: Re: Linux 2.4.16-pre1
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v475)
-Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
-To: Patrick McFarland <unknown@panax.com>
-From: "Mohammad A. Haque" <mhaque@haque.net>
-In-Reply-To: <20011124214114.E241@localhost>
-Message-Id: <46FF80FA-E151-11D5-A24C-00306569F1C6@haque.net>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.475)
+	id <S280670AbRKYDMt>; Sat, 24 Nov 2001 22:12:49 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:8967 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280669AbRKYDMe>;
+	Sat, 24 Nov 2001 22:12:34 -0500
+Date: Sun, 25 Nov 2001 01:12:14 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [kdb:PATCH] small update to latest kdb
+Message-ID: <20011125011214.D1581@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Keith Owens <kaos@ocs.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, November 24, 2001, at 09:41 , Patrick McFarland wrote:
+Keith,
 
-> Okay, so it was 14 that had the file loopback bug, and 12 that had the 
-> ieee bug.Those bugs shouldnt have been in there in the first place! 
-> Those are very major potentially show stopping bugs. What If I get up 
-> one day, and I cant print? Or build isos? That sounds minor to you, but 
-> thats a big thing if say, the linux box is a network print server, or, 
-> its the workstation for the guy in the company who builds the iso. And, 
-> no, "use the previous kernel" isnt a good excuse. Because what if you 
-> get hit with bugs back to back? You'll have to go back to some kernel 
-> way way back. Like 2.4.2. The Kernel needs Quality Assurance.
+	I had to apply this patch on top of v1.9-2.4.15-pre5 to get it
+compiling with 2.4.16-pre1 (its needed for 2.4.15 too, but I haven't tasted
+that duck, luckily :-) ).
 
-Yes, this is a QA problem. But also .. if you're a smart net/system 
-admin, you don't go out installing a just released kernel without 
-letting others bang on it or run it on some test servers. Where I work, 
-I insist the admins wait at least 1-2 weeks before going to the latest 
-release unless there's some huge security fix.
+- Arnaldo
 
---
+``"90% of everything is crap", Its called Sturgeon's law 8)
+One of the problems is indeed finding the good bits''
+    - Alan Cox
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                                mhaque@haque.net
-
-   "Alcohol and calculus don't mix.             Developer/Project Lead
-    Don't drink and derive." --Unknown          http://www.themes.org/
-                                                batmanppc@themes.org
-=====================================================================
-
+--- kdb/kdbmain.c.orig	Sun Nov 25 01:04:08 2001
++++ kdb/kdbmain.c	Sun Nov 25 01:04:36 2001
+@@ -2360,7 +2360,7 @@
+ 	for_each_task(p) {
+ 		kdb_printf("0x%p %08d %08d  %1.1d  %3.3d  %s  0x%p%c%s\n",
+ 			   (void *)p, p->pid, p->p_pptr->pid,
+-			   p->has_cpu, p->processor,
++			   task_has_cpu(p), p->processor,
+ 			   (p->state == 0)?"run ":(p->state>0)?"stop":"unrn",
+ 			   (void *)(&p->thread),
+ 			   (p == current) ? '*': ' ',

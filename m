@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136784AbRAHEwc>; Sun, 7 Jan 2001 23:52:32 -0500
+	id <S136746AbRAHE5o>; Sun, 7 Jan 2001 23:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136828AbRAHEwX>; Sun, 7 Jan 2001 23:52:23 -0500
-Received: from smtpgw.bnl.gov ([130.199.3.16]:27923 "EHLO smtpgw.sec.bnl.local")
-	by vger.kernel.org with ESMTP id <S136784AbRAHEwD>;
-	Sun, 7 Jan 2001 23:52:03 -0500
-Date: Sun, 7 Jan 2001 23:51:23 -0500
-From: Tim Sailer <sailer@bnl.gov>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Network Performance?
-Message-ID: <20010107235123.B6028@bnl.gov>
-In-Reply-To: <20010104013340.A20552@bnl.gov>, <20010104013340.A20552@bnl.gov>; <20010105140021.A2016@bnl.gov> <3A56FD6C.93D09ABB@uow.edu.au>
+	id <S136763AbRAHE5e>; Sun, 7 Jan 2001 23:57:34 -0500
+Received: from frontier.axistangent.net ([63.101.14.200]:5623 "EHLO
+	foozle.turbogeek.org") by vger.kernel.org with ESMTP
+	id <S136746AbRAHE5b>; Sun, 7 Jan 2001 23:57:31 -0500
+Date: Sun, 7 Jan 2001 22:57:30 -0600
+From: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+To: linux-kernel@vger.kernel.org
+Cc: axel@uni-paderborn.de
+Subject: [PATCH] More Configure.help fixes
+Message-ID: <20010107225730.A8883@foozle.turbogeek.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A56FD6C.93D09ABB@uow.edu.au>; from andrewm@uow.edu.au on Sat, Jan 06, 2001 at 10:11:40PM +1100
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2001 at 10:11:40PM +1100, Andrew Morton wrote:
-> this issue was discussed on the netdev mailing list a few weeks
-> back.
-> 
-> It's very unfortunate that the web archives of netdev
-> stopped working several months ago and there now appears
-> to be no web archive of netdev@oss.sgi.com.
-> 
-> Go to http://oss.sgi.com/projects/netdev/archive/ and
-> pull down the November and December archives.
-> 
-> The subject was "linux to solaris tcp issues on WAN".
-> 
-> The conclusion was "The problem is also fixed with
-> 2.4.0-test12pre3". Dunno about kernel 2.2 though.
+Dag Wieers caught all the double word's in Configure.help (from the
+looks of the patch we're quite a bunch of stutterers), here's another
+patch that catches mainly some combined words, a '2.3' -> '2.4', and
+inproper capitalizations.
 
-Well, on Friday, we pulled down the 'official' 2.4.0, and had the
-same experience... nothing better. Should I get the -test12-pre3 kernel
-and try that one specifically?
+Also, two of the translation's for Configure.help have stale URL's...
+I've XXX'd them, and sent a mail to the addresses for the maintainers
+of the Spanish and Italian translation to see if there is a new URL.
 
-Tim
+The patch applies to 2.4.0 clean and to -ac4 with a bunch of offset
+warnings, but manages to match all the hunks. (go, patch!)
 
 -- 
-Tim Sailer <sailer@bnl.gov> Cyber Security Operations
-Brookhaven National Laboratory  (631) 344-3001
+Jeremy M. Dolan <jmd@turbogeek.org>
+OpenPGP key = http://turbogeek.org/openpgp-key
+OpenPGP fingerprint = 494C 7A6E 19FB 026A 1F52  E0D5 5C5D 6228 DC43 3DEE
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

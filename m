@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317911AbSGKVRx>; Thu, 11 Jul 2002 17:17:53 -0400
+	id <S317910AbSGKVRh>; Thu, 11 Jul 2002 17:17:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317912AbSGKVRw>; Thu, 11 Jul 2002 17:17:52 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45581 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317911AbSGKVRw>; Thu, 11 Jul 2002 17:17:52 -0400
-Subject: Re: ATAPI + cdwriter problem
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Thu, 11 Jul 2002 22:38:10 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mistral@stev.org (James Stevenson),
-       linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.10.10207111021450.16921-100000@master.linux-ide.org> from "Andre Hedrick" at Jul 11, 2002 10:22:42 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317911AbSGKVRg>; Thu, 11 Jul 2002 17:17:36 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:35844 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317910AbSGKVRf>; Thu, 11 Jul 2002 17:17:35 -0400
+Date: Thu, 11 Jul 2002 17:26:09 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: mbs <mbs@mc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question for marcello re adaptec aic7902
+In-Reply-To: <200207102111.RAA01524@mc.com>
+Message-ID: <Pine.LNX.4.44.0207111725580.21365-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17Sldb-0001d4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You just broke every system that is not x86 wanting to use the pci card.
 
-I want to find out if Promise stuff fixes the problems people are having. 
-Dealing with a bit of non x86 portability is something to worry about 
-later. Right now both the rc1 and the rc1-ac2 promise IDE suck completely
-for a lot of people. Probably more than own alphas
 
-Alan
+On Wed, 10 Jul 2002, mbs wrote:
+
+> when is the adaptec aic7902 driver justin gibbs submitted going to get
+> integrated into the kernel?
+
+2.4.20pre.
+

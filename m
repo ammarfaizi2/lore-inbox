@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263248AbTJKDs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 23:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbTJKDsZ
+	id S263241AbTJKDrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 23:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263254AbTJKDrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 23:48:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36039 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263248AbTJKDsW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 23:48:22 -0400
-Date: Sat, 11 Oct 2003 04:48:20 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Robert White <rwhite@casabyte.com>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Albert Cahalan'" <albert@users.sourceforge.net>,
-       "'Ulrich Drepper'" <drepper@redhat.com>,
-       "'Mikael Pettersson'" <mikpe@csd.uu.se>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Here is a case that proves my previous position wrong regurading CLONE_THREAD and CLONE_FILES
-Message-ID: <20031011034818.GH7665@parcelfarce.linux.theplanet.co.uk>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAwtz+A6aJAkeufXSGK2GIiwEAAAAA@casabyte.com> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAl4UIR+3nFUmBp1aNINMhFgEAAAAA@casabyte.com>
-Mime-Version: 1.0
+	Fri, 10 Oct 2003 23:47:55 -0400
+Received: from pat.uio.no ([129.240.130.16]:14469 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263241AbTJKDrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 23:47:53 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAl4UIR+3nFUmBp1aNINMhFgEAAAAA@casabyte.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16263.32096.746760.290534@charged.uio.no>
+Date: Fri, 10 Oct 2003 23:47:44 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Joel.Becker@oracle.com,
+       cfriesen@nortelnetworks.com, jamie@shareable.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: statfs() / statvfs() syscall ballsup...
+In-Reply-To: <20031010195343.6e821192.akpm@osdl.org>
+References: <20031010172001.GA29301@ca-server1.us.oracle.com>
+	<Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org>
+	<16262.62026.603149.157026@charged.uio.no>
+	<20031010195343.6e821192.akpm@osdl.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 08:02:49PM -0700, Robert White wrote:
-> For those who care:
-> 
-> Earlier I was phrasing arguments for requiring that the CLONE_THREAD
-> argument to clone() require implication of CLONE_FILES.  I officially recant
-> those arguments.  In those prior posts I asked for a specific demonstrable
-> case against this requirement.  Having found one myself, I provide it here
-> so that if the question comes up again from other quarters it can be
-> answered (or killed 8-) more easily.
-> 
-> [This post is significantly aimed at persons searching the mailing list so
-> please forgive some of the more elementary observations.  Near the end I do
-> a compare and contrast of the kernel provided clone() feature to the pthread
-> and java task paradigms for those who got here via the words "thread" or
-> "task".]
+>>>>> " " == Andrew Morton <akpm@osdl.org> writes:
 
-[snip]
+     > POSIX does not define the fadvise() semantics very clearly, so
+     > it is largely up to us to decide what makes sense.  There are a
+     > number of things which we can do quite easily in there - it's
+     > mainly a matter of working out exactly what we want to do.
 
-One note: non-shared descriptor table with shared VM (or vice versa) is
-not unique to Linux.  *BSD have a syscall very similar in spirit to clone(2)
-- rfork(2).  So does Plan 9, where that beast had originated.
+Possibly, but there really is no need to get over-creative either. The
+SUS definition of msync(MS_INVALIDATE) reads as follows:
 
-IOW, that model is actually *absent* only in SysV - arguably, the least
-Unix-like of Unix clones...
+        When MS_INVALIDATE is specified, msync() shall invalidate all
+        cached copies of mapped data that are inconsistent with the
+        permanent storage locations such that subsequent references
+        shall obtain data that was consistent with the permanent
+        storage locations sometime between the call to msync() and the
+        first subsequent memory reference to the data.
 
-{Free,Open,Net}BSD rfork() differs from clone() only in arguments.  Plan 9
-one always gives task-private stack - even if VM is otherwise shared.
+(ref: http://www.opengroup.org/onlinepubs/007904975/functions/msync.html)
 
-BTW, there's a bunch of syscalls that require careful userland code if
-descriptors _are_ shared - select() is a good example, since we get the
-answer in terms of descriptor table at the moment of call.  Having one
-thread put descriptor 42 into set, call select and return after another
-thread does close(42); or dup2(fd, 42)...
+i.e. a strict implementation would mean that msync() will in fact act
+as a synchronization point that is fully consistent with Linus'
+proposal for a "this region is stale" function.
+
+Unfortunately Linux appears incapable of implementing such a strict
+definition of msync() as it stands.
+
+Cheers,
+  Trond

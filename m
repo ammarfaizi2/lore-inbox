@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268860AbUHUGH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUHUGMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268860AbUHUGH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 02:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268861AbUHUGH2
+	id S268861AbUHUGMn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 02:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268863AbUHUGMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 02:07:28 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:29355 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S268860AbUHUGH0
+	Sat, 21 Aug 2004 02:12:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16044 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268861AbUHUGMm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 02:07:26 -0400
-Subject: Re: HCI USB on USB 2.0: hci_usb_intr_rx_submit (works with USB 1.1)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: "Raf D'Halleweyn" <list@noduck.net>
-Cc: Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093014039.28268.10.camel@base>
-References: <1091581193.15561.3.camel@alto.dhalleweyn.com>
-	 <1092049263.21815.18.camel@pegasus>
-	 <1092966777.5230.4.camel@alto.dhalleweyn.com>
-	 <1092990717.18082.60.camel@pegasus>  <1093014039.28268.10.camel@base>
-Content-Type: text/plain
-Message-Id: <1093068439.3544.2.camel@notepaq>
+	Sat, 21 Aug 2004 02:12:42 -0400
+Date: Fri, 20 Aug 2004 23:12:16 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: usenet-20040502@usenet.frodoid.org, miles.lane@comcast.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+Message-Id: <20040820231216.6e67817b.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
+References: <200408191822.48297.miles.lane@comcast.net>
+	<87hdqyogp4.fsf@killer.ninja.frodoid.org>
+	<Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 Aug 2004 08:07:19 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ralf,
+On Sat, 21 Aug 2004 08:03:10 +0200 (CEST)
+Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
 
-> Okay, I had bluez-bluefw installed (Debian package) but it seems that
-> bluez now uses the standard firmware loading mechanism (request_firmware
-> ()). As such, I copied the BCM2033-FW.bin and BCM2033-MD.hex files from
-> that package into /usr/lib/hotplug/firmware and removed bluez-bluefw.
-> 
-> However, I cannot find any evidence of the firmware actually being
-> loaded. I believe that my hotplug install is correctly installed (it can
-> load the ipw2100 firmware). I added some debugging
-> to /etc/hotplug/firmware.agent, but couldn't find any evidence of any
-> firmware being requested for the dongle.
-> 
-> Any suggestions what I could try next? Should I add USB_DEVICE(0x0a12,
-> 0x0001) to the usb_device_id array in bcm203x.c?
+> [1] Remember: if you want profile some part of code you mast _first_
+> (re)compile them with profiling enabled.
 
-this is getting weird, because 0a12:0001 is a CSR based dongle and not a
-Broadcom one. So firmware loading is not needed. It should simply work.
-Give 2.6.8 a try.
-
-Regards
-
-Marcel
-
+If you use oprofile or valgrind, no you don't.
 

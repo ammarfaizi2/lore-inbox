@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264527AbRFOVfj>; Fri, 15 Jun 2001 17:35:39 -0400
+	id <S264531AbRFOViA>; Fri, 15 Jun 2001 17:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264528AbRFOVfa>; Fri, 15 Jun 2001 17:35:30 -0400
-Received: from ss02.nc.us.ibm.com ([32.97.136.232]:36842 "EHLO
-	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
-	id <S264527AbRFOVfI>; Fri, 15 Jun 2001 17:35:08 -0400
-Date: Fri, 15 Jun 2001 17:30:03 -0400 (EDT)
-From: Dan Streetman <ddstreet@us.ibm.com>
-To: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ps2 keyboard filter hook
-In-Reply-To: <OF6CD0EC09.7E779796-ON85256A6C.007426B5@raleigh.ibm.com>
-Message-ID: <Pine.LNX.4.10.10106151704170.27777-100000@ddstreet.raleigh.ibm.com>
+	id <S264529AbRFOVhu>; Fri, 15 Jun 2001 17:37:50 -0400
+Received: from phobos.illtel.denver.co.us ([64.22.49.66]:49426 "EHLO
+	phobos.illtel.denver.co.us") by vger.kernel.org with ESMTP
+	id <S264531AbRFOVhi>; Fri, 15 Jun 2001 17:37:38 -0400
+Date: Fri, 15 Jun 2001 14:44:12 -0700 (PDT)
+From: Alex Belits <abelits@phobos.illtel.denver.co.us>
+To: Dan Hollis <goemon@anime.net>
+cc: =?ISO-8859-1?Q? =C1=E5=EB=EE=E1=EE=F0=EE=E4=EE=E2?= 
+	<visaexit@yahoo.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: =?ISO-8859-1?Q?=C2=E8=E7=FB.?= =?ISO-8859-1?Q?=CF=E0=F1=EF=EE=F0=F2=E0.?=
+ =?ISO-8859-1?Q?=C3=F0=E0=E6=E4=E0=ED=F1=F2=E2=E0.?= =?ISO-8859-1?Q?=CF=F0=EE=E1=EB=E5=EC=FB.?=
+ =?ISO-8859-1?Q?=D0=E5=F8=E5
+In-Reply-To: <Pine.LNX.4.30.0106151423230.31107-100000@anime.net>
+Message-ID: <Pine.LNX.4.33.0106151441480.17649-100000@phobos.illtel.denver.co.us>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Jun 2001, Dan Hollis wrote:
 
->X11 likes to talk direct to the PS/2 port.  I actually think you should
->instead
->talk to Vojtech for the mainstream kernel about the input device work. It
->sounds much cleaner and more close to what you need
+> Received: from [195.161.132.168] ([195.161.132.168]:38150 "HELO 777")
+>         by vger.kernel.org with SMTP id <S264252AbRFOVTc>;
+>         Fri, 15 Jun 2001 17:19:32 -0400
+>
+> inetnum:      195.161.132.0 - 195.161.132.255
+> netname:      RT-CLNT-MMTEL
+> descr:        Moscow Long Distance and International Telephone
+>
+> Anyone want to fire the nuclear larts?
 
-Ah, I didn't realize the input layer was handling PS/2 stuff...?  Although I am
-not sure it would work; the special needs of these keyboards requires the driver
-to do some bizarre things, such as:
+Me!
 
-- change scancodes.  I was and still am shocked by this.  I will say that it is
-  a 'legacy feature' that I'm told is due having to deal with Windoze...
-- consume scancodes.  The keyboard uses normal scancodes for the extra hardware
-  as well as normal keys, so if the driver can't filter them out large amounts
-  of strange characters will appear when (e.g.) a credit card is swiped.
-- send large amounts of bytes (multi-KB) to the PS/2 port (I think this
-  may be possible).
-
-The filtering needs to be done fairly early (I think), or the keyboard state may
-get corrupted by seemingly random 'normal' scancodes coming in (for non-raw
-modes)...
-
-Vojtech, could you comment on if the above is possible using the input layer?
+1. It's a spam.
+2. It's in the dreaded windows-1251 charset.
+3. The text in the header is mis-identified as ISO 8859-1
 
 -- 
-Dan Streetman
-ddstreet@us.ibm.com
---------------------------------------------------
-186,282 miles per second:
-It isn't just a good idea, it's the law!
+Alex
+
+----------------------------------------------------------------------
+ Excellent.. now give users the option to cut your hair you hippie!
+                                                  -- Anonymous Coward
 

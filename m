@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAEQ0c>; Fri, 5 Jan 2001 11:26:32 -0500
+	id <S129704AbRAEQ0n>; Fri, 5 Jan 2001 11:26:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129806AbRAEQ0X>; Fri, 5 Jan 2001 11:26:23 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22278 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129406AbRAEQ0K>; Fri, 5 Jan 2001 11:26:10 -0500
-Subject: Re: Looking for maintainer of ENSONIQ SoundScape driver
-To: rankinc@zipworld.com.au
-Date: Fri, 5 Jan 2001 16:27:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-In-Reply-To: <200101051413.f05EDu405677@wittsend.ukgateway.net> from "Chris Rankin" at Jan 05, 2001 02:13:55 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130105AbRAEQ0d>; Fri, 5 Jan 2001 11:26:33 -0500
+Received: from aeon.tvd.be ([195.162.196.20]:4421 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S129704AbRAEQ0Q>;
+	Fri, 5 Jan 2001 11:26:16 -0500
+Date: Fri, 5 Jan 2001 17:25:16 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux/m68k <linux-m68k@lists.linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Linux/m68k 2.4.0
+Message-ID: <Pine.LNX.4.05.10101051628490.634-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14EZiH-0007yy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> would like to discuss with its maintainer, please. For instance,
-> although /dev/mixer does not use sscape.o (the mixer driver is in the
-> ad1848.o module), unloading sscape.o while a mixer application is
 
-That sounds like the mixer calls sscape code and there is a locking error
-somewhere that should have prevented the unload
+Of course 2.4.0 runs on m68k as well :-)
 
-> sscape.o allocates IO ports is also suspicious, and causes these
-> messages to be logged every time the sound modules are loaded:
-> 
-> Jan 5 14:08:31 wittsend kernel: Trying to free nonexistent resource <00000338-00000339>
-> Jan 5 14:08:31 wittsend kernel: Trying to free nonexistent resource <00000330-00000337>
-> 
+Sorry, no real changes since last release, but I wanted to get something out of
+the door as soon as possible. Today is my last holiday, so my Linux development
+efforts will be much smaller next week. Someone to take over again?
 
-Look for request_resource/free_resource mismatches 
+The patch is quite short. Looks like the stressy period just before a new major
+release is good for our patch acceptance rate. It's like a duel: who can handle
+the most stress, and who gives up... Linus might have lost this time :-)
 
-> There is no specific person mentioned in the MAINTAINERS file for this
-> ISA PNP card, and I have received no response from the linux-sound
-> mailing list.
-> 
-> Is there anybody out there? 
+If you can live without `exotic' architectures (Atari, Mac, Sun3, ... :-), the
+patch is... tiny.
 
-I dont think so.
+Good luck! Enjoy!
+
+    http://home.tvd.be/cr26864/Download/linux-m68k-2.4.0.diff.bz2
+
+Gr{oetje,eeting}s,
+
+			Geert (hoping this historical message ends up on /. ;-)
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

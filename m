@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265128AbTFMEYS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 00:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTFMEYS
+	id S265127AbTFMEn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 00:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTFMEn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 00:24:18 -0400
-Received: from ip68-2-19-97.ph.ph.cox.net ([68.2.19.97]:43138 "EHLO
-	dent.deepthot.org") by vger.kernel.org with ESMTP id S265128AbTFMEYR
+	Fri, 13 Jun 2003 00:43:56 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:23301 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S265127AbTFMEnz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 00:24:17 -0400
-From: Jay Denebeim <denebeim@deepthot.org>
-X-Newsgroups: dt.kernel
-Subject: Re: lockup on USB event kernel 2.4.20
-Date: Fri, 13 Jun 2003 04:32:57 +0000 (UTC)
-Organization: Deep Thought
-Message-ID: <slrnbeikvp.iob.denebeim@hotblack.deepthot.org>
-References: <1055446401.4948.408.camel@jma1.dev.netgem.com>
-X-Complaints-To: news@deepthot.org
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linuxkernel@deepthot.org
+	Fri, 13 Jun 2003 00:43:55 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc7 hang on boot after spurious 8259A interrupt: IRQ15.
+Date: Fri, 13 Jun 2003 11:36:36 +0800
+User-Agent: KMail/1.5.2
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200306130958.39707.mflt1@micrologica.com.hk>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1055446401.4948.408.camel@jma1.dev.netgem.com>, Jocelyn Mayer wrote:
+Doing swsusp testing in endless loop. On a P4/2.4G (ACPI=off)
+on 192nd boot:
 
-> Is your controler a UHCI one ?
+spurious 8259A interrupt: IRQ15.
+Calibrating delay loop... 
 
-Appears to be using the OHCI driver, so no.
+ hang
 
-> If yes, try to connect your mouse via a hub if it's directly
-> connected to your computer.
+Hit Reset and it rebooted OK
 
-Tried it anyway, no joy.
+This is the first spurious 8259A interrupt: IRQ15 seen.
 
-Any other ideas?  Something I could debug would be good.  There's a
-definate correlation between moving the mouse and locking up the
-machine.  Presumably it is missing an interrupt or something like
-that.
+I see spurious 8259A interrupt: IRQ7 quite frequently on
+varying hardware on both 2.4 and 2.5.
 
-Jay
+By design, the 8259A delivers a vector 7 when the IRQ
+line is deasserted before the IRQ is serviced. This
+applies to both edge and level trigger modes. A floating
+"wire" or crapy chipset can pickup noise, but the driver 
+should handle it.  
+
+No problems seen with mainboard/cpu/ram in three months. 
+I dont' think it is HW, but it could be.  
+
+Also, spurious 8259A interrupts are quite recent, could 
+something be wrong with recent 8259A driver?
+
+Regards
+Michael
+
+I am not subscribed, pls cc me
 
 -- 
-* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
-* newsgroup submission address: b5mod@deepthot.org                *
-* moderator contact address:    b5mod-request@deepthot.org        *
-* personal contact address:     denebeim@deepthot.org             *
+Powered by linux-2.5.70-mm3, compiled with gcc-2.95-3
+
+My current linux related activities in rough order of priority:
+- Testing of 2.4/2.5 kernel interactivity
+- Testing of Swsusp for 2.4
+- Testing of Opera 7.11 emphasizing interactivity
+- Research of NFS i/o errors during transfer 2.4>2.5
+- Learning 2.5 series kernel debugging with kgdb - it's in the -mm tree
+- Studying 2.5 series serial and ide drivers, ACPI, S3
+* Input and feedback is always welcome *
+
+

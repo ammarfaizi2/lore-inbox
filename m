@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263175AbRFRAHc>; Sun, 17 Jun 2001 20:07:32 -0400
+	id <S263167AbRFRAHW>; Sun, 17 Jun 2001 20:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbRFRAHW>; Sun, 17 Jun 2001 20:07:22 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:30523 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S263175AbRFRAHF>;
-	Sun, 17 Jun 2001 20:07:05 -0400
-Reply-To: <nerijusb@takas.lt>
-From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
-To: "Daniel Bertrand" <d.bertrand@ieee.ca>,
-        "Dylan Griffiths" <Dylan_G@bigfoot.com>
-Cc: "emu10k1-devel" <emu10k1-devel@opensource.creative.com>,
-        "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
-Date: Mon, 18 Jun 2001 02:01:28 +0200
-Message-ID: <NEBBLCJIPPBPKGHOONKOGECKEJAA.nerijus@users.sourceforge.net>
+	id <S263193AbRFRAHM>; Sun, 17 Jun 2001 20:07:12 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:34828 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S263167AbRFRAHB>;
+	Sun, 17 Jun 2001 20:07:01 -0400
+Date: Mon, 18 Jun 2001 01:06:54 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Ivan Vadovic <pivo@pobox.sk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: any good diff merging utility?
+In-Reply-To: <20010618014547.B1063@ivan.doma>
+Message-ID: <Pine.LNX.4.33.0106180102520.25038-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1257"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you give the CVS driver a try? Snapshots are available here:
-> http://opensource.creative.com/snapshot.html
-> 
-> The driver in the kernel is based on a CVS snapshot from last summer, the
-> problem may be fixed in CVS.
+Hi Ivan.
 
-So why noone sends updated driver to Alan?
+ > I like to build kernels with a bunch of patches on top to test
+ > new stuff. The problem is that it takes a lot of effort to fix
+ > all the failed hunks during patching that really wouldn't have
+ > to be failed if only patch was a little more inteligent and
+ > could merge several patches into one ( if possible) or if could
+ > take into account already applied patches.
 
-Regards,
-Nerijus
+The basic problem here is that the "failed hunks" are usually there
+because of conflicts between the two patches in question, and as a
+result, they are not as easy to merge automagically as one might at
+first assume.
+
+ > Well, are there any utilities to merge diffs? I couldn't find
+ > any on freshmeat. So what are you using to stack many patches
+ > onto the kernel tree? Just manualy modify the diff? I'll try to
+ > write something more automatic if nothing comes up.
+
+I once came across a utility called "diff3" that was designed to take
+a patch for one version of a package and create an equivalent patch
+for another version of the same package, but I haven't been able to
+find it again since my hard drive crashed.
+
+Best wishes from Riley.
 

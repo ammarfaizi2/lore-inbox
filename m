@@ -1,104 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbUJ2Fbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbUJ2Fb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263058AbUJ2Fbi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 01:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbUJ2Fbi
+	id S263027AbUJ2Fb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 01:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUJ2Fb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 01:31:38 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:60826 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S263117AbUJ2FbD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 01:31:03 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Fri, 29 Oct 2004 01:31:58 -0400
+Received: from quechua.inka.de ([193.197.184.2]:28362 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S263027AbUJ2Fb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 01:31:56 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9bk6 msdos fs OOPS
-Date: Fri, 29 Oct 2004 01:31:01 -0400
-User-Agent: KMail/1.7
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Nigel Kukard <nkukard@lbsd.net>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <41809921.10200@lbsd.net> <87k6ta1jf5.fsf@devron.myhome.or.jp> <200410290050.06454.gene.heskett@verizon.net>
-In-Reply-To: <200410290050.06454.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410290131.01792.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [141.153.91.102] at Fri, 29 Oct 2004 00:31:02 -0500
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <Pine.LNX.4.61.0410291256200.17690@silk.corp.fedex.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CNPMg-0004tR-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Fri, 29 Oct 2004 07:31:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 October 2004 00:50, Gene Heskett wrote:
->On Thursday 28 October 2004 20:01, OGAWA Hirofumi wrote:
->>Gene Heskett <gene.heskett@verizon.net> writes:
->>> Not at the time, which is why I came to the conclusion it may be
->>> a bug in the camera software.  It checks in as version 1.0, and
->>> we all know no one trusts anything at version 1.0. :-)
->>>
->>> I know now how to keep it from happening, so its not a
->>> showstopper for me.
->>
->>Can you check the camera's entry of "cat /proc/mounts"?  Is it
->>something like, "/dev/sda1 /mnt vfat ro,..."?
+In article <Pine.LNX.4.61.0410291256200.17690@silk.corp.fedex.com> you wrote:
+> doesn't make any sense to me. Why would 2.6.9 works then?
+> Architecture is Intel running on IBM X31 notebook.
 
-Now it says, after I'd cleared the loss of mind attack:
-/dev/camera /mnt/camera vfat rw,nodiratime,fmask=0022,dmask=0022 0 0
+Perhaps you different devfs settings? I had a similiar problem.
 
->Unforch, I just rebooted to 2.6.10-rc1-bk7, and something is now
-> broken. It's always plugged in, but as it eats batteries pretty
-> bad, turned off.
->
->When I turned it on, I got this in the logs:
->Oct 29 00:36:03 coyote kernel: usb 3-2.2: new full speed USB device
-> using address 7 Oct 29 00:36:04 coyote kernel: scsi0 : SCSI
-> emulation for USB Mass Storage devices Oct 29 00:36:09 coyote
-> scsi.agent[3339]: disk at
-> /devices/pci0000:00/0000:00:02.1/usb3/3-2/3-2.2/3-2.2:1.0/host0/tar
->get0:0:0/0:0:0:0 Oct 29 00:36:09 coyote kernel:   Vendor: OLYMPUS  
-> Model: C-3020ZOOM(U)     Rev: 1.00 Oct 29 00:36:09 coyote kernel:  
-> Type:   Direct-Access                      ANSI SCSI revision: 02
-> Oct 29 00:36:09 coyote kernel: Attached scsi generic sg0 at scsi0,
-> channel 0, id 0, lun 0,  type 0 Oct 29 00:36:09 coyote kernel: SCSI
-> device sda: 128000 512-byte hdwr sectors (66 MB) Oct 29 00:36:09
-> coyote kernel: sda: assuming Write Enabled
->Oct 29 00:36:09 coyote kernel: sda: assuming drive cache: write
-> through Oct 29 00:36:09 coyote kernel:  sda: sda1
->Oct 29 00:36:09 coyote kernel: Attached scsi removable disk sda at
-> scsi0, channel 0, id 0, lun 0
->
->When I mounted it, the logs show:
->Nothing.
->
->The screen I mnounted it in gave this:
->[root@coyote dlds-tgzs]# mount -t iso9660 /dev/camera /mnt/camera
->mount: wrong fs type, bad option, bad superblock on /dev/camera,
->       or too many mounted file systems
->
-And as everyone can see (you too Linus)  I had a brain fart there.  If 
-I mount it as a vfat device, it all works
->And:
->[root@coyote dlds-tgzs]# ls -l /dev/camera
->lrwxr-xr-x  1 root root 9 Nov 14  2003 /dev/camera -> /dev/sda1
->
->So it appears that -bk7 is broken and I'll have to reboot back to
->2.6.10-rc1-bk6 to get that info, and that will require the fscking
->of about 200GB of drives, they will all check on the next reboot. :(
->
->Att: Linus:  bk7 broke this, it worked fine at 2.6.10-rc1-bk6.  This
->-bk7 kernel includes the patch that started this thread also, as did
->the -bk6 test kernel under which it worked.
-
-Ignore me Linus, I was trying to do too many things at once.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Greetings
+Bernd

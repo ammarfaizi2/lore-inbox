@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVACWZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVACWZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVACWZe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVACWWe
+	id S261910AbVACWZd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVACWXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:22:34 -0500
-Received: from gprs214-29.eurotel.cz ([160.218.214.29]:12935 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261937AbVACWSa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:18:30 -0500
-Date: Mon, 3 Jan 2005 23:17:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
-Message-ID: <20050103221718.GC25250@elf.ucw.cz>
-References: <20050103122653.GB8827@hugang.soulinfo.com>
+	Mon, 3 Jan 2005 17:23:20 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:23936 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261776AbVACWOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:14:49 -0500
+Date: Mon, 3 Jan 2005 22:14:42 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Felipe Alfaro Solana <lkml@mac.com>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@stusta.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+Subject: Re: starting with 2.7
+Message-ID: <20050103221441.GA26732@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Felipe Alfaro Solana <lkml@mac.com>, Rik van Riel <riel@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Adrian Bunk <bunk@stusta.de>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	William Lee Irwin III <wli@debian.org>
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050103122653.GB8827@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Gosh! I bought an ATI video card, I bought a VMware license, etc.... I 
+> want to keep using them. Changing a "stable" kernel will continuously 
+> annoy users and vendors.
 
-> Date: Mon, 3 Jan 2005 20:25:57 +0800
-> To: benh@kernel.crashing.org
-> Subject: [PATH]software suspend for ppc.
-> 
-> Hi Benjamin Herrenschmidt:
-> 
->   Here is a patch to make ppc32 support suspend, Test passed in my
->   PowerBook, against with 2.6.10-mm1. Have a look. :)
-> 
->   I'm also someone can do more test with it. 
+So buy some Operating System that supports the propritary software of
+your choice but stop annoying us.
 
-swsusp_arch_{suspend,resume} should really be written in
-assembly. Just compile this, disassemble it and put it into source
-file. Otherwise it looks OK.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

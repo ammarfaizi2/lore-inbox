@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272149AbRHVWZl>; Wed, 22 Aug 2001 18:25:41 -0400
+	id <S272151AbRHVWeB>; Wed, 22 Aug 2001 18:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272151AbRHVWZd>; Wed, 22 Aug 2001 18:25:33 -0400
-Received: from ausxc07.us.dell.com ([143.166.99.215]:60328 "EHLO
-	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
-	id <S272149AbRHVWZV>; Wed, 22 Aug 2001 18:25:21 -0400
-Message-ID: <71714C04806CD51193520090272892178BD4F3@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: jpr200012@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: dell inspiron 8000 eepro100 problems
-Date: Wed, 22 Aug 2001 17:21:46 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	id <S272152AbRHVWdv>; Wed, 22 Aug 2001 18:33:51 -0400
+Received: from miro.qualcomm.com ([129.46.64.223]:44256 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S272151AbRHVWde>; Wed, 22 Aug 2001 18:33:34 -0400
+Message-Id: <4.3.1.0.20010822153241.01f40100@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Wed, 22 Aug 2001 15:33:22 -0700
+To: "Raj, Ashok" <ashok.raj@intel.com>,
+        "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: tasklet question...
+In-Reply-To: <9319DDF797C4D211AC4700A0C96B7C9404AC2171@orsmsx42.jf.intel
+ .com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i'm using 2.4.9 and have had a problem since 2.2
-> kernels along with all versions of 2.4. i am having a
-> problem with 2 laptops, both are dell inspiron 8000
-> that have intel 82557 mini-pci nic in them. i get no
 
-<Not official support>
+>processing in the tasklet would like to reschedule tasklet again. will the following work
+>
+>tasklet_function()
+>{
+>         more_processing = DeferredProcessing()
+>             if (more_processing)
+>                tasklet_schedule() // this will schedule the same tasklet.
+>}
+>
+>is the above legal.
+It's fine and it will work.
 
-Is the "sleep mode bit" set on the NIC?  Please try Donald Becker's
-eepro100-diag.c program, located at
-ftp://ftp.scyld.com/pub/diag/eepro100-diag.c, and use the -G -w -w -w flags
-to clear that bit if running it first says that the sleep bit is enabled.
-This may help.
+Max
 
-Thanks,
-Matt
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
 
---
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
-#3 Unix provider with 18% in the US (Dataquest)!
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
+

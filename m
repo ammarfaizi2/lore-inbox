@@ -1,153 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265636AbTGIDWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 23:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265638AbTGIDWJ
+	id S265639AbTGIEfU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 00:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265653AbTGIEfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 23:22:09 -0400
-Received: from smtp.easystreet.com ([206.26.36.40]:4744 "EHLO
-	easystreet01.easystreet.com") by vger.kernel.org with ESMTP
-	id S265636AbTGIDWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 23:22:03 -0400
-From: John Kim <jak@easystreet.com>
-To: linux-kernel@vger.kernel.org
-Subject: Oops error on scp
-Date: Tue, 8 Jul 2003 20:36:34 -0700
-User-Agent: KMail/1.5.2
+	Wed, 9 Jul 2003 00:35:20 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:6330 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265639AbTGIEfK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 00:35:10 -0400
+Date: Tue, 08 Jul 2003 21:49:35 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 892] New: kernel BUG at include/linux/list.h:148!
+Message-ID: <53240000.1057726175@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200307082036.34476.jak@easystreet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this oops kernel error when I try to scp a _large_ directory to another 
-box, over my internal network.
+http://bugme.osdl.org/show_bug.cgi?id=892
 
-By large, the total amount of memory I am trying to move probably comes close 
-to 30GB.  It is a very reliable error, and happens everytime I try it.  The 
-output from the kernel log is:
-------------------------
-Unable to handle kernel NULL pointer dereference at virtual address 00000200
- printing eip:
-c01dead7
-*pde = 00000000
-Oops: 0000
+           Summary: kernel BUG at include/linux/list.h:148!
+    Kernel Version: 2.5.74-mm2
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: ramon.rey@hispalinux.es
+
+
+Distribution: 
+Debian GNU/Linux Sid
+
+Hardware Environment:
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP]
+(rev 47)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus Master
+IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 02)
+00:07.3 Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
+00:12.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+00:13.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 08)
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO AGP 4x TMDS
+
+Software Environment:
+libc6 2.3.1
+xfree86 4.3
+gnome 2.2
+
+While running Xine, with no special options, I get this
+
+
+kernel BUG at include/linux/list.h:148!
+invalid operand: 0000 [#1]
+PREEMPT 
 CPU:    0
-EIP:    0010:[<c01dead7>]    Not tainted
-EFLAGS: 00010206
-eax: cf197e40   ebx: 00000200   ecx: 00000000   edx: 00000200
-esi: cee745c0   edi: cee7461c   ebp: 00000000   esp: ce559e74
-ds: 0018   es: 0018   ss: 0018
-Process ssh (pid: 207, stackpage=ce559000)
-Stack: cee745c0 c01deb7b cee745c0 cee745c0 000005a8 c01deb9b cee745c0 cee745c0
-       c01decc7 cee745c0 cee745c0 00000000 c01f5e3d cee745c0 c02a51a0 00002000
-       ce559f80 00002000 cef00550 cef00538 cef00534 00000000 ce558242 ce558000
-Call Trace:    [<c01deb7b>] [<c01deb9b>] [<c01decc7>] [<c01f5e3d>] 
-[<c020e23d>]
-  [<c01dbcad>] [<c01dbdbe>] [<c0131ed6>] [<c0106d03>]
+EIP:    0060:[<c01185d9>]    Not tainted VLI
+EFLAGS: 00010003
+EIP is at remove_wait_queue+0x59/0x80
+eax: cd785e34   ebx: cdc9e000   ecx: cd785e34   edx: cdc9feb0
+esi: cdc9fea4   edi: 00000246   ebp: c6fa7640   esp: cdc9fe6c
+ds: 007b   es: 007b   ss: 0068
+Process syslogd (pid: 1270, threadinfo=cdc9e000 task=ce428120)
+Stack: cd785e34 cdc9fea4 cdc9e000 c0194a85 cd785e30 c12d4aa0 00000000 ce428120 
+       c0116f60 00000000 00000000 bffff000 cf5fb760 c121b6c8 00000000 ce428120 
+       c0116f60 cd785e34 cd785e34 cd5d5005 000056ed 00000001 c6fa7640 cdc9ff70 
+Call Trace:
+ [<c0194a85>] devfs_d_revalidate_wait+0x145/0x160
+ [<c0116f60>] default_wake_function+0x0/0x20
+ [<c0116f60>] default_wake_function+0x0/0x20
+ [<c01574e4>] do_lookup+0x44/0x80
+ [<c015796e>] link_path_walk+0x44e/0x840
+ [<c01585ea>] open_namei+0x8a/0x3a0
+ [<c01494ec>] filp_open+0x2c/0x60
+ [<c0149979>] sys_open+0x39/0x80
+ [<c0108f67>] syscall_call+0x7/0xb
 
-Code: 8b 1b 8b 42 70 83 f8 01 74 0a ff 4a 70 0f 94 c0 84 c0 74 09
---------------------------
-
-The output from ksymoops is:
------------------------------
-ksymoops 2.4.5 on i686 2.4.20.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20/ (default)
-     -m /boot/System.map-2.4.20 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod 
-file?
-Error (regular_file): read_system_map stat /boot/System.map-2.4.20 failed
-ksymoops: No such file or directory
-Unable to handle kernel NULL pointer dereference at virtual address 00000200
-c01dead7
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01dead7>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: cf197e40   ebx: 00000200   ecx: 00000000   edx: 00000200
-esi: cee745c0   edi: cee7461c   ebp: 00000000   esp: ce559e74
-ds: 0018   es: 0018   ss: 0018
-Process ssh (pid: 207, stackpage=ce559000)
-Stack: cee745c0 c01deb7b cee745c0 cee745c0 000005a8 c01deb9b cee745c0 cee745c0
-       c01decc7 cee745c0 cee745c0 00000000 c01f5e3d cee745c0 c02a51a0 00002000
-       ce559f80 00002000 cef00550 cef00538 cef00534 00000000 ce558242 ce558000
-Call Trace:    [<c01deb7b>] [<c01deb9b>] [<c01decc7>] [<c01f5e3d>] 
-[<c020e23d>]
-  [<c01dbcad>] [<c01dbdbe>] [<c0131ed6>] [<c0106d03>]
-Code: 8b 1b 8b 42 70 83 f8 01 74 0a ff 4a 70 0f 94 c0 84 c0 74 09
+Code: 20 00 c7 46 0c 00 01 10 00 57 9d ff 4b 14 8b 43 08 a8 08 75 04 5b 5e 5f c3
+5b 5e 5f e9 31 e9 ff ff 0f 0b 95 00 b2 cf 24 c0 eb cb <0f> 0b 94 00 b2 cf 24 c0
+eb b9 90 90 90 90 90 90 90 90 90 90 90 
+ <6>note: syslogd[1270] exited with preempt_count 1
+bad: scheduling while atomic!
+Call Trace:
+ [<c0116ee0>] schedule+0x3e0/0x400
+ [<c013c6ee>] unmap_vmas+0x1ce/0x220
+ [<c01400e2>] exit_mmap+0x62/0x180
+ [<c011898e>] mmput+0x6e/0xe0
+ [<c011c48d>] do_exit+0x10d/0x420
+ [<c0109a60>] do_invalid_op+0x0/0xa0
+ [<c0109814>] die+0xd4/0xe0
+ [<c0109af1>] do_invalid_op+0x91/0xa0
+ [<c01185d9>] remove_wait_queue+0x59/0x80
+ [<c0130e19>] do_generic_mapping_read+0x119/0x400
+ [<c0162d4e>] update_atime+0x6e/0xc0
+ [<c01313b8>] __generic_file_aio_read+0x1d8/0x220
+ [<c01091cd>] error_code+0x2d/0x40
+ [<c01185d9>] remove_wait_queue+0x59/0x80
+ [<c0194a85>] devfs_d_revalidate_wait+0x145/0x160
+ [<c0116f60>] default_wake_function+0x0/0x20
+ [<c0116f60>] default_wake_function+0x0/0x20
+ [<c01574e4>] do_lookup+0x44/0x80
+ [<c015796e>] link_path_walk+0x44e/0x840
+ [<c01585ea>] open_namei+0x8a/0x3a0
+ [<c01494ec>] filp_open+0x2c/0x60
+ [<c0149979>] sys_open+0x39/0x80
+ [<c0108f67>] syscall_call+0x7/0xb
 
 
->>EIP; c01dead7 <alloc_skb+1a7/2c0>   <=====
-
->>eax; cf197e40 <END_OF_CODE+eea5668/????>
->>esi; cee745c0 <END_OF_CODE+eb81de8/????>
->>edi; cee7461c <END_OF_CODE+eb81e44/????>
->>esp; ce559e74 <END_OF_CODE+e26769c/????>
-
-Trace; c01deb7b <alloc_skb+24b/2c0>
-Trace; c01deb9b <alloc_skb+26b/2c0>
-Trace; c01decc7 <__kfree_skb+d7/e0>
-Trace; c01f5e3d <tcp_recvmsg+66d/900>
-Trace; c020e23d <inet_recvmsg+3d/60>
-Trace; c01dbcad <sock_recvmsg+3d/660>
-Trace; c01dbdbe <sock_recvmsg+14e/660>
-Trace; c0131ed6 <default_llseek+2c6/a60>
-Trace; c0106d03 <__up_wakeup+1073/1440>
-
-Code;  c01dead7 <alloc_skb+1a7/2c0>
-00000000 <_EIP>:
-Code;  c01dead7 <alloc_skb+1a7/2c0>   <=====
-   0:   8b 1b                     mov    (%ebx),%ebx   <=====
-Code;  c01dead9 <alloc_skb+1a9/2c0>
-   2:   8b 42 70                  mov    0x70(%edx),%eax
-Code;  c01deadc <alloc_skb+1ac/2c0>
-   5:   83 f8 01                  cmp    $0x1,%eax
-Code;  c01deadf <alloc_skb+1af/2c0>
-   8:   74 0a                     je     14 <_EIP+0x14> c01deaeb 
-<alloc_skb+1bb/2c0>
-Code;  c01deae1 <alloc_skb+1b1/2c0>
-   a:   ff 4a 70                  decl   0x70(%edx)
-Code;  c01deae4 <alloc_skb+1b4/2c0>
-   d:   0f 94 c0                  sete   %al
-Code;  c01deae7 <alloc_skb+1b7/2c0>
-  10:   84 c0                     test   %al,%al
-Code;  c01deae9 <alloc_skb+1b9/2c0>
-  12:   74 09                     je     1d <_EIP+0x1d> c01deaf4 
-<alloc_skb+1c4/2c0>
-
-
-2 warnings and 1 error issued.  Results may not be reliable.
-------------------------------------------------
-
-Every time I have recreated the error, the mesg:
-"Unable to handle kernel NULL pointer dereference at virtual address 00000200"
-has appeared (the only variance being that the virtual address changes from 
-00000200 to 00000202 when I tried to scp over a different dir).  The oops 
-error comes out when I have scp'ied maybe about 3 or 4 GBs, but this is not 
-always the case.  I have tried changing filesystems (Reiserfs, ext2, ext3) to 
-no avail, and I have run diags on my hard drive.  I am starting to question 
-if there is a hardware failure in the RAM??
-I don't know--I've never seen/dealt with an oops error before. 
-
-Please advise!
-
-Thanks,
-johnny
+ <6>note: xine[2691] exited with preempt_count 1
 

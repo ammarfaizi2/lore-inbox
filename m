@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVAEJtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVAEJ6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbVAEJtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 04:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVAEJtv
+	id S262309AbVAEJ6B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 04:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVAEJ6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 04:49:51 -0500
-Received: from mail.dif.dk ([193.138.115.101]:11238 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262326AbVAEJto (ORCPT
+	Wed, 5 Jan 2005 04:58:01 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:32406 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262309AbVAEJ56 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 04:49:44 -0500
-Date: Wed, 5 Jan 2005 10:45:38 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Greg Ungerer <gerg@snapgear.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-mtd <linux-mtd@lists.infradead.org>,
-       David Woodhouse <dwmw2@redhat.com>,
-       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wh.fh-wedel.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove unnessesary casts from drivers/mtd/maps/nettel.c
- and kill two warnings
-In-Reply-To: <41DB343F.5070207@snapgear.com>
-Message-ID: <Pine.LNX.4.61.0501051044060.6112@jjulnx.backbone.dif.dk>
-References: <Pine.LNX.4.61.0412262202510.3552@dragon.hygekrogen.localhost>
- <41DB343F.5070207@snapgear.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 5 Jan 2005 04:57:58 -0500
+Subject: [PATCH] oprofile: fix ia64 callgraph bug with old gcc
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Keith Owens <kaos@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       OProfile List <oprofile-list@lists.sourceforge.net>
+Content-Type: multipart/mixed; boundary="=-jDhMDMrJtHty4RnqOOE8"
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1104919059.10291.246.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 05 Jan 2005 20:57:40 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, Greg Ungerer wrote:
 
-> 
-> Sorry for the slow response, I have been out on vacation the
-> last couple of weeks :-)
-> 
-I Hope you had a nice vacation. :)
+--=-jDhMDMrJtHty4RnqOOE8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> 
-> Jesper Juhl wrote:
-> > I took a look at the cause for these warnings in the 2.6.10 kernel,
-> > 
-> > drivers/mtd/maps/nettel.c:361: warning: assignment makes pointer from
-> > integer without a cast
-> > drivers/mtd/maps/nettel.c:395: warning: assignment makes pointer from
-> > integer without a cast
-> > 
-> > and as far as I can see the casts in there (to unsigned long and back to
-> > void*) are completely unnessesary ('virt' in 'struct map_info' is a void
-> > __iomem *), and getting rid of those casts buys us a warning free build.
-> > 
-> > Are there any reasons not to apply the patch below?
-> > Unfortunately I don't have hardware to test this patch, so it has been
-> > compile tested only.
-> 
-> Looks good to me. I have applied it to my working tree.
-> Do you want me to send it to Linus?
-> 
+G'day,
 
-I'd appreciate that.
+This patch from Keith Owens fixes a bug in the ia64 port
+of oprofile when built without the kdb patch and with a
+pre-3.4 gcc.
 
+Greg.
 -- 
-Jesper Juhl
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
+
+--=-jDhMDMrJtHty4RnqOOE8
+Content-Disposition: attachment; filename=oprofile-ia64-gcc-pre-34-fix
+Content-Type: text/plain; name=oprofile-ia64-gcc-pre-34-fix; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+If you build a standard kernel with gcc < 3.4 then
+ia64_spinlock_contention_pre3_4 is defined.  But a standard kernel
+does not have ia64_spinlock_contention_pre3_4_end, that label is
+only added by the kdb patch.  To get the backtrace profiling with
+gcc < 3.4, the _end label needs to be added as part of the kernprof
+patch, then I will remove it from kdb.  Send this to akpm.
+
+From: Keith Owens <kaos@sgi.com>
+Signed-off-by: Keith Owens <kaos@sgi.com>
+Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
+
+Index: linux/arch/ia64/kernel/head.S
+===================================================================
+--- linux.orig/arch/ia64/kernel/head.S	2004-10-19 07:54:38.000000000 +1000
++++ linux/arch/ia64/kernel/head.S	2005-01-05 20:37:23.000000000 +1100
+@@ -949,6 +949,8 @@ GLOBAL_ENTRY(ia64_spinlock_contention_pr
+ (p14)	br.cond.sptk.few .wait
+ (p15)	rsm psr.i		// disable interrupts if we reenabled them
+ 	br.cond.sptk.few b6	// lock is now free, try to acquire
++	.global ia64_spinlock_contention_pre3_4_end	// for kernprof
++ia64_spinlock_contention_pre3_4_end:
+ END(ia64_spinlock_contention_pre3_4)
+ 
+ #else
+
+--=-jDhMDMrJtHty4RnqOOE8--
 

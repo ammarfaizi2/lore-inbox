@@ -1,49 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265174AbTBBKim>; Sun, 2 Feb 2003 05:38:42 -0500
+	id <S265177AbTBBK4z>; Sun, 2 Feb 2003 05:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265177AbTBBKim>; Sun, 2 Feb 2003 05:38:42 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:60576 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265174AbTBBKil>;
-	Sun, 2 Feb 2003 05:38:41 -0500
-Date: Sun, 2 Feb 2003 11:47:57 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: John Bradford <john@grabjohn.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, tomita@cinet.co.jp,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.59] support japanese JP106 keyboard on new console.
-Message-ID: <20030202114757.B4180@ucw.cz>
-References: <20030202092346.A32354@ucw.cz> <200302021038.h12AcLKm000228@darkstar.example.net>
+	id <S265196AbTBBK4z>; Sun, 2 Feb 2003 05:56:55 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49884 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265177AbTBBK4y>; Sun, 2 Feb 2003 05:56:54 -0500
+Date: Sun, 2 Feb 2003 12:06:17 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre4
+Message-ID: <20030202110617.GJ6915@fs.tum.de>
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200302021038.h12AcLKm000228@darkstar.example.net>; from john@grabjohn.com on Sun, Feb 02, 2003 at 10:38:21AM +0000
+In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 02, 2003 at 10:38:21AM +0000, John Bradford wrote:
+On Wed, Jan 29, 2003 at 01:44:49AM -0200, Marcelo Tosatti wrote:
 
-> > > Hiragana_Katakana was not defined before and I want to define a
-> > > keycode point. 
-> > > When I saw 2.4.20 pc_keyb.c source, I found all keycode below 127
-> > > was used, then there is no room. But the comment tell me I can use
-> > > 120-123, 125-127 with Japanese keyboard because these are not used
-> > > on JP89/109 keyboards.
-> > > (124 is, as you know, Yen key)  THese are defined for a latin
-> > > keyboards.  So I use 120. 
-> > > 
-> > > How do you think about it?
-> > 
-> > In 2.4 you can, in 2.5 the 'as long as no duplication occurs for any
-> > single keyboard' is not valid anymore, and the keycode for
-> > hiragana/katakana is defined to be 183 I think.
-> 
-> We assigned 182 to hiragana/katakana for set 3 in 2.5, and left 183
-> undefined.  Should we change the 2.5 keycode to 183?
+>...
+> Summary of changes from v2.4.21-pre3 to v2.4.21-pre4
+> ============================================
+>...
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+>...
+>   o fix packet padding on the 3c523
+>...
 
-No - just bad memory on my side, it might as well be 183. ;)
+This causes the following compile error:
+
+<--  snip  -->
+
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-full/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc 
+-iwithprefix include -DKBUILD_BASENAME=3c523  -c -o 3c523.o 3c523.c
+3c523.c:1128: macro `memset' used with just one arg
+3c523.c: In function `elmc_send_packet':
+3c523.c:1128: parse error before `)'
+3c523.c:1128: structure has no member named `xmit'
+3c523.c:1128: parse error before `)'
+3c523.c:1128: parse error before `)'
+3c523.c:1128: parse error before `)'
+3c523.c:1128: warning: left-hand operand of comma expression has no effect
+3c523.c:1128: warning: left-hand operand of comma expression has no effect
+3c523.c:1128: parse error before `:'
+make[3]: *** [3c523.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.20-full/drivers/net'
+
+<--  snip  -->
+
+
+The simple fix (stolen from -ac) is:
+
+--- linux.21pre4/drivers/net/3c523.c	2003-01-29 17:07:45.000000000 +0000
++++ linux.21pre4-ac1/drivers/net/3c523.c	2003-01-09 00:47:04.000000000 +0000
+@@ -1125,7 +1125,7 @@
+ 	len = (ETH_ZLEN < skb->len) ? skb->len : ETH_ZLEN;
+ 	
+ 	if(len != skb->len)
+-		memset((char *) p->xmit_cbuffs[p->xmit)count], 0, ETH_ZLEN);
++		memset((char *) p->xmit_cbuffs[p->xmit_count], 0, ETH_ZLEN);
+ 	memcpy((char *) p->xmit_cbuffs[p->xmit_count], (char *) (skb->data), skb->len);
+ 
+ #if (NUM_XMIT_BUFFS == 1)
+
+
+
+cu
+Adrian
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

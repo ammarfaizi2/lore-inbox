@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130125AbQKGJi4>; Tue, 7 Nov 2000 04:38:56 -0500
+	id <S130606AbQKGJmG>; Tue, 7 Nov 2000 04:42:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130606AbQKGJiq>; Tue, 7 Nov 2000 04:38:46 -0500
-Received: from 4dyn176.delft.casema.net ([195.96.105.176]:519 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S130125AbQKGJii>; Tue, 7 Nov 2000 04:38:38 -0500
-Message-Id: <200011070938.KAA03419@cave.bitwizard.nl>
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <200011070656.WAA02435@pizda.ninka.net> from "David S. Miller" at
- "Nov 6, 2000 10:56:07 pm"
+	id <S130645AbQKGJlq>; Tue, 7 Nov 2000 04:41:46 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:15621 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130606AbQKGJlk>;
+	Tue, 7 Nov 2000 04:41:40 -0500
+Date: Tue, 7 Nov 2000 10:41:36 +0100
+From: Andi Kleen <ak@suse.de>
 To: "David S. Miller" <davem@redhat.com>
-Date: Tue, 7 Nov 2000 10:38:12 +0100 (MET)
-CC: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Cc: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
+Message-ID: <20001107104136.A5081@gruyere.muc.suse.de>
+In-Reply-To: <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com> <200011070603.WAA02292@pizda.ninka.net> <3A07A4B0.A7E9D62@napster.com> <200011070656.WAA02435@pizda.ninka.net> <3A07AC45.DCC961FF@napster.com> <200011070712.XAA02511@pizda.ninka.net> <3A07B01A.1E70EE20@napster.com> <200011070727.XAA02574@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200011070727.XAA02574@pizda.ninka.net>; from davem@redhat.com on Mon, Nov 06, 2000 at 11:27:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> It is clear though, that something is messing with or corrupting the
-> packets.  One thing you might try is turning off TCP header
-> compression for the PPP link, does this make a difference?
+On Mon, Nov 06, 2000 at 11:27:54PM -0800, David S. Miller wrote:
+> What 2.4.x is doing is completely legal.  Really, even if not all of
+> these people are from Earthlink (well, you should see if this is for
+> certain) they may all be using the same buggy terminal server at these
+> different ISPs.
 
-Try specifying "asyncmap 0xffffffff" too. 
+I think such a theory would at least need verifying (e.g. by a sniffer
+on the windows end that checks checksums or someone finding the checksum
+failed counters windows probably maintains) 
 
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-*       Common sense is the collection of                                *
-******  prejudices acquired by age eighteen.   -- Albert Einstein ********
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

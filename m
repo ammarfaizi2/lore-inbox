@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129178AbRAaVgq>; Wed, 31 Jan 2001 16:36:46 -0500
+	id <S129156AbRAaVj4>; Wed, 31 Jan 2001 16:39:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129158AbRAaVgg>; Wed, 31 Jan 2001 16:36:36 -0500
-Received: from cmb1-3.dial-up.arnes.si ([194.249.32.3]:13188 "EHLO
-	cmb1-3.dial-up.arnes.si") by vger.kernel.org with ESMTP
-	id <S129026AbRAaVgW>; Wed, 31 Jan 2001 16:36:22 -0500
-From: Igor Mozetic <igor.mozetic@uni-mb.si>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14968.33568.482353.888533@cmb1-3.dial-up.arnes.si>
-Date: Wed, 31 Jan 2001 22:26:56 +0100
+	id <S129026AbRAaVjq>; Wed, 31 Jan 2001 16:39:46 -0500
+Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:46866 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S129072AbRAaVji>;
+	Wed, 31 Jan 2001 16:39:38 -0500
+Date: Wed, 31 Jan 2001 21:39:33 +0000
+From: Michael Pacey <michael@wd21.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: possible bug with adaptec aic-7896 and 2.4.x
-X-Mailer: VM 6.89 under Emacs 20.7.2
+Subject: Re: Multiple SCSI host adapters, naming of attached devices
+Message-ID: <20010131213933.A337@kermit.wd21.co.uk>
+In-Reply-To: <20010130230633.B388@kermit.wd21.co.uk> <200101310826.JAA00284@sunrise.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200101310826.JAA00284@sunrise.pg.gda.pl>; from ankry@pg.gda.pl on Wed, Jan 31, 2001 at 08:26:55 +0000
+X-Mailer: Balsa 1.0.pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Prins writes:
-> in 2.4.0 and 2.4.1 on a pentium 3 with an onboard adaptec AIC-7896, i 
-> receive the following after it is detected:
-> 
-> scsi: aborting command due to timeout: pid 0, scsi0, channel 0, id 0
-> lun 0 Inquiry 00 00 00 ff 00
 
-I my case machine doesn't even boot.
-You might try the aic7xxx driver at:
-http://people.FreeBSD.org/~gibbs/linux/
+Well, just so you know I am now building a 2.4.1 kernel for this machine so
+I can use devfs.
 
-I tried the 6.0.9BETA version and machine at least booted,
-but crashed in a couple of days. So I'm back to 2.2.18 :(
+So perhaps I'll try ReiserFS on this too... lots of fun :)
 
--Igor Mozetic
+Thanks for everyone's kind words of wisdom.
+
+--
+Michael Pacey
+michael@wd21.co.uk
+ICQ: 105498469
+
+wd21 ltd - world domination in the 21st century
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

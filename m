@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267554AbTAQQE5>; Fri, 17 Jan 2003 11:04:57 -0500
+	id <S267546AbTAQQKN>; Fri, 17 Jan 2003 11:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267559AbTAQQE5>; Fri, 17 Jan 2003 11:04:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14904 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S267554AbTAQQE4>; Fri, 17 Jan 2003 11:04:56 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, kai@tp1.ruhr-uni-bochum.de,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
-References: <15911.64825.624251.707026@harpo.it.uu.se>
-	<20030117135638.A376@flint.arm.linux.org.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Jan 2003 09:13:14 -0700
-In-Reply-To: <20030117135638.A376@flint.arm.linux.org.uk>
-Message-ID: <m1adhzg3fp.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267544AbTAQQJd>; Fri, 17 Jan 2003 11:09:33 -0500
+Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:45441
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S267546AbTAQQIW>; Fri, 17 Jan 2003 11:08:22 -0500
+Subject: Re: any brand recomendation for a linux laptop ?
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Daniel Egger <degger@fhm.edu>
+Cc: linux-kernel@vger.kernel.org, Jan-Benedict Glaw <jbglaw@lug-owl.de>
+In-Reply-To: <1042733652.18213.35.camel@sonja>
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+	<20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org>
+	<20030116144045.GC30736@work.bitmover.com>
+	<20030116153727.GA27441@lug-owl.de>  <1042733652.18213.35.camel@sonja>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-AUnWNfwOLZiA4cma+snv"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Jan 2003 16:17:53 +0000
+Message-Id: <1042820273.8935.2.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
 
-> On Fri, Jan 17, 2003 at 01:55:21PM +0100, Mikael Pettersson wrote:
-> > This oops occurs for every module, not just af_packet.ko, at
-> > resolve_symbol()'s first call to __find_symbol().
-> > 
-> > What happens is that __find_symbol() oopses because the kernel's
-> > symbol table is in la-la land. (Note the bogus kernel adress
-> > 2220c021 it tried to dereference above.)
-> > 
-> > Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
-> > problem and modules now load correctly for me.
-> > 
-> > I don't know if this is a problem also for non-i386 archs.
-> 
-> Well:
-> 
->         __start___ksymtab = .;                                          \
->         __ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {         \
->                 *(__ksymtab)                                            \
->         }                                                               \
->         __stop___ksymtab = .;                                           \
-> 
-> breaks on some ARM binutils (from a couple of years ago.)  The most
-> reliable way we've found in with ARM binutils is to place the symbols
-> inside the section - this appears to work 100% every single time and
-> I've never had any reports of failure (whereas I did with the symbols
-> outside as above.)
+--=-AUnWNfwOLZiA4cma+snv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-That has been roughly my experience on x86 as well with the exception
-of bss sections.  For bss sections placing the symbols inside the section
-itself has been deadly.
+On Thu, 2003-01-16 at 16:14, Daniel Egger wrote:
+> I do have a PowerBook G4 500 and a brandnew iBook 800, the former now
+> lasting longer than any other notebook I've ever had (Compaq, Toshiba,
+> IBM).
 
-Eric
+I have a G4 667 powerbook titanium III and the battery life is very poor
+(around 2hrs) it gets very hot, I think its a kernel problem. Which
+kernel do you use, could you send me your config off list perhaps?
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-AUnWNfwOLZiA4cma+snv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+KCyxkbV2aYZGvn0RArcGAJ984DQgxe4PlsGWDm9Wt14Kpdy9QQCfdhrw
+sOFuK0lBPBBBi1l6jWrNjks=
+=bPhA
+-----END PGP SIGNATURE-----
+
+--=-AUnWNfwOLZiA4cma+snv--
+

@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271734AbTHHSC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 14:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271737AbTHHSC2
+	id S271738AbTHHSG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 14:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271739AbTHHSGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 14:02:28 -0400
-Received: from out004pub.verizon.net ([206.46.170.142]:51431 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S271734AbTHHSC1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 14:02:27 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jasper Spaans <jasper@vs19.net>
-Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-Date: Fri, 8 Aug 2003 14:02:24 -0400
-User-Agent: KMail/1.5.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030807180032.GA16957@spaans.vs19.net> <20030808170336.GB12526@spaans.vs19.net> <1060364045.4937.64.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1060364045.4937.64.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 8 Aug 2003 14:06:25 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:61202 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S271738AbTHHSGY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 14:06:24 -0400
+Date: Fri, 8 Aug 2003 20:01:20 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 bug: kconfig implementation doesn't match the spec
+In-Reply-To: <20030808174736.GA16091@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0308081956250.24676-100000@serv>
+References: <20030808145107.GY16091@fs.tum.de> <Pine.LNX.4.44.0308081714160.714-100000@serv>
+ <20030808174736.GA16091@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308081402.24345.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.10.101] at Fri, 8 Aug 2003 13:02:26 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 August 2003 13:34, Alan Cox wrote:
->On Gwe, 2003-08-08 at 18:03, Jasper Spaans wrote:
->> > What about the scenario where both spellings are used in  a
->> > header someplace that winds up being a systemwide reference?  I
->> > don't know that it has been, but such a 'correction' has the
->> > potential to take us back to square one and 1993.  I have had
->> > recurring daytime nightmares of such possibilities since this
->> > subject came up the first time a week or so ago.
->>
->> Wow. My FUD-o-meter just went berserk.
->
->Well we expose both Color and Colour in various application level
->interfaces. As far as I am concerned English<->English changes are
-> just noise. Fixing real typos can be a big help especially to non
-> first language speakers who are wondering just wtf that word is..
+Hi,
 
-As I relied to Jasper privately, the chances are slim but not 
-non-existant.  However I also commented that a spell checker able to 
-note that there is only one or two characters difference in the words 
-being compared, or only the order had been changed, would be a huge 
-help in running down typo's.
+On Fri, 8 Aug 2003, Adrian Bunk wrote:
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+> > You probably forgot to set MODULES, tristate behaves like bool in this 
+> > case and FOO becomes 'y' and '!FOO' is 'n'.
+> 
+> No, this is with CONFIG_MODULES=y.
+
+How did you set it? I tried your examples and got the expected and correct 
+result.
+
+> According to your language definition,
+>   m && !m
+> evaluates to "m" (it sounds a bit strange but follows directly from
+> rules (5) and (7) together with the interpretation of "m" as 1 as 
+> explained in the section "Menu dependencies" of
+> Documentation/kbuild/kconfig-language.txt).
+
+BTW the reason for (5) !<expr> -> 2-<expr> is that it becomes possible to 
+do various transformations with the expressions, e.g. !!<expr> == <expr>.
+
+bye, Roman
 

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269307AbTCDHRo>; Tue, 4 Mar 2003 02:17:44 -0500
+	id <S269294AbTCDHOO>; Tue, 4 Mar 2003 02:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269308AbTCDHRo>; Tue, 4 Mar 2003 02:17:44 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:62134 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S269307AbTCDHRn>;
-	Tue, 4 Mar 2003 02:17:43 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: xmms (audio) skipping in 2.5 (not 2.4)
-Date: Tue, 4 Mar 2003 18:28:09 +1100
-User-Agent: KMail/1.5
-References: <103200000.1046755559@[10.10.2.4]> <200303041636.00745.kernel@kolivas.org> <104910000.1046757141@[10.10.2.4]>
-In-Reply-To: <104910000.1046757141@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S269296AbTCDHOO>; Tue, 4 Mar 2003 02:14:14 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41432 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S269294AbTCDHON>; Tue, 4 Mar 2003 02:14:13 -0500
+Date: Tue, 4 Mar 2003 08:24:43 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add checkstack Makefile target
+Message-ID: <20030304072443.GA5503@wohnheim.fh-wedel.de>
+References: <20030303211647.GA25205@wohnheim.fh-wedel.de> <20030304070304.GP4579@actcom.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200303041828.10130.kernel@kolivas.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030304070304.GP4579@actcom.co.il>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003 04:52 pm, Martin J. Bligh wrote:
-> >> So ... is there any easy way I can diagnose this? Does anyone else have
-> >> a similar problem?
-> >
-> > Most of us who have worked with an O(1) scheduler based kernel have found
-> > this  at various times. See the previous discussion with akpm about the
-> > interactivity estimator. Akpm found that decreasing the maximum timeslice
-> > duration would blunt the effect of the interactivity estimator giving
-> > preference to the "wrong" task. In 2.4.20-ck4 I avoid this problem with
-> > the  "desktop tuning" of making the max timeslice==min timeslice. Try an
-> > -mm  kernel with the scheduler tunables patch and try playing with the
-> > max  timeslice. Most have found that <=25 will usually stop these skips.
-> > The  default max timeslice of 300ms is just too long for the desktop and
-> > interactivity estimator.
->
-> Heh, cool. I have the same patch in my tree too, fixed it without rebooting
-> even ;-) Still a *tiny* bit of skipping, but infinitely better than it was.
+On Tue, 4 March 2003 09:03:04 +0200, Muli Ben-Yehuda wrote:
+> 
+> Keith Owens has such a script, and even posted it here a time or
+> three. You can find it (and various other near scripts) at
+> http://www.kernelnewbies.org/scripts/.
 
-Try decreasing prio_bonus_ratio to 15 as well
+Good point!
+Comparing both, there are some points in my favor though:
+- Works for ppc as well, other platforms should be simple.
+- Works for cross-compiling out of the box.
+- More readable. :)
 
-> Thanks very much,
+> As for making a Makefile target, nice idea, but probably 2.5 material. 
 
-Pleasure
+Probably, yes. I'll port it later today.
 
-Con
+Jörn
+
+-- 
+"Security vulnerabilities are here to stay."
+-- Scott Culp, Manager of the Microsoft Security Response Center, 2001

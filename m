@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266883AbUGLQ05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUGLQea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266883AbUGLQ05 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 12:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUGLQ04
+	id S266884AbUGLQea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 12:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUGLQea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 12:26:56 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:38651 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266883AbUGLQ0l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 12:26:41 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
-Date: Mon, 12 Jul 2004 18:25:47 +0200
-User-Agent: KMail/1.6.2
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
-References: <m2lli36ec9.fsf@telia.com> <20040710232714.GA21633@infradead.org> <m2r7rjpd24.fsf@telia.com>
-In-Reply-To: <m2r7rjpd24.fsf@telia.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_Lur8AUYsgPYW6cT";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407121825.47889.arnd@arndb.de>
+	Mon, 12 Jul 2004 12:34:30 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3556 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266884AbUGLQe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 12:34:28 -0400
+Date: Mon, 12 Jul 2004 18:34:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.8-rc1
+Message-ID: <20040712163417.GT4701@fs.tum.de>
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org> <4d8e3fd3040712023469039826@mail.gmail.com> <20040712154204.GS4701@fs.tum.de> <4d8e3fd304071208566280e89b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d8e3fd304071208566280e89b@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 12, 2004 at 05:56:14PM +0200, Paolo Ciarrocchi wrote:
+>...
+> > OSDL does some tests for any -rc and many other people like me do other
+> > testing. Besides this, most patches already got similar treatment in
+> > -mm. This might not be a base for an ISO 9000 certificate, but it seems
+> > to be sufficietely working for finding most problems before the acttual
+> > release.
+> 
+> OSDL does some test for any -rc but the results of these tests don't affect
+> the release process. At least not in an official way.
 
---Boundary-02=_Lur8AUYsgPYW6cT
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+The Linux kernel development process isn't that much formalized. But if 
+someone finds a serious new problem in a -rc kernel a fix will usually 
+go into the next -rc.
 
-On Sonntag, 11. Juli 2004 03:06, Peter Osterlund wrote:
-> OK, I'll create a patch that gets rid of the ioctl interface and uses
-> an auxiliary character device instead to control device bindings.
+Compared to some other open source projects like e.g. Debian the Linux 
+kernel has a pretty well-working release process (and the 2.6 
+development avoided several mistakes of the 2.4 development).
 
-I don't think that's a good idea either. It will solve the udev problem,
-but it essentially means you're sneaking in system calls through the
-back door here.
+> > It would be more important if Linus would release one last -rc that will
+> > be released unchanged (except for EXTRAVERSION a few days later to catch
+> > bugs in last minute changes. This might catch more problems like the JFS
+> > compile problem in 2.6.7.
+> 
+> Right,
+> and in those days may be OSDL could run the testsuite we are discussing about.
 
-Maybe we can decide on one of the following approaches (or yet another
-one):
+The way kernel releases currently work IMHO works well with the 
+exception that there should be a last -rc that should be released as 
+-final a few days later if no problems show up.
 
-- Do the ioctl call on the cdrom device through cdrom_ioctl() instead of
-  the pktcdvd driver. You need to hook into the cdrom driver subsystem,
-  but leave everything else as it is today.
-- Register all cdrom devices with pktcdvd as soon as they are detected.
-  This needs some more changes to the cdrom subsystem, but gets rid of
-  the need for the pktsetup interface because you can do the setup stuff
-  at open time.
-- Merge pktcdvd completely into the cdrom subsystem so the existing cdrom
-  device node passes everything down to pktcdvd if an RW medium is mounted
-  writable.
+What other actual problems do you currently observe?
 
-	Arnd <><
+> ciao, Paolo
 
---Boundary-02=_Lur8AUYsgPYW6cT
-Content-Type: application/pgp-signature
-Content-Description: signature
+cu
+Adrian
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+-- 
 
-iD8DBQBA8ruL5t5GS2LDRf4RAgFqAKCdulXfB+7j9JWhYFdE10jlMv9uGwCfeHvW
-jOztZuQ7laGQ+kZleLG7dn4=
-=+dQx
------END PGP SIGNATURE-----
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---Boundary-02=_Lur8AUYsgPYW6cT--

@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268218AbRHAVEe>; Wed, 1 Aug 2001 17:04:34 -0400
+	id <S268221AbRHAVEe>; Wed, 1 Aug 2001 17:04:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268221AbRHAVEZ>; Wed, 1 Aug 2001 17:04:25 -0400
-Received: from zero.tech9.net ([209.61.188.187]:11282 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S268235AbRHAVEK>;
-	Wed, 1 Aug 2001 17:04:10 -0400
-Subject: Re: Basic question..
-From: Robert Love <rml@tech9.net>
-To: Raghava Raju <vraghava_raju@yahoo.com>
+	id <S268217AbRHAVEY>; Wed, 1 Aug 2001 17:04:24 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:62429 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S268254AbRHAVEL>;
+	Wed, 1 Aug 2001 17:04:11 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 1 Aug 2001 21:03:20 GMT
+Message-Id: <200108012103.VAA93890@vlet.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, hch@caldera.de, torvalds@transmeta.com,
+        viro@math.psu.edu
+Subject: [PATCH] vxfs fix
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010801204401.21619.qmail@web20009.mail.yahoo.com>
-In-Reply-To: <20010801204401.21619.qmail@web20009.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 01 Aug 2001 17:04:51 -0400
-Message-Id: <996699893.1420.7.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Aug 2001 13:44:01 -0700, Raghava Raju wrote:
->         I am new to kernel programming. I have
->    just written a module consisting of init and
-> cleanup
->    functions. I call init function of the module in
->    kernel initialization function. So when system
->    comes up, it shows that it entered module init 
->    function(printk in "init" print some string), but 
->    when I do lsmod it is not there in  list of 
->    modules. But if I do insmod module, the module is
->    listed in lsmod output. So is it that calling init
->    module and insmod are not equivalent?
+Dear Linus, Alan, Al, Christoph, all,
 
-this is correct. calling the init function from within the kernel is not
-the same as using insmod.  calling the init function is just that --
-calling some linked-in function from within the kernel.
+If one mounts without specifying a type, mount will try
+all available types. After having tried vxfs the next type
+will cause
+	set_blocksize: b_count 1 ...
+since vxfs forgets to free a block.
+The patch below adds the missing brelse().
+(In fact there are more resources that are never freed there -
+maybe the maintainer can have a look some time -
+I only added a comment.)
 
-if you want to load a module from within the kernel, what you want is:
-#include<linux/kmod.h>
-int request_module(const char * module_name);
+When mount continues to try all types, it may try V7.
+That always succeeds, there is no test for magic or so,
+and after garbage has been mounted as a V7 filesystem,
+the kernel crashes or hangs or fails in other sad ways.
+Have not tried to debug.
 
-you will need kmod compiled in.
+Andries
 
-however, i suppose this is not what you want.  if you want to load your
-code into the kernel -- statically linked -- then its not a module.  its
-a member of the kernel.  have fun, enjoy the place.
 
-if you want it to be a module, then its seperate, and you should load it
-via insmod/modprobe/kmod.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+--- ../linux-2.4.7/linux/fs/freevxfs/vxfs_super.c	Sat Jul 28 17:08:46 2001
++++ linux/fs/freevxfs/vxfs_super.c	Wed Aug  1 22:41:24 2001
+@@ -178,7 +178,8 @@
+ 	}
+ 
+ 	if (rsbp->vs_version < 2 || rsbp->vs_version > 4) {
+-		printk(KERN_NOTICE "vxfs: unsupported VxFS version (%d)\n", rsbp->vs_version);
++		printk(KERN_NOTICE "vxfs: unsupported VxFS version (%d)\n",
++		       rsbp->vs_version);
+ 		goto out;
+ 	}
+ 
+@@ -221,6 +222,7 @@
+ 	if (vxfs_read_fshead(sbp)) {
+ 		printk(KERN_WARNING "vxfs: unable to read fshead\n");
+ 		return NULL;
++		/* BUG: lots of gets not matched by puts here */
+ 	}
+ 
+ 	sbp->s_op = &vxfs_super_ops;
+@@ -229,6 +231,7 @@
+ 	
+ 	printk(KERN_WARNING "vxfs: unable to get root dentry.\n");
+ out:
++	brelse(bp);
+ 	kfree(infp);
+ 	return NULL;
+ }

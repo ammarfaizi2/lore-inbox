@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbUFNHNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUFNHZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUFNHNb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 03:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUFNHNb
+	id S261988AbUFNHZT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 03:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUFNHZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 03:13:31 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:61194 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S261976AbUFNHNa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 03:13:30 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: nahidesafe-linux@yahoo.it, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Toshiba 1800-100 linux-2.6.x Driver for the SMC Infrared Communications Controller does not work
-In-Reply-To: <40CC1A93.6040808@yahoo.it>
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.7-rc3 (i686))
-Message-Id: <E1BZle8-00035D-Cs@rhn.tartu-labor>
-Date: Mon, 14 Jun 2004 10:12:44 +0300
+	Mon, 14 Jun 2004 03:25:19 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:15366 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261988AbUFNHZP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 03:25:15 -0400
+Message-ID: <40CD5384.1050809@aitel.hist.no>
+Date: Mon, 14 Jun 2004 09:28:04 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ndiamond@despammed.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Panics need better handling
+References: <200406140223.i5E2N1k18221@mailout.despammed.com>
+In-Reply-To: <200406140223.i5E2N1k18221@mailout.despammed.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-S> Toshiba 1800-100 linux-2.6.x Driver for the SMC Infrared Communications
-S> Controller does not work
+ndiamond@despammed.com wrote:
 
-It's a known problem. The reason is that Toshiba BIOS does not enable
-the SMC irda controller. You can verify it useing lspnp -v (at least I
-can on my 1800-314). If you enable the device by hand, it will work.
+> I am not asking for
+>help in solving this particular panic,
+>I am asking for help in general, in
+>getting information displayed when it
+>needs to be displayed.
+>  
+>
+I have struggled with this from time to time.  Wanting to
+report a trace, but it is too long for the screen. 
 
-There is a Linux program for enabling the irda controller, look at
-http://www.csai.unipa.it/peri/toshsat1800-irdasetup/ .
+Using a framebuffer console helps a lot.  I use 1280x1024 resolution,
+and 8x8 characters.  The resulting 160x128 console isn't
+that fun to _work_ with, but most panics/oopses fit.  I rarely
+work at the console anyway.  If you do, consider making two almost
+identical kernels where console font size is the only difference.  (The
+extra compile takes very little time.)  Then use the small-font kernel
+when debugging.
 
-The setup can problaby be made also from kernel but the main question is
-how to autodetect the need for this setup.
+Helge Hafting
 
--- 
-Meelis Roos

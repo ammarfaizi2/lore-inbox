@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268683AbUJKE0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUJKE0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268683AbUJKE0W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 00:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268685AbUJKE0W
+	id S268686AbUJKE0q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 00:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUJKE0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 00:26:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46292 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268683AbUJKE0D (ORCPT
+	Mon, 11 Oct 2004 00:26:46 -0400
+Received: from gate.crashing.org ([63.228.1.57]:30907 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268686AbUJKE00 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 00:26:03 -0400
-Date: Sun, 10 Oct 2004 21:25:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       David Brownell <david-b@pacbell.net>
+	Mon, 11 Oct 2004 00:26:26 -0400
 Subject: Re: Totally broken PCI PM calls
-In-Reply-To: <16746.299.189583.506818@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.58.0410102115410.3897@ppc970.osdl.org>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
- <16746.299.189583.506818@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>
+In-Reply-To: <Pine.LNX.4.58.0410102104530.3897@ppc970.osdl.org>
+References: <1097455528.25489.9.camel@gaston>
+	 <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
+	 <1097466354.3539.14.camel@gaston>
+	 <Pine.LNX.4.58.0410102104530.3897@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1097468590.3249.2.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 11 Oct 2004 14:23:11 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 11 Oct 2004, Paul Mackerras wrote:
+On Mon, 2004-10-11 at 14:08, Linus Torvalds wrote:
+> On Mon, 11 Oct 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > Disagreed. Sorry, but can you give me a good example ? The drivers still
+> > do the broken assumptions of passing directly the state parameter to
+> > pci_set_power_state() (or whatever we call this one these days) but this
+> > is worked around by defining PM_SUSPEND_MEM to 3 in pm.h.
 > 
-> Maybe the real problem is that we are trying to use the device suspend
-> functions for suspend-to-disk, when we don't really want to change the
-> device's power state at all.
+> .. take a look at PM_SUSPEND_DISK for a moment.
+> 
+> If you only care about PM_SUSPEND_MEM, then what's your problem? You get 
+> the right value already. 
 
-An acceptable solution is certainly to instead of passing down "go to D3",
-just not do anything at all. HOWEVER, I doubt that is actually all that 
-good a solution either: devices quite possibly do want to save state 
-and/or set wake-on-events. 
+How so ? I care about both. We had 2 different problems. One was
+PM_SUSPEND_MEM would be defined to 2 which caused dumb drivers to try to
+go to D2 instead of D3, and one is that some drivers are still mixing up
+PM_SUSPEND_DISK, and I don't think the "fix" in pci-driver.c is any good
+for that... 
 
-But I don't know. Somebody would need to go through the drivers and verify 
-that.
+> And if you _do_ care about PM_SUSPEND_DISK, then don't ignore it in the
+> discussion. You can't have it both ways.
 
-NOTE! I don't mind passing down "D3cold" (aka 4 - same as PM_SUSPEND_DISK)  
-in theory. The problem is that the very first machine I ever tested it on
-clearly didn't like it and refused to suspend. Maybe I was unlucky, but
-the point is, the real solution again requires people to _verify_ that.
+I'm not ignoring it. I pretend that it's wrong.
 
-See the pattern?
+> The fact is, my laptop can now (finally) do suspend-to-disk. It never 
+> could do that before. And yes, it does use radeonfb, so your arguments 
+> hold no water with me. 
 
-Which is why I suggested making it a separate type that is _not_ a normal 
-number. Exactly so that you cannot think it's a PCI state by mistake, when 
-clearly drivers _do_ think that. And force people to verify it.
+But radeonfb ends up suspending the display at a wrong time and you miss
+half of the output, which makes any kind of debugging near to
+impossible.
 
-You could do it with "sparse" and "bitwise" types too. Sparse will
-complain if you use the type in an inappropriate manner. But the basic
-issue remains: there are PCI power states, and there are "suspend" power
-states, and they are different. And right now people _are_ confused about
-them.
+> I told you what can done to fix things up. Stop ignoring that reality.
 
-Arguing against that is futile. It's a fact.
+I'm not ignoring that reality and I may well come up with a patch for
+after 2.6.9 but I consider the current state of things broken.
 
-I'm more than happy to learn that there are other alternatives to solving
-the confusion problem. But quite frankly, arguing for undoing the
-translation is just stupid. It's putting your head in the sand and saying
-"la-la-laa-I-can't-hear-you".
+Ben.
 
-And until something actually tries to sort _out_ the confusion, the state 
-translation stays. Does it put devices into sleep modes when you shouldn't 
-need to? Sure. But at least it's not confused about things. 
 
-		Linus

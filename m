@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290938AbSASLb2>; Sat, 19 Jan 2002 06:31:28 -0500
+	id <S290941AbSASLlA>; Sat, 19 Jan 2002 06:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290939AbSASLbS>; Sat, 19 Jan 2002 06:31:18 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:21974 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S290938AbSASLbI>; Sat, 19 Jan 2002 06:31:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [question] implentation of smb-browsing: kernel space or user space?
-Date: Sat, 19 Jan 2002 12:30:28 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E16RtOX-0007Ao-00@mrvdom00.kundenserver.de>
-In-Reply-To: <E16RtOX-0007Ao-00@mrvdom00.kundenserver.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16Rthx-1WF6ESC@fwd00.sul.t-online.com>
+	id <S290942AbSASLkt>; Sat, 19 Jan 2002 06:40:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48395 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S290941AbSASLkk>;
+	Sat, 19 Jan 2002 06:40:40 -0500
+Date: Sat, 19 Jan 2002 12:40:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+Message-ID: <20020119124017.G27835@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10201181127270.4260-100000@master.linux-ide.org> <Pine.LNX.4.40.0201181146100.934-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0201181146100.934-100000@blue1.dev.mcafeelabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 18 2002, Davide Libenzi wrote:
+> Guys, instead of requiring an -m8 to every user that is observing this
+> problem, isn't it better that you limit it inside the driver until things
+> gets fixed ?
 
-> Therefore I had the idea, to implement this smb-browsing feature in kernel
-> space. It will be a kind of network neighbourhood-filesytem with all
-> computers as top level directories below the mount point.
+There is no -m8 limit, 2.5.3-pre1 + ata253p1-2 patch handles any set
+multi mode value.
 
-What could a kernel space browser do that a demon could not do ?
+-- 
+Jens Axboe
 
-> The first step might be to glue the autofs with smbfs and add a kernel smb
-> browser as a proof of concept.
-
-Do you say that autofs cannot be used to mount smbfs shares ?
-
-> My question is: Do you think, that this kind of filesystem is sensible, or
-> do you think that smb-stuff has to be in user space. (for example using the
-> filesystem in userspace approach, shown some weeks ago)?
-
-Smbfs itself must be in kernel. That doesn't imply that the browser has to
-be in kernel.
-
-	Regards
-		Oliver

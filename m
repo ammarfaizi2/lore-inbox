@@ -1,39 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132413AbREBIvy>; Wed, 2 May 2001 04:51:54 -0400
+	id <S132372AbREBIub>; Wed, 2 May 2001 04:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132416AbREBIvp>; Wed, 2 May 2001 04:51:45 -0400
-Received: from digger1.defence.gov.au ([203.5.217.4]:13222 "EHLO
-	digger1.defence.gov.au") by vger.kernel.org with ESMTP
-	id <S132413AbREBIvc>; Wed, 2 May 2001 04:51:32 -0400
-Message-ID: <2149A0BABC77D311AF890090274E00B2024C9F14@salex005.dsto.defence.gov.au>
-From: "Shahin, Mofeed" <Mofeed.Shahin@dsto.defence.gov.au>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Ati Rage 128 problems.
-Date: Wed, 2 May 2001 18:15:45 +0930 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132413AbREBIuV>; Wed, 2 May 2001 04:50:21 -0400
+Received: from post2.inre.asu.edu ([129.219.110.73]:5006 "EHLO
+	post2.inre.asu.edu") by vger.kernel.org with ESMTP
+	id <S132372AbREBIuR>; Wed, 2 May 2001 04:50:17 -0400
+Date: Wed, 02 May 2001 01:50:16 -0700
+From: Russ Dill <Russ.Dill@asu.edu>
+Subject: Re: Breakage of opl3sax cards since 2.4.3 (at least)
+In-Reply-To: <Pine.LNX.4.10.10105020918260.18909-100000@www.teaparty.net>
+To: Vivek Dasmohapatra <vivek@etla.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <200105020850.BAA03703@smtp.asu.edu>
+MIME-version: 1.0
+X-Mailer: Evolution (0.9 - Preview Release)
+Content-type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-G'day all,
+On 02 May 2001 09:30:03 +0100, Vivek Dasmohapatra wrote:
 
-I have a laptop (Dell Inspiron 8000) which has an Ati M4 Mobility.
-The problem happens whan I try to do 3D stuff on it.
-The example I am using is quake2 pointing at the Mesa GL drivers. (Redhat
-7.1)
-I get about 5-15 seconds into the demo when the whole machine locks up. It
-sometimes comes back and says something along the lines of ~"R128 timed
-out".
-Some times I even get a message in /var/log/messages along the lines of 
-"error in r128_flush_pixmap_cache" or something like that.
-I don't have the laptop in front of me at the moment, and that is why my
-recollection of the error messages is not precise.
+> I have an isapnp opl3sax system [2.4.3-ac5] - the sound card
+initialises
 
-I am wandering if this is a known bug, or new one, or if I am to blame.
+> fine, I just have to kick the second logical device with by cat'ing the
+> following into /proc/isapnp:
+> 
+> card 0 YMH0802
+> dev 0 YMH0022
+> port 0 0x201
+> activate
+> 
+> Which then activates the gameport: What are the contents of your
+> /proc/isapnp? 
 
-BTW : I am running Redhat 7.1 with 2.4.2-2.
 
-Mof.
+this sounds similar to my manual running of isapnp
+
+> Of course, you have a YMH0020, and I have a YMH0021, that could be making
+> all the difference.
+
+
+
+not quite, you seem to have a YMH0802, while I have a YMH0802, what
+error were you originally getting?
+with mine, it doesn't want to isapnp it, so after I do that on my own, I
+get:
+russ kernel: opl3sa2: Control I/O port 0x240 is not a YMF7xx chipset!
+
+anyway, I changed the above to:
+
+card 0 YMH0020
+dev 0 YMH0022
+port 0 0x201
+activate
+
+does nothing...the diff between the two /proc/isapnp's are (the second
+part of the first chunk and the last chunk are a result of me running
+isapnp):
+
+-Card 1 'YMH0020:OPL3-SAX Sound Board' PnP version 1.0
++Card 1 'YMH0802:YAMAHA OPL3-SAx Audio System' PnP version 1.0 
+   Logical device 0 'YMH0021:Unknown'
+     Device is active
+     Active port 0x240,0xe80,0x388,0x300,0x100
+-    Active IRQ 10 [0x2]
+-    Active DMA 0,3
++    Active IRQ 5 [0x2] 
++    Active DMA 1,3 
+     Resources 0
+       Priority preferred
+       Port 0x220-0x220, align 0xf, size 0x10, 16-bit address decoding
+@@ -18,7 +18,7 @@
+         Priority acceptable
+         Port 0x240-0x240, align 0xf, size 0x10, 16-bit address decoding
+         Port 0xe80-0xe80, align 0x7, size 0x8, 16-bit address decoding
+-        Port 0x388-0x388, align 0x7, size 0x4, 16-bit address decoding
++        Port 0x388-0x388, align 0x3, size 0x4, 16-bit address decoding 
+         Port 0x300-0x300, align 0x1, size 0x2, 16-bit address decoding
+         Port 0x100-0xffe, align 0x1, size 0x2, 16-bit address decoding
+         IRQ 5,7,2/9,10,11 High-Edge
+@@ -49,5 +49,5 @@
+         Priority acceptable
+         Port 0x203-0x203, align 0x0, size 0x1, 16-bit address decoding
+       Alternate resources 0:3
+-        Priority functional
++        Priority acceptable 
+         Port 0x204-0x20f, align 0x0, size 0x1, 16-bit address decoding
+
+
+

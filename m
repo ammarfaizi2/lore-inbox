@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbSJXKo6>; Thu, 24 Oct 2002 06:44:58 -0400
+	id <S265388AbSJXKs3>; Thu, 24 Oct 2002 06:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265388AbSJXKo6>; Thu, 24 Oct 2002 06:44:58 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54280 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265385AbSJXKo5>; Thu, 24 Oct 2002 06:44:57 -0400
-Date: Thu, 24 Oct 2002 06:50:43 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-In-Reply-To: <188940000.1035314478@baldur.austin.ibm.com>
-Message-ID: <Pine.LNX.3.96.1021024064536.14473B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265389AbSJXKs3>; Thu, 24 Oct 2002 06:48:29 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:54479 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S265388AbSJXKs2>;
+	Thu, 24 Oct 2002 06:48:28 -0400
+Date: Thu, 24 Oct 2002 12:54:40 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: zippel@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org
+Subject: small patch, but Linux Kernel Conf in 2.5.44 works great
+Message-ID: <20021024105440.GA28188@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, zippel@linux-m68k.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Dave McCracken wrote:
+Slight warning patch, but Linux Kernel Conf is really cool. From a users'
+perspective, I note that the 'help' function is very fast now, which used to
+be embarrassingly slow.
 
-> 
-> --On Tuesday, October 22, 2002 12:02:27 -0700 "Martin J. Bligh"
-> <mbligh@aracnet.com> wrote:
-> 
-> 
-> >Bill Davidsen wrote:
-> >> I'm just trying to decide what this might do for a news server with
-> >> hundreds of readers mmap()ing a GB history file. Benchmarks show the 2.5
-> >> has more latency the 2.4, and this is likely to make that more obvious.
-> > 
-> > On the other hand, I don't think shared pagetables have an mmap hook,
-> > though that'd be easy enough to add. And if you're not reading the whole 
-> > history file, presumably the PTEs will only be sparsely instantiated
-> > anyway.
-> 
-> Actually shared page tables work on any shared memory area, no matter how
-> it was created.  When a page fault occurs and there's no pte page already
-> allocated (the common case for any newly mapped region) it checks the vma
-> to see if it's shared.  If it's shared, it gets the address_space for that
-> vma, then walks through all the shared vmas looking for one that's mapped
-> at the same address and offset and already has a pte page that can be
-> shared.
+Make oldconfig also works as planned.
 
-That's more encouraging.
+I would indeed however vote to make the xconfig program available separately
+as well. Many users may need a different compiler for xconfig than for the
+kerel (dreaded C++ ABI issues).
+
+Right now, it is some hassle to make sure that the right compiler is used
+for xconfig and the kernel.
+
+Regards,
+
+bert hubert
+
+Tiny patch to fix a warning:
+
+--- linux-2.5.44/scripts/kconfig/kconfig_load.c~	Thu Oct 24 12:31:24 2002
++++ linux-2.5.44/scripts/kconfig/kconfig_load.c	Thu Oct 24 12:39:34 2002
+@@ -1,5 +1,6 @@
+ #include <dlfcn.h>
+ #include <stdio.h>
++#include <stdlib.h>
  
-> So if your history file is mapped at the same address for all your
-> processes then it will use shared page tables.  While it might be a nice
-> add-on to allow sharing if they're mapped on the same pte page boundary,
-> that doesn't seem likely enough to justify the extra work.
+ #include "lkc.h"
+ 
 
-The reader processes are either forked (INN w/ daemon nnrpd) or pthreads
-(twister, earthquake, diablo). So everything will be the same.
-
-Another thought, how does this play with NUMA systems? I don't have the
-problem, but presumably there are implications.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

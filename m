@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265914AbTL3W6L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbTL3Wzu
+	id S265892AbTL3WwO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265865AbTL3WvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:55:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59344 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265904AbTL3WzE (ORCPT
+	Tue, 30 Dec 2003 17:51:24 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:25808 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265892AbTL3Wur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:55:04 -0500
-Date: Tue, 30 Dec 2003 14:54:40 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rob Love <rml@ximian.com>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Daniel Tram Lux <daniel@starbattle.com>, steve@drifthost.com,
-       James Bourne <jbourne@hardrock.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Gergely Tamas <dice@mfa.kfki.hu>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: no DRQ after issuing WRITE was Re: 2.4.23-uv3 patch set released
-In-Reply-To: <1072823015.4350.40.camel@fur>
-Message-ID: <Pine.LNX.4.58.0312301452370.2065@home.osdl.org>
-References: <Pine.LNX.4.51.0312290052470.1599@cafe.hardrock.org> 
- <Pine.LNX.4.58L.0312300935040.22101@logos.cnet>  <Pine.LNX.4.58.0312301130430.2065@home.osdl.org>
-  <Pine.LNX.4.58L.0312301849400.23875@logos.cnet>  <Pine.LNX.4.58.0312301352570.2065@home.osdl.org>
- <1072823015.4350.40.camel@fur>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Dec 2003 17:50:47 -0500
+Date: Tue, 30 Dec 2003 14:46:08 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [patch] clean up tcp_sk(), 2.6.0
+Message-Id: <20031230144608.4c7e66f2.davem@redhat.com>
+In-Reply-To: <20031230163230.GA12553@elte.hu>
+References: <20031230163230.GA12553@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Dec 2003 17:32:30 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
+> i recently wasted a few hours on a bug where i used "tcp_sk(sock)"
+> instead of "tcp_sk(sock->sk)" - the former, while being blatantly
+> incorrect, compiles just fine on 2.6.0. The patch below is equivalent to
+> the define but is also type-safe. Compiles cleanly & boots fine on
+> 2.6.0.
 
-On Tue, 30 Dec 2003, Rob Love wrote:
-> 
-> Anyhow, if interrupts are disabled, preemption should be disabled (we
-> check for that condition in both preempt_schedule() and
-> return_from_intr).
-
-Interrupts are _not_ disabled here, very much on purpose. If they were, 
-then "jiffies" wouldn't update, and the timeouts wouldn't work.
-
-This is what that _stupid_ "local_irq_set()" function does: it saves the 
-old irq masking state, and then it enables it.
-
-The whole concept doesn't make any sense. If you enable interrupts, there 
-is little point in saving the callers irq mask, since it already got 
-deflated.
-
-		Linus
+Applied, and I'll happily accept patches for udp_sk() and all
+the other ones too :)

@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282799AbRK0Eqr>; Mon, 26 Nov 2001 23:46:47 -0500
+	id <S282798AbRK0ErH>; Mon, 26 Nov 2001 23:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282796AbRK0Eqh>; Mon, 26 Nov 2001 23:46:37 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:18189 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282798AbRK0EqY>; Mon, 26 Nov 2001 23:46:24 -0500
-Message-ID: <3C031A60.10527E6A@zip.com.au>
-Date: Mon, 26 Nov 2001 20:45:20 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Nathan G. Grennan" <ngrennan@okcforum.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Unresponiveness of 2.4.16
-In-Reply-To: <E168U3m-00077F-00@the-village.bc.nu> <Pine.LNX.4.33L.0111262156140.4079-100000@imladris.surriel.com> <3C02E009.7C1F17C6@zip.com.au>,
-		<3C02E009.7C1F17C6@zip.com.au> <20011126203856.D26219@mikef-linux.matchmail.com>
+	id <S282796AbRK0Eq5>; Mon, 26 Nov 2001 23:46:57 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:48138 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S282798AbRK0Eqp>;
+	Mon, 26 Nov 2001 23:46:45 -0500
+Date: Tue, 27 Nov 2001 15:37:40 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] proc-based cpu affinity user interface
+Message-ID: <20011127153740.A13824@krispykreme>
+In-Reply-To: <1006831902.842.0.camel@phantasy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1006831902.842.0.camel@phantasy>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> 
-> On Mon, Nov 26, 2001 at 04:36:25PM -0800, Andrew Morton wrote:
-> > The patch I sent puts read requests near the head of the request
-> > queue, and to hell with aggregate throughput.  It's tunable with
-> > `elvtune -b'.  And it fixes it.
-> 
-> for i in `seq 9`; do elvtune -b $i /dev/hda; done
-> 
-> -b doesn't seem to change the "max_bomb_segments".  Does your patch fix this?
-> 
 
-Yes, it does.
+> Attached is my procfs-based implementation of a user interface for
+> getting and setting a task's CPU affinity.  Patch is against 2.4.16. 
 
-Presumably, once upon a time, max_bomb_segments actually did
-something.  But it's a complete no-op at present, so I co-opted it.
+Have you seen Andrew Mortons cpus_allowed patch?
 
-Nice name, but I'd prefer max_cluster_bombs.
+http://www.zipworld.com.au/~akpm/linux/cpus_allowed.patch
 
--
+Anton

@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRDWUAI>; Mon, 23 Apr 2001 16:00:08 -0400
+	id <S129164AbRDWUD2>; Mon, 23 Apr 2001 16:03:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRDWT77>; Mon, 23 Apr 2001 15:59:59 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:32011 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S129134AbRDWT7r>; Mon, 23 Apr 2001 15:59:47 -0400
-Message-ID: <3AE48996.AF51F5A9@netpathway.com>
-Date: Mon, 23 Apr 2001 14:59:18 -0500
-From: "Gary White (Network Administrator)" <admin@netpathway.com>
-Organization: Internet Pathway
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129166AbRDWUDS>; Mon, 23 Apr 2001 16:03:18 -0400
+Received: from dire.bris.ac.uk ([137.222.10.60]:36312 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S129164AbRDWUDB>;
+	Mon, 23 Apr 2001 16:03:01 -0400
+Date: Mon, 23 Apr 2001 20:58:54 +0100 (BST)
+From: Matt <madmatt@bits.bris.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: KDE Lockups with emu10k1 driver in kernel > 2.4.3-ac9
-In-Reply-To: <3AE47F9E.D8CF4B1B@netpathway.com> <Pine.LNX.4.33.0104232140340.1417-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Subject: Re: ioctl arg passing
+In-Reply-To: <Pine.LNX.4.21.0104231648330.1089-100000@bits.bris.ac.uk>
+Message-ID: <Pine.LNX.4.21.0104232051040.7619-100000@bits.bris.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt aka Doofus festures mentioned the following:
 
-Yep I do. But looking at patch-2.4.3-ac10, there are lots of changes
-to the emu10k1 driver.
+| struct instruction_t local;
+| __s16 *temp;
+| 
+| copy_from_user( &local, ( struct instruction_t * ) arg, sizeof( struct instruction_t ) );
+| temp = kmalloc( sizeof( __s16 ) * local.rxlen, GFP_KERNEL );
+| copy_from_user( temp, arg, sizeof( __s16 ) * local.rxlen );
 
+I meant that last line to be:
 
-> On Mon, 23 Apr 2001, Gary White (Network Administrator) wrote:
->
-> There are no emu10k1 changes from ac9 up to ac12...
-> Do you have a VIA motherboard by any chance?
->
-> Rui Sousa
->
-> > Since ac9 I started having a lockup when initializing KDE 2.1.1.
-> > Did not think that much about it since my installation has had libs
-> > upgraded and patched for months. Today I decided to do a clean
-> > distribution install and after I had the same problem. Removing
-> > each module one at a time I finally narrowed in down to the
-> > Sound Blaster Live module. Every version including ac9 and
-> > before works fine. Has anybody else had this problem?
-> >
-> > --
-> > Gary White               Network Administrator
-> > admin@netpathway.com          Internet Pathway
-> > Voice 601-776-3355            Fax 601-776-2314
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+copy_from_user( temp, local.rxbuf, sizeof( __s16 ) * local.rxlen );
+                      ^^^^^^^^^^^
 
---
-Gary White               Network Administrator
-admin@netpathway.com          Internet Pathway
-Voice 601-776-3355            Fax 601-776-2314
+Which'd clear up any confusion as to why I'd want two copies of the same
+argument.
 
+That's the main crux of my query, can I retrieve the value of a pointer
+in some struct passed via ioctl? In this case, the struct/chunk of memory
+referenced by local.rxbuf, (which is rxlen x 2 bytes big).
+
+Apologies, I'm a muppet.
+
+Matt
+
+PS. Thanks for the help so far, I'd meant to add error checking and what
+not, I just kept it out to keep the e-mail smaller.
 

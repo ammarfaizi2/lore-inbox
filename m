@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285018AbRLRUWy>; Tue, 18 Dec 2001 15:22:54 -0500
+	id <S284931AbRLRUXN>; Tue, 18 Dec 2001 15:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284958AbRLRUWn>; Tue, 18 Dec 2001 15:22:43 -0500
-Received: from cs182072.pp.htv.fi ([213.243.182.72]:12672 "EHLO
-	cs182072.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S284931AbRLRUW2>; Tue, 18 Dec 2001 15:22:28 -0500
-Message-ID: <3C1FA558.E889A00D@welho.com>
-Date: Tue, 18 Dec 2001 22:21:44 +0200
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Mika.Liljeberg@nokia.com, davem@redhat.com, linux-kernel@vger.kernel.org,
-        sarolaht@cs.helsinki.fi
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-In-Reply-To: <200112181837.VAA10394@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284958AbRLRUXE>; Tue, 18 Dec 2001 15:23:04 -0500
+Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:18320 "EHLO
+	ubb.apia.dhs.org") by vger.kernel.org with ESMTP id <S284931AbRLRUWv>;
+	Tue, 18 Dec 2001 15:22:51 -0500
+Message-Id: <v04003a13b84555d25f30@[24.70.162.28]>
+In-Reply-To: <20011218.120034.132928760.davem@redhat.com>
+In-Reply-To: <v04003a12b8454bdc0779@[24.70.162.28]>
+ <v04003a11b84549aa834a@[24.70.162.28]>
+ <20011218.113725.82100134.davem@redhat.com>
+ <v04003a12b8454bdc0779@[24.70.162.28]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Organisation: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
+X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
+X-Disclaimer-2: There is no Eric Conspiracy.
+X-Not-For-Humans: aardvark@apia.dhs.org and zebra@apia.dhs.org are spamtraps.
+Date: Tue, 18 Dec 2001 14:22:16 -0600
+To: "David S. Miller" <davem@redhat.com>
+From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
+Cc: ian@ichilton.co.uk, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> Hello!
-> 
-> > from the SYN exchange (about 200 ms). So, something is wrong?
-> 
-> Well, the guess was right and this is pleasant.
+At 2:00 PM -0600 12/18/01, David S. Miller wrote:
+>   From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+>   Date: Tue, 18 Dec 2001 13:46:03 -0600
+>
+>   Alternatley, having a configuration option to set a commandline, like some
+>   other arches have, would also work.
+>
+>I like this idea better, it solves more problems than just the nfs
+>root case.
 
-Yes. We also saw a case, where the RTO was quite high but not quite 120,
-so we got exactly one retransmission.
+Cool.
 
-> The only minor :-) question remained is to guess how rto could happen
-> to be at this value. I will think. Well, if you have some guesses,
-> please, tell me.
+Just to note, my javastations are currently in mothballs, so I won't be
+able to personally provide a patch to do this.
 
-Sorry, I'm not really trying to debug Linux so I haven't given it much
-thought. We're exercising retransmission algorithms with a packet loss
-ratio of 5% if that's any help.
 
-> Is this intel btw?
+Cheers - Tony 'Nicoya' Mantler :)
 
-It's ARM in little endian mode.
 
-> I just see that other side
-> sends bogus misaligned tcp options... not a problem, but it can
-> be reason of funnyies with some probability.
+--
+Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
+Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/
 
-Heh, they're not bogus, just differently aligned. :) This is an
-implementation where packet processing latency is not highest 
-item on the list of optimization targets.
 
-Now that you mention it, tcp_parse_options() in input.c seems to expect
-that the timestamps are word aligned, which is not the case here, and a
-false assumption in any case. I would have expected a bus error for
-that, unless the pointer cast generates code that magically word aligns
-the resulting pointer...
-
-Cheers,
-
-	MikaL

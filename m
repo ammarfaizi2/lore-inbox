@@ -1,41 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280267AbRJaPbr>; Wed, 31 Oct 2001 10:31:47 -0500
+	id <S280263AbRJaP2g>; Wed, 31 Oct 2001 10:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280269AbRJaPbh>; Wed, 31 Oct 2001 10:31:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34823 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280267AbRJaPbX>; Wed, 31 Oct 2001 10:31:23 -0500
-Date: Wed, 31 Oct 2001 07:28:49 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: pre6 oom killer oops
-In-Reply-To: <3BE00078.FF088117@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0110310725330.32330-100000@penguin.transmeta.com>
+	id <S280266AbRJaP20>; Wed, 31 Oct 2001 10:28:26 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:3344 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S280263AbRJaP2U>; Wed, 31 Oct 2001 10:28:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14-pre6 + preempt dri lockup
+Date: Wed, 31 Oct 2001 10:28:33 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011031152822Z280263-17408+8294@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 31 Oct 2001, Jeff Garzik wrote:
->
-> 2.4.14-pre6 on alpha.  three oops attached, an oops right after oom
-> killer kicked in, and two hits on this BUG:  kernel BUG at buffer.c:498!
-
-This isn't the oom killer - look more closely at your oops:
-
-	do_wp_page: bogus page at address 2000002dbc0 (page 0xfffffc173ab13b00)
-	VM: killing process cc1(29719)
-
-Note the "do_wp_page" message _before_ the VM decided to kill the process.
-And the first oops seems to be more of the same: big corruption in the
-page tables.
-
-Looks like the oom killer kicked in under extreme memory load, but the
-extreme memory load caused something else too.
-
-		Linus
-
+Using 2.4.14-pre6 and Love's preempt patch, i recompiled my X's matrox drm 
+driver and loaded it.  All seemed well and good and i started X and it locked 
+up.  I had to reboot.  Upon rebooting I started X without loading the drm 
+module and disabling DRI and it loaded fine.  Tis not good.   The drm module 
+worked in every kernel prior to this one with and without the preempt patch.  
+I couldn't get an error message or anything but i did hear my monitor resync, 
+it just never displayed any kind of image.  The entire system was 
+unresponsive.  

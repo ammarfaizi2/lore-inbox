@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267773AbRGRD5n>; Tue, 17 Jul 2001 23:57:43 -0400
+	id <S267827AbRGREBO>; Wed, 18 Jul 2001 00:01:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267824AbRGRD5d>; Tue, 17 Jul 2001 23:57:33 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32782 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267773AbRGRD5Y>; Tue, 17 Jul 2001 23:57:24 -0400
-Date: Tue, 17 Jul 2001 20:56:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Inclusion of zoned inactive/free shortage patch 
-In-Reply-To: <Pine.LNX.4.21.0107172137190.7949-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0107172051500.1414-100000@penguin.transmeta.com>
+	id <S267824AbRGREBD>; Wed, 18 Jul 2001 00:01:03 -0400
+Received: from [211.58.56.19] ([211.58.56.19]:41409 "EHLO mo4.hananet.net")
+	by vger.kernel.org with ESMTP id <S267827AbRGREAt>;
+	Wed, 18 Jul 2001 00:00:49 -0400
+Date: Wed, 18 Jul 2001 13:00:31 +0900 (KST)
+From: Byeong-ryeol Kim <jinbo21@hananet.net>
+Reply-To: Byeong-ryeol Kim <jinbo21@hananet.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: serious cd writer kernel bug 2.4.x
+In-Reply-To: <GBEALFKJGAFHFMBNFHAEGEBFCLAA.jorgp@bartnet.net>
+Message-ID: <Pine.LNX.4.33.0107181252220.27114-100000@progress.plw.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 17 Jul 2001, Jorg Pitts (306170) wrote:
+...
+>what I have currently have in lilo.conf is
+>append hdd=ide-scsi in lilo.conf
+...
 
-On Tue, 17 Jul 2001, Marcelo Tosatti wrote:
-> >
-> > Do you have any really compelling reasons for adding the zone parameter to
-> > swap-out?
->
-> Avoid the page-faults and unecessary swap space allocation.
+Since only the option, 'hdx=scsi' is mentioned in Configure.help of
+both latest 2.4.7-pre6 and 2.4.6-ac4 kernel, I'm somewhat confused.
+Which is the correct one, or both?
 
-In that case, what's the argument for not just replacing the zone
-parameter with
-
-	/* If we have enough free pages in this zone, don't bother */
-	if (page->zone->nrpages > page->zone->high)
-		return;
-
-which works without having a silly single-zone special case (think
-multiple small zones, all under pressure, and one large zone that hasn't
-seen pressure in ages).
-
-A single-zone parameter just looks fundamentally broken. How do you
-determine "which zone"? All allocations are really about zone _lists_, not
-single zones.
-
-This same test (maybe nicely abstraced with something like a
-"page_zone_pressure(page)" inline function) makes sense in pretty much all
-the scanning functions. We want to _age_ the pages in such zones, but we
-may not actually want to do anything further.
-
-Comments?
-
-		Linus
+-- 
+Where there is a will, there is a way.       jinbo21@hananet.net
+  For the future of you and me!              jinbo21@hitel.net
+fingerprint = 1429 8AAF 8A2C 6043 DA2E  BD4C 964C 2698 687D 4B7D
 

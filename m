@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316898AbSEaVUT>; Fri, 31 May 2002 17:20:19 -0400
+	id <S316952AbSEaVWJ>; Fri, 31 May 2002 17:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316952AbSEaVUS>; Fri, 31 May 2002 17:20:18 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:25716 "EHLO
+	id <S316954AbSEaVWI>; Fri, 31 May 2002 17:22:08 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:33652 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316898AbSEaVUR>; Fri, 31 May 2002 17:20:17 -0400
-Date: Fri, 31 May 2002 23:19:51 +0200
+	id <S316952AbSEaVWH>; Fri, 31 May 2002 17:22:07 -0400
+Date: Fri, 31 May 2002 23:21:33 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Cc: Andreas Hartmann <andihartmann@freenet.de>, linux-kernel@vger.kernel.org
-Subject: Re: Memory management in Kernel 2.4.x
-Message-ID: <20020531211951.GZ1172@dualathlon.random>
-In-Reply-To: <fa.iklie8v.5k2hbj@ifi.uio.no> <fa.na0lviv.e2a93a@ifi.uio.no> <actahk$6bp$1@ID-44327.news.dfncis.de> <3CF23893.207@loewe-komp.de>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Message-ID: <20020531212133.GA1172@dualathlon.random>
+In-Reply-To: <200205231311.g4NDBO613726@mail.pronto.tv> <20020523141243.A1178@tricia.dyndns.org> <200205241036.g4OAaXR28572@mail.pronto.tv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.3.27i
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 03:45:55PM +0200, Peter Wächtler wrote:
-> Andreas Hartmann wrote:
-> >Zwane Mwaikambo wrote:
+On Fri, May 24, 2002 at 12:36:32PM +0200, Roy Sigurd Karlsbakk wrote:
+> On Thursday 23 May 2002 20:12, jlnance@intrex.net wrote:
+> > On Thu, May 23, 2002 at 03:11:24PM +0200, Roy Sigurd Karlsbakk wrote:
+> > > Starting up 30 downloads from a custom HTTP server (or Tux - or Apache -
+> > > doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After
+> > > some time the kernel (a) goes bOOM (out of memory) if not having any
+> > > swap, or (b) goes gong swapping out anything it can.
 > >
-> >
-> >>On Mon, 27 May 2002, Andreas Hartmann wrote:
-> >>
-> >>
-> >>>rsync allocates all of the memory the machine has (256 MB RAM, 128 MB
-> >>>swap). When this occures, processes get killed like described in the
-> >>>posting before. The machine doesn't respond as long as the rsync -
-> >>>process isn't killed, because it fetches all the memory which gets free
-> >>>after a process has been killed.
-> >>>
-> >>And the rsync process never gets singled out? nice!
-> >>
-> >
-> >Until it's killed by the kernel (if overcommitment isn't deactivated). If 
-> >overcommitment is deactivated, the services of the machine are dead 
-> >forever. There will be nothing, which kills such a process. Or am I wrong?
-> >
+> > Does this work if the client and the server are on the same machine?  It
+> > would make reproducing this a lot easier if it only required 1 machine.
 > 
-> There is still the oom killer (Out Of Memory).
-> But it doesn't trigger and the machine pages "forever".
-> Usually kswapd eats the CPU then, discarding and reloading pages,
-> searching lists for pages to evict and so on.
+> I guess it'd work fine with only one machine, as IMO, the problem must be the 
+> kernel not releasing buffers
 
-can you reproduce with 2.4.19pre9aa2? I expect at least the deadlock
-(if it's a deadlock and not a livelock) should go away.
+too much variable.
 
-Also I read in another email that somebody grown the per-socket buffer
-to hundred mbytes, if you do that on a 32bit arch with highmem you'll
-run into troubles, too much ZONE_NORMAL ram will be constantly pinned
-for the tcp pipeline and the machine can enter livelocks.
+Also keep in mind if you grow the socket buffer to hundred mbyte on an
+highmem machine the zone-normal will finish too fast and you may run out
+of memory. 2.4.19pre9aa2 in such case should at least return -ENOMEM and
+not deadlock.
 
 Andrea

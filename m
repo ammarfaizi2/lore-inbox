@@ -1,52 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUJVSqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUJVSm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUJVSqc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 14:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUJVSnw
+	id S266491AbUJVSm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 14:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUJVSjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 14:43:52 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:32434 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266704AbUJVSkU
+	Fri, 22 Oct 2004 14:39:10 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:34994 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267338AbUJVSAx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 14:40:20 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 22 Oct 2004 20:14:57 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Luca Risolia <luca.risolia@studio.unibo.it>,
-       Luc Saillard <luc@saillard.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: Linux 2.6.9-ac3
-Message-ID: <20041022181457.GB8067@bytesex>
-References: <20041022101335.6dcf247a.luca.risolia@studio.unibo.it> <20041022092102.GA16963@sd291.sivit.org> <20041022143036.462742ca.luca.risolia@studio.unibo.it> <878y9y269v.fsf@bytesex.org> <1098460282.19459.15.camel@localhost.localdomain>
+	Fri, 22 Oct 2004 14:00:53 -0400
+Date: Fri, 22 Oct 2004 11:01:17 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC32: Fix cpu voltage change delay
+Message-ID: <20041022180117.GA2162@us.ibm.com>
+References: <16744.45392.781083.565926@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098460282.19459.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <16744.45392.781083.565926@cargo.ozlabs.ibm.com>
+X-Operating-System: Linux 2.6.9-rc4 (i686)
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 04:51:23PM +0100, Alan Cox wrote:
-> On Gwe, 2004-10-22 at 15:10, Gerd Knorr wrote:
-> > The corner case are the vendor-specific compressions.  IMHO it doesn't
-> > make much sense to attempt to implement every strange format some
-> > engineer invented in every v4l2 application.  Especially if there is
-> > no free implementation of it (which is the reason the non-gpl pwcx
-> > module was created IIRC).
-> 
-> The pwc formats look like they can be done a lot faster in MMX, which
-> argues for some format of user space exposure and a set of format idents
-> for "vendor foo, protocol 0" etc
+Hi Paul,
 
-We'll also need a libv4l2-vendorstuff then (*one* libary for *all* these
-vendor formats), otherwise that isn't going to work.  If someone is
-willing to create & maintain such a library -- fine with me.  I'll
-happily hand out v4l2 vendor format ID's and agree do drop stuff from
-kernel space then.  But asking the apps to decode stuff in userspace
-without providing a way to do so isn't a good idea.
+On Sun, Oct 10, 2004 at 01:49:36PM +1000, Paul Mackerras wrote:
+> This patch fixes a problem where my new powerbook would sometimes hang
+> or crash when changing CPU speed.  We had schedule_timeout(HZ/1000) in
+> there, intended to provide a delay of one millisecond.  However, even
+> with HZ=1000, it was (I believe) only waiting for the next jiffy
+> before proceeding, which could be less than a millisecond.  Changing
+> the code to use msleep, and specifying a time of 1 jiffy + 1ms has
+> fixed the problem.  (When I looked at the msleep code, it appeared to
+> me that msleep(1) with HZ=1000 would sleep for between 0 and 1ms.)
 
-  Gerd
+<snip>
 
--- 
-return -ENOSIG;
+While looking through the latest bk changelogs, I noticed that you had
+submitted this patch using msleep(). When I read the comment, though,
+that you were offsetting the 1 millisecond with a jiffy, I was slightly
+confused as msleep() is designed to sleep for *at least* the time
+requested. So if you just use msleep(1) in these cases, you should have
+the desired effect. msleep() is designed to be independent of HZ (as the
+timeout is specified in non-jiffy units). Not using the
+jiffies_to_msecs() macro would remove some extra instructions... The
+attached patch makes this change (on top of your patch currently in bk7)
+and also changes the other schedule_timeout()s (at least, those that can
+be) to msleep.
+
+-Nish
+
+
+
+Description: Uses msleep() instead of schedule_timeout() to guarantee
+the task delays as expected. Two of the changes are reworks of previous
+msleep() calls which unnecessarily added a jiffy to the parameter.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+
+--- 2.6.9-bk7-vanilla/arch/ppc/platforms/pmac_cpufreq.c	2004-10-22 10:41:49.000000000 -0700
++++ 2.6.9-bk7/arch/ppc/platforms/pmac_cpufreq.c	2004-10-22 10:57:03.000000000 -0700
+@@ -141,7 +141,7 @@ static int __pmac dfs_set_cpu_speed(int 
+ 		/* ramping up, set voltage first */
+ 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x05);
+ 		/* Make sure we sleep for at least 1ms */
+-		msleep(1 + jiffies_to_msecs(1));
++		msleep(1);
+ 	}
+ 
+ 	/* set frequency */
+@@ -150,7 +150,7 @@ static int __pmac dfs_set_cpu_speed(int 
+ 	if (low_speed == 1) {
+ 		/* ramping down, set voltage last */
+ 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x04);
+-		msleep(1 + jiffies_to_msecs(1));
++		msleep(1);
+ 	}
+ 
+ 	return 0;
+@@ -167,8 +167,7 @@ static int __pmac gpios_set_cpu_speed(in
+ 	if (low_speed == 0) {
+ 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x05);
+ 		/* Delay is way too big but it's ok, we schedule */
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(HZ/100);
++		msleep(10);
+ 	}
+ 
+ 	/* Set frequency */
+@@ -185,8 +184,7 @@ static int __pmac gpios_set_cpu_speed(in
+ 	if (low_speed == 1) {
+ 		pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, voltage_gpio, 0x04);
+ 		/* Delay is way too big but it's ok, we schedule */
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(HZ/100);
++		msleep(10);
+ 	}
+ 
+ #ifdef DEBUG_FREQ

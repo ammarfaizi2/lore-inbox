@@ -1,48 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUGSEzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUGSFgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUGSEzz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 00:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUGSEzz
+	id S264097AbUGSFgq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 01:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUGSFgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 00:55:55 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:40453 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263772AbUGSEzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 00:55:54 -0400
-Date: Mon, 19 Jul 2004 06:54:03 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: solar@openwall.com, tigran@aivazian.fsnet.co.uk, alan@redhat.com,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
-Message-ID: <20040719045403.GA8212@alpha.home.local>
-References: <20040707234852.GA8297@openwall.com> <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet> <20040718125925.GA20133@openwall.com> <20040718212721.GC1545@alpha.home.local> <20040718161549.5c61d4a9.pj@sgi.com>
+	Mon, 19 Jul 2004 01:36:46 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:56525 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S264097AbUGSFgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 01:36:43 -0400
+Date: Mon, 19 Jul 2004 09:36:40 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Torsten Scheck <torsten.scheck@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PIIX4 ACPI device - hardwired IRQ9
+Message-ID: <20040719053640.GE32614@pazke>
+Mail-Followup-To: Torsten Scheck <torsten.scheck@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <40F41D22.5080603@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3O1VwFp74L81IIeR"
 Content-Disposition: inline
-In-Reply-To: <20040718161549.5c61d4a9.pj@sgi.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <40F41D22.5080603@gmx.de>
+User-Agent: Mutt/1.5.6+20040523i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 18, 2004 at 04:15:49PM -0700, Paul Jackson wrote:
-> That original shell's mem file will be read by whatever follows, exec or
-> not.  The 'exec' just stops the shell from forking before it exec's, and
-> certainly won't cause the path that was used earlier to open fd 0 to be
-> re-evaluated.
 
-I totally agree, of course, but...
+--3O1VwFp74L81IIeR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The setuidapp will see the shell's memory.  In general, a app, setuid or
-> not, should make no assumption that any open fd's handed to it at birth
-> were opened using the same priviledges that the app itself has.
+On 195, 07 13, 2004 at 07:34:26PM +0200, Torsten Scheck wrote:
+> Dear friends:
+>=20
+> Please excuse my ignorance: Does the indicated line below have any other=
+=20
+> purpose apart from making me comment it and recompile the kernel to get=
+=20
+> my soundcard working? ;-)
+>=20
+> kernel-source-2.4.26/arch/i386/kernel/pci-pc.c
+> static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
+>         /* PIIX4 ACPI device: hardwired IRQ9 */
+>  =3D=3D=3D>   d->irq =3D 9;
+>=20
+> $ isapnp /etc/isapnp.conf
+> /etc/isapnp.conf:167 -- Fatal - resource conflict allocating IRQ9
+> (see pci)
+> /etc/isapnp.conf:167 -- Fatal - Error occurred executing request
+> 'IRQ 9' --- further action aborted
+>=20
+> My soundcard is a Terratec EWS64 XL. I successfully use the=20
+> sam9407-1.0.4 driver after a proper isapnp configuration, i.e. comment=20
+> the hardwired IRQ9 line, compile the kernel, run isapnp.
+>=20
+>=20
+> If there should be really no other purpose I recommend to comment the=20
+> line, so I can use a precompiled kernel from now on. :-)
 
-how can you be sure it will be the shell's memory ? after an exec, the
-new process replaces the shell with the same pid. If it overwrites the
-same address space, there's a possibility that /proc/self/mem, once
-openned, still points to the same structure which will reflect the new
-process's space after exec(). I'm afraid I'll have to test it.
+The answer is simple: don't use isapnptools with 2.4 kernel,
+drivers should use kernel ISA PnP subsystem instead.
 
-Regards,
-Willy
+Unfortunately the sam9407-1.0.4 is extremely ugly piece of code and
+no person sane enough will touch it (for the good summ of money perhaps :)
 
+So the real thing you need is sam9407 driver rewritten from scrath :(
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--3O1VwFp74L81IIeR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA+13oby9O0+A2ZecRAn9UAJ9mPvrLmTCoBq3ITNfkx3KbKe2n/QCfYMHZ
+tQLJ8hP0wIFD0pC3xgd2oLM=
+=oep3
+-----END PGP SIGNATURE-----
+
+--3O1VwFp74L81IIeR--

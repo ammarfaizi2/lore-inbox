@@ -1,35 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269584AbRHCUZ3>; Fri, 3 Aug 2001 16:25:29 -0400
+	id <S269591AbRHCUgm>; Fri, 3 Aug 2001 16:36:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269587AbRHCUZT>; Fri, 3 Aug 2001 16:25:19 -0400
-Received: from mx.adelphiacom.com ([24.48.58.197]:50855 "EHLO
-	mx.adelphiacom.com") by vger.kernel.org with ESMTP
-	id <S269584AbRHCUZK>; Fri, 3 Aug 2001 16:25:10 -0400
-Message-ID: <69DCAE8DF2BFD411AACC0002A50A63F005BB935A@cdptex1.adelphiacom.com>
-From: Sam James <sam.james@adelphia.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, tao@acc.umu.se
-Cc: phillips@bonn-fries.net, sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: RE: intermediate summary of ext3-2.4-0.9.4 thread
-Date: Fri, 3 Aug 2001 16:25:19 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S269593AbRHCUgc>; Fri, 3 Aug 2001 16:36:32 -0400
+Received: from 66.linscomp.com ([63.141.210.66]:10260 "EHLO exchserv.linsang")
+	by vger.kernel.org with ESMTP id <S269591AbRHCUg3>;
+	Fri, 3 Aug 2001 16:36:29 -0400
+Message-ID: <03f101c11c5b$b53a19d0$6e00a8c0@BBONKOSKI>
+From: "Brad Bonkoski" <bbonkoski@xyterra.com>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: Fw: select(2)
+Date: Fri, 3 Aug 2001 13:34:34 -0700
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->This is just completely true. One wonders why we seem to enjoy
->getting screwed this way. We shouldn't be patching these MTAs or
->hacking Linux to act like BSD. We should be avoiding these MTAs.
->
->Somebody can create a big MTA list, listing the good and bad ones.
->Then we get the Linux-hostile MTAs out of the Linux distributions,
->demanding compliance like we do for filesystem layout. We also hunt
->down Linux-related web pages that mention these MTAs and get the
->pages changed or removed. The point is to make these MTAs just
->disappear, never to be seen again. Nice MTAs get promoted.
+
+----- Original Message -----
+From: "Brad Bonkoski" <bbonkoski@xyterra.com>
+To: <redhat-list@redhat.com>
+Sent: Friday, August 03, 2001 10:15 AM
+Subject: select(2)
 
 
-Your not related to Bill Gates are you?
+> Hello,
+>
+> this code:
+> fd_set set;
+> struct timeval timeout;
+> int len_inet;
+> int n;
+> FD_ZERO(&set);
+> timeout.tv_sec = 1L;
+> FD_SET(sc_sock,&set);
+> n = select(sc_sock+1, &set, NULL, NULL, &timeout);
+> if (n == -1)
+>
+
+>   perror("select()\n");
+>   exit(1);
+> }
+>
+> Works just fine on one machine, i.e. select() does not return a '-1' which
+lets it run through the rest of the code.  However, on other machines, it
+does not work fine, -1 is always returned by select() with error of: Invalid
+arguement
+>
+> Any ideas on where I could look to fix this problem?  Something in the
+syntax of the posted code, or should I be looking at the creation of the
+socket?
+> TIA.
+> Brad
+>
+>
+>
+>
+>
+
+
+

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270622AbTGNNHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270615AbTGNNA3
+	id S270642AbTGNMyO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270657AbTGNMyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:00:29 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:49657 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S270597AbTGNNAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:00:01 -0400
-Subject: Re: gcc-3.3.1 breaks kernel
-From: Martin Schlemmer <azarah@gentoo.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Christian Kujau <evil@g-house.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030712004301.GE2791@werewolf.able.es>
-References: <8avk.6lp.3@gated-at.bofh.it> <3F0F4C10.9050204@g-house.de>
-	 <20030712004301.GE2791@werewolf.able.es>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058188482.1164.352.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 14 Jul 2003 15:14:43 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Jul 2003 08:54:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:27834 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270623AbTGNMvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:51:05 -0400
+Date: Mon, 14 Jul 2003 10:03:23 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, marcelo@conectiva.com,
+       Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>
+Subject: Re: -- END OF BLOCK --
+In-Reply-To: <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.55L.0307141000150.18257@freak.distro.conectiva>
+References: <200307141239.h6ECdqXP002766@hraefn.swansea.linux.org.uk> 
+ <Pine.LNX.4.55L.0307140947210.18257@freak.distro.conectiva>
+ <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-12 at 02:43, J.A. Magallon wrote:
-> On 07.12, Christian Kujau wrote:
-> > J.A. Magallon wrote:
-> > > Hi all...
-> > > 
-> > > Any brave soul there is using a prerelease of gcc-3.3.1 to build kernels ?
-> > > (don't know if RawHide or SuSE beta or any other have that, apart from
-> > > MandrakeCooker).
-> > 
-> > yes, 2.4.2x and 2.5.7x build properly with Debians gcc-3.3.1 here (x86).
-> > 
-> 
-> Plz, can you tell me the exact version of gcc (date of snapshot or the
-> like). My cooker gcc is:
-> 
-> - Update to 3.3-hammer branch as of 2003/07/03
-> 
-
-This is known to break many things for x86 (p3/4 as well as athlon).
-I have not checked it in some time, so not sure if all the issues
-we had was fixed.  Rather stip the hammer stuff.
 
 
-Cheers,
+On Mon, 14 Jul 2003, Alan Cox wrote:
 
--- 
-Martin Schlemmer
+> On Llu, 2003-07-14 at 13:50, Marcelo Tosatti wrote:
+> > > I've resynched -ac to the quota code in pre5 and added the automatic
+> > > quota loader on top again.
+> >
+> > And the deadlock avoidance patches too right?
+> >
+> > Would you mind sending me the automatic quota loader diff and the deadlock
+> > avoidance diff ?
+>
+> The merge is non trivial. I'll let Christoph sort the mess out since I don't
+> have time to waste on it, and the old -ac quota code works perfectly well for
+> me.
 
+Okay.
+
+The quota code you have in -ac is new Jan Kara's stuff (which supports
+both formats, etc) plus the ext3 deadlock avoidance and the compat stuff ?
+
+Christoph, for what reason have you removed the ext3 deadlock avoidance
+patches? And also, what else have you changed wrt originals Jan code ?
+
+Lets have -pre6 soon to fix up this mess (which is causing DEADLOCKS), ok?
 

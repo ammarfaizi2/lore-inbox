@@ -1,94 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129164AbQKDQsq>; Sat, 4 Nov 2000 11:48:46 -0500
+	id <S129238AbQKDQ52>; Sat, 4 Nov 2000 11:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129238AbQKDQsg>; Sat, 4 Nov 2000 11:48:36 -0500
-Received: from styx.cs.kuleuven.ac.be ([134.58.40.3]:8926 "EHLO
-	styx.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S129164AbQKDQs2>; Sat, 4 Nov 2000 11:48:28 -0500
-Date: Sat, 4 Nov 2000 16:50:42 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.3.x] highuid.h macro expansion
-Message-ID: <Pine.LNX.4.10.10011041648090.388-100000@cassiopeia.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129258AbQKDQ5T>; Sat, 4 Nov 2000 11:57:19 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:28937 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129238AbQKDQ5C>;
+	Sat, 4 Nov 2000 11:57:02 -0500
+Date: Sat, 4 Nov 2000 17:56:59 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andi Kleen <ak@suse.de>, "Hen, Shmulik" <shmulik.hen@intel.com>,
+        "'LKML'" <linux-kernel@vger.kernel.org>,
+        "'LNML'" <linux-net@vger.kernel.org>
+Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0
+Message-ID: <20001104175659.A15475@gruyere.muc.suse.de>
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27077@hasmsx52.iil.intel.com> <3A03DABD.AF4B9AD5@mandrakesoft.com> <20001104111909.A11500@gruyere.muc.suse.de> <3A042D04.5B3A7946@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A042D04.5B3A7946@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Nov 04, 2000 at 10:36:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 04, 2000 at 10:36:36AM -0500, Jeff Garzik wrote:
+> Andi Kleen wrote:
+> > 
+> > On Sat, Nov 04, 2000 at 04:45:33AM -0500, Jeff Garzik wrote:
+> > >
+> > > > *       What about dev->open and dev->stop ?
+> > >
+> > > Sleep all you want, we'll leave the light on for ya.
+> > 
+> > ... but make sure you have no module unload races (or at least not too
+> > huge holes, some are probably unavoidable with the current network
+> > driver interface, e.g. without moving module count management a bit up).
+> > This means you should do MOD_INC_USE_COUNT very early at least to
+> > minimize the windows (and DEC_USE_COUNT very late)
+> 
+> Can you provide a trace of a race or deadlock?  I do not see where there
+> are races in the current 2.4.x code.
 
-This patch (from Andreas Schwab <schwab@suse.de>) makes macro expansion in
-<linux/highuid.h> safer.
+All the MOD_INC/DEC_USE_COUNT are done inside the modules themselves. There
+is nothing that would a driver prevent from being unloaded on a different
+CPU while it is already executing in ->open but has not yet executed the add 
+yet or after it has executed the _DEC but it is still running in module code
+Normally the windows are pretty small, but very long running interrupt
+on one CPU hitting exactly in the wrong moment can change that.
 
-diff -u --recursive --exclude-from=/home/geert/diff-excludes-linux --new-file linux-2.4.0-test10/include/linux/highuid.h test/linux-merge11-2.4.0-test10/include/linux/highuid.h
---- linux-2.4.0-test10/include/linux/highuid.h	Mon Jul 17 15:13:50 2000
-+++ test/linux-merge11-2.4.0-test10/include/linux/highuid.h	Wed Nov  1 17:52:10 2000
-@@ -41,14 +41,14 @@
- #ifdef CONFIG_UID16
- 
- /* prevent uid mod 65536 effect by returning a default value for high UIDs */
--#define high2lowuid(uid) ((uid) > 65535) ? (old_uid_t)overflowuid : (old_uid_t)(uid)
--#define high2lowgid(gid) ((gid) > 65535) ? (old_gid_t)overflowgid : (old_gid_t)(gid)
-+#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
-+#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
- /*
-  * -1 is different in 16 bits than it is in 32 bits
-  * these macros are used by chown(), setreuid(), ...,
-  */
--#define low2highuid(uid) ((uid) == (old_uid_t)-1) ? (uid_t)-1 : (uid_t)(uid)
--#define low2highgid(gid) ((gid) == (old_gid_t)-1) ? (gid_t)-1 : (gid_t)(gid)
-+#define low2highuid(uid) ((uid) == (old_uid_t)-1 ? (uid_t)-1 : (uid_t)(uid))
-+#define low2highgid(gid) ((gid) == (old_gid_t)-1 ? (gid_t)-1 : (gid_t)(gid))
- 
- /* Avoid extra ifdefs with these macros */
- 
-@@ -67,13 +67,13 @@
- 
- #define SET_UID16(var, uid)	do { ; } while (0)
- #define SET_GID16(var, gid)	do { ; } while (0)
--#define NEW_TO_OLD_UID(uid)	uid
--#define NEW_TO_OLD_GID(gid)	gid
-+#define NEW_TO_OLD_UID(uid)	(uid)
-+#define NEW_TO_OLD_GID(gid)	(gid)
- 
--#define SET_OLDSTAT_UID(stat, uid)	(stat).st_uid = uid
--#define SET_OLDSTAT_GID(stat, gid)	(stat).st_gid = gid
--#define SET_STAT_UID(stat, uid)		(stat).st_uid = uid
--#define SET_STAT_GID(stat, gid)		(stat).st_gid = gid
-+#define SET_OLDSTAT_UID(stat, uid)	(stat).st_uid = (uid)
-+#define SET_OLDSTAT_GID(stat, gid)	(stat).st_gid = (gid)
-+#define SET_STAT_UID(stat, uid)		(stat).st_uid = (uid)
-+#define SET_STAT_GID(stat, gid)		(stat).st_gid = (gid)
- 
- #endif /* CONFIG_UID16 */
- 
-@@ -97,10 +97,10 @@
-  * Since these macros are used in architectures that only need limited
-  * 16-bit UID back compatibility, we won't use old_uid_t and old_gid_t
-  */
--#define fs_high2lowuid(uid) (uid > 65535) ? (uid16_t)fs_overflowuid : (uid16_t)uid
--#define fs_high2lowgid(gid) (gid > 65535) ? (gid16_t)fs_overflowgid : (gid16_t)gid
-+#define fs_high2lowuid(uid) ((uid) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
-+#define fs_high2lowgid(gid) ((gid) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
- 
--#define low_16_bits(x)	x & 0xFFFF
--#define high_16_bits(x)	(x & 0xFFFF0000) >> 16
-+#define low_16_bits(x)	((x) & 0xFFFF)
-+#define high_16_bits(x)	(((x) & 0xFFFF0000) >> 16)
- 
- #endif /* _LINUX_HIGHUID_H */
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-Andi
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbTEFNyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 09:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTEFNyB
+	id S263762AbTEFOB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 10:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263729AbTEFOAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 09:54:01 -0400
-Received: from rth.ninka.net ([216.101.162.244]:52176 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263741AbTEFNxA (ORCPT
+	Tue, 6 May 2003 10:00:39 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47853 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263730AbTEFN7b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 09:53:00 -0400
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
-	defined (trivial)
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Thomas Horsten <thomas@horsten.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030506104956.A29357@infradead.org>
-References: <20030506103823.B27816@infradead.org>
-	 <Pine.LNX.4.40.0305061146050.8287-100000@jehova.dsm.dk>
-	 <20030506104956.A29357@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052215397.983.25.camel@rth.ninka.net>
+	Tue, 6 May 2003 09:59:31 -0400
+Date: Tue, 6 May 2003 16:11:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
+Message-ID: <20030506141153.GB25901@suse.de>
+References: <Pine.LNX.4.44.0305061552520.1235-100000@neptune.local> <Pine.LNX.4.44.0305061608050.959-100000@neptune.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 03:03:18 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305061608050.959-100000@neptune.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-06 at 02:49, Christoph Hellwig wrote:
-> > In any case, if the __STRICT_ANSI__ conditional is there in types.h, it
-> > should be there in byteorder.h as well.
+On Tue, May 06 2003, Pascal Schmidt wrote:
+> On Tue, 6 May 2003, Pascal Schmidt wrote:
 > 
-> I don't agree with you in principle, but as this is 2.4 it's probably
-> better to just add it.  Would you mind sending Marcelo a patch?
+> > I'll check if reading from the MO drive works with ide-cd under 2.4
+> > as well. If it does: what about a patch that makes ATAPI MO drives
+> > and CD writers behave the same on 2.4: read-only with native ide drivers,
+> > read-write with ide-scsi?
+> 
+> I can now confirm that using the MO drive read-only with 2.4 and ide-cd
+> also works fine.
+> 
+> Could we please have this patch included in the 2.4 IDE code to make
+> MO drives and CD writers behave the same?
 
-What if one of these "used from userland anyways" headers needs
-the 64-bit swabs?
-
-This is why I'm so against this patch.
+Not until you fix ide-cd to correctly identify it. This half-assed
+solution wont do.
 
 -- 
-David S. Miller <davem@redhat.com>
+Jens Axboe
+

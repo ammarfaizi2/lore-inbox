@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132221AbRAGNwa>; Sun, 7 Jan 2001 08:52:30 -0500
+	id <S132261AbRAGNxt>; Sun, 7 Jan 2001 08:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132370AbRAGNwV>; Sun, 7 Jan 2001 08:52:21 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45838 "EHLO
+	id <S132272AbRAGNxj>; Sun, 7 Jan 2001 08:53:39 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47118 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132221AbRAGNwK>; Sun, 7 Jan 2001 08:52:10 -0500
-Subject: Re: Patch (repost): cramfs memory corruption fix
-To: adam@yggdrasil.com (Adam J. Richter)
-Date: Sun, 7 Jan 2001 13:53:17 +0000 (GMT)
-Cc: parsley@roanoke.edu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20010106224109.A1601@adam.yggdrasil.com> from "Adam J. Richter" at Jan 06, 2001 10:41:09 PM
+	id <S132261AbRAGNxZ>; Sun, 7 Jan 2001 08:53:25 -0500
+Subject: Re: ftruncate returning EPERM on vfat filesystem
+To: djdave@bigpond.net.au (Dave)
+Date: Sun, 7 Jan 2001 13:55:15 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0101071613130.1132-100000@athlon.internal> from "Dave" at Jan 07, 2001 04:47:01 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FGG7-0002ff-00@the-village.bc.nu>
+Message-Id: <E14FGI2-0002fo-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >ramfs croaks with 'kernel BUG in filemap.c line 2559' anytime I make a
-> >file in ac2 and ac3.  Works fine in 2.4.0 vanilla.  Should be quite
-> >repeatable...
-
-I'll take a look at the ramfs one. I may have broken something else when fixing
-everything else with ramfs (like unlink) crashing
-
-> 	This sounds like a bug that I posted a fix for a long time ago.
-> cramfs calls bforget on the superblock area, destroying that block of
-> the ramdisk, even when the ramdisk does not contain a cramfs file system.
-> Normally, bforget is called on block that really can be trashed,
-> such as blocks release by truncate or unlink.  If it worked for
-> you before, you were just getting lucky.  Here is the patch.
+> +
+> +       /* FAT cannot truncate to a longer file */
+> +       if (attr->ia_valid & ATTR_SIZE) {
+> +               if (attr->ia_size > inode->i_size)
+> +                       return -EPERM;
+> +       }
 > 
-> 	Linus, please consider applying this.  Thank you.
+>         error = inode_change_ok(inode, attr);
+>         if (error)
+> 
+> Can someone tell me if this is the cause of my samba problems, and if
+> so, why this was added and if this is safe to revert?
 
-This isnt the fix. If -ac also fails well it contains this cramfs fix. So
-there must be other problems
+To stop a case where the fs gets corrupted otherwise. You can change that to
+return 0 which is more correct but most not remove it.
 
-Alan
+(ftruncate is specified to make the file at most length bytes long, extending
+the file is not a guaranteed side effect according to the docs I have)
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,120 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272264AbRI0Jtt>; Thu, 27 Sep 2001 05:49:49 -0400
+	id <S272287AbRI0KGl>; Thu, 27 Sep 2001 06:06:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272270AbRI0Jtk>; Thu, 27 Sep 2001 05:49:40 -0400
-Received: from mail.compfort.com.pl ([195.117.140.101]:44406 "helo
-	mail.compfort.com.pl") by vger.kernel.org with SMTP
-	id <S272264AbRI0JtZ>; Thu, 27 Sep 2001 05:49:25 -0400
-From: <kewl@compfort.pl>
-subject: kernel oops
-Message-Id: <20010927094934Z272264-760+17574@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
-Date: Thu, 27 Sep 2001 05:49:25 -0400
+	id <S272270AbRI0KGc>; Thu, 27 Sep 2001 06:06:32 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:41050 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S272287AbRI0KGW>;
+	Thu, 27 Sep 2001 06:06:22 -0400
+Date: Thu, 27 Sep 2001 12:06:44 +0200 (MEST)
+From: Bernd Harries <mlbha@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu
+MIME-Version: 1.0
+Subject: Re: __get_free_pages(): is the MEM really mine?
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0000450161@gmx.net
+X-Authenticated-IP: [141.200.125.99]
+Message-ID: <30756.1001585204@www46.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Thanks, Ingo.
 
-i am recently experiencing kernel errors with httpd process,
-the software used:
+> perfectly legal - but there is no guarantee you will succeed getting two
+> nearby 2 MB pages. You will get it if your driver initializes during
 
-apache 1.3.18 running in chroot environment,
-self built kernel 2.4.10,
-glibc 2.2.2, gcc version 2.96, binutils 2.10)
+Yes, I try until I have enough (2 in 2.4.x, 32 in 2.2.x) contig chunks and
+free the rest again. But statistically I do get 2 contig chunks immediately
+quite often if the X11 is not already running. 256 MB is in the box
 
-the problem is semi-repeatable, that is it happens almost always after a few minutes of running
-that httpd, but is triggered either by running CGI scripts or trigerring apache 40x errors.
+> > When I run the user appl. again after short time I mostly get the same
+> > chunk of physical memory (virt_to_bus is identical!)
+> 
+> have you perpahs freed that page?
 
-the hardware used is P200 MMX, 64 megz of ram, tx chipset
+Yes, as expected.
 
-if you need any further information i will be happy to help,
+> printk every occasion of
+> allocating/freeing a 2 MB buffer and i'm sure you'll see the problem.
+> (Perhaps it's the close() implicitly done by exit() that frees the
+> buffer?)
 
-below find ksymoops outputs (2 slightly different ones):
+Yes, that is definitely the case and I expect it. 
 
-the first one:
+> >  Now close '/dev/aprsc027' fd = 3 ...
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000c
-c011a112
-*pde = 0128d067
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c011a112>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 00000000   ebx: c3462000   ecx: c37ad620   edx: c1132000
-esi: c1e24000   edi: ffff0301   ebp: 0000000a   esp: c1e25ee4
-ds: 0018   es: 0018   ss: 0018
-Process httpd (pid: 27196, stackpage=c1e25000)
-Stack: 000023ad ffffffff 000023ad 00000003 00000001 bffff808 c011a74d 0000000a
-       c1e25f3c c3462000 00000000 005fd4a5 c1e24000 c010f160 000023ad 00000003
-       00000001 bffff808 c011aee9 0000000a c1e25f3c 000023ad 0000000a 00000000
-Call Trace: [<c011a74d>] [<c010f160>] [<c011aee9>] [<c013dea0>] [<c0106ca3>]
-Code: 8b 40 0c 8b 50 08 66 39 7a 30 75 0c 8b 41 28 39 42 28 0f 84
->>EIP; c011a112 <send_sig_info+e2/4d0>   <=====
-Trace; c011a74c <kill_something_info+ec/100>
-Trace; c010f160 <process_timeout+0/50>
-Trace; c011aee8 <sys_kill+48/60>
-Trace; c013dea0 <sys_select+480/490>
-Trace; c0106ca2 <system_call+32/40>
-Code;  c011a112 <send_sig_info+e2/4d0>
-00000000 <_EIP>:
-Code;  c011a112 <send_sig_info+e2/4d0>   <=====
-   0:   8b 40 0c                  mov    0xc(%eax),%eax   <=====
-Code;  c011a114 <send_sig_info+e4/4d0>
-   3:   8b 50 08                  mov    0x8(%eax),%edx
-Code;  c011a118 <send_sig_info+e8/4d0>
-   6:   66 39 7a 30               cmp    %di,0x30(%edx)
-Code;  c011a11c <send_sig_info+ec/4d0>
-   a:   75 0c                     jne    18 <_EIP+0x18> c011a12a <send_sig_info+fa/4d0>
-Code;  c011a11e <send_sig_info+ee/4d0>
-   c:   8b 41 28                  mov    0x28(%ecx),%eax
-Code;  c011a120 <send_sig_info+f0/4d0>
-   f:   39 42 28                  cmp    %eax,0x28(%edx)
-Code;  c011a124 <send_sig_info+f4/4d0>
-  12:   0f 84 00 00 00 00         je     18 <_EIP+0x18> c011a12a <send_sig_info+fa/4d0>
+The test program does a close and on the console 
 
-and the other one:
+But I tend to conclude from getting the same phys address again after some
+time that noone else uses much memory inbetween. Plus, the first page of the
+area stays Zero all the time while the higher pages seem to be used by
+someone. I know that this is no prove that the 1st page was really not used
+otherwise but... And I know it is also legal that other procs use the very same RAM.
+But the prob is that the system gets unstable. And it doesn't get unstable if
+order count is 0, which i use in minor 0..23 to allocate a small kernel
+buffer. Only minor 26 and 27 allocate a 4 MB contig buffer in open() and mmap
+that buffer to user space, while minor 28 and 29 only allocate a small buffer to
+write the FIFOs and mmap the 32 MB PCI area of the card.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000c
-c011a112
-*pde = 02410067
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c011a112>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 00000000   ebx: c3850000   ecx: c37ad620   edx: c1132000
-esi: c2412000   edi: ffff0301   ebp: 0000000a   esp: c2413ee4
-ds: 0018   es: 0018   ss: 0018
-Process httpd (pid: 4325, stackpage=c2413000)
-Stack: 00002a7c ffffffff 00002a7c 00000003 00000001 bffffc48 c011a74d 0000000a
-       c2413f3c c3850000 00000000 0001c089 c2412000 c010f160 00002a7c 00000003
-       00000001 bffffc48 c011aee9 0000000a c2413f3c 00002a7c 0000000a 00000000
-Call Trace: [<c011a74d>] [<c010f160>] [<c011aee9>] [<c013dea0>] [<c0106ca3>]
-Code: 8b 40 0c 8b 50 08 66 39 7a 30 75 0c 8b 41 28 39 42 28 0f 84
->>EIP; c011a112 <send_sig_info+e2/4d0>   <=====
-Trace; c011a74c <kill_something_info+ec/100>
-Trace; c010f160 <process_timeout+0/50>
-Trace; c011aee8 <sys_kill+48/60>
-Trace; c013dea0 <sys_select+480/490>
-Trace; c0106ca2 <system_call+32/40>
-Code;  c011a112 <send_sig_info+e2/4d0>
-00000000 <_EIP>:
-Code;  c011a112 <send_sig_info+e2/4d0>   <=====
-   0:   8b 40 0c                  mov    0xc(%eax),%eax   <=====
-Code;  c011a114 <send_sig_info+e4/4d0>
-   3:   8b 50 08                  mov    0x8(%eax),%edx
-Code;  c011a118 <send_sig_info+e8/4d0>
-   6:   66 39 7a 30               cmp    %di,0x30(%edx)
-Code;  c011a11c <send_sig_info+ec/4d0>
-   a:   75 0c                     jne    18 <_EIP+0x18> c011a12a <send_sig_info+fa/4d0>
-Code;  c011a11e <send_sig_info+ee/4d0>
-   c:   8b 41 28                  mov    0x28(%ecx),%eax
-Code;  c011a120 <send_sig_info+f0/4d0>
-   f:   39 42 28                  cmp    %eax,0x28(%edx)
-Code;  c011a124 <send_sig_info+f4/4d0>
-  12:   0f 84 00 00 00 00         je     18 <_EIP+0x18> c011a12a <send_sig_info+fa/4d0>
+The impression I have is that only large allocations behave strangely. But
+the instability is not visible immediately. Too bad. Only after some time do I
+see strange behaviour of the system. But I think I don't see them if I only
+use the functionality of the minors with smaller buffers.
 
-best regards,
-terry
+could my nopage() method be inmplemented wrongly?
+I read Alessandro Rubini's book I learned how to implement it:
+
+  chn_ptr = (struct RSC_SOFTC *)vma_ptr->vm_private_data;
+  card_ptr = chn_ptr->card_ptr;
+  minor = chn_ptr->minor;
+  card_chn = minor & APRSC_CARD_CHNS_MASK;
+
+  page_ptr = NOPAGE_SIGBUS;
+  
+  Iprintf(" address=$%08lX ad - vm_start=$%08lX VMA_OFFSET=$%08lX \n",
+    address,
+    address - vma_ptr->vm_start,
+    vma_ptr->vm_pgoff << PAGE_SHIFT);
+  
+  offset = address - vma_ptr->vm_start + (vma_ptr->vm_pgoff << PAGE_SHIFT);
+
+  if(card_chn == APRSC_DEV_PER_CARD - 6)  /* Bild 1 Ch 26 dieser Karte */
+  {
+    if(offset > card_ptr->contig_len0)
+    {
+      return(page_ptr);
+    }
+    /*endif()*/
+    start = (ULONG)card_ptr->dma_mem0;
+  }
+  else if(card_chn == APRSC_DEV_PER_CARD - 5)  /* Bild 2 Ch 27 dieser Karte
+*/
+  {
+    if(offset > card_ptr->contig_len1)
+    {
+      return(page_ptr);
+    }
+    /*endif()*/
+    start = (ULONG)card_ptr->dma_mem1;
+  }
+  else
+  {
+    return(page_ptr);
+  }
+  /*endif(card_chn == APRSC_DEV_PER_CARD - [(>=7), (<=4)] usw.)*/
+  page_ptr = virt_to_page(start + offset);
+  Iprintf(" start+off=$%08lX page_ptr=$%8p \n",
+    start + offset,
+    page_ptr);
+  get_page(page_ptr);
+  
+  return(page_ptr);
+
+
+
+Here is the console output of my driver during the test program:
+
+Sep 27 11:43:28 pcma73 kernel: rsc_open() minor=$1B 
+Sep 27 11:43:28 pcma73 kernel:  DMA blk 0 at KV:$CE800000 BUS:$0E800000 
+Sep 27 11:43:28 pcma73 kernel:  DMA blk 1 at KV:$CE600000 BUS:$0E600000
+contig < 
+Sep 27 11:43:28 pcma73 kernel:  Max Buffer Frag at BUS:$0E600000 len
+$00400000 bytes 
+Sep 27 11:43:28 pcma73 kernel:  Collected DMA Buffer1 at KS:$0000CE600000
+BUS:$0E600000 len $00400000 bytes 
+Sep 27 11:43:28 pcma73 kernel: rsc_ioctl()
+Sep 27 11:43:28 pcma73 kernel:  RSC_IOC_GET_FIX: copy_to_user() returned $0 
+Sep 27 11:43:28 pcma73 kernel: rsc_ioctl()
+Sep 27 11:43:28 pcma73 kernel: rsc_mmap()  minor=$1B  offset=$00000000 
+Sep 27 11:43:28 pcma73 kernel: rsc_vma_open()
+Sep 27 11:43:28 pcma73 kernel: rsc_nopage()
+Sep 27 11:43:28 pcma73 kernel:  address=$40132000 ad - vm_start=$00000000
+VMA_OFFSET=$00000000 
+Sep 27 11:43:28 pcma73 kernel:  start+off=$CE600000 page_ptr=$c1398000 
+Sep 27 11:43:28 pcma73 kernel: rsc_nopage()
+Sep 27 11:43:28 pcma73 kernel:  address=$40134000 ad - vm_start=$00002000
+VMA_OFFSET=$00000000 
+Sep 27 11:43:28 pcma73 kernel:  start+off=$CE602000 page_ptr=$c1398080 
+Sep 27 11:43:28 pcma73 kernel: rsc_ioctl()
+Sep 27 11:43:28 pcma73 kernel:  RSC_IOC_DMA_OUT
+Sep 27 11:43:28 pcma73 kernel: rsc_vma_close()
+Sep 27 11:43:28 pcma73 kernel: rsc_close()
+Sep 27 11:43:28 pcma73 kernel:  PCIRSC: DMA0CSR=$10 ok.
+Sep 27 11:43:28 pcma73 kernel:  PCIRSC: DMA1CSR=$10 ok.
+Sep 27 11:43:28 pcma73 kernel:  PCIRSC: PCISR=$0290 ok.
+Sep 27 11:43:28 pcma73 kernel:  Free DMA blk 0 at KS:$CE800000 
+Sep 27 11:43:28 pcma73 kernel:  Free DMA blk 1 at KS:$CE600000 
+
+
+Thank you very much for your help!
+
+-- 
+Bernd Harries
+
+bha@gmx.de            http://bharries.freeyellow.com
+bharries@web.de       Tel. +49 421 809 7343 priv.  | MSB First!
+harries@stn-atlas.de       +49 421 457 3966 offi.  | Linux-m68k
+bernd@linux-m68k.org       +49 172 139 6054 handy  | Medusa T40
+
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
+

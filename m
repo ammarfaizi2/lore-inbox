@@ -1,335 +1,355 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261440AbSJ2AGE>; Mon, 28 Oct 2002 19:06:04 -0500
+	id <S261867AbSJ2AQ7>; Mon, 28 Oct 2002 19:16:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261521AbSJ2AGB>; Mon, 28 Oct 2002 19:06:01 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:905 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261440AbSJ2AFn>;
-	Mon, 28 Oct 2002 19:05:43 -0500
-Message-ID: <3DBDD069.776BE08A@us.ibm.com>
-Date: Mon, 28 Oct 2002 16:03:53 -0800
-From: mingming cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@digeo.com>
-CC: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com
-Subject: [RFC][PATCH]ipc rcu alloc/free patch - mm6
-References: <20021028222738.201E02C4D6@lists.samba.org>
-Content-Type: multipart/mixed;
- boundary="------------CF76F211AC54DF1C5466C17A"
+	id <S261868AbSJ2AQ6>; Mon, 28 Oct 2002 19:16:58 -0500
+Received: from mail.lordy.de ([193.17.17.196]:43193 "HELO mail.lordy.de")
+	by vger.kernel.org with SMTP id <S261867AbSJ2AQl>;
+	Mon, 28 Oct 2002 19:16:41 -0500
+Message-Id: <5.1.0.14.2.20021029011326.024610e0@mail.lordy.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 29 Oct 2002 01:22:56 +0100
+To: linux-kernel@vger.kernel.org
+From: Steve <steve@azzkikr.net>
+Subject: PROBLEM: klogd crashed
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------CF76F211AC54DF1C5466C17A
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Andrew, Rusty,
+this is my first "bug" report so please be understanding if it contains errors.
 
-Here is the patch which addresses RCU alloc problem araised by Rusty. 
-It replaced the mempool  with Rusty's "RCU allocating RCU structure with
-the object-to-be-freed together" solution.  Patch is for 2.5.44-mm6,
-compiled and tested.
+BUG REPORT:
 
-Please review and apply if you like.
+1. klogd crashes on heavy write usage to ext3 filesystem
 
-Mingming
---------------------------------------------------------------------------------
-msg.c  |    2 -
-sem.c  |    6 +--
-shm.c  |    2 -
-util.c |  104
-++++++++++++++++++++++++++++++++++-------------------------------
-util.h |   23 ++++++++++----
-5 files changed, 77 insertions(+), 60 deletions(-)
---------------CF76F211AC54DF1C5466C17A
-Content-Type: text/plain; charset=us-ascii;
- name="mm6-ipc.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm6-ipc.patch"
+2. This problem occured when I was moving a lot of data from one system to
+the other using scp. I copied about 13 GB of data when I came across this
+message and my scp stalled. This is what syslog said:
 
-diff -urN 2544-mm6/ipc/msg.c 2544-mm6-ipc/ipc/msg.c
---- 2544-mm6/ipc/msg.c	Mon Oct 28 09:51:20 2002
-+++ 2544-mm6-ipc/ipc/msg.c	Mon Oct 28 09:31:41 2002
-@@ -93,7 +93,7 @@
- 	int retval;
- 	struct msg_queue *msq;
- 
--	msq  = (struct msg_queue *) kmalloc (sizeof (*msq), GFP_KERNEL);
-+	msq  = (struct msg_queue *) ipc_rcu_alloc (sizeof (*msq));
- 	if (!msq) 
- 		return -ENOMEM;
- 
-diff -urN 2544-mm6/ipc/sem.c 2544-mm6-ipc/ipc/sem.c
---- 2544-mm6/ipc/sem.c	Mon Oct 28 09:51:20 2002
-+++ 2544-mm6-ipc/ipc/sem.c	Mon Oct 28 09:31:41 2002
-@@ -126,7 +126,7 @@
- 		return -ENOSPC;
- 
- 	size = sizeof (*sma) + nsems * sizeof (struct sem);
--	sma = (struct sem_array *) ipc_alloc(size);
-+	sma = (struct sem_array *) ipc_rcu_alloc(size);
- 	if (!sma) {
- 		return -ENOMEM;
- 	}
-@@ -138,14 +138,14 @@
- 	sma->sem_perm.security = NULL;
- 	retval = security_ops->sem_alloc_security(sma);
- 	if (retval) {
--		ipc_free(sma, size);
-+		ipc_rcu_free(sma, size);
- 		return retval;
- 	}
- 
- 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
- 	if(id == -1) {
- 		security_ops->sem_free_security(sma);
--		ipc_free(sma, size);
-+		ipc_rcu_free(sma, size);
- 		return -ENOSPC;
- 	}
- 	used_sems += nsems;
-diff -urN 2544-mm6/ipc/shm.c 2544-mm6-ipc/ipc/shm.c
---- 2544-mm6/ipc/shm.c	Mon Oct 28 09:51:20 2002
-+++ 2544-mm6-ipc/ipc/shm.c	Mon Oct 28 09:31:41 2002
-@@ -180,7 +180,7 @@
- 	if (shm_tot + numpages >= shm_ctlall)
- 		return -ENOSPC;
- 
--	shp = (struct shmid_kernel *) kmalloc (sizeof (*shp), GFP_USER);
-+	shp = (struct shmid_kernel *) ipc_rcu_alloc (sizeof (*shp));
- 	if (!shp)
- 		return -ENOMEM;
- 
-diff -urN 2544-mm6/ipc/util.c 2544-mm6-ipc/ipc/util.c
---- 2544-mm6/ipc/util.c	Mon Oct 28 09:51:20 2002
-+++ 2544-mm6-ipc/ipc/util.c	Mon Oct 28 09:38:52 2002
-@@ -22,26 +22,11 @@
- #include <linux/slab.h>
- #include <linux/highuid.h>
- #include <linux/security.h>
--#include <linux/mempool.h>
- 
- #if defined(CONFIG_SYSVIPC)
- 
- #include "util.h"
- 
--static mempool_t* rcu_backup_pool;
--
--/* alloc and free function for rcu backup mempool */
--
--static void *alloc_ipc_rcu(int gfp_mask, void *pool_data)
--{
--	return kmalloc(sizeof(struct rcu_ipc_free), gfp_mask);
--}
--
--static void free_ipc_rcu(void* arg, void *pool_data)
--{
--	kfree(arg);
--}
--
- /**
-  *	ipc_init	-	initialise IPC subsystem
-  *
-@@ -86,7 +71,7 @@
- 		 	ids->seq_max = seq_limit;
- 	}
- 
--	ids->entries = ipc_alloc(sizeof(struct ipc_id)*size);
-+	ids->entries = ipc_rcu_alloc(sizeof(struct ipc_id)*size);
- 
- 	if(ids->entries == NULL) {
- 		printk(KERN_ERR "ipc_init_ids() failed, ipc service disabled.\n");
-@@ -94,13 +79,6 @@
- 	}
- 	for(i=0;i<ids->size;i++)
- 		ids->entries[i].p = NULL;
--
--	/* create a mempool in case normal kmalloc failed */
--	rcu_backup_pool = mempool_create(MAX_RCU_BACKUPS, 
--					alloc_ipc_rcu, free_ipc_rcu, NULL);
--	
--	if (rcu_backup_pool == NULL)
--		panic("ipc_init_ids() failed\n");
- }
- 
- /**
-@@ -128,6 +106,14 @@
- 	return -1;
- }
- 
-+static inline int use_vmalloc(int size)
-+{
-+	/* Too big for a single page? */
-+	if (sizeof(struct ipc_rcu_kmalloc) + size > PAGE_SIZE)
-+		return 1;
-+	return 0;
-+}
-+
- /*
-  * Requires ipc_ids.sem locked
-  */
-@@ -142,7 +128,7 @@
- 	if(newsize <= ids->size)
- 		return newsize;
- 
--	new = ipc_alloc(sizeof(struct ipc_id)*newsize);
-+	new = ipc_rcu_alloc(sizeof(struct ipc_id)*newsize);
- 	if(new == NULL)
- 		return ids->size;
- 	memcpy(new, ids->entries, sizeof(struct ipc_id)*ids->size);
-@@ -257,16 +243,15 @@
- 		out = kmalloc(size, GFP_KERNEL);
- 	return out;
- }
--
- /**
-- *	ipc_free	-	free ipc space
-+ *	ipc_free        -       free ipc space
-  *	@ptr: pointer returned by ipc_alloc
-  *	@size: size of block
-  *
-  *	Free a block created with ipc_alloc. The caller must know the size
-  *	used in the allocation call.
-  */
-- 
-+
- void ipc_free(void* ptr, int size)
- {
- 	if(size > PAGE_SIZE)
-@@ -275,39 +260,60 @@
- 		kfree(ptr);
- }
- 
--/* 
-- * Since RCU callback function is called in bh,
-- * we need to defer the vfree to schedule_work
-+/**
-+ *	ipc_rcu_alloc	-	allocate ipc and rcu space 
-+ *	@size: size desired
-+ *
-+ *	Allocate memory for the rcu header structure +  the object.
-+ *	Returns the pointer to the object.
-+ *	NULL is returned if the allocation fails. 
-  */
--static void ipc_free_scheduled(void* arg)
--{
--	struct rcu_ipc_free *a = arg;
--	vfree(a->ptr);
--	mempool_free(a, rcu_backup_pool);
--}
--
--static void ipc_free_callback(void* arg)
-+ 
-+void* ipc_rcu_alloc(int size)
- {
--	struct rcu_ipc_free *a = arg;
-+	void* out;
- 	/* 
--	 * if data is vmalloced, then we need to delay the free
-+	 * We prepend the allocation with the rcu struct, and
-+	 * workqueue if necessary (for vmalloc). 
- 	 */
--	if (a->size > PAGE_SIZE) {
--		INIT_WORK(&a->work, ipc_free_scheduled, arg);
--		schedule_work(&a->work);
-+	if (use_vmalloc(size)) {
-+		out = vmalloc(sizeof(struct ipc_rcu_vmalloc) + size);
-+		if (out) out += sizeof(struct ipc_rcu_vmalloc);
- 	} else {
--		kfree(a->ptr);
--		mempool_free(a, rcu_backup_pool);
-+		out = kmalloc(sizeof(struct ipc_rcu_kmalloc)+size, GFP_KERNEL);
-+		if (out) out += sizeof(struct ipc_rcu_kmalloc);
- 	}
-+
-+	return out;
-+}
-+
-+/**
-+ *	ipc_schedule_free	- free ipc + rcu space
-+ * 
-+ * Since RCU callback function is called in bh,
-+ * we need to defer the vfree to schedule_work
-+ */
-+static void ipc_schedule_free(void* arg)
-+{
-+	struct ipc_rcu_vmalloc *free = arg;
-+
-+	INIT_WORK(&free->work, vfree, free);
-+	schedule_work(&free->work);
- }
- 
- void ipc_rcu_free(void* ptr, int size)
- {
--	struct rcu_ipc_free* arg = mempool_alloc(rcu_backup_pool, GFP_KERNEL);
-+	if (use_vmalloc(size)) {
-+		struct ipc_rcu_vmalloc *free;
-+		free = ptr - sizeof(*free);
-+		call_rcu(&free->rcu, ipc_schedule_free, free);
-+	} else {
-+		struct ipc_rcu_kmalloc *free;
-+		free = ptr - sizeof(*free);
-+		/* kfree takes a "const void *" so gcc warns.  So we cast. */
-+		call_rcu(&free->rcu, (void (*)(void *))kfree, free);
-+	}
- 
--	arg->ptr = ptr;
--	arg->size = size;
--	call_rcu(&arg->rcu_head, ipc_free_callback, arg);
- }
- 
- /**
-diff -urN 2544-mm6/ipc/util.h 2544-mm6-ipc/ipc/util.h
---- 2544-mm6/ipc/util.h	Mon Oct 28 09:51:20 2002
-+++ 2544-mm6-ipc/ipc/util.h	Mon Oct 28 09:37:43 2002
-@@ -9,17 +9,24 @@
- 
- #define USHRT_MAX 0xffff
- #define SEQ_MULTIPLIER	(IPCMNI)
--#define MAX_RCU_BACKUPS	4	/*max # of elements in rcu_backup_pool*/
- 
- void sem_init (void);
- void msg_init (void);
- void shm_init (void);
- 
--struct rcu_ipc_free {
--	struct rcu_head		rcu_head;
--	void 			*ptr;
--	int 			size;
--	struct work_struct	work;
-+struct ipc_rcu_kmalloc
-+{
-+	struct rcu_head rcu;
-+	/* "void *" makes sure alignment of following data is sane. */
-+	void *data[0];
-+};
-+
-+struct ipc_rcu_vmalloc
-+{
-+	struct rcu_head rcu;
-+	struct work_struct work;
-+	/* "void *" makes sure alignment of following data is sane. */
-+	void *data[0];
- };
- 
- struct ipc_ids {
-@@ -52,6 +59,10 @@
-  */
- void* ipc_alloc(int size);
- void ipc_free(void* ptr, int size);
-+/* for allocation that need to be freed by RCU
-+ * both function can sleep
-+ */
-+void* ipc_rcu_alloc(int size);
- void ipc_rcu_free(void* arg, int size);
- 
- struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id);
+Oct 28 22:04:48 cartman kernel:  printing eip:
+Oct 28 22:04:48 cartman kernel: c015a707
+Oct 28 22:04:48 cartman kernel: Oops: 0000
+Oct 28 22:04:48 cartman kernel: CPU:    0
+Oct 28 22:04:48 cartman kernel: 
+EIP:    0010:[journal_commit_transaction+551/3623]    Not tainted
+Oct 28 22:04:48 cartman kernel: EFLAGS: 00010283
+Oct 28 22:04:48 cartman kernel: eax: 0000033d   ebx: 00000000   ecx: 
+df7b3c94   edx: d2dad4c0
+Oct 28 22:04:48 cartman kernel: esi: d5cc87b0   edi: c0677240   ebp: 
+d5cc8720   esp: df77be8c
+Oct 28 22:04:48 cartman kernel: ds: 0018   es: 0018   ss: 0018
+Oct 28 22:04:48 cartman kernel: Process kjournald (pid: 106, 
+stackpage=df77b000)
+Oct 28 22:04:48 cartman kernel: Stack: df7b3c50 df7b3c00 df7b3c00 00000000 
+00000000 c01f9ca0 d39cac40 df7b3c94
+Oct 28 22:04:48 cartman kernel:        df7b3c50 00000000 00000000 00000000 
+00000000 d380a630 d5cc84e0 00000823
+Oct 28 22:04:48 cartman kernel:        d2dad4c0 d2dcc640 d2deb3c0 d396c7c0 
+d38744c0 d2dad3c0 d3494140 d2e673c0
+Oct 28 22:04:48 cartman kernel: Call 
+Trace:    [ip_local_deliver_finish+0/304] [kjournald+278/432] 
+[commit_timeout+0/16] [kernel_thr
+ead+40/64]
+Oct 28 22:04:48 cartman kernel:
+Oct 28 22:04:48 cartman kernel: Code: 8b 43 18 a8 04 75 42 a8 02 74 15 ff 
+43 10 8b 54 24 30 8d 44
 
---------------CF76F211AC54DF1C5466C17A--
+3. klogd, ext3
+
+4. 2.4.19
+
+5. N/A
+
+6. N/A
+
+7.
+PWD=/root
+PS1=\h:\w\$
+USER=root
+MAIL=/var/mail/root
+LOGNAME=root
+SHLVL=1
+SHELL=/bin/bash
+HOME=/root
+TERM=vt100
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11
+SSH_TTY=/dev/pts/1
+_=/usr/bin/env
+OLDPWD=/
+
+7.1.
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.15
+e2fsprogs              1.27
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+No Modules loaded
+
+7.2.
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1311.719
+
+7.3.
+No modules used
+
+7.4.
+cartman:~# cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+02f8-02ff : serial(set)
+03c0-03df : vga+
+03f8-03ff : serial(set)
+0cf8-0cff : PCI conf1
+7000-703f : Promise Technology, Inc. 20265
+   7000-7007 : ide0
+   7008-700f : ide1
+   7010-703f : PDC20265
+7400-7403 : Promise Technology, Inc. 20265
+   7402-7402 : ide1
+7800-7807 : Promise Technology, Inc. 20265
+   7800-7807 : ide1
+8000-8003 : Promise Technology, Inc. 20265
+   8002-8002 : ide0
+8400-8407 : Promise Technology, Inc. 20265
+   8400-8407 : ide0
+8800-887f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+   8800-887f : 00:0d.0
+9000-900f : Promise Technology, Inc. 20269
+   9000-9007 : ide2
+   9008-900f : ide3
+9400-9403 : Promise Technology, Inc. 20269
+   9402-9402 : ide3
+9800-9807 : Promise Technology, Inc. 20269
+   9800-9807 : ide3
+a000-a003 : Promise Technology, Inc. 20269
+   a002-a002 : ide2
+a400-a407 : Promise Technology, Inc. 20269
+   a400-a407 : ide2
+d000-d01f : VIA Technologies, Inc. UHCI USB (#2)
+d400-d41f : VIA Technologies, Inc. UHCI USB
+d800-d80f : VIA Technologies, Inc. Bus Master IDE
+e200-e27f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+e800-e80f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+
+cartman:~# cat /proc/iomem
+00000000-0009d7ff : System RAM
+0009d800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000c9fff : Extension ROM
+000cc000-000ce7ff : Extension ROM
+000d0000-000d07ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-1ffebfff : System RAM
+   00100000-0024efae : Kernel code
+   0024efaf-002a79a3 : Kernel data
+1ffec000-1ffeefff : ACPI Tables
+1ffef000-1fffefff : reserved
+1ffff000-1fffffff : ACPI Non-volatile Storage
+e1800000-e181ffff : Promise Technology, Inc. 20265
+e2000000-e200007f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+e2800000-e2ffffff : S3 Inc. 86c764/765 [Trio32/64/64V+]
+e3000000-e3003fff : Promise Technology, Inc. 20269
+e4000000-e7ffffff : VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
+ffff0000-ffffffff : reserved
+
+7.5.
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+         Subsystem: Asustek Computer, Inc.: Unknown device 8042
+         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+         Latency: 8
+         Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
+         Capabilities: [a0] AGP version 2.0
+                 Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2
+                 Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+         Capabilities: [c0] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] 
+(prog-if 00 [Normal decode])
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+         Latency: 0
+         Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+         I/O behind bridge: 0000e000-0000dfff
+         Memory behind bridge: e3f00000-e3efffff
+         Prefetchable memory behind bridge: e4000000-e3ffffff
+         BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+         Capabilities: [80] Power Management version 2
+                 Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
+(rev 40)
+         Subsystem: Asustek Computer, Inc.: Unknown device 8042
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping+ SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Capabilities: [c0] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) 
+(prog-if 8a [Master SecP PriP])
+         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Region 4: I/O ports at d800 [size=16]
+         Capabilities: [c0] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 
+00 [UHCI])
+         Subsystem: Unknown device 0925:1234
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 32, cache line size 08
+         Interrupt: pin D routed to IRQ 9
+         Region 4: I/O ports at d400 [size=32]
+         Capabilities: [80] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 
+00 [UHCI])
+         Subsystem: Unknown device 0925:1234
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 32, cache line size 08
+         Interrupt: pin D routed to IRQ 9
+         Region 4: I/O ports at d000 [size=32]
+         Capabilities: [80] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+         Subsystem: Asustek Computer, Inc.: Unknown device 8042
+         Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Interrupt: pin ? routed to IRQ 9
+         Capabilities: [68] Power Management version 2
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown 
+device 4d69 (rev 02) (prog-if 85)
+         Subsystem: Promise Technology, Inc.: Unknown device 4d68
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 32 (1000ns min, 4500ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 10
+         Region 0: I/O ports at a400 [size=8]
+         Region 1: I/O ports at a000 [size=4]
+         Region 2: I/O ports at 9800 [size=8]
+         Region 3: I/O ports at 9400 [size=4]
+         Region 4: I/O ports at 9000 [size=16]
+         Region 5: Memory at e3000000 (32-bit, non-prefetchable) [size=16K]
+         Expansion ROM at <unassigned> [disabled] [size=16K]
+         Capabilities: [60] Power Management version 1
+                 Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0c.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+] 
+(prog-if 00 [VGA])
+         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Interrupt: pin A routed to IRQ 5
+         Region 0: Memory at e2800000 (32-bit, non-prefetchable) [size=8M]
+         Expansion ROM at 000c0000 [disabled] [size=64K]
+
+00:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] 
+(rev 78)
+         Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC 
+Management NIC
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 32 (2500ns min, 2500ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 9
+         Region 0: I/O ports at 8800 [size=128]
+         Region 1: Memory at e2000000 (32-bit, non-prefetchable) [size=128]
+         Expansion ROM at <unassigned> [disabled] [size=128K]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265 
+(rev 02)
+         Subsystem: Promise Technology, Inc.: Unknown device 4d33
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 32
+         Interrupt: pin A routed to IRQ 10
+         Region 0: I/O ports at 8400 [size=8]
+         Region 1: I/O ports at 8000 [size=4]
+         Region 2: I/O ports at 7800 [size=8]
+         Region 3: I/O ports at 7400 [size=4]
+         Region 4: I/O ports at 7000 [size=64]
+         Region 5: Memory at e1800000 (32-bit, non-prefetchable) [size=128K]
+         Expansion ROM at <unassigned> [disabled] [size=64K]
+         Capabilities: [58] Power Management version 1
+                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+7.6.
+No SCSI devices available
+
+7.7.
+N/A
+
+Best regards,
+Steve
 

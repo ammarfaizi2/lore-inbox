@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318042AbSGRMxw>; Thu, 18 Jul 2002 08:53:52 -0400
+	id <S318055AbSGRM5V>; Thu, 18 Jul 2002 08:57:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318047AbSGRMxv>; Thu, 18 Jul 2002 08:53:51 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:60096 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318042AbSGRMxu>; Thu, 18 Jul 2002 08:53:50 -0400
-Date: Thu, 18 Jul 2002 15:14:48 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS can't get request (2.5.26)
-In-Reply-To: <15670.44078.141083.237541@charged.uio.no>
-Message-ID: <Pine.LNX.4.44.0207181503260.29194-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318051AbSGRM5V>; Thu, 18 Jul 2002 08:57:21 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:2052 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S318048AbSGRM5U>;
+	Thu, 18 Jul 2002 08:57:20 -0400
+Date: Thu, 18 Jul 2002 21:2:28 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: problem of linux-2.4.19
+X-mailer: FoxMail 3.11 Release [cn]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207182104579.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Trond Myklebust wrote:
 
-> See the FAQ on nfs.sourceforge.net. The above error message indicates
-> congestion: either due to slow response from the server or due to some
-> networking issue.
+  i met some problem with linux2.4.19. i devided my disk to three partitions: hda1,hda2 and hda3.  hda3 is the swap. both hda1 and hda2 are ext3 file system. i boot the system with a initrd image which is saved on hda1.
+  when i use linux-2.4.19-pre1 and pre2, the system worked well. but when i test linux-2.4.19-pre9,pre10,rc1 and rc2, the same problem happened to all these verions. the system boot up, but the filesystem is readonly.the following is what on the screen(not exactly):
+..
+mount root as readonly
+INIT version is 2.78
+swap on(swap priority -1)
+..
+  is there some bugs in linux-2.4.19 with the filesystem? or with the initrd boot? or i made some mistakes?
 
-100Mbit/FDX crossover cable and stock 2.5.26, there was only about 
-256kbytes/s 
-going over the line at the time, with 3c905B on both ends.
+  please cc. thanks.
 
-Sorry, i'll check out the FAQ.
-
-Cheers,
-	Zwane Mwaikambo
-
--- 
-function.linuxpower.ca
+zhengchuanbo
+zhengcb@netpower.com.cn
 

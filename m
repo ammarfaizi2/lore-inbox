@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSAXNgA>; Thu, 24 Jan 2002 08:36:00 -0500
+	id <S287827AbSAXNiu>; Thu, 24 Jan 2002 08:38:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287827AbSAXNfu>; Thu, 24 Jan 2002 08:35:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37385 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287817AbSAXNfg>;
-	Thu, 24 Jan 2002 08:35:36 -0500
-Message-ID: <3C500DA6.8DF536C8@mandrakesoft.com>
-Date: Thu, 24 Jan 2002 08:35:34 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3-pre4 panics on boot )-:
-In-Reply-To: <5.1.0.14.2.20020124130949.02614370@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S287833AbSAXNin>; Thu, 24 Jan 2002 08:38:43 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:22152 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S287827AbSAXNi2>;
+	Thu, 24 Jan 2002 08:38:28 -0500
+Date: Thu, 24 Jan 2002 05:36:52 -0800 (PST)
+Message-Id: <20020124.053652.85395471.davem@redhat.com>
+To: adam@yggdrasil.com
+Cc: jes@trained-monkey.org, linux-acenic@sunsite.dk,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.3-pre4/drivers/acenic.c: pci_unmap_addr_set not
+ defined for x86
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200201241001.CAA00304@baldur.yggdrasil.com>
+In-Reply-To: <200201241001.CAA00304@baldur.yggdrasil.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> Can't attach .config nor decode oops at the moment as the machine is now
+   From: "Adam J. Richter" <adam@yggdrasil.com>
+   Date: Thu, 24 Jan 2002 02:01:55 -0800
 
-Normally that would suck but this is a BUG, so no problem...
+   	linux-2.5.3-pre4/drivers/acenic.c uses pci_unmap_addr_set,
+   which is defined for most architectures in include/asm-*/pci.h, but
+   not for i386.  For i386 this results in undefined references.  I
+   imagine that this is the result of a missed file (include/asm-i386/pci.h?)
+   from an Acenic update patch.
+   
+No, just a dumb typo:
 
-[...]
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> ..... CPU clock speed is 1336.3655 MHz.
-> ..... host bus clock speed is 267.2731 MHz.
-> cpu: 0, clocks: 2672731, slice: 1336365
-> CPU0<T0:2672720,T1:1336352,D:3,S:1336365,C:2672731>
-> kernel BUG at sched.c:588!
-[...]
->   spurious 8259A interrupt: IRQ7.
-> Kernel panic: Attempted to kill the idle task!
-> In idle task - not syncing
-
-
-Scheduling in an interrupt?  Ouch.
-
-I would assume Ingo's latest, which is J6 AFAICS:
-http://people.redhat.com/mingo/O(1)-scheduler/sched-O1-2.5.3-pre4-J6.patch
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+--- include/asm-i386/pci.h.~1~	Tue Jan 15 10:59:36 2002
++++ include/asm-i386/pci.h	Thu Jan 24 05:32:28 2002
+@@ -118,7 +118,7 @@
+ #define DECLARE_PCI_UNMAP_ADDR(ADDR_NAME)
+ #define DECLARE_PCI_UNMAP_LEN(LEN_NAME)
+ #define pci_unmap_addr(PTR, ADDR_NAME)		(0)
+-#define pci_unmap_addr_SET(PTR, ADDR_NAME, VAL)	do { } while (0)
++#define pci_unmap_addr_set(PTR, ADDR_NAME, VAL)	do { } while (0)
+ #define pci_unmap_len(PTR, LEN_NAME)		(0)
+ #define pci_unmap_len_set(PTR, LEN_NAME, VAL)	do { } while (0)
+ 

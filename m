@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286143AbRLZDN2>; Tue, 25 Dec 2001 22:13:28 -0500
+	id <S286140AbRLZDlm>; Tue, 25 Dec 2001 22:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286145AbRLZDNS>; Tue, 25 Dec 2001 22:13:18 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:14340 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S286143AbRLZDNG>; Tue, 25 Dec 2001 22:13:06 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "William Knop" <w_knop@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: LKML signal to noise ratio-- improvement
-Date: Tue, 25 Dec 2001 19:13:04 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBKEKPEEAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <F112MFAONTUR4NQJyaL0000f6ad@hotmail.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S286145AbRLZDld>; Tue, 25 Dec 2001 22:41:33 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:53769 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286140AbRLZDlT>;
+	Tue, 25 Dec 2001 22:41:19 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Alexander Viro <viro@math.psu.edu>
+Subject: 2.5.2-pre2 forces ramfs on
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 Dec 2001 14:41:02 +1100
+Message-ID: <2452.1009338062@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I rather like the way the R project does it. They have three lists: one for
-developers, one for "announcements" and one for help. The announcements list
-is probably irrelevant; the announcements show up on the other two lists. Of
-course, if you ask a question on the help list you will be told to RTFM if
-necessary. Still, the biggest improvement I'd like to see on LKML is a
-usable search engine / archive.
+Index: 2-pre1.1/fs/Config.in
+--- 2-pre1.1/fs/Config.in Sat, 24 Nov 2001 05:28:08 +1100 kaos (linux-2.5/F/d/27_Config.in 1.1 644)
++++ 2-pre2.1/fs/Config.in Wed, 26 Dec 2001 14:32:39 +1100 kaos (linux-2.5/F/d/27_Config.in 1.2 644)
+@@ -45,7 +45,7 @@ if [ "$CONFIG_JFFS2_FS" = "y" -o "$CONFI
+ fi
+ tristate 'Compressed ROM file system support' CONFIG_CRAMFS
+ bool 'Virtual memory file system support (former shm fs)' CONFIG_TMPFS
+-tristate 'Simple RAM-based file system support' CONFIG_RAMFS
++define_bool CONFIG_RAMFS y
 
---
-Take Your Trading to the Next Level!
-M. Edward Borasky, Meta-Trading Coach
+Why is ramfs forced on?
 
-mailto:znmeb@borasky-research.net
-http://www.borasky-research.net
+And why is Al Viro's email address not in CREDITS or MAINTAINERS?  We
+should have somewhere to complain to ;).
 

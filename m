@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSIEJBd>; Thu, 5 Sep 2002 05:01:33 -0400
+	id <S317331AbSIEJAJ>; Thu, 5 Sep 2002 05:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSIEJBd>; Thu, 5 Sep 2002 05:01:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:20931 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317349AbSIEJBc>;
-	Thu, 5 Sep 2002 05:01:32 -0400
-Date: Thu, 5 Sep 2002 14:40:23 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: rusty@rustcorp.com.au
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-       Dave Miller <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Important per-cpu fix.
-Message-ID: <20020905144023.A14040@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317347AbSIEJAI>; Thu, 5 Sep 2002 05:00:08 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:23044 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317331AbSIEJAI>; Thu, 5 Sep 2002 05:00:08 -0400
+Date: Thu, 5 Sep 2002 11:03:26 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: DervishD <raul@pleyades.net>
+cc: linux-kernel@vger.kernel.org, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.4
+In-Reply-To: <3D771A87.mailIC1BOVTM@pleyades.net>
+Message-ID: <Pine.LNX.4.44.0209051054360.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-In article <20020904023535.73D922C12D@lists.samba.org> Rusty Russell wrote:
-> Frankly, I'm amazed the kernel worked for long without this.
+On Thu, 5 Sep 2002, DervishD wrote:
 
-> Every linker script thinks the section is called .data.percpu.
-> Without this patch, every CPU ends up sharing the same "per-cpu"
-> variable.
+>     Thanks for taking the effort of making a better building process
+> :) I hope you have success ;))
 
-> This might explain the wierd per-cpu problem reports from Andrew and
-> Dave, and also that nagging feeling that I'm an idiot...
+Thanks. :)
 
-Not only does this fix the tasklet BUG with 2.5.32 but it also fixes a serial
-console hang with my 2.5.32 version of Ingo/Davem/Alexey's scalable timers 
-code that I have been debugging for the last two days. I use
-a per-cpu tasklet to run the timers, so it was probably killing me
-there.
+>     Well, even though it is a beta release, please make the graphical
+> interface optional. I've had to tweak the Makefile since I haven't QT
+> on my system (nor G++, BTW).
+>
+>     I couldn't do 'make install', but I haven't look the Makefile
+> (except for removing the QT part), so I don't know why it fails.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+What exactly is the problem? If it's correctly installed, the QT
+interface is only build when required, e.g. when you type 'make xconfig'.
+
+bye, Roman
+
+
+

@@ -1,138 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262882AbSKOHSH>; Fri, 15 Nov 2002 02:18:07 -0500
+	id <S264712AbSKOHRG>; Fri, 15 Nov 2002 02:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264654AbSKOHSH>; Fri, 15 Nov 2002 02:18:07 -0500
-Received: from pool-151-196-237-149.balt.east.verizon.net ([151.196.237.149]:45744
-	"EHLO starbug.reddwarf") by vger.kernel.org with ESMTP
-	id <S262882AbSKOHSF>; Fri, 15 Nov 2002 02:18:05 -0500
-Message-ID: <3DD4A149.4030707@yossman.net>
-Date: Fri, 15 Nov 2002 02:24:57 -0500
-From: Brian Davids <dlister@yossman.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S264654AbSKOHRG>; Fri, 15 Nov 2002 02:17:06 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:48530 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262882AbSKOHRF>;
+	Fri, 15 Nov 2002 02:17:05 -0500
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       Pete Zaitcev <zaitcev@redhat.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF17E41902.5E012443-ON85256C72.00253F4E@pok.ibm.com>
+From: "Khoa Huynh" <khoa@us.ibm.com>
+Date: Fri, 15 Nov 2002 01:22:36 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/15/2002 02:23:42 AM
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@redhat.com>
-Subject: 2.4.20-rc1-ac3 compile warnings/errors (test)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of warnings and then a compile-ending error... config can be
-found at http://dlister.net/config-2.4.20-rc1-ac3
 
 
-make[1]: Circular /usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h <- 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/interrupt.h dependency dropped.
-make[1]: Circular 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/netfilter_ipv4/ip_conntrack_helper.h 
-<- 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/netfilter_ipv4/ip_conntrack.h 
-dependency dropped.
+Jeff Garzik wrote:
 
+>> I'm more interested in contacting the admin to be a component
+>> owner for sparc, for instance. Someone is going to have a significant
+>> admin load, because Bugzilla is not going to be self-running.
+>> Who is that person?
+>
+>Check out Martin's original announcement, as well as his recent one.
+>I'm pretty pleased:  they have staff that will help triage bugs and keep
+>the garbage level low.  Hopefully leaving the kernel hackers to do
+>nothing more than fix bugs :)
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac3/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
--I../ -nostdinc -iwithprefix include -DKBUILD_BASENAME=generic  -c -o 
-generic.o generic.c
-generic.h:138: warning: `unknown_chipset' defined but not used
+Since people asked, I'd like to introduce myself as part of the
+"staff" that has volunteered some free time devoting to maintaining
+this Bugzilla; i.e., keeping the database well-groomed.  My team
+actually consists of folks in different IBM locations and time zones:
+Austin, Texas; Poughkeepsie, New York; Beaverton, Oregon; Bangalore,
+India, so hopefully, we can keep an "eye" on the database around the
+clock.  For the past two years, my team has been working Linux
+bugs and contributed bug fixes in support of our internal teams,
+and now, we have volunteered to help maintain this kernel bug
+database in our free time.  However, we expect that the bug
+volume logged will be high, so the more people in the community
+volunteer to help us maintain the database, the better.
 
+Please let us know if you like to volunteer and the Bugzilla
+administrator will give you enough "power" to do the job
+(e.g., assigning bugs, closing bugs, screening bugs for
+duplicates, invalid bugs, etc.).
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac3/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
-  -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup_pci 
--DEXPORT_SYMTAB -c setup-pci.c
-setup-pci.c: In function `ide_setup_pci_device':
-setup-pci.c:704: warning: unused variable `index_list'
-setup-pci.c: In function `ide_setup_pci_devices':
-setup-pci.c:711: warning: unused variable `index_list'
-setup-pci.c:712: warning: unused variable `index_list2'
+Also if you have already used this kernel Bugzilla database,
+you might have noticed that many components are currently
+owned by Martin or myself.  As Martin pointed out in his
+announcement, this is not because we are "egomaniacs", but
+rather because the rightful owners (or those who know enough
+about these components and want to volunteer to work bugs)
+have not been registered yet.  Martin and I will try our best
+to turn over these components to their rightful "owners"
+as soon as we can.  We are still learning the "ropes" on
+how to do this effectively, so it will take some time
+(not too long we hope).  Thanks.
 
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac3/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
-  -nostdinc -iwithprefix include -DKBUILD_BASENAME=pnpbios_core 
--DEXPORT_SYMTAB -c pnpbios_core.c
-{standard input}: Assembler messages:
-{standard input}:16: Warning: indirect lcall without `*'
-
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac3/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
-  -nostdinc -iwithprefix include -DKBUILD_BASENAME=rmap  -c -o rmap.o rmap.c
-In file included from rmap.c:31:
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:17:1: warning: 
-"kernel_locked" redefined
-In file included from /usr/src/linux-2.4.20-rc1-ac3/include/asm/hw_irq.h:16,
-                  from /usr/src/linux-2.4.20-rc1-ac3/include/linux/irq.h:69,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/hardirq.h:6,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/interrupt.h:46,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/highmem.h:25,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/highmem.h:11,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/pagemap.h:16,
-                  from rmap.c:24:
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/smp_lock.h:12:1: warning: 
-this is the location of the previous definition
-In file included from rmap.c:31:
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:22:1: warning: 
-"release_kernel_lock" redefined
-In file included from /usr/src/linux-2.4.20-rc1-ac3/include/asm/hw_irq.h:16,
-                  from /usr/src/linux-2.4.20-rc1-ac3/include/linux/irq.h:69,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/hardirq.h:6,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/interrupt.h:46,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/highmem.h:25,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/highmem.h:11,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/pagemap.h:16,
-                  from rmap.c:24:
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/smp_lock.h:10:1: warning: 
-this is the location of the previous definition
-In file included from rmap.c:31:
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:33:1: warning: 
-"reacquire_kernel_lock" redefined
-In file included from /usr/src/linux-2.4.20-rc1-ac3/include/asm/hw_irq.h:16,
-                  from /usr/src/linux-2.4.20-rc1-ac3/include/linux/irq.h:69,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/hardirq.h:6,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/interrupt.h:46,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/highmem.h:25,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/highmem.h:11,
-                  from 
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/pagemap.h:16,
-                  from rmap.c:24:
-/usr/src/linux-2.4.20-rc1-ac3/include/linux/smp_lock.h:11:1: warning: 
-this is the location of the previous definition
-In file included from rmap.c:31:
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:47:40: macro 
-"lock_kernel" passed 1 arguments, but takes just 0
-In file included from rmap.c:31:
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:48: syntax error 
-before '{' token
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:63:42: macro 
-"unlock_kernel" passed 1 arguments, but takes just 0
-/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:64: syntax error 
-before '{' token
-make[2]: *** [rmap.o] Error 1
-make[1]: *** [first_rule] Error 2
-make: *** [_dir_mm] Error 2
-
+Khoa Huynh
 
 

@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVAUQiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVAUQlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbVAUQiW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 11:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAUQhu
+	id S262424AbVAUQlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 11:41:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVAUQlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 11:37:50 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:48524 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262425AbVAUQhI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 11:37:08 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Roman Zippel <zippel@linux-m68k.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [Linux-fbdev-devel] Re: Radeon framebuffer weirdness in -mm2
-Date: Sat, 22 Jan 2005 00:36:43 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net, benh@kernel.crashing.org
-References: <20050120232122.GF3867@waste.org> <20050121060928.GI12076@waste.org> <Pine.LNX.4.61.0501211315010.6118@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501211315010.6118@scrub.home>
+	Fri, 21 Jan 2005 11:41:22 -0500
+Received: from mail.joq.us ([67.65.12.105]:3786 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262424AbVAUQjd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 11:39:33 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
+       paul@linuxaudiosystems.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
+ scheduling
+References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>
+	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>
+	<87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>
+	<87oefkd7ew.fsf@sulphur.joq.us>
+	<10752.195.245.190.93.1106211979.squirrel@195.245.190.93>
+	<65352.195.245.190.94.1106240981.squirrel@195.245.190.94>
+	<874qhb99rv.fsf@sulphur.joq.us>
+	<1728.195.245.190.93.1106299090.squirrel@195.245.190.93>
+	<41F12C94.4030808@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 21 Jan 2005 10:40:59 -0600
+In-Reply-To: <41F12C94.4030808@kolivas.org> (Con Kolivas's message of "Sat,
+ 22 Jan 2005 03:23:48 +1100")
+Message-ID: <87k6q620ro.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501220036.43358.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 January 2005 20:33, Roman Zippel wrote:
-> Hi,
+Con Kolivas <kernel@kolivas.org> writes:
+
+> Rui Nuno Capela wrote:
+>> My eyes can't find anything related, but you know how intuitive these
+>> things are ;)
 >
-> On Thu, 20 Jan 2005, Matt Mackall wrote:
-> > On Thu, Jan 20, 2005 at 08:07:11PM -0800, Andrew Morton wrote:
-> > > Andrew Morton <akpm@osdl.org> wrote:
-> > > > Next suspects would be:
-> > > >
-> > > >  +cleanup-vc-array-access.patch
-> > > >  +remove-console_macrosh.patch
-> > > >  +merge-vt_struct-into-vc_data.patch
-> > >
-> > > Make that:
-> > >
-> > > +cleanup-vc-array-access.patch
-> > > +remove-console_macrosh.patch
-> > > +merge-vt_struct-into-vc_data.patch
-> > > +vgacon-fixes-to-help-font-restauration-in-x11.patch
-> >
-> > It's something in this batch. Which is good, as I'd be a bit
-> > disappointed if the "vt leakage" were somehow attributable to the fb
-> > layer. More bisection after dinner.
->
-> Could you try the patch below. I cleaned up the logic a little in
-> redraw_screen() and the code below really wants to do a update_screen().
-> The old switch_screen(fg_console) behaved like update_screen(fg_console).
->
+> He means when using the SCHED_ISO patch. Then you'd have iso_cpu and
+> iso_period, which you have neither of so you are not using SCHED_ISO.
 
-Probably does not matter as this particular code is never invoked during
-framebuffer initialization (unless one uses fbcon=map:n option). 
+In that case, my suggestion was moot.  I thought Rui was running
+SCHED_ISO and had just hit the 70% barrier.  Since he's not, I have no
+idea what the problem is.
 
-Tony
-
-
+I'm busy building two new kernels right now.  I'll try the new
+jack_test4 some time soon, when I can.
+-- 
+  joq

@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129639AbRCAP33>; Thu, 1 Mar 2001 10:29:29 -0500
+	id <S129657AbRCAPfA>; Thu, 1 Mar 2001 10:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbRCAP3T>; Thu, 1 Mar 2001 10:29:19 -0500
-Received: from [62.90.5.51] ([62.90.5.51]:35079 "EHLO salvador.shunra.co.il")
-	by vger.kernel.org with ESMTP id <S129639AbRCAP3H>;
-	Thu, 1 Mar 2001 10:29:07 -0500
-Message-ID: <F1629832DE36D411858F00C04F24847A11DECE@SALVADOR>
-From: Ofer Fryman <ofer@shunra.co.il>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Intel-e1000 for Linux 2.0.36-pre14
-Date: Thu, 1 Mar 2001 17:33:46 +0200 
+	id <S129661AbRCAPev>; Thu, 1 Mar 2001 10:34:51 -0500
+Received: from kanga.kvack.org ([216.129.200.3]:14347 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S129657AbRCAPep>;
+	Thu, 1 Mar 2001 10:34:45 -0500
+Date: Thu, 1 Mar 2001 10:30:48 -0500 (EST)
+From: <kernel@kvack.org>
+To: Ofer Fryman <ofer@shunra.co.il>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
+In-Reply-To: <F1629832DE36D411858F00C04F24847A11DECE@SALVADOR>
+Message-ID: <Pine.LNX.3.96.1010301102756.2411B-100000@kanga.kvack.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="WINDOWS-1255"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
-successfully. 
-With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless interrupts
-and the computer freezes, without this bit set it works but I cannot receive
-or send anything.
+On Thu, 1 Mar 2001, Ofer Fryman wrote:
 
-Does any one have a clue?.
-Thanks
-Ofer
+> I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
+> successfully. 
+> With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless interrupts
+> and the computer freezes, without this bit set it works but I cannot receive
+> or send anything.
+
+Intel refuses to provide complete documentation for any of their ethernet
+cards.  I recommend purchasing alternative products from vendors like 3com
+and National Semiconduct who are cooperative in providing data needed by
+the development community.
+
+
+		-ben
+

@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286343AbSCTOMf>; Wed, 20 Mar 2002 09:12:35 -0500
+	id <S287149AbSCTONp>; Wed, 20 Mar 2002 09:13:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287149AbSCTOMZ>; Wed, 20 Mar 2002 09:12:25 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:9138 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S286343AbSCTOMP>; Wed, 20 Mar 2002 09:12:15 -0500
-Date: Wed, 20 Mar 2002 14:12:13 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: NTFS+koi8-r: "file exists but can't be statted"
-In-Reply-To: <200203200922.g2K9M0X03611@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.SOL.3.96.1020320135955.14364A-100000@draco.cus.cam.ac.uk>
+	id <S288012AbSCTONh>; Wed, 20 Mar 2002 09:13:37 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:28856 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S287149AbSCTONU>; Wed, 20 Mar 2002 09:13:20 -0500
+Date: Wed, 20 Mar 2002 15:13:22 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+cc: Pavel Machek <pavel@suse.cz>, Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+In-Reply-To: <Pine.LNX.4.33.0203201438250.9609-100000@biker.pdb.fsc.net>
+Message-ID: <Pine.GSO.3.96.1020320145347.13532C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Mar 2002, Denis Vlasenko wrote:
-> [I can't reach you directly, hope you read this on lkml]
+On Wed, 20 Mar 2002, Martin Wilck wrote:
 
-Oh? Does the email bounce? What error does it give you? An alternative is
-to find me on IRC on irc.openprojects.net in #ntfs channel.
+> I just submitted the patch because I thought that Linux putting the
+> 8259A in polling mode is also a dangerous thing that should be avoided
+> if possible. You have shown me that there are some more situations where
+> it is impossible than I had seen.
 
-> Today I sorted out UNICODE -> koi8-r filename translation
-> and now I'm able to mount NTFS volumes and see Cyrillic filenames.
-> However, when I enter my MP3 fold^Wdirectory in Midnight Commander
-> it complains that it cannot stat two files (DDT-Rain.MP3 and 
-> DDT-Last_autumn.MP3, actual names are in Cyrillic). Other files
-> (there are lots of them) are visible.
-> 
-> My mount options are:
-> ro,iocharset=koi8-r,noatime
-> 
-> I can provide any additional info you need, just ask.
+ I don't think it's dangerous on sane systems -- the 8259A is such an old
+and simple chip there is no excuse for not getting appropriate knowledge
+on it before working on it both from the hardware and the software's
+points of view.  There is no need to waste cycles, of course.
 
-Ok, I have had a report from someone using cp950 (Big5 Chineese I think) 
-who had such problems as well but he didn't last long enough to find the
-problem and I haven't had time to try an reproduce it myself. Could you
-create a .zip in Windows containing a few of those files? Perhaps one that
-works and one that doesn't and send it to me? (If email is a problem,
-visit on #ntfs, or give me a URL to download the zip from or try my
-alternate email address aia21@mole.bio.cam.ac.uk.) I can then expand the
-.zip in Windows and then hopefully I will see the same problem as you
-do...
+> Many people seem to think our BIOS is particularly nasty. I'd like to
+> repeat that this is a pretty common Phoenix BIOS. Of course I can't tell
+> what other manufacturers do, but I'd consider it at least possible that
+> their BIOS's act similarly.
 
-Hopefully I will do in which case I will trace the problem, if not, you
-will need to enable debugging output in ntfs, and we will have to trace
-the problem...
+ Well, experience shows BIOSes tend to be nasty -- I don't think yours is
+particular here, although bugs may differ. 
 
-One thing that would interest me is if the new ntfs driver (ntfs tng) will
-work ok (which it should). If you have BitKeeper you can get a clone of
-linux-ntfs.bkbits.net/ntfs-tng-2.5. This is a child of
-linux.bkbits.net/linux-2.5 so if you have that already you can just pull
-from the tng repository above... If you are not using bitkeeper let me
-know and I will create patch for you for the current kernel.
-
-Just FYI ntfs tng is now considered fully functional and implements all
-features the old driver did (read-only, no write code present). It also
-still supports the old mount options (even though some are deprecated), so
-no need to change /etc/fstab.
-
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

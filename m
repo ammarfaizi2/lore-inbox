@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVDAFPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVDAFXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbVDAFPN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 00:15:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVDAFPN
+	id S262636AbVDAFXV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 00:23:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbVDAFUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 00:15:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:63218 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262627AbVDAFOs (ORCPT
+	Fri, 1 Apr 2005 00:20:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:27586 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262629AbVDAFPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 00:14:48 -0500
+	Fri, 1 Apr 2005 00:15:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=EJp8wPHLgAXxjGiKM1lIZ+vmW8odvHq0KCC2mUbsRqD+r9ZaKPGJv1LzO7E6GxMoAfZf9oH9q/NRJ0eZwEnzQTLGUBgNgEcbQJvpq+AXTEmRiRJoVFilvO/sqv61Qd2CTdqYGO7v36US4C6j7+HbysrImcB0gBkL2iPRjImaTMs=
-Date: Fri, 1 Apr 2005 14:14:42 +0900
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=K4zz3VT11tYAMFLe1EdqOukabP8IPmAF4hfaBbCXTuHXkcjFkywMDLHGFhHMFp08EsuIfbSgpmllr8Ot7oqXMb8ggZ93v/GxjJVYHdArdreX//Qj/REkM3bN4aa26Pw3ZAQfaslTZ6237xU46heUJWVwJGO4g1KkM6Is5n17Yjg=
+Date: Fri, 1 Apr 2005 14:15:32 +0900
 From: Tejun Heo <htejun@gmail.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 02/13] scsi: don't turn on REQ_SPECIAL on sgtable allocation failure.
-Message-ID: <20050401051442.GC11318@htj.dyndns.org>
-References: <20050331090647.FEDC3964@htj.dyndns.org> <20050331090647.C0E52845@htj.dyndns.org> <1112291625.5619.21.camel@mulgrave>
+To: Christoph Hellwig <hch@infradead.org>, James.Bottomley@steeleye.com,
+       axboe@suse.de, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH scsi-misc-2.6 04/13] scsi: remove meaningless volatile qualifiers from structure definitions
+Message-ID: <20050401051532.GD11318@htj.dyndns.org>
+References: <20050331090647.FEDC3964@htj.dyndns.org> <20050331090647.57213FBA@htj.dyndns.org> <20050331101145.GA13842@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112291625.5619.21.camel@mulgrave>
+In-Reply-To: <20050331101145.GA13842@infradead.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, James.
+ Hello, Chritoph.
 
-On Thu, Mar 31, 2005 at 11:53:45AM -0600, James Bottomley wrote:
-> On Thu, 2005-03-31 at 18:08 +0900, Tejun Heo wrote:
-> > 	Don't turn on REQ_SPECIAL on sgtable allocation failure.  This
-> > 	was the last place where REQ_SPECIAL is turned on for normal
-> > 	requests.
+On Thu, Mar 31, 2005 at 11:11:45AM +0100, Christoph Hellwig wrote:
+> On Thu, Mar 31, 2005 at 06:08:10PM +0900, Tejun Heo wrote:
+> >  	struct list_head    siblings;   /* list of all devices on this host */
+> >  	struct list_head    same_target_siblings; /* just the devices sharing same target id */
+> >  
+> > -	volatile unsigned short device_busy;	/* commands actually active on low-level */
+> > +	unsigned short device_busy;	/* commands actually active on
+> > +					 * low-level. protected by sdev_lock. */
 > 
-> If you do this, you'll leak a command every time the sgtable allocation
-> fails.
+> You should probably switch it to just unsigned.  The other 16bit are wasted
+> due to alignment anyway, and some architectures produce better code for 32bit
+> accesses.
+> 
+> > -	volatile unsigned short host_busy;   /* commands actually active on low-level */
+> > -	volatile unsigned short host_failed; /* commands that failed. */
+> > +
+> > +	/*
+> > +	 * The following two fields are protected with host_lock;
+> > +	 * however, eh routines can safely access during eh processing
+> > +	 * without acquiring the lock.
+> > +	 */
+> > +	unsigned short host_busy;	   /* commands actually active on low-level */
+> > +	unsigned short host_failed;	   /* commands that failed. */
+> 
+> Here it would actually increase the struct size but might make sense anyway.
 
- AFAICT, not really.  We don't allocate another scsi_cmnd for normal
-requests if req->special != NULL.
+ Sure, I'll make them unsigned.
 
  Thanks.
 

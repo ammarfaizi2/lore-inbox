@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131768AbQL3E51>; Fri, 29 Dec 2000 23:57:27 -0500
+	id <S131184AbQL3Fp5>; Sat, 30 Dec 2000 00:45:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131865AbQL3E5Q>; Fri, 29 Dec 2000 23:57:16 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:20744 "EHLO
+	id <S131865AbQL3Fps>; Sat, 30 Dec 2000 00:45:48 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13321 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131768AbQL3E5M>; Fri, 29 Dec 2000 23:57:12 -0500
-Date: Fri, 29 Dec 2000 20:26:25 -0800 (PST)
+	id <S131184AbQL3Fpb>; Sat, 30 Dec 2000 00:45:31 -0500
+Date: Fri, 29 Dec 2000 21:13:34 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: test13-pre5/drivers/sound/via82cxxx_audio.c did not
- compile
-In-Reply-To: <20001229200916.A2645@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.10.10012292025510.1722-100000@penguin.transmeta.com>
+To: Byron Stanoszek <gandalf@winds.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre6 (Fork Bug with Athlons? Temporary Fix)
+In-Reply-To: <Pine.LNX.4.21.0012292156200.11714-200000@winds.org>
+Message-ID: <Pine.LNX.4.10.10012292112460.2009-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,15 +20,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 29 Dec 2000, Adam J. Richter wrote:
->
-> 	linux-2.4.0-test13-pre5 eliminated vm_operations_struct->swapout,
-> but this change was not reflected in drivers/sound/via82cxxx_audio.c,
-> causing that file to fail to compile.  I have attached what I believe
-> is the correct fix below.
-
-Actually, the right fix is to change all VM_RESERVE to VM_RESERVED (ie add
-a "D" at the end), at which point it should compile and work fine..
+Ok, I don't think this is an athlon bug, and I think I've figured out what
+the problem is.  For now, you rtemporary fix is probably fine, I'll clean
+stuff up a bit and make a nicer patch available tomorrow.
 
 		Linus
 

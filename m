@@ -1,204 +1,395 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261294AbSJYG6Y>; Fri, 25 Oct 2002 02:58:24 -0400
+	id <S261295AbSJYHQL>; Fri, 25 Oct 2002 03:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSJYG6X>; Fri, 25 Oct 2002 02:58:23 -0400
-Received: from 208-135-136-018.customer.apci.net ([208.135.136.18]:45841 "EHLO
-	blessed") by vger.kernel.org with ESMTP id <S261294AbSJYG6V>;
-	Fri, 25 Oct 2002 02:58:21 -0400
-Date: Fri, 25 Oct 2002 02:04:25 -0500 (CDT)
-From: Josh Myer <jbm@joshisanerd.com>
-X-X-Sender: jbm@blessed
-To: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] KB Gear JamStudio USB Tablet
-Message-ID: <Pine.LNX.4.44.0210250200290.25878-200000@blessed>
+	id <S261296AbSJYHQL>; Fri, 25 Oct 2002 03:16:11 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:54853 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S261295AbSJYHQG>; Fri, 25 Oct 2002 03:16:06 -0400
+Date: Fri, 25 Oct 2002 00:30:32 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org, <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] LKCD for 2.5.44 (8/8): dump driver and build files
+In-Reply-To: <20021023184020.D16547@infradead.org>
+Message-ID: <Pine.LNX.4.44.0210231055090.28800-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-435837720-1035529465=:25878"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Wed, 23 Oct 2002, Christoph Hellwig wrote:
+|>On Wed, Oct 23, 2002 at 02:45:07AM -0700, Matt D. Robinson wrote:
+|>The makefile is a bit illogical.  The dump-y stuff doesn't make much sense
+|>unless you actually uses it :) E.g.:
+|>
+|>export-objs				:= dump_base.o
+|>
+|>dump-y					+= dump_base.o
+|>dump-$(CONFIG_ALPHA)			+= dump_alpha.o
+|>dump-$(CONFIG_IA64)			+= dump_ia64.o
+|>dump-$(CONFIG_X86)			+= dump_i386.o
+|>dump-objs				+= $(dump-y)
+|>
+|>obj-$(CONFIG_CRASH_DUMP)		+= dump.o
+|>obj-$(CONFIG_CRASH_DUMP_BLOCKDEV)	+= dump_blockdev.o
+|>obj-$(CONFIG_CRASH_DUMP_COMPRESS_RLE)	+= dump_rle.o
+|>obj-$(CONFIG_CRASH_DUMP_COMPRESS_GZIP)	+= dump_gzip.o
+|>
+|>BTW, I can't see the alpha/ia64 stuff actually beeing included.
 
---8323328-435837720-1035529465=:25878
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+These are in the works by other development users.
 
-Attached is a patch against 2.4.19 for basic support of the KB Gear
-JamStudio USB tablet (it's a decent enough 30$ tablet--not quite wacom
-quality, but definitely not wacom pricing).
+|>> +static kdev_t dump_device;         /* the actual kdev_t device number      */
+|>
+|>should be dev_t, not kdev_t.
 
-Comments highly encouraged, thanks. I'd like to get this driver cleaned up
-a little before submitting, but I'm not quite certain where to start.
+Fixed.
 
-The code is based heavily on the wacom driver, and a big "You Rule!" to
-Pavel and anyone else involved with the Input layer. It may be a little
-convoluted, and slightly non-intuitive, but it's a hell of a lot better
-than the USB HID spec!
--- 
-/jbm, but you can call me Josh. Really, you can!
- this signature brought to you by the phrase,
-   "this signature brought to you by the phrase,
-       '...' and contributions by viewers like you"
- 7958 1C1C 306A CDF8 4468  3EDE 1F93 F49D 5FA1 49C4
+|>> +/*
+|>> + * Name: dump_read_proc()
+|>> + * Func: Read the proc data for dump tunables.
+|>> + */
+|>> +static int
+|>> +dump_read_proc(char *page, char **start, off_t off,
+|>> +	int count, int *eof, void *data)
+|>> +{
+|>> +	int len;
+|>> +	char *out = page;
+|>> +	struct proc_dir_entry *p = (struct proc_dir_entry *)data;
+|>> +
+|>> +
+|>> +	if (0 == strcmp(p->name, DUMP_LEVEL_NAME)) {
+|>> +		out += sprintf(out, "%d\n", dump_level);
+|>> +		len = out - page;
+|>> +	} else if (0 == strcmp(p->name, DUMP_FLAGS_NAME)) {
+|>> +		out += sprintf(out, "%d\n", dump_flags);
+|>> +		len = out - page;
+|>> +	} else if (0 == strcmp(p->name, DUMP_COMPRESS_NAME)) {
+|>> +		out += sprintf(out, "%d\n", dump_compress);
+|>> +		len = out - page;
+|>> +	} else if (0 == strcmp(p->name, DUMP_DEVICE_NAME)) {
+|>> +		out += sprintf(out, "0x%x\n", kdev_val(dump_device));
+|>> +		len = out - page;
+|>> +	} else {
+|>> +		return 0;
+|>> +	}
+|>> +	len -= off;
+|>> +	if (len < count) {
+|>> +		*eof = 1;
+|>> +		if (len <= 0) return 0;
+|>> +	} else {
+|>> +		len = count;
+|>> +	}
+|>> +	*start = page + off;
+|>> +	return len;
+|>
+|>Again:  if you have one value per file use (ro) sysctl!
 
---8323328-435837720-1035529465=:25878
-Content-Type: TEXT/plain; name="kbgear.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0210250204250.25878@blessed>
-Content-Description: 
-Content-Disposition: attachment; filename="kbgear.diff"
+Fixed.
 
-ZGlmZiAtdXJOIGxpbnV4LTIuNC4xOS9Eb2N1bWVudGF0aW9uL0NvbmZpZ3Vy
-ZS5oZWxwIGxpbnV4LTIuNC4xOS1rYi9Eb2N1bWVudGF0aW9uL0NvbmZpZ3Vy
-ZS5oZWxwDQotLS0gbGludXgtMi40LjE5L0RvY3VtZW50YXRpb24vQ29uZmln
-dXJlLmhlbHAJMjAwMi0wOC0wMiAyMDozOTo0Mi4wMDAwMDAwMDAgLTA0MDAN
-CisrKyBsaW51eC0yLjQuMTkta2IvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUu
-aGVscAkyMDAyLTEwLTI1IDAxOjU4OjI0LjAwMDAwMDAwMCAtMDQwMA0KQEAg
-LTEzMTA4LDYgKzEzMTA4LDE3IEBADQogICBUaGUgbW9kdWxlIHdpbGwgYmUg
-Y2FsbGVkIHdhY29tLm8uICBJZiB5b3Ugd2FudCB0byBjb21waWxlIGl0IGFz
-IGENCiAgIG1vZHVsZSwgc2F5IE0gaGVyZSBhbmQgcmVhZCA8ZmlsZTpEb2N1
-bWVudGF0aW9uL21vZHVsZXMudHh0Pi4NCiANCitLQiBHZWFyIEphbVN0dWRp
-byB0YWJsZXQgc3VwcG9ydA0KK0NPTkZJR19VU0JfS0JHRUFSDQorICBTYXkg
-WSBoZXJlIGlmIHlvdSB3YW50IHRvIHVzZSB0aGUgS0IgR2VhciBKYW1TdHVk
-aW8gVVNCIFRhYmxldC4NCisgICBNYWtlIHN1cmUgdG8gc2F5IFkgdG8gIk1v
-dXNlIHN1cHBvcnQiIChDT05GSUdfSU5QVVRfTU9VU0VERVYpIA0KKyAgIGFu
-ZC9vciAiRXZlbnQgaW50ZXJmYWNlIHN1cHBvcnQiIChDT05GSUdfSU5QVVRf
-RVZERVYpIGFzIHdlbGwuDQorDQorICBUaGlzIGRyaXZlciBpcyBhbHNvIGF2
-YWlsYWJsZSBhcyBhIG1vZHVsZSAoID0gY29kZSB3aGljaCBjYW4gYmUNCisg
-IGluc2VydGVkIGluIGFuZCByZW1vdmVkIGZyb20gdGhlIHJ1bm5pbmcga2Vy
-bmVsIHdoZW5ldmVyIHlvdSB3YW50KS4NCisgIFRoZSBtb2R1bGUgd2lsbCBi
-ZSBjYWxsZWQgd2Fjb20uby4gIElmIHlvdSB3YW50IHRvIGNvbXBpbGUgaXQg
-YXMgYQ0KKyAgbW9kdWxlLCBzYXkgTSBoZXJlIGFuZCByZWFkIDxmaWxlOkRv
-Y3VtZW50YXRpb24vbW9kdWxlcy50eHQ+Lg0KKw0KIEFpcHRlayA4MDAwVSB0
-YWJsZXQgc3VwcG9ydA0KIENPTkZJR19VU0JfQUlQVEVLDQogICBTYXkgWSBo
-ZXJlIGlmIHlvdSB3YW50IHRvIHVzZSB0aGUgVVNCIHZlcnNpb24gb2YgdGhl
-IEFpcHRlayA4MDAwVQ0KZGlmZiAtdXJOIGxpbnV4LTIuNC4xOS9kcml2ZXJz
-L3VzYi9Db25maWcuaW4gbGludXgtMi40LjE5LWtiL2RyaXZlcnMvdXNiL0Nv
-bmZpZy5pbg0KLS0tIGxpbnV4LTIuNC4xOS9kcml2ZXJzL3VzYi9Db25maWcu
-aW4JMjAwMi0wOC0wMiAyMDozOTo0NC4wMDAwMDAwMDAgLTA0MDANCisrKyBs
-aW51eC0yLjQuMTkta2IvZHJpdmVycy91c2IvQ29uZmlnLmluCTIwMDItMTAt
-MjUgMDE6NTY6NDAuMDAwMDAwMDAwIC0wNDAwDQpAQCAtNjAsNiArNjAsNyBA
-QA0KICAgICAgIGRlcF90cmlzdGF0ZSAnICBVU0IgSElEQlAgTW91c2UgKGJh
-c2ljKSBzdXBwb3J0JyBDT05GSUdfVVNCX01PVVNFICRDT05GSUdfVVNCICRD
-T05GSUdfSU5QVVQNCiAgICBmaQ0KICAgIGRlcF90cmlzdGF0ZSAnICBXYWNv
-bSBJbnR1b3MvR3JhcGhpcmUgdGFibGV0IHN1cHBvcnQnIENPTkZJR19VU0Jf
-V0FDT00gJENPTkZJR19VU0IgJENPTkZJR19JTlBVVA0KKyAgIGRlcF90cmlz
-dGF0ZSAnICBLQiBHZWFyIEphbVN0dWRpbyB0YWJsZXQgc3VwcG9ydCcgQ09O
-RklHX1VTQl9LQkdFQVIgJENPTkZJR19VU0IgJENPTkZJR19JTlBVVA0KIA0K
-ICAgIGNvbW1lbnQgJ1VTQiBJbWFnaW5nIGRldmljZXMnDQogICAgZGVwX3Ry
-aXN0YXRlICcgIFVTQiBLb2RhayBEQy0yeHggQ2FtZXJhIHN1cHBvcnQnIENP
-TkZJR19VU0JfREMyWFggJENPTkZJR19VU0INCmRpZmYgLXVyTiBsaW51eC0y
-LjQuMTkvZHJpdmVycy91c2IvTWFrZWZpbGUgbGludXgtMi40LjE5LWtiL2Ry
-aXZlcnMvdXNiL01ha2VmaWxlDQotLS0gbGludXgtMi40LjE5L2RyaXZlcnMv
-dXNiL01ha2VmaWxlCTIwMDItMDgtMDIgMjA6Mzk6NDQuMDAwMDAwMDAwIC0w
-NDAwDQorKysgbGludXgtMi40LjE5LWtiL2RyaXZlcnMvdXNiL01ha2VmaWxl
-CTIwMDItMTAtMjUgMDI6MDQ6NTEuMDAwMDAwMDAwIC0wNDAwDQpAQCAtNjMs
-NiArNjMsNyBAQA0KIG9iai0kKENPTkZJR19VU0JfSElEKQkJKz0gaGlkLm8N
-CiBvYmotJChDT05GSUdfVVNCX0tCRCkJCSs9IHVzYmtiZC5vDQogb2JqLSQo
-Q09ORklHX1VTQl9XQUNPTSkJCSs9IHdhY29tLm8NCitvYmotJChDT05GSUdf
-VVNCX0tCR0VBUikJKz0ga2JwYWQubw0KIA0KIG9iai0kKENPTkZJR19VU0Jf
-U0NBTk5FUikJKz0gc2Nhbm5lci5vDQogb2JqLSQoQ09ORklHX1VTQl9BQ00p
-CQkrPSBhY20ubw0KLS0tIGxpbnV4LTIuNC4xOS9kcml2ZXJzL3VzYi9rYnBh
-ZC5jCTE5NjktMTItMzEgMTk6MDA6MDAuMDAwMDAwMDAwIC0wNTAwDQorKysg
-bGludXgtMi40LjE5LWtiL2RyaXZlcnMvdXNiL2ticGFkLmMJMjAwMi0xMC0y
-NSAwMjowMzozMi4wMDAwMDAwMDAgLTA0MDANCkBAIC0wLDAgKzEsMTc0IEBA
-DQorI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KKyNpbmNsdWRlIDxsaW51
-eC9zbGFiLmg+DQorI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+DQorI2luY2x1
-ZGUgPGxpbnV4L21vZHVsZS5oPg0KKyNpbmNsdWRlIDxsaW51eC9pbml0Lmg+
-DQorI2luY2x1ZGUgPGxpbnV4L3VzYi5oPg0KKw0KKy8qDQorICogVmVyc2lv
-biBJbmZvcm1hdGlvbg0KKyAqLw0KKyNkZWZpbmUgRFJJVkVSX1ZFUlNJT04g
-InYwLjAuMSINCisjZGVmaW5lIERSSVZFUl9BVVRIT1IgIkpvc2ggTXllciA8
-am9zaEBqb3NoaXNhbmVyZC5jb20+Ig0KKyNkZWZpbmUgRFJJVkVSX0RFU0Mg
-IktCIEdlYXIgSmFtIFN0dWRpbyBUYWJsZXQgRHJpdmVyIg0KKw0KK01PRFVM
-RV9BVVRIT1IoIERSSVZFUl9BVVRIT1IgKTsNCitNT0RVTEVfREVTQ1JJUFRJ
-T04oIERSSVZFUl9ERVNDICk7DQorTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOw0K
-Kw0KKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9LQlRBQiAweDg0ZQ0KKw0KK3N0
-cnVjdCBrYnRhYiB7DQorICBzaWduZWQgY2hhciBkYXRhWzhdOw0KKyAgc3Ry
-dWN0IGlucHV0X2RldiBkZXY7DQorICBzdHJ1Y3QgdXNiX2RldmljZSAqdXNi
-ZGV2Ow0KKyAgc3RydWN0IHVyYiBpcnE7DQorICBpbnQgb3BlbjsNCisgIGlu
-dCB4LCB5Ow0KKyAgaW50IGJ1dHRvbjsNCisgIGludCBwcmVzc3VyZTsNCit9
-Ow0KKw0KK3N0YXRpYyB2b2lkIGtidGFiX2lycShzdHJ1Y3QgdXJiICp1cmIp
-DQorew0KKw0KKyAgc3RydWN0IGtidGFiICp0YWIgPSB1cmItPmNvbnRleHQ7
-DQorICB1bnNpZ25lZCBjaGFyICpkYXRhID0gdGFiLT5kYXRhOw0KKyAgc3Ry
-dWN0IGlucHV0X2RldiAqZGV2ID0gJnRhYi0+ZGV2Ow0KKw0KKyAgaWYodXJi
-LT5zdGF0dXMpDQorICAgIHJldHVybjsNCisNCisgIHRhYi0+eCA9IChkYXRh
-WzJdIDw8IDgpICsgZGF0YVsxXTsNCisgIHRhYi0+eSA9IChkYXRhWzRdIDw8
-IDgpICsgZGF0YVszXTsNCisNCisgIHRhYi0+cHJlc3N1cmUgPSAoZGF0YVs1
-XSk7DQorDQorICAvKiBYWFg6IGRvbid0IHJlcG9ydCB1bmxlc3MgYWN0dWFs
-IGNoYW5nZSAqLw0KKw0KKyAgaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19Y
-LCB0YWItPngpOw0KKyAgaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19ZLCB0
-YWItPnkpOw0KKyAgaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19QUkVTU1VS
-RSwgdGFiLT5wcmVzc3VyZSk7DQorDQorICBpbnB1dF9yZXBvcnRfa2V5KGRl
-diwgQlROX1NUWUxVUywgKGRhdGFbMF0gJiAyKSk7DQorICBpbnB1dF9yZXBv
-cnRfa2V5KGRldiwgQlROX1RPVUNILCAoZGF0YVswXSAmIDEpKTsNCisgIGlu
-cHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fTEVGVCwgKHRhYi0+cHJlc3N1cmUg
-PiAweDEwKSA/IDEgOiAwKTsNCisNCisgIGlucHV0X2V2ZW50KGRldiwgRVZf
-TVNDLCBNU0NfU0VSSUFMLCAwKTsNCit9DQorDQorc3RydWN0IHVzYl9kZXZp
-Y2VfaWQga2J0YWJfaWRzW10gPSB7DQorICB7IFVTQl9ERVZJQ0UoVVNCX1ZF
-TkRPUl9JRF9LQlRBQiwgMHgxMDAxKSwgZHJpdmVyX2luZm8gOiAwIH0sDQor
-ICB7IH0NCit9Ow0KKyAgDQorTU9EVUxFX0RFVklDRV9UQUJMRSh1c2IsIGti
-dGFiX2lkcyk7DQorDQorc3RhdGljIGludCBrYnRhYl9vcGVuKHN0cnVjdCBp
-bnB1dF9kZXYgKmRldikNCit7DQorICBzdHJ1Y3Qga2J0YWIgKmtidGFiID0g
-ZGV2LT5wcml2YXRlOw0KKw0KKyAgaWYoa2J0YWItPm9wZW4rKykNCisgICAg
-cmV0dXJuIDA7DQorDQorICBrYnRhYi0+aXJxLmRldiA9IGtidGFiLT51c2Jk
-ZXY7DQorICBpZih1c2Jfc3VibWl0X3VyYigma2J0YWItPmlycSkpDQorICAg
-IHJldHVybiAtRUlPOw0KKw0KKyAgcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRp
-YyB2b2lkIGtidGFiX2Nsb3NlKHN0cnVjdCBpbnB1dF9kZXYgKmRldikNCit7
-DQorICBzdHJ1Y3Qga2J0YWIgKmtidGFiID0gZGV2LT5wcml2YXRlOw0KKw0K
-KyAgaWYoIS0ta2J0YWItPm9wZW4pDQorICAgIHVzYl91bmxpbmtfdXJiKCZr
-YnRhYi0+aXJxKTsNCit9DQorDQorc3RhdGljIHZvaWQgKmtidGFiX3Byb2Jl
-KHN0cnVjdCB1c2JfZGV2aWNlICpkZXYsIHVuc2lnbmVkIGludCBpZm51bSwg
-Y29uc3Qgc3RydWN0IHVzYl9kZXZpY2VfaWQgKmlkKQ0KK3sNCisgIHN0cnVj
-dCB1c2JfZW5kcG9pbnRfZGVzY3JpcHRvciAqZW5kcG9pbnQ7DQorICBzdHJ1
-Y3Qga2J0YWIgKmtidGFiOw0KKw0KKyAgaWYoIShrYnRhYiA9IGttYWxsb2Mo
-c2l6ZW9mKHN0cnVjdCBrYnRhYiksIEdGUF9LRVJORUwpKSkNCisgICAgcmV0
-dXJuIE5VTEw7DQorDQorICBtZW1zZXQoa2J0YWIsIDAsIHNpemVvZihzdHJ1
-Y3Qga2J0YWIpKTsNCisNCisgIGtidGFiLT5kZXYuZXZiaXRbMF0gfD0gQklU
-KEVWX0tFWSkgfCBCSVQoRVZfQUJTKSB8IEJJVChFVl9NU0MpOw0KKyAga2J0
-YWItPmRldi5hYnNiaXRbMF0gfD0gQklUKEFCU19YKSB8IEJJVChBQlNfWSkg
-fCBCSVQoQUJTX1BSRVNTVVJFKTsNCisNCisgIGtidGFiLT5kZXYua2V5Yml0
-W0xPTkcoQlROX0xFRlQpXSB8PSBCSVQoQlROX0xFRlQpIHwgQklUKEJUTl9S
-SUdIVCkgfCBCSVQoQlROX01JRERMRSk7DQorICBrYnRhYi0+ZGV2LmtleWJp
-dFtMT05HKEJUTl9ESUdJKV0gfD0gQklUKEJUTl9TVFlMVVMpOw0KKw0KKyAg
-a2J0YWItPmRldi5tc2NiaXRbMF0gfD0gQklUKE1TQ19TRVJJQUwpOw0KKw0K
-KyAga2J0YWItPmRldi5hYnNtYXhbQUJTX1hdID0gMHgyMDAwOw0KKyAga2J0
-YWItPmRldi5hYnNtYXhbQUJTX1ldID0gMHgxNzUwOw0KKw0KKyAga2J0YWIt
-PmRldi5hYnNtYXhbQUJTX1BSRVNTVVJFXSA9IDB4ZmY7DQorICANCisgIGti
-dGFiLT5kZXYuYWJzZnV6eltBQlNfWF0gPSA0Ow0KKyAga2J0YWItPmRldi5h
-YnNmdXp6W0FCU19ZXSA9IDQ7DQorICANCisgIGtidGFiLT5kZXYucHJpdmF0
-ZSA9IGtidGFiOw0KKw0KKyAga2J0YWItPmRldi5vcGVuID0ga2J0YWJfb3Bl
-bjsNCisgIGtidGFiLT5kZXYuY2xvc2UgPSBrYnRhYl9jbG9zZTsNCisNCisg
-IGtidGFiLT5kZXYubmFtZSA9ICJLQiBHZWFyIFRhYmxldCI7DQorICBrYnRh
-Yi0+ZGV2LmlkYnVzID0gQlVTX1VTQjsNCisgIA0KKyAga2J0YWItPmRldi5p
-ZHZlbmRvciA9IGRldi0+ZGVzY3JpcHRvci5pZFZlbmRvcjsNCisgIGtidGFi
-LT5kZXYuaWRwcm9kdWN0ID0gZGV2LT5kZXNjcmlwdG9yLmlkUHJvZHVjdDsN
-CisgIGtidGFiLT5kZXYuaWR2ZXJzaW9uID0gZGV2LT5kZXNjcmlwdG9yLmJj
-ZERldmljZTsNCisgIGtidGFiLT51c2JkZXYgPSBkZXY7DQorDQorDQorICBl
-bmRwb2ludCA9IGRldi0+Y29uZmlnWzBdLmludGVyZmFjZVtpZm51bV0uYWx0
-c2V0dGluZ1swXS5lbmRwb2ludCArIDA7DQorDQorICB1c2Jfc2V0X2lkbGUo
-ZGV2LCBkZXYtPmNvbmZpZ1swXS5pbnRlcmZhY2VbaWZudW1dLmFsdHNldHRp
-bmdbMF0uYkludGVyZmFjZU51bWJlciwgMCwgMCk7DQorDQorICBGSUxMX0lO
-VF9VUkIoJmtidGFiLT5pcnEsIGRldiwgdXNiX3JjdmludHBpcGUoZGV2LCBl
-bmRwb2ludC0+YkVuZHBvaW50QWRkcmVzcyksDQorCSAgICAgICBrYnRhYi0+
-ZGF0YSwgOCwga2J0YWJfaXJxLCBrYnRhYiwgZW5kcG9pbnQtPmJJbnRlcnZh
-bCk7DQorDQorICBpbnB1dF9yZWdpc3Rlcl9kZXZpY2UoJmtidGFiLT5kZXYp
-Ow0KKw0KKyAgcHJpbnRrKEtFUk5fSU5GTyAiaW5wdXQlZDogS0IgR2VhciBU
-YWJsZXQgb24gdXNiJWQ6JWQuJWRcbiIsDQorCSBrYnRhYi0+ZGV2Lm51bWJl
-ciwgZGV2LT5idXMtPmJ1c251bSwgZGV2LT5kZXZudW0sIGlmbnVtKTsNCisN
-CisgIHJldHVybiBrYnRhYjsNCisNCit9DQorDQorc3RhdGljIHZvaWQga2J0
-YWJfZGlzY29ubmVjdChzdHJ1Y3QgdXNiX2RldmljZSAqZGV2LCB2b2lkICpw
-dHIpDQorew0KKwlzdHJ1Y3Qga2J0YWIgKmtidGFiID0gcHRyOw0KKwl1c2Jf
-dW5saW5rX3VyYigma2J0YWItPmlycSk7DQorCWlucHV0X3VucmVnaXN0ZXJf
-ZGV2aWNlKCZrYnRhYi0+ZGV2KTsNCisJa2ZyZWUoa2J0YWIpOw0KK30NCisN
-CitzdGF0aWMgc3RydWN0IHVzYl9kcml2ZXIga2J0YWJfZHJpdmVyID0gew0K
-KwluYW1lOgkJImtidGFiIiwNCisJcHJvYmU6CQlrYnRhYl9wcm9iZSwNCisJ
-ZGlzY29ubmVjdDoJa2J0YWJfZGlzY29ubmVjdCwNCisJaWRfdGFibGU6CWti
-dGFiX2lkcywNCit9Ow0KKw0KK3N0YXRpYyBpbnQgX19pbml0IGtidGFiX2lu
-aXQodm9pZCkNCit7DQorCXVzYl9yZWdpc3Rlcigma2J0YWJfZHJpdmVyKTsN
-CisJaW5mbyhEUklWRVJfVkVSU0lPTiAiICIgRFJJVkVSX0FVVEhPUik7DQor
-CWluZm8oRFJJVkVSX0RFU0MpOw0KKwlyZXR1cm4gMDsNCit9DQorDQorc3Rh
-dGljIHZvaWQgX19leGl0IGtidGFiX2V4aXQodm9pZCkNCit7DQorCXVzYl9k
-ZXJlZ2lzdGVyKCZrYnRhYl9kcml2ZXIpOw0KK30NCisNCittb2R1bGVfaW5p
-dChrYnRhYl9pbml0KTsNCittb2R1bGVfZXhpdChrYnRhYl9leGl0KTsNCg==
---8323328-435837720-1035529465=:25878--
+|>> +#ifndef UTSNAME_ENTRY_SZ
+|>> +#define UTSNAME_ENTRY_SZ 65
+|>> +#endif
+|>
+|>Shouldn't this be in a generic header?
+
+Corrected to use the right utsname definitions.
+
+|>> +        dump_header_asm.dha_version = DUMP_ASM_VERSION_NUMBER;
+|>> +        dump_header_asm.dha_header_size = sizeof(struct __dump_header_asm);
+|>
+|>Indentation looks broken.  Please run all sourcefiles through unexpand(1)
+
+Indent is run against the patch.
+
+|>
+|>> +	/* if this is the second call to this function, clean up ... */
+|>> +	if (dump_okay && !dump_page_buf_0)
+|>> +		kfree((const void *)dump_page_buf_0);
+|>
+|>kfree(NULL) is fine.. i.e.:
+|>
+|>	if (dump_okay)
+|>		kfree(dump_page_buf_0);
+|>
+|>Dito for all other places.
+
+All cleaned up.
+
+|>> +/*
+|>> + * Name: dump_release()
+|>> + * Func: Release the dump device -- it's never necessary to call
+|>> + *       this function, but it's here regardless.
+|>> + */
+|>> +static int
+|>> +dump_release(struct inode *i, struct file *f)
+|>> +{
+|>> +	return 0;
+|>> +}
+|>
+|>Just remove it.  You don't have to implement ->release.
+
+Done.
+
+|>> +
+|>> +/*
+|>> + * Name: dump_ioctl()
+|>> + * Func: Allow all dump tunables through a standard ioctl() mechanism.
+|>> + *       This is far better than before, where we'd go through /proc,
+|>> + *       because now this will work for multiple OS and architectures.
+|>> + */
+|>> +static int
+|>> +dump_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long arg)
+|>> +{
+|>> +	/* check capabilities */
+|>> +	if (!capable(CAP_SYS_ADMIN))
+|>> +		return -EPERM;
+|>> +
+|>> +	/*
+|>> +	 * This is the main mechanism for controlling get/set data
+|>> +	 * for various dump device parameters.  The real trick here
+|>> +	 * is setting the dump device (DIOSDUMPDEV).  That's what
+|>> +	 * triggers everything else.
+|>> +	 */
+|>> +	switch (cmd) {
+|>> +		/* set dump_device */
+|>> +		case DIOSDUMPDEV:
+|>> +			/* check flags */
+|>> +			if (!(f->f_flags & O_RDWR))
+|>> +				return -EPERM;
+|>> +
+|>> +			__dump_open();
+|>> +			return (dump_open_kdev(to_kdev_t((dev_t)arg)));
+|>> +
+|>> +		/* get dump_device */
+|>> +		case DIOGDUMPDEV:
+|>> +			return (put_user((long)kdev_val(dump_device), (long *)arg));
+|>> +
+|>> +		/* set dump_level */
+|>> +		case DIOSDUMPLEVEL:
+|>> +			/* check flags */
+|>> +			if (!(f->f_flags & O_RDWR))
+|>> +				return -EPERM;
+|>> +
+|>> +			/* make sure we have a positive value */
+|>> +			if (arg < 0)
+|>> +				return -EINVAL;
+|>> +			dump_level = (int)arg;
+|>> +
+|>> +			if (dump_level > DUMP_LEVEL_KERN)
+|>> +				dump_unreserved_mem = 1;
+|>> +			else
+|>> +				dump_unreserved_mem = 0;
+|>> +
+|>> +			if (dump_level > DUMP_LEVEL_USED)
+|>> +				dump_unreferenced_mem = 1;
+|>> +			else
+|>> +				dump_unreferenced_mem = 0;
+|>> +
+|>> +			if (dump_level > DUMP_LEVEL_ALL_RAM)
+|>> +				dump_nonconventional_mem = 1;
+|>> +			else
+|>> +				dump_nonconventional_mem = 0;
+|>> +			break;
+|>> +
+|>> +		/* get dump_level */
+|>> +		case DIOGDUMPLEVEL:
+|>> +			return (put_user((long)dump_level, (long *)arg));
+|>> +
+|>> +		/* set dump_flags */
+|>> +		case DIOSDUMPFLAGS:
+|>> +			/* check flags */
+|>> +			if (!(f->f_flags & O_RDWR))
+|>> +				return -EPERM;
+|>> +
+|>> +			/* make sure we have a positive value */
+|>> +			if (arg < 0)
+|>> +				return -EINVAL;
+|>> +
+|>> +			dump_flags = (int)arg;
+|>> +			break;
+|>> +
+|>> +		/* get dump_flags */
+|>> +		case DIOGDUMPFLAGS:
+|>> +			return (put_user((long)dump_flags, (long *)arg));
+|>> +
+|>> +		/* set the dump_compress status */
+|>> +		case DIOSDUMPCOMPRESS:
+|>> +			/* check flags */
+|>> +			if (!(f->f_flags & O_RDWR))
+|>> +				return -EPERM;
+|>> +
+|>> +			return (dump_compress_init((int)arg));
+|>> +
+|>> +		/* get the dump_compress status */
+|>> +		case DIOGDUMPCOMPRESS:
+|>> +			return (put_user((long)dump_compress, (long *)arg));
+|>
+|>This is still the wrong interface :)  At least the read/write one value
+|>stuff should be sysctl.  For the rest ioctl is horribly ugly, but I'll
+|>leave the decision to Linus whether he wants to merge more ugly ioctl
+|>APIs.
+
+We'll look at this, but in the near term, we'd like to go in
+with this in place.  Changing this means changing a lot of
+lkcdutils RPMs which configure based on this mechanism.  While
+I realize it's new code, testers today are using it.
+
+Regardless, I'll look at this, but again, I'd prefer not to
+change it.  If you end up telling me this is the only thing
+keeping us from going in, it'll get changed, but hopefully
+it doesn't come to that. :)
+
+|>> +
+|>> +	/* try to create our dump device */
+|>> +	if (register_chrdev(CRASH_DUMP_MAJOR, "dump", &dump_fops)) {
+|>> +		printk("cannot register dump character device!\n");
+|>> +		return -EBUSY;
+|>> +	}
+|>> +
+|>> +	/* initialize the dump headers to zero */
+|>> +	memset(&dump_header, 0, sizeof(dump_header));
+|>> +	memset(&dump_header_asm, 0, sizeof(dump_header_asm));
+|>
+|>You don't have to zero structures lying in .bss
+
+Removed.
+
+|>> +
+|>> +	/* reset the dump function pointer */
+|>> +	dump_function_ptr = NULL;
+|>
+|>pointless.  the module memory will be vfree()ed anyway.
+
+This is just good practice.  If we find that for some reason
+the code sets/unsets/sets again, it is cleaned properly.  In
+addition, I don't have to worry about modutils doing something
+wierd.
+
+|>> +#ifdef MODULE
+|>> +MODULE_AUTHOR("Matt D. Robinson <yakker@sourceforge.net>");
+|>> +MODULE_DESCRIPTION("Linux Kernel Crash Dump (LKCD) driver");
+|>> +MODULE_LICENSE("GPL");
+|>> +#endif /* MODULE */
+|>
+|>No need for the ifdef - it'll be stubbed out anyway.
+
+Removed.
+
+|>> +kdev_t dump_dev;		/* the actual kdev_t device number      */
+|>
+|>
+|>> +int dump_blk_size;		/* sector size for dump_device          */
+|>> +int dump_blk_shift;		/* shift need to convert to sector size */
+|>> +struct bio *dump_bio;		/* bio structure for io request         */
+|>> +loff_t dump_offset;		/* the offset in the output device      */
+|>> +unsigned long dumpdev_limit;	/* the size limit of the block device   */
+|>> +int dump_io_abort = 0;		/* set by end_io func during io error   */
+|>> +
+|>> +/* dump block device */
+|>> +struct block_device *dump_bdev = NULL;
+|>> +
+|>> +/* indicates completion of each bio request */
+|>> +volatile int bio_complete = 1;
+|>
+|>Most of this should be static, right?
+
+Almost all converted to static.
+
+|>> +	dump_bdev = bdget(kdev_t_to_nr(tmp_dump_device));
+|>> +	if (!dump_bdev) {
+|>> +		retval = -ENODEV;
+|>> +		goto err;
+|>> +	}
+|>> +
+|>> +	if (blkdev_get(dump_bdev, O_RDWR | O_LARGEFILE, 0, BDEV_RAW)) {
+|>> +		retval = -ENODEV;
+|>> +		goto err1;
+|>> +	}
+|>> +	
+|>> +	if (!dump_page_buf) {
+|>> +		retval = -EINVAL;
+|>> +		goto err2;
+|>> +	}
+|>
+|>You need to call bd_claim to get exclusion on the bdev.
+
+Actually, we shouldn't.  If it is a swap partition, there could be a
+a race between the block device for dumping and swap.
+
+|>> +err3:	dump_free_bio();
+|>> +err2:	if (dump_bdev) {
+|>> +		blkdev_put(dump_bdev, BDEV_RAW);
+|>> +		dump_bdev = NULL;
+|>> +	}
+|>> +err1:	if (dump_bdev) {
+|>> +		bdput(dump_bdev);
+|>> +		dump_bdev = NULL;
+|>> +	}
+|>> +err:	return retval;
+|>> +}
+|>
+|>err3:
+|>	dump_free_bio();
+|>err2:
+|>	if (dump_bdev)
+|>		blkdev_put(dump_bdev, BDEV_RAW);
+|>	goto err;
+|>err1:
+|>	if (dump_bdev)
+|>		bdput(dump_bdev);
+|>err:
+|>	return retval;
+|>
+|>> +
+|>> +static int __init
+|>> +dump_blockdev_init(void)
+|>> +{        
+|>> +	dump_offset = 0;
+|>
+|>once again, .bss is already per-zeroed :)
+
+Fixed.
+
+|>> +void
+|>> +__dump_cleanup(void)
+|>> +{
+|>> +	free_dha_stack();
+|>> +	return;
+|>> +}
+|>
+|>I've noticed these superflous returns in void function a lot
+|>over the code.  Linux kernel code usually avoids that.
+|>
+|>> +static int __init
+|>> +dump_compress_rle_init(void)
+|>> +{
+|>> +	dump_register_compression(&dump_rle_compression);
+|>> +	return 0;
+|>
+|>Shouldn't there be some kind of error reporting? i.e.
+|>
+|>	return dump_register_compression(&dump_rle_compression); ?
+
+Not really, it's just a function pointer assignment.  If it
+fails, something is seriously broken.
+
+|>> +/* header definitions for s390 dump */
+|>> +#define DUMP_MAGIC_S390		0xa8190173618f23fdULL  /* s390 magic number */
+|>> +#define S390_DUMP_HEADER_SIZE	4096
+|>
+|>should go to asm-s390/dump.h?
+
+Fixed.
+
+The most recent patch with almost all fixes is on the web patch site:
+
+	http://lkcd.sourceforge.net/download/latest
+
+Thanks, Christoph.
+
+--Matt
+
+
+

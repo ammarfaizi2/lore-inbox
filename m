@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268506AbUHXXwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUHXXxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268506AbUHXXwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 19:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUHXXww
+	id S268581AbUHXXxT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 19:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUHXXxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 19:52:52 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:178 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269119AbUHXXsx (ORCPT
+	Tue, 24 Aug 2004 19:53:18 -0400
+Received: from main.gmane.org ([80.91.224.249]:46221 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268698AbUHXXue (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 19:48:53 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
+	Tue, 24 Aug 2004 19:50:34 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix cc-version breakage
-Date: Tue, 24 Aug 2004 16:48:49 -0700
-User-Agent: KMail/1.6.2
-Cc: sam@ravnborg.org
-References: <200408241642.21886.jbarnes@engr.sgi.com>
-In-Reply-To: <200408241642.21886.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_hP9KBrrhD0wWyyI"
-Message-Id: <200408241648.49261.jbarnes@engr.sgi.com>
+From: fraga@abusar.org ( =?ISO-8859-1?Q?D=E2niel?= Fraga)
+Subject: Re: Linux 2.6.9-rc1
+Date: Tue, 24 Aug 2004 23:46:04 +0000 (UTC)
+Organization: http://www.turbonerd.hpg.ig.com.br
+Message-ID: <cggjvs$bv9$1@sea.gmane.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+    <20040824184245.GE5414@waste.org>
+    <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+Reply-To: fraga@abusar.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 200-207-206-233.dsl.telesp.net.br
+X-Newsreader: knews 1.0c.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>,
+	Linus Torvalds <torvalds@osdl.org> writes:
 
---Boundary-00=_hP9KBrrhD0wWyyI
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Any reason for your preference? 
 
-On Tuesday, August 24, 2004 4:42 pm, Jesse Barnes wrote:
-> Looks like someone forgot to use $(shell ...) on the cc-version function?
+	Linus, sorry but I can't agree with your decision.
+    
+    I'm not a developer, just an user and for me at least, there's no
+sense in supplying a patch related do 2.6.8 instead of 2.6.8.1.
 
-Actually, this is a little nicer (look ma, no linewraps!) if we can make 
-gcc-version.sh executable.
+	I always update my kernel when the official patch is announced and
+I'd expect to follow a well defined order (2.6.8 -> 2.6.8.1 ->
+2.6.9...).
 
-Jesse
+	Suppose we had 2.6.8.1, 2.6.8.2, 2.6.8.3 until 2.6.8.10. Should I
+remove 10 patches just to update to 2.6.9? For me it's a waste of time.
 
---Boundary-00=_hP9KBrrhD0wWyyI
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="cc-version-fix-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="cc-version-fix-2.patch"
+	I know you kernel developers use BK or some other method, but...
 
-===== Makefile 1.522 vs edited =====
---- 1.522/Makefile	2004-08-23 23:59:52 -07:00
-+++ edited/Makefile	2004-08-24 16:46:44 -07:00
-@@ -279,8 +279,7 @@
- 
- # cc-version
- # Usage gcc-ver := $(call cc-version $(CC))
--cc-version = $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
--              $(if $(1), $(1), $(CC))
-+cc-version = $(shell $(srctree)/scripts/gcc-version.sh $(if $(1), $(1), $(CC)))
- 
- 
- # Look for make include files relative to root of kernel src
+	Thanks.
 
---Boundary-00=_hP9KBrrhD0wWyyI--
+-- 
+http://Processo.tk (1001 dias)
+http://U-br.tk
+Linux 2.6.7
+São Paulo - SP
+

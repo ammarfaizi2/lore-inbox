@@ -1,24 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVBHANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVBHAQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVBHANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 19:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVBHANI
+	id S261351AbVBHAQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 19:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVBHAQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 19:13:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45207 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261350AbVBHANG (ORCPT
+	Mon, 7 Feb 2005 19:16:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42139 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261351AbVBHAQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 19:13:06 -0500
-Date: Mon, 7 Feb 2005 16:18:10 -0800
+	Mon, 7 Feb 2005 19:16:15 -0500
+Date: Mon, 7 Feb 2005 16:20:24 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3: Kylix application no longer works?
-Message-Id: <20050207161810.23fcc4f1.akpm@osdl.org>
-In-Reply-To: <420801D7.3020405@gentoo.org>
-References: <20050207221107.GA1369@elf.ucw.cz>
-	<20050207145100.6208b8b9.akpm@osdl.org>
-	<420801D7.3020405@gentoo.org>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: mbligh@aracnet.com, pj@sgi.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
+       sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20050207162024.23380cd6.akpm@osdl.org>
+In-Reply-To: <420800F5.9070504@us.ibm.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<1097014749.4065.48.camel@arrakis>
+	<420800F5.9070504@us.ibm.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,22 +45,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake <dsd@gentoo.org> wrote:
+Matthew Dobson <colpatch@us.ibm.com> wrote:
 >
-> > # fs/binfmt_elf.c
-> > #   2005/01/17 13:37:56-08:00 ecd@skynet.be +43 -19
-> > #   [SPARC64]: Missing user access return value checks in fs/binfmt_elf.c and fs/compat.c
-> > # 
-> 
-> I think so. For a short period we applied this patch to the Gentoo 2.6.10 
-> kernel...
-> 
-> http://dev.gentoo.org/~dsd/gentoo-dev-sources/release-10.01/dist/1900_umem_catch.patch
-> 
-> ...but removed it once users complained it stopped kylix binaries from running.
+> Sorry to reply a long quiet thread,
 
-Bah.  That's what happens when you fix stuff.
+Is appreciated, thanks.
 
-What's kylix?  The Borland C++ builder thing?
+> but I've been trading emails with Paul 
+> Jackson on this subject recently, and I've been unable to convince either him 
+> or myself that merging CPUSETs and CKRM is as easy as I once believed.  I'm 
+> still convinced the CPU side is doable, but I haven't managed as much success 
+> with the memory binding side of CPUSETs.  In light of this, I'd like to remove 
+> my previous objections to CPUSETs moving forward.  If others still have things 
+> they want discussed before CPUSETs moves into mainline, that's fine, but it 
+> seems to me that CPUSETs offer legitimate functionality and that the code has 
+> certainly "done its time" in -mm to convince me it's stable and usable.
 
-How should one set about reproducing this problem?
+OK, I'll add cpusets to the 2.6.12 queue.
+
+going once, going twice...

@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVAMOwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVAMOyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVAMOwF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 09:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAMOwE
+	id S261638AbVAMOyS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 09:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAMOwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 09:52:04 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29387 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261641AbVAMOtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 09:49:23 -0500
-Date: Thu, 13 Jan 2005 15:37:29 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, kinema@gmail.com,
-       fuse-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [fuse-devel] Merging?
-Message-ID: <20050113143729.GB2599@openzaurus.ucw.cz>
-References: <loom.20041231T155940-548@post.gmane.org> <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu> <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu> <20050112110109.6a21fae5.akpm@osdl.org>
+	Thu, 13 Jan 2005 09:52:21 -0500
+Received: from ponzo.noc.sonic.net ([64.142.18.11]:40110 "HELO ponzo.sonic.net")
+	by vger.kernel.org with SMTP id S261642AbVAMOuc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 09:50:32 -0500
+Date: Thu, 13 Jan 2005 06:50:29 -0800
+From: Scott Doty <scott@sonic.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.28(+?): Strange ARP problem
+Message-ID: <20050113145029.GA22622@sonic.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112110109.6a21fae5.akpm@osdl.org>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.4.1i
+X-PGP-Key: http://sonic.net/~scott/gpgkey.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> >  Well, there doesn't seem to be a great rush to include FUSE in the
-> >  kernel.  Maybe they just don't realize what they are missing out on ;)
-> 
-> heh.  What userspace filesystems have thus-far been developed, and what are
-> people using them for?
+We use Linux extensively here at Sonic.net.  Our web servers have two
+NIC's -- a NIC with a public IP address, and a NIC on our SAN (with NetApps).
 
-Right now, every project (mc, gnome, kde) has their own vfs implementation,
-so that they can work transparently over ftp, handle archives, etc.
+When we tried to upgrade to 2.4.28, we encountered a problem with NetApp
+reachability, which turns out to have been a problem with ARP:  we
+were seeing two ARP entries for the NetApp IP's.  One would be correct, and
+one would be "incomplete".
 
-Done properly, userspace filesystem like fuse can unify those, plus provide better caching.
-It also has chance to be a place for  niche filesystems (like atari800) that would be too much pain to keep in kernel.
+Occasionally, a system would glom onto the incomplete entry, and NFS
+connectivity would tank.  This doesn't happen with 2.4.27.
 
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+We'd like to upgrade to 2.4.29-rc2, but we have much trepidation about doing
+so.  I certainly don't want to treat the list as "our own personal help
+desk" (as warned about in the FAQ), but was hoping someone could shed some
+light on the problem.  I think either myself or one of our guys can write a
+patch to fix it, if someone would point us in the right direction.
 
+Thank you,
+
+ -Scott

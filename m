@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbTICSH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTICSGw
+	id S264209AbTICTsS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 15:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTICTqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:06:52 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:53771 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S264128AbTICSF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:05:58 -0400
-Date: Wed, 3 Sep 2003 15:07:49 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Erik Andersen <andersen@codepoet.org>
-Cc: steveb@unix.lancs.ac.uk, <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: corruption with A7A266+200GB disk?
-In-Reply-To: <20030903013741.GA1601@codepoet.org>
-Message-ID: <Pine.LNX.4.44.0309031507040.6102-100000@logos.cnet>
+	Wed, 3 Sep 2003 15:46:54 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:1040 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S264389AbTICTqc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 15:46:32 -0400
+Date: Wed, 3 Sep 2003 12:30:31 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Guillaume Morin <guillaume@morinfr.org>
+cc: James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+In-Reply-To: <20030903183507.GI905@siri.morinfr.org>
+Message-ID: <Pine.LNX.4.10.10309031225250.13722-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Wed, 3 Sep 2003, Guillaume Morin wrote:
 
-On Tue, 2 Sep 2003, Erik Andersen wrote:
-
-> On Tue Sep 02, 2003 at 02:28:16PM +0100, steveb@unix.lancs.ac.uk wrote:
-> > 
-> > I just got a new 200GB disk (WDC WD2000JB) for my home machine (Asus A7A266,
-> > Ali chipset). I put some partitions on it like so:
-> >   hda1:   100MB - /boot
-> >   hda2:  8192MB - /
-> >   hda3:  1024MB - swap
-> >   hda4:  the rest (about 190GB I guess) - /home
-> > 
-> > I find that when I mkfs on /home, I get massive filesystem corruption on /
-> > When I fsck / (and restore the deleted files) I get massive filesystem corruption on /home. Luckily all my real data is still on my old disk...
-> > 
-> > I reduced the size of /home to 40GB and everything was fine.
-> > I see the same behaviour with both 2.6.0test3 and 2.4.22.
+> Dans un message du 03 Sep à 10:49, Andre Hedrick écrivait :
+> > The only solution is to created a GPL pre-loading module with all the
+> > GPL_ONLY needed extentions re-exported or externed as to bypass the
+> > horse sh*t.
 > 
-> Known problem.  For some reason Marcelo has not yet applied 
-> the fix for this problem to the 2.4.x kernels...
+> Which would be a violation of the GPL :
+> 
+> What is the difference between "mere aggregation" and "combining two
+> modules into one program"?  
+> 
+>    Mere aggregation of two programs means putting them side by side on
+> the same CD-ROM or hard disk. We use this term in the case where they
+> are separate programs, not parts of a single program. In this case, if
+> one of the programs is covered by the GPL, it has no effect on the other
+> program.
+> 
+>     Combining two modules means connecting them together so that they form a
+> single larger program. If either part is covered by the GPL, the whole
+> combination must also be released under the GPL--if you can't, or won't, do
+> that, you may not combine them.
+> 
+>     What constitutes combining two parts into one program? This is a legal
+> question, which ultimately judges will decide. We believe that a proper
+> criterion depends both on the mechanism of communication (exec, pipes, rpc,
+> function calls within a shared address space, etc.) and the semantics of the
+> communication (what kinds of information are interchanged).
 
-Alan (which has a clue about IDE unlike me) had complaints about your 
-approach, right? 
+You assume wrong.
 
+The Pre-Loader or "freed-symbols" is to return symbols that were once
+EXPORT_SYMBOL which are now openly renamed EXPORT_SYMBOL_GPL.
+
+This is open thieft of the kernel API.
+
+So I welcome you and your lawyers to sue me for making a GPL module which
+allows free use of the stolen symbols.  Please come to California and lets
+party.  Since it is an original work as a new module, regardless if it is
+derived or not, being GPL and source available you lose ... Have a nice
+day.
+
+Cheers,
+
+Andre
 
 

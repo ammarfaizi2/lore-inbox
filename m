@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUGKCXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266482AbUGKCaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266479AbUGKCXx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 22:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUGKCXx
+	id S266482AbUGKCaU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 22:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUGKCaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 22:23:53 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:48588 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S266479AbUGKCXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 22:23:51 -0400
-Subject: Re: 2.6.7-mm7
+	Sat, 10 Jul 2004 22:30:19 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:25217 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266482AbUGKCaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 22:30:16 -0400
+Subject: Re: Fatal problem, possibly related to AIC79xx
 From: Len Brown <len.brown@intel.com>
-To: Zoltan Boszormenyi <zboszor@dunaweb.hu>
+To: Antonin Kral <A.Kral@sh.cvut.cz>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FFB70@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615FFB70@hdsmsx403.hd.intel.com>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FFBBF@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FFBBF@hdsmsx403.hd.intel.com>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1089512622.32038.17.camel@dhcppc2>
+Message-Id: <1089513010.32034.36.camel@dhcppc2>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Jul 2004 22:23:42 -0400
+Date: 10 Jul 2004 22:30:10 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-10 at 02:21, Zoltan Boszormenyi wrote:
-> Hi,
+On Sat, 2004-07-10 at 11:21, Antonin Kral wrote:
+
+> SuperMicro X5DL8-GG with aic7902
+> ... one XEON 3.06GHz
 > 
-> I found in my logs something that indicates problems with ACPI:
-> 
-> ACPI: Subsystem revision 20040615
-> ACPI: System description tables not found
->      ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, 
-> AE_NOT_FOUND
->      ACPI-0134: *** Error: acpi_load_tables: Could not load tables: 
-> AE_NOT_FOUND
-> ACPI: Unable to load the System Description Tables
-...
-> Machine is MSI K8T Neo FIS2R with fairly recent 1.6 BIOS.
-> I dont have this with Linux-2.6.7.
+> I have two, really strange problems, first of all I have noticed, that
+> with enabled SMP support kernel detects TWO processors, but only one
+> is physically installed.
 
-Interesting, we'd seen this BIOS bug only on Dell so far.
+If you'd like to have just 1 processor instead of two, then
+enter the BIOS SETUP and disable HyperThreading (HT),
+or boot the SMP kernel with maxcpus=1.
 
-Please test the patch here:
-http://bugzilla.kernel.org/show_bug.cgi?id=2990
+I have no insight into your potential AIC79XX problem...
 
-thanks,
+cheers,
 -Len
 
 

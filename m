@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbSJ2PEW>; Tue, 29 Oct 2002 10:04:22 -0500
+	id <S261910AbSJ2PND>; Tue, 29 Oct 2002 10:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261850AbSJ2PEW>; Tue, 29 Oct 2002 10:04:22 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:47550 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261847AbSJ2PEV>; Tue, 29 Oct 2002 10:04:21 -0500
-Subject: Re: [Lse-tech] Re: [PATCH] Updated sys_epoll now with man pages
-From: Paul Larson <plars@linuxtestproject.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@digeo.com>, Hanna Linder <hannal@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>, ahu@ds9a.nl
-In-Reply-To: <Pine.LNX.4.33L2.0210282121560.13581-100000@dragon.pdx.osdl.net>
-References: <Pine.LNX.4.33L2.0210282121560.13581-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 Oct 2002 08:59:47 -0600
-Message-Id: <1035903591.5646.284.camel@plars>
+	id <S261911AbSJ2PNC>; Tue, 29 Oct 2002 10:13:02 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:57567 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261910AbSJ2PNB>;
+	Tue, 29 Oct 2002 10:13:01 -0500
+Date: Tue, 29 Oct 2002 16:19:23 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021029151923.GA16263@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3DBDCC02.6060100@netscape.com> <Pine.LNX.4.44.0210281606390.966-100000@blue1.dev.mcafeelabs.com> <20021029125904.GA6840@admingilde.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021029125904.GA6840@admingilde.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-28 at 23:28, Randy.Dunlap wrote:
-> I expect this to be unpopular, but I've been saying lately that
-> when new kernel APIs or syscalls or whatsoever are added to
-> Linux, there should be sufficient docs along with the patch(es)
-> explaining the patch and some intended uses of it, perhaps even
-> with examples.  Ingo does this sometimes.  Some people don't
-> bother to even come close.
-It would be great to see more people doing that, also releasing docs
-about intentions beforehand (rfc's and such) would be nice to see too. 
-As far as example programs go, cc'ing the Linux Test Project at
-ltp-list@lists.sourceforge.net would be a really nice thing too and make
-you very popular! :)
+On Tue, Oct 29, 2002 at 01:59:04PM +0100, Martin Waitz wrote:
 
-Thanks,
-Paul Larson
+> every api should be build to cause the least astonishment to its users.
+> epoll is much more scalable than standard poll, yet i don't think
+> it's a nice api.
 
+epoll is not a 'faster poll()'. It is edge based instead of level based -
+some astonishment is in order here. Anyhow, all problems with the API
+mentioned go away if epoll_ctl() inserts an egde if it finds that its poll
+condition is met.
+
+> the unified event mechanism introduced in bsd is a good example imho.
+> we should build something that is similar useful for applications.
+
+Sounds 2.7-ish. 
+
+Regards,
+
+bert 
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

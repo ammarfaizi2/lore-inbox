@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130996AbQLOC6U>; Thu, 14 Dec 2000 21:58:20 -0500
+	id <S129267AbQLODTu>; Thu, 14 Dec 2000 22:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131040AbQLOC6K>; Thu, 14 Dec 2000 21:58:10 -0500
-Received: from web5203.mail.yahoo.com ([216.115.106.97]:4360 "HELO
-	web5203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130996AbQLOC55>; Thu, 14 Dec 2000 21:57:57 -0500
-Message-ID: <20001215022730.11497.qmail@web5203.mail.yahoo.com>
-Date: Thu, 14 Dec 2000 18:27:30 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Is there a Linux trademark issue with sun?
-To: maddog@valinux.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129257AbQLODTa>; Thu, 14 Dec 2000 22:19:30 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37902 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129314AbQLODTV>; Thu, 14 Dec 2000 22:19:21 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Test12 ll_rw_block error.
+Date: 14 Dec 2000 18:48:45 -0800
+Organization: Transmeta Corporation
+Message-ID: <91c0qd$10l$1@penguin.transmeta.com>
+In-Reply-To: <3A397BA9.CB0EC8E5@thebarn.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heads up everybody.  Scott McNealy has apparently been
-calling Solaris Sun's implementation of Linux. 
-Trademark violation time.
+In article <3A397BA9.CB0EC8E5@thebarn.com>,
+Russell Cattelan  <cattelan@thebarn.com> wrote:
+>This would seem to be an error on the part of ll_rw_block.
+>Setting b_end_io to a default handler without checking to see
+>a callback has already been defined defeats the purpose of having
+>a function op.
 
-The article's here:
+No.
 
-http://linuxtoday.com/news_story.php3?ltsn=2000-12-14-020-04-NW-CY
+It just means that if you have your own function op, you had better not
+call "ll_rw_block()".
 
-Quick quote:
+The problem is that as it was done before, people would set the function
+op without actually holding the buffer lock.
 
->When asked by a reporter why Sun's new clustering 
->software was restricted to Solaris and not available 
->on Linux, McNealy's aggravation seemed to peak. "You 
->people just don't get it, do you? All Linux 
->applications run on Solaris, which is our 
->implementation of Linux. Now ask the question again,"
+Which meant that you could have two unrelated users setting the function
+op to two different things, and it would be only a matter of the purest
+luck which one happened to "win".
 
+If you want to set your own end-operation, you now need to lock the
+buffer _first_, then set "b_end_io" to your operation, and then do a
+"submit_bh()". You cannot use ll_rw_block().
 
-Assuming the quote is accurate (which, being ZD, is
-iffy), this strikes me as a mondo trademark violation,
-and exactly the sort of thing the Linux trademark was
-designed to prevent.  Solaris is NOT Linux.
+Yes, this is different than before. Sorry about that.
 
-That's just my opinion, of course, but I wanted to
-make sure everybody was aware of the situation...
+But yes, this way actually happens to work reliably.
 
-Rob
-
-(Yes, it finally happened.  The Unix idiots have now
-"protected" the trademark "Unix" to the point where
-Linux is now a more valuable name to be associated
-with.  But turnabout IS fair play.  And they know the
-rules if they want to participate.  Add in the MS
-profit warning and IBM's billion dollar pledge to our
-little PBS station and it's been a good week...)
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311492AbSCNDNi>; Wed, 13 Mar 2002 22:13:38 -0500
+	id <S311493AbSCNDOI>; Wed, 13 Mar 2002 22:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311493AbSCNDN3>; Wed, 13 Mar 2002 22:13:29 -0500
-Received: from mx1.sac.fedex.com ([199.81.208.10]:4115 "EHLO mx1.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S311492AbSCNDNL>;
-	Wed, 13 Mar 2002 22:13:11 -0500
-Date: Thu, 14 Mar 2002 11:22:27 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Jeff Chua <jchua@fedex.com>
-Subject: [PATCH] 2.4.19-pre3 ide_xlate_1024_hook ???
-Message-ID: <Pine.LNX.4.44.0203141053220.13816-100000@boston.corp.fedex.com>
+	id <S311495AbSCNDN7>; Wed, 13 Mar 2002 22:13:59 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9739 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311493AbSCNDNt>; Wed, 13 Mar 2002 22:13:49 -0500
+Subject: Re: [PATCH 2.4.19-pre3] New wireless driver API part 1
+To: jt@hpl.hp.com
+Date: Thu, 14 Mar 2002 03:29:13 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Linux kernel mailing list)
+In-Reply-To: <20020313191159.B14095@bougret.hpl.hp.com> from "Jean Tourrilhes" at Mar 13, 2002 07:11:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/14/2002
- 11:12:59 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/14/2002
- 11:13:03 AM,
-	Serialize complete at 03/14/2002 11:13:03 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lLvV-0008FL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> updated 2.5.X for a while). Chicken and Eggs.
+> 	3) Risk is minimal, bloat is minimal. What's the penality of
+> merging it now ?
 
-It seems that the "ide_xlate_1024_hook" is redundant in
-./drivers/ide/ide-probe.c
-
-It's not used anywhere by the kernel, and it caused "depmod" to fail
-with unknown ide_xlate_1024_hook symbol.
-
-
-Jeff
-
-Patch ...
-
---- ./drivers/ide/ide-probe.c.org       Thu Mar 14 11:01:20 2002
-+++ ./drivers/ide/ide-probe.c   Thu Mar 14 11:03:16 2002
-@@ -987,7 +987,6 @@
- }
-
- #ifdef MODULE
--extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
-
- int init_module (void)
- {
-@@ -997,14 +996,12 @@
-                ide_unregister(index);
-        ideprobe_init();
-        create_proc_ide_interfaces();
--       ide_xlate_1024_hook = ide_xlate_1024;
-        return 0;
- }
-
- void cleanup_module (void)
- {
-        ide_probe = NULL;
--       ide_xlate_1024_hook = 0;
- }
- MODULE_LICENSE("GPL");
- #endif /* MODULE */
-
-
+Sounds good reason to me

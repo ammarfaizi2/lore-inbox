@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266156AbUAVBkN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 20:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUAVBkM
+	id S264300AbUAVBpv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 20:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUAVBpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 20:40:12 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:53955 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266161AbUAVBkG
+	Wed, 21 Jan 2004 20:45:51 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:29945 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264300AbUAVBpt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 20:40:06 -0500
-Date: Thu, 22 Jan 2004 14:42:55 +1300
+	Wed, 21 Jan 2004 20:45:49 -0500
+Date: Thu, 22 Jan 2004 14:45:08 +1300
 From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: PATCH: Shutdown IDE before powering off.
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swusp acpi
+In-reply-to: <20040122003212.GC300@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074735774.31963.82.camel@laptop-linux>
+Message-id: <1074735908.1405.85.camel@laptop-linux>
 MIME-version: 1.0
 X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-CscQKynJruZLZSwDH8Wf";
+Content-type: multipart/signed; boundary="=-cX/+Iz5+isAdi6Ch0tqi";
  protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <200401211143.51585.tuxakka@yahoo.co.uk>
+ <20040122003212.GC300@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-CscQKynJruZLZSwDH8Wf
-Content-Type: multipart/mixed; boundary="=-Eu6MQNtNRuTOELqB7ttf"
-
-
---=-Eu6MQNtNRuTOELqB7ttf
+--=-cX/+Iz5+isAdi6Ch0tqi
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Hi.
+Howdy.
 
-Here's a patch Bernard Blackham posted to the Software Suspend mailing
-list, which has fixed data-not-being-properly flushed issues for some
-people. (Forwarded with Bernard's permission).
+It looks like PM support for serial ports is also broken; a serial
+console is unusable after resuming.
 
 Regards,
 
 Nigel
+
+On Thu, 2004-01-22 at 13:32, Pavel Machek wrote:
+> Hi!
+>=20
+> > And with pressing power button everything else comes back exept
+> > usb.
+> > This behaviour is kind of "little light nap" and system comes back fast=
+.
+> > And I have also noticed that I cannot use bios passwd with
+> > # echo 3 > /proc/acpi/sleep   cause even it doesn't reboot it goes
+> > somehow to bios and bios passwd prompted but it doesn't accept it?
+> > But after disabled bios passwd it works exept usb.
+> >=20
+> > Can somebody give me any wise what I'm doing wrong or point
+> > me to some documentation about this matter?
+>=20
+> Seems like USB suspend/resume support is not yet working... Talk to
+> usb maintainers and offer them some testing...
+> 								Pavel
 --=20
 My work on Software Suspend is graciously brought to you by
 LinuxFund.org.
 
---=-Eu6MQNtNRuTOELqB7ttf
-Content-Disposition: attachment; filename=ide-shutdown.diff
-Content-Type: text/x-patch; name=ide-shutdown.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtcnVOIGxpbnV4LTIuNi4wL2RyaXZlcnMvaWRlL2lkZS5jLm9yaWcgbGludXgtMi42LjAv
-ZHJpdmVycy9pZGUvaWRlLmMNCi0tLSBsaW51eC0yLjYuMC9kcml2ZXJzL2lkZS9pZGUuYy5vcmln
-CTIwMDMtMTItMTggMTA6NTg6MzguMDAwMDAwMDAwICswODAwDQorKysgbGludXgtMi42LjAvZHJp
-dmVycy9pZGUvaWRlLmMJMjAwMy0xMi0yOCAxMDoxODo0Ny4wMDAwMDAwMDAgKzA4MDANCkBAIC0y
-NDkzLDYgKzI0OTMsMTEgQEANCiAJcmV0dXJuIDA7DQogfQ0KIA0KK3N0YXRpYyB2b2lkIGlkZV9k
-cml2ZV9zaHV0ZG93biAoc3RydWN0IGRldmljZSAqIGRldikNCit7DQorCWdlbmVyaWNfaWRlX3N1
-c3BlbmQoZGV2LCA1KTsNCit9DQorDQogaW50IGlkZV9yZWdpc3Rlcl9kcml2ZXIoaWRlX2RyaXZl
-cl90ICpkcml2ZXIpDQogew0KIAlzdHJ1Y3QgbGlzdF9oZWFkIGxpc3Q7DQpAQCAtMjUxOSw2ICsy
-NTI0LDcgQEANCiAJZHJpdmVyLT5nZW5fZHJpdmVyLm5hbWUgPSAoY2hhciAqKSBkcml2ZXItPm5h
-bWU7DQogCWRyaXZlci0+Z2VuX2RyaXZlci5idXMgPSAmaWRlX2J1c190eXBlOw0KIAlkcml2ZXIt
-Pmdlbl9kcml2ZXIucmVtb3ZlID0gaWRlX2RyaXZlX3JlbW92ZTsNCisJZHJpdmVyLT5nZW5fZHJp
-dmVyLnNodXRkb3duID0gaWRlX2RyaXZlX3NodXRkb3duOw0KIAlyZXR1cm4gZHJpdmVyX3JlZ2lz
-dGVyKCZkcml2ZXItPmdlbl9kcml2ZXIpOw0KIH0NCiANCg==
-
---=-Eu6MQNtNRuTOELqB7ttf--
-
---=-CscQKynJruZLZSwDH8Wf
+--=-cX/+Iz5+isAdi6Ch0tqi
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQBADyqeVfpQGcyBBWkRAnE4AJ9U3f6mfFpUbi8rveqHBLOpGQgN7ACdFp+C
-F7R1YpkgJQZuNe45iVfkic4=
-=yx4V
+iD4DBQBADyskVfpQGcyBBWkRAngPAJjjYpU793aamdE/gJ2rhEm95uqiAKCNp7L8
+T7mwr7uz3KDdI76HGiBvQA==
+=cF8K
 -----END PGP SIGNATURE-----
 
---=-CscQKynJruZLZSwDH8Wf--
+--=-cX/+Iz5+isAdi6Ch0tqi--
 

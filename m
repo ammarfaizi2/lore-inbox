@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSGVIEJ>; Mon, 22 Jul 2002 04:04:09 -0400
+	id <S317221AbSGVNbY>; Mon, 22 Jul 2002 09:31:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316585AbSGVIEI>; Mon, 22 Jul 2002 04:04:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23311 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316582AbSGVIEI>; Mon, 22 Jul 2002 04:04:08 -0400
-Date: Mon, 22 Jul 2002 09:07:04 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.5.25 net/core/Makefile
-Message-ID: <20020722090704.A2052@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0207211853130.16927-100000@chaos.physics.uiowa.edu> <25972.1027300121@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <25972.1027300121@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Jul 22, 2002 at 11:08:41AM +1000
+	id <S317171AbSGVNbY>; Mon, 22 Jul 2002 09:31:24 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:30980 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317221AbSGVNbX>; Mon, 22 Jul 2002 09:31:23 -0400
+Date: Mon, 22 Jul 2002 10:34:07 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
+In-Reply-To: <3D3BAA5B.E3C100A6@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0207221029590.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 11:08:41AM +1000, Keith Owens wrote:
-> It is required if you ever want autoconfigure to work, that
-> distinguishes between "" (undefined) and "n" (explicitly turned off).
-> Forward planning.
+On Sun, 21 Jul 2002, Andrew Morton wrote:
+> "Martin J. Bligh" wrote:
 
-Wouldn't it be better to fix the existing config tools to output "=n"
-instead of "# CONFIG_foo is not set" ?  IIRC they do the translation
-back and forth internally anyway, so it should be just a matter of
-removing some code from the tools.
+> > These large NUMA machines should actually be rmap's glory day in the
+> > sun.
+>
+> "should be".  Sigh.  Be nice to see an "is" one day ;)
 
-After all, the earlier we update the config tools, the earlier we can
-do something with the makefiles (after a reasonable period for things
-like mconfig to catch up...)
+You asked for a "minimal rmap" patch and you got it. ;)
 
+Bill and I actually have code for many of the things listed
+but we haven't submitted it yet exactly because everybody
+wanted the code merged in small, manageable chunks.
+
+> Do you think that large pages alone would be enough to allow us
+> to leave pte_chains (and page tables?) in ZONE_NORMAL, or would
+> shared pagetables also be needed?
+
+Large pages should reduce the page table overhead by a factor
+of 1024 (or 512 for PAE) and have the same alignment restrictions
+that shared page tables have.
+
+OTOH, shared page tables would allow us to map in chunks smaller
+than 4MB ... but at what seems like a pretty horrible locking and
+accounting complexity, unless somebody comes up with a smart trick.
+
+Apart from both of these we'll also need code to garbage collect
+empty page tables so users can't clog up memory by mmaping a page
+every 4 MB ;)
+
+regards,
+
+Rik
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

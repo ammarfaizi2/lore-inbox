@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUELUkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUELUmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUELUkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbUELUkV
+	id S263735AbUELUmq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbUELUka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:40:21 -0400
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:58886 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP id S265225AbUELUkF
+	Wed, 12 May 2004 16:40:30 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:65513 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S265222AbUELUkJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:40:05 -0400
-Message-ID: <15FDCE057B48784C80836803AE3598D50627ACD5@racerx.ixiacom.com>
-From: Jan Olderdissen <jan@ixiacom.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: davidel@xmailserver.org, jgarzik@pobox.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: RE: MSEC_TO_JIFFIES is messed up...
-Date: Wed, 12 May 2004 13:40:18 -0700
+	Wed, 12 May 2004 16:40:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Assembler warnings on Alpha
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Wed, 12 May 2004 22:40:08 +0200
+Message-ID: <yw1x1xlpv0pj.fsf@kth.se>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Couple nitpicks:
+When building Linux 2.6.6 on Alpha, I get numerous of these warnings:
 
-> #if HZ=1000
+{standard input}:6: Warning: setting incorrect section attributes for .got
 
-#if HZ==1000
+What's going on?  I'm using gcc 3.3.3 and binutils 2.15.90.  Are these
+not good?  Is the resulting kernel safe to boot?
 
-> #define	MSEC_TO_JIFFIES(msec) (msec)
-> #define JIFFIES_TO_MESC(jiffies) (jiffies)
-> #elif HZ=100
-
-#elif HZ==100
-
-> #define	MSEC_TO_JIFFIES(msec) (msec * 10)
-> #define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
-
-#define JIFFIES_TO_MSEC(jiffies) (jiffies / 10)
-
-> #else
-> #define	MSEC_TO_JIFFIES(msec) ((HZ * (msec) + 999) / 1000)
-> #define	JIFFIES_TO_MSEC(jiffies) ...
-> #endif
-
-Jan
+-- 
+Måns Rullgård
+mru@kth.se

@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRAOEKW>; Sun, 14 Jan 2001 23:10:22 -0500
+	id <S131815AbRAOEQX>; Sun, 14 Jan 2001 23:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131745AbRAOEKN>; Sun, 14 Jan 2001 23:10:13 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:39428 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S131369AbRAOEKE>;
-	Sun, 14 Jan 2001 23:10:04 -0500
-Message-ID: <3A6247AF.936B1AE1@goingware.com>
-Date: Mon, 15 Jan 2001 00:43:27 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Article: Using test suites to test the new kernel
+	id <S131745AbRAOEQN>; Sun, 14 Jan 2001 23:16:13 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:42826 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131815AbRAOEQF>; Sun, 14 Jan 2001 23:16:05 -0500
+Date: Mon, 15 Jan 2001 05:16:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Todd M. Roy" <troy@holstein.com>
+Cc: "Heinz J. Mauelshagen" <Heinz.Mauelshagen@t-online.de>,
+        linux-kernel@vger.kernel.org,
+        Heinz Mauelshagen <mauelshagen@sistina.com>, lvm-devel@sistina.com
+Subject: Re: [lvm-devel] Re: lvm 0.9.1-beta1 still segfaults vgexport
+Message-ID: <20010115051624.C2207@athlon.random>
+In-Reply-To: <3A45192F.8C149F93@softhome.net> <20001227205336.A10446@athlon.random> <200101081918.f08JIrT06681@pcx4168.holstein.com> <20010108234339.F27646@athlon.random> <3A5B3422.F63D7DDD@holstein.com> <20010109170424.A29468@athlon.random> <3A5BBD0E.9F7DA88B@holstein.com> <20010110024743.R29904@athlon.random> <3A61B841.81B1D0F5@holstein.com> <20010114173234.A942@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010114173234.A942@athlon.random>; from andrea@suse.de on Sun, Jan 14, 2001 at 05:32:34PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've written a brief article on the topic of using test suites to test new linux
-kernels.  
+On Sun, Jan 14, 2001 at 05:32:34PM +0100, Andrea Arcangeli wrote:
+> BTW, I can easily reproduce. I was near to go into it yesterday but got
+> interrupted by other issues (like the merging of the 0.9.1-beta1 kernel driver
+> and extraction of the strictly necessary fixes from the 0.9.1-beta1 userspace
+> against 0.9).
 
-It is my hope that anyone who wants to play with the new kernels will try out
-some of these suites, not just people doing a formal QA process, so that more
-coverage of configurations can be achieved.
+This looks the right fix for the vgexport segfault trivially reproducible
+on 0.9 and 0.9.1_beta1 lvmtools. Now that I see the details of the bug
+it was possible to reproduce it also with `vgdisplay -D xxxxxxx' where
+xxxxxxx is just a random name of a not existent VG.
 
-Using Test Suites to Validate the Linux Kernel
-http://linuxquality.sunsite.dk/articles/testsuites/
+--- ./tools/lib/pv_read_all_pv_of_vg.c.~1~	Mon Jan 15 03:35:51 2001
++++ ./tools/lib/pv_read_all_pv_of_vg.c	Mon Jan 15 04:57:00 2001
+@@ -137,6 +137,11 @@
+          while ( pv_this[np] != NULL) np++;
+       }
+ 
++      if ( np == 0) {
++         ret = -LVM_EPV_READ_ALL_PV_OF_VG_NP;
++         goto pv_read_all_pv_of_vg_end;
++      }
++
+       /* avoid multiple access pathes */
+       for ( p = 0; pv_this[p] != NULL; p++) {
+             /* avoid multiple access pathes for now (2.4.0-test8)
 
-I cover the use of suites that test the correct functioning of applications (for
-example, language compliance tests for Python and Kaffe's Java implementation)
-as well as test suites aimed directly at testing Linux itself.
+I also got a reminder from Marco d'Itri to integrate this hack for
+some more non-x86 platform:
 
-Links to five different packages with test suites are given.  I'd appreciate
-hearing of any more that you know about.
+--- ./tools/lib/pv_get_size.c.~1~	Mon Jan 15 03:35:51 2001
++++ ./tools/lib/pv_get_size.c	Mon Jan 15 04:04:03 2001
+@@ -58,7 +58,7 @@
+ #define read_le(x) (x)
+ #endif
+ 
+-#if !defined(__alpha__) && !defined(__s390__)
++#ifdef __i386__
+ int pv_get_size ( char *dev_name, struct partition *part_ptr) {
+    int i = 0;
+    int dir_cache_count = 0;
 
-I also appreciate your comments on how I can improve the article.  This is a
-first draft.
-
-Regards,
-
-Mike Crawford
--- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319120AbSIJNXQ>; Tue, 10 Sep 2002 09:23:16 -0400
+	id <S319112AbSIJN3F>; Tue, 10 Sep 2002 09:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319118AbSIJNXQ>; Tue, 10 Sep 2002 09:23:16 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:41738 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S319120AbSIJNXP>; Tue, 10 Sep 2002 09:23:15 -0400
-Date: Tue, 10 Sep 2002 17:27:42 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: SIGSTKFLT on alpha, mips and sparc
-Message-ID: <20020910172742.A28993@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S319115AbSIJN3F>; Tue, 10 Sep 2002 09:29:05 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:27917 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S319112AbSIJN3E>; Tue, 10 Sep 2002 09:29:04 -0400
+Message-ID: <3D7DF4B1.6010300@didntduck.org>
+Date: Tue, 10 Sep 2002 09:33:37 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Venu Vadapalli <bvadapal@vt.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: vmalloc/vfree
+References: <3D81FB0C@zathras>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SIGSTKFLT (stack fault on coprocessor) is not defined on these
-platforms, so signal.c won't compile.
+Venu Vadapalli wrote:
+> Looking at vmalloc implementation, it fills the page table mappings (pgd and 
+> pmd) of only init_mm. When other tasks access these pages their mappings are 
+> updated on demand by the page fault handler, right? Vfree, also, updates the 
+> entries of just init_mm and, of course, flushes the cache and the tlb. But 
+> what about other tasks that have acquired mappings to these pages?
+> 
+> -Venu
 
-I would suggest something like this.
+The pagetables for the kernel space are shared between all processes, 
+except for the top level which is why the page fault handler exists. 
+The actual pages that make up the shared pagetables never change once 
+allocated which is the reason we can be lazy about updating the top 
+level table of each task.
 
-Ivan.
+--
+				Brian Gerst
 
---- 2.5.34/kernel/signal.c	Tue Sep 10 01:15:36 2002
-+++ linux/kernel/signal.c	Tue Sep 10 11:27:46 2002
-@@ -75,10 +75,17 @@ int max_queued_signals = 1024;
- 
- #define M(sig) (1UL << (sig))
- 
-+/* SIGSTKFLT does not exist on some architectures */
-+#ifdef	SIGSTKFLT
-+#define	M_SIGSTKFLT	M(SIGSTKFLT)
-+#else
-+#define	M_SIGSTKFLT	0
-+#endif
-+
- #define SIG_USER_SPECIFIC_MASK (\
- 	M(SIGILL)    |  M(SIGTRAP)   |  M(SIGABRT)   |  M(SIGBUS)    | \
- 	M(SIGFPE)    |  M(SIGSEGV)   |  M(SIGPIPE)   |  M(SIGXFSZ)   | \
--	M(SIGPROF)   |  M(SIGSYS)    |  M(SIGSTKFLT) |  M(SIGCONT)   )
-+	M(SIGPROF)   |  M(SIGSYS)    |  M_SIGSTKFLT  |  M(SIGCONT)   )
- 
- #define SIG_USER_LOAD_BALANCE_MASK (\
-         M(SIGHUP)    |  M(SIGINT)    |  M(SIGQUIT)   |  M(SIGUSR1)   | \
-@@ -95,7 +102,7 @@ int max_queued_signals = 1024;
- 	M(SIGKILL)   |  M(SIGUSR1)   |  M(SIGSEGV)   |  M(SIGUSR2)   | \
- 	M(SIGPIPE)   |  M(SIGALRM)   |  M(SIGTERM)   |  M(SIGXCPU)   | \
- 	M(SIGXFSZ)   |  M(SIGVTALRM) |  M(SIGPROF)   |  M(SIGPOLL)   | \
--	M(SIGSYS)    |  M(SIGSTKFLT) |  M(SIGPWR)    |  M(SIGCONT)   | \
-+	M(SIGSYS)    |  M_SIGSTKFLT  |  M(SIGPWR)    |  M(SIGCONT)   | \
-         M(SIGSTOP)   |  M(SIGTSTP)   |  M(SIGTTIN)   |  M(SIGTTOU)   )
- 
- #define SIG_KERNEL_ONLY_MASK (\
+

@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289260AbSA1ROD>; Mon, 28 Jan 2002 12:14:03 -0500
+	id <S289270AbSA1RSn>; Mon, 28 Jan 2002 12:18:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289270AbSA1RNx>; Mon, 28 Jan 2002 12:13:53 -0500
-Received: from helen.CS.Berkeley.EDU ([128.32.131.251]:36233 "EHLO
-	helen.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id <S289260AbSA1RNk>; Mon, 28 Jan 2002 12:13:40 -0500
-Date: Mon, 28 Jan 2002 09:13:38 -0800
-From: Josh MacDonald <jmacd@CS.Berkeley.EDU>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, reiserfs-list@namesys.com,
-        reiserfs-dev@namesys.com
-Subject: Note describing poor dcache utilization under high memory pressure
-Message-ID: <20020128091338.D6578@helen.CS.Berkeley.EDU>
+	id <S289277AbSA1RSf>; Mon, 28 Jan 2002 12:18:35 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:34634 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S289270AbSA1RSU>; Mon, 28 Jan 2002 12:18:20 -0500
+Date: Mon, 28 Jan 2002 18:13:40 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: akpm@zip.com.au, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+Message-Id: <20020128181340.280af0fa.kristian.peters@korseby.net>
+In-Reply-To: <1012233006.951.2.camel@psuedomode>
+In-Reply-To: <3C550BD4.E9CBE6A@zip.com.au>
+	<3C550BD4.E9CBE6A@zip.com.au>
+	<20020128095136.1298@mailhost.mipsys.com>
+	<3C551F18.873EA52E@zip.com.au>
+	<1012233006.951.2.camel@psuedomode>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When memory pressure becomes high, the Linux kswapd begins calling
-shrink_caches() from try_to_free_pages() with an integer priority from
-6 (the default, lowest priority) to 1 (high priority).  Looking
-specifically at the dcache, this results in a calls to
-shrink_dcache_memory() that attempt to free a fraction (1/priority) of
-the inactive dcache entries.  This ultimately leads to prune_dcache()
-scanning the dcache in least-recently-used order attempting to call
-kmem_cache_free() on some number of dcache entries.
+Ed Sweetman <ed.sweetman@wmich.edu> wrote:
+> I've always been able to get it back to dma for packet by forcing the
+> drive to sleep mode and then letting the kernel wake it.   I guess I'll
+> try this 3rd version patch when I get back from class today and see if
+> that still works.   
+> 
+> hdparm -Y /dev/cdrom    
+> 
+> then go and set dma again with hdparm.   
+> 
+> Although this could just be fickleness of my cdrom.  
 
-Dcache entries are allocated from the kmem_slab_cache, which manages
-objects in page-size "slabs", but the kmem_slab_cache cannot free a
-page until every object in a slab becomes unused.  The problem is that
-freeing dcache entries in LRU-order is effectively freeing entries
-from randomly-selected slabs, and therefore applying shrink_caches()
-pressure to the dcache has an undesired result.  In the attempt to
-reduce its size, the dcache must free objects from random slabs in 
-order to actually release full pages.  The result is that under high
-memory pressure the dcache utilization drops dramatically.  The
-prune_dcache() mechanism doesn't just reduce the page utilization as
-desired, it reduces the intra-page utilization, which is bad.
+It works for the second one (the HP writer). But the kernel completely hangs for 2 seconds trying to wake up the drive (with 2.4.18-pre3-ac2).
 
-In order to measure this effect (via /proc/slabinfo) I first populated
-a large dcache and then ran a memory-hog to force swapping to occur.
-The dcache utilization drops to between 20-35%.  For example, before
-running the memory-hog my dcache reports:
+My log shows:
+ hdd: DMA disabled
+ hdd: drive not ready for command
+ hdd: ATAPI reset complete
 
-dentry_cache       10170  10170    128  339  339    1 :  252  126
+But preemption does help in that case.
 
-(i.e., 10170 active dentry objects, 10170 available dentry objects @
-128 bytes each, 339 pages with at least one object, and 339 allocated
-pages, an approximately 1.4MB dcache)
+The first cd-rom drive does not support sleep or standby commands. ;-(
 
-While running the memory-hog program to initiate swapping, the dcache
-stands at:
+*Kristian
 
-dentry_cache         693   3150    128  105  105    1 :  252  126
-
-Meaning, the randomly-applied cache pressure was successful at freeing
-234 (= 339-105) pages, leaving a 430KB dcache, but at the same time it
-reduced the cache utilization to 22%, meaning that although it was
-able to free nearly 1MB of space, 335KB are now wasted as a result of
-the high memory-pressure condition.
-
-So, it would seem that the dcache and kmem_slab_cache memory allocator
-could benefit from a way to shrink the dcache in a less random way.
-Any thoughts?
-
--josh
-
---
-PRCS version control system    http://sourceforge.net/projects/prcs
-Xdelta storage & transport     http://sourceforge.net/projects/xdelta
-Need a concurrent skip list?   http://sourceforge.net/projects/skiplist
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

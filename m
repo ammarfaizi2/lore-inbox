@@ -1,152 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbULCKRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbULCKc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbULCKRg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 05:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbULCKRg
+	id S262144AbULCKc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 05:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbULCKc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 05:17:36 -0500
-Received: from web90003.mail.scd.yahoo.com ([66.218.94.61]:17569 "HELO
-	web90003.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S261419AbULCKR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 05:17:28 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=0luwLJr0xLyBGiQqwhCbGVmmt4QVhzbi7uQONsCAoTa0wt4Yu8c8ATALPnzfQlDZulRpI5oFLVW/+5Tj3sWBBAhwcuBsMGGK3yf7sNvRAjuKeJnbDgVz79MtlvWWqYqJxaLUd+PJxcXahcJCqX0ADQUlFgdaaABzenBhWKNpNIc=  ;
-Message-ID: <20041203101727.33227.qmail@web90003.mail.scd.yahoo.com>
-Date: Fri, 3 Dec 2004 02:17:27 -0800 (PST)
-From: ram mohan <madhaviram123@yahoo.com>
-Subject: Re: Contribute - How to
-To: manu@kromtek.com
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200412031346.24920.manu@kromtek.com>
-MIME-Version: 1.0
+	Fri, 3 Dec 2004 05:32:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27629 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262144AbULCKcV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 05:32:21 -0500
+Date: Fri, 3 Dec 2004 11:31:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       nickpiggin@yahoo.com.au
+Subject: Re: Time sliced CFQ io scheduler
+Message-ID: <20041203103130.GH10492@suse.de>
+References: <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org> <20041202195232.GA26695@suse.de> <20041202121938.12a9e5e0.akpm@osdl.org> <41AF94B8.8030202@gmx.de> <20041203070108.GA10492@suse.de> <41B02DFD.9090503@gmx.de> <20041203012645.21377669.akpm@osdl.org> <20041203093903.GE10492@suse.de> <41B03722.5090001@gmx.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41B03722.5090001@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-way suggested looks interesting ..
-i was thinking of contributing in terms of device
-drivers/low level stuff .. searching for a todo list
-in this area..
---- Manu Abraham <manu@kromtek.com> wrote:
-
-> On Fri December 3 2004 8:39 am, ram mohan wrote:
-> > I am interested to work in the following areas:
-> > 1. embedded systems
-> > 2. networking
+On Fri, Dec 03 2004, Prakash K. Cheemplavam wrote:
+> Jens Axboe schrieb:
+> >On Fri, Dec 03 2004, Andrew Morton wrote:
 > >
-> > I was wondering how can I contribute in embedded
-> > without actual hardware.
-> 
-> Well, to contribute you should have the hardware and
-> or the documentation, 
-> depend on what you would like to contribute. You can
-> work on with an initrd, 
-> if you are looking at embedded development on the
-> x86 platform.
-> 
-> Even a retarded old PC can be considered as a
-> development platform for x86 
-> embedded development.
-> 
-> Manu
+> >>"Prakash K. Cheemplavam" <prakashkc@gmx.de> wrote:
+> >>
+> >>Is this a parallel IDE system?  SATA?  SCSI?  If the latter, what driver
+> >>and what is the TCQ depth?
 > >
-> > Thanks.
 > >
-> > --- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> > > ram mohan wrote:
-> > > > Hi,
-> > > > I am willing to contribute to the development
-> of
-> > >
-> > > Linux
-> > >
-> > > > kernel. I googled a bit and found that I
-> should
-> > >
-> > > join
-> > >
-> > > > the list and then I can go ahead.
-> > > >
-> > > > I would like to know.
-> > > > 1. What are the features currently being
-> worked
-> > >
-> > > upon?
-> > > It's all over the map:
-> > > Large-systems performance & scalability.
-> > > Embedded.  Desktop issues.
-> > > Journaling + extents-based filesystems.
-> > > Drivers (new development in Infiniband and
-> iscsi).
-> > > VM fixes.  Processor scheduling improvements.
-> > > IO scheduler improvements.
-> > > Fixing bugs.  :)
-> > >
-> > > > 2. Are there any things-to-do lists
-> maintained?
-> > >
-> > > There are by some projects, others are more
-> informal
-> > > and
-> > > just discuss TODO on a mailing list.
-> > >
-> > > > 3. How are new features selected?
-> > >
-> > > a. scratch your favorite itch
-> > > or
-> > > b. what someone pays for
-> > >
-> > > What do you want to work on?
-> > >
-> > > > 4. Can I suggest new features?
-> > >
-> > > Of course.  But part of the Linux culture is
-> that
-> > > ideas/suggestions don't carry much weight.  It's
-> > > sometimes phrased as:
-> > >    Shut up and code.
-> > > or
-> > >    Show us the code.
-> > > so send patches too.  :)
-> > >
-> > > --
-> > > ~Randy
-> > > -
-> > > To unsubscribe from this list: send the line
-> > > "unsubscribe linux-kernel" in
-> > > the body of a message to
-> majordomo@vger.kernel.org
-> > > More majordomo info at
-> > > http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> > __________________________________
-> > Do you Yahoo!?
-> > All your favorites on one personal page – Try My
-> Yahoo!
-> > http://my.yahoo.com
-> > -
-> > To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> >Yeah, that would be interesting to know. Or of the device is on dm or
+> >raid. And what filesystem is being used?
 > 
+> It is ext3. (The writing-makes-reading-starve problem happen on reiserfs 
+> as well. ext2 is not so bad and xfs behaves best, ie my email client 
+> doesn't get unuasable with my earlier tests, but "only" very slow. But 
+> then I only wrote down 2gb and nothing continuesly.)
 
+It's impossible to give really good results on ext3/reiser in my
+experience, because reads often need to generate a write as well. What
+could work is if a reader got PF_SYNCWRITE set while that happens.
 
+Or even better would be to kill that horrible PF_SYNCWRITE hack (Andrew,
+how could you!) and really have the fs use the proper WRITE_SYNC
+instead.
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - 250MB free storage. Do more. Manage less. 
-http://info.mail.yahoo.com/mail_250
+> >So Prakash, please try the same test with those settings:
+> >
+> ># cd /sys/block/<dev>/queue/iosched
+> ># echo 6 > idle
+> ># echo 150 > slice
+> >
+> >These are the first I tried, there may be better settings. If you have
+> >your filesystem on dm/raid, you probably want to do the above for each
+> >device the dm/raid is composed of.
+> 
+> Yeas, I have linux raid (testing md1). Have appield both settings on 
+> both drives and got a interesting new pattern: Now it alternates. My 
+> email client is still not usale while writing though...
+
+Funky. It looks like another case of the io scheduler being at the wrong
+place - if raid sends dependent reads to different drives, it screws up
+the io scheduling. The right way to fix that would be to io scheduler
+before raid (reverse of what we do now), but that is a lot of work. A
+hack would be to try and tie processes to one md component for periods
+of time, sort of like cfq slicing.
+
+-- 
+Jens Axboe
+

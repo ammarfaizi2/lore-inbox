@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSFZG0m>; Wed, 26 Jun 2002 02:26:42 -0400
+	id <S316434AbSFZGbf>; Wed, 26 Jun 2002 02:31:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316434AbSFZG0l>; Wed, 26 Jun 2002 02:26:41 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:40849 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S316430AbSFZG0l>; Wed, 26 Jun 2002 02:26:41 -0400
-From: Simon Winwood <sjw@cse.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 26 Jun 2002 16:26:37 +1000
-Subject: [RFC][PATCH] Multiple page size support
-Message-ID: <20020626162636.A12854@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316437AbSFZGbe>; Wed, 26 Jun 2002 02:31:34 -0400
+Received: from ftp.realnet.co.sz ([196.28.7.3]:63406 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316434AbSFZGbd>; Wed, 26 Jun 2002 02:31:33 -0400
+Date: Wed, 26 Jun 2002 08:01:50 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Anyone get Linux on a Shuttle SpaceWalker SS40?
+In-Reply-To: <3D18F640.1030800@candelatech.com>
+Message-ID: <Pine.LNX.4.44.0206260800450.926-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 25 Jun 2002, Ben Greear wrote:
 
-	In preperation for the talk at this years OLS, I have put up 
-my page size patch at http://www.cse.unsw.edu.au/~sjw/linux-mpss/
-(the actual patch is 
-    
-    http://www.cse.unsw.edu.au/~sjw/linux-mpss/linux-2.4.18-mpss-0.1 
-)
+> I tried with a new stick of crucial 256MB DDR today, and the problem
+> was exactly identical, so it's probably not the memory.
+> 
+> I would try the latest pre-patch kernel, but I am not sure how go do about
+> doing that since I can't get a distro to load...
 
-	This patch allows applications to map parts of their
-address space using large pages, currently only on an x86 (ports 
-to other architectures are planned).
+You can use the distro bootdisks and replace the kernel on them, i have to 
+do this with some to use newer SCSI controllers for example.
 
-	While this is still definately a work in progress, and in no way 
-ready for consideration for a production kernel, I would be interested in 
-any (constructive) criticism people may have.  
+Cheers,
+	Zwane
 
-	The work was done while I was an intern in the Enterprise Linux
-Group at IBM's T.J. Watson Research Center.
+-- 
+http://function.linuxpower.ca
+		
 
-	(The usual disclaimers apply --- I take no responsibility if this
-causes any damage to you, your computer, your social life, etc.)
-
-	I will put up a copy of the OLS paper and slides after the talk.
-
-	Simon

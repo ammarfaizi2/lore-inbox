@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132226AbRAaBQq>; Tue, 30 Jan 2001 20:16:46 -0500
+	id <S132419AbRAaBTG>; Tue, 30 Jan 2001 20:19:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132786AbRAaBQg>; Tue, 30 Jan 2001 20:16:36 -0500
-Received: from munch-it.turbolinux.com ([38.170.88.129]:10737 "EHLO
-	mail.us.tlan") by vger.kernel.org with ESMTP id <S132680AbRAaBQW>;
-	Tue, 30 Jan 2001 20:16:22 -0500
-Date: Tue, 30 Jan 2001 17:15:28 -0800
-From: Prasanna P Subash <psubash@turbolinux.com>
-To: John Jasen <jjasen1@umbc.edu>
-Cc: Matthew Gabeler-Lee <msg2@po.cwru.edu>, linux-kernel@vger.kernel.org,
-        AmNet Computers <amnet@amnet-comp.com>
-Subject: Re: bttv problems in 2.4.0/2.4.1
-Message-ID: <20010130171528.B25507@turbolinux.com>
-In-Reply-To: <Pine.LNX.4.32.0101301830330.1138-100000@cheetah.STUDENT.cwru.edu> <Pine.SGI.4.31L.02.0101301951040.887333-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <Pine.SGI.4.31L.02.0101301951040.887333-100000@irix2.gl.umbc.edu>; from John Jasen on Tue, Jan 30, 2001 at 07:53:11PM -0500
+	id <S132553AbRAaBS4>; Tue, 30 Jan 2001 20:18:56 -0500
+Received: from snowbird.megapath.net ([216.200.176.7]:16652 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S132419AbRAaBSm>;
+	Tue, 30 Jan 2001 20:18:42 -0500
+Message-ID: <3A776890.53BAFBCD@megapath.net>
+Date: Tue, 30 Jan 2001 17:21:20 -0800
+From: Miles Lane <miles@megapath.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: OT: mount/umount doesn't track used resources correctly?
+In-Reply-To: <Pine.LNX.4.21.0101221201420.1083-100000@antonia.wins.lbl.gov>			<3A6C9CE3.5B26923C@cern.ch> <m3puhfnrlc.fsf@austin.jhcloos.com>			<3A6CBE53.8050400@megapathdsl.net> <m3elxvnouk.fsf@austin.jhcloos.com>			<3A733E33.BEC2174E@cern.ch> <3A73F372.DAA5DFCD@snowbird.megapath.net>			<3A73FB0E.DB64D0C0@cern.ch> <m34ryjqefn.fsf@austin.jhcloos.com> <3A750DC4.2ACB4A9F@snowbird.megapath.net> <3A7530A0.8F3D6AEA@cern.ch> <3A77431E.9010605@megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ADZbWkCsHQ7r3kzd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am having trouble removing the usbide module
+which enables me to access my USB external 
+hard drive.  I think the problem may be due
+to usermode tools not handling the new "mount
+multiple devices to a single mount point" feature,
+but I'm not sure.
 
-I have experienced similar issues with 2.4.0 and its test. I have a bttv848=
- chipset.
-I even tried compiling in kdb as a part of the kernel to see if it oopses, =
-but no luck.
+Here was my mount configuration for /dev/pda 
+devices (the partitions on my USB BusLink drive)
+before I unmounted all these partitions:
 
-I will try trying 0.7.47 today.
+/dev/pda8              2016016        20   1913584   0% /mnt/pda8
+/dev/pda8              2016016        20   1913584   0% /mnt/pda9
+/dev/pda9              2016016        20   1913584   0% /mnt/pda9
 
-this works on 2.2.16, last time i tried.
+Currently, mount shows:
 
---=20
-Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
-------------------------------------------------------------------------
-Linux, the choice          | "You've got to think about tomorrow!"=20
-of a GNU generation   -o)  | "TOMORROW!  I haven't even prepared for=20
-Kernel 2.4.0-ac4      /\\  | yesterday* yet!"=20
-on a i686            _\\_v |=20
-                           |=20
-------------------------------------------------------------------------
+/dev/hda7 on / type ext2 (rw)
+none on /proc type proc (rw)
+none on /dev/pts type devpts (rw,mode=0620)
+/dev/hda8 on /home type ext2 (rw)
+/dev/hda1 on /mnt/Win98 type vfat (rw,nosuid,nodev,umask=0)
+none on /proc/bus/usb type usbdevfs (rw)
 
-On Tue, Jan 30, 2001 at 07:53:11PM -0500, John Jasen wrote:
-> On Tue, 30 Jan 2001, Matthew Gabeler-Lee wrote:
->=20
-> > These errors all occur in the same way (as near as I can tell) in
-> > kernels 2.4.0 and 2.4.1, using bttv drivers 0.7.50 (incl. w/ kernel),
-> > 0.7.53, and 0.7.55.
-> >
-> > I am currently using 2.4.0-test10 with bttv 0.7.47, which works fine.
-> >
-> > I have sent all this info to Gerd Knorr but, as far as I know, he hasn't
-> > been able to track down the bug yet.  I thought that by posting here,
-> > more eyes might at least make more reports of similar situations that
-> > might help track down the problem.
->=20
-> Try flipping the card into a different slot. A lot of the cards
-> exceptionally do not like IRQ/DMA sharing, and a lot of the motherboards
-> share them between different slots.
->=20
-> --
-> -- John E. Jasen (jjasen1@umbc.edu)
-> -- In theory, theory and practise are the same. In practise, they aren't.
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Any ideas?
 
-
-
---ADZbWkCsHQ7r3kzd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6d2cw5UrYeFg/7bURAjyJAJwM5ocdZr00Z3Z4fkTomZHHGFADTwCeLYkf
-bX+V/izn4pXxP01sdBmKbg8=
-=DHTP
------END PGP SIGNATURE-----
-
---ADZbWkCsHQ7r3kzd--
+        Miles
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264651AbTDZMsx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 08:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbTDZMsx
+	id S261165AbTDZOZF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 10:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbTDZOZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 08:48:53 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:55426 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S264651AbTDZMsw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 08:48:52 -0400
-Date: Sat, 26 Apr 2003 15:00:48 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Werner Almesberger <wa@almesberger.net>
-cc: Daniel Phillips <phillips@arcor.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-In-Reply-To: <20030424201522.G1425@almesberger.net>
-Message-ID: <Pine.GSO.4.21.0304261459210.10838-100000@vervain.sonytel.be>
+	Sat, 26 Apr 2003 10:25:04 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:34688 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261165AbTDZOZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 10:25:03 -0400
+Date: Sat, 26 Apr 2003 10:37:11 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: TASK_UNMAPPED_BASE & stack location
+In-Reply-To: <459930000.1051302738@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0304261034180.27719-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Werner Almesberger wrote:
-> Daniel Phillips wrote:
-> > Open source + Linux + DRM could be used to solve the Quake client-side 
-> > cheating problem:
-> 
-> Yes, but in return you'd be excluded from playing Quake unless
-> you're running one of those signed kernels or modules.
-> 
-> So, if I, say, want to test some TCP fix, new VM feature, file
-> system improvement, etc., none of the applications that rely on
-> DRM would work. This doesn't only affect developers, but also
-> their potential testers.
+On Fri, 25 Apr 2003, Martin J. Bligh wrote:
 
-Hence the development rate of Linux will go down, since you cannot use your
-Linux development box running your own development kernel for anything else,
-since that would require a signed kernel.
+> Is there any good reason we can't remove TASK_UNMAPPED_BASE, and just shove
+> libraries directly above the program text? Red Hat seems to have patches to
+> dynamically tune it on a per-processes basis anyway ...
 
-Gr{oetje,eeting}s,
+What could be done is leave the stack where it is, but have
+malloc() space and mmap() space grow towards each other:
 
-						Geert
+0                                            3G
+| |prog | malloc -->         <-- mmap | stack |
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+The stack will get the stack size ulimit size and the space
+between where malloc and mmap start should be about 2.7 GB.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+That 2.7 GB will of course by divided between malloc and mmap,
+but the division will be done dynamically based on whoever
+needs the space.  Much better than the current static 1:1.7
+division...
 

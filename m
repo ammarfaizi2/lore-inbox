@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288088AbSACAze>; Wed, 2 Jan 2002 19:55:34 -0500
+	id <S288087AbSACAxr>; Wed, 2 Jan 2002 19:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288098AbSACAz3>; Wed, 2 Jan 2002 19:55:29 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:22020
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S288088AbSACAxz>; Wed, 2 Jan 2002 19:53:55 -0500
-Subject: Re: Strange USB issues... - 2.4.x Kernels & more info
-From: Shawn Starr <spstarr@sh0n.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16LwFY-0006Ja-00@the-village.bc.nu>
-In-Reply-To: <E16LwFY-0006Ja-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 02 Jan 2002 19:55:40 -0500
-Message-Id: <1010019369.20264.19.camel@unaropia>
-Mime-Version: 1.0
+	id <S288049AbSACAwi>; Wed, 2 Jan 2002 19:52:38 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:19217 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S288073AbSACAvf>; Wed, 2 Jan 2002 19:51:35 -0500
+Date: Wed, 2 Jan 2002 16:55:13 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Peter Osterlund <petero2@telia.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] scheduler fixups ...
+In-Reply-To: <m24rm4p8xf.fsf@pengo.localdomain>
+Message-ID: <Pine.LNX.4.40.0201021652520.1034-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any fix for this or just have to live with the crappy USB port ;-)
+On 3 Jan 2002, Peter Osterlund wrote:
 
-Shawn.
+> Davide Libenzi <davidel@xmailserver.org> writes:
+>
+> > On 2 Jan 2002, Peter Osterlund wrote:
+> >
+> > > Davide Libenzi <davidel@xmailserver.org> writes:
+> > >
+> > > > a still lower ts
+> > >
+> > > This also lowers the effectiveness of nice values. In 2.5.2-pre6, if I
+> > > run two cpu hogs at nice values 0 and 19 respectively, the niced task
+> > > will get approximately 20% cpu time (on x86 with HZ=100) and this
+> > > patch will give even more cpu time to the niced task. Isn't 20% too
+> > > much?
+> >
+> > The problem is that with HZ == 100 you don't have enough granularity to
+> > correctly scale down nice time slices. Shorter time slices helps the
+> > interactive feel that's why i'm pushing for this.
+>
+> OK, but even architectures with bigger HZ values will suffer. Isn't it
+> better to set MIN_NICE_TSLICE to a smaller value (such as 1000) and
+> fix the calculation in fill_tslice_map to make sure ts_table[i] is
+> always non-zero. The current formula will break anyway if
+>
+>         HZ < 1000000 / MIN_NICE_TSLICE = 100,
+>
+> but maybe HZ >= 100 is true for all architectures?
 
-On Wed, 2002-01-02 at 20:00, Alan Cox wrote:
-> > If I turn on USB and boot to a Linux kernel WITH NO USB support compiled
-> > in. I get:
-> > 
-> > 1) Slow loading of kernel into memory on bootup
-> > 2) AT keyboard timeout (?) errors and no activity with the keyboard
-> > (shift lock/numlock/scroll lock). I  have to reboot to correct the
-> > problem by disabling USB in the bios.
-> 
-> Buggy BIOS SMM emulation of PS/2 keyboard and mouse on the USB port.
-> 
+Yep, but we can do something like :
+
+static void fill_tslice_map(void)
+{
+    int i;
+
+    for (i = 0; i < NICE_RANGE; i++) {
+        ts_table[i] = ((MIN_NICE_TSLICE +
+                        ((MAX_NICE_TSLICE - MIN_NICE_TSLICE) /
+                         (NICE_RANGE - 1)) * i) * HZ) / 1000000;
+        if (!ts_table[i]) ts_table[i] = 1;
+    }
+}
+
+
+
+
+- Davide
 
 

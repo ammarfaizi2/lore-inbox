@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314404AbSEFMgH>; Mon, 6 May 2002 08:36:07 -0400
+	id <S314409AbSEFMiX>; Mon, 6 May 2002 08:38:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314409AbSEFMgG>; Mon, 6 May 2002 08:36:06 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:16 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S314404AbSEFMgF>; Mon, 6 May 2002 08:36:05 -0400
-Message-ID: <3CD67874.A043C0C3@aitel.hist.no>
-Date: Mon, 06 May 2002 14:35:00 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.12-dj1 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Mike Black <mblack@csihq.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.14 compile error
-In-Reply-To: <022e01c1f4f1$40c2f9e0$f6de11cc@black>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314411AbSEFMiW>; Mon, 6 May 2002 08:38:22 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:31578 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S314409AbSEFMiU>; Mon, 6 May 2002 08:38:20 -0400
+Date: Mon, 6 May 2002 13:38:09 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add NetMos 9835 to parport_serial
+Message-ID: <20020506133809.G27042@redhat.com>
+In-Reply-To: <20020506095735.Y27042@redhat.com> <Pine.LNX.4.44.0205061359570.12156-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="p3t3jlvjhqjzPvuq"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black wrote:
-> 
-> Is RAID1/5 support even safe in the current 2.5 series?  I saw Neil post a
-> message while ago but wasn't sure if he was being faceitous or not...
-> I've not been able to get a single 2.5 series kernel to compile since 2.5.8
 
-I use raid1 and raid0 with 2.5.12-dj1.  It compiles and seems
-to work.  I don't know about raid-5 though.
+--p3t3jlvjhqjzPvuq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Helge Hafting
+On Mon, May 06, 2002 at 02:14:25PM +0200, Zwane Mwaikambo wrote:
+
+> All the patches i've seen thus far were for some other chip (forgot the=
+=20
+> ID), but for that 9835 i needed it desperately so i tested it quite a lot=
+.=20
+>=20
+> +	/* netmos_9835 (not tested) */	{ 1, { { 2, -1 }, } },
+>=20
+> I'm not sure about the others, but i doubt that one would work.
+
+Well, if { 2, 3 } works then { 2, -1 } will surely work, although
+without ECP support.  I didn't realise that NetMos cards had ECP
+support at the time I wrote the above code.
+
+> Where there conflicting success/failure reports for the same
+> devices?
+
+I'm sorry, I don't recall.
+
+Tim.
+*/
+
+--p3t3jlvjhqjzPvuq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE81nkxyaXy9qA00+cRAiwpAKCy+P8mLfZYQohquqUWtaDivZeruQCdHr5M
+HG5a72ejfQbONdoVeDnCa+w=
+=z7Ip
+-----END PGP SIGNATURE-----
+
+--p3t3jlvjhqjzPvuq--

@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264426AbUEYB2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264422AbUEYBnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264426AbUEYB2E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 21:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbUEYB2E
+	id S264422AbUEYBnE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 21:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbUEYBnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 21:28:04 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:47295 "EHLO
+	Mon, 24 May 2004 21:43:04 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:3493 "EHLO
 	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264426AbUEYB2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 21:28:00 -0400
-Subject: Re: [RFD] Explicitly documenting patch submission
+	id S264422AbUEYBnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 21:43:01 -0400
+Subject: Re: [announce/OT] kerneltop ver. 0.7
 From: Albert Cahalan <albert@users.sf.net>
 To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>
+Cc: cef-lkml@optusnet.com.au, rddunlap@osdl.org, wli@holomorphy.com
 Content-Type: text/plain
 Organization: 
-Message-Id: <1085439926.951.971.camel@cube>
+Message-Id: <1085440827.955.983.camel@cube>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 May 2004 19:05:26 -0400
+Date: 24 May 2004 19:20:27 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[this didn't have the right subject before, sorry]
+Cef writes:
 
-Linus Torvalds writes:
+> Might want to add support for /boot/System.map containing
+> the version number (eg: /boot/System.map-`uname -r` ),
+> if /boot/System.map doesn't exist, before  just dropping
+> out with an error.
 
-> (Seriously, while nobody has actually complained about
-> the suggested rules, I don't think anybody should feel
-> compelled to do the sign-off before we've had more
-> time to let people argue over it. People who feel 
-> comfortable with the suggestion are obviously
-> encouraged to start asap, though).
+Please search for this data in a procps-like order:
 
-I had been hoping someone had just forged your email
-address. :-/  You're not known for bureaucracy.
+$PS_SYSMAP
+$PS_SYSTEM_MAP
+** see note **
+/boot/System.map-`uname -r`
+/boot/System.map
+/lib/modules/`uname -r`/System.map
+/usr/src/linux/System.map
+/System.map
 
-The wordy mix-case aspect is kind of annoying, and for
-all that we don't get to differentiate actions.
-I count:
-
-1. came up with the design ideas
-2. wrote the original patch
-3. reviewed and passed on
-4. modified
-5. blindly passed on
-
-Maybe "blindly passed on" needs nothing. So I'm
-thinking, if we must bother with all this...
-
-designed:
-authored:
-reviewed:
-modified:
-
-Add "pirated:" if you like, so that searching for
-pirated code is easier than checking the evil bit.
+Where I mark "see note" would be a good place to
+try /proc/kallsyms or similar. Also, you should
+give up if the user gave a bad environment variable
+rather than using some undesired data source.
 
 

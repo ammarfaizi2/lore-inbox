@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261968AbTCZTNq>; Wed, 26 Mar 2003 14:13:46 -0500
+	id <S261954AbTCZTSE>; Wed, 26 Mar 2003 14:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261970AbTCZTNq>; Wed, 26 Mar 2003 14:13:46 -0500
-Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:48936 "EHLO
-	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id <S261968AbTCZTNR>; Wed, 26 Mar 2003 14:13:17 -0500
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: James Simmons <jsimmons@infradead.org>
-Subject: Re: 2.5.66 double display
-Date: Wed, 26 Mar 2003 20:26:54 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0303261836230.18664-100000@phoenix.infradead.org> <200303262012.28504.dreher@math.tu-freiberg.de>
-In-Reply-To: <200303262012.28504.dreher@math.tu-freiberg.de>
+	id <S261964AbTCZTSE>; Wed, 26 Mar 2003 14:18:04 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:36812 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S261954AbTCZTSD>; Wed, 26 Mar 2003 14:18:03 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+       <samel@mail.cz>, <ma@dt.e-technik.uni-dortmund.de>
+Subject: Re: BK-kernel-tools/shortlog update
+References: <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Wed, 26 Mar 2003 20:25:35 +0100
+In-Reply-To: <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com> (Linus
+ Torvalds's message of "Wed, 26 Mar 2003 09:21:22 -0800 (PST)")
+Message-ID: <87brzy0w28.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303262026.54515.dreher@math.tu-freiberg.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I tried 2.5.66 now, and X is unusable. Everything is displayed
-> > > twice. There is a vertical split in the middle, and the right half
-> > > is identical to the left half. For instance, I have two half
-> > > login prompts of kdm. I attach my .config.
-> >
-> > You have VESA framebuffer AND the ATI 128 driver enabled. Turn one
-> > of them off.
+Linus Torvalds <torvalds@transmeta.com> writes:
+
+> On Wed, 26 Mar 2003, Matthias Andree wrote:
+>> 
+>> you can either use bk receive to patch this mail, you can pull from
+>> bk://krusty.dt.e-technik.uni-dortmund.de  (NOTE: no trailing slash)
+>> or you can apply the patch below.
 >
-> Doesnt help. .config attached.
+> Btw, one feature I'd like to see in shortlog is the ability to use 
+> regexps for email address matching, ie something like
+>
+> 	'torvalds@.*transmeta.com' => 'Linus Torvalds'
+> 	... 
+> 	'alan@.*swansea.linux.org.uk' => 'Alan Cox'
+> 	...
+> 	'bcrl@redhat.com' => 'Benjamin LaHaise',
+> 	'bcrl@.*' => '?? Benjamin LaHaise',
+> 	..
+>
+> I don't know whether you can force perl to do something like this, but if 
+> somebody were to try...
 
-But the other way around is OK. Now I have
+if you change your list to:
 
-CONFIG_FB=y
-....
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-...
-# CONFIG_FB_ATY128 is not set
-...
+@email_name_map = (
+	['torvalds@.*transmeta.com' => 'Linus Torvalds'],
+	... 
+	['alan@.*swansea.linux.org.uk' => 'Alan Cox'],
+	...
+	['bcrl@redhat.com' => 'Benjamin LaHaise'],
+	['bcrl@.*' => '?? Benjamin LaHaise'],
+...);
 
-and it works. Switch VESA and ATY128, and you have two displays on 
-one monitor :-)
+something along these (untested) lines should do the trick:
 
+sub email2name
+{
+	my($email) = @_;
+	for my $i (@mailmap) {
+		my($pattern, $name) = @$i;
+		return $name if ($email =~ m/$pattern/i);
+	}
 
+	return '??';
+}
+      
+Regards, Olaf.

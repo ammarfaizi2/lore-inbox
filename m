@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbSKICJe>; Fri, 8 Nov 2002 21:09:34 -0500
+	id <S264614AbSKIC35>; Fri, 8 Nov 2002 21:29:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264037AbSKICJe>; Fri, 8 Nov 2002 21:09:34 -0500
-Received: from mail.gmx.de ([213.165.64.20]:27653 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S264001AbSKICJd>;
-	Fri, 8 Nov 2002 21:09:33 -0500
-Message-ID: <3DCC6FE9.60506@gmx.net>
-Date: Sat, 09 Nov 2002 03:16:09 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en
+	id <S264616AbSKIC35>; Fri, 8 Nov 2002 21:29:57 -0500
+Received: from packet.digeo.com ([12.110.80.53]:56736 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264614AbSKIC34>;
+	Fri, 8 Nov 2002 21:29:56 -0500
+Message-ID: <3DCC74B0.47A462A9@digeo.com>
+Date: Fri, 08 Nov 2002 18:36:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [PATCH] restore framebuffer console after suspend
-References: <3DCC5DA4.2010707@gmx.net>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------010906060804020302060701"
+To: Con Kolivas <conman@kolivas.net>, Jens Axboe <axboe@suse.de>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+References: <200211091300.32127.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Nov 2002 02:36:32.0826 (UTC) FILETIME=[D0D601A0:01C28798]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010906060804020302060701
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Con Kolivas wrote:
+> 
+> io_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              474.1   15      36      10      6.64
+> 2.4.19 [3]              492.6   14      38      10      6.90
+> 2.4.19-ck9 [2]          140.6   49      5       5       1.97
+> 2.4.20-rc1 [2]          1142.2  6       90      10      16.00
+> 2.4.20-rc1aa1 [1]       1132.5  6       90      10      15.86
+> 
 
-Marcelo,
+2.4.20-pre3 included some elevator changes.  I assume they are the
+cause of this.  Those changes have propagated into Alan's and Andrea's
+kernels.   Hence they have significantly impacted the responsiveness
+of all mainstream 2.4 kernels under heavy writes.
 
-please disregard my previous patch as it is needlessly invasive. I'm 
-currently evaluating a smaller patch (attached) which does not require an 
-audit of the low-level drivers and still fixes my problem.
-
-Ben, can you please comment on this?
-
-Thanks
-Carl-Daniel
-
---------------010906060804020302060701
-Content-Type: text/plain;
- name="patch-fbdev.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-fbdev.txt"
-
-===== drivers/video/fbcon.c 1.12 vs edited =====
---- 1.12/drivers/video/fbcon.c	Thu Sep 12 17:22:35 2002
-+++ edited/drivers/video/fbcon.c	Sat Nov  9 02:57:00 2002
-@@ -1573,7 +1573,7 @@ static int fbcon_blank(struct vc_data *c
- 	return 0;
- #ifdef CONFIG_PM
-     if (fbcon_sleeping)
--    	return 0;
-+    	return blank ? 0 : 1;
- #endif /* CONFIG_PM */
- 
-     fbcon_cursor(p->conp, blank ? CM_ERASE : CM_DRAW);
-
---------------010906060804020302060701--
-
+(The -ck patch includes rmap14b which includes the read-latency2 thing)

@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312421AbSCUSMD>; Thu, 21 Mar 2002 13:12:03 -0500
+	id <S312426AbSCUSOd>; Thu, 21 Mar 2002 13:14:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312426AbSCUSLy>; Thu, 21 Mar 2002 13:11:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34828 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312421AbSCUSLn>; Thu, 21 Mar 2002 13:11:43 -0500
-Subject: Re: [PATCH][CFT] CD-MRW (Mt Rainier) support
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Thu, 21 Mar 2002 18:27:28 +0000 (GMT)
-Cc: axboe@suse.de (Jens Axboe), linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20020321175944.GC3201@matchmail.com> from "Mike Fedyk" at Mar 21, 2002 09:59:44 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312429AbSCUSOX>; Thu, 21 Mar 2002 13:14:23 -0500
+Received: from mailout2-eri1.midsouth.rr.com ([24.165.200.7]:43224 "EHLO
+	mailout2-eri1.midsouth.rr.com") by vger.kernel.org with ESMTP
+	id <S312426AbSCUSOL>; Thu, 21 Mar 2002 13:14:11 -0500
+Subject: Linux-2.4.19pre3-ac5
+From: Stephen Williams <mrsteve@midsouth.rr.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16o7Hc-0005vH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.2 
+Date: 21 Mar 2002 12:14:07 -0600
+Message-Id: <1016734453.1017.11.camel@swilliam.home.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Mar 21, 2002 at 02:12:01PM +0100, Jens Axboe wrote:
-> > # ./mtr -d /dev/hdc -f full
-> 
-> You may need to rename this biary since I think some other tools use this
-> name also...
+I can compile ac-5 fine but when trying to boot I get the following
+error:
 
-Yes - mtr is a graphical/text mode trace route/ping/etc tool
+kernel BUG at ide-cd.c:790!
+invalid operand: 0000
+
+I am running 2.4.19pre3 without a problem.  I didn't have a way (as far
+as I know) to get the full panic output but I can copy by hand and post
+here if needed.
+
+Have a good one,
+Steve
+
+
+
+
+
+

@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272202AbRIESBW>; Wed, 5 Sep 2001 14:01:22 -0400
+	id <S272234AbRIESKC>; Wed, 5 Sep 2001 14:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272206AbRIESBN>; Wed, 5 Sep 2001 14:01:13 -0400
-Received: from smtp2.vol.cz ([195.250.128.42]:14347 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S272202AbRIESBE>;
-	Wed, 5 Sep 2001 14:01:04 -0400
-Message-ID: <001501c13637$a5c16260$0aa76cc0@desktop>
-From: =?iso-8859-2?Q?Petr_Tit=ECra?= <owl@volny.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: Noexec flag on VFAT
-Date: Wed, 5 Sep 2001 20:19:40 +0200
+	id <S272235AbRIESJw>; Wed, 5 Sep 2001 14:09:52 -0400
+Received: from anime.net ([63.172.78.150]:54290 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S272234AbRIESJj>;
+	Wed, 5 Sep 2001 14:09:39 -0400
+Date: Wed, 5 Sep 2001 11:07:20 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: noneuclidean <noneuclidean@ziplip.com>
+cc: <linux-kernel@vger.kernel.org>, <redelm@ev1.net>
+Subject: RE: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <JK3MT4ZNAEJNIG1ZEGEDMAZMT10XZKMHVJEFFMME@ziplip.com>
+Message-ID: <Pine.LNX.4.30.0109051105190.14146-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 5 Sep 2001, noneuclidean wrote:
+> I have an Iwill KK266 (VIAKT133A chipset, latest BIOS) with an unlocked but not overclocked Athlon 950 (AMD Thunderbird, A4, Model 4). The system DOES suffer the Athlon optimisation problem.
+> I ran burnK7, burnK7 in linux 2.4.8ac11 (optimised for K6) and WinME for over 3 hours with no problems.
+> For ?fun? I also tried running 50 mulitiple instances (in total) of a mix of burnK7, burnMMX, burnBX, burnP6 and burnK6 in linux (with different memory settings for burnBX and burnMMX), while accessing floppy, CD-ROM, 2xHDDs, my SBLive card and my Geforce 2 to try and load my voltages... but again completely stable, if a bit... well very... jerky!.
+> I think the burnK7 program does not test enough K7 specific instruction sets to find the problem.
 
-    somewhere between 2.4.9 and 2.4.9-ac5 noexec flag on VFAT filesystem
-stop to work. Is it intentional?
+burnK7 doesnt test enough ram to expose the problem. burnK7 stays entirely
+inside cache and doesnt touch main memory, which is where the problem
+everyone is having is.
 
-Petr Titera
+-Dan
+
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284124AbRLXFra>; Mon, 24 Dec 2001 00:47:30 -0500
+	id <S282074AbRLXGZE>; Mon, 24 Dec 2001 01:25:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284254AbRLXFrV>; Mon, 24 Dec 2001 00:47:21 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:35346 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284124AbRLXFrL>; Mon, 24 Dec 2001 00:47:11 -0500
-Message-ID: <3C26C0C0.D324D1FC@zip.com.au>
-Date: Sun, 23 Dec 2001 21:44:32 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S284467AbRLXGYy>; Mon, 24 Dec 2001 01:24:54 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:52380 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S282074AbRLXGYi>;
+	Mon, 24 Dec 2001 01:24:38 -0500
+Message-ID: <3C26CA24.4090809@candelatech.com>
+Date: Sun, 23 Dec 2001 23:24:36 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        linux-kernel@vger.kernel.org, "H . J . Lu" <hjl@lucon.org>
-Subject: Re: How to fix false positives on references to discarded text/data?
-In-Reply-To: Your message of "Sun, 23 Dec 2001 16:15:47 -0800."
-	             <3C2673B3.78E21527@zip.com.au> <27651.1009169580@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH]:  Make UDP wait for 64k of free buffer before telling select/poll there is space to send.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> gcc/as generates worse code for the local branches in the out of line
-> subsection.  With .text.lock we get
-> 
->    0:   80 bd f8 00 00 00 00    cmpb   $0x0,0xf8(%ebp)
->    7:   f3 90                   repz nop
->    9:   7e f5                   jle    0 <.text.lock>           <=== 2 bytes
->    b:   e9 ca 01 00 00          jmp    1da <.text.lock+0x1da>
-> 
-> With .subsection 1 it generates
-> 
-> .text.lock.es1371:
-> 6387:   80 bd f8 00 00 00 00    cmpb   $0x0,0xf8(%ebp)
-> 638e:   f3 90                   repz nop
-> 6390:   0f 8e f1 ff ff ff       jle    6387 <.text.lock.es1371> <=== 6 bytes
-> 6396:   e9 33 9e ff ff          jmp    1ce <set_adc_rate+0x8e>
-> 
-> The inline code is unchanged, it is only the out of line code that is
-> bigger.  IMHO the subsection difference is a gcc/as bug which should
-> not stop us using this fix.
+This should allow better handling of large (> 2048 byte) UDP packets
+when the socket write buffer is relatively large....
 
-I don't see this.   With egcs-1.1.2 and assembler 2.11.90.0.25,
-your patch actually (and mysteriously) shrunk the kernel by 500
-bytes - the new .text is a little smaller than the sum of the
-old .text and .text.lock.
+diff -u -r -N -X /home/greear/exclude.list linux/include/net/sock.h linux.dev/include/net/sock.h
+--- linux/include/net/sock.h	Fri Dec 21 10:42:04 2001
++++ linux.dev/include/net/sock.h	Sun Dec 23 12:22:52 2001
+@@ -1230,7 +1230,16 @@
+   */
+  static inline int sock_writeable(struct sock *sk)
+  {
+- 
+return sock_wspace(sk) >= SOCK_MIN_WRITE_SPACE;
++   /* The goal is to only signal writable when there is at least 64k of buffer space
++    * when your send buffers are 128k or bigger.  The reason is that otherwise
++    * you get many failed UDP sends when you run > SOCK_MIN_WRITE_SPACE sized packets
++    * at extreme speed (ie faster than your network can keep up).  This change is
++    * designed to make select/poll wait untill you can actually be assured of sending
++    * the UDP packet at least into the kernel buffers w/out dropping it.
++    * This puts us more in line with sock_dev_write_space in core/sock.c too. --Ben
++    */
++   return sock_wspace(sk) >= max(SOCK_MIN_WRITE_SPACE,
++                                 min((unsigned int)(0xFFFF), sk->sndbuf >> 1));
+  }
 
-As you say, if the assembler is generating long-form branches for
-the `jle' in the below sequence, we have a problem.
+  static inline int gfp_any(void)
 
-#APP
-        
-1:      lock ; decb timerlist_lock
-        js 2f
-.subsection 1
-.ifndef .text.lock.bust_spinlocks
-.text.lock.bust_spinlocks:
-.endif
-2:      cmpb $0,timerlist_lock
-        rep;nop
-        jle 2b
-        jmp 1b
-.previous
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-Keith, perhaps you could ship a .s file and a version number to HJ?
 
--

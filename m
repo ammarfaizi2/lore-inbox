@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUKROHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbUKROKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbUKROHK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 09:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUKROHK
+	id S261777AbUKROKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 09:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUKROKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 09:07:10 -0500
-Received: from THUNK.ORG ([69.25.196.29]:28121 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261776AbUKROHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 09:07:03 -0500
-Date: Thu, 18 Nov 2004 09:06:45 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       r6144 <rainy6144@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
-       Christopher Li <chrisl@vmware.com>,
-       Christopher Li <ext2-devel@chrisli.org>
-Subject: Re: Fw: [POSSIBLE-BUG] telldir() broken on ext3 dir_index'd directories just after the first entry.
-Message-ID: <20041118140645.GA5306@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, r6144 <rainy6144@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-	phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
-	Christopher Li <chrisl@vmware.com>,
-	Christopher Li <ext2-devel@chrisli.org>
-References: <20041116183813.11cbf280.akpm@osdl.org> <20041117223436.GB5334@thunk.org> <1100736003.11047.14.camel@sisko.sctweedie.blueyonder.co.uk> <20041118045336.GA5236@thunk.org> <Pine.LNX.4.53.0411181221360.12219@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0411181221360.12219@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 18 Nov 2004 09:10:12 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:37320 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261789AbUKROIg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 09:08:36 -0500
+Message-ID: <419CACE2.7060408@in.ibm.com>
+Date: Thu, 18 Nov 2004 19:38:34 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+CC: pbadari@us.ibm.com, Vara Prasad <varap@us.ibm.com>
+Subject: [PATCH] kdump: Fix for boot problems on SMP
+Content-Type: multipart/mixed;
+ boundary="------------030404010904060006030203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 12:22:38PM +0100, Jan Engelhardt wrote:
-> >So instead what we need to do is wire '.' and '..' to have hash values
-> >of (0,0) and (2,0), respectively, without ignoring other existing
-> >dirents with colliding hashes.  (In those cases the programs will
-> >break, but they are statistically rare, and there's not much we can do
-> >in those cases anyway.)
-> 
-> IMO it's better to fix the mess all at once to have it weeded out for some
-> months.
+This is a multi-part message in MIME format.
+--------------030404010904060006030203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Programs that assume that '.' and '..' are the first and second
-entries of a directory are intrinsically broken; POSIX never
-guaranteed this to be the case.  Unfortunately, historically things
-have always worked that way, and so there may be some broken programs
-lurking out there.  But there's really not much we can do.
+Hi Andrew,
 
-Before, we hard-wired '.' and '..' to always be first, at the cost of
-breaking programs that used the (broken by design) POSIX
-telldir/seekdir interfaces.  Since telldir/seekdir, however badly
-designed, are part of POSIX, it seems appropriate to let those
-programs work, but the cost is a statistical probability that programs
-making assumptions about the order of '.' and '..' will break.  We
-don't really have a choice here.  
+There was a buggy (and unnecessary) reserve_bootmem call in the kdump 
+call which was causing hangs during early on some SMP machines. The 
+attached patch removes that.
 
-(Actually, I guess we could define a new hash function that never
-produces certain hash values, but that would break compatibility with
-all existing deployed filesystems that use ext3 htree.  That's not an
-option, either.  So again, making a best effort, but breaking programs
-that are fundamentally broken is the best we can do.)
+Kindly include this patch into the -mm tree.
 
-						- Ted
+Thanks and Regards, Hari
+
+
+--------------030404010904060006030203
+Content-Type: text/plain;
+ name="kdump-reserve-bootmem-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kdump-reserve-bootmem-fix.patch"
+
+
+
+Signed-off-by: Hariprasad Nellitheertha <hari@in.ibm.com>
+---
+
+ linux-2.6.10-rc2-hari/include/asm-i386/crash_dump.h |    1 -
+ 1 files changed, 1 deletion(-)
+
+diff -puN include/asm-i386/crash_dump.h~kdump-reserve-bootmem-fix include/asm-i386/crash_dump.h
+--- linux-2.6.10-rc2/include/asm-i386/crash_dump.h~kdump-reserve-bootmem-fix	2004-11-18 19:20:47.000000000 +0530
++++ linux-2.6.10-rc2-hari/include/asm-i386/crash_dump.h	2004-11-18 19:21:03.000000000 +0530
+@@ -37,7 +37,6 @@ static inline void set_saved_max_pfn(voi
+ static inline void crash_reserve_bootmem(void)
+ {
+ 	if (!dump_enabled) {
+-		reserve_bootmem(0, CRASH_RELOCATE_SIZE);
+ 		reserve_bootmem(CRASH_BACKUP_BASE,
+ 			CRASH_BACKUP_SIZE + CRASH_RELOCATE_SIZE + PAGE_SIZE);
+ 	}
+_
+
+--------------030404010904060006030203--

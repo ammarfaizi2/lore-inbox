@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267179AbRGPBAn>; Sun, 15 Jul 2001 21:00:43 -0400
+	id <S262634AbRGPBI6>; Sun, 15 Jul 2001 21:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267178AbRGPBAd>; Sun, 15 Jul 2001 21:00:33 -0400
-Received: from e23.nc.us.ibm.com ([32.97.136.229]:21488 "EHLO
-	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267184AbRGPBAT>; Sun, 15 Jul 2001 21:00:19 -0400
-Date: Sun, 15 Jul 2001 17:58:56 -0700
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Troy Benjegerdes <hozer@drgw.net>
-Cc: Andi Kleen <ak@suse.de>, Mike Kravetz <mkravetz@sequent.com>,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency
-Message-ID: <20010715175856.A25299@w-mikek.des.beaverton.ibm.com>
-In-Reply-To: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com> <20010715024255.F3965@altus.drgw.net> <20010715110543.A9981@gruyere.muc.suse.de> <20010715120037.I3965@altus.drgw.net>
-Mime-Version: 1.0
+	id <S264204AbRGPBIr>; Sun, 15 Jul 2001 21:08:47 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:2313 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S262634AbRGPBIp>;
+	Sun, 15 Jul 2001 21:08:45 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
+Subject: Re: [PATCH] 64 bit scsi read/write
+To: phillips@bonn-fries.net (Daniel Phillips)
+Date: Sun, 15 Jul 2001 21:08:41 -0400 (EDT)
+Cc: cw@f00f.org, linux-kernel@vger.kernel.org
+In-Reply-To: <01071515442400.05609@starship> from "Daniel Phillips" at Jul 15, 2001 03:44:14 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010715120037.I3965@altus.drgw.net>; from hozer@drgw.net on Sun, Jul 15, 2001 at 12:00:38PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 15, 2001 at 12:00:38PM -0500, Troy Benjegerdes wrote:
-> 
-> The next very interesting thing I found was that if I run something like 
-> 'while true; do true; done' to load the other CPU while gzip is running, 
-> gzip runs faster. The time change isn't very large, and appears to be just 
-> barely detectable above the noise, but it definetly appears that gzip is 
-> bouncing back and forth between cpus if both are idle.
-> 
-> I'm tempted to try the somewhat brute-force approach of increasing
-> PROC_CHANGE_PENALTY, which is currently set to 20 (on ppc) to something
-> like 100. Would this be an adequate 'short-term' solution util there is 
-> some sort of multi-queue scheduler that everyone Linus likes? What are the 
-> drawbacks of increasing PROC_CHANGE_PENALTY?
+Daniel Phillips writes:
+> On Sunday 15 July 2001 05:36, Chris Wedgwood wrote:
+>> On Sat, Jul 14, 2001 at 10:11:30PM +0200, Daniel Phillips wrote:
 
-I'm pretty sure changing the value of PROC_CHANGE_PENALTY will not help
-in this case.  PROC_CHANGE_PENALTY becomes increasingly important as
-the number of running tasks is increased.  In the case of simply running
-one task (like gzip) on your 2 CPU system, I don't think it will make
-any difference.
+>>> Atomic commit.  The superblock, which references the updated
+>>> version of the filesystem, carries a sequence number and a
+>>> checksum.  It is written to one of two alternating locations.  On
+>>> restart, both locations are read and the highest numbered
+>>> superblock with a correct checksum is chosen as the new
+>>> filesystem root.
+>>
+>> Yes... and which ever part of the superblock contains the sequence
+>> number must be written atomically.
+>
+> The only requirement here is that the checksum be correct.  And sure,
+> that's not a hard guarantee because, on average, you will get a good
+> checksum for bad data once every 4 billion power events that mess up
+> the final superblock transfer.  Let me see, if that happens once a year,
 
--- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+In a tree-structured filesystem, checksums on everything would only
+cost you space similar to the number of pointers you have. Whenever
+a non-leaf node points to a child, it can hold a checksum for that
+child as well.
+
+This gives a very reliable way to spot filesystem errors, including
+corrupt data blocks.
+

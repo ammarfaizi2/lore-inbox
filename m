@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSGIKao>; Tue, 9 Jul 2002 06:30:44 -0400
+	id <S313305AbSGIKpY>; Tue, 9 Jul 2002 06:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313305AbSGIKan>; Tue, 9 Jul 2002 06:30:43 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:22190 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S313202AbSGIKam>;
-	Tue, 9 Jul 2002 06:30:42 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200207091030.OAA22445@sex.inr.ac.ru>
-Subject: Re: readprofile from 2.5.25 web server benchmark
-To: akpm@zip.COM.AU (Andrew Morton)
-Date: Tue, 9 Jul 2002 14:30:38 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D2A8B81.42042058@zip.com.au> from "Andrew Morton" at Jul 9, 2 11:15:01 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S313416AbSGIKpX>; Tue, 9 Jul 2002 06:45:23 -0400
+Received: from hell.ascs.muni.cz ([147.251.60.186]:10627 "EHLO
+	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
+	id <S313305AbSGIKpX>; Tue, 9 Jul 2002 06:45:23 -0400
+Date: Tue, 9 Jul 2002 12:48:08 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
+Subject: Re: Terrible VM in 2.4.11+ again?
+Message-ID: <20020709124807.D1510@mail.muni.cz>
+References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020708225816.GA1948@werewolf.able.es>; from jamagallon@able.es on Tue, Jul 09, 2002 at 12:58:16AM +0200
+X-Muni: zakazka, vydelek, firma, komerce, vyplata
+X-echalon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mosad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
+X-policie-CR: Neserte mi nebo nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Jul 09, 2002 at 12:58:16AM +0200, J.A. Magallon wrote:
+> Seriously, if you have that kind of problems, take the -aa kernel and use it.
+> I use it regularly and it behaves as one would expect, and fast.
+> And please, report your results...
 
+I've tried 2.4.19rc1aa2, it swaps even when I have 512MB ram and xcdroast with
+scsi-ide emulation cd writer reports to syslog:
+Jul  9 12:45:02 hell kernel: __alloc_pages: 3-order allocation failed
+(gfp=0x20/0)
+Jul  9 12:45:02 hell kernel: __alloc_pages: 3-order allocation failed
+(gfp=0x20/0)
+Jul  9 12:45:02 hell kernel: __alloc_pages: 2-order allocation failed
+(gfp=0x20/0)
+Jul  9 12:45:02 hell kernel: __alloc_pages: 1-order allocation failed
+(gfp=0x20/0)
+Jul  9 12:45:02 hell kernel: __alloc_pages: 0-order allocation failed
+(gfp=0x20/0)
 
-> --- 2.5.25/kernel/timer.c~timer-speedup	Tue Jul  9 00:04:33 2002
-> +++ 2.5.25-akpm/kernel/timer.c	Tue Jul  9 00:06:09 2002
-> @@ -211,6 +211,9 @@ int mod_timer(struct timer_list *timer, 
->  	int ret;
->  	unsigned long flags;
->  
-> +	if (timer_pending(timer) && timer->expires == expires)
-> +		return 1;
-> +
->  	spin_lock_irqsave(&timerlist_lock, flags);
->  	timer->expires = expires;
->  	ret = detach_timer(timer);
+Am I something missing?
 
-Does this not lose timer sometimes? 
-
-Alexey
-
+-- 
+Luká¹ Hejtmánek

@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbTF2Vgq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 17:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTF2Vgq
+	id S264736AbTF2VjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 17:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbTF2VjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 17:36:46 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7040 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264271AbTF2Vgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 17:36:45 -0400
-Date: Sun, 29 Jun 2003 22:59:34 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200306292159.h5TLxYRY000376@81-2-122-30.bradfords.org.uk>
-To: john@grabjohn.com, linux-kernel@vger.kernel.org, mlmoser@comcast.net
-Subject: Re: File System conversion -- ideas
+	Sun, 29 Jun 2003 17:39:25 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:9861 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264736AbTF2VjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 17:39:24 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [RFC] My research agenda for 2.7
+Date: Sat, 28 Jun 2003 23:54:43 +0200
+User-Agent: KMail/1.5.2
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <200306250111.01498.phillips@arcor.de> <200306282306.59502.phillips@arcor.de> <Pine.LNX.4.53.0306292214160.11946@skynet>
+In-Reply-To: <Pine.LNX.4.53.0306292214160.11946@skynet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306282354.43153.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> Both filesystems are the full size of the partition, and so is the
-> >> datasystem.  The only difference is that before you start you have
-> >> to make sure that the datasystem's gonna fit in with the free space
-> >> on the first filesystem, and still have space to start the second
-> >> filesystem, and then have space for its atoms.
+On Sunday 29 June 2003 23:26, Mel Gorman wrote:
+> On Sat, 28 Jun 2003, Daniel Phillips wrote:
+> > > Because they are so common in comparison to other orders, I
+> > > think that putting order0 in slabs of size 2^MAX_ORDER will make
+> > > defragmentation *so* much easier, if not plain simple, because you can
+> > > shuffle around order0 pages in the slabs to free up one slab which
+> > > frees up one large 2^MAX_ORDER adjacent block of pages.
 > >
-> >Just thought - that's going to be a problem in read-write mode :-/.
-> >
-> >If the disk fills up, we'd need to be able to maintain a consistant
-> >filesystem structure, (at least good enough so that a separate
-> >fsck-like utility could repair it - if the disk filled up, then the
-> >conversion couldn't be done on-the-fly).
-> >
+> > But how will you shuffle those pages around?
 >
->
-> mmm.. hadn't thought of that.
->
-> 1 second answer:  Lock down some of the freespace.  Do NOT let it
-> get full.  You know how ext2 reserves 5% for the superuser?  Do that.
-> Reserve enough freespace to keep working and finish the conversion.
-> Predict from the beginning how much free space is going to be needed,
-> and how much is going to be left over at the very final stages of the
-> conversion.
+> Thats where your defragger would need to kick in. The defragger would scan
+> at most MAX_DEFRAG_SCAN slabs belonging to the order0 userspace cache
+> where MAX_DEFRAG_SCAN is related to how urgent the request is. Select the
+> slab with the least objects in them and either:
+> a) Reclaim the pages by swapping them out or whatever
+> b) Copy the pages to another slab and update the page tables via rmap
+> Once the pages are copied from the selected slab, destroy it and you have
+> a large block of free pages.
 
-That should work fine in most cases - it's not a problem to reserve
-too much for the duration of the converstion, as it all gets freed
-afterwards.  In most cases, we'd probably only need a relatively small
-amount of space to allow writes whilst the conversion is in progress.
+Yes, now we're on the same page, so to speak.  Personally, I don't have much 
+interest in working on improving the allocator per se.  I'd love to see 
+somebody else take a run at that, and I will occupy myself with the gritty 
+details of how to move pages without making the system crater.
 
-John.
+> The point which I am getting across, quite
+> badly, is that by having order0 pages in slab, you are guarenteed to be
+> able to quickly find a cluster of pages to move which will free up a
+> contiguous block of 2^MAX_ORDER pages, or at least 2^MAX_GFP_ORDER with
+> the current slab implementation.
+
+I don't see that it's guaranteed, but I do see that organizing pages in 
+slab-like chunks is a good thing to do - a close reading of my original 
+response to you shows I was thinking about that.
+
+I also don't see that the slab cache in its current incarnation is the right 
+tool for the job.  It handles things that we just don't need to handle, such 
+as objects of arbitary size and alignment.  I'm sure you could make it work, 
+but why not just tweak alloc_pages to know about chunks instead?
+
+Regards,
+
+Daniel
+

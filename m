@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317834AbSGPXDd>; Tue, 16 Jul 2002 19:03:33 -0400
+	id <S317915AbSGPXT3>; Tue, 16 Jul 2002 19:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317864AbSGPXDc>; Tue, 16 Jul 2002 19:03:32 -0400
-Received: from employees.nextframe.net ([212.169.100.200]:11001 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S317834AbSGPXDc>; Tue, 16 Jul 2002 19:03:32 -0400
-Date: Wed, 17 Jul 2002 01:17:00 +0200
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: sanket rathi <sanket@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Aiie, killing the interrupt handler
-Message-ID: <20020717011700.G103@sexything>
-Reply-To: morten.helgesen@nextframe.net
-References: <20020716145534.27565.qmail@linuxmail.org>
+	id <S317953AbSGPXT2>; Tue, 16 Jul 2002 19:19:28 -0400
+Received: from egil.codesourcery.com ([66.92.14.122]:26757 "EHLO
+	egil.codesourcery.com") by vger.kernel.org with ESMTP
+	id <S317915AbSGPXT1>; Tue, 16 Jul 2002 19:19:27 -0400
+Date: Tue, 16 Jul 2002 16:22:25 -0700
+To: linux-kernel@vger.kernel.org
+Subject: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
+Message-ID: <20020716232225.GH358@codesourcery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020716145534.27565.qmail@linuxmail.org>
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+In-Reply-To: <Pine.LNX.4.44.0207161337170.3452-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.4i
+From: Zack Weinberg <zack@codesourcery.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, 
+Thunder wrote:
+> On Tue, 16 Jul 2002, Matthias Andree wrote:
+> > Indeed, but OTOH, what error is close to report when the file is
+> > opened read-only?
+>
+> Well, you can still get EIO, EINTR, EBADF. Whatever you say,
+> disregarding the close return code is never any good.
 
-On Tue, Jul 16, 2002 at 10:55:34PM +0800, sanket rathi wrote:
-> I am getting this message "Aiie, killing the interrupt handler" and much more stuff dump on screen after that 
-> system get hang and i have to reboot the system. what does it mean is there some problem in my driver's interrupt 
-> routine i m working on linux 2.2.14-5 
+Making use of the close return value is also never any good.
 
-2.2.14-5 ? you probably want to be working on something newer.
+Consider: There is no guarantee that close will detect errors.  Only
+NFS and Coda implement f_op->flush methods.  For files on all other
+file systems, sys_close will always return success (assuming the file
+descriptor was open in the first place); the data may still be sitting
+in the page cache.  If you need the data pushed to the physical disk,
+you have to call fsync.
 
-for anyone to even have a chance at figuring out what`s going on with your system, you`ll have
-to run the, quote : "'Aiie, killing the interrupt handler' and much more stuff" (aka a kernel oops message), 
-through ksymoops and show us the result. have a look at Documentation/oops-tracing.txt or the ksymoops 
-documentation for more information.
+Consider: If you have called fsync, and it returned successfully, an
+immediate call to close is guaranteed to return successfully.  (Any
+hypothetical f_op->flush method would have nothing to do; if not, that
+filesystem does not correctly implement fsync.)
 
-> 
-> Thanks in Advance
-> 
-> Sanket
-> 
-> 
-> -- 
-> Get your free email from www.linuxmail.org 
-> 
-> 
-> Powered by Outblaze
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Therefore, I would argue that it is wrong for any application ever to
+inspect close's return value.  Either the program does not need data
+integrity guarantees, or it should be using fsync and paying attention
+to that instead.
 
--- 
+There's also an ugly semantic bind if you make close detect errors.
+If close returns an error other than EBADF, has that file descriptor
+been closed?  The standards do not specify.  If it has not been
+closed, you have a descriptor leak.  But if it has been closed, it is
+too late to recover from the error.  [As far as I know, Unix
+implementations generally do close the descriptor.]
 
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
+The manpage that was quoted earlier in this thread is incorrect in
+claiming that errors will be detected by close; it should be fixed.
 
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
+zw

@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263553AbTIBGOV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 02:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTIBGOV
+	id S263555AbTIBGV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 02:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTIBGVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 02:14:21 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:5252 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S263553AbTIBGOU
+	Tue, 2 Sep 2003 02:21:55 -0400
+Received: from sun1000.pwr.wroc.pl ([156.17.1.33]:21632 "EHLO
+	sun1000.pwr.wroc.pl") by vger.kernel.org with ESMTP id S263555AbTIBGVy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 02:14:20 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Make clean misses stuff in 2.6.0-test4.
-Date: Tue, 2 Sep 2003 02:15:01 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200309011742.37021.rob@landley.net> <20030902041547.GB1016@mars.ravnborg.org>
-In-Reply-To: <20030902041547.GB1016@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Sep 2003 02:21:54 -0400
+Date: Tue, 2 Sep 2003 08:19:59 +0200
+From: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi <linux-acpi@intel.com>
+Subject: Re: 2.4.22-ac1 -- loading of usb-uhci gives hard lockup
+Message-ID: <20030902061959.GA29263@pwr.wroc.pl>
+Reply-To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
+References: <7F740D512C7C1046AB53446D3720017304AEF1@scsmsx402.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309020215.01953.rob@landley.net>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304AEF1@scsmsx402.sc.intel.com>
+X-Useless-Header: Vim powered ;^)
+X-00-Privacy-Policy: OpenPGP or S/MIME encrypted e-mail is welcome.
+X-01-Privacy-Policy-GPG-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?search=dzieko@pwr.wroc.pl&op=get
+X-02-Privacy-Policy-GPG-Key_ID: 5AA7253D
+X-03-Privacy-Policy-GPG-Key_fingerprint: A80B 5022 185B 1BB5 8848  74C4 A7E1 423C 5AA7 253D
+X-04-Privacy-Policy-Personal_SSL_Certificate: http://www.europki.pl/cgi-bin/dn-cert.pl?serial=00000069&certdir=/usr/local/cafe/data/polish_ca/certs_31.12.2002/user&type=email
+X-05-Privacy-Policy-CA_SSL_Certificate: http://www.europki.pl/polish_ca/ca_cert/en_index.html
+User-Agent: Mutt/1.5.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 September 2003 00:15, Sam Ravnborg wrote:
-> On Mon, Sep 01, 2003 at 05:42:37PM -0400, Rob Landley wrote:
-> > I did a build as root, did a make clean (still as root), and then kicked
-> > off a build as my normal user account:
-> >
-> > It died:
-> >
-> > rm: cannot remove `.tmp_versions/cryptoloop.mod': Permission denied
->
-> The directory .tmp_versions is not deleted by 'make clean'.
-> For that you need 'make mrproper'.
->
-> 	Sam
+On pon, 01 wrz 2003 at 07:07:32  -0700, Nakajima, Jun wrote:
+> Can you try the following patch that I sent out the other day? I saw
+> this message when I was debugging, and it's gone with the patch. I
+> assume you have ACPI enabled.
 
-Which zaps the .config, last time I tried it.  (Just tried it again and yup, 
-it zapped it.)
+I'm gonna try that tonight. And indeed, I had acpi enabled. Disabling it
+"fixes" the problem immediately.
+thanks, P
 
-Interestingly, I forgot that make install doesn't install modules (for that 
-you need make modules_install), but it DOES try to re-index them (resulting 
-in some complaints about the modules for the smp kernel I'd accidentally 
-compiled earlier having unresolved symbols in them).  I misinterpreted this 
-as it complaining that the *.ko files in the build tree hadn't been updated, 
-and did a "find . -name '*.ko' | xargs rm", and at that point the build 
-process's dependencies got confused enough I just did a make clean and 
-started over...
+> > -----Original Message-----
+> > From: Pawel Dziekonski [mailto:pawel.dziekonski@pwr.wroc.pl]
+> > Sent: Monday, September 01, 2003 8:36 AM
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Re: 2.4.22-ac1 -- loading of usb-uhci gives hard lockup
+> > 
+> > On nie, 31 sie 2003 at 04:11:25  +0200, Pawel Dziekonski wrote:
+> > > Hi,
+> > >
+> > > clean 2.4.22-ac1, load of usb-uhci.o locks my machine hard :-(
+> > > it was working OK with 2.4.22-rc2-ac2! machine is on KT133 chipset.
+> > > I cant use plain 2.4.22 because of trouble of compiling it with XFS
+> > > support (unofficial patch has no .config entries).
+> > 
+> > update: i have compiled usbcore and usb-uhci into the kernel
+> > and now it hangs with:
+> > spurious 8259A interrupt: IRQ7
+> > 
+> > anybody?
 
-Don't mind me, I'm having fun...
-
-Rob
-
+-- 
+Pawel Dziekonski <pawel.dziekonski|@|pwr.wroc.pl>, KDM WCSS avatar:0:0:
+Wroclaw Networking & Supercomputing Center, HPC Department
+-> See message headers for privacy policy info.

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276483AbRJCQaW>; Wed, 3 Oct 2001 12:30:22 -0400
+	id <S276489AbRJCQ3c>; Wed, 3 Oct 2001 12:29:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276465AbRJCQaP>; Wed, 3 Oct 2001 12:30:15 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:52986 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S276486AbRJCQaC>; Wed, 3 Oct 2001 12:30:02 -0400
-Date: Wed, 3 Oct 2001 17:30:16 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: lock_kiovec question
-Message-ID: <20011003173016.C5209@redhat.com>
-In-Reply-To: <3BB58FAF.D1AF2D25@colorfullife.com>
-Mime-Version: 1.0
+	id <S276483AbRJCQ3W>; Wed, 3 Oct 2001 12:29:22 -0400
+Received: from charon.geminidataloggers.com ([194.200.199.164]:17937 "EHLO
+	charon.geminidataloggers.com") by vger.kernel.org with ESMTP
+	id <S276465AbRJCQ3N> convert rfc822-to-8bit; Wed, 3 Oct 2001 12:29:13 -0400
+From: Toby Dickenson <tdickenson@devmail.geminidataloggers.co.uk>
+To: pcg@goof.com
+Cc: foner-reiserfs@media.mit.edu, sct@redhat.com, Nikita@namesys.com,
+        Mason@Suse.COM, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] ReiserFS data corruption in very simple configuration
+Date: Wed, 03 Oct 2001 17:28:13 +0100
+Reply-To: tdickenson@geminidataloggers.com
+Message-ID: <kcemrtsndajld34h6a9il3nufocbgq5stv@4ax.com>
+In-Reply-To: <20010929145229.C26231@schmorp.de> <200110010100.VAA07189@out-of-band.media.mit.edu> <20011001032627.A9991@schmorp.de>
+In-Reply-To: <20011001032627.A9991@schmorp.de>
+X-Mailer: Forte Agent 1.7/32.534
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BB58FAF.D1AF2D25@colorfullife.com>; from manfred@colorfullife.com on Sat, Sep 29, 2001 at 11:09:03AM +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>Of course. If you want data to hit the disk, you have to use fsync. This
+>does work with reiserfs and will ensure that the data hits the disk. If
+>you don't do this then bad things might happen.
 
-On Sat, Sep 29, 2001 at 11:09:03AM +0200, Manfred Spraul wrote:
-> lock_kiovec tries to lock each page in the kiovec, and fails if it can't
-> lock one of the pages.
-> 
-> What if the zero page is mapped multiple times in the kiobuf?
+This is probably a naive question, but this thread has already proved
+me wrong on one naive assumption.....
 
-Don't Do That then.  lock_kiobuf can be called if some caller really
-wants the kiobuf pages locked, but kiobuf page mapping is much cleaner
-in 2.4 than it had to be in 2.2 and there's no need to keep pages
-locked during the mapping.  raw IO doesn't ever use lock_kiobuf in
-2.4.
+If the sequence is:
+1. append some data to file A
+2. fsync(A)
+3. append some further data to A
+4. some writes to other files
+5. power loss
 
-> AFAICS map_user_pages doesn't break zero page mappings if it's called
-> with rw==WRITE (i.e write to disk, read from kiobuf)
+Is it guaranteed that all the data written in step 1 will still be
+intact?
 
-Correct.  The raw IO code for 2.2 had to exempt zero pages from
-locking for this reason.
+The potential problem I can see is that some data from step 1 may have
+been written in a tail, the tail moves during step 3, and then the
+original tail is overwritten before the new tail (including data from
+before the fsync) is safely on disk.
 
-Cheers,
- Stephen
+Thanks for your help,
+
+
+Toby Dickenson
+tdickenson@geminidataloggers.com

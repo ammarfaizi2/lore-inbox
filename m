@@ -1,61 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286278AbRLJRE1>; Mon, 10 Dec 2001 12:04:27 -0500
+	id <S286319AbRLJRF5>; Mon, 10 Dec 2001 12:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286311AbRLJRES>; Mon, 10 Dec 2001 12:04:18 -0500
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:37336 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S286278AbRLJREE>; Mon, 10 Dec 2001 12:04:04 -0500
-Date: Mon, 10 Dec 2001 12:02:11 -0500 (EST)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: mm question
-In-Reply-To: <Pine.LNX.4.33L.0112101448120.4755-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.20.0112101201290.17803-100000@node2.localnet.net>
+	id <S286317AbRLJRFU>; Mon, 10 Dec 2001 12:05:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54537 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286313AbRLJRFB>; Mon, 10 Dec 2001 12:05:01 -0500
+Subject: Re: [PATCH] Promise Ultra ATA 133 TX2 support
+To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Date: Mon, 10 Dec 2001 17:14:20 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0112101719390.11051-200000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Dec 10, 2001 05:44:27 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DU0S-0002fC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I beleive these three lines are enough to allow for promise udma133/tx2
+> support. It looks like they've just increased the version number... Is
+> this old news?
 
+For the UDMA 133 modes I believe you need Andre's LBA48 patch, or the new
+one he's said he'll be releasing soon. With luck as soon as the 2.5 bio code
+is stable that can go into the 2.5 tree so we get 160Gb disks at rocket
+speed.
 
-On Mon, 10 Dec 2001, Rik van Riel wrote:
-
-> On Mon, 10 Dec 2001 volodya@mindspring.com wrote:
-> > On Mon, 10 Dec 2001, Rik van Riel wrote:
-> > > On Mon, 10 Dec 2001, Alan Cox wrote:
-> > >
-> > > > > I was hoping for something more elegant, but I am not adverse to writing
-> > > > > my own get_free_page_from_range().
-> > > >
-> > > > Thats not a trivial task.
-> > >
-> > > Especially because we never quite know the users of a
-> > > physical page, so moving data around is somewhat hard.
-> >
-> > I don't want to move them - I just want to collect all that are free
-> > and then try to free some more.
-> 
-> I could put it on the TODO list for my VM stuff, but it's
-> not exactly near the top of the list so it might take quite
-> a while more before I get around to this...
-
-Thanks, but I was more hoping for the advice on how I can make it myself.. 
-the same way as bt848 driver has its own memory allocation functions.
-
-                                      Vladimir Dergachev
-
-> 
-> http://linuxvm.bkbits.net/
-> 
-> cheers,
-> 
-> Rik
-> -- 
-> DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-
+Alan

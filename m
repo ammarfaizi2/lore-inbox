@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbULQWEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbULQWEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbULQWEW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 17:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbULQWAg
+	id S262175AbULQWEu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 17:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbULQWEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 17:00:36 -0500
-Received: from dsl027-176-166.sfo1.dsl.speakeasy.net ([216.27.176.166]:63891
-	"EHLO waste.org") by vger.kernel.org with ESMTP id S262182AbULQV6F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 16:58:05 -0500
-Date: Fri, 17 Dec 2004 13:57:52 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Mark Broadbent <markb@wetlettuce.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-Message-ID: <20041217215752.GP2767@waste.org>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com> <20041216211024.GK2767@waste.org> <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
+	Fri, 17 Dec 2004 17:04:49 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1261 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262178AbULQWCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 17:02:49 -0500
+Date: Fri, 17 Dec 2004 14:02:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Cleanup PCI power states
+Message-ID: <20041217220236.GB22752@kroah.com>
+References: <20041116130445.GA10085@elf.ucw.cz> <20041116155613.GA1309@kroah.com> <20041117120857.GA6952@openzaurus.ucw.cz> <20041124234057.GF4649@kroah.com> <20041125113913.GC1027@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20041125113913.GC1027@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 09:10:14AM -0000, Mark Broadbent wrote:
+On Thu, Nov 25, 2004 at 12:39:13PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Matt Mackall said:
-> > On Thu, Dec 16, 2004 at 04:20:02PM -0000, Mark Broadbent wrote:
-> >> Hi,
-> >>
-> >> I'm having problem using ethereal/tcpdump in conjunction with the
-> >> netconsole (built as a module).  If the netconsole is loaded and I try
-> >> to launch tcpdump on the same interface as the netconsole is
-> >> transmitting I get a hard lock-up.  The following commands can
-> >> consistently do this: # tcpdump -i eth0
-> >> eth0: Promiscuous Mode Entered
-> >> <... normal output ...>
-> >> ^C
-> >> # modprobe netconsole
-> >> # tcpdump -i eth0
-> >> eth0: Promiscuous Mode Entered
-> >> <4>NMI Watchdog detected LOCKUP
-> >
-> > Joy. Can you try it on your other interface to see if it's
-> > driver-specific?
+> > > > > This is step 0 before adding type-safety to PCI layer... It introduces
+> > > > > constants and uses them to clean driver up. I'd like this to go in
+> > > > > now, so that I can convert drivers during 2.6.10... Please apply,
+> > > > 
+> > > > The tree is in "bugfix only" mode right now.  Changes like this need to
+> > > > wait for 2.6.10 to come out before I can send it upward.
+> > > > 
+> > > > So, care to hold on to it for a while?  Or I can add it to my "to apply
+> > > > after 2.6.10 comes out" tree, which will mean it will end up in the -mm
+> > > > releases till that happens.
+> > > 
+> > > I think I'd prefer visibility of "to apply after 2.6.10" tree... Thanks,
+> > 
+> > Care to resend this, I seem to have lost them :(
 > 
-> Tried using eth1 which is using the r8169 but it doesn't support polling. 
-> I also tried with 2.6.10-rc3-bk10 but it still doesn't support polling. 
-> Also it still locks up using eth0 (the tulip driver) with 2.6.10-rc3-bk10.
+> Could this go to "after 2.6.10 tree", too? It is a helper that
+> converts system state into PCI state. We really do not want to have
+> this copied into every driver, because it will need to change when
+> system state gets type-checked / expanded to struct.
 
-Please try the attached untested, uncompiled patch to add polling to
-r8169:
+Applied, but you might want to modify pci.h so people can actually call
+this function :)
 
-Index: l/drivers/net/r8169.c
-===================================================================
---- l.orig/drivers/net/r8169.c	2004-11-04 10:53:04.779520000 -0800
-+++ l/drivers/net/r8169.c	2004-12-17 13:30:35.367771000 -0800
-@@ -1120,6 +1120,9 @@
- 	dev->weight = R8169_NAPI_WEIGHT;
- 	printk(KERN_INFO PFX "NAPI enabled\n");
- #endif
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	dev->poll_controller = rtl8169_netpoll;
-+#endif
- 	tp->intr_mask = 0xffff;
- 	tp->pci_dev = pdev;
- 	tp->mmio_addr = ioaddr;
-@@ -1839,6 +1842,15 @@
- }
- #endif
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+static void rtl8169_netpoll(struct net_device *dev)
-+{
-+	disable_irq(dev->irq);
-+	rtl8169_interrupt(dev->irq, netdev, NULL);
-+	enable_irq(dev->irq);
-+}
-+#endif
-+
- static int
- rtl8169_close(struct net_device *dev)
- {
+thanks,
 
-
---
-Mathematics is the supreme nostalgia of our time.
+greg k-h

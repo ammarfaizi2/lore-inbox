@@ -1,113 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUKFKf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbUKFKiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbUKFKf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 05:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUKFKf4
+	id S261360AbUKFKiz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 05:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUKFKiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 05:35:56 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:27009 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261354AbUKFKfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 05:35:40 -0500
-Message-ID: <418CA8E8.9040506@kolivas.org>
-Date: Sat, 06 Nov 2004 21:35:20 +1100
+	Sat, 6 Nov 2004 05:38:54 -0500
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:22499 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261360AbUKFKio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 05:38:44 -0500
+Message-ID: <418CA982.5000607@kolivas.org>
+Date: Sat, 06 Nov 2004 21:37:54 +1100
 From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] [sched-int-changes 3/5] add_requeue_task
+Subject: [PATCH] [sched-int-changes 4/5] requeue_granularity
 X-Enigmail-Version: 0.86.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig928DC08AF3A4E04817F8917D"
+ boundary="------------enig1DC88BAF554C3A49F01A9107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig928DC08AF3A4E04817F8917D
+--------------enig1DC88BAF554C3A49F01A9107
 Content-Type: multipart/mixed;
- boundary="------------010907000808020607080700"
+ boundary="------------010605040604070602090309"
 
 This is a multi-part message in MIME format.
---------------010907000808020607080700
+--------------010605040604070602090309
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-add_requeue_task
+requeue_granularity
 
-Please include in at least one -mm release.
+Please include in at least 2 -mm releases
 
 
---------------010907000808020607080700
+--------------010605040604070602090309
 Content-Type: text/x-patch;
- name="sched-add_requeue_task.diff"
+ name="sched-requeue_granularity.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="sched-add_requeue_task.diff"
+ filename="sched-requeue_granularity.diff"
 
-We can requeue tasks for cheaper then doing a complete dequeue followed by
-an enqueue. Add the requeue_task function and perform it where possible.
-
-This will be hit frequently by upcoming changes to the requeueing in
-timeslice granularity.
+Change the granularity code to requeue tasks at their best priority
+instead of changing priority while they're running. This keeps tasks at
+their top interactive level during their whole timeslice.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
 Index: linux-2.6.10-rc1-mm3/kernel/sched.c
 ===================================================================
---- linux-2.6.10-rc1-mm3.orig/kernel/sched.c	2004-11-05 20:56:46.608179150 +1100
-+++ linux-2.6.10-rc1-mm3/kernel/sched.c	2004-11-05 20:57:14.376900024 +1100
-@@ -593,6 +593,15 @@ static void enqueue_task(struct task_str
- }
+--- linux-2.6.10-rc1-mm3.orig/kernel/sched.c	2004-11-05 20:57:14.376900024 +1100
++++ linux-2.6.10-rc1-mm3/kernel/sched.c	2004-11-05 20:58:30.467178052 +1100
+@@ -2506,10 +2506,8 @@ void scheduler_tick(void)
+ 			(p->time_slice >= TIMESLICE_GRANULARITY(p)) &&
+ 			(p->array == rq->active)) {
  
- /*
-+ * Put task to the end of the run list without the overhead of dequeue
-+ * followed by enqueue.
-+ */
-+static void requeue_task(struct task_struct *p, prio_array_t *array)
-+{
-+	list_move_tail(&p->run_list, array->queue + p->prio);
-+}
-+
-+/*
-  * Used by the migration code - we pull tasks from the head of the
-  * remote queue so we want these tasks to show up at the head of the
-  * local queue:
-@@ -2456,8 +2465,7 @@ void scheduler_tick(void)
- 			set_tsk_need_resched(p);
- 
- 			/* put it at the end of the queue: */
 -			dequeue_task(p, rq->active);
--			enqueue_task(p, rq->active);
 +			requeue_task(p, rq->active);
+ 			set_tsk_need_resched(p);
+-			p->prio = effective_prio(p);
+-			enqueue_task(p, rq->active);
  		}
- 		goto out_unlock;
  	}
-@@ -3605,8 +3613,14 @@ asmlinkage long sys_sched_yield(void)
- 	} else if (!rq->expired->nr_active)
- 		schedstat_inc(rq, yld_exp_empty);
- 
--	dequeue_task(current, array);
--	enqueue_task(current, target);
-+	if (array != target) {
-+		dequeue_task(current, array);
-+		enqueue_task(current, target);
-+	} else
-+		/*
-+		 * requeue_task is cheaper so perform that if possible.
-+		 */
-+		requeue_task(current, array);
- 
- 	/*
- 	 * Since we are going to call schedule() anyway, there's
+ out_unlock:
 
 
---------------010907000808020607080700--
+--------------010605040604070602090309--
 
---------------enig928DC08AF3A4E04817F8917D
+--------------enig1DC88BAF554C3A49F01A9107
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -116,9 +83,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBjKjoZUg7+tp6mRURApUxAJ0Xt4LHknfe0l5kquYTgGHB1OEqmwCgiZkX
-8Ni+z1ZWLmeDPaXrsII9ZTY=
-=+1Zg
+iD4DBQFBjKmCZUg7+tp6mRURAjUZAKCEIzaPssy/I6IeFYHGlvgwPswDkgCYh4BP
+mWShE1tTQc3iib8C9+G8Hg==
+=IhrM
 -----END PGP SIGNATURE-----
 
---------------enig928DC08AF3A4E04817F8917D--
+--------------enig1DC88BAF554C3A49F01A9107--

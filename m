@@ -1,86 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130044AbRBZADU>; Sun, 25 Feb 2001 19:03:20 -0500
+	id <S130053AbRBZAZZ>; Sun, 25 Feb 2001 19:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130046AbRBZADK>; Sun, 25 Feb 2001 19:03:10 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:53261 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130044AbRBZADD>; Sun, 25 Feb 2001 19:03:03 -0500
-Message-ID: <002f01c09f87$a99faff0$f6976dcf@nwfs>
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        "Guest section DW" <dwguest@win.tue.nl>,
-        "Andreas Jellinghaus" <aj@dungeon.inka.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: partition table: chs question
-Date: Sun, 25 Feb 2001 17:04:18 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S130054AbRBZAZF>; Sun, 25 Feb 2001 19:25:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:13838 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130053AbRBZAYz>;
+	Sun, 25 Feb 2001 19:24:55 -0500
+Date: Mon, 26 Feb 2001 01:24:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Nate Eldredge <neldredge@hmc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2-ac3: loop threads in D state
+Message-ID: <20010226012430.V7830@suse.de>
+In-Reply-To: <20010225233957.R7830@suse.de> <Pine.GSO.4.21.0102251745560.26808-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="f+W+jCU1fRNres8c"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0102251745560.26808-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Feb 25, 2001 at 05:48:15PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-To: "Guest section DW" <dwguest@win.tue.nl>; "Andreas Jellinghaus"
-<aj@dungeon.inka.de>; <linux-kernel@vger.kernel.org>
-Sent: Sunday, February 25, 2001 5:02 PM
-Subject: Re: partition table: chs question
+--f+W+jCU1fRNres8c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun, Feb 25 2001, Alexander Viro wrote:
+> Jens, you have a race in lo_clr_fd() (loop-6). I've put the fixed
+> variant on ftp.math.psu.edu/pub/viro/loop-S2.gz. Diff and you'll
+> see - it's in the very beginning of the lo_clr_fd().
+
+Oops yeah you are right. Here's a diff of my current loop stuff
+against -ac4, Alan could you apply? Andrea suggested removing
+the loop private slab cache for buffer heads and just using the
+bh_cachep pool, and it seems like a good idea to me.
+
+-- 
+Jens Axboe
 
 
->
-> Please also check vger.timpanogas.org/nwfs/nwfs.tar.gz:disk.c for NetWare
-> specific calculations of the CHS values, a different method is used for
-> NetWare partitions vs. everything else (Novell just had to be different).
-> If you do not  use their methods on NetWare partitions, NetWare will not
-> recognize the partition entries correctly, and will attempt to
-reinitialize
-> the entire partition table on a system if they are wrong (Ouch!).  NetWare
-> does a different calculation for conversion of cylinder values above 1024.
->
-> Jeff
->
->
-> ----- Original Message -----
-> From: "Guest section DW" <dwguest@win.tue.nl>
-> To: "Andreas Jellinghaus" <aj@dungeon.inka.de>;
-> <linux-kernel@vger.kernel.org>
-> Sent: Sunday, February 25, 2001 2:47 PM
-> Subject: Re: partition table: chs question
->
->
-> > On Sun, Feb 25, 2001 at 04:35:34PM +0100, Andreas Jellinghaus wrote:
-> >
-> > > for partitions not in the first 8gb of a harddisk, what
-> > > should the c/h/s start and end value be ?
-> > >
-> > > most fdisks seem to set start and end to 255/63/1023.
-> > > but partition magic creates partitions with start set to
-> > > 0/1/1023 and end set to 255/63/1023, and detects a problem
-> > > if start is set to 255/63/1023.
-> > >
-> > > so, how should a partition table look like ?
-> >
-> > Since these values will never be used you can imagine that they
-> > are not of great interest. Do whatever you like.
+--f+W+jCU1fRNres8c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=loop-ac4-1
 
-This statement is not true of NetWare partitions.  They are used to validate
-whether or not the partition table has been corrupted.
+diff -ur --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.2-ac4/drivers/block/loop.c linux/drivers/block/loop.c
+--- /opt/kernel/linux-2.4.2-ac4/drivers/block/loop.c	Mon Feb 26 01:19:38 2001
++++ linux/drivers/block/loop.c	Mon Feb 26 01:22:28 2001
+@@ -79,7 +79,6 @@
+ static int *loop_sizes;
+ static int *loop_blksizes;
+ static devfs_handle_t devfs_handle;      /*  For the directory */
+-static kmem_cache_t *loop_bhp;
+ 
+ /*
+  * Transfer functions
+@@ -289,7 +288,7 @@
+ 	if (bh) {
+ 		kunmap(bh->b_page);
+ 		__free_page(bh->b_page);
+-		kmem_cache_free(loop_bhp, bh);
++		kmem_cache_free(bh_cachep, bh);
+ 	}
+ }
+ 
+@@ -358,7 +357,7 @@
+ 	struct buffer_head *bh;
+ 
+ 	do {
+-		bh = kmem_cache_alloc(loop_bhp, SLAB_BUFFER);
++		bh = kmem_cache_alloc(bh_cachep, SLAB_BUFFER);
+ 		if (bh)
+ 			break;
+ 
+@@ -508,7 +507,7 @@
+ 	sprintf(current->comm, "loop%d", lo->lo_number);
+ 
+ 	spin_lock_irq(&current->sigmask_lock);
+-	siginitsetinv(&current->blocked, sigmask(SIGKILL));
++	sigfillset(&current->blocked);
+ 	flush_signals(current);
+ 	spin_unlock_irq(&current->sigmask_lock);
+ 
+@@ -526,7 +525,7 @@
+ 	up(&lo->lo_sem);
+ 
+ 	for (;;) {
+-		down(&lo->lo_bh_mutex);
++		down_interruptible(&lo->lo_bh_mutex);
+ 		if (!atomic_read(&lo->lo_pending))
+ 			break;
+ 
+@@ -671,9 +670,12 @@
+ 	if (lo->lo_refcnt > 1)	/* we needed one fd for the ioctl */
+ 		return -EBUSY;
+ 
++	spin_lock_irq(&lo->lo_lock);
+ 	lo->lo_state = Lo_rundown;
+ 	atomic_dec(&lo->lo_pending);
+ 	up(&lo->lo_bh_mutex);
++	spin_unlock_irq(&lo->lo_lock);
++
+ 	down(&lo->lo_sem);
+ 
+ 	lo->lo_backing_file = NULL;
+@@ -927,13 +929,6 @@
+ 		return -EIO;
+ 	}
+ 
+-	loop_bhp = kmem_cache_create("loop_buffers", sizeof(struct buffer_head),
+-				     0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+-	if (!loop_bhp) {
+-		printk(KERN_WARNING "loop: unable to create slab cache\n");
+-		return -ENOMEM;
+-	}
+-				
+ 	devfs_handle = devfs_mk_dir(NULL, "loop", NULL);
+ 	devfs_register_series(devfs_handle, "%u", max_loop, DEVFS_FL_DEFAULT,
+ 			      MAJOR_NR, 0,
+@@ -942,7 +937,7 @@
+ 
+ 	loop_dev = kmalloc(max_loop * sizeof(struct loop_device), GFP_KERNEL);
+ 	if (!loop_dev)
+-		goto out_dev;
++		return -ENOMEM;
+ 
+ 	loop_sizes = kmalloc(max_loop * sizeof(int), GFP_KERNEL);
+ 	if (!loop_sizes)
+@@ -974,8 +969,6 @@
+ 	printk(KERN_INFO "loop: loaded (max %d devices)\n", max_loop);
+ 	return 0;
+ 
+-out_dev:
+-	kmem_cache_destroy(loop_bhp);
+ out_sizes:
+ 	kfree(loop_dev);
+ out_blksizes:
+@@ -990,7 +983,6 @@
+ 	if (devfs_unregister_blkdev(MAJOR_NR, "loop"))
+ 		printk(KERN_WARNING "loop: cannot unregister blkdev\n");
+ 
+-	kmem_cache_destroy(loop_bhp);
+ 	kfree(loop_dev);
+ 	kfree(loop_sizes);
+ 	kfree(loop_blksizes);
+diff -ur --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.2-ac4/fs/Makefile linux/fs/Makefile
+--- /opt/kernel/linux-2.4.2-ac4/fs/Makefile	Mon Feb 26 01:19:40 2001
++++ linux/fs/Makefile	Mon Feb 26 01:14:44 2001
+@@ -7,7 +7,7 @@
+ 
+ O_TARGET := fs.o
+ 
+-export-objs :=	filesystems.o open.o
++export-objs :=	filesystems.o open.o dcache.o
+ mod-subdirs :=	nls
+ 
+ obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
+diff -ur --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.2-ac4/fs/dcache.c linux/fs/dcache.c
+--- /opt/kernel/linux-2.4.2-ac4/fs/dcache.c	Sat Feb 17 01:06:17 2001
++++ linux/fs/dcache.c	Mon Feb 26 01:14:54 2001
+@@ -22,6 +22,7 @@
+ #include <linux/init.h>
+ #include <linux/smp_lock.h>
+ #include <linux/cache.h>
++#include <linux/module.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -1250,6 +1251,7 @@
+ 
+ /* SLAB cache for buffer_head structures */
+ kmem_cache_t *bh_cachep;
++EXPORT_SYMBOL(bh_cachep);
+ 
+ void __init vfs_caches_init(unsigned long mempages)
+ {
 
-Jeff
-
-
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-
+--f+W+jCU1fRNres8c--

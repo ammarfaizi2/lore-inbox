@@ -1,69 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUCVEPl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 23:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUCVEPl
+	id S261678AbUCVEOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 23:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUCVEOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 23:15:41 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:43154
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261680AbUCVEPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 23:15:38 -0500
-Date: Mon, 22 Mar 2004 05:16:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-aa1
-Message-ID: <20040322041629.GK3649@dualathlon.random>
-References: <20040321234355.GB3649@dualathlon.random> <Pine.LNX.4.44.0403212239170.20045-100000@chimarrao.boston.redhat.com>
+	Sun, 21 Mar 2004 23:14:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51372 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261678AbUCVEOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 23:14:04 -0500
+Date: Sun, 21 Mar 2004 20:13:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] error value for opening block devices
+Message-Id: <20040321201358.6546423b.akpm@osdl.org>
+In-Reply-To: <20040321195707.14a5a0f8.rddunlap@osdl.org>
+References: <405C195B.10004@redhat.com>
+	<20040321195707.14a5a0f8.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403212239170.20045-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 10:43:41PM -0500, Rik van Riel wrote:
-> Presuming you'll never debug your code ;)
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+> [ENXIO]
+>  The named file is a character special or block special file, and
+>  the device associated with this special file does not exist.
 
-typedefs are more readable to my eyes, so if they're there it's more
-debuggable, infact I liked when Ingo tried to inject the page_t thing
-(was him Ingo or somebody else?)
+Ho hum... It's chrdev_open which needs to be converted to return -ENXIO.
 
-> They're _LINUX_RMAP_H and not _LINUX_OBJRMAP_H.  If you want
-> to be consistent you may want to either rename the inclusion
-> guards, or the file ;)
+ 25-akpm/fs/block_dev.c |    3 +--
+ 25-akpm/fs/char_dev.c  |    8 ++++----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-I see what you mean now, I agree.
+diff -puN fs/char_dev.c~chrdev_open-retval-fix fs/char_dev.c
+--- 25/fs/char_dev.c~chrdev_open-retval-fix	2004-03-21 20:10:02.961332256 -0800
++++ 25-akpm/fs/char_dev.c	2004-03-21 20:13:18.975533568 -0800
+@@ -265,7 +265,7 @@ int chrdev_open(struct inode * inode, st
+ 		spin_unlock(&cdev_lock);
+ 		kobj = kobj_lookup(cdev_map, inode->i_rdev, &idx);
+ 		if (!kobj)
+-			return -ENODEV;
++			return -ENXIO;
+ 		new = container_of(kobj, struct cdev, kobj);
+ 		spin_lock(&cdev_lock);
+ 		p = inode->i_cdev;
+@@ -275,9 +275,9 @@ int chrdev_open(struct inode * inode, st
+ 			list_add(&inode->i_devices, &p->list);
+ 			new = NULL;
+ 		} else if (!cdev_get(p))
+-			ret = -ENODEV;
++			ret = -ENXIO;
+ 	} else if (!cdev_get(p))
+-		ret = -ENODEV;
++		ret = -ENXIO;
+ 	spin_unlock(&cdev_lock);
+ 	cdev_put(new);
+ 	if (ret)
+@@ -285,7 +285,7 @@ int chrdev_open(struct inode * inode, st
+ 	filp->f_op = fops_get(p->ops);
+ 	if (!filp->f_op) {
+ 		cdev_put(p);
+-		return -ENODEV;
++		return -ENXIO;
+ 	}
+ 	if (filp->f_op->open) {
+ 		lock_kernel();
+diff -puN fs/block_dev.c~chrdev_open-retval-fix fs/block_dev.c
+--- 25/fs/block_dev.c~chrdev_open-retval-fix	2004-03-21 20:10:02.978329672 -0800
++++ 25-akpm/fs/block_dev.c	2004-03-21 20:13:29.843881328 -0800
+@@ -550,7 +550,7 @@ static int do_open(struct block_device *
+ {
+ 	struct module *owner = NULL;
+ 	struct gendisk *disk;
+-	int ret = -ENODEV;
++	int ret = -ENXIO;
+ 	int part;
+ 
+ 	file->f_mapping = bdev->bd_inode->i_mapping;
+@@ -563,7 +563,6 @@ static int do_open(struct block_device *
+ 	}
+ 	owner = disk->fops->owner;
+ 
+-	ret = -ENXIO;
+ 	down(&bdev->bd_sem);
+ 	if (!bdev->bd_openers) {
+ 		bdev->bd_disk = disk;
 
-> Only if (1) you're using bitkeeper and (2) you used 'bk mv'
-> to move rmap.c to objrmap.c and (3) Linus pulls from your
-> bitkeeper tree.
+_
 
-I know this would be expected (this is what happens with arch too in the
-explicit mode, the one that I prefer to be strict in the commits), but I
-was just trying to say that Miles theory is that BK gets it right
-automatically, either that or Linus's scripts gets it right before
-injecting it into bk, that is his whole point. Miles sent to Linus
-_patches_ (obviously w/o bk, AFIK Miles is not legally allowed to use bk
-and Larry even refused him to sell him a commercial licence of bk so
-that Miles could use bk while still working on arch) renaming files, and
-he then found the renames being catched correctly in the web.
-
-> Unless all 3 of these are true, you're giving bitkeeper more
-> credit than it deserves ;)
-
-It may not be bk catching the renames but just an external script that
-Linus uses. I don't know.
-
-> > I renamed it primarly because rmap is the common name for the tecnique
-> > of traking the pagetables with pte_chains
-> 
-> Funny, first thing I hear about that ;)
-
-Not sure after all those discussions how you may not have ever noticed
-that people uses objrmap to mean something different than rmap, it's
-really hard to believe that you never noticed.

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266058AbRGGICX>; Sat, 7 Jul 2001 04:02:23 -0400
+	id <S266066AbRGGI1j>; Sat, 7 Jul 2001 04:27:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266063AbRGGICO>; Sat, 7 Jul 2001 04:02:14 -0400
-Received: from mackman.submm.caltech.edu ([131.215.85.46]:46466 "EHLO
-	mackman.net") by vger.kernel.org with ESMTP id <S266058AbRGGICC>;
-	Sat, 7 Jul 2001 04:02:02 -0400
-Date: Sat, 7 Jul 2001 01:02:01 -0700 (PDT)
-From: Ryan Mack <rmack@mackman.net>
-To: <max_mk@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [BUG?] vtund broken by tun driver changes in 2.4.6
-Message-ID: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266067AbRGGI12>; Sat, 7 Jul 2001 04:27:28 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:16954 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266066AbRGGI1S>; Sat, 7 Jul 2001 04:27:18 -0400
+Date: Sat, 7 Jul 2001 04:27:15 -0400
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Richard Chan <cshihpin@dso.org.sg>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: Athlon oops traced to CONFIG_MK7 code in arch/i386/lib/mmx.c
+Message-ID: <20010707042715.B6815@devserv.devel.redhat.com>
+In-Reply-To: <20010707091046.A2355@cshihpin.dso.org.sg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010707091046.A2355@cshihpin.dso.org.sg>; from cshihpin@dso.org.sg on Sat, Jul 07, 2001 at 09:10:46AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded a server running vtund 2.4 (4/18/01) to stock 2.4.6
-kernel.  It seems the changes to the tun driver have broken vtund.  Now my
-syslog gets filled with the following messages when a client attempts to
-connect:
+On Sat, Jul 07, 2001 at 09:10:46AM -0800, Richard Chan wrote:
+> Athlon oops saga continues - I consistently get Athlon kernels oopsing
+> during the boot up process either in rc.sysinit or loading of usb modules
+> (this is a RedHat system 7.1). These kernels can boot to a shell init=/bin/sh
+> but once I try to do stuff like inserting modules they oops left, right, and centre.
+> 
+What motherboard, how big is your PSU ?
+This code has the tendency to get full memory-bandwidth and it appears that
+some boards can't handle this....
 
-Jul  5 10:15:53 mackman vtund[4011]: Session
-mackman-vpn[64.169.117.25:2359] opened
-Jul  5 10:15:53 mackman vtund[4011]: Can't allocate tun device. File
-descriptor in bad state(77)
-Jul  5 10:15:53 mackman vtund[4011]: Session mackman-vpn closed
-Jul  5 10:16:04 mackman vtund[4014]: Session
-mackman-vpn[64.169.117.25:2360] opened
-Jul  5 10:16:04 mackman vtund[4014]: Can't allocate tun device. File
-descriptor in bad state(77)
-Jul  5 10:16:04 mackman vtund[4014]: Session mackman-vpn closed
 
-Eventually the client gives up.  Do you have any suggestions or know of
-any fixes?
-
-Thanks, Ryan Mack
-
+Greetings,
+   Arjan van de Ven
